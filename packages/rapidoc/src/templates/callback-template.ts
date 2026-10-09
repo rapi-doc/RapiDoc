@@ -1,10 +1,13 @@
-// @ts-nocheck
 /**
  * Renders OpenAPI callback requests and nested response definitions within an endpoint.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
+import type { RapiDocElement } from '~/types/element';
+import type { ResolvedCallbacks } from '~/types/spec';
 
-export default function callbackTemplate(callbacks) {
+export default function callbackTemplate(this: RapiDocElement, callbacks: ResolvedCallbacks): TemplateResult {
   return html`
     <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
     ${Object.entries(callbacks).map(
@@ -15,7 +18,7 @@ export default function callbackTemplate(callbacks) {
             (pathObj) => html`
               <div class="mono-font small-font-size" style="display:flex; margin-left:16px;">
                 <div style="width:100%">
-                  ${Object.entries(pathObj[1]).map(
+                  ${Object.entries(pathObj[1] as Record<string, OpenAPIV3_1.OperationObject>).map(
                     (method) => html`
                       <div>
                         <div style="margin-top:12px;">

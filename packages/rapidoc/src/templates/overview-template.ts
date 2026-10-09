@@ -1,8 +1,11 @@
-// @ts-nocheck
 /**
  * Renders the API specification overview header with metadata, description markdown, contact, license, and download links.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
+import type { RapiDocElement } from '~/types/element';
+import type { ResolvedTag } from '~/types/spec';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import Slugger from 'github-slugger';
@@ -17,7 +20,14 @@ function headingRenderer() {
   return renderer;
 }
 
-export default function overviewTemplate() {
+/** `this` of `overviewTemplate`: called by `<rapi-doc>` (via the focused/main-body templates) and by `<json-schema-viewer>`. */
+export type OverviewHost = Pick<RapiDocElement, 'renderStyle' | 'specUrl' | 'allowSpecFileDownload'> &
+  Partial<Pick<RapiDocElement, 'infoDescriptionHeadingsInNavBar'>> & {
+    /** Any resolved spec flavor: only `info` is read (absent while the spec is loading). */
+    resolvedSpec?: { info?: OpenAPIV3_1.InfoObject; tags: ResolvedTag[] } | null;
+  };
+
+export default function overviewTemplate(this: OverviewHost): TemplateResult {
   return html`
     <section
       id="overview"
@@ -84,8 +94,10 @@ export default function overviewTemplate() {
                           class="m-btn thin-border"
                           style="min-width:170px"
                           part="btn btn-outline"
-                          @click="${(e) => {
-                            downloadResource(this.specUrl, 'openapi-spec', e);
+                          @click="${(e: Event) => {
+                            // TODO(ts-migration): downloadResource only takes (url, fileName); the event argument is ignored
+                            // @ts-expect-error extra argument kept to leave the emitted code unchanged
+                            downloadResource(this.specUrl!, 'openapi-spec', e);
                           }}"
                         >
                           Download OpenAPI spec
@@ -96,8 +108,10 @@ export default function overviewTemplate() {
                                 class="m-btn thin-border"
                                 style="width:200px"
                                 part="btn btn-outline"
-                                @click="${(e) => {
-                                  viewResource(this.specUrl, e);
+                                @click="${(e: Event) => {
+                                  // TODO(ts-migration): viewResource only takes (url); the event argument is ignored
+                                  // @ts-expect-error extra argument kept to leave the emitted code unchanged
+                                  viewResource(this.specUrl!, e);
                                 }}"
                               >
                                 View OpenAPI spec (New Tab)

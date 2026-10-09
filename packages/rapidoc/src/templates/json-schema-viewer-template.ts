@@ -1,8 +1,10 @@
-// @ts-nocheck
 /**
  * Renders standalone JSON Schema Viewer interface with navigation sidebar, schema AST tree, and sample example generator.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { JsonSchemaViewerElement } from '~/types/element';
+import type { JsonSchemaAndExamples } from '~/types/spec';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import { marked } from 'marked';
@@ -17,7 +19,7 @@ import SetTheme from '~/utils/theme';
 import { isValidHexColor } from '~/utils/color-utils';
 
 // Json Schema Nav Template
-function jsonSchemaNavTemplate() {
+function jsonSchemaNavTemplate(this: JsonSchemaViewerElement): TemplateResult {
   return html`
     <nav class="nav-bar" part="section-navbar">
       <slot name="nav-logo" class="logo"></slot>
@@ -36,13 +38,13 @@ function jsonSchemaNavTemplate() {
             <div class="nav-bar-search-icon" @click="${this.onSearchChange}">&#x21a9;</div>
           </div>
         </div>
-        ${this.resolvedSpec.schemaAndExamples.map(
+        ${this.resolvedSpec!.schemaAndExamples.map(
           (v) =>
             html` <div
               class="nav-bar-path"
               data-content-id="${v.elementId}"
               id="link-${v.elementId}"
-              @click="${(e) => {
+              @click="${(e: Event) => {
                 this.scrollToEventTarget(e, false);
               }}"
             >
@@ -55,10 +57,13 @@ function jsonSchemaNavTemplate() {
 }
 
 // Json Schema Body Template
-function jsonSchemaBodyTemplate() {
+/** `description` is read by the template but is not part of the resolved schema type. */
+type SchemaBody = JsonSchemaAndExamples & { description?: string };
+
+function jsonSchemaBodyTemplate(this: JsonSchemaViewerElement): TemplateResult {
   return html` ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
     <div style="font-size:var(--font-size-regular);">
-      ${this.resolvedSpec.schemaAndExamples.map((jSchemaBody) => {
+      ${this.resolvedSpec!.schemaAndExamples.map((jSchemaBody: SchemaBody) => {
         const examplesObj = generateExample(
           jSchemaBody.schema,
           'json',
@@ -97,7 +102,7 @@ function jsonSchemaBodyTemplate() {
             >
               ${
                 examplesObj.length > 1
-                  ? html`<select style="min-width:100px; max-width:100%" @change="${(e) => this.onSelectExample(e, jSchemaBody)}">
+                  ? html`<select style="min-width:100px; max-width:100%" @change="${(e: Event) => this.onSelectExample(e, jSchemaBody)}">
                       ${examplesObj.map(
                         (v) =>
                           html` <option value="${v.exampleId}" ?selected=${v.exampleId === jSchemaBody.selectedExample}>
@@ -126,22 +131,22 @@ function jsonSchemaBodyTemplate() {
 }
 
 // Json Schema Root Template
-export default function jsonSchemaViewerTemplate(isMini = false) {
+export default function jsonSchemaViewerTemplate(this: JsonSchemaViewerElement, isMini = false): TemplateResult | string {
   // export default function jsonSchemaViewerTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
   const newTheme = {
-    bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
-    fg1: isValidHexColor(this.textColor) ? this.textColor : '',
-    headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
-    primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
-    navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
-    navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
-    navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
-    navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
-    navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
-    navAccenttextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : '',
+    bg1: isValidHexColor(this.bgColor!) ? this.bgColor : '',
+    fg1: isValidHexColor(this.textColor!) ? this.textColor : '',
+    headerColor: isValidHexColor(this.headerColor!) ? this.headerColor : '',
+    primaryColor: isValidHexColor(this.primaryColor!) ? this.primaryColor : '',
+    navBgColor: isValidHexColor(this.navBgColor!) ? this.navBgColor : '',
+    navTextColor: isValidHexColor(this.navTextColor!) ? this.navTextColor : '',
+    navHoverBgColor: isValidHexColor(this.navHoverBgColor!) ? this.navHoverBgColor : '',
+    navHoverTextColor: isValidHexColor(this.navHoverTextColor!) ? this.navHoverTextColor : '',
+    navAccentColor: isValidHexColor(this.navAccentColor!) ? this.navAccentColor : '',
+    navAccenttextColor: isValidHexColor(this.navAccentTextColor!) ? this.navAccentTextColor : '',
   };
 
   if (this.resolvedSpec.specLoadError) {
@@ -151,7 +156,7 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
         <div
           style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"
         >
-          ${this.resolvedSpec.info.description}
+          ${this.resolvedSpec.info!.description}
         </div>
       `;
     }
@@ -163,8 +168,8 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
       <main class="main-content regular-font" part="section-main-content">
         <slot></slot>
         <div style="margin:24px; text-align: center;">
-          <h1 style="color: var(--red)">${this.resolvedSpec.info.title}</h1>
-          <div style="font-family:var(--font-mono)">${this.resolvedSpec.info.description}</div>
+          <h1 style="color: var(--red)">${this.resolvedSpec.info!.title}</h1>
+          <div style="font-family:var(--font-mono)">${this.resolvedSpec.info!.description}</div>
         </div>
       </main>
     `;
@@ -204,7 +209,7 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
                     : html`
                         <div
                           class="operations-root"
-                          @click="${(e) => {
+                          @click="${(e: Event) => {
                             this.handleHref(e);
                           }}"
                         >

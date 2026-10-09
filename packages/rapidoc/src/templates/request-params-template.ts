@@ -1,8 +1,8 @@
-// @ts-nocheck
 /**
  * Renders path, query, header, and cookie parameter inputs, schema tree previews, constraints, and clickable example badges for <api-request>.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { live } from 'lit/directives/live.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
@@ -18,8 +18,14 @@ import {
 } from '~/utils/schema-utils';
 import '~/components/schema-tree';
 import '~/components/tag-input';
+import type { ApiRequestElement } from '~/types/element';
+import type { NormalizedExample, TypeInfo } from '~/types/schema';
+import type { ResolvedParameter } from '~/types/spec';
 
-export function renderExample(example, paramType, paramName) {
+/** Parameter as read by this template: `name` is always present and `x-fill-example` is a vendor extension. */
+type RequestParam = ResolvedParameter & { name: string; 'x-fill-example'?: string };
+
+export function renderExample(this: ApiRequestElement, example: NormalizedExample, paramType: string, paramName: string): TemplateResult {
   return html`
     ${paramType === 'array' ? '[' : ''}
     <a
@@ -37,10 +43,11 @@ export function renderExample(example, paramType, paramName) {
           ? example.value?.join('~|~')
           : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''
       }"
-      @click="${(e) => {
-        const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
+      @click="${(e: Event) => {
+        const target = e.target as HTMLElement;
+        const inputEl = target.closest('table')!.querySelector(`[data-pname="${paramName}"]`) as (HTMLElement & { value: unknown }) | null;
         if (inputEl) {
-          inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
+          inputEl.value = target.dataset.exampleType === 'array' ? target.dataset.example!.split('~|~') : target.dataset.example;
         }
       }}"
     >
@@ -50,23 +57,39 @@ export function renderExample(example, paramType, paramName) {
   `;
 }
 
-export function renderShortFormatExamples(examples, paramType, paramName) {
+export function renderShortFormatExamples(
+  this: ApiRequestElement,
+  examples: NormalizedExample[],
+  paramType: string,
+  paramName: string
+): TemplateResult {
   return html`${examples.map((x, i) => html` ${i === 0 ? '' : '┃'} ${renderExample.call(this, x, paramType, paramName)}`)}`;
 }
 
-export function renderLongFormatExamples(exampleList, paramType, paramName) {
+export function renderLongFormatExamples(
+  this: ApiRequestElement,
+  exampleList: NormalizedExample[],
+  paramType: string,
+  paramName: string
+): TemplateResult {
   return html` <ul style="list-style-type: disclosure-closed;">
     ${exampleList.map(
       (v) =>
         html`<li>
-          ${renderExample.call(this, v, paramType, paramName)} ${v.summary?.length > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ''}
-          ${v.description?.length > 0 ? html`<p>${unsafeHTML(sanitizeHTML(marked(v.description)))}</p>` : ''}
+          ${renderExample.call(this, v, paramType, paramName)}
+          ${(v.summary?.length as number) > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ''}
+          ${(v.description?.length as number) > 0 ? html`<p>${unsafeHTML(sanitizeHTML(marked(v.description!)))}</p>` : ''}
         </li>`
     )}
   </ul>`;
 }
 
-export function exampleListTemplate(paramName, paramType, exampleList = []) {
+export function exampleListTemplate(
+  this: ApiRequestElement,
+  paramName: string,
+  paramType: string,
+  exampleList: NormalizedExample[] = []
+): TemplateResult {
   return html` ${
     exampleList.length > 0
       ? html`<span style="font-weight:bold">Examples: </span> ${
@@ -78,8 +101,8 @@ export function exampleListTemplate(paramName, paramType, exampleList = []) {
   }`;
 }
 
-export function inputParametersTemplate(paramType) {
-  const filteredParams = this.parameters ? this.parameters.filter((param) => param.in === paramType) : [];
+export function inputParametersTemplate(this: ApiRequestElement, paramType: string): TemplateResult | '' {
+  const filteredParams = this.parameters ? (this.parameters as RequestParam[]).filter((param) => param.in === paramType) : [];
   if (filteredParams.length === 0) {
     return '';
   }
@@ -94,9 +117,9 @@ export function inputParametersTemplate(paramType) {
     title = 'COOKIES';
   }
 
-  const tableRows = [];
+  const tableRows: TemplateResult[] = [];
   for (const param of filteredParams) {
-    const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param);
+    const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param as Parameters<typeof getSchemaFromParam>[0]);
     if (!declaredParamSchema) {
       continue;
     }
@@ -128,7 +151,8 @@ export function inputParametersTemplate(paramType) {
         standardizeExample(mimeTypeElem?.example) ||
         standardizeExample(mimeTypeElem?.examples) ||
         standardizeExample(paramSchema.examples) ||
-        standardizeExample(paramSchema.example),
+        // TODO(ts-migration): `TypeInfo` has no `example` (only `examples`), so this is always undefined.
+        standardizeExample((paramSchema as TypeInfo & { example?: unknown }).example),
       paramSchema.type
     );
     if (!example.exampleVal && (paramSchema.type === 'object' || paramSchema.type.split('┃').includes('object'))) {
@@ -142,6 +166,8 @@ export function inputParametersTemplate(paramType) {
           this.callback === 'true' || this.webhook === 'true' ? false : true,
           true,
           'text',
+          // TODO(ts-migration): generateExample takes 8 parameters; this call passes 9, so `true` lands in `outputType` and 'text' in `includeGeneratedExample`.
+          // @ts-expect-error extra argument
           false
         )[0]?.exampleValue || '';
     }
@@ -207,10 +233,11 @@ export function inputParametersTemplate(paramType) {
                           <div
                             part="tab-btn-row"
                             class="tab-buttons row"
-                            @click="${(e) => {
-                              if (e.target.tagName.toLowerCase() === 'button') {
+                            @click="${(e: Event) => {
+                              const target = e.target as HTMLElement;
+                              if (target.tagName.toLowerCase() === 'button') {
                                 const newState = { ...this.activeParameterSchemaTabs };
-                                newState[param.name] = e.target.dataset.tab;
+                                newState[param.name] = target.dataset.tab!;
                                 this.activeParameterSchemaTabs = newState;
                               }
                             }}"
@@ -263,9 +290,9 @@ export function inputParametersTemplate(paramType) {
                                     )
                               }"
                               style="resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                              @input=${(e) => {
+                              @input=${(e: Event) => {
                                 const requestPanelEl = this.getRequestPanel(e);
-                                this.liveCURLSyntaxUpdate(requestPanelEl);
+                                this.liveCURLSyntaxUpdate(requestPanelEl!);
                               }}
                             ></textarea>
                           </div>`}
@@ -311,9 +338,9 @@ export function inputParametersTemplate(paramType) {
                               ? ''
                               : live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')
                           }"
-                          @input=${(e) => {
+                          @input=${(e: Event) => {
                             const requestPanelEl = this.getRequestPanel(e);
-                            this.liveCURLSyntaxUpdate(requestPanelEl);
+                            this.liveCURLSyntaxUpdate(requestPanelEl!);
                           }}
                         />`
                 }
@@ -339,13 +366,15 @@ export function inputParametersTemplate(paramType) {
                             class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
                             data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                             data-enum="${v.trim()}"
-                            @click="${(e) => {
-                              const inputEl = e.target.closest('table').querySelector(`[data-pname="${param.name}"]`);
+                            @click="${(e: Event) => {
+                              const target = e.target as HTMLElement;
+                              const inputEl = target.closest('table')!.querySelector(`[data-pname="${param.name}"]`) as
+                                (HTMLElement & { value: unknown }) | null;
                               if (inputEl) {
-                                if (e.target.dataset.type === 'array') {
-                                  inputEl.value = [e.target.dataset.enum];
+                                if (target.dataset.type === 'array') {
+                                  inputEl.value = [target.dataset.enum];
                                 } else {
-                                  inputEl.value = e.target.dataset.enum;
+                                  inputEl.value = target.dataset.enum;
                                 }
                               }
                             }}"

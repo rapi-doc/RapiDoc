@@ -1,18 +1,53 @@
-// @ts-nocheck
 /**
  * Renders the authentication modal dialog supporting API Keys, HTTP Basic/Bearer, OAuth2 flows, and OpenID Connect.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import { marked } from 'marked';
+import type { AuthParams, PersistedApiKeys, SecuritySchemeHost } from '~/types/element';
+import type { ResolvedSecurityScheme, ResolvedSpec } from '~/types/spec';
 
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
 const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
 
 const localStorageKey = 'rapidoc';
 
-function toBase64(str) {
+/** OAuth2 flow object with the RapiDoc vendor extensions (`x-*`) read by `oAuthFlowTemplate`. */
+interface OAuthFlowObject {
+  authorizationUrl?: string;
+  tokenUrl?: string;
+  refreshUrl?: string;
+  scopes?: Record<string, string>;
+  'x-pkce-only'?: boolean;
+  'x-client-id'?: string;
+  'x-client-secret'?: string;
+  'x-default-scopes'?: string[];
+  'x-receive-token-in'?: string;
+  'x-receive-token-in-options'?: string[];
+  'x-authorize-params'?: AuthParams;
+  'x-token-params'?: AuthParams;
+}
+
+/** Security scheme as rendered in the authentication table: `flows` indexed by flow name, with the `x-*` vendor extensions. */
+type UiSecurityScheme = Omit<ResolvedSecurityScheme, 'flows' | 'type'> & {
+  type: string;
+  flows: Record<string, OAuthFlowObject>;
+  'x-client-id'?: string;
+  'x-client-secret'?: string;
+  'x-default-scopes'?: string[];
+  'x-receive-token-in'?: string;
+  'x-receive-token-in-options'?: string[];
+  'x-authorize-params'?: AuthParams;
+  'x-token-params'?: AuthParams;
+};
+
+/** Security scheme enriched with the scopes required by an operation (`pathSecurityTemplate`). */
+type PathSecurityScheme = ResolvedSecurityScheme & { scopes: string };
+
+function toBase64(str: string): string {
   try {
     const bytes = new TextEncoder().encode(str);
     let binary = '';
@@ -25,7 +60,7 @@ function toBase64(str) {
   }
 }
 
-function normalizeParams(params) {
+function normalizeParams(params?: AuthParams | URLSearchParams): URLSearchParams {
   const result = new URLSearchParams();
   if (!params) {
     return result;
@@ -71,8 +106,14 @@ function normalizeParams(params) {
   return result;
 }
 
-export function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
-  const securityObj = this.resolvedSpec.securitySchemes?.find((v) => v.securitySchemeId === securitySchemeId);
+export function applyApiKey(
+  this: SecuritySchemeHost,
+  securitySchemeId: string,
+  username = '',
+  password = '',
+  providedApikeyVal = ''
+): boolean {
+  const securityObj = (this.resolvedSpec as ResolvedSpec).securitySchemes?.find((v) => v.securitySchemeId === securitySchemeId);
   if (!securityObj) {
     return false;
   }
@@ -93,8 +134,8 @@ export function applyApiKey(securitySchemeId, username = '', password = '', prov
   return false;
 }
 
-export function onClearAllApiKeys() {
-  this.resolvedSpec.securitySchemes?.forEach((v) => {
+export function onClearAllApiKeys(this: SecuritySchemeHost): void {
+  (this.resolvedSpec as ResolvedSpec).securitySchemes?.forEach((v) => {
     v.user = '';
     v.password = '';
     v.value = '';
@@ -103,33 +144,33 @@ export function onClearAllApiKeys() {
   this.requestUpdate();
 }
 
-function getPersistedApiKeys() {
-  return JSON.parse(localStorage.getItem(localStorageKey)) || {};
+function getPersistedApiKeys(): PersistedApiKeys {
+  return JSON.parse(localStorage.getItem(localStorageKey)!) || {};
 }
 
-function setPersistedApiKeys(obj) {
+function setPersistedApiKeys(obj: PersistedApiKeys): void {
   localStorage.setItem(localStorageKey, JSON.stringify(obj));
 }
 
-export function recoverPersistedApiKeys() {
+export function recoverPersistedApiKeys(this: SecuritySchemeHost): void {
   const rapidocLs = getPersistedApiKeys.call(this);
   Object.values(rapidocLs).forEach((p) => {
     applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
   });
 }
 
-function onApiKeyChange(securitySchemeId) {
+function onApiKeyChange(this: SecuritySchemeHost, securitySchemeId: string): void {
   let apiKeyValue = '';
-  const securityObj = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === securitySchemeId);
+  const securityObj = (this.resolvedSpec as ResolvedSpec).securitySchemes.find((v) => v.securitySchemeId === securitySchemeId);
   if (securityObj) {
-    const trEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`);
+    const trEl = this.shadowRoot!.getElementById(`security-scheme-${securitySchemeId}`);
     if (trEl) {
       if (securityObj.type && securityObj.scheme && securityObj.type === 'http' && securityObj.scheme.toLowerCase() === 'basic') {
-        const userVal = trEl.querySelector('.api-key-user').value.trim();
-        const passwordVal = trEl.querySelector('.api-key-password').value.trim();
+        const userVal = trEl.querySelector<HTMLInputElement>('.api-key-user')!.value.trim();
+        const passwordVal = trEl.querySelector<HTMLInputElement>('.api-key-password')!.value.trim();
         applyApiKey.call(this, securitySchemeId, userVal, passwordVal);
       } else {
-        apiKeyValue = trEl.querySelector('.api-key-input').value.trim();
+        apiKeyValue = trEl.querySelector<HTMLInputElement>('.api-key-input')!.value.trim();
         applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
       }
       if (this.persistAuth === 'true') {
@@ -142,29 +183,30 @@ function onApiKeyChange(securitySchemeId) {
 }
 
 // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
-function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
-  const securityObj = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === securitySchemeId);
+function updateOAuthKey(this: SecuritySchemeHost, securitySchemeId: string, accessToken: string, tokenType = 'Bearer'): void {
+  const securityObj = (this.resolvedSpec as ResolvedSpec).securitySchemes.find((v) => v.securitySchemeId === securitySchemeId)!;
   securityObj.finalKeyValue = `${tokenType.toLowerCase() === 'bearer' ? 'Bearer' : tokenType.toLowerCase() === 'mac' ? 'MAC' : tokenType} ${accessToken}`;
   this.requestUpdate();
 }
 
 // Gets Access-Token in exchange of Authorization Code
 async function fetchAccessToken(
-  tokenUrl,
-  clientId,
-  clientSecret,
-  redirectUrl,
-  grantType,
-  authCode,
-  securitySchemeId,
-  authFlowDivEl,
+  this: SecuritySchemeHost,
+  tokenUrl: string,
+  clientId: string,
+  clientSecret: string,
+  redirectUrl: string,
+  grantType: string,
+  authCode: string | undefined,
+  securitySchemeId: string,
+  authFlowDivEl: HTMLElement | null | undefined,
   sendClientSecretIn = 'request-body',
-  scopes = null,
-  username = null,
-  password = null,
-  tokenParamsSpec = null
-) {
-  const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
+  scopes: string | null = null,
+  username: string | null = null,
+  password: string | null = null,
+  tokenParamsSpec: AuthParams = null
+): Promise<boolean | undefined> {
+  const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector<HTMLElement>('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
 
@@ -199,8 +241,8 @@ async function fetchAccessToken(
     }
   }
   if (grantType === 'password') {
-    urlFormParams.set('username', username);
-    urlFormParams.set('password', password);
+    urlFormParams.set('username', username!);
+    urlFormParams.set('password', password!);
   }
   if (scopes) {
     urlFormParams.set('scope', scopes);
@@ -260,18 +302,19 @@ async function fetchAccessToken(
 
 // Gets invoked when it receives the Authorization Code from the other window via message-event
 async function onWindowMessageEvent(
-  msgEvent,
-  winObj,
-  tokenUrl,
-  clientId,
-  clientSecret,
-  redirectUrl,
-  grantType,
-  sendClientSecretIn,
-  securitySchemeId,
-  authFlowDivEl,
-  tokenParamsSpec = null
-) {
+  this: SecuritySchemeHost,
+  msgEvent: MessageEvent,
+  winObj: Window,
+  tokenUrl: string,
+  clientId: string,
+  clientSecret: string,
+  redirectUrl: string,
+  grantType: string,
+  sendClientSecretIn: string,
+  securitySchemeId: string,
+  authFlowDivEl: HTMLElement,
+  tokenParamsSpec: AuthParams = null
+): Promise<void> {
   sessionStorage.removeItem('winMessageEventActive');
   winObj.close();
   if (msgEvent.data.fake) {
@@ -323,19 +366,34 @@ async function generateCodeChallenge() {
 }
 */
 
-async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e, authorizeParamsSpec = null, tokenParamsSpec = null) {
-  const authFlowDivEl = e.target.closest('.oauth-flow');
-  const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
-  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret')
-    ? authFlowDivEl.querySelector('.oauth-client-secret').value.trim()
+async function onInvokeOAuthFlow(
+  this: SecuritySchemeHost,
+  securitySchemeId: string,
+  flowType: string,
+  authUrl: string,
+  tokenUrl: string,
+  e: Event,
+  authorizeParamsSpec: AuthParams = null,
+  tokenParamsSpec: AuthParams = null
+): Promise<void> {
+  const authFlowDivEl = (e.target as HTMLElement).closest<HTMLElement>('.oauth-flow')!;
+  const clientId = authFlowDivEl.querySelector('.oauth-client-id')
+    ? authFlowDivEl.querySelector<HTMLInputElement>('.oauth-client-id')!.value.trim()
     : '';
-  const username = authFlowDivEl.querySelector('.api-key-user') ? authFlowDivEl.querySelector('.api-key-user').value.trim() : '';
-  const password = authFlowDivEl.querySelector('.api-key-password') ? authFlowDivEl.querySelector('.api-key-password').value.trim() : '';
+  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret')
+    ? authFlowDivEl.querySelector<HTMLInputElement>('.oauth-client-secret')!.value.trim()
+    : '';
+  const username = authFlowDivEl.querySelector('.api-key-user')
+    ? authFlowDivEl.querySelector<HTMLInputElement>('.api-key-user')!.value.trim()
+    : '';
+  const password = authFlowDivEl.querySelector('.api-key-password')
+    ? authFlowDivEl.querySelector<HTMLInputElement>('.api-key-password')!.value.trim()
+    : '';
   const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in')
-    ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim()
+    ? authFlowDivEl.querySelector<HTMLSelectElement>('.oauth-send-client-secret-in')!.value.trim()
     : 'request-body';
-  const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
-  const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
+  const checkedScopeEls = [...authFlowDivEl.querySelectorAll<HTMLInputElement>('.scope-checkbox:checked')];
+  const pkceCheckboxEl = authFlowDivEl.querySelector<HTMLInputElement>(`#${securitySchemeId}-pkce`);
   const state = `${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`;
   const nonce = `${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`;
   // const codeChallenge = await generateCodeChallenge(codeVerifier);
@@ -344,10 +402,10 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
   );
   let grantType = '';
   let responseType = '';
-  let newWindow;
+  let newWindow: Window | null;
 
   // clear previous error messages
-  const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-resp-display')];
+  const errEls = [...authFlowDivEl.parentNode!.querySelectorAll<HTMLElement>('.oauth-resp-display')];
   errEls.forEach((v) => {
     v.innerHTML = '';
   });
@@ -387,6 +445,8 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
       authCodeParams.set('code_challenge', codeChallenge);
       authCodeParams.set('code_challenge_method', 'S256');
     }
+    // TODO(ts-migration): URLSearchParams.set expects a string; the boolean is coerced to 'true' at runtime.
+    // @ts-expect-error boolean passed as string
     authCodeParams.set('show_dialog', true);
 
     const beforeAuthorizeEvent = new CustomEvent('before-authorize', {
@@ -408,6 +468,8 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
     authUrlObj.search = authCodeParams.toString();
     // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
     if (sessionStorage.getItem('winMessageEventActive') === 'true') {
+      // TODO(ts-migration): the second argument of window.postMessage is the target origin, but the element is passed.
+      // @ts-expect-error element passed as targetOrigin
       window.postMessage({ fake: true }, this);
     }
     setTimeout(() => {
@@ -422,7 +484,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
             onWindowMessageEvent.call(
               this,
               msgEvent,
-              newWindow,
+              newWindow!,
               tokenUrl,
               clientId,
               clientSecret,
@@ -479,32 +541,34 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 }
 
 function oAuthFlowTemplate(
-  flowName,
-  clientId,
-  clientSecret,
-  securitySchemeId,
-  authFlow,
-  defaultScopes = [],
+  this: SecuritySchemeHost,
+  flowName: string,
+  clientId: string,
+  clientSecret: string,
+  securitySchemeId: string,
+  authFlow: OAuthFlowObject,
+  defaultScopes: string[] = [],
   receiveTokenIn = 'request-body',
-  receiveTokenInOptions = undefined,
+  receiveTokenInOptions: string[] | undefined = undefined,
   allowTry = 'true',
-  authorizeParams = null,
-  tokenParams = null
-) {
+  authorizeParams: AuthParams = null,
+  tokenParams: AuthParams = null
+): TemplateResult {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
-  const isUrlAbsolute = (url) => url.indexOf('://') > 0 || url.indexOf('//') === 0;
+  const isUrlAbsolute = (url: string) => url.indexOf('://') > 0 || url.indexOf('//') === 0;
   /*
   Calculcate Relative URL based on the following logic
   IF this.selectedServer?.computedUrl ends with slash and the refreshUrl / tokenUrl / authorizationUrl do not start with slash
   THEN Relative URL is concatenate else use this.selectedServer?.computedUrl + refreshUrl / tokenUrl / authorizationUrl
   ELSE Relative URL is concatenate else use (origin of this.selectedServer?.computedUrl) + refreshUrl / tokenUrl / authorizationUrl
   */
-  const url = new URL(this.selectedServer?.computedUrl);
+  const url = new URL(this.selectedServer?.computedUrl as string);
   const originUrl = url.origin;
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     if (this.selectedServer?.computedUrl.trim().endsWith('/') && !refreshUrl.trim().startsWith('/')) {
-      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${tokenUrl.trim()}`;
+      // TODO(ts-migration): the refreshUrl is built from the tokenUrl (copy/paste of the tokenUrl branch).
+      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${tokenUrl!.trim()}`;
     } else {
       refreshUrl = `${originUrl}/${refreshUrl.replace(/^\//, '')}`;
     }
@@ -523,7 +587,7 @@ function oAuthFlowTemplate(
       authorizationUrl = `${originUrl}/${authorizationUrl.replace(/^\//, '')}`;
     }
   }
-  let flowNameDisplay;
+  let flowNameDisplay: string;
   if (flowName === 'authorizationCode') {
     flowNameDisplay = 'Authorization Code Flow';
   } else if (flowName === 'clientCredentials') {
@@ -681,13 +745,13 @@ function oAuthFlowTemplate(
                           ? html` <button
                               class="m-btn thin-border"
                               part="btn btn-outline"
-                              @click="${(e) => {
+                              @click="${(e: Event) => {
                                 onInvokeOAuthFlow.call(
                                   this,
                                   securitySchemeId,
                                   flowName,
-                                  authorizationUrl,
-                                  tokenUrl,
+                                  authorizationUrl!,
+                                  tokenUrl!,
                                   e,
                                   authorizeParams,
                                   tokenParams
@@ -708,8 +772,10 @@ function oAuthFlowTemplate(
   `;
 }
 
-function removeApiKey(securitySchemeId) {
-  const securityObj = this.resolvedSpec.securitySchemes?.find((v) => v.securitySchemeId === securitySchemeId);
+function removeApiKey(this: SecuritySchemeHost, securitySchemeId: string): void {
+  const securityObj = (this.resolvedSpec as ResolvedSpec).securitySchemes?.find(
+    (v) => v.securitySchemeId === securitySchemeId
+  ) as ResolvedSecurityScheme;
   securityObj.user = '';
   securityObj.password = '';
   securityObj.value = '';
@@ -722,13 +788,13 @@ function removeApiKey(securitySchemeId) {
   this.requestUpdate();
 }
 
-export default function securitySchemeTemplate(allowTry = 'true') {
+export default function securitySchemeTemplate(this: SecuritySchemeHost, allowTry = 'true'): TemplateResult | '' | undefined {
   if (!this.resolvedSpec) {
     return '';
   }
 
   console.log('allowTry: ', allowTry);
-  const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => v.finalKeyValue);
+  const providedApiKeys = (this.resolvedSpec as ResolvedSpec).securitySchemes?.filter((v) => v.finalKeyValue);
   if (!providedApiKeys) {
     return;
   }
@@ -762,9 +828,9 @@ export default function securitySchemeTemplate(allowTry = 'true') {
           : ''
       }
       ${
-        this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
+        (this.resolvedSpec as ResolvedSpec).securitySchemes && (this.resolvedSpec as ResolvedSpec).securitySchemes.length > 0
           ? html` <table role="presentation" id="auth-table" class="m-table padded-12" style="width:100%;">
-              ${this.resolvedSpec.securitySchemes
+              ${((this.resolvedSpec as ResolvedSpec).securitySchemes as unknown as UiSecurityScheme[])
                 .filter((v) => v.type)
                 .map(
                   (v) => html`
@@ -808,7 +874,9 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                                   class="m-btn thin-border"
                                                   style="margin-left:5px;"
                                                   part="btn btn-outline"
-                                                  @click="${(e) => {
+                                                  @click="${(e: Event) => {
+                                                    // TODO(ts-migration): onApiKeyChange takes 1 parameter, the event argument is ignored.
+                                                    // @ts-expect-error extra argument
                                                     onApiKeyChange.call(this, v.securitySchemeId, e);
                                                   }}"
                                                 >
@@ -852,7 +920,9 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                         />
                                         <button
                                           class="m-btn thin-border"
-                                          @click="${(e) => {
+                                          @click="${(e: Event) => {
+                                            // TODO(ts-migration): onApiKeyChange takes 1 parameter, the event argument is ignored.
+                                            // @ts-expect-error extra argument
                                             onApiKeyChange.call(this, v.securitySchemeId, e);
                                           }}"
                                           part="btn btn-outline"
@@ -885,7 +955,9 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                           class="m-btn thin-border"
                                           style="margin-left:5px;"
                                           part="btn btn-outline"
-                                          @click="${(e) => {
+                                          @click="${(e: Event) => {
+                                            // TODO(ts-migration): onApiKeyChange takes 1 parameter, the event argument is ignored.
+                                            // @ts-expect-error extra argument
                                             onApiKeyChange.call(this, v.securitySchemeId, e);
                                           }}"
                                         >
@@ -932,7 +1004,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
   `;
 }
 
-function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
+function renderSecuritySchemeDetail(andSecurityItem: PathSecurityScheme, isMultiple: boolean, j: number): TemplateResult {
   const scopeHtml = andSecurityItem.scopes
     ? html` <div>
         <b>Required scopes:</b><br />
@@ -966,8 +1038,11 @@ function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
   </div>`;
 }
 
-export function pathSecurityTemplate(pathSecurity) {
-  if (!this.resolvedSpec.securitySchemes || !Array.isArray(pathSecurity) || pathSecurity.length === 0) {
+export function pathSecurityTemplate(
+  this: SecuritySchemeHost,
+  pathSecurity?: OpenAPIV3_1.SecurityRequirementObject[]
+): TemplateResult | '' {
+  if (!(this.resolvedSpec as ResolvedSpec).securitySchemes || !Array.isArray(pathSecurity) || pathSecurity.length === 0) {
     return '';
   }
 
@@ -978,13 +1053,13 @@ export function pathSecurityTemplate(pathSecurity) {
     return '';
   }
 
-  const orSecurityKeys = [];
+  const orSecurityKeys: { securityTypes: string | undefined; securityDefs: PathSecurityScheme[] }[] = [];
   activeSecurity.forEach((pSecurity) => {
-    const andSecurityKeys = [];
-    const andKeyTypes = [];
+    const andSecurityKeys: PathSecurityScheme[] = [];
+    const andKeyTypes: (string | undefined)[] = [];
     Object.keys(pSecurity).forEach((pathSecurityKey) => {
       let pathScopes = '';
-      const s = this.resolvedSpec.securitySchemes.find((ss) => ss.securitySchemeId === pathSecurityKey);
+      const s = (this.resolvedSpec as ResolvedSpec).securitySchemes.find((ss) => ss.securitySchemeId === pathSecurityKey);
       if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
         pathScopes = pSecurity[pathSecurityKey].join(', ');
       }

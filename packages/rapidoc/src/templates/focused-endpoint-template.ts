@@ -1,8 +1,10 @@
-// @ts-nocheck
 /**
  * Renders the single active API operation, overview, or component in focused (3-column) rendering mode.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { RapiDocSpecElement } from '~/types/element';
+import type { ResolvedPath, ResolvedTag } from '~/types/spec';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import { marked } from 'marked';
@@ -16,7 +18,7 @@ import serverTemplate from '~/templates/server-template';
 import securitySchemeTemplate from '~/templates/security-scheme-template';
 import { expandCollapseNavBarTag } from '~/templates/navbar-template';
 
-function headingRenderer(tagElementId) {
+function headingRenderer(tagElementId: string) {
   const renderer = new marked.Renderer();
   const slugger = new Slugger();
   // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
@@ -24,11 +26,11 @@ function headingRenderer(tagElementId) {
   return renderer;
 }
 
-function wrapFocusedTemplate(templateToWrap) {
+function wrapFocusedTemplate(templateToWrap: TemplateResult | string): TemplateResult {
   return html`<div class="regular-font section-gap--focused-mode" part="section-operations-in-tag">${templateToWrap}</div>`;
 }
 
-function defaultContentTemplate() {
+function defaultContentTemplate(this: RapiDocSpecElement): TemplateResult {
   // In focused mode default content is overview or first path
   if (this.showInfo === 'true') {
     return wrapFocusedTemplate(overviewTemplate.call(this));
@@ -40,7 +42,7 @@ function defaultContentTemplate() {
     : wrapFocusedTemplate('');
 }
 
-function focusedTagBodyTemplate(tag) {
+function focusedTagBodyTemplate(this: RapiDocSpecElement, tag: ResolvedTag): TemplateResult {
   return html`
     <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
     ${
@@ -60,14 +62,14 @@ function focusedTagBodyTemplate(tag) {
   `;
 }
 
-export default function focusedEndpointTemplate() {
+export default function focusedEndpointTemplate(this: RapiDocSpecElement): TemplateResult | string | undefined {
   if (!this.focusedElementId || !this.resolvedSpec) {
     return;
   }
   const focusElId = this.focusedElementId;
-  let selectedPathObj = null;
-  let selectedTagObj = null;
-  let focusedTemplate;
+  let selectedPathObj: ResolvedPath | null | undefined = null;
+  let selectedTagObj: ResolvedTag | null | undefined = null;
+  let focusedTemplate: TemplateResult | string | undefined;
   let i = 0;
   if (focusElId.startsWith('overview') && this.showInfo === 'true') {
     focusedTemplate = overviewTemplate.call(this);
@@ -97,11 +99,11 @@ export default function focusedEndpointTemplate() {
     }
     if (selectedPathObj) {
       // In focused mode we must expand the nav-bar tag element if it is collapsed
-      const newNavEl = this.shadowRoot.getElementById(`link-${focusElId}`);
+      const newNavEl = this.shadowRoot!.getElementById(`link-${focusElId}`);
       expandCollapseNavBarTag(newNavEl, 'expand');
       focusedTemplate = wrapFocusedTemplate.call(
         this,
-        expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name || '', selectedTagObj.description || '')
+        expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj!.name || '', selectedTagObj!.description || '')
       );
     } else {
       // if focusedElementId is not found then show the default content (overview or first-path)

@@ -1,8 +1,8 @@
-// @ts-nocheck
 /**
  * Renders request body form inputs, JSON/XML textareas, MIME type dropdown, and schema preview panels for <api-request>.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { live } from 'lit/directives/live.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -14,8 +14,23 @@ import '~/components/schema-tree';
 import '~/components/schema-table';
 import '~/components/tag-input';
 import { exampleListTemplate } from '~/templates/request-params-template';
+import type { ApiRequestElement } from '~/types/element';
+import type { ExamplesMap, GeneratedExample, Schema, TypeInfo } from '~/types/schema';
 
-export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) {
+/** One media type of the request body, flattened by `requestBodyTemplate`. */
+interface RequestBodyType {
+  mimeType: string;
+  schema?: Schema;
+  example?: unknown;
+  examples?: ExamplesMap;
+}
+
+export function formDataParamAsObjectTemplate(
+  this: ApiRequestElement,
+  fieldName: string,
+  fieldSchema: Schema,
+  mimeType: string
+): TemplateResult {
   // This template is used when form-data param should be send as a object (application/json, application/xml)
   const formdataPartSchema = schemaToAST(fieldSchema);
   const formdataPartExample = generateExample(
@@ -39,15 +54,16 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
         <div
           class="row"
           style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;"
-          @click="${(e) => {
-            if (e.target.classList.contains('v-tab-btn')) {
-              const { tab } = e.target.dataset;
+          @click="${(e: Event) => {
+            const target = e.target as HTMLElement;
+            if (target.classList.contains('v-tab-btn')) {
+              const { tab } = target.dataset;
               if (tab) {
-                const tabPanelEl = e.target.closest('.tab-panel');
-                const selectedTabBtnEl = tabPanelEl.querySelector(`.v-tab-btn[data-tab="${tab}"]`);
+                const tabPanelEl = target.closest('.tab-panel')!;
+                const selectedTabBtnEl = tabPanelEl.querySelector(`.v-tab-btn[data-tab="${tab}"]`)!;
                 const otherTabBtnEl = [...tabPanelEl.querySelectorAll(`.v-tab-btn:not([data-tab="${tab}"])`)];
-                const selectedTabContentEl = tabPanelEl.querySelector(`.tab-content[data-tab="${tab}"]`);
-                const otherTabContentEl = [...tabPanelEl.querySelectorAll(`.tab-content:not([data-tab="${tab}"])`)];
+                const selectedTabContentEl = tabPanelEl.querySelector<HTMLElement>(`.tab-content[data-tab="${tab}"]`)!;
+                const otherTabContentEl = [...tabPanelEl.querySelectorAll<HTMLElement>(`.tab-content:not([data-tab="${tab}"])`)];
                 selectedTabBtnEl.classList.add('active');
                 selectedTabContentEl.style.display = 'block';
                 otherTabBtnEl.forEach((el) => {
@@ -58,8 +74,8 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
                 });
               }
             }
-            if (e.target.tagName.toLowerCase() === 'button') {
-              this.activeSchemaTab = e.target.dataset.tab;
+            if (target.tagName.toLowerCase() === 'button') {
+              this.activeSchemaTab = target.dataset.tab;
             }
           }}"
         >
@@ -101,8 +117,8 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
   `;
 }
 
-export function formDataTemplate(schema, mimeType, exampleValue = '') {
-  const formDataTableRows = [];
+export function formDataTemplate(this: ApiRequestElement, schema: Schema, mimeType: string, exampleValue: unknown = ''): TemplateResult {
+  const formDataTableRows: TemplateResult[] = [];
   if (schema.properties) {
     for (const fieldName in schema.properties) {
       const fieldSchema = schema.properties[fieldName];
@@ -111,9 +127,10 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
       }
       const fieldExamples = fieldSchema.examples || fieldSchema.example || '';
       const fieldType = fieldSchema.type;
-      const paramSchema = getTypeInfo(fieldSchema);
+      // TODO(ts-migration): `TypeInfo` has no `example` (only `examples`), so `paramSchema.example` is always undefined.
+      const paramSchema = getTypeInfo(fieldSchema) as TypeInfo & { example?: unknown };
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
-      const example = normalizeExamples(paramSchema.examples || paramSchema.example, paramSchema.type);
+      const example = normalizeExamples((paramSchema.examples || paramSchema.example) as ExamplesMap, paramSchema.type);
       formDataTableRows.push(
         html` <tr title="${fieldSchema.deprecated ? 'Deprecated' : ''}">
             <td style="width:${labelColWidth}; min-width:100px;">
@@ -230,13 +247,15 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                       class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
                                       data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                                       data-enum="${v.trim()}"
-                                      @click="${(e) => {
-                                        const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
+                                      @click="${(e: Event) => {
+                                        const target = e.target as HTMLElement;
+                                        const inputEl = target.closest('table')!.querySelector(`[data-pname="${fieldName}"]`) as
+                                          (HTMLElement & { value: unknown }) | null;
                                         if (inputEl) {
-                                          if (e.target.dataset.type === 'array') {
-                                            inputEl.value = [e.target.dataset.enum];
+                                          if (target.dataset.type === 'array') {
+                                            inputEl.value = [target.dataset.enum];
                                           } else {
-                                            inputEl.value = e.target.dataset.enum;
+                                            inputEl.value = target.dataset.enum;
                                           }
                                         }
                                       }}"
@@ -287,7 +306,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
   `;
 }
 
-export default function requestBodyTemplate() {
+export default function requestBodyTemplate(this: ApiRequestElement): TemplateResult | '' {
   if (!this.request_body) {
     return '';
   }
@@ -296,20 +315,20 @@ export default function requestBodyTemplate() {
   }
 
   // Variable to store partial HTMLs
-  let reqBodyTypeSelectorHtml = '';
-  let reqBodyFileInputHtml = '';
-  let reqBodyFormHtml = '';
-  let reqBodySchemaHtml = '';
-  let reqBodyExampleHtml = '';
+  let reqBodyTypeSelectorHtml: TemplateResult | '' = '';
+  let reqBodyFileInputHtml: TemplateResult | '' = '';
+  let reqBodyFormHtml: TemplateResult | '' = '';
+  let reqBodySchemaHtml: TemplateResult | '' = '';
+  let reqBodyExampleHtml: TemplateResult | '' = '';
 
-  const requestBodyTypes = [];
+  const requestBodyTypes: RequestBodyType[] = [];
   const { content } = this.request_body;
   for (const mimeType in content) {
     requestBodyTypes.push({
       mimeType,
-      schema: content[mimeType].schema,
+      schema: content[mimeType].schema as Schema | undefined,
       example: content[mimeType].example,
-      examples: content[mimeType].examples,
+      examples: content[mimeType].examples as ExamplesMap | undefined,
     });
     if (!this.selectedRequestBodyType) {
       this.selectedRequestBodyType = mimeType;
@@ -320,7 +339,7 @@ export default function requestBodyTemplate() {
     requestBodyTypes.length === 1
       ? ''
       : html`
-          <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change="${(e) => this.onMimeTypeChange(e)}">
+          <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change="${(e: Event) => this.onMimeTypeChange(e)}">
             ${requestBodyTypes.map(
               (reqBody) => html`
                 <option value="${reqBody.mimeType}" ?selected="${reqBody.mimeType === this.selectedRequestBodyType}">
@@ -334,7 +353,7 @@ export default function requestBodyTemplate() {
   // For Loop - Main
   requestBodyTypes.forEach((reqBody) => {
     let schemaAsObj;
-    let reqBodyExamples = [];
+    let reqBodyExamples: GeneratedExample[] = [];
 
     if (
       this.selectedRequestBodyType.includes('json') ||
@@ -364,7 +383,10 @@ export default function requestBodyTemplate() {
               reqBodyExamples.length === 1
                 ? ''
                 : html`
-                    <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change="${(e) => this.onSelectExample(e)}">
+                    <select
+                      style="min-width:100px; max-width:100%;  margin-bottom:-1px;"
+                      @change="${(e: Event) => this.onSelectExample(e)}"
+                    >
                       ${reqBodyExamples.map(
                         (v) =>
                           html`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample}>
@@ -415,11 +437,11 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                             : JSON.stringify(v.exampleValue, null, 2)
                           : ''
                       }"
-                      @input=${(e) => {
+                      @input=${(e: Event) => {
                         const requestPanelEl = this.getRequestPanel(e);
-                        this.liveCURLSyntaxUpdate(requestPanelEl);
+                        this.liveCURLSyntaxUpdate(requestPanelEl!);
                       }}
-                      @keydown=${(e) => {
+                      @keydown=${(e: KeyboardEvent) => {
                         if ((e.keyCode === 10 || e.keyCode === 13) && e.ctrlKey) {
                           return this.onTryClick(e);
                         }
@@ -535,9 +557,10 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
               <div
                 part="tab-btn-row"
                 class="tab-buttons row"
-                @click="${(e) => {
-                  if (e.target.tagName.toLowerCase() === 'button') {
-                    this.activeSchemaTab = e.target.dataset.tab;
+                @click="${(e: Event) => {
+                  const target = e.target as HTMLElement;
+                  if (target.tagName.toLowerCase() === 'button') {
+                    this.activeSchemaTab = target.dataset.tab;
                   }
                 }}"
               >

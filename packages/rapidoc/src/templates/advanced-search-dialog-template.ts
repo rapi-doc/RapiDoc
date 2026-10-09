@@ -1,13 +1,15 @@
-// @ts-nocheck
 /**
  * Renders the modal search dialog for full-text search across paths, operation summaries, descriptions, and tags.
  */
 import { html } from 'lit';
-export default function advancedSearchDialogTemplate() {
+import type { TemplateResult } from 'lit';
+import type { RapiDocElement } from '~/types/element';
+
+export default function advancedSearchDialogTemplate(this: RapiDocElement): TemplateResult {
   return html`<dialog id="advanced-search-dialog" class="dialog-box">
     <header class="dialog-box-header">
       <span class="dialog-box-title">Search</span>
-      <button type="button" @click="${(e) => this.onAdvancedSearchClose(e)}">&times;</button>
+      <button type="button" @click="${(e: Event) => this.onAdvancedSearchClose(e)}">&times;</button>
     </header>
     <div class="dialog-box-content">
       <span class="advanced-search-options">
@@ -18,7 +20,7 @@ export default function advancedSearchDialogTemplate() {
           part="textbox textbox-search-dialog"
           placeholder="search text..."
           spellcheck="false"
-          @keyup="${(e) => this.onAdvancedSearch(e, 400)}"
+          @keyup="${(e: Event) => this.onAdvancedSearch(e, 400)}"
         />
         <div style="display:flex; gap:16px; flex-wrap:wrap; margin:8px 0 24px;">
           <div>
@@ -28,7 +30,7 @@ export default function advancedSearchDialogTemplate() {
               part="checkbox checkbox-search-dialog"
               id="search-api-path"
               checked
-              @change="${(e) => this.onAdvancedSearch(e, 0)}"
+              @change="${(e: Event) => this.onAdvancedSearch(e, 0)}"
             />
             <label for="search-api-path" style="cursor:pointer;"> API Path </label>
           </div>
@@ -39,7 +41,7 @@ export default function advancedSearchDialogTemplate() {
               part="checkbox checkbox-search-dialog"
               id="search-api-descr"
               checked
-              @change="${(e) => this.onAdvancedSearch(e, 0)}"
+              @change="${(e: Event) => this.onAdvancedSearch(e, 0)}"
             />
             <label style="cursor:pointer;" for="search-api-descr"> API Description </label>
           </div>
@@ -49,7 +51,7 @@ export default function advancedSearchDialogTemplate() {
               type="checkbox"
               part="checkbox checkbox-search-dialog"
               id="search-api-params"
-              @change="${(e) => this.onAdvancedSearch(e, 0)}"
+              @change="${(e: Event) => this.onAdvancedSearch(e, 0)}"
             />
             <label style="cursor:pointer;" for="search-api-params"> API Parameters </label>
           </div>
@@ -59,7 +61,7 @@ export default function advancedSearchDialogTemplate() {
               type="checkbox"
               part="checkbox checkbox-search-dialog"
               id="search-api-request-body"
-              @change="${(e) => this.onAdvancedSearch(e, 0)}"
+              @change="${(e: Event) => this.onAdvancedSearch(e, 0)}"
             />
             <label style="cursor:pointer;" for="search-api-request-body"> Request Body Parameters </label>
           </div>
@@ -69,7 +71,7 @@ export default function advancedSearchDialogTemplate() {
               type="checkbox"
               part="checkbox checkbox-search-dialog"
               id="search-api-resp-descr"
-              @change="${(e) => this.onAdvancedSearch(e, 0)}"
+              @change="${(e: Event) => this.onAdvancedSearch(e, 0)}"
             />
             <label style="cursor:pointer;" for="search-api-resp-descr"> Response Description </label>
           </div>
@@ -84,9 +86,9 @@ export default function advancedSearchDialogTemplate() {
             }"
             data-content-id="${path.elementId}"
             tabindex="0"
-            @click="${(e) => {
+            @click="${(e: Event) => {
               this.searchVal = ''; // clear quick filter if applied
-              this.shadowRoot.getElementById('advanced-search-dialog').close();
+              (this.shadowRoot!.getElementById('advanced-search-dialog') as HTMLDialogElement).close();
               this.requestUpdate();
               this.scrollToEventTarget(e, true);
             }}"

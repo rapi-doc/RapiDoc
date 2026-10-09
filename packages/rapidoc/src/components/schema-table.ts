@@ -1,13 +1,15 @@
-// @ts-nocheck
 import { LitElement, html, css } from 'lit';
+import type { PropertyValues, TemplateResult } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from 'marked';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import FontStyles from '~/styles/font-styles';
 import SchemaStyles from '~/styles/schema-styles';
 import CustomStyles from '~/styles/custom-styles';
+import type { RapiDocConfig } from '~/types/element';
+import type { SchemaAST } from '~/types/schema';
 
-function hasMultilineDescription(desc) {
+function hasMultilineDescription(desc?: string | null) {
   if (!desc || typeof desc !== 'string') {
     return false;
   }
@@ -19,7 +21,15 @@ function hasMultilineDescription(desc) {
 }
 
 export default class SchemaTable extends LitElement {
-  static get properties() {
+  config?: RapiDocConfig;
+  schemaExpandLevel?: number;
+  schemaDescriptionExpanded?: string;
+  allowSchemaDescriptionExpandToggle?: string;
+  schemaHideReadOnly?: string;
+  schemaHideWriteOnly?: string;
+  data?: SchemaAST | null;
+
+  static override get properties() {
     return {
       config: { type: Object },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
@@ -31,7 +41,7 @@ export default class SchemaTable extends LitElement {
     };
   }
 
-  willUpdate(changedProperties) {
+  override willUpdate(changedProperties: PropertyValues) {
     super.willUpdate?.(changedProperties);
     if (this.config) {
       this.schemaExpandLevel ??= this.config.schemaExpandLevel;
@@ -54,7 +64,7 @@ export default class SchemaTable extends LitElement {
     }
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       FontStyles,
       SchemaStyles,
@@ -131,7 +141,7 @@ export default class SchemaTable extends LitElement {
     ];
   }
 
-  render() {
+  override render() {
     if (!this.data) {
       return '';
     }
@@ -142,7 +152,7 @@ export default class SchemaTable extends LitElement {
     return html`
       <div
         class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}"
-        @click="${(e) => this.handleAllEvents(e)}"
+        @click="${(e: Event) => this.handleAllEvents(e)}"
       >
         <div class="toolbar">
           <div class="toolbar-item schema-root-type ${rootType} ">${rootType}</div>
@@ -170,7 +180,7 @@ export default class SchemaTable extends LitElement {
     `;
   }
 
-  renderAST(node, parentType = '', schemaLevel = 0, indentLevel = 0) {
+  renderAST(node: SchemaAST | null | undefined, parentType = '', schemaLevel = 0, indentLevel = 0): TemplateResult | string {
     if (!node) {
       return '';
     }
@@ -183,8 +193,8 @@ export default class SchemaTable extends LitElement {
     }
 
     const leftPadding = 16 * (indentLevel + 1);
-    const isExpanded = schemaLevel < this.schemaExpandLevel;
-    const deprecatedIcon = node.deprecated
+    const isExpanded = schemaLevel < this.schemaExpandLevel!;
+    const deprecatedIcon = (node as { deprecated?: boolean }).deprecated
       ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
           <path d="M2 2L8 8M2 8L8 2" />
         </svg>`
@@ -217,7 +227,7 @@ export default class SchemaTable extends LitElement {
       }
 
       if (items.kind === 'primitive') {
-        const itemType = items.format || items.contentMediaType || items.type || 'string';
+        const itemType = (items.format || items.contentMediaType || items.type || 'string') as string;
         const dataTypeCss = itemType
           .replace(/┃.*/g, '')
           .replace(/[^a-zA-Z0-9+]/g, '')
@@ -434,7 +444,7 @@ export default class SchemaTable extends LitElement {
 
     // 4. Primitive kind
     if (node.kind === 'primitive') {
-      const dataTypeCss = (node.type || '')
+      const dataTypeCss = ((node.type || '') as string)
         .replace(/┃.*/g, '')
         .replace(/[^a-zA-Z0-9+]/g, '')
         .substring(0, 4)
@@ -500,13 +510,13 @@ export default class SchemaTable extends LitElement {
     return '';
   }
 
-  handleAllEvents(e) {
-    if (e.target.classList.contains('obj-toggle')) {
+  handleAllEvents(e: Event) {
+    if ((e.target as HTMLElement).classList.contains('obj-toggle')) {
       this.toggleObjectExpand(e);
-    } else if (e.target.classList.contains('schema-multiline-toggle')) {
+    } else if ((e.target as HTMLElement).classList.contains('schema-multiline-toggle')) {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
-    } else if (e.target.classList.contains('descr-expand-toggle')) {
-      const trEl = e.target.closest('.tr');
+    } else if ((e.target as HTMLElement).classList.contains('descr-expand-toggle')) {
+      const trEl = (e.target as HTMLElement).closest<HTMLElement>('.tr');
       if (trEl) {
         trEl.classList.toggle('expanded-descr');
         if (trEl.classList.contains('expanded-descr')) {
@@ -518,8 +528,8 @@ export default class SchemaTable extends LitElement {
     }
   }
 
-  toggleObjectExpand(e) {
-    const rowEl = e.target.closest('.tr');
+  toggleObjectExpand(e: Event) {
+    const rowEl = (e.target as HTMLElement).closest('.tr');
     if (!rowEl) {
       return;
     }

@@ -1,5 +1,5 @@
-// @ts-nocheck
 import { css, LitElement, unsafeCSS } from 'lit';
+import type { PropertyValues } from 'lit';
 import { marked } from 'marked';
 import Slugger from 'github-slugger';
 import { scheduleHighlight } from '~/utils/highlighter';
@@ -18,6 +18,8 @@ import CustomStyles from '~/styles/custom-styles';
 import DialogBoxStyles from '~/styles/dialog-box-styles';
 
 import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
+import type { RapiDocConfig, AuthParams } from '~/types/element';
+import type { AdvancedSearchMatch, ResolvedServer, ResolvedSpec, ResolvedSpecState, ResolvedSubComponent } from '~/types/spec';
 import ProcessSpec from '~/utils/spec-parser';
 import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/mock-interceptor';
 import mainBodyTemplate from '~/templates/main-body-template';
@@ -25,7 +27,7 @@ import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-temp
 import { setApiServer } from '~/templates/server-template';
 
 const paramsConverter = {
-  fromAttribute: (attr) => {
+  fromAttribute: (attr: string | null): AuthParams => {
     if (!attr) {
       return null;
     }
@@ -39,7 +41,7 @@ const paramsConverter = {
     }
     return trimmed;
   },
-  toAttribute: (prop) => {
+  toAttribute: (prop: AuthParams) => {
     if (typeof prop === 'object' && prop !== null) {
       return JSON.stringify(prop);
     }
@@ -48,9 +50,125 @@ const paramsConverter = {
 };
 
 export default class RapiDoc extends LitElement {
+  // Heading
+  headingText?: string;
+  gotoPath?: string;
+
+  // Spec
+  updateRoute!: string;
+  routePrefix!: string;
+  specUrl?: string;
+  sortTags!: string;
+  sortSchemas!: string;
+  generateMissingTags!: string;
+  sortEndpointsBy!: string;
+  specFile?: string;
+
+  // UI Layouts
+  layout!: string;
+  renderStyle!: string;
+  defaultSchemaTab!: string;
+  responseAreaHeight!: string;
+  fillRequestFieldsWithExample!: string;
+  persistAuth!: string;
+  onNavTagClick!: string;
+
+  // Schema Styles
+  schemaStyle!: string;
+  schemaExpandLevel!: number;
+  schemaDescriptionExpanded!: string;
+  schemaHideReadOnly!: string;
+  schemaHideWriteOnly!: string;
+
+  // API Server
+  apiKeyName!: string;
+  apiKeyLocation!: string;
+  apiKeyValue!: string;
+  defaultApiServerUrl?: string;
+  serverUrl?: string;
+  oauthReceiver!: string;
+  additionalAuthorizeParams?: AuthParams;
+  additionalTokenParams?: AuthParams;
+
+  // Mock Server
+  mockServer?: string;
+  mockServerStatusCode?: string;
+  mockServerStatusStrategy?: string;
+  mockServerDelay?: number;
+  mockServerLog?: string;
+
+  // Hide/Show Sections & Enable Disable actions
+  showHeader?: string;
+  showSideNav!: string;
+  showInfo!: string;
+  allowAuthentication!: string;
+  allowTry!: string;
+  showCurlBeforeTry?: string;
+  allowSpecUrlLoad?: string;
+  allowSpecFileLoad?: string;
+  allowSpecFileDownload?: string;
+  allowSearch!: string;
+  allowAdvancedSearch!: string;
+  allowServerSelection!: string;
+  allowSchemaDescriptionExpandToggle!: string;
+  showComponents!: string;
+  pageDirection?: string;
+  scrollBehavior!: ScrollBehavior;
+
+  // Main Colors and Font
+  theme!: string;
+  bgColor?: string;
+  textColor?: string;
+  headerColor?: string;
+  primaryColor?: string;
+  fontSize!: string;
+  regularFont?: string;
+  monoFont?: string;
+  loadFonts?: string;
+  cssFile!: string | null;
+  cssClasses!: string;
+
+  // Nav Bar Colors
+  navBgColor?: string;
+  navTextColor?: string;
+  navHoverBgColor?: string;
+  navHoverTextColor?: string;
+  navAccentColor?: string;
+  navAccentTextColor?: string;
+  navActiveItemMarker!: string;
+  navItemSpacing!: string;
+  showMethodInNavBar!: string;
+  usePathInNavBar!: string;
+  infoDescriptionHeadingsInNavBar!: string;
+
+  // Fetch Options
+  fetchCredentials!: string;
+
+  // Filters
+  matchPaths!: string;
+  matchType!: string;
+  removeEndpointsWithBadgeLabelAs!: string;
+
+  // Internal Properties
+  loading?: boolean;
+  focusedElementId?: string;
+  advancedSearchMatches?: AdvancedSearchMatch[];
+  searchVal?: string;
+
+  // Not reactive properties (never declared in `properties`)
+  showSummaryWhenCollapsed: string | boolean;
+  _intersectingElements: Map<string, Element>;
+  _intersectionRaf?: number;
+  isIntersectionObserverActive: boolean;
+  intersectionObserver: IntersectionObserver;
+  timeoutId?: ReturnType<typeof setTimeout>;
+  loadFailed?: boolean;
+  resolvedSpec?: ResolvedSpecState;
+  selectedServer?: ResolvedServer;
+
   constructor() {
     super();
-    const intersectionObserverOptions = {
+    const intersectionObserverOptions: IntersectionObserverInit = {
       rootMargin: '0px 0px -50% 0px', // Target the top 50% reading zone of viewport
       threshold: 0,
     };
@@ -59,12 +177,12 @@ export default class RapiDoc extends LitElement {
     // Will activate intersection observer only after spec load and hash analyze
     // to scroll to the proper element without being reverted by observer behavior
     this.isIntersectionObserverActive = false;
-    this.intersectionObserver = new IntersectionObserver((entries) => {
+    this.intersectionObserver = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
       this.onIntersect(entries);
     }, intersectionObserverOptions);
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       // Heading
       headingText: { type: String, attribute: 'heading-text' },
@@ -173,7 +291,9 @@ export default class RapiDoc extends LitElement {
     };
   }
 
-  static get styles() {
+  // TODO(ts-migration): in the 1024px container query below, `this` is the class (static getter), so `this.fontSize` is always
+  // undefined and the nav-bar width is always 330px (upstream bug, behaviour kept).
+  static override get styles() {
     return [
       FontStyles,
       InputStyles,
@@ -491,7 +611,13 @@ export default class RapiDoc extends LitElement {
 
         @container (min-width: 1024px) {
           .nav-bar {
-            width: ${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
+            width: ${unsafeCSS(
+              (this as unknown as { fontSize?: string }).fontSize === 'default'
+                ? '300px'
+                : (this as unknown as { fontSize?: string }).fontSize === 'large'
+                  ? '315px'
+                  : '330px'
+            )};
             display: flex;
           }
           #nav-bar-btn {
@@ -513,7 +639,7 @@ export default class RapiDoc extends LitElement {
   }
 
   // Startup
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
     const parent = this.parentElement;
     if (parent) {
@@ -723,7 +849,7 @@ export default class RapiDoc extends LitElement {
   }
 
   // Cleanup
-  disconnectedCallback() {
+  override disconnectedCallback() {
     if (this._intersectionRaf) {
       cancelAnimationFrame(this._intersectionRaf);
     }
@@ -740,21 +866,23 @@ export default class RapiDoc extends LitElement {
     const renderer = new marked.Renderer();
     const slugger = new Slugger();
     // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
-    renderer.heading = (text, level, raw) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
+    // TODO(ts-migration): marked's Renderer.heading takes a token (not (text, level, raw)) in this marked version; kept as-is.
+    (renderer as unknown as { heading: (text: string, level: number, raw: string) => string }).heading = (text, level, raw) =>
+      `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
     return renderer;
   }
 
-  render() {
+  override render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
     const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
     // adding custom style for RapiDoc
     if (cssLinkEl) {
-      this.shadowRoot.appendChild(cssLinkEl.cloneNode());
+      this.shadowRoot!.appendChild(cssLinkEl.cloneNode());
     }
     return mainBodyTemplate.call(this);
   }
 
-  get config() {
+  get config(): RapiDocConfig {
     return {
       renderStyle: this.renderStyle,
       schemaStyle: this.schemaStyle,
@@ -771,9 +899,9 @@ export default class RapiDoc extends LitElement {
     };
   }
 
-  updated(changedProperties) {
+  override updated(changedProperties: PropertyValues) {
     super.updated?.(changedProperties);
-    scheduleHighlight(this.shadowRoot);
+    scheduleHighlight(this.shadowRoot!);
 
     if (changedProperties.has('mockServer')) {
       if (this.mockServer === 'true' && this.resolvedSpec) {
@@ -804,13 +932,13 @@ export default class RapiDoc extends LitElement {
 
   observeExpandedContent() {
     // Main Container
-    const observeOverviewEls = this.shadowRoot.querySelectorAll('.observe-me');
+    const observeOverviewEls = this.shadowRoot!.querySelectorAll('.observe-me');
     observeOverviewEls.forEach((targetEl) => {
       this.intersectionObserver.observe(targetEl);
     });
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
+  override attributeChangedCallback(name: string, oldVal: string | null, newVal: string | null) {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
@@ -847,32 +975,32 @@ export default class RapiDoc extends LitElement {
 
       if (name === 'api-key-name') {
         if (this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
-          apiKeyName = newVal;
-          apiKeyLocation = this.getAttribute('api-key-location');
-          apiKeyValue = this.getAttribute('api-key-value');
+          apiKeyName = newVal!;
+          apiKeyLocation = this.getAttribute('api-key-location')!;
+          apiKeyValue = this.getAttribute('api-key-value')!;
           updateSelectedApiKey = true;
         }
       } else if (name === 'api-key-location') {
         if (this.getAttribute('api-key-name') && this.getAttribute('api-key-value')) {
-          apiKeyLocation = newVal;
-          apiKeyName = this.getAttribute('api-key-name');
-          apiKeyValue = this.getAttribute('api-key-value');
+          apiKeyLocation = newVal!;
+          apiKeyName = this.getAttribute('api-key-name')!;
+          apiKeyValue = this.getAttribute('api-key-value')!;
           updateSelectedApiKey = true;
         }
       } else if (name === 'api-key-value') {
         if (this.getAttribute('api-key-name') && this.getAttribute('api-key-location')) {
-          apiKeyValue = newVal;
-          apiKeyLocation = this.getAttribute('api-key-location');
-          apiKeyName = this.getAttribute('api-key-name');
+          apiKeyValue = newVal!;
+          apiKeyLocation = this.getAttribute('api-key-location')!;
+          apiKeyName = this.getAttribute('api-key-name')!;
           updateSelectedApiKey = true;
         }
       }
 
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
+          const rapiDocApiKey = (this.resolvedSpec as ResolvedSpec).securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
           if (!rapiDocApiKey) {
-            this.resolvedSpec.securitySchemes.push({
+            (this.resolvedSpec as ResolvedSpec).securitySchemes.push({
               securitySchemeId: rapidocApiKey,
               description: 'api-key provided in rapidoc element attributes',
               type: 'apiKey',
@@ -895,18 +1023,18 @@ export default class RapiDoc extends LitElement {
   }
 
   onSpecUrlChange() {
-    this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
+    this.setAttribute('spec-url', (this.shadowRoot!.getElementById('spec-url') as HTMLInputElement).value);
   }
 
-  onSpecFileChange(e) {
-    this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
-    const specFile = e.target.files[0];
+  onSpecFileChange(e: Event) {
+    this.setAttribute('spec-file', (this.shadowRoot!.getElementById('spec-file') as HTMLInputElement).value);
+    const specFile = (e.target as HTMLInputElement).files![0]!;
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const specObj = JSON.parse(reader.result);
+        const specObj = JSON.parse(reader.result as string);
         this.loadSpec(specObj);
-        this.shadowRoot.getElementById('spec-url').value = '';
+        (this.shadowRoot!.getElementById('spec-url') as HTMLInputElement).value = '';
       } catch {
         console.error('RapiDoc: Unable to read or parse json');
       }
@@ -916,13 +1044,13 @@ export default class RapiDoc extends LitElement {
   }
 
   onFileLoadClick() {
-    this.shadowRoot.getElementById('spec-file').click();
+    this.shadowRoot!.getElementById('spec-file')!.click();
   }
 
-  onSearchChange(e) {
+  onSearchChange(e: Event) {
     // this.matchPaths = e.target.value;
-    this.searchVal = e.target.value;
-    this.resolvedSpec.tags.forEach((tag) =>
+    this.searchVal = (e.target as HTMLInputElement).value;
+    (this.resolvedSpec as ResolvedSpec).tags.forEach((tag) =>
       tag.paths.filter((path) => {
         if (this.searchVal) {
           if (getMatchedPaths(this.searchVal, path, tag.name)) {
@@ -931,10 +1059,12 @@ export default class RapiDoc extends LitElement {
         }
       })
     );
-    this.resolvedSpec.components.forEach((component) =>
-      component.subComponents.filter((v) => {
+    (this.resolvedSpec as ResolvedSpec).components.forEach((component) =>
+      component.subComponents.filter((sub) => {
+        // TODO(ts-migration): `expanded` is not declared on ResolvedSubComponent (types/spec.ts)
+        const v = sub as ResolvedSubComponent & { expanded?: boolean };
         v.expanded = false;
-        if (getMatchedComponents(this.searchVal, v)) {
+        if (getMatchedComponents(this.searchVal as string, v)) {
           v.expanded = true;
         }
       })
@@ -943,30 +1073,30 @@ export default class RapiDoc extends LitElement {
   }
 
   onClearSearch() {
-    const searchEl = this.shadowRoot.getElementById('nav-bar-search');
+    const searchEl = this.shadowRoot!.getElementById('nav-bar-search') as HTMLInputElement;
     searchEl.value = '';
     this.searchVal = '';
-    this.resolvedSpec.components.forEach((component) =>
+    (this.resolvedSpec as ResolvedSpec).components.forEach((component) =>
       component.subComponents.filter((v) => {
-        v.expanded = true;
+        (v as ResolvedSubComponent & { expanded?: boolean }).expanded = true;
       })
     );
   }
 
   onOpenNavBarToggle() {
-    const navBarEL = this.shadowRoot.getElementById('nav-bar');
+    const navBarEL = this.shadowRoot!.getElementById('nav-bar')!;
     navBarEL.classList.toggle('floating-nav');
   }
 
   onShowAdvancedSearchClicked() {
-    this.shadowRoot.getElementById('advanced-search-dialog').showModal();
+    (this.shadowRoot!.getElementById('advanced-search-dialog') as HTMLDialogElement).showModal();
   }
   onAdvancedSearchClose() {
-    this.shadowRoot.getElementById('advanced-search-dialog').close();
+    (this.shadowRoot!.getElementById('advanced-search-dialog') as HTMLDialogElement).close();
   }
 
   // Public Method
-  async loadSpec(specUrl) {
+  async loadSpec(specUrl: unknown) {
     if (!specUrl) {
       return;
     }
@@ -981,7 +1111,7 @@ export default class RapiDoc extends LitElement {
       this.loadFailed = false;
       const spec = await ProcessSpec.call(
         this,
-        specUrl,
+        specUrl as Parameters<typeof ProcessSpec>[0],
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
         this.sortSchemas === 'true',
@@ -1000,12 +1130,12 @@ export default class RapiDoc extends LitElement {
       this.loading = false;
       this.loadFailed = true;
       this.resolvedSpec = null;
-      console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`);
+      console.error(`RapiDoc: Unable to resolve the API spec..  ${(err as Error).message}`);
     }
   }
 
-  async afterSpecParsedAndValidated(spec) {
-    this.resolvedSpec = spec;
+  async afterSpecParsedAndValidated(spec: unknown) {
+    this.resolvedSpec = spec as ResolvedSpec;
     this.selectedServer = undefined;
     if (this.defaultApiServerUrl) {
       if (this.defaultApiServerUrl === this.serverUrl) {
@@ -1060,8 +1190,8 @@ export default class RapiDoc extends LitElement {
     } else if (this.renderStyle === 'focused') {
       // If goto-path is provided and no location-hash is present then try to scroll to default element
       if (!this.gotoPath) {
-        const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec.tags[0]?.paths[0];
-        this.scrollToPath(defaultElementId);
+        const defaultElementId = this.showInfo ? 'overview' : (this.resolvedSpec as ResolvedSpec).tags[0]?.paths[0];
+        this.scrollToPath(defaultElementId as string);
       }
     }
   }
@@ -1097,12 +1227,14 @@ export default class RapiDoc extends LitElement {
     return elementId;
   }
 
-  replaceHistoryState(hashId) {
+  replaceHistoryState(hashId: string) {
     const baseURL = this.getComponentBaseURL();
-    window.history.replaceState(null, null, `${baseURL}${this.routePrefix || '#'}${hashId}`);
+    window.history.replaceState(null, null as unknown as string, `${baseURL}${this.routePrefix || '#'}${hashId}`);
   }
 
-  expandAndGotoOperation(elementId, scrollToElement = true) {
+  // The callers pass a 3rd argument that is ignored (kept as-is, no runtime change)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  expandAndGotoOperation(elementId: string, scrollToElement = true, ..._rest: unknown[]) {
     if (!this.resolvedSpec) {
       return;
     }
@@ -1112,8 +1244,8 @@ export default class RapiDoc extends LitElement {
     if (tmpElementId.startsWith('overview') || tmpElementId === 'servers' || tmpElementId === 'auth') {
       isExpandingNeeded = false;
     } else {
-      for (let i = 0; i < this.resolvedSpec.tags?.length; i++) {
-        const tag = this.resolvedSpec.tags[i];
+      for (let i = 0; i < (this.resolvedSpec as ResolvedSpec).tags?.length; i++) {
+        const tag = (this.resolvedSpec as ResolvedSpec).tags[i]!;
         const path = tag.paths?.find((p) => p.elementId === elementId);
         if (path) {
           if (path.expanded && tag.expanded) {
@@ -1132,7 +1264,7 @@ export default class RapiDoc extends LitElement {
       }
       window.setTimeout(
         () => {
-          const gotoEl = this.shadowRoot.getElementById(tmpElementId);
+          const gotoEl = this.shadowRoot!.getElementById(tmpElementId);
           if (gotoEl) {
             gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
             if (this.updateRoute === 'true') {
@@ -1145,11 +1277,11 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  isValidTopId(id) {
+  isValidTopId(id: string) {
     return id.startsWith('overview') || id === 'servers' || id === 'auth';
   }
 
-  isValidPathId(id) {
+  isValidPathId(id: string) {
     if (id === 'overview' && this.showInfo) {
       return true;
     }
@@ -1160,12 +1292,12 @@ export default class RapiDoc extends LitElement {
       return true;
     }
     if (id.startsWith('tag--')) {
-      return this.resolvedSpec?.tags?.find((tag) => tag.elementId === id);
+      return (this.resolvedSpec as ResolvedSpec | null | undefined)?.tags?.find((tag) => tag.elementId === id);
     }
-    return this.resolvedSpec?.tags?.find((tag) => tag.paths.find((path) => path.elementId === id));
+    return (this.resolvedSpec as ResolvedSpec | null | undefined)?.tags?.find((tag) => tag.paths.find((path) => path.elementId === id));
   }
 
-  onIntersect(entries) {
+  onIntersect(entries: IntersectionObserverEntry[]) {
     if (this.isIntersectionObserverActive === false) {
       return;
     }
@@ -1191,8 +1323,8 @@ export default class RapiDoc extends LitElement {
       return;
     }
 
-    const visibleHeadings = [];
-    const scrolledPast = [];
+    const visibleHeadings: { el: Element; top: number }[] = [];
+    const scrolledPast: { el: Element; top: number }[] = [];
 
     for (const el of activeCandidates) {
       const top = el.getBoundingClientRect().top;
@@ -1203,20 +1335,20 @@ export default class RapiDoc extends LitElement {
       }
     }
 
-    let bestEl;
+    let bestEl: Element;
     if (visibleHeadings.length > 0) {
       // Preference to the topmost heading visible in the viewport/reading zone
       visibleHeadings.sort((a, b) => a.top - b.top);
-      bestEl = visibleHeadings[0].el;
+      bestEl = visibleHeadings[0]!.el;
     } else {
       // If all visible candidates have their headings scrolled past top (< 0),
       // pick the one whose top is closest to 0 (the section currently filling the reading area)
       scrolledPast.sort((a, b) => b.top - a.top);
-      bestEl = scrolledPast[0].el;
+      bestEl = scrolledPast[0]!.el;
     }
 
     const targetId = bestEl.id;
-    const newNavEl = this.shadowRoot.getElementById(`link-${targetId}`);
+    const newNavEl = this.shadowRoot!.getElementById(`link-${targetId}`);
     if (!newNavEl || newNavEl.classList.contains('active')) {
       return;
     }
@@ -1226,7 +1358,7 @@ export default class RapiDoc extends LitElement {
     }
 
     this._intersectionRaf = requestAnimationFrame(() => {
-      const oldNavEl = this.shadowRoot.querySelector(
+      const oldNavEl = this.shadowRoot!.querySelector(
         '.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active'
       );
 
@@ -1239,9 +1371,9 @@ export default class RapiDoc extends LitElement {
       newNavEl.part.add('section-navbar-active-item');
 
       // Scroll sidebar only if the active item is out of view
-      const navScrollEl = newNavEl.closest('.nav-scroll');
+      const navScrollEl = newNavEl.closest<HTMLElement>('.nav-scroll');
       if (navScrollEl) {
-        const searchContainer = navScrollEl.querySelector('.nav-bar-search-container');
+        const searchContainer = navScrollEl.querySelector<HTMLElement>('.nav-bar-search-container');
         const topOffset = searchContainer ? searchContainer.offsetHeight : 0;
 
         if (newNavEl.offsetTop <= topOffset + 30) {
@@ -1267,10 +1399,11 @@ export default class RapiDoc extends LitElement {
   }
 
   // Called by anchor tags created using markdown
-  handleHref(e) {
-    if (e.target.tagName.toLowerCase() === 'a') {
-      if (e.target.getAttribute('href').startsWith('#')) {
-        const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
+  handleHref(e: Event) {
+    const target = e.target as HTMLElement;
+    if (target.tagName.toLowerCase() === 'a') {
+      if (target.getAttribute('href')!.startsWith('#')) {
+        const gotoEl = this.shadowRoot!.getElementById(target.getAttribute('href')!.replace('#', ''));
         if (gotoEl) {
           gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
         }
@@ -1289,12 +1422,12 @@ export default class RapiDoc extends LitElement {
    *  3. Activate IntersectionObserver (after little delay)
    *
    */
-  async scrollToEventTarget(event, scrollNavItemToView = true) {
-    if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
+  async scrollToEventTarget(event: Event, scrollNavItemToView = true) {
+    if (!(event.type === 'click' || (event.type === 'keyup' && (event as KeyboardEvent).keyCode === 13))) {
       return;
     }
-    const navEl = event.target;
-    if (!navEl.dataset.contentId) {
+    const navEl = event.target as HTMLElement;
+    if (!navEl.dataset['contentId']) {
       return;
     }
     this.isIntersectionObserverActive = false;
@@ -1302,24 +1435,25 @@ export default class RapiDoc extends LitElement {
       this._intersectingElements.clear();
     }
     if (this.renderStyle === 'focused') {
-      const requestEl = this.shadowRoot.querySelector('api-request');
+      const requestEl = this.shadowRoot!.querySelector('api-request') as (HTMLElement & { beforeNavigationFocusedMode(): void }) | null;
       if (requestEl) {
         requestEl.beforeNavigationFocusedMode();
       }
     }
-    this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView);
+    this.scrollToPath(navEl.dataset['contentId'], true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
     }, 500);
   }
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
-  async scrollTo(elementId) {
+  // @ts-expect-error public API deliberately shadows Element.scrollTo with an incompatible signature (kept for compatibility)
+  override async scrollTo(elementId: string) {
     return this.scrollToPath(elementId);
   }
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
-  async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true) {
+  async scrollToPath(elementId: string, expandPath = true, scrollNavItemToView = true) {
     if (this.renderStyle === 'focused') {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
@@ -1330,7 +1464,7 @@ export default class RapiDoc extends LitElement {
       this.expandAndGotoOperation(elementId, expandPath, true);
     } else {
       let isValidElementId = false;
-      const contentEl = this.shadowRoot.getElementById(elementId);
+      const contentEl = this.shadowRoot!.getElementById(elementId);
       if (contentEl) {
         isValidElementId = true;
         contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
@@ -1340,11 +1474,11 @@ export default class RapiDoc extends LitElement {
       if (isValidElementId) {
         // for focused style it is important to reset request-body-selection and response selection which maintains the state for in case of multiple req-body or multiple response mime-type
         if (this.renderStyle === 'focused') {
-          const requestEl = this.shadowRoot.querySelector('api-request');
+          const requestEl = this.shadowRoot!.querySelector('api-request') as (HTMLElement & { afterNavigationFocusedMode(): void }) | null;
           if (requestEl) {
             requestEl.afterNavigationFocusedMode();
           }
-          const responseEl = this.shadowRoot.querySelector('api-response');
+          const responseEl = this.shadowRoot!.querySelector('api-response') as (HTMLElement & { resetSelection(): void }) | null;
           if (responseEl) {
             responseEl.resetSelection();
           }
@@ -1356,14 +1490,14 @@ export default class RapiDoc extends LitElement {
         }
 
         // Update NavBar View and Styles
-        const newNavEl = this.shadowRoot.getElementById(`link-${elementId}`);
+        const newNavEl = this.shadowRoot!.getElementById(`link-${elementId}`);
 
         if (newNavEl) {
           if (scrollNavItemToView) {
             newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
           }
           await sleep(0);
-          const oldNavEl = this.shadowRoot.querySelector(
+          const oldNavEl = this.shadowRoot!.querySelector(
             '.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active'
           );
           if (oldNavEl) {
@@ -1380,12 +1514,12 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method - to update security-scheme of type http
-  setHttpUserNameAndPassword(securitySchemeId, username, password) {
+  setHttpUserNameAndPassword(securitySchemeId: string, username: string, password: string) {
     return applyApiKey.call(this, securitySchemeId, username, password);
   }
 
   // Public Method - to update security-scheme of type apiKey or OAuth
-  setApiKey(securitySchemeId, apiKeyValue) {
+  setApiKey(securitySchemeId: string, apiKeyValue: string) {
     return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
   }
 
@@ -1395,25 +1529,26 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method
-  setApiServer(apiServerUrl) {
+  setApiServer(apiServerUrl: string) {
     // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes
-  onAdvancedSearch(ev, delay) {
-    const eventTargetEl = ev.target;
+  onAdvancedSearch(ev: Event, delay: number) {
+    const eventTargetEl = ev.target as HTMLInputElement;
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
-      let searchInputEl;
+      let searchInputEl: HTMLInputElement;
       if (eventTargetEl.type === 'text') {
         searchInputEl = eventTargetEl;
       } else {
-        searchInputEl = eventTargetEl.closest('.advanced-search-options').querySelector('input[type=text]');
+        searchInputEl = eventTargetEl.closest('.advanced-search-options')!.querySelector('input[type=text]') as HTMLInputElement;
       }
-      const searchOptions = [...eventTargetEl.closest('.advanced-search-options').querySelectorAll('input:checked')].map((v) => v.id);
-      this.advancedSearchMatches = advancedSearch(searchInputEl.value, this.resolvedSpec.tags, searchOptions);
+      const searchOptions = [...eventTargetEl.closest('.advanced-search-options')!.querySelectorAll('input:checked')].map((v) => v.id);
+      this.advancedSearchMatches = advancedSearch(searchInputEl.value, (this.resolvedSpec as ResolvedSpec).tags, searchOptions);
     }, delay);
   }
 }
-customElements.define('rapi-doc', RapiDoc);
+// The cast is needed because `scrollTo(elementId)` is not compatible with Element.scrollTo
+customElements.define('rapi-doc', RapiDoc as unknown as CustomElementConstructor);

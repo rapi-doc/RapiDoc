@@ -1,5 +1,5 @@
-// @ts-nocheck
 import { LitElement, html, css } from 'lit';
+import type { PropertyValues } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import { marked } from 'marked';
@@ -14,8 +14,52 @@ import CustomStyles from '~/styles/custom-styles';
 import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/schema-table';
+import type { RapiDocConfig } from '~/types/element';
+import type { GeneratedExample, Schema, SchemaAST } from '~/types/schema';
+
+/** Header of a response (OpenAPI Header Object), with the header name added. */
+interface ResponseHeader {
+  name: string;
+  description?: string;
+  schema?: { type?: string; example?: unknown };
+}
+
+/** One response (OpenAPI Response Object), after `$ref` resolution. */
+interface ResponseData {
+  description?: string;
+  content?: Record<string, { schema?: Schema; examples?: unknown; example?: unknown }>;
+  headers?: Record<string, Omit<ResponseHeader, 'name'>>;
+}
+
+/** Schema tree and examples computed for one mime type of one response. */
+interface MimeResponse {
+  description?: string;
+  examples: GeneratedExample[];
+  selectedExample: string;
+  schemaTree: SchemaAST | null;
+}
+
+type MimeResponses = Record<string, MimeResponse>;
 
 export default class ApiResponse extends LitElement {
+  config?: RapiDocConfig;
+  callback?: string;
+  webhook?: string;
+  responses?: Record<string, ResponseData>;
+  parser?: unknown;
+  schemaStyle?: string;
+  renderStyle?: string;
+  selectedStatus: string;
+  selectedMimeType?: string;
+  activeSchemaTab?: string;
+  schemaExpandLevel?: number;
+  schemaDescriptionExpanded?: string;
+  allowSchemaDescriptionExpandToggle?: string;
+  schemaHideReadOnly?: string;
+  schemaHideWriteOnly?: string;
+  headersForEachRespStatus: Record<string, ResponseHeader[]>;
+  mimeResponsesForEachStatus: Record<string, MimeResponses>;
+
   constructor() {
     super();
     this.selectedStatus = '';
@@ -24,7 +68,7 @@ export default class ApiResponse extends LitElement {
     this.activeSchemaTab = 'schema';
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       config: { type: Object },
       callback: { type: String },
@@ -44,7 +88,7 @@ export default class ApiResponse extends LitElement {
     };
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       FontStyles,
       FlexStyles,
@@ -94,7 +138,7 @@ export default class ApiResponse extends LitElement {
     ];
   }
 
-  willUpdate(changedProperties) {
+  override willUpdate(changedProperties: PropertyValues) {
     super.willUpdate?.(changedProperties);
     if (this.config) {
       this.renderStyle ??= this.config.renderStyle;
@@ -108,7 +152,7 @@ export default class ApiResponse extends LitElement {
     }
   }
 
-  render() {
+  override render() {
     return html`<div class="col regular-font response-panel ${this.renderStyle}-mode">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} ">
         ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
@@ -130,9 +174,9 @@ export default class ApiResponse extends LitElement {
       if (!this.selectedStatus) {
         this.selectedStatus = statusCode;
       }
-      const allMimeResp = {};
-      for (const mimeResp in this.responses[statusCode]?.content) {
-        const mimeRespObj = this.responses[statusCode].content[mimeResp];
+      const allMimeResp: MimeResponses = {};
+      for (const mimeResp in this.responses![statusCode]?.content) {
+        const mimeRespObj = this.responses![statusCode].content![mimeResp];
         if (!this.selectedMimeType) {
           this.selectedMimeType = mimeResp;
         }
@@ -149,16 +193,16 @@ export default class ApiResponse extends LitElement {
           mimeResp.includes('json') ? 'json' : 'text'
         );
         allMimeResp[mimeResp] = {
-          description: this.responses[statusCode].description,
+          description: this.responses![statusCode].description,
           examples: respExamples,
           selectedExample: respExamples[0]?.exampleId || '',
           schemaTree,
         };
       }
       // Headers for each response status
-      const tempHeaders = [];
-      for (const key in this.responses[statusCode]?.headers) {
-        tempHeaders.push({ name: key, ...this.responses[statusCode].headers[key] });
+      const tempHeaders: ResponseHeader[] = [];
+      for (const key in this.responses![statusCode]?.headers) {
+        tempHeaders.push({ name: key, ...this.responses![statusCode].headers![key] });
       }
       this.headersForEachRespStatus[statusCode] = tempHeaders;
       this.mimeResponsesForEachStatus[statusCode] = allMimeResp;
@@ -175,8 +219,8 @@ export default class ApiResponse extends LitElement {
                       : html`<button
                           @click="${() => {
                             this.selectedStatus = respStatus;
-                            if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
-                              this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0];
+                            if (this.responses![respStatus].content && Object.keys(this.responses![respStatus].content)[0]) {
+                              this.selectedMimeType = Object.keys(this.responses![respStatus].content)[0];
                             } else {
                               this.selectedMimeType = undefined;
                             }
@@ -198,7 +242,7 @@ export default class ApiResponse extends LitElement {
         (status) =>
           html`<div style="display: ${status === this.selectedStatus ? 'block' : 'none'}">
             <div class="top-gap">
-              <span class="resp-descr m-markdown">${unsafeHTML(sanitizeHTML(marked(this.responses[status]?.description || '')))}</span>
+              <span class="resp-descr m-markdown">${unsafeHTML(sanitizeHTML(marked(this.responses![status]?.description || '')))}</span>
               ${
                 this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0
                   ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
@@ -212,9 +256,9 @@ export default class ApiResponse extends LitElement {
                     <div
                       part="tab-btn-row"
                       class="tab-buttons row"
-                      @click="${(e) => {
-                        if (e.target.tagName.toLowerCase() === 'button') {
-                          this.activeSchemaTab = e.target.dataset.tab;
+                      @click="${(e: Event) => {
+                        if ((e.target as HTMLElement).tagName.toLowerCase() === 'button') {
+                          this.activeSchemaTab = (e.target as HTMLElement).dataset.tab;
                         }
                       }}"
                     >
@@ -236,10 +280,10 @@ export default class ApiResponse extends LitElement {
                     ${
                       this.activeSchemaTab === 'example'
                         ? html`<div part="tab-content" class="tab-content col" style="flex:1;">
-                            ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                            ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType!])}
                           </div>`
                         : html`<div part="tab-content" class="tab-content col" style="flex:1;">
-                            ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                            ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType!])}
                           </div>`
                     }
                   </div> `
@@ -249,7 +293,7 @@ export default class ApiResponse extends LitElement {
     `;
   }
 
-  responseHeaderListTemplate(respHeaders) {
+  responseHeaderListTemplate(respHeaders: ResponseHeader[]) {
     return html`<div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div>
       <table
         role="presentation"
@@ -280,30 +324,31 @@ export default class ApiResponse extends LitElement {
       </table>`;
   }
 
-  mimeTypeDropdownTemplate(mimeTypes) {
+  mimeTypeDropdownTemplate(mimeTypes: string[]) {
     return html`<select
       aria-label="mime types"
-      @change="${(e) => {
-        this.selectedMimeType = e.target.value;
+      @change="${(e: Event) => {
+        this.selectedMimeType = (e.target as HTMLSelectElement).value;
       }}"
       style="margin-bottom: -1px; z-index:1"
     >
       ${mimeTypes.map(
-        (mimeType) => html`<option value="${mimeType}" ?selected="${mimeType === this.selectedMimeType}">${mimeType}</option>`
+        (mimeType: string) => html`<option value="${mimeType}" ?selected="${mimeType === this.selectedMimeType}">${mimeType}</option>`
       )}
     </select>`;
   }
 
-  onSelectExample(e) {
-    const exampleContainerEl = e.target.closest('.example-panel');
-    const exampleEls = [...exampleContainerEl.querySelectorAll('.example')];
+  onSelectExample(e: Event) {
+    const exampleContainerEl = (e.target as HTMLSelectElement).closest('.example-panel')!;
+    const exampleEls = [...exampleContainerEl.querySelectorAll<HTMLElement>('.example')];
 
     exampleEls.forEach((v) => {
-      v.style.display = v.dataset.example === e.target.value ? 'block' : 'none';
+      v.style.display = v.dataset.example === (e.target as HTMLSelectElement).value ? 'block' : 'none';
     });
   }
 
-  mimeExampleTemplate(mimeRespDetails) {
+  // TODO(ts-migration): unsafeHTML() takes a single argument; the `{ USE_PROFILES }` options passed for the single json example description are ignored.
+  mimeExampleTemplate(mimeRespDetails: MimeResponse | undefined) {
     if (!mimeRespDetails || !mimeRespDetails.examples || mimeRespDetails.examples.length === 0) {
       return html`
         <pre
@@ -326,9 +371,12 @@ export default class ApiResponse extends LitElement {
                     ${
                       mimeRespDetails.examples[0].exampleDescription
                         ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                            ${unsafeHTML(sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || '')), {
-                              USE_PROFILES: { html: true },
-                            })}
+                            ${(unsafeHTML as (value: string, options?: unknown) => ReturnType<typeof unsafeHTML>)(
+                              sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || '')),
+                              {
+                                USE_PROFILES: { html: true },
+                              }
+                            )}
                           </div>`
                         : ''
                     }
@@ -357,16 +405,20 @@ ${mimeRespDetails.examples[0].exampleValue}</pre>
             }`
           : html`
               <span class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">
-                <select aria-label="response examples" style="min-width:100px; max-width:100%" @change="${(e) => this.onSelectExample(e)}">
+                <select
+                  aria-label="response examples"
+                  style="min-width:100px; max-width:100%"
+                  @change="${(e: Event) => this.onSelectExample(e)}"
+                >
                   ${mimeRespDetails.examples.map(
-                    (v) =>
+                    (v: GeneratedExample) =>
                       html`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample}>
                         ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
                       </option>`
                   )}
                 </select>
                 ${mimeRespDetails.examples.map(
-                  (v) => html`
+                  (v: GeneratedExample) => html`
                     <div
                       class="example"
                       data-example="${v.exampleId}"
@@ -398,7 +450,7 @@ ${mimeRespDetails.examples[0].exampleValue}</pre>
     `;
   }
 
-  mimeSchemaTemplate(mimeRespDetails) {
+  mimeSchemaTemplate(mimeRespDetails: MimeResponse | undefined) {
     if (!mimeRespDetails) {
       return html`
         <pre style="color:var(--red)" class="${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top'}"> Schema not found</pre>

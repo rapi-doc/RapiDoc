@@ -1,8 +1,11 @@
-// @ts-nocheck
 /**
  * Renders individual API operation rows and expanded panels (summary, description, parameters, request, response, try-it console).
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
+import type { RapiDocSpecElement } from '~/types/element';
+import type { ResolvedPath } from '~/types/spec';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import { marked } from 'marked';
@@ -13,7 +16,9 @@ import callbackTemplate from '~/templates/callback-template';
 import { pathSecurityTemplate } from '~/templates/security-scheme-template';
 import { getMatchedPaths, rapidocApiKey } from '~/utils/common-utils';
 
-function toggleExpand(path) {
+// the click event is passed by the caller but never read
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function toggleExpand(this: RapiDocSpecElement, path: ResolvedPath, _e?: Event) {
   if (path.expanded) {
     path.expanded = false; // collapse
     if (this.updateRoute === 'true') {
@@ -31,7 +36,7 @@ function toggleExpand(path) {
   this.requestUpdate();
 }
 
-export function expandCollapseAll(operationsRootEl, action = 'expand-all') {
+export function expandCollapseAll(operationsRootEl: Element, action = 'expand-all'): void {
   const elList = [...operationsRootEl.querySelectorAll('.section-tag')];
   if (action === 'expand-all') {
     elList.map((el) => {
@@ -44,14 +49,14 @@ export function expandCollapseAll(operationsRootEl, action = 'expand-all') {
   }
 }
 
-function onExpandCollapseAll(e, action = 'expand-all') {
-  expandCollapseAll.call(this, e.target.closest('.operations-root'), action);
+function onExpandCollapseAll(this: unknown, e: Event, action = 'expand-all') {
+  expandCollapseAll.call(this, (e.target as HTMLElement).closest('.operations-root')!, action);
 }
 
-function endpointHeadTemplate(path, pathsExpanded = false) {
+function endpointHeadTemplate(this: RapiDocSpecElement, path: ResolvedPath, pathsExpanded: boolean | string = false): TemplateResult {
   return html`
     <summary
-      @click="${(e) => {
+      @click="${(e: Event) => {
         toggleExpand.call(this, path, e);
       }}"
       part="section-endpoint-head-${path.expanded ? 'expanded' : 'collapsed'}"
@@ -91,10 +96,10 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
   `;
 }
 
-function endpointBodyTemplate(path) {
-  const acceptContentTypes = new Set();
+function endpointBodyTemplate(this: RapiDocSpecElement, path: ResolvedPath): TemplateResult {
+  const acceptContentTypes = new Set<string>();
   for (const respStatus in path.responses) {
-    for (const acceptContentType in path.responses[respStatus]?.content) {
+    for (const acceptContentType in (path.responses![respStatus] as OpenAPIV3_1.ResponseObject | undefined)?.content) {
       acceptContentTypes.add(acceptContentType.trim());
     }
   }
@@ -211,7 +216,11 @@ function endpointBodyTemplate(path) {
   </div>`;
 }
 
-export default function endpointTemplate(isMini = false, pathsExpanded = false) {
+export default function endpointTemplate(
+  this: RapiDocSpecElement,
+  isMini = false,
+  pathsExpanded: boolean | string = false
+): TemplateResult | string {
   if (!this.resolvedSpec) {
     return '';
   }
@@ -219,11 +228,11 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
     isMini
       ? ''
       : html`<div style="display:flex; justify-content:flex-end;">
-          <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
+          <span @click="${(e: Event) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
             Expand all
           </span>
           &nbsp;|&nbsp;
-          <span @click="${(e) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;">
+          <span @click="${(e: Event) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;">
             Collapse all
           </span>
           &nbsp; sections

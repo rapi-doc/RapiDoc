@@ -1,5 +1,5 @@
-// @ts-nocheck
 import { css, LitElement } from 'lit';
+import type { PropertyValues } from 'lit';
 import { scheduleHighlight } from '~/utils/highlighter';
 
 // Styles
@@ -13,6 +13,8 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 
 import EndpointStyles from '~/styles/endpoint-styles';
+import type { RapiDocConfig, AuthParams, RapiDocElement } from '~/types/element';
+import type { ResolvedSecurityScheme, ResolvedServer, ResolvedSpecState, ResolvedSpec } from '~/types/spec';
 import { rapidocApiKey } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/mock-interceptor';
@@ -21,7 +23,7 @@ import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-temp
 import { setApiServer } from '~/templates/server-template';
 
 const paramsConverter = {
-  fromAttribute: (attr) => {
+  fromAttribute: (attr: string | null): AuthParams => {
     if (!attr) {
       return null;
     }
@@ -35,7 +37,7 @@ const paramsConverter = {
     }
     return trimmed;
   },
-  toAttribute: (prop) => {
+  toAttribute: (prop: AuthParams) => {
     if (typeof prop === 'object' && prop !== null) {
       return JSON.stringify(prop);
     }
@@ -44,6 +46,81 @@ const paramsConverter = {
 };
 
 export default class RapiDocMini extends LitElement {
+  // Spec
+  specUrl?: string;
+  sortEndpointsBy!: string;
+  sortTags!: string;
+  sortSchemas?: string;
+  generateMissingTags?: string;
+
+  // UI Layouts
+  layout!: string;
+  pathsExpanded!: string | boolean;
+  defaultSchemaTab!: string;
+  responseAreaHeight!: string;
+  showSummaryWhenCollapsed!: string;
+  fillRequestFieldsWithExample!: string;
+  persistAuth!: string;
+
+  // Schema Styles
+  schemaStyle!: string;
+  schemaExpandLevel!: number;
+  schemaDescriptionExpanded!: string;
+  schemaHideReadOnly!: string;
+  schemaHideWriteOnly!: string;
+
+  // API Server
+  apiKeyName!: string;
+  apiKeyLocation!: string;
+  apiKeyValue!: string;
+  defaultApiServerUrl?: string;
+  serverUrl?: string;
+  oauthReceiver!: string;
+  additionalAuthorizeParams?: AuthParams;
+  additionalTokenParams?: AuthParams;
+
+  // Mock Server
+  mockServer?: string;
+  mockServerStatusCode?: string;
+  mockServerStatusStrategy?: string;
+  mockServerDelay?: number;
+  mockServerLog?: string;
+
+  allowTry!: string;
+  showCurlBeforeTry?: string;
+
+  // Main Colors and Font
+  theme!: string;
+  bgColor?: string;
+  textColor?: string;
+  primaryColor?: string;
+  fontSize!: string;
+  regularFont?: string;
+  monoFont?: string;
+  loadFonts?: string;
+
+  // Fetch Options
+  fetchCredentials!: string;
+
+  // Filters
+  matchPaths!: string;
+  matchType!: string;
+  removeEndpointsWithBadgeLabelAs!: string;
+  allowSchemaDescriptionExpandToggle!: string;
+
+  // Internal Properties
+  loading?: boolean;
+
+  // Not reactive properties (never declared in `properties`)
+  isMini: boolean;
+  updateRoute: string;
+  renderStyle: string;
+  showHeader: string;
+  allowAdvancedSearch: string;
+  loadFailed?: boolean;
+  resolvedSpec?: ResolvedSpecState;
+  selectedServer?: ResolvedServer;
+
   constructor() {
     super();
     this.isMini = true;
@@ -53,7 +130,7 @@ export default class RapiDocMini extends LitElement {
     this.allowAdvancedSearch = 'false';
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       // Spec
       specUrl: { type: String, attribute: 'spec-url' },
@@ -116,7 +193,7 @@ export default class RapiDocMini extends LitElement {
     };
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       FontStyles,
       InputStyles,
@@ -158,7 +235,7 @@ export default class RapiDocMini extends LitElement {
   }
 
   // Startup
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
 
     if (this.loadFonts !== 'false') {
@@ -266,18 +343,18 @@ export default class RapiDocMini extends LitElement {
     }
   }
 
-  disconnectedCallback() {
+  override disconnectedCallback() {
     if (this.mockServer === 'true') {
       disableMockServer();
     }
     super.disconnectedCallback();
   }
 
-  render() {
-    return mainBodyTemplate.call(this, true, this.pathsExpanded);
+  override render() {
+    return mainBodyTemplate.call(this as unknown as RapiDocElement, true, this.pathsExpanded as boolean);
   }
 
-  get config() {
+  get config(): RapiDocConfig {
     return {
       renderStyle: this.renderStyle,
       schemaStyle: this.schemaStyle,
@@ -294,9 +371,9 @@ export default class RapiDocMini extends LitElement {
     };
   }
 
-  updated(changedProperties) {
+  override updated(changedProperties: PropertyValues) {
     super.updated?.(changedProperties);
-    scheduleHighlight(this.shadowRoot);
+    scheduleHighlight(this.shadowRoot!);
 
     if (changedProperties.has('mockServer')) {
       if (this.mockServer === 'true' && this.resolvedSpec) {
@@ -325,7 +402,7 @@ export default class RapiDocMini extends LitElement {
     }
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
+  override attributeChangedCallback(name: string, oldVal: string | null, newVal: string | null) {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
@@ -349,32 +426,34 @@ export default class RapiDocMini extends LitElement {
 
       if (name === 'api-key-name') {
         if (this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
-          apiKeyName = newVal;
-          apiKeyLocation = this.getAttribute('api-key-location');
-          apiKeyValue = this.getAttribute('api-key-value');
+          apiKeyName = newVal!;
+          apiKeyLocation = this.getAttribute('api-key-location')!;
+          apiKeyValue = this.getAttribute('api-key-value')!;
           updateSelectedApiKey = true;
         }
       } else if (name === 'api-key-location') {
         if (this.getAttribute('api-key-name') && this.getAttribute('api-key-value')) {
-          apiKeyLocation = newVal;
-          apiKeyName = this.getAttribute('api-key-name');
-          apiKeyValue = this.getAttribute('api-key-value');
+          apiKeyLocation = newVal!;
+          apiKeyName = this.getAttribute('api-key-name')!;
+          apiKeyValue = this.getAttribute('api-key-value')!;
           updateSelectedApiKey = true;
         }
       } else if (name === 'api-key-value') {
         if (this.getAttribute('api-key-name') && this.getAttribute('api-key-location')) {
-          apiKeyValue = newVal;
-          apiKeyLocation = this.getAttribute('api-key-location');
-          apiKeyName = this.getAttribute('api-key-name');
+          apiKeyValue = newVal!;
+          apiKeyLocation = this.getAttribute('api-key-location')!;
+          apiKeyName = this.getAttribute('api-key-name')!;
           updateSelectedApiKey = true;
         }
       }
 
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
+          const rapiDocApiKey = (this.resolvedSpec as ResolvedSpec).securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
           if (!rapiDocApiKey) {
-            this.resolvedSpec.securitySchemes.push({
+            // TODO(ts-migration): the `find` above matches on `securitySchemeId` but the pushed entry has `apiKeyId` (not a
+            // ResolvedSecurityScheme field), so the scheme is never found again and duplicates may be pushed. Left as-is.
+            (this.resolvedSpec as ResolvedSpec).securitySchemes.push({
               apiKeyId: rapidocApiKey,
               description: 'api-key provided in rapidoc element attributes',
               type: 'apiKey',
@@ -382,7 +461,7 @@ export default class RapiDocMini extends LitElement {
               in: apiKeyLocation,
               value: apiKeyValue,
               finalKeyValue: apiKeyValue,
-            });
+            } as unknown as ResolvedSecurityScheme);
           } else {
             rapiDocApiKey.name = apiKeyName;
             rapiDocApiKey.in = apiKeyLocation;
@@ -397,11 +476,11 @@ export default class RapiDocMini extends LitElement {
   }
 
   onSpecUrlChange() {
-    this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
+    this.setAttribute('spec-url', (this.shadowRoot!.getElementById('spec-url') as HTMLInputElement).value);
   }
 
   // Public Method
-  async loadSpec(specUrl) {
+  async loadSpec(specUrl: unknown) {
     if (!specUrl) {
       return;
     }
@@ -416,7 +495,7 @@ export default class RapiDocMini extends LitElement {
       this.requestUpdate();
       const spec = await ProcessSpec.call(
         this,
-        specUrl,
+        specUrl as Parameters<typeof ProcessSpec>[0],
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
         this.sortSchemas === 'true',
@@ -435,17 +514,17 @@ export default class RapiDocMini extends LitElement {
       this.loading = false;
       this.loadFailed = true;
       this.resolvedSpec = null;
-      console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`);
+      console.error(`RapiDoc: Unable to resolve the API spec..  ${(err as Error).message}`);
     }
   }
 
   // Public Method - to update security-scheme of type http
-  setHttpUserNameAndPassword(securitySchemeId, username, password) {
+  setHttpUserNameAndPassword(securitySchemeId: string, username: string, password: string) {
     return applyApiKey.call(this, securitySchemeId, username, password);
   }
 
   // Public Method - to update security-scheme of type apiKey or OAuth
-  setApiKey(securitySchemeId, apiKeyValue) {
+  setApiKey(securitySchemeId: string, apiKeyValue: string) {
     return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
   }
 
@@ -455,13 +534,13 @@ export default class RapiDocMini extends LitElement {
   }
 
   // Public Method
-  setApiServer(apiServerUrl) {
+  setApiServer(apiServerUrl: string) {
     // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
   }
 
-  async afterSpecParsedAndValidated(spec) {
-    this.resolvedSpec = spec;
+  async afterSpecParsedAndValidated(spec: unknown) {
+    this.resolvedSpec = spec as ResolvedSpec;
     this.selectedServer = undefined;
     if (this.defaultApiServerUrl) {
       if (this.defaultApiServerUrl === this.serverUrl) {
@@ -495,10 +574,11 @@ export default class RapiDocMini extends LitElement {
   }
 
   // Called by anchor tags created using markdown
-  handleHref(e) {
-    if (e.target.tagName.toLowerCase() === 'a') {
-      if (e.target.getAttribute('href').startsWith('#')) {
-        const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
+  handleHref(e: Event) {
+    const target = e.target as HTMLElement;
+    if (target.tagName.toLowerCase() === 'a') {
+      if (target.getAttribute('href')!.startsWith('#')) {
+        const gotoEl = this.shadowRoot!.getElementById(target.getAttribute('href')!.replace('#', ''));
         if (gotoEl) {
           gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }

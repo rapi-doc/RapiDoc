@@ -1,11 +1,28 @@
-// @ts-nocheck
 /**
  * Renders the top navigation header with logo, title, search trigger, server selector, theme switcher, and auth controls.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
 import logoTemplate from '~/templates/logo-template';
+import type { RapiDocElement } from '~/types/element';
 
-export default function headerTemplate() {
+/** `this` of `headerTemplate`: called by `<rapi-doc>` and `<json-schema-viewer>`, which does not provide the optional members. */
+export type HeaderHost = Partial<
+  Pick<RapiDocElement, 'headingText' | 'specFile' | 'onSpecFileChange' | 'onFileLoadClick' | 'onShowAdvancedSearchClicked'>
+> &
+  Pick<
+    RapiDocElement,
+    | 'specUrl'
+    | 'allowSpecUrlLoad'
+    | 'allowSpecFileLoad'
+    | 'allowSearch'
+    | 'allowAdvancedSearch'
+    | 'renderStyle'
+    | 'onSpecUrlChange'
+    | 'onSearchChange'
+  >;
+
+export default function headerTemplate(this: HeaderHost): TemplateResult {
   return html`<header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;">
     <div class="only-large-screen-flex" style="align-items: center;">
       <slot name="logo" class="logo" part="section-logo">

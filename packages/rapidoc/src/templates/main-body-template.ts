@@ -1,8 +1,9 @@
-// @ts-nocheck
 /**
  * Renders the top-level main layout shell, orchestrating header, navbar, content panels, and modal dialogs based on renderStyle.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { RapiDocElement, RapiDocSpecElement } from '~/types/element';
 
 // Templates
 import expandedEndpointTemplate from '~/templates/expanded-endpoint-template';
@@ -17,7 +18,11 @@ import advancedSearchDialogTemplate from '~/templates/advanced-search-dialog-tem
 import SetTheme from '~/utils/theme';
 import { isValidHexColor } from '~/utils/color-utils';
 
-export default function mainBodyTemplate(isMini = false, pathsExpanded = false) {
+export default function mainBodyTemplate(
+  this: RapiDocElement,
+  isMini = false,
+  pathsExpanded: boolean | string = false
+): TemplateResult | string {
   if (!this.resolvedSpec) {
     return '';
   }
@@ -25,16 +30,16 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
     recoverPersistedApiKeys.call(this);
   }
   const newTheme = {
-    bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
-    fg1: isValidHexColor(this.textColor) ? this.textColor : '',
-    headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
-    primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
-    navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
-    navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
-    navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
-    navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
-    navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
-    navAccentTextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : '',
+    bg1: isValidHexColor(this.bgColor!) ? this.bgColor : '',
+    fg1: isValidHexColor(this.textColor!) ? this.textColor : '',
+    headerColor: isValidHexColor(this.headerColor!) ? this.headerColor : '',
+    primaryColor: isValidHexColor(this.primaryColor!) ? this.primaryColor : '',
+    navBgColor: isValidHexColor(this.navBgColor!) ? this.navBgColor : '',
+    navTextColor: isValidHexColor(this.navTextColor!) ? this.navTextColor : '',
+    navHoverBgColor: isValidHexColor(this.navHoverBgColor!) ? this.navHoverBgColor : '',
+    navHoverTextColor: isValidHexColor(this.navHoverTextColor!) ? this.navHoverTextColor : '',
+    navAccentColor: isValidHexColor(this.navAccentColor!) ? this.navAccentColor : '',
+    navAccentTextColor: isValidHexColor(this.navAccentTextColor!) ? this.navAccentTextColor : '',
   };
 
   if (this.resolvedSpec.specLoadError) {
@@ -69,7 +74,7 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
       <!-- Side Nav -->
       ${
         (this.renderStyle === 'read' || this.renderStyle === 'focused') && this.showSideNav === 'true' && this.resolvedSpec
-          ? navbarTemplate.call(this)
+          ? navbarTemplate.call(this as RapiDocSpecElement)
           : ''
       }
 
@@ -86,13 +91,13 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
                     : html`
                         <div
                           class="operations-root"
-                          @click="${(e) => {
+                          @click="${(e: Event) => {
                             this.handleHref(e);
                           }}"
                         >
                           ${
                             this.renderStyle === 'focused'
-                              ? html`${focusedEndpointTemplate.call(this)}`
+                              ? html`${focusedEndpointTemplate.call(this as RapiDocSpecElement)}`
                               : html`
                                   ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
                                   ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
@@ -102,8 +107,8 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
                                   </div>
                                   ${
                                     this.renderStyle === 'read'
-                                      ? expandedEndpointTemplate.call(this)
-                                      : endpointTemplate.call(this, isMini, pathsExpanded)
+                                      ? expandedEndpointTemplate.call(this as RapiDocSpecElement)
+                                      : endpointTemplate.call(this as RapiDocSpecElement, isMini, pathsExpanded)
                                   }
                                 `
                           }

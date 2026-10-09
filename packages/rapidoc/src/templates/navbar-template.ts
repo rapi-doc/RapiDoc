@@ -1,35 +1,38 @@
-// @ts-nocheck
 /**
  * Renders the sidebar navigation panel with search filter, tag groupings, method badges, and link routing.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { RapiDocElement, RapiDocSpecElement } from '~/types/element';
+import type { ResolvedSubComponent } from '~/types/spec';
 import Slugger from 'github-slugger';
 import { getMatchedPaths } from '~/utils/common-utils';
 
-export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
+export function expandCollapseNavBarTag(navLinkEl: Element | null | undefined, action = 'toggle'): void {
   const tagAndPathEl = navLinkEl?.closest('.nav-bar-tag-and-paths');
-  const pathsUnderTagEl = tagAndPathEl?.querySelector('.nav-bar-paths-under-tag');
+  const pathsUnderTagEl = tagAndPathEl?.querySelector<HTMLElement>('.nav-bar-paths-under-tag');
   if (tagAndPathEl) {
     const isExpanded = tagAndPathEl.classList.contains('expanded');
     if (isExpanded && (action === 'toggle' || action === 'collapse')) {
-      pathsUnderTagEl.style.maxHeight = 0;
+      // @ts-expect-error numeric 0 assigned to a string CSS property, kept to leave the emitted code unchanged
+      pathsUnderTagEl!.style.maxHeight = 0;
       tagAndPathEl.classList.replace('expanded', 'collapsed');
     } else if (!isExpanded && (action === 'toggle' || action === 'expand')) {
       tagAndPathEl.classList.replace('collapsed', 'expanded');
-      pathsUnderTagEl.style.maxHeight = `${pathsUnderTagEl.scrollHeight}px`;
+      pathsUnderTagEl!.style.maxHeight = `${pathsUnderTagEl!.scrollHeight}px`;
     }
   }
 }
 
-export function expandCollapseAll(event, action = 'expand-all') {
-  if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
+export function expandCollapseAll(event: Event, action = 'expand-all'): void {
+  if (!(event.type === 'click' || (event.type === 'keyup' && (event as KeyboardEvent).keyCode === 13))) {
     return;
   }
-  const navEl = event.target.closest('.nav-scroll');
+  const navEl = (event.target as HTMLElement).closest('.nav-scroll')!;
   const elList = [...navEl.querySelectorAll('.nav-bar-tag-and-paths')];
   if (action === 'expand-all') {
     elList.forEach((el) => {
-      const navBarPathsUnderTagEl = el.querySelector('.nav-bar-paths-under-tag');
+      const navBarPathsUnderTagEl = el.querySelector<HTMLElement>('.nav-bar-paths-under-tag')!;
       el.classList.replace('collapsed', 'expanded');
       navBarPathsUnderTagEl.style.maxHeight = `${navBarPathsUnderTagEl?.scrollHeight}px`;
     });
@@ -41,31 +44,31 @@ export function expandCollapseAll(event, action = 'expand-all') {
   }
 }
 
-export function navBarClickAndEnterHandler(event) {
-  if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
+export function navBarClickAndEnterHandler(this: Pick<RapiDocElement, 'scrollToEventTarget'>, event: Event): void {
+  if (!(event.type === 'click' || (event.type === 'keyup' && (event as KeyboardEvent).keyCode === 13))) {
     return;
   }
-  const navEl = event.target;
+  const navEl = event.target as HTMLElement;
   // Ignore clicks or enter inside the search / filter controls
   if (navEl.closest('#nav-bar-search') || navEl.closest('#advanced-search-btn') || navEl.closest('[part~="btn-clear-filter"]')) {
     return;
   }
   event.stopPropagation();
-  if (navEl.dataset?.action === 'navigate') {
+  if (navEl.dataset?.['action'] === 'navigate') {
     this.scrollToEventTarget(event, false);
-    const navBarEl = event.currentTarget.closest('#nav-bar');
+    const navBarEl = (event.currentTarget as HTMLElement).closest('#nav-bar')!;
     // hide the navigation bar incase of floating navigation
     if (navBarEl.classList.contains('floating-nav')) {
       navBarEl.classList.remove('floating-nav');
     }
-  } else if (navEl.dataset?.action === 'expand-all' || navEl.dataset?.action === 'collapse-all') {
-    expandCollapseAll(event, navEl.dataset.action);
-  } else if (navEl.dataset?.action === 'expand-collapse-tag') {
+  } else if (navEl.dataset?.['action'] === 'expand-all' || navEl.dataset?.['action'] === 'collapse-all') {
+    expandCollapseAll(event, navEl.dataset['action']);
+  } else if (navEl.dataset?.['action'] === 'expand-collapse-tag') {
     expandCollapseNavBarTag(navEl, 'toggle');
   }
 }
 
-export default function navbarTemplate() {
+export default function navbarTemplate(this: RapiDocSpecElement): TemplateResult {
   const slugger = new Slugger();
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return html`<nav class="nav-bar" part="section-navbar">
@@ -80,8 +83,8 @@ export default function navbarTemplate() {
         class="nav-scroll"
         tabindex="-1"
         part="section-navbar-scroll"
-        @click="${(e) => navBarClickAndEnterHandler.call(this, e)}"
-        @keyup="${(e) => navBarClickAndEnterHandler.call(this, e)}"
+        @click="${(e: Event) => navBarClickAndEnterHandler.call(this, e)}"
+        @keyup="${(e: Event) => navBarClickAndEnterHandler.call(this, e)}"
       >
         ${
           this.allowSearch === 'false' && this.allowAdvancedSearch === 'false'
@@ -240,7 +243,7 @@ export default function navbarTemplate() {
 
         <!-- TAGS AND PATHS-->
         ${this.resolvedSpec.tags
-          .filter((tag) => tag.paths.filter((path) => getMatchedPaths(this.searchVal, path, tag.name)).length)
+          .filter((tag) => tag.paths.filter((path) => getMatchedPaths(this.searchVal!, path, tag.name)).length)
           .map(
             (tag) =>
               html` <div
@@ -361,7 +364,7 @@ export default function navbarTemplate() {
                           ${component.name}
                         </div>
                         ${component.subComponents
-                          .filter((p) => p.expanded !== false)
+                          .filter((p) => (p as ResolvedSubComponent & { expanded?: boolean }).expanded !== false)
                           .map(
                             (p) =>
                               html` <div class="nav-bar-path" data-action="navigate" data-content-id="cmp--${p.id}" id="link-cmp--${p.id}">

@@ -1,14 +1,16 @@
-// @ts-nocheck
 /**
  * Renders the API server selector dropdown and server variable configuration form.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import { marked } from 'marked';
+import type { ServerHost } from '~/types/element';
+import type { ResolvedServer, ResolvedSpec } from '~/types/spec';
 
-export function setApiServer(serverUrl) {
-  const serverObj = this.resolvedSpec?.servers.find((s) => s.url === serverUrl);
+export function setApiServer(this: ServerHost, serverUrl: string): boolean {
+  const serverObj = (this.resolvedSpec as ResolvedSpec | null)?.servers.find((s) => s.url === serverUrl);
   if (!serverObj) {
     return false;
   }
@@ -26,9 +28,11 @@ export function setApiServer(serverUrl) {
   return true;
 }
 
-function onApiServerVarChange(e, serverObj) {
-  const inputEls = [...e.currentTarget.closest('table').querySelectorAll('input, select')];
-  let tempUrl = serverObj.url;
+function onApiServerVarChange(this: ServerHost, e: Event, serverObj: ResolvedServer): void {
+  const inputEls = [
+    ...(e.currentTarget as HTMLElement).closest('table')!.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select'),
+  ];
+  let tempUrl = serverObj.url!;
   inputEls.forEach((v) => {
     const regex = new RegExp(`{${v.dataset.var}}`, 'g');
     tempUrl = tempUrl.replace(regex, v.value);
@@ -37,7 +41,7 @@ function onApiServerVarChange(e, serverObj) {
   this.requestUpdate();
 }
 
-function serverVarsTemplate() {
+function serverVarsTemplate(this: ServerHost): TemplateResult | '' {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
@@ -52,8 +56,8 @@ function serverVarsTemplate() {
                     kv[1].enum
                       ? html` <select
                           data-var="${kv[0]}"
-                          @input=${(e) => {
-                            onApiServerVarChange.call(this, e, this.selectedServer);
+                          @input=${(e: Event) => {
+                            onApiServerVarChange.call(this, e, this.selectedServer!);
                           }}
                         >
                           ${Object.entries(kv[1].enum).map((e) =>
@@ -68,8 +72,8 @@ function serverVarsTemplate() {
                           spellcheck="false"
                           data-var="${kv[0]}"
                           value="${kv[1].default}"
-                          @input=${(e) => {
-                            onApiServerVarChange.call(this, e, this.selectedServer);
+                          @input=${(e: Event) => {
+                            onApiServerVarChange.call(this, e, this.selectedServer!);
                           }}
                         />`
                   }
@@ -91,7 +95,7 @@ function serverVarsTemplate() {
     : '';
 }
 
-export default function serverTemplate() {
+export default function serverTemplate(this: ServerHost): TemplateResult | '' {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return '';
   }
@@ -116,10 +120,10 @@ export default function serverTemplate() {
     </div>
     <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);">
       ${
-        !this.resolvedSpec.servers || this.resolvedSpec.servers?.length === 0
+        !(this.resolvedSpec as ResolvedSpec).servers || (this.resolvedSpec as ResolvedSpec).servers?.length === 0
           ? ''
           : html`
-              ${this.resolvedSpec?.servers.map(
+              ${(this.resolvedSpec as ResolvedSpec)?.servers.map(
                 (server, i) => html`
                   <input
                     type="radio"
@@ -127,9 +131,9 @@ export default function serverTemplate() {
                     id="srvr-opt-${i}"
                     value="${server.url}"
                     @change=${() => {
-                      setApiServer.call(this, server.url);
+                      setApiServer.call(this, server.url!);
                     }}
-                    .checked="${this.selectedServer.url === server.url}"
+                    .checked="${this.selectedServer!.url === server.url}"
                     style="margin:4px 0; cursor:pointer"
                   />
                   <label style="cursor:pointer" for="srvr-opt-${i}">

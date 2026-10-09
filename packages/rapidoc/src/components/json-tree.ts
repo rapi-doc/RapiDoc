@@ -1,5 +1,5 @@
-// @ts-nocheck
 import { LitElement, html, css } from 'lit';
+import type { TemplateResult } from 'lit';
 import { copyToClipboard } from '~/utils/common-utils';
 import FontStyles from '~/styles/font-styles';
 import BorderStyles from '~/styles/border-styles';
@@ -7,14 +7,17 @@ import InputStyles from '~/styles/input-styles';
 import CustomStyles from '~/styles/custom-styles';
 
 export default class JsonTree extends LitElement {
-  static get properties() {
+  data?: unknown;
+  renderStyle?: string;
+
+  static override get properties() {
     return {
       data: { type: Object },
       renderStyle: { type: String, attribute: 'render-style' },
     };
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       FontStyles,
       BorderStyles,
@@ -110,12 +113,12 @@ export default class JsonTree extends LitElement {
     ];
   }
 
-  render() {
+  override render() {
     return html`
       <div
         class="json-tree"
-        @click="${(e) => {
-          if (e.target.classList.contains('btn-copy')) {
+        @click="${(e: Event) => {
+          if ((e.target as HTMLElement).classList.contains('btn-copy')) {
             copyToClipboard(JSON.stringify(this.data, null, 2), e);
           } else {
             this.toggleExpand(e);
@@ -130,7 +133,7 @@ export default class JsonTree extends LitElement {
     `;
   }
 
-  generateTree(data, isLast = false) {
+  generateTree(data: unknown, isLast = false): TemplateResult {
     if (data === null) {
       return html`<span class="null">null</span>${isLast ? '' : ','}`;
     }
@@ -146,9 +149,10 @@ export default class JsonTree extends LitElement {
         </div>
         <div class="inside-bracket">
           ${Object.keys(data).map(
-            (key, i, a) =>
+            (key: string, i: number, a: string[]) =>
               html`<div class="item">
-                ${detailType === 'pure_object' ? html`"${key}":` : ''} ${this.generateTree(data[key], i === a.length - 1)}
+                ${detailType === 'pure_object' ? html`"${key}":` : ''}
+                ${this.generateTree((data as Record<string, unknown>)[key], i === a.length - 1)}
               </div>`
           )}
         </div>
@@ -160,8 +164,8 @@ export default class JsonTree extends LitElement {
       : html`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
   }
 
-  toggleExpand(e) {
-    const openBracketEl = e.target.closest('.open-bracket');
+  toggleExpand(e: Event) {
+    const openBracketEl = (e.target as HTMLElement).closest('.open-bracket');
     if (openBracketEl) {
       if (openBracketEl.classList.contains('expanded')) {
         openBracketEl.classList.replace('expanded', 'collapsed');

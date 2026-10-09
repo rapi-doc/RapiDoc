@@ -1,10 +1,10 @@
-// @ts-nocheck
 /**
  * Renders default RapiDoc SVG branding logo.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
 
-export default function logoTemplate(style) {
+export default function logoTemplate(style: string): TemplateResult {
   return html`<div style=${style}>
     <svg viewBox="1 0 511 512">
       <path d="M351 411a202 202 0 01-350 0 203 203 0 01333-24 203 203 0 0117 24zm0 0" fill="#adc165" />

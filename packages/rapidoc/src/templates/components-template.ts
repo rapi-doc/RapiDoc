@@ -1,8 +1,11 @@
-// @ts-nocheck
 /**
  * Renders reusable OpenAPI component definitions (schemas, models) in the document.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { RapiDocSpecElement } from '~/types/element';
+import type { ResolvedSubComponent } from '~/types/spec';
+import type { Schema } from '~/types/schema';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import { marked } from 'marked';
@@ -11,7 +14,7 @@ import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/schema-table';
 
-function schemaBodyTemplate(sComponent) {
+function schemaBodyTemplate(this: RapiDocSpecElement, sComponent: ResolvedSubComponent): TemplateResult {
   return html`<div class="divider"></div>
     <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}">
       <div style="font-weight:bold">
@@ -20,7 +23,7 @@ function schemaBodyTemplate(sComponent) {
       ${
         this.schemaStyle === 'table'
           ? html` <schema-table
-              .data="${schemaToAST(sComponent.component)}"
+              .data="${schemaToAST(sComponent.component as Schema)}"
               schema-expand-level="${this.schemaExpandLevel}"
               schema-description-expanded="${this.schemaDescriptionExpanded}"
               allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
@@ -30,7 +33,7 @@ function schemaBodyTemplate(sComponent) {
             >
             </schema-table>`
           : html`<schema-tree
-              .data="${schemaToAST(sComponent.component)}"
+              .data="${schemaToAST(sComponent.component as Schema)}"
               schema-expand-level="${this.schemaExpandLevel}"
               schema-description-expanded="${this.schemaDescriptionExpanded}"
               allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
@@ -43,7 +46,7 @@ function schemaBodyTemplate(sComponent) {
     </div>`;
 }
 
-function componentBodyTemplate(sComponent, componentType) {
+function componentBodyTemplate(this: RapiDocSpecElement, sComponent: ResolvedSubComponent, componentType: string): TemplateResult {
   if (sComponent.id.indexOf('schemas-') !== -1) {
     return schemaBodyTemplate.call(this, sComponent);
   }
@@ -67,7 +70,7 @@ function componentBodyTemplate(sComponent, componentType) {
   `;
 }
 
-export default function componentsTemplate() {
+export default function componentsTemplate(this: RapiDocSpecElement): TemplateResult | string {
   if (!this.resolvedSpec) {
     return '';
   }
@@ -86,7 +89,7 @@ export default function componentsTemplate() {
         </div>
         <div class="regular-font section-gap--read-mode">
           ${component.subComponents
-            .filter((c) => c.expanded !== false)
+            .filter((c) => (c as ResolvedSubComponent & { expanded?: boolean }).expanded !== false)
             .map((sComponent) => componentBodyTemplate.call(this, sComponent, component.name))}
         </div>
       `

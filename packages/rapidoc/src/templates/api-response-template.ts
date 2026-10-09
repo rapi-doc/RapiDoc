@@ -1,19 +1,20 @@
-// @ts-nocheck
 /**
  * Renders the interactive API response panel (status, headers, body, blob actions),
  * live cURL preview/copy, and the execute/Try action controls for <api-request>.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-utils';
+import type { ApiRequestElement } from '~/types/element';
 
-export function curlSyntaxTemplate(display = 'flex') {
+export function curlSyntaxTemplate(this: ApiRequestElement, display = 'flex'): TemplateResult {
   return html`
     <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
       <button
         class="toolbar-btn"
         style="position:absolute; top:12px; right:8px"
-        @click="${(e) => {
+        @click="${(e: Event) => {
           copyToClipboard(this.curlSyntax.trim().replace(/\\$/, ''), e);
         }}"
         part="btn btn-fill btn-copy"
@@ -25,9 +26,9 @@ export function curlSyntaxTemplate(display = 'flex') {
   `;
 }
 
-export function apiResponseTabTemplate() {
+export function apiResponseTabTemplate(this: ApiRequestElement): TemplateResult {
   let responseFormat = '';
-  let responseContent = '';
+  let responseContent: TemplateResult | '' = '';
   if (!this.responseIsBlob) {
     if (this.responseHeaders.includes('application/x-ndjson') || this.responseHeaders.includes('json')) {
       responseFormat = 'json';
@@ -48,11 +49,12 @@ export function apiResponseTabTemplate() {
         id="tab_buttons"
         part="tab-btn-row"
         class="tab-buttons row"
-        @click="${(e) => {
-          if (e.target.classList.contains('tab-btn') === false) {
+        @click="${(e: Event) => {
+          const target = e.target as HTMLElement;
+          if (target.classList.contains('tab-btn') === false) {
             return;
           }
-          this.activeResponseTab = e.target.dataset.tab;
+          this.activeResponseTab = target.dataset.tab!;
         }}"
       >
         <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab="response">
@@ -84,7 +86,9 @@ export function apiResponseTabTemplate() {
               <button
                 class="m-btn thin-border mar-top-8"
                 style="width:135px"
-                @click="${(e) => {
+                @click="${(e: Event) => {
+                  // TODO(ts-migration): downloadResource takes 2 parameters, the event argument is ignored.
+                  // @ts-expect-error extra argument
                   downloadResource(this.responseBlobUrl, this.respContentDisposition, e);
                 }}"
                 part="btn btn-outline"
@@ -96,7 +100,9 @@ export function apiResponseTabTemplate() {
                   ? html`<button
                       class="m-btn thin-border mar-top-8"
                       style="width:135px"
-                      @click="${(e) => {
+                      @click="${(e: Event) => {
+                        // TODO(ts-migration): viewResource takes 1 parameter, the event argument is ignored.
+                        // @ts-expect-error extra argument
                         viewResource(this.responseBlobUrl, e);
                       }}"
                       part="btn btn-outline"
@@ -114,7 +120,7 @@ export function apiResponseTabTemplate() {
               <button
                 class="toolbar-btn"
                 style="position:absolute; top:12px; right:8px"
-                @click="${(e) => {
+                @click="${(e: Event) => {
                   copyToClipboard(this.responseText, e);
                 }}"
                 part="btn btn-fill btn-copy"
@@ -133,8 +139,8 @@ ${responseContent}</pre>
         <button
           class="toolbar-btn"
           style="position:absolute; top:12px; right:8px"
-          @click="${(e) => {
-            copyToClipboard(this.responseHeaders, e);
+          @click="${(e: Event) => {
+            copyToClipboard(this.responseHeaders as string, e);
           }}"
           part="btn btn-fill btn-copy"
         >
@@ -146,7 +152,7 @@ ${responseContent}</pre>
     </div>`;
 }
 
-export function apiCallTemplate() {
+export function apiCallTemplate(this: ApiRequestElement): TemplateResult {
   const selectedServerHtml = html`
     <div style="display:flex; flex-direction:column;">
       ${
@@ -166,17 +172,17 @@ export function apiCallTemplate() {
         <div style="display:flex;">
           <div style="font-weight:bold; padding-right:5px;">Authentication</div>
           ${
-            this.security?.length > 0 && !this.security.every((s) => !s || Object.keys(s).length === 0)
+            (this.security?.length as number) > 0 && !this.security!.every((s) => !s || Object.keys(s).length === 0)
               ? html` ${
-                  this.api_keys.length > 0
+                  this.api_keys!.length > 0
                     ? html`<div style="color:var(--blue); overflow:hidden;">
                         ${
-                          this.api_keys.length === 1
-                            ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
-                            : `${this.api_keys.length} API keys applied`
+                          this.api_keys!.length === 1
+                            ? `${this.api_keys![0]?.typeDisplay} in ${this.api_keys![0].in}`
+                            : `${this.api_keys!.length} API keys applied`
                         }
                       </div>`
-                    : this.security.some((s) => !s || Object.keys(s).length === 0)
+                    : this.security!.some((s) => !s || Object.keys(s).length === 0)
                       ? html`<div class="gray-text">Optional <span class="gray-text">(None Applied)</span></div>`
                       : html`<div class="gray-text">Required <span style="color:var(--red)">(None Applied)</span></div>`
                 }`
@@ -185,7 +191,7 @@ export function apiCallTemplate() {
         </div>
       </div>
       ${
-        this.parameters.length > 0 || this.request_body
+        this.parameters!.length > 0 || this.request_body
           ? html` <button
                 class="m-btn thin-border"
                 part="btn btn-outline btn-fill"

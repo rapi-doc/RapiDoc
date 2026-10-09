@@ -1,8 +1,11 @@
-// @ts-nocheck
 export default class OauthReceiver extends HTMLElement {
+  /** Never declared upstream: `postMessage` therefore receives `undefined` as target origin. */
+  target?: string;
+
   connectedCallback() {
     this.receiveAuthParms();
-    window.addEventListener('storage', (e) => this.receiveStorage(e), true);
+    // TODO(ts-migration): `receiveStorage` does not exist (probably meant `relayAuthParams`); the storage listener throws at runtime.
+    window.addEventListener('storage', (e) => (this as unknown as { receiveStorage(e: StorageEvent): void }).receiveStorage(e), true);
   }
 
   /**
@@ -10,7 +13,7 @@ export default class OauthReceiver extends HTMLElement {
    * to the window opener through `window.postMessage`.
    */
   receiveAuthParms() {
-    let authData = {};
+    let authData: Record<string, unknown> = {};
     if (document.location.search) {
       // Applies to authorizationCode flow
       const params = new URLSearchParams(document.location.search);
@@ -31,22 +34,22 @@ export default class OauthReceiver extends HTMLElement {
     }
 
     if (window.opener) {
-      window.opener.postMessage(authData, this.target);
+      window.opener.postMessage(authData, this.target as string);
       return;
     }
     sessionStorage.setItem('rapidoc-oauth-data', JSON.stringify(authData)); // Fallback to session storage if window.opener dont exist
   }
 
-  relayAuthParams(e) {
+  relayAuthParams(e: StorageEvent) {
     if (window.parent) {
       if (e.key === 'rapidoc-oauth-data') {
-        const authData = JSON.parse(e.newValue);
-        window.parent.postMessage(authData, this.target);
+        const authData = JSON.parse(e.newValue as string);
+        window.parent.postMessage(authData, this.target as string);
       }
     }
   }
 
-  parseQueryString(queryString, key) {
+  parseQueryString(queryString: string, key: string): string | undefined {
     const vars = queryString.split('&');
     for (let i = 0; i < vars.length; i++) {
       const pair = vars[i].split('=');

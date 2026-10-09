@@ -1,8 +1,11 @@
-// @ts-nocheck
 /**
  * Renders all API operations in an expanded continuous documentation layout grouped by tags.
  */
 import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { RapiDocSpecElement } from '~/types/element';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
+import type { ResolvedPath } from '~/types/spec';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.ts';
 import { marked } from 'marked';
@@ -14,7 +17,7 @@ import callbackTemplate from '~/templates/callback-template';
 import '~/components/api-request';
 import '~/components/api-response';
 
-function headingRenderer(tagElementId) {
+function headingRenderer(tagElementId: string) {
   const slugger = new Slugger();
   const renderer = new marked.Renderer();
   /*
@@ -22,16 +25,19 @@ function headingRenderer(tagElementId) {
     `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
   return renderer;
   */
+  // TODO(ts-migration): legacy marked (<5) heading signature; marked 5+ passes a single token object, so `text` is the token and level/raw are undefined
+  // @ts-expect-error signature kept as is to leave the emitted code unchanged
   renderer.heading = (text, level, raw) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
   return renderer;
 }
 
-function expandCollapseTagDescription(e) {
-  const tagDescriptionEl = e.target.closest('.tag-container').querySelector('.tag-description');
-  const tagIconEl = e.target.closest('.tag-container').querySelector('.tag-icon');
+function expandCollapseTagDescription(this: RapiDocSpecElement, e: Event) {
+  const tagDescriptionEl = (e.target as HTMLElement).closest('.tag-container')!.querySelector<HTMLElement>('.tag-description');
+  const tagIconEl = (e.target as HTMLElement).closest('.tag-container')!.querySelector('.tag-icon');
   if (tagDescriptionEl && tagIconEl) {
     const isExpanded = tagDescriptionEl.classList.contains('expanded');
     if (isExpanded) {
+      // @ts-expect-error numeric 0 assigned to a string CSS property, kept to leave the emitted code unchanged
       tagDescriptionEl.style.maxHeight = 0;
       tagDescriptionEl.classList.replace('expanded', 'collapsed');
       tagIconEl.classList.replace('expanded', 'collapsed');
@@ -43,10 +49,15 @@ function expandCollapseTagDescription(e) {
   }
 }
 
-export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
-  const acceptContentTypes = new Set();
+export function expandedEndpointBodyTemplate(
+  this: RapiDocSpecElement,
+  path: ResolvedPath,
+  tagName = '',
+  tagDescription = ''
+): TemplateResult {
+  const acceptContentTypes = new Set<string>();
   for (const respStatus in path.responses) {
-    for (const acceptContentType in path.responses[respStatus]?.content) {
+    for (const acceptContentType in (path.responses![respStatus] as OpenAPIV3_1.ResponseObject | undefined)?.content) {
       acceptContentTypes.add(acceptContentType.trim());
     }
   }
@@ -85,7 +96,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                           stroke-width="2"
                           fill="none"
                           style="stroke:var(--primary-color); vertical-align:top; cursor:pointer"
-                          @click="${(e) => {
+                          @click="${(e: Event) => {
                             expandCollapseTagDescription.call(this, e);
                           }}"
                         >
@@ -206,7 +217,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
   `;
 }
 
-export default function expandedEndpointTemplate() {
+export default function expandedEndpointTemplate(this: RapiDocSpecElement): TemplateResult | string {
   if (!this.resolvedSpec) {
     return '';
   }

@@ -1,5 +1,5 @@
-// @ts-nocheck
 import { css, LitElement } from 'lit';
+import type { PropertyValues } from 'lit';
 import { scheduleHighlight } from '~/utils/highlighter';
 
 // Styles
@@ -14,9 +14,47 @@ import InfoStyles from '~/styles/info-styles';
 
 import EndpointStyles from '~/styles/endpoint-styles';
 import ProcessSpec from '~/utils/spec-parser';
+import type { ResolvedJsonSchemaSpec } from '~/types/spec';
 import jsonSchemaViewerTemplate from '~/templates/json-schema-viewer-template';
 
 export default class JsonSchemaViewer extends LitElement {
+  specUrl?: string;
+  schemaStyle!: string;
+  schemaExpandLevel!: number;
+  schemaDescriptionExpanded!: string;
+  allowSchemaDescriptionExpandToggle!: string;
+  showHeader!: string;
+  showSideNav!: string;
+  showInfo!: string;
+  allowSpecUrlLoad?: string;
+  allowSpecFileLoad?: string;
+  allowSpecFileDownload?: string;
+  allowSearch!: string;
+  theme!: string;
+  bgColor?: string;
+  textColor?: string;
+  primaryColor?: string;
+  fontSize!: string;
+  regularFont?: string;
+  monoFont?: string;
+  loadFonts?: string;
+  loading?: boolean;
+
+  // Not reactive properties (never declared in `properties`)
+  isMini: boolean;
+  updateRoute: string;
+  renderStyle: string;
+  allowAdvancedSearch: string;
+  selectedExampleForEachSchema: Record<string, string>;
+  pathsExpanded?: string | boolean;
+  matchType!: string;
+  matchPaths?: string;
+  generateMissingTags?: string;
+  sortTags?: string;
+  sortSchemas?: string;
+  loadFailed?: boolean;
+  resolvedSpec?: ResolvedJsonSchemaSpec | null;
+
   constructor() {
     super();
     this.isMini = false;
@@ -27,7 +65,7 @@ export default class JsonSchemaViewer extends LitElement {
     this.selectedExampleForEachSchema = {};
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       // Spec
       specUrl: { type: String, attribute: 'spec-url' },
@@ -64,7 +102,7 @@ export default class JsonSchemaViewer extends LitElement {
     };
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       FontStyles,
       InputStyles,
@@ -169,7 +207,7 @@ export default class JsonSchemaViewer extends LitElement {
   }
 
   // Startup
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
     const parent = this.parentElement;
     if (parent) {
@@ -261,16 +299,18 @@ export default class JsonSchemaViewer extends LitElement {
     }
   }
 
-  render() {
+  override render() {
+    // TODO(ts-migration): the template only takes `isMini`; the 3 extra arguments are ignored at runtime.
+    // @ts-expect-error extra arguments kept as-is (no runtime change)
     return jsonSchemaViewerTemplate.call(this, true, false, false, this.pathsExpanded);
   }
 
-  updated(changedProperties) {
+  override updated(changedProperties: PropertyValues) {
     super.updated?.(changedProperties);
-    scheduleHighlight(this.shadowRoot);
+    scheduleHighlight(this.shadowRoot!);
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
+  override attributeChangedCallback(name: string, oldVal: string | null, newVal: string | null) {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
@@ -283,16 +323,16 @@ export default class JsonSchemaViewer extends LitElement {
   }
 
   onSpecUrlChange() {
-    this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
+    this.setAttribute('spec-url', (this.shadowRoot!.getElementById('spec-url') as HTMLInputElement).value);
   }
 
-  onSearchChange(e) {
+  onSearchChange(e: Event) {
     // Todo: Filter Search
-    this.matchPaths = e.target.value;
+    this.matchPaths = (e.target as HTMLInputElement).value;
   }
 
   // Public Method
-  async loadSpec(specUrl) {
+  async loadSpec(specUrl: unknown) {
     if (!specUrl) {
       return;
     }
@@ -301,13 +341,15 @@ export default class JsonSchemaViewer extends LitElement {
         specLoadError: false,
         isSpecLoading: true,
         tags: [],
-      };
+      } as unknown as ResolvedJsonSchemaSpec;
       this.loading = true;
       this.loadFailed = false;
       this.requestUpdate();
+      // TODO(ts-migration): positional arguments differ from rapidoc.ts (attrApiKey/attrApiKeyLocation/attrApiKeyValue receive
+      // match-paths/match-type/remove-endpoints-with-badge-label-as attribute values, matchPaths/matchType stay default): likely an upstream bug.
       const spec = await ProcessSpec.call(
         this,
-        specUrl,
+        specUrl as Parameters<typeof ProcessSpec>[0],
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
         this.sortSchemas === 'true',
@@ -322,21 +364,22 @@ export default class JsonSchemaViewer extends LitElement {
       this.loading = false;
       this.loadFailed = true;
       this.resolvedSpec = null;
-      console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`);
+      console.error(`RapiDoc: Unable to resolve the API spec..  ${(err as Error).message}`);
     }
   }
 
-  async afterSpecParsedAndValidated(spec) {
-    this.resolvedSpec = spec;
+  async afterSpecParsedAndValidated(spec: unknown) {
+    this.resolvedSpec = spec as ResolvedJsonSchemaSpec;
     const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
     this.dispatchEvent(specLoadedEvent);
   }
 
   // Called by anchor tags created using markdown
-  handleHref(e) {
-    if (e.target.tagName.toLowerCase() === 'a') {
-      if (e.target.getAttribute('href').startsWith('#')) {
-        const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
+  handleHref(e: Event) {
+    const target = e.target as HTMLElement;
+    if (target.tagName.toLowerCase() === 'a') {
+      if (target.getAttribute('href')!.startsWith('#')) {
+        const gotoEl = this.shadowRoot!.getElementById(target.getAttribute('href')!.replace('#', ''));
         if (gotoEl) {
           gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
@@ -345,20 +388,21 @@ export default class JsonSchemaViewer extends LitElement {
   }
 
   // Example Dropdown @change Handler
-  onSelectExample(e) {
-    const exampleContainerEl = e.target.closest('.json-schema-example-panel');
-    const exampleEls = [...exampleContainerEl.querySelectorAll('.example')];
+  onSelectExample(e: Event) {
+    const target = e.target as HTMLSelectElement;
+    const exampleContainerEl = target.closest('.json-schema-example-panel')!;
+    const exampleEls = [...exampleContainerEl.querySelectorAll<HTMLElement>('.example')];
     exampleEls.forEach((v) => {
-      v.style.display = v.dataset.example === e.target.value ? 'flex' : 'none';
+      v.style.display = v.dataset['example'] === target.value ? 'flex' : 'none';
     });
   }
 
-  async scrollToEventTarget(event) {
-    const navEl = event.currentTarget;
-    if (!navEl.dataset.contentId) {
+  async scrollToEventTarget(event: Event) {
+    const navEl = event.currentTarget as HTMLElement;
+    if (!navEl.dataset['contentId']) {
       return;
     }
-    const contentEl = this.shadowRoot.getElementById(navEl.dataset.contentId);
+    const contentEl = this.shadowRoot!.getElementById(navEl.dataset['contentId']);
     if (contentEl) {
       contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
