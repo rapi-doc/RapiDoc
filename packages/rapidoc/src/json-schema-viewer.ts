@@ -327,7 +327,10 @@ export default class JsonSchemaViewer extends LitElement {
 
   onSearchChange(e: Event) {
     // Todo: Filter Search
-    this.matchPaths = (e.target as HTMLInputElement).value;
+    const target = e.target as HTMLElement;
+    const input =
+      target instanceof HTMLInputElement ? target : (this.shadowRoot!.getElementById('nav-bar-search') as HTMLInputElement | null);
+    this.matchPaths = input?.value ?? '';
   }
 
   // Public Method
