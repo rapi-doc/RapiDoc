@@ -996,7 +996,8 @@ export default class RapiDoc extends LitElement {
       }
 
       if (updateSelectedApiKey) {
-        if (this.resolvedSpec) {
+        // While the spec is loading, resolvedSpec is a placeholder without securitySchemes
+        if ((this.resolvedSpec as ResolvedSpec | null)?.securitySchemes) {
           const rapiDocApiKey = (this.resolvedSpec as ResolvedSpec).securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
           if (!rapiDocApiKey) {
             (this.resolvedSpec as ResolvedSpec).securitySchemes.push({
