@@ -348,7 +348,6 @@ export default class ApiResponse extends LitElement {
     });
   }
 
-  // TODO(ts-migration): unsafeHTML() takes a single argument; the `{ USE_PROFILES }` options passed for the single json example description are ignored.
   mimeExampleTemplate(mimeRespDetails: MimeResponse | undefined) {
     if (!mimeRespDetails || !mimeRespDetails.examples || mimeRespDetails.examples.length === 0) {
       return html`
