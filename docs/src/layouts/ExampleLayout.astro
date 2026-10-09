@@ -1,11 +1,210 @@
 ---
 import '../styles/examples.css';
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+import Icon from '../components/Icon.astro';
+import RapiDocController from '../components/RapiDocController.astro';
+import PrettyRapiDocController from '../components/PrettyRapiDocController.astro';
+import { getSpecUrl } from '../utils/getSpecUrl';
+import { exampleListData } from '../page-data/example-list';
+import { testListData } from '../page-data/tests';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  specUrl?: string;
+  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none' | 'auto';
+  controls?: string[];
+  rapidocProps?: Record<string, any>;
+  autoRenderRapiDoc?: boolean;
+  tuckedRight?: boolean;
+  controllerTitle?: string;
+  showController?: boolean;
+  showBackPill?: boolean;
+  controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
+  showMethods?: boolean;
+  controller?: 'default' | 'pretty' | 'hud' | 'drawer' | ((_props: any) => any);
+}
+
+const {
+  title: propTitle,
+  description: propDescription,
+  noindex: propNoindex,
+  specUrl: propSpecUrl,
+  preset: propPreset,
+  controls: propControls,
+  rapidocProps = {},
+  autoRenderRapiDoc = false,
+  tuckedRight,
+  controllerTitle,
+  showController,
+  showBackPill = true,
+  controllerSize = 'medium',
+  showMethods,
+  controller = 'default',
+} = Astro.props;
+
+let ControllerComponent: any = RapiDocController;
+if (controller === 'pretty' || controller === 'drawer') {
+  ControllerComponent = PrettyRapiDocController;
+} else if (typeof controller !== 'string' && controller) {
+  ControllerComponent = controller;
+}
+
+const pathname = Astro.url.pathname;
+const isTest = pathname.startsWith('/tests');
+const backUrl = isTest ? '/tests' : '/examples';
+const backText = isTest ? 'Back to Tests' : 'Back to Examples';
+
+// Extract slug (e.g. /examples/render-read/ -> render-read)
+const segments = pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+let slug = segments[segments.length - 1] || '';
+if (slug === 'index' || slug === 'index.html') {
+  slug = segments[segments.length - 2] || '';
+}
+
+function formatSlug(s: string): string {
+  return s
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+let autoTitle = '';
+let autoDescription = '';
+let foundValidates: string[] = [];
+
+if (isTest) {
+  let foundTitle = '';
+  const allTests = [...(testListData?.basic || []), ...(testListData?.advanced || [])];
+  for (const item of allTests) {
+    if (item[slug]?.title) {
+      foundTitle = item[slug].title;
+      foundValidates = item[slug].validates || [];
+      break;
+    }
+  }
+  const cleanTitle = foundTitle || formatSlug(slug);
+  autoTitle = `${cleanTitle} | RapiDoc Tests`;
+  autoDescription = `OpenAPI schema edge case and rendering validation test for ${cleanTitle} in RapiDoc.`;
+} else {
+  let foundTitle = '';
+  for (const group of exampleListData?.examples || []) {
+    if (group[slug]) {
+      foundTitle = Object.keys(group)[0] || '';
+      break;
+    }
+  }
+  const cleanTitle = foundTitle || formatSlug(slug);
+  autoTitle = `${cleanTitle} - Interactive OpenAPI Example | RapiDoc`;
+  autoDescription = `Interactive live example demonstrating ${cleanTitle} configuration and features in RapiDoc OpenAPI viewer.`;
+}
+
+const finalTitle = propTitle || autoTitle;
+const finalDescription = propDescription || autoDescription;
+const finalNoindex = propNoindex !== undefined ? propNoindex : isTest;
+
+// Resolve spec URL automatically from convention if not provided
+const finalSpecUrl = propSpecUrl || getSpecUrl(Astro.url);
+
+// Determine controller preset and active controls
+const shouldShowController =
+  showController !== false &&
+  (showController === true || Boolean(propPreset && propPreset !== 'none') || Boolean(propControls && propControls.length > 0));
+
+let effectivePreset = propPreset;
+let effectiveControls = propControls;
+
+if (propPreset === 'auto' || (!propPreset && shouldShowController)) {
+  if (foundValidates.length > 0 && !propControls) {
+    effectiveControls = foundValidates;
+    effectivePreset = undefined;
+  } else if (!propControls) {
+    effectivePreset = 'minimal';
+  }
+}
 ---
 
-<GlobalLayout>
-  <slot slot="head" name="head" /> <!-- allows to attach stylesheets into this slot which is further slotted into the head section of GlobalLayout -->
+<GlobalLayout title={finalTitle} description={finalDescription} noindex={finalNoindex}>
+  <slot slot="head" name="head" />
+  <!-- allows to attach stylesheets into this slot which is further slotted into the head section of GlobalLayout -->
   <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
-  <slot slot="script" name="script" /> <!-- allows to attach script into this slot which is further slotted into the script section of GlobalLayout -->
-  <slot/>
+  <slot slot="script" name="script" />
+  <!-- allows to attach script into this slot which is further slotted into the script section of GlobalLayout -->
+
+  <!-- Floating quick return link back to Tests or Examples hub -->
+  {
+    showBackPill && (
+      <aside class="rd-floating-pill-container" aria-label="Navigation return">
+        <a href={backUrl} class="rd-floating-pill">
+          <Icon name="arrow-left" size={13} />
+          <span>{backText}</span>
+        </a>
+      </aside>
+    )
+  }
+
+  {
+    autoRenderRapiDoc ? (
+      <rapi-doc id={rapidocProps?.id || 'thedoc'} spec-url={finalSpecUrl} {...rapidocProps}>
+        <slot />
+      </rapi-doc>
+    ) : (
+      <slot />
+    )
+  }
+
+  {
+    shouldShowController && (
+      <ControllerComponent
+        targetId={rapidocProps?.id || 'thedoc'}
+        preset={effectivePreset as any}
+        controls={effectiveControls}
+        initialAttrs={rapidocProps}
+        specUrl={finalSpecUrl}
+        tuckedRight={tuckedRight}
+        title={controllerTitle || 'OPTIONS'}
+        size={controllerSize}
+        showMethods={showMethods}
+      >
+        <slot name="controller" slot="default" />
+      </ControllerComponent>
+    )
+  }
+
+  <style>
+    .rd-floating-pill-container {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      z-index: 99999;
+      pointer-events: none;
+    }
+    .rd-floating-pill {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color: #94a3b8;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .rd-floating-pill:hover {
+      color: #fff;
+      border-color: rgba(16, 185, 129, 0.5);
+      background: rgba(15, 23, 42, 0.95);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+  </style>
 </GlobalLayout>

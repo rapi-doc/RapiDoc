@@ -1,0 +1,903 @@
+---
+import GlobalLayout from "../../layouts/GlobalLayout.astro";
+import SiteNavbar from "../../components/SiteNavbar.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { stylingData } from "../../page-data/styling-data";
+import "../../styles/styling.css";
+
+const totalParts = stylingData.parts.reduce((acc, cat) => acc + cat.items.length, 0);
+const totalVariables = stylingData.variables.reduce((acc, cat) => acc + cat.items.length, 0);
+const totalCategories = stylingData.parts.length;
+
+const navRecipeCode = `/* Target the navigation sidebar using ::part() */
+rapi-doc::part(section-navbar) {
+  background: linear-gradient(90deg, #3d4e70, #2e3746);
+}
+rapi-doc::part(label-selected-server) {
+  color: #ffffff;
+  font-weight: 600;
+}`;
+
+const serverRecipeCode = `/* Style the Overview Title and Servers panel */
+rapi-doc::part(section-overview-title) {
+  color: #9b2f80;
+}
+rapi-doc::part(section-servers) {
+  background: #6b5b95;
+  color: #d1c2e4;
+  margin: 0 24px;
+  border-radius: 8px;
+}`;
+
+const buttonRecipeCode = `/* Customize buttons and the primary TRY trigger */
+rapi-doc::part(btn) {
+  border-radius: 14px;
+  transition: all 0.2s ease;
+}
+rapi-doc::part(btn-try) {
+  background-color: #eab308;
+  color: #000;
+  font-weight: 700;
+}`;
+
+const slotsRecipeCode = `<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
+  <!-- Announcement banner slot -->
+  <div style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 14px 20px; margin: 16px 24px;">
+    <strong style="color: #34d399;">🚀 API v2.4 Live in Production</strong>
+  </div>
+
+  <!-- Custom logo slot in top utility header -->
+  <div slot="logo" style="display: flex; align-items: center; gap: 8px;">
+    <img src="/assets/images/logo.png" width="30" height="30" alt="Logo" />
+    <span style="font-size: 18px; font-weight: 700; color: #fff;">Acme API</span>
+  </div>
+
+  <!-- Action button slot in header -->
+  <div slot="header">
+    <a href="https://github.com/org/repo" target="_blank" style="color: #94a3b8; text-decoration: none; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;">GitHub SDK</a>
+  </div>
+</rapi-doc>`;
+
+const markdownRecipeYaml = `openapi: 3.0.3
+info:
+  title: Payments Gateway API
+  version: 2.1.0
+  description: |
+    ### Welcome to the Payments Gateway
+    <div style="background: rgba(234, 179, 8, 0.1); border-left: 4px solid #eab308; padding: 14px 18px; border-radius: 6px; margin: 16px 0;">
+      <strong style="color: #fde047;">⚠️ Deprecation Notice:</strong> The /v1/charge endpoint will be sunset on Dec 31.
+    </div>`;
+
+const slotsData = stylingData.slots;
+---
+
+<GlobalLayout
+  title="Custom CSS, Shadow Parts (::part) & Variables | RapiDoc"
+  description="Deeply customize RapiDoc OpenAPI UI via CSS Shadow Parts (::part), CSS custom variables, Shadow DOM piercing, and HTML slot injections."
+  keywords="RapiDoc CSS parts, Shadow DOM styling, OpenAPI custom CSS, CSS variables catalog, Swagger ::part"
+>
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <SiteNavbar activePage="guides" />
+
+  <main class="rd-styling-main">
+    <header class="rd-styling-hero">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Shadow DOM Encapsulation & CSS Parts</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Custom CSS & <span class="text-gradient">Shadow Parts (::part)</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Because RapiDoc is built as a standard W3C Web Component, its markup resides inside an isolated Shadow DOM. Discover how to safely pierce the shadow boundary using standard CSS Shadow Parts (<code>::part()</code>), CSS Custom Properties, and HTML slot injections.
+      </p>
+
+      <div class="rd-stats-bar">
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">{totalParts}</span>
+          <span class="rd-stat-label">CSS Shadow Parts</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">{totalVariables}</span>
+          <span class="rd-stat-label">CSS Custom Variables</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">{totalCategories}</span>
+          <span class="rd-stat-label">Functional UI Zones</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="rd-recipes-section" id="css-parts">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Theming Mechanism 2</div>
+        <h2 class="rd-section-title">Deep Styling Recipes with CSS Parts</h2>
+        <p class="rd-section-desc">
+          Explore real-world examples demonstrating how to combine declarative attributes with targeted <code class="mono-code">::part()</code> selectors to produce state-of-the-art documentation portals.
+        </p>
+      </div>
+
+      <!-- Recipe 1: Navigation Bar Gradient -->
+      <div class="rd-recipe-card">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Recipe 1</div>
+            <h3 class="rd-recipe-heading">Multi-Stop Gradient Sidebar Navigation</h3>
+            <p class="rd-recipe-text">
+              While the <code class="mono-code">nav-bg-color</code> attribute accepts solid colors, applying multi-stop CSS gradients or glassmorphic blur requires piercing the Shadow DOM. By selecting <code class="mono-code">rapi-doc::part(section-navbar)</code>, you can apply rich background gradients while keeping text and icons perfectly legible.
+            </p>
+          </div>
+          <div class="rd-recipe-action">
+            <a href="/examples/cssparts-nav" target="_blank" class="rd-btn rd-btn-primary">
+              <span>View Interactive Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Sidebar Gradient Preview</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/theme/rapidoc-csspart-nav.png" alt="RapiDoc CSS Part Navigation Example" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={navRecipeCode} lang="html" filename="gradient-navbar.html" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Recipe 2: Servers & Overview Title -->
+      <div class="rd-recipe-card">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Recipe 2</div>
+            <h3 class="rd-recipe-heading">Branded API Servers & Environment Card</h3>
+            <p class="rd-recipe-text">
+              Emphasize active deployment environments by applying unique background tones, padding, and rounded borders to the server selection container using <code class="mono-code">rapi-doc::part(section-servers)</code> and <code class="mono-code">rapi-doc::part(label-selected-server)</code>.
+            </p>
+          </div>
+          <div class="rd-recipe-action">
+            <a href="/examples/cssparts-servers" target="_blank" class="rd-btn rd-btn-primary">
+              <span>View Interactive Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Custom Server Card Preview</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/theme/rapidoc-csspart-server.png" alt="RapiDoc CSS Part Server Example" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={serverRecipeCode} lang="html" filename="branded-servers.html" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Recipe 3: Custom Action & Try Buttons -->
+      <div class="rd-recipe-card">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Recipe 3</div>
+            <h3 class="rd-recipe-heading">Customized Buttons & Console Triggers</h3>
+            <p class="rd-recipe-text">
+              Match your application's button styles by styling base buttons (<code class="mono-code">btn</code>), solid primary actions (<code class="mono-code">btn-try</code>), and active response status code selectors (<code class="mono-code">btn-selected-response-status</code>) with custom corner radiuses, hover animations, and high-contrast palettes.
+            </p>
+          </div>
+          <div class="rd-recipe-action">
+            <a href="/examples/cssparts-btn" target="_blank" class="rd-btn rd-btn-primary">
+              <span>View Interactive Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Styled Buttons Preview</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/theme/rapidoc-csspart-btn.png" alt="RapiDoc CSS Part Buttons Example" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={buttonRecipeCode} lang="html" filename="custom-buttons.html" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rd-catalog-section" id="reference-catalog">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Reference Guide</div>
+        <h2 class="rd-section-title">Complete Parts & Variables Catalog</h2>
+        <p class="rd-section-desc">
+          Search and filter every CSS Shadow Part and CSS Custom Property exposed by RapiDoc. Data is synchronized directly with our shared design system specification.
+        </p>
+      </div>
+
+      <!-- Main Mode Switcher Tabs (Parts vs Variables) -->
+      <div class="rd-mode-switcher">
+        <button class="rd-mode-tab active" data-mode="parts" id="tab-parts">
+          <span class="mode-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </span>
+          <span>CSS Shadow Parts</span>
+          <span class="mode-badge">{totalParts}</span>
+        </button>
+        <button class="rd-mode-tab" data-mode="variables" id="tab-variables">
+          <span class="mode-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+          </span>
+          <span>CSS Custom Properties</span>
+          <span class="mode-badge">{totalVariables}</span>
+        </button>
+      </div>
+
+      <!-- Live Search & Interactive Filter Controls -->
+      <div class="rd-filter-controls">
+        <div class="rd-search-wrapper">
+          <svg class="rd-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            id="styling-search-input"
+            type="text"
+            placeholder="Search parts, variables, HTML targets, or keywords (e.g. section-navbar, --border-radius, btn, try)..."
+            autocomplete="off"
+            class="rd-search-input"
+          />
+          <button id="clear-search-btn" class="rd-clear-btn" aria-label="Clear search" style="display: none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="rd-nav-pills" id="parts-category-pills">
+          <button class="rd-pill active" data-category="all">All Categories</button>
+          {stylingData.parts.map(cat => (
+            <button class="rd-pill" data-category={cat.category}>{cat.category}</button>
+          ))}
+        </div>
+
+        <div class="rd-nav-pills" id="variables-category-pills" style="display: none;">
+          <button class="rd-pill active" data-category="all">All Categories</button>
+          {stylingData.variables.map(cat => (
+            <button class="rd-pill" data-category={cat.category}>{cat.category}</button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="catalog-empty-state" class="rd-empty-state" style="display: none;">
+        <div class="rd-empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <h3 class="rd-empty-title">No matching styling items found <span id="empty-query-text" class="text-gradient"></span></h3>
+        <p class="rd-empty-desc">Try searching for a different keyword, part name, or reset your active category filter.</p>
+        <button id="reset-search-btn" class="rd-btn rd-btn-primary">Reset Filter</button>
+      </div>
+
+      <!-- Parts View Container -->
+      <div id="parts-catalog-container" class="rd-catalog-grid">
+        {stylingData.parts.map(cat => (
+          <div class="rd-catalog-group" data-category={cat.category}>
+            <div class="rd-group-header">
+              <h3 class="rd-group-title">{cat.category}</h3>
+              <p class="rd-group-desc">{cat.description}</p>
+            </div>
+            <div class="rd-table-wrapper">
+              <table class="rd-catalog-table">
+                <thead>
+                  <tr>
+                    <th class="col-name">Part Name (<code>::part</code>)</th>
+                    <th class="col-target">HTML Element</th>
+                    <th class="col-desc">Description & Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cat.items.map(item => (
+                    <tr class="rd-catalog-row" data-name={item.name} data-target={item.target} data-desc={item.description} data-category={cat.category}>
+                      <td class="col-name">
+                        <button class="rd-copy-pill" data-copy={`rapi-doc::part(${item.name})`} title="Click to copy ::part selector">
+                          <code>::{item.name}</code>
+                          <svg class="copy-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                        </button>
+                      </td>
+                      <td class="col-target">
+                        <span class="rd-target-badge">{item.target}</span>
+                      </td>
+                      <td class="col-desc">
+                        {item.description}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Variables View Container -->
+      <div id="variables-catalog-container" class="rd-catalog-grid" style="display: none;">
+        {stylingData.variables.map(cat => (
+          <div class="rd-catalog-group" data-category={cat.category}>
+            <div class="rd-group-header">
+              <h3 class="rd-group-title">{cat.category}</h3>
+              <p class="rd-group-desc">{cat.description}</p>
+            </div>
+            <div class="rd-table-wrapper">
+              <table class="rd-catalog-table">
+                <thead>
+                  <tr>
+                    <th class="col-name">Custom Property</th>
+                    <th class="col-default">Default / Calculated Value</th>
+                    <th class="col-desc">Description & Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cat.items.map(item => (
+                    <tr class="rd-catalog-row" data-name={item.name} data-default={item.default} data-desc={item.description} data-category={cat.category}>
+                      <td class="col-name">
+                        <button class="rd-copy-pill var-pill" data-copy={`${item.name}`} title="Click to copy variable">
+                          <code>{item.name}</code>
+                          <svg class="copy-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                        </button>
+                      </td>
+                      <td class="col-default">
+                        <span class="rd-default-badge">{item.default}</span>
+                      </td>
+                      <td class="col-desc">
+                        {item.description}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="rd-section-block" id="slots">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Theming Mechanism 4</div>
+        <h2 class="rd-section-title">Inserting Custom HTML with Web Component Slots</h2>
+        <p class="rd-section-desc">
+          Because RapiDoc is encapsulated in a Shadow DOM, external DOM elements cannot be arbitrarily injected into its tree. Standard Web Component <code class="mono-code">&lt;slot&gt;</code> elements solve this by exposing designated insertion zones where you can inject custom HTML markup—such as release notices, company logos, interactive header buttons, custom auth instructions, and enterprise footers.
+        </p>
+      </div>
+
+      <!-- Visual Slot Layout Architecture Wireframe -->
+      <div class="rd-slot-wireframe-card">
+        <div class="rd-wireframe-header">
+          <span class="wireframe-badge">Visual Blueprint</span>
+          <span class="wireframe-title">RapiDoc Shadow DOM Slot Insertion Zones</span>
+        </div>
+        <div class="rd-wireframe-diagram">
+          <!-- Top Utility Bar -->
+          <div class="wf-row wf-header-bar">
+            <div class="wf-zone wf-zone-logo">
+              <span class="wf-slot-tag">slot="logo"</span>
+              <span class="wf-slot-note">Brand Logo / Home link</span>
+            </div>
+            <div class="wf-zone wf-zone-spec">
+              <span class="wf-static-label">spec-url input / search</span>
+            </div>
+            <div class="wf-zone wf-zone-header">
+              <span class="wf-slot-tag">slot="header"</span>
+              <span class="wf-slot-note">Custom actions, links, dark mode triggers</span>
+            </div>
+          </div>
+
+          <!-- Unnamed Default Slot Notice -->
+          <div class="wf-row wf-default-zone">
+            <div class="wf-zone wf-zone-default">
+              <span class="wf-slot-tag">&lt;element&gt; (default slot - unnamed)</span>
+              <span class="wf-slot-note">Broadcast announcements, system maintenance banners, breaking change alerts</span>
+            </div>
+          </div>
+
+          <!-- Main Layout Body -->
+          <div class="wf-body-split">
+            <!-- Sidebar (read mode) -->
+            <div class="wf-col wf-sidebar">
+              <div class="wf-zone wf-zone-nav-logo">
+                <span class="wf-slot-tag">slot="nav-logo"</span>
+                <span class="wf-slot-note">Sidebar wordmark & branding</span>
+              </div>
+              <div class="wf-zone wf-zone-nav-list">
+                <span class="wf-static-label">Sidebar Navigation Links</span>
+              </div>
+            </div>
+
+            <!-- Content Canvas -->
+            <div class="wf-col wf-canvas">
+              <div class="wf-zone wf-zone-overview">
+                <span class="wf-slot-tag">slot="overview"</span>
+                <span class="wf-slot-note">Under API title in Overview</span>
+              </div>
+              <div class="wf-zone wf-zone-servers">
+                <span class="wf-slot-tag">slot="servers"</span>
+                <span class="wf-slot-note">Server configuration card</span>
+              </div>
+              <div class="wf-zone wf-zone-auth">
+                <span class="wf-slot-tag">slot="auth"</span>
+                <span class="wf-slot-note">Security modal / Auth guidance</span>
+              </div>
+              <div class="wf-zone wf-zone-ops">
+                <span class="wf-slot-tag">slot="operations-top"</span>
+                <span class="wf-slot-note">Header above all endpoints</span>
+              </div>
+              <div class="wf-row wf-ops-sub">
+                <div class="wf-zone wf-zone-tag">
+                  <span class="wf-slot-tag">slot="tag--{'{name}'}"</span>
+                  <span class="wf-slot-note">Under tag group</span>
+                </div>
+                <div class="wf-zone wf-zone-endpoint">
+                  <span class="wf-slot-tag">slot="{'{method}-{path}'}"</span>
+                  <span class="wf-slot-note">Inside operation card</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Bar -->
+          <div class="wf-row wf-footer-bar">
+            <div class="wf-zone wf-zone-footer">
+              <span class="wf-slot-tag">slot="footer"</span>
+              <span class="wf-slot-note">Corporate copyright, privacy policies, legal notices, contact info</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slots Code Implementation Card -->
+      <div class="rd-recipe-card rd-mb-40">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Multi-Slot Implementation</div>
+            <h3 class="rd-recipe-heading">Branded Portal with Slots</h3>
+            <p class="rd-recipe-text">
+              Combine the un-slotted default banner with targeted <code class="mono-code">slot="logo"</code>, <code class="mono-code">slot="header"</code>, <code class="mono-code">slot="auth"</code>, and <code class="mono-code">slot="footer"</code> elements to seamlessly blend RapiDoc into your company application ecosystem.
+            </p>
+          </div>
+          <div class="rd-recipe-action">
+            <a href="/examples/slots" target="_blank" class="rd-btn rd-btn-primary">
+              <span>Launch Interactive Slots Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Live Slots Output</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/theme/rapidoc-slots.png" alt="RapiDoc Web Component Slots Example" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={slotsRecipeCode} lang="html" filename="multi-slot-portal.html" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Complete Slots Reference Table -->
+      <div class="rd-table-wrapper">
+        <table class="rd-catalog-table">
+          <thead>
+            <tr>
+              <th class="col-slot-name">Slot Name</th>
+              <th class="col-slot-placement">Physical Placement</th>
+              <th class="col-slot-desc">Description & Common Use Cases</th>
+            </tr>
+          </thead>
+          <tbody>
+            {slotsData.map(slot => (
+              <tr class="rd-catalog-row">
+                <td class="col-slot-name">
+                  <div class="rd-item-pill">
+                    <span class="rd-pill-name">{slot.name}</span>
+                  </div>
+                </td>
+                <td class="col-slot-placement">
+                  <span class="rd-placement-badge">{slot.placement}</span>
+                </td>
+                <td class="col-slot-desc">{slot.description || slot.desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rd-section-block" id="markdown">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Theming Mechanism 5</div>
+        <h2 class="rd-section-title">Embedding Custom HTML in OpenAPI Markdown</h2>
+        <p class="rd-section-desc">
+          RapiDoc’s built-in markdown engine parses standard HTML5 markup embedded directly within OpenAPI description fields (<code class="mono-code">info.description</code>, tag descriptions, operation descriptions, parameter schemas). This enables API authors to embed status badges, interactive callouts, collapsible accordions, and rich media directly from their OpenAPI spec.
+        </p>
+      </div>
+
+      <!-- Markdown Capabilities Highlights Grid -->
+      <div class="rd-md-features-grid">
+        <div class="rd-md-card">
+          <div class="rd-md-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+          </div>
+          <h4 class="rd-md-title">Interactive Badges & CTAs</h4>
+          <p class="rd-md-text">
+            Embed live system status pills, SDK download links, or Discord community invites directly at the top of your API documentation.
+          </p>
+        </div>
+        <div class="rd-md-card">
+          <div class="rd-md-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+          </div>
+          <h4 class="rd-md-title">Collapsible &lt;details&gt;</h4>
+          <p class="rd-md-text">
+            Condense dense rate-limiting rules, troubleshooting guides, or JSON payload schemas with native HTML <code class="mono-code">&lt;details&gt;</code> and <code class="mono-code">&lt;summary&gt;</code> tags.
+          </p>
+        </div>
+        <div class="rd-md-card">
+          <div class="rd-md-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <h4 class="rd-md-title">Deprecation Alerts & Callouts</h4>
+          <p class="rd-md-text">
+            Add high-visibility warning callouts with inline styling (<code class="mono-code">style="..."</code>) to highlight migration timelines and auth updates.
+          </p>
+        </div>
+        <div class="rd-md-card">
+          <div class="rd-md-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+              <line x1="7" y1="2" x2="7" y2="22"></line>
+              <line x1="17" y1="2" x2="17" y2="22"></line>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <line x1="2" y1="7" x2="7" y2="7"></line>
+              <line x1="2" y1="17" x2="7" y2="17"></line>
+              <line x1="17" y1="17" x2="22" y2="17"></line>
+              <line x1="17" y1="7" x2="22" y2="7"></line>
+            </svg>
+          </div>
+          <h4 class="rd-md-title">Embedded Videos & Media</h4>
+          <p class="rd-md-text">
+            Include tutorial videos via <code class="mono-code">&lt;iframe&gt;</code>, architecture diagrams, audio explanations, or custom responsive tables.
+          </p>
+        </div>
+      </div>
+
+      <!-- Markdown Code Recipe Card -->
+      <div class="rd-recipe-card rd-mb-40">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">OpenAPI YAML Recipe</div>
+            <h3 class="rd-recipe-heading">HTML-Enriched OpenAPI Specification</h3>
+            <p class="rd-recipe-text">
+              Because RapiDoc renders OpenAPI markdown natively inside the client browser, all standard HTML tags and inline CSS styles are supported seamlessly with zero server-side pre-rendering required.
+            </p>
+          </div>
+          <div class="rd-recipe-action" style="gap: 12px; flex-wrap: wrap;">
+            <a href="/examples/markdown" target="_blank" class="rd-btn rd-btn-primary">
+              <span>View Markdown Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+            <a href="/examples/markdown-headings" target="_blank" class="rd-btn rd-btn-secondary">
+              <span>Markdown Headings Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Rendered Output</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/rapi-markdown.png" alt="RapiDoc OpenAPI Markdown HTML Example" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={markdownRecipeYaml} lang="yaml" filename="openapi-markdown.yaml" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rd-section-block" style="text-align: center; background: rgba(15,23,42,0.6); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 40px 24px; margin-top: 48px;">
+      <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px;">Looking for Theme Attributes and Colors?</h3>
+      <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 20px; font-size: 14px; line-height: 1.6;">
+        For background colors, font pairings, dark/light contrast modes, and layout render styles, check out our Themes & Colors Guide.
+      </p>
+      <a href="/guides/theme" class="rd-action-primary" style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
+        <span>Explore Theme & Colors Guide</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </a>
+    </section>
+  </main>
+
+  <script>
+    function setupStylingSearch() {
+      let activeMode = 'parts'; // 'parts' | 'variables'
+      let activeCategory = 'all';
+
+      const searchInput = document.getElementById('styling-search-input') as HTMLInputElement | null;
+      const clearSearchBtn = document.getElementById('clear-search-btn');
+      const resetSearchBtn = document.getElementById('reset-search-btn');
+      const emptyState = document.getElementById('catalog-empty-state');
+      const emptyQueryText = document.getElementById('empty-query-text');
+
+      const tabParts = document.getElementById('tab-parts');
+      const tabVariables = document.getElementById('tab-variables');
+      const partsPills = document.getElementById('parts-category-pills');
+      const variablesPills = document.getElementById('variables-category-pills');
+      const partsContainer = document.getElementById('parts-catalog-container');
+      const variablesContainer = document.getElementById('variables-catalog-container');
+
+      function switchMode(mode: 'parts' | 'variables') {
+        activeMode = mode;
+        activeCategory = 'all';
+
+        if (mode === 'parts') {
+          tabParts?.classList.add('active');
+          tabVariables?.classList.remove('active');
+          if (partsPills) partsPills.style.display = 'flex';
+          if (variablesPills) variablesPills.style.display = 'none';
+          if (partsContainer) partsContainer.style.display = 'flex';
+          if (variablesContainer) variablesContainer.style.display = 'none';
+        } else {
+          tabVariables?.classList.add('active');
+          tabParts?.classList.remove('active');
+          if (partsPills) partsPills.style.display = 'none';
+          if (variablesPills) variablesPills.style.display = 'flex';
+          if (partsContainer) partsContainer.style.display = 'none';
+          if (variablesContainer) variablesContainer.style.display = 'flex';
+        }
+
+        // Reset pill active state
+        document.querySelectorAll('.rd-pill').forEach(pill => {
+          if (pill.getAttribute('data-category') === 'all') {
+            pill.classList.add('active');
+          } else {
+            pill.classList.remove('active');
+          }
+        });
+
+        filterCatalog();
+      }
+
+      tabParts?.addEventListener('click', () => switchMode('parts'));
+      tabVariables?.addEventListener('click', () => switchMode('variables'));
+
+      // Category Pill Click Handlers
+      document.querySelectorAll('.rd-pill').forEach(pill => {
+        pill.addEventListener('click', (e) => {
+          const category = pill.getAttribute('data-category') || 'all';
+          const parent = pill.parentElement;
+          if (parent) {
+            parent.querySelectorAll('.rd-pill').forEach(p => p.classList.remove('active'));
+          }
+          pill.classList.add('active');
+          activeCategory = category;
+          filterCatalog();
+        });
+      });
+
+      function filterCatalog() {
+        const query = (searchInput?.value || '').toLowerCase().trim();
+        if (clearSearchBtn) {
+          clearSearchBtn.style.display = query.length > 0 ? 'flex' : 'none';
+        }
+
+        const activeContainer = activeMode === 'parts' ? partsContainer : variablesContainer;
+        if (!activeContainer) return;
+
+        let totalVisibleInActive = 0;
+        const groups = activeContainer.querySelectorAll('.rd-catalog-group');
+
+        groups.forEach(groupEl => {
+          const group = groupEl as HTMLElement;
+          const groupCategory = group.getAttribute('data-category') || '';
+          const categoryMatches = activeCategory === 'all' || activeCategory === groupCategory;
+
+          let groupVisibleCount = 0;
+          const rows = group.querySelectorAll('.rd-catalog-row');
+
+          rows.forEach(rowEl => {
+            const row = rowEl as HTMLElement;
+            if (!categoryMatches) {
+              row.style.display = 'none';
+              return;
+            }
+
+            if (!query) {
+              row.style.display = '';
+              groupVisibleCount++;
+              totalVisibleInActive++;
+              return;
+            }
+
+            const name = (row.getAttribute('data-name') || '').toLowerCase();
+            const desc = (row.getAttribute('data-desc') || '').toLowerCase();
+            const target = (row.getAttribute('data-target') || '').toLowerCase();
+            const defVal = (row.getAttribute('data-default') || '').toLowerCase();
+
+            if (name.includes(query) || desc.includes(query) || target.includes(query) || defVal.includes(query)) {
+              row.style.display = '';
+              groupVisibleCount++;
+              totalVisibleInActive++;
+            } else {
+              row.style.display = 'none';
+            }
+          });
+
+          // Show/hide group container if it has visible rows
+          group.style.display = groupVisibleCount > 0 ? 'flex' : 'none';
+        });
+
+        // Empty state toggle
+        if (emptyState) {
+          if (totalVisibleInActive === 0) {
+            emptyState.style.display = 'flex';
+            if (emptyQueryText) {
+              emptyQueryText.textContent = query ? `for "${query}"` : '';
+            }
+          } else {
+            emptyState.style.display = 'none';
+          }
+        }
+      }
+
+      searchInput?.addEventListener('input', filterCatalog);
+
+      clearSearchBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        filterCatalog();
+        searchInput?.focus();
+      });
+
+      resetSearchBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        activeCategory = 'all';
+        document.querySelectorAll('.rd-pill').forEach(pill => {
+          if (pill.getAttribute('data-category') === 'all') {
+            pill.classList.add('active');
+          } else {
+            pill.classList.remove('active');
+          }
+        });
+        filterCatalog();
+      });
+
+      // Quick copy button on pills
+      document.querySelectorAll('.rd-copy-pill').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const textToCopy = btn.getAttribute('data-copy');
+          if (textToCopy) {
+            await navigator.clipboard.writeText(textToCopy);
+            const originalTitle = btn.getAttribute('title') || '';
+            btn.setAttribute('title', 'Copied to clipboard!');
+            btn.classList.add('copied');
+            setTimeout(() => {
+              btn.setAttribute('title', originalTitle);
+              btn.classList.remove('copied');
+            }, 1800);
+          }
+        });
+      });
+
+      // Initial filter run
+      filterCatalog();
+
+      // Handle URL hash changes or direct navigation
+      function handleHash() {
+        const hash = window.location.hash.toLowerCase();
+        if (hash === '#css-vars' || hash === '#variables' || hash === '#custom-properties') {
+          switchMode('variables');
+          filterCatalog();
+        } else if (hash === '#css-parts' || hash === '#parts') {
+          switchMode('parts');
+          filterCatalog();
+        }
+      }
+      window.addEventListener('hashchange', handleHash);
+      handleHash();
+
+      // Card click for #card-css-vars
+      document.getElementById('card-css-vars')?.addEventListener('click', () => {
+        switchMode('variables');
+        filterCatalog();
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupStylingSearch);
+    } else {
+      setupStylingSearch();
+    }
+  </script>
+
+  <SiteFooter />
+</GlobalLayout>

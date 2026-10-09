@@ -1,0 +1,349 @@
+---
+import GlobalLayout from "../../layouts/GlobalLayout.astro";
+import SiteNavbar from "../../components/SiteNavbar.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import "../../styles/styling.css";
+
+const stylingAttributes = [
+  { name: "theme", type: "string", default: "dark", allowed: "light | dark", desc: "Base color scheme and background theme of the documentation portal." },
+  { name: "bg-color", type: "hex/rgb", default: "dark: #090d16", allowed: "CSS color", desc: "Background color of the entire main documentation canvas." },
+  { name: "text-color", type: "hex/rgb", default: "#94a3b8", allowed: "CSS color", desc: "Default typography color for body text, summaries, and schema descriptions." },
+  { name: "primary-color", type: "hex/rgb", default: "#ff791a", allowed: "CSS color", desc: "Primary brand accent color used for active tabs, links, schema outlines, and interactive highlights." },
+  { name: "header-color", type: "hex/rgb", default: "#060913", allowed: "CSS color", desc: "Background color of the top utility header bar." },
+  { name: "nav-bg-color", type: "hex/rgb", default: "inherit", allowed: "CSS color", desc: "Background color of the sticky sidebar navigation panel." },
+  { name: "nav-text-color", type: "hex/rgb", default: "#cbd5e1", allowed: "CSS color", desc: "Color of text and icons in the sidebar navigation." },
+  { name: "nav-hover-bg-color", type: "hex/rgb", default: "rgba(...)", allowed: "CSS color", desc: "Background color when hovering over sidebar navigation items." },
+  { name: "nav-hover-text-color", type: "hex/rgb", default: "#ffffff", allowed: "CSS color", desc: "Text color when hovering over sidebar navigation items." },
+  { name: "nav-accent-color", type: "hex/rgb", default: "#10b981", allowed: "CSS color", desc: "Accent highlight color applied to the actively viewed/selected navigation link." },
+  { name: "regular-font", type: "string", default: "Open Sans", allowed: "Font family", desc: "Custom font family applied to all body text, headings, and UI controls." },
+  { name: "mono-font", type: "string", default: "Monaco", allowed: "Font family", desc: "Monospace font family applied to code snippets, parameters, and schema structures." },
+  { name: "font-size", type: "string", default: "default", allowed: "default | large | largest", desc: "Global typography scale modifier." },
+  { name: "render-style", type: "string", default: "view", allowed: "view | read | focused", desc: "Primary document layout mode (multi-column view, continuous document read, or single-operation focused)." },
+  { name: "schema-style", type: "string", default: "tree", allowed: "tree | table", desc: "Visualization presentation style for request and response models." },
+  { name: "show-header", type: "boolean", default: "true", allowed: "true | false", desc: "Toggles visibility of the top header bar." }
+];
+
+const attributeRecipeCode = `<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="dark"
+  bg-color="#0b1121"
+  text-color="#94a3b8"
+  primary-color="#10b981"
+  header-color="#060913"
+  nav-bg-color="#0f172a"
+  nav-text-color="#cbd5e1"
+  nav-hover-bg-color="#1e293b"
+  nav-hover-text-color="#ffffff"
+  nav-accent-color="#10b981"
+  regular-font="Inter, -apple-system, sans-serif"
+  mono-font="Roboto Mono, monospace"
+  font-size="default"
+  render-style="focused"
+  schema-style="table"
+  schema-expand-level="1"
+  show-header="true"
+  allow-try="true"
+></rapi-doc>`;
+
+const brandThemeCode = `<!-- Brand themed RapiDoc with Google Fonts and Custom Palette -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="dark"
+  bg-color="#0a0f1d"
+  text-color="#94a3b8"
+  primary-color="#10b981"
+  header-color="#050811"
+  nav-bg-color="#0f172a"
+  nav-text-color="#cbd5e1"
+  nav-hover-bg-color="#1e293b"
+  nav-accent-color="#10b981"
+  regular-font="Inter, sans-serif"
+  mono-font="Roboto Mono, monospace"
+  render-style="focused"
+  show-header="true"
+  allow-try="true"
+></rapi-doc>`;
+---
+
+<GlobalLayout
+  title="Themes, Brand Colors & Typography Guide | RapiDoc"
+  description="Master RapiDoc theme customization: dark/light contrast modes, brand color tokens, typography pairing with Google Fonts, and layout render styles."
+  keywords="RapiDoc themes, OpenAPI theme colors, Swagger dark mode, API documentation fonts, OpenAPI styling"
+>
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <SiteNavbar activePage="guides" />
+
+  <main class="rd-styling-main">
+    <header class="rd-styling-hero">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Brand Identity & Color Tokens</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Themes, Colors & <span class="text-gradient">Typography</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Seamlessly align RapiDoc with your corporate brand guidelines. Configure declarative color tokens, high-contrast dark and light modes, Google Web Fonts, and responsive document layouts without writing external CSS.
+      </p>
+
+      <div class="rd-stats-bar">
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">2</span>
+          <span class="rd-stat-label">Core Themes (Dark/Light)</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">16+</span>
+          <span class="rd-stat-label">Declarative Style Props</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">3</span>
+          <span class="rd-stat-label">Layout Render Styles</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">100%</span>
+          <span class="rd-stat-label">Font Agnostic</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="rd-mechanisms-section">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Architecture & Isolation</div>
+        <h2 class="rd-section-title">The 5 Ways to Theme RapiDoc</h2>
+        <p class="rd-section-desc">
+          Because <code class="mono-code">&lt;rapi-doc&gt;</code> is built as a standard W3C Web Component, its markup and styles reside inside an isolated <strong>Shadow DOM</strong>. External stylesheet rules and third-party CSS resets cannot bleed in, and RapiDoc styles will never bleed out. You have five complementary mechanisms to achieve your desired aesthetic:
+        </p>
+      </div>
+
+      <div class="rd-cards-grid">
+        <a href="#attributes" class="rd-feature-card">
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+              <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+              <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+              <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"></path>
+            </svg>
+          </div>
+          <h3 class="rd-card-title">1. HTML Attributes</h3>
+          <p class="rd-card-desc">
+            Quick, declarative configuration directly on the element. Customize base themes (<code class="mono-code">theme="dark"</code>), brand colors, header palettes, font families, and sidebar layout modes with zero CSS.
+          </p>
+          <div class="rd-card-action">
+            <span>Explore Attributes</span>
+            <svg class="action-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </div>
+        </a>
+
+        <a href="#css-parts" class="rd-feature-card rd-feature-highlight">
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <h3 class="rd-card-title">2. CSS Shadow Parts</h3>
+          <p class="rd-card-desc">
+            Target internal elements across the Shadow boundary using <code class="mono-code">rapi-doc::part(...)</code>. Unlock bespoke visual flourishes such as multi-stop gradients, backdrop filters, and custom borders.
+          </p>
+          <div class="rd-card-action">
+            <span>Explore CSS Parts</span>
+            <svg class="action-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </div>
+        </a>
+
+        <a href="#reference-catalog" class="rd-feature-card" id="card-css-vars">
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+          </div>
+          <h3 class="rd-card-title">3. CSS Custom Properties</h3>
+          <p class="rd-card-desc">
+            Override design tokens such as <code class="mono-code">--border-radius</code>, <code class="mono-code">--scroll-bar-width</code>, typography scale presets, and syntax highlighting colors directly in CSS.
+          </p>
+          <div class="rd-card-action">
+            <span>Explore CSS Variables</span>
+            <svg class="action-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </div>
+        </a>
+
+        <a href="#slots" class="rd-feature-card">
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+          </div>
+          <h3 class="rd-card-title">4. Named HTML Slots</h3>
+          <p class="rd-card-desc">
+            Inject arbitrary HTML markup, custom brand logos, banners, search widgets, navigation elements, or authorization scripts into predefined slots inside RapiDoc.
+          </p>
+          <div class="rd-card-action">
+            <span>Explore HTML Slots</span>
+            <svg class="action-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </div>
+        </a>
+
+        <a href="#markdown" class="rd-feature-card">
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <h3 class="rd-card-title">5. Markdown HTML Injection</h3>
+          <p class="rd-card-desc">
+            Embed HTML tags directly within OpenAPI markdown descriptions (summaries, parameters, schemas) to render formatted tables, diagrams, callouts, or video embeds.
+          </p>
+          <div class="rd-card-action">
+            <span>Explore Markdown HTML</span>
+            <svg class="action-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="rd-section-block" id="attributes">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Theming Mechanism 1</div>
+        <h2 class="rd-section-title">Styling with Declarative HTML Attributes</h2>
+        <p class="rd-section-desc">
+          HTML attributes provide the foundational styling layer for RapiDoc. Because they are declared directly on the <code class="mono-code">&lt;rapi-doc&gt;</code> element with zero build tools or stylesheets required, attributes are the fastest way to customize color schemes, header themes, fonts, and layout modes.
+        </p>
+      </div>
+
+      <div class="rd-recipe-card rd-mb-40">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Quickstart Snippet</div>
+            <h3 class="rd-recipe-heading">Declarative Brand Customization</h3>
+            <p class="rd-recipe-text">
+              Configure baseline brand styling including high-contrast dark themes, custom primary accents, navigation sidebar colors, and font families in a single declarative tag.
+            </p>
+          </div>
+          <div class="rd-recipe-action">
+            <a href="/api#attributes" class="rd-btn rd-btn-secondary">
+              <span>View All 62 HTML Attributes in API Reference</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Live Theme Preview</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/rapi-brand.png" alt="RapiDoc Brand Customization Preview" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={attributeRecipeCode} lang="html" filename="declarative-styling.html" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Styling Attributes Reference Table -->
+      <div class="rd-table-wrapper">
+        <table class="rd-catalog-table">
+          <thead>
+            <tr>
+              <th class="col-attr-name">Attribute</th>
+              <th class="col-attr-type">Type / Allowed</th>
+              <th class="col-attr-default">Default</th>
+              <th class="col-attr-desc">Description & Styling Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stylingAttributes.map(attr => (
+              <tr class="rd-catalog-row">
+                <td class="col-attr-name">
+                  <div class="rd-item-pill">
+                    <span class="rd-pill-name">{attr.name}</span>
+                  </div>
+                </td>
+                <td class="col-attr-type">
+                  <span class="rd-type-tag">{attr.type}</span>
+                  <div class="rd-allowed-text">{attr.allowed}</div>
+                </td>
+                <td class="col-attr-default">
+                  <code class="rd-default-badge">{attr.default}</code>
+                </td>
+                <td class="col-attr-desc">{attr.desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rd-section-block">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Production Recipe</div>
+        <h2 class="rd-section-title">Corporate Enterprise Theme Blueprint</h2>
+        <p class="rd-section-desc">
+          A battle-tested production theme configuration featuring custom Google Fonts (Inter + Roboto Mono), dark slate background, and emerald accents.
+        </p>
+      </div>
+
+      <div class="rd-recipe-card">
+        <CodeBlock code={brandThemeCode} lang="html" filename="index.html" />
+      </div>
+    </section>
+
+    <section class="rd-section-block" style="text-align: center; background: rgba(15,23,42,0.6); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 40px 24px;">
+      <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px;">Need Deeper Shadow DOM Customization?</h3>
+      <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 20px; font-size: 14px; line-height: 1.6;">
+        For custom sidebar styling, rounded buttons, badges, and Shadow DOM piercing, explore our W3C CSS Shadow Parts (::part) and CSS custom variables guide.
+      </p>
+      <a href="/guides/css" class="rd-action-primary" style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
+        <span>Explore Custom CSS & Shadow Parts</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </a>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>

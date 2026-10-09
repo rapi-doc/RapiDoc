@@ -1,0 +1,616 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+
+const guides = [
+  {
+    title: 'Mock Server & API Simulation',
+    slug: '/guides/mock',
+    badge: 'Feature Guide',
+    badgeColor: 'emerald',
+    icon: 'mock',
+    desc: 'Simulate full backend APIs in-browser without writing backend code. Configure realistic latency delays, query parameter routing, status code cycling (200, 429, 500), and auto-generated synthetic mock payloads.',
+    tags: ['Zero-Backend', 'Delay Simulation', 'Status Cycling', 'Synthetic Payloads'],
+    readTime: '6 min read',
+  },
+  {
+    title: 'OAuth 2.0 & OpenIddict Setup',
+    slug: '/guides/oauth',
+    badge: 'Security Guide',
+    badgeColor: 'blue',
+    icon: 'oauth',
+    desc: 'Step-by-step production blueprint connecting RapiDoc to OpenIddict, Keycloak, or Okta using Authorization Code Flow with PKCE, automated token exchange, and postMessage popup receiver handling.',
+    tags: ['PKCE', 'Auth Code Flow', 'Token Exchange', 'OpenIddict 5.x'],
+    readTime: '10 min read',
+  },
+  {
+    title: 'Theme & Brand Customization',
+    slug: '/guides/theme',
+    badge: 'Design Guide',
+    badgeColor: 'purple',
+    icon: 'theme',
+    desc: 'Align RapiDoc with your corporate brand identity. Explore high-contrast dark and light themes, typography pairing, navigation accents, and the three primary layout presentation styles.',
+    tags: ['Dark / Light Contrast', 'Color Tokens', 'Font Branding', 'Render Styles'],
+    readTime: '7 min read',
+  },
+  {
+    title: 'Custom CSS & Shadow Parts (::part)',
+    slug: '/guides/css',
+    badge: 'Styling Guide',
+    badgeColor: 'amber',
+    icon: 'css',
+    desc: 'Pierce the Shadow DOM boundary cleanly without fragile CSS hacks. Style internal elements using W3C standard CSS Shadow Parts (::part), CSS custom variables, and HTML slot injection.',
+    tags: ['CSS ::part()', 'CSS Custom Variables', 'Slot Injection', 'Shadow DOM'],
+    readTime: '8 min read',
+  },
+  {
+    title: 'RapiDoc Mini (<rapi-doc-mini>)',
+    slug: '/guides/mini',
+    badge: 'Component Guide',
+    badgeColor: 'cyan',
+    icon: 'mini',
+    desc: 'The ultra-compact, zero-dependency endpoint card component. Embed isolated API operations, dynamic path regex filters, and try-it consoles directly into technical blogs and tutorials.',
+    tags: ['Micro-Component', 'Path Filtering', 'Blog Embeds', 'Zero-Config'],
+    readTime: '5 min read',
+  },
+];
+---
+
+<GlobalLayout
+  title="Guides & Architecture Tutorials | RapiDoc"
+  description="Explore comprehensive in-depth guides for RapiDoc OpenAPI: Mock Server simulation, OAuth 2.0 & OpenIddict authentication, theme customization, CSS parts, and RapiDoc Mini."
+  keywords="RapiDoc guides, OpenAPI mock server, OAuth2 PKCE tutorial, RapiDoc styling, CSS shadow parts, RapiDoc Mini"
+>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <!-- Reusable Frosted Glass Navigation -->
+  <SiteNavbar activePage="guides" />
+
+  <main class="rd-guides-main">
+    <!-- Hero Header -->
+    <header class="rd-guides-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Implementation Blueprints & Tutorials</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        RapiDoc <span class="text-gradient">Guides</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Deep-dive blueprints, security configurations, client-side mocking techniques, and customization tutorials designed to help you
+        build world-class API developer experiences.
+      </p>
+
+      <div class="rd-quick-stats">
+        <div class="rd-stat-chip">
+          <span class="rd-stat-num">5</span>
+          <span class="rd-stat-txt">Deep Dive Guides</span>
+        </div>
+        <div class="rd-stat-chip">
+          <span class="rd-stat-num">100%</span>
+          <span class="rd-stat-txt">Framework Agnostic</span>
+        </div>
+        <div class="rd-stat-chip">
+          <span class="rd-stat-num">OpenAPI</span>
+          <span class="rd-stat-txt">3.0 & 3.1 Ready</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Guides Card Grid -->
+    <section class="rd-guides-grid">
+      {
+        guides.map((g) => (
+          <a href={g.slug} class="rd-guide-card">
+            <div class="rd-card-header">
+              <span class={`rd-card-badge badge-${g.badgeColor}`}>{g.badge}</span>
+              <span class="rd-card-time">{g.readTime}</span>
+            </div>
+
+            <div class="rd-card-body">
+              <div class="rd-card-icon-wrap">
+                {g.icon === 'mock' && (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+                    <line x1="6" y1="6" x2="6.01" y2="6" />
+                    <line x1="6" y1="18" x2="6.01" y2="18" />
+                  </svg>
+                )}
+                {g.icon === 'oauth' && (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                )}
+                {g.icon === 'theme' && (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="5" />
+                    <line x1="12" y1="1" x2="12" y2="3" />
+                    <line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" />
+                    <line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                  </svg>
+                )}
+                {g.icon === 'css' && (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                )}
+                {g.icon === 'mini' && (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                    <rect x="9" y="9" width="6" height="6" />
+                    <line x1="9" y1="1" x2="9" y2="4" />
+                    <line x1="15" y1="1" x2="15" y2="4" />
+                    <line x1="9" y1="20" x2="9" y2="23" />
+                    <line x1="15" y1="20" x2="15" y2="23" />
+                    <line x1="20" y1="9" x2="23" y2="9" />
+                    <line x1="20" y1="14" x2="23" y2="14" />
+                    <line x1="1" y1="9" x2="4" y2="9" />
+                    <line x1="1" y1="14" x2="4" y2="14" />
+                  </svg>
+                )}
+              </div>
+
+              <h2 class="rd-card-title">{g.title}</h2>
+              <p class="rd-card-desc">{g.desc}</p>
+
+              <div class="rd-card-tags">
+                {g.tags.map((t) => (
+                  <span class="rd-card-tag">{t}</span>
+                ))}
+              </div>
+            </div>
+
+            <div class="rd-card-footer">
+              <span class="rd-read-link">
+                Read Guide
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </span>
+            </div>
+          </a>
+        ))
+      }
+    </section>
+
+    <!-- Cross Navigation Banner -->
+    <section class="rd-cross-banner">
+      <div class="rd-banner-item">
+        <div class="rd-banner-icon">⚡</div>
+        <div class="rd-banner-content">
+          <h3>Looking for Live Demos?</h3>
+          <p>Explore over 75+ interactive OpenAPI 3.0 & 3.1 component examples.</p>
+        </div>
+        <a href="/examples" class="rd-banner-btn">Explore Examples ➔</a>
+      </div>
+
+      <div class="rd-banner-item">
+        <div class="rd-banner-icon">🧪</div>
+        <div class="rd-banner-content">
+          <h3>Compliance & Performance Benchmarks</h3>
+          <p>Inspect schema test matrices, edge cases, and high-scale spec rendering tests.</p>
+        </div>
+        <a href="/tests" class="rd-banner-btn">View Test Suites ➔</a>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<style>
+  /* Ambient Background Glow Elements */
+  .ambient-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    pointer-events: none;
+    opacity: 0.16;
+    z-index: 0;
+  }
+  .glow-emerald {
+    top: 0;
+    right: 15%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
+  }
+  .glow-indigo {
+    top: 400px;
+    left: 5%;
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 70%);
+  }
+  .glow-cyan {
+    top: 1000px;
+    right: 10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.18) 0%, transparent 70%);
+  }
+
+  .rd-guides-main {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .rd-guides-header {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 56px;
+  }
+
+  .rd-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: var(--rd-accent-dim);
+    border: 1px solid var(--rd-accent-border);
+    margin-bottom: 20px;
+  }
+
+  .rd-badge-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--rd-accent);
+    box-shadow: 0 0 10px var(--rd-accent);
+  }
+
+  .rd-badge-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--rd-accent-light);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .rd-page-title {
+    font-size: clamp(34px, 5vw, 48px);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 18px;
+  }
+
+  .text-gradient {
+    background: var(--rapidoc-logo-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .rd-page-subtitle {
+    font-size: 16px;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .rd-quick-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .rd-stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .rd-stat-num {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--rd-accent);
+    font-family: 'Roboto Mono', monospace;
+  }
+
+  .rd-stat-txt {
+    font-size: 12.5px;
+    color: #cbd5e1;
+    font-weight: 500;
+  }
+
+  .rd-guides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 28px;
+    margin-bottom: 64px;
+  }
+
+  .rd-guide-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 28px;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rd-guide-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--rd-accent), transparent);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .rd-guide-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--rd-accent-border);
+    box-shadow:
+      0 16px 36px -10px rgba(0, 0, 0, 0.5),
+      0 0 8px var(--rd-accent-glow);
+    background: rgba(15, 23, 42, 0.85);
+  }
+
+  .rd-guide-card:hover::before {
+    opacity: 1;
+  }
+
+  .rd-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .rd-card-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+
+  .badge-orange,
+  .badge-emerald {
+    background: var(--rd-accent-dim);
+    color: var(--rd-accent-light);
+    border: 1px solid var(--rd-accent-border);
+  }
+
+  .badge-blue {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .badge-purple {
+    background: rgba(168, 85, 247, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+  }
+
+  .badge-amber {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .badge-cyan {
+    background: rgba(6, 182, 212, 0.15);
+    color: #22d3ee;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+  }
+
+  .rd-card-time {
+    font-size: 11.5px;
+    color: #64748b;
+  }
+
+  .rd-card-body {
+    flex: 1;
+  }
+
+  .rd-card-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--rd-accent);
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+  }
+
+  .rd-guide-card:hover .rd-card-icon-wrap {
+    background: var(--rd-accent-dim);
+    border-color: var(--rd-accent-border);
+    color: var(--rd-accent-light);
+  }
+
+  .rd-card-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .rd-card-desc {
+    font-size: 13.5px;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .rd-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+
+  .rd-card-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #94a3b8;
+    font-family: 'Roboto Mono', monospace;
+  }
+
+  .rd-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 16px;
+  }
+
+  .rd-read-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--rd-accent);
+    transition: gap 0.2s ease;
+  }
+
+  .rd-guide-card:hover .rd-read-link {
+    gap: 10px;
+    color: var(--rd-accent-light);
+  }
+
+  .rd-cross-banner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .rd-banner-item {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .rd-banner-icon {
+    font-size: 24px;
+  }
+
+  .rd-banner-content h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .rd-banner-content p {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .rd-banner-btn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--rd-accent);
+    text-decoration: none;
+    margin-top: 4px;
+    transition: color 0.15s ease;
+  }
+
+  .rd-banner-btn:hover {
+    color: var(--rd-accent-light);
+  }
+
+  @media (max-width: 640px) {
+    .rd-guides-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,1524 @@
+---
+import {
+  CONTROL_REGISTRY,
+  CATEGORY_TITLES,
+  PRESETS,
+  resolveActiveControls,
+  groupControlsByCategory,
+  type ControlOption,
+  type ControlCategory,
+  type SegmentedControl,
+  type ToggleControl,
+  type ControlDef,
+  type ControllerPreset,
+} from './controller-registry';
+
+export type { ControlOption, ControlCategory, SegmentedControl, ToggleControl, ControlDef, ControllerPreset };
+
+interface Props {
+  targetId?: string;
+  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none';
+  controls?: string[];
+  initialAttrs?: Record<string, string | boolean | number>;
+  position?: 'bottom' | 'top';
+  tuckedRight?: boolean;
+  specUrl?: string;
+  title?: string;
+  size?: 'small' | 'medium' | 'large' | (string & {}) | number;
+  showMethods?: boolean;
+}
+
+const {
+  targetId = 'thedoc',
+  preset = 'minimal',
+  controls: propControls,
+  initialAttrs = {},
+  position = 'bottom',
+  tuckedRight = false,
+  specUrl,
+  title = 'OPTIONS',
+  size = 'medium',
+  showMethods = (preset === 'all' || preset === 'demo'),
+} = Astro.props;
+
+let baseFontSize = '12px';
+if (size != null) {
+  const s = String(size).trim();
+  if (s === 'small') baseFontSize = '11px';
+  else if (s === 'large') baseFontSize = '14px';
+  else if (s === 'medium') baseFontSize = '12px';
+  else if (/^\d+(\.\d+)?$/.test(s)) baseFontSize = `${s}px`;
+  else if (s) baseFontSize = s;
+}
+
+// Determine active controls
+const activeControls = resolveActiveControls(propControls, preset);
+const groupedControls = groupControlsByCategory(activeControls);
+
+const initialAttrsJson = JSON.stringify(initialAttrs);
+---
+
+<aside
+  class={`rd-controller-hud position-${position}${tuckedRight ? ' is-tucked-right' : ''}`}
+  id={`rd-hud-${targetId}`}
+  data-target={targetId}
+  data-initial-attrs={initialAttrsJson}
+  style={`--rd-ctrl-font-size: ${baseFontSize};`}
+  aria-label="Options Interactive Controller"
+>
+  <!-- Collapsed badge / Expand trigger -->
+  <button type="button" class="rd-hud-trigger" aria-expanded="false" title={`Open ${title}`}>
+    <span class="rd-hud-status-dot" aria-hidden="true"></span>
+    <span class="rd-hud-trigger-title">{title}</span>
+    <span class="rd-hud-toggle-icon">▲</span>
+  </button>
+
+  <!-- Expanded controls drawer / panel -->
+  <div class="rd-hud-panel">
+    <!-- Header with Title, Spec link, API mode toggle, Tuck Right (Icons only), and Minimize -->
+    <div class="rd-hud-header">
+      <div class="rd-hud-title-group">
+        <span class="rd-hud-status-dot" aria-hidden="true"></span>
+        <span class="rd-hud-badge">{title}</span>
+        {specUrl && (
+          <a href={specUrl} target="_blank" rel="noopener noreferrer" class="rd-spec-link" title="Open active OpenAPI spec file">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>Spec</span>
+          </a>
+        )}
+      </div>
+
+      <div class="rd-hud-actions-group">
+        <!-- Raw / Human Labels Switcher (Just "API", dimmed when human mode, highlighted in raw label mode) -->
+        <button
+          type="button"
+          class="rd-hud-action-btn rd-hud-label-mode-btn"
+          title="Toggle between Human-Friendly Labels and Raw OpenAPI Attributes"
+          aria-label="Toggle Raw OpenAPI Attributes Mode"
+        >
+          <span class="rd-label-btn-text">API</span>
+        </button>
+
+        <!-- Tuck to Right Drawer Button (Icon only, no text words) -->
+        <button
+          type="button"
+          class="rd-hud-action-btn rd-hud-tuck-btn"
+          title="Tuck to Right Side Drawer"
+          aria-label="Tuck to Right Side Drawer"
+        >
+          <svg class="icon-tuck-right" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <line x1="15" y1="3" x2="15" y2="21"></line>
+          </svg>
+          <svg class="icon-float-bottom" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <line x1="3" y1="16" x2="21" y2="16"></line>
+          </svg>
+        </button>
+
+        <!-- Minimize Button -->
+        <button
+          type="button"
+          class="rd-hud-action-btn rd-hud-minimize-btn"
+          title="Minimize controller (Cmd+K)"
+          aria-label="Minimize controller"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Fluid Controls Container with Scrollbar -->
+    <div class="rd-hud-body">
+      {groupedControls.map(group => {
+        const segmentedControls = group.controls.filter(c => c.type === 'segmented');
+        const toggleControls = group.controls.filter(c => c.type === 'toggle');
+        return (
+          <div class="rd-hud-section" data-section={group.id}>
+            <div class="rd-hud-category-title">{group.title}</div>
+            <div class="rd-hud-section-content">
+              {segmentedControls.map(ctrl => (
+                <div class="rd-hud-link-row" data-control-attr={ctrl.attr}>
+                  <span class="rd-control-label-wrap">
+                    <span
+                      class="rd-control-label"
+                      data-human={`${ctrl.label} :`}
+                      data-raw={`${ctrl.attr} :`}
+                      data-tooltip={ctrl.tip || `Attribute: ${ctrl.attr}`}
+                      tabindex="0"
+                    >{ctrl.label} :</span>
+                    {ctrl.info && (
+                      <button
+                        type="button"
+                        class="rd-control-info-icon"
+                        aria-label={`Info: ${ctrl.info}`}
+                        data-tooltip={ctrl.info}
+                        data-tooltip-type="info"
+                        tabindex="0"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="16" x2="12" y2="12"></line>
+                          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                      </button>
+                    )}
+                  </span>
+
+                  <span class="rd-link-options" role="radiogroup" aria-label={ctrl.label}>
+                    {ctrl.options.map((opt, idx) => (
+                      <span class="rd-link-item">
+                        {idx > 0 && <span class="rd-link-sep" aria-hidden="true">|</span>}
+                        <span
+                          role="button"
+                          tabindex="0"
+                          class="rd-link-btn"
+                          data-attr={ctrl.attr}
+                          data-val={opt.rawVal}
+                          data-is-default={opt.isDefault ? 'true' : undefined}
+                          data-tooltip={`${ctrl.attr}="${opt.rawVal}"`}
+                        >
+                          {opt.dotColor && (
+                            <span class="rd-color-dot" style={`background-color: ${opt.dotColor};`} aria-hidden="true" />
+                          )}
+                          <span
+                            class="rd-link-text"
+                            data-human={opt.label}
+                            data-raw={opt.rawVal || 'default'}
+                          >{opt.label}</span>
+                        </span>
+                      </span>
+                    ))}
+                  </span>
+                </div>
+              ))}
+
+              {toggleControls.length > 0 && (
+                <div class="rd-toggles-wrap">
+                  {toggleControls.map(ctrl => (
+                    <span
+                      role="button"
+                      tabindex="0"
+                      class="rd-toggle-chip"
+                      data-attr={ctrl.attr}
+                      data-default-on={ctrl.defaultOn ? 'true' : undefined}
+                      data-tooltip={ctrl.tip || `Toggle ${ctrl.attr}`}
+                    >
+                      <span class="rd-toggle-check" aria-hidden="true">✓</span>
+                      <span
+                        class="rd-toggle-text"
+                        data-human={ctrl.label}
+                        data-raw={ctrl.attr}
+                      >{ctrl.label}</span>
+                      {ctrl.info && (
+                        <button
+                          type="button"
+                          class="rd-control-info-icon rd-toggle-info-btn"
+                          aria-label={`Info: ${ctrl.info}`}
+                          data-tooltip={ctrl.info}
+                          data-tooltip-type="info"
+                          tabindex="0"
+                          onclick="event.stopPropagation();"
+                        >
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                          </svg>
+                        </button>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+
+      {showMethods && (
+        <div class="rd-hud-section rd-hud-methods-section" data-section="methods">
+          <div class="rd-section-header">
+            <span class="rd-section-title" data-human="Methods" data-raw="Methods">
+              Methods
+            </span>
+          </div>
+          <div class="rd-section-content">
+            <!-- loadSpec() -->
+            <div class="rd-control-row" data-method="loadSpec">
+              <span
+                class="rd-control-label"
+                data-human="Load Spec"
+                data-raw="loadSpec(url)"
+              >Load Spec</span>
+              <span class="rd-segmented-btn-group" role="group" aria-label="Load Spec">
+                <span class="rd-link-item">
+                  <span
+                    role="button"
+                    tabindex="0"
+                    class="rd-link-btn rd-method-spec-btn is-active"
+                    data-spec-url="/specs/petstore.yaml"
+                    title="loadSpec('/specs/petstore.yaml')"
+                  >
+                    <span class="rd-link-text" data-human="Petstore" data-raw="petstore.yaml">Petstore</span>
+                  </span>
+                </span>
+                <span class="rd-link-item">
+                  <span class="rd-link-sep" aria-hidden="true">|</span>
+                  <span
+                    role="button"
+                    tabindex="0"
+                    class="rd-link-btn rd-method-spec-btn"
+                    data-spec-url="/specs/open-api-3-1.yaml"
+                    title="loadSpec('/specs/open-api-3-1.yaml')"
+                  >
+                    <span class="rd-link-text" data-human="OpenAPI 3.1" data-raw="open-api-3-1.yaml">OpenAPI 3.1</span>
+                  </span>
+                </span>
+              </span>
+            </div>
+
+            <!-- scrollTo(path) -->
+            <div class="rd-control-row rd-method-scroll-row" data-method="scrollTo">
+              <span
+                class="rd-control-label"
+                data-human="Scroll To"
+                data-raw="scrollTo(path)"
+              >Scroll To</span>
+              <div class="rd-method-input-wrap">
+                <input
+                  type="text"
+                  class="rd-method-input rd-scroll-path-input"
+                  value="get-/user/login"
+                  placeholder="e.g. get-/user/login"
+                  aria-label="Path to scroll to"
+                  spellcheck="false"
+                />
+                <button
+                  type="button"
+                  class="rd-method-exec-btn rd-scroll-exec-btn"
+                  title="Execute scrollTo(path)"
+                >
+                  <span data-human="Scroll" data-raw="Call">Scroll</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <!-- Slot for custom, test-specific action buttons or inputs -->
+      <slot />
+    </div>
+  </div>
+
+  <!-- Single CSS Anchor Positioning Tooltip -->
+  <div
+    id={`rd-tooltip-${targetId}`}
+    class="rd-hud-tooltip"
+    role="tooltip"
+    aria-hidden="true"
+  >
+    <div class="rd-tooltip-inner">
+      <span class="rd-tooltip-badge" aria-hidden="true"></span>
+      <span class="rd-tooltip-text"></span>
+    </div>
+  </div>
+</aside>
+
+<script is:inline>
+  (function initRapiDocController() {
+    function setupController(hud) {
+      if (hud.__rdInitialized) return;
+      hud.__rdInitialized = true;
+
+      const targetId = hud.getAttribute('data-target') || 'thedoc';
+      let initialAttrs = {};
+      try {
+        const rawInitial = hud.getAttribute('data-initial-attrs');
+        if (rawInitial) {
+          initialAttrs = JSON.parse(rawInitial);
+        }
+      } catch (_) {}
+
+      const triggerBtn = hud.querySelector('.rd-hud-trigger');
+      const minimizeBtn = hud.querySelector('.rd-hud-minimize-btn');
+      const tuckBtn = hud.querySelector('.rd-hud-tuck-btn');
+      const labelModeBtn = hud.querySelector('.rd-hud-label-mode-btn');
+      const labelModeText = labelModeBtn?.querySelector('.rd-label-btn-text');
+      const labelModeIcon = labelModeBtn?.querySelector('.rd-label-btn-icon');
+      const statusDots = hud.querySelectorAll('.rd-hud-status-dot');
+
+      const storageKeyTuck = `rd_ctrl_tucked_${window.location.pathname}`;
+      const storageKeyRaw = `rd_ctrl_raw_labels`;
+
+      function setCollapsed(collapsed) {
+        if (collapsed) {
+          hud.classList.add('is-collapsed');
+          triggerBtn?.setAttribute('aria-expanded', 'false');
+        } else {
+          hud.classList.remove('is-collapsed');
+          triggerBtn?.setAttribute('aria-expanded', 'true');
+        }
+      }
+
+      triggerBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        setCollapsed(false);
+      });
+
+      minimizeBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        setCollapsed(true);
+      });
+
+      function syncTuckUi() {
+        const isTucked = hud.classList.contains('is-tucked-right');
+        tuckBtn?.setAttribute('title', isTucked ? 'Float at Bottom' : 'Tuck to Right Side Drawer');
+        tuckBtn?.setAttribute('aria-label', isTucked ? 'Float at Bottom' : 'Tuck to Right Side Drawer');
+      }
+
+      tuckBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        const isTucked = hud.classList.toggle('is-tucked-right');
+        localStorage.setItem(storageKeyTuck, String(isTucked));
+        syncTuckUi();
+        setCollapsed(false);
+      });
+
+      function setLabelMode(isRaw) {
+        if (isRaw) {
+          hud.classList.add('is-raw-labels');
+          labelModeBtn?.setAttribute('aria-pressed', 'true');
+        } else {
+          hud.classList.remove('is-raw-labels');
+          labelModeBtn?.setAttribute('aria-pressed', 'false');
+        }
+
+        // Cleanly set single text node to prevent any double-label rendering
+        hud.querySelectorAll('[data-human][data-raw]').forEach(el => {
+          el.textContent = isRaw ? el.getAttribute('data-raw') : el.getAttribute('data-human');
+        });
+      }
+
+      labelModeBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        const nowRaw = !hud.classList.contains('is-raw-labels');
+        localStorage.setItem(storageKeyRaw, String(nowRaw));
+        setLabelMode(nowRaw);
+      });
+
+      const savedTuck = localStorage.getItem(storageKeyTuck);
+      if (savedTuck === 'true') {
+        hud.classList.add('is-tucked-right');
+      } else if (savedTuck === 'false') {
+        hud.classList.remove('is-tucked-right');
+      }
+      syncTuckUi();
+
+      if (localStorage.getItem(storageKeyRaw) === 'true') {
+        setLabelMode(true);
+      } else {
+        setLabelMode(false);
+      }
+
+      // =========================================================================
+      // Single Viewport-Safe Tooltip Engine
+      // =========================================================================
+      const tooltipEl = hud.querySelector('.rd-hud-tooltip');
+      const tooltipInner = tooltipEl?.querySelector('.rd-tooltip-inner');
+      const tooltipText = tooltipEl?.querySelector('.rd-tooltip-text');
+      const tooltipBadge = tooltipEl?.querySelector('.rd-tooltip-badge');
+
+      // Hoist tooltip to document.body so it is never clipped by transforms or overflow
+      if (tooltipEl && tooltipEl.parentElement !== document.body) {
+        document.body.appendChild(tooltipEl);
+      }
+
+      let currentAnchorEl = null;
+
+      function updateTooltipPosition(targetEl) {
+        if (!tooltipEl || !targetEl) return;
+        const rect = targetEl.getBoundingClientRect();
+        const tooltipWidth = tooltipInner?.offsetWidth || 220;
+        const tooltipHeight = tooltipInner?.offsetHeight || 30;
+
+        // Center horizontally over target
+        let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+        // Default position: ABOVE the trigger with an 8px gap (never cuts off at bottom of screen!)
+        let top = rect.top - tooltipHeight - 8;
+
+        // If too close to viewport top, flip below the trigger
+        if (top < 8) {
+          top = rect.bottom + 8;
+        }
+
+        // Viewport horizontal boundary constraints
+        if (left < 12) left = 12;
+        if (left + tooltipWidth > window.innerWidth - 12) {
+          left = window.innerWidth - tooltipWidth - 12;
+        }
+
+        tooltipEl.style.setProperty('left', `${Math.round(left)}px`, 'important');
+        tooltipEl.style.setProperty('top', `${Math.round(top)}px`, 'important');
+      }
+
+      function showTooltip(targetEl) {
+        if (!tooltipEl || !targetEl) return;
+        const text = targetEl.getAttribute('data-tooltip');
+        if (!text) return;
+
+        const type = targetEl.getAttribute('data-tooltip-type') || 'default';
+        tooltipEl.setAttribute('data-type', type);
+        if (tooltipBadge) {
+          tooltipBadge.textContent = type === 'info' ? 'Info' : 'Tip';
+        }
+        if (tooltipText) {
+          tooltipText.textContent = text;
+        }
+
+        currentAnchorEl = targetEl;
+        tooltipEl.classList.add('is-visible');
+        tooltipEl.setAttribute('aria-hidden', 'false');
+
+        updateTooltipPosition(targetEl);
+      }
+
+      function hideTooltip(targetEl) {
+        if (!tooltipEl) return;
+        if (targetEl && targetEl === currentAnchorEl) {
+          currentAnchorEl = null;
+        }
+        tooltipEl.classList.remove('is-visible');
+        tooltipEl.setAttribute('aria-hidden', 'true');
+      }
+
+      hud.addEventListener('pointerover', e => {
+        const trigger = e.target.closest('[data-tooltip]');
+        if (trigger && hud.contains(trigger)) {
+          showTooltip(trigger);
+        }
+      });
+
+      hud.addEventListener('pointerout', e => {
+        const trigger = e.target.closest('[data-tooltip]');
+        if (trigger && (!e.relatedTarget || !trigger.contains(e.relatedTarget))) {
+          hideTooltip(trigger);
+        }
+      });
+
+      hud.addEventListener('focusin', e => {
+        const trigger = e.target.closest('[data-tooltip]');
+        if (trigger && hud.contains(trigger)) {
+          showTooltip(trigger);
+        }
+      });
+
+      hud.addEventListener('focusout', e => {
+        const trigger = e.target.closest('[data-tooltip]');
+        if (trigger) {
+          hideTooltip(trigger);
+        }
+      });
+
+      // Keep position updated if the controller body or page scrolls
+      const hudBody = hud.querySelector('.rd-hud-body');
+      hudBody?.addEventListener('scroll', () => {
+        if (currentAnchorEl) {
+          updateTooltipPosition(currentAnchorEl);
+        }
+      }, { passive: true });
+
+      window.addEventListener('scroll', () => {
+        if (currentAnchorEl) {
+          updateTooltipPosition(currentAnchorEl);
+        }
+      }, { passive: true });
+
+      window.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          setCollapsed(!hud.classList.contains('is-collapsed'));
+        }
+      });
+
+      hud.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          const interactive = e.target.closest('.rd-link-btn, .rd-toggle-chip');
+          if (interactive) {
+            e.preventDefault();
+            interactive.click();
+          }
+        }
+      });
+
+      function getTarget() {
+        return document.getElementById(targetId);
+      }
+
+      function executeScrollTo() {
+        const target = getTarget();
+        if (!target) return;
+        const input = hud.querySelector('.rd-scroll-path-input');
+        if (!input) return;
+        let path = input.value.trim();
+        if (!path) return;
+
+        // Normalize spaces or colons like "get /user/login" or "get: /user/login" -> "get-/user/login"
+        path = path.replace(/^(\w+)[\s:]+(\/.*)$/i, (_, m, p) => `${m.toLowerCase()}-${p}`);
+
+        // Auto-prefix helper if raw path without method or tag prefix is given
+        if (target.shadowRoot && !target.shadowRoot.getElementById(path)) {
+          const cleanPath = path.startsWith('/') ? path : `/${path}`;
+          const candidates = [
+            `get-${cleanPath}`,
+            `post-${cleanPath}`,
+            `put-${cleanPath}`,
+            `delete-${cleanPath}`,
+            `patch-${cleanPath}`,
+            `tag--${path.replace(/^tag--/, '')}`,
+          ];
+          for (const cand of candidates) {
+            if (target.shadowRoot.getElementById(cand)) {
+              path = cand;
+              break;
+            }
+          }
+        }
+
+        if (typeof target.scrollToPath === 'function') {
+          target.scrollToPath(path);
+        } else if (typeof target.scrollTo === 'function') {
+          target.scrollTo(path);
+        }
+      }
+
+      const scrollInput = hud.querySelector('.rd-scroll-path-input');
+      scrollInput?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+          executeScrollTo();
+        }
+      });
+
+      function syncControllerState() {
+        const target = getTarget();
+        if (!target) return;
+
+        hud.querySelectorAll('.rd-link-btn:not(.rd-method-spec-btn)').forEach(btn => {
+          const attr = btn.getAttribute('data-attr');
+          const val = btn.getAttribute('data-val') ?? '';
+          if (!attr) return;
+
+          const currentVal = target.getAttribute(attr);
+          let isMatching = false;
+
+          if (currentVal !== null && currentVal !== '') {
+            isMatching = String(currentVal).toLowerCase() === String(val).toLowerCase();
+          } else {
+            // When attribute is not explicitly set on <rapi-doc>, match the default option
+            isMatching = btn.getAttribute('data-is-default') === 'true';
+          }
+
+          if (isMatching) {
+            btn.classList.add('is-active');
+            btn.setAttribute('aria-checked', 'true');
+          } else {
+            btn.classList.remove('is-active');
+            btn.setAttribute('aria-checked', 'false');
+          }
+        });
+
+        // Sync active spec option if present
+        const currentSpecUrl = target.getAttribute('spec-url') || '';
+        hud.querySelectorAll('.rd-method-spec-btn').forEach(btn => {
+          const btnSpec = btn.getAttribute('data-spec-url') || '';
+          const isActive = Boolean(
+            btnSpec &&
+              currentSpecUrl &&
+              (currentSpecUrl === btnSpec ||
+                currentSpecUrl.endsWith(btnSpec) ||
+                btnSpec.endsWith(currentSpecUrl) ||
+                (btnSpec.includes('petstore') && currentSpecUrl.includes('petstore')) ||
+                (btnSpec.includes('open-api-3-1') && currentSpecUrl.includes('open-api-3-1')))
+          );
+          if (isActive) {
+            btn.classList.add('is-active');
+            btn.setAttribute('aria-checked', 'true');
+          } else {
+            btn.classList.remove('is-active');
+            btn.setAttribute('aria-checked', 'false');
+          }
+        });
+
+        hud.querySelectorAll('.rd-toggle-chip').forEach(btn => {
+          const attr = btn.getAttribute('data-attr');
+          if (!attr) return;
+          const currentVal = target.getAttribute(attr);
+          const defaultOn = btn.getAttribute('data-default-on') === 'true';
+          const isActive = currentVal === 'true' || (currentVal !== 'false' && (currentVal !== null ? true : defaultOn));
+          if (isActive) {
+            btn.classList.add('is-active');
+            btn.setAttribute('aria-pressed', 'true');
+          } else {
+            btn.classList.remove('is-active');
+            btn.setAttribute('aria-pressed', 'false');
+          }
+        });
+      }
+
+      hud.addEventListener('click', e => {
+        const methodSpecBtn = e.target.closest('.rd-method-spec-btn');
+        if (methodSpecBtn) {
+          const specToLoad = methodSpecBtn.getAttribute('data-spec-url');
+          const target = getTarget();
+          if (target && specToLoad) {
+            target.setAttribute('spec-url', specToLoad);
+            if (typeof target.loadSpec === 'function') {
+              target.loadSpec(specToLoad);
+            }
+            syncControllerState();
+          }
+          return;
+        }
+
+        const scrollExecBtn = e.target.closest('.rd-scroll-exec-btn');
+        if (scrollExecBtn) {
+          executeScrollTo();
+          return;
+        }
+
+        const linkBtn = e.target.closest('.rd-link-btn');
+        if (linkBtn) {
+          const attr = linkBtn.getAttribute('data-attr');
+          const val = linkBtn.getAttribute('data-val') ?? '';
+          const target = getTarget();
+          if (target && attr) {
+            if (val === '') {
+              target.removeAttribute(attr);
+            } else {
+              target.setAttribute(attr, val);
+            }
+            syncControllerState();
+          }
+          return;
+        }
+
+        const toggleBtn = e.target.closest('.rd-toggle-chip');
+        if (toggleBtn) {
+          const attr = toggleBtn.getAttribute('data-attr');
+          const target = getTarget();
+          if (target && attr) {
+            const currentVal = target.getAttribute(attr);
+            const defaultOn = toggleBtn.getAttribute('data-default-on') === 'true';
+            const isCurrentlyActive = currentVal === 'true' || (currentVal === null && defaultOn);
+            const newVal = isCurrentlyActive ? 'false' : 'true';
+            target.setAttribute(attr, newVal);
+            syncControllerState();
+          }
+          return;
+        }
+      });
+
+      function attachToTarget() {
+        const target = getTarget();
+        if (!target) {
+          setTimeout(attachToTarget, 100);
+          return;
+        }
+
+        try {
+          if (initialAttrs) {
+            Object.entries(initialAttrs).forEach(([key, val]) => {
+              if (!target.hasAttribute(key) && val !== undefined && val !== null) {
+                target.setAttribute(key, String(val));
+              }
+            });
+          }
+        } catch (_) {}
+
+        target.addEventListener('spec-loaded', () => {
+          statusDots.forEach(dot => dot.classList.add('is-loaded'));
+        });
+
+        target.addEventListener('after-render', () => {
+          statusDots.forEach(dot => dot.classList.add('is-ready'));
+          syncControllerState();
+        });
+
+        const observer = new MutationObserver(() => {
+          syncControllerState();
+        });
+        observer.observe(target, { attributes: true });
+
+        syncControllerState();
+        if (customElements?.whenDefined) {
+          customElements.whenDefined('rapi-doc').then(() => {
+            syncControllerState();
+          });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachToTarget);
+      } else {
+        attachToTarget();
+      }
+    }
+
+    document.querySelectorAll('.rd-controller-hud').forEach(setupController);
+  })();
+</script>
+
+<style is:global>
+  /* ==========================================================================
+     Global Scoped Reset & Base Styles for RapiDoc Controller
+     Using is:global scoped under .rd-controller-hud prevents Astro fragment bugs
+     ========================================================================== */
+  .rd-controller-hud {
+    --rd-ctrl-font-size: 12px;
+    position: fixed !important;
+    z-index: 99990 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: var(--rd-ctrl-font-size) !important;
+    line-height: 1.4;
+    user-select: none;
+    -webkit-user-select: none;
+    box-sizing: border-box;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, width 0.25s ease;
+  }
+
+  .rd-controller-hud * {
+    box-sizing: border-box;
+  }
+
+  /* Universal reset for all buttons inside the controller to avoid browser 3D beveled borders */
+  .rd-controller-hud button {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: normal;
+  }
+
+  /* Scalable SVG icons based on controller font-size */
+  .rd-controller-hud .rd-hud-action-btn svg,
+  .rd-controller-hud .rd-spec-link svg {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+  }
+
+  /* Floating Bottom Mode */
+  .rd-controller-hud:not(.is-tucked-right) {
+    bottom: 1.2em !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    max-width: 95vw !important;
+  }
+
+  /* Trigger pill shown when collapsed */
+  .rd-controller-hud .rd-hud-trigger {
+    display: none;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.55em 1.25em;
+    border-radius: 10px 10px 4px 4px;
+    background: rgba(15, 23, 42, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    color: #e2e8f0;
+    font-size: 1em;
+    font-weight: 700;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease;
+  }
+
+  .rd-controller-hud .rd-hud-trigger:hover {
+    background: rgba(15, 23, 42, 0.98);
+    border-color: rgba(234, 88, 12, 0.6);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 30px rgba(234, 88, 12, 0.3);
+  }
+
+  .rd-controller-hud .rd-hud-trigger-title {
+    letter-spacing: 0.04em;
+  }
+
+  .rd-controller-hud .rd-hud-toggle-icon {
+    font-size: 0.85em;
+    opacity: 0.7;
+    margin-left: 0.2em;
+  }
+
+  /* Status indicator dot */
+  .rd-controller-hud .rd-hud-status-dot {
+    width: 0.65em;
+    height: 0.65em;
+    border-radius: 50%;
+    background: #64748b;
+    display: inline-block;
+    transition: background 0.3s ease;
+  }
+
+  .rd-controller-hud .rd-hud-status-dot.is-loaded {
+    background: #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
+  }
+
+  .rd-controller-hud .rd-hud-status-dot.is-ready {
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+  }
+
+  /* Main HUD panel */
+  .rd-controller-hud .rd-hud-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+    padding: 0.75em 1.1em;
+    border-radius: 1.1em;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    max-width: 95vw;
+  }
+
+  .rd-controller-hud:not(.is-tucked-right) .rd-hud-panel {
+    max-height: 72vh;
+  }
+
+  /* Collapsed state behavior (Floating mode) */
+  .rd-controller-hud.is-collapsed:not(.is-tucked-right) .rd-hud-panel {
+    display: none !important;
+  }
+
+  .rd-controller-hud.is-collapsed:not(.is-tucked-right) .rd-hud-trigger {
+    display: inline-flex !important;
+  }
+
+  /* Header inside HUD panel */
+  .rd-controller-hud .rd-hud-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.6em;
+    flex-shrink: 0;
+  }
+
+  .rd-controller-hud .rd-hud-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+  }
+
+  .rd-controller-hud .rd-hud-badge {
+    font-size: 0.92em;
+    font-weight: 800;
+    color: #e2e8f0;
+    letter-spacing: 0.07em;
+  }
+
+  .rd-controller-hud .rd-spec-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    padding: 0.2em 0.55em;
+    border-radius: 0.35em;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #cbd5e1;
+    font-size: 0.88em;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .rd-controller-hud .rd-spec-link:hover {
+    color: #fff;
+    background: rgba(234, 88, 12, 0.25);
+    border-color: rgba(234, 88, 12, 0.5);
+  }
+
+  .rd-controller-hud .rd-hud-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
+  }
+
+  .rd-controller-hud .rd-hud-action-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35em !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #cbd5e1 !important;
+    padding: 0.28em 0.65em !important;
+    border-radius: 0.4em !important;
+    corner-shape: squircle !important;
+    font-size: 0.9em !important;
+    font-weight: 600 !important;
+    transition: all 0.15s ease !important;
+  }
+
+  .rd-controller-hud .rd-hud-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.28) !important;
+  }
+
+  /* API Label Mode Button: Dimmed when toggled off (human mode), highlighted in raw label mode */
+  .rd-controller-hud .rd-hud-label-mode-btn {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    font-size: 0.88em !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    color: #64748b !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    opacity: 0.65 !important;
+  }
+
+  .rd-controller-hud .rd-hud-label-mode-btn:hover {
+    color: #e2e8f0 !important;
+    opacity: 1 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .rd-controller-hud.is-raw-labels .rd-hud-label-mode-btn {
+    color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.2) !important;
+    border-color: rgba(56, 189, 248, 0.55) !important;
+    opacity: 1 !important;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.25) !important;
+  }
+
+  /* Tuck Button: Icon only */
+  .rd-controller-hud .rd-hud-tuck-btn {
+    padding: 0.28em 0.55em !important;
+  }
+
+  .rd-controller-hud .icon-float-bottom {
+    display: none !important;
+  }
+  .rd-controller-hud .icon-tuck-right {
+    display: inline-block !important;
+  }
+  .rd-controller-hud.is-tucked-right .icon-tuck-right {
+    display: none !important;
+  }
+  .rd-controller-hud.is-tucked-right .icon-float-bottom {
+    display: inline-block !important;
+  }
+
+  /* Scrollable Fluid Body with Sleek Scrollbar */
+  .rd-controller-hud .rd-hud-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    max-height: calc(72vh - 4.5em);
+    display: flex;
+    flex-direction: column;
+    gap: 0.9em;
+    padding-right: 0.35em;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.35) rgba(255, 255, 255, 0.05);
+  }
+
+  .rd-controller-hud .rd-hud-body::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .rd-controller-hud .rd-hud-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 9999px;
+  }
+
+  .rd-controller-hud .rd-hud-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.28);
+    border-radius: 9999px;
+  }
+
+  .rd-controller-hud .rd-hud-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Categories */
+  .rd-controller-hud .rd-hud-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  }
+
+  .rd-controller-hud .rd-hud-category-title {
+    font-size: 0.82em;
+    font-weight: 800;
+    color: #38bdf8;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .rd-controller-hud .rd-hud-section-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45em;
+  }
+
+  /* ==========================================================================
+     Link-Style Controls: Pure text links without any button borders
+     ========================================================================== */
+  .rd-controller-hud .rd-hud-link-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35em 0.5em;
+    font-size: 1em;
+    line-height: 1.4;
+  }
+
+  .rd-controller-hud .rd-control-label-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35em !important;
+  }
+
+  .rd-controller-hud .rd-control-label {
+    font-size: 0.88em;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: default;
+    outline: none;
+  }
+
+  .rd-controller-hud .rd-control-label:focus-visible {
+    color: #f1f5f9;
+  }
+
+  /* Info Icon beside label */
+  .rd-controller-hud .rd-control-info-icon {
+    all: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    color: #38bdf8 !important;
+    opacity: 0.75 !important;
+    padding: 0.1em !important;
+    border-radius: 50% !important;
+    line-height: 1 !important;
+    outline: none !important;
+    transition: opacity 0.15s ease, color 0.15s ease, transform 0.15s ease !important;
+  }
+
+  .rd-controller-hud .rd-control-info-icon:hover,
+  .rd-controller-hud .rd-control-info-icon:focus-visible {
+    opacity: 1 !important;
+    color: #7dd3fc !important;
+    transform: scale(1.15) !important;
+  }
+
+  .rd-controller-hud .rd-control-info-icon svg {
+    pointer-events: none !important;
+  }
+
+  .rd-controller-hud .rd-toggle-info-btn {
+    margin-left: 0.2em !important;
+    padding: 0 !important;
+  }
+
+  /* ==========================================================================
+     Single Viewport-Safe Floating Tooltip Styles
+     ========================================================================== */
+  .rd-hud-tooltip {
+    all: unset !important;
+    position: fixed !important;
+    z-index: 1000000 !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(2px) !important;
+    transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s !important;
+    box-sizing: border-box !important;
+    width: max-content !important;
+    max-width: 340px !important;
+  }
+
+  .rd-hud-tooltip.is-visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+  }
+
+  .rd-hud-tooltip .rd-tooltip-inner {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.45em !important;
+    padding: 0.35em 0.7em !important;
+    border-radius: 0.45em !important;
+    background: rgba(15, 23, 42, 0.96) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    color: #f1f5f9 !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    white-space: nowrap !important;
+    max-width: 320px !important;
+  }
+
+  /* Info Notice Tooltip Variant */
+  .rd-hud-tooltip[data-type="info"] .rd-tooltip-inner {
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    background: rgba(12, 28, 48, 0.96) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), 0 0 12px rgba(56, 189, 248, 0.2) !important;
+  }
+
+  .rd-hud-tooltip .rd-tooltip-badge {
+    display: none !important;
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 0.1em 0.4em !important;
+    border-radius: 0.25em !important;
+    background: rgba(56, 189, 248, 0.25) !important;
+    color: #7dd3fc !important;
+    border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    flex-shrink: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  .rd-hud-tooltip[data-type="info"] .rd-tooltip-badge {
+    display: inline-block !important;
+  }
+
+  .rd-controller-hud .rd-link-options {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .rd-controller-hud .rd-link-item {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .rd-controller-hud .rd-link-sep {
+    color: rgba(255, 255, 255, 0.22);
+    font-size: 0.88em;
+    margin: 0 0.35em;
+    user-select: none;
+  }
+
+  /* Clickable Text Link: Pure text links, no borders, no boxes, no button styling */
+  .rd-controller-hud .rd-link-btn {
+    all: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0.05em 0.25em !important;
+    color: #94a3b8 !important;
+    font-size: 1em !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    line-height: normal !important;
+    transition: color 0.15s ease !important;
+  }
+
+  .rd-controller-hud .rd-link-btn:hover {
+    color: #ffffff !important;
+    text-decoration: none !important; /* No text-decoration on hover */
+  }
+
+  /* Color preview swatch: Borderless filled circle, larger size */
+  .rd-controller-hud .rd-color-dot {
+    display: inline-block;
+    width: 1.15em;
+    height: 1.15em;
+    border-radius: 50% !important;
+    border: none !important;
+    outline: none !important;
+    margin-right: 0.38em;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    transition: transform 0.15s ease;
+  }
+
+  .rd-controller-hud .rd-link-btn:hover .rd-color-dot {
+    transform: scale(1.1);
+  }
+
+  .rd-controller-hud .rd-link-btn.is-active .rd-color-dot {
+    transform: scale(1.1);
+  }
+
+  /* Active Link: Highlighted in vibrant RapiDoc Orange without bold font */
+  .rd-controller-hud .rd-link-btn.is-active {
+    color: #ff7043 !important;
+    font-weight: 500 !important; /* NOT bold, same normal weight */
+    text-decoration: none !important; /* No underline */
+    background: transparent !important;
+  }
+
+  .rd-controller-hud .rd-link-btn.is-active:hover {
+    color: #ff8a65 !important;
+    text-decoration: none !important;
+  }
+
+  /* Toggles wrapper: laid out row-wise, wrapping naturally across multiple lines */
+  .rd-controller-hud .rd-toggles-wrap {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 0.45em !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  /* Toggle chips: Clickable compact flat tags */
+  .rd-controller-hud .rd-toggle-chip {
+    all: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    width: auto !important;
+    flex-shrink: 0 !important;
+    gap: 0.35em !important;
+    padding: 0.22em 0.65em !important;
+    border-radius: 0.35em !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #94a3b8 !important;
+    font-size: 0.92em !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    line-height: normal !important;
+    box-sizing: border-box !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+  }
+
+  .rd-controller-hud .rd-toggle-chip:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #f1f5f9 !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+  }
+
+  .rd-controller-hud .rd-toggle-chip.is-active {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border-color: rgba(16, 185, 129, 0.45) !important;
+    color: #34d399 !important;
+    font-weight: 500 !important;
+  }
+
+  .rd-controller-hud .rd-toggle-check {
+    font-size: 0.85em;
+    opacity: 0.3;
+    transition: opacity 0.15s ease;
+  }
+
+  .rd-controller-hud .rd-toggle-chip.is-active .rd-toggle-check {
+    opacity: 1;
+  }
+
+  /* ==========================================================================
+     Programmatic Methods Controls (loadSpec, scrollTo)
+     ========================================================================== */
+  .rd-controller-hud .rd-method-input-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4em !important;
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    margin-inline-start: 6px !important;
+  }
+
+  .rd-controller-hud .rd-method-input {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 6px !important;
+    corner-shape:squircle !important;
+    color: #f1f5f9 !important;
+    font-size: 0.9em !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    padding: 0.22em 0.55em !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    transition: border-color 0.15s ease, background 0.15s ease !important;
+  }
+
+  .rd-controller-hud .rd-method-input:focus {
+    border-color: #f76b39 !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+  }
+
+  .rd-controller-hud .rd-method-exec-btn {
+    all: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.22em 0.65em !important;
+    font-size: 0.88em !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    background: #ea580c !important;
+    border-radius: 6px !important;
+    corner-shape:squircle !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    line-height: normal !important;
+    box-sizing: border-box !important;
+    transition: background 0.15s ease, transform 0.1s ease !important;
+    flex-shrink: 0 !important;
+  }
+
+  .rd-controller-hud .rd-method-exec-btn:hover {
+    background: #f97316 !important;
+  }
+
+  .rd-controller-hud .rd-method-exec-btn:active {
+    transform: scale(0.96) !important;
+  }
+
+  /* ==========================================================================
+     Raw Labels Mode (Monospace, clean attribute names)
+     ========================================================================== */
+  .rd-controller-hud.is-raw-labels .rd-control-label,
+  .rd-controller-hud.is-raw-labels .rd-link-btn,
+  .rd-controller-hud.is-raw-labels .rd-method-exec-btn,
+  .rd-controller-hud.is-raw-labels .rd-toggle-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Roboto Mono", monospace !important;
+    font-size: 0.88em !important;
+    letter-spacing: -0.01em !important;
+    text-transform: none !important;
+  }
+
+  /* ==========================================================================
+     Tucked to Right (Fluid Side Drawer Mode)
+     When tucked to right, the left top and bottom borders have ZERO radius
+     ========================================================================== */
+  .rd-controller-hud.is-tucked-right,
+  .rd-controller-hud.is-tucked-right .rd-hud-panel,
+  .rd-controller-hud.is-tucked-right .rd-hud-header,
+  .rd-controller-hud.is-tucked-right .rd-hud-body {
+    border-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+
+  .rd-controller-hud.is-tucked-right {
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    width: 30em !important;
+    max-width: 90vw !important;
+    height: 100vh !important;
+    transform: none !important;
+  }
+
+  .rd-controller-hud.is-tucked-right .rd-hud-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.14) !important;
+    background: rgba(15, 23, 42, 0.96) !important;
+    padding: 0 !important;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.7) !important;
+  }
+
+  .rd-controller-hud.is-tucked-right .rd-hud-header {
+    flex-shrink: 0 !important;
+    padding: 1em 1.25em !important;
+    background: rgba(15, 23, 42, 0.98) !important;
+  }
+
+  .rd-controller-hud.is-tucked-right .rd-hud-body {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    padding: 1.1em 1.25em !important;
+    gap: 1.1em !important;
+  }
+
+  /* Automatically shift Back to Showcase button left when controller is tucked right */
+  body:has(.rd-controller-hud.is-tucked-right:not(.is-collapsed)) .rd-floating-pill-container {
+    right: 32em !important;
+    transition: right 0.25s ease;
+  }
+
+  /* Collapsed trigger when Tucked to Right (Docked Edge Tab on Right edge) */
+  .rd-controller-hud.is-tucked-right.is-collapsed {
+    top: 96px !important;
+    right: 0 !important;
+    left: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+  }
+
+  .rd-controller-hud.is-tucked-right.is-collapsed .rd-hud-panel {
+    display: none !important;
+  }
+
+  .rd-controller-hud.is-tucked-right.is-collapsed .rd-hud-trigger {
+    display: inline-flex !important;
+    border-radius: 9999px 0 0 9999px !important;
+    border-right: none !important;
+    border-color: rgba(245, 158, 11, 0.4) !important;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  .rd-controller-hud.is-tucked-right.is-collapsed .rd-hud-toggle-icon {
+    transform: rotate(90deg);
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .rd-controller-hud:not(.is-tucked-right) {
+      width: calc(100vw - 20px) !important;
+      left: 10px !important;
+      transform: none !important;
+    }
+  }
+</style>

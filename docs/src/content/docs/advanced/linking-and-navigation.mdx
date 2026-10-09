@@ -1,0 +1,308 @@
+---
+title: Markdown Links & Deep Navigation
+description: Master internal cross-references, deep linking, custom HTML navigation, and automatic navbar heading links in RapiDoc.
+---
+
+import { Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+
+In comprehensive API specifications with dozens or hundreds of operations, enabling developers to navigate effortlessly between related endpoints, authentication guidelines, data models, and external resources is essential.
+
+RapiDoc provides an intelligent **deep navigation and linking architecture** that works natively with standard Markdown links, Web Component slots, URL routing, and sidebar table of contents.
+
+<Aside type="tip" title="Interactive Showcase & Live Spec">
+  Explore live deep links in action on the [Links Demo Page](/examples/links) and inspect the underlying OpenAPI definition in
+  [`docs/public/specs/links.yaml`](/specs/links.yaml). You can also test sidebar heading extraction on the [Markdown Headings
+  Demo](/examples/markdown-headings).
+</Aside>
+
+---
+
+## Navigation Capabilities at a Glance
+
+<CardGrid>
+  <Card title="Internal Deep Linking" icon="open-book">
+    Reference sections, tag categories, and individual endpoints directly from Markdown descriptions using auto-generated element IDs
+    (`#get-/users/-id-`).
+  </Card>
+  <Card title="Sidebar Heading Links" icon="bars">
+    Turn level-1 (`#`) and level-2 (`##`) Markdown headers within `info.description` into interactive sidebar navigation items with
+    `info-description-headings-in-navbar="true"`.
+  </Card>
+  <Card title="URL Hash Synchronization" icon="external">
+    Keep the browser's address bar synchronized with the active viewport element using `update-route="true"`, allowing readers to bookmark
+    and share direct links.
+  </Card>
+  <Card title="Custom HTML Links via Slots" icon="puzzle">
+    Inject styled navigation buttons, banners, and external links directly into RapiDoc's header, footer, or canvas using standard Web
+    Component slots.
+  </Card>
+</CardGrid>
+
+---
+
+## 1. Internal Deep Linking
+
+RapiDoc assigns deterministic, predictable DOM element IDs to every primary section, tag group, and operation card in the documentation. You can reference these IDs in standard Markdown link syntax (`[Label](#element-id)`) anywhere within OpenAPI description strings.
+
+When a user clicks an internal link, RapiDoc:
+
+1. Updates the browser's URL hash (e.g. `https://api.example.com/docs#get-/users/-userId-`).
+2. Automatically expands the target tag group and endpoint accordion if it was collapsed.
+3. Smoothly scrolls the element into view across all render modes (`read`, `view`, and `focused`).
+
+### ID Generation Rules
+
+The table below outlines how RapiDoc constructs element IDs across your specification:
+
+| Target Section        | Generated Element ID              | Formatting Rule & Logic                                                                          |
+| :-------------------- | :-------------------------------- | :----------------------------------------------------------------------------------------------- |
+| **Overview Section**  | `overview`                        | Static identifier for the API title, version, and general description card.                      |
+| **API Servers**       | `servers`                         | Static identifier for the server configuration and URL selector panel.                           |
+| **Authentication**    | `auth`                            | Static identifier for security schemes (Bearer tokens, API keys, OAuth).                         |
+| **Tag Group**         | `tag--{tag-name}`                 | Prefix `tag--` followed by the sanitized tag name.                                               |
+| **Path / Operation**  | `{method}-{path}`                 | Lowercase HTTP verb (`get`, `post`, `put`, `delete`, `patch`), a hyphen, and the sanitized path. |
+| **Overview Headings** | `overview--{heading-slug}`        | Prefix `overview--` followed by GitHub-slugger formatted heading text.                           |
+| **Tag Headings**      | `tag--{tag-name}--{heading-slug}` | Tag element ID followed by GitHub-slugger formatted heading text.                                |
+
+### The Character Sanitization Rule
+
+To guarantee that generated element IDs remain valid HTML IDs and CSS selectors, RapiDoc applies the following regular expression:
+
+```javascript
+const invalidCharsRegEx = /[\s#:?&={}]/g;
+```
+
+Any character matching **spaces, `#`, `:`, `?`, `&`, `=`, `{`, or `}`** is automatically replaced with a hyphen (`-`).
+
+#### Examples:
+
+- **Path Parameters**: Operation `GET /users/{userId}` becomes:
+
+  ```text
+  get-/users/-userId-
+  ```
+
+  _(Notice that `{` and `}` surrounding `userId` are replaced by `-`)_
+
+- **Multiple Path Parameters**: Operation `DELETE /orgs/{orgId}/teams/{teamId}/members/{userId}` becomes:
+
+  ```text
+  delete-/orgs/-orgId-/teams/-teamId-/members/-userId-
+  ```
+
+- **Query / Complex Paths**: Operation `POST /api/v1/search?type=user` becomes:
+
+  ```text
+  post-/api/v1/search-type-user
+  ```
+
+- **Tag Groups**:
+  - Tag `Users` &rarr; `tag--Users`
+  - Tag `User Management & Auth` &rarr; `tag--User-Management---Auth`
+
+---
+
+## 2. Writing Cross-References in OpenAPI Specs
+
+You can embed Markdown links inside any OpenAPI text field, including `info.description`, tag descriptions, operation descriptions, parameter descriptions, and response explanations.
+
+### Practical Example: Linking Endpoints Together
+
+Here is a typical workflow where a `POST /users` endpoint references the companion `GET /users/{userId}` endpoint and the API authentication panel:
+
+```yaml
+openapi: 3.0.2
+info:
+  title: User Accounts API
+  version: '1.0.0'
+  description: |
+    Welcome to the User Accounts API.
+
+    - [Review Authentication Requirements](#auth)
+    - [Configure API Servers & Environments](#servers)
+    - [Browse User Operations](#tag--Users)
+
+tags:
+  - name: Users
+    description: Operations for managing user profiles and security credentials.
+
+paths:
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Create a new user profile
+      description: |
+        Creates a new user record in the database.
+
+        After creation, retrieve the full profile details using 
+        [GET /users/{userId}](#get-/users/-userId-).
+
+        Before invoking this endpoint, ensure your client has obtained a valid 
+        bearer token as described in the [Authentication Guide](#auth).
+      responses:
+        '201':
+          description: User successfully created
+
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      description: |
+        Retrieves a single user record by their unique identifier.
+        To register a new user, use [POST /users](#post-/users).
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User record found
+```
+
+---
+
+## 3. Sidebar Headings in the Navigation Bar
+
+When authoring comprehensive documentation inside `info.description`, you may want major topic headings to appear directly inside the sidebar navigation bar alongside endpoints.
+
+RapiDoc provides the `info-description-headings-in-navbar` attribute:
+
+```html
+<rapi-doc spec-url="/specs/links.yaml" render-style="read" info-description-headings-in-navbar="true"> </rapi-doc>
+```
+
+### How It Works
+
+1. During specification parsing, RapiDoc inspects `info.description` for Markdown heading tokens (`#` for level-1 and `##` for level-2).
+2. It parses the heading text and generates slugified anchor IDs prefixed with `overview--` (e.g. `## Rate Limiting & Quotas` &rarr; `overview--rate-limiting--quotas`).
+3. These headings are inserted as nested navigation items under the **Overview** menu entry in the sidebar.
+4. Clicking any heading smoothly scrolls the viewport to that exact section of the description.
+
+<Aside type="note" title="Render Style Availability">
+  Sidebar heading extraction is actively rendered in **Read** mode (`render-style="read"`), where a continuous sticky navigation sidebar is
+  displayed.
+</Aside>
+
+<Aside type="tip" title="Dedicated Markdown Headings Guide">
+  For complete examples, tag description headings, heading level rules, and CSS Shadow Parts customization, see our dedicated [Markdown Headings in Navbar Guide](/docs/advanced/markdown-headings/).
+</Aside>
+
+---
+
+## 4. URL Routing & Deep Link Sharing
+
+RapiDoc includes built-in browser routing integration so that developers can bookmark or share direct links to specific operations.
+
+### Configuration Attributes
+
+| Attribute         | Type      | Default    | Description                                                                                                                                                  |
+| :---------------- | :-------- | :--------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `update-route`    | `boolean` | `"true"`   | When `true`, automatically updates the browser URL hash as the user scrolls through or clicks operations. Set to `"false"` to disable URL hash modification. |
+| `route-prefix`    | `string`  | `"#"`      | Prefix prepended to the route hash in the address bar. Useful when integrating with client-side SPA routers (e.g., `route-prefix="#/"` for hash routing).    |
+| `goto-path`       | `string`  | `""`       | Target element ID to automatically scroll/navigate to immediately after the specification loads if no URL hash is present.                                   |
+| `scroll-behavior` | `string`  | `"smooth"` | Controls scrolling animation style (`"smooth"` or `"auto"`).                                                                                                 |
+
+### Example: Custom Router Prefix for SPAs
+
+If your host single-page application (Vue Router, Angular, HashRouter) uses `#/` prefix conventions:
+
+```html
+<rapi-doc spec-url="/specs/petstore.yaml" update-route="true" route-prefix="#/" goto-path="get-/pet/-petId-"> </rapi-doc>
+```
+
+When users navigate, the browser URL updates to `https://yourapp.com/#/get-/pet/-petId-`.
+
+---
+
+## 5. Custom HTML Links via Web Component Slots
+
+For brand identity or custom UI controls, you can inject styled HTML elements and navigation links into designated Web Component slots inside `<rapi-doc>`.
+
+Unlike Markdown links, slotted HTML links allow complete control over typography, custom colors, icons, badges, and layout:
+
+```html
+<rapi-doc spec-url="/specs/links.yaml" show-header="true">
+  <!-- 1. Header Slot: Top utility bar links -->
+  <div slot="header" style="display: flex; align-items: center; gap: 16px;">
+    <a href="#servers" style="color: #cbd5e1; text-decoration: none; font-size: 13px;"> 🌐 Servers </a>
+    <a href="#auth" style="color: #cbd5e1; text-decoration: none; font-size: 13px;"> 🔒 Auth </a>
+    <a
+      href="https://github.com/rapi-doc/RapiDoc"
+      target="_blank"
+      style="color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 600;"
+    >
+      GitHub ↗
+    </a>
+  </div>
+
+  <!-- 2. Default Slot: Quick-jump announcement banner above Overview -->
+  <div
+    style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 16px; border-radius: 8px; margin: 16px;"
+  >
+    <span style="font-weight: 600; color: #f8fafc;">🚀 Quick Navigation:</span>
+    <span style="margin: 0 8px; color: #64748b;">|</span>
+    <a href="#get-/users/-userId-" style="color: #38bdf8;">User Profile Endpoint</a>
+    <span style="margin: 0 8px; color: #64748b;">•</span>
+    <a href="#post-/users" style="color: #38bdf8;">Create User Endpoint</a>
+  </div>
+
+  <!-- 3. Nav-Logo Slot: Top of sticky sidebar -->
+  <div slot="nav-logo" style="padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+    <a href="/" style="font-weight: 700; color: #f8fafc; text-decoration: none; font-size: 15px;"> Acme Developer Hub </a>
+  </div>
+
+  <!-- 4. Footer Slot: Bottom of documentation canvas -->
+  <footer
+    slot="footer"
+    style="padding: 24px; text-align: center; color: #64748b; font-size: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08);"
+  >
+    <p>
+      © 2026 Acme Corp. • <a href="https://rapidocui.com" style="color: #94a3b8;">Documentation Home</a> •
+      <a href="#overview" style="color: #94a3b8;">Back to Top ↑</a>
+    </p>
+  </footer>
+</rapi-doc>
+```
+
+---
+
+## 6. Programmatic JavaScript Navigation
+
+You can also trigger navigation programmatically from your host application's JavaScript code using RapiDoc's public DOM methods:
+
+```javascript
+const rapidoc = document.querySelector('rapi-doc');
+
+// Scroll and focus on a specific operation
+await rapidoc.scrollTo('get-/users/-userId-');
+
+// Or navigate to a tag group
+await rapidoc.scrollTo('tag--Users');
+
+// Or navigate to the servers section
+await rapidoc.scrollTo('servers');
+```
+
+### Listening to Navigation Events
+
+You can detect when the active route changes by listening to standard browser `hashchange` events:
+
+```javascript
+window.addEventListener('hashchange', () => {
+  const currentHash = window.location.hash;
+  console.log('Active RapiDoc section changed to:', currentHash);
+});
+```
+
+---
+
+## Summary Best Practices
+
+1. **Verify Sanitized Character Rules**: Remember that `{` and `}` surrounding path parameters are replaced by hyphens. A path `/items/{id}` becomes `get-/items/-id-`.
+2. **Cross-Link Complementary Operations**: Use Markdown links in operation descriptions to connect `POST` creation endpoints with corresponding `GET` retrieval and `DELETE` endpoints.
+3. **Organize Large Descriptions with Headings**: For long architectural introductions, activate `info-description-headings-in-navbar="true"` to create a structured table of contents in the sidebar.
+4. **Leverage Slots for Brand Utility**: Place external documentation, developer console links, and environment status indicators into the `header` slot for universal visibility.

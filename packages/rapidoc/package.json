@@ -1,0 +1,63 @@
+{
+  "name": "rapidoc",
+  "version": "10.1.0",
+  "description": "RapiDoc - Open API spec viewer with built in console",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "homepage": "https://rapidocui.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rapi-doc/RapiDoc.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "OpenAPI",
+    "OpenAPI Specification",
+    "Swagger",
+    "JSON-Schema",
+    "API",
+    "REST",
+    "documentation",
+    "Custom Element",
+    "Web Component",
+    "rapidoc",
+    "swagger",
+    "swagger ui",
+    "openapi ui",
+    "openapi themes",
+    "openapi viewer",
+    "openapi renderer",
+    "openapi explorer",
+    "swagger themes",
+    "Mock Server"
+  ],
+  "type": "module",
+  "main": "dist/rapidoc-min.js",
+  "module": "dist/rapidoc-min.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "build:size": "ANALYZE=true vite build",
+    "lint": "eslint './src/**/*.js'",
+    "format": "prettier --check './src/**/*.{js,html,css}'",
+    "format-fix": "prettier --write './src/**/*.{js,html,css}'",
+    "analyze": "lit-analyzer src",
+    "test": "node --test ../../tests/unit/*.test.js"
+  },
+  "dependencies": {
+    "@scalar/openapi-parser": "^0.29.11",
+    "github-slugger": "^2.0.0",
+    "lit": "^3.3.3",
+    "marked": "^18.1.0",
+    "microlighter": "^2.2.0"
+  },
+  "devDependencies": {
+    "@lit-labs/rollup-plugin-minify-html-literals": "^0.2.0",
+    "esbuild": "^0.28.2",
+    "rollup-plugin-visualizer": "^7.1.1",
+    "vite": "^8.3.3",
+    "vite-plugin-banner": "^0.8.1"
+  }
+}

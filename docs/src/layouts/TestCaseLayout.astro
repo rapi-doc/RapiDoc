@@ -1,0 +1,62 @@
+---
+import ExampleLayout from './ExampleLayout.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  specUrl?: string;
+  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none' | 'auto';
+  controls?: string[];
+  rapidocProps?: Record<string, any>;
+  autoRenderRapiDoc?: boolean;
+  tuckedRight?: boolean;
+  controllerTitle?: string;
+  showController?: boolean;
+  showBackPill?: boolean;
+  controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
+  showMethods?: boolean;
+  controller?: 'default' | 'pretty' | 'hud' | 'drawer' | ((_props: any) => any);
+}
+
+const {
+  title,
+  description,
+  noindex,
+  specUrl,
+  preset = 'auto',
+  controls,
+  rapidocProps = {},
+  autoRenderRapiDoc = true,
+  tuckedRight,
+  controllerTitle,
+  showController = true,
+  showBackPill,
+  controllerSize,
+  showMethods,
+  controller,
+} = Astro.props;
+---
+
+<ExampleLayout
+  title={title}
+  description={description}
+  noindex={noindex}
+  specUrl={specUrl}
+  preset={preset}
+  controls={controls}
+  rapidocProps={rapidocProps}
+  autoRenderRapiDoc={autoRenderRapiDoc}
+  tuckedRight={tuckedRight}
+  controllerTitle={controllerTitle}
+  showController={showController}
+  showBackPill={showBackPill}
+  controllerSize={controllerSize}
+  showMethods={showMethods}
+  controller={controller}
+>
+  <slot name="head" slot="head" />
+  <slot name="script" slot="script" />
+  <slot name="controller" slot="controller" />
+  <slot />
+</ExampleLayout>

@@ -1,0 +1,335 @@
+/* ==========================================================================
+   RapiDoc Starlight Custom Theme - Permanent Dark Theme
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* --------------------------------------------------------------------------
+   1. Theme Color Tokens (Dark Mode Enforced)
+   -------------------------------------------------------------------------- */
+
+:root,
+:root[data-theme='dark'],
+:root[data-theme='light'],
+html {
+  color-scheme: dark !important;
+
+  /* Dynamic Theme mapping from global.css tokens */
+  --sl-color-accent-low: var(--rd-accent-dim);
+  --sl-color-accent: var(--rd-accent);
+  --sl-color-accent-high: var(--rd-accent-light);
+
+  --sl-color-white: #f8fafc;
+  --sl-color-gray-1: #f1f5f9;
+  --sl-color-gray-2: #cbd5e1;
+  --sl-color-gray-3: #94a3b8;
+  --sl-color-gray-4: #64748b;
+  --sl-color-gray-5: #475569;
+  --sl-color-gray-6: #1e293b;
+  --sl-color-gray-7: #0f172a;
+  --sl-color-black: #06090e;
+
+  /* Surfaces & Layout */
+  --sl-color-bg: #06090e;
+  --sl-color-bg-nav: rgba(6, 9, 14, 0.85);
+  --sl-color-bg-sidebar: rgba(8, 12, 20, 0.95);
+  --sl-color-bg-inline-code: rgba(30, 41, 59, 0.75);
+  --sl-color-hairline: rgba(255, 255, 255, 0.08);
+  --sl-color-hairline-light: rgba(255, 255, 255, 0.05);
+
+  --rd-heading-grad-start: #ffffff;
+  --rd-heading-grad-end: #94a3b8;
+  --rd-body-glow-1: var(--rd-accent-dim);
+  --rd-body-glow-2: rgba(245, 158, 11, 0.1);
+
+  /* Typography */
+  --sl-font-system: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sl-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+
+  /* Sizing */
+  --sl-sidebar-width: 18.5rem;
+  --sl-content-width: 52rem;
+  --sl-nav-height: 61px;
+}
+
+/* --------------------------------------------------------------------------
+   2. Base Background & Body
+   -------------------------------------------------------------------------- */
+body {
+  background-color: var(--sl-color-bg);
+  background-image:
+    radial-gradient(ellipse 60% 40% at 50% -10%, var(--rd-body-glow-1), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 90% 20%, var(--rd-body-glow-2), transparent 60%);
+  background-attachment: fixed;
+  font-family: var(--sl-font-system);
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  color: var(--sl-color-gray-3);
+}
+
+/* --------------------------------------------------------------------------
+   3. Header Navigation Bar (Unified with SiteNavbar)
+   -------------------------------------------------------------------------- */
+header.header {
+  padding: 0 !important;
+  height: auto !important;
+  border-bottom: none !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. Left Navigation Sidebar (Guaranteed Desktop Display)
+   -------------------------------------------------------------------------- */
+@media (min-width: 50rem) {
+  /* Force fixed desktop sidebar layout */
+  sl-sidebar-pane.sidebar-pane,
+  .sidebar-pane {
+    display: block !important;
+    position: fixed !important;
+    top: var(--sl-nav-height, 3.5rem) !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: var(--sl-sidebar-width, 18.5rem) !important;
+    z-index: 20 !important;
+    overflow-y: auto !important;
+    background: var(--sl-color-bg-sidebar) !important;
+    border-right: 1px solid var(--sl-color-hairline) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 1.25rem 0.75rem 2rem 1rem !important;
+  }
+
+  /* Make sure main content shifts properly */
+  [data-has-sidebar] .main-frame {
+    padding-inline-start: var(--sl-sidebar-width, 18.5rem) !important;
+  }
+}
+
+/* Sidebar Scrollbar */
+.sidebar-pane {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sl-color-hairline) transparent;
+}
+
+/* Sidebar Category Headers (<details> <summary>) */
+.sidebar-content summary,
+.sidebar-pane summary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--sl-color-gray-4) !important;
+  padding: 0.6rem 0.6rem !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: color 0.15s ease !important;
+}
+
+.sidebar-content summary:hover,
+.sidebar-pane summary:hover {
+  color: var(--sl-color-accent) !important;
+}
+
+.sidebar-content summary .large,
+.sidebar-pane summary .large {
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  color: var(--sl-color-gray-4) !important;
+}
+
+/* Sidebar Links (<ul> <li> <a>) */
+.sidebar-content ul ul li a,
+.sidebar-pane ul ul li a,
+ul.top-level ul li a {
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 6px !important;
+  padding: 0.42rem 0.75rem !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  color: var(--sl-color-gray-3) !important;
+  text-decoration: none !important;
+  transition: all 0.15s ease !important;
+  border-left: 2px solid transparent !important;
+  line-height: 1.4 !important;
+}
+
+.sidebar-content ul ul li a:hover,
+.sidebar-pane ul ul li a:hover,
+ul.top-level ul li a:hover {
+  background: var(--sl-color-hairline) !important;
+  color: var(--sl-color-accent) !important;
+  transform: translateX(2px) !important;
+}
+
+/* Active Page in Sidebar */
+.sidebar-content a[aria-current='page'],
+.sidebar-pane a[aria-current='page'],
+ul.top-level a[aria-current='page'] {
+  background: var(--sl-color-accent-low) !important;
+  color: var(--sl-color-accent) !important;
+  font-weight: 600 !important;
+  border-left: 2px solid var(--sl-color-accent) !important;
+}
+
+/* Sub-levels indent */
+ul.top-level ul li {
+  margin-inline-start: 0.5rem !important;
+  border-inline-start: 1px solid var(--sl-color-hairline-light) !important;
+  padding-inline-start: 0.35rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. Content Typography (Light & Dark Friendly)
+   -------------------------------------------------------------------------- */
+.content-panel {
+  padding-top: 1.5rem;
+}
+
+.main-pane h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--rd-heading-grad-start) 40%, var(--rd-heading-grad-end) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.75rem;
+}
+
+.main-pane h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 2.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--sl-color-hairline);
+  color: var(--sl-color-white);
+}
+
+.main-pane h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  color: var(--sl-color-accent);
+}
+
+.main-pane p,
+.main-pane li {
+  color: var(--sl-color-gray-3);
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+.main-pane strong {
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+
+/* Inline Code */
+:not(pre) > code {
+  font-family: var(--sl-font-mono);
+  font-size: 0.875em;
+  background: var(--sl-color-bg-inline-code) !important;
+  color: var(--sl-color-accent) !important;
+  border: 1px solid var(--sl-color-accent-low);
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   6. Code Blocks (Dark Modern Chrome across both themes)
+   -------------------------------------------------------------------------- */
+div.expressive-code {
+  margin: 1.75rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.35),
+    0 0 0 1px var(--sl-color-hairline);
+}
+
+div.expressive-code pre {
+  background-color: #0b111e !important;
+  font-family: var(--sl-font-mono) !important;
+  font-size: 0.88rem !important;
+  line-height: 1.65;
+  padding: 1.25rem;
+  color: #f8fafc !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. Right-Side Table of Contents (On this page)
+   -------------------------------------------------------------------------- */
+starlight-toc summary,
+.right-sidebar h2 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--sl-color-gray-4);
+}
+
+starlight-toc a {
+  font-size: 0.85rem;
+  color: var(--sl-color-gray-4);
+  transition: color 0.15s ease;
+  line-height: 1.5;
+}
+
+starlight-toc a:hover,
+starlight-toc a[aria-current='true'] {
+  color: var(--sl-color-accent) !important;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   8. Callouts / Asides
+   -------------------------------------------------------------------------- */
+aside.starlight-aside {
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-left-width: 4px;
+}
+
+aside.starlight-aside--note {
+  background: rgba(14, 165, 233, 0.08);
+  border-left-color: #0284c7;
+}
+
+aside.starlight-aside--tip {
+  background: rgba(16, 185, 129, 0.08);
+  border-left-color: #10b981;
+}
+
+aside.starlight-aside--caution {
+  background: rgba(245, 158, 11, 0.08);
+  border-left-color: #f59e0b;
+}
+
+aside.starlight-aside--danger {
+  background: rgba(239, 68, 68, 0.08);
+  border-left-color: #ef4444;
+}
+
+/* --------------------------------------------------------------------------
+   9. Cards & CardGrids
+   -------------------------------------------------------------------------- */
+.card-grid .card {
+  border: 1px solid var(--sl-color-hairline) !important;
+  background: var(--sl-color-bg-sidebar) !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.card-grid .card:hover {
+  border-color: var(--sl-color-accent) !important;
+  transform: translateY(-2px);
+}

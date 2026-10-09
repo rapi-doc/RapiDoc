@@ -1,0 +1,19 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout
+  autoRenderRapiDoc={true}
+  controls={['font-size', 'theme']}
+  rapidocProps={{
+    'spec-url': specUrl,
+    theme: 'dark',
+    'show-header': 'false',
+    'allow-server-selection': 'false',
+    'allow-authentication': 'false',
+    'render-style': 'read',
+  }}
+/>

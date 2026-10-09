@@ -1,0 +1,31 @@
+---
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
+---
+
+<TestCaseLayout
+  title="Interactive Test Harness Demo | RapiDoc"
+  description="Demonstration page showcasing the new TestCaseLayout and floating RapiDocController HUD."
+  specUrl="/specs-test/petstore.yaml"
+  preset="all"
+  rapidocProps={{
+    'render-style': 'read',
+    'schema-style': 'tree',
+    'theme': 'dark',
+    'show-info': 'true',
+    'show-header': 'false',
+    'allow-try': 'true',
+    'allow-server-selection': 'true',
+  }}
+>
+  <!-- Custom test action button injected into the RapiDocController HUD via slot="controller" -->
+  <button
+    slot="controller"
+    type="button"
+    class="rd-toggle-btn"
+    style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;"
+    onclick="const doc = document.getElementById('thedoc'); if (doc) { doc.scrollTo('get-/pet/findByStatus'); }"
+    title="Programmatically scroll to the findByStatus endpoint using doc.scrollTo()"
+  >
+    <span>📍 Scroll to findByStatus</span>
+  </button>
+</TestCaseLayout>

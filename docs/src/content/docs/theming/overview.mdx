@@ -1,0 +1,110 @@
+---
+title: Theming Overview & Architecture
+description: Learn how RapiDoc's Shadow DOM encapsulation works, how to use attribute-based styling, and how to configure custom typography.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+One of RapiDoc's biggest strengths is its styling model. Because RapiDoc is implemented as a standard Web Component, its internal markup and stylesheet reside inside an **encapsulated Shadow DOM**.
+
+<Aside type="tip" title="Why Shadow DOM Encapsulation Matters">
+In large web applications, global CSS rules (such as CSS resets, utility frameworks, or third-party component libraries) frequently clash with embedded documentation widgets. With Shadow DOM:
+- External CSS cannot accidentally break RapiDoc's internal elements.
+- Internal RapiDoc styles will never bleed out into your parent application.
+</Aside>
+
+To style RapiDoc, you have two primary mechanisms:
+1. **Attribute-based Configuration**: Simple, declarative HTML attributes for colors, fonts, and layout settings.
+2. **CSS Shadow Parts (`::part()`)**: Deep, granular styling using modern CSS pseudo-elements for gradients, borders, and custom UI components.
+
+---
+
+## 1. Attribute-Based Color Theming
+
+You can customize the entire color palette by setting attributes directly on the `<rapi-doc>` tag:
+
+```html
+<rapi-doc
+  spec-url="https://api.example.com/openapi.json"
+  theme="dark"
+  bg-color="#0b0f19"
+  text-color="#94a3b8"
+  primary-color="#06b6d4"
+  header-color="#0f172a"
+  nav-bg-color="#070a13"
+  nav-text-color="#cbd5e1"
+  nav-hover-bg-color="#1e293b"
+  nav-hover-text-color="#38bdf8"
+  nav-accent-color="#06b6d4"
+></rapi-doc>
+```
+
+### Color Attribute Reference
+
+| Attribute | Default (Light) | Default (Dark) | Description |
+| :--- | :--- | :--- | :--- |
+| `theme` | `"light"` | `"dark"` | Base theme preset (`"light"` or `"dark"`). |
+| `bg-color` | `#ffffff` | `#333333` | Background color of the main documentation canvas. |
+| `text-color` | `#444444` | `#cccccc` | Body and description text color. |
+| `primary-color` | `#ff791a` | `#f48135` | Accent color for buttons, badges, method indicators, and active links. |
+| `header-color` | `#444444` | `#111111` | Background color of the top utility header bar. |
+| `nav-bg-color` | `transparent`| `transparent`| Background color of the left navigation sidebar. |
+| `nav-text-color` | `#444444` | `#cccccc` | Text color of items inside the sidebar. |
+| `nav-hover-bg-color` | `rgba(0,0,0,0.05)` | `rgba(255,255,255,0.05)` | Background color of sidebar items on hover. |
+| `nav-hover-text-color` | `#000000` | `#ffffff` | Text color of sidebar items on hover. |
+| `nav-accent-color` | `#ff791a` | `#f48135` | Color of the active indicator border and active item text in the sidebar. |
+
+---
+
+## 2. Typography & Custom Web Fonts
+
+RapiDoc lets you specify custom font families for regular text and code blocks. You can load any Google Font or corporate web font in your parent document, then point RapiDoc to it:
+
+```html
+<head>
+  <!-- 1. Load Google Fonts in your document head -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <!-- 2. Configure regular-font and mono-font attributes -->
+  <rapi-doc
+    spec-url="https://petstore.swagger.io/v2/swagger.json"
+    regular-font="'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+    mono-font="'JetBrains Mono', 'Fira Code', monospace"
+    font-size="default"
+  ></rapi-doc>
+</body>
+```
+
+### Font Size Presets
+
+RapiDoc provides three built-in scale options for the `font-size` attribute:
+
+- `font-size="default"`: Balanced standard scale (14px base, ideal for desktop portals).
+- `font-size="large"`: Increased scale (16px base, optimal for high-density reading and accessibility).
+- `font-size="largest"`: Maximum readability scale (18px base).
+
+---
+
+## 3. Dynamic Theme Switching at Runtime
+
+Because `<rapi-doc>` is a standard DOM element, you can dynamically switch between light and dark modes or update colors using vanilla JavaScript or framework state:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+function toggleTheme(isDark) {
+  if (isDark) {
+    doc.setAttribute('theme', 'dark');
+    doc.setAttribute('bg-color', '#06090e');
+    doc.setAttribute('text-color', '#94a3b8');
+  } else {
+    doc.setAttribute('theme', 'light');
+    doc.setAttribute('bg-color', '#ffffff');
+    doc.setAttribute('text-color', '#334155');
+  }
+}
+```

@@ -1,0 +1,768 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { exampleListData, SubExample } from '../../page-data/example-list';
+
+// Extract unique categories for filter tabs (examples only)
+const allExamples = exampleListData.examples
+  .map(example => {
+    const [title, obj] = Object.entries(example)[0];
+    return {
+      title,
+      ...obj,
+      category: obj.category || 'Layouts & Views'
+    };
+  })
+  .filter(item => !item.isDoc);
+
+const categories = [
+  'All',
+  'Theming & Branding',
+  'Layouts & Views',
+  'Console & Interactive',
+  'OpenAPI 3.1 & Schemas',
+  'Security & Auth',
+  'Advanced & Extensibility'
+];
+---
+
+<GlobalLayout 
+  title="Interactive OpenAPI Examples Gallery | RapiDoc"
+  description="Explore interactive examples, themes, layout styles (Read, View, Focused), and advanced configuration patterns for RapiDoc OpenAPI documentation."
+  keywords="RapiDoc examples, OpenAPI examples, Swagger UI themes, interactive API console, Swagger alternatives"
+>
+  <!-- Ambient background glow elements inspired by Nuxt.com -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <!-- Frosted Glass Navigation (Reusable Component) -->
+  <SiteNavbar activePage="examples" />
+
+  <!-- Hero Header -->
+  <main class="rd-list-main">
+    <div class="rd-header-section">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Interactive Directory</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Examples <span class="rd-gradient-text">Gallery</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Browse interactive examples, theming recipes, layout styles, and OpenAPI 3.1 features. Click any card to launch the live demo or guide.
+      </p>
+
+      <!-- Live Search & Filter Controls -->
+      <div class="rd-controls-bar">
+        <!-- Live Search Input -->
+        <div class="rd-search-wrapper">
+          <svg class="rd-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            id="example-search"
+            class="rd-search-input"
+            placeholder="Search examples by keyword (e.g., oauth, schema, markdown, file, theme)..."
+            aria-label="Search examples"
+          />
+          <button id="clear-search" class="rd-clear-btn" title="Clear search">✕</button>
+        </div>
+
+        <!-- Filter Count -->
+        <div class="rd-filter-count">
+          Showing <span id="count-visible">{allExamples.length}</span> of {allExamples.length} examples
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="rd-category-tabs">
+        {categories.map((cat, idx) => (
+          <button
+            class={`rd-cat-pill ${idx === 0 ? 'active' : ''}`}
+            data-category={cat}
+          >
+            {cat}
+          </button>
+        ))}
+        <a href="/guides" class="rd-cat-pill rd-pill-guides" title="Explore architecture and integration guides">Guides ↗</a>
+        <a href="/tests" class="rd-cat-pill rd-pill-tests" title="Explore automated schema & feature test suites">Test Suites ↗</a>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="rd-cards-grid" id="examples-grid">
+      {
+        allExamples.map((item) => {
+          const isDoc = item.isDoc ?? false;
+          const isWide = item.isWide ?? false;
+          const hasDirectLink = Boolean(item.href && !item.subExamples);
+
+          return (
+            <div
+              class={`rd-item-card ${isDoc ? 'is-doc-card' : ''} ${isWide ? 'is-wide-card' : ''}`}
+              data-category={item.category}
+              data-title={item.title.toLowerCase()}
+              data-desc={(item.description || '').toLowerCase()}
+            >
+              <!-- Card Top Header -->
+              <div class="rd-card-top">
+                <div class="rd-card-identity">
+                  {item.img ? (
+                    <img src={item.img} alt={item.title} class="rd-card-icon" />
+                  ) : (
+                    <div class="rd-card-icon-fallback">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        {isDoc ? (
+                          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z"></path>
+                        ) : (
+                          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        )}
+                      </svg>
+                    </div>
+                  )}
+                  <span class="rd-card-cat-badge">{item.category}</span>
+                </div>
+
+                {hasDirectLink && (
+                  <a href={item.href} class="rd-corner-arrow" title={`Open ${item.title}`}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="7" y1="17" x2="17" y2="7"></line>
+                      <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                  </a>
+                )}
+              </div>
+
+              <!-- Card Title -->
+              <h2 class="rd-card-title">
+                {hasDirectLink ? (
+                  <a href={item.href} class="rd-title-link">
+                    {item.title}
+                  </a>
+                ) : (
+                  <span>{item.title}</span>
+                )}
+              </h2>
+
+              <!-- Card Description -->
+              {item.description && (
+                <p class="rd-card-description" set:html={item.description} />
+              )}
+
+              <!-- Sub-Examples / Direct Buttons -->
+              {item.subExamples && (
+                <div class="rd-subexamples-group">
+                  <div class="rd-subexamples-label">Variants:</div>
+                  <div class="rd-subexamples-list">
+                    {item.subExamples.map((sub) => {
+                      const [subTitle, subObj] = Object.entries(sub)[0] as [string, SubExample];
+                      return (
+                        <a href={subObj.href} class="rd-sub-btn">
+                          <span>{subTitle}</span>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14m-7-7 7 7-7 7"/>
+                          </svg>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <!-- Direct Link Action footer if single link -->
+              {hasDirectLink && (
+                <div class="rd-card-footer">
+                  <a href={item.href} class="rd-action-link">
+                    <span>{isDoc ? 'Read Documentation' : 'View Live Demo'}</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M5 12h14m-7-7 7 7-7 7"/>
+                    </svg>
+                  </a>
+                </div>
+              )}
+            </div>
+          );
+        })
+      }
+    </div>
+
+    <!-- Empty Results Message -->
+    <div id="empty-state" class="rd-empty-state">
+      <div class="rd-empty-icon">🔍</div>
+      <h3 class="rd-empty-title">No matching examples found</h3>
+      <p class="rd-empty-desc">Try searching for a different keyword or reset the category filters.</p>
+      <button id="reset-filters-btn" class="rd-btn rd-btn-primary">Reset Filters</button>
+    </div>
+  </main>
+
+  <!-- Modern Footer (Reusable Component) -->
+  <SiteFooter />
+</GlobalLayout>
+
+<script>
+  // Live Client-Side Search and Category Filtering
+  const searchInput = document.getElementById('example-search') as HTMLInputElement;
+  const clearBtn = document.getElementById('clear-search');
+  const catPills = document.querySelectorAll('.rd-cat-pill');
+  const cards = document.querySelectorAll('.rd-item-card');
+  const countVisible = document.getElementById('count-visible');
+  const emptyState = document.getElementById('empty-state');
+  const resetBtn = document.getElementById('reset-filters-btn');
+
+  let activeCategory = 'All';
+
+  function filterCards() {
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    let visible = 0;
+
+    cards.forEach((card) => {
+      const el = card as HTMLElement;
+      const cat = el.getAttribute('data-category') || '';
+      const title = el.getAttribute('data-title') || '';
+      const desc = el.getAttribute('data-desc') || '';
+
+      const matchesCat = activeCategory === 'All' || cat === activeCategory;
+      const matchesSearch = !query || title.includes(query) || desc.includes(query);
+
+      if (matchesCat && matchesSearch) {
+        el.style.display = '';
+        visible++;
+      } else {
+        el.style.display = 'none';
+      }
+    });
+
+    if (countVisible) {
+      countVisible.textContent = visible.toString();
+    }
+
+    if (emptyState) {
+      emptyState.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    if (clearBtn) {
+      clearBtn.style.display = query.length > 0 ? 'block' : 'none';
+    }
+  }
+
+  // Category Pill Clicks
+  catPills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      catPills.forEach((p) => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeCategory = pill.getAttribute('data-category') || 'All';
+      filterCards();
+    });
+  });
+
+  // Search Input Events
+  searchInput?.addEventListener('input', filterCards);
+
+  // Clear Search
+  clearBtn?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    filterCards();
+    searchInput?.focus();
+  });
+
+  // Reset Filters
+  resetBtn?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    activeCategory = 'All';
+    catPills.forEach((p) => {
+      p.classList.toggle('active', p.getAttribute('data-category') === 'All');
+    });
+    filterCards();
+  });
+
+  // Keyboard shortcut Esc to clear search
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && searchInput && document.activeElement === searchInput) {
+      searchInput.value = '';
+      filterCards();
+    }
+  });
+</script>
+
+<style>
+/* Nuxt.com inspired tokens */
+:root {
+  --rd-bg: #060913;
+  --rd-surface: rgba(255, 255, 255, 0.025);
+  --rd-surface-hover: rgba(255, 255, 255, 0.05);
+  --rd-glass-border: rgba(255, 255, 255, 0.08);
+  --rd-glass-border-hover: var(--rd-border-accent);
+  --rd-emerald: var(--rd-accent);
+  --rd-cyan: #06b6d4;
+  --rd-purple: #8b5cf6;
+  --rd-text-primary: #f8fafc;
+  --rd-text-secondary: #94a3b8;
+  --rd-text-muted: #64748b;
+  --rd-font-mono: 'Roboto Mono', Monaco, monospace;
+}
+
+body {
+  background-color: var(--rd-bg) !important;
+  color: var(--rd-text-primary) !important;
+  font-family: 'Lato', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Ambient Radial Glows */
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.16;
+}
+.glow-emerald {
+  top: 0;
+  right: 15%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
+}
+.glow-indigo {
+  top: 400px;
+  left: 5%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, var(--rd-purple) 0%, transparent 70%);
+}
+.glow-cyan {
+  top: 1200px;
+  right: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--rd-cyan) 0%, transparent 70%);
+}
+
+/* Buttons */
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+}
+.rd-btn-primary {
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.rd-btn-primary:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: var(--rd-accent);
+  color: #fff !important;
+  box-shadow: 0 4px 16px var(--rd-accent-glow);
+  transform: translateY(-1px);
+}
+.rd-btn-ghost {
+  background: transparent;
+  color: var(--rd-text-secondary);
+  border: 1px solid var(--rd-glass-border);
+}
+.rd-btn-ghost:hover {
+  background: var(--rd-surface-hover);
+  color: #fff;
+}
+
+/* Page Layout */
+.rd-list-main {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 48px 24px 96px 24px;
+}
+
+/* Header Section */
+.rd-header-section {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 48px auto;
+}
+.rd-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  margin-bottom: 20px;
+}
+.rd-badge-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rd-accent);
+  box-shadow: 0 0 10px var(--rd-accent);
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+.rd-badge-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rd-accent-light);
+}
+.rd-page-title {
+  font-size: 2.5rem;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin: 0 0 16px 0;
+}
+.rd-gradient-text {
+  background: var(--rapidoc-logo-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.rd-page-subtitle {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--rd-text-secondary);
+  margin: 0 auto 36px auto;
+  max-width: 620px;
+}
+
+/* Live Search Bar */
+.rd-controls-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.rd-search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+}
+.rd-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--rd-text-muted);
+  pointer-events: none;
+}
+.rd-search-input {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  padding: 13px 44px 13px 46px;
+  color: #fff;
+  font-size: 14.5px;
+  font-family: inherit;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+.rd-search-input:focus {
+  outline: none;
+  border-color: var(--rd-accent);
+  box-shadow: 0 0 0 3px var(--rd-accent-dim);
+  background: rgba(15, 23, 42, 0.85);
+}
+.rd-search-input::placeholder {
+  color: var(--rd-text-muted);
+}
+.rd-clear-btn {
+  display: none;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #94a3b8;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 11px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.rd-clear-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+.rd-filter-count {
+  font-size: 12.5px;
+  color: var(--rd-text-muted);
+}
+.rd-filter-count span {
+  color: var(--rd-accent);
+  font-weight: 700;
+}
+
+/* Category Filter Pills */
+.rd-category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.rd-cat-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--rd-glass-border);
+  color: var(--rd-text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.rd-cat-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.rd-cat-pill.active {
+  background: var(--rd-accent-dim);
+  color: var(--rd-accent-light);
+  border-color: var(--rd-accent-border);
+  box-shadow: 0 0 12px var(--rd-accent-glow);
+}
+.rd-pill-tests {
+  text-decoration: none;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.3);
+  display: inline-flex;
+  align-items: center;
+}
+.rd-pill-tests:hover {
+  background: rgba(56, 189, 248, 0.2);
+  color: #7dd3fc;
+  border-color: #38bdf8;
+}
+
+/* Cards Grid */
+.rd-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+.rd-item-card {
+  background: var(--rd-surface);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  padding: 24px;
+  backdrop-filter: blur(12px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+.rd-item-card:hover {
+  background: var(--rd-surface-hover);
+  border-color: var(--rd-glass-border-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 35px -10px rgba(0, 0, 0, 0.8), 0 0 10px var(--rd-accent-glow);
+}
+.rd-item-card.is-wide-card {
+  grid-column: span 1;
+}
+@media (min-width: 900px) {
+  .rd-item-card.is-wide-card {
+    grid-column: span 2;
+  }
+}
+.rd-item-card.is-doc-card {
+  border-color: rgba(139, 92, 246, 0.25);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+.rd-item-card.is-doc-card:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+/* Card Header */
+.rd-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.rd-card-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rd-card-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+.rd-card-icon-fallback {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--rd-accent-dim);
+  color: var(--rd-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rd-card-cat-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--rd-text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.rd-corner-arrow {
+  color: var(--rd-text-muted);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+.rd-item-card:hover .rd-corner-arrow {
+  color: var(--rd-emerald);
+  transform: translate(2px, -2px);
+}
+
+/* Card Typography */
+.rd-card-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 10px 0;
+  line-height: 1.35;
+}
+.rd-title-link {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.rd-title-link:hover {
+  color: var(--rd-emerald);
+}
+.rd-card-description {
+  font-size: 13.5px;
+  color: var(--rd-text-secondary);
+  line-height: 1.55;
+  margin: 0 0 18px 0;
+  flex: 1;
+}
+
+/* Sub-Examples Buttons */
+.rd-subexamples-group {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.rd-subexamples-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--rd-text-muted);
+  margin-bottom: 8px;
+}
+.rd-subexamples-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.rd-sub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #a7f3d0;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.rd-sub-btn:hover {
+  background: rgba(16, 185, 129, 0.2);
+  color: #fff;
+  border-color: rgba(16, 185, 129, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Card Action Footer */
+.rd-card-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.rd-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--rd-emerald);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.rd-action-link:hover {
+  color: #34d399;
+  gap: 8px;
+}
+
+/* Empty State */
+.rd-empty-state {
+  display: none;
+  text-align: center;
+  padding: 64px 24px;
+  background: var(--rd-surface);
+  border: 1px dashed var(--rd-glass-border);
+  border-radius: 16px;
+  margin-top: 24px;
+}
+.rd-empty-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+.rd-empty-title {
+  font-size: 1.3rem;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+.rd-empty-desc {
+  font-size: 14px;
+  color: var(--rd-text-secondary);
+  margin: 0 0 20px 0;
+}
+
+@media (min-width: 768px) {
+  .rd-page-title { font-size: 3.2rem; }
+}
+</style>

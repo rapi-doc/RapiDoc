@@ -1,0 +1,95 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI 3.1 contentMediaType & contentEncoding Support
+  version: 1.0.0
+  description: Demonstrates support for JSON Schema / OpenAPI 3.1 contentMediaType and contentEncoding keywords replacing format binary/base64.
+
+paths:
+  /upload-form:
+    post:
+      summary: Upload Files via Multipart Form
+      description: Single and multi-file uploads defined using standard contentMediaType keywords.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - avatar
+              properties:
+                avatar:
+                  type: string
+                  contentMediaType: image/png
+                  description: Profile avatar image file (single file input)
+                documents:
+                  type: array
+                  description: Multiple PDF attachments
+                  items:
+                    type: string
+                    contentMediaType: application/pdf
+                notes:
+                  type: string
+                  description: Form notes text
+      responses:
+        '200':
+          description: Upload successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+                    format: uuid
+                  size:
+                    type: integer
+
+  /json-payload:
+    post:
+      summary: JSON Payload with Encoded and Structured Strings
+      description: Demonstrates base64 encoded strings and JSON string payloads with contentSchema.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - encodedImage
+              properties:
+                encodedImage:
+                  type: string
+                  contentMediaType: image/jpeg
+                  contentEncoding: base64
+                  description: Base64-encoded JPEG image string
+                rawBase64Data:
+                  type: string
+                  contentEncoding: base64
+                  description: Generic base64 encoded data
+                embeddedJsonConfig:
+                  type: string
+                  contentMediaType: application/json
+                  description: A JSON string containing a structured config object
+                  contentSchema:
+                    type: object
+                    required:
+                      - featureFlag
+                    properties:
+                      featureFlag:
+                        type: boolean
+                        default: true
+                      maxRetries:
+                        type: integer
+                        default: 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: processed

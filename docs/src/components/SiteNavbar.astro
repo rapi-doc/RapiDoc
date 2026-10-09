@@ -1,0 +1,191 @@
+---
+import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
+import { NAV_LINKS, resolveActiveNavKey, isNavActive, type NavPageKey } from '../page-data/nav';
+import Icon from './Icon.astro';
+
+interface Props {
+  activePage?: NavPageKey;
+}
+
+const { activePage = 'other' } = Astro.props;
+const pathname = Astro.url.pathname;
+const current = resolveActiveNavKey(pathname, activePage);
+---
+
+<header class="rd-navbar">
+  <div class="rd-nav-container">
+    <a href="/" class="rd-brand">
+      <img src="/assets/images/logo.png" alt="RapiDoc Logo" class="rd-logo" />
+      <span class="rd-brand-name">RapiDoc</span>
+      <span class="rd-version-badge" title={`RapiDoc ${rapidocBuildInfo.versionTag} (${rapidocBuildInfo.bundle.minified.formatted})`}>
+        {rapidocBuildInfo.versionShort}
+      </span>
+    </a>
+
+    <nav class="rd-nav-links">
+      {
+        NAV_LINKS.map((item) => {
+          const active = isNavActive(item, current, pathname);
+          return (
+            <a href={item.href} class={`rd-nav-link ${item.pill ? 'rd-nav-link-dryrun' : ''} ${active ? 'active' : ''}`} title={item.title}>
+              <span>{item.label}</span>
+              {item.pill && <span class="rd-dev-pill">{item.pill}</span>}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <div class="rd-nav-actions">
+      <slot name="search" />
+      <a href="https://github.com/rapi-doc/RapiDoc" target="_blank" rel="noopener" class="rd-btn rd-btn-ghost rd-github-btn">
+        <Icon name="github" size={18} />
+        <span class="hide-mobile">GitHub</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .rd-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(16px);
+    background: var(--rd-bg-glass);
+    border-bottom: 1px solid var(--rd-border);
+  }
+  .rd-nav-container {
+    max-width: var(--rd-max-width);
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .rd-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .rd-logo {
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 0 10px var(--rd-accent-glow));
+  }
+  .rd-brand-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--rd-text-bright);
+    letter-spacing: -0.02em;
+  }
+  .rd-version-badge {
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 12px;
+    background: var(--rd-accent-dim);
+    color: var(--rd-accent);
+    border: 1px solid var(--rd-accent-border);
+    font-family: var(--rd-font-mono);
+    font-weight: 600;
+  }
+  .rd-nav-links {
+    display: none;
+    align-items: center;
+    gap: 24px;
+  }
+  .rd-nav-link {
+    color: var(--rd-text-muted);
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  .rd-nav-link:hover,
+  .rd-nav-link.active {
+    color: var(--rd-text-bright);
+  }
+  .rd-nav-link.active {
+    color: var(--rd-accent);
+  }
+  .rd-nav-link-dryrun {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rd-dev-pill {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    font-family: var(--rd-font-mono);
+    line-height: 1.2;
+    transition: var(--rd-transition);
+  }
+  .rd-nav-link-dryrun:hover .rd-dev-pill,
+  .rd-nav-link-dryrun.active .rd-dev-pill {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: rgba(245, 158, 11, 0.6);
+    color: #fbbf24;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
+  }
+  .rd-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .rd-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--rd-transition);
+    border: none;
+  }
+  .rd-btn-primary {
+    background: var(--rd-accent-dim);
+    border: 1px solid var(--rd-accent-border);
+    color: var(--rd-accent-light) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+  .rd-btn-primary:hover {
+    background: rgba(16, 185, 129, 0.22);
+    border-color: var(--rd-accent);
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px var(--rd-accent-glow);
+    transform: translateY(-1px);
+  }
+  .rd-btn-ghost {
+    background: transparent;
+    color: var(--rd-text-muted);
+    border: 1px solid var(--rd-border);
+  }
+  .rd-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--rd-text-bright);
+  }
+  .hide-mobile {
+    display: inline;
+  }
+
+  @media (max-width: 640px) {
+    .hide-mobile {
+      display: none;
+    }
+  }
+  @media (min-width: 768px) {
+    .rd-nav-links {
+      display: flex;
+    }
+  }
+</style>

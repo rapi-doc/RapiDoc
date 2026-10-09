@@ -1,0 +1,140 @@
+---
+title: JavaScript SDK & Lifecycle Methods
+description: Programmatically control RapiDoc at runtime with JavaScript methods, lifecycle events, and dynamic spec loading.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Because RapiDoc is a living DOM element, you can interact with it programmatically using standard JavaScript. This makes it straightforward to integrate RapiDoc with external controls—such as custom environment dropdowns, authentication modals, search bars, and analytics pipelines.
+
+---
+
+## 1. DOM Element Access & Lifecycle
+
+Before calling methods on `<rapi-doc>`, ensure the Custom Element has been registered and the OpenAPI spec has been parsed.
+
+```javascript
+// 1. Grab reference to the DOM element
+const rapidoc = document.getElementById('the-doc');
+
+// 2. Listen for the 'spec-loaded' event
+rapidoc.addEventListener('spec-loaded', (e) => {
+  console.log('OpenAPI spec parsed successfully!');
+  console.log('Parsed API Title:', e.detail.info.title);
+  console.log('Available Servers:', e.detail.servers);
+});
+```
+
+<Aside type="tip" title="Checking Custom Element Registration">
+If you need to know when the custom element definition itself is ready, you can use the standard browser API:
+```javascript
+await customElements.whenDefined('rapi-doc');
+console.log('RapiDoc custom element is ready in DOM.');
+```
+</Aside>
+
+---
+
+## 2. Programmatic Methods
+
+RapiDoc exposes public JavaScript methods directly on the element instance.
+
+### `loadSpec(specObject)`
+Passes an already-fetched or dynamically modified OpenAPI specification object into RapiDoc without performing a network fetch:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+// Useful for authenticated endpoints, CI/CD previews, or multi-tenant specs
+async function switchTenantSpec(tenantId) {
+  const res = await fetch(`/api/specs/${tenantId}.json`);
+  const specJson = await res.json();
+  
+  // Hand spec directly to RapiDoc
+  doc.loadSpec(specJson);
+}
+```
+
+---
+
+### `setApiKey(apiKeyId, apiKeyValue)`
+Injects API Key or Bearer Token authentication credentials dynamically:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+// Example: User logged into your SaaS app; inject their JWT token
+function onUserLogin(sessionToken) {
+  // apiKeyId matches the security scheme name in your OpenAPI spec
+  doc.setApiKey('BearerAuth', sessionToken);
+}
+```
+
+---
+
+### `setApiServer(serverUrl)`
+Switches the active API target server programmatically:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+// Example: Custom environment switcher in your header
+document.getElementById('env-select').addEventListener('change', (e) => {
+  doc.setApiServer(e.target.value);
+});
+```
+
+---
+
+### `scrollToPath(pathKey)`
+Scrolls the view directly to a specific operation or path and expands its details:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+// Format: {method}-{path} (lowercase)
+// Example: Scroll to GET /users/{id}
+doc.scrollToPath('get-/users/{id}');
+```
+
+---
+
+## Complete Example: Building External Controls
+
+Here is a full example showing how to build an external header with environment switching and quick navigation:
+
+```html
+<div class="external-toolbar">
+  <select id="env-picker">
+    <option value="https://api.production.com/v1">Production</option>
+    <option value="https://staging.api.com/v1">Staging</option>
+    <option value="http://localhost:8080/v1">Local Mock</option>
+  </select>
+
+  <button id="quick-jump-btn">Jump to Auth API</button>
+</div>
+
+<rapi-doc
+  id="the-doc"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  render-style="focused"
+  show-header="false"
+  style="height: calc(100vh - 50px); width: 100%; display: block;"
+></rapi-doc>
+
+<script>
+  const doc = document.getElementById('the-doc');
+  const envPicker = document.getElementById('env-picker');
+  const jumpBtn = document.getElementById('quick-jump-btn');
+
+  // Change active server on dropdown change
+  envPicker.addEventListener('change', (e) => {
+    doc.setApiServer(e.target.value);
+  });
+
+  // Jump to specific endpoint on button click
+  jumpBtn.addEventListener('click', () => {
+    doc.scrollToPath('post-/user/login');
+  });
+</script>
+```

@@ -1,0 +1,121 @@
+---
+import { Code } from 'astro:components';
+import Icon from './Icon.astro';
+
+interface Props {
+  code: string;
+  lang?: string;
+  theme?: string;
+  filename?: string;
+}
+
+const {
+  code,
+  lang = 'html',
+  theme = 'github-dark',
+  filename
+} = Astro.props;
+---
+
+<div class="code-wrapper">
+  {filename && (
+    <div class="code-header">
+      <span class="code-dot red"></span>
+      <span class="code-dot yellow"></span>
+      <span class="code-dot green"></span>
+      <span class="code-title">{filename}</span>
+      <button class="copy-btn" data-code={code} title="Copy Code">
+        <Icon name="copy" size={14} class="copy-icon" />
+        <span class="copy-text">Copy</span>
+      </button>
+    </div>
+  )}
+  <div class="code-body">
+    <Code code={code.trim()} lang={lang} theme={theme} />
+  </div>
+</div>
+
+<style>
+.code-wrapper {
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  margin: 1rem 0;
+  width: 100%;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+  color: #8b949e;
+}
+.code-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.code-dot.red { background: #ff5f56; }
+.code-dot.yellow { background: #ffbd2e; }
+.code-dot.green { background: #27c93f; }
+.code-title {
+  margin-left: 8px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  color: #c9d1d9;
+  flex: 1;
+}
+.copy-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #c9d1d9;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.code-body {
+  padding: 0;
+  overflow-x: auto;
+}
+.code-body :global(pre) {
+  margin: 0 !important;
+  padding: 16px 20px !important;
+  background: transparent !important;
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+  font-family: 'Roboto Mono', Monaco, monospace !important;
+}
+</style>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(button => {
+    button.addEventListener('click', async () => {
+      const code = button.getAttribute('data-code');
+      if (code) {
+        await navigator.clipboard.writeText(code.trim());
+        const textSpan = button.querySelector('.copy-text');
+        if (textSpan) {
+          const original = textSpan.textContent;
+          textSpan.textContent = 'Copied!';
+          setTimeout(() => {
+            textSpan.textContent = original;
+          }, 2000);
+        }
+      }
+    });
+  });
+</script>

@@ -1,0 +1,15 @@
+---
+// ForceDarkTheme.astro
+// Injected as Starlight ThemeProvider override to lock documentation permanently in Dark Mode.
+---
+
+<script is:inline>
+  (function () {
+    try {
+      document.documentElement.dataset.theme = 'dark';
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+      localStorage.setItem('starlight-theme', 'dark');
+    } catch (e) {}
+  })();
+</script>

@@ -1,0 +1,13 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout
+  autoRenderRapiDoc={true}
+  preset="colors"
+  rapidocProps={{
+    'spec-url': '/specs/petstore.yaml',
+    'render-style': 'focused',
+    theme: 'light',
+  }}
+/>

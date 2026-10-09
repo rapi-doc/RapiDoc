@@ -1,0 +1,238 @@
+---
+title: Markdown Headings in Navbar
+description: Learn how to extract H1 and H2 Markdown headings from OpenAPI descriptions into RapiDoc's sidebar navigation bar.
+---
+
+import { Aside, Tabs, TabItem, Steps, Card, CardGrid } from '@astrojs/starlight/components';
+
+By default, RapiDoc displays your API's tags and endpoints in the sidebar navigation bar. If you have extensive documentation, architectural guides, or data schemas written in Markdown, you can automatically convert your **Level 1 (`#`)** and **Level 2 (`##`)** Markdown headings into interactive navigation links in the sidebar.
+
+This feature is enabled with a single attribute: `info-description-headings-in-navbar="true"`.
+
+<Aside type="tip" title="Interactive Showcase & Live Demo">
+  Experience this feature in action on the [Markdown Headings Demo Page](/examples/markdown-headings) and inspect the underlying OpenAPI
+  definition in [`docs/public/specs/markdown-headings.yaml`](/specs/markdown-headings.yaml).
+</Aside>
+
+---
+
+## Quick Setup in 2 Steps
+
+<Steps>
+1. **Enable the Attribute on `<rapi-doc>`**:
+
+   Add `info-description-headings-in-navbar="true"` and set `render-style="read"` (or `focused`):
+
+   ```html
+   <rapi-doc
+     spec-url="/specs/markdown-headings.yaml"
+     render-style="read"
+     info-description-headings-in-navbar="true"
+   >
+   </rapi-doc>
+   ```
+
+2. **Add `#` and `##` Headings in Your OpenAPI Spec**:
+
+   Write standard Markdown headings inside `info.description` or any tag's `description`:
+
+   ```yaml
+   info:
+     title: Acme Store API
+     description: |
+       # Getting Started
+       Welcome to our developer documentation.
+
+       ## Authentication
+       Learn how to generate and pass API tokens.
+
+       ## Rate Limits
+       Requests are throttled to 1,000 per minute.
+   ```
+</Steps>
+
+When loaded, RapiDoc automatically extracts **"Getting Started"**, **"Authentication"**, and **"Rate Limits"** and places them directly into the sidebar table of contents!
+
+---
+
+## Where Can Headings Be Placed?
+
+RapiDoc scans two distinct locations in your OpenAPI specification for Markdown headings:
+
+<CardGrid>
+  <Card title="1. Info Description (`info.description`)" icon="document">
+    Headings are inserted under the **Overview** menu item at the top of the sidebar. Ideal for architecture overviews, quickstarts, and
+    global guidelines.
+  </Card>
+  <Card title="2. Tag Descriptions (`tags[].description`)" icon="list-format">
+    Headings are inserted nested under the respective **Tag Group** in the sidebar. Ideal for object schemas, lifecycle rules, or
+    tag-specific workflows.
+  </Card>
+</CardGrid>
+
+### Complete OpenAPI Spec Example
+
+Here is a practical OpenAPI 3.0 snippet showing headings in both locations:
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Fleet Management API
+  version: 1.0.0
+  description: |
+    # Documentation
+    Welcome to the Fleet API. This overview covers essentials.
+
+    # Architecture Overview
+    Our distributed telemetry pipeline handles vehicle telemetry.
+
+    ## Authentication & Tokens
+    All requests require an `Authorization: Bearer <token>` header.
+
+    ## Error Handling
+    Errors follow the RFC 7807 Problem Details specification.
+
+    ### Internal Implementation Notes
+    This H3 heading stays in the body and will NOT appear in the navbar.
+
+tags:
+  - name: Vehicles
+    description: |
+      Manage connected delivery vehicles and sensors.
+
+      # The Vehicle Object
+      Detailed schema specifications and field semantics.
+
+      ## Modifying Vehicle State
+      Permitted state transitions and lifecycle triggers.
+
+paths:
+  /vehicles:
+    get:
+      summary: List all vehicles
+      tags:
+        - Vehicles
+      responses:
+        '200':
+          description: A list of active vehicles.
+```
+
+---
+
+## Heading Levels & Sidebar Hierarchy
+
+RapiDoc intentionally filters headings by depth to keep your navigation tree organized and uncluttered:
+
+| Markdown Syntax | Level   | Display in Navbar | Placement & Behavior                                               |
+| :-------------- | :------ | :---------------- | :----------------------------------------------------------------- |
+| `# Title`       | **H1**  | ✅ **Included**   | Top-level item under Overview or Tag. Uses `nav-bar-h1` style.     |
+| `## Subtitle`   | **H2**  | ✅ **Included**   | Indented sub-item under the parent topic. Uses `nav-bar-h2` style. |
+| `### Section`   | **H3**  | ❌ Excluded       | Stays in the main reading canvas only. Keeps the sidebar concise.  |
+| `#### Detail`   | **H4+** | ❌ Excluded       | Stays in the main reading canvas only.                             |
+
+<Aside type="note" title="Why are H3+ excluded?">
+  Sidebar navigation is meant to be a high-level table of contents. Excluding H3 and deeper headings prevents the sidebar from becoming
+  overwhelmed by granular sub-sections while allowing your main documentation body to use rich heading structures.
+</Aside>
+
+---
+
+## Navigation & Deep Linking Behavior
+
+When a user clicks any heading item in the navigation bar:
+
+1. **Smooth Scrolling**: The main view automatically scrolls smoothly to that exact heading in the body.
+2. **Active Item Indicator**: The clicked heading receives active highlight styling (`nav-bar-h1.active` / `nav-bar-h2.active`).
+3. **URL Hash Deep Linking**: If `update-route="true"` (the default), the browser's address bar automatically updates with a unique slugified anchor.
+
+### Generated Anchor Slugs
+
+RapiDoc automatically formats heading titles into URL-safe slugs:
+
+- **Info Headings**: Prefixed with `overview--` followed by the slugified title:
+  - `## Authentication & Tokens` &rarr; `#overview--authentication--tokens`
+  - `## Rate Limits` &rarr; `#overview--rate-limits`
+- **Tag Headings**: Prefixed with the tag element ID followed by `--` and the slugified title:
+  - `# The Vehicle Object` under tag `Vehicles` &rarr; `#tag--Vehicles--the-vehicle-object`
+  - `## Modifying Vehicle State` under tag `Vehicles` &rarr; `#tag--Vehicles--modifying-vehicle-state`
+
+You can use these anchor hashes in your own emails, internal documentation, or external websites to link directly to specific sections of your API overview!
+
+---
+
+## Render Mode Compatibility
+
+| Render Mode                                 |     Supported?     | Description                                                                                        |
+| :------------------------------------------ | :----------------: | :------------------------------------------------------------------------------------------------- |
+| **Read Mode** (`render-style="read"`)       | ✅ **Recommended** | Displays the full sticky sidebar with all Overview headings and Tag headings alongside operations. |
+| **Focused Mode** (`render-style="focused"`) |    ✅ Supported    | Headings appear under Overview and under active tags when `on-nav-tag-click="show-description"`.   |
+| **View Mode** (`render-style="view"`)       |       ❌ N/A       | View mode uses horizontal tabs for endpoints rather than a persistent sidebar navigation bar.      |
+
+<Aside type="caution" title="Ensure Info Section is Visible">
+  Sidebar headings for the overview section require the info card to be enabled. If you set `show-info="false"`, the overview headings will
+  not be rendered in the sidebar.
+</Aside>
+
+---
+
+## Styling Navbar Headings with CSS Shadow Parts
+
+Because RapiDoc uses Shadow DOM encapsulation, custom CSS targeting internal elements must use **CSS Shadow Parts** (`::part(...)`).
+
+RapiDoc exposes specific shadow parts for navbar heading items:
+
+| Part Selector                             | Description                                                                |
+| :---------------------------------------- | :------------------------------------------------------------------------- |
+| `rapi-doc::part(section-navbar-item)`     | Targets all navbar navigation items (Overview, tags, headings, endpoints). |
+| `rapi-doc::part(section-navbar-overview)` | Targets the main Overview header item.                                     |
+| `rapi-doc::part(section-navbar-h1)`       | Targets all level-1 (`#`) heading items in the sidebar.                    |
+| `rapi-doc::part(section-navbar-h2)`       | Targets all level-2 (`##`) heading items in the sidebar.                   |
+
+### Example: Customizing Heading Typography & Indentation
+
+```css
+/* Style Level 1 Headings in Sidebar */
+rapi-doc::part(section-navbar-h1) {
+  font-weight: 600;
+  font-size: 13px;
+  color: #f8fafc;
+  padding-left: 16px;
+  border-left: 2px solid #38bdf8;
+}
+
+/* Style Level 2 Subheadings in Sidebar */
+rapi-doc::part(section-navbar-h2) {
+  font-weight: 400;
+  font-size: 12px;
+  color: #94a3b8;
+  padding-left: 24px;
+}
+
+/* Highlight hover effect */
+rapi-doc::part(section-navbar-h1):hover,
+rapi-doc::part(section-navbar-h2):hover {
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.08);
+}
+```
+
+---
+
+## Troubleshooting & Checklist
+
+If Markdown headings are not appearing in your navigation bar, check the following:
+
+- [ ] **Attribute set correctly**: Ensure `info-description-headings-in-navbar="true"` is present on `<rapi-doc>`.
+- [ ] **Render style**: Verify `render-style` is set to `"read"` (or `"focused"`).
+- [ ] **Heading syntax**: Verify your headings start with `#` or `##` followed by a space (e.g., `# Introduction`, not `#Introduction`).
+- [ ] **Heading level**: Confirm you are using H1 (`#`) or H2 (`##`). H3 (`###`) and smaller headings do not appear in the sidebar.
+- [ ] **Info visibility**: Make sure `show-info="true"` is set (or omitted, since `true` is the default).
+- [ ] **Location**: Headings must be placed in `info.description` or `tags[i].description`. Headings inside individual operation descriptions (`paths./endpoint.get.description`) are not placed in the sidebar.
+
+---
+
+## Related Documentation
+
+- **[Markdown Links & Deep Navigation](/docs/advanced/linking-and-navigation/)**: Master internal cross-references (`[Text](#element-id)`), custom URL routing, and slots.
+- **[HTML Slots & Custom UI](/docs/advanced/slots-and-markdown/)**: Embed custom HTML components and banner alerts inside Markdown descriptions.
+- **[Live Interactive Demo](/examples/markdown-headings)**: Test markdown headings live in your browser.

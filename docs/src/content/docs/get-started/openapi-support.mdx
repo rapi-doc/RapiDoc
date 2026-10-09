@@ -1,0 +1,94 @@
+---
+title: OpenAPI Specification Support
+description: Understand OpenAPI 3.0, 3.1, and Swagger 2.0 compatibility, CORS configurations, and spec loading methods.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+RapiDoc is engineered to render the full spectrum of OpenAPI definitions. Whether you are using OpenAPI 3.0, the latest OpenAPI 3.1 standard, or legacy Swagger 2.0 definitions, RapiDoc parses, validates, and renders schemas faithfully.
+
+---
+
+## Supported Versions
+
+| Version | Support Level | Notes |
+| :--- | :--- | :--- |
+| **OpenAPI 3.1.x** | Full Native Support | Complete JSON Schema draft 2020-12 support, `webhooks`, and modern polymorphism. |
+| **OpenAPI 3.0.x** | Full Native Support | Industry-standard spec format with rich request/response bodies, callbacks, and servers. |
+| **Swagger 2.0** | Compatible (via runtime conversion) | Automatically converted to OpenAPI 3.0 in-memory. For maximum speed on large specs, pre-convert in your build pipeline. |
+
+---
+
+## Spec Loading Methods
+
+RapiDoc gives you flexible options for supplying your OpenAPI definitions.
+
+### 1. Remote Spec URL (`spec-url`)
+The standard approach is pointing to a hosted JSON or YAML document:
+
+```html
+<rapi-doc spec-url="https://api.example.com/v1/openapi.yaml"></rapi-doc>
+```
+
+<Aside type="caution" title="Handling Cross-Origin Resource Sharing (CORS)">
+If your OpenAPI spec is hosted on a different domain or port than your documentation page, ensure the API server returns appropriate CORS headers:
+```http
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization
+```
+If you cannot configure CORS on the target host, consider proxying the file or embedding the spec directly into the DOM.
+</Aside>
+
+---
+
+### 2. In-Memory Spec Loading (`loadSpec`)
+When working with authenticated APIs, client-side generators, or dynamic multi-tenant portals, you can pass the parsed JavaScript object directly to RapiDoc:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+// Fetch the spec using your application's authenticated fetch client
+const response = await fetch('/internal/spec.json', {
+  headers: {
+    Authorization: `Bearer ${sessionToken}`,
+  },
+});
+const specObject = await response.json();
+
+// Hand the parsed JSON object directly to RapiDoc
+doc.loadSpec(specObject);
+```
+
+---
+
+### 3. Inline Spec Element
+You can embed your OpenAPI JSON directly inside the `<rapi-doc>` tag using an inline `<script>` tag:
+
+```html
+<rapi-doc>
+  <script type="application/json">
+    {
+      "openapi": "3.0.0",
+      "info": {
+        "title": "Embedded Customer API",
+        "version": "1.0.0"
+      },
+      "paths": { ... }
+    }
+  </script>
+</rapi-doc>
+```
+
+---
+
+## Key OpenAPI Feature Highlights
+
+### Complex Schemas (`oneOf`, `anyOf`, `allOf`)
+RapiDoc renders complex inheritance and polymorphic schemas with interactive tabs, allowing developers to switch between variants and examine specific discriminator mappings without cognitive overload.
+
+### Multiple Request / Response Examples
+When your spec defines multiple example payloads using the `examples` map, RapiDoc renders a clean dropdown switcher so developers can preview edge-case requests and error models instantly.
+
+### Server Variables & Multi-Environment Switcher
+OpenAPI 3 `servers` configurations with variable templates (e.g. `{environment}.api.company.com`) are transformed into live, interactive dropdowns and input fields in the header bar.

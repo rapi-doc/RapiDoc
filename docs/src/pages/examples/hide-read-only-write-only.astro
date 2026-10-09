@@ -1,0 +1,105 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout preset="schema">
+  <rapi-doc 
+    id="thedoc"
+    spec-url={specUrl}
+    show-info="false"
+    show-header="false"
+    allow-authentication="false"
+    allow-server-selection="false"
+    allow-try="false"
+    default-schema-tab="schema"
+    schema-style="table"
+  > 
+    <div slot="nav-logo" style="display:flex; flex-direction: column; align-items: center; height:180px; gap:16px">
+      <div style="text-align:center;">
+        <span class="bold yellow small-font" style="line-height:28px;">Hide ReadOnly Properties</span>
+        <div class="small-font" style="display:flex; gap:10px; align-items: center;">
+          <div>
+            <input type="checkbox" id="read-only-never" onclick="toggleNeverHideReadOnly(this)" />
+            <label for="read-only-never">never</label>
+          </div>
+          <div>
+            <input type="checkbox" class="read-only-option" id="read-only-post" value="post" onclick="toggleReadOnly('post')" />
+            <label for="read-only-post">post</label>
+          </div>
+          <div>
+            <input type="checkbox" class="read-only-option" id="read-only-put" value="put" onclick="toggleReadOnly('put')" />
+            <label for="read-only-put">put</label>
+          </div>
+          <div>
+            <input type="checkbox" class="read-only-option" id="read-only-patch" value="patch" onclick="toggleReadOnly('patch')" />
+            <label for="read-only-patch">patch</label>
+          </div>
+        </div>
+      </div>
+      
+      <div style="text-align:center;">
+        <span class="bold yellow small-font" style="line-height:28px;">Hide WriteOnly Properties</span>
+        <div>
+          <input type="checkbox" id="write-only-never" onclick="toggleNeverHideWriteOnly(this)"/><label for="write-only-never">never</label>
+        </div>
+      </div>
+    </div>  
+  </rapi-doc>
+</ExampleLayout>
+
+<script is:inline>
+  function getDoc() {
+    return document.getElementById('thedoc');
+  }
+
+  function toggleReadOnly(value) {
+    const el = document.getElementById('read-only-' + value);
+    const neverBox = document.getElementById('read-only-never');
+    const options = document.getElementsByClassName('read-only-option');
+    neverBox.checked = false;
+    let optionsStr = '';
+    Array.prototype.forEach.call(options, function (el) {
+      if (el.checked) {
+        optionsStr = optionsStr + ' ' + el.value;
+      }
+    });
+
+    const doc = getDoc();
+    if (!doc) return;
+    if (optionsStr.trim() === '') {
+      doc.removeAttribute('schema-hide-read-only');
+      doc.connectedCallback?.();
+    } else {
+      doc.setAttribute('schema-hide-read-only', optionsStr);
+    }
+  }
+
+  function toggleNeverHideReadOnly(neverBox) {
+    const options = document.getElementsByClassName('read-only-option');
+    const doc = getDoc();
+    if (!doc) return;
+    if (neverBox.checked) {
+      Array.prototype.forEach.call(options, function (el) {
+        el.checked = false;
+      });
+      doc.setAttribute('schema-hide-read-only', 'never');
+    } else {
+      doc.removeAttribute('schema-hide-read-only');
+      doc.connectedCallback?.();
+    }
+  }
+
+  function toggleNeverHideWriteOnly(neverBox) {
+    const doc = getDoc();
+    if (!doc) return;
+    if (neverBox.checked) {
+      doc.setAttribute('schema-hide-write-only', 'never');
+    } else {
+      doc.removeAttribute('schema-hide-write-only');
+      doc.connectedCallback?.();
+    }
+  }
+</script>

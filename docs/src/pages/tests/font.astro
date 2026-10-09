@@ -1,0 +1,14 @@
+---
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
+---
+
+<TestCaseLayout
+  preset="colors"
+  controls={['regular-font', 'mono-font', 'font-size', 'render-style', 'theme', 'primary-color']}
+  rapidocProps={{
+    'spec-url': '/specs-test/petstore.yaml',
+    'regular-font': 'Open Sans',
+    'mono-font': 'Sono',
+    'render-style': 'read',
+  }}
+/>

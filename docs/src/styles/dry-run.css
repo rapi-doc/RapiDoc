@@ -1,0 +1,384 @@
+/* Dry Run Page Styles */
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  background: #1a1a1a !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* RapiDoc Full Viewport Display */
+rapi-doc {
+  width: 100vw !important;
+  height: 100vh !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Minimal Floating Control Pill */
+.dr-floating-bar {
+  position: fixed !important;
+  top: 14px !important;
+  right: 18px !important;
+  z-index: 99999 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 10px !important;
+  border-radius: 9999px !important;
+  background: rgba(15, 23, 42, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55) !important;
+  user-select: none !important;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease !important;
+}
+
+.dr-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 12px !important;
+  border-radius: 9999px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #cbd5e1 !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  transition: all 0.15s ease !important;
+  font-family: inherit !important;
+}
+
+.dr-btn:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dr-btn-accent {
+  color: #fbbf24 !important;
+  background: rgba(245, 158, 11, 0.16) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  font-weight: 600 !important;
+}
+
+.dr-btn-accent:hover {
+  color: #fde68a !important;
+  background: rgba(245, 158, 11, 0.28) !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
+}
+
+.dr-btn-icon {
+  padding: 6px 9px !important;
+  font-size: 14px !important;
+}
+
+/* Segmented 3-Icon Render Style Group */
+.dr-segmented-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 9999px !important;
+  padding: 2px !important;
+  gap: 2px !important;
+}
+
+.dr-seg-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 5px 8px !important;
+  border-radius: 9999px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #94a3b8 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  line-height: 1 !important;
+}
+
+.dr-seg-btn svg {
+  display: block !important;
+  width: 14px !important;
+  height: 14px !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  transition: stroke 0.15s ease !important;
+}
+
+.dr-seg-btn:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dr-seg-btn:hover svg {
+  stroke: #ffffff !important;
+}
+
+.dr-seg-btn.active {
+  color: var(--rd-accent-light, #34d399) !important;
+  background: var(--rd-accent-dim, rgba(16, 185, 129, 0.2)) !important;
+  border-color: var(--rd-accent-border, rgba(16, 185, 129, 0.4)) !important;
+  box-shadow: 0 0 8px var(--rd-accent-glow, rgba(16, 185, 129, 0.35)) !important;
+}
+
+.dr-seg-btn.active svg {
+  stroke: var(--rd-accent-light, #34d399) !important;
+}
+
+.dr-seg-btn.active:hover {
+  color: #ffffff !important;
+  background: var(--rd-accent-dim, rgba(16, 185, 129, 0.3)) !important;
+}
+
+.dr-seg-btn.active:hover svg {
+  stroke: #ffffff !important;
+}
+
+/* Slide-Over Spec Editor Drawer */
+.dr-drawer {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 560px !important;
+  max-width: 92vw !important;
+  height: 100vh !important;
+  background: #090d16 !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: -12px 0 50px rgba(0, 0, 0, 0.75) !important;
+  z-index: 100000 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transform: translateX(100%) !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.dr-drawer.open {
+  transform: translateX(0) !important;
+}
+
+.dr-drawer-header {
+  padding: 16px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+}
+
+.dr-drawer-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.dr-drawer-title h4 {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+}
+
+.dr-format-tag {
+  font-family: 'Roboto Mono', monospace !important;
+  font-size: 11px !important;
+  padding: 2px 7px !important;
+  border-radius: 4px !important;
+  background: rgba(56, 189, 248, 0.15) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  color: #38bdf8 !important;
+  font-weight: 600 !important;
+}
+
+.dr-drawer-close {
+  background: transparent !important;
+  border: none !important;
+  font-size: 24px !important;
+  color: #94a3b8 !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+  padding: 0 4px !important;
+}
+
+.dr-drawer-close:hover {
+  color: #ffffff !important;
+}
+
+.dr-drawer-body {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 16px 20px !important;
+  overflow: hidden !important;
+}
+
+.dr-textarea {
+  flex: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+  background: #0f172a !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+  padding: 14px !important;
+  color: #f1f5f9 !important;
+  font-family: 'Roboto Mono', 'Consolas', 'Courier New', monospace !important;
+  font-size: 12.5px !important;
+  line-height: 1.6 !important;
+  resize: none !important;
+  outline: none !important;
+  white-space: pre !important;
+  tab-size: 2 !important;
+}
+
+.dr-textarea:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
+.dr-error-banner {
+  margin-top: 10px !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;
+  color: #f87171 !important;
+  font-size: 12px !important;
+  font-family: 'Roboto Mono', monospace !important;
+}
+
+.dr-drawer-footer {
+  padding: 14px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+}
+
+.dr-hint {
+  font-size: 12px !important;
+  color: #64748b !important;
+}
+
+.dr-hint kbd {
+  background: rgba(255, 255, 255, 0.1) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 10.5px !important;
+  color: #cbd5e1 !important;
+  font-family: inherit !important;
+}
+
+.dr-drawer-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.dr-btn-primary {
+  background: var(--rd-accent) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border: none !important;
+}
+
+.dr-btn-primary:hover {
+  background: var(--rd-accent-hover) !important;
+}
+
+/* Drag & Drop Overlay */
+.dr-drop-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  z-index: 100001 !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+}
+
+.dr-drop-overlay.visible {
+  display: flex !important;
+}
+
+.dr-drop-card {
+  padding: 40px 60px !important;
+  border-radius: 16px !important;
+  background: rgba(30, 41, 59, 0.95) !important;
+  border: 2px dashed #38bdf8 !important;
+  text-align: center !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+  color: #fff !important;
+}
+
+.dr-drop-card h3 {
+  margin: 12px 0 6px 0 !important;
+  font-size: 20px !important;
+}
+
+.dr-drop-card p {
+  margin: 0 !important;
+  color: #94a3b8 !important;
+  font-size: 14px !important;
+}
+
+/* Toast Notification */
+.dr-toast-container {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  pointer-events: none !important;
+}
+
+.dr-toast {
+  pointer-events: auto !important;
+  padding: 8px 16px !important;
+  border-radius: 9999px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+  background: rgba(30, 41, 59, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease !important;
+}
+
+.dr-toast.fade-out {
+  opacity: 0 !important;
+  transform: translateY(-8px) !important;
+}
+
+.dr-toast-success {
+  background: rgba(6, 78, 59, 0.96) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #6ee7b7 !important;
+}
+
+.dr-toast-error {
+  background: rgba(127, 29, 29, 0.96) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  color: #fca5a5 !important;
+}

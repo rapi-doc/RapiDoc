@@ -1,0 +1,22 @@
+---
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
+---
+
+<TestCaseLayout
+  controls={[
+    'allow-spec-url-load',
+    'allow-spec-file-load',
+    'allow-spec-file-download',
+    'show-header',
+    'show-info',
+    'render-style',
+  ]}
+  rapidocProps={{
+    'spec-url': '/specs-test/petstore.yaml',
+    'allow-spec-url-load': 'true',
+    'allow-spec-file-load': 'true',
+    'allow-spec-file-download': 'false',
+    'show-header': 'true',
+    'show-info': 'true',
+  }}
+/>

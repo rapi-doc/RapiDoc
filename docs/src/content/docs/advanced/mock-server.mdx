@@ -1,0 +1,276 @@
+---
+title: In-Browser Mock Server
+description: Seamlessly prototype frontends and test edge cases before the backend is built using RapiDoc's zero-dependency, in-browser OpenAPI mock server.
+---
+
+import { Aside, Tabs, TabItem, Steps, Card, CardGrid } from '@astrojs/starlight/components';
+
+Frontend teams frequently face a common bottleneck: waiting for backend APIs to be implemented before they can build, test, and validate user interfaces.
+
+RapiDoc solves this natively with its built-in **In-Browser Mock Server**. With a single attribute (`mock-server="true"`), RapiDoc transparently intercepts outgoing HTTP requests and synthesizes realistic mock responses directly from your OpenAPI 3.x / Swagger 2.0 specifications.
+
+<Aside type="tip" title="High-Level Showcase & Live Demo">
+  Looking for a visual tour and interactive testbed? Visit our dedicated [Mock Server Showcase Page](/guides/mock) to test intercepted live queries in real time.
+</Aside>
+
+---
+
+## Why Use the In-Browser Mock Server?
+
+<CardGrid>
+  <Card title="Zero Setup & Single Bundle" icon="rocket">
+    No Docker containers, no Node.js Prism proxies, no external mock CLI processes. It runs 100% inside the browser using your existing `rapidoc-min.js` script tag.
+  </Card>
+  <Card title="Full Frontend Interception" icon="puzzle">
+    Intercepts both RapiDoc's internal **"TRY"** execution console and all `fetch()` and `XMLHttpRequest` calls issued by your host application (React, Vue, Svelte, Angular, etc.).
+  </Card>
+  <Card title="Multi-Status Simulation" icon="random">
+    Simulate success and error flows (`200`, `400`, `404`, `500`) with multiple selection strategies (`first`, `cycle`, `random`) to stress-test error boundaries and retry logic.
+  </Card>
+  <Card title="Simulated Network Latency" icon="laptop">
+    Test loading spinners, skeleton states, and optimistic UI transitions by injecting realistic latency delays (e.g., `mock-server-delay="500"`).
+  </Card>
+</CardGrid>
+
+---
+
+## 1. Quickstart
+
+To enable the mock server, add the `mock-server="true"` attribute to your `<rapi-doc>` tag:
+
+```html
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <rapi-doc
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      mock-server="true"
+      mock-server-delay="300"
+      mock-server-log="true"
+      theme="dark"
+    > </rapi-doc>
+
+    <script>
+      // Any fetch request matching the OpenAPI spec paths is automatically intercepted!
+      window.addEventListener('DOMContentLoaded', async () => {
+        // Wait for RapiDoc to parse the spec
+        const rapidoc = document.querySelector('rapi-doc');
+        rapidoc.addEventListener('spec-loaded', async () => {
+          const res = await fetch('/v2/pet/findByStatus?status=available');
+          const data = await res.json();
+          console.log('Intercepted Mock Response:', data);
+        });
+      });
+    </script>
+  </body>
+</html>
+```
+
+When active, RapiDoc renders an emerald **`MOCK ACTIVE`** badge in the API Server selector header, visually confirming that requests are intercepted in-page.
+
+---
+
+## 2. Configuration Attributes
+
+Configure the mock server declaratively on `<rapi-doc>` or `<rapi-doc-mini>`:
+
+| Attribute | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `mock-server` | `true \| false` | `false` | Enables or disables the in-browser mock server interceptor. |
+| `mock-server-status-code` | `String` | `""` *(auto)* | Target HTTP status code or comma-separated list of codes (e.g. `"200, 404, 500"`). If omitted, the first available `2xx` response in the spec is returned. |
+| `mock-server-status-strategy` | `first \| cycle \| random` | `first` | Selection strategy when multiple status codes are provided in `mock-server-status-code`. |
+| `mock-server-delay` | `Number` | `0` | Artificial network latency in milliseconds before resolving mock responses. |
+| `mock-server-log` | `true \| false` | `true` | Outputs color-coded intercept logs to the browser DevTools console showing URL, matched path, and generated status code. |
+
+---
+
+## 3. Multi-Status Code Simulation Strategies
+
+Real-world frontend development requires robust error handling. The mock server allows you to test non-`200` edge cases, validation failures, and server crashes without changing backend code.
+
+Supply a comma-separated list of status codes to `mock-server-status-code`:
+
+```html
+<rapi-doc
+  spec-url="/specs/api.yaml"
+  mock-server="true"
+  mock-server-status-code="200, 400, 404, 500"
+  mock-server-status-strategy="cycle"
+> </rapi-doc>
+```
+
+<Tabs>
+  <TabItem label="cycle (Sequential)">
+    Cycles sequentially through the provided codes for each matched endpoint request:
+    - **1st Request**: `200 OK`
+    - **2nd Request**: `400 Bad Request`
+    - **3rd Request**: `404 Not Found`
+    - **4th Request**: `500 Internal Server Error`
+    - **5th Request**: Loops back to `200 OK`
+
+    **Ideal for**: Testing exponential backoff, client retry algorithms, and notification banners.
+  </TabItem>
+
+  <TabItem label="random (Chaos Engineering)">
+    Picks uniformly at random among the specified status codes for every incoming call:
+
+    ```html
+    <rapi-doc
+      spec-url="/specs/api.yaml"
+      mock-server="true"
+      mock-server-status-code="200, 429, 503"
+      mock-server-status-strategy="random"
+    > </rapi-doc>
+    ```
+
+    **Ideal for**: Chaos resilience testing, verifying UI fallback components, and detecting unhandled Promise rejections.
+  </TabItem>
+
+  <TabItem label="first (Predictable)">
+    Always selects the first status code listed (e.g. `"401"` to lock down all endpoints for authentication tests):
+
+    ```html
+    <rapi-doc
+      spec-url="/specs/api.yaml"
+      mock-server="true"
+      mock-server-status-code="401"
+      mock-server-status-strategy="first"
+    > </rapi-doc>
+    ```
+
+    **Ideal for**: Unit testing a specific screen state, such as an Unauthorized 401 redirect or 403 Forbidden alert.
+  </TabItem>
+</Tabs>
+
+---
+
+## 4. Response Example Generation Hierarchy
+
+When generating a mock payload, RapiDoc inspects the matched OpenAPI response object using the following priority order:
+
+<Steps>
+1. **Named Examples (`examples`)**:
+   If the response content defines multiple named examples, the first example's `value` is returned.
+2. **Singular Example (`example`)**:
+   If explicit `example` data is specified on the media type or schema, it is formatted and returned directly.
+3. **Schema Example Synthesis (`generateExample`)**:
+   If no explicit example is provided, RapiDoc recursively synthesizes realistic mock data based on property types, formats, defaults, and enums:
+   - `string`: Uses example strings or formatted placeholders (e.g., UUIDs, dates, email).
+   - `number` / `integer`: Uses schema minimum, maximum, or default.
+   - `boolean`: Defaults to `true`.
+   - `array`: Generates sample item arrays matching `items` schema.
+   - `object`: Recursively generates nested object structures.
+4. **Write-Only Filtering**:
+   Properties flagged with `writeOnly: true` (such as request passwords or secret tokens) are strictly excluded from generated response payloads.
+5. **Fallback**:
+   If the schema is completely empty or untyped, an empty JSON object `{}` with `Content-Type: application/json` is safely returned.
+</Steps>
+
+---
+
+## 5. Simulating Network Latency
+
+Modern frontends need to handle slow network conditions gracefully with shimmer effects, disabled submit buttons, and skeleton screens.
+
+Set `mock-server-delay` in milliseconds:
+
+```html
+<!-- Simulate 850ms network delay -->
+<rapi-doc
+  spec-url="/specs/orders.yaml"
+  mock-server="true"
+  mock-server-delay="850"
+> </rapi-doc>
+```
+
+Every intercepted `fetch()` or `XMLHttpRequest` will delay response resolution by 850ms, allowing you to observe loading spinners and avoid race conditions.
+
+---
+
+## 6. Integrating with Frontend Apps (React, Vue, Vite, Next.js)
+
+Because the mock server monkey-patches global `window.fetch` and `window.XMLHttpRequest` directly in the browser runtime, any JavaScript framework running in the same tab can consume mock endpoints seamlessly without any configuration changes.
+
+### Local Development Setup (Vite / React Example)
+
+<Steps>
+1. **Embed RapiDoc in `index.html`**:
+   Add `<rapi-doc>` during local development. You can hide the documentation UI with CSS if you only want the mock engine active:
+
+   ```html
+   <!-- index.html -->
+   <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+   
+   <!-- Hidden or docked mock provider -->
+   <rapi-doc
+     id="api-mock"
+     spec-url="/openapi.yaml"
+     mock-server="true"
+     mock-server-delay="200"
+     style="display: none;"
+   ></rapi-doc>
+   
+   <div id="root"></div>
+   ```
+
+2. **Call API endpoints as usual in your React component**:
+
+   ```jsx
+   // src/components/UserProfile.jsx
+   import React, { useEffect, useState } from 'react';
+
+   export function UserProfile() {
+     const [user, setUser] = useState(null);
+     const [loading, setLoading] = useState(true);
+
+     useEffect(() => {
+       // Intercepted by RapiDoc! No backend required.
+       fetch('/api/v1/users/me')
+         .then((res) => res.json())
+         .then((data) => {
+           setUser(data);
+           setLoading(false);
+         });
+     }, []);
+
+     if (loading) return <div>Loading user profile...</div>;
+     return <div>Welcome, {user.name} ({user.email})!</div>;
+   }
+   ```
+
+3. **Zero CORS Issues**:
+   Because requests are intercepted in-memory before leaving the browser, cross-origin request security (CORS) errors are 100% eliminated during local prototyping.
+</Steps>
+
+---
+
+## 7. DevTools Console Diagnostics
+
+When `mock-server-log="true"` (the default), RapiDoc logs every intercepted request to the browser DevTools Console with visual badges:
+
+```text
+[RapiDoc Mock] ➔ Intercepted: GET https://api.example.com/users/42
+[RapiDoc Mock]   Matched Route: GET /users/{id} (Status 200)
+[RapiDoc Mock]   Latency Delay: 300ms
+```
+
+If an outgoing request does not match any route in the OpenAPI specification, RapiDoc transparently falls through to the native browser network stack, ensuring external scripts, analytics, and non-API requests continue uninterrupted.
+
+---
+
+## 8. Safe Lifecycle & Cleanup
+
+When the `<rapi-doc>` element is removed from the DOM or when `mock-server="false"` is set dynamically, RapiDoc automatically restores native `window.fetch` and `window.XMLHttpRequest` without leaving residual side effects or memory leaks:
+
+```javascript
+const el = document.querySelector('rapi-doc');
+
+// Dynamically turn off mocking
+el.setAttribute('mock-server', 'false');
+
+// Native fetch is immediately restored
+```

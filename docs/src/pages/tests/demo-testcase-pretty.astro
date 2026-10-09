@@ -1,0 +1,36 @@
+---
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
+import PrettyRapiDocController from '../../components/PrettyRapiDocController.astro';
+---
+
+<TestCaseLayout
+  title="Pretty Test Harness Demo | RapiDoc"
+  description="Demonstrates using PrettyRapiDocController in TestCaseLayout with custom test action slot."
+  specUrl="/specs-test/petstore.yaml"
+  preset="all"
+  tuckedRight={false}
+  controller={PrettyRapiDocController}
+  controllerSize="large"
+  rapidocProps={{
+    'render-style': 'read',
+    'schema-style': 'tree',
+    theme: 'dark',
+    'show-info': 'true',
+    'show-header': 'false',
+    'allow-try': 'true',
+    'allow-server-selection': 'true',
+    'primary-color': '#10b981',
+  }}
+>
+  <!-- Custom test action button injected into the PrettyRapiDocController via slot="controller" -->
+  <button
+    slot="controller"
+    type="button"
+    class="rd-pretty-action-btn"
+    style="width: 100%; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; justify-content: flex-start; padding: 8px 12px; height: auto;"
+    onclick="const doc = document.getElementById('thedoc'); if (doc) { doc.scrollTo('get-/pet/findByStatus'); }"
+    title="Programmatically scroll to the findByStatus endpoint using doc.scrollTo()"
+  >
+    <span>📍 Scroll to findByStatus</span>
+  </button>
+</TestCaseLayout>

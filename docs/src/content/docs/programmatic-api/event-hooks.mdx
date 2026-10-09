@@ -1,0 +1,100 @@
+---
+title: Event Hooks & Request Interception
+description: Intercept API requests before they execute with before-try, log telemetry with after-try, and monitor server switching.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+RapiDoc emits standard DOM CustomEvents throughout its lifecycle. These hooks allow you to intercept and modify outgoing HTTP requests, record analytics, and synchronize external UI state.
+
+---
+
+## 1. Request Interception with `before-try`
+
+The `before-try` event fires whenever a developer clicks the **"TRY"** button to execute an API call, **before** the request is dispatched across the network.
+
+<Aside type="tip" title="Common Use Cases for before-try">
+- Automatically inject multi-tenant headers (e.g. `X-Organization-ID`, `X-Correlation-ID`).
+- Sign requests with HMAC or custom cryptographic signatures.
+- Append query parameters dynamically (e.g. `?debug=true` or telemetry tokens).
+- Redirect requests to a local proxy or mock server.
+</Aside>
+
+### Modifying Headers in `before-try`
+
+```javascript
+const doc = document.getElementById('the-doc');
+
+doc.addEventListener('before-try', (e) => {
+  const { request } = e.detail;
+
+  // Add custom headers to the outgoing Request object
+  request.headers.append('X-Client-Platform', 'WebDeveloperPortal/2.0');
+  request.headers.append('X-Trace-ID', crypto.randomUUID());
+
+  // Conditional injection based on path or method
+  if (request.url.includes('/billing/')) {
+    request.headers.append('X-Scope-Enforce', 'strict-audit');
+  }
+
+  console.log(`Executing ${request.method} to ${request.url}`);
+});
+```
+
+---
+
+## 2. Response Telemetry with `after-try`
+
+The `after-try` event triggers when the interactive request completes and the server response is received:
+
+```javascript
+const doc = document.getElementById('the-doc');
+
+doc.addEventListener('after-try', (e) => {
+  const { request, response, duration } = e.detail;
+
+  console.log(`Status: ${response.status} (${response.statusText})`);
+  console.log(`Roundtrip Latency: ${duration}ms`);
+
+  // Send telemetry metrics to your analytics pipeline
+  if (window.analytics) {
+    window.analytics.track('API Try Executed', {
+      endpoint: request.url,
+      method: request.method,
+      status: response.status,
+      durationMs: duration,
+    });
+  }
+});
+```
+
+---
+
+## 3. Server Change Hook (`api-server-change`)
+
+Fires whenever a user changes the target server from the header dropdown:
+
+```javascript
+const doc = document.getElementById('the-doc');
+
+doc.addEventListener('api-server-change', (e) => {
+  const { selectedServer } = e.detail;
+  console.log('Target API server switched to:', selectedServer);
+
+  // Sync external notifications or warnings
+  if (selectedServer.includes('production')) {
+    showToastWarning('You are now targeting the LIVE production server.');
+  }
+});
+```
+
+---
+
+## Event Summary Reference
+
+| Event Name | Detail Payload | Description |
+| :--- | :--- | :--- |
+| `before-try` | `{ request: Request }` | Fired before an interactive HTTP request is sent. Allows modifying headers, URL, or body. |
+| `after-try` | `{ request, response, duration }` | Fired when the interactive response arrives. Useful for logging and telemetry. |
+| `spec-loaded` | `{ spec: Object }` | Fired when the OpenAPI definition is parsed and ready in memory. |
+| `api-server-change` | `{ selectedServer: string }` | Fired when the user selects a different target server from the dropdown. |

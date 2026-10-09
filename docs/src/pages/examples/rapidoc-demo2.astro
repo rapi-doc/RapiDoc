@@ -1,0 +1,34 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout
+  title="Next-Gen Playground with RapiDoc Controller | RapiDoc"
+  description="Interactive playground demonstrating the full suite of RapiDoc configuration properties with the dockable RapiDoc Controller."
+  preset="all"
+  autoRenderRapiDoc={true}
+  tuckedRight={true}
+  showBackPill={false}
+  specUrl="/specs/petstore.yaml"
+  controllerSize="14px"
+  rapidocProps={{
+    'spec-url': '/specs/petstore.yaml',
+    'heading-text': 'Demo',
+    'sort-tags': 'false',
+    'sort-endpoints-by': 'method',
+    'show-header': 'false',
+    theme: 'dark',
+    'render-style': 'read',
+    'default-schema-tab': 'schema',
+    'schema-style': 'table',
+  }}
+>
+  <!-- Ambient background glow elements matching site aesthetics -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-cyan"></div>
+  <div class="ambient-glow glow-indigo"></div>
+
+  <!-- Slotted logos into <rapi-doc> -->
+  <img id="logo" slot="logo" src="/assets/images/logo-outline.svg" alt="RapiDoc Logo" />
+  <img id="nav-logo" slot="nav-logo" src="/assets/images/logo-outline.svg" alt="RapiDoc Logo" />
+</ExampleLayout>

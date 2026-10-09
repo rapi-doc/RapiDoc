@@ -1,105 +1,139 @@
 openapi: 3.0.2
 info:
-  title: Links
+  title: Links & Navigation
   version: "1.0"
   description: |
-    # Various ways to create links in RapiDoc
+    # Linking and Navigation in RapiDoc
 
-    - Use markdown syntax to create
-      - Internal links to various sections of the document
-      - External links to other websites
-    - Convert headings to links on the Navigation bar
-    - Use custom HTMLs and styling to create buttons, links etc
+    RapiDoc offers several flexible ways to link and navigate within your API documentation and to external resources:
 
-    ## Markdown syntax to create links 
+    - **Internal Deep Links**: Jump directly to sections, tag groups, individual operations, or headings using Markdown anchor links.
+    - **External Links**: Link out to external websites, developer guides, SDK repositories, or issue trackers.
+    - **Custom HTML Links & Buttons**: Embed styled links and action buttons into slots (`header`, `footer`, `nav-logo`, or the default slot).
+    - **Navigation Bar Heading Links**: Automatically convert Markdown headings in the API description into interactive sidebar navigation items.
 
-    ## Internal Links
-      RapiDoc assigns auto generated IDs to important sections of the document. 
-      You may use these IDs in your markdown syntax to create clickable links to varous sections of the document
+    ---
 
-      below is how RapiDoc will assign IDs to different section
+    ## Internal Deep Links
 
-      | Section         | ID                | Note  |
-      | ----------------| ----------------- | ----- |
-      | Overview        | `overview`        |       |
-      | API Servers     | `servers`         |       |
-      | Authentications | `auth`            |       |
-      | Tags            | `tag--{tag-name}` | `#` `:` `?` `&` `=` `{` `}` and `space` is replaced by hyphen (`-`) |
-      | Paths/Operations| `{method}-{path}` | `#` `:` `?` `&` `=` `{` `}` and `space` is replaced by hyphen (`-`) |
+    RapiDoc automatically generates consistent, predictable element IDs for every key section, tag group, and API operation. You can reference these IDs in standard Markdown link syntax (`[Label](#element-id)`) to create deep-linking shortcuts.
 
-      **Example:** ID of the operation `POST /users/find-by-name/{name}` is `post-/users/find-by-name/-name-` _(**Note:** that curlies around the name is replaced by hyphens)_
+    ### ID Generation Rules
 
-      **Use Markdown syntax**<br>
-      Now that you understand how the IDs are generated, you may use Markdown syntax to create links to various sections
-      ```
-        [My Link Text](#link-id)
-      ```
-      below are some of the links to various sections
+    | Target Section | Generated Element ID | Formatting Rule |
+    | :--- | :--- | :--- |
+    | **Overview** | `overview` | Static ID for the API title, version, and description section. |
+    | **API Servers** | `servers` | Static ID for the server selection panel. |
+    | **Authentication** | `auth` | Static ID for security schemes and auth configuration. |
+    | **Tag Group** | `tag--{tag-name}` | Prefix `tag--` followed by the tag name. Characters `[\s#:?&={}]` become hyphens (`-`). |
+    | **Path / Operation** | `{method}-{path}` | Lowercase HTTP method followed by path. Characters `[\s#:?&={}]` become hyphens (`-`). |
+    | **Overview Headings** | `overview--{heading-slug}` | Prefix `overview--` followed by GitHub-slugger formatted heading text. |
 
-      - [Take me to API server ](#servers)
-      - [Operation: Get Single User ](#get-/users/-userId-)
+    > **Note on Character Replacement:** Any characters that could interfere with URL hashes or CSS selectors (specifically spaces, `#`, `:`, `?`, `&`, `=`, `{`, and `}`) are automatically replaced by a single hyphen (`-`).
+
+    ### Examples of Generated IDs
+
+    - Operation `GET /users/{userId}` becomes `get-/users/-userId-` *(curly braces `{` and `}` around the path parameter are replaced by hyphens)*
+    - Operation `POST /users` becomes `post-/users`
+    - Tag group `Users` becomes `tag--Users`
+    - Tag group `User Management` becomes `tag--User-Management`
+
+    ### Markdown Link Syntax
+
+    Use standard Markdown anchor syntax (`[Link Text](#element-id)`) anywhere inside your OpenAPI markdown descriptions:
+
+    ```markdown
+    [Jump to API Servers](#servers)
+    [View Tag Group: Users](#tag--Users)
+    [Operation: Get Single User](#get-/users/-userId-)
+    [Operation: Create User](#post-/users)
+    ```
+
+    Try clicking these live links:
+    - [Jump to API Servers](#servers)
+    - [Jump to Users Tag Group](#tag--Users)
+    - [Jump to Operation: Get Single User](#get-/users/-userId-)
+    - [Jump to Operation: Create User](#post-/users)
+
+    When clicked, RapiDoc automatically updates the browser's URL hash, expands the targeted operation or section if collapsed, and smoothly scrolls it into view across all render modes (`read`, `view`, and `focused`).
+
+    ---
 
     ## External Links
-      Just Like internal links you can use markdown syntax to create external links
-      ```
-        [Take me to RapiDoc Homepage ](https://mrin9.github.io/RapiDoc/)
-      ```
-      [Take me to RapiDoc Homepage ](https://mrin9.github.io/RapiDoc/)
-      
-    ## HTML Links
-      RapiDoc allows you to embed custom HTMLs in various slots.
 
-      | Slot            | Location             |
-      | ----------------| -------------------- |
-      |`(default)`      | top of the document  |
-      |`header`         | on header bar        |
-      |`footer`         | bottom of document   |
-      |`logo`           | top-left of header   |
-      |`nav-logo`       | top of side navigation bar |
+    Just like internal deep links, you can link to external websites, documentation, or portals using standard Markdown link syntax:
 
-      below is how you can embed custome HTML content. Unlike markdown links HTML links can be styled by the user, like providing a diffrent color, font etc
+    ```markdown
+    [Visit RapiDoc Documentation](https://rapi-doc.github.io/RapiDoc)
+    [View RapiDoc on GitHub](https://github.com/rapi-doc/RapiDoc)
+    ```
 
-      ```html
-      <html>
-        <head>
-          ...
-        </head>
-        <body>
-          <rapi-doc  spec-url = "../specs/links.yaml">
-            <slot>
-              <a href = "#get-/users/-userId-"> Get User Operation</a>
-              <a href = "https://mrin9.github.io/RapiDoc/"> RapiDoc Home </a>
-            </slot>
-          </rapi-doc>
-        </body>  
-      </html>
-      ```
-      As an example you can checkout this document's top-right corner, where you will find custom styled **HTML Links**
-    
-    ## Headings as navigation links
+    Live external links:
+    - [Visit RapiDoc Documentation](https://rapi-doc.github.io/RapiDoc)
+    - [View RapiDoc on GitHub](https://github.com/rapi-doc/RapiDoc)
 
-      You can turn **level-1 and level-2 headings to links** on Navigation bar using `info-description-headings-in-navbar='true'` option
-      ```html
-      <html>
-        ...
-        <rapi-doc  
-          spec-url = "../specs/links.yaml" 
-          info-description-headings-in-navbar='true'
-        >
-        </rapi-doc>
-      </html>
-      ```
-      <br/>
-      As an example you can checkout this document's Navigation Bar, where you will find links to level-1 and level-2 heading
+    ---
+
+    ## Custom HTML Links via Slots
+
+    For richer presentation or corporate branding, RapiDoc allows you to inject custom HTML elements into designated Web Component slots. Unlike Markdown links, HTML links can be styled with custom CSS classes, colors, fonts, icons, and flexbox layouts.
+
+    | Slot Name | Placement | Common Use Cases |
+    | :--- | :--- | :--- |
+    | `(default)` | Top of the main canvas | Quick-jump banners, release announcements, or action buttons. |
+    | `header` | Right side of top header bar | Navigation buttons, GitHub links, or environment selectors. |
+    | `footer` | Bottom of document canvas | Copyright notices, terms of service, and support contacts. |
+    | `logo` | Top-left of header | Custom company brand logo with a link to your home portal. |
+    | `nav-logo` | Top of sidebar navigation | Sticky sidebar branding with an interactive link. |
+
+    ### Slot Usage Example
+
+    ```html
+    <rapi-doc spec-url="../specs/links.yaml">
+      <!-- Default slot: Renders custom links at the top of the documentation -->
+      <div style="display: flex; gap: 12px; margin: 12px 0;">
+        <a href="#get-/users/-userId-">Get User Endpoint</a>
+        <a href="https://rapidocui.com" target="_blank">RapiDoc Documentation</a>
+      </div>
+
+      <!-- Header slot: Renders buttons on the top header bar -->
+      <div slot="header">
+        <a href="https://github.com/rapi-doc/RapiDoc" target="_blank" style="color: #fff; text-decoration: none;">GitHub</a>
+      </div>
+    </rapi-doc>
+    ```
+
+    Check out the top-right corner of this demo page for an example of custom styled **HTML Links** injected via slots.
+
+    ---
+
+    ## Headings as Navigation Links
+
+    You can automatically promote **level-1 (`#`) and level-2 (`##`) Markdown headings** from your `info.description` into interactive sidebar navigation links by setting the `info-description-headings-in-navbar="true"` attribute:
+
+    ```html
+    <rapi-doc
+      spec-url="../specs/links.yaml"
+      info-description-headings-in-navbar="true"
+    >
+    </rapi-doc>
+    ```
+
+    Check out the sidebar navigation bar on this demo page: each major heading from this overview is listed under the Overview section, allowing readers to jump directly to any topic!
 
 
 
 
 servers:
   - url: https://reqres.in/api/
+tags:
+  - name: Users
+    description: Operations related to creating and retrieving user profiles.
 paths:
   /users:
     get:
+      tags:
+        - Users
       description: List of users (paginated)
       parameters:
         - name: page
@@ -145,6 +179,8 @@ paths:
                   support:
                     $ref: '#/components/schemas/support'
     post:
+      tags:
+        - Users
       description: Create a user
       requestBody:
         content:
@@ -163,6 +199,8 @@ paths:
 
   /users/{userId}:
     get:
+      tags:
+        - Users
       description: Get a Single User
       parameters:
         - in: path

@@ -1,0 +1,57 @@
+---
+import SiteNavbar from './SiteNavbar.astro';
+import Search from 'virtual:starlight/components/Search';
+import config from 'virtual:starlight/user-config';
+
+const shouldRenderSearch =
+  config.pagefind || config.components?.Search !== '@astrojs/starlight/components/Search.astro';
+---
+
+<div class="rd-docs-header-wrapper">
+  <SiteNavbar activePage="docs">
+    {shouldRenderSearch && (
+      <div slot="search" class="rd-starlight-search-container">
+        <Search />
+      </div>
+    )}
+  </SiteNavbar>
+</div>
+
+<style>
+  .rd-docs-header-wrapper {
+    width: 100%;
+  }
+  .rd-starlight-search-container {
+    display: flex;
+    align-items: center;
+  }
+  /* Style the search button inside the unified site navbar */
+  .rd-starlight-search-container :global(button[data-open-modal]) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .rd-starlight-search-container :global(button[data-open-modal]:hover) {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  .rd-starlight-search-container :global(kbd) {
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    font-family: 'Roboto Mono', monospace;
+  }
+</style>

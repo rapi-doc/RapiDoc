@@ -1,0 +1,1558 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import OAuthFlowDiagram from '../../components/OAuthFlowDiagram.astro';
+
+// Code Snippets for the Tutorial
+const indexHtmlCode = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>API Documentation</title>
+    <!-- 1. Load RapiDoc Web Component from CDN -->
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <!-- 2. Embed <rapi-doc> pointing to your OpenAPI spec -->
+    <rapi-doc 
+      spec-url="https://mrin9.github.io/RapiDoc/specs/oauth.yaml"
+      render-style="focused"
+      allow-try="true"
+    > </rapi-doc>
+  </body>
+</html>`;
+
+const customReceiverPathCode = `<!-- If oauth-receiver.html is hosted in a different path or subdirectory: -->
+<rapi-doc 
+  spec-url="/specs/api.yaml"
+  oauth-receiver="/auth/oauth-receiver.html"
+> </rapi-doc>`;
+
+const receiverHtmlCode = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>OAuth Receiver</title>
+    <!-- Load the same RapiDoc script -->
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <!-- The companion custom element that relays auth codes and closes the popup -->
+    <oauth-receiver> </oauth-receiver>
+  </body>
+</html>`;
+
+const openApiSpecCode = `openapi: 3.0.3
+info:
+  title: Protected API Service
+  version: "1.0.0"
+servers:
+  - url: https://demo.duendesoftware.com
+
+paths:
+  /api/test:
+    get:
+      summary: Test Authenticated Endpoint
+      security:
+        - demo-oauth:
+            - openid
+            - email
+            - profile
+      responses:
+        '200':
+          description: Successful operation
+
+components:
+  securitySchemes:
+    demo-oauth:
+      type: oauth2
+      description: Enterprise OAuth 2.0 Authorization Code flow
+      flows:
+        authorizationCode:
+          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
+          tokenUrl: https://demo.identityserver.io/connect/token
+          scopes:
+            openid: OpenID Connect identity
+            email: User email address
+            profile: User profile information`;
+
+const vendorExtensionsCode = `components:
+  securitySchemes:
+    # Scheme 1: Public Client (PKCE Enforced - Recommended for Documentation)
+    public-oauth:
+      type: oauth2
+      description: Public client authorization flow with PKCE
+      flows:
+        authorizationCode:
+          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
+          tokenUrl: https://demo.identityserver.io/connect/token
+          scopes:
+            openid: OpenID Connect identity
+            profile: User profile information
+            email: User email address
+
+          # Pre-fill Client ID in the authorization dialog
+          x-client-id: interactive.public
+
+          # Pre-select default scopes in the checkbox list
+          x-default-scopes:
+            - openid
+            - profile
+
+          # Enforces PKCE: Hides client secret field entirely from the UI
+          x-pkce-only: true
+
+          # Custom query parameters sent to authorizationUrl (e.g. proxy launch parameters)
+          x-authorize-params:
+            launch: xyz123
+            prompt: consent
+
+          # Custom parameters sent in POST body to tokenUrl
+          x-token-params:
+            audience: https://api.example.com
+
+    # Scheme 2: Sandbox / Confidential Client (With Pre-filled Test Secret)
+    sandbox-oauth:
+      type: oauth2
+      description: Sandbox test scheme with credentials pre-populated
+      
+      # Scheme-level vendor extensions apply to all flows within this scheme
+      x-client-id: interactive.confidential.short
+      x-client-secret: secret
+      x-default-scopes: openid email
+      x-receive-token-in: request-body
+      
+      flows:
+        authorizationCode:
+          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
+          tokenUrl: https://demo.identityserver.io/connect/token
+          scopes:
+            openid: OpenID Connect
+            email: Email address`;
+
+const customParamsCode = `<!-- Option 1: Static / Semi-Static via HTML Attributes -->
+<rapi-doc 
+  spec-url="/specs/api.yaml"
+  additional-authorize-params='{"launch": "xyz123", "prompt": "consent"}'
+  additional-token-params='{"audience": "https://api.example.com"}'
+></rapi-doc>
+
+<!-- Option 2: Dynamic Programmatic Interception via Events -->
+<script>
+  const rapidocEl = document.querySelector('rapi-doc');
+
+  // Intercept & inject dynamic query parameters before opening the authorization window
+  rapidocEl.addEventListener('before-authorize', (e) => {
+    const { securitySchemeId, flowType, authUrl, authParams } = e.detail;
+    // authParams is a live URLSearchParams instance
+    authParams.set('launch', sessionStorage.getItem('launch_context') || 'default-launch');
+    authParams.set('tenant', window.currentTenantId);
+    console.log('Opening authorization URL with customized params:', authParams.toString());
+  });
+
+  // Intercept & inject dynamic body parameters or headers before calling the token endpoint
+  rapidocEl.addEventListener('before-token-request', (e) => {
+    const { securitySchemeId, grantType, tokenUrl, params, headers } = e.detail;
+    // params is a live URLSearchParams instance for the POST request body
+    params.set('resource', 'https://api.mycompany.com');
+    // headers is a live Headers instance
+    headers.set('X-Device-Fingerprint', getDeviceFingerprint());
+  });
+</script>`;
+
+const vendorExtensionsList = [
+  {
+    name: 'x-client-id',
+    type: 'string',
+    level: 'Scheme or Flow',
+    description: 'Pre-populates the Client ID input in the authorization modal, saving developers from manually entering it.'
+  },
+  {
+    name: 'x-client-secret',
+    type: 'string',
+    level: 'Scheme or Flow',
+    description: 'Pre-populates the Client Secret input. Intended strictly for test/sandbox credentials, never for production secrets.'
+  },
+  {
+    name: 'x-default-scopes',
+    type: 'array | string',
+    level: 'Scheme or Flow',
+    description: 'Pre-selects specified scopes in the authorization dialog checkbox list (array of strings or space-separated list).'
+  },
+  {
+    name: 'x-pkce-only',
+    type: 'boolean',
+    level: 'Flow',
+    description: 'When true, enforces PKCE (RFC 7636) and hides the Client Secret field completely from the authorization UI.'
+  },
+  {
+    name: 'x-receive-token-in',
+    type: 'request-body | header',
+    level: 'Scheme or Flow',
+    description: 'Specifies whether client credentials should be passed in request body (client_secret_post) or Authorization header (client_secret_basic) when calling the tokenUrl. Default is request-body.'
+  },
+  {
+    name: 'x-receive-token-in-options',
+    type: 'array',
+    level: 'Scheme or Flow',
+    description: 'Limits the client authentication options available in the UI dropdown (e.g. ["request-body", "header"]).'
+  },
+  {
+    name: 'x-authorize-params',
+    type: 'object | string',
+    level: 'Scheme or Flow',
+    description: 'Custom query parameters appended to authorizationUrl (e.g. proxy launch parameters, audience, prompt).'
+  },
+  {
+    name: 'x-token-params',
+    type: 'object | string',
+    level: 'Scheme or Flow',
+    description: 'Custom parameters included in the POST request body to tokenUrl (e.g. custom IdP proxy fields, audience, resource).'
+  }
+];
+
+const flowSteps = [
+  {
+    num: '1',
+    title: 'User Clicks "Authorize"',
+    desc: 'The developer clicks "Authorize" on an endpoint or the top security modal. <rapi-doc> opens a lightweight browser popup pointing to oauth-receiver.html.'
+  },
+  {
+    num: '2',
+    title: 'Redirect to Identity Provider',
+    desc: '<oauth-receiver> immediately constructs the authorization URL with client_id, redirect_uri, requested scopes, state, and PKCE code challenge, then redirects the popup to your IdP.'
+  },
+  {
+    num: '3',
+    title: 'User Consent & Login',
+    desc: 'The developer authenticates directly on the Identity Provider login page and grants consent to requested scopes.'
+  },
+  {
+    num: '4',
+    title: 'Callback to Receiver Popup',
+    desc: 'Upon success, the IdP redirects the popup back to your registered redirect URI: oauth-receiver.html?code=AUTH_CODE&state=STATE.'
+  },
+  {
+    num: '5',
+    title: 'Local Relay & Popup Closure',
+    desc: 'The <oauth-receiver> custom element extracts the code, securely transmits it to <rapi-doc> in the parent window via window.postMessage(), and automatically closes itself.'
+  },
+  {
+    num: '6',
+    title: 'Token Exchange & Automatic Header Injection',
+    desc: '<rapi-doc> calls your IdP tokenUrl to exchange the authorization code for an Access Token, stores it in memory, and attaches Authorization: Bearer <token> to all interactive TRY calls.'
+  }
+];
+---
+
+<GlobalLayout 
+  title="OAuth 2.0 & OpenID Connect Authentication Guide | RapiDoc"
+  description="Step-by-step tutorial on configuring OAuth 2.0 Authorization Code Flow, PKCE, Implicit Flow, Client Credentials, and popup receivers in RapiDoc."
+  keywords="OAuth 2.0 OpenAPI, RapiDoc authentication, OpenID Connect Swagger, oauth-receiver, PKCE API console"
+>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+  <div class="ambient-glow glow-purple"></div>
+
+  <!-- Reusable Frosted Glass Navigation -->
+  <SiteNavbar activePage="guides" />
+
+  <main class="rd-oauth-page">
+    <!-- Hero Section -->
+    <header class="rd-hero">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Interactive Authentication Tutorial</span>
+      </div>
+
+      <h1 class="rd-hero-title">
+        Setting up OAuth 2.0 <br/>
+        <span class="text-gradient">in RapiDoc</span>
+      </h1>
+
+      <p class="rd-hero-subtitle">
+        A clear, step-by-step tutorial to configure OAuth 2.0 and OpenID Connect in your API documentation. 
+        Connect to any Identity Provider (Auth0, Okta, Azure AD, Keycloak, Duende), authenticate via secure popups, 
+        and execute live API calls with zero backend relay code.
+      </p>
+
+      <!-- Hero Action Buttons -->
+      <div class="rd-hero-actions">
+        <a href="/examples/oauth-demo" target="_blank" class="rd-btn rd-btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span>Try Live Demo</span>
+        </a>
+        <a href="#tutorial-steps" class="rd-btn rd-btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M19 12l-7 7-7-7"/>
+          </svg>
+          <span>Start Tutorial</span>
+        </a>
+        <a href="https://github.com/rapi-doc/RapiDoc/blob/master/docs/specs/oauth.yaml" target="_blank" rel="noopener" class="rd-btn rd-btn-ghost">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>View Sample Spec</span>
+        </a>
+      </div>
+
+      <!-- Quick Metrics / Highlights Bar -->
+      <div class="rd-kpi-grid">
+        <div class="rd-kpi-card">
+          <div class="rd-kpi-val">2 <span class="rd-kpi-unit">Files</span></div>
+          <div class="rd-kpi-label">Zero-Config Setup</div>
+          <div class="rd-kpi-desc">Just <code>index.html</code> and <code>oauth-receiver.html</code>. No custom JavaScript or backend proxy needed.</div>
+        </div>
+
+        <div class="rd-kpi-card">
+          <div class="rd-kpi-val">PKCE <span class="rd-kpi-unit">RFC 7636</span></div>
+          <div class="rd-kpi-label">Bulletproof Security</div>
+          <div class="rd-kpi-desc">Native PKCE support removes the need to expose client secrets in browser documentation.</div>
+        </div>
+
+        <div class="rd-kpi-card">
+          <div class="rd-kpi-val">100% <span class="rd-kpi-unit">Automatic</span></div>
+          <div class="rd-kpi-label">Bearer Token Injection</div>
+          <div class="rd-kpi-desc">Acquired tokens are stored in memory and automatically attached to interactive TRY calls.</div>
+        </div>
+
+        <div class="rd-kpi-card">
+          <div class="rd-kpi-val">Any <span class="rd-kpi-unit">IdP</span></div>
+          <div class="rd-kpi-label">Universal Compatibility</div>
+          <div class="rd-kpi-desc">Works with Auth0, Okta, Azure AD / Entra ID, Keycloak, Duende IdentityServer, AWS Cognito, etc.</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Quick Summary (TL;DR) -->
+    <section class="rd-section" id="quick-summary">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Fast Track</div>
+        <h2 class="rd-section-title">The 30-Second Summary</h2>
+        <p class="rd-section-desc">
+          Setting up OAuth 2.0 in RapiDoc requires only 3 simple steps:
+        </p>
+      </div>
+
+      <div class="rd-summary-cards">
+        <div class="rd-summary-card">
+          <div class="rd-summary-num">1</div>
+          <div class="rd-summary-content">
+            <h3 class="rd-summary-heading">Register Client with Identity Provider</h3>
+            <p class="rd-summary-text">
+              In your IdP console (Auth0, Okta, Azure AD, etc.), create a public client and register your redirect URI:
+              <br/>
+              <code class="mono-code">https://your-domain.com/oauth-receiver.html</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="rd-summary-card">
+          <div class="rd-summary-num">2</div>
+          <div class="rd-summary-content">
+            <h3 class="rd-summary-heading">Create index.html</h3>
+            <p class="rd-summary-text">
+              Add the <code class="mono-code">&lt;rapi-doc&gt;</code> element pointing to your OpenAPI spec. RapiDoc automatically manages the popup lifecycle.
+            </p>
+          </div>
+        </div>
+
+        <div class="rd-summary-card">
+          <div class="rd-summary-num">3</div>
+          <div class="rd-summary-content">
+            <h3 class="rd-summary-heading">Create oauth-receiver.html</h3>
+            <p class="rd-summary-text">
+              Create a file named <code class="mono-code">oauth-receiver.html</code> containing <code class="mono-code">&lt;oauth-receiver&gt;</code> in the same folder.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rd-callout-card success">
+        <div class="rd-callout-icon">✨</div>
+        <div class="rd-callout-body">
+          <div class="rd-callout-title">You're All Set!</div>
+          <div class="rd-callout-desc">
+            Developers can click <strong>"Authorize"</strong> in your docs, sign in via a popup window, and immediately execute authenticated API calls!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture & Complete Flow -->
+    <section class="rd-section" id="architecture-flow">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">How It Works</div>
+        <h2 class="rd-section-title">Architecture & Authorization Code Flow</h2>
+        <p class="rd-section-desc">
+          When a user initiates authentication, RapiDoc coordinates between the documentation window, a secure popup window, and your authorization server.
+        </p>
+      </div>
+
+      <!-- High-Resolution Flow Diagram Component -->
+      <OAuthFlowDiagram />
+
+      <!-- Step-by-Step Flow Explanation -->
+      <div class="rd-flow-timeline">
+        {flowSteps.map(step => (
+          <div class="rd-flow-item">
+            <div class="rd-flow-badge">{step.num}</div>
+            <div class="rd-flow-detail">
+              <h4 class="rd-flow-heading">{step.title}</h4>
+              <p class="rd-flow-desc">{step.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Detailed Tutorial Steps -->
+    <section class="rd-section" id="tutorial-steps">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Step-by-Step Tutorial</div>
+        <h2 class="rd-section-title">Complete Implementation Guide</h2>
+        <p class="rd-section-desc">
+          Follow these detailed steps to set up OAuth 2.0 authentication from scratch.
+        </p>
+      </div>
+
+      <!-- Step 1: Identity Provider Setup -->
+      <div class="rd-step-card" id="step-1">
+        <div class="rd-step-header">
+          <span class="rd-step-pill">Step 1</span>
+          <h3 class="rd-step-title">Register Your Application with your Identity Provider</h3>
+        </div>
+        <div class="rd-step-body">
+          <p>
+            Before configuring RapiDoc, register your documentation portal as a client application in your Identity Provider (IdP). 
+            Examples include <strong>Auth0</strong>, <strong>Okta</strong>, <strong>Microsoft Entra ID (Azure AD)</strong>, <strong>Keycloak</strong>, or <strong>Duende IdentityServer</strong>.
+          </p>
+          
+          <div class="rd-sub-box">
+            <h4>Key Registration Requirements:</h4>
+            <ul>
+              <li>
+                <strong>Application Type:</strong> Single Page Application (SPA) or Public Native Client.
+              </li>
+              <li>
+                <strong>Allowed Grant Types:</strong> <code class="mono-code">Authorization Code</code> with <code class="mono-code">PKCE</code>.
+              </li>
+              <li>
+                <strong>Redirect URI:</strong> The exact URL where your receiver page is served. For example:
+                <br/>
+                <code>http://localhost:8080/oauth-receiver.html</code> (for local testing)
+                <br/>
+                <code>https://api.yourcompany.com/docs/oauth-receiver.html</code> (for production)
+              </li>
+              <li>
+                <strong>Allowed Origins / CORS:</strong> Ensure your documentation origin is permitted on the token and authorize endpoints.
+              </li>
+            </ul>
+          </div>
+
+          <div class="rd-callout-card info">
+            <div class="rd-callout-icon">💡</div>
+            <div class="rd-callout-body">
+              <div class="rd-callout-title">Testing with our Pre-Configured Demo Server</div>
+              <div class="rd-callout-desc">
+                For this tutorial and instant testing, you can use Duende IdentityServer's public demo instance:
+                <br/>
+                <strong>Auth URL:</strong> <code class="mono-code">https://demo.duendesoftware.com/connect/authorize</code>
+                <br/>
+                <strong>Token URL:</strong> <code class="mono-code">https://demo.identityserver.io/connect/token</code>
+                <br/>
+                <strong>Public Client ID:</strong> <code class="mono-code">interactive.public</code> (PKCE enabled, no secret required)
+                <br/>
+                <strong>Confidential Client ID:</strong> <code class="mono-code">interactive.confidential.short</code> (Secret: <code class="mono-code">secret</code>)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: index.html Setup -->
+      <div class="rd-step-card" id="step-2">
+        <div class="rd-step-header">
+          <span class="rd-step-pill">Step 2</span>
+          <h3 class="rd-step-title">Create your Main Documentation Page (index.html)</h3>
+        </div>
+        <div class="rd-step-body">
+          <p>
+            Create your primary documentation HTML file. Import RapiDoc from a CDN or local bundle and add the <code class="mono-code">&lt;rapi-doc&gt;</code> element pointing to your OpenAPI specification.
+          </p>
+
+          <CodeBlock code={indexHtmlCode} lang="html" filename="index.html" />
+
+          <div class="rd-callout-card note">
+            <div class="rd-callout-icon">📂</div>
+            <div class="rd-callout-body">
+              <div class="rd-callout-title">Custom Receiver Path (Optional)</div>
+              <div class="rd-callout-desc">
+                By default, RapiDoc looks for <code class="mono-code">oauth-receiver.html</code> in the current folder. 
+                If your receiver file is in a custom subfolder, supply the <code class="mono-code">oauth-receiver</code> attribute:
+                <div style="margin-top: 8px;">
+                  <CodeBlock code={customReceiverPathCode} lang="html" filename="custom-path.html" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: oauth-receiver.html Setup -->
+      <div class="rd-step-card" id="step-3">
+        <div class="rd-step-header">
+          <span class="rd-step-pill">Step 3</span>
+          <h3 class="rd-step-title">Create the OAuth Receiver Callback Page (oauth-receiver.html)</h3>
+        </div>
+        <div class="rd-step-body">
+          <p>
+            Create a second HTML file named <strong><code>oauth-receiver.html</code></strong> in the same directory. 
+            This file contains RapiDoc's companion <code class="mono-code">&lt;oauth-receiver&gt;</code> element.
+          </p>
+
+          <CodeBlock code={receiverHtmlCode} lang="html" filename="oauth-receiver.html" />
+
+          <div class="rd-sub-box">
+            <h4>What does <code>&lt;oauth-receiver&gt;</code> do automatically?</h4>
+            <ul>
+              <li><strong>Zero Custom JavaScript:</strong> You do NOT need to write query string parsers, state verifiers, or window messaging code.</li>
+              <li><strong>Extracts Auth Code:</strong> Reads the authorization code (<code class="mono-code">?code=...</code>) or implicit token (<code class="mono-code">#access_token=...</code>) from the URL.</li>
+              <li><strong>Relays to Main Window:</strong> Sends the credentials to <code class="mono-code">&lt;rapi-doc&gt;</code> in the parent window via <code class="mono-code">window.postMessage()</code> (with an automatic fallback to <code class="mono-code">sessionStorage</code>).</li>
+              <li><strong>Auto-Closes Popup:</strong> Closes the popup window immediately after successful transmission.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: OpenAPI Spec Configuration -->
+      <div class="rd-step-card" id="step-4">
+        <div class="rd-step-header">
+          <span class="rd-step-pill">Step 4</span>
+          <h3 class="rd-step-title">Configure OAuth 2.0 in your OpenAPI Specification</h3>
+        </div>
+        <div class="rd-step-body">
+          <p>
+            In your OpenAPI 3.0 or 3.1 specification, declare your OAuth 2.0 security scheme under <code class="mono-code">components.securitySchemes</code>, 
+            and protect relevant endpoints by referencing it under <code class="mono-code">security</code>:
+          </p>
+
+          <CodeBlock code={openApiSpecCode} lang="yaml" filename="openapi.yaml" />
+        </div>
+      </div>
+
+      <!-- Step 5: Vendor Extensions -->
+      <div class="rd-step-card" id="step-5">
+        <div class="rd-step-header">
+          <span class="rd-step-pill">Step 5</span>
+          <h3 class="rd-step-title">Supercharge Developer UX with RapiDoc Vendor Extensions</h3>
+        </div>
+        <div class="rd-step-body">
+          <p>
+            To make authentication frictionless for developers testing your API, RapiDoc provides custom OpenAPI vendor extensions 
+            (<code class="mono-code">x-*</code>) to pre-populate credentials and enforce modern security protocols like PKCE:
+          </p>
+
+          <!-- Vendor Extensions Table -->
+          <div class="rd-table-wrapper">
+            <table class="rd-table">
+              <thead>
+                <tr>
+                  <th>Extension</th>
+                  <th>Type</th>
+                  <th>Applicable Level</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vendorExtensionsList.map(ext => (
+                  <tr>
+                    <td><code class="mono-code highlight">{ext.name}</code></td>
+                    <td><span class="rd-type-tag">{ext.type}</span></td>
+                    <td><span class="rd-level-tag">{ext.level}</span></td>
+                    <td>{ext.description}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Specification Example with Vendor Extensions:</h4>
+            <CodeBlock code={vendorExtensionsCode} lang="yaml" filename="openapi-with-extensions.yaml" />
+          </div>
+
+          <div style="margin-top: 2rem;">
+            <h4>Customizing Parameters via Attributes & Dynamic Events:</h4>
+            <p>
+              When working with Identity Provider proxies (such as Keycloak proxies requiring a <code class="mono-code">launch</code> context token), multi-tenant auth gateways, or token endpoints requiring custom parameters (<code class="mono-code">audience</code>, <code class="mono-code">resource</code>), you can customize parameters statically using attributes or dynamically via DOM lifecycle events:
+            </p>
+            <CodeBlock code={customParamsCode} lang="html" filename="custom-oauth-params.html" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6: Testing & Verification -->
+      <div class="rd-step-card" id="step-6">
+        <div class="rd-step-header">
+          <span class="rd-step-pill">Step 6</span>
+          <h3 class="rd-step-title">Test Authenticated Requests in the Interactive Console</h3>
+        </div>
+        <div class="rd-step-body">
+          <p>
+            Open <code class="mono-code">index.html</code> in your browser through a web server (e.g., using <code class="mono-code">npx serve</code>, Live Server, or Vite).
+          </p>
+
+          <div class="rd-test-steps">
+            <div class="rd-test-step">
+              <span class="rd-test-num">1</span>
+              <div>
+                <strong>Click the "Authorize" button</strong>
+                <p>Located in RapiDoc's top security bar or beside any protected endpoint with a padlock icon.</p>
+              </div>
+            </div>
+            <div class="rd-test-step">
+              <span class="rd-test-num">2</span>
+              <div>
+                <strong>Select Scopes & Initiate</strong>
+                <p>Verify that your Client ID and default scopes are pre-selected, then click <strong>"Authorize"</strong>. A popup window will launch.</p>
+              </div>
+            </div>
+            <div class="rd-test-step">
+              <span class="rd-test-num">3</span>
+              <div>
+                <strong>Authenticate at your IdP</strong>
+                <p>Log in and authorize access. The popup will automatically close and return you to RapiDoc.</p>
+              </div>
+            </div>
+            <div class="rd-test-step">
+              <span class="rd-test-num">4</span>
+              <div>
+                <strong>Execute Authenticated "TRY" Calls</strong>
+                <p>The lock icon will turn active. Every request you make from the built-in console will automatically include <code class="mono-code">Authorization: Bearer &lt;token&gt;</code>!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="rd-demo-banner">
+            <div class="rd-demo-banner-content">
+              <h4>Want to see it in action right now?</h4>
+              <p>Test the full authorization flow live with pre-configured IdentityServer credentials in our sandbox demo.</p>
+            </div>
+            <a href="/examples/oauth-demo" target="_blank" class="rd-btn rd-btn-primary">
+              <span>Open Live OAuth Demo ↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Troubleshooting & Common Gotchas -->
+    <section class="rd-section" id="troubleshooting">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Troubleshooting Guide</div>
+        <h2 class="rd-section-title">Common Gotchas & Solutions</h2>
+        <p class="rd-section-desc">
+          Running into issues during setup? Here are the top five configuration issues and how to resolve them quickly.
+        </p>
+      </div>
+
+      <div class="rd-pitfalls-grid">
+        <!-- Pitfall 1 -->
+        <div class="rd-pitfall-card">
+          <h3 class="rd-pitfall-title">Redirect URI Mismatch</h3>
+          <p class="rd-pitfall-desc">
+            Your Identity Provider returns an error like <em>"Invalid redirect_uri"</em> or <em>"redirect_uri_mismatch"</em>.
+          </p>
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> Ensure the redirect URI registered in your IdP console matches the exact URL of <code>oauth-receiver.html</code>, including protocol, port, and trailing path:
+            <ul>
+              <li>Exact port required: <code>http://localhost:3000/oauth-receiver.html</code></li>
+              <li>Case sensitivity: <code>oauth-receiver.html</code> (all lowercase)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pitfall 2 -->
+        <div class="rd-pitfall-card">
+          <h3 class="rd-pitfall-title">CORS Error on Token Endpoint</h3>
+          <p class="rd-pitfall-desc">
+            The authorization code is acquired, but the browser console displays a CORS network failure when calling <code>tokenUrl</code>.
+          </p>
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> Because RapiDoc runs entirely in the browser, your IdP's <code>tokenUrl</code> must respond with standard CORS headers:
+            <ul>
+              <li><code class="mono-code">Access-Control-Allow-Origin: *</code> (or your docs origin)</li>
+              <li>Ensure your client registration is set to <strong>SPA / Public Web</strong> in Auth0, Okta, or Azure AD.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pitfall 3 -->
+        <div class="rd-pitfall-card">
+          <h3 class="rd-pitfall-title">Popup Window Blocked</h3>
+          <p class="rd-pitfall-desc">
+            Clicking Authorize does not open the authentication window.
+          </p>
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> Browsers restrict popups that are not triggered by a direct user gesture:
+            <ul>
+              <li>Always trigger authorization by clicking the <strong>"Authorize"</strong> button directly.</li>
+              <li>Check your browser address bar for popup blocking indicators and click "Always allow popups from this site".</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pitfall 4 -->
+        <div class="rd-pitfall-card">
+          <h3 class="rd-pitfall-title">Client Secret Exposure</h3>
+          <p class="rd-pitfall-desc">
+            Committing client secrets into public OpenAPI specs compromises security.
+          </p>
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> Use PKCE for public documentation:
+            <ul>
+              <li>Add <code class="mono-code">x-pkce-only: true</code> under the flow definition.</li>
+              <li>This removes the client secret input from the UI and relies on dynamic cryptographic code challenges (RFC 7636).</li>
+              <li>Only use <code class="mono-code">x-client-secret</code> in internal mock or test sandboxes.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pitfall 5 -->
+        <div class="rd-pitfall-card">
+          <h3 class="rd-pitfall-title">Multiple Credentials / Auth Method Mismatch</h3>
+          <p class="rd-pitfall-desc">
+            Your Identity Provider (e.g. OpenIddict, Duende, Keycloak) returns <em>"Multiple client credentials cannot be specified"</em> or rejects token exchange.
+          </p>
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> RFC 6749 Section 2.3.1 mandates using only one client authentication method per token request:
+            <ul>
+              <li><strong>Default (Request Body):</strong> RapiDoc defaults to sending client credentials in the POST body (<code class="mono-code">client_secret_post</code>) to prevent browser CORS preflight failures.</li>
+              <li><strong>Strict Basic Auth IdPs:</strong> If your server strictly requires HTTP Basic (<code class="mono-code">client_secret_basic</code>), add <code class="mono-code">x-receive-token-in: header</code> under your security scheme or select "Authorization Header" in the UI.</li>
+              <li><strong>Public Clients (PKCE):</strong> For browser SPAs without a secret, use <code class="mono-code">x-pkce-only: true</code>; RapiDoc will transmit only <code class="mono-code">client_id</code> and <code class="mono-code">code_verifier</code> in the body without an Authorization header.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Next Steps Navigation Banner -->
+    <section class="rd-section">
+      <div class="rd-next-grid">
+        <a href="/examples/oauth-demo" class="rd-next-card">
+          <div class="rd-next-tag">Interactive Demo</div>
+          <h3 class="rd-next-title">OAuth 2.0 Live Playground</h3>
+          <p class="rd-next-desc">Experience real authorization code flows and token exchange directly in RapiDoc.</p>
+          <span class="rd-next-link">Open Demo &rarr;</span>
+        </a>
+
+        <a href="/examples/oauth-vendor-extension" class="rd-next-card">
+          <div class="rd-next-tag">Vendor Extensions</div>
+          <h3 class="rd-next-title">OAuth Vendor Extensions Demo</h3>
+          <p class="rd-next-desc">Inspect how x-client-id, x-client-secret, and x-default-scopes pre-populate the UI.</p>
+          <span class="rd-next-link">View Extensions &rarr;</span>
+        </a>
+
+        <a href="/api#security-attributes" class="rd-next-card">
+          <div class="rd-next-tag">API Reference</div>
+          <h3 class="rd-next-title">Security Attributes Reference</h3>
+          <p class="rd-next-desc">Explore all authentication attributes including api-key-name, allow-authentication, and more.</p>
+          <span class="rd-next-link">Explore Attributes &rarr;</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<style>
+/* CSS Variables & Design Tokens */
+:root {
+  --rd-emerald: var(--rd-accent);
+  --rd-emerald-glow: var(--rd-accent-glow);
+  --rd-cyan: var(--rd-logo-yellow, #f59e0b);
+  --rd-cyan-glow: rgba(245, 158, 11, 0.25);
+  --rd-indigo: var(--rd-accent-light);
+  --rd-purple: #8b5cf6;
+  --rd-surface: rgba(15, 23, 42, 0.65);
+  --rd-surface-card: rgba(11, 17, 33, 0.7);
+  --rd-surface-hover: rgba(22, 32, 58, 0.85);
+  --rd-glass-border: rgba(255, 255, 255, 0.08);
+  --rd-glass-border-hover: var(--rd-accent-border);
+  --rd-text-primary: #f8fafc;
+  --rd-text-secondary: #94a3b8;
+  --rd-text-muted: #64748b;
+  --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
+}
+
+/* Ambient Radial Glows */
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  opacity: 0.18;
+  z-index: 0;
+}
+.glow-emerald {
+  top: 100px;
+  left: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
+}
+.glow-indigo {
+  top: 700px;
+  right: 10%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, var(--rd-logo-yellow, #f59e0b) 0%, transparent 70%);
+}
+.glow-cyan {
+  top: 1500px;
+  left: 15%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--rd-accent-glow) 0%, transparent 70%);
+}
+.glow-purple {
+  top: 2400px;
+  right: 15%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, var(--rd-purple) 0%, transparent 70%);
+}
+
+/* Main Container */
+.rd-oauth-page {
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px 24px 80px 24px;
+}
+
+/* Hero Header */
+.rd-hero {
+  text-align: center;
+  padding: 40px 0 60px 0;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.rd-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+.rd-badge-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rd-accent);
+  box-shadow: 0 0 10px var(--rd-accent);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.rd-badge-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rd-accent-light);
+  letter-spacing: 0.02em;
+}
+
+.rd-hero-title {
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #fff;
+  letter-spacing: -0.03em;
+  margin: 0 0 20px 0;
+}
+
+.text-gradient {
+  background: var(--rapidoc-logo-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.rd-hero-subtitle {
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  line-height: 1.6;
+  color: #94a3b8;
+  margin: 0 auto 36px auto;
+  max-width: 780px;
+}
+
+.rd-hero-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 50px;
+}
+
+/* Buttons */
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+}
+
+.rd-btn-primary {
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.rd-btn-primary:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: var(--rd-accent);
+  color: #fff !important;
+  box-shadow: 0 4px 16px var(--rd-accent-glow);
+  transform: translateY(-1px);
+}
+
+.rd-btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.rd-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.rd-btn-ghost {
+  background: transparent;
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.rd-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* KPI Highlights Grid */
+.rd-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  text-align: left;
+}
+
+.rd-kpi-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  padding: 22px 20px;
+  backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+}
+.rd-kpi-card:hover {
+  border-color: var(--rd-glass-border-hover);
+  transform: translateY(-2px);
+}
+
+.rd-kpi-val {
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+.rd-kpi-unit {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rd-accent-light);
+  margin-left: 4px;
+}
+
+.rd-kpi-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 6px 0 4px 0;
+}
+
+.rd-kpi-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+.rd-kpi-desc code {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Section Containers */
+.rd-section {
+  margin-top: 72px;
+}
+
+.rd-section-header {
+  margin-bottom: 32px;
+}
+
+.rd-section-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rd-accent-light);
+  margin-bottom: 8px;
+}
+
+.rd-section-title {
+  font-size: clamp(1.8rem, 3.2vw, 2.3rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.02em;
+}
+
+.rd-section-desc {
+  font-size: 15.5px;
+  color: #94a3b8;
+  max-width: 720px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Quick Summary Cards */
+.rd-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.rd-summary-card {
+  display: flex;
+  gap: 16px;
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  padding: 24px;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+.rd-summary-card:hover {
+  border-color: var(--rd-accent-border);
+}
+
+.rd-summary-num {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.rd-summary-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px 0;
+}
+
+.rd-summary-text {
+  font-size: 13.5px;
+  color: #94a3b8;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Callout Cards */
+.rd-callout-card {
+  display: flex;
+  gap: 14px;
+  padding: 18px 22px;
+  border-radius: 12px;
+  margin: 20px 0;
+  align-items: flex-start;
+}
+
+.rd-callout-card.success {
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+}
+.rd-callout-card.info {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+.rd-callout-card.note {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.rd-callout-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rd-callout-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.rd-callout-desc {
+  font-size: 13.5px;
+  color: #cbd5e1;
+  line-height: 1.55;
+}
+
+/* Flow Timeline */
+.rd-flow-timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.rd-flow-item {
+  display: flex;
+  gap: 16px;
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+
+.rd-flow-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.rd-flow-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px 0;
+}
+
+.rd-flow-desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Step Cards */
+.rd-step-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  backdrop-filter: blur(14px);
+  transition: all 0.25s ease;
+}
+.rd-step-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.rd-step-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.rd-step-pill {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--rapidoc-gradient);
+  color: #fff;
+}
+
+.rd-step-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.rd-step-body p {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #cbd5e1;
+  margin: 0 0 16px 0;
+}
+
+.rd-sub-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin: 18px 0;
+}
+
+.rd-sub-box h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 10px 0;
+}
+
+.rd-sub-box ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #94a3b8;
+}
+
+.rd-sub-box ul li {
+  margin-bottom: 6px;
+}
+
+.rd-sub-box strong {
+  color: #f1f5f9;
+}
+
+/* Monospace Code */
+.mono-code {
+  font-family: var(--rd-font-mono);
+  font-size: 0.88em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #38bdf8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mono-code.highlight {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+  white-space: nowrap;
+  display: inline-block;
+}
+
+/* Tables */
+.rd-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 10px;
+  margin: 16px 0;
+}
+
+.rd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  text-align: left;
+}
+
+.rd-table th {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px 16px;
+  color: #94a3b8;
+  font-weight: 600;
+  border-bottom: 1px solid var(--rd-glass-border);
+}
+
+.rd-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  vertical-align: middle;
+}
+
+.rd-table th:nth-child(1),
+.rd-table td:nth-child(1) {
+  white-space: nowrap;
+  width: 220px;
+}
+
+.rd-table th:nth-child(2),
+.rd-table td:nth-child(2) {
+  white-space: nowrap;
+  width: 190px;
+}
+
+.rd-table th:nth-child(3),
+.rd-table td:nth-child(3) {
+  white-space: nowrap;
+  width: 140px;
+}
+
+.rd-table th:nth-child(4),
+.rd-table td:nth-child(4) {
+  width: auto;
+}
+
+.rd-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rd-type-tag {
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  color: #f59e0b;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.rd-level-tag {
+  font-size: 12px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+/* Test Steps */
+.rd-test-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.rd-test-step {
+  display: flex;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.rd-test-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.rd-test-step strong {
+  font-size: 14px;
+  color: #fff;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.rd-test-step p {
+  font-size: 12.5px;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Demo Banner */
+.rd-demo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.12));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 24px;
+}
+
+.rd-demo-banner h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px 0;
+}
+
+.rd-demo-banner p {
+  font-size: 13.5px;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+/* Pitfalls Grid */
+.rd-pitfalls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.rd-pitfall-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  padding: 24px;
+  backdrop-filter: blur(12px);
+}
+
+.rd-pitfall-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 10px 0;
+}
+
+.rd-pitfall-desc {
+  font-size: 13.5px;
+  color: #94a3b8;
+  line-height: 1.55;
+  margin: 0 0 14px 0;
+}
+
+.rd-pitfall-solution {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.rd-solution-label {
+  font-weight: 700;
+  color: #34d399;
+}
+
+.rd-pitfall-solution ul {
+  margin: 8px 0 0 0;
+  padding-left: 18px;
+  color: #94a3b8;
+}
+
+.rd-pitfall-solution li {
+  margin-bottom: 4px;
+}
+
+/* Next Steps Cards */
+.rd-next-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.rd-next-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  padding: 24px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+.rd-next-card:hover {
+  border-color: var(--rd-glass-border-hover);
+  transform: translateY(-3px);
+}
+
+.rd-next-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #34d399;
+  margin-bottom: 8px;
+}
+
+.rd-next-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+
+.rd-next-desc {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.55;
+  margin: 0 0 16px 0;
+  flex: 1;
+}
+
+.rd-next-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: #38bdf8;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .rd-step-card {
+    padding: 20px;
+  }
+  .rd-demo-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+</style>

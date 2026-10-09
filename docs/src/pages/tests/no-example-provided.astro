@@ -1,0 +1,17 @@
+---
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
+---
+
+<TestCaseLayout
+  controls={['render-style', 'schema-style', 'default-schema-tab', 'theme']}
+  rapidocProps={{
+    'spec-url': '/specs-test/no-example-provided.yaml',
+    'show-header': 'false',
+    'show-info': 'true',
+    'allow-server-selection': 'false',
+    'allow-authentication': 'false',
+    'render-style': 'read',
+    'schema-style': 'table',
+    theme: 'dark',
+  }}
+/>

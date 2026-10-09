@@ -1,0 +1,21 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout
+  title="Pretty RapiDocController"
+  description="Demonstrates using the drawer-style PrettyRapiDocController"
+  specUrl="/specs/petstore.yaml"
+  autoRenderRapiDoc={true}
+  controller="pretty"
+  preset="all"
+  rapidocProps={{
+    'render-style': 'read',
+    'schema-style': 'table',
+    theme: 'dark',
+    'show-info': 'true',
+    'show-header': 'false',
+    'allow-try': 'true',
+    'primary-color': '#10b981',
+  }}
+/>
