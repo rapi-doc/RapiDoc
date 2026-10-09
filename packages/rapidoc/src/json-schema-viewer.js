@@ -261,7 +261,7 @@ export default class JsonSchemaViewer extends LitElement {
   }
 
   render() {
-    return jsonSchemaViewerTemplate.call(this, true, false, false, this.pathsExpanded);
+    return jsonSchemaViewerTemplate.call(this, true);
   }
 
   updated(changedProperties) {
