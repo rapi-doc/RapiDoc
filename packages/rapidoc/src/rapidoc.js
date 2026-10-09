@@ -1,3 +1,4 @@
+import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
 import { css, LitElement, unsafeCSS } from 'lit';
 import { marked } from 'marked';
 import Slugger from 'github-slugger';
@@ -739,6 +740,7 @@ export default class RapiDoc extends LitElement {
     const renderer = new marked.Renderer();
     const slugger = new Slugger();
     renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${slugger.slug(text)}">${text}</h${depth}>`;
+    fixRenderedAnchorLinks(renderer);
     return renderer;
   }
 

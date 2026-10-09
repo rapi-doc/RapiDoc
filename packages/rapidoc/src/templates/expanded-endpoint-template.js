@@ -1,6 +1,7 @@
 /**
  * Renders all API operations in an expanded continuous documentation layout grouped by tags.
  */
+import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
@@ -17,6 +18,7 @@ function headingRenderer(tagElementId) {
   const slugger = new Slugger();
   const renderer = new marked.Renderer();
   renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${tagElementId}--${slugger.slug(text)}">${text}</h${depth}>`;
+  fixRenderedAnchorLinks(renderer);
   return renderer;
 }
 

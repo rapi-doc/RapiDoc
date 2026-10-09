@@ -18,6 +18,7 @@ import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/m
 import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 import { setApiServer } from '~/templates/server-template';
+import '~/utils/markdown-utils';
 
 const paramsConverter = {
   fromAttribute: (attr) => {

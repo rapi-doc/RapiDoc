@@ -14,6 +14,7 @@ import InfoStyles from '~/styles/info-styles';
 import EndpointStyles from '~/styles/endpoint-styles';
 import ProcessSpec from '~/utils/spec-parser';
 import jsonSchemaViewerTemplate from '~/templates/json-schema-viewer-template';
+import '~/utils/markdown-utils';
 
 export default class JsonSchemaViewer extends LitElement {
   constructor() {
