@@ -503,7 +503,7 @@ function oAuthFlowTemplate(
   const originUrl = url.origin;
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     if (this.selectedServer?.computedUrl.trim().endsWith('/') && !refreshUrl.trim().startsWith('/')) {
-      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${tokenUrl.trim()}`;
+      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${refreshUrl.trim()}`;
     } else {
       refreshUrl = `${originUrl}/${refreshUrl.replace(/^\//, '')}`;
     }
