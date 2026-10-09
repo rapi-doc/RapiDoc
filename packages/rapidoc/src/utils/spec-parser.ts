@@ -678,13 +678,7 @@ function groupByTags(
   if (sortEndpointsBy !== 'none') {
     tagsWithSortedPaths.forEach((tag) => {
       if (sortEndpointsBy === 'method') {
-        // TODO(ts-migration): localeCompare is given a number (implicit string coercion); the sort compares indices as strings, so 10+ would mis-order (harmless with 7 methods)
-        tag.paths.sort((a, b) =>
-          supportedMethods
-            .indexOf(a.method)
-            .toString()
-            .localeCompare(supportedMethods.indexOf(b.method) as unknown as string)
-        );
+        tag.paths.sort((a, b) => supportedMethods.indexOf(a.method) - supportedMethods.indexOf(b.method));
       } else if (sortEndpointsBy === 'summary') {
         tag.paths.sort((a, b) => a.shortSummary.localeCompare(b.shortSummary));
       } else if (sortEndpointsBy === 'path') {

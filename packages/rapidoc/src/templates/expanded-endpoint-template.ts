@@ -20,14 +20,7 @@ import '~/components/api-response';
 function headingRenderer(tagElementId: string) {
   const slugger = new Slugger();
   const renderer = new marked.Renderer();
-  /*
-  renderer.heading = (text, level, raw, slugger) =>
-    `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
-  return renderer;
-  */
-  // TODO(ts-migration): legacy marked (<5) heading signature; marked 5+ passes a single token object, so `text` is the token and level/raw are undefined
-  // @ts-expect-error signature kept as is to leave the emitted code unchanged
-  renderer.heading = (text, level, raw) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
+  renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${tagElementId}--${slugger.slug(text)}">${text}</h${depth}>`;
   return renderer;
 }
 
@@ -192,7 +185,7 @@ export function expandedEndpointBodyTemplate(
           server-url="${path.servers?.[0]?.url || this.selectedServer?.computedUrl}"
           accept="${accept}"
           exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-          tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+          tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
           file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
           anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         >
@@ -208,7 +201,7 @@ export function expandedEndpointBodyTemplate(
           .responses="${path.responses}"
           selected-status="${Object.keys(path.responses || {})[0] || ''}"
           exportparts="btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
-          tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+          tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
           schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         >
         </api-response>

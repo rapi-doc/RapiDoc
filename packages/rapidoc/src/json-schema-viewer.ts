@@ -346,8 +346,6 @@ export default class JsonSchemaViewer extends LitElement {
       this.loading = true;
       this.loadFailed = false;
       this.requestUpdate();
-      // TODO(ts-migration): positional arguments differ from rapidoc.ts (attrApiKey/attrApiKeyLocation/attrApiKeyValue receive
-      // match-paths/match-type/remove-endpoints-with-badge-label-as attribute values, matchPaths/matchType stay default): likely an upstream bug.
       const spec = await ProcessSpec.call(
         this,
         specUrl as Parameters<typeof ProcessSpec>[0],
@@ -355,9 +353,13 @@ export default class JsonSchemaViewer extends LitElement {
         this.sortTags === 'true',
         this.sortSchemas === 'true',
         this.getAttribute('sort-endpoints-by'),
-        this.getAttribute('match-paths'),
-        this.getAttribute('match-type'),
-        this.getAttribute('remove-endpoints-with-badge-label-as')
+        '', // api-key-name (not applicable)
+        '', // api-key-location (not applicable)
+        '', // api-key-value (not applicable)
+        '', // server-url (not applicable)
+        this.getAttribute('match-paths') || '',
+        this.getAttribute('match-type') || '',
+        this.getAttribute('remove-endpoints-with-badge-label-as') || ''
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);

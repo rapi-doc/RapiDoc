@@ -94,10 +94,8 @@ export default function overviewTemplate(this: OverviewHost): TemplateResult {
                           class="m-btn thin-border"
                           style="min-width:170px"
                           part="btn btn-outline"
-                          @click="${(e: Event) => {
-                            // TODO(ts-migration): downloadResource only takes (url, fileName); the event argument is ignored
-                            // @ts-expect-error extra argument kept to leave the emitted code unchanged
-                            downloadResource(this.specUrl!, 'openapi-spec', e);
+                          @click="${() => {
+                            downloadResource(this.specUrl!, 'openapi-spec');
                           }}"
                         >
                           Download OpenAPI spec
@@ -108,10 +106,8 @@ export default function overviewTemplate(this: OverviewHost): TemplateResult {
                                 class="m-btn thin-border"
                                 style="width:200px"
                                 part="btn btn-outline"
-                                @click="${(e: Event) => {
-                                  // TODO(ts-migration): viewResource only takes (url); the event argument is ignored
-                                  // @ts-expect-error extra argument kept to leave the emitted code unchanged
-                                  viewResource(this.specUrl!, e);
+                                @click="${() => {
+                                  viewResource(this.specUrl!);
                                 }}"
                               >
                                 View OpenAPI spec (New Tab)

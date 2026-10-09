@@ -468,9 +468,8 @@ async function onInvokeOAuthFlow(
     authUrlObj.search = authCodeParams.toString();
     // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
     if (sessionStorage.getItem('winMessageEventActive') === 'true') {
-      // TODO(ts-migration): the second argument of window.postMessage is the target origin, but the element is passed.
-      // @ts-expect-error element passed as targetOrigin
-      window.postMessage({ fake: true }, this);
+      // the message targets this very window and carries no data, so any target origin is safe
+      window.postMessage({ fake: true }, '*');
     }
     setTimeout(() => {
       newWindow = window.open(authUrlObj.toString());
@@ -567,8 +566,7 @@ function oAuthFlowTemplate(
   const originUrl = url.origin;
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     if (this.selectedServer?.computedUrl.trim().endsWith('/') && !refreshUrl.trim().startsWith('/')) {
-      // TODO(ts-migration): the refreshUrl is built from the tokenUrl (copy/paste of the tokenUrl branch).
-      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${tokenUrl!.trim()}`;
+      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${refreshUrl.trim()}`;
     } else {
       refreshUrl = `${originUrl}/${refreshUrl.replace(/^\//, '')}`;
     }
@@ -875,10 +873,8 @@ export default function securitySchemeTemplate(this: SecuritySchemeHost, allowTr
                                                   class="m-btn thin-border"
                                                   style="margin-left:5px;"
                                                   part="btn btn-outline"
-                                                  @click="${(e: Event) => {
-                                                    // TODO(ts-migration): onApiKeyChange takes 1 parameter, the event argument is ignored.
-                                                    // @ts-expect-error extra argument
-                                                    onApiKeyChange.call(this, v.securitySchemeId, e);
+                                                  @click="${() => {
+                                                    onApiKeyChange.call(this, v.securitySchemeId);
                                                   }}"
                                                 >
                                                   ${v.finalKeyValue ? 'UPDATE' : 'SET'}
@@ -921,10 +917,8 @@ export default function securitySchemeTemplate(this: SecuritySchemeHost, allowTr
                                         />
                                         <button
                                           class="m-btn thin-border"
-                                          @click="${(e: Event) => {
-                                            // TODO(ts-migration): onApiKeyChange takes 1 parameter, the event argument is ignored.
-                                            // @ts-expect-error extra argument
-                                            onApiKeyChange.call(this, v.securitySchemeId, e);
+                                          @click="${() => {
+                                            onApiKeyChange.call(this, v.securitySchemeId);
                                           }}"
                                           part="btn btn-outline"
                                         >
@@ -956,10 +950,8 @@ export default function securitySchemeTemplate(this: SecuritySchemeHost, allowTr
                                           class="m-btn thin-border"
                                           style="margin-left:5px;"
                                           part="btn btn-outline"
-                                          @click="${(e: Event) => {
-                                            // TODO(ts-migration): onApiKeyChange takes 1 parameter, the event argument is ignored.
-                                            // @ts-expect-error extra argument
-                                            onApiKeyChange.call(this, v.securitySchemeId, e);
+                                          @click="${() => {
+                                            onApiKeyChange.call(this, v.securitySchemeId);
                                           }}"
                                         >
                                           ${v.finalKeyValue ? 'UPDATE' : 'SET'}

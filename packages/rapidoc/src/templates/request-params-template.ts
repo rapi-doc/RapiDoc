@@ -164,10 +164,7 @@ export function inputParametersTemplate(this: ApiRequestElement, paramType: stri
           {},
           this.callback === 'true' || this.webhook === 'true' ? true : false,
           this.callback === 'true' || this.webhook === 'true' ? false : true,
-          true,
           'text',
-          // TODO(ts-migration): generateExample takes 8 parameters; this call passes 9, so `true` lands in `outputType` and 'text' in `includeGeneratedExample`.
-          // @ts-expect-error extra argument
           false
         )[0]?.exampleValue || '';
     }

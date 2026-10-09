@@ -866,10 +866,7 @@ export default class RapiDoc extends LitElement {
   infoDescriptionHeadingRenderer() {
     const renderer = new marked.Renderer();
     const slugger = new Slugger();
-    // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
-    // TODO(ts-migration): marked's Renderer.heading takes a token (not (text, level, raw)) in this marked version; kept as-is.
-    (renderer as unknown as { heading: (text: string, level: number, raw: string) => string }).heading = (text, level, raw) =>
-      `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
+    renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${slugger.slug(text)}">${text}</h${depth}>`;
     return renderer;
   }
 

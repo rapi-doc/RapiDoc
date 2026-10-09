@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { generateExample, getTypeInfo, isBinaryFileField } from '../../packages/rapidoc/src/utils/schema-utils.ts';
+import { generateExample, getTypeInfo, isBinaryFileField, standardizeExample } from '../../packages/rapidoc/src/utils/schema-utils.ts';
 
 describe('generateExample', () => {
   it('should use single "example" when "examples" is undefined', () => {
@@ -454,5 +454,23 @@ describe('generateExample with contentEncoding and contentMediaType', () => {
     assert.strictEqual(result.length, 1);
     const parsed = JSON.parse(result[0].exampleValue);
     assert.strictEqual(parsed.name, 'Alice');
+  });
+});
+
+describe('standardizeExample', () => {
+  it('should return undefined for a null example instead of throwing', () => {
+    assert.equal(standardizeExample(null), undefined);
+  });
+
+  it('should wrap a single object with a value property', () => {
+    assert.deepEqual(standardizeExample({ value: 1, summary: 's' }), { Example: { value: 1, summary: 's' } });
+  });
+
+  it('should ignore null entries of an examples map instead of throwing', () => {
+    assert.deepEqual(standardizeExample({ a: null, b: { value: 2 } }), { b: { value: 2 } });
+  });
+
+  it('should return undefined for undefined', () => {
+    assert.equal(standardizeExample(undefined), undefined);
   });
 });

@@ -452,10 +452,8 @@ export default class RapiDocMini extends LitElement {
         if (this.resolvedSpec) {
           const rapiDocApiKey = (this.resolvedSpec as ResolvedSpec).securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
           if (!rapiDocApiKey) {
-            // TODO(ts-migration): the `find` above matches on `securitySchemeId` but the pushed entry has `apiKeyId` (not a
-            // ResolvedSecurityScheme field), so the scheme is never found again and duplicates may be pushed. Left as-is.
             (this.resolvedSpec as ResolvedSpec).securitySchemes.push({
-              apiKeyId: rapidocApiKey,
+              securitySchemeId: rapidocApiKey,
               description: 'api-key provided in rapidoc element attributes',
               type: 'apiKey',
               name: apiKeyName,

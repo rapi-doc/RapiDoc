@@ -339,14 +339,13 @@ export function getTypeInfo(schema?: Schema | null): TypeInfo | undefined {
  */
 
 export function standardizeExample(ex: unknown): ExamplesMap | undefined {
-  if (typeof ex === 'object' && !Array.isArray(ex)) {
-    // TODO(ts-migration): `ex` may be null here (typeof null === 'object'), `ex.value` then throws a TypeError.
+  if (typeof ex === 'object' && ex !== null && !Array.isArray(ex)) {
     if ((ex as ExampleObject).value !== undefined) {
       // Case 1: Single object with 'value' property
       return { Example: { ...(ex as ExampleObject) } };
     }
     // Case 2: Object where each key is an object with a 'value' property
-    const filteredEntries = Object.entries(ex as ExamplesMap).filter(([_, obj]) => obj.value !== undefined); // eslint-disable-line
+    const filteredEntries = Object.entries(ex as ExamplesMap).filter(([_, obj]) => obj?.value !== undefined); // eslint-disable-line
     // If no valid entries found, return JSON.stringify of the input
     if (filteredEntries.length === 0) {
       return undefined;

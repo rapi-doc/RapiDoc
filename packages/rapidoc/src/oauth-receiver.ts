@@ -4,8 +4,7 @@ export default class OauthReceiver extends HTMLElement {
 
   connectedCallback() {
     this.receiveAuthParms();
-    // TODO(ts-migration): `receiveStorage` does not exist (probably meant `relayAuthParams`); the storage listener throws at runtime.
-    window.addEventListener('storage', (e) => (this as unknown as { receiveStorage(e: StorageEvent): void }).receiveStorage(e), true);
+    window.addEventListener('storage', (e) => this.relayAuthParams(e), true);
   }
 
   /**

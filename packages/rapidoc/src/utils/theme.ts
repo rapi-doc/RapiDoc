@@ -33,8 +33,7 @@ export default function setTheme(this: ThemeContext, baseTheme: string, theme: T
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
-    // TODO(ts-migration): `theme.navAccenttextColor` (lowercase t) is a typo of `navAccentTextColor`, so a custom value is never used as given.
-    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : ColorUtils.color.invert(navAccentColor);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccentTextColor : ColorUtils.color.invert(navAccentColor);
 
     const overlayBg = 'rgba(80, 80, 80, 0.4)';
 
@@ -130,8 +129,7 @@ export default function setTheme(this: ThemeContext, baseTheme: string, theme: T
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
-    // TODO(ts-migration): `theme.navAccenttextColor` (lowercase t) is a typo of `navAccentTextColor`, so a custom value is never used as given.
-    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : ColorUtils.color.invert(navAccentColor);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccentTextColor : ColorUtils.color.invert(navAccentColor);
     const overlayBg = 'rgba(0, 0, 0, 0.4)';
 
     newTheme = {

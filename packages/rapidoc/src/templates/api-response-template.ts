@@ -89,10 +89,8 @@ export function apiResponseTabTemplate(this: ApiRequestElement): TemplateResult 
                     <button
                       class="m-btn thin-border mar-top-8"
                       style="width:135px"
-                      @click="${(e: Event) => {
-                        // TODO(ts-migration): downloadResource takes 2 parameters, the event argument is ignored.
-                        // @ts-expect-error extra argument
-                        downloadResource(this.responseBlobUrl, this.respContentDisposition, e);
+                      @click="${() => {
+                        downloadResource(this.responseBlobUrl, this.respContentDisposition);
                       }}"
                       part="btn btn-outline"
                     >
@@ -103,10 +101,8 @@ export function apiResponseTabTemplate(this: ApiRequestElement): TemplateResult 
                         ? html`<button
                             class="m-btn thin-border mar-top-8"
                             style="width:135px"
-                            @click="${(e: Event) => {
-                              // TODO(ts-migration): viewResource takes 1 parameter, the event argument is ignored.
-                              // @ts-expect-error extra argument
-                              viewResource(this.responseBlobUrl, e);
+                            @click="${() => {
+                              viewResource(this.responseBlobUrl);
                             }}"
                             part="btn btn-outline"
                           >
