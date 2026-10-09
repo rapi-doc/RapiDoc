@@ -40,6 +40,8 @@ export default [
       'lit/attribute-value-entities': 'off',
       // TODO(ts-migration): remove once every file has been converted and `// @ts-nocheck` is gone
       '@typescript-eslint/ban-ts-comment': 'off',
+      // OpenAPI documents are deeply dynamic; `any` is tolerated (warned) where precise typing is impractical
+      '@typescript-eslint/no-explicit-any': 'warn',
       'no-useless-assignment': 'warn',
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
