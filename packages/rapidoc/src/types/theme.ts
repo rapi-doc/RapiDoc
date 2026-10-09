@@ -16,7 +16,6 @@ export interface ThemeTokens {
   navAccentColor?: string;
   navAccentTextColor?: string;
   /** Misspelled key read by setTheme (see TODO(ts-migration) in utils/theme.ts). */
-  navAccenttextColor?: string;
   borderColor?: string;
   lightBorderColor?: string;
   codeBorderColor?: string;

@@ -301,9 +301,7 @@ export default class JsonSchemaViewer extends LitElement {
   }
 
   override render() {
-    // TODO(ts-migration): the template only takes `isMini`; the 3 extra arguments are ignored at runtime.
-    // @ts-expect-error extra arguments kept as-is (no runtime change)
-    return jsonSchemaViewerTemplate.call(this, true, false, false, this.pathsExpanded);
+    return jsonSchemaViewerTemplate.call(this, true);
   }
 
   override updated(changedProperties: PropertyValues) {
