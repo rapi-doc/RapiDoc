@@ -1,6 +1,7 @@
 /**
  * Renders the single active API operation, overview, or component in focused (3-column) rendering mode.
  */
+import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
 import { html } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { RapiDocSpecElement } from '~/types/element';
@@ -23,6 +24,7 @@ function headingRenderer(tagElementId: string) {
   const slugger = new Slugger();
   // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
   renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${tagElementId}--${slugger.slug(text)}">${text}</h${depth}>`;
+  fixRenderedAnchorLinks(renderer);
   return renderer;
 }
 

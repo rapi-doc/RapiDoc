@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { marked } from 'marked';
-import '../../packages/rapidoc/src/utils/markdown-utils.ts';
+import { fixRenderedAnchorLinks } from '../../packages/rapidoc/src/utils/markdown-utils.ts';
 
 describe('markdown in-page anchor links', () => {
   let originalLocation;
@@ -35,6 +35,19 @@ describe('markdown in-page anchor links', () => {
     const html = marked.parse('[ext](https://other.org/a) [rel](./b)');
     assert.match(html, /<a href="https:\/\/other\.org\/a">ext<\/a>/);
     assert.match(html, /<a href="\.\/b">rel<\/a>/);
+    assert.doesNotMatch(html, /anchor-link/);
+  });
+
+  it('also fixes links when a custom renderer replaces the global one (e.g. headings in the nav bar)', () => {
+    const renderer = new marked.Renderer();
+    fixRenderedAnchorLinks(renderer);
+    const html = marked.parse('[go](#a) and [ext](https://other.org/a)', { renderer });
+    assert.match(html, /<a class="anchor-link" href="https:\/\/example\.com\/docs\/page\?x=1#a">go<\/a>/);
+    assert.match(html, /<a href="https:\/\/other\.org\/a">ext<\/a>/);
+  });
+
+  it('does not fix links of a custom renderer that was not opted in', () => {
+    const html = marked.parse('[go](#a)', { renderer: new marked.Renderer() });
     assert.doesNotMatch(html, /anchor-link/);
   });
 });

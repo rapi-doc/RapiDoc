@@ -1,3 +1,4 @@
+import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
 import { css, LitElement, unsafeCSS } from 'lit';
 import type { PropertyValues } from 'lit';
 import { marked } from 'marked';
@@ -25,7 +26,6 @@ import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/m
 import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 import { setApiServer } from '~/templates/server-template';
-import '~/utils/markdown-utils';
 
 const paramsConverter = {
   fromAttribute: (attr: string | null): AuthParams => {
@@ -867,6 +867,7 @@ export default class RapiDoc extends LitElement {
     const renderer = new marked.Renderer();
     const slugger = new Slugger();
     renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${slugger.slug(text)}">${text}</h${depth}>`;
+    fixRenderedAnchorLinks(renderer);
     return renderer;
   }
 

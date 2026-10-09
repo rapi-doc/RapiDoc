@@ -3,15 +3,15 @@ name: "rapidoc"
 version: "10.1.0"
 versionTag: "v10.1.0"
 versionShort: "v10.1"
-buildTime: "2026-10-09T16:00:04.590Z"
+buildTime: "2026-10-09T20:03:31.232Z"
 bundle:
   minified:
-    bytes: 510478
+    bytes: 510630
     formatted: "499 KB"
     kb: 499
-    exactKb: 498.5
+    exactKb: 498.7
   gzip:
-    bytes: 135533
+    bytes: 135442
     formatted: "132 KB"
     kb: 132
-    exactKb: 132.4
+    exactKb: 132.3
