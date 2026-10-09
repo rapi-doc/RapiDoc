@@ -6,7 +6,7 @@ import {
   disableMockServer,
   updateMockConfig,
   isMockServerActive,
-} from '../../packages/rapidoc/src/utils/mock-interceptor.js';
+} from '../../packages/rapidoc/src/utils/mock-interceptor.ts';
 
 describe('mock-interceptor', () => {
   const originalFetch = async (url) => {

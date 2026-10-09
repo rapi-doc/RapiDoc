@@ -16,7 +16,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { performance } from 'perf_hooks';
 import { load, dereference } from '@scalar/openapi-parser';
-import ProcessSpec from '../../packages/rapidoc/src/utils/spec-parser.js';
+import ProcessSpec from '../../packages/rapidoc/src/utils/spec-parser.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

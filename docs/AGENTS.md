@@ -27,14 +27,14 @@ The `docs/astro.config.mjs` integrates Vite plugins that bridge `docs` and `pack
    - Checks if `packages/rapidoc/dist/rapidoc-min.js` exists. If missing, triggers a Vite build of `packages/rapidoc`.
    - Copies `rapidoc-min.js` into `docs/dist/rapidoc/` and `docs/generated-docs/rapidoc/`.
 2. **Live Unminified Source in Dev (`serve-rapidoc-in-dev`)**:
-   - Dev middleware dynamically serves live unminified ESM directly from `packages/rapidoc/src/index.js` at `/rapidoc/rapidoc-min.js` and `/rapidoc/rapidoc.js`.
+   - Dev middleware dynamically serves live unminified ESM directly from `packages/rapidoc/src/index.ts` at `/rapidoc/rapidoc-min.js` and `/rapidoc/rapidoc.js`.
    - Preserves all `console.*` outputs, `debugger` breakpoints, and sourcemaps with exact line numbers for effortless debugging.
    - Watches `packages/rapidoc/src/` and triggers instant browser reload upon changes without needing slow bundle recompilation.
    - Watches `src/page-data/**/*.yaml` and triggers module cache invalidation and reload upon change.
 3. **Aliases**:
    - `~` resolves to `packages/rapidoc/src`
-   - `~/rapidoc` resolves to `packages/rapidoc/src/rapidoc.js`
-   - `rapidoc` resolves to `packages/rapidoc/src/index.js`
+   - `~/rapidoc` resolves to `packages/rapidoc/src/rapidoc.ts`
+   - `rapidoc` resolves to `packages/rapidoc/src/index.ts`
 
 ---
 

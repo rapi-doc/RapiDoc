@@ -130,10 +130,10 @@ export default defineConfig({
     resolve: {
       alias: {
         '~': rapidocSrcPath,
-        '~/rapidoc': resolve(rapidocSrcPath, 'rapidoc.js'),
-        '~/rapidoc-mini': resolve(rapidocSrcPath, 'rapidoc-mini.js'),
-        '~/oauth-receiver': resolve(rapidocSrcPath, 'oauth-receiver.js'),
-        rapidoc: resolve(rapidocSrcPath, 'index.js'),
+        '~/rapidoc': resolve(rapidocSrcPath, 'rapidoc.ts'),
+        '~/rapidoc-mini': resolve(rapidocSrcPath, 'rapidoc-mini.ts'),
+        '~/oauth-receiver': resolve(rapidocSrcPath, 'oauth-receiver.ts'),
+        rapidoc: resolve(rapidocSrcPath, 'index.ts'),
       },
     },
     server: {
@@ -179,7 +179,7 @@ export default defineConfig({
             if (pathname === '/rapidoc/rapidoc-min.js' || pathname === '/rapidoc/rapidoc.js') {
               res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
               res.setHeader('Cache-Control', 'no-cache');
-              res.end(`import '/@fs${resolve(rapidocSrcPath, 'index.js')}';\n`);
+              res.end(`import '/@fs${resolve(rapidocSrcPath, 'index.ts')}';\n`);
               return;
             }
             next();

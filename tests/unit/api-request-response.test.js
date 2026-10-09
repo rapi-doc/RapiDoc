@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { processFetchResponse } from '../../packages/rapidoc/src/utils/response-utils.js';
+import { processFetchResponse } from '../../packages/rapidoc/src/utils/response-utils.ts';
 
 describe('processFetchResponse', () => {
   it('should parse JSON response and format with 2-space indentation', async () => {

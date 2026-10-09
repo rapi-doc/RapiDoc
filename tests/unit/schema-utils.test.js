@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { generateExample, getTypeInfo, isBinaryFileField } from '../../packages/rapidoc/src/utils/schema-utils.js';
+import { generateExample, getTypeInfo, isBinaryFileField } from '../../packages/rapidoc/src/utils/schema-utils.ts';
 
 describe('generateExample', () => {
   it('should use single "example" when "examples" is undefined', () => {

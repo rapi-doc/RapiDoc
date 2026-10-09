@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { schemaToAST } from '../../packages/rapidoc/src/utils/schema-utils.js';
+import { schemaToAST } from '../../packages/rapidoc/src/utils/schema-utils.ts';
 
 describe('schemaToAST', () => {
   describe('primitive data types', () => {

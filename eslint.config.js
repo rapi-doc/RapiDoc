@@ -38,6 +38,8 @@ export default [
       ],
       ...eslintConfigPrettier.rules, // Disable conflicting ESLint rules
       'lit/attribute-value-entities': 'off',
+      // TODO(ts-migration): remove once every file has been converted and `// @ts-nocheck` is gone
+      '@typescript-eslint/ban-ts-comment': 'off',
       'no-useless-assignment': 'warn',
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
