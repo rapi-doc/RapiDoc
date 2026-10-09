@@ -139,7 +139,6 @@ export function inputParametersTemplate(paramType) {
           {},
           this.callback === 'true' || this.webhook === 'true' ? true : false,
           this.callback === 'true' || this.webhook === 'true' ? false : true,
-          true,
           'text',
           false
         )[0]?.exampleValue || '';
