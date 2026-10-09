@@ -83,8 +83,8 @@ export default function overviewTemplate() {
                           class="m-btn thin-border"
                           style="min-width:170px"
                           part="btn btn-outline"
-                          @click="${(e) => {
-                            downloadResource(this.specUrl, 'openapi-spec', e);
+                          @click="${() => {
+                            downloadResource(this.specUrl, 'openapi-spec');
                           }}"
                         >
                           Download OpenAPI spec
@@ -95,8 +95,8 @@ export default function overviewTemplate() {
                                 class="m-btn thin-border"
                                 style="width:200px"
                                 part="btn btn-outline"
-                                @click="${(e) => {
-                                  viewResource(this.specUrl, e);
+                                @click="${() => {
+                                  viewResource(this.specUrl);
                                 }}"
                               >
                                 View OpenAPI spec (New Tab)
