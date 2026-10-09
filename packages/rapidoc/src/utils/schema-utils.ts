@@ -1,9 +1,27 @@
-// @ts-nocheck
+import type {
+  ArrayAST,
+  ExampleObject,
+  ExamplesMap,
+  GeneratedExample,
+  NormalizedExample,
+  NormalizedExamples,
+  ObjectAST,
+  ObjectNotation,
+  PrimitiveAST,
+  SampleConfig,
+  SampleObj,
+  SampleValue,
+  Schema,
+  SchemaAST,
+  SchemaFromParam,
+  TypeInfo,
+} from '~/types/schema';
+
 /**
  * Generates a deterministic sample string matching common regex patterns in OpenAPI schemas.
  * Falls back to the pattern string if an unexpected error occurs.
  */
-export function patternSampleGenerator(pattern) {
+export function patternSampleGenerator(pattern?: string | null): string {
   if (!pattern || typeof pattern !== 'string') {
     return '';
   }
@@ -20,7 +38,7 @@ export function patternSampleGenerator(pattern) {
     const tokenRegex = /(\[[^\]]+\]|\\[dwsDWS]|\\[^]|\.|[^\\[\]{}()+*?|])(?:\{(\d+)(?:,\d*)?\}|([+*?]))?/g;
 
     let result = '';
-    let match;
+    let match: RegExpExecArray | null;
 
     while ((match = tokenRegex.exec(p)) !== null) {
       const token = match[1];
@@ -86,7 +104,7 @@ export function patternSampleGenerator(pattern) {
 }
 
 // Takes a value as input and provides a printable string to replresent null values, spaces, blankstring etc
-export function getPrintableVal(val) {
+export function getPrintableVal(val: unknown): string {
   if (val === undefined) {
     return '';
   }
@@ -100,19 +118,19 @@ export function getPrintableVal(val) {
     return `${val}`;
   }
   if (Array.isArray(val)) {
-    return val
+    return (val as { toString(): string }[])
       .map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || ''))
       .join(', ');
   }
   if (typeof val === 'object') {
     const keys = Object.keys(val);
-    return `{ ${keys[0]}:${val[keys[0]]}${keys.length > 1 ? ',' : ''} ... }`;
+    return `{ ${keys[0]}:${(val as Record<string, unknown>)[keys[0]]}${keys.length > 1 ? ',' : ''} ... }`;
   }
-  return val.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '';
+  return (val as { toString(): string }).toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '';
 }
 
 /* Helper to detect binary file fields across OpenAPI 3.0 and 3.1 */
-export function isBinaryFileField(schema) {
+export function isBinaryFileField(schema?: Schema | null): boolean {
   if (!schema) {
     return false;
   }
@@ -124,7 +142,7 @@ export function isBinaryFileField(schema) {
 }
 
 /* Generates an schema object containing type and constraint info */
-export function getTypeInfo(schema) {
+export function getTypeInfo(schema?: Schema | null): TypeInfo | undefined {
   if (!schema) {
     return;
   }
@@ -139,7 +157,7 @@ export function getTypeInfo(schema) {
   } else if (schema.type) {
     dataType = Array.isArray(schema.type) ? schema.type.join('┃') : schema.type;
     if (schema.format || schema.enum || schema.const !== undefined) {
-      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const !== undefined ? 'const' : schema.format);
+      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const !== undefined ? 'const' : schema.format!);
     }
     if (schema.nullable) {
       dataType += '┃null';
@@ -147,8 +165,8 @@ export function getTypeInfo(schema) {
   } else if (schema.const !== undefined) {
     dataType = 'const';
   } else if (schema.anyOf || schema.oneOf) {
-    const subSchemas = (schema.anyOf || schema.oneOf).filter(Boolean);
-    const subTypes = [];
+    const subSchemas = (schema.anyOf || schema.oneOf)!.filter(Boolean);
+    const subTypes: string[] = [];
     subSchemas.forEach((s) => {
       const sInfo = getTypeInfo(s);
       if (sInfo?.type && sInfo.type !== '{missing-type-info}') {
@@ -167,22 +185,24 @@ export function getTypeInfo(schema) {
     dataType = '{missing-type-info}';
   }
 
-  const effectiveSchema =
+  const effectiveSchema: Schema =
     schema.anyOf || schema.oneOf
       ? {
-          ...((schema.anyOf || schema.oneOf).find((s) => s && s.type && s.type !== 'null') || (schema.anyOf || schema.oneOf)[0] || {}),
+          ...((schema.anyOf || schema.oneOf)!.find((s) => s && s.type && s.type !== 'null') || (schema.anyOf || schema.oneOf)![0] || {}),
           ...schema,
         }
       : schema;
 
-  const info = {
+  const info: TypeInfo = {
     type: dataType,
     format: schema.format || effectiveSchema.format || '',
     contentMediaType: schema.contentMediaType || effectiveSchema.contentMediaType || '',
     contentEncoding: schema.contentEncoding || effectiveSchema.contentEncoding || '',
     contentSchema: schema.contentSchema || effectiveSchema.contentSchema || null,
     pattern:
-      (schema.pattern || effectiveSchema.pattern) && !schema.enum && !effectiveSchema.enum ? schema.pattern || effectiveSchema.pattern : '',
+      (schema.pattern || effectiveSchema.pattern) && !schema.enum && !effectiveSchema.enum
+        ? schema.pattern || effectiveSchema.pattern!
+        : '',
     readOrWriteOnly: schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : effectiveSchema.readOnly ? '🆁' : effectiveSchema.writeOnly ? '🆆' : '',
     deprecated: schema.deprecated || effectiveSchema.deprecated ? '❌' : '',
     examples: schema.examples || schema.example || effectiveSchema.examples || effectiveSchema.example,
@@ -195,7 +215,7 @@ export function getTypeInfo(schema) {
   };
 
   if (info.type === '{recursive}') {
-    info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
+    info.description = schema.$ref!.substring(schema.$ref!.lastIndexOf('/') + 1);
   } else if (info.type === '{missing-type-info}' || info.type === 'any') {
     info.description = info.description || '';
   }
@@ -212,8 +232,8 @@ export function getTypeInfo(schema) {
             : '';
 
   if (!info.allowedValues && (schema.anyOf || schema.oneOf)) {
-    const subValues = [];
-    (schema.anyOf || schema.oneOf).forEach((s) => {
+    const subValues: string[] = [];
+    (schema.anyOf || schema.oneOf)!.forEach((s) => {
       const sVal =
         s.const !== undefined ? getPrintableVal(s.const) : Array.isArray(s.enum) ? s.enum.map((v) => getPrintableVal(v)).join('┃') : '';
       if (sVal && !subValues.includes(sVal)) {
@@ -318,14 +338,15 @@ export function getTypeInfo(schema) {
  * @returns
  */
 
-export function standardizeExample(ex) {
+export function standardizeExample(ex: unknown): ExamplesMap | undefined {
   if (typeof ex === 'object' && !Array.isArray(ex)) {
-    if (ex.value !== undefined) {
+    // TODO(ts-migration): `ex` may be null here (typeof null === 'object'), `ex.value` then throws a TypeError.
+    if ((ex as ExampleObject).value !== undefined) {
       // Case 1: Single object with 'value' property
-      return { Example: { ...ex } };
+      return { Example: { ...(ex as ExampleObject) } };
     }
     // Case 2: Object where each key is an object with a 'value' property
-    const filteredEntries = Object.entries(ex).filter(([_, obj]) => obj.value !== undefined); // eslint-disable-line
+    const filteredEntries = Object.entries(ex as ExamplesMap).filter(([_, obj]) => obj.value !== undefined); // eslint-disable-line
     // If no valid entries found, return JSON.stringify of the input
     if (filteredEntries.length === 0) {
       return undefined;
@@ -334,7 +355,7 @@ export function standardizeExample(ex) {
   }
   if (Array.isArray(ex)) {
     // Case 3: Array of primitive values
-    return ex.reduce((acc, value, index) => {
+    return ex.reduce((acc: ExamplesMap, value: unknown, index: number) => {
       acc[`Example${index + 1}`] = { value };
       return acc;
     }, {});
@@ -355,7 +376,10 @@ export function standardizeExample(ex) {
  *     ]
  *  }]
  * */
-export function normalizeExamples(examples, dataType = 'string') {
+export function normalizeExamples(
+  examples?: ExamplesMap | unknown[] | string | number | boolean | null,
+  dataType = 'string'
+): NormalizedExamples {
   if (!examples) {
     return {
       exampleVal: '',
@@ -396,16 +420,16 @@ export function normalizeExamples(examples, dataType = 'string') {
     return { exampleVal, exampleList };
   }
 
-  const exampleVal = examples[0].toString();
+  const exampleVal = (examples[0] as { toString(): string }).toString();
   const exampleList = examples.map((v) => ({
-    value: v.toString(),
+    value: (v as { toString(): string }).toString(),
     printableValue: getPrintableVal(v),
   }));
   return { exampleVal, exampleList };
 }
 
-export function anyExampleWithSummaryOrDescription(examples) {
-  return examples.some((x) => x.summary?.length > 0 || x.description?.length > 0);
+export function anyExampleWithSummaryOrDescription(examples: Pick<NormalizedExample, 'summary' | 'description'>[]): boolean {
+  return examples.some((x) => (x.summary?.length as number) > 0 || (x.description?.length as number) > 0);
 }
 
 /**
@@ -416,7 +440,7 @@ export function anyExampleWithSummaryOrDescription(examples) {
  * Returns the first example in the given schema.
  * Returns `undefined` if `schema` is undefined or if there are no examples at the top level of the `schema`.
  */
-function getFirstExample(schema) {
+function getFirstExample(schema?: Schema | null): SampleValue {
   let firstExample;
   if (schema) {
     if (schema.examples && schema.examples.length >= 1) {
@@ -428,7 +452,7 @@ function getFirstExample(schema) {
   return firstExample;
 }
 
-export function getSampleValueByType(schemaObj) {
+export function getSampleValueByType(schemaObj: Schema): SampleValue {
   const example = getFirstExample(schemaObj);
   if (example === '') {
     return '';
@@ -443,7 +467,7 @@ export function getSampleValueByType(schemaObj) {
     return false;
   }
   if (example instanceof Date) {
-    switch (schemaObj.format.toLowerCase()) {
+    switch (schemaObj.format!.toLowerCase()) {
       case 'date':
         return example.toISOString().split('T')[0];
       case 'time':
@@ -573,7 +597,7 @@ export function getSampleValueByType(schemaObj) {
     } else {
       const minLength = Number.isNaN(schemaObj.minLength) ? undefined : Number(schemaObj.minLength);
       const maxLength = Number.isNaN(schemaObj.maxLength) ? undefined : Number(schemaObj.maxLength);
-      const finalLength = minLength || (maxLength > 6 ? 6 : maxLength || undefined);
+      const finalLength = minLength || ((maxLength as number) > 6 ? 6 : maxLength || undefined);
       return finalLength ? 'A'.repeat(finalLength) : 'string';
     }
   }
@@ -605,7 +629,7 @@ json2xml- TestCase
     </prop3>
   </root>
 */
-export function json2xml(obj, level = 1) {
+export function json2xml(obj: SampleValue, level = 1): string {
   const indent = '  '.repeat(level);
   let xmlText = '';
   if (level === 1 && typeof obj !== 'object') {
@@ -633,7 +657,7 @@ export function json2xml(obj, level = 1) {
   return xmlText;
 }
 
-function addSchemaInfoToExample(schema, obj) {
+function addSchemaInfoToExample(schema: Schema, obj: SampleValue): void {
   if (typeof obj !== 'object' || obj === null) {
     return;
   }
@@ -651,7 +675,7 @@ function addSchemaInfoToExample(schema, obj) {
   }
 }
 
-function removeTitlesAndDescriptions(obj) {
+function removeTitlesAndDescriptions(obj: SampleValue): void {
   if (typeof obj !== 'object' || obj === null) {
     return;
   }
@@ -664,7 +688,7 @@ function removeTitlesAndDescriptions(obj) {
   }
 }
 
-function mergePropertyExamples(obj, propertyName, propExamples) {
+function mergePropertyExamples(obj: SampleValue, propertyName: string, propExamples: SampleValue): SampleValue {
   if (!obj || typeof obj !== 'object') {
     return obj;
   }
@@ -684,13 +708,13 @@ function mergePropertyExamples(obj, propertyName, propExamples) {
 }
 
 /* For changing JSON-Schema to a Sample Object, as per the schema (to generate examples based on schema) */
-export function schemaToSampleObj(schema, config = {}, level = 0) {
-  let obj = {};
+export function schemaToSampleObj(schema?: Schema | null, config: SampleConfig = {}, level = 0): SampleObj | undefined {
+  let obj: SampleObj = {};
   if (!schema || level > 8) {
     return;
   }
   if (schema.allOf) {
-    const mergedObj = {};
+    const mergedObj: SampleObj = {};
 
     if (schema.allOf.length === 1 && !schema.allOf[0]?.properties && !schema.allOf[0]?.items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
@@ -728,7 +752,7 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
     addSchemaInfoToExample(schema, obj['example-0']);
   } else if (schema.oneOf) {
     // 1. First create example with schema.properties
-    const objWithSchemaProps = {};
+    const objWithSchemaProps: SampleObj = {};
     if (schema.properties) {
       for (const propertyName in schema.properties) {
         const propSchema = schema.properties[propertyName];
@@ -770,7 +794,7 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
     }
   } else if (schema.anyOf) {
     // First generate values for regular properties
-    let commonObj = { 'example-0': {} };
+    const commonObj: SampleObj = { 'example-0': {} };
     if (schema.type === 'object' || schema.properties) {
       for (const propertyName in schema.properties) {
         const propSchema = schema.properties[propertyName];
@@ -876,7 +900,7 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
   return obj;
 }
 
-function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
+function generateMarkdownForArrayAndObjectDescription(schema: Schema, level = 0): string {
   let mainText = '';
   if (schema.title) {
     if (schema.description) {
@@ -888,7 +912,7 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
     mainText = schema.description;
   }
 
-  const extraParts = [];
+  const extraParts: string[] = [];
   if (schema.minItems) {
     extraParts.push(`<b>Min Items:</b> ${schema.minItems}`);
   }
@@ -928,7 +952,7 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
 /**
  * Helper to populate schema properties into a target object notation.
  */
-function populateProperties(target, schema, level) {
+function populateProperties(target: ObjectNotation, schema: Schema, level: number): void {
   if (schema.properties) {
     for (const key in schema.properties) {
       const propKey = schema.required && schema.required.includes(key) ? `${key}*` : key;
@@ -941,11 +965,11 @@ function populateProperties(target, schema, level) {
     }
   }
   if (schema.additionalProperties) {
-    target['[any-key]'] = schemaInObjectNotation(schema.additionalProperties, {}, level + 1);
+    target['[any-key]'] = schemaInObjectNotation(schema.additionalProperties as Schema, {}, level + 1);
   }
 }
 
-function handleObjectSchema(schema, baseObj = {}, level = 0) {
+function handleObjectSchema(schema: Schema, baseObj: ObjectNotation = {}, level = 0): ObjectNotation {
   const obj = Object.assign({}, baseObj);
   obj['::title'] = schema.title || '';
   obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
@@ -960,7 +984,7 @@ function handleObjectSchema(schema, baseObj = {}, level = 0) {
   return obj;
 }
 
-function handleArraySchema(schema, baseObj = {}, level = 0) {
+function handleArraySchema(schema: Schema, baseObj: ObjectNotation = {}, level = 0): ObjectNotation {
   const obj = Object.assign({}, baseObj);
   obj['::title'] = schema.title || '';
   obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
@@ -978,10 +1002,10 @@ function handleArraySchema(schema, baseObj = {}, level = 0) {
   return obj;
 }
 
-function handleAllOfSchema(schema, baseObj = {}, level = 0) {
+function handleAllOfSchema(schema: Schema & { allOf: Schema[] }, baseObj: ObjectNotation = {}, level = 0): ObjectNotation | string {
   if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
     // If allOf has single item and the type is not an object or array, then its a primitive
-    return `${getTypeInfo(schema.allOf[0]).html}`;
+    return `${getTypeInfo(schema.allOf[0])!.html}`;
   }
 
   const objWithAllProps = Object.assign({}, baseObj);
@@ -996,14 +1020,14 @@ function handleAllOfSchema(schema, baseObj = {}, level = 0) {
     } else if (v.type) {
       const prop = `prop${Object.keys(objWithAllProps).length}`;
       const typeObj = getTypeInfo(v);
-      objWithAllProps[prop] = `${typeObj.html}`;
+      objWithAllProps[prop] = `${typeObj!.html}`;
     }
   });
 
   return objWithAllProps;
 }
 
-function handleAnyOrOneOfSchema(schema, baseObj = {}, level = 0, suffix = '') {
+function handleAnyOrOneOfSchema(schema: Schema, baseObj: ObjectNotation = {}, level = 0, suffix = ''): ObjectNotation {
   const obj = Object.assign({}, baseObj);
   obj['::description'] = schema.description || '';
 
@@ -1014,9 +1038,9 @@ function handleAnyOrOneOfSchema(schema, baseObj = {}, level = 0, suffix = '') {
   }
 
   // 2. Then build anyOf / oneOf option entries
-  const objWithAnyOfProps = {};
+  const objWithAnyOfProps: ObjectNotation = {};
   const xxxOf = schema.anyOf ? 'anyOf' : 'oneOf';
-  schema[xxxOf].forEach((v, index) => {
+  schema[xxxOf]!.forEach((v, index) => {
     const optKey = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
     if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
       const partialObj = schemaInObjectNotation(v, {}, level + 1);
@@ -1033,7 +1057,7 @@ function handleAnyOrOneOfSchema(schema, baseObj = {}, level = 0, suffix = '') {
       }
       objWithAnyOfProps['::type'] = 'xxx-of-array';
     } else {
-      objWithAnyOfProps[optKey] = `${getTypeInfo(v).html}`;
+      objWithAnyOfProps[optKey] = `${getTypeInfo(v)!.html}`;
       objWithAnyOfProps['::type'] = 'xxx-of-option';
     }
   });
@@ -1046,7 +1070,7 @@ function handleAnyOrOneOfSchema(schema, baseObj = {}, level = 0, suffix = '') {
   return obj;
 }
 
-function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
+function handleMultiTypeSchema(schema: Schema & { type: string[] }, baseObj: ObjectNotation = {}, level = 0): ObjectNotation | string {
   // Recognize OpenAPI 3.1 nullable object and array
   if (schema.type.length === 2 && schema.type.includes('null')) {
     if (schema.type.includes('object')) {
@@ -1057,11 +1081,11 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
     }
   }
 
-  const subSchema = typeof structuredClone === 'function' ? structuredClone(schema) : JSON.parse(JSON.stringify(schema));
-  const primitiveType = [];
-  const complexTypes = [];
+  const subSchema: Schema = typeof structuredClone === 'function' ? structuredClone(schema) : JSON.parse(JSON.stringify(schema));
+  const primitiveType: string[] = [];
+  const complexTypes: string[] = [];
 
-  subSchema.type.forEach((v) => {
+  (subSchema.type as string[]).forEach((v) => {
     if (v.match(/integer|number|string|null|boolean/g)) {
       primitiveType.push(v);
     } else if (
@@ -1079,7 +1103,7 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
     }
   });
 
-  let multiPrimitiveTypes;
+  let multiPrimitiveTypes: TypeInfo | undefined;
   if (primitiveType.length > 0) {
     subSchema.type = primitiveType.join('┃');
     multiPrimitiveTypes = getTypeInfo(subSchema);
@@ -1091,14 +1115,14 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
   if (complexTypes.length > 0) {
     const obj = Object.assign({}, baseObj);
     obj['::type'] = 'object';
-    const multiTypeOptions = {
+    const multiTypeOptions: ObjectNotation = {
       '::type': 'xxx-of-option',
     };
 
     let optionIndex = 1;
     complexTypes.forEach((v) => {
       if (v === 'object') {
-        const objTypeOption = {
+        const objTypeOption: ObjectNotation = {
           '::title': schema.title || '',
           '::description': schema.description || '',
           '::type': 'object',
@@ -1127,9 +1151,9 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
   return Object.assign({}, baseObj);
 }
 
-function createObjectAST(schema, level, name, isRequired) {
+function createObjectAST(schema: Schema, level: number, name: string, isRequired: boolean): ObjectAST {
   const isNullable = schema.nullable || (Array.isArray(schema.type) && schema.type.includes('null')) || false;
-  const properties = [];
+  const properties: SchemaAST[] = [];
   if (schema.properties) {
     for (const key in schema.properties) {
       const isPropReq = Array.isArray(schema.required) && schema.required.includes(key);
@@ -1138,7 +1162,7 @@ function createObjectAST(schema, level, name, isRequired) {
     }
   }
 
-  const patternProperties = [];
+  const patternProperties: SchemaAST[] = [];
   if (schema.patternProperties) {
     for (const key in schema.patternProperties) {
       const child = schemaToAST(schema.patternProperties[key], level + 1, `[pattern: ${key}]`, false);
@@ -1146,7 +1170,7 @@ function createObjectAST(schema, level, name, isRequired) {
     }
   }
 
-  let additionalProperties = null;
+  let additionalProperties: SchemaAST | null = null;
   if (schema.additionalProperties && typeof schema.additionalProperties === 'object') {
     additionalProperties = schemaToAST(schema.additionalProperties, level + 1, '[any-key]', false);
   }
@@ -1168,14 +1192,14 @@ function createObjectAST(schema, level, name, isRequired) {
   };
 }
 
-function createArrayAST(schema, level, name, isRequired) {
+function createArrayAST(schema: Schema, level: number, name: string, isRequired: boolean): ArrayAST {
   const isNullable = schema.nullable || (Array.isArray(schema.type) && schema.type.includes('null')) || false;
-  let itemsNode = null;
+  let itemsNode: SchemaAST | null = null;
   if (schema.items) {
     itemsNode = schemaToAST(schema.items, level + 1, '', false);
   }
 
-  let arrayType = '';
+  let arrayType: string | string[] = '';
   if (schema.items?.items) {
     arrayType = schema.items.items.type || '';
   } else if (schema.items?.type && typeof schema.items.type === 'string') {
@@ -1201,8 +1225,8 @@ function createArrayAST(schema, level, name, isRequired) {
   };
 }
 
-function createPrimitiveAST(schema, name, isRequired) {
-  const typeInfo = getTypeInfo(schema) || {};
+function createPrimitiveAST(schema: Schema, name: string, isRequired: boolean): PrimitiveAST {
+  const typeInfo: Partial<TypeInfo> = getTypeInfo(schema) || {};
   return {
     kind: 'primitive',
     name,
@@ -1219,8 +1243,9 @@ function createPrimitiveAST(schema, name, isRequired) {
     title: (schema.title || '').trim(),
     required: isRequired,
     deprecated: schema.deprecated || !!typeInfo.deprecated,
-    readOnly: schema.readOnly || typeInfo.readOrWriteOnly === 'readonly',
-    writeOnly: schema.writeOnly || typeInfo.readOrWriteOnly === 'writeonly',
+    // TODO(ts-migration): getTypeInfo returns '🆁'/'🆆' markers, never 'readonly'/'writeonly', so these comparisons are always false.
+    readOnly: schema.readOnly || (typeInfo.readOrWriteOnly as string) === 'readonly',
+    writeOnly: schema.writeOnly || (typeInfo.readOrWriteOnly as string) === 'writeonly',
     html: typeInfo.html || '',
   };
 }
@@ -1235,7 +1260,7 @@ function createPrimitiveAST(schema, name, isRequired) {
  * @param {string} [suffix=''] - Suffix used for union composition
  * @returns {object|null} Typed SchemaNode AST
  */
-export function schemaToAST(schema, level = 0, name = '', isRequired = false, suffix = '') {
+export function schemaToAST(schema?: Schema | null, level = 0, name = '', isRequired = false, suffix = ''): SchemaAST | null {
   if (!schema) {
     return null;
   }
@@ -1254,7 +1279,7 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
   // 1. allOf
   if (schema.allOf) {
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
-      const mergedSchema = {
+      const mergedSchema: Schema = {
         ...schema.allOf[0],
         ...schema,
         title: schema.title || schema.allOf[0].title || '',
@@ -1264,10 +1289,10 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
       return schemaToAST(mergedSchema, level, name, isRequired);
     }
 
-    const mergedProps = [];
-    const mergedPatternProps = [];
-    let mergedAdditionalProps = null;
-    const unionChildren = [];
+    const mergedProps: SchemaAST[] = [];
+    const mergedPatternProps: SchemaAST[] = [];
+    let mergedAdditionalProps: SchemaAST | null = null;
+    const unionChildren: SchemaAST[] = [];
     let mergedTitle = schema.title || '';
     let mergedDescription = schema.description || '';
     let mergedDeprecated = schema.deprecated || false;
@@ -1302,7 +1327,7 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
         }
       } else if (sub.type) {
         const propName = `prop${mergedProps.length}`;
-        mergedProps.push(schemaToAST(sub, level + 1, propName, false));
+        mergedProps.push(schemaToAST(sub, level + 1, propName, false)!);
       }
     });
 
@@ -1328,7 +1353,7 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
   if (schema.anyOf || schema.oneOf) {
     const operator = schema.anyOf ? 'anyOf' : 'oneOf';
     const rawOptions = schema.anyOf || schema.oneOf;
-    const options = rawOptions
+    const options = rawOptions!
       .map((opt, idx) => {
         const optTitle = opt.title || '';
         const optAst = schemaToAST(opt, level + 1, optTitle || `Option ${idx + 1}`, false);
@@ -1340,9 +1365,9 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
         }
         return optAst;
       })
-      .filter(Boolean);
+      .filter(Boolean) as SchemaAST[];
 
-    let baseProps = [];
+    const baseProps: SchemaAST[] = [];
     if (schema.type === 'object' || schema.properties) {
       if (schema.properties) {
         for (const key in schema.properties) {
@@ -1377,11 +1402,11 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
       }
     }
 
-    const subSchema = typeof structuredClone === 'function' ? structuredClone(schema) : JSON.parse(JSON.stringify(schema));
-    const primitiveType = [];
-    const complexTypes = [];
+    const subSchema: Schema = typeof structuredClone === 'function' ? structuredClone(schema) : JSON.parse(JSON.stringify(schema));
+    const primitiveType: string[] = [];
+    const complexTypes: string[] = [];
 
-    subSchema.type.forEach((v) => {
+    (subSchema.type as string[]).forEach((v) => {
       if (v.match(/integer|number|string|null|boolean/g)) {
         primitiveType.push(v);
       } else if (
@@ -1463,7 +1488,12 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
  * @param {number} [level=0] - recursion level
  * @param {string} [suffix=''] - used for suffixing property names to avoid duplicate props during object composition
  */
-export function schemaInObjectNotation(schema, obj = {}, level = 0, suffix = '') {
+export function schemaInObjectNotation(
+  schema?: Schema | null,
+  obj: ObjectNotation = {},
+  level = 0,
+  suffix = ''
+): ObjectNotation | string | undefined {
   if (!schema) {
     return;
   }
@@ -1475,13 +1505,13 @@ export function schemaInObjectNotation(schema, obj = {}, level = 0, suffix = '')
     };
   }
   if (schema.allOf) {
-    return handleAllOfSchema(schema, obj, level);
+    return handleAllOfSchema(schema as Schema & { allOf: Schema[] }, obj, level);
   }
   if (schema.anyOf || schema.oneOf) {
     return handleAnyOrOneOfSchema(schema, obj, level, suffix);
   }
   if (Array.isArray(schema.type)) {
-    return handleMultiTypeSchema(schema, obj, level);
+    return handleMultiTypeSchema(schema as Schema & { type: string[] }, obj, level);
   }
   if (schema.type === 'object' || schema.properties) {
     return handleObjectSchema(schema, obj, level);
@@ -1499,7 +1529,7 @@ export function schemaInObjectNotation(schema, obj = {}, level = 0, suffix = '')
 /**
  * Helper to consistently format raw example values according to mimeType and outputType.
  */
-function formatExampleContent(rawVal, mimeType = '', outputType = 'json') {
+function formatExampleContent(rawVal: unknown, mimeType = '', outputType = 'json'): { content: unknown; format: string } {
   let content = rawVal;
   let format = 'text';
 
@@ -1532,16 +1562,16 @@ function formatExampleContent(rawVal, mimeType = '', outputType = 'json') {
 
 /* Create Example object */
 export function generateExample(
-  schema,
+  schema?: Schema | null,
   mimeType = '',
-  examples = null,
-  example = null,
+  examples: ExamplesMap | null = null,
+  example: ExampleObject | unknown = null,
   includeReadOnly = true,
   includeWriteOnly = true,
   outputType = 'json',
   includeGeneratedExample = false
-) {
-  const finalExamples = [];
+): GeneratedExample[] {
+  const finalExamples: GeneratedExample[] = [];
   const isJson = mimeType?.toLowerCase().includes('json');
   const isXml = mimeType?.toLowerCase().includes('xml');
 
@@ -1563,13 +1593,13 @@ export function generateExample(
   }
   // 2. Process single example (when examples is absent or empty)
   else if (example !== null && example !== undefined && (typeof example !== 'object' || Object.keys(example).length > 0)) {
-    const rawVal = example?.value !== undefined ? example.value : example;
+    const rawVal = (example as ExampleObject)?.value !== undefined ? (example as ExampleObject).value : example;
     const { content, format } = formatExampleContent(rawVal, mimeType, outputType);
 
     finalExamples.push({
       exampleId: 'Example',
-      exampleSummary: example?.summary || '',
-      exampleDescription: example?.description || '',
+      exampleSummary: (example as ExampleObject)?.summary || '',
+      exampleDescription: (example as ExampleObject)?.description || '',
       exampleType: mimeType,
       exampleValue: content,
       exampleFormat: format,
@@ -1676,7 +1706,7 @@ export function generateExample(
   return finalExamples;
 }
 
-function getSerializeStyleForContentType(contentType) {
+function getSerializeStyleForContentType(contentType: string): 'json' | 'xml' | null {
   if (contentType === 'application/json') {
     return 'json';
   }
@@ -1686,7 +1716,11 @@ function getSerializeStyleForContentType(contentType) {
   return null;
 }
 
-export function getSchemaFromParam(param) {
+export function getSchemaFromParam(param: {
+  schema?: Schema;
+  content?: Record<string, { schema?: Schema; [key: string]: unknown }>;
+  [key: string]: unknown;
+}): SchemaFromParam {
   if (param.schema) {
     return [param.schema, null, null];
   }

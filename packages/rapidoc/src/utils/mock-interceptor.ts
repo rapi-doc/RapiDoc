@@ -1,7 +1,51 @@
-// @ts-nocheck
 import { generateExample } from './schema-utils.ts';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
+import type { MockOptions, ResolvedParameter, ResolvedServer, ResolvedSpec } from '../types/spec.ts';
 
-const STATUS_TEXTS = {
+/** Route compiled from an operation of the resolved spec. */
+interface CompiledRoute {
+  method: string;
+  pathTemplate: string;
+  routeKey: string;
+  patterns: RegExp[];
+  responses: OpenAPIV3_1.ResponsesObject;
+  parameters: ResolvedParameter[];
+}
+
+/** Result of matching a request against the compiled routes. */
+interface RouteMatch {
+  route: CompiledRoute;
+  pathParams: Record<string, string>;
+  url: URL;
+}
+
+/** Active mock configuration (`log` starts as the string 'true' and is a boolean once configured). */
+interface MockConfig {
+  statusCode: string;
+  statusStrategy: string;
+  delay: number;
+  log: boolean | string;
+}
+
+/** Response generated for a mocked request. */
+interface MockPayload {
+  statusCode: number;
+  statusText: string;
+  headers: Record<string, string>;
+  body: string;
+}
+
+/** XMLHttpRequest instrumented by the mock interceptor. */
+type MockXhr = XMLHttpRequest & {
+  _mockMethod: string;
+  _mockUrl: string | URL;
+  _mockHeaders?: Record<string, string>;
+};
+
+/** Subset of the resolved spec used to compile routes. */
+type MockableSpec = Pick<ResolvedSpec, 'tags'> & { servers?: Pick<ResolvedServer, 'url' | 'computedUrl'>[] };
+
+const STATUS_TEXTS: Record<number, string> = {
   200: 'OK',
   201: 'Created',
   202: 'Accepted',
@@ -25,26 +69,26 @@ const STATUS_TEXTS = {
 };
 
 let isMockActive = false;
-let originalFetch = null;
-let originalXhrOpen = null;
-let originalXhrSend = null;
-let originalXhrSetRequestHeader = null;
+let originalFetch: typeof window.fetch | null = null;
+let originalXhrOpen: XMLHttpRequest['open'] | null = null;
+let originalXhrSend: XMLHttpRequest['send'] | null = null;
+let originalXhrSetRequestHeader: XMLHttpRequest['setRequestHeader'] | null = null;
 
-let compiledRoutes = [];
-let mockConfig = {
+let compiledRoutes: CompiledRoute[] = [];
+let mockConfig: MockConfig = {
   statusCode: '',
   statusStrategy: 'first',
   delay: 0,
   log: 'true',
 };
 
-const routeCycleIndices = new Map();
+const routeCycleIndices = new Map<string, number>();
 
 /**
  * Normalizes and extracts base paths and hostnames from OpenAPI servers array.
  */
-function extractServerBases(servers = []) {
-  const bases = new Set();
+function extractServerBases(servers: { url?: string; computedUrl?: string }[] = []): string[] {
+  const bases = new Set<string>();
   // Always include empty root base path
   bases.add('');
 
@@ -72,7 +116,7 @@ function extractServerBases(servers = []) {
 /**
  * Converts an OpenAPI path template (e.g. /pets/{id}) into a matching RegExp.
  */
-function compileRoutePattern(pathTemplate, basePath = '') {
+function compileRoutePattern(pathTemplate: string, basePath = ''): RegExp {
   const cleanBase = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
   const fullPath = cleanBase + (pathTemplate.startsWith('/') ? pathTemplate : `/${pathTemplate}`);
 
@@ -91,8 +135,8 @@ function compileRoutePattern(pathTemplate, basePath = '') {
 /**
  * Builds the route table from the resolved OpenAPI spec.
  */
-export function compileRoutes(spec) {
-  const routes = [];
+export function compileRoutes(spec?: MockableSpec | null): CompiledRoute[] {
+  const routes: CompiledRoute[] = [];
   const rootBases = extractServerBases(spec?.servers);
 
   if (!spec?.tags || !Array.isArray(spec.tags)) {
@@ -133,12 +177,12 @@ export function compileRoutes(spec) {
 /**
  * Matches a request (method + URL) against the compiled routes.
  */
-function matchRoute(method, urlStr) {
+function matchRoute(method: string | undefined, urlStr: string | URL | undefined): RouteMatch | null {
   if (!compiledRoutes.length || !urlStr) {
     return null;
   }
 
-  let reqUrl;
+  let reqUrl: URL;
   try {
     const origin = typeof window !== 'undefined' && window.location?.href ? window.location.href : 'http://localhost';
     reqUrl = new URL(urlStr, origin);
@@ -172,7 +216,12 @@ function matchRoute(method, urlStr) {
 /**
  * Chooses the status code based on config and strategy (first, cycle, random).
  */
-function selectStatusCode(configuredCodesStr, strategy, endpointKey, responses = {}) {
+function selectStatusCode(
+  configuredCodesStr: string | undefined,
+  strategy: string,
+  endpointKey: string,
+  responses: OpenAPIV3_1.ResponsesObject = {}
+): string {
   const codes = (configuredCodesStr || '')
     .split(',')
     .map((s) => s.trim())
@@ -205,10 +254,11 @@ function selectStatusCode(configuredCodesStr, strategy, endpointKey, responses =
 /**
  * Generates the mock response body and headers for a matched route.
  */
-function buildMockResponsePayload(route, statusCode) {
-  const responseDef = route.responses?.[statusCode] || route.responses?.[String(statusCode)] || route.responses?.['default'];
+function buildMockResponsePayload(route: CompiledRoute, statusCode: string | number): MockPayload {
+  const responseDef = (route.responses?.[statusCode] || route.responses?.[String(statusCode)] || route.responses?.['default']) as
+    OpenAPIV3_1.ResponseObject | undefined;
 
-  const headers = {
+  const headers: Record<string, string> = {
     'X-Mock-Server': 'RapiDoc',
     'Access-Control-Allow-Origin': '*',
   };
@@ -293,7 +343,7 @@ function buildMockResponsePayload(route, statusCode) {
 /**
  * Enables the in-browser mock server by patching window.fetch and XMLHttpRequest.
  */
-export function enableMockServer(spec, options = {}) {
+export function enableMockServer(spec: MockableSpec | null | undefined, options: MockOptions = {}): void {
   mockConfig = {
     statusCode: options.statusCode || '',
     statusStrategy: options.statusStrategy || 'first',
@@ -316,9 +366,10 @@ export function enableMockServer(spec, options = {}) {
   if (!originalFetch && window.fetch) {
     originalFetch = window.fetch;
 
-    window.fetch = async function mockFetch(input, init = {}) {
+    window.fetch = async function mockFetch(this: unknown, input: RequestInfo | URL, init: RequestInit = {}) {
       if (!isMockActive) {
-        return originalFetch.apply(this, arguments);
+        // eslint-disable-next-line prefer-rest-params
+        return originalFetch!.apply(this, arguments as unknown as Parameters<typeof fetch>);
       }
 
       let url = '';
@@ -331,13 +382,14 @@ export function enableMockServer(spec, options = {}) {
         url = input.href;
         method = init?.method || 'GET';
       } else if (input && typeof input === 'object' && 'url' in input) {
-        url = input.url;
-        method = init?.method || input.method || 'GET';
+        url = (input as Request).url;
+        method = init?.method || (input as Request).method || 'GET';
       }
 
       const match = matchRoute(method, url);
       if (!match) {
-        return originalFetch.apply(this, arguments);
+        // eslint-disable-next-line prefer-rest-params
+        return originalFetch!.apply(this, arguments as unknown as Parameters<typeof fetch>);
       }
 
       const statusCode = selectStatusCode(mockConfig.statusCode, mockConfig.statusStrategy, match.route.routeKey, match.route.responses);
@@ -369,28 +421,31 @@ export function enableMockServer(spec, options = {}) {
     originalXhrSend = window.XMLHttpRequest.prototype.send;
     originalXhrSetRequestHeader = window.XMLHttpRequest.prototype.setRequestHeader;
 
-    window.XMLHttpRequest.prototype.open = function mockXhrOpen(method, url, ...rest) {
+    window.XMLHttpRequest.prototype.open = function mockXhrOpen(this: MockXhr, method: string, url: string | URL, ...rest: unknown[]) {
       this._mockMethod = method;
       this._mockUrl = url;
       this._mockHeaders = {};
-      return originalXhrOpen.apply(this, [method, url, ...rest]);
-    };
+      return (originalXhrOpen as (...args: unknown[]) => void).apply(this, [method, url, ...rest]);
+    } as XMLHttpRequest['open'];
 
-    window.XMLHttpRequest.prototype.setRequestHeader = function mockXhrSetHeader(name, value) {
+    window.XMLHttpRequest.prototype.setRequestHeader = function mockXhrSetHeader(this: MockXhr, name: string, value: string) {
       if (this._mockHeaders) {
         this._mockHeaders[name] = value;
       }
-      return originalXhrSetRequestHeader.apply(this, arguments);
+      // eslint-disable-next-line prefer-rest-params
+      return originalXhrSetRequestHeader!.apply(this, arguments as unknown as [string, string]);
     };
 
-    window.XMLHttpRequest.prototype.send = function mockXhrSend() {
+    window.XMLHttpRequest.prototype.send = function mockXhrSend(this: MockXhr) {
       if (!isMockActive) {
-        return originalXhrSend.apply(this, arguments);
+        // eslint-disable-next-line prefer-rest-params
+        return originalXhrSend!.apply(this, arguments as unknown as [Document | XMLHttpRequestBodyInit | null | undefined]);
       }
 
       const match = matchRoute(this._mockMethod, this._mockUrl);
       if (!match) {
-        return originalXhrSend.apply(this, arguments);
+        // eslint-disable-next-line prefer-rest-params
+        return originalXhrSend!.apply(this, arguments as unknown as [Document | XMLHttpRequestBodyInit | null | undefined]);
       }
 
       const statusCode = selectStatusCode(mockConfig.statusCode, mockConfig.statusStrategy, match.route.routeKey, match.route.responses);
@@ -418,7 +473,7 @@ export function enableMockServer(spec, options = {}) {
           .join('');
 
         this.getAllResponseHeaders = () => headerStr;
-        this.getResponseHeader = (name) => {
+        this.getResponseHeader = (name: string) => {
           const lower = name.toLowerCase();
           const found = Object.keys(payload.headers).find((k) => k.toLowerCase() === lower);
           return found ? payload.headers[found] : null;
@@ -428,10 +483,10 @@ export function enableMockServer(spec, options = {}) {
         this.dispatchEvent(new Event('load'));
         this.dispatchEvent(new Event('loadend'));
         if (typeof this.onreadystatechange === 'function') {
-          this.onreadystatechange();
+          (this.onreadystatechange as () => void)();
         }
         if (typeof this.onload === 'function') {
-          this.onload();
+          (this.onload as () => void)();
         }
       }, delayMs);
     };
@@ -443,7 +498,7 @@ export function enableMockServer(spec, options = {}) {
 /**
  * Disables the mock server and restores original network primitives.
  */
-export function disableMockServer() {
+export function disableMockServer(): void {
   isMockActive = false;
   compiledRoutes = [];
   routeCycleIndices.clear();
@@ -455,8 +510,8 @@ export function disableMockServer() {
     }
     if (originalXhrOpen) {
       window.XMLHttpRequest.prototype.open = originalXhrOpen;
-      window.XMLHttpRequest.prototype.send = originalXhrSend;
-      window.XMLHttpRequest.prototype.setRequestHeader = originalXhrSetRequestHeader;
+      window.XMLHttpRequest.prototype.send = originalXhrSend!;
+      window.XMLHttpRequest.prototype.setRequestHeader = originalXhrSetRequestHeader!;
       originalXhrOpen = null;
       originalXhrSend = null;
       originalXhrSetRequestHeader = null;
@@ -467,13 +522,13 @@ export function disableMockServer() {
 /**
  * Updates mock options without re-registering or recompiling routes.
  */
-export function updateMockConfig(options = {}) {
+export function updateMockConfig(options: MockOptions = {}): void {
   if (options.statusCode !== undefined) mockConfig.statusCode = options.statusCode;
   if (options.statusStrategy !== undefined) mockConfig.statusStrategy = options.statusStrategy;
   if (options.delay !== undefined) mockConfig.delay = Number(options.delay) || 0;
   if (options.log !== undefined) mockConfig.log = options.log !== 'false';
 }
 
-export function isMockServerActive() {
+export function isMockServerActive(): boolean {
   return isMockActive;
 }

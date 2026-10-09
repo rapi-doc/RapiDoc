@@ -1,5 +1,15 @@
-// @ts-nocheck
 import { formatXml } from './xml-utils.ts';
+
+export interface ProcessedFetchResponse {
+  responseText: string;
+  respJson?: unknown;
+  respBlob?: Blob;
+  respText?: string;
+  responseIsBlob: boolean;
+  responseBlobType: string;
+  responseBlobUrl: string;
+  respContentDisposition: string;
+}
 
 /**
  * Parses and processes a standard Fetch API Response into RapiDoc formatted response state.
@@ -7,21 +17,12 @@ import { formatXml } from './xml-utils.ts';
  * and binary MIME sniffing with RFC 5987 Content-Disposition decoding.
  *
  * @param {Response} fetchResponse - Standard Fetch Response object
- * @returns {Promise<{
- *   responseText: string,
- *   respJson?: any,
- *   respBlob?: Blob,
- *   respText?: string,
- *   responseIsBlob: boolean,
- *   responseBlobType: string,
- *   responseBlobUrl: string,
- *   respContentDisposition: string
- * }>}
+ * @returns {Promise<ProcessedFetchResponse>}
  */
-export async function processFetchResponse(fetchResponse) {
-  let respBlob;
-  let respJson;
-  let respText;
+export async function processFetchResponse(fetchResponse: Response): Promise<ProcessedFetchResponse> {
+  let respBlob: Blob | undefined;
+  let respJson: unknown;
+  let respText: string | undefined;
   let responseIsBlob = false;
   let responseBlobType = '';
   let responseBlobUrl = '';

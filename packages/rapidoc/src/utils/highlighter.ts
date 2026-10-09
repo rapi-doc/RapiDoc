@@ -1,4 +1,3 @@
-// @ts-nocheck
 // CSS Custom Highlight API-based Syntax Highlighter using bundled TextMate grammars
 
 import astro from 'microlighter/grammars/astro.js';
@@ -28,8 +27,9 @@ import tsx from 'microlighter/grammars/tsx.js';
 import typescript from 'microlighter/grammars/typescript.js';
 import vue from 'microlighter/grammars/vue.js';
 import yaml from 'microlighter/grammars/yaml.js';
+import type { Grammar, GrammarCaptures, GrammarRule } from 'microlighter/grammar.js';
 
-const httpGrammar = {
+const httpGrammar: Grammar = {
   scopeName: 'source.http',
   patterns: [
     {
@@ -58,7 +58,7 @@ const httpGrammar = {
   ],
 };
 
-const grammars = {
+const grammars: Record<string, Grammar> = {
   astro,
   bash,
   c,
@@ -89,14 +89,14 @@ const grammars = {
   yaml,
 };
 
-const scopes = new Map();
+const scopes = new Map<string, Grammar>();
 Object.values(grammars).forEach((grammar) => {
   if (grammar?.scopeName) {
     scopes.set(grammar.scopeName, grammar);
   }
 });
 
-const languageAliases = {
+const languageAliases: Record<string, string> = {
   'c++': 'cpp',
   cs: 'csharp',
   curl: 'bash',
@@ -117,10 +117,27 @@ const languageAliases = {
   zsh: 'bash',
 };
 
-const noMatch = { indices: [[Infinity, Infinity]] };
-const highlights = new Map();
+interface RegexMatch extends RegExpExecArray {
+  indices: [number, number][];
+}
+interface RuleContext {
+  grammar: Grammar;
+  rule: GrammarRule;
+}
+interface ClosingPattern {
+  pattern: string;
+  applyEndPatternLast?: boolean;
+}
+interface ScanResult {
+  contentEnd: number;
+  end: number;
+  match: RegexMatch | null;
+}
 
-const getCategory = (scope) => {
+const noMatch = { indices: [[Infinity, Infinity]] } as unknown as RegexMatch;
+const highlights = new Map<string, Highlight>();
+
+const getCategory = (scope: string): string | undefined => {
   const parts = scope.split('.');
   const [first, second, third] = parts;
   const last = parts.at(-1);
@@ -133,12 +150,12 @@ const getCategory = (scope) => {
   if (parts.includes('attribute-value')) return 'attribute-value';
   if (scope.startsWith('string.other.link')) return 'link';
 
-  if (['doctype', 'at-rule', 'important', 'regexp', 'boolean', 'symbol', 'operator', 'attribute-name'].includes(last)) return last;
+  if (['doctype', 'at-rule', 'important', 'regexp', 'boolean', 'symbol', 'operator', 'attribute-name'].includes(last!)) return last;
 
   if (['comment', 'string', 'constant', 'storage', 'keyword', 'variable', 'punctuation', 'entity', 'support'].includes(first)) return first;
 };
 
-const addRange = (node, start, end, scope) => {
+const addRange = (node: Text, start: number, end: number, scope: string): void => {
   const category = getCategory(scope);
   if (!category || start === end) return;
 
@@ -149,29 +166,36 @@ const addRange = (node, start, end, scope) => {
   if (!highlights.has(category)) {
     highlights.set(category, new Highlight());
   }
-  highlights.get(category).add(range);
+  highlights.get(category)!.add(range);
 };
 
-const addCaptures = (node, match, captures = {}) => {
+const addCaptures = (node: Text, match: RegexMatch, captures: GrammarCaptures = {}): void => {
   Object.entries(captures).forEach(([index, capture]) => {
     const offsets = match.indices[+index];
-    if (offsets) addRange(node, ...offsets, capture.name);
+    if (offsets) addRange(node, offsets[0], offsets[1], capture.name);
   });
 };
 
-const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const expandEnd = (pattern, beginMatch) =>
-  pattern.replace(/\\(\d+)/g, (reference, index) => (beginMatch[index] === undefined ? reference : escapeRegex(beginMatch[index])));
+const expandEnd = (pattern: string, beginMatch: RegexMatch): string =>
+  pattern.replace(/\\(\d+)/g, (reference: string, index: string) =>
+    beginMatch[index as unknown as number] === undefined ? reference : escapeRegex(beginMatch[index as unknown as number])
+  );
 
-const getRules = (rule) => {
+interface RuleContext2 {
+  grammar: Grammar;
+  rules: GrammarRule[];
+}
+
+const getRules = (rule: GrammarRule | GrammarRule[] | undefined): GrammarRule[] => {
   if (!rule) return [];
   if (Array.isArray(rule)) return rule;
   if (rule.match || rule.begin || rule.include) return [rule];
   return rule.patterns || [];
 };
 
-const resolveInclude = (include, grammar, baseGrammar) => {
+const resolveInclude = (include: string, grammar: Grammar, baseGrammar: Grammar): RuleContext2 | null => {
   if (include === '$self') return { grammar, rules: grammar.patterns };
   if (include === '$base') return { grammar: baseGrammar, rules: baseGrammar.patterns };
 
@@ -189,8 +213,13 @@ const resolveInclude = (include, grammar, baseGrammar) => {
   };
 };
 
-const expandRules = (rules, grammar, baseGrammar, activeIncludes = new Set()) => {
-  const expanded = [];
+const expandRules = (
+  rules: GrammarRule[],
+  grammar: Grammar,
+  baseGrammar: Grammar,
+  activeIncludes: Set<string> = new Set()
+): RuleContext[] => {
+  const expanded: RuleContext[] = [];
   rules.forEach((rule) => {
     if (rule.include) {
       const includeKey = `${grammar.scopeName}:${rule.include}`;
@@ -211,26 +240,26 @@ const expandRules = (rules, grammar, baseGrammar, activeIncludes = new Set()) =>
   return expanded;
 };
 
-const regexes = new Map();
-let matches = new Map();
+const regexes = new Map<string, RegExp>();
+let matches = new Map<string, RegexMatch>();
 
-const exec = (pattern, node, start, end) => {
+const exec = (pattern: string, node: Text, start: number, end: number): RegexMatch | null => {
   let match = matches.get(pattern);
   if (!match || match.indices[0][0] < start) {
     if (!regexes.has(pattern)) regexes.set(pattern, new RegExp(pattern, 'dgm'));
-    const regex = regexes.get(pattern);
+    const regex = regexes.get(pattern)!;
     regex.lastIndex = start;
-    match = regex.exec(node.data) || noMatch;
+    match = (regex.exec(node.data) as RegexMatch | null) || noMatch;
     matches.set(pattern, match);
   }
 
   return match.indices[0][0] < end && match.indices[0][1] <= end ? match : null;
 };
 
-const nextRule = (node, contexts, start, end) => {
-  let winner = null;
+const nextRule = (node: Text, contexts: RuleContext[], start: number, end: number): (RuleContext & { match: RegexMatch }) | null => {
+  let winner: (RuleContext & { match: RegexMatch }) | null = null;
   contexts.forEach((context) => {
-    const pattern = context.rule.match || context.rule.begin;
+    const pattern = (context.rule.match || context.rule.begin)!;
     const match = exec(pattern, node, start, end);
     if (!match) return;
 
@@ -242,7 +271,15 @@ const nextRule = (node, contexts, start, end) => {
   return winner;
 };
 
-const scanRegion = (node, rules, start, end, grammar, baseGrammar = grammar, closing = null) => {
+const scanRegion = (
+  node: Text,
+  rules: GrammarRule[],
+  start: number,
+  end: number,
+  grammar: Grammar,
+  baseGrammar: Grammar = grammar,
+  closing: ClosingPattern | null = null
+): ScanResult => {
   const contexts = expandRules(rules, grammar, baseGrammar);
   let cursor = start;
 
@@ -260,14 +297,14 @@ const scanRegion = (node, rules, start, end, grammar, baseGrammar = grammar, clo
 
     const { rule, match, grammar: ruleGrammar } = candidate;
     if (rule.match) {
-      if (rule.name) addRange(node, ...match.indices[0], rule.name);
+      if (rule.name) addRange(node, match.indices[0][0], match.indices[0][1], rule.name);
       addCaptures(node, match, rule.captures);
       cursor = match.indices[0][1] > cursor ? match.indices[0][1] : cursor + 1;
       continue;
     }
 
     const nested = scanRegion(node, rule.patterns || [], match.indices[0][1], end, ruleGrammar, baseGrammar, {
-      pattern: expandEnd(rule.end, match),
+      pattern: expandEnd(rule.end!, match),
       applyEndPatternLast: rule.applyEndPatternLast,
     });
 
@@ -282,11 +319,11 @@ const scanRegion = (node, rules, start, end, grammar, baseGrammar = grammar, clo
   return { contentEnd: end, end, match: null };
 };
 
-export const getLanguage = (codeBlock) => {
+export const getLanguage = (codeBlock: HTMLElement): string => {
   const pre = codeBlock.parentElement;
-  const getLangClass = (el) => {
+  const getLangClass = (el: Element | null): string | null | undefined => {
     if (!el || !el.classList) return null;
-    return [...el.classList].find((c) => c.startsWith('language-'))?.slice('language-'.length);
+    return [...el.classList].find((c: string) => c.startsWith('language-'))?.slice('language-'.length);
   };
   const lang =
     getLangClass(codeBlock) ||
@@ -298,19 +335,19 @@ export const getLanguage = (codeBlock) => {
   return lang.toLowerCase();
 };
 
-export const normalizeLanguage = (lang) => languageAliases[lang] || lang;
+export const normalizeLanguage = (lang: string): string => languageAliases[lang] || lang;
 
-export const getAllCodeBlocks = (rootNode = document) => {
-  const blocks = [];
-  const visitedRoots = new Set();
+export const getAllCodeBlocks = (rootNode: Document | ShadowRoot | Element = document): HTMLElement[] => {
+  const blocks: HTMLElement[] = [];
+  const visitedRoots = new Set<Node>();
 
-  const traverse = (node) => {
+  const traverse = (node: Document | ShadowRoot | Element | null): void => {
     if (!node || visitedRoots.has(node)) return;
     visitedRoots.add(node);
 
     if (node.querySelectorAll) {
       const codeEls = node.querySelectorAll('pre > code');
-      blocks.push(...codeEls);
+      blocks.push(...(codeEls as NodeListOf<HTMLElement>));
 
       const allChildren = node.querySelectorAll('*');
       for (let i = 0; i < allChildren.length; i++) {
@@ -328,7 +365,7 @@ export const getAllCodeBlocks = (rootNode = document) => {
 
 let highlightScheduled = false;
 
-export const highlightAllCode = (rootNode = document) => {
+export const highlightAllCode = (rootNode: Document | ShadowRoot | Element = document): void => {
   if (typeof window === 'undefined' || typeof CSS === 'undefined' || !CSS.highlights) {
     return;
   }
@@ -350,7 +387,9 @@ export const highlightAllCode = (rootNode = document) => {
     if (!grammar) return;
 
     // Scan all text nodes without mutating or removing Lit marker comment nodes
-    const textNodes = Array.from(codeBlock.childNodes).filter((child) => child.nodeType === Node.TEXT_NODE && child.data?.length > 0);
+    const textNodes = Array.from(codeBlock.childNodes).filter(
+      (child) => child.nodeType === Node.TEXT_NODE && (child as Text).data?.length > 0
+    ) as Text[];
     if (textNodes.length === 0) return;
 
     matches = new Map();
@@ -364,7 +403,7 @@ export const highlightAllCode = (rootNode = document) => {
   });
 };
 
-export const scheduleHighlight = (rootNode = document) => {
+export const scheduleHighlight = (rootNode: Document | ShadowRoot | Element = document): void => {
   if (highlightScheduled) return;
   highlightScheduled = true;
   requestAnimationFrame(() => {

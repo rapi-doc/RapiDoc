@@ -1,9 +1,68 @@
-// @ts-nocheck
 import { dereference, load, upgrade } from '@scalar/openapi-parser';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from './common-utils.ts';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
+import type {
+  HttpMethod,
+  MarkdownHeading,
+  ResolvedCallbacks,
+  ResolvedComponents,
+  ResolvedParameter,
+  ResolvedPath,
+  ResolvedSecurityScheme,
+  ResolvedServer,
+  ResolvedSpec,
+  ResolvedSpecError,
+  ResolvedSubComponent,
+  ResolvedTag,
+  SortEndpointsBy,
+  XBadge,
+} from '../types/spec.ts';
 
-function isUrlLike(value) {
+/** Plugin accepted by `@scalar/openapi-parser`'s `load()` (the package does not export this type from its root). */
+type LoadPlugin = NonNullable<NonNullable<Parameters<typeof load>[1]>['plugins']>[number];
+
+/** Error thrown/handled while loading a spec; carries HTTP details when available. */
+interface SpecLoadError extends Error {
+  status?: number;
+  statusCode?: number;
+  response?: Response;
+  url?: string;
+}
+
+/** Path item (or webhook) holding the operations keyed by method, plus the parser-added `_type`. */
+type PathItem = OpenAPIV3_1.PathItemObject & { _type?: string; [method: string]: unknown };
+
+/** Operation object with the RapiDoc extensions read by the parser. */
+type OperationObject = Omit<OpenAPIV3_1.OperationObject, 'callbacks' | 'parameters'> & {
+  parameters?: ResolvedParameter[];
+  callbacks?: ResolvedCallbacks;
+  'x-badges'?: XBadge[];
+  'x-codeSamples'?: ResolvedPath['xCodeSamples'];
+  'x-code-samples'?: ResolvedPath['xCodeSamples'];
+};
+
+/** A dereferenced spec document: OpenAPI 3.x with the loosely-typed bits the parser mutates/reads. */
+type SpecDocument = Omit<OpenAPIV3_1.Document, 'servers' | 'paths'> & {
+  servers?: ResolvedServer[];
+  paths: Record<string, PathItem>;
+  swagger?: string;
+};
+
+/** Tag declared in the spec, with the RapiDoc extensions read by the parser. */
+type SpecTag = Omit<OpenAPIV3_1.TagObject, 'name'> & {
+  name: string;
+  'x-displayName'?: string;
+  'x-tag-expanded'?: boolean;
+};
+
+/** The `this` of `ProcessSpec`: the custom element it is called on. */
+interface SpecHost {
+  requestUpdate(): void;
+  dispatchEvent(event: Event): boolean;
+}
+
+function isUrlLike(value: unknown): boolean {
   if (typeof value !== 'string') {
     return false;
   }
@@ -24,26 +83,26 @@ function isUrlLike(value) {
  * relative and external `$ref` files across browser and SSR/Node environments.
  *
  * @param {string} [baseUrl] - The base URL or document path to resolve relative references against.
- * @returns {import('@scalar/openapi-parser').LoadPlugin} A plugin object conforming to the `@scalar/openapi-parser` plugin interface:
+ * @returns A plugin object conforming to the `@scalar/openapi-parser` plugin interface:
  *   - `check(value)`: Determines whether this plugin handles the given reference/URL.
  *   - `resolvePath(parentPath, reference)`: Resolves relative reference paths against parent document URLs.
  *   - `get(value)`: Fetches file content as text using browser `fetch()`.
  */
-function createBrowserFetchPlugin(baseUrl) {
+function createBrowserFetchPlugin(baseUrl?: string): LoadPlugin {
   // Determine root origin/URL; guard for non-browser environments (SSR / test runners)
   const windowLocation = typeof window !== 'undefined' && window.location?.href ? window.location.href : 'http://localhost/';
   const base = baseUrl ? new URL(baseUrl, windowLocation) : new URL(windowLocation);
 
   return {
     // Determines if the reference should be fetched by this plugin (ignores inlined JSON/YAML and '#/...' local refs)
-    check(value) {
+    check(value?: unknown) {
       if (typeof value !== 'string' || value.startsWith('#')) {
         return false;
       }
       return isUrlLike(value);
     },
     // Resolves relative $ref paths (e.g. '../common/models.yaml') against their parent document URL
-    resolvePath(parentPath, reference) {
+    resolvePath(parentPath: string, reference: string) {
       if (reference.startsWith('http://') || reference.startsWith('https://')) {
         return reference;
       }
@@ -51,11 +110,11 @@ function createBrowserFetchPlugin(baseUrl) {
       return new URL(reference, parentUrl).href;
     },
     // Fetches the target URL via native fetch and returns the raw specification text
-    async get(value) {
+    async get(value: string) {
       const targetUrl = value.startsWith('http://') || value.startsWith('https://') ? value : new URL(value, base).href;
       const resp = await fetch(targetUrl);
       if (!resp.ok) {
-        const error = new Error(`Failed to load ${targetUrl} (${resp.status})`);
+        const error: SpecLoadError = new Error(`Failed to load ${targetUrl} (${resp.status})`);
         error.status = resp.status;
         error.statusCode = resp.status;
         error.response = resp;
@@ -67,16 +126,16 @@ function createBrowserFetchPlugin(baseUrl) {
   };
 }
 
-function breakCircularRefs(root) {
-  const seen = new WeakMap();
-  const ancestors = new WeakSet();
+function breakCircularRefs(root: unknown): unknown {
+  const seen = new WeakMap<object, unknown>();
+  const ancestors = new WeakSet<object>();
 
-  function walk(node, activeRefs = new Set(), currentRef = null) {
+  function walk(node: unknown, activeRefs: Set<string> = new Set(), currentRef: string | null = null): unknown {
     if (!node || typeof node !== 'object') {
       return node;
     }
 
-    const ref = node['x-ref'];
+    const ref = (node as Record<string, string>)['x-ref'];
     if (ref) {
       if (activeRefs.has(ref)) {
         return { $ref: ref };
@@ -100,7 +159,7 @@ function breakCircularRefs(root) {
       childActiveRefs.add(ref);
     }
 
-    let clone;
+    let clone: unknown[] | Record<string, unknown>;
     if (Array.isArray(node)) {
       clone = [];
       seen.set(node, clone);
@@ -114,7 +173,7 @@ function breakCircularRefs(root) {
         if (key === 'x-ref') {
           continue;
         }
-        clone[key] = walk(node[key], childActiveRefs, ref || currentRef);
+        clone[key] = walk((node as Record<string, unknown>)[key], childActiveRefs, ref || currentRef);
       }
     }
 
@@ -126,20 +185,22 @@ function breakCircularRefs(root) {
 }
 
 export default async function ProcessSpec(
-  specUrl,
+  this: SpecHost,
+  specUrl: Parameters<typeof load>[0],
   generateMissingTags = false,
   sortTags = false,
   sortSchemas = false,
-  sortEndpointsBy = 'none',
-  attrApiKey = '',
-  attrApiKeyLocation = '',
-  attrApiKeyValue = '',
-  serverUrl = '',
+  // attribute values (may be null when the attribute is absent)
+  sortEndpointsBy: SortEndpointsBy | string | null = 'none',
+  attrApiKey: string | null = '',
+  attrApiKeyLocation: string | null = '',
+  attrApiKeyValue: string | null = '',
+  serverUrl: string | null = '',
   matchPaths = '',
   matchType = '',
   removeEndpointsWithBadgeLabelAs = ''
-) {
-  let jsonParsedSpec;
+): Promise<ResolvedSpec | ResolvedSpecError> {
+  let jsonParsedSpec: SpecDocument;
   try {
     this.requestUpdate(); // important to show the initial loader
 
@@ -148,25 +209,25 @@ export default async function ProcessSpec(
 
     if (loaded.errors && loaded.errors.length > 0 && !loaded.specification) {
       const firstErr = loaded.errors[0];
-      const error = new Error(firstErr.message || 'Error loading specification');
+      const error: SpecLoadError = new Error(firstErr.message || 'Error loading specification');
       error.status = 404;
       throw error;
     }
 
     const dereferenceOptions = {
-      onDereference: ({ schema: dereferencedSchema, ref }) => {
+      onDereference: ({ schema: dereferencedSchema, ref }: { schema: Record<string, unknown>; ref: string }) => {
         dereferencedSchema['x-ref'] = ref;
       },
     };
 
-    let schema;
+    let schema: SpecDocument;
     if (loaded.specification?.swagger && String(loaded.specification.swagger).startsWith('2')) {
       const upgraded = upgrade(loaded.filesystem);
-      const derefResult = await dereference(upgraded.specification, dereferenceOptions);
-      schema = breakCircularRefs(derefResult.schema);
+      const derefResult = await dereference(upgraded.specification!, dereferenceOptions);
+      schema = breakCircularRefs(derefResult.schema) as SpecDocument;
     } else {
       const derefResult = await dereference(loaded.filesystem, dereferenceOptions);
-      schema = breakCircularRefs(derefResult.schema);
+      schema = breakCircularRefs(derefResult.schema) as SpecDocument;
     }
 
     await sleep(0); // important to show the initial loader (allows for rendering updates)
@@ -188,7 +249,8 @@ export default async function ProcessSpec(
         tags: [],
       };
     }
-  } catch (err) {
+  } catch (err: any) {
+    // `any`: thrown value may be a SpecLoadError, a plain Error or anything else (accessed as such below)
     let errDescr;
     console.info('RapiDoc: %c There was an issue while loading/parsing the spec %o ', 'color:orangered', err);
     if (err.statusCode === 404 || err.status === 404) {
@@ -223,29 +285,31 @@ export default async function ProcessSpec(
   const infoDescriptionHeaders = jsonParsedSpec.info?.description ? getHeadersFromMarkdown(jsonParsedSpec.info.description) : [];
 
   // Security Scheme
-  const securitySchemes = [];
+  const securitySchemes: ResolvedSecurityScheme[] = [];
   if (jsonParsedSpec.components?.securitySchemes) {
     const securitySchemeSet = new Set();
-    Object.entries(jsonParsedSpec.components.securitySchemes).forEach((kv) => {
-      if (!securitySchemeSet.has(kv[0])) {
-        securitySchemeSet.add(kv[0]);
-        const securityObj = { securitySchemeId: kv[0], ...kv[1] };
-        securityObj.in = 'header';
-        securityObj.name = 'Authorization'; // Name of the header/cookie/api-key
-        securityObj.nameId = kv[1].name || kv[0]; // Name of the security-scheme
-        securityObj.user = '';
-        securityObj.password = '';
-        securityObj.clientId = '';
-        securityObj.clientSecret = '';
-        securityObj.value = '';
-        securityObj.finalKeyValue = '';
-        if (kv[1].type === 'apiKey') {
-          securityObj.in = kv[1].in || 'header';
-          securityObj.name = kv[1].name || 'Authorization';
+    Object.entries(jsonParsedSpec.components.securitySchemes as Record<string, Omit<ResolvedSecurityScheme, 'securitySchemeId'>>).forEach(
+      (kv) => {
+        if (!securitySchemeSet.has(kv[0])) {
+          securitySchemeSet.add(kv[0]);
+          const securityObj: ResolvedSecurityScheme = { securitySchemeId: kv[0], ...kv[1] };
+          securityObj.in = 'header';
+          securityObj.name = 'Authorization'; // Name of the header/cookie/api-key
+          securityObj.nameId = kv[1].name || kv[0]; // Name of the security-scheme
+          securityObj.user = '';
+          securityObj.password = '';
+          securityObj.clientId = '';
+          securityObj.clientSecret = '';
+          securityObj.value = '';
+          securityObj.finalKeyValue = '';
+          if (kv[1].type === 'apiKey') {
+            securityObj.in = kv[1].in || 'header';
+            securityObj.name = kv[1].name || 'Authorization';
+          }
+          securitySchemes.push(securityObj);
         }
-        securitySchemes.push(securityObj);
       }
-    });
+    );
   }
 
   if (attrApiKey && attrApiKeyLocation && attrApiKeyValue) {
@@ -276,10 +340,10 @@ export default async function ProcessSpec(
   });
 
   // Servers
-  let servers = [];
+  let servers: ResolvedServer[] = [];
   if (jsonParsedSpec.servers && Array.isArray(jsonParsedSpec.servers) && jsonParsedSpec.servers.length > 0) {
     jsonParsedSpec.servers.forEach((v) => {
-      let computedUrl = v.url.trim();
+      let computedUrl = v.url!.trim();
       if (!(computedUrl.startsWith('http') || computedUrl.startsWith('//') || computedUrl.startsWith('{'))) {
         if (typeof window !== 'undefined' && window.location?.origin?.startsWith('http')) {
           v.url = window.location.origin + v.url;
@@ -290,8 +354,8 @@ export default async function ProcessSpec(
       if (v.variables) {
         Object.entries(v.variables).forEach((kv) => {
           const regex = new RegExp(`{${kv[0]}}`, 'g');
-          computedUrl = computedUrl.replace(regex, kv[1].default || '');
-          kv[1].value = kv[1].default || '';
+          computedUrl = computedUrl.replace(regex, (kv[1].default || '') as string);
+          kv[1].value = (kv[1].default || '') as string;
         });
       }
       v.computedUrl = computedUrl;
@@ -307,7 +371,7 @@ export default async function ProcessSpec(
     jsonParsedSpec.servers = [{ url: 'http://localhost', computedUrl: 'http://localhost' }];
   }
   servers = jsonParsedSpec.servers;
-  const parsedSpec = {
+  const parsedSpec: ResolvedSpec = {
     specLoadError: false,
     isSpecLoading: false,
     info: jsonParsedSpec.info,
@@ -321,8 +385,8 @@ export default async function ProcessSpec(
   return parsedSpec;
 }
 
-function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpointsWithBadgeLabelAs = '') {
-  const filteredPaths = {};
+function filterPaths(openApiObject: SpecDocument, matchPaths = '', matchType = '', removeEndpointsWithBadgeLabelAs = ''): SpecDocument {
+  const filteredPaths: Record<string, PathItem> = {};
 
   // Convert the removePathsWithBadgeLabeledAs to an array if provided
   const labelsToRemove = removeEndpointsWithBadgeLabelAs
@@ -331,7 +395,7 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
     .filter(Boolean);
 
   // Helper function to check if a path should be included based on matchPaths
-  function pathMatches(pathsKey, httpMethod) {
+  function pathMatches(pathsKey: string, httpMethod: string): boolean {
     if (!matchPaths) {
       return true; // If no matchPaths provided, include everything
     }
@@ -344,15 +408,15 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
   }
 
   // Helper function to check if the badges contain any label that needs to be removed
-  function containsLabelToRemove(badges) {
+  function containsLabelToRemove(badges: XBadge[]): boolean {
     return badges.some((badge) => labelsToRemove.includes(badge?.label.toLowerCase()));
   }
 
   // Loop through the paths in the openApiObject
   Object.entries(openApiObject.paths).forEach(([pathsKey, methods]) => {
-    const filteredMethods = {};
+    const filteredMethods: PathItem = {};
 
-    Object.entries(methods).forEach(([httpMethod, methodDetails]) => {
+    Object.entries(methods as Record<string, OperationObject>).forEach(([httpMethod, methodDetails]) => {
       const badges = methodDetails['x-badges'];
 
       // Filter by matchPaths
@@ -378,25 +442,25 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
   return openApiObject;
 }
 
-function getHeadersFromMarkdown(markdownContent) {
+function getHeadersFromMarkdown(markdownContent: string): MarkdownHeading[] {
   const tokens = marked.lexer(markdownContent);
-  const headers = tokens.filter((v) => v.type === 'heading' && v.depth <= 2);
+  const headers = tokens.filter((v): v is MarkdownHeading => v.type === 'heading' && (v as MarkdownHeading).depth <= 2);
   return headers || [];
 }
 
-function getComponents(openApiSpec, sortSchemas = false) {
+function getComponents(openApiSpec: SpecDocument, sortSchemas = false): ResolvedComponents {
   if (!openApiSpec.components) {
     return [];
   }
-  const components = [];
+  const components: ResolvedComponents = [];
   for (const component in openApiSpec.components) {
-    const subComponents = [];
-    for (const sComponent in openApiSpec.components[component]) {
+    const subComponents: ResolvedSubComponent[] = [];
+    for (const sComponent in (openApiSpec.components as Record<string, Record<string, unknown>>)[component]) {
       const scmp = {
         show: true,
         id: `${component.toLowerCase()}-${sComponent.toLowerCase()}`.replace(invalidCharsRegEx, '-'),
         name: sComponent,
-        component: openApiSpec.components[component][sComponent],
+        component: (openApiSpec.components as Record<string, Record<string, unknown>>)[component][sComponent],
       };
       subComponents.push(scmp);
     }
@@ -470,11 +534,16 @@ function getComponents(openApiSpec, sortSchemas = false) {
   return components || [];
 }
 
-function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags = false, sortTags = false) {
-  const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
-  const tags =
+function groupByTags(
+  openApiSpec: SpecDocument,
+  sortEndpointsBy: string | null = 'none',
+  generateMissingTags = false,
+  sortTags = false
+): ResolvedTag[] {
+  const supportedMethods: HttpMethod[] = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
+  const tags: ResolvedTag[] =
     openApiSpec.tags && Array.isArray(openApiSpec.tags) && openApiSpec.tags.length > 0
-      ? openApiSpec.tags.map((v) => ({
+      ? (openApiSpec.tags as SpecTag[]).map((v) => ({
           show: true,
           elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
           name: v.name,
@@ -486,9 +555,9 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
         }))
       : [];
 
-  const pathsAndWebhooks = openApiSpec.paths || {};
+  const pathsAndWebhooks: Record<string, PathItem> = openApiSpec.paths || {};
   if (openApiSpec.webhooks) {
-    for (const [key, value] of Object.entries(openApiSpec.webhooks)) {
+    for (const [key, value] of Object.entries(openApiSpec.webhooks as Record<string, PathItem>)) {
       value._type = 'webhook';
       pathsAndWebhooks[key] = value;
     }
@@ -503,9 +572,9 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
     const isWebhook = pathsAndWebhooks[pathOrHookName]._type === 'webhook';
     supportedMethods.forEach((methodName) => {
       if (pathsAndWebhooks[pathOrHookName][methodName]) {
-        const pathOrHookObj = openApiSpec.paths[pathOrHookName][methodName];
+        const pathOrHookObj = openApiSpec.paths[pathOrHookName][methodName] as OperationObject;
         // If path.methods are tagged, else generate it from path
-        const pathTags = pathOrHookObj.tags || [];
+        const pathTags: string[] = pathOrHookObj.tags || [];
         if (pathTags.length === 0) {
           if (generateMissingTags) {
             const pathOrHookNameKey = pathOrHookName.replace(/^\/+|\/+$/g, '');
@@ -522,11 +591,11 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
         }
 
         pathTags.forEach((tag) => {
-          let tagObj;
-          let specTagsItem;
+          let tagObj: ResolvedTag | undefined;
+          let specTagsItem: SpecTag | undefined;
 
           if (openApiSpec.tags) {
-            specTagsItem = openApiSpec.tags.find((v) => v.name.toLowerCase() === tag.toLowerCase());
+            specTagsItem = (openApiSpec.tags as SpecTag[]).find((v) => v.name.toLowerCase() === tag.toLowerCase());
           }
 
           tagObj = tags.find((v) => v.name === tag);
@@ -549,12 +618,12 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
             [shortSummary] = shortSummary.split(/[.|!|?]\s|[\r?\n]/); // take the first line (period or carriage return)
           }
           // Merge Common Parameters with This methods parameters
-          let finalParameters = [];
+          let finalParameters: ResolvedParameter[] = [];
           if (commonParams) {
             if (pathOrHookObj.parameters) {
               finalParameters = commonParams
                 .filter((commonParam) => {
-                  if (!pathOrHookObj.parameters.some((param) => commonParam.name === param.name && commonParam.in === param.in)) {
+                  if (!pathOrHookObj.parameters!.some((param) => commonParam.name === param.name && commonParam.in === param.in)) {
                     return commonParam;
                   }
                 })
@@ -609,7 +678,13 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
   if (sortEndpointsBy !== 'none') {
     tagsWithSortedPaths.forEach((tag) => {
       if (sortEndpointsBy === 'method') {
-        tag.paths.sort((a, b) => supportedMethods.indexOf(a.method).toString().localeCompare(supportedMethods.indexOf(b.method)));
+        // TODO(ts-migration): localeCompare is given a number (implicit string coercion); the sort compares indices as strings, so 10+ would mis-order (harmless with 7 methods)
+        tag.paths.sort((a, b) =>
+          supportedMethods
+            .indexOf(a.method)
+            .toString()
+            .localeCompare(supportedMethods.indexOf(b.method) as unknown as string)
+        );
       } else if (sortEndpointsBy === 'summary') {
         tag.paths.sort((a, b) => a.shortSummary.localeCompare(b.shortSummary));
       } else if (sortEndpointsBy === 'path') {

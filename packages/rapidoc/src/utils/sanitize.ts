@@ -1,14 +1,17 @@
-// @ts-nocheck
-export function sanitizeHTML(htmlString) {
+/** Minimal typings for the (not yet in lib.dom) HTML Sanitizer API. */
+type SetHtmlElement = HTMLElement & { setHTML: (html: string, options: { sanitizer: unknown }) => void };
+type SanitizerWindow = Window & { Sanitizer?: new (config: unknown) => unknown };
+
+export function sanitizeHTML(htmlString: unknown): string {
   if (typeof htmlString !== 'string') {
     return '';
   }
 
   // Use native Sanitizer API if supported
-  if (typeof window !== 'undefined' && window.Sanitizer && Element.prototype.setHTML) {
+  if (typeof window !== 'undefined' && (window as SanitizerWindow).Sanitizer && (Element.prototype as SetHtmlElement).setHTML) {
     try {
-      const el = document.createElement('div');
-      const sanitizer = new window.Sanitizer({ allowAttributes: { '*': ['*'] } });
+      const el = document.createElement('div') as unknown as SetHtmlElement;
+      const sanitizer = new (window as SanitizerWindow).Sanitizer!({ allowAttributes: { '*': ['*'] } });
       el.setHTML(htmlString, { sanitizer });
       return el.innerHTML;
     } catch {
@@ -17,7 +20,7 @@ export function sanitizeHTML(htmlString) {
   }
 
   // Minimal shim for unsupported browsers to prevent basic XSS
-  let doc;
+  let doc: Document;
   if (typeof DOMParser !== 'undefined') {
     doc = new DOMParser().parseFromString(htmlString, 'text/html');
   } else {
@@ -28,7 +31,7 @@ export function sanitizeHTML(htmlString) {
   // Remove script tags
   const scripts = doc.querySelectorAll('script');
   for (let i = scripts.length - 1; i >= 0; i--) {
-    scripts[i].parentNode.removeChild(scripts[i]);
+    scripts[i].parentNode!.removeChild(scripts[i]);
   }
 
   // Remove on* attributes and javascript: URIs

@@ -1,9 +1,11 @@
-// @ts-nocheck
+import type { AdvancedSearchMatch, ResolvedComponent, ResolvedPath, ResolvedTag } from '../types/spec.ts';
+
 /* For Delayed Event Handler Execution */
-export function debounce(fn, delay) {
-  let timeoutID = null;
-  return (...args) => {
-    clearTimeout(timeoutID);
+export function debounce<A extends unknown[]>(this: unknown, fn: (...args: A) => void, delay: number): (...args: A) => void {
+  let timeoutID: ReturnType<typeof setTimeout> | null = null;
+  return (...args: A) => {
+    clearTimeout(timeoutID!);
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
     timeoutID = setTimeout(() => {
       fn.apply(that, args);
@@ -14,12 +16,12 @@ export function debounce(fn, delay) {
 export const invalidCharsRegEx = /[\s#:?&={}]/g; // used for generating valid html element ids by replacing the invalid chars with hyphen (-)
 export const rapidocApiKey = '_rapidoc_api_key';
 
-export function sleep(ms) {
+export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function copyToClipboard(data, e) {
-  const btnEl = e.target;
+export function copyToClipboard(data: string, e: Event): void {
+  const btnEl = e.target as HTMLElement;
   const textArea = document.createElement('textarea');
   textArea.value = data;
   textArea.style.position = 'fixed'; // avoid scrolling to bottom
@@ -38,28 +40,31 @@ export function copyToClipboard(data, e) {
   document.body.removeChild(textArea);
 }
 
-export function getBaseUrlFromUrl(url) {
+export function getBaseUrlFromUrl(url: string): string {
   const pathArray = url.split('/');
   return `${pathArray[0]}//${pathArray[2]}`;
 }
 
-export async function wait(ms) {
+export async function wait(ms: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
 
-export function getMatchedComponents(searchVal, component) {
+export function getMatchedComponents(searchVal: string, component: Pick<ResolvedComponent, 'name'>): boolean {
   return component.name.toLowerCase().includes(searchVal.toLowerCase());
 }
 
-export function getMatchedPaths(searchVal, path, tagName = '') {
+export function getMatchedPaths(searchVal: string, path: ResolvedPath, tagName = ''): boolean {
   const stringToSearch =
     `${path.method} ${path.path} ${path.summary || ''} ${path.description || ''} ${path.operationId || ''} ${tagName}`.toLowerCase();
   return stringToSearch.includes(searchVal.toLowerCase());
 }
 
-export function schemaKeys(schemaProps, result = new Set()) {
+/** Loose shape of a schema `properties` map (values are schema objects). */
+type SchemaProps = Record<string, { properties?: SchemaProps; items?: { properties?: SchemaProps } }>;
+
+export function schemaKeys(schemaProps: SchemaProps | undefined, result: Set<string> = new Set()): Set<string> {
   if (!schemaProps) {
     return result;
   }
@@ -74,12 +79,16 @@ export function schemaKeys(schemaProps, result = new Set()) {
   return result;
 }
 
-export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
+export function advancedSearch(
+  searchVal: string,
+  allSpecTags: ResolvedTag[],
+  searchOptions: string[] = []
+): AdvancedSearchMatch[] | undefined {
   if (!searchVal.trim() || searchOptions.length === 0) {
     return;
   }
 
-  const pathsMatched = [];
+  const pathsMatched: AdvancedSearchMatch[] = [];
   allSpecTags.forEach((tag) => {
     tag.paths.forEach((path) => {
       let stringToSearch = '';
@@ -94,7 +103,7 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
       }
 
       if (searchOptions.includes('search-api-request-body') && path.requestBody) {
-        let schemaKeySet = new Set();
+        let schemaKeySet: Set<string> = new Set();
         for (const contentType in path.requestBody?.content) {
           if (path.requestBody.content[contentType].schema?.properties) {
             schemaKeySet = schemaKeys(path.requestBody.content[contentType].schema?.properties);
@@ -104,7 +113,7 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
       }
 
       if (searchOptions.includes('search-api-resp-descr')) {
-        stringToSearch = `${stringToSearch} ${Object.values(path.responses)
+        stringToSearch = `${stringToSearch} ${Object.values(path.responses!)
           .map((v) => v.description || '')
           .join(' ')}`;
       }
@@ -146,7 +155,7 @@ export function prettyXml(sourceXmlString) {
 }
 */
 
-export function downloadResource(url, fileName) {
+export function downloadResource(url: string, fileName: string): void {
   if (url) {
     const a = document.createElement('a');
     document.body.appendChild(a);
@@ -158,7 +167,7 @@ export function downloadResource(url, fileName) {
   }
 }
 
-export function viewResource(url) {
+export function viewResource(url: string): void {
   if (url) {
     const a = document.createElement('a');
     document.body.appendChild(a);

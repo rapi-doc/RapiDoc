@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Formats/prettifies an XML string with indentation.
  *
@@ -8,7 +7,12 @@
  * @param {boolean} [options.textNodesOnSameLine=true] - Keep simple text nodes on the same line as their opening and closing tags.
  * @returns {string} Formatted XML string.
  */
-export function formatXml(xml, { indentor = '  ', textNodesOnSameLine = true } = {}) {
+export interface FormatXmlOptions {
+  indentor?: string;
+  textNodesOnSameLine?: boolean;
+}
+
+export function formatXml(xml: string, { indentor = '  ', textNodesOnSameLine = true }: FormatXmlOptions = {}): string {
   if (!xml || typeof xml !== 'string') {
     return '';
   }

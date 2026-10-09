@@ -1,10 +1,11 @@
-// @ts-nocheck
+import type { RgbColor } from '~/types/theme';
+
 export default {
   color: {
     inputReverseFg: '#fff',
     inputReverseBg: '#333',
     headerBg: '#444',
-    getRgb(hex) {
+    getRgb(hex: string): RgbColor {
       if (hex.indexOf('#') === 0) {
         hex = hex.slice(1, 7);
       }
@@ -21,18 +22,18 @@ export default {
         b: parseInt(hex.slice(4, 6), 16),
       };
     },
-    luminanace(hexColorCode) {
+    luminanace(hexColorCode: string): number {
       const rgb = this.getRgb(hexColorCode);
       return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
     },
-    invert(hexColorCode) {
+    invert(hexColorCode: string): string {
       return this.luminanace(hexColorCode) > 135 ? '#000' : '#fff'; // compare with `>=128`, but giving little more preference to white over black
     },
-    opacity(hex, opacity) {
+    opacity(hex: string, opacity: string | number): string {
       const rgb = this.getRgb(hex);
       return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
     },
-    brightness(hex, amt) {
+    brightness(hex: string, amt: number): string {
       const rgb = this.getRgb(hex);
       rgb.r += amt;
       rgb.g += amt;
@@ -47,7 +48,7 @@ export default {
       else if (rgb.b < 0) rgb.b = 0;
       return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
     },
-    hasGoodContrast(hexColorCode1, hexColorCode2) {
+    hasGoodContrast(hexColorCode1: string, hexColorCode2: string): number {
       const lum1 = this.luminanace(hexColorCode1);
       const lum2 = this.luminanace(hexColorCode2);
       return lum1 - lum2;
@@ -55,6 +56,6 @@ export default {
   },
 };
 
-export function isValidHexColor(colorCode) {
+export function isValidHexColor(colorCode: string): boolean {
   return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8}|[A-Fa-f0-9]{4})$/i.test(colorCode);
 }
