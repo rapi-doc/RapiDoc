@@ -40,11 +40,12 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:size": "ANALYZE=true vite build",
-    "lint": "eslint './src/**/*.js'",
-    "format": "prettier --check './src/**/*.{js,html,css}'",
-    "format-fix": "prettier --write './src/**/*.{js,html,css}'",
+    "lint": "eslint './src/**/*.{js,ts}'",
+    "format": "prettier --check './src/**/*.{js,ts,html,css}'",
+    "format-fix": "prettier --write './src/**/*.{js,ts,html,css}'",
     "analyze": "lit-analyzer src",
-    "test": "node --test ../../tests/unit/*.test.js"
+    "test": "node --test ../../tests/unit/*.test.js",
+    "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@scalar/openapi-parser": "^0.29.11",
@@ -57,6 +58,8 @@
     "@lit-labs/rollup-plugin-minify-html-literals": "^0.2.0",
     "esbuild": "^0.28.2",
     "rollup-plugin-visualizer": "^7.1.1",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.1",
     "vite": "^8.3.3",
     "vite-plugin-banner": "^0.8.1"
   }

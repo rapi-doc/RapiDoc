@@ -1,4 +1,5 @@
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 import pluginJs from '@eslint/js';
 import { configs as litConfigs } from 'eslint-plugin-lit';
 import eslintConfigPrettier from 'eslint-config-prettier';
@@ -17,8 +18,9 @@ export default [
   },
   pluginJs.configs.recommended, // ESLint recommended
   litConfigs['flat/recommended'], // Lit recommended
+  ...tseslint.configs.recommended.map((config) => ({ ...config, files: ['**/*.ts'] })), // TypeScript recommended (ts files only)
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.ts'],
     plugins: {
       prettier: eslintPluginPrettier, // Add Prettier plugin
     },
