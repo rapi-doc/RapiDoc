@@ -16,12 +16,7 @@ import '~/components/api-response';
 function headingRenderer(tagElementId) {
   const slugger = new Slugger();
   const renderer = new marked.Renderer();
-  /*
-  renderer.heading = (text, level, raw, slugger) =>
-    `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
-  return renderer;
-  */
-  renderer.heading = (text, level, raw) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
+  renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${tagElementId}--${slugger.slug(text)}">${text}</h${depth}>`;
   return renderer;
 }
 
