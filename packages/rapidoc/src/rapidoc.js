@@ -920,8 +920,9 @@ export default class RapiDoc extends LitElement {
   }
 
   onSearchChange(e) {
-    // this.matchPaths = e.target.value;
-    this.searchVal = e.target.value;
+    // The event may come from the ↩ icon (a div without `value`): read the nav-bar input instead
+    const input = e.target instanceof HTMLInputElement ? e.target : this.shadowRoot.getElementById('nav-bar-search');
+    this.searchVal = input?.value ?? '';
     this.resolvedSpec.tags.forEach((tag) =>
       tag.paths.filter((path) => {
         if (this.searchVal) {
