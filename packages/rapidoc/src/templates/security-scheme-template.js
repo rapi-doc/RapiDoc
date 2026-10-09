@@ -407,7 +407,8 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
     authUrlObj.search = authCodeParams.toString();
     // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
     if (sessionStorage.getItem('winMessageEventActive') === 'true') {
-      window.postMessage({ fake: true }, this);
+      // the message targets this very window and carries no data, so any target origin is safe
+      window.postMessage({ fake: true }, '*');
     }
     setTimeout(() => {
       newWindow = window.open(authUrlObj.toString());
