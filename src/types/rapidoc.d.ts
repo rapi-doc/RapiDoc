@@ -221,7 +221,7 @@ export interface DocumentModifiedByRapiDoc<
       [variable: string]: OpenAPIV3.ServerVariableObject & { value?: string };
     };
   })[];
-  tags?: (OpenAPIV3.TagObject & { 'x-tag-expanded'?: boolean })[];
+  tags?: (OpenAPIV3.TagObject & { 'x-tag-expanded'?: boolean; 'x-displayName'?: string })[];
   webhooks?: Record<
     string,
     (OpenAPIV3.PathItemObject | OpenAPIV3.ReferenceObject) & {
@@ -258,6 +258,7 @@ export interface RapiDocTag {
   show: boolean;
   elementId: string;
   name: string;
+  displayName?: string;
   description: string;
   headers: (marked.Token & { depth?: number; text?: string })[];
   expanded: boolean;

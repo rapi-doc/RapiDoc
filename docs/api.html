@@ -131,6 +131,14 @@
             <td class='default-col'>false</td>
           </tr>
           <tr>
+            <td class="attr-col mono bold right">sort-schemas </td>
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> To list schemas in alphabetic order,
+              otherwise schemas will be ordered based on how it is specified under the <span class = "mono blue bold">schemas</span> section in the spec.
+              Only has an effect if focused render-style and show-components are applied.
+            </td>
+            <td class='default-col'>false</td>
+          </tr>
+          <tr>
             <td class="attr-col mono bold right">sort-endpoints-by </td>
             <td class="gray"><span class='bold dark-gray'>
               Allowed:<span class='blue'> path | method | summary | none </span></span>
@@ -321,13 +329,13 @@
           </tr>
           <tr id="nav-accent-color">
             <td class=" attr-col mono bold right">nav-accent-color </td>
-            <td class="gray"> Accent color used in navigtion Bar (such as background of active navigation item)</td>
+            <td class="gray"> Accent color used in navigation Bar (such as background of active navigation item)</td>
             <td class='default-col'></td>
           </tr>
 
           <tr id="nav-accent-text-color">
             <td class=" attr-col mono bold right">nav-accent-text-color </td>
-            <td class="gray"> Text color used in navigtion bar selected items</td>
+            <td class="gray"> Text color used in navigation bar selected items</td>
             <td class='default-col'></td>
           </tr>
 
@@ -349,7 +357,7 @@
           <tr id="on-nav-tag-click">
             <td class="mono bold right">on-nav-tag-click</td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> expand-collapse | show-description</span></span> -
-              applies only to focused render-style. It determinses the behavior of clicking on a Tag in navigation bar.
+              applies only to focused render-style. It determines the behavior of clicking on a Tag in navigation bar.
               It can either expand-collapse the tag or take you to the tag's description page.
             </td>
             <td>expand-collapse</td>

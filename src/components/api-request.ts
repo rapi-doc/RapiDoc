@@ -756,6 +756,12 @@ export default class ApiRequest extends LitElement {
                       const requestPanelEl = this.getRequestPanel(e) as HTMLElement;
                       this.liveCURLSyntaxUpdate(requestPanelEl);
                     }}
+                    @keydown=${(e: KeyboardEvent) => {
+                      if ((e.keyCode === 10 || e.keyCode === 13) && e.ctrlKey) {
+                        this.onTryClick(e);
+                      }
+                    }}
+
                   ></textarea>
                 </div>  
               `)}
@@ -1676,6 +1682,12 @@ export default class ApiRequest extends LitElement {
     }
 
     curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
+
+    fetchHeaders.forEach((value, key) => {
+      let tempHeaderArray = value.split(',');
+      tempHeaderArray = tempHeaderArray.map((el) => el.trim()).filter((string, index) => tempHeaderArray.indexOf(string) === index);
+      fetchHeaders.set(key, tempHeaderArray.join(', '));
+    });
 
     curlHeaders = Array.from(fetchHeaders).map(([key, value]) => ` -H "${key}: ${value}"`).join('\\\n');
     if (curlHeaders) {

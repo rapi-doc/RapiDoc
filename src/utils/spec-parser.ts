@@ -18,6 +18,7 @@ export default async function ProcessSpec(
   specUrl: string,
   generateMissingTags = false,
   sortTags = false,
+  sortSchemas = false,
   sortEndpointsBy: 'method' | 'summary' | 'path' | 'none' | '' = '',
   attrApiKey = '',
   attrApiKeyLocation = '',
@@ -117,7 +118,7 @@ export default async function ProcessSpec(
   );
 
   // Components
-  const components = getComponents(jsonParsedSpec);
+  const components = getComponents(jsonParsedSpec, sortSchemas);
 
   // Info Description Headers
   const infoDescriptionHeaders = jsonParsedSpec?.info?.description
@@ -258,7 +259,7 @@ function getHeadersFromMarkdown(
   return headers || [];
 }
 
-function getComponents(openApiSpec: OpenAPIV3.Document) {
+function getComponents(openApiSpec: OpenAPIV3.Document, sortSchemas = false) {
   if (!openApiSpec.components) {
     return [];
   }
@@ -284,6 +285,10 @@ function getComponents(openApiSpec: OpenAPIV3.Document) {
 
       switch (component) {
         case 'schemas':
+          if (sortSchemas) {
+            subComponents.sort((c1, c2) => c1.name.localeCompare(c2.name));
+          }
+
           cmpName = 'Schemas';
           cmpDescription =
             'Schemas allows the definition of input and output data types. These types can be objects, but also primitives and arrays.';
@@ -370,6 +375,7 @@ function groupByTags(
           show: true,
           elementId: `tag--${tag.name.replace(invalidCharsRegEx, '-')}`,
           name: tag.name,
+          displayName: tag['x-displayName'] || tag.name,
           description: tag.description || '',
           headers: tag.description
             ? getHeadersFromMarkdown(tag.description)
@@ -438,6 +444,7 @@ function groupByTags(
                 show: true,
                 elementId: `tag--${pathTag.replace(invalidCharsRegEx, '-')}`,
                 name: pathTag,
+                displayName: specTagsItem?.['x-displayName'] || pathTag,
                 description: specTagsItem?.description || '',
                 headers: specTagsItem?.description
                   ? getHeadersFromMarkdown(specTagsItem.description)

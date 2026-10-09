@@ -81,14 +81,14 @@ paths:
 
 
         ### Images 
-        Inline Images no-gap - ![appspot image filler](http://ipsumimage.appspot.com/100)![appspot image filler](http://ipsumimage.appspot.com/100)
+        Inline Images no-gap - ![picsum.photos image filler](https://picsum.photos/100)![picsum.photos image filler](https://picsum.photos/100)
 
-        Inline Images Single space gap - ![appspot image filler](http://ipsumimage.appspot.com/100)
-        ![appspot image filler](http://ipsumimage.appspot.com/100)
+        Inline Images Single space gap - ![appspot image filler](https://picsum.photos/100)
+        ![picsum.photos image filler](https://picsum.photos/100)
 
         Next Line Image
         
-        ![appspot image filler](http://ipsumimage.appspot.com/140x100.png)
+        ![picsum.photos image filler](https://picsum.photos/140/100)
 
       parameters:
         - name: full-name

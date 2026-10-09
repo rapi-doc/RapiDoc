@@ -1,9 +1,13 @@
+import RandExp from 'randexp';
 import type {
   RapiDocExamples,
   RapiDocObj,
   RapiDocSchema,
 } from '@rapidoc-types';
 import type { OpenAPIV3 } from 'openapi-types';
+
+// Make RandExp determinist
+RandExp.prototype.randInt = (from: number) => from;
 
 // Takes a value as input and provides a printable string to represent null values, spaces, blank string etc
 export function getPrintableVal(val: unknown) {
@@ -347,7 +351,7 @@ export function getSampleValueByType(schemaObj: RapiDocSchema) {
   }
   if ('$ref' in schemaObj) {
     // Indicates a Circular ref
-    return schemaObj.$ref;
+    return {};
   }
   if (
     schemaObj.const === false ||
@@ -360,11 +364,14 @@ export function getSampleValueByType(schemaObj: RapiDocSchema) {
   if (schemaObj.const) {
     return schemaObj.const;
   }
+  if (schemaObj.default) {
+    return schemaObj.default;
+  }
   const typeValue = Array.isArray(schemaObj.type)
     ? schemaObj.type[0]
     : schemaObj.type;
   if (!typeValue) {
-    return '?';
+    return null;
   }
   if (typeValue.match(/^integer|^number/g)) {
     const multipleOf = Number.isNaN(Number(schemaObj.multipleOf))
@@ -402,7 +409,11 @@ export function getSampleValueByType(schemaObj: RapiDocSchema) {
       return schemaObj.const;
     }
     if (schemaObj.pattern) {
-      return schemaObj.pattern;
+      try {
+        return new RandExp(schemaObj.pattern).gen();
+      } catch (error) {
+        return schemaObj.pattern;
+      }
     }
     if (schemaObj.format) {
       const u = `${Date.now().toString(16)}${Math.random().toString(
@@ -453,7 +464,7 @@ export function getSampleValueByType(schemaObj: RapiDocSchema) {
     }
   }
   // If type cannot be determined
-  return '?';
+  return null;
 }
 
 /*
@@ -856,6 +867,12 @@ export function schemaToSampleObj(
             config
           )
         );
+      }
+      if (typeof schema.additionalProperties === 'object') {
+        const additionalProps = schema.additionalProperties as RapiDocSchema & { 'x-additionalPropertiesName'?: string };
+        const propertyName = additionalProps['x-additionalPropertiesName'] || 'property';
+        obj = mergePropertyExamples(obj, `${propertyName}1`, schemaToSampleObj(additionalProps, config));
+        obj = mergePropertyExamples(obj, `${propertyName}2`, schemaToSampleObj(additionalProps, config));
       }
     }
   } else if (schema.type === 'array' || schema.items) {

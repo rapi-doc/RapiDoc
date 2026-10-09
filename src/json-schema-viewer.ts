@@ -44,6 +44,7 @@ export default class JsonSchemaViewer extends LitElement implements RapiDocJSONS
   public resolvedSpec?: ResolvedSpec | null;
   private generateMissingTags?: 'true' | 'false';
   private sortTags?: 'true' | 'false';
+  private sortSchemas?: 'true' | 'false';
   cssClasses?: string | undefined;
   pageDirection?: 'rtl' | 'ltr' | undefined;
   layout?: 'row' | 'column' | undefined;
@@ -351,6 +352,7 @@ export default class JsonSchemaViewer extends LitElement implements RapiDocJSONS
         specUrl,
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
+        this.sortSchemas === 'true',
         this.getAttribute('sort-endpoints-by') as 'method' | 'summary' | 'path' | 'none' | '',
       );
       this.loading = false;
