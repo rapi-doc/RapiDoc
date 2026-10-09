@@ -1,0 +1,72 @@
+type: object
+properties:
+  app_last_start:
+    type: string
+    format: date-time
+    description: Timestamp when the app last started.
+    example: 2023-10-01T09:28:34.000Z
+  donation_last_run:
+    type: string
+    format: date-time
+    description: Timestamp when the donation import was running the last time.
+    example: 2023-10-01T09:28:34.000Z
+  donation_last_update:
+    type: string
+    format: date-time
+    description: Timestamp when new donations have been imported the last time.
+    example: 2023-10-01T09:28:34.000Z
+  maintenance:
+    type: boolean
+    description: When `true`, the API currently is in maintenance mode.
+    example: false
+  memory_array_buffers:
+    type: number
+    description: |
+      `arrayBuffers` refers to memory allocated for `ArrayBuffers` and `SharedArrayBuffers`,
+      including all Node.js Buffers. This is also included in the `external` value.
+      When Node.js is used as an embedded library, this value may be `0` because allocations for
+      `ArrayBuffers` may not be tracked in that case.
+
+      Data is represented in MB.
+    example: 2.6
+  memory_external:
+    type: number
+    description: |
+      `external` refers to the memory usage of C++ objects bound to JavaScript objects managed by V8.
+
+      Data is represented in MB.
+    example: 6.87
+  memory_heap_total:
+    type: number
+    description: |
+      `heapTotal` and `heapUsed` refer to V8's memory usage.
+
+      Data is represented in MB.
+    example: 99.84
+  memory_heap_used:
+    type: number
+    description: |
+      `heapTotal` and `heapUsed` refer to V8's memory usage.
+
+      Data is represented in MB.
+    example: 79.11
+  memory_rss:
+    type: number
+    description: |
+      Resident Set Size, is the amount of space occupied in the main memory device (that is a subset
+      of the total allocated memory) for the process, including all C++ and JavaScript objects and code.
+
+      Data is represented in MB.
+    example: 229.61
+  node_version:
+    type: string
+    description:
+    example: v20.5.0
+  token_eve_scout:
+    type: boolean
+    description: When `true`, the stored refresh token for EvE-Scout is valid and an access token can be created.
+    example: false
+  token_signal_cartel:
+    type: boolean
+    description: When `true`, the stored refresh token for Signal Cartel is valid and an access token can be created.
+    example: false

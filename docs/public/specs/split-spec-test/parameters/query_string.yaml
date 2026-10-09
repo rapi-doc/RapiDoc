@@ -1,0 +1,7 @@
+name: query
+in: query
+description: The search query to match against the beginning of the name.
+required: true
+schema:
+  type: string
+example: z

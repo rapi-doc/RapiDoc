@@ -1,0 +1,4 @@
+type: array
+items:
+  description: The payouts for Thera.
+  $ref: "./statistics_payouts_hub.yaml"

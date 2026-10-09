@@ -1,0 +1,50 @@
+type: object
+required:
+  - comment_public
+  - identifier
+  - mass_regeneration
+  - max_jump_mass
+  - max_stable_mass
+  - max_stable_time
+  - possible_static
+  - signature_level
+  - source
+  - target_system_class
+  - type_id
+  - wandering_only
+properties:
+  comment_public:
+    description: Comment explaining specific details about this wormhole type
+    type: string
+  identifier:
+    description: Identifier of the wormhole
+    type: string
+  mass_regeneration:
+    description: The amount of mass a wormhole regenerates per cycle
+    type: number
+  max_jump_mass:
+    description: The maximum amount of mass that can transit a wormhole in one go
+    type: number
+  max_stable_mass:
+    description: The maximum amount of mass a wormhole can transit before collapsing
+    type: number
+  max_stable_time:
+    description: The maximum amount of time a wormhole will stay open (in minutes)
+    type: number
+  possible_static:
+    type: boolean
+  signature_level:
+    type: array
+    items:
+      type: number
+  source:
+    type: array
+    items:
+      $ref: "./system_class.yaml"
+  target_system_class:
+    description: Target system class
+    $ref: "./system_class.yaml"
+  type_id:
+    type: number
+  wandering_only:
+    type: boolean

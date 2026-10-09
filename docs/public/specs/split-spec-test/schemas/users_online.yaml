@@ -1,0 +1,14 @@
+type: array
+items:
+  type: object
+  properties:
+    character_id:
+      type: integer
+      description: |
+        The in-game character ID of the user.
+    character_name:
+      type: string
+      description: |
+        The in-game character name of the user.
+    system:
+      $ref: "./public_system.yaml"

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+<g id="surface1">
+  <path d="M41 42H7l5-5h24z" fill="#388e3c"/>
+  <path d="M19 32.9h10v5H19z" fill="#388e3c"/>
+  <path d="M42 33a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8c0-1.1.9-2 2-2h32a2 2 0 0 1 2 2z" fill="#4caf50"/>
+  <path d="M9 9h30v22.9H9z" fill="#333"/>
+  <path d="M19.9 12.4l2.1 2.2-7.8 7.7-2.1-2zM28.2 28l-2.1-2.1 7.8-7.8 2.1 2.1z" fill="#eee"/>
+  <path d="M12.1 20.2l2.1-2.1 7.8 7.8-2.1 2.1zM36 20.2l-2.1 2.1-7.8-7.7 2.1-2.2z" fill="#eee"/>
+  
+</g>
+</svg>

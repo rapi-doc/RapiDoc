@@ -1,0 +1,160 @@
+type: array
+items:
+  type: object
+  properties:
+    cache_key:
+      description: |
+        Unique key of the object in the cache.
+      type: string
+    ttl:
+      description: |
+        Remaining Time To Live (TTL) of the cache object in milliseconds.
+      type: number
+    id:
+      description: |
+        A unique, numeric ID assigned to this signature when it was added
+        to the system. This is used for PATCH and DELETE operations.
+      type: integer
+      format: int64
+      example: 1420
+    created_by_id:
+      description: |
+        The in-game character ID of the user that initially added this
+        signature.
+      type: integer
+      format: int64
+      example: 2119526651
+    updated_by_id:
+      description: |
+        The in-game character ID of the user that last updated this
+        signature.
+      type: integer
+      format: int64
+      example: 96293852
+    completed_by_id:
+      description: |
+        The in-game character ID of the user that completed scanning for
+        this signature.
+      type: integer
+      format: int64
+      example: 96293852
+    deleted_by_id:
+      description: |
+        The in-game character ID of the user that deleted this signature.
+      type: integer
+      format: int64
+      example: 96293852
+    wh_type:
+      description: |
+        The in-game wormhole entrance type (e.g., not `K162`).
+      type: string
+      example: E587
+    signature_type:
+      description: |
+        The type of signature; this value corresponds to the `Group` column
+        in the probe scan window (PSW). Clients will need to convert localized
+        `Group` labels to one of these values.
+      type: string
+      enum:
+        - combat
+        - data
+        - gas
+        - relic
+        - wormhole
+        - unknown
+      example: unknown
+    out_system_id:
+      description: |
+        The in-game ID of the system being scanned. This will correspond
+        to either `Thera` or `Turner`.
+      type: integer
+      format: int32
+      enum:
+        - 31000005
+        - 30002086
+      example: 31000005
+    out_signature:
+      description: |
+        The in-game ID of the wormhole entrance or exit that exists in the
+        system being scanned. This value corresponds to the `ID` column in
+        the probe scan window (psw).
+      type: string
+      example: EOQ-660
+    in_system_id:
+      description: |
+        The in-game ID of the system on the other side of the wormhole from
+        the system being scanned.
+      type: integer
+      format: int32
+      example: 30000848
+    in_region_id:
+      description: |
+        The in-game ID of the region on the other side of the wormhole from
+        the system being scanned.
+      type: integer
+      format: int64
+      example: 10000010
+    in_region_name:
+      description: |
+        The region on the other side of the wormhole from the system being
+        scanned.
+      type: string
+      example: "Tribute"
+    in_signature:
+      description: |
+        The in-game ID of the wormhole entrance or exit that exists on the
+        other side of the wormhole from the system being scanned. This value
+        corresponds to the `ID` column in the probe scan window (psw).
+      type: string
+      example: EOQ-660
+    comment:
+      description: |
+        Comment field allowing the scanner to make notes. This can be up to
+        512 characters long.
+      type: string
+      example: "Here there be dragons."
+    completed:
+      description: |
+        Flag indicating whether or not this signature has been completely
+        scanned.
+      type: boolean
+    deleted:
+      description: |
+        Flag indicating whether or not this signature has been deleted.
+      type: boolean
+    expired:
+      description: |
+        Flag indicating whether or not this signature has expired.
+      type: boolean
+    completed_at:
+      description: |
+        The date and time when scanning for this signature was completed.
+      type: string
+      example: "2023-03-26T12:42:37.000Z"
+    created_at:
+      description: |
+        The date and time when this signature was initially added to the
+        system.
+      type: string
+      example: "2023-03-26T12:34:00.000Z"
+    deleted_at:
+      description: |
+        The date and time when this signature was marked as deleted.
+      type: string
+      example: "2023-03-26T12:34:00.000Z"
+    expires_at:
+      description: |
+        The time when the signature will expire.
+      type: string
+      example: "2023-03-27T12:42:37.000Z"
+    updated_at:
+      description: |
+        The date and time when this signature was last updated.
+      type: string
+      example: "2023-03-26T12:42:37.000Z"
+    wh_exits_outward:
+      description: |
+        If set to `true`, it's expected that the assigned wormhole type is on the Thera/Turnur
+        side of the signature and K162 is on the other side of the signature.
+      type: boolean
+      example: false

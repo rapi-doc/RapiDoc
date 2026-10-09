@@ -1,0 +1,21 @@
+name: period
+in: query
+description: |
+  Specify the precision which the statistics should be delivered in.
+
+  **daily**
+    - Data of the last 30 days
+
+  **weekly**
+    - Data of the last 26 weeks
+
+  **monthly**
+    - Data of the last 12 months
+required: true
+schema:
+  type: string
+  enum:
+    - daily
+    - weekly
+    - monthly
+example: daily

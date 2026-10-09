@@ -1,0 +1,6 @@
+description: The category of the observation.
+type: string
+enum:
+  - storm
+  - space_oddity
+example: storm

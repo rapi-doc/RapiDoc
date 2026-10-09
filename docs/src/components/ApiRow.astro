@@ -1,0 +1,15 @@
+---
+interface Props {
+  id: string;
+  name?: string;
+  description?: string;
+  default?: string;
+}
+
+const { id, name, description, default: defaultValue } = Astro.props;
+---
+<tr id={id}>
+  <td>{name}</td>
+  <td set:html={description} />
+  {defaultValue && <td>{defaultValue}</td>}
+</tr>

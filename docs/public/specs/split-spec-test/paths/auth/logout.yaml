@@ -1,0 +1,20 @@
+get:
+  parameters:
+    - $ref: "../../parameters/query_return_to.yaml"
+  operationId: authLogout
+  tags: [Authentication]
+  summary: Logout
+  description: |
+    Destroy the session in the backend and delete the session cookie.
+
+    This endpoint has to be called directly and does not support cross-origin resource sharing (CORS).
+  x-badges:
+    - color: orange
+      label: "private"
+  responses:
+    "302":
+      description: Redirect to a page showing the successful logout status.
+    "400":
+      $ref: "../../responses/400.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"

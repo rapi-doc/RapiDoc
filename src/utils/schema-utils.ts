@@ -64,9 +64,7 @@ export function getTypeInfo(schema: OpenAPIV3.ReferenceObject | RapiDocSchema) {
     const schemaNode = schema.$ref.substring(n + 1);
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
-    dataType = Array.isArray(schema.type)
-      ? schema.type.join(schema.length === 2 ? ' or ' : '┃')
-      : schema.type;
+    dataType = Array.isArray(schema.type) ? schema.type.join('┃') : schema.type;
     if (schema.format || schema.enum || schema.const) {
       dataType = dataType.replace(
         'string',
@@ -970,6 +968,9 @@ function generateMarkdownForArrayAndObjectDescription(
   if (schema.maxItems) {
     markdown = `${markdown} <b>Max Items:</b> ${schema.maxItems}`;
   }
+  if (schema.uniqueItems === true) {
+    markdown = `${markdown} <b>Must have unique items</b>`;
+  }
   if (level > 0 && schema.items?.description) {
     let itemsMarkdown = '';
     if (schema.items.minProperties) {
@@ -1144,9 +1145,7 @@ export function schemaInObjectNotation(
     });
     let multiPrimitiveTypes;
     if (primitiveType.length > 0) {
-      (subSchema.type as string) = primitiveType.join(
-        primitiveType.length === 2 ? ' or ' : '┃'
-      );
+      (subSchema.type as string) = primitiveType.join('┃');
       multiPrimitiveTypes = getTypeInfo(subSchema);
       if (complexTypes.length === 0) {
         return `${multiPrimitiveTypes?.html || ''}`;
@@ -1216,11 +1215,8 @@ export function schemaInObjectNotation(
       level
     );
     obj['::type'] = 'object';
-    if (
-      (Array.isArray(schema.type) && schema.type.includes('null')) ||
-      schema.nullable
-    ) {
-      obj['::dataTypeLabel'] = 'object or null';
+    if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
+      obj['::dataTypeLabel'] = 'object ┃ null';
       obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;
@@ -1270,11 +1266,8 @@ export function schemaInObjectNotation(
       level
     );
     obj['::type'] = 'array';
-    if (
-      (Array.isArray(schema.type) && schema.type.includes('null')) ||
-      schema.nullable
-    ) {
-      obj['::dataTypeLabel'] = 'array or null';
+    if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
+      obj['::dataTypeLabel'] = 'array ┃ null';
       obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;

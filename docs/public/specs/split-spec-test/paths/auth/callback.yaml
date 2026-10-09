@@ -1,0 +1,15 @@
+get:
+  operationId: authCallback
+  tags: [Authentication]
+  summary: Callback
+  description: |
+    Callback for the EVE-SSO login process.
+
+    The client gets redirected to this endpoint during the EVE-SSO login process.
+    It should never be called directly.
+  x-badges:
+    - color: orange
+      label: "private"
+  responses:
+    "302":
+      description: Redirect to the `return_to` destination which was specified at the [login endpoint](#get-/v2/auth/login).

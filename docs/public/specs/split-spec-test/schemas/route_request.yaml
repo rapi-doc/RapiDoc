@@ -1,0 +1,15 @@
+type: object
+properties:
+  from:
+    type: string
+    description: Source system name of the route
+    example: "Zoohen"
+  to:
+    type: array
+    items:
+      type: string
+    description: List of target system names
+    example: ["Jita", "Gelhan", "Thera", "Saisio"]
+  prefer_safer:
+    type: boolean
+    description: Preference for a safer route; if set, the routing will stay in high-sec if possible.

@@ -1,0 +1,40 @@
+---
+import '../styles/global.css';
+import { GTAG_ID } from '../utils/googleAnalytics';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <!-- Fonts - START -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <!-- Fonts - END -->
+
+    <!-- Prism Code Highlight -->
+    <link rel="stylesheet" href="/assets/prismjs/prism.css">
+    <script is:inline src="/assets/prismjs/prism.js"></script>
+
+    <slot name="head" />
+    <!-- Google Analytics - START -->
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}></script>
+    <script define:vars={{ gtagId: GTAG_ID }} is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', gtagId);
+    </script>
+     <!-- Google Analytics - END -->
+    <slot name="script" />
+    <title>RapiDoc Example</title>
+  </head>
+  <body>
+    <slot name="topbar"/>
+    <slot />
+  </body>
+</html>

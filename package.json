@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "9.3.8",
+  "version": "9.3.9-beta",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "homepage": "https://rapidocweb.com",
@@ -33,7 +33,7 @@
   "module": "dist/rapidoc-min.js",
   "mode": "production",
   "dependencies": {
-    "@apitools/openapi-parser": "0.0.33",
+    "@apitools/openapi-parser": "0.0.36",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
     "lit": "^3.2.1",

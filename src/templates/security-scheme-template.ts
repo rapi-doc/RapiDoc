@@ -264,22 +264,39 @@ async function onInvokeOAuthFlow(this: RapiDocCallableElement, securitySchemeId:
 
 /* eslint-disable indent */
 
-function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizationCode' |'clientCredentials' |'implicit' |'password', clientId: string, clientSecret: string, securitySchemeId: string, authFlow: OpenAPIV3.OAuth2SecurityScheme & { authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: { [key: string]: string }; 'x-pkce-only'?: boolean }, defaultScopes: string[] = [], receiveTokenIn = 'header') {
+function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizationCode' |'clientCredentials' |'implicit' |'password', clientId: string, clientSecret: string, securitySchemeId: string, authFlow: OpenAPIV3.OAuth2SecurityScheme & { authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: { [key: string]: string }; 'x-pkce-only'?: boolean }, defaultScopes: string[] = [], receiveTokenIn = 'header', receiveTokenInOptions: string[] | undefined = undefined, allowTry = 'true') {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
   const isUrlAbsolute = (url: string) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
-  // Calculate base URL
-  const url = new URL(this.selectedServer?.computedUrl || '');
-  const baseUrl = url.origin;
-
+  /*
+  Calculcate Relative URL based on the following logic
+  IF this.selectedServer?.computedUrl ends with slash and the refreshUrl / tokenUrl / authorizationUrl do not start with slash
+  THEN Relative URL is concatenate else use this.selectedServer?.computedUrl + refreshUrl / tokenUrl / authorizationUrl
+  ELSE Relative URL is concatenate else use (origin of this.selectedServer?.computedUrl) + refreshUrl / tokenUrl / authorizationUrl
+  */
+  const serverUrl = (this.selectedServer?.computedUrl || '').trim();
+  const url = new URL(serverUrl);
+  const originUrl = url.origin;
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    refreshUrl = `${baseUrl}/${refreshUrl.replace(/^\//, '')}`;
+    if (serverUrl.endsWith('/') && !refreshUrl.trim().startsWith('/')) {
+      refreshUrl = `${serverUrl}${tokenUrl.trim()}`;
+    } else {
+      refreshUrl = `${originUrl}/${refreshUrl.replace(/^\//, '')}`;
+    }
   }
   if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    tokenUrl = `${baseUrl}/${tokenUrl.replace(/^\//, '')}`;
+    if (serverUrl.endsWith('/') && !tokenUrl.trim().startsWith('/')) {
+      tokenUrl = `${serverUrl}${tokenUrl.trim()}`;
+    } else {
+      tokenUrl = `${originUrl}/${tokenUrl.replace(/^\//, '')}`;
+    }
   }
   if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    authorizationUrl = `${baseUrl}/${authorizationUrl.replace(/^\//, '')}`;
+    if (serverUrl.endsWith('/') && !authorizationUrl.trim().startsWith('/')) {
+      authorizationUrl = `${serverUrl}${authorizationUrl.trim()}`;
+    } else {
+      authorizationUrl = `${originUrl}/${authorizationUrl.replace(/^\//, '')}`;
+    }
   }
   let flowNameDisplay;
   if (flowName === 'authorizationCode') {
@@ -321,13 +338,12 @@ function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizatio
                       <span class="mono-font">${scopeAndDescr[0]}</span>
                         ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
                     </label>
-                  </div>
-                `)}
-              </div>
-            `
+                  </div>`)
+                }
+              </div>`
             : ''
           }
-          ${flowName === 'password'
+          ${flowName === 'password' && allowTry === 'true'
             ? html`
               <div style="margin:5px 0">
                 <input type="text" value = "" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username" id="input-${securitySchemeId}-${flowName}-api-key-user">
@@ -335,45 +351,47 @@ function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizatio
               </div>`
             : ''
           }
-          <div>
-            ${flowName === 'authorizationCode'
-              ? html`
-                <div style="margin: 16px 0 4px">
-                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked ?disabled=${pkceOnly}>
-                  <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
-                   Send Proof Key for Code Exchange (PKCE)
-                  </label>
-                </div>
-              `
-              : ''
-            }
-            <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
-            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
-              ? html`
-                <input
-                  id="${securitySchemeId}-${flowName}-oauth-client-secret"
-                  type="password" part="textbox textbox-auth-client-secret"
-                  value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false"
-                  class="oauth2 ${flowName} ${securitySchemeId}
-                  oauth-client-secret"
-                  style = "margin:0 5px;${pkceOnly ? 'display:none;' : ''}"
-                >
-                <select style="margin-right:5px;${pkceOnly ? 'display:none;' : ''}" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
-                  <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
-                  <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
-                </select>`
-              : ''
-            }
-            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
-              ? html`
-                <button class="m-btn thin-border" part="btn btn-outline"
-                  @click="${(e: MouseEvent) => { onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e); }}"
-                > GET TOKEN </button>`
-              : ''
-            }
-          </div>
-          <div class="oauth-resp-display red-text small-font-size"></div>
-          `
+          ${allowTry === 'true'
+            ? html`
+              <div>
+                ${flowName === 'authorizationCode'
+                  ? html`
+                    <div style="margin: 16px 0 4px">
+                      <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked ?disabled=${pkceOnly}>
+                      <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
+                      Send Proof Key for Code Exchange (PKCE)
+                      </label>
+                    </div>`
+                  : ''
+                }
+                <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
+                ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
+                  ? html`
+                    <input
+                      id="${securitySchemeId}-${flowName}-oauth-client-secret"
+                      type="password" part="textbox textbox-auth-client-secret"
+                      value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false"
+                      class="oauth2 ${flowName} ${securitySchemeId}
+                      oauth-client-secret"
+                      style = "margin:0 5px;${pkceOnly ? 'display:none;' : ''}"
+                    >
+                    <select style="margin-right:5px;${pkceOnly ? 'display:none;' : ''}" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
+                      ${(!receiveTokenInOptions || receiveTokenInOptions.includes('header')) ? html`<option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>` : ''}
+                      ${(!receiveTokenInOptions || receiveTokenInOptions.includes('request-body')) ? html` <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>` : ''}
+                    </select>`
+                  : ''
+                }
+                ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
+                  ? html`
+                    <button class="m-btn thin-border" part="btn btn-outline"
+                      @click="${(e: MouseEvent) => { onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e); }}"
+                    > GET TOKEN </button>`
+                  : ''
+                }
+              </div>
+              <div class="oauth-resp-display red-text small-font-size"></div>`
+            : ''
+          }`
         : ''
       }
     </div>
@@ -399,8 +417,10 @@ function removeApiKey(this: RapiDocCallableElement, securitySchemeId: string) {
   this.requestUpdate();
 }
 
-export default function securitySchemeTemplate(this: RapiDocCallableElement) {
+export default function securitySchemeTemplate(this: RapiDocCallableElement, allowTry = 'true') {
   if (!this.resolvedSpec) { return ''; }
+  // eslint-disable-next-line no-console
+  console.log('allowTry: ', allowTry);
   const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => (v.finalKeyValue));
   if (!providedApiKeys) {
     return;
@@ -408,16 +428,19 @@ export default function securitySchemeTemplate(this: RapiDocCallableElement) {
   return html`
   <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${this.renderStyle && 'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
-
-    <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
-      ${providedApiKeys.length > 0
-        ? html`
-          <div class="blue-text"> ${providedApiKeys.length} API key applied </div>
-          <div style="flex:1"></div>
-          <button class="m-btn thin-border" part="btn btn-outline" @click=${() => { onClearAllApiKeys.call(this); }}>CLEAR ALL API KEYS</button>`
-        : html`<div class="red-text">No API key applied</div>`
-      }
-    </div>
+    ${allowTry === 'true'
+      ? html`
+        <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
+          ${providedApiKeys.length > 0
+            ? html`
+              <div class="blue-text"> ${providedApiKeys.length} API key applied </div>
+              <div style="flex:1"></div>
+              <button class="m-btn thin-border" part="btn btn-outline" @click=${() => { onClearAllApiKeys.call(this); }}>CLEAR ALL API KEYS</button>`
+            : html`<div class="red-text">No API key applied</div>`
+          }
+        </div>`
+      : ''
+    }
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`
         <table role="presentation" id="auth-table" class='m-table padded-12' style="width:100%;">
@@ -430,40 +453,31 @@ export default function securitySchemeTemplate(this: RapiDocCallableElement) {
                   <span style="font-weight:bold; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
                   ${v.finalKeyValue
                     ? html`
-                      <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span>
+                      <span class='blue-text'> ${v.finalKeyValue ? 'Key Applied' : ''} </span>
                       <button class="m-btn thin-border small" part="btn btn-outline" @click=${() => { removeApiKey.call(this, v.securitySchemeId); }}>REMOVE</button>
                       `
                     : ''
                   }
                 </div>
-                ${v.description
+                ${v.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(v.description || ''))}</div>` : ''}
+                ${(v.type.toLowerCase() === 'apikey')
                   ? html`
-                    <div class="m-markdown">
-                      ${unsafeHTML(marked(v.description || ''))}
-                    </div>`
-                  : ''
-                }
-
-                ${(v.type.toLowerCase() === 'apikey') || (v.type.toLowerCase() === 'http' && (v as { scheme?: string }).scheme?.toLowerCase() === 'bearer')
-                  ? html`
-                    <div style="margin-bottom:5px">
-                      ${v.type === 'apiKey'
-                        ? html`Send <code>${v.name}</code> in <code>${v.in}</code>`
-                        : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
-                      }
-                    </div>
-                    <div style="max-height:28px;">
-                      ${v.type === 'apiKey' && v.in !== 'cookie'
-                        ? html`
-                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false" id = "${v.type}-${v.securitySchemeId}-api-key-input">
-                          <button class="m-btn thin-border" style = "margin-left:5px;"
-                            part = "btn btn-outline"
-                            @click="${() => { onApiKeyChange.call(this, v.securitySchemeId); }}">
-                            ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                          </button>`
-                        : html`<span class="gray-text" style="font-size:var(--font-size-small)"> cookies cannot be set from here</span>`
-                      }
-                    </div>`
+                    <div style="margin-bottom:5px"> Send <code>${v.name}</code> in <code>${v.in}</code></div>
+                    ${allowTry === 'true'
+                      ? html`
+                        <div style="max-height:28px;">
+                          ${v.in !== 'cookie'
+                            ? html`
+                              <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false" id = "${v.type}-${v.securitySchemeId}-api-key-input">
+                              <button class="m-btn thin-border" style = "margin-left:5px;" part = "btn btn-outline"
+                                @click="${() => { onApiKeyChange.call(this, v.securitySchemeId); }}">
+                                ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                              </button>`
+                            : html`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`
+                          }
+                        </div>`
+                      : ''
+                    }`
                   : ''
                 }
                 ${v.type.toLowerCase() === 'http' && (v as { scheme?: string }).scheme?.toLowerCase() === 'basic'
@@ -471,16 +485,36 @@ export default function securitySchemeTemplate(this: RapiDocCallableElement) {
                     <div style="margin-bottom:5px">
                       Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
                     </div>
-                    <div>
-                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px" id = "input-${v.type}-${v.securitySchemeId}-api-key-user">
-                      <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;" id = "input-${v.type}-${v.securitySchemeId}-api-key-password">
-                      <button class="m-btn thin-border"
-                        @click="${() => { onApiKeyChange.call(this, v.securitySchemeId); }}"
-                        part = "btn btn-outline"
-                      >
-                        ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                      </button>
-                    </div>`
+                    ${allowTry === 'true'
+                      ? html`
+                        <div>
+                          <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px" id = "input-${v.type}-${v.securitySchemeId}-api-key-user">
+                          <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;" id = "input-${v.type}-${v.securitySchemeId}-api-key-password">
+                          <button class="m-btn thin-border"
+                            @click="${() => { onApiKeyChange.call(this, v.securitySchemeId); }}"
+                            part = "btn btn-outline"
+                          >
+                            ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                          </button>
+                        </div>`
+                      : ''
+                    }`
+                  : ''
+                }
+                ${v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'bearer'
+                  ? html`
+                    <div style="margin-bottom:5px"> Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and token value</div>
+                    ${allowTry === 'true'
+                      ? html`
+                        <div style="max-height:28px;">
+                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false" id = "${v.type}-${v.securitySchemeId}-api-key-input">
+                          <button class="m-btn thin-border" style = "margin-left:5px;" part = "btn btn-outline"
+                            @click="${() => { onApiKeyChange.call(this, v.securitySchemeId); }}">
+                            ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                          </button>
+                        </div>`
+                      : ''
+                    }`
                   : ''
                 }
               </td>
@@ -489,13 +523,14 @@ export default function securitySchemeTemplate(this: RapiDocCallableElement) {
               ? html`
                 <tr>
                   <td style="border:none; padding-left:48px">
-                    ${(Object.keys(v.flows) as ("authorizationCode" | "clientCredentials" | "implicit" | "password")[]).map((f) => {
+                    ${(Object.keys(v.flows) as ('authorizationCode' | 'clientCredentials' | 'implicit' | 'password')[]).map((f) => {
                       const currentFlow = v.flows[f] as unknown as OpenAPIV3.OAuth2SecurityScheme & {
                         'x-client-id'?: string;
                         'x-client-secret'?: string;
                         'x-default-scopes'?: string[];
                         'x-receive-token-in'?: string;
-                      }; 
+                        'x-receive-token-in-options'?: string[];
+                      };
 
                       return oAuthFlowTemplate
                         .call(
@@ -508,7 +543,9 @@ export default function securitySchemeTemplate(this: RapiDocCallableElement) {
                           currentFlow as any,
                           (currentFlow['x-default-scopes'] || v['x-default-scopes']),
                           (currentFlow['x-receive-token-in'] || v['x-receive-token-in']),
-                        )
+                          (currentFlow['x-receive-token-in-options'] || v['x-receive-token-in-options']),
+                          allowTry,
+                        );
                     })}
                   </td>
                 </tr>
@@ -609,13 +646,19 @@ export function pathSecurityTemplate(this: RapiDocCallableElement, pathSecurity:
                           ? html`
                             <div>
                               ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
-                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
+                              ${andSecurityItem.scheme === 'basic'
+                                ? 'Base 64 encoded username:password'
+                                : html`Bearer Token <b> ${andSecurityItem.nameId} </b>`
+                              } in <b>Authorization header</b>
                               ${scopeHtml}
                             </div>`
                           : andSecurityItem.type === 'apiKey' ? html`
                             <div>
-                              ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
-                              Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+                              ${orSecurityItem1.securityDefs.length > 1
+                                ? html`<b>${j + 1}.</b> &nbsp;`
+                                : html`Requires`
+                              }
+                              ${html`Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>`}
                               ${scopeHtml}
                             </div>`
                           : html``

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 48 48" class="feature-icon">
+  <g >
+    <path d="M44 7L4 23l40 16-7-16zm-8 16H17l18-7 1 6z" fill="#8bc34a" />
+    <path d="M40.2 10.7l-5 11.5-.4.8.4.8 5 11.5L9.4 23l30.8-12.3M44 7L4 23l40 16-7-16z" fill="#1b5e20" />
+    <path d="M36 22l-1-6-18 7 17 7-2-5-8-2h12zm-8.3-1l5.7-2.2.4 2.2z" fill="#1b5e20" />
+  </g>
+</svg>

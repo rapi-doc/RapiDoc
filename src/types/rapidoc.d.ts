@@ -351,6 +351,11 @@ export type RapiDocSecurityScheme = OpenAPIV3.SecuritySchemeObject & {
   'x-client-secret'?: string;
   'x-default-scopes'?: string[];
   'x-receive-token-in'?: string;
+  'x-receive-token-in-options'?: string[];
+  name?: string;
+  nameId?: string;
+  in?: string;
+  scheme?: string;
 };
 
 export interface RapiDocExamples {

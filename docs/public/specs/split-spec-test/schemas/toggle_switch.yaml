@@ -1,0 +1,9 @@
+type: object
+properties:
+  mode:
+    description: When mode is `on`, maintenance mode is turned on.
+    type: string
+    example: on
+    enum:
+      - on
+      - off

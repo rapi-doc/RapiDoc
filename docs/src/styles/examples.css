@@ -1,0 +1,31 @@
+a { color:var(--link-color); text-decoration: none;}
+.btn {
+  width: 90px;
+  height: 32px;
+  padding: 2px;
+  font-size: 12px;
+  background-color: #008CBA;
+  color: #fff;
+  border: none;
+  margin: 0 2px;
+  border-radius: 2px;
+  cursor:pointer;
+  outline:none;
+  &.small {
+    width: 60px;
+    height: 24px
+  }
+  &.medium {
+    width: 75px;
+    height: 28px
+  }
+  &.square {
+    width: 70px;
+    height: 70px;
+    font-size: 12px;
+    line-height: normal;
+  }
+}
+
+
+

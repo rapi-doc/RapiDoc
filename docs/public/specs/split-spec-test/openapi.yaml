@@ -1,0 +1,78 @@
+openapi: "3.1.0"
+
+info:
+  title: Testing Large Split Spec
+tags:
+  - name: Allison
+    description: |
+      The endpoints in this group are used for our Discord bot Allison to interact with the API.
+      These endpoints require an API key for authentication and are for Allison only.
+  - name: Authentication
+    description: |
+      These endpoints provide the logic for the browser to establish a session which is authenticated via EVE-SSO.
+      The browser will get a session cookie, which later on is required to access the private endpoints of the API.
+      These endpoints are supposed to be referenced in a browser by linking directly to these addresses.
+  - name: Claims
+    description: |
+      Claims serve as a coordination mechanism for scanning activities.
+      By 'claiming' a signature, a pilot can reserve it for their exclusive work, preventing potential overlap
+      with other pilots.
+  - name: Healthcheck
+    description: |
+      The health check endpoint offers a straightforward method for assessing the API's overall availability.
+  - name: Observations
+    description: |
+      Endpoints within this category offer a complete set of functionalities for listing, creating, updating, and
+      deleting observation records for objects we track, e.g. storms or Tom's Shuttle.
+  - name: Properties
+    description: |
+      Properties function as a key-value storage system, allowing the frontend to save individual user preferences
+      such as themes, screen layouts and so on.
+  - name: Routes
+    description: |
+      Routing endpoints supply comprehensive routing data tailored for a range of specific scenarios.
+  - name: Signatures
+    description: |
+      Endpoints within this category offer a complete set of functionalities for listing, creating, updating, and
+      retiring signatures.
+  - name: Statistics
+    description: |
+      These endpoints supply our public website with a diverse array of valuable data, while also facilitating the
+      payout process for our active pilots within Signal Cartel.
+  - name: Systems
+    description: |
+      This endpoint provides information about systems.
+  - name: Users
+    description: |
+      These endpoints deliver details regarding the current session and in-game status of pilots.
+  - name: Wormhole Types
+    description: |
+      This endpoint provides information about static wormhole type data.
+
+paths:
+  $ref: "./paths/_index.yaml"
+
+components:
+  schemas:
+    $ref: "./schemas/_index.yaml"
+  parameters:
+    $ref: "./parameters/_index.yaml"
+
+  securitySchemes:
+    allison-auth:
+      type: apiKey
+      in: header
+      name: x-allison-auth
+    esrc-auth:
+      type: apiKey
+      in: header
+      name: x-esrc-auth
+    eve-sso:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.eveonline.com/v2/oauth/authorize
+          tokenUrl: https://login.eveonline.com/v2/oauth/token
+          scopes:
+            "publicData": Allows access to public data.
+            "esi-location.read_location.v1": Allows reading of a character's active ship location.

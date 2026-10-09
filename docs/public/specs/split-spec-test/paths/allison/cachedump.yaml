@@ -1,0 +1,33 @@
+get:
+  operationId: allisonCacheDump
+  parameters:
+    - $ref: "../../parameters/query_dump_type.yaml"
+  security:
+    - allison-auth: []
+  tags: [Allison]
+  summary: Cache Dump
+  description: |
+    This endpoint is used for development and debugging reasons only.
+
+    It allows to dump the in-memory caches of the API.
+  x-badges:
+    - color: orange
+      label: "private"
+  responses:
+    "200":
+      description: Expected response to a valid request
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "../../schemas/dump_claims.yaml"
+              - $ref: "../../schemas/dump_graph.yaml"
+              - $ref: "../../schemas/dump_observations.yaml"
+              - $ref: "../../schemas/dump_performance_log.yaml"
+              - $ref: "../../schemas/dump_signatures.yaml"
+              - $ref: "../../schemas/dump_users.yaml"
+              - $ref: "../../schemas/dump_users_location.yaml"
+    "400":
+      $ref: "../../responses/400.yaml"
+    "401":
+      $ref: "../../responses/401.yaml"

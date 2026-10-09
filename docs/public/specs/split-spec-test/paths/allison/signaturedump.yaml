@@ -1,0 +1,34 @@
+get:
+  operationId: allisonSignatureDump
+  parameters:
+    - $ref: "../../parameters/query_timestamp.yaml"
+    - $ref: "../../parameters/query_export_mode.yaml"
+  security:
+    - allison-auth: []
+  tags: [Allison]
+  summary: Signature Dump
+  description: |
+    This endpoint is used for development and debugging only.
+
+    It allows to list all signatures which were available at a certain time in the past and
+    returns them as ready to use database statements to import them into the development
+    system.
+
+    It also allows to modify the timestamps of the signatures so the system now shows the
+    exact same data as at that time in the past.
+  x-badges:
+    - color: orange
+      label: "private"
+    - color: red
+      label: "experimental"
+  responses:
+    "200":
+      description: Expected response to a valid request
+      content:
+        text/plain:
+          schema:
+            type: string
+    "400":
+      $ref: "../../responses/400.yaml"
+    "401":
+      $ref: "../../responses/401.yaml"

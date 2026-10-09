@@ -1,0 +1,11 @@
+---
+import '../styles/examples.css';
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+---
+
+<GlobalLayout>
+  <slot slot="head" name="head" /> <!-- allows to attach stylesheets into this slot which is further slotted into the head section of GlobalLayout -->
+  <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
+  <slot slot="script" name="script" /> <!-- allows to attach script into this slot which is further slotted into the script section of GlobalLayout -->
+  <slot/>
+</GlobalLayout>

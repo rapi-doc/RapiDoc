@@ -1,0 +1,26 @@
+type: object
+properties:
+  character_id:
+    type: integer
+    format: int64
+  character_name:
+    type: string
+  signatures_last_update:
+    description: |
+      Timestamp when signatures were last updated.
+
+      This timestamp is not connected to the user but it's supposed to provide an indicator when the user requires
+      a signature data update.
+    type: string
+    format: date-time
+  roles:
+    description: Roles the current user has assigned
+    type: array
+    items:
+      type: string
+  online:
+    type: boolean
+  system:
+    allOf:
+      - $ref: "./public_system.yaml"
+    nullable: true

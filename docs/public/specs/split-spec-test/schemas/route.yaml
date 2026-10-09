@@ -1,0 +1,26 @@
+type: object
+properties:
+  from:
+    type: string
+    description: |
+      Source system name of the route
+  to:
+    type: string
+    description: |
+      Target system name of the route
+  jumps:
+    type: integer
+    example: 3
+  signature_id:
+    description: |
+      The unique, numeric signature ID.
+
+      This property is only present for routes created by
+      [/v2/public/routes/signatures](#get-/v2/public/routes/signatures) and contain the signature ID
+      the route is for.
+    type: integer
+    format: int64
+    example: 1420
+    nullable: true
+  route:
+    $ref: "./route_systems.yaml"

@@ -1,0 +1,18 @@
+type: array
+items:
+  type: object
+  properties:
+    cache_key:
+      description: |
+        Unique key of the object in the cache.
+      type: string
+    ttl:
+      description: |
+        Remaining Time To Live (TTL) of the cache object in milliseconds.
+      type: number
+    character_name:
+      description: |
+        The in-game character name of the user that initially added this
+        signature.
+      type: string
+      example: "Okamainen al'Anzomi"

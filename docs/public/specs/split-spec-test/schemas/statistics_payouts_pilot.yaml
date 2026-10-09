@@ -1,0 +1,45 @@
+type: object
+properties:
+  amount:
+    description: Amount of earned ISK.
+    type: number
+    format: float
+    required: true
+    example: 17857142
+  character_id:
+    description: An EVE character ID
+    type: integer
+    format: int64
+    required: true
+    example: 93027866
+  character_name:
+    description: The character’s name
+    type: string
+    required: true
+    example: "Das d'Alembert"
+  streak:
+    description: |
+      Number of uninterrupted weeks the pilot participated in scanning this hub with at least one
+      completed wormhole.
+    type: number
+    format: int64
+    required: true
+    example: 74
+  storms:
+    description: Number of storms the pilot observed. (optional)
+    type: number
+    format: int64
+    required: true
+    example: 4
+  wormholes:
+    description: Number of wormhole signatures the pilot completed. (optional)
+    type: number
+    format: int64
+    required: true
+    example: 23
+  percent:
+    description: Percent of completed wormhole signatures during the period.
+    type: number
+    format: float
+    required: true
+    example: 17.5

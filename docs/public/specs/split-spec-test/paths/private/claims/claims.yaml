@@ -1,0 +1,67 @@
+parameters:
+  - $ref: "../../../parameters/path_signature_id.yaml"
+get:
+  operationId: getClaimsResource
+  tags: [Claims]
+  summary: Lookup Claim
+  description: Check if there is a claim for `signatureId`.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "200":
+      description: |
+        Return the claim.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/claim.yaml"
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "404":
+      $ref: "../../../responses/404.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"
+put:
+  operationId: putClaimsResource
+  tags: [Claims]
+  summary: Claim Signature
+  description: |
+    Obtain a claim on `signature-id` for the current user. A signature that
+    has an active claim cannot be assigned to another pilot to work on.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "204":
+      $ref: "../../../responses/204.yaml"
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "409":
+      $ref: "../../../responses/409.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"
+delete:
+  operationId: deleteClaimsResource
+  tags: [Claims]
+  summary: Release Signature
+  description: |
+    Release a claim on `signature-id` held by the current user. Once a claim
+    is released, the `signature-id` will be available for another user to
+    claim.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "204":
+      $ref: "../../../responses/204.yaml"
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

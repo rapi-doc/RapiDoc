@@ -1,0 +1,30 @@
+get:
+  operationId: listStatisticsDonations
+  tags: [Statistics]
+  summary: List donation statistics
+  description: |
+    List statistics about donations made to EvE-Scout for providing the service.
+
+    It lists the pilots and corporations who donated as well as the "daily goals" which shows the
+    amount of donations we need to keep the service up and running.
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: |
+        An object containing the daily goals per day and the all donors for the past 30 days.
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 3600 seconds"
+          schema:
+            type: string
+            example: "max-age=3600"
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/statistics_donations.yaml"
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

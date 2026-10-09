@@ -1,0 +1,35 @@
+get:
+  operationId: getUsersCorporation
+  tags: [Users]
+  summary: Corporation Users
+  description: |
+    Provide the names of all Signal Cartel members.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "200":
+      description: Expected response to a valid request
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 6 hours"
+          schema:
+            type: string
+            example: "max-age=21600"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+          example:
+            - "Mzsbi Haev"
+            - "Samari Arila Enaka"
+            - "Sky Diamond"
+            - "Tamayo"
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

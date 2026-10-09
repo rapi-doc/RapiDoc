@@ -1,0 +1,30 @@
+get:
+  parameters:
+    - $ref: "../../../parameters/query_from_system.yaml"
+    - $ref: "../../../parameters/query_system_name_required.yaml"
+    - $ref: "../../../parameters/query_routing_preference.yaml"
+  operationId: routeSignaturesPublic
+  tags: [Routes]
+  summary: Routes to all signatures
+  description: |
+    Calculate the routes from the source system to all currently known signatures in Thera or Turnur.
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: A calculated route for each currently valid signature.
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 300 seconds"
+          schema:
+            type: string
+            example: "max-age=300"
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/routes.yaml"
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

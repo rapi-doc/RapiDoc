@@ -1,0 +1,86 @@
+type: object
+properties:
+  action:
+    description: |
+      The action of the log record.
+    type: string
+    enum:
+      - complete
+      - create
+      - delete
+      - expire
+      - update
+    example: create
+  initialized:
+    description: |
+      Flag indicating whether the record has been created on system startup
+    type: boolean
+    example: true
+  timestamp:
+    description: |
+      The date and time when this audit-log record was created.
+    type: string
+    example: "2023-03-26T12:34:00.000Z"
+  uuid:
+    description: |
+      Unique identifier for each record.
+    type: string
+    example: "6ebb0db7-427e-4777-8a2c-d34502ae835e"
+  character_id:
+    description: |
+      The in-game character ID of the user that initially added this
+      signature.
+    type: integer
+    format: int64
+    example: 2119526651
+  character_name:
+    description: |
+      The in-game character name of the user that initially added this
+      signature.
+    type: string
+    example: "Okamainen al'Anzomi"
+  signature_id:
+    description: |
+      A unique, numeric ID assigned to this signature when it was added
+      to the system. This is used for PATCH and DELETE operations.
+    type: integer
+    format: int64
+    example: 1420
+  signature_type:
+    description: |
+      The type of signature; this value corresponds to the `Group` column
+      in the probe scan window (PSW). Clients will need to convert localized
+      `Group` labels to one of these values.
+    type: string
+    enum:
+      - combat
+      - data
+      - gas
+      - relic
+      - wormhole
+      - unknown
+    example: unknown
+  in_signature:
+    description: |
+      The in-game ID of the wormhole entrance or exit that exists on the
+      other side of the wormhole from the system being scanned. This value
+      corresponds to the `ID` column in the probe scan window (psw).
+    type: string
+    example: EOQ-660
+  out_signature:
+    description: |
+      The in-game ID of the wormhole entrance or exit that exists in the
+      system being scanned. This value corresponds to the `ID` column in
+      the probe scan window (psw).
+    type: string
+    example: EOQ-660
+  out_system_id:
+    description: |
+      The in-game ID of the system being scanned. This will correspond
+      to either `Thera` or `Turner`.
+    type: integer
+    format: int32
+    enum:
+      - 31000005
+      - 30002086
+    example: 31000005
