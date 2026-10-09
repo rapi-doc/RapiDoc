@@ -1,7 +1,7 @@
 export default class OauthReceiver extends HTMLElement {
   connectedCallback() {
     this.receiveAuthParms();
-    window.addEventListener('storage', (e) => this.receiveStorage(e), true);
+    window.addEventListener('storage', (e) => this.relayAuthParams(e), true);
   }
 
   /**
