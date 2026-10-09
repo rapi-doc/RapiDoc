@@ -70,7 +70,7 @@ export default class ApiRequest extends LitElement implements ApiRequestElement 
 
   // Internal reactive state
   responseMessage: unknown;
-  responseStatus: string;
+  responseStatus: 'success' | 'error';
   responseHeaders: string | string[];
   responseText: string;
   responseUrl: string;
@@ -391,6 +391,7 @@ export default class ApiRequest extends LitElement implements ApiRequestElement 
         }
       }
     });
+    this.liveCURLSyntaxUpdate(requestPanelEl as HTMLElement);
   }
 
   async onClearRequestData(e: Event) {
@@ -399,6 +400,7 @@ export default class ApiRequest extends LitElement implements ApiRequestElement 
     requestPanelInputEls.forEach((el) => {
       el.value = '';
     });
+    this.liveCURLSyntaxUpdate(requestPanelEl as HTMLElement);
   }
 
   buildFetchURL(requestPanelEl: HTMLElement) {
@@ -741,6 +743,7 @@ export default class ApiRequest extends LitElement implements ApiRequestElement 
         })
       );
     } catch (err) {
+      this.responseStatus = 'error';
       if ((err as Error).name === 'AbortError') {
         this.dispatchEvent(
           new CustomEvent('request-aborted', {

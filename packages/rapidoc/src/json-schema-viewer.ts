@@ -16,6 +16,7 @@ import EndpointStyles from '~/styles/endpoint-styles';
 import ProcessSpec from '~/utils/spec-parser';
 import type { ResolvedJsonSchemaSpec } from '~/types/spec';
 import jsonSchemaViewerTemplate from '~/templates/json-schema-viewer-template';
+import '~/utils/markdown-utils';
 
 export default class JsonSchemaViewer extends LitElement {
   specUrl?: string;

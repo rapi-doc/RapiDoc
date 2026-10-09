@@ -326,6 +326,7 @@ export default class ApiResponse extends LitElement {
 
   mimeTypeDropdownTemplate(mimeTypes: string[]) {
     return html`<select
+      part="select"
       aria-label="mime types"
       @change="${(e: Event) => {
         this.selectedMimeType = (e.target as HTMLSelectElement).value;
@@ -406,6 +407,7 @@ ${mimeRespDetails.examples[0].exampleValue}</pre>
           : html`
               <span class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">
                 <select
+                  part="select"
                   aria-label="response examples"
                   style="min-width:100px; max-width:100%"
                   @change="${(e: Event) => this.onSelectExample(e)}"

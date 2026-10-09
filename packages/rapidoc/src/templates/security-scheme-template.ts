@@ -719,6 +719,7 @@ function oAuthFlowTemplate(
                                 style="margin:0 5px;${pkceOnly ? 'display:none;' : ''}"
                               />
                               <select
+                                part="select"
                                 style="margin-right:5px;${pkceOnly ? 'display:none;' : ''}"
                                 class="${flowName} ${securitySchemeId} oauth-send-client-secret-in"
                               >
@@ -1077,7 +1078,7 @@ export function pathSecurityTemplate(
   });
 
   return html`
-    <div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height:1.5;">
+    <div class="security-scheme" style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height:1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content:flex-end;">
         <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none" style="stroke:var(--fg3)">
           <rect x="5" y="11" width="14" height="10" rx="2" />

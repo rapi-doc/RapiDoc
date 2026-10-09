@@ -339,7 +339,11 @@ export default function requestBodyTemplate(this: ApiRequestElement): TemplateRe
     requestBodyTypes.length === 1
       ? ''
       : html`
-          <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change="${(e: Event) => this.onMimeTypeChange(e)}">
+          <select
+            part="select"
+            style="min-width:100px; max-width:100%;  margin-bottom:-1px;"
+            @change="${(e: Event) => this.onMimeTypeChange(e)}"
+          >
             ${requestBodyTypes.map(
               (reqBody) => html`
                 <option value="${reqBody.mimeType}" ?selected="${reqBody.mimeType === this.selectedRequestBodyType}">
@@ -384,6 +388,7 @@ export default function requestBodyTemplate(this: ApiRequestElement): TemplateRe
                 ? ''
                 : html`
                     <select
+                      part="select"
                       style="min-width:100px; max-width:100%;  margin-bottom:-1px;"
                       @change="${(e: Event) => this.onSelectExample(e)}"
                     >

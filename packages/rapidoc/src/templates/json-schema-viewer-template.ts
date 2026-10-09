@@ -102,7 +102,11 @@ function jsonSchemaBodyTemplate(this: JsonSchemaViewerElement): TemplateResult {
             >
               ${
                 examplesObj.length > 1
-                  ? html`<select style="min-width:100px; max-width:100%" @change="${(e: Event) => this.onSelectExample(e, jSchemaBody)}">
+                  ? html`<select
+                      part="select"
+                      style="min-width:100px; max-width:100%"
+                      @change="${(e: Event) => this.onSelectExample(e, jSchemaBody)}"
+                    >
                       ${examplesObj.map(
                         (v) =>
                           html` <option value="${v.exampleId}" ?selected=${v.exampleId === jSchemaBody.selectedExample}>

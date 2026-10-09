@@ -44,112 +44,116 @@ export function apiResponseTabTemplate(this: ApiRequestElement): TemplateResult 
       <div style="flex:1"></div>
       <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
     </div>
-    <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
-      <div
-        id="tab_buttons"
-        part="tab-btn-row"
-        class="tab-buttons row"
-        @click="${(e: Event) => {
-          const target = e.target as HTMLElement;
-          if (target.classList.contains('tab-btn') === false) {
-            return;
-          }
-          this.activeResponseTab = target.dataset.tab!;
-        }}"
-      >
-        <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab="response">
-          RESPONSE
-        </button>
-        <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}" data-tab="headers">
-          RESPONSE HEADERS
-        </button>
-        ${
-          this.showCurlBeforeTry === 'true'
-            ? ''
-            : html`<button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab="curl">
-                CURL
-              </button>`
-        }
-      </div>
-      ${
-        this.responseIsBlob
-          ? html`<div
-              part="tab-content"
-              class="tab-content col"
-              style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};"
+    ${
+      this.responseStatus !== 'success'
+        ? ''
+        : html`<div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+            <div
+              id="tab_buttons"
+              part="tab-btn-row"
+              class="tab-buttons row"
+              @click="${(e: Event) => {
+                const target = e.target as HTMLElement;
+                if (target.classList.contains('tab-btn') === false) {
+                  return;
+                }
+                this.activeResponseTab = target.dataset.tab!;
+              }}"
             >
-              ${
-                this.responseBlobType === 'image'
-                  ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${ifDefined(this.responseBlobUrl)}"></img>`
-                  : ''
-              }
-              <button
-                class="m-btn thin-border mar-top-8"
-                style="width:135px"
-                @click="${(e: Event) => {
-                  // TODO(ts-migration): downloadResource takes 2 parameters, the event argument is ignored.
-                  // @ts-expect-error extra argument
-                  downloadResource(this.responseBlobUrl, this.respContentDisposition, e);
-                }}"
-                part="btn btn-outline"
-              >
-                DOWNLOAD
+              <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab="response">
+                RESPONSE
+              </button>
+              <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}" data-tab="headers">
+                RESPONSE HEADERS
               </button>
               ${
-                this.responseBlobType === 'view' || this.responseBlobType === 'image'
-                  ? html`<button
+                this.showCurlBeforeTry === 'true'
+                  ? ''
+                  : html`<button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab="curl">
+                      CURL
+                    </button>`
+              }
+            </div>
+            ${
+              this.responseIsBlob
+                ? html`<div
+                    part="tab-content"
+                    class="tab-content col"
+                    style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};"
+                  >
+                    ${
+                      this.responseBlobType === 'image'
+                        ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${ifDefined(this.responseBlobUrl)}"></img>`
+                        : ''
+                    }
+                    <button
                       class="m-btn thin-border mar-top-8"
                       style="width:135px"
                       @click="${(e: Event) => {
-                        // TODO(ts-migration): viewResource takes 1 parameter, the event argument is ignored.
+                        // TODO(ts-migration): downloadResource takes 2 parameters, the event argument is ignored.
                         // @ts-expect-error extra argument
-                        viewResource(this.responseBlobUrl, e);
+                        downloadResource(this.responseBlobUrl, this.respContentDisposition, e);
                       }}"
                       part="btn btn-outline"
                     >
-                      VIEW (NEW TAB)
-                    </button>`
-                  : ''
-              }
-            </div>`
-          : html`<div
+                      DOWNLOAD
+                    </button>
+                    ${
+                      this.responseBlobType === 'view' || this.responseBlobType === 'image'
+                        ? html`<button
+                            class="m-btn thin-border mar-top-8"
+                            style="width:135px"
+                            @click="${(e: Event) => {
+                              // TODO(ts-migration): viewResource takes 1 parameter, the event argument is ignored.
+                              // @ts-expect-error extra argument
+                              viewResource(this.responseBlobUrl, e);
+                            }}"
+                            part="btn btn-outline"
+                          >
+                            VIEW (NEW TAB)
+                          </button>`
+                        : ''
+                    }
+                  </div>`
+                : html`<div
+                    part="tab-content"
+                    class="tab-content col m-markdown"
+                    style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};"
+                  >
+                    <button
+                      class="toolbar-btn"
+                      style="position:absolute; top:12px; right:8px"
+                      @click="${(e: Event) => {
+                        copyToClipboard(this.responseText, e);
+                      }}"
+                      part="btn btn-fill btn-copy"
+                    >
+                      Copy
+                    </button>
+                    <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">
+${responseContent}</pre>
+                  </div>`
+            }
+            <div
               part="tab-content"
               class="tab-content col m-markdown"
-              style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};"
+              style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};"
             >
               <button
                 class="toolbar-btn"
                 style="position:absolute; top:12px; right:8px"
                 @click="${(e: Event) => {
-                  copyToClipboard(this.responseText, e);
+                  copyToClipboard(this.responseHeaders as string, e);
                 }}"
                 part="btn btn-fill btn-copy"
               >
                 Copy
               </button>
-              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">
-${responseContent}</pre>
-            </div>`
-      }
-      <div
-        part="tab-content"
-        class="tab-content col m-markdown"
-        style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};"
-      >
-        <button
-          class="toolbar-btn"
-          style="position:absolute; top:12px; right:8px"
-          @click="${(e: Event) => {
-            copyToClipboard(this.responseHeaders as string, e);
-          }}"
-          part="btn btn-fill btn-copy"
-        >
-          Copy
-        </button>
-        <pre style="white-space:pre"><code class="language-css">${this.responseHeaders}</code></pre>
-      </div>
-      ${this.showCurlBeforeTry === 'true' ? '' : curlSyntaxTemplate.call(this, this.activeResponseTab === 'curl' ? 'flex' : 'none')}
-    </div>`;
+              <pre style="white-space:pre"><code class="language-css">${this.responseHeaders}</code></pre>
+            </div>
+            ${this.showCurlBeforeTry === 'true' ? '' : curlSyntaxTemplate.call(this, this.activeResponseTab === 'curl' ? 'flex' : 'none')}
+          </div>`
+    }`;
 }
 
 export function apiCallTemplate(this: ApiRequestElement): TemplateResult {

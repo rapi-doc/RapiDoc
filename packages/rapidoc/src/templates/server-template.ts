@@ -55,6 +55,7 @@ function serverVarsTemplate(this: ServerHost): TemplateResult | '' {
                   ${
                     kv[1].enum
                       ? html` <select
+                          part="select"
                           data-var="${kv[0]}"
                           @input=${(e: Event) => {
                             onApiServerVarChange.call(this, e, this.selectedServer!);

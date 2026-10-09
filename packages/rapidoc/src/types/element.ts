@@ -328,7 +328,7 @@ export interface ApiRequestElement extends HTMLElement {
   // Internal reactive state (initialised in the constructor)
   /** string, or a lit TemplateResult after a successful request. */
   responseMessage: unknown;
-  responseStatus: string;
+  responseStatus: 'success' | 'error';
   /** Reset to `[]` by onTryClick (TODO(ts-migration)-worthy: otherwise always a string). */
   responseHeaders: string | string[];
   responseText: string;
