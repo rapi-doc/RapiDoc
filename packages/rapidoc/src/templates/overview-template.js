@@ -1,6 +1,7 @@
 /**
  * Renders the API specification overview header with metadata, description markdown, contact, license, and download links.
  */
+import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
@@ -13,6 +14,7 @@ function headingRenderer() {
   const renderer = new marked.Renderer();
   // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`;
   renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="overview--${slugger.slug(text)}">${text}</h${depth}>`;
+  fixRenderedAnchorLinks(renderer);
   return renderer;
 }
 
