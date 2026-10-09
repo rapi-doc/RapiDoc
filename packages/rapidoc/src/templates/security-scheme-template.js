@@ -808,8 +808,8 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                                   class="m-btn thin-border"
                                                   style="margin-left:5px;"
                                                   part="btn btn-outline"
-                                                  @click="${(e) => {
-                                                    onApiKeyChange.call(this, v.securitySchemeId, e);
+                                                  @click="${() => {
+                                                    onApiKeyChange.call(this, v.securitySchemeId);
                                                   }}"
                                                 >
                                                   ${v.finalKeyValue ? 'UPDATE' : 'SET'}
@@ -852,8 +852,8 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                         />
                                         <button
                                           class="m-btn thin-border"
-                                          @click="${(e) => {
-                                            onApiKeyChange.call(this, v.securitySchemeId, e);
+                                          @click="${() => {
+                                            onApiKeyChange.call(this, v.securitySchemeId);
                                           }}"
                                           part="btn btn-outline"
                                         >
@@ -885,8 +885,8 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                           class="m-btn thin-border"
                                           style="margin-left:5px;"
                                           part="btn btn-outline"
-                                          @click="${(e) => {
-                                            onApiKeyChange.call(this, v.securitySchemeId, e);
+                                          @click="${() => {
+                                            onApiKeyChange.call(this, v.securitySchemeId);
                                           }}"
                                         >
                                           ${v.finalKeyValue ? 'UPDATE' : 'SET'}

@@ -83,8 +83,8 @@ export function apiResponseTabTemplate() {
               <button
                 class="m-btn thin-border mar-top-8"
                 style="width:135px"
-                @click="${(e) => {
-                  downloadResource(this.responseBlobUrl, this.respContentDisposition, e);
+                @click="${() => {
+                  downloadResource(this.responseBlobUrl, this.respContentDisposition);
                 }}"
                 part="btn btn-outline"
               >
@@ -95,8 +95,8 @@ export function apiResponseTabTemplate() {
                   ? html`<button
                       class="m-btn thin-border mar-top-8"
                       style="width:135px"
-                      @click="${(e) => {
-                        viewResource(this.responseBlobUrl, e);
+                      @click="${() => {
+                        viewResource(this.responseBlobUrl);
                       }}"
                       part="btn btn-outline"
                     >

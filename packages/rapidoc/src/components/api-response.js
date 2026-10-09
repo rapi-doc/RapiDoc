@@ -325,9 +325,7 @@ export default class ApiResponse extends LitElement {
                     ${
                       mimeRespDetails.examples[0].exampleDescription
                         ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                            ${unsafeHTML(sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || '')), {
-                              USE_PROFILES: { html: true },
-                            })}
+                            ${unsafeHTML(sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || '')))}
                           </div>`
                         : ''
                     }
