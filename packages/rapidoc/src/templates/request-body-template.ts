@@ -427,7 +427,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                       part="textarea textarea-param"
                       spellcheck="false"
                       data-ptype="${reqBody.mimeType}"
-                      data-example="${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}"
+                      data-example="${v.exampleFormat === 'text' ? (v.exampleValue as string) : JSON.stringify(v.exampleValue, null, 2)}"
                       data-example-format="${v.exampleFormat}"
                       style="width:100%; resize:vertical;"
                       .value="${

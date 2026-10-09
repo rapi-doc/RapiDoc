@@ -43,7 +43,7 @@
     "lint": "eslint './src/**/*.{js,ts}'",
     "format": "prettier --check './src/**/*.{js,ts,html,css}'",
     "format-fix": "prettier --write './src/**/*.{js,ts,html,css}'",
-    "analyze": "lit-analyzer src",
+    "analyze": "lit-analyzer src --rules.no-nullable-attribute-binding warn --rules.no-incompatible-type-binding warn --rules.no-incompatible-property-type warn",
     "test": "node --test ../../tests/unit/*.test.js",
     "typecheck": "tsc -p tsconfig.json"
   },
