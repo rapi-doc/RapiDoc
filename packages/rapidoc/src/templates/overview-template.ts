@@ -1,0 +1,143 @@
+/**
+ * Renders the API specification overview header with metadata, description markdown, contact, license, and download links.
+ */
+import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
+import { html } from 'lit';
+import type { TemplateResult } from 'lit';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
+import type { RapiDocElement } from '~/types/element';
+import type { ResolvedTag } from '~/types/spec';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { sanitizeHTML } from '../utils/sanitize.ts';
+import Slugger from 'github-slugger';
+import { marked } from 'marked';
+import { downloadResource, viewResource } from '~/utils/common-utils';
+
+function headingRenderer() {
+  const slugger = new Slugger();
+  const renderer = new marked.Renderer();
+  // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`;
+  renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="overview--${slugger.slug(text)}">${text}</h${depth}>`;
+  fixRenderedAnchorLinks(renderer);
+  return renderer;
+}
+
+/** `this` of `overviewTemplate`: called by `<rapi-doc>` (via the focused/main-body templates) and by `<json-schema-viewer>`. */
+export type OverviewHost = Pick<RapiDocElement, 'renderStyle' | 'specUrl' | 'allowSpecFileDownload'> &
+  Partial<Pick<RapiDocElement, 'infoDescriptionHeadingsInNavBar'>> & {
+    /** Any resolved spec flavor: only `info` is read (absent while the spec is loading). */
+    resolvedSpec?: { info?: OpenAPIV3_1.InfoObject; tags: ResolvedTag[] } | null;
+  };
+
+export default function overviewTemplate(this: OverviewHost): TemplateResult {
+  return html`
+    <section
+      id="overview"
+      part="section-overview"
+      class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}"
+    >
+      ${
+        this.resolvedSpec?.info
+          ? html`
+              <div id="api-title" part="section-overview-title" style="font-size:32px">
+                ${this.resolvedSpec.info.title}
+                ${
+                  !this.resolvedSpec.info.version
+                    ? ''
+                    : html`<span style="font-size:var(--font-size-small);font-weight:bold"> ${this.resolvedSpec.info.version} </span>`
+                }
+              </div>
+              <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px;">
+                ${
+                  this.resolvedSpec.info.contact?.email
+                    ? html`<span
+                        >${this.resolvedSpec.info.contact.name || 'Email'}:
+                        <a href="mailto:${this.resolvedSpec.info.contact.email}" part="anchor anchor-overview"
+                          >${this.resolvedSpec.info.contact.email}</a
+                        >
+                      </span>`
+                    : ''
+                }
+                ${
+                  this.resolvedSpec.info.contact?.url
+                    ? html`<span
+                        >URL:
+                        <a href="${this.resolvedSpec.info.contact.url}" part="anchor anchor-overview"
+                          >${this.resolvedSpec.info.contact.url}</a
+                        ></span
+                      >`
+                    : ''
+                }
+                ${
+                  this.resolvedSpec.info.license
+                    ? html`<span
+                        >License:
+                        ${
+                          this.resolvedSpec.info.license.url
+                            ? html`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-overview"
+                                >${this.resolvedSpec.info.license.name}</a
+                              >`
+                            : this.resolvedSpec.info.license.name
+                        }
+                      </span>`
+                    : ''
+                }
+                ${
+                  this.resolvedSpec.info.termsOfService
+                    ? html`<span
+                        ><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span
+                      >`
+                    : ''
+                }
+                ${
+                  this.specUrl && this.allowSpecFileDownload === 'true'
+                    ? html`<div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
+                        <button
+                          class="m-btn thin-border"
+                          style="min-width:170px"
+                          part="btn btn-outline"
+                          @click="${() => {
+                            downloadResource(this.specUrl!, 'openapi-spec');
+                          }}"
+                        >
+                          Download OpenAPI spec
+                        </button>
+                        ${
+                          this.specUrl?.trim().toLowerCase().endsWith('json')
+                            ? html`<button
+                                class="m-btn thin-border"
+                                style="width:200px"
+                                part="btn btn-outline"
+                                @click="${() => {
+                                  viewResource(this.specUrl!);
+                                }}"
+                              >
+                                View OpenAPI spec (New Tab)
+                              </button>`
+                            : ''
+                        }
+                      </div>`
+                    : ''
+                }
+              </div>
+              <slot name="overview"></slot>
+              <div id="api-description">
+                ${
+                  this.resolvedSpec.info.description
+                    ? html`${unsafeHTML(
+                        sanitizeHTML(`<div class="m-markdown regular-font">
+                        ${marked(
+                          this.resolvedSpec.info.description,
+                          this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined
+                        )}
+                      </div>`)
+                      )}`
+                    : ''
+                }
+              </div>
+            `
+          : ''
+      }
+    </section>
+  `;
+}

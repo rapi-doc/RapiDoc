@@ -121,7 +121,7 @@ npm run dev
 npm run stop
 ```
 - Open `http://localhost:4321` in your browser.
-- **Live Unminified ES Modules:** In development mode (`npm run dev`), the Astro dev server bypasses pre-compiled production bundles and serves live ES modules directly from `packages/rapidoc/src/index.js`.
+- **Live Unminified ES Modules:** In development mode (`npm run dev`), the Astro dev server bypasses pre-compiled production bundles and serves live ES modules directly from `packages/rapidoc/src/index.ts`.
 - **Full DevTools & Console Visibility:** All `console.log`, `console.warn`, `console.error`, and `debugger` breakpoints remain completely intact with original file names and exact line numbers (e.g., `rapidoc.js:516`).
 - **Instant Browser Reloading:** Component changes in `packages/rapidoc/src/` trigger immediate hot reloads without waiting for a full Rollup/Vite compilation cycle.
 
@@ -159,7 +159,7 @@ Astro documentation and example pages include the component via `<script type="m
 
 1. **During Local Development (`npm run dev`):**
    - The Astro dev server middleware (in `docs/astro.config.mjs`) **intercepts** all requests for `/rapidoc/rapidoc-min.js` (and `/rapidoc/rapidoc.js`).
-   - Instead of reading any pre-built static file, it directly imports and serves `packages/rapidoc/src/index.js` live through Vite's module pipeline.
+   - Instead of reading any pre-built static file, it directly imports and serves `packages/rapidoc/src/index.ts` live through Vite's module pipeline.
    - You get instant HMR, unminified source code, active `console.*` logging, and sourcemaps with exact line numbers in browser DevTools. Neither `dist/` nor `generated-docs/` is served during development.
 
 2. **During Production Site Build (`npm run build:docs` / `npm run build`):**
@@ -200,7 +200,7 @@ All primary commands can be run from the root of the repository:
 #### Code Quality & Formatting
 | Command | Workspace | Description |
 |---|---|---|
-| `npm run lint` | `rapidoc` | Runs ESLint on `packages/rapidoc/src/**/*.js` with Lit rules. |
+| `npm run lint` | `rapidoc` | Runs ESLint on `packages/rapidoc/src/**/*.{js,ts}` with Lit rules. |
 | `npm run analyze` | `rapidoc` | Runs Lit Analyzer to validate custom element templates and bindings. |
 | `npm run format` | Monorepo | Checks code formatting against `.prettierrc` across packages and docs. |
 | `npm run format-fix` | Monorepo | Automatically formats code using Prettier across packages and docs. |

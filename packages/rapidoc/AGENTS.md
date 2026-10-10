@@ -5,8 +5,8 @@
 
 - **Package Name**: `rapidoc`
 - **Output Target**: Standalone ES Module bundle at `dist/rapidoc-min.js`
-- **Component Entry**: `src/index.js`
-- **Main Element**: `src/rapidoc.js` (`<rapi-doc>`)
+- **Component Entry**: `src/index.ts`
+- **Main Element**: `src/rapidoc.ts` (`<rapi-doc>`)
 
 ---
 
@@ -24,7 +24,7 @@
   - `scripts/capture-build-info.js` (records build size and metadata on bundle completion)
 - **Path Aliases**:
   - `~` -> `./src`
-  - `~/rapidoc` -> `./src/rapidoc.js`
+  - `~/rapidoc` -> `./src/rapidoc.ts`
 
 ---
 
@@ -53,11 +53,11 @@ packages/rapidoc/src/
 ├── templates/           # Sub-templates (endpoint details, request/response bodies, security)
 ├── styles/              # Scoped CSS stylesheets and theming tokens
 ├── utils/
-│   ├── spec-parser.js       # Core OpenAPI spec parser & dereferencing pipeline
-│   ├── schema-ast.js        # Schema abstract syntax tree for recursive JSON-Schema rendering
-│   ├── schema-utils.js      # Type resolver, constraints, and sample generation
-│   ├── mock-interceptor.js  # Client-side mock server fetch interceptor
-│   └── common-utils.js      # General helpers (slugs, sanitization, copy)
+│   ├── spec-parser.ts       # Core OpenAPI spec parser & dereferencing pipeline
+│   ├── schema-ast.ts        # Schema abstract syntax tree for recursive JSON-Schema rendering
+│   ├── schema-utils.ts      # Type resolver, constraints, and sample generation
+│   ├── mock-interceptor.ts  # Client-side mock server fetch interceptor
+│   └── common-utils.ts      # General helpers (slugs, sanitization, copy)
 ├── rapidoc.js           # Main <rapi-doc> custom element implementation
 ├── rapidoc-mini.js      # Embedded mini widget (<rapi-doc-mini>)
 ├── json-schema-viewer.js# Standalone schema viewer component (<json-schema-viewer>)

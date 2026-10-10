@@ -7,13 +7,13 @@ You are a specialist agent dedicated to `packages/rapidoc` — the core Lit-base
 
 ## Workspace Scope & Key Paths
 - **Package Directory**: `packages/rapidoc`
-- **Component Entry**: `packages/rapidoc/src/index.js`
-- **Main Custom Element**: `packages/rapidoc/src/rapidoc.js`
+- **Component Entry**: `packages/rapidoc/src/index.ts`
+- **Main Custom Element**: `packages/rapidoc/src/rapidoc.ts`
 - **Parser & Schema Utilities**:
-  - `packages/rapidoc/src/utils/spec-parser.js`
-  - `packages/rapidoc/src/utils/schema-ast.js`
-  - `packages/rapidoc/src/utils/schema-utils.js`
-  - `packages/rapidoc/src/utils/mock-interceptor.js`
+  - `packages/rapidoc/src/utils/spec-parser.ts`
+  - `packages/rapidoc/src/utils/schema-ast.ts`
+  - `packages/rapidoc/src/utils/schema-utils.ts`
+  - `packages/rapidoc/src/utils/mock-interceptor.ts`
 - **Sub-templates**: `packages/rapidoc/src/templates/`
 - **Styles**: `packages/rapidoc/src/styles/`
 - **Tests**: `tests/unit/*.test.js`, `tests/perf/benchmark.js`

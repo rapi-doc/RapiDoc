@@ -1,4 +1,5 @@
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 import pluginJs from '@eslint/js';
 import { configs as litConfigs } from 'eslint-plugin-lit';
 import eslintConfigPrettier from 'eslint-config-prettier';
@@ -17,8 +18,9 @@ export default [
   },
   pluginJs.configs.recommended, // ESLint recommended
   litConfigs['flat/recommended'], // Lit recommended
+  ...tseslint.configs.recommended.map((config) => ({ ...config, files: ['**/*.ts'] })), // TypeScript recommended (ts files only)
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.ts'],
     plugins: {
       prettier: eslintPluginPrettier, // Add Prettier plugin
     },
@@ -36,6 +38,8 @@ export default [
       ],
       ...eslintConfigPrettier.rules, // Disable conflicting ESLint rules
       'lit/attribute-value-entities': 'off',
+      // OpenAPI documents are deeply dynamic; `any` is tolerated (warned) where precise typing is impractical
+      '@typescript-eslint/no-explicit-any': 'warn',
       'no-useless-assignment': 'warn',
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { schemaInObjectNotation } from '../../packages/rapidoc/src/utils/schema-utils.js';
+import { schemaInObjectNotation } from '../../packages/rapidoc/src/utils/schema-utils.ts';
 
 describe('schemaInObjectNotation', () => {
   describe('primitive data types', () => {
