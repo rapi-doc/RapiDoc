@@ -407,7 +407,8 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
     authUrlObj.search = authCodeParams.toString();
     // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
     if (sessionStorage.getItem('winMessageEventActive') === 'true') {
-      window.postMessage({ fake: true }, this);
+      // the message targets this very window and carries no data, so any target origin is safe
+      window.postMessage({ fake: true }, '*');
     }
     setTimeout(() => {
       newWindow = window.open(authUrlObj.toString());
@@ -503,7 +504,7 @@ function oAuthFlowTemplate(
   const originUrl = url.origin;
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     if (this.selectedServer?.computedUrl.trim().endsWith('/') && !refreshUrl.trim().startsWith('/')) {
-      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${tokenUrl.trim()}`;
+      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${refreshUrl.trim()}`;
     } else {
       refreshUrl = `${originUrl}/${refreshUrl.replace(/^\//, '')}`;
     }
@@ -807,8 +808,8 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                                   class="m-btn thin-border"
                                                   style="margin-left:5px;"
                                                   part="btn btn-outline"
-                                                  @click="${(e) => {
-                                                    onApiKeyChange.call(this, v.securitySchemeId, e);
+                                                  @click="${() => {
+                                                    onApiKeyChange.call(this, v.securitySchemeId);
                                                   }}"
                                                 >
                                                   ${v.finalKeyValue ? 'UPDATE' : 'SET'}
@@ -851,8 +852,8 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                         />
                                         <button
                                           class="m-btn thin-border"
-                                          @click="${(e) => {
-                                            onApiKeyChange.call(this, v.securitySchemeId, e);
+                                          @click="${() => {
+                                            onApiKeyChange.call(this, v.securitySchemeId);
                                           }}"
                                           part="btn btn-outline"
                                         >
@@ -884,8 +885,8 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                           class="m-btn thin-border"
                                           style="margin-left:5px;"
                                           part="btn btn-outline"
-                                          @click="${(e) => {
-                                            onApiKeyChange.call(this, v.securitySchemeId, e);
+                                          @click="${() => {
+                                            onApiKeyChange.call(this, v.securitySchemeId);
                                           }}"
                                         >
                                           ${v.finalKeyValue ? 'UPDATE' : 'SET'}

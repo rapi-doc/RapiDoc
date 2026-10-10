@@ -14,6 +14,7 @@ import InfoStyles from '~/styles/info-styles';
 import EndpointStyles from '~/styles/endpoint-styles';
 import ProcessSpec from '~/utils/spec-parser';
 import jsonSchemaViewerTemplate from '~/templates/json-schema-viewer-template';
+import '~/utils/markdown-utils';
 
 export default class JsonSchemaViewer extends LitElement {
   constructor() {
@@ -261,7 +262,7 @@ export default class JsonSchemaViewer extends LitElement {
   }
 
   render() {
-    return jsonSchemaViewerTemplate.call(this, true, false, false, this.pathsExpanded);
+    return jsonSchemaViewerTemplate.call(this, true);
   }
 
   updated(changedProperties) {
@@ -287,7 +288,8 @@ export default class JsonSchemaViewer extends LitElement {
 
   onSearchChange(e) {
     // Todo: Filter Search
-    this.matchPaths = e.target.value;
+    const input = e.target instanceof HTMLInputElement ? e.target : this.shadowRoot.getElementById('nav-bar-search');
+    this.matchPaths = input?.value ?? '';
   }
 
   // Public Method
@@ -311,9 +313,13 @@ export default class JsonSchemaViewer extends LitElement {
         this.sortTags === 'true',
         this.sortSchemas === 'true',
         this.getAttribute('sort-endpoints-by'),
-        this.getAttribute('match-paths'),
-        this.getAttribute('match-type'),
-        this.getAttribute('remove-endpoints-with-badge-label-as')
+        '', // api-key-name (not applicable)
+        '', // api-key-location (not applicable)
+        '', // api-key-value (not applicable)
+        '', // server-url (not applicable)
+        this.getAttribute('match-paths') || '',
+        this.getAttribute('match-type') || '',
+        this.getAttribute('remove-endpoints-with-badge-label-as') || ''
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);

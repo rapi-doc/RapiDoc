@@ -1,6 +1,7 @@
 /**
  * Renders the API specification overview header with metadata, description markdown, contact, license, and download links.
  */
+import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
@@ -13,6 +14,7 @@ function headingRenderer() {
   const renderer = new marked.Renderer();
   // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`;
   renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="overview--${slugger.slug(text)}">${text}</h${depth}>`;
+  fixRenderedAnchorLinks(renderer);
   return renderer;
 }
 
@@ -83,8 +85,8 @@ export default function overviewTemplate() {
                           class="m-btn thin-border"
                           style="min-width:170px"
                           part="btn btn-outline"
-                          @click="${(e) => {
-                            downloadResource(this.specUrl, 'openapi-spec', e);
+                          @click="${() => {
+                            downloadResource(this.specUrl, 'openapi-spec');
                           }}"
                         >
                           Download OpenAPI spec
@@ -95,8 +97,8 @@ export default function overviewTemplate() {
                                 class="m-btn thin-border"
                                 style="width:200px"
                                 part="btn btn-outline"
-                                @click="${(e) => {
-                                  viewResource(this.specUrl, e);
+                                @click="${() => {
+                                  viewResource(this.specUrl);
                                 }}"
                               >
                                 View OpenAPI spec (New Tab)

@@ -31,7 +31,7 @@ export default function setTheme(baseTheme, theme = {}) {
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
-    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : ColorUtils.color.invert(navAccentColor);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccentTextColor : ColorUtils.color.invert(navAccentColor);
 
     const overlayBg = 'rgba(80, 80, 80, 0.4)';
 
@@ -127,7 +127,7 @@ export default function setTheme(baseTheme, theme = {}) {
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
-    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : ColorUtils.color.invert(navAccentColor);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccentTextColor : ColorUtils.color.invert(navAccentColor);
     const overlayBg = 'rgba(0, 0, 0, 0.4)';
 
     newTheme = {

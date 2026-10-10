@@ -608,7 +608,7 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
   if (sortEndpointsBy !== 'none') {
     tagsWithSortedPaths.forEach((tag) => {
       if (sortEndpointsBy === 'method') {
-        tag.paths.sort((a, b) => supportedMethods.indexOf(a.method).toString().localeCompare(supportedMethods.indexOf(b.method)));
+        tag.paths.sort((a, b) => supportedMethods.indexOf(a.method) - supportedMethods.indexOf(b.method));
       } else if (sortEndpointsBy === 'summary') {
         tag.paths.sort((a, b) => a.shortSummary.localeCompare(b.shortSummary));
       } else if (sortEndpointsBy === 'path') {

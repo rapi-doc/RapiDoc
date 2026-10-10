@@ -1,3 +1,4 @@
+import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
 import { css, LitElement, unsafeCSS } from 'lit';
 import { marked } from 'marked';
 import Slugger from 'github-slugger';
@@ -738,8 +739,8 @@ export default class RapiDoc extends LitElement {
   infoDescriptionHeadingRenderer() {
     const renderer = new marked.Renderer();
     const slugger = new Slugger();
-    // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
-    renderer.heading = (text, level, raw) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
+    renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${slugger.slug(text)}">${text}</h${depth}>`;
+    fixRenderedAnchorLinks(renderer);
     return renderer;
   }
 
@@ -868,7 +869,8 @@ export default class RapiDoc extends LitElement {
       }
 
       if (updateSelectedApiKey) {
-        if (this.resolvedSpec) {
+        // While the spec is loading, resolvedSpec is a placeholder without securitySchemes
+        if (this.resolvedSpec?.securitySchemes) {
           const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
@@ -919,8 +921,9 @@ export default class RapiDoc extends LitElement {
   }
 
   onSearchChange(e) {
-    // this.matchPaths = e.target.value;
-    this.searchVal = e.target.value;
+    // The event may come from the ↩ icon (a div without `value`): read the nav-bar input instead
+    const input = e.target instanceof HTMLInputElement ? e.target : this.shadowRoot.getElementById('nav-bar-search');
+    this.searchVal = input?.value ?? '';
     this.resolvedSpec.tags.forEach((tag) =>
       tag.paths.filter((path) => {
         if (this.searchVal) {
