@@ -36,6 +36,8 @@ test('theme-validation', async (t) => {
     assert.equal(isValidTheme('#fff'), true);
 
     // Invalid themes
+    assert.equal(isValidTheme('default'), false);
+    assert.equal(isValidTheme('modern'), false);
     assert.equal(isValidTheme('dark'), false);
     assert.equal(isValidTheme('light'), false);
     assert.equal(isValidTheme('custom-blue'), false);
@@ -48,7 +50,6 @@ test('theme-validation', async (t) => {
     for (const preset of THEME_PRESETS) {
       const res = normalizeTheme(preset);
       assert.equal(res.theme, preset);
-      assert.equal(res.colorScheme, undefined);
     }
 
     // Case-insensitive preset
@@ -62,15 +63,12 @@ test('theme-validation', async (t) => {
     assert.deepEqual(normalizeTheme('#fff'), { theme: '#fff' });
   });
 
-  await t.test('normalizeTheme handles "light" and "dark" exception: falls back to amber and updates colorScheme', () => {
-    assert.deepEqual(normalizeTheme('dark'), { theme: 'amber', colorScheme: 'dark' });
-    assert.deepEqual(normalizeTheme('DARK'), { theme: 'amber', colorScheme: 'dark' });
-    assert.deepEqual(normalizeTheme('light'), { theme: 'amber', colorScheme: 'light' });
-    assert.deepEqual(normalizeTheme('LIGHT'), { theme: 'amber', colorScheme: 'light' });
-  });
-
   await t.test('normalizeTheme falls back to "amber" for any invalid or missing theme', () => {
     assert.deepEqual(normalizeTheme('foobar'), { theme: 'amber' });
+    assert.deepEqual(normalizeTheme('default'), { theme: 'amber' });
+    assert.deepEqual(normalizeTheme('modern'), { theme: 'amber' });
+    assert.deepEqual(normalizeTheme('dark'), { theme: 'amber' });
+    assert.deepEqual(normalizeTheme('light'), { theme: 'amber' });
     assert.deepEqual(normalizeTheme('rgb(255, 0, 0)'), { theme: 'amber' });
     assert.deepEqual(normalizeTheme('hsl(200, 50%, 50%)'), { theme: 'amber' });
     assert.deepEqual(normalizeTheme(''), { theme: 'amber' });

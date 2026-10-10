@@ -196,10 +196,6 @@ export default class RapiDocMini extends LitElement {
       this.schemaStyle = 'tree';
     }
     const normalizedTheme = normalizeTheme(this.theme);
-    if (normalizedTheme.colorScheme) {
-      this.colorScheme = normalizedTheme.colorScheme;
-      this.setAttribute('color-scheme', normalizedTheme.colorScheme);
-    }
     this.theme = normalizedTheme.theme;
     this.setAttribute('theme', this.theme);
     if (!this.colorScheme || !'dark, light, system,'.includes(`${this.colorScheme},`)) {
@@ -321,10 +317,6 @@ export default class RapiDocMini extends LitElement {
 
     if (changedProperties.has('theme')) {
       const normalizedTheme = normalizeTheme(this.theme);
-      if (normalizedTheme.colorScheme) {
-        this.colorScheme = normalizedTheme.colorScheme;
-        this.setAttribute('color-scheme', normalizedTheme.colorScheme);
-      }
       if (this.theme !== normalizedTheme.theme) {
         this.theme = normalizedTheme.theme;
         this.setAttribute('theme', this.theme);

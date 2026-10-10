@@ -320,27 +320,22 @@ export default function navbarTemplate() {
                           id="link-${p.elementId}"
                           tabindex="0"
                         >
-                          <span style="display:flex; pointer-events: none; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
-                            ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}" style="pointer-events: none;">
+                          <span class="nav-bar-path-inner" style="${p.deprecated ? 'filter:opacity(0.5);' : ''}">
+                            <span class="nav-bar-path-label">
+                              ${p.isWebhook ? html`<span class="nav-bar-webhook">WEBHOOK</span>` : ''}
+                              ${
+                                this.usePathInNavBar === 'true'
+                                  ? html`<span class="mono-font">${p.path}</span>`
+                                  : p.summary || p.shortSummary
+                              }
+                            </span>
+                            ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
                               ${
                                 this.showMethodInNavBar === 'as-colored-block'
                                   ? p.method.substring(0, 3).toUpperCase()
                                   : p.method.toUpperCase()
                               }
                             </span>`}
-                            ${
-                              p.isWebhook
-                                ? html`<span
-                                    style="font-weight:bold; pointer-events: none; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)"
-                                    >WEBHOOK</span
-                                  >`
-                                : ''
-                            }
-                            ${
-                              this.usePathInNavBar === 'true'
-                                ? html`<span style="pointer-events: none;" class="mono-font">${p.path}</span>`
-                                : p.summary || p.shortSummary
-                            }
                           </span>
                         </div>`
                     )}

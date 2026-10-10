@@ -1,9 +1,21 @@
 import { css } from 'lit';
 
-export const THEME_PRESETS = ['default', 'amber', 'graphite', 'modern', 'emerald', 'violet', 'rose', 'blue', 'slate'];
+/**
+ * Supported brand theme presets in RapiDoc.
+ * - 'amber': Warm minimal developer aesthetic (default)
+ * - 'blue': Classic developer portal palette with neutral dark surfaces
+ * - 'emerald': Fintech & documentation palette (deep navy slate surfaces)
+ * - 'violet': Web3 & SaaS palette (deep purple surfaces)
+ * - 'graphite': Ultra-clean monochrome minimal palette
+ * - 'rose': Ruby accent palette (warm charcoal surfaces)
+ * - 'slate': Understated corporate enterprise palette
+ */
+export const THEME_PRESETS = ['amber', 'blue', 'emerald', 'violet', 'graphite', 'rose', 'slate'];
 
 /**
- * Checks if a string is a valid hex color code (#rgb, #rrggbb, #rrggbbaa).
+ * Checks if a string is a valid CSS hex color code (#rgb, #rrggbb, #rrggbbaa).
+ * @param {string} color - Color string to validate.
+ * @returns {boolean} True if the string is a valid hex color code.
  */
 export function isValidHexColor(color) {
   if (!color || typeof color !== 'string') return false;
@@ -11,7 +23,9 @@ export function isValidHexColor(color) {
 }
 
 /**
- * Checks if a theme is valid: must be from the allowed THEME_PRESETS or a valid hex color code.
+ * Checks if a theme string is valid: must match an allowed preset name or be a valid hex color code.
+ * @param {string} theme - Theme name or hex string to validate.
+ * @returns {boolean} True if theme is supported.
  */
 export function isValidTheme(theme) {
   if (!theme || typeof theme !== 'string') return false;
@@ -20,13 +34,13 @@ export function isValidTheme(theme) {
 }
 
 /**
- * Normalizes and validates the theme attribute.
- * Only allowed presets or valid hex color codes are accepted.
- * If 'light' or 'dark' is provided, it returns fallback theme 'amber' and maps colorScheme.
- * If any invalid value is provided, it falls back to 'amber'.
+ * Normalizes and validates the theme attribute value.
+ * - Allowed presets are normalized to lowercase.
+ * - Valid hex color codes are preserved as-is.
+ * - Any invalid, unrecognized, or missing value defaults to 'amber'.
  *
- * @param {string} theme - The theme value to validate.
- * @returns {{ theme: string, colorScheme?: 'light' | 'dark' }}
+ * @param {string} theme - The raw theme attribute value.
+ * @returns {{ theme: string }}
  */
 export function normalizeTheme(theme) {
   if (!theme || typeof theme !== 'string') {
@@ -34,9 +48,6 @@ export function normalizeTheme(theme) {
   }
   const trimmed = theme.trim();
   const lower = trimmed.toLowerCase();
-  if (lower === 'light' || lower === 'dark') {
-    return { theme: 'amber', colorScheme: lower };
-  }
   if (THEME_PRESETS.includes(lower)) {
     return { theme: lower };
   }
@@ -47,7 +58,9 @@ export function normalizeTheme(theme) {
 }
 
 /**
- * Checks if a string is a hex color rather than a preset name.
+ * Determines whether a color parameter is a custom brand hex code rather than a preset name.
+ * @param {string} color - Theme identifier or color code.
+ * @returns {boolean}
  */
 export function isCustomColor(color) {
   if (!color || typeof color !== 'string') return false;
@@ -57,7 +70,10 @@ export function isCustomColor(color) {
 }
 
 /**
- * Calculates whether a hex color is light to set appropriate foreground contrast.
+ * Calculates whether a hex color is perceived as light using standard YIQ luminance formula.
+ * Used to ensure accessible high-contrast text foreground (pure black on light vs white on dark).
+ * @param {string} color - Hex color code (#rgb, #rrggbb, #rrggbbaa).
+ * @returns {boolean} True if color luminance >= 128 (light).
  */
 export function isLightColor(color) {
   if (!color || typeof color !== 'string') return false;
@@ -79,7 +95,10 @@ export function isLightColor(color) {
 }
 
 /**
- * Applies custom brand color to the host element if theme is a valid hex color code.
+ * Dynamically applies custom corporate brand hex colors to the host element.
+ * Calculates luminance and injects `--primary`, `--ring`, and `--primary-foreground`.
+ * @param {HTMLElement} element - Custom element host target.
+ * @param {string} themeVal - User-supplied theme attribute value.
  */
 export function applyCustomTheme(element, themeVal) {
   if (!element || !element.style) return;
@@ -97,17 +116,20 @@ export function applyCustomTheme(element, themeVal) {
 }
 
 export default css`
+  /* =========================================================================
+     1. ROOT DESIGN TOKEN DEFAULTS (:host)
+     ========================================================================= */
   :host {
-    /* Typography: supports shadcn --font-sans or --font-regular */
+    /* --- Typography Tokens --- */
     --font-mono: 'Roboto Mono', Monaco, 'Andale Mono', Consolas, monospace;
     --font-regular: var(--font-sans, 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif);
 
-    /* Radius & Spacing */
+    /* --- Default Corner Radii & Geometry --- */
     --radius: 0.25rem;
     --card-radius: 4px;
     --border-radius: var(--radius);
 
-    /* Scale & Layout Defaults */
+    /* --- Layout Dimensions --- */
     --ui-base-size: 14px;
     --font-size-small: 12px;
     --font-size-mono: 13px;
@@ -122,44 +144,17 @@ export default css`
     --table-schema-key-whitespace: nowrap;
     --scroll-bar-width: 8px;
 
-    /* Code & Syntax Token Defaults */
-    --code-bg: var(--input-background);
-    --code-fg: var(--foreground);
-    --inline-code-fg: #c4c6d1;
-    --inline-code-bg: #3b3c45;
-    --markdown-fg: #c4c6d1;
-    --code-property-color: var(--syntax-property);
-    --code-keyword-color: var(--syntax-keyword);
-    --code-operator-color: var(--syntax-operator);
-
-    /* HTTP Method Badge Tokens */
-    --method-get: #3b82f6;
-    --method-post: #10b981;
-    --method-put: #f59e0b;
-    --method-delete: #ef4444;
-    --method-patch: #8b5cf6;
-    --method-head: #eab308;
-    --method-options: #06b6d4;
-
-    /* General Status & Helpers */
-    --blue: #3b82f6;
-    --green: #10b981;
-    --orange: #f59e0b;
-    --red: #ef4444;
-    --purple: #8b5cf6;
-    --yellow: #eab308;
-    --pink: #ec4899;
-    --brown: #d97706;
-
-    /* Focus & Selection */
+    /* --- Focus Ring & Selection --- */
     --focus-shadow: 0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);
     --selection-bg: color-mix(in srgb, var(--primary) 25%, transparent);
     --selection-fg: var(--foreground);
   }
 
   /* =========================================================================
-     Border Radius Tokens
+     2. SCALE & GEOMETRY TOKENS (radius, scale, nav-item-spacing)
      ========================================================================= */
+
+  /* --- 2A. Corner Radius Scale (radius) --- */
   :host([radius='none']) {
     --radius: 0px;
     --card-radius: 0px;
@@ -182,9 +177,7 @@ export default css`
     --card-radius: 8px;
   }
 
-  /* =========================================================================
-     Scale Tokens
-     ========================================================================= */
+  /* --- 2B. UI Scale & Typography (scale) --- */
   :host([scale='sm']) {
     --ui-base-size: 13px;
     --font-size-small: 11px;
@@ -208,9 +201,7 @@ export default css`
     --nav-width: 21rem;
   }
 
-  /* =========================================================================
-     Nav Item Spacing Tokens (Independent of Scale)
-     ========================================================================= */
+  /* --- 2C. Navigation Density (nav-item-spacing) --- */
   :host([nav-item-spacing='compact']) {
     --nav-item-padding: 0.3125rem 1rem 0.3125rem 0.625rem;
   }
@@ -223,26 +214,29 @@ export default css`
   }
 
   /* =========================================================================
-     Base Surfaces: Dark (Default)
+     3. SURFACE & COLOR SCHEME (color-scheme)
      ========================================================================= */
+
+  /* --- 3A. Dark Mode Surfaces (Default / System Dark) --- */
   :host,
   :host([color-scheme='dark']),
+  :host([color-scheme='system']),
   :host(:not([color-scheme])) {
-    --background: #09090b;
-    --foreground: #fafafa;
-    --card: #18181b;
-    --card-foreground: #fafafa;
-    --muted: #27272a;
+    /* Surfaces */
+    --background: var(--_preset-bg, #09090b);
+    --foreground: var(--_preset-fg, #fafafa);
+    --card: var(--_preset-card, #18181b);
+    --card-foreground: var(--_preset-card-fg, #fafafa);
+    --muted: var(--_preset-muted, #27272a);
     --muted-foreground: #a1a1aa;
-    --border: #27272a;
-    --input-background: color-mix(in srgb, var(--background) 50%, #000000);
+    --border: var(--_preset-border, #27272a);
+    --nav-hover-bg: color-mix(in srgb, var(--background) 85%, #000000);
+    --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
+    --input-background: color-mix(in srgb, var(--background) 75%, #000000);
     --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
     --input: var(--input-background);
-    --primary: #f59e0b;
-    --primary-foreground: #000000;
-    --ring: #f59e0b;
 
-    /* HTTP Method Badge Tokens (Dark Mode: Vibrant on dark surfaces) */
+    /* HTTP Method Badges (Dark Mode: High Vibrancy) */
     --method-get: #5c98f9ff;
     --method-post: #68cc97;
     --method-put: #f59e0b;
@@ -251,7 +245,7 @@ export default css`
     --method-head: #eab308;
     --method-options: #06b6d4;
 
-    /* General Status & Helpers (Dark Mode) */
+    /* Status Helpers */
     --blue: #3b82f6;
     --green: #10b981;
     --orange: #f59e0b;
@@ -261,7 +255,7 @@ export default css`
     --pink: #ec4899;
     --brown: #d97706;
 
-    /* Dark Syntax Highlighting */
+    /* Syntax Highlighting */
     --syntax-comment: #8b949e;
     --syntax-keyword: #ff7b72;
     --syntax-operator: #c9d1d9;
@@ -276,7 +270,7 @@ export default css`
     --syntax-inserted: #7ee787;
     --syntax-deleted: #ff7b72;
 
-    /* Code & Inline Code Tokens (Dark Mode) */
+    /* Code Blocks */
     --code-bg: var(--input-background);
     --code-fg: var(--foreground);
     --inline-code-fg: #c4c6d1;
@@ -287,10 +281,9 @@ export default css`
     --code-operator-color: var(--syntax-operator);
   }
 
-  /* =========================================================================
-     Base Surfaces: Light
-     ========================================================================= */
+  /* --- 3B. Light Mode Surfaces --- */
   :host([color-scheme='light']) {
+    /* Surfaces */
     --background: #ffffff;
     --foreground: #09090b;
     --card: #f4f4f5;
@@ -298,15 +291,14 @@ export default css`
     --muted: #f4f4f5;
     --muted-foreground: #71717a;
     --border: #e4e4e7;
+    --nav-hover-bg: color-mix(in srgb, var(--background) 95%, #000000);
+    --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
     --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
     --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
     --input: var(--input-background);
-    --primary: #d97706;
-    --primary-foreground: #ffffff;
-    --ring: #d97706;
 
-    /* HTTP Method Badge Tokens (Light Mode: High contrast against white) */
-    --method-get: #2563eb;
+    /* HTTP Method Badges (Light Mode: High Contrast) */
+    --method-get: #3573f8ff;
     --method-post: #059669;
     --method-put: #d97706;
     --method-delete: #dc2626;
@@ -314,8 +306,8 @@ export default css`
     --method-head: #b45309;
     --method-options: #0891b2;
 
-    /* General Status & Helpers (Light Mode: WCAG compliant on light surfaces) */
-    --blue: #2563eb;
+    /* Status Helpers */
+    --blue: #2768f4ff;
     --green: #059669;
     --orange: #d97706;
     --red: #dc2626;
@@ -324,7 +316,7 @@ export default css`
     --pink: #db2777;
     --brown: #92400e;
 
-    /* Light Syntax Highlighting */
+    /* Syntax Highlighting */
     --syntax-comment: #6e7781;
     --syntax-keyword: #cf222e;
     --syntax-operator: #24292f;
@@ -339,7 +331,7 @@ export default css`
     --syntax-inserted: #116329;
     --syntax-deleted: #cf222e;
 
-    /* Code & Inline Code Tokens (Light Mode) */
+    /* Code Blocks */
     --code-bg: var(--input-background);
     --code-fg: var(--foreground);
     --inline-code-fg: #334155;
@@ -350,7 +342,7 @@ export default css`
     --code-operator-color: var(--syntax-operator);
   }
 
-  /* System Color Scheme: Flips to light if OS prefers light */
+  /* --- 3C. System Mode Dynamic Surfaces --- */
   @media (prefers-color-scheme: light) {
     :host([color-scheme='system']) {
       --background: #ffffff;
@@ -360,15 +352,13 @@ export default css`
       --muted: #f4f4f5;
       --muted-foreground: #71717a;
       --border: #e4e4e7;
+      --nav-hover-bg: color-mix(in srgb, var(--background) 95%, #000000);
+      --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
       --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
       --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
       --input: var(--input-background);
-      --primary: #d97706;
-      --primary-foreground: #ffffff;
-      --ring: #d97706;
 
-      /* HTTP Method Badge Tokens (System Light Mode) */
-      --method-get: #2563eb;
+      --method-get: #3573f8ff;
       --method-post: #059669;
       --method-put: #d97706;
       --method-delete: #dc2626;
@@ -376,8 +366,7 @@ export default css`
       --method-head: #b45309;
       --method-options: #0891b2;
 
-      /* General Status & Helpers (System Light Mode) */
-      --blue: #2563eb;
+      --blue: #2768f4ff;
       --green: #059669;
       --orange: #d97706;
       --red: #dc2626;
@@ -400,7 +389,6 @@ export default css`
       --syntax-inserted: #116329;
       --syntax-deleted: #cf222e;
 
-      /* Code & Inline Code Tokens (System Light Mode) */
       --code-bg: var(--input-background);
       --code-fg: var(--foreground);
       --inline-code-fg: #334155;
@@ -413,354 +401,158 @@ export default css`
   }
 
   /* =========================================================================
-     Theme Presets: Brand Accents & Overrides
+     4. BRAND THEME PRESETS (theme)
      ========================================================================= */
 
-  /* 1. DEFAULT / BLUE (Neutral / Blue Accent) */
-  :host([theme='default']),
-  :host([theme='blue']),
-  :host(:not([theme])),
-  :host([theme='default'][color-scheme='dark']),
-  :host([theme='blue'][color-scheme='dark']) {
-    --background: #262626;
-    --foreground: #e5e5e5;
-    --card: #18181b;
-    --card-foreground: #fafafa;
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
-    --border: #414146ff;
-    --input-background: color-mix(in srgb, var(--background) 80%, #000000);
-    --input-border: color-mix(in srgb, var(--border) 50%, var(--background));
-    --input: var(--input-background);
-    --primary: #3b82f6;
-    --primary-foreground: #ffffff;
-    --ring: #3b82f6;
+  /* --- Preset 1: AMBER (Default) --- */
+  :host,
+  :host([theme='amber']),
+  :host(:not([theme])) {
+    --primary: #f76b39;
+    --primary-foreground: #000000;
+    --ring: #f76b39;
+    --_preset-bg: oklch(0.2613 0.0134 272.84);
+    --_preset-card: oklch(0.2613 0.0134 272.84);
+    --_preset-border: #363636ff;
   }
-  :host([theme='default'][color-scheme='light']),
-  :host([theme='blue'][color-scheme='light']),
+  :host([theme='amber'][color-scheme='light']),
   :host(:not([theme])[color-scheme='light']) {
-    --background: #ffffff;
-    --foreground: #09090b;
-    --card: #f4f4f5;
-    --card-foreground: #09090b;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --border: #e4e4e7;
-    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-    --input: var(--input-background);
+    --primary: #d97706;
+    --primary-foreground: #ffffff;
+    --ring: #d97706;
+  }
+
+  /* --- Preset 2: BLUE --- */
+  :host([theme='blue']) {
+    --primary: #488bf8ff;
+    --primary-foreground: #ffffff;
+    --ring: #488bf8ff;
+    --_preset-bg: #1c1b1bff;
+    --_preset-fg: #e5e5e5;
+    --_preset-border: #414146ff;
+  }
+  :host([theme='blue'][color-scheme='light']) {
     --primary: #2563eb;
     --primary-foreground: #ffffff;
     --ring: #2563eb;
   }
 
-  /* 2. AMBER (Warm Amber Minimal) */
-  :host([theme='amber']),
-  :host([theme='amber'][color-scheme='dark']) {
-    --background: oklch(0.2613 0.0134 272.84);
-    --foreground: oklch(0.9219 0 0);
-    --card: oklch(0.2686 0 0);
-    --card-foreground: oklch(0.9219 0 0);
-    --muted: oklch(0.2393 0 0);
-    --muted-foreground: oklch(0.7155 0 0);
-    --border: oklch(0.3715 0 0);
-    --input-background: color-mix(in srgb, var(--background) 80%, #000000);
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
-    --input: var(--input-background);
-    --primary: oklch(0.7686 0.1647 70.0804);
-    --primary-foreground: oklch(0 0 0);
-    --ring: oklch(0.7686 0.1647 70.0804);
+  /* --- Preset 3: EMERALD --- */
+  :host([theme='emerald']) {
+    --primary: #03bf80ff;
+    --primary-foreground: #0f331dff;
+    --ring: #03bf80ff;
+    --_preset-bg: #060913;
+    --_preset-fg: #e2e8f0;
+    --_preset-card: #0f172a;
+    --_preset-card-fg: #f8fafc;
+    --_preset-muted: #111827;
+    --_preset-border: #242c29ff;
   }
-  :host([theme='amber'][color-scheme='light']) {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.2686 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.2686 0 0);
-    --muted: oklch(0.9846 0.0017 247.8389);
-    --muted-foreground: oklch(0.551 0.0234 264.3637);
-    --border: oklch(0.9276 0.0058 264.5313);
-    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-    --input: var(--input-background);
-    --primary: oklch(0.7686 0.1647 70.0804);
-    --primary-foreground: oklch(0 0 0);
-    --ring: oklch(0.7686 0.1647 70.0804);
-  }
-
-  /* 3. GRAPHITE (Monochrome Minimalist) */
-  :host([theme='graphite']),
-  :host([theme='graphite'][color-scheme='dark']) {
-    --background: #09090b;
-    --foreground: #fafafa;
-    --card: #18181b;
-    --card-foreground: #fafafa;
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
-    --border: #27272a;
-    --input-background: color-mix(in srgb, var(--background) 50%, #000000);
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
-    --input: var(--input-background);
-    --primary: #fafafa;
-    --primary-foreground: #18181b;
-    --ring: #d4d4d8;
-  }
-  :host([theme='graphite'][color-scheme='light']) {
-    --background: #ffffff;
-    --foreground: #09090b;
-    --card: #f4f4f5;
-    --card-foreground: #09090b;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --border: #e4e4e7;
-    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-    --input: var(--input-background);
-    --primary: #18181b;
-    --primary-foreground: #fafafa;
-    --ring: #27272a;
-  }
-
-  /* 4. EMERALD / MODERN (Clean Emerald Accent - Astro Docs Palette) */
-  :host([theme='emerald']),
-  :host([theme='modern']),
-  :host([theme='emerald'][color-scheme='dark']),
-  :host([theme='modern'][color-scheme='dark']) {
-    --background: #060913;
-    --foreground: #e2e8f0;
-    --card: #0f172a;
-    --card-foreground: #f8fafc;
-    --muted: #111827;
-    --muted-foreground: #94a3b8;
-    --border: #1e293b;
-    --input-background: color-mix(in srgb, var(--background) 50%, #000000);
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
-    --input: var(--input-background);
-    --primary: #10b981;
-    --primary-foreground: #ffffff;
-    --ring: #10b981;
-  }
-  :host([theme='emerald'][color-scheme='light']),
-  :host([theme='modern'][color-scheme='light']) {
-    --background: #ffffff;
-    --foreground: #0f172a;
-    --card: #f8fafc;
-    --card-foreground: #0f172a;
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    --border: #e2e8f0;
-    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-    --input: var(--input-background);
+  :host([theme='emerald'][color-scheme='light']) {
     --primary: #059669;
     --primary-foreground: #ffffff;
     --ring: #059669;
   }
 
-  /* 5. VIOLET (Purple / Indigo Accent - Deep Violet Surfaces) */
-  :host([theme='violet']),
-  :host([theme='violet'][color-scheme='dark']) {
-    --background: #130e20;
-    --foreground: #f5f3ff;
-    --card: #1e1633;
-    --card-foreground: #f5f3ff;
-    --muted: #19122b;
-    --muted-foreground: #a89bc2;
-    --border: #342854;
-    --input-background: color-mix(in srgb, var(--background) 50%, #000000);
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
-    --input: var(--input-background);
+  /* --- Preset 4: VIOLET --- */
+  :host([theme='violet']) {
     --primary: #8b5cf6;
     --primary-foreground: #ffffff;
     --ring: #8b5cf6;
+    --_preset-bg: #130e20;
+    --_preset-fg: #f5f3ff;
+    --_preset-card: #1e1633;
+    --_preset-card-fg: #f5f3ff;
+    --_preset-muted: #19122b;
+    --_preset-border: #342854;
   }
   :host([theme='violet'][color-scheme='light']) {
-    --background: #ffffff;
-    --foreground: #09090b;
-    --card: #f4f4f5;
-    --card-foreground: #09090b;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --border: #e4e4e7;
-    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-    --input: var(--input-background);
     --primary: #7c3aed;
     --primary-foreground: #ffffff;
     --ring: #7c3aed;
   }
 
-  /* 6. ROSE (Ruby / Rose Accent) */
-  :host([theme='rose']),
-  :host([theme='rose'][color-scheme='dark']) {
-    --background: #2a2b2c;
-    --foreground: #fafafa;
-    --card: #343637;
-    --card-foreground: #fafafa;
-    --muted: #313233;
-    --muted-foreground: #a7a8aa;
-    --border: #414244;
-    --input-background: color-mix(in srgb, var(--background) 80%, #000000);
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
-    --input: var(--input-background);
-    --primary: #f7667eff;
+  /* --- Preset 5: GRAPHITE --- */
+  :host([theme='graphite']) {
+    --primary: #fafafa;
+    --primary-foreground: #18181b;
+    --ring: #d4d4d8;
+  }
+  :host([theme='graphite'][color-scheme='light']) {
+    --primary: #18181b;
+    --primary-foreground: #fafafa;
+    --ring: #27272a;
+  }
+
+  /* --- Preset 6: ROSE --- */
+  :host([theme='rose']) {
+    --primary: #fb4d6a;
     --primary-foreground: #ffffff;
     --ring: #f65772ff;
+    --_preset-bg: oklch(0.2613 0.0134 272.84);
+    --_preset-card: oklch(0.2613 0.0134 272.84);
   }
   :host([theme='rose'][color-scheme='light']) {
-    --background: #ffffff;
-    --foreground: #09090b;
-    --card: #f4f4f5;
-    --card-foreground: #09090b;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --border: #e4e4e7;
-    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-    --input: var(--input-background);
     --primary: #e11d48;
     --primary-foreground: #ffffff;
     --ring: #e11d48;
   }
 
-  /* 7. SLATE (Slate / Neutral Grey Accent) */
-  :host([theme='slate']),
-  :host([theme='slate'][color-scheme='dark']) {
-    --background: #09090b;
-    --foreground: #fafafa;
-    --card: #18181b;
-    --card-foreground: #fafafa;
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
-    --border: #27272a;
-    --input-background: color-mix(in srgb, var(--background) 50%, #000000);
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
-    --input: var(--input-background);
+  /* --- Preset 7: SLATE --- */
+  :host([theme='slate']) {
     --primary: #64748b;
     --primary-foreground: #ffffff;
     --ring: #64748b;
   }
   :host([theme='slate'][color-scheme='light']) {
-    --background: #ffffff;
-    --foreground: #09090b;
-    --card: #f4f4f5;
-    --card-foreground: #09090b;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --border: #e4e4e7;
-    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-    --input: var(--input-background);
     --primary: #475569;
     --primary-foreground: #ffffff;
     --ring: #475569;
   }
 
-  /* System Color Scheme Preset Light Overrides */
+  /* =========================================================================
+     5. SYSTEM COLOR SCHEME PRESET OVERRIDES
+     ========================================================================= */
   @media (prefers-color-scheme: light) {
-    :host([theme='default'][color-scheme='system']),
-    :host([theme='blue'][color-scheme='system']),
+    :host([theme='amber'][color-scheme='system']),
     :host(:not([theme])[color-scheme='system']) {
-      --background: #ffffff;
-      --foreground: #09090b;
-      --card: #f4f4f5;
-      --card-foreground: #09090b;
-      --muted: #f4f4f5;
-      --muted-foreground: #71717a;
-      --border: #e4e4e7;
-      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input: var(--input-background);
+      --primary: #d97706;
+      --primary-foreground: #ffffff;
+      --ring: #d97706;
+    }
+
+    :host([theme='blue'][color-scheme='system']) {
       --primary: #2563eb;
       --primary-foreground: #ffffff;
       --ring: #2563eb;
     }
-    :host([theme='amber'][color-scheme='system']) {
-      --background: oklch(1 0 0);
-      --foreground: oklch(0.2686 0 0);
-      --card: oklch(1 0 0);
-      --card-foreground: oklch(0.2686 0 0);
-      --muted: oklch(0.9846 0.0017 247.8389);
-      --muted-foreground: oklch(0.551 0.0234 264.3637);
-      --border: oklch(0.9276 0.0058 264.5313);
-      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input: var(--input-background);
-      --primary: oklch(0.7686 0.1647 70.0804);
-      --primary-foreground: oklch(0 0 0);
-      --ring: oklch(0.7686 0.1647 70.0804);
-    }
-    :host([theme='graphite'][color-scheme='system']) {
-      --background: #ffffff;
-      --foreground: #09090b;
-      --card: #f4f4f5;
-      --card-foreground: #09090b;
-      --muted: #f4f4f5;
-      --muted-foreground: #71717a;
-      --border: #e4e4e7;
-      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input: var(--input-background);
-      --primary: #18181b;
-      --primary-foreground: #fafafa;
-      --ring: #27272a;
-    }
-    :host([theme='emerald'][color-scheme='system']),
-    :host([theme='modern'][color-scheme='system']) {
-      --background: #ffffff;
-      --foreground: #0f172a;
-      --card: #f8fafc;
-      --card-foreground: #0f172a;
-      --muted: #f1f5f9;
-      --muted-foreground: #64748b;
-      --border: #e2e8f0;
-      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input: var(--input-background);
+
+    :host([theme='emerald'][color-scheme='system']) {
       --primary: #059669;
       --primary-foreground: #ffffff;
       --ring: #059669;
     }
+
     :host([theme='violet'][color-scheme='system']) {
-      --background: #ffffff;
-      --foreground: #09090b;
-      --card: #f4f4f5;
-      --card-foreground: #09090b;
-      --muted: #f4f4f5;
-      --muted-foreground: #71717a;
-      --border: #e4e4e7;
-      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input: var(--input-background);
       --primary: #7c3aed;
       --primary-foreground: #ffffff;
       --ring: #7c3aed;
     }
+
+    :host([theme='graphite'][color-scheme='system']) {
+      --primary: #18181b;
+      --primary-foreground: #fafafa;
+      --ring: #27272a;
+    }
+
     :host([theme='rose'][color-scheme='system']) {
-      --background: #ffffff;
-      --foreground: #09090b;
-      --card: #f4f4f5;
-      --card-foreground: #09090b;
-      --muted: #f4f4f5;
-      --muted-foreground: #71717a;
-      --border: #e4e4e7;
-      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input: var(--input-background);
       --primary: #e11d48;
       --primary-foreground: #ffffff;
       --ring: #e11d48;
     }
+
     :host([theme='slate'][color-scheme='system']) {
-      --background: #ffffff;
-      --foreground: #09090b;
-      --card: #f4f4f5;
-      --card-foreground: #09090b;
-      --muted: #f4f4f5;
-      --muted-foreground: #71717a;
-      --border: #e4e4e7;
-      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input: var(--input-background);
       --primary: #475569;
       --primary-foreground: #ffffff;
       --ring: #475569;

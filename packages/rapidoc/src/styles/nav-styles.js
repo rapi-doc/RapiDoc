@@ -250,6 +250,34 @@ export default css`
     color: var(--muted-foreground);
     background: transparent;
     border-inline-start: 4px solid transparent;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .nav-bar-path-inner {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    pointer-events: none;
+  }
+
+  .nav-bar-path-label {
+    display: flex;
+    align-items: baseline;
+    min-width: 0;
+    flex: 1;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .nav-bar-webhook {
+    font-weight: bold;
+    margin-right: 8px;
+    font-size: calc(var(--font-size-small) - 2px);
+    flex-shrink: 0;
   }
 
   .nav-bar-h1,
@@ -278,10 +306,13 @@ export default css`
   }
   .nav-bar-section.operations {
     cursor: pointer;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
   }
   .nav-bar-section.operations:hover {
     color: var(--foreground);
-    background: var(--muted);
+    background: var(--nav-hover-bg, var(--muted));
   }
 
   .nav-bar-section:first-child {
@@ -336,6 +367,6 @@ export default css`
   .nav-bar-tag:hover,
   .nav-bar-path:hover {
     color: var(--foreground);
-    background: var(--muted);
+    background: var(--nav-hover-bg, var(--muted));
   }
 `;

@@ -314,7 +314,7 @@ export default class RapiDoc extends LitElement {
           padding: 0 8px;
         }
         input.header-input {
-          background: var(--muted);
+          background: var(--input-background);
           color: var(--foreground);
           border: 1px solid var(--border);
           flex: 1;
@@ -397,7 +397,8 @@ export default class RapiDoc extends LitElement {
 
         .nav-method {
           font-weight: bold;
-          margin-right: 4px;
+          margin-inline-start: auto;
+          flex-shrink: 0;
           font-size: calc(var(--font-size-small) - 2px);
           white-space: nowrap;
         }
@@ -429,8 +430,9 @@ export default class RapiDoc extends LitElement {
 
         .nav-method.as-colored-block {
           padding: 1px 4px;
-          min-width: 30px;
-          border-radius: var(--radius) 0 0 var(--radius);
+          min-width: 32px;
+          text-align: center;
+          border-radius: var(--radius);
           color: #000;
         }
         .colored-block .nav-method.as-colored-block {
@@ -594,10 +596,6 @@ export default class RapiDoc extends LitElement {
       this.schemaStyle = 'tree';
     }
     const normalizedTheme = normalizeTheme(this.theme);
-    if (normalizedTheme.colorScheme) {
-      this.colorScheme = normalizedTheme.colorScheme;
-      this.setAttribute('color-scheme', normalizedTheme.colorScheme);
-    }
     this.theme = normalizedTheme.theme;
     this.setAttribute('theme', this.theme);
     if (!this.colorScheme || !'dark, light, system,'.includes(`${this.colorScheme},`)) {
@@ -839,10 +837,6 @@ export default class RapiDoc extends LitElement {
 
     if (changedProperties.has('theme')) {
       const normalizedTheme = normalizeTheme(this.theme);
-      if (normalizedTheme.colorScheme) {
-        this.colorScheme = normalizedTheme.colorScheme;
-        this.setAttribute('color-scheme', normalizedTheme.colorScheme);
-      }
       if (this.theme !== normalizedTheme.theme) {
         this.theme = normalizedTheme.theme;
         this.setAttribute('theme', this.theme);
