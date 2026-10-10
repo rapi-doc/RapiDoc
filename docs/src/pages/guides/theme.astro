@@ -273,83 +273,391 @@ function setScale(size) {
             </a>
           </div>
         </div>
-        <div class="rd-recipe-split">
-          <div class="rd-neon-frame">
-            <img src="/assets/images/theme/rapidoc-theme-emerald.png" alt="RapiDoc Emerald Dark Theme Live Preview" />
-            <div class="rd-preview-callouts">
-              <div class="rd-callout-pill pill-emerald" data-highlight="theme">
-                <span class="rd-callout-dot"></span>
-                <span class="rd-callout-code">theme="emerald"</span>
-                <span class="rd-callout-label">#10b981</span>
-              </div>
-              <div class="rd-callout-pill pill-dark" data-highlight="color-scheme">
-                <span class="rd-callout-dot"></span>
-                <span class="rd-callout-code">color-scheme="dark"</span>
-                <span class="rd-callout-label">#060913</span>
-              </div>
-              <div class="rd-callout-pill pill-focused" data-highlight="render-style">
-                <span class="rd-callout-dot"></span>
-                <span class="rd-callout-code">render-style="focused"</span>
-                <span class="rd-callout-label">Console</span>
-              </div>
-              <div class="rd-callout-pill pill-radius" data-highlight="radius">
-                <span class="rd-callout-dot"></span>
-                <span class="rd-callout-code">radius="md"</span>
-                <span class="rd-callout-label">6px</span>
-              </div>
-            </div>
-          </div>
-          <div class="rd-recipe-code">
-            <CodeBlock code={quickstartSnippet} lang="html" filename="index.html" />
-          </div>
-        </div>
+        <!-- Unified Single View Demo Container: Illustration + Controls + Code Snippet -->
+        <div class="rd-demo-unified-view">
+          <!-- Left Column: RapiDoc Illustration -->
+          <div class="rd-demo-col-illustration">
+            <svg viewBox="28 3.16 460.16 309.84" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" id="instant-demo-svg" class="rapidoc-illustration">
+                <style>
+                  :root, .rapidoc-illustration {
+                    /* Amber Dark Preset (Default) - RapiDoc Dark Charcoal Slate */
+                    --bg: #22242b;
+                    --nav-bg: #1a1c23;
+                    --header-bg: #14161c;
+                    --card-bg: #2a2d36;
+                    --border: #363636;
+                    --primary: #f59e0b;
+                    --primary-border: #d97706;
 
-        <!-- Interactive Attribute Highlights Breakdown -->
-        <div class="rd-recipe-highlights">
-          <div class="rd-highlight-item" data-target="theme">
-            <div class="rd-highlight-head">
-              <code class="mono-code">theme="emerald"</code>
-              <span class="rd-highlight-tag tag-emerald">Brand Color</span>
-            </div>
-            <p class="rd-highlight-desc">
-              Applies vibrant emerald green (<code class="text-emerald">#10b981</code>) to action buttons (Search, Try), active
-              navigation links, and focus rings.
-            </p>
+                    /* Typography: Heading is prominent, Secondary/Body text is one shade darker */
+                    --text-heading: #ffffff;
+                    --text-body: #94a3b8;
+                    --text-muted: #6b7280;
+                    --tag-fill: #94a3b8;
+                    --search-fill: #1a1c23;
+                    --search-stroke: #363636;
+                  }
+
+                  /* Emerald Dark Preset - RapiDoc Deep Navy Slate */
+                  .rapidoc-illustration.preset-emerald {
+                    --bg: #060913;
+                    --nav-bg: #03060c;
+                    --header-bg: #020408;
+                    --card-bg: #0f172a;
+                    --border: #1e293b;
+                    --primary: #10b981;
+                    --primary-border: #059669;
+
+                    /* Typography: Heading is prominent, Secondary/Body text is one shade darker */
+                    --text-heading: #f8fafc;
+                    --text-body: #94a3b8;
+                    --text-muted: #6ee7b7;
+                    --tag-fill: #94a3b8;
+                    --search-fill: #0f172a;
+                    --search-stroke: #1e293b;
+                  }
+
+                  /* Light Color Scheme (Amber) - Crisp White Surface */
+                  .rapidoc-illustration.theme-light {
+                    --bg: #ffffff;
+                    --nav-bg: #f4f4f5;
+                    --header-bg: #f4f4f5;
+                    --card-bg: #ffffff;
+                    --border: #e4e4e7;
+                    --primary: #d97706;
+                    --primary-border: #b45309;
+
+                    /* Typography: Heading is dark, Secondary/Body text is one shade lighter */
+                    --text-heading: #09090b;
+                    --text-body: #71717a;
+                    --text-muted: #a1a1aa;
+                    --tag-fill: #71717a;
+                    --search-fill: #ffffff;
+                    --search-stroke: #e4e4e7;
+                  }
+
+                  /* Light Color Scheme (Emerald) - Crisp White Surface */
+                  .rapidoc-illustration.theme-light.preset-emerald {
+                    --bg: #ffffff;
+                    --nav-bg: #f4f4f5;
+                    --header-bg: #f4f4f5;
+                    --card-bg: #ffffff;
+                    --border: #e4e4e7;
+                    --primary: #059669;
+                    --primary-border: #047857;
+
+                    /* Typography: Heading is dark, Secondary/Body text is one shade lighter */
+                    --text-heading: #09090b;
+                    --text-body: #71717a;
+                    --text-muted: #a1a1aa;
+                    --tag-fill: #71717a;
+                    --search-fill: #ffffff;
+                    --search-stroke: #e4e4e7;
+                  }
+
+                  .rapidoc-illustration {
+                    transition: background-color 0.35s ease;
+                  }
+                  .rapidoc-illustration * {
+                    transition: fill 0.35s ease, stroke 0.35s ease, opacity 0.35s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s ease;
+                  }
+
+                  .rapidoc-illustration .header-group {
+                    transform-origin: top center;
+                    transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+                  }
+                  .rapidoc-illustration.hide-header .header-group {
+                    opacity: 0;
+                    visibility: hidden;
+                    pointer-events: none;
+                    transform: translateY(-10px);
+                  }
+
+                  .rapidoc-illustration .nav-logo {
+                    transform-origin: 51px 47px;
+                    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+                  }
+                  .rapidoc-illustration.hide-nav-logo .nav-logo {
+                    opacity: 0;
+                    visibility: hidden;
+                    pointer-events: none;
+                    transform: scale(0.4);
+                  }
+
+                  .rapidoc-illustration .nav-methods {
+                    transform-origin: center right;
+                    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+                  }
+                  .rapidoc-illustration.hide-nav-methods .nav-methods {
+                    opacity: 0;
+                    visibility: hidden;
+                    pointer-events: none;
+                    transform: translateX(12px);
+                  }
+
+                  .rapidoc-illustration .nav-group {
+                    transform-origin: left center;
+                    transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s ease;
+                  }
+                  .rapidoc-illustration.render-view .nav-group {
+                    opacity: 0;
+                    visibility: hidden;
+                    pointer-events: none;
+                    transform: translateX(-150px);
+                  }
+
+                  .rapidoc-illustration .main-headings,
+                  .rapidoc-illustration .post-endpoint {
+                    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                  }
+                  .rapidoc-illustration.render-view .main-headings,
+                  .rapidoc-illustration.render-view .post-endpoint {
+                    transform: translateX(-142px);
+                  }
+
+                  .rapidoc-illustration .request-section {
+                    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                  }
+                  .rapidoc-illustration.render-view .request-section {
+                    transform: translateX(-143px);
+                  }
+
+                  .rapidoc-illustration .response-section {
+                    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                  }
+                  .rapidoc-illustration.render-view .response-section {
+                    transform: translate(73px, -64.22px);
+                  }
+
+                  .main-bg { fill: var(--bg); }
+                  .nav-bg { fill: var(--nav-bg); }
+                  .nav-border { stroke: var(--border); }
+                  .header-bg { fill: var(--header-bg); }
+                  .header-border { stroke: var(--border); }
+                  .header-search { fill: var(--card-bg); stroke: var(--border); }
+                  .card-bg, .card-bg rect, #aa, #svg_15 { fill: var(--card-bg); stroke: var(--border); }
+                  .primary-accent { fill: var(--primary) !important; }
+                  .primary-btn { fill: var(--primary) !important; }
+                  .text-heading { fill: var(--text-heading); }
+                  .text-body { fill: var(--text-body); }
+                  .text-main { fill: var(--text-heading); }
+                  .text-dim { fill: var(--text-body); }
+                  .text-muted { fill: var(--text-muted); }
+                  .tag-fill { fill: var(--tag-fill); }
+                  .search-fill { fill: var(--search-fill); stroke: var(--search-stroke); }
+                </style>
+
+                <g class="layer">
+                  <rect fill="var(--bg)" stroke="none" stroke-width="0" x="28" y="3.16" width="460.16" height="309.84" id="main" class="main-bg"/>
+
+                  <g id="nav-group" class="nav-group">
+                    <rect fill="var(--nav-bg)" stroke="none" stroke-width="0" x="28" y="3.16" width="142" height="309.84" id="nav" class="nav-bg"/>
+                    <line x1="170" y1="3.16" x2="170" y2="313" stroke="var(--border)" stroke-width="1" id="nav-border" class="nav-border"/>
+                    <rect stroke="var(--search-stroke)" fill="var(--search-fill)" stroke-width="0.5" x="45.5" y="70.45" width="76" height="8" id="nav-search" rx="4" class="search-fill"/>
+                    <path stroke="none" id="svg_77" d="m134.18,77.83l-2.68,-2.68c0.36,-0.6 0.57,-1.3 0.57,-2.04c0,-2.18 -1.76,-3.95 -3.94,-3.95c-2.18,0 -3.95,1.77 -3.95,3.95c0,2.17 1.77,3.94 3.94,3.94c0.74,0 1.44,-0.21 2.04,-0.57l2.68,2.68l1.33,-1.33zm-8.49,-4.72c0,-1.35 1.09,-2.44 2.44,-2.45c1.34,0.01 2.43,1.1 2.44,2.45c-0.01,1.34 -1.1,2.43 -2.44,2.44c-1.35,-0.01 -2.44,-1.1 -2.44,-2.44z" stroke-width="0" fill="var(--text-body)" class="text-body"/>
+                    <rect fill="var(--tag-fill)" stroke="#000" stroke-width="0" x="52.4" y="92.95" width="74" height="7" id="nav-tag" rx="3" class="nav-tag tag-fill"/>
+                    <path id="nav-logo" class="nav-logo" d="m56.34,41.43c-0.43,1.19 -1.47,2.03 -2.68,2.03c-1.22,0 -2.25,-0.84 -2.68,-2.03l-6.57,3.13l1.85,4.88l2.03,-0.96l0,9.95l10.81,0l0,-9.92l1.96,0.93l1.85,-4.88l-6.57,-3.13l0,0z" stroke-width="0" stroke="#000" fill="#f87171"/>
+                    <rect fill="var(--primary)" stroke-width="0" x="52.4" y="140.6" width="66" height="6" id="selected-nav-item" rx="3" stroke="#000" class="selected-nav-item primary-accent"/>
+
+                    <g id="nav-items" class="nav-items">
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="104.25" width="45" height="6" id="svg_13" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="115.57" width="66" height="6" id="svg_14" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="127" width="45" height="6" id="svg_17" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="156.53" width="45" height="6" id="svg_29" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="167.85" width="66" height="6" id="svg_30" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="179.28" width="45" height="6" id="svg_33" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="194.13" width="45" height="6" id="svg_36" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="205.45" width="66" height="6" id="svg_37" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="216.88" width="45" height="6" id="svg_40" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="231.33" width="45" height="6" id="svg_43" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="242.65" width="66" height="6" id="svg_44" rx="3" stroke="#000" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="254.08" width="45" height="6" id="svg_59" rx="3" stroke="#000" class="text-muted"/>
+                    </g>
+
+                    <g id="nav-methods" class="nav-methods">
+                      <rect fill="#10b981" stroke-width="0" x="140.9" y="139.2" width="14.2" height="6.41" id="svg_20" rx="2"/>
+                      <rect fill="#10b981" stroke-width="0" x="140.6" y="103.24" width="14.2" height="6.41" id="svg_11" rx="2"/>
+                      <rect fill="#f43f5e" stroke-width="0" x="141" y="113.77" width="13.8" height="6.41" id="svg_7" rx="2"/>
+                      <rect fill="#0ea5e9" stroke-width="0" x="140.6" y="124.8" width="14.2" height="6.41" id="svg_18" rx="2"/>
+                      <rect fill="#10b981" stroke-width="0" x="140.6" y="155.52" width="14.2" height="6.41" id="svg_28" rx="2"/>
+                      <rect fill="#f43f5e" stroke-width="0" x="141" y="166.05" width="13.8" height="6.41" id="svg_31" rx="2"/>
+                      <rect fill="#0ea5e9" stroke-width="0" x="140.6" y="177.08" width="14.2" height="6.41" id="svg_32" rx="2"/>
+                      <rect fill="#10b981" stroke-width="0" x="140.6" y="193.12" width="14.2" height="6.41" id="svg_35" rx="2"/>
+                      <rect fill="#f43f5e" stroke-width="0" x="141" y="203.65" width="13.8" height="6.41" id="svg_38" rx="2"/>
+                      <rect fill="#0ea5e9" stroke-width="0" x="140.6" y="214.68" width="14.2" height="6.41" id="svg_39" rx="2"/>
+                      <rect fill="#10b981" stroke-width="0" x="140.6" y="230.32" width="14.2" height="6.41" id="svg_42" rx="2"/>
+                      <rect fill="#f43f5e" stroke-width="0" x="141" y="240.85" width="13.8" height="6.41" id="svg_45" rx="2"/>
+                      <rect fill="#0ea5e9" stroke-width="0" x="140.6" y="251.88" width="14.2" height="6.41" id="svg_46" rx="2"/>
+                    </g>
+                  </g>
+
+                  <g id="main-headings" class="main-headings">
+                    <rect fill="var(--text-heading)" stroke="#000" stroke-width="0" x="192" y="52.45" width="80" height="6" id="svg_3" rx="3" class="text-heading"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="192" y="68.95" width="25" height="6" id="svg_5" rx="3" stroke="#000" class="text-body"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="225" y="69.95" width="100" height="6" id="svg_8" rx="3" stroke="#000" class="text-body"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="192" y="83.95" width="200" height="6" id="svg_12" rx="3" stroke="#000" class="text-body"/>
+
+                    <rect fill="var(--text-heading)" stroke="#000" stroke-width="0" x="193" y="104.95" width="80" height="6" id="svg_48" rx="3" class="text-heading"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="193" y="114.63" width="25" height="6" id="svg_49" rx="3" stroke="#000" class="text-body"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="222.82" y="115.63" width="100" height="6" id="svg_50" rx="3" stroke="#000" class="text-body"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="193" y="125.54" width="200" height="6" id="svg_51" rx="3" stroke="#000" class="text-body"/>
+                  </g>
+
+                  <g id="post-endpoint" class="post-endpoint">
+                    <rect fill="var(--text-heading)" stroke="#000" stroke-width="0" x="223.3" y="149.99" width="80" height="6" id="svg_54" rx="3" class="text-heading"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="193.19" y="161.4" width="25" height="6" id="svg_55" rx="3" stroke="#000" class="text-body"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="229.53" y="161.4" width="100" height="6" id="svg_56" rx="3" stroke="#000" class="text-body"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="193.19" y="171.9" width="200" height="6" id="svg_57" rx="3" stroke="#000" class="text-body"/>
+                    <text fill="#10b981" stroke="none" stroke-width="0" x="197.05" y="151.36" id="post" font-size="10" font-family="Monospace" text-anchor="middle" xml:space="preserve" transform="matrix(1 0 0 0.717761 8.18182 46.956)" font-weight="bold" class="post">POST</text>
+                  </g>
+
+                  <!-- REQUEST SECTION -->
+                  <g id="request-section" class="request-section">
+                    <text fill="var(--text-heading)" stroke="none" stroke-width="0" x="216" y="191" id="request-label" font-size="7" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle" font-weight="bold" letter-spacing="0.5" class="text-heading">REQUEST</text>
+                    <rect stroke="var(--border)" stroke-width="0.5" id="aa" height="46" width="201" y="197.78" x="193.13" fill="var(--card-bg)" rx="3" ry="3" class="card-bg aa"/>
+                    <rect fill="var(--text-heading)" stroke-width="0" x="205.13" y="206.5" width="25" height="6" id="svg_22" rx="3" stroke="#000" class="text-heading"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="235.66" y="206.5" width="100" height="6" id="svg_23" rx="3" stroke="#000" class="text-body"/>
+                    <rect fill="var(--text-heading)" stroke-width="0" x="205.13" y="217.5" width="25" height="6" id="svg_78" rx="3" stroke="#000" class="text-heading"/>
+                    <rect fill="var(--text-body)" stroke-width="0" x="235.66" y="217.5" width="100" height="6" id="svg_70" rx="3" stroke="#000" class="text-body"/>
+                    <g id="primary-buttons" class="primary-buttons">
+                      <rect fill="var(--primary)" stroke-width="0" x="371" y="230" width="16" height="8" id="svg_82" rx="2" ry="2" class="primary-btn"/>
+                      <rect fill="var(--primary)" stroke-width="0" x="344" y="230" width="22" height="8" id="svg_83" rx="2" ry="2" class="primary-btn"/>
+                    </g>
+                  </g>
+
+                  <!-- RESPONSE SECTION -->
+                  <g id="response-section" class="response-section">
+                    <text fill="var(--text-heading)" stroke="none" stroke-width="0" x="219" y="255" id="response-label" font-size="7" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle" font-weight="bold" letter-spacing="0.5" class="text-heading">RESPONSE</text>
+                    <g id="status-codes">
+                      <rect fill="var(--primary)" stroke="none" stroke-width="0" x="330" y="250" width="16" height="7" id="svg_4" rx="2" ry="2" class="active-status primary-accent"/>
+                      <rect fill="var(--text-muted)" stroke="none" x="350" y="250" width="16" height="7" id="svg_6" rx="2" ry="2" opacity="0.8" class="text-muted"/>
+                      <rect fill="var(--text-muted)" stroke="none" x="370" y="250" width="16" height="7" id="svg_10" rx="2" ry="2" opacity="0.8" class="text-muted"/>
+                    </g>
+                    <rect stroke="var(--border)" stroke-width="0.5" id="svg_15" height="46" width="201" y="262" x="192.22" fill="var(--card-bg)" rx="3" ry="3" class="card-bg"/>
+                    <g id="response-text" class="response-text" transform="matrix(1 0 0 1 -5.90909 -24.4545)">
+                      <rect fill="var(--primary)" stroke="none" x="206.03" y="295.03" width="24" height="2.88" id="svg_16" rx="2" ry="2" stroke-width="0" class="primary-accent"/>
+                      <rect fill="#10b981" stroke="none" x="231.7" y="295.04" width="11.41" height="2.88" id="svg_25" rx="2" ry="2" stroke-width="0"/>
+                      <rect fill="var(--text-body)" stroke="none" x="211.7" y="301.7" width="20.29" height="2.88" id="svg_26" rx="2" ry="2" stroke-width="0" class="text-body"/>
+                      <rect fill="var(--text-body)" stroke="none" x="212.07" y="308" width="20.29" height="2.88" id="svg_27" rx="2" ry="2" stroke-width="0" class="text-body"/>
+                      <rect fill="var(--primary)" stroke="none" x="205.41" y="313.93" width="20.29" height="2.88" id="svg_34" rx="2" ry="2" stroke-width="0" class="primary-accent"/>
+                      <rect fill="var(--text-body)" stroke="none" x="213.18" y="320.22" width="20.29" height="2.88" id="svg_41" rx="2" ry="2" stroke-width="0" class="text-body"/>
+                      <rect fill="var(--primary)" stroke="none" x="235.41" y="301.71" width="8.07" height="2.88" id="svg_47" rx="2" ry="2" stroke-width="0" class="primary-accent"/>
+                      <rect fill="#eab308" stroke="none" x="235.04" y="308.37" width="9.55" height="2.88" id="svg_53" rx="2" ry="2" stroke-width="0"/>
+                      <rect fill="#06b6d4" stroke="none" x="227.63" y="313.93" width="9.92" height="2.88" id="svg_58" rx="2" ry="2" stroke-width="0"/>
+                      <rect fill="#10b981" stroke="none" x="235.41" y="320.22" width="11.03" height="2.88" id="svg_60" rx="2" ry="2" stroke-width="0"/>
+                    </g>
+                  </g>
+                  
+                  <g id="header-group" class="header-group">
+                    <rect fill="var(--header-bg)" stroke="none" stroke-width="0" x="28" y="3.16" width="460.16" height="25" id="header" class="header-bg"/>
+                    <line x1="28" y1="28.16" x2="488.16" y2="28.16" stroke="var(--border)" stroke-width="1" id="header-border" class="header-border"/>
+                    <rect fill="var(--card-bg)" stroke="var(--border)" stroke-width="0.5" x="129" y="10.67" width="261.33" height="10.67" id="header-search" rx="3" class="header-search"/>
+                    <rect fill="var(--primary)" stroke-width="0" x="397.66" y="10.67" width="22" height="10.67" id="spec-load-btn" rx="3" stroke="none" class="spec-load-btn primary-btn"/>
+                    <path id="header-logo" class="header-logo" d="m44.67,10.17c-0.32,0.82 -1.1,1.39 -2,1.39c-0.91,0 -1.68,-0.58 -2,-1.39l-4.91,2.15l1.38,3.35l1.52,-0.66l0,6.83l8.08,0l0,-6.81l1.47,0.64l1.38,-3.35l-4.91,-2.15l0,0l-0.01,0z" stroke-width="0" stroke="none" fill="#f87171"/>
+                  </g>
+                </g>
+              </svg>
           </div>
 
-          <div class="rd-highlight-item" data-target="color-scheme">
-            <div class="rd-highlight-head">
-              <code class="mono-code">color-scheme="dark"</code>
-              <span class="rd-highlight-tag tag-surface">Surface</span>
+        <!-- Right Column: Compact Controls + Code Snippet -->
+        <div class="rd-demo-col-sidebar">
+          <!-- Controls Panel -->
+          <div class="rd-demo-controls-panel">
+            <div class="rd-panel-header">
+              <span class="rd-panel-title">Interactive Controls</span>
+              <span class="rd-panel-badge">Live Reactive</span>
             </div>
-            <p class="rd-highlight-desc">
-              Renders deep navy slate background surfaces (<code class="text-surface">#060913</code>) with high-contrast text and crisp
-              card borders.
-            </p>
+
+            <div class="rd-controls-compact-grid">
+              <!-- Row 1: Render Style & Preset / Scheme -->
+              <div class="rd-control-row">
+                <!-- Render Style -->
+                <div class="rd-control-group">
+                  <label class="rd-control-label">Render</label>
+                  <div class="rd-segmented-pill" id="demo-render-control">
+                    <button type="button" class="rd-seg-btn active" data-render="focused" title="Standard focused/read mode with navigation bar">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="6" height="18" rx="1"></rect><rect x="12" y="3" width="9" height="18" rx="1"></rect></svg>
+                      Focused
+                    </button>
+                    <button type="button" class="rd-seg-btn" data-render="view" title="View mode: Side-by-side cards without navigation">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="18" rx="1"></rect><rect x="13" y="3" width="8" height="18" rx="1"></rect></svg>
+                      View
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Theme Preset & Scheme -->
+                <div class="rd-control-group">
+                  <label class="rd-control-label">Theme</label>
+                  <div class="rd-presets-row">
+                    <div class="rd-segmented-pill" id="demo-preset-control">
+                      <button type="button" class="rd-seg-btn active" data-preset="amber" title="Amber Preset">
+                        <span class="rd-demo-dot" style="background: #f59e0b;"></span>
+                        Amber
+                      </button>
+                      <button type="button" class="rd-seg-btn" data-preset="emerald" title="Emerald Preset">
+                        <span class="rd-demo-dot" style="background: #10b981;"></span>
+                        Emerald
+                      </button>
+                    </div>
+
+                    <div class="rd-segmented-pill" id="demo-scheme-control">
+                      <button type="button" class="rd-seg-btn active" data-scheme="dark" title="Dark Scheme">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        Dark
+                      </button>
+                      <button type="button" class="rd-seg-btn" data-scheme="light" title="Light Scheme">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line></svg>
+                        Light
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 2: Layout Visibility Toggles -->
+              <div class="rd-control-row rd-control-row-toggles">
+                <label class="rd-control-label">Visibility</label>
+                <div class="rd-toggles-grid">
+                  <label class="rd-switch-item" title="Toggle Top Header Bar">
+                    <input type="checkbox" id="demo-toggle-header" checked />
+                    <span class="rd-switch-slider"></span>
+                    <span class="rd-switch-text">Header</span>
+                  </label>
+                  <label class="rd-switch-item" id="demo-toggle-logo-item" title="Toggle Nav Logo">
+                    <input type="checkbox" id="demo-toggle-nav-logo" checked />
+                    <span class="rd-switch-slider"></span>
+                    <span class="rd-switch-text">Nav Logo</span>
+                  </label>
+                  <label class="rd-switch-item" id="demo-toggle-methods-item" title="Toggle Nav Method Badges">
+                    <input type="checkbox" id="demo-toggle-nav-methods" checked />
+                    <span class="rd-switch-slider"></span>
+                    <span class="rd-switch-text">Nav Methods</span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="rd-highlight-item" data-target="radius">
-            <div class="rd-highlight-head">
-              <code class="mono-code">radius="md"</code>
-              <span class="rd-highlight-tag tag-geometry">Geometry</span>
+          <!-- Code Snippet Card -->
+          <div class="rd-demo-code-card">
+            <div class="rd-code-header">
+              <span class="code-dot red"></span>
+              <span class="code-dot yellow"></span>
+              <span class="code-dot green"></span>
+              <span class="code-title">index.html</span>
+              <button type="button" class="rd-copy-code-btn" id="demo-copy-code-btn" title="Copy Code">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span id="demo-copy-text">Copy</span>
+              </button>
             </div>
-            <p class="rd-highlight-desc">
-              Smooths cards, inputs, and button corners to <code class="text-cyan">6px</code> (0.375rem) balanced roundness.
-            </p>
-          </div>
-
-          <div class="rd-highlight-item" data-target="render-style">
-            <div class="rd-highlight-head">
-              <code class="mono-code">render-style="focused"</code>
-              <span class="rd-highlight-tag tag-layout">Layout</span>
+            <div class="rd-code-content">
+              <pre><code id="demo-code-pre" class="language-html"></code></pre>
             </div>
-            <p class="rd-highlight-desc">
-              Structures docs as an interactive two-pane layout: searchable navigation on the left with a dedicated single-operation test
-              console.
-            </p>
           </div>
         </div>
       </div>
+    </div>
 
       <!-- Core Styling Attributes Reference Table -->
       <div class="rd-table-wrapper">
@@ -587,66 +895,596 @@ function setScale(size) {
   <SiteFooter />
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const items = document.querySelectorAll('.rd-highlight-item');
-      items.forEach((item) => {
-        const target = item.getAttribute('data-target');
-        const pill = document.querySelector(`.rd-callout-pill[data-highlight="${target}"]`);
+    function setupInstantThemingDemo() {
+      const svg = document.getElementById('instant-demo-svg');
+      const codePre = document.getElementById('demo-code-pre');
+      const copyBtn = document.getElementById('demo-copy-code-btn');
+      const copyText = document.getElementById('demo-copy-text');
+      if (!svg || !codePre) return;
 
-        item.addEventListener('mouseenter', () => {
-          if (pill) pill.classList.add('active');
-        });
-        item.addEventListener('mouseleave', () => {
-          if (pill) pill.classList.remove('active');
-        });
+      const renderBtns = document.querySelectorAll('#demo-render-control .rd-seg-btn');
+      const toggleHeader = document.getElementById('demo-toggle-header') as HTMLInputElement | null;
+      const toggleNavLogo = document.getElementById('demo-toggle-nav-logo') as HTMLInputElement | null;
+      const toggleNavMethods = document.getElementById('demo-toggle-nav-methods') as HTMLInputElement | null;
+      const logoItem = document.getElementById('demo-toggle-logo-item');
+      const methodsItem = document.getElementById('demo-toggle-methods-item');
+      const presetBtns = document.querySelectorAll('#demo-preset-control .rd-seg-btn');
+      const schemeBtns = document.querySelectorAll('#demo-scheme-control .rd-seg-btn');
 
-        if (pill) {
-          pill.addEventListener('mouseenter', () => {
-            item.classList.add('active');
-          });
-          pill.addEventListener('mouseleave', () => {
-            item.classList.remove('active');
-          });
+      let currentRender = 'focused';
+      let currentPreset = 'amber';
+      let currentScheme = 'dark';
+      let currentShowHeader = true;
+      let currentShowNavLogo = true;
+      let currentShowNavMethods = true;
+
+      const palettes = {
+        amber: {
+          dark: {
+            bg: '#22242b',
+            navBg: '#1a1c23',
+            headerBg: '#14161c',
+            cardBg: '#2a2d36',
+            border: '#363636',
+            primary: '#f59e0b',
+            textHeading: '#ffffff',
+            textBody: '#94a3b8'
+          },
+          light: {
+            bg: '#ffffff',
+            navBg: '#f4f4f5',
+            headerBg: '#f4f4f5',
+            cardBg: '#ffffff',
+            border: '#e4e4e7',
+            primary: '#d97706',
+            textHeading: '#09090b',
+            textBody: '#71717a'
+          }
+        },
+        emerald: {
+          dark: {
+            bg: '#060913',
+            navBg: '#03060c',
+            headerBg: '#020408',
+            cardBg: '#0f172a',
+            border: '#1e293b',
+            primary: '#10b981',
+            textHeading: '#f8fafc',
+            textBody: '#94a3b8'
+          },
+          light: {
+            bg: '#ffffff',
+            navBg: '#f4f4f5',
+            headerBg: '#f4f4f5',
+            cardBg: '#ffffff',
+            border: '#e4e4e7',
+            primary: '#059669',
+            textHeading: '#09090b',
+            textBody: '#71717a'
+          }
         }
+      };
+
+      function updateSvgAndCode() {
+        // 1. Update SVG styles
+        const p = palettes[currentPreset as 'amber' | 'emerald'][currentScheme as 'dark' | 'light'];
+        svg.style.setProperty('--bg', p.bg);
+        svg.style.setProperty('--nav-bg', p.navBg);
+        svg.style.setProperty('--header-bg', p.headerBg);
+        svg.style.setProperty('--card-bg', p.cardBg);
+        svg.style.setProperty('--border', p.border);
+        svg.style.setProperty('--primary', p.primary);
+        svg.style.setProperty('--primary-border', p.primary);
+        svg.style.setProperty('--text-heading', p.textHeading);
+        svg.style.setProperty('--text-body', p.textBody);
+
+        // Render style class
+        if (currentRender === 'view') {
+          svg.classList.add('render-view');
+          if (logoItem) logoItem.style.opacity = '0.4';
+          if (methodsItem) methodsItem.style.opacity = '0.4';
+        } else {
+          svg.classList.remove('render-view');
+          if (logoItem) logoItem.style.opacity = '1';
+          if (methodsItem) methodsItem.style.opacity = '1';
+        }
+
+        // Visibility classes
+        if (currentShowHeader) {
+          svg.classList.remove('hide-header');
+        } else {
+          svg.classList.add('hide-header');
+        }
+
+        if (currentShowNavLogo) {
+          svg.classList.remove('hide-nav-logo');
+        } else {
+          svg.classList.add('hide-nav-logo');
+        }
+
+        if (currentShowNavMethods) {
+          svg.classList.remove('hide-nav-methods');
+        } else {
+          svg.classList.add('hide-nav-methods');
+        }
+
+        // Preset & Scheme classes
+        if (currentPreset === 'emerald') {
+          svg.classList.add('preset-emerald');
+        } else {
+          svg.classList.remove('preset-emerald');
+        }
+
+        if (currentScheme === 'light') {
+          svg.classList.add('theme-light');
+        } else {
+          svg.classList.remove('theme-light');
+        }
+
+        // 2. Generate and update code snippet
+        const rawLines: string[] = [
+          '<rapi-doc',
+          '  spec-url="https://petstore.swagger.io/v2/swagger.json"',
+          `  theme="${currentPreset}"`,
+          `  color-scheme="${currentScheme}"`,
+          `  render-style="${currentRender}"`
+        ];
+
+        if (!currentShowHeader) {
+          rawLines.push('  show-header="false"');
+        } else {
+          rawLines.push('  show-header="true"');
+        }
+
+        if (!currentShowNavMethods) {
+          rawLines.push('  show-method-in-nav-bar="false"');
+        } else {
+          rawLines.push('  show-method-in-nav-bar="true"');
+        }
+
+        if (currentShowNavLogo && currentRender !== 'view') {
+          rawLines.push('>');
+          rawLines.push('  <img slot="nav-logo" src="logo.png" width="36" />');
+          rawLines.push('</rapi-doc>');
+        } else {
+          rawLines.push('>');
+          rawLines.push('</rapi-doc>');
+        }
+
+        const rawCode = rawLines.join('\n');
+        copyBtn?.setAttribute('data-code', rawCode);
+
+        // Safe syntax highlighting with Prism or structured tokenizer
+        const prism = (window as any).Prism;
+        if (prism && prism.highlight && prism.languages && (prism.languages.markup || prism.languages.html)) {
+          const grammar = prism.languages.markup || prism.languages.html;
+          codePre.innerHTML = prism.highlight(rawCode, grammar, 'markup');
+        } else {
+          const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          const lines = rawLines.map((line) => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('<rapi-doc') || trimmed.startsWith('</rapi-doc>') || trimmed.startsWith('<img') || trimmed === '>') {
+              return esc(line)
+                .replace(/(&lt;\/?)(rapi-doc|img)/g, '<span class="tok-punct">$1</span><span class="tok-tag">$2</span>')
+                .replace(/(\/?&gt;)/g, '<span class="tok-punct">$1</span>');
+            } else if (trimmed.includes('=')) {
+              const match = line.match(/^(\s*)([a-zA-Z0-9-]+)=(".*?"|'.*?')$/);
+              if (match) {
+                const [, indent, attr, val] = match;
+                return `${indent}<span class="tok-attr">${esc(attr)}</span><span class="tok-punct">=</span><span class="tok-val">${esc(val)}</span>`;
+              }
+              return esc(line);
+            }
+            return esc(line);
+          });
+          codePre.innerHTML = lines.join('\n');
+        }
+      }
+
+      // Event handlers
+      renderBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const r = btn.getAttribute('data-render') || 'focused';
+          renderBtns.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentRender = r;
+          updateSvgAndCode();
+        });
       });
-    });
+
+      if (toggleHeader) {
+        toggleHeader.addEventListener('change', () => {
+          currentShowHeader = toggleHeader.checked;
+          updateSvgAndCode();
+        });
+      }
+
+      if (toggleNavLogo) {
+        toggleNavLogo.addEventListener('change', () => {
+          currentShowNavLogo = toggleNavLogo.checked;
+          updateSvgAndCode();
+        });
+      }
+
+      if (toggleNavMethods) {
+        toggleNavMethods.addEventListener('change', () => {
+          currentShowNavMethods = toggleNavMethods.checked;
+          updateSvgAndCode();
+        });
+      }
+
+      presetBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const p = btn.getAttribute('data-preset') || 'amber';
+          presetBtns.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentPreset = p;
+          updateSvgAndCode();
+        });
+      });
+
+      schemeBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const s = btn.getAttribute('data-scheme') || 'dark';
+          schemeBtns.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentScheme = s;
+          updateSvgAndCode();
+        });
+      });
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          const code = copyBtn.getAttribute('data-code') || '';
+          try {
+            await navigator.clipboard.writeText(code);
+            if (copyText) copyText.textContent = 'Copied!';
+            copyBtn.classList.add('copied');
+            setTimeout(() => {
+              if (copyText) copyText.textContent = 'Copy';
+              copyBtn.classList.remove('copied');
+            }, 2000);
+          } catch (err) {
+            console.error('Failed to copy', err);
+          }
+        });
+      }
+
+      // Initial render
+      updateSvgAndCode();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupInstantThemingDemo);
+    } else {
+      setupInstantThemingDemo();
+    }
+    document.addEventListener('astro:page-load', setupInstantThemingDemo);
   </script>
   <style>
-    /* Section 1: Callout Pills */
-    .pill-emerald {
-      top: 14px;
-      left: 16px;
-    }
-    .pill-dark {
-      top: 14px;
-      right: 16px;
-    }
-    .pill-focused {
-      bottom: 16px;
-      left: 16px;
-    }
-    .pill-radius {
-      bottom: 16px;
-      right: 16px;
+    /* ==========================================================================
+       Instant Theming Single-View Demo Layout (Illustration, Controls, Code)
+       ========================================================================== */
+    .rd-demo-unified-view {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+      gap: 16px;
+      padding: 16px 20px;
+      background: radial-gradient(circle at 25% 10%, rgba(245, 158, 11, 0.05) 0%, rgba(10, 14, 23, 0.96) 75%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      align-items: stretch;
     }
 
-    /* Section 1: Highlight Tags & Accents */
-    .tag-emerald {
-      color: #34d399;
+    @media (max-width: 1024px) {
+      .rd-demo-unified-view {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rd-demo-col-illustration {
+      width: 100%;
+      background: #0f1013;
+      border: 1px solid #282c35;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      box-sizing: border-box;
+      line-height: 0;
+    }
+
+    .rd-demo-col-illustration :global(svg) {
+      width: 100%;
+      height: auto;
+      max-height: 335px;
+      display: block;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+    }
+
+    .rd-demo-col-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    /* Compact Controls Panel */
+    .rd-demo-controls-panel {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .rd-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 5px;
+    }
+
+    .rd-panel-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+    }
+
+    .rd-panel-badge {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: #10b981;
       background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 3px;
+      padding: 1px 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    .tag-surface {
+
+    .rd-controls-compact-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .rd-control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .rd-control-row-toggles {
+      padding-top: 5px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.06);
+    }
+
+    .rd-control-group {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .rd-control-label {
+      font-size: 11px;
+      font-weight: 600;
       color: #cbd5e1;
-      background: rgba(255, 255, 255, 0.08);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
     }
-    .tag-geometry {
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.12);
+
+    .rd-segmented-pill {
+      display: inline-flex;
+      background: #181c24;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
     }
-    .tag-layout {
-      color: #c084fc;
-      background: rgba(168, 85, 247, 0.12);
+
+    .rd-seg-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      line-height: 1.2;
     }
+
+    .rd-seg-btn:hover {
+      color: #ffffff;
+    }
+
+    .rd-seg-btn.active {
+      background: #2b3240;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+
+    .rd-demo-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .rd-presets-row {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .rd-toggles-grid {
+      display: inline-flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .rd-switch-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .rd-switch-item input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .rd-switch-slider {
+      position: relative;
+      width: 24px;
+      height: 14px;
+      background: #333842;
+      border-radius: 12px;
+      transition: background 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .rd-switch-slider::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 10px;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 50%;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .rd-switch-item input:checked + .rd-switch-slider {
+      background: #10b981;
+    }
+
+    .rd-switch-item input:checked + .rd-switch-slider::after {
+      transform: translateX(10px);
+    }
+
+    .rd-switch-text {
+      font-size: 11px;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
+    /* Compact Code Snippet Card */
+    .rd-demo-code-card {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .rd-code-header {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 11px;
+      color: #8b949e;
+    }
+
+    .code-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    .code-dot.red { background: #ff5f56; }
+    .code-dot.yellow { background: #ffbd2e; }
+    .code-dot.green { background: #27c93f; }
+
+    .code-title {
+      margin-left: 6px;
+      font-family: 'Roboto Mono', Monaco, monospace;
+      font-size: 11px;
+      color: #c9d1d9;
+      flex: 1;
+    }
+
+    .rd-copy-code-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #c9d1d9;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .rd-copy-code-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .rd-copy-code-btn.copied {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      color: #34d399;
+    }
+
+    .rd-code-content {
+      padding: 0;
+      overflow-x: auto;
+      flex: 1;
+      display: flex;
+    }
+
+    .rd-code-content pre {
+      margin: 0 !important;
+      padding: 9px 12px !important;
+      background: transparent !important;
+      font-size: 11.5px !important;
+      line-height: 1.42 !important;
+      font-family: 'Roboto Mono', Monaco, monospace !important;
+      flex: 1;
+    }
+
+    .rd-code-content :global(.token.tag),
+    .tok-tag { color: #f43f5e; font-weight: 600; }
+
+    .rd-code-content :global(.token.attr-name),
+    .tok-attr { color: #38bdf8; }
+
+    .rd-code-content :global(.token.attr-value),
+    .tok-val { color: #34d399; }
+
+    .rd-code-content :global(.token.punctuation),
+    .tok-punct { color: #94a3b8; }
 
     .text-emerald {
       color: #34d399;

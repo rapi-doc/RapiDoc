@@ -1,0 +1,1215 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import PageBanner from '../../components/PageBanner.astro';
+---
+
+<GlobalLayout>
+  <PageBanner slot="topbar" page="theme-illustration" />
+  <main class="page-container">
+    <header class="page-header">
+      <h1>RapiDoc Structure & Theme Illustration</h1>
+      <p class="page-subtitle">
+        Interactive preview showcasing RapiDoc layout sections, render styles, color schemes, theme presets, and accent colors via CSS.
+      </p>
+    </header>
+
+    <!-- Controls Panel -->
+    <section class="controls-card">
+      <div class="controls-grid">
+        <!-- Render Style (Focused vs View) -->
+        <div class="control-group">
+          <label class="group-title">Render Style</label>
+          <div class="segmented-control" id="render-style-control">
+            <button type="button" class="segment-btn active" data-render="focused" title="Standard focused/read mode with navigation bar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="6" height="18" rx="1"></rect><rect x="12" y="3" width="9" height="18" rx="1"></rect></svg>
+              Focused / Read
+            </button>
+            <button type="button" class="segment-btn" data-render="view" title="View mode: No navigation, Request and Response side-by-side">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="18" rx="1"></rect><rect x="13" y="3" width="8" height="18" rx="1"></rect></svg>
+              View (Side-by-Side)
+            </button>
+          </div>
+        </div>
+
+        <!-- Visibility Toggles -->
+        <div class="control-group">
+          <label class="group-title">Layout Visibility</label>
+          <div class="toggles-list">
+            <label class="toggle-item">
+              <input type="checkbox" id="toggle-header" checked />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Header</span>
+            </label>
+            <label class="toggle-item" id="nav-logo-toggle-item">
+              <input type="checkbox" id="toggle-nav-logo" checked />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Nav Logo</span>
+            </label>
+            <label class="toggle-item" id="nav-methods-toggle-item">
+              <input type="checkbox" id="toggle-nav-methods" checked />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Nav Methods</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Color Scheme -->
+        <div class="control-group">
+          <label class="group-title">Color Scheme</label>
+          <div class="segmented-control" id="scheme-control">
+            <button type="button" class="segment-btn active" data-scheme="dark">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+              Dark
+            </button>
+            <button type="button" class="segment-btn" data-scheme="light">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+              Light
+            </button>
+          </div>
+        </div>
+
+        <!-- Preset -->
+        <div class="control-group">
+          <label class="group-title">Theme Preset</label>
+          <div class="segmented-control" id="preset-control">
+            <button type="button" class="segment-btn active" data-preset="amber">
+              <span class="preset-dot" style="background: #f59e0b;"></span>
+              Amber
+            </button>
+            <button type="button" class="segment-btn" data-preset="emerald">
+              <span class="preset-dot" style="background: #10b981;"></span>
+              Emerald
+            </button>
+          </div>
+        </div>
+
+        <!-- Accent Colors -->
+        <div class="control-group accent-group">
+          <label class="group-title">Accent Color</label>
+          <div class="color-swatches" id="swatches-control">
+            <button type="button" class="color-btn active" data-color="#f59e0b" style="--c: #f59e0b;" title="Amber"></button>
+            <button type="button" class="color-btn" data-color="#10b981" style="--c: #10b981;" title="Emerald"></button>
+            <button type="button" class="color-btn" data-color="#0284c7" style="--c: #0284c7;" title="Sky Blue"></button>
+            <button type="button" class="color-btn" data-color="#f43f5e" style="--c: #f43f5e;" title="Rose"></button>
+            <button type="button" class="color-btn" data-color="#8b5cf6" style="--c: #8b5cf6;" title="Violet"></button>
+            <button type="button" class="color-btn" data-color="#ea580c" style="--c: #ea580c;" title="Orange"></button>
+            <button type="button" class="color-btn" data-color="#14b8a6" style="--c: #14b8a6;" title="Teal"></button>
+            
+            <label class="custom-color-wrapper" id="custom-accent-wrapper" title="Pick custom accent color">
+              <input type="color" id="accent-picker" value="#f59e0b" />
+              <span class="custom-color-indicator" id="custom-color-preview"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Background Color -->
+        <div class="control-group bg-group">
+          <label class="group-title">Background Color</label>
+          <div class="color-swatches" id="bg-swatches-control">
+            <button type="button" class="color-btn active" data-bg="auto" style="--c: conic-gradient(from 180deg at 50% 50%, #f59e0b 0deg, #10b981 120deg, #0284c7 240deg, #f59e0b 360deg);" title="Auto: Harmonize with Accent Color"></button>
+            <button type="button" class="color-btn" data-bg="#18181b" style="--c: #18181b;" title="Zinc Charcoal (#18181b)"></button>
+            <button type="button" class="color-btn" data-bg="#0f172a" style="--c: #0f172a;" title="Slate Navy (#0f172a)"></button>
+            <button type="button" class="color-btn" data-bg="#09090b" style="--c: #09090b;" title="Pure Dark (#09090b)"></button>
+            <button type="button" class="color-btn" data-bg="#ffffff" style="--c: #ffffff;" title="Crisp White (#ffffff)"></button>
+            <button type="button" class="color-btn" data-bg="#f8fafc" style="--c: #f8fafc;" title="Off-White Slate (#f8fafc)"></button>
+            
+            <label class="custom-color-wrapper" id="custom-bg-wrapper" title="Pick custom background color">
+              <input type="color" id="bg-picker" value="#362a1a" />
+              <span class="custom-color-indicator" id="custom-bg-preview" style="background: #362a1a;"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live CSS State Readout -->
+      <div class="state-readout">
+        <div class="readout-item">
+          <span class="readout-label">Classes:</span>
+          <code id="state-classes">.rapidoc-illustration</code>
+        </div>
+        <div class="readout-item">
+          <span class="readout-label">--bg:</span>
+          <code id="state-bg">#22242b</code>
+        </div>
+        <div class="readout-item">
+          <span class="readout-label">--primary:</span>
+          <code id="state-accent">#f59e0b</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Illustration Canvas Frame (strictly 0 margin/padding around SVG) -->
+    <div class="illustration-frame">
+      <div class="svg-container" id="svg-host">
+        <svg viewBox="28 3.16 460.16 309.84" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" id="rapidoc-svg" class="rapidoc-illustration">
+          <style>
+            :root, .rapidoc-illustration {
+              /* Amber Dark Preset (Default) - RapiDoc Dark Charcoal Slate */
+              --bg: #22242b;
+              --nav-bg: #1a1c23;
+              --header-bg: #14161c;
+              --card-bg: #2a2d36;
+              --border: #363636;
+              --primary: #f59e0b;
+              --primary-border: #d97706;
+
+              /* Typography: Heading is prominent, Secondary/Body text is one shade darker */
+              --text-heading: #ffffff;
+              --text-body: #94a3b8;
+              --text-muted: #6b7280;
+              --tag-fill: #94a3b8;
+              --search-fill: #1a1c23;
+              --search-stroke: #363636;
+            }
+
+            /* Emerald Dark Preset - RapiDoc Deep Navy Slate */
+            .rapidoc-illustration.preset-emerald {
+              --bg: #060913;
+              --nav-bg: #03060c;
+              --header-bg: #020408;
+              --card-bg: #0f172a;
+              --border: #1e293b;
+              --primary: #10b981;
+              --primary-border: #059669;
+
+              /* Typography: Heading is prominent, Secondary/Body text is one shade darker */
+              --text-heading: #f8fafc;
+              --text-body: #94a3b8;
+              --text-muted: #6ee7b7;
+              --tag-fill: #94a3b8;
+              --search-fill: #0f172a;
+              --search-stroke: #1e293b;
+            }
+
+            /* Light Color Scheme (Amber) - Crisp White Surface */
+            .rapidoc-illustration.theme-light {
+              --bg: #ffffff;
+              --nav-bg: #f4f4f5;
+              --header-bg: #f4f4f5;
+              --card-bg: #ffffff;
+              --border: #e4e4e7;
+              --primary: #d97706;
+              --primary-border: #b45309;
+
+              /* Typography: Heading is dark, Secondary/Body text is one shade lighter */
+              --text-heading: #09090b;
+              --text-body: #71717a;
+              --text-muted: #a1a1aa;
+              --tag-fill: #71717a;
+              --search-fill: #ffffff;
+              --search-stroke: #e4e4e7;
+            }
+
+            /* Light Color Scheme (Emerald) - Crisp White Surface */
+            .rapidoc-illustration.theme-light.preset-emerald {
+              --bg: #ffffff;
+              --nav-bg: #f4f4f5;
+              --header-bg: #f4f4f5;
+              --card-bg: #ffffff;
+              --border: #e4e4e7;
+              --primary: #059669;
+              --primary-border: #047857;
+
+              /* Typography: Heading is dark, Secondary/Body text is one shade lighter */
+              --text-heading: #09090b;
+              --text-body: #71717a;
+              --text-muted: #a1a1aa;
+              --tag-fill: #71717a;
+              --search-fill: #ffffff;
+              --search-stroke: #e4e4e7;
+            }
+
+            .rapidoc-illustration {
+              transition: background-color 0.35s ease;
+            }
+            .rapidoc-illustration * {
+              transition: fill 0.35s ease, stroke 0.35s ease, opacity 0.35s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s ease;
+            }
+
+            .rapidoc-illustration .header-group {
+              transform-origin: top center;
+              transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+            }
+            .rapidoc-illustration.hide-header .header-group {
+              opacity: 0;
+              visibility: hidden;
+              pointer-events: none;
+              transform: translateY(-10px);
+            }
+
+            .rapidoc-illustration .nav-logo {
+              transform-origin: 51px 47px;
+              transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+            }
+            .rapidoc-illustration.hide-nav-logo .nav-logo {
+              opacity: 0;
+              visibility: hidden;
+              pointer-events: none;
+              transform: scale(0.4);
+            }
+
+            .rapidoc-illustration .nav-methods {
+              transform-origin: center right;
+              transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+            }
+            .rapidoc-illustration.hide-nav-methods .nav-methods {
+              opacity: 0;
+              visibility: hidden;
+              pointer-events: none;
+              transform: translateX(12px);
+            }
+
+            .rapidoc-illustration .nav-group {
+              transform-origin: left center;
+              transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s ease;
+            }
+            .rapidoc-illustration.render-view .nav-group {
+              opacity: 0;
+              visibility: hidden;
+              pointer-events: none;
+              transform: translateX(-150px);
+            }
+
+            .rapidoc-illustration .main-headings,
+            .rapidoc-illustration .post-endpoint {
+              transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .rapidoc-illustration.render-view .main-headings,
+            .rapidoc-illustration.render-view .post-endpoint {
+              transform: translateX(-142px);
+            }
+
+            .rapidoc-illustration .request-section {
+              transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .rapidoc-illustration.render-view .request-section {
+              transform: translateX(-143px);
+            }
+
+            .rapidoc-illustration .response-section {
+              transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .rapidoc-illustration.render-view .response-section {
+              transform: translate(73px, -64.22px);
+            }
+
+            .main-bg { fill: var(--bg); }
+            .nav-bg { fill: var(--nav-bg); }
+            .nav-border { stroke: var(--border); }
+            .header-bg { fill: var(--header-bg); }
+            .header-border { stroke: var(--border); }
+            .header-search { fill: var(--card-bg); stroke: var(--border); }
+            .card-bg, .card-bg rect, #aa, #svg_15 { fill: var(--card-bg); stroke: var(--border); }
+            .primary-accent { fill: var(--primary) !important; }
+            .primary-btn { fill: var(--primary) !important; }
+            .text-heading { fill: var(--text-heading); }
+            .text-body { fill: var(--text-body); }
+            .text-main { fill: var(--text-heading); }
+            .text-dim { fill: var(--text-body); }
+            .text-muted { fill: var(--text-muted); }
+            .tag-fill { fill: var(--tag-fill); }
+            .search-fill { fill: var(--search-fill); stroke: var(--search-stroke); }
+          </style>
+
+          <g class="layer">
+            <rect fill="var(--bg)" stroke="none" stroke-width="0" x="28" y="3.16" width="460.16" height="309.84" id="main" class="main-bg"/>
+
+            <g id="nav-group" class="nav-group">
+              <rect fill="var(--nav-bg)" stroke="none" stroke-width="0" x="28" y="3.16" width="142" height="309.84" id="nav" class="nav-bg"/>
+              <line x1="170" y1="3.16" x2="170" y2="313" stroke="var(--border)" stroke-width="1" id="nav-border" class="nav-border"/>
+              <rect stroke="var(--search-stroke)" fill="var(--search-fill)" stroke-width="0.5" x="45.5" y="70.45" width="76" height="8" id="nav-search" rx="4" class="search-fill"/>
+              <path stroke="none" id="svg_77" d="m134.18,77.83l-2.68,-2.68c0.36,-0.6 0.57,-1.3 0.57,-2.04c0,-2.18 -1.76,-3.95 -3.94,-3.95c-2.18,0 -3.95,1.77 -3.95,3.95c0,2.17 1.77,3.94 3.94,3.94c0.74,0 1.44,-0.21 2.04,-0.57l2.68,2.68l1.33,-1.33zm-8.49,-4.72c0,-1.35 1.09,-2.44 2.44,-2.45c1.34,0.01 2.43,1.1 2.44,2.45c-0.01,1.34 -1.1,2.43 -2.44,2.44c-1.35,-0.01 -2.44,-1.1 -2.44,-2.44z" stroke-width="0" fill="var(--text-body)" class="text-body"/>
+              <rect fill="var(--tag-fill)" stroke="#000" stroke-width="0" x="52.4" y="92.95" width="74" height="7" id="nav-tag" rx="3" class="nav-tag tag-fill"/>
+              <path id="nav-logo" class="nav-logo" d="m56.34,41.43c-0.43,1.19 -1.47,2.03 -2.68,2.03c-1.22,0 -2.25,-0.84 -2.68,-2.03l-6.57,3.13l1.85,4.88l2.03,-0.96l0,9.95l10.81,0l0,-9.92l1.96,0.93l1.85,-4.88l-6.57,-3.13l0,0z" stroke-width="0" stroke="#000" fill="#f87171"/>
+              <rect fill="var(--primary)" stroke-width="0" x="52.4" y="140.6" width="66" height="6" id="selected-nav-item" rx="3" stroke="#000" class="selected-nav-item primary-accent"/>
+
+              <g id="nav-items" class="nav-items">
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="104.25" width="45" height="6" id="svg_13" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="115.57" width="66" height="6" id="svg_14" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="127" width="45" height="6" id="svg_17" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="156.53" width="45" height="6" id="svg_29" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="167.85" width="66" height="6" id="svg_30" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="179.28" width="45" height="6" id="svg_33" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="194.13" width="45" height="6" id="svg_36" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="205.45" width="66" height="6" id="svg_37" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="216.88" width="45" height="6" id="svg_40" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="231.33" width="45" height="6" id="svg_43" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="242.65" width="66" height="6" id="svg_44" rx="3" stroke="#000" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke-width="0" x="52.4" y="254.08" width="45" height="6" id="svg_59" rx="3" stroke="#000" class="text-muted"/>
+              </g>
+
+              <g id="nav-methods" class="nav-methods">
+                <rect fill="#10b981" stroke-width="0" x="140.9" y="139.2" width="14.2" height="6.41" id="svg_20" rx="2"/>
+                <rect fill="#10b981" stroke-width="0" x="140.6" y="103.24" width="14.2" height="6.41" id="svg_11" rx="2"/>
+                <rect fill="#f43f5e" stroke-width="0" x="141" y="113.77" width="13.8" height="6.41" id="svg_7" rx="2"/>
+                <rect fill="#0ea5e9" stroke-width="0" x="140.6" y="124.8" width="14.2" height="6.41" id="svg_18" rx="2"/>
+                <rect fill="#10b981" stroke-width="0" x="140.6" y="155.52" width="14.2" height="6.41" id="svg_28" rx="2"/>
+                <rect fill="#f43f5e" stroke-width="0" x="141" y="166.05" width="13.8" height="6.41" id="svg_31" rx="2"/>
+                <rect fill="#0ea5e9" stroke-width="0" x="140.6" y="177.08" width="14.2" height="6.41" id="svg_32" rx="2"/>
+                <rect fill="#10b981" stroke-width="0" x="140.6" y="193.12" width="14.2" height="6.41" id="svg_35" rx="2"/>
+                <rect fill="#f43f5e" stroke-width="0" x="141" y="203.65" width="13.8" height="6.41" id="svg_38" rx="2"/>
+                <rect fill="#0ea5e9" stroke-width="0" x="140.6" y="214.68" width="14.2" height="6.41" id="svg_39" rx="2"/>
+                <rect fill="#10b981" stroke-width="0" x="140.6" y="230.32" width="14.2" height="6.41" id="svg_42" rx="2"/>
+                <rect fill="#f43f5e" stroke-width="0" x="141" y="240.85" width="13.8" height="6.41" id="svg_45" rx="2"/>
+                <rect fill="#0ea5e9" stroke-width="0" x="140.6" y="251.88" width="14.2" height="6.41" id="svg_46" rx="2"/>
+              </g>
+            </g>
+
+            <g id="main-headings" class="main-headings">
+              <!-- Section 1 Heading (Prominent) -->
+              <rect fill="var(--text-heading)" stroke="#000" stroke-width="0" x="192" y="52.45" width="80" height="6" id="svg_3" rx="3" class="text-heading"/>
+              <!-- Section 1 Body Lines (One shade darker than heading in dark, one shade lighter in light) -->
+              <rect fill="var(--text-body)" stroke-width="0" x="192" y="68.95" width="25" height="6" id="svg_5" rx="3" stroke="#000" class="text-body"/>
+              <rect fill="var(--text-body)" stroke-width="0" x="225" y="69.95" width="100" height="6" id="svg_8" rx="3" stroke="#000" class="text-body"/>
+              <rect fill="var(--text-body)" stroke-width="0" x="192" y="83.95" width="200" height="6" id="svg_12" rx="3" stroke="#000" class="text-body"/>
+
+              <!-- Section 2 Heading (Prominent) -->
+              <rect fill="var(--text-heading)" stroke="#000" stroke-width="0" x="193" y="104.95" width="80" height="6" id="svg_48" rx="3" class="text-heading"/>
+              <!-- Section 2 Body Lines (One shade darker than heading in dark, one shade lighter in light) -->
+              <rect fill="var(--text-body)" stroke-width="0" x="193" y="114.63" width="25" height="6" id="svg_49" rx="3" stroke="#000" class="text-body"/>
+              <rect fill="var(--text-body)" stroke-width="0" x="222.82" y="115.63" width="100" height="6" id="svg_50" rx="3" stroke="#000" class="text-body"/>
+              <rect fill="var(--text-body)" stroke-width="0" x="193" y="125.54" width="200" height="6" id="svg_51" rx="3" stroke="#000" class="text-body"/>
+            </g>
+
+            <g id="post-endpoint" class="post-endpoint">
+              <rect fill="var(--text-heading)" stroke="#000" stroke-width="0" x="223.3" y="149.99" width="80" height="6" id="svg_54" rx="3" class="text-heading"/>
+              <rect fill="var(--text-body)" stroke-width="0" x="193.19" y="161.4" width="25" height="6" id="svg_55" rx="3" stroke="#000" class="text-body"/>
+              <rect fill="var(--text-body)" stroke-width="0" x="229.53" y="161.4" width="100" height="6" id="svg_56" rx="3" stroke="#000" class="text-body"/>
+              <rect fill="var(--text-body)" stroke-width="0" x="193.19" y="171.9" width="200" height="6" id="svg_57" rx="3" stroke="#000" class="text-body"/>
+              <text fill="#10b981" stroke="none" stroke-width="0" x="197.05" y="151.36" id="post" font-size="10" font-family="Monospace" text-anchor="middle" xml:space="preserve" transform="matrix(1 0 0 0.717761 8.18182 46.956)" font-weight="bold" class="post">POST</text>
+            </g>
+
+            <!-- REQUEST SECTION (Left column in render-view mode) -->
+            <g id="request-section" class="request-section">
+              <text fill="var(--text-heading)" stroke="none" stroke-width="0" x="216" y="191" id="request-label" font-size="7" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle" font-weight="bold" letter-spacing="0.5" class="text-heading">REQUEST</text>
+              <rect stroke="var(--border)" stroke-width="0.5" id="aa" height="46" width="201" y="197.78" x="193.13" fill="var(--card-bg)" rx="3" ry="3" class="card-bg aa"/>
+              <rect fill="var(--text-heading)" stroke-width="0" x="205.13" y="206.5" width="25" height="6" id="svg_22" rx="3" stroke="#000" class="text-heading"/>
+              <rect fill="var(--text-body)" stroke-width="0" x="235.66" y="206.5" width="100" height="6" id="svg_23" rx="3" stroke="#000" class="text-body"/>
+              <rect fill="var(--text-heading)" stroke-width="0" x="205.13" y="217.5" width="25" height="6" id="svg_78" rx="3" stroke="#000" class="text-heading"/>
+              <rect fill="var(--text-body)" stroke-width="0" x="235.66" y="217.5" width="100" height="6" id="svg_70" rx="3" stroke="#000" class="text-body"/>
+              <g id="primary-buttons" class="primary-buttons">
+                <rect fill="var(--primary)" stroke-width="0" x="371" y="230" width="16" height="8" id="svg_82" rx="2" ry="2" class="primary-btn"/>
+                <rect fill="var(--primary)" stroke-width="0" x="344" y="230" width="22" height="8" id="svg_83" rx="2" ry="2" class="primary-btn"/>
+              </g>
+            </g>
+
+            <!-- RESPONSE SECTION (Right column in render-view mode) -->
+            <g id="response-section" class="response-section">
+              <text fill="var(--text-heading)" stroke="none" stroke-width="0" x="219" y="255" id="response-label" font-size="7" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle" font-weight="bold" letter-spacing="0.5" class="text-heading">RESPONSE</text>
+              <g id="status-codes">
+                <rect fill="var(--primary)" stroke="none" stroke-width="0" x="330" y="250" width="16" height="7" id="svg_4" rx="2" ry="2" class="active-status primary-accent"/>
+                <rect fill="var(--text-muted)" stroke="none" x="350" y="250" width="16" height="7" id="svg_6" rx="2" ry="2" opacity="0.8" class="text-muted"/>
+                <rect fill="var(--text-muted)" stroke="none" x="370" y="250" width="16" height="7" id="svg_10" rx="2" ry="2" opacity="0.8" class="text-muted"/>
+              </g>
+              <rect stroke="var(--border)" stroke-width="0.5" id="svg_15" height="46" width="201" y="262" x="192.22" fill="var(--card-bg)" rx="3" ry="3" class="card-bg"/>
+              <g id="response-text" class="response-text" transform="matrix(1 0 0 1 -5.90909 -24.4545)">
+                <rect fill="var(--primary)" stroke="none" x="206.03" y="295.03" width="24" height="2.88" id="svg_16" rx="2" ry="2" stroke-width="0" class="primary-accent"/>
+                <rect fill="#10b981" stroke="none" x="231.7" y="295.04" width="11.41" height="2.88" id="svg_25" rx="2" ry="2" stroke-width="0"/>
+                <rect fill="var(--text-body)" stroke="none" x="211.7" y="301.7" width="20.29" height="2.88" id="svg_26" rx="2" ry="2" stroke-width="0" class="text-body"/>
+                <rect fill="var(--text-body)" stroke="none" x="212.07" y="308" width="20.29" height="2.88" id="svg_27" rx="2" ry="2" stroke-width="0" class="text-body"/>
+                <rect fill="var(--primary)" stroke="none" x="205.41" y="313.93" width="20.29" height="2.88" id="svg_34" rx="2" ry="2" stroke-width="0" class="primary-accent"/>
+                <rect fill="var(--text-body)" stroke="none" x="213.18" y="320.22" width="20.29" height="2.88" id="svg_41" rx="2" ry="2" stroke-width="0" class="text-body"/>
+                <rect fill="var(--primary)" stroke="none" x="235.41" y="301.71" width="8.07" height="2.88" id="svg_47" rx="2" ry="2" stroke-width="0" class="primary-accent"/>
+                <rect fill="#eab308" stroke="none" x="235.04" y="308.37" width="9.55" height="2.88" id="svg_53" rx="2" ry="2" stroke-width="0"/>
+                <rect fill="#06b6d4" stroke="none" x="227.63" y="313.93" width="9.92" height="2.88" id="svg_58" rx="2" ry="2" stroke-width="0"/>
+                <rect fill="#10b981" stroke="none" x="235.41" y="320.22" width="11.03" height="2.88" id="svg_60" rx="2" ry="2" stroke-width="0"/>
+              </g>
+            </g>
+            
+            <g id="header-group" class="header-group">
+              <rect fill="var(--header-bg)" stroke="none" stroke-width="0" x="28" y="3.16" width="460.16" height="25" id="header" class="header-bg"/>
+              <line x1="28" y1="28.16" x2="488.16" y2="28.16" stroke="var(--border)" stroke-width="1" id="header-border" class="header-border"/>
+              <rect fill="var(--card-bg)" stroke="var(--border)" stroke-width="0.5" x="129" y="10.67" width="261.33" height="10.67" id="header-search" rx="3" class="header-search"/>
+              <rect fill="var(--primary)" stroke-width="0" x="397.66" y="10.67" width="22" height="10.67" id="spec-load-btn" rx="3" stroke="none" class="spec-load-btn primary-btn"/>
+              <path id="header-logo" class="header-logo" d="m44.67,10.17c-0.32,0.82 -1.1,1.39 -2,1.39c-0.91,0 -1.68,-0.58 -2,-1.39l-4.91,2.15l1.38,3.35l1.52,-0.66l0,6.83l8.08,0l0,-6.81l1.47,0.64l1.38,-3.35l-4.91,-2.15l0,0l-0.01,0z" stroke-width="0" stroke="none" fill="#f87171"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </main>
+</GlobalLayout>
+
+<style>
+  .page-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .page-header {
+    margin-bottom: 24px;
+  }
+
+  .page-header h1 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: #f1f5f9;
+    letter-spacing: -0.02em;
+  }
+
+  .page-subtitle {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .controls-card {
+    background: #181a20;
+    border: 1px solid #2d3139;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 20px;
+    align-items: start;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .group-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: #94a3b8;
+  }
+
+  .toggles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.85rem;
+    color: #cbd5e1;
+  }
+
+  .toggle-item input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .toggle-slider {
+    position: relative;
+    width: 34px;
+    height: 18px;
+    background: #333842;
+    border-radius: 20px;
+    transition: background 0.25s ease;
+    flex-shrink: 0;
+  }
+
+  .toggle-slider::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: #e2e8f0;
+    border-radius: 50%;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .toggle-item input:checked + .toggle-slider {
+    background: #3b82f6;
+  }
+
+  .toggle-item input:checked + .toggle-slider::after {
+    transform: translateX(16px);
+  }
+
+  .segmented-control {
+    display: flex;
+    background: #22252c;
+    border: 1px solid #2f343e;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .segment-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #94a3b8;
+    font-size: 0.80rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .segment-btn:hover {
+    color: #f1f5f9;
+  }
+
+  .segment-btn.active {
+    background: #333844;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .preset-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .color-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .color-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--c);
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .color-btn:hover {
+    transform: scale(1.15);
+  }
+
+  .color-btn.active {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+  }
+
+  .custom-color-wrapper {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: inline-block;
+  }
+
+  .custom-color-wrapper input[type="color"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+  }
+
+  .custom-color-indicator {
+    display: block;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+    border: 2px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .custom-color-wrapper:hover .custom-color-indicator {
+    transform: scale(1.15);
+  }
+
+  .custom-color-wrapper.active .custom-color-indicator {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  }
+
+  .state-readout {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #262932;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 0.78rem;
+  }
+
+  .readout-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .readout-label {
+    color: #64748b;
+  }
+
+  .readout-item code {
+    background: #111216;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #38bdf8;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    border: 1px solid #232730;
+  }
+
+  .illustration-frame {
+    background: #0f1013;
+    border: 1px solid #282c35;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .svg-container {
+    width: 100%;
+    max-width: 680px;
+    line-height: 0;
+  }
+
+  .svg-container :global(svg) {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+</style>
+
+<script>
+  function hexToHsl(hex: string): { h: number; s: number; l: number } {
+    hex = hex.replace(/^#/, '');
+    if (hex.length === 3) {
+      hex = hex.split('').map((c) => c + c).join('');
+    }
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0;
+    let s = 0;
+    const l = (max + min) / 2;
+
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h = Math.round(h * 60);
+    }
+    return { h, s: Math.round(s * 100), l: Math.round(l * 100) };
+  }
+
+  function hslToHex(h: number, s: number, l: number): string {
+    s = Math.max(0, Math.min(100, s)) / 100;
+    l = Math.max(0, Math.min(100, l)) / 100;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color).toString(16).padStart(2, '0');
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+  }
+
+  function setupThemeIllustration() {
+    const svg = document.getElementById('rapidoc-svg');
+    if (!svg) return;
+
+    const renderButtons = document.querySelectorAll('#render-style-control .segment-btn');
+    const toggleHeader = document.getElementById('toggle-header') as HTMLInputElement | null;
+    const toggleNavLogo = document.getElementById('toggle-nav-logo') as HTMLInputElement | null;
+    const toggleNavMethods = document.getElementById('toggle-nav-methods') as HTMLInputElement | null;
+    const schemeButtons = document.querySelectorAll('#scheme-control .segment-btn');
+    const presetButtons = document.querySelectorAll('#preset-control .segment-btn');
+    const colorButtons = document.querySelectorAll('#swatches-control .color-btn');
+    const accentPicker = document.getElementById('accent-picker') as HTMLInputElement | null;
+    const customAccentWrapper = document.getElementById('custom-accent-wrapper');
+    const customAccentPreview = document.getElementById('custom-color-preview');
+    const bgButtons = document.querySelectorAll('#bg-swatches-control .color-btn');
+    const bgPicker = document.getElementById('bg-picker') as HTMLInputElement | null;
+    const customBgWrapper = document.getElementById('custom-bg-wrapper');
+    const customBgPreview = document.getElementById('custom-bg-preview');
+    const stateClasses = document.getElementById('state-classes');
+    const stateBg = document.getElementById('state-bg');
+    const stateAccent = document.getElementById('state-accent');
+
+    // Curated palettes for standard accent colors
+    const colorPalettes: Record<string, { dark: any; light: any }> = {
+      '#f59e0b': { // Amber
+        dark: {
+          bg: '#22242b',
+          navBg: '#1a1c23',
+          headerBg: '#14161c',
+          cardBg: '#2a2d36',
+          border: '#363636',
+          primary: '#f59e0b',
+          primaryBorder: '#d97706',
+          textHeading: '#ffffff',
+          textBody: '#94a3b8'
+        },
+        light: {
+          bg: '#ffffff',
+          navBg: '#f4f4f5',
+          headerBg: '#f4f4f5',
+          cardBg: '#ffffff',
+          border: '#e4e4e7',
+          primary: '#d97706',
+          primaryBorder: '#b45309',
+          textHeading: '#09090b',
+          textBody: '#71717a'
+        }
+      },
+      '#10b981': { // Emerald
+        dark: {
+          bg: '#060913',
+          navBg: '#03060c',
+          headerBg: '#020408',
+          cardBg: '#0f172a',
+          border: '#1e293b',
+          primary: '#10b981',
+          primaryBorder: '#059669',
+          textHeading: '#f8fafc',
+          textBody: '#94a3b8'
+        },
+        light: {
+          bg: '#ffffff',
+          navBg: '#f4f4f5',
+          headerBg: '#f4f4f5',
+          cardBg: '#ffffff',
+          border: '#e4e4e7',
+          primary: '#059669',
+          primaryBorder: '#047857',
+          textHeading: '#09090b',
+          textBody: '#71717a'
+        }
+      },
+      '#0284c7': { // Sky Blue
+        dark: {
+          bg: '#0c2338',
+          navBg: '#071727',
+          headerBg: '#05101b',
+          cardBg: '#12304d',
+          border: '#1b4a78',
+          primary: '#0284c7',
+          primaryBorder: '#0369a1',
+          textHeading: '#ffffff',
+          textBody: '#94a3b8'
+        },
+        light: {
+          bg: '#e0f2fe',
+          navBg: '#bae6fd',
+          headerBg: '#7dd3fc',
+          cardBg: '#ffffff',
+          border: '#38bdf8',
+          primary: '#0284c7',
+          primaryBorder: '#0369a1',
+          textHeading: '#0c4a6e',
+          textBody: '#0369a1'
+        }
+      },
+      '#f43f5e': { // Rose
+        dark: {
+          bg: '#321019',
+          navBg: '#220b11',
+          headerBg: '#17070c',
+          cardBg: '#441622',
+          border: '#682234',
+          primary: '#f43f5e',
+          primaryBorder: '#e11d48',
+          textHeading: '#ffffff',
+          textBody: '#94a3b8'
+        },
+        light: {
+          bg: '#ffe4e6',
+          navBg: '#fecdd3',
+          headerBg: '#fda4af',
+          cardBg: '#ffffff',
+          border: '#fb7185',
+          primary: '#e11d48',
+          primaryBorder: '#be123c',
+          textHeading: '#881337',
+          textBody: '#be123c'
+        }
+      },
+      '#8b5cf6': { // Violet
+        dark: {
+          bg: '#1f1338',
+          navBg: '#140c26',
+          headerBg: '#0e081a',
+          cardBg: '#2a1a4c',
+          border: '#432a79',
+          primary: '#8b5cf6',
+          primaryBorder: '#7c3aed',
+          textHeading: '#ffffff',
+          textBody: '#94a3b8'
+        },
+        light: {
+          bg: '#ede9fe',
+          navBg: '#ddd6fe',
+          headerBg: '#c4b5fd',
+          cardBg: '#ffffff',
+          border: '#a78bfa',
+          primary: '#7c3aed',
+          primaryBorder: '#6d28d9',
+          textHeading: '#4c1d95',
+          textBody: '#6d28d9'
+        }
+      },
+      '#ea580c': { // Orange
+        dark: {
+          bg: '#381a0b',
+          navBg: '#251107',
+          headerBg: '#190b04',
+          cardBg: '#49220e',
+          border: '#723516',
+          primary: '#ea580c',
+          primaryBorder: '#c2410c',
+          textHeading: '#ffffff',
+          textBody: '#94a3b8'
+        },
+        light: {
+          bg: '#ffedd5',
+          navBg: '#fed7aa',
+          headerBg: '#fdba74',
+          cardBg: '#ffffff',
+          border: '#fb923c',
+          primary: '#ea580c',
+          primaryBorder: '#c2410c',
+          textHeading: '#7c2d12',
+          textBody: '#c2410c'
+        }
+      },
+      '#14b8a6': { // Teal
+        dark: {
+          bg: '#0b2b28',
+          navBg: '#071d1b',
+          headerBg: '#051413',
+          cardBg: '#103c37',
+          border: '#1a5b54',
+          primary: '#14b8a6',
+          primaryBorder: '#0d9488',
+          textHeading: '#ffffff',
+          textBody: '#94a3b8'
+        },
+        light: {
+          bg: '#ccfbf1',
+          navBg: '#99f6e4',
+          headerBg: '#5eead4',
+          cardBg: '#ffffff',
+          border: '#2dd4bf',
+          primary: '#0d9488',
+          primaryBorder: '#0f766e',
+          textHeading: '#134e4a',
+          textBody: '#0f766e'
+        }
+      }
+    };
+
+    function derivePalette(hex: string, scheme: 'dark' | 'light') {
+      const hsl = hexToHsl(hex);
+      if (scheme === 'dark') {
+        return {
+          bg: hslToHex(hsl.h, Math.min(hsl.s, 40), 14),
+          navBg: hslToHex(hsl.h, Math.min(hsl.s, 45), 9),
+          headerBg: hslToHex(hsl.h, Math.min(hsl.s, 50), 7),
+          cardBg: hslToHex(hsl.h, Math.min(hsl.s, 35), 18),
+          border: hslToHex(hsl.h, Math.min(hsl.s, 40), 27),
+          primary: hex,
+          primaryBorder: hslToHex(hsl.h, hsl.s, Math.max(hsl.l - 10, 20)),
+          textHeading: '#ffffff',
+          textBody: '#94a3b8'
+        };
+      } else {
+        return {
+          bg: hslToHex(hsl.h, Math.min(hsl.s, 65), 95),
+          navBg: hslToHex(hsl.h, Math.min(hsl.s, 60), 90),
+          headerBg: hslToHex(hsl.h, Math.min(hsl.s, 55), 85),
+          cardBg: '#ffffff',
+          border: hslToHex(hsl.h, Math.min(hsl.s, 50), 75),
+          primary: hex,
+          primaryBorder: hslToHex(hsl.h, hsl.s, Math.max(hsl.l - 12, 15)),
+          textHeading: hslToHex(hsl.h, Math.min(hsl.s, 60), 16),
+          textBody: hslToHex(hsl.h, Math.min(hsl.s, 40), 40)
+        };
+      }
+    }
+
+    let activeAccent = '#f59e0b';
+    let isAutoBg = true;
+    let manualBgColor = '#362a1a';
+
+    function getActiveScheme(): 'dark' | 'light' {
+      return svg.classList.contains('theme-light') ? 'light' : 'dark';
+    }
+
+    function applyTheme() {
+      if (!svg) return;
+      const scheme = getActiveScheme();
+      const palette = colorPalettes[activeAccent]?.[scheme] || derivePalette(activeAccent, scheme);
+
+      // 1. Apply accent color
+      svg.style.setProperty('--primary', palette.primary);
+      svg.style.setProperty('--primary-border', palette.primaryBorder);
+
+      // 2. Apply background & derived layout colors
+      if (isAutoBg) {
+        svg.style.setProperty('--bg', palette.bg);
+        svg.style.setProperty('--nav-bg', palette.navBg);
+        svg.style.setProperty('--header-bg', palette.headerBg);
+        svg.style.setProperty('--card-bg', palette.cardBg);
+        svg.style.setProperty('--border', palette.border);
+        svg.style.setProperty('--text-heading', palette.textHeading);
+        svg.style.setProperty('--text-body', palette.textBody);
+
+        if (bgPicker) bgPicker.value = palette.bg;
+        if (customBgPreview) customBgPreview.style.background = palette.bg;
+
+        bgButtons.forEach((btn) => {
+          btn.classList.toggle('active', btn.getAttribute('data-bg') === 'auto');
+        });
+        customBgWrapper?.classList.remove('active');
+      } else {
+        const hsl = hexToHsl(manualBgColor);
+        svg.style.setProperty('--bg', manualBgColor);
+        if (scheme === 'dark') {
+          svg.style.setProperty('--nav-bg', hslToHex(hsl.h, Math.min(hsl.s, 45), Math.max(hsl.l - 5, 5)));
+          svg.style.setProperty('--header-bg', hslToHex(hsl.h, Math.min(hsl.s, 50), Math.max(hsl.l - 7, 4)));
+          svg.style.setProperty('--card-bg', hslToHex(hsl.h, Math.min(hsl.s, 30), Math.min(hsl.l + 5, 25)));
+          svg.style.setProperty('--border', hslToHex(hsl.h, Math.min(hsl.s, 35), Math.min(hsl.l + 12, 35)));
+          svg.style.setProperty('--text-heading', '#ffffff');
+          svg.style.setProperty('--text-body', '#94a3b8');
+        } else {
+          svg.style.setProperty('--nav-bg', hslToHex(hsl.h, Math.min(hsl.s, 45), Math.max(hsl.l - 5, 80)));
+          svg.style.setProperty('--header-bg', hslToHex(hsl.h, Math.min(hsl.s, 50), Math.max(hsl.l - 8, 75)));
+          svg.style.setProperty('--card-bg', '#ffffff');
+          svg.style.setProperty('--border', hslToHex(hsl.h, Math.min(hsl.s, 35), Math.max(hsl.l - 15, 65)));
+          svg.style.setProperty('--text-heading', '#1e1b16');
+          svg.style.setProperty('--text-body', '#78716c');
+        }
+
+        if (bgPicker) bgPicker.value = manualBgColor;
+        if (customBgPreview) customBgPreview.style.background = manualBgColor;
+
+        bgButtons.forEach((btn) => {
+          btn.classList.toggle('active', btn.getAttribute('data-bg') === manualBgColor);
+        });
+      }
+
+      // 3. Highlight matching accent swatch or custom picker
+      let matchedAccentBtn = false;
+      colorButtons.forEach((cb) => {
+        const isMatch = cb.getAttribute('data-color') === activeAccent;
+        cb.classList.toggle('active', isMatch);
+        if (isMatch) matchedAccentBtn = true;
+      });
+
+      if (customAccentWrapper) {
+        customAccentWrapper.classList.toggle('active', !matchedAccentBtn);
+      }
+      if (accentPicker) accentPicker.value = activeAccent;
+      if (customAccentPreview) customAccentPreview.style.background = activeAccent;
+
+      // 4. Sync preset segmented control and SVG classes
+      presetButtons.forEach((pb) => {
+        const p = pb.getAttribute('data-preset');
+        if (p === 'amber' && activeAccent === '#f59e0b') pb.classList.add('active');
+        else if (p === 'emerald' && activeAccent === '#10b981') pb.classList.add('active');
+        else pb.classList.remove('active');
+      });
+
+      if (activeAccent === '#10b981') {
+        svg.classList.add('preset-emerald');
+      } else {
+        svg.classList.remove('preset-emerald');
+      }
+
+      updateStateReadout();
+    }
+
+    function updateStateReadout() {
+      if (!svg) return;
+      if (stateClasses) {
+        stateClasses.textContent = svg.getAttribute('class') || '';
+      }
+      if (stateBg) {
+        stateBg.textContent = svg.style.getPropertyValue('--bg') || '#22242b';
+      }
+      if (stateAccent) {
+        stateAccent.textContent = svg.style.getPropertyValue('--primary') || '#f59e0b';
+      }
+    }
+
+    // 0. Render Style (Focused vs View)
+    renderButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const render = btn.getAttribute('data-render');
+        renderButtons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (render === 'view') {
+          svg.classList.add('render-view');
+        } else {
+          svg.classList.remove('render-view');
+        }
+        updateStateReadout();
+      });
+    });
+
+    // 1. Show/Hide Header
+    if (toggleHeader) {
+      toggleHeader.addEventListener('change', () => {
+        if (toggleHeader.checked) {
+          svg.classList.remove('hide-header');
+        } else {
+          svg.classList.add('hide-header');
+        }
+        updateStateReadout();
+      });
+    }
+
+    // 2. Show/Hide Nav Logo
+    if (toggleNavLogo) {
+      toggleNavLogo.addEventListener('change', () => {
+        if (toggleNavLogo.checked) {
+          svg.classList.remove('hide-nav-logo');
+        } else {
+          svg.classList.add('hide-nav-logo');
+        }
+        updateStateReadout();
+      });
+    }
+
+    // 3. Show/Hide Nav Methods
+    if (toggleNavMethods) {
+      toggleNavMethods.addEventListener('change', () => {
+        if (toggleNavMethods.checked) {
+          svg.classList.remove('hide-nav-methods');
+        } else {
+          svg.classList.add('hide-nav-methods');
+        }
+        updateStateReadout();
+      });
+    }
+
+    // 4. Dark / Light Scheme
+    schemeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const scheme = btn.getAttribute('data-scheme');
+        schemeButtons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (scheme === 'light') {
+          svg.classList.add('theme-light');
+        } else {
+          svg.classList.remove('theme-light');
+        }
+
+        applyTheme();
+      });
+    });
+
+    // 5. Preset Switcher (Amber vs Emerald)
+    presetButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const preset = btn.getAttribute('data-preset');
+        if (!preset) return;
+        presetButtons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        activeAccent = preset === 'emerald' ? '#10b981' : '#f59e0b';
+        isAutoBg = true;
+        applyTheme();
+      });
+    });
+
+    // 6. Accent Color Swatches & Picker (Changing accent immediately updates background)
+    colorButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const color = btn.getAttribute('data-color');
+        if (!color) return;
+
+        activeAccent = color;
+        isAutoBg = true;
+        applyTheme();
+      });
+    });
+
+    if (accentPicker) {
+      accentPicker.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        activeAccent = target.value;
+        isAutoBg = true;
+        applyTheme();
+      });
+    }
+
+    // 7. Background Color Swatches & Picker (Direct background testing)
+    bgButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const bgVal = btn.getAttribute('data-bg');
+        if (!bgVal) return;
+
+        if (bgVal === 'auto') {
+          isAutoBg = true;
+        } else {
+          isAutoBg = false;
+          manualBgColor = bgVal;
+        }
+        applyTheme();
+      });
+    });
+
+    if (bgPicker) {
+      bgPicker.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        isAutoBg = false;
+        manualBgColor = target.value;
+        customBgWrapper?.classList.add('active');
+        applyTheme();
+      });
+    }
+
+    // Initial setup
+    applyTheme();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupThemeIllustration);
+  } else {
+    setupThemeIllustration();
+  }
+  document.addEventListener('astro:page-load', setupThemeIllustration);
+</script>
