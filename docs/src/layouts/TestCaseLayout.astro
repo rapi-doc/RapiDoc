@@ -15,6 +15,7 @@ interface Props {
   showController?: boolean;
   controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
   showMethods?: boolean;
+  showSlots?: boolean;
   controller?: 'default' | 'pretty' | 'hud' | 'drawer' | ((_props: any) => any);
 }
 
@@ -32,6 +33,7 @@ const {
   showController = true,
   controllerSize,
   showMethods,
+  showSlots,
   controller,
 } = Astro.props;
 ---
@@ -50,6 +52,7 @@ const {
   showController={showController}
   controllerSize={controllerSize}
   showMethods={showMethods}
+  showSlots={showSlots}
   controller={controller}
 >
   <slot name="head" slot="head" />

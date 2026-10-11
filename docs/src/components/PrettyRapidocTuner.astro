@@ -24,6 +24,7 @@ interface Props {
   title?: string;
   subtitle?: string;
   showMethods?: boolean;
+  showSlots?: boolean;
   defaultOpen?: boolean;
   size?: 'small' | 'medium' | 'large' | (string & {}) | number;
   showEdgeTab?: boolean;
@@ -38,6 +39,7 @@ const {
   title = 'Options',
   subtitle = 'RapiDoc properties',
   showMethods = (preset === 'all' || preset === 'demo'),
+  showSlots = (preset !== 'none'),
   defaultOpen = false,
   size = 'medium',
   showEdgeTab = true,
@@ -418,6 +420,100 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           </div>
         )}
 
+        {showSlots && (
+          <div class="rd-pretty-category-section rd-pretty-slots-section" data-category="slots">
+            <div class="rd-pretty-category-divider">
+              <span class="rd-pretty-category-tag" data-human="Slots" data-raw="Slots">Slots</span>
+            </div>
+
+            <div class="rd-pretty-settings-list">
+              <!-- Nav Logo Slot -->
+              <div class="rd-option-card rd-option-card--boolean" data-control-slot="nav-logo">
+                <div class="rd-option-info">
+                  <div class="rd-option-label-row">
+                    <div
+                      class="rd-option-label"
+                      data-human="Nav Logo Slot"
+                      data-raw='slot="nav-logo"'
+                      title='Slot: nav-logo'
+                    >
+                      Nav Logo Slot
+                    </div>
+                  </div>
+                  <div class="rd-option-tip">Inject custom logo & text HTML into sidebar navigation</div>
+                </div>
+
+                <div class="rd-control-wrapper">
+                  <label class="rd-switch" title='Toggle slot="nav-logo" HTML'>
+                    <input
+                      type="checkbox"
+                      class="rd-pretty-slot-input"
+                      data-slot="nav-logo"
+                    />
+                    <span class="rd-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Fixed Header Slot -->
+              <div class="rd-option-card rd-option-card--boolean" data-control-slot="fixed-header">
+                <div class="rd-option-info">
+                  <div class="rd-option-label-row">
+                    <div
+                      class="rd-option-label"
+                      data-human="Fixed Header Slot"
+                      data-raw='slot="fixed-header"'
+                      title='Slot: fixed-header'
+                    >
+                      Fixed Header Slot
+                    </div>
+                  </div>
+                  <div class="rd-option-tip">Inject custom sticky announcement or banner HTML above content</div>
+                </div>
+
+                <div class="rd-control-wrapper">
+                  <label class="rd-switch" title='Toggle slot="fixed-header" HTML'>
+                    <input
+                      type="checkbox"
+                      class="rd-pretty-slot-input"
+                      data-slot="fixed-header"
+                    />
+                    <span class="rd-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Default Slot -->
+              <div class="rd-option-card rd-option-card--boolean" data-control-slot="default">
+                <div class="rd-option-info">
+                  <div class="rd-option-label-row">
+                    <div
+                      class="rd-option-label"
+                      data-human="Default Slot"
+                      data-raw='slot="(default)"'
+                      title='Slot: default'
+                    >
+                      Default Slot
+                    </div>
+                  </div>
+                  <div class="rd-option-tip">Inject custom top-level announcement HTML into main content body</div>
+                </div>
+
+                <div class="rd-control-wrapper">
+                  <label class="rd-switch" title='Toggle default slot HTML'>
+                    <input
+                      type="checkbox"
+                      class="rd-pretty-slot-input"
+                      data-slot="default"
+                    />
+                    <span class="rd-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <!-- Slot for custom, test-specific action buttons or inputs -->
         <div class="rd-pretty-slot-container">
           <slot />
@@ -593,6 +689,68 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
         }
       });
 
+      const SLOT_TEMPLATES = {
+        'nav-logo': `
+          <div slot="nav-logo" data-tuner-slot="nav-logo" style="display:flex; align-items:center; justify-content:center; width:100% !important; box-sizing:border-box !important; padding:12px 16px !important; background:color-mix(in srgb, var(--primary, #3b82f6) 18%, var(--background, #18181b)) !important; color:var(--foreground, currentColor); min-height:48px;">
+            <img src="/assets/images/dog.png" style="width:40px; margin-right:20px;" alt="Dog">
+            <span style="font-size:13px;">
+              <b>nav-logo</b> slot
+            </span>
+          </div>
+        `.trim(),
+        'fixed-header': `
+          <div slot="fixed-header" data-tuner-slot="fixed-header" style="display:flex; align-items:center; justify-content:center; width:100% !important; box-sizing:border-box !important; padding:10px 16px !important; margin:0; background:color-mix(in srgb, var(--primary, #3b82f6) 18%, var(--background, #18181b)) !important; color:var(--foreground, currentColor); min-height:40px;">
+            <span style="font-size:13px;">
+              <b>fixed-header</b> slot
+            </span>
+          </div>
+        `.trim(),
+        'default': `
+          <div data-tuner-slot="default" style="display:flex; align-items:center; justify-content:center; width:100% !important; box-sizing:border-box !important; padding:16px 24px !important; margin:0; background:color-mix(in srgb, var(--primary, #3b82f6) 18%, var(--background, #18181b)) !important; color:var(--foreground, currentColor); min-height:48px;">
+            <span style="font-size:13px;">
+              <b>(default)</b> slot
+            </span>
+          </div>
+        `.trim(),
+      };
+
+      function getSlotElement(target, slotName) {
+        if (!target) return null;
+        if (slotName === 'nav-logo') {
+          return target.querySelector(':scope > [slot="nav-logo"]');
+        }
+        if (slotName === 'fixed-header') {
+          return target.querySelector(':scope > [slot="fixed-header"]');
+        }
+        if (slotName === 'default') {
+          const tunerEl = target.querySelector(':scope > [data-tuner-slot="default"]');
+          if (tunerEl) return tunerEl;
+          return Array.from(target.children).find(
+            (c) => !c.hasAttribute('slot') && c.tagName !== 'SCRIPT' && c.tagName !== 'STYLE'
+          );
+        }
+        return null;
+      }
+
+      function setSlotState(target, slotName, enable) {
+        if (!target || !SLOT_TEMPLATES[slotName]) return;
+        const existing = getSlotElement(target, slotName);
+        if (enable) {
+          if (!existing) {
+            const template = document.createElement('template');
+            template.innerHTML = SLOT_TEMPLATES[slotName];
+            const newEl = template.content.firstElementChild;
+            if (newEl) {
+              target.appendChild(newEl);
+            }
+          }
+        } else {
+          if (existing) {
+            existing.remove();
+          }
+        }
+      }
+
       // Synchronize controller UI from the target element attributes
       function syncControllerState() {
         const target = getTarget();
@@ -637,6 +795,14 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           const isActive = currentVal === 'true' || (currentVal !== 'false' && (currentVal !== null ? true : defaultOn));
 
           input.checked = isActive;
+        });
+
+        // Sync slot inputs
+        root.querySelectorAll('.rd-pretty-slot-input').forEach((input) => {
+          const slotName = input.getAttribute('data-slot');
+          if (!slotName) return;
+          const isPresent = Boolean(getSlotElement(target, slotName));
+          input.checked = isPresent;
         });
 
         // Sync active spec option if present
@@ -713,6 +879,16 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           }
           return;
         }
+
+        // Slot toggle change
+        if (e.target.matches('.rd-pretty-slot-input')) {
+          const slotName = e.target.getAttribute('data-slot');
+          if (slotName) {
+            setSlotState(target, slotName, e.target.checked);
+            syncControllerState();
+          }
+          return;
+        }
       });
 
       root.addEventListener('click', (e) => {
@@ -763,8 +939,21 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           }
         });
 
+        // Reset slot states to initial
+        ['nav-logo', 'fixed-header', 'default'].forEach((slotName) => {
+          const wasInitial = initialSlots[slotName];
+          const current = getSlotElement(target, slotName);
+          if (!wasInitial && current) {
+            current.remove();
+          } else if (wasInitial && !current) {
+            setSlotState(target, slotName, true);
+          }
+        });
+
         syncControllerState();
       });
+
+      let initialSlots = {};
 
       function attachToTarget() {
         const target = getTarget();
@@ -772,6 +961,12 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           setTimeout(attachToTarget, 100);
           return;
         }
+
+        initialSlots = {
+          'nav-logo': Boolean(getSlotElement(target, 'nav-logo')),
+          'fixed-header': Boolean(getSlotElement(target, 'fixed-header')),
+          default: Boolean(getSlotElement(target, 'default')),
+        };
 
         try {
           if (initialAttrs) {
@@ -801,7 +996,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
         const observer = new MutationObserver(() => {
           syncControllerState();
         });
-        observer.observe(target, { attributes: true });
+        observer.observe(target, { attributes: true, childList: true });
 
         syncControllerState();
         if (customElements?.whenDefined) {
