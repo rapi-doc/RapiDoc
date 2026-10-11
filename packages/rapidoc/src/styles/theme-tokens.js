@@ -232,6 +232,7 @@ export default css`
     --border: var(--_preset-border, #27272a);
     --nav-hover-bg: color-mix(in srgb, var(--background) 85%, #000000);
     --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
+    --nav-hover-fg: var(--foreground);
     --input-background: color-mix(in srgb, var(--background) 75%, #000000);
     --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
     --input: var(--input-background);
@@ -293,6 +294,7 @@ export default css`
     --border: #e4e4e7;
     --nav-hover-bg: color-mix(in srgb, var(--background) 95%, #000000);
     --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
+    --nav-hover-fg: var(--foreground);
     --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
     --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
     --input: var(--input-background);
@@ -354,6 +356,7 @@ export default css`
       --border: #e4e4e7;
       --nav-hover-bg: color-mix(in srgb, var(--background) 95%, #000000);
       --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
+      --nav-hover-fg: var(--foreground);
       --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
       --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
       --input: var(--input-background);
@@ -410,6 +413,7 @@ export default css`
   :host(:not([theme])) {
     --primary: #f76b39;
     --primary-foreground: #000000;
+    --foreground: #cccccc;
     --ring: #f76b39;
     --_preset-bg: oklch(0.2613 0.0134 272.84);
     --_preset-card: oklch(0.2613 0.0134 272.84);
@@ -417,8 +421,9 @@ export default css`
   }
   :host([theme='amber'][color-scheme='light']),
   :host(:not([theme])[color-scheme='light']) {
-    --primary: #d97706;
-    --primary-foreground: #ffffff;
+    --primary: #f76b39;
+    --primary-foreground: #000000;
+    --foreground: #555555;
     --ring: #d97706;
   }
 
@@ -482,14 +487,15 @@ export default css`
   :host([theme='graphite'][color-scheme='light']) {
     --primary: #18181b;
     --primary-foreground: #fafafa;
+    --foreground: #111111;
+    --muted-foreground: #222222;
     --ring: #27272a;
   }
 
   /* --- Preset 6: ROSE --- */
   :host([theme='rose']) {
-    --primary: #fb4d6a;
-    --primary-foreground: #ffffff;
-    --ring: #f65772ff;
+    --primary: #ee5d7cff;
+    --ring: #ee5d7cff;
     --_preset-bg: oklch(0.2613 0.0134 272.84);
     --_preset-card: oklch(0.2613 0.0134 272.84);
   }

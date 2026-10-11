@@ -311,7 +311,7 @@ export default css`
       color 0.15s ease;
   }
   .nav-bar-section.operations:hover {
-    color: var(--foreground);
+    color: var(--nav-hover-fg, var(--foreground));
     background: var(--nav-hover-bg, var(--muted));
   }
 
@@ -366,7 +366,7 @@ export default css`
   .nav-bar-info:hover,
   .nav-bar-tag:hover,
   .nav-bar-path:hover {
-    color: var(--foreground);
+    color: var(--nav-hover-fg, var(--foreground));
     background: var(--nav-hover-bg, var(--muted));
   }
 `;

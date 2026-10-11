@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { THEME_PRESETS, isValidHexColor, isValidTheme, normalizeTheme } from '../../packages/rapidoc/src/styles/theme-tokens.js';
+import themeTokens, {
+  THEME_PRESETS,
+  isValidHexColor,
+  isValidTheme,
+  normalizeTheme,
+} from '../../packages/rapidoc/src/styles/theme-tokens.js';
+import navStyles from '../../packages/rapidoc/src/styles/nav-styles.js';
 
 test('theme-validation', async (t) => {
   await t.test('isValidHexColor validates 3, 6, and 8 digit hex color codes', () => {
@@ -74,5 +80,17 @@ test('theme-validation', async (t) => {
     assert.deepEqual(normalizeTheme(''), { theme: 'amber' });
     assert.deepEqual(normalizeTheme(null), { theme: 'amber' });
     assert.deepEqual(normalizeTheme(undefined), { theme: 'amber' });
+  });
+
+  await t.test('--nav-hover-fg token is defined and used correctly', () => {
+    // Assert --nav-hover-fg token is declared in theme tokens
+    assert.match(themeTokens.cssText, /--nav-hover-fg:\s*var\(--foreground\);/);
+
+    // Assert nav styles use var(--nav-hover-fg, var(--foreground))
+    assert.match(navStyles.cssText, /var\(--nav-hover-fg,\s*var\(--foreground\)\)/);
+
+    // Assert deprecated --nav-hover-text has been completely dropped
+    assert.doesNotMatch(themeTokens.cssText, /--nav-hover-text/);
+    assert.doesNotMatch(navStyles.cssText, /--nav-hover-text/);
   });
 });
