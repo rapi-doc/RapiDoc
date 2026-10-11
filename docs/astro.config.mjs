@@ -92,6 +92,12 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Migration',
+          items: [
+            { label: 'Migrating from v10 to v11', slug: 'docs/migration/v10-to-v11' },
+          ],
+        },
+        {
           label: 'Theming & Deep Styling',
           items: [
             { label: 'Theming Overview', slug: 'docs/theming/overview' },

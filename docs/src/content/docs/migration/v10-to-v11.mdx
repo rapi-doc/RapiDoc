@@ -1,0 +1,428 @@
+---
+title: Migrating from RapiDoc v10 to v11
+description: Upgrade guide for migrating from RapiDoc v10 to v11. Learn about deprecated styling attributes, modern CSS custom properties (design tokens), and W3C CSS Shadow Parts (::part()).
+---
+
+import { Aside, Tabs, TabItem, Card, CardGrid, Steps, Badge } from '@astrojs/starlight/components';
+
+RapiDoc **v11** introduces a modernized styling architecture designed around **W3C web standards**, **CSS custom properties (design tokens)**, and **CSS Shadow Parts (`::part()`)**.
+
+This major release eliminates attribute bloat by deprecating granular styling attributes (`bg-color`, `text-color`, `nav-bg-color`, `primary-color`, `regular-font`, etc.) in favor of standard CSS declarations and high-level design tokens.
+
+<Aside type="tip" title="Why the Styling Architecture Changed">
+  In RapiDoc v10, customizing visuals required configuring dozens of specialized HTML attributes. While functional, this approach:
+  - Cluttered HTML templates with styling configuration.
+  - Failed to integrate cleanly with modern design systems (Tailwind CSS, shadcn/ui, CSS variables).
+  - Lacked native CSS cascade and media query support (such as automatic `prefers-color-scheme` detection).
+  - Could not leverage rich CSS capabilities like gradients, backdrop blur, transitions, and hover states.
+
+  **RapiDoc v11** standardizes styling into **high-level declarative tokens** on the element itself, and **CSS variables & `::part()` pseudo-elements** for all visual customizations.
+</Aside>
+
+---
+
+## 1. Quick Summary of Breaking Changes
+
+Here is an overview of what changed between v10 and v11:
+
+1. **`theme` attribute redefined**:
+   - **v10**: Used for base mode (`theme="dark"` or `theme="light"`).
+   - **v11**: Sets the **color palette preset** (`amber`, `blue`, `emerald`, `violet`, `graphite`, `rose`, `slate`) OR accepts any custom brand hex code (`theme="#2563eb"`).
+2. **`color-scheme` attribute introduced**:
+   - Controls light/dark surface rendering: `color-scheme="dark"`, `color-scheme="light"`, or `color-scheme="system"`.
+3. **Granular color attributes deprecated**:
+   - `bg-color`, `text-color`, `header-color`, `primary-color` are replaced by the `theme` preset engine, `--background`, `--foreground`, `--primary`, or `::part()`.
+4. **Navigation color attributes deprecated**:
+   - `nav-bg-color`, `nav-text-color`, `nav-hover-bg-color`, `nav-hover-text-color`, `nav-accent-color`, `nav-accent-text-color` are replaced by CSS custom properties and `rapi-doc::part(section-navbar)`.
+5. **Font attributes deprecated**:
+   - `regular-font` and `mono-font` are replaced by standard CSS variables `--font-sans` and `--font-mono`.
+   - `font-size="default | large | largest"` is replaced by proportional UI scaling attribute `scale="sm | default | lg"`.
+
+---
+
+## 2. Deprecated Attributes & Modern Replacements
+
+The table below maps every deprecated v10 attribute to its modern v11 replacement:
+
+| Legacy v10 Attribute | Status | Modern v11 Replacement | Type / Mechanism |
+| :--- | :---: | :--- | :--- |
+| `theme="light"` / `theme="dark"` | <Badge text="Deprecated" variant="danger" /> | `color-scheme="light"` / `color-scheme="dark"` / `color-scheme="system"` | HTML Attribute |
+| `primary-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `theme="#..."` or `--primary: #...` | Attribute or CSS Variable |
+| `bg-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `--background: #...` or `color-scheme` | CSS Variable |
+| `text-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `--foreground: #...` | CSS Variable |
+| `header-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `rapi-doc::part(section-header) { background: #... }` or `--header-bg` | CSS Shadow Part / Variable |
+| `regular-font="..."` | <Badge text="Deprecated" variant="danger" /> | `--font-sans: ...` (or `--font-regular`) | CSS Variable |
+| `mono-font="..."` | <Badge text="Deprecated" variant="danger" /> | `--font-mono: ...` | CSS Variable |
+| `font-size="..."` | <Badge text="Deprecated" variant="danger" /> | `scale="sm"` / `scale="default"` / `scale="lg"` | HTML Attribute |
+| `nav-bg-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `rapi-doc::part(section-navbar) { background: #... }` or `--nav-background` | CSS Shadow Part / Variable |
+| `nav-text-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `--nav-foreground: #...` or `rapi-doc::part(section-navbar)` | CSS Variable |
+| `nav-hover-bg-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `--nav-hover-bg: #...` or `rapi-doc::part(nav-item):hover` | CSS Variable / Shadow Part |
+| `nav-hover-text-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `--nav-hover-text: #...` or `rapi-doc::part(nav-item):hover` | CSS Variable / Shadow Part |
+| `nav-accent-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `--nav-accent: #...` or `theme` preset | CSS Variable |
+| `nav-accent-text-color="#..."` | <Badge text="Deprecated" variant="danger" /> | `--nav-accent-foreground: #...` | CSS Variable |
+
+---
+
+## 3. Migration Details by Feature Area
+
+### 3.1 Theme & Color Scheme Modernization
+
+In v10, you configured dark mode and primary button colors using separate attributes:
+
+<Tabs>
+  <TabItem label="v10 (Legacy)">
+```html
+<!-- v10: theme set the surface, primary-color set the accent -->
+<rapi-doc
+  spec-url="https://api.example.com/openapi.json"
+  theme="dark"
+  primary-color="#3b82f6"
+  bg-color="#0f172a"
+  text-color="#f8fafc"
+></rapi-doc>
+```
+  </TabItem>
+
+  <TabItem label="v11 (Modern)">
+```html
+<!-- v11: color-scheme sets surface, theme sets preset or hex -->
+<rapi-doc
+  spec-url="https://api.example.com/openapi.json"
+  color-scheme="dark"
+  theme="#3b82f6"
+></rapi-doc>
+```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Automatic Contrast Calculation in v11">
+  When you set `theme="#3b82f6"` (or any hex code), RapiDoc v11 automatically evaluates the luminance of your brand color. If the color is light, it renders high-contrast black text on buttons and badges; if dark, it renders white text. You no longer need to manually tune text contrast for primary buttons!
+</Aside>
+
+---
+
+### 3.2 Replacing Color Attributes with CSS Custom Properties
+
+Instead of configuring colors directly on HTML attributes, assign standard CSS custom properties on `<rapi-doc>` in your stylesheet or `<style>` block.
+
+<Tabs>
+  <TabItem label="v10 (Legacy Attributes)">
+```html
+<rapi-doc
+  spec-url="https://api.example.com/openapi.json"
+  bg-color="#0b1120"
+  text-color="#e2e8f0"
+  primary-color="#10b981"
+></rapi-doc>
+```
+  </TabItem>
+
+  <TabItem label="v11 (CSS Variables)">
+```html
+<style>
+  rapi-doc {
+    /* Surface and Text tokens */
+    --background: #0b1120;
+    --foreground: #e2e8f0;
+
+    /* Primary Accent token */
+    --primary: #10b981;
+    --primary-foreground: #ffffff;
+
+    /* Border token */
+    --border: #1e293b;
+  }
+</style>
+
+<rapi-doc
+  spec-url="https://api.example.com/openapi.json"
+  color-scheme="dark"
+></rapi-doc>
+```
+  </TabItem>
+</Tabs>
+
+---
+
+### 3.3 Replacing Navigation Attributes with CSS Variables & Shadow Parts
+
+In v10, sidebar styling required up to six distinct attributes. In v11, you can style the sidebar using clean CSS custom properties or standard `::part(section-navbar)` selectors.
+
+<Tabs>
+  <TabItem label="v10 (Legacy Attributes)">
+```html
+<rapi-doc
+  spec-url="https://api.example.com/openapi.json"
+  nav-bg-color="#0f172a"
+  nav-text-color="#94a3b8"
+  nav-hover-bg-color="#1e293b"
+  nav-hover-text-color="#ffffff"
+  nav-accent-color="#3b82f6"
+  nav-accent-text-color="#ffffff"
+></rapi-doc>
+```
+  </TabItem>
+
+  <TabItem label="v11 (CSS Variables)">
+```css
+/* Style sidebar navigation with design tokens */
+rapi-doc {
+  --nav-background: #0f172a;
+  --nav-foreground: #94a3b8;
+  --nav-hover-bg: #1e293b;
+  --nav-hover-text: #ffffff;
+  --nav-accent: #3b82f6;
+  --nav-accent-foreground: #ffffff;
+}
+```
+  </TabItem>
+
+  <TabItem label="v11 (CSS Shadow Parts)">
+```css
+/* Advanced styling with gradients, frosted glass blur, and borders */
+rapi-doc::part(section-navbar) {
+  background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+/* Sidebar header area (logo and filter input) */
+rapi-doc::part(section-navbar-header) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 16px;
+}
+```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="Sidebar Item Density in v11">
+  To adjust vertical spacing between navigation links in v11 without CSS hacks, use the new declarative attribute:
+  `<rapi-doc nav-item-spacing="compact | default | relaxed"></rapi-doc>`.
+</Aside>
+
+---
+
+### 3.4 Replacing Typography & Font Attributes
+
+In v10, custom fonts were passed as comma-separated font strings in attributes. In v11, configure fonts using CSS variables, allowing seamless inheritance from your application design system or `@font-face` definitions.
+
+<Tabs>
+  <TabItem label="v10 (Legacy Attributes)">
+```html
+<rapi-doc
+  spec-url="https://api.example.com/openapi.json"
+  regular-font="'Inter', sans-serif"
+  mono-font="'JetBrains Mono', monospace"
+  font-size="large"
+></rapi-doc>
+```
+  </TabItem>
+
+  <TabItem label="v11 (CSS Variables & Scale)">
+```html
+<style>
+  rapi-doc {
+    /* Define typography tokens */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+</style>
+
+<rapi-doc
+  spec-url="https://api.example.com/openapi.json"
+  scale="lg"
+></rapi-doc>
+```
+  </TabItem>
+</Tabs>
+
+#### Font Scaling Mapping Reference
+
+| v10 `font-size` Value | v11 `scale` Equivalent | Description |
+| :--- | :--- | :--- |
+| `default` | `scale="default"` | 14px base typography with balanced proportions. |
+| `large` | `scale="lg"` | 16px base typography, generous margins, and wider sidebar. |
+| `largest` | `scale="lg"` | Scaled up for presentations or accessibility. |
+| *(New)* | `scale="sm"` | Compact 13px base typography; ideal for embedded console widgets. |
+
+---
+
+### 3.5 Button & Component Styling via `::part()`
+
+In v10, you could not customize individual buttons, search bars, or server cards without overriding entire themes. RapiDoc v11 provides W3C standard **CSS Shadow Parts** for internal elements.
+
+```css
+/* Style primary action buttons (TRY, execute, search) */
+rapi-doc::part(btn-fill) {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
+  font-weight: 600;
+}
+
+rapi-doc::part(btn-fill):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+}
+
+/* Style the TRY button specifically */
+rapi-doc::part(btn-try) {
+  border-radius: 6px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* Style server selection panel */
+rapi-doc::part(section-servers) {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+}
+```
+
+---
+
+## 4. End-to-End Migration Examples
+
+### Example 1: Corporate Dark Portal
+
+<Tabs>
+  <TabItem label="v10 Syntax">
+```html
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="dark"
+  bg-color="#0d1117"
+  text-color="#c9d1d9"
+  header-color="#161b22"
+  primary-color="#238636"
+  regular-font="'Inter', sans-serif"
+  mono-font="'Fira Code', monospace"
+  nav-bg-color="#161b22"
+  nav-text-color="#8b949e"
+  nav-accent-color="#238636"
+  font-size="default"
+></rapi-doc>
+```
+  </TabItem>
+
+  <TabItem label="v11 Syntax">
+```html
+<style>
+  rapi-doc {
+    --background: #0d1117;
+    --foreground: #c9d1d9;
+    --header-bg: #161b22;
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+    --nav-background: #161b22;
+    --nav-foreground: #8b949e;
+  }
+</style>
+
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  color-scheme="dark"
+  theme="#238636"
+  radius="md"
+  scale="default"
+></rapi-doc>
+```
+  </TabItem>
+</Tabs>
+
+---
+
+### Example 2: Light Mode with Corporate Indigo Accent
+
+<Tabs>
+  <TabItem label="v10 Syntax">
+```html
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="light"
+  bg-color="#ffffff"
+  text-color="#1e293b"
+  primary-color="#4f46e5"
+  nav-bg-color="#f8fafc"
+  nav-text-color="#475569"
+  nav-accent-color="#4f46e5"
+></rapi-doc>
+```
+  </TabItem>
+
+  <TabItem label="v11 Syntax">
+```html
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  color-scheme="light"
+  theme="#4f46e5"
+  radius="md"
+></rapi-doc>
+```
+*(Notice how concise v11 is: `color-scheme="light"` sets the base surfaces, and `theme="#4f46e5"` automatically configures navigation accents and high-contrast button labels!)*
+  </TabItem>
+</Tabs>
+
+---
+
+## 5. Step-by-Step Migration Checklist
+
+Follow these steps to migrate an existing application to RapiDoc v11:
+
+<Steps>
+1. **Update Package Dependency / CDN Link**
+   Upgrade your `rapidoc` package or update the `<script>` tag:
+   ```bash
+   npm install rapidoc@latest
+   ```
+
+2. **Update the Base Surface Mode**
+   Search your HTML templates for `theme="dark"` or `theme="light"`. Change them to:
+   - `theme="dark"` $\rightarrow$ `color-scheme="dark"`
+   - `theme="light"` $\rightarrow$ `color-scheme="light"`
+   - *(Optional)* Use `color-scheme="system"` to automatically match user OS preference.
+
+3. **Migrate Primary Brand Colors**
+   If you used `primary-color="#..."`, migrate to:
+   - `<rapi-doc theme="#your-hex-color">` or
+   - CSS: `rapi-doc { --primary: #your-hex-color; }`
+
+4. **Convert Deprecated Color Attributes to CSS Variables**
+   Remove `bg-color`, `text-color`, and `nav-*` attributes from `<rapi-doc>`. If you need custom values beyond the built-in presets, define them in CSS:
+   ```css
+   rapi-doc {
+     --background: #...;
+     --foreground: #...;
+     --nav-background: #...;
+   }
+   ```
+
+5. **Convert Font Attributes to CSS Typography Tokens**
+   Remove `regular-font` and `mono-font` attributes. Declare them in CSS:
+   ```css
+   rapi-doc {
+     --font-sans: 'YourFont', sans-serif;
+     --font-mono: 'YourMono', monospace;
+   }
+   ```
+
+6. **Convert `font-size` to `scale`**
+   Change `font-size="large"` to `scale="lg"`.
+
+7. **Take Advantage of `::part()` for Advanced Customization**
+   Replace any awkward styling workarounds with standard CSS Shadow Parts (`rapi-doc::part(section-navbar)`, `rapi-doc::part(btn-fill)`, etc.).
+</Steps>
+
+---
+
+## Related Documentation
+
+<CardGrid>
+  <Card title="Theming Overview" icon="palette">
+    Learn about all 7 design system presets, custom hex brand colors, and contrast calculations. [View Theming Guide](/docs/theming/overview/)
+  </Card>
+  <Card title="CSS Parts & Variables Reference" icon="seti:css">
+    Explore the full catalog of CSS Custom Properties and Shadow Parts available in RapiDoc. [Explore CSS Parts](/docs/theming/css-parts/)
+  </Card>
+</CardGrid>
