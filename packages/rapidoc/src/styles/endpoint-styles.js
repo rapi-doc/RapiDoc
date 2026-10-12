@@ -25,6 +25,7 @@ export default css`
 
   .m-endpoint {
     border-radius: min(var(--radius), 1rem);
+    --method-color: var(--method-default);
   }
   .m-endpoint.expanded {
     margin-bottom: 16px;
@@ -44,25 +45,30 @@ export default css`
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
+  .m-endpoint > .endpoint-head:hover,
+  .m-endpoint > .endpoint-head.expanded {
+    border-color: var(--method-color, var(--method-default));
+    background: color-mix(in srgb, var(--method-color, var(--method-default)) 10%, transparent);
+  }
   .m-endpoint > .endpoint-head.put:hover,
   .m-endpoint > .endpoint-head.put.expanded {
-    border-color: var(--orange);
-    background: color-mix(in srgb, var(--orange) 10%, transparent);
+    border-color: var(--method-put, var(--orange));
+    background: color-mix(in srgb, var(--method-put, var(--orange)) 10%, transparent);
   }
   .m-endpoint > .endpoint-head.post:hover,
   .m-endpoint > .endpoint-head.post.expanded {
-    border-color: var(--green);
-    background: color-mix(in srgb, var(--green) 10%, transparent);
+    border-color: var(--method-post, var(--green));
+    background: color-mix(in srgb, var(--method-post, var(--green)) 10%, transparent);
   }
   .m-endpoint > .endpoint-head.get:hover,
   .m-endpoint > .endpoint-head.get.expanded {
-    border-color: var(--blue);
-    background: color-mix(in srgb, var(--blue) 10%, transparent);
+    border-color: var(--method-get, var(--blue));
+    background: color-mix(in srgb, var(--method-get, var(--blue)) 10%, transparent);
   }
   .m-endpoint > .endpoint-head.delete:hover,
   .m-endpoint > .endpoint-head.delete.expanded {
-    border-color: var(--red);
-    background: color-mix(in srgb, var(--red) 10%, transparent);
+    border-color: var(--method-delete, var(--red));
+    background: color-mix(in srgb, var(--method-delete, var(--red)) 10%, transparent);
   }
 
   .m-endpoint > .endpoint-head.head:hover,
@@ -84,6 +90,13 @@ export default css`
     border-color: var(--purple);
     background: color-mix(in srgb, var(--purple) 10%, transparent);
   }
+  .m-endpoint > .endpoint-head.copy:hover,
+  .m-endpoint > .endpoint-head.copy.expanded,
+  .m-endpoint > .endpoint-head.purge:hover,
+  .m-endpoint > .endpoint-head.purge.expanded {
+    border-color: var(--method-color, var(--method-default));
+    background: color-mix(in srgb, var(--method-color, var(--method-default)) 10%, transparent);
+  }
 
   .m-endpoint > .endpoint-head.deprecated:hover,
   .m-endpoint > .endpoint-head.deprecated.expanded {
@@ -96,6 +109,7 @@ export default css`
     padding: 16px 0px 0 0px;
     border-width: 0px 1px 1px 5px;
     border-style: solid;
+    border-color: var(--method-color, var(--method-default));
     border-bottom-left-radius: min(var(--radius), 1rem);
     border-bottom-right-radius: min(var(--radius), 1rem);
     box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
@@ -122,6 +136,10 @@ export default css`
   }
   .m-endpoint .endpoint-body.query {
     border-color: var(--purple);
+  }
+  .m-endpoint .endpoint-body.copy,
+  .m-endpoint .endpoint-body.purge {
+    border-color: var(--method-color, var(--method-default));
   }
 
   .m-endpoint .endpoint-body.deprecated {
@@ -188,6 +206,12 @@ export default css`
   .endpoint-head .method.query {
     border: 2px solid var(--method-query);
   }
+  .endpoint-head .method.copy {
+    border: 2px solid var(--method-copy, var(--method-default));
+  }
+  .endpoint-head .method.purge {
+    border: 2px solid var(--method-purge, var(--method-default));
+  }
 
   .head {
     --method-color: var(--method-head);
@@ -215,6 +239,12 @@ export default css`
   }
   .delete {
     --method-color: var(--method-delete);
+  }
+  .copy {
+    --method-color: var(--method-copy, var(--method-default));
+  }
+  .purge {
+    --method-color: var(--method-purge, var(--method-default));
   }
 
   .req-resp-container {
@@ -290,6 +320,10 @@ export default css`
   }
   .query .view-mode-request {
     border-color: var(--purple);
+  }
+  .copy .view-mode-request,
+  .purge .view-mode-request {
+    border-color: var(--method-color, var(--method-default));
   }
 
   @container (min-width: 860px) {
@@ -412,6 +446,12 @@ export default css`
     .query .expanded-endpoint-body .request-panel,
     .query .expanded-req-resp-container .request-panel {
       border-color: color-mix(in srgb, var(--purple) 50%, transparent);
+    }
+    .copy .expanded-endpoint-body .request-panel,
+    .copy .expanded-req-resp-container .request-panel,
+    .purge .expanded-endpoint-body .request-panel,
+    .purge .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--method-color, var(--method-default)) 50%, transparent);
     }
 
     :host([layout='row']) api-response,

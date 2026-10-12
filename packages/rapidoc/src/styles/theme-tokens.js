@@ -247,8 +247,9 @@ export default css`
     --method-head: #eab308;
     --method-options: #06b6d4;
     --method-trace: #ec4899;
-    --method-query: #6366f1;
+    --method-query: #818cf8;
     --method-default: #64748b;
+    --method-badge-fg: #000000;
 
     /* Status Helpers */
     --blue: #3b82f6;
@@ -304,16 +305,17 @@ export default css`
     --input: var(--input-background);
 
     /* HTTP Method Badges (Light Mode: High Contrast) */
-    --method-get: #3573f8ff;
+    --method-get: #2563eb;
     --method-post: #059669;
-    --method-put: #d97706;
+    --method-put: #c2410c;
     --method-delete: #dc2626;
     --method-patch: #7c3aed;
     --method-head: #b45309;
-    --method-options: #0891b2;
+    --method-options: #0e7490;
     --method-trace: #db2777;
     --method-query: #4f46e5;
     --method-default: #475569;
+    --method-badge-fg: #ffffff;
 
     /* Status Helpers */
     --blue: #2768f4ff;
@@ -368,16 +370,17 @@ export default css`
       --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
       --input: var(--input-background);
 
-      --method-get: #3573f8ff;
+      --method-get: #2563eb;
       --method-post: #059669;
-      --method-put: #d97706;
+      --method-put: #c2410c;
       --method-delete: #dc2626;
       --method-patch: #7c3aed;
       --method-head: #b45309;
-      --method-options: #0891b2;
+      --method-options: #0e7490;
       --method-trace: #db2777;
       --method-query: #4f46e5;
       --method-default: #475569;
+      --method-badge-fg: #ffffff;
 
       --blue: #2768f4ff;
       --green: #059669;

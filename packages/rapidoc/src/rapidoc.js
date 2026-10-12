@@ -441,45 +441,66 @@ export default class RapiDoc extends LitElement {
         .nav-method.as-colored-text.query {
           color: var(--nav-query-color, var(--method-query));
         }
+        .nav-method.as-colored-text.copy {
+          color: var(--nav-copy-color, var(--method-copy, var(--method-default)));
+        }
+        .nav-method.as-colored-text.purge {
+          color: var(--nav-purge-color, var(--method-purge, var(--method-default)));
+        }
 
         .nav-method.as-colored-block {
           padding: 1px 4px;
           min-width: 32px;
           text-align: center;
           border-radius: var(--radius);
-          color: #000;
+          color: var(--nav-method-badge-fg, var(--method-badge-fg, #000));
           background: var(--method-default);
+          font-weight: 700;
+        }
+        :host([color-scheme='light']) .nav-method.as-colored-block {
+          color: var(--nav-method-badge-fg, var(--method-badge-fg, #fff));
+        }
+        @media (prefers-color-scheme: light) {
+          :host([color-scheme='system']) .nav-method.as-colored-block {
+            color: var(--nav-method-badge-fg, var(--method-badge-fg, #fff));
+          }
         }
         .colored-block .nav-method.as-colored-block {
           outline: 1px solid;
         }
 
         .nav-method.as-colored-block.get {
-          background: var(--method-get);
+          background: var(--nav-get-color, var(--method-get));
         }
         .nav-method.as-colored-block.put {
-          background: var(--method-put);
+          background: var(--nav-put-color, var(--method-put));
         }
         .nav-method.as-colored-block.post {
-          background: var(--method-post);
+          background: var(--nav-post-color, var(--method-post));
         }
         .nav-method.as-colored-block.delete {
-          background: var(--method-delete);
+          background: var(--nav-delete-color, var(--method-delete));
         }
         .nav-method.as-colored-block.head {
-          background: var(--method-head);
+          background: var(--nav-head-color, var(--method-head));
         }
         .nav-method.as-colored-block.patch {
-          background: var(--method-patch);
+          background: var(--nav-patch-color, var(--method-patch));
         }
         .nav-method.as-colored-block.options {
-          background: var(--method-options);
+          background: var(--nav-options-color, var(--method-options));
         }
         .nav-method.as-colored-block.trace {
-          background: var(--method-trace);
+          background: var(--nav-trace-color, var(--method-trace));
         }
         .nav-method.as-colored-block.query {
-          background: var(--method-query);
+          background: var(--nav-query-color, var(--method-query));
+        }
+        .nav-method.as-colored-block.copy {
+          background: var(--nav-copy-color, var(--method-copy, var(--method-default)));
+        }
+        .nav-method.as-colored-block.purge {
+          background: var(--nav-purge-color, var(--method-purge, var(--method-default)));
         }
 
         @container (min-width: 768px) {

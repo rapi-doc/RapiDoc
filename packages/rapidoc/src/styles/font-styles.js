@@ -94,6 +94,12 @@ export default css`
   .method-fg.query {
     color: var(--method-query);
   }
+  .method-fg.copy {
+    color: var(--method-copy, var(--method-default));
+  }
+  .method-fg.purge {
+    color: var(--method-purge, var(--method-default));
+  }
 
   h1 {
     font-family: var(--font-regular);
