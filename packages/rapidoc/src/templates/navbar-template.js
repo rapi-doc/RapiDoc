@@ -284,19 +284,22 @@ export default function navbarTemplate() {
                         this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse'
                           ? ''
                           : html` <div class="tag-headers">
-                              ${tag.headers.map(
-                                (header) =>
-                                  html` <div
+                              ${(() => {
+                                const tagSlugger = new Slugger();
+                                return tag.headers.map((header) => {
+                                  const headerElId = tagSlugger.slug(header.text);
+                                  return html` <div
                                     class="nav-bar-h${header.depth} ${this.navActiveItemMarker}"
                                     part="section-navbar-item section-navbar-h${header.depth}"
-                                    id="link-${tag.elementId}--${slugger.slug(header.text)}"
+                                    id="link-${tag.elementId}--${headerElId}"
                                     data-action="navigate"
-                                    data-content-id="${tag.elementId}--${slugger.slug(header.text)}"
+                                    data-content-id="${tag.elementId}--${headerElId}"
                                     tabindex="0"
                                   >
                                     ${header.text}
-                                  </div>`
-                              )}
+                                  </div>`;
+                                });
+                              })()}
                             </div>`
                       }`
                     : ''
