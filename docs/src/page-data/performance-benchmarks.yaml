@@ -1,42 +1,64 @@
 benchmarks:
-  - id: petstore
-    name: Swagger Petstore
-    subtitle: Standard Baseline Spec
-    format: OpenAPI 3.0.3
-    fileSize: 24 KB
-    operations: 20
-    schemas: 6
-    focusedModeTime: '~50 ms'
-    viewModeTime: '~35 ms'
-    readModeTime: '~45 ms'
-    domNodesFocused: '~135 nodes'
+  - id: bookstore
+    name: Bookstore
+    subtitle: Sample Bookstore API (OpenAPI 3.2)
+    format: OpenAPI 3.2.0
+    fileSize: 13.8 KB
+    operations: 12
+    focusedModeTime: ~56 ms
+    viewModeTime: ~37 ms
+    readModeTime: ~31 ms
+    domNodesFocused: ~125 nodes
     scrollStability: 60 FPS
     badge: Baseline
-
-  - id: enterprise
-    name: Enterprise Cluster
+  - id: stripe
+    name: Stripe Deep Schema
     subtitle: Deep Recursive Schema Tree
-    format: OpenAPI 3.0.1
-    fileSize: 3.21 MB
-    operations: 38
-    schemas: 3,010
-    focusedModeTime: '~115 ms'
-    viewModeTime: '~115 ms'
-    readModeTime: '~9.1 s'
-    domNodesFocused: '~243 nodes'
+    format: OpenAPI 3.0.0
+    fileSize: 7.00 MB
+    operations: 644
+    focusedModeTime: ~666 ms
+    viewModeTime: ~650 ms
+    readModeTime: ~9.22 s
+    domNodesFocused: ~2,643 nodes
     scrollStability: 60 FPS
     badge: Deep Schema
-
-  - id: mega
-    name: Mega API Matrix
-    subtitle: Massive Enterprise API Portal
-    format: OpenAPI 3.0.2
-    fileSize: 4.77 MB
-    operations: 917
-    schemas: 2,511
-    focusedModeTime: '~135 ms'
-    viewModeTime: '~140 ms'
-    readModeTime: '~1.65 s'
-    domNodesFocused: '~3,813 nodes'
+  - id: github
+    name: GitHub Large
+    subtitle: Massive Enterprise API Matrix
+    format: OpenAPI 3.1.0
+    fileSize: 8.19 MB
+    operations: 1128
+    focusedModeTime: ~997 ms
+    viewModeTime: ~990 ms
+    readModeTime: ~5.95 s
+    domNodesFocused: ~4,962 nodes
     scrollStability: 60 FPS
-    badge: 900+ Endpoints
+    badge: Large Spec
+rapidocVersion: 11.0.0-beta
+lastUpdated: 2026-10-12T15:46:14.850Z
+parserBenchmarks:
+  - id: bookstore
+    name: Bookstore (Baseline)
+    fileSize: 13.5 KB
+    operations: 12
+    specLoad: 0.3 ms
+    deref: 0.5 ms
+    totalProcessSpec: 14.8 ms
+    heapDelta: 5.84 MB
+  - id: stripe
+    name: Stripe (Deep Schemas)
+    fileSize: 7.00 MB
+    operations: 644
+    specLoad: 20.7 ms
+    deref: 67.0 ms
+    totalProcessSpec: 922.7 ms
+    heapDelta: 288.00 MB
+  - id: github
+    name: GitHub (Large Spec)
+    fileSize: 8.19 MB
+    operations: 1128
+    specLoad: 71.5 ms
+    deref: 52.7 ms
+    totalProcessSpec: 1513.9 ms
+    heapDelta: 44.48 MB

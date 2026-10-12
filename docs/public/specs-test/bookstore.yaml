@@ -1,0 +1,494 @@
+openapi: 3.2.0
+info:
+  title: RapiDoc Bookstore API
+  description: >
+    Sample Bookstore API showcasing OpenAPI 3.2 features:
+    native QUERY, TRACE, additionalOperations (COPY, PURGE),
+    asynchronous Callbacks for order processing, and out-of-band Webhooks for catalog and inventory events.
+  version: 1.0.0
+servers:
+  - url: https://api.bookstore.example.com/v1
+    description: Production Server
+
+tags:
+  - name: Books
+    description: Catalog management and search operations
+  - name: Orders
+    description: Order placement and fulfillment tracking
+  - name: System
+    description: Diagnostic and gateway routing operations
+
+paths:
+  /books:
+    get:
+      tags:
+        - Books
+      summary: List all books
+      description: Returns a paginated list of books currently available in the bookstore catalog.
+      operationId: listBooks
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of books to return
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          description: Number of books to skip
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: A list of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+    post:
+      tags:
+        - Books
+      summary: Add a new book
+      description: Creates a new book entry in the bookstore catalog.
+      operationId: createBook
+      requestBody:
+        description: Book details to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewBook'
+      responses:
+        '201':
+          description: Book successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid book payload
+
+    # OpenAPI 3.2 Native QUERY Method
+    query:
+      tags:
+        - Books
+      summary: Advanced catalog search
+      description: >
+        Safe and idempotent search operation using complex filtering expressions
+        and faceted search parameters supplied in the request body.
+      operationId: queryBooks
+      requestBody:
+        description: Search criteria and facet filters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookQueryFilter'
+      responses:
+        '200':
+          description: Search results matching query criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '422':
+          description: Unprocessable query filter criteria
+
+  /books/{bookId}:
+    parameters:
+      - name: bookId
+        in: path
+        required: true
+        description: Unique identifier of the book
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Books
+      summary: Get book details by ID
+      description: Retrieves complete details for a single book.
+      operationId: getBookById
+      responses:
+        '200':
+          description: Book found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+    put:
+      tags:
+        - Books
+      summary: Update book details
+      description: Replaces metadata for an existing book in the catalog.
+      operationId: updateBook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewBook'
+      responses:
+        '200':
+          description: Book successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+    delete:
+      tags:
+        - Books
+      summary: Delete book from catalog
+      description: Permanently removes a book from the catalog.
+      operationId: deleteBook
+      responses:
+        '204':
+          description: Book successfully deleted
+        '404':
+          description: Book not found
+
+    # OpenAPI 3.2 additionalOperations Map
+    additionalOperations:
+      COPY:
+        tags:
+          - Books
+        summary: Duplicate book listing
+        description: >
+          Custom COPY method to clone an existing book's metadata
+          and generate a draft entry for a revised edition or reprint.
+        operationId: copyBook
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - targetEdition
+                  - newIsbn
+                properties:
+                  targetEdition:
+                    type: string
+                    example: 'Second Edition'
+                  newIsbn:
+                    type: string
+                    example: '978-0131103627'
+        responses:
+          '201':
+            description: Cloned book entry created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Book'
+      PURGE:
+        tags:
+          - Books
+        summary: Purge book cache from edge CDN
+        description: >
+          Custom PURGE method to immediately invalidate edge caching
+          layers and reverse proxies for this book's resource representations.
+        operationId: purgeBookCache
+        responses:
+          '200':
+            description: Cache successfully purged
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    purgedAt:
+                      type: string
+                      format: date-time
+                    edgeNodesInvalidated:
+                      type: integer
+                      example: 18
+
+  # HTTP TRACE Diagnostic Operation
+  /diagnostics:
+    trace:
+      tags:
+        - System
+      summary: Diagnostic loopback trace
+      description: >
+        Echoes the received request back to the client for debugging
+        routing proxies, load balancers, and gateway hops.
+      operationId: traceDiagnostics
+      responses:
+        '200':
+          description: Diagnostic trace bounced back
+          content:
+            message/http:
+              schema:
+                type: string
+                example: "TRACE /v1/diagnostics HTTP/1.1\r\nHost: api.bookstore.example.com\r\n"
+
+  # Orders endpoint with Callbacks
+  /orders:
+    post:
+      tags:
+        - Orders
+      summary: Place a book order
+      description: Submits a new purchase order and registers a client callback URL to receive asynchronous status updates.
+      operationId: placeOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      responses:
+        '202':
+          description: Order accepted for fulfillment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid order request
+
+      # Asynchronous Callback
+      callbacks:
+        onOrderStatusChange:
+          '{$request.body#/callbackUrl}/status':
+            post:
+              summary: Order fulfillment status change
+              description: >
+                Sent asynchronously by the bookstore fulfillment service
+                to the caller's registered callback URL whenever order state transitions.
+              operationId: notifyOrderStatus
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/OrderStatusNotification'
+              responses:
+                '200':
+                  description: Callback received and acknowledged by client
+                '500':
+                  description: Client unable to process notification
+
+# Out-of-band Webhooks
+webhooks:
+  newBookPublished:
+    post:
+      summary: New book published event
+      description: Dispatched out-of-band to subscribers whenever a new title is published in the bookstore.
+      operationId: onNewBookPublished
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: Webhook received successfully
+  inventoryAlert:
+    post:
+      summary: Low stock inventory notification
+      description: Dispatched out-of-band when warehouse stock for a title falls below the reorder threshold.
+      operationId: onInventoryAlert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bookId
+                - currentStock
+                - threshold
+              properties:
+                bookId:
+                  type: string
+                  format: uuid
+                currentStock:
+                  type: integer
+                  example: 3
+                threshold:
+                  type: integer
+                  example: 10
+                alertLevel:
+                  type: string
+                  enum: [warning, critical]
+                  example: warning
+      responses:
+        '200':
+          description: Alert acknowledged
+
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - author
+        - price
+        - isbn
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        title:
+          type: string
+          example: 'The Pragmatic Programmer'
+        author:
+          type: string
+          example: 'Andrew Hunt & David Thomas'
+        price:
+          type: number
+          format: float
+          example: 39.99
+        isbn:
+          type: string
+          example: '978-0201616224'
+        genre:
+          type: string
+          example: 'Technology'
+        inStock:
+          type: boolean
+          example: true
+
+    NewBook:
+      type: object
+      required:
+        - title
+        - author
+        - price
+        - isbn
+      properties:
+        title:
+          type: string
+          example: 'Clean Code'
+        author:
+          type: string
+          example: 'Robert C. Martin'
+        price:
+          type: number
+          format: float
+          example: 34.95
+        isbn:
+          type: string
+          example: '978-0132350884'
+        genre:
+          type: string
+          example: 'Technology'
+
+    BookQueryFilter:
+      type: object
+      description: Complex filter options for querying catalog books
+      properties:
+        titleKeywords:
+          type: array
+          items:
+            type: string
+          example: ['architect', 'systems']
+        genres:
+          type: array
+          items:
+            type: string
+          example: ['Technology', 'Science']
+        priceRange:
+          type: object
+          properties:
+            min:
+              type: number
+              example: 15.00
+            max:
+              type: number
+              example: 50.00
+        inStockOnly:
+          type: boolean
+          default: true
+        sortBy:
+          type: string
+          enum: [price_asc, price_desc, title, publication_date]
+          default: title
+
+    OrderRequest:
+      type: object
+      required:
+        - bookId
+        - quantity
+        - callbackUrl
+      properties:
+        bookId:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+        callbackUrl:
+          type: string
+          format: uri
+          example: 'https://myshop.client.com/webhooks/orders'
+
+    Order:
+      type: object
+      required:
+        - orderId
+        - bookId
+        - quantity
+        - status
+      properties:
+        orderId:
+          type: string
+          format: uuid
+          example: '987fcdeb-51a2-43f7-9876-ba0987654321'
+        bookId:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        quantity:
+          type: integer
+          example: 2
+        status:
+          type: string
+          enum: [processing, shipped, delivered, cancelled]
+          example: processing
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-10-12T10:00:00Z'
+
+    OrderStatusNotification:
+      type: object
+      required:
+        - orderId
+        - status
+        - timestamp
+      properties:
+        orderId:
+          type: string
+          format: uuid
+          example: '987fcdeb-51a2-43f7-9876-ba0987654321'
+        status:
+          type: string
+          enum: [processing, shipped, delivered, cancelled]
+          example: shipped
+        trackingNumber:
+          type: string
+          example: '1Z9999999999999999'
+        carrier:
+          type: string
+          example: 'FedEx'
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-10-12T11:30:00Z'

@@ -36,10 +36,12 @@ astro-rapidoc/
 All agents must strictly adhere to the following system boundaries:
 
 ### Node.js & Module System
+
 - **Node.js Version**: `>=22.12.0`. Do not use APIs or syntax incompatible with Node 22+.
 - **Pure ESM**: All packages, scripts, and configuration files must use ESM syntax (`import`/`export`). Never use CommonJS (`require()`, `module.exports`).
 
 ### Package Isolation & Dependencies
+
 - **Core Library Independence (`packages/rapidoc`)**:
   - `rapidoc` is published to npm as a standalone, zero-runtime-dependency bundle for end users (`dist/rapidoc-min.js`).
   - Third-party runtime dependencies (e.g., `lit`, `@scalar/openapi-parser`, `marked`, `microlighter`, `github-slugger`) are bundled directly into `dist/rapidoc-min.js` via Vite.
@@ -52,6 +54,7 @@ All agents must strictly adhere to the following system boundaries:
   - Maintain clean boundaries. `rapidoc-cli` is a Node CLI utility focusing on OpenAPI validation, local preview, and bundling.
 
 ### Build Artifact Hygiene
+
 - **Never commit generated build output**:
   - `packages/rapidoc/dist/`
   - `docs/dist/`
@@ -67,41 +70,47 @@ All agents must strictly adhere to the following system boundaries:
 All primary scripts are runnable from the repository root via npm:
 
 ### Development & Live Preview
-| Command | Workspace | Description |
-| :--- | :--- | :--- |
-| `npm run dev` | `docs` | Launches Astro documentation & showcase dev server (default: `http://localhost:4321`) with live watcher on `packages/rapidoc/src/`. |
-| `npm run stop` | `docs` | Stops the running Astro dev server or terminates background dev processes. |
-| `npm run preview` | `docs` | Previews the production build of the documentation site. |
+
+| Command           | Workspace | Description                                                                                                                         |
+| :---------------- | :-------- | :---------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`     | `docs`    | Launches Astro documentation & showcase dev server (default: `http://localhost:4321`) with live watcher on `packages/rapidoc/src/`. |
+| `npm run stop`    | `docs`    | Stops the running Astro dev server or terminates background dev processes.                                                          |
+| `npm run preview` | `docs`    | Previews the production build of the documentation site.                                                                            |
 
 ### Build Commands
-| Command | Scope | Description |
-| :--- | :--- | :--- |
-| `npm run build` | Monorepo | Sequentially builds `rapidoc` (via Vite) and `docs` (via Astro). |
-| `npm run build:rapidoc` | `packages/rapidoc` | Builds `dist/rapidoc-min.js` using Vite in library mode. |
-| `npm run build:size` | `packages/rapidoc` | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`. |
-| `npm run build:docs` | `docs` | Builds the Astro Starlight documentation site to `docs/dist/`. |
+
+| Command                 | Scope              | Description                                                                            |
+| :---------------------- | :----------------- | :------------------------------------------------------------------------------------- |
+| `npm run build`         | Monorepo           | Sequentially builds `rapidoc` (via Vite) and `docs` (via Astro).                       |
+| `npm run build:rapidoc` | `packages/rapidoc` | Builds `dist/rapidoc-min.js` using Vite in library mode.                               |
+| `npm run build:size`    | `packages/rapidoc` | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`. |
+| `npm run build:docs`    | `docs`             | Builds the Astro Starlight documentation site to `docs/dist/`.                         |
 
 ### Testing & Benchmarking
-| Command | Target | Runner / Details |
-| :--- | :--- | :--- |
-| `npm run test:unit` | Monorepo | Executes all unit tests in `tests/unit/*.test.js` using Node.js native test runner (`node:test` + `node:assert`). |
-| `npm run test:perf` | Monorepo | Runs `tests/perf/benchmark.js` to measure OpenAPI spec parsing, circular ref handling, and dereferencing times across Petstore, Enterprise, and Mega specs. |
-| `npm run test:render` | Monorepo | Runs `tests/perf/render-benchmark.js` measuring headless browser rendering performance using Puppeteer. |
+
+| Command               | Target   | Runner / Details                                                                                                                                           |
+| :-------------------- | :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test:unit`   | Monorepo | Executes all unit tests in `tests/unit/*.test.js` using Node.js native test runner (`node:test` + `node:assert`).                                          |
+| `npm run test:parser` | Monorepo | Runs `tests/perf/benchmark.js` to measure OpenAPI spec parsing, circular ref handling, and dereferencing times across Bookstore, Stripe, and GitHub specs. |
+| `npm run test:perf`   | Monorepo | Runs `tests/perf/render-benchmark.js` measuring headless browser rendering performance across Focused, View, and Read modes.                               |
 
 ### Quality & Formatting
-| Command | Scope | Description |
-| :--- | :--- | :--- |
-| `npm run lint` | `packages/rapidoc` | Runs ESLint (`eslint './src/**/*.js'`) with Lit and Prettier plugins. |
-| `npm run format` | Monorepo | Checks code formatting against `.prettierrc` for `packages/` and `docs/src/`. |
-| `npm run format-fix` | Monorepo | Automatically formats code using Prettier across `packages/` and `docs/src/`. |
-| `npm run analyze` | `packages/rapidoc` | Runs `lit-analyzer src` to validate Lit component templates, bindings, and types. |
+
+| Command              | Scope              | Description                                                                       |
+| :------------------- | :----------------- | :-------------------------------------------------------------------------------- |
+| `npm run lint`       | `packages/rapidoc` | Runs ESLint (`eslint './src/**/*.js'`) with Lit and Prettier plugins.             |
+| `npm run format`     | Monorepo           | Checks code formatting against `.prettierrc` for `packages/` and `docs/src/`.     |
+| `npm run format-fix` | Monorepo           | Automatically formats code using Prettier across `packages/` and `docs/src/`.     |
+| `npm run analyze`    | `packages/rapidoc` | Runs `lit-analyzer src` to validate Lit component templates, bindings, and types. |
 
 ---
 
 ## 4. Coding Styles & Conventions
 
 ### Prettier & ESLint Configuration
+
 The project adheres strictly to `.prettierrc` and `eslint.config.js`:
+
 - **Indentation**: 2 spaces (no tabs).
 - **Quotes**: Single quotes (`'`) for JS/TS; standard HTML/JSX attribute quotes.
 - **Semicolons**: Always required (`semi: true`).
@@ -111,12 +120,14 @@ The project adheres strictly to `.prettierrc` and `eslint.config.js`:
 - **Console / Debugger**: `no-console` and `no-debugger` are enforced as warnings in production, and automatically stripped from the final bundle by the custom Vite esbuild transform.
 
 ### Component Design & Lit Guidelines (`packages/rapidoc`)
+
 - Implement web components using **Lit 3** (`LitElement`, `html`, `css`).
 - Use **Shadow DOM** for strict style and DOM encapsulation.
 - Expose styling extension points via **CSS Shadow Parts** (`::part(...)`) and **CSS Custom Properties** (e.g. `--bg`, `--fg`, `--primary-color`).
 - Keep components responsive, accessible, and fast with large OpenAPI schemas. Avoid unnecessary DOM allocations.
 
 ### Documentation & Astro Guidelines (`docs`)
+
 - Built with **Astro 7** and **Starlight**.
 - Documentation content resides in `src/content/docs/`.
 - Dynamic and interactive demo pages reside in `src/pages/` and `src/pages/examples/`.

@@ -17,6 +17,7 @@ import path from 'path';
 import http from 'http';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright-core';
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,25 +52,25 @@ function findChromeExecutable() {
 // Specifications to benchmark with calibrated budgets
 const TEST_SPECS = [
   {
-    id: 'petstore',
-    name: 'Swagger Petstore',
-    file: 'petstore-3-0-3.yaml',
-    size: '24 KB',
-    thresholds: { focused: 120, view: 120, read: 150 },
+    id: 'bookstore',
+    name: 'Bookstore',
+    file: 'bookstore.yaml',
+    size: '13.8 KB',
+    thresholds: { focused: 100, view: 100, read: 120 },
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise Cluster (Deep Schemas)',
-    file: 'large-spec2-v3.json',
-    size: '3.21 MB',
-    thresholds: { focused: 250, view: 250, read: 9500 },
+    id: 'stripe',
+    name: 'Stripe (Deep Schemas)',
+    file: 'stripe-deep-schema.yaml',
+    size: '7.00 MB',
+    thresholds: { focused: 950, view: 950, read: 12000 },
   },
   {
-    id: 'mega',
-    name: 'Mega API Matrix (900+ Endpoints)',
-    file: 'large-spec-v3.json',
-    size: '4.77 MB',
-    thresholds: { focused: 250, view: 250, read: 2500 },
+    id: 'github',
+    name: 'GitHub (Large Spec)',
+    file: 'github-large.yaml',
+    size: '8.19 MB',
+    thresholds: { focused: 1400, view: 1400, read: 9000 },
   },
 ];
 
@@ -83,14 +84,22 @@ function createStaticServer() {
   return http.createServer((req, res) => {
     const url = req.url.split('?')[0];
 
+    if (url === '/favicon.ico') {
+      res.writeHead(204);
+      return res.end();
+    }
+
     if (url === '/rapidoc-min.js') {
       res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
       return res.end(fs.readFileSync(rapidocDist));
     }
 
-    if (url.startsWith('/specs/')) {
+    if (url.startsWith('/specs/') || url.startsWith('/specs-test/')) {
       const filename = path.basename(url);
-      const filePath = path.join(specsDir, filename);
+      let filePath = path.join(rootDir, 'docs/public/specs-test', filename);
+      if (!fs.existsSync(filePath)) {
+        filePath = path.join(rootDir, 'docs/public/specs', filename);
+      }
       if (fs.existsSync(filePath)) {
         const ext = path.extname(filePath);
         const contentType = ext === '.json' ? 'application/json' : 'text/yaml';
@@ -113,6 +122,19 @@ function createStaticServer() {
 <body>
   <div id="container"></div>
   <script>
+    function countDOMElements(root) {
+      if (!root) return 0;
+      let count = 0;
+      const elements = root.querySelectorAll('*');
+      count += elements.length;
+      for (const el of elements) {
+        if (el.shadowRoot) {
+          count += countDOMElements(el.shadowRoot);
+        }
+      }
+      return count;
+    }
+
     window.benchmarkRender = function(specUrl, renderMode) {
       return new Promise((resolve) => {
         const container = document.getElementById('container');
@@ -134,7 +156,7 @@ function createStaticServer() {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               const elapsedMs = Math.round(performance.now() - startTime);
-              const nodeCount = el.shadowRoot ? el.shadowRoot.querySelectorAll('*').length : 0;
+              const nodeCount = countDOMElements(el.shadowRoot);
               const hasError = el.resolvedSpec?.specLoadError || false;
               resolve({ elapsedMs, nodeCount, hasError });
             });
@@ -192,6 +214,7 @@ async function run() {
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
   const benchmarkRows = [];
+  const specResults = {};
   let allPassed = true;
 
   try {
@@ -204,14 +227,23 @@ async function run() {
         // Run in-browser benchmark with safety timeout
         const result = await Promise.race([
           page.evaluate(({ url, m }) => window.benchmarkRender(url, m), { url: specUrl, m: mode }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Render timeout exceeded 10s')), 10000)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Render timeout exceeded 20s')), 20000)),
         ]);
 
         const threshold = spec.thresholds[mode];
-        const isPass = result.elapsedMs <= threshold && !result.hasError;
-        if (!isPass) allPassed = false;
+        let status = '✅ PASS';
+        if (result.hasError) {
+          status = '❌ ERROR';
+          allPassed = false;
+        } else if (result.elapsedMs > threshold) {
+          status = '⚠️ SLOW';
+          allPassed = false;
+        }
 
-        console.log(`${result.elapsedMs} ms (${result.nodeCount} nodes) - ${isPass ? 'PASS' : 'SLOW'}`);
+        console.log(`${result.elapsedMs} ms (${result.nodeCount} nodes) - ${status}`);
+
+        specResults[spec.id] = specResults[spec.id] || {};
+        specResults[spec.id][mode] = { elapsedMs: result.elapsedMs, nodeCount: result.nodeCount };
 
         benchmarkRows.push({
           Specification: spec.name,
@@ -220,7 +252,7 @@ async function run() {
           'First Paint Time': `${result.elapsedMs} ms`,
           'Budget Threshold': `< ${threshold} ms`,
           'DOM Elements': `${result.nodeCount} nodes`,
-          Status: isPass ? '✅ PASS' : '⚠️ SLOW',
+          Status: status,
         });
       }
     }
@@ -232,6 +264,7 @@ async function run() {
 
     if (allPassed) {
       console.log('✨ ALL RENDERING PERFORMANCE BENCHMARKS PASSED UNDER BUDGET!\n');
+      saveRenderBenchmarkResults(specResults);
     } else {
       console.warn('⚠️ SOME SPECIFICATIONS TOOK LONGER THAN BUDGETED TIME.\n');
     }
@@ -239,6 +272,74 @@ async function run() {
     await browser.close();
     server.close();
   }
+}
+
+function formatTime(ms) {
+  if (ms >= 1000) {
+    return `~${(ms / 1000).toFixed(2).replace(/\.00$/, '')} s`;
+  }
+  return `~${ms} ms`;
+}
+
+function formatNodes(count) {
+  return `~${count.toLocaleString()} nodes`;
+}
+
+function saveRenderBenchmarkResults(specResults) {
+  const yamlPath = path.join(rootDir, 'docs/src/page-data/performance-benchmarks.yaml');
+  const rapidocPkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'packages/rapidoc/package.json'), 'utf-8'));
+  let doc = { benchmarks: [] };
+  if (fs.existsSync(yamlPath)) {
+    try {
+      doc = parseYaml(fs.readFileSync(yamlPath, 'utf-8')) || { benchmarks: [] };
+    } catch {}
+  }
+  doc.rapidocVersion = rapidocPkg.version;
+  doc.lastUpdated = new Date().toISOString();
+
+  const specMeta = {
+    bookstore: {
+      name: 'Bookstore',
+      subtitle: 'Sample Bookstore API (OpenAPI 3.2)',
+      format: 'OpenAPI 3.2.0',
+      badge: 'Baseline',
+    },
+    stripe: {
+      name: 'Stripe Deep Schema',
+      subtitle: 'Deep Recursive Schema Tree',
+      format: 'OpenAPI 3.0.0',
+      badge: 'Deep Schema',
+    },
+    github: {
+      name: 'GitHub Large',
+      subtitle: 'Massive Enterprise API Matrix',
+      format: 'OpenAPI 3.1.0',
+      badge: 'Large Spec',
+    },
+  };
+
+  doc.benchmarks = TEST_SPECS.map((spec) => {
+    const existing = (doc.benchmarks || []).find((b) => b.id === spec.id) || {};
+    const modes = specResults[spec.id] || {};
+    const meta = specMeta[spec.id] || {};
+    return {
+      id: spec.id,
+      name: meta.name || spec.name,
+      subtitle: meta.subtitle || existing.subtitle || '',
+      format: meta.format || existing.format || 'OpenAPI 3.0',
+      fileSize: spec.size,
+      operations: existing.operations ?? 0,
+      focusedModeTime: modes.focused ? formatTime(modes.focused.elapsedMs) : existing.focusedModeTime || '',
+      viewModeTime: modes.view ? formatTime(modes.view.elapsedMs) : existing.viewModeTime || '',
+      readModeTime: modes.read ? formatTime(modes.read.elapsedMs) : existing.readModeTime || '',
+      domNodesFocused: modes.focused ? formatNodes(modes.focused.nodeCount) : existing.domNodesFocused || '',
+      scrollStability: '60 FPS',
+      badge: meta.badge || existing.badge || '',
+    };
+  });
+
+  fs.writeFileSync(yamlPath, stringifyYaml(doc), 'utf-8');
+  console.log(`💾 Saved render performance benchmarks to: ${yamlPath}\n`);
 }
 
 run().catch((err) => {

@@ -142,4 +142,3 @@ test('controller-registry', async (t) => {
     assert.equal(uniqueAttrs.size, activeControls.length);
   });
 });
-

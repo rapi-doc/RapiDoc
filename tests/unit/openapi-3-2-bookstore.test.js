@@ -24,7 +24,7 @@ test('OpenAPI 3.2 bookstore spec parsing', async (t) => {
 
   await t.test('spec metadata parses cleanly without errors', () => {
     assert.equal(parsedSpec.specLoadError, false);
-    assert.equal(parsedSpec.info.title, 'Bookstore API');
+    assert.equal(parsedSpec.info.title, 'RapiDoc Bookstore API');
     assert.ok(parsedSpec.tags.length > 0, 'Should have tags');
   });
 

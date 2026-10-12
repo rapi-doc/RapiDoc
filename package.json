@@ -20,8 +20,8 @@
     "format-fix": "prettier --config .prettierrc --write './packages/**/*.{js,html,css}' './docs/src/**/*.{js,astro,html,css}'",
     "analyze": "npm run analyze --workspace=rapidoc",
     "publish:rapidoc": "npm publish --workspace=rapidoc",
-    "test:perf": "node tests/perf/benchmark.js",
-    "test:render": "node tests/perf/render-benchmark.js",
+    "test:parser": "node tests/perf/benchmark.js",
+    "test:perf": "node tests/perf/render-benchmark.js",
     "test:component": "node --test tests/component/*.test.js",
     "test:unit": "node --test tests/unit/*.test.js"
   },
