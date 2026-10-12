@@ -45,22 +45,22 @@ Here is an overview of what changed between v10 and v11:
 
 The table below maps every deprecated v10 attribute to its modern v11 replacement:
 
-| Legacy v10 Attribute             |                    Status                    | Modern v11 Replacement                                                      | Type / Mechanism           |
-| :------------------------------- | :------------------------------------------: | :-------------------------------------------------------------------------- | :------------------------- |
-| `theme="light"` / `theme="dark"` | <Badge text="Deprecated" variant="danger" /> | `color-scheme="light"` / `color-scheme="dark"` / `color-scheme="system"`    | HTML Attribute             |
-| `primary-color="#..."`           | <Badge text="Deprecated" variant="danger" /> | `theme="#..."` or `--primary: #...`                                         | Attribute or CSS Variable  |
-| `bg-color="#..."`                | <Badge text="Deprecated" variant="danger" /> | `--background: #...` or `color-scheme`                                      | CSS Variable               |
-| `text-color="#..."`              | <Badge text="Deprecated" variant="danger" /> | `--foreground: #...`                                                        | CSS Variable               |
-| `header-color="#..."`            | <Badge text="Deprecated" variant="danger" /> | `rapi-doc::part(section-header) { background: #... }` or `--header-bg`      | CSS Shadow Part / Variable |
-| `regular-font="..."`             | <Badge text="Deprecated" variant="danger" /> | `--font-sans: ...` (or `--font-regular`)                                    | CSS Variable               |
-| `mono-font="..."`                | <Badge text="Deprecated" variant="danger" /> | `--font-mono: ...`                                                          | CSS Variable               |
-| `font-size="..."`                | <Badge text="Deprecated" variant="danger" /> | `scale="sm"` / `scale="default"` / `scale="lg"`                             | HTML Attribute             |
-| `nav-bg-color="#..."`            | <Badge text="Deprecated" variant="danger" /> | `rapi-doc::part(section-navbar) { background: #... }` or `--nav-background` | CSS Shadow Part / Variable |
-| `nav-text-color="#..."`          | <Badge text="Deprecated" variant="danger" /> | `--nav-foreground: #...` or `rapi-doc::part(section-navbar)`                | CSS Variable               |
-| `nav-hover-bg-color="#..."`      | <Badge text="Deprecated" variant="danger" /> | `--nav-hover-bg: #...` or `rapi-doc::part(nav-item):hover`                  | CSS Variable / Shadow Part |
-| `nav-hover-text-color="#..."`    | <Badge text="Deprecated" variant="danger" /> | `--nav-hover-fg: #...` or `rapi-doc::part(nav-item):hover`                  | CSS Variable / Shadow Part |
-| `nav-accent-color="#..."`        | <Badge text="Deprecated" variant="danger" /> | `--nav-accent: #...` or `theme` preset                                      | CSS Variable               |
-| `nav-accent-text-color="#..."`   | <Badge text="Deprecated" variant="danger" /> | `--nav-accent-foreground: #...`                                             | CSS Variable               |
+| Legacy v10 Attribute             |                    Status                    | Modern v11 Replacement                                           | Type / Mechanism              |
+| :------------------------------- | :------------------------------------------: | :--------------------------------------------------------------- | :---------------------------- |
+| `theme="light"` / `theme="dark"` | <Badge text="Deprecated" variant="danger" /> | `color-scheme`                                                   | HTML Attribute                |
+| `primary-color`                  | <Badge text="Deprecated" variant="danger" /> | `theme` or `--primary`                                           | HTML Attribute / CSS Variable |
+| `bg-color`                       | <Badge text="Deprecated" variant="danger" /> | `--background` or `color-scheme`                                 | CSS Variable / HTML Attribute |
+| `text-color`                     | <Badge text="Deprecated" variant="danger" /> | `--foreground`                                                   | CSS Variable                  |
+| `header-color`                   | <Badge text="Deprecated" variant="danger" /> | `::part(section-header)` or `--header-bg`                        | CSS Shadow Part / Variable    |
+| `regular-font`                   | <Badge text="Deprecated" variant="danger" /> | `--font-sans` (or `--font-regular`)                              | CSS Variable                  |
+| `mono-font`                      | <Badge text="Deprecated" variant="danger" /> | `--font-mono`                                                    | CSS Variable                  |
+| `font-size`                      | <Badge text="Deprecated" variant="danger" /> | `scale`                                                          | HTML Attribute                |
+| `nav-bg-color`                   | <Badge text="Deprecated" variant="danger" /> | `::part(section-navbar)` or `--nav-background`                   | CSS Shadow Part / Variable    |
+| `nav-text-color`                 | <Badge text="Deprecated" variant="danger" /> | `--nav-foreground` or `::part(section-navbar)`                   | CSS Variable / Shadow Part    |
+| `nav-hover-bg-color`             | <Badge text="Deprecated" variant="danger" /> | `--nav-hover-bg` or `::part(nav-item):hover`                     | CSS Variable / Shadow Part    |
+| `nav-hover-text-color`           | <Badge text="Deprecated" variant="danger" /> | `--nav-hover-fg` or `::part(nav-item):hover`                     | CSS Variable / Shadow Part    |
+| `nav-accent-color`               | <Badge text="Deprecated" variant="danger" /> | `theme` or `--primary`                                           | HTML Attribute / CSS Variable |
+| `nav-accent-text-color`          | <Badge text="Deprecated" variant="danger" /> | `--nav-accent-fg` (or `--primary-foreground` in `colored-block`) | CSS Variable                  |
 
 ---
 
@@ -179,8 +179,7 @@ rapi-doc {
   --nav-foreground: #94a3b8;
   --nav-hover-bg: #1e293b;
   --nav-hover-fg: #ffffff;
-  --nav-accent: #3b82f6;
-  --nav-accent-foreground: #ffffff;
+  --nav-accent-fg: #3b82f6;
 }
 ```
   </TabItem>
@@ -204,8 +203,8 @@ padding: 16px;
   </TabItem>
 </Tabs>
 
-<Aside type="caution" title="Token Renaming: --nav-hover-fg">
-  The token `--nav-hover-fg` is the canonical CSS variable for hover text color (paired with `--nav-hover-bg`). Earlier pre-release references to `--nav-hover-text` have been completely dropped without backward compatibility.
+<Aside type="caution" title="Token Renaming: --nav-hover-fg and --nav-accent-fg">
+  The tokens `--nav-hover-fg` and `--nav-accent-fg` are the canonical CSS variables for navigation hover text and selected item text color in default `left-bar` mode. In `colored-block` mode, selected items use standard `--primary` and `--primary-foreground`. Pre-release references to `--nav-hover-text`, `--nav-accent`, and `--nav-accent-foreground` have been completely dropped without backward compatibility.
 </Aside>
 
 <Aside type="tip" title="Sidebar Item Density in v11">

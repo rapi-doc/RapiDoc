@@ -329,7 +329,7 @@ export default css`
   .nav-bar-path.left-bar.active,
   .nav-bar-section.left-bar.operations.active {
     border-inline-start: 4px solid var(--primary);
-    color: var(--primary);
+    color: var(--nav-accent-fg, var(--primary));
   }
 
   .nav-bar-h1.left-bar.active:hover,
@@ -338,7 +338,7 @@ export default css`
   .nav-bar-tag.left-bar.active:hover,
   .nav-bar-path.left-bar.active:hover,
   .nav-bar-section.left-bar.operations.active:hover {
-    color: var(--primary);
+    color: var(--nav-accent-fg, var(--primary));
   }
 
   .nav-bar-h1.colored-block.active,

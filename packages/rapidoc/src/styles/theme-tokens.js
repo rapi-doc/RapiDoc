@@ -148,6 +148,7 @@ export default css`
     --focus-shadow: 0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);
     --selection-bg: color-mix(in srgb, var(--primary) 25%, transparent);
     --selection-fg: var(--foreground);
+    --nav-accent-fg: var(--primary);
   }
 
   /* =========================================================================
@@ -509,6 +510,7 @@ export default css`
   :host([theme='slate']) {
     --primary: #64748b;
     --primary-foreground: #ffffff;
+    --nav-accent-fg: #ffffff;
     --ring: #64748b;
   }
   :host([theme='slate'][color-scheme='light']) {

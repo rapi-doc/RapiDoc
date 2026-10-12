@@ -333,3 +333,43 @@ aside.starlight-aside--danger {
   border-color: var(--sl-color-accent) !important;
   transform: translateY(-2px);
 }
+
+/* --------------------------------------------------------------------------
+   10. Tables & Badges
+   -------------------------------------------------------------------------- */
+.sl-markdown-content table {
+  width: 100%;
+}
+
+.sl-markdown-content table th,
+.sl-markdown-content table td {
+  vertical-align: middle;
+}
+
+/* Ensure badges stay on a single line and never wrap */
+.sl-badge,
+.badge {
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  hyphens: none !important;
+  display: inline-flex !important;
+  align-items: center;
+}
+
+/* Ensure Status column is sufficiently wide and never breaks */
+.sl-markdown-content table th:nth-child(2),
+.sl-markdown-content table td:nth-child(2),
+.sl-markdown-content table th:nth-child(2) *,
+.sl-markdown-content table td:nth-child(2) * {
+  white-space: nowrap !important;
+  word-break: normal !important;
+  hyphens: none !important;
+}
+
+.sl-markdown-content table th:nth-child(2),
+.sl-markdown-content table td:nth-child(2) {
+  width: 140px !important;
+  min-width: 140px !important;
+  text-align: center;
+}
