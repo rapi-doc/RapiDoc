@@ -74,6 +74,16 @@ export default css`
     border-color: var(--yellow);
     background: color-mix(in srgb, var(--yellow) 10%, transparent);
   }
+  .m-endpoint > .endpoint-head.trace:hover,
+  .m-endpoint > .endpoint-head.trace.expanded {
+    border-color: var(--pink);
+    background: color-mix(in srgb, var(--pink) 10%, transparent);
+  }
+  .m-endpoint > .endpoint-head.query:hover,
+  .m-endpoint > .endpoint-head.query.expanded {
+    border-color: var(--purple);
+    background: color-mix(in srgb, var(--purple) 10%, transparent);
+  }
 
   .m-endpoint > .endpoint-head.deprecated:hover,
   .m-endpoint > .endpoint-head.deprecated.expanded {
@@ -106,6 +116,12 @@ export default css`
   .m-endpoint .endpoint-body.patch,
   .m-endpoint .endpoint-body.options {
     border-color: var(--yellow);
+  }
+  .m-endpoint .endpoint-body.trace {
+    border-color: var(--pink);
+  }
+  .m-endpoint .endpoint-body.query {
+    border-color: var(--purple);
   }
 
   .m-endpoint .endpoint-body.deprecated {
@@ -140,6 +156,7 @@ export default css`
     font-weight: bold;
     text-transform: uppercase;
     margin-inline-end: 5px;
+    border: 2px solid var(--method-color, var(--method-default));
   }
   .endpoint-head .method.delete {
     border: 2px solid var(--method-delete);
@@ -165,6 +182,12 @@ export default css`
   .endpoint-head .method.options {
     border: 2px solid var(--method-options);
   }
+  .endpoint-head .method.trace {
+    border: 2px solid var(--method-trace);
+  }
+  .endpoint-head .method.query {
+    border: 2px solid var(--method-query);
+  }
 
   .head {
     --method-color: var(--method-head);
@@ -174,6 +197,12 @@ export default css`
   }
   .options {
     --method-color: var(--method-options);
+  }
+  .trace {
+    --method-color: var(--method-trace);
+  }
+  .query {
+    --method-color: var(--method-query);
   }
   .put {
     --method-color: var(--method-put);
@@ -255,6 +284,12 @@ export default css`
   }
   .delete .view-mode-request {
     border-color: var(--red);
+  }
+  .trace .view-mode-request {
+    border-color: var(--pink);
+  }
+  .query .view-mode-request {
+    border-color: var(--purple);
   }
 
   @container (min-width: 860px) {
@@ -369,6 +404,14 @@ export default css`
     .delete .expanded-endpoint-body .request-panel,
     .delete .expanded-req-resp-container .request-panel {
       border-color: color-mix(in srgb, var(--red) 50%, transparent);
+    }
+    .trace .expanded-endpoint-body .request-panel,
+    .trace .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--pink) 50%, transparent);
+    }
+    .query .expanded-endpoint-body .request-panel,
+    .query .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--purple) 50%, transparent);
     }
 
     :host([layout='row']) api-response,

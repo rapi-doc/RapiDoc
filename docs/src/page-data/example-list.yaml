@@ -231,6 +231,12 @@ examples:
       description: OpenAPI 3.1 top-level webhook definitions for server-initiated asynchronous events.
       category: OpenAPI 3.1 & Schemas
 
+  - OpenAPI 3.2 Bookstore:
+      img: /assets/images/webhook.png
+      href: /examples/bookstore
+      description: Showcase OpenAPI 3.2 capabilities with native QUERY, TRACE, additionalOperations (COPY, PURGE), webhooks, and callbacks.
+      category: OpenAPI 3.1 & Schemas
+
   - Multiple DataTypes:
       href: /examples/multi-datatypes
       description: Utilize OpenAPI 3.1 multi-type declarations conforming to the latest JSON Schema specifications.

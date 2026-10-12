@@ -625,14 +625,14 @@ export default class ApiRequest extends LitElement {
       credentials: tempRequest.credentials,
       body: tempRequest.body,
     };
-    const fetchRequest = new Request(tempRequest.url, updatedFetchOptions);
-
+    let fetchRequest;
     let fetchResponse;
     let responseClone;
     try {
       this.loading = true;
       this.responseText = '⌛';
       this.responseMessage = '';
+      fetchRequest = new Request(tempRequest.url, updatedFetchOptions);
       const startTime = performance.now();
       fetchResponse = await fetch(fetchRequest, { signal });
       const endTime = performance.now();
@@ -691,7 +691,11 @@ export default class ApiRequest extends LitElement {
             },
           })
         );
-        this.responseMessage = `${err.message} (CORS or Network Issue)`;
+        if (tempRequest.method?.toUpperCase() === 'TRACE') {
+          this.responseMessage = `${err.message} (Browser security restricts TRACE requests in fetch. Use the cURL snippet below.)`;
+        } else {
+          this.responseMessage = `${err.message} (CORS or Network Issue)`;
+        }
       }
     } finally {
       this.loading = false;

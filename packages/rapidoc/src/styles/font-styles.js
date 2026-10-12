@@ -64,6 +64,9 @@ export default css`
     max-height: var(--resp-area-height, 400px);
     color: var(--muted-foreground);
   }
+  .method-fg {
+    color: var(--method-default);
+  }
   .method-fg.put {
     color: var(--method-put);
   }
@@ -84,6 +87,12 @@ export default css`
   }
   .method-fg.options {
     color: var(--method-options);
+  }
+  .method-fg.trace {
+    color: var(--method-trace);
+  }
+  .method-fg.query {
+    color: var(--method-query);
   }
 
   h1 {

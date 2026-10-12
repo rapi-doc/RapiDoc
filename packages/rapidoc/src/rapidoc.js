@@ -411,6 +411,9 @@ export default class RapiDoc extends LitElement {
           display: none;
         }
 
+        .nav-method.as-colored-text {
+          color: var(--method-default);
+        }
         .nav-method.as-colored-text.get {
           color: var(--nav-get-color, var(--method-get));
         }
@@ -432,6 +435,12 @@ export default class RapiDoc extends LitElement {
         .nav-method.as-colored-text.options {
           color: var(--nav-options-color, var(--method-options));
         }
+        .nav-method.as-colored-text.trace {
+          color: var(--nav-trace-color, var(--method-trace));
+        }
+        .nav-method.as-colored-text.query {
+          color: var(--nav-query-color, var(--method-query));
+        }
 
         .nav-method.as-colored-block {
           padding: 1px 4px;
@@ -439,6 +448,7 @@ export default class RapiDoc extends LitElement {
           text-align: center;
           border-radius: var(--radius);
           color: #000;
+          background: var(--method-default);
         }
         .colored-block .nav-method.as-colored-block {
           outline: 1px solid;
@@ -464,6 +474,12 @@ export default class RapiDoc extends LitElement {
         }
         .nav-method.as-colored-block.options {
           background: var(--method-options);
+        }
+        .nav-method.as-colored-block.trace {
+          background: var(--method-trace);
+        }
+        .nav-method.as-colored-block.query {
+          background: var(--method-query);
         }
 
         @container (min-width: 768px) {

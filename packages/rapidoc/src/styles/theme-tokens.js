@@ -246,6 +246,9 @@ export default css`
     --method-patch: #8b5cf6;
     --method-head: #eab308;
     --method-options: #06b6d4;
+    --method-trace: #ec4899;
+    --method-query: #6366f1;
+    --method-default: #64748b;
 
     /* Status Helpers */
     --blue: #3b82f6;
@@ -308,6 +311,9 @@ export default css`
     --method-patch: #7c3aed;
     --method-head: #b45309;
     --method-options: #0891b2;
+    --method-trace: #db2777;
+    --method-query: #4f46e5;
+    --method-default: #475569;
 
     /* Status Helpers */
     --blue: #2768f4ff;
@@ -369,6 +375,9 @@ export default css`
       --method-patch: #7c3aed;
       --method-head: #b45309;
       --method-options: #0891b2;
+      --method-trace: #db2777;
+      --method-query: #4f46e5;
+      --method-default: #475569;
 
       --blue: #2768f4ff;
       --green: #059669;
