@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Mock API Service
+  title: Request-Response API
   version: "1.0"
-  description: APIs Spec for an API mocking servce
+  description: Demo REST APIs provided by `https://reqres.in/api/` with pagination and support for response delay
 servers:
   - url: https://reqres.in/api/
 paths:

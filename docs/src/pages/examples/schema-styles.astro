@@ -6,8 +6,11 @@ const specUrl = getSpecUrl(Astro.url);
 ---
 
 <ExampleLayout
+  title="Example | Schema Styles"
+  description="Demonstrates Schema rendering in table and tree Style by RapiDoc"
   autoRenderRapiDoc={true}
-  controls={['schema-style', 'default-schema-tab', 'schema-expand-level', 'font-size', 'theme', 'schema-description-expanded']}
+  controller="pretty"
+  controls={['schema-style', 'default-schema-tab', 'schema-expand-level', 'font-size', 'schema-description-expanded']}
   rapidocProps={{
     'spec-url': specUrl,
     'show-info': 'false',

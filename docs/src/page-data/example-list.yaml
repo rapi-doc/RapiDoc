@@ -49,18 +49,6 @@ examples:
       description: Call and test live API endpoints directly within the documentation, with support for negative and edge-case testing.
       category: Console & Interactive
 
-  - Fonts:
-      img: ./assets/images/font.png
-      href: /examples/font
-      description: Easily customize typography with Google Fonts, custom system fonts, and granular font size scales.
-      category: Theming & Branding
-
-  - Logo:
-      img: ./assets/images/logo.png
-      href: /examples/logo
-      description: Brand your documentation by embedding custom logos or vector SVG graphics in the header.
-      category: Theming & Branding
-
   - Advance Styling:
       img: /assets/images/style.png
       href: /guides/theme

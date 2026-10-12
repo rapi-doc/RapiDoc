@@ -1,15 +1,15 @@
 ---
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
-import { getSpecUrl } from '../../utils/getSpecUrl';
-
-const specUrl = getSpecUrl(Astro.url);
 ---
 
 <ExampleLayout
+  title="Example | Navigation Styles"
+  description="Demonstrates various way to style the Navigation Menu in RapiDoc"
   autoRenderRapiDoc={true}
-  controls={['use-path-in-nav-bar', 'show-method-in-nav-bar', 'nav-active-item-marker', 'nav-item-spacing', 'theme']}
+  controller="pretty"
+  specUrl="/specs/bookstore.yaml"
+  controls={['use-path-in-nav-bar', 'show-method-in-nav-bar', 'nav-active-item-marker', 'nav-item-spacing']}
   rapidocProps={{
-    'spec-url': specUrl,
     'show-info': 'false',
     'show-header': 'false',
     'allow-authentication': 'false',

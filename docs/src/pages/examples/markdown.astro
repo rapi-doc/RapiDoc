@@ -6,11 +6,12 @@ const specUrl = getSpecUrl(Astro.url);
 ---
 
 <ExampleLayout
+  title="Example | Markdown"
+  description="Demonstrate Markdown Rendering in RapiDoc"
   autoRenderRapiDoc={true}
-  controls={['font-size', 'theme']}
+  controls={['font-size', 'color-scheme']}
   rapidocProps={{
     'spec-url': specUrl,
-    theme: 'dark',
     'show-header': 'false',
     'allow-server-selection': 'false',
     'allow-authentication': 'false',

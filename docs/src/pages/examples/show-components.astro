@@ -6,8 +6,11 @@ const specUrl = getSpecUrl(Astro.url);
 ---
 
 <ExampleLayout
+  title="Example | Show Components"
+  description="Demonstrates Show Components feature in RapiDoc which gives insights to internal schema definition"
   autoRenderRapiDoc={true}
   controls={['show-components']}
+  tuckedRight={false}
   rapidocProps={{
     'spec-url': specUrl,
     'show-info': 'false',
