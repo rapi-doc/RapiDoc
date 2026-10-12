@@ -1,4 +1,5 @@
 import { dereference, load, upgrade } from '@scalar/openapi-parser';
+import { parse as parseYaml } from 'yaml';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from './common-utils.js';
 
@@ -49,7 +50,7 @@ function createBrowserFetchPlugin(baseUrl) {
       const parentUrl = parentPath && (parentPath.startsWith('http://') || parentPath.startsWith('https://')) ? new URL(parentPath) : base;
       return new URL(reference, parentUrl).href;
     },
-    // Fetches the target URL via native fetch and returns the raw specification text
+    // Fetches the target URL via native fetch and returns the parsed spec or raw text
     async get(value) {
       const targetUrl = value.startsWith('http://') || value.startsWith('https://') ? value : new URL(value, base).href;
       const resp = await fetch(targetUrl);
@@ -61,7 +62,16 @@ function createBrowserFetchPlugin(baseUrl) {
         error.url = targetUrl;
         throw error;
       }
-      return await resp.text();
+      const text = await resp.text();
+      try {
+        return JSON.parse(text);
+      } catch {
+        try {
+          return parseYaml(text, { maxAliasCount: -1, merge: true });
+        } catch {
+          return text;
+        }
+      }
     },
   };
 }
@@ -142,8 +152,21 @@ export default async function ProcessSpec(
   try {
     this?.requestUpdate?.(); // important to show the initial loader
 
+    let inputSpec = specUrl;
+    if (typeof specUrl === 'string' && !isUrlLike(specUrl)) {
+      try {
+        inputSpec = JSON.parse(specUrl);
+      } catch {
+        try {
+          inputSpec = parseYaml(specUrl, { maxAliasCount: -1, merge: true });
+        } catch {
+          inputSpec = specUrl;
+        }
+      }
+    }
+
     const fetchPlugin = createBrowserFetchPlugin(typeof specUrl === 'string' && isUrlLike(specUrl) ? specUrl : undefined);
-    const loaded = await load(specUrl, { plugins: [fetchPlugin] });
+    const loaded = await load(inputSpec, { plugins: [fetchPlugin] });
 
     if (loaded.errors && loaded.errors.length > 0 && !loaded.specification) {
       const firstErr = loaded.errors[0];
