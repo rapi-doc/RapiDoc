@@ -5,7 +5,7 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 const specUrl = getSpecUrl(Astro.url);
 ---
 
-<TestCaseLayout preset="schema" autoRenderRapiDoc={false}>
+<TestCaseLayout preset={['schema']} autoRenderRapiDoc={false}>
   <rapi-doc 
     id = "thedoc"
     spec-url = "/specs-test/read-n-write-only-fields-display-in-request-n-response.yaml"

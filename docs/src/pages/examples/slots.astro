@@ -5,7 +5,7 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 const specUrl = getSpecUrl(Astro.url);
 ---
 
-<ExampleLayout>
+<ExampleLayout preset={['slots']}>
   <rapi-doc 
     id = "thedoc"
     spec-url = {specUrl}

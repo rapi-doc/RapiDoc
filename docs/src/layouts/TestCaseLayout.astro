@@ -1,12 +1,13 @@
 ---
 import ExampleLayout from './ExampleLayout.astro';
+import type { ControllerPreset } from '../components/controller-registry';
 
 interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
   specUrl?: string;
-  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none' | 'auto';
+  preset?: ControllerPreset[] | ControllerPreset;
   controls?: string[];
   rapidocProps?: Record<string, any>;
   autoRenderRapiDoc?: boolean;
@@ -24,7 +25,7 @@ const {
   description,
   noindex,
   specUrl,
-  preset = 'auto',
+  preset = ['auto'],
   controls,
   rapidocProps = {},
   autoRenderRapiDoc = true,

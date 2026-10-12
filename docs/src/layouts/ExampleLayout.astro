@@ -6,13 +6,14 @@ import PrettyRapidocTuner from '../components/PrettyRapidocTuner.astro';
 import { getSpecUrl } from '../utils/getSpecUrl';
 import { exampleListData } from '../page-data/example-list';
 import { testListData } from '../page-data/tests';
+import type { ControllerPreset } from '../components/controller-registry';
 
 interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
   specUrl?: string;
-  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none' | 'auto';
+  preset?: ControllerPreset[] | ControllerPreset;
   controls?: string[];
   rapidocProps?: Record<string, any>;
   autoRenderRapiDoc?: boolean;
@@ -105,19 +106,27 @@ const finalNoindex = propNoindex !== undefined ? propNoindex : isTest;
 const finalSpecUrl = propSpecUrl || getSpecUrl(Astro.url);
 
 // Determine controller preset and active controls
+const hasPreset = Boolean(
+  propPreset &&
+  (Array.isArray(propPreset)
+    ? propPreset.length > 0 && !propPreset.includes('none')
+    : propPreset !== 'none')
+);
+const hasControls = Boolean(propControls && propControls.length > 0);
 const shouldShowController =
   showController !== false &&
-  (showController === true || Boolean(propPreset && propPreset !== 'none') || Boolean(propControls && propControls.length > 0));
+  (showController === true || hasPreset || hasControls);
 
-let effectivePreset = propPreset;
+let effectivePreset: ControllerPreset[] | ControllerPreset | undefined = propPreset;
 let effectiveControls = propControls;
 
-if (propPreset === 'auto' || (!propPreset && shouldShowController)) {
+const isAuto = Array.isArray(propPreset) ? propPreset.includes('auto') : propPreset === 'auto';
+if (isAuto || (!propPreset && shouldShowController)) {
   if (foundValidates.length > 0 && !propControls) {
     effectiveControls = foundValidates;
     effectivePreset = undefined;
   } else if (!propControls) {
-    effectivePreset = 'minimal';
+    effectivePreset = ['minimal'];
   }
 }
 ---

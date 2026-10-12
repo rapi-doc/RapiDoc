@@ -7,7 +7,7 @@ const specUrl = getSpecUrl(Astro.url);
 
 <ExampleLayout
   autoRenderRapiDoc={true}
-  preset="schema"
+  preset={['schema']}
   rapidocProps={{
     'spec-url': specUrl,
     'show-info': 'false',

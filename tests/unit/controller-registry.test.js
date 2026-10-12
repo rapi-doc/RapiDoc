@@ -5,6 +5,8 @@ import {
   CATEGORY_TITLES,
   PRESETS,
   resolveActiveControls,
+  resolveControlKeys,
+  resolveActiveSlots,
   groupControlsByCategory,
 } from '../../docs/src/components/controller-registry.ts';
 
@@ -87,4 +89,57 @@ test('controller-registry', async (t) => {
       }
     }
   });
+
+  await t.test('slots preset includes slot controls and color preset excludes slot controls', () => {
+    // PRESETS.slots and PRESETS.slot include slot controls
+    assert.deepEqual(PRESETS.slots, ['slot-nav-logo', 'slot-fixed-header', 'slot-default']);
+    assert.deepEqual(PRESETS.slot, ['slot-nav-logo', 'slot-fixed-header', 'slot-default']);
+
+    // Color presets do NOT contain slot controls
+    for (const ctrl of PRESETS.colors) {
+      assert.equal(CONTROL_REGISTRY[ctrl].category, 'theming');
+      assert.ok(!ctrl.startsWith('slot-'));
+    }
+    for (const ctrl of PRESETS.color) {
+      assert.equal(CONTROL_REGISTRY[ctrl].category, 'theming');
+      assert.ok(!ctrl.startsWith('slot-'));
+    }
+
+    // resolveActiveSlots on color preset is empty
+    assert.deepEqual(resolveActiveSlots(undefined, 'color'), []);
+    assert.deepEqual(resolveActiveSlots(undefined, ['color']), []);
+    assert.deepEqual(resolveActiveSlots(undefined, 'colors'), []);
+    assert.deepEqual(resolveActiveSlots(undefined, ['colors']), []);
+
+    // resolveActiveSlots on slot preset returns all 3 slots
+    assert.deepEqual(resolveActiveSlots(undefined, 'slot'), ['nav-logo', 'fixed-header', 'default']);
+    assert.deepEqual(resolveActiveSlots(undefined, ['slot']), ['nav-logo', 'fixed-header', 'default']);
+    assert.deepEqual(resolveActiveSlots(undefined, 'slots'), ['nav-logo', 'fixed-header', 'default']);
+    assert.deepEqual(resolveActiveSlots(undefined, ['slots']), ['nav-logo', 'fixed-header', 'default']);
+  });
+
+  await t.test('array presets calculate unique set of controls', () => {
+    // Array of presets ['color', 'slot']
+    const colorAndSlot = resolveControlKeys(undefined, ['color', 'slot']);
+    assert.ok(colorAndSlot.includes('theme'));
+    assert.ok(colorAndSlot.includes('slot-nav-logo'));
+    assert.ok(colorAndSlot.includes('slot-fixed-header'));
+    assert.ok(colorAndSlot.includes('slot-default'));
+    assert.equal(resolveActiveSlots(undefined, ['color', 'slot']).length, 3);
+
+    // Array of overlapping presets calculate unique set
+    const minimalAndSchema = resolveControlKeys(undefined, ['minimal', 'schema']);
+    const schemaStyleCount = minimalAndSchema.filter((k) => k === 'schema-style').length;
+    assert.equal(schemaStyleCount, 1, 'schema-style should only appear once');
+
+    // Multi-preset controls resolution
+    const activeControls = resolveActiveControls(undefined, ['color', 'slot']);
+    assert.ok(activeControls.some((c) => c.attr === 'theme'));
+    assert.ok(activeControls.some((c) => c.attr === 'slot-nav-logo'));
+
+    // Unique count matches set size
+    const uniqueAttrs = new Set(activeControls.map((c) => c.attr));
+    assert.equal(uniqueAttrs.size, activeControls.length);
+  });
 });
+

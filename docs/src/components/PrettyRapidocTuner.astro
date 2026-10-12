@@ -4,6 +4,8 @@ import {
   CATEGORY_TITLES,
   PRESETS,
   resolveActiveControls,
+  resolveActiveSlots,
+  normalizePresets,
   groupControlsByCategory,
   type ControlOption,
   type ControlCategory,
@@ -17,7 +19,7 @@ export type { ControlOption, ControlCategory, SegmentedControl, ToggleControl, C
 
 interface Props {
   targetId?: string;
-  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none';
+  preset?: ControllerPreset[] | ControllerPreset;
   controls?: string[];
   initialAttrs?: Record<string, string | boolean | number>;
   specUrl?: string;
@@ -32,14 +34,14 @@ interface Props {
 
 const {
   targetId = 'thedoc',
-  preset = 'minimal',
+  preset = ['minimal'],
   controls: propControls,
   initialAttrs = {},
   specUrl,
   title = 'Options',
   subtitle = 'RapiDoc properties',
-  showMethods = (preset === 'all' || preset === 'demo'),
-  showSlots = (preset !== 'none'),
+  showMethods,
+  showSlots,
   defaultOpen = false,
   size = 'medium',
   showEdgeTab = true,
@@ -55,9 +57,21 @@ if (size != null) {
   else if (s) baseFontSize = s;
 }
 
-// Determine active controls
+// Determine active controls and slots
+const normalizedPresetList = normalizePresets(preset);
 const activeControls = resolveActiveControls(propControls, preset);
 const groupedControls = groupControlsByCategory(activeControls);
+const activeSlots = resolveActiveSlots(propControls, preset);
+
+const effectiveShowMethods = showMethods !== undefined
+  ? showMethods
+  : (normalizedPresetList.includes('all') || normalizedPresetList.includes('demo'));
+
+const effectiveShowSlots = showSlots !== undefined
+  ? showSlots
+  : (activeSlots.length > 0);
+
+const slotsToRender = activeSlots.length > 0 ? activeSlots : ['nav-logo', 'fixed-header', 'default'];
 
 const initialAttrsJson = JSON.stringify(initialAttrs);
 const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 7)}`;
@@ -359,7 +373,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
         })}
 
         {/* Methods Section */}
-        {showMethods && (
+        {effectiveShowMethods && (
           <div class="rd-pretty-category-section rd-pretty-methods-section" data-category="methods">
             <div class="rd-pretty-category-divider">
               <span class="rd-pretty-category-tag">Methods & Actions</span>
@@ -420,96 +434,102 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           </div>
         )}
 
-        {showSlots && (
+        {effectiveShowSlots && (
           <div class="rd-pretty-category-section rd-pretty-slots-section" data-category="slots">
             <div class="rd-pretty-category-divider">
               <span class="rd-pretty-category-tag" data-human="Slots" data-raw="Slots">Slots</span>
             </div>
 
             <div class="rd-pretty-settings-list">
-              <!-- Nav Logo Slot -->
-              <div class="rd-option-card rd-option-card--boolean" data-control-slot="nav-logo">
-                <div class="rd-option-info">
-                  <div class="rd-option-label-row">
-                    <div
-                      class="rd-option-label"
-                      data-human="Nav Logo Slot"
-                      data-raw='slot="nav-logo"'
-                      title='Slot: nav-logo'
-                    >
-                      Nav Logo Slot
+              {/* Nav Logo Slot */}
+              {slotsToRender.includes('nav-logo') && (
+                <div class="rd-option-card rd-option-card--boolean" data-control-slot="nav-logo">
+                  <div class="rd-option-info">
+                    <div class="rd-option-label-row">
+                      <div
+                        class="rd-option-label"
+                        data-human="Nav Logo Slot"
+                        data-raw='slot="nav-logo"'
+                        title='Slot: nav-logo'
+                      >
+                        Nav Logo Slot
+                      </div>
                     </div>
+                    <div class="rd-option-tip">Inject custom logo & text HTML into sidebar navigation</div>
                   </div>
-                  <div class="rd-option-tip">Inject custom logo & text HTML into sidebar navigation</div>
-                </div>
 
-                <div class="rd-control-wrapper">
-                  <label class="rd-switch" title='Toggle slot="nav-logo" HTML'>
-                    <input
-                      type="checkbox"
-                      class="rd-pretty-slot-input"
-                      data-slot="nav-logo"
-                    />
-                    <span class="rd-slider"></span>
-                  </label>
+                  <div class="rd-control-wrapper">
+                    <label class="rd-switch" title='Toggle slot="nav-logo" HTML'>
+                      <input
+                        type="checkbox"
+                        class="rd-pretty-slot-input"
+                        data-slot="nav-logo"
+                      />
+                      <span class="rd-slider"></span>
+                    </label>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <!-- Fixed Header Slot -->
-              <div class="rd-option-card rd-option-card--boolean" data-control-slot="fixed-header">
-                <div class="rd-option-info">
-                  <div class="rd-option-label-row">
-                    <div
-                      class="rd-option-label"
-                      data-human="Fixed Header Slot"
-                      data-raw='slot="fixed-header"'
-                      title='Slot: fixed-header'
-                    >
-                      Fixed Header Slot
+              {/* Fixed Header Slot */}
+              {slotsToRender.includes('fixed-header') && (
+                <div class="rd-option-card rd-option-card--boolean" data-control-slot="fixed-header">
+                  <div class="rd-option-info">
+                    <div class="rd-option-label-row">
+                      <div
+                        class="rd-option-label"
+                        data-human="Fixed Header Slot"
+                        data-raw='slot="fixed-header"'
+                        title='Slot: fixed-header'
+                      >
+                        Fixed Header Slot
+                      </div>
                     </div>
+                    <div class="rd-option-tip">Inject custom sticky announcement or banner HTML above content</div>
                   </div>
-                  <div class="rd-option-tip">Inject custom sticky announcement or banner HTML above content</div>
-                </div>
 
-                <div class="rd-control-wrapper">
-                  <label class="rd-switch" title='Toggle slot="fixed-header" HTML'>
-                    <input
-                      type="checkbox"
-                      class="rd-pretty-slot-input"
-                      data-slot="fixed-header"
-                    />
-                    <span class="rd-slider"></span>
-                  </label>
+                  <div class="rd-control-wrapper">
+                    <label class="rd-switch" title='Toggle slot="fixed-header" HTML'>
+                      <input
+                        type="checkbox"
+                        class="rd-pretty-slot-input"
+                        data-slot="fixed-header"
+                      />
+                      <span class="rd-slider"></span>
+                    </label>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <!-- Default Slot -->
-              <div class="rd-option-card rd-option-card--boolean" data-control-slot="default">
-                <div class="rd-option-info">
-                  <div class="rd-option-label-row">
-                    <div
-                      class="rd-option-label"
-                      data-human="Default Slot"
-                      data-raw='slot="(default)"'
-                      title='Slot: default'
-                    >
-                      Default Slot
+              {/* Default Slot */}
+              {slotsToRender.includes('default') && (
+                <div class="rd-option-card rd-option-card--boolean" data-control-slot="default">
+                  <div class="rd-option-info">
+                    <div class="rd-option-label-row">
+                      <div
+                        class="rd-option-label"
+                        data-human="Default Slot"
+                        data-raw='slot="(default)"'
+                        title='Slot: default'
+                      >
+                        Default Slot
+                      </div>
                     </div>
+                    <div class="rd-option-tip">Inject custom top-level announcement HTML into main content body</div>
                   </div>
-                  <div class="rd-option-tip">Inject custom top-level announcement HTML into main content body</div>
-                </div>
 
-                <div class="rd-control-wrapper">
-                  <label class="rd-switch" title='Toggle default slot HTML'>
-                    <input
-                      type="checkbox"
-                      class="rd-pretty-slot-input"
-                      data-slot="default"
-                    />
-                    <span class="rd-slider"></span>
-                  </label>
+                  <div class="rd-control-wrapper">
+                    <label class="rd-switch" title='Toggle default slot HTML'>
+                      <input
+                        type="checkbox"
+                        class="rd-pretty-slot-input"
+                        data-slot="default"
+                      />
+                      <span class="rd-slider"></span>
+                    </label>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}

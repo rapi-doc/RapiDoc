@@ -5,7 +5,7 @@ export interface ControlOption {
   isDefault?: boolean;
 }
 
-export type ControlCategory = 'appearance' | 'theming' | 'navigation' | 'schema' | 'sections';
+export type ControlCategory = 'appearance' | 'theming' | 'navigation' | 'schema' | 'sections' | 'slots';
 
 export interface SegmentedControl {
   type: 'segmented';
@@ -29,7 +29,19 @@ export interface ToggleControl {
 
 export type ControlDef = SegmentedControl | ToggleControl;
 
-export type ControllerPreset = 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none' | 'auto';
+export type ControllerPreset =
+  | 'all'
+  | 'minimal'
+  | 'schema'
+  | 'nav'
+  | 'sections'
+  | 'colors'
+  | 'color'
+  | 'slots'
+  | 'slot'
+  | 'demo'
+  | 'none'
+  | 'auto';
 
 export const CONTROL_REGISTRY: Record<string, ControlDef> = {
   // Appearance & Layout
@@ -444,6 +456,29 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     tip: 'Route requests through local or hosted mock server',
     category: 'sections',
   },
+
+  // Slots
+  'slot-nav-logo': {
+    type: 'toggle',
+    attr: 'slot-nav-logo',
+    label: 'Nav Logo Slot',
+    tip: 'Inject custom logo & text HTML into sidebar navigation',
+    category: 'slots',
+  },
+  'slot-fixed-header': {
+    type: 'toggle',
+    attr: 'slot-fixed-header',
+    label: 'Fixed Header Slot',
+    tip: 'Inject custom sticky top banner HTML above documentation',
+    category: 'slots',
+  },
+  'slot-default': {
+    type: 'toggle',
+    attr: 'slot-default',
+    label: 'Default Slot',
+    tip: 'Inject custom content and disclaimer cards into main body',
+    category: 'slots',
+  },
 };
 
 export const CATEGORY_TITLES: Record<ControlCategory, string> = {
@@ -452,6 +487,13 @@ export const CATEGORY_TITLES: Record<ControlCategory, string> = {
   navigation: 'Sidebar & Navigation',
   schema: 'Schema',
   sections: 'Interactive Sections',
+  slots: 'Slots',
+};
+
+export const PRESET_ALIASES: Record<string, string> = {
+  color: 'colors',
+  slot: 'slots',
+  navigation: 'nav',
 };
 
 export const PRESETS: Record<string, string[]> = {
@@ -459,6 +501,9 @@ export const PRESETS: Record<string, string[]> = {
   demo: Object.keys(CONTROL_REGISTRY),
   minimal: ['render-style', 'schema-style', 'theme', 'color-scheme', 'radius', 'scale'],
   colors: ['theme', 'color-scheme', 'radius', 'scale', 'regular-font', 'mono-font'],
+  color: ['theme', 'color-scheme', 'radius', 'scale', 'regular-font', 'mono-font'],
+  slots: ['slot-nav-logo', 'slot-fixed-header', 'slot-default'],
+  slot: ['slot-nav-logo', 'slot-fixed-header', 'slot-default'],
   schema: [
     'schema-style',
     'default-schema-tab',
@@ -499,17 +544,70 @@ const ATTRIBUTE_ALIASES: Record<string, string> = {
   'primary-color': 'theme',
   'bg-color': 'color-scheme',
   'nav-accent-color': 'theme',
+  'nav-logo': 'slot-nav-logo',
+  'fixed-header': 'slot-fixed-header',
+  'default': 'slot-default',
+  'default-slot': 'slot-default',
+  'slot:nav-logo': 'slot-nav-logo',
+  'slot:fixed-header': 'slot-fixed-header',
+  'slot:default': 'slot-default',
 };
 
-export function resolveActiveControls(propControls?: string[], preset: string = 'minimal'): ControlDef[] {
-  const rawList = propControls && propControls.length > 0 ? propControls : PRESETS[preset] || PRESETS.minimal;
-  const baseList = rawList.map((k) => ATTRIBUTE_ALIASES[k] || k);
-  const activeKeys = Array.from(new Set(baseList));
+export function normalizePresets(preset?: ControllerPreset[] | ControllerPreset | string[] | string): string[] {
+  if (!preset) return ['minimal'];
+  const list = Array.isArray(preset) ? preset : [preset];
+  return list.map((p) => PRESET_ALIASES[p] || p);
+}
+
+export function resolveControlKeys(
+  propControls?: string[],
+  preset: ControllerPreset[] | ControllerPreset | string[] | string = 'minimal'
+): string[] {
+  if (propControls && propControls.length > 0) {
+    return Array.from(new Set(propControls.map((k) => ATTRIBUTE_ALIASES[k] || k)));
+  }
+  const presetNames = normalizePresets(preset);
+  const combined: string[] = [];
+  for (const name of presetNames) {
+    const list = PRESETS[name];
+    if (list) {
+      combined.push(...list);
+    }
+  }
+  const isNone = presetNames.length === 1 && presetNames[0] === 'none';
+  if (combined.length === 0 && !isNone) {
+    combined.push(...(PRESETS.minimal || []));
+  }
+  return Array.from(new Set(combined.map((k) => ATTRIBUTE_ALIASES[k] || k)));
+}
+
+export function resolveActiveControls(
+  propControls?: string[],
+  preset: ControllerPreset[] | ControllerPreset | string[] | string = 'minimal'
+): ControlDef[] {
+  const activeKeys = resolveControlKeys(propControls, preset);
   return activeKeys.map((k) => CONTROL_REGISTRY[k]).filter((c): c is ControlDef => Boolean(c));
 }
 
-export function groupControlsByCategory(controls: ControlDef[]): { id: ControlCategory; title: string; controls: ControlDef[] }[] {
-  const categories: ControlCategory[] = ['appearance', 'theming', 'navigation', 'schema', 'sections'];
+export function resolveActiveSlots(
+  propControls?: string[],
+  preset: ControllerPreset[] | ControllerPreset | string[] | string = 'minimal'
+): string[] {
+  const activeKeys = resolveControlKeys(propControls, preset);
+  const slots: string[] = [];
+  if (activeKeys.includes('slot-nav-logo')) slots.push('nav-logo');
+  if (activeKeys.includes('slot-fixed-header')) slots.push('fixed-header');
+  if (activeKeys.includes('slot-default')) slots.push('default');
+  return slots;
+}
+
+export function groupControlsByCategory(
+  controls: ControlDef[],
+  includeSlots: boolean = false
+): { id: ControlCategory; title: string; controls: ControlDef[] }[] {
+  const categories: ControlCategory[] = includeSlots
+    ? ['appearance', 'theming', 'navigation', 'schema', 'sections', 'slots']
+    : ['appearance', 'theming', 'navigation', 'schema', 'sections'];
   return categories
     .map((cat) => ({
       id: cat,
@@ -518,3 +616,4 @@ export function groupControlsByCategory(controls: ControlDef[]): { id: ControlCa
     }))
     .filter((g) => g.controls.length > 0);
 }
+

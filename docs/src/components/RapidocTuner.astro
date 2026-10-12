@@ -4,6 +4,8 @@ import {
   CATEGORY_TITLES,
   PRESETS,
   resolveActiveControls,
+  resolveActiveSlots,
+  normalizePresets,
   groupControlsByCategory,
   type ControlOption,
   type ControlCategory,
@@ -17,7 +19,7 @@ export type { ControlOption, ControlCategory, SegmentedControl, ToggleControl, C
 
 interface Props {
   targetId?: string;
-  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none';
+  preset?: ControllerPreset[] | ControllerPreset;
   controls?: string[];
   initialAttrs?: Record<string, string | boolean | number>;
   position?: 'bottom' | 'top';
@@ -31,7 +33,7 @@ interface Props {
 
 const {
   targetId = 'thedoc',
-  preset = 'minimal',
+  preset = ['minimal'],
   controls: propControls,
   initialAttrs = {},
   position = 'bottom',
@@ -39,8 +41,8 @@ const {
   specUrl,
   title = 'OPTIONS',
   size = 'medium',
-  showMethods = (preset === 'all' || preset === 'demo'),
-  showSlots = (preset !== 'none'),
+  showMethods,
+  showSlots,
 } = Astro.props;
 
 let baseFontSize = '12px';
@@ -53,9 +55,21 @@ if (size != null) {
   else if (s) baseFontSize = s;
 }
 
-// Determine active controls
+// Determine active controls and slots
+const normalizedPresetList = normalizePresets(preset);
 const activeControls = resolveActiveControls(propControls, preset);
 const groupedControls = groupControlsByCategory(activeControls);
+const activeSlots = resolveActiveSlots(propControls, preset);
+
+const effectiveShowMethods = showMethods !== undefined
+  ? showMethods
+  : (normalizedPresetList.includes('all') || normalizedPresetList.includes('demo'));
+
+const effectiveShowSlots = showSlots !== undefined
+  ? showSlots
+  : (activeSlots.length > 0);
+
+const slotsToRender = activeSlots.length > 0 ? activeSlots : ['nav-logo', 'fixed-header', 'default'];
 
 const initialAttrsJson = JSON.stringify(initialAttrs);
 ---
@@ -243,7 +257,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
         );
       })}
 
-      {showMethods && (
+      {effectiveShowMethods && (
         <div class="rd-hud-section rd-hud-methods-section" data-section="methods">
           <div class="rd-section-header">
             <span class="rd-section-title" data-human="Methods" data-raw="Methods">
@@ -314,55 +328,61 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
         </div>
       )}
 
-      {showSlots && (
+      {effectiveShowSlots && (
         <div class="rd-hud-section rd-hud-slots-section" data-section="slots">
           <div class="rd-hud-category-title" data-human="Slots" data-raw="Slots">Slots</div>
           <div class="rd-hud-section-content">
             <div class="rd-toggles-wrap">
-              <span
-                role="button"
-                tabindex="0"
-                class="rd-toggle-chip rd-slot-toggle"
-                data-slot="nav-logo"
-                data-tooltip='Toggle slot="nav-logo" HTML in sidebar'
-              >
-                <span class="rd-toggle-check" aria-hidden="true">✓</span>
+              {slotsToRender.includes('nav-logo') && (
                 <span
-                  class="rd-toggle-text"
-                  data-human="Nav Logo"
-                  data-raw='slot="nav-logo"'
-                >Nav Logo</span>
-              </span>
+                  role="button"
+                  tabindex="0"
+                  class="rd-toggle-chip rd-slot-toggle"
+                  data-slot="nav-logo"
+                  data-tooltip='Toggle slot="nav-logo" HTML in sidebar'
+                >
+                  <span class="rd-toggle-check" aria-hidden="true">✓</span>
+                  <span
+                    class="rd-toggle-text"
+                    data-human="Nav Logo"
+                    data-raw='slot="nav-logo"'
+                  >Nav Logo</span>
+                </span>
+              )}
 
-              <span
-                role="button"
-                tabindex="0"
-                class="rd-toggle-chip rd-slot-toggle"
-                data-slot="fixed-header"
-                data-tooltip='Toggle slot="fixed-header" HTML at top'
-              >
-                <span class="rd-toggle-check" aria-hidden="true">✓</span>
+              {slotsToRender.includes('fixed-header') && (
                 <span
-                  class="rd-toggle-text"
-                  data-human="Fixed Header"
-                  data-raw='slot="fixed-header"'
-                >Fixed Header</span>
-              </span>
+                  role="button"
+                  tabindex="0"
+                  class="rd-toggle-chip rd-slot-toggle"
+                  data-slot="fixed-header"
+                  data-tooltip='Toggle slot="fixed-header" HTML at top'
+                >
+                  <span class="rd-toggle-check" aria-hidden="true">✓</span>
+                  <span
+                    class="rd-toggle-text"
+                    data-human="Fixed Header"
+                    data-raw='slot="fixed-header"'
+                  >Fixed Header</span>
+                </span>
+              )}
 
-              <span
-                role="button"
-                tabindex="0"
-                class="rd-toggle-chip rd-slot-toggle"
-                data-slot="default"
-                data-tooltip='Toggle default slot HTML in content area'
-              >
-                <span class="rd-toggle-check" aria-hidden="true">✓</span>
+              {slotsToRender.includes('default') && (
                 <span
-                  class="rd-toggle-text"
-                  data-human="Default"
-                  data-raw='slot="(default)"'
-                >Default</span>
-              </span>
+                  role="button"
+                  tabindex="0"
+                  class="rd-toggle-chip rd-slot-toggle"
+                  data-slot="default"
+                  data-tooltip='Toggle default slot HTML in content area'
+                >
+                  <span class="rd-toggle-check" aria-hidden="true">✓</span>
+                  <span
+                    class="rd-toggle-text"
+                    data-human="Default"
+                    data-raw='slot="(default)"'
+                  >Default</span>
+                </span>
+              )}
             </div>
           </div>
         </div>

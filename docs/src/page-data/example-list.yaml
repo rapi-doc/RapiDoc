@@ -6,11 +6,16 @@ examples:
       isDoc: true
       category: Guides & Docs
 
-  - A Pet-Store Example:
+  - Openn API Example:
+      description:  Interactive showcase demonstrating how RapiDoc renders a OpenAPI 3.1 and 3.2 specifications.  
+      category: Layouts & Views
       img: /assets/images/dog.png
       href: /examples/petstore
-      description: Interactive showcase demonstrating how RapiDoc renders a complete Petstore OpenAPI 3.0 specification.
-      category: Layouts & Views
+      subExamples:
+        - Pet Store (3.1):
+            href: /examples/petstore
+        - Book Store (3.2):
+            href: /examples/bookstore
 
   - Rendering Modes:
       description: Choose between 3 distinct presentation styles to best fit your audience.
@@ -28,13 +33,6 @@ examples:
       href: /examples/try
       description: Call and test live API endpoints directly within the documentation, with support for negative and edge-case testing.
       category: Console & Interactive
-
-  - Render Styles:
-      img: /assets/images/dark-n-light.png
-      href: /examples/render-styles
-      description: First-class support for high-contrast Light and Dark themes with seamless runtime switching across render modes.
-      isWide: true
-      category: Theming & Branding
 
   - Theme With Colors:
       img: ./assets/images/theme.png
@@ -229,12 +227,6 @@ examples:
       img: /assets/images/webhook.png
       href: /examples/open-api-3-1
       description: OpenAPI 3.1 top-level webhook definitions for server-initiated asynchronous events.
-      category: OpenAPI 3.1 & Schemas
-
-  - OpenAPI 3.2 Bookstore:
-      img: /assets/images/webhook.png
-      href: /examples/bookstore
-      description: Showcase OpenAPI 3.2 capabilities with native QUERY, TRACE, additionalOperations (COPY, PURGE), webhooks, and callbacks.
       category: OpenAPI 3.1 & Schemas
 
   - Multiple DataTypes:

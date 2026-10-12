@@ -5,7 +5,7 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 const specUrl = getSpecUrl(Astro.url);
 ---
 <ExampleLayout
-  preset="all"
+  preset={['all']}
   showMethods={true}
 >
   <rapi-doc
