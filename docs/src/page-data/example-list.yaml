@@ -10,12 +10,27 @@ examples:
       description:  Interactive showcase demonstrating how RapiDoc renders a OpenAPI 3.1 and 3.2 specifications.  
       category: Layouts & Views
       img: /assets/images/dog.png
-      href: /examples/petstore
       subExamples:
         - Pet Store (3.1):
             href: /examples/petstore
         - Book Store (3.2):
             href: /examples/bookstore
+
+  - Themes and Colors:
+      img: ./assets/images/theme.png
+      href: /examples/themes
+      description: Match your corporate brand by customizing primary accents, headers, backgrounds, and text colors.
+      category: Theming & Branding
+
+  - CSS Styling:
+      img: ./assets/images/theme.png
+      description: Customize using CSS variables and CSS Shadow Parts for deep layout and style control.
+      category: Theming & Branding
+      subExamples:
+        - Dark Mode:
+            href: /examples/css-dark
+        - Light Mode:
+            href: /examples/css-light
 
   - Rendering Modes:
       description: Choose between 3 distinct presentation styles to best fit your audience.
@@ -33,12 +48,6 @@ examples:
       href: /examples/try
       description: Call and test live API endpoints directly within the documentation, with support for negative and edge-case testing.
       category: Console & Interactive
-
-  - Theme With Colors:
-      img: ./assets/images/theme.png
-      href: /examples/themes
-      description: Match your corporate brand by customizing primary accents, headers, backgrounds, and text colors.
-      category: Theming & Branding
 
   - Fonts:
       img: ./assets/images/font.png

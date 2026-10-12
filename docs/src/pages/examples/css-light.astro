@@ -1,0 +1,161 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout
+  title="Example - CSS Vars (Light) | RapiDoc"
+  description="High-contrast light theme preset showcase for RapiDoc OpenAPI documentation."
+  specUrl="/specs/bookstore.yaml"
+  autoRenderRapiDoc={true}
+  controls={['render-style', 'show-method-in-nav-bar', 'use-path-in-nav-bar', 'nav-item-spacing']}
+  controller="pretty"
+  rapidocProps={{
+    id: 'thedoc',
+    'color-scheme': 'light',
+    'render-style': 'read',
+    'schema-style': 'tree',
+    'show-header': 'false',
+    'show-info': 'true',
+    'show-components': 'false',
+    'allow-server-selection': 'true',
+    'allow-authentication': 'true',
+    'use-path-in-nav-bar': 'true',
+    'show-method-in-nav-bar': 'as-colored-text',
+  }}
+/>
+
+<style is:global>
+  :root {
+    --page-bg: #f8fafc;
+  }
+  body {
+    background: var(--page-bg) !important;
+    color: #0f172a !important;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  rapi-doc {
+    width: 100%;
+    height: 100vh;
+
+    /* High contrast light custom CSS properties */
+    --background: #ffffff;
+    --foreground: #0f172a;
+    --card: #f8fafc;
+    --card-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --border: #e2e8f0;
+    --input: #ffffff;
+    --primary: #ea580c;
+    --primary-foreground: #ffffff;
+    --ring: #ea580c;
+    --code-bg: #f8fafc;
+    --code-fg: #0f172a;
+    --blue: #0284c7;
+    --green: #059669;
+    --orange: #ff7043;
+    --red: #dc2626;
+  }
+
+  /* ==========================================================================
+     CSS Shadow Parts (::part) Styling - Vertical Border Glow & Ambient Aura
+     ========================================================================== */
+
+  /*
+   * Left-nav (Sidebar) with vertical neon border line.
+   * Fades to transparent at top and bottom ends and glows in the middle.
+   */
+  rapi-doc::part(section-navbar) {
+    background-color: #f8fafc;
+    border-right: 1px solid transparent;
+    border-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255, 112, 67, 0.05) 15%,
+        rgba(255, 112, 67, 0.55) 35%,
+        #ff7043 50%,
+        rgba(255, 112, 67, 0.55) 65%,
+        rgba(255, 112, 67, 0.05) 85%,
+        transparent 100%
+      )
+      1;
+    position: relative;
+    z-index: 10;
+  }
+
+  /*
+   * Main Content Canvas with subtle vertical edge aura and top-right gradient.
+   * Tight spread along the border, never overwhelming the text.
+   */
+  rapi-doc::part(section-main-content) {
+    background-color: #ffffff;
+    background-image:
+      /* Faint warm gradient aura at top-right corner */
+      radial-gradient(ellipse 200px 220px at 100% 0%, rgba(255, 112, 67, 0.12) 0%, rgba(245, 158, 11, 0.05) 45%, transparent 75%),
+      /* Delicate edge aura hugging the boundary (x=0) without washing over the content */
+      radial-gradient(ellipse 50px 35% at 0% 50%, rgba(255, 112, 67, 0.05) 0%, rgba(255, 112, 67, 0.02) 55%, transparent 100%),
+      radial-gradient(ellipse 30px 20% at 0% 50%, rgba(255, 138, 101, 0.08) 0%, transparent 100%),
+      /* Faint ambient glow in bottom area */ radial-gradient(ellipse 50% 40% at 75% 85%, rgba(245, 158, 11, 0.02) 0%, transparent 60%);
+    background-attachment: scroll, scroll, scroll, scroll;
+  }
+
+  rapi-doc::part(section-navbar-search) {
+    background: rgba(248, 250, 252, 0.85) !important;
+    backdrop-filter: blur(12px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
+  }
+
+  rapi-doc::part(textbox-nav-filter) {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #0f172a !important;
+    transition: all 0.2s ease;
+  }
+
+  rapi-doc::part(textbox-nav-filter):focus {
+    border-color: #ff7043 !important;
+    box-shadow: 0 0 10px rgba(255, 112, 67, 0.25);
+    background: #ffffff !important;
+  }
+
+  rapi-doc::part(btn-search) {
+    border: 1px solid rgba(255, 112, 67, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+  }
+
+  rapi-doc::part(btn-search):hover {
+    background: rgba(255, 112, 67, 0.2);
+    border-color: #ea580c;
+    color: #c2410c;
+    box-shadow: 0 0 10px rgba(255, 112, 67, 0.2);
+  }
+
+  /*
+   * Tag section header in Read Mode:
+   * Top border that fades to transparent at left and right edges and peaks brightly at the center.
+   */
+  rapi-doc::part(section-tag) {
+    border-top: 1px solid transparent !important;
+    border-image: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255, 112, 67, 0.08) 15%,
+        rgba(255, 112, 67, 0.65) 35%,
+        #ff7043 50%,
+        rgba(255, 112, 67, 0.65) 65%,
+        rgba(255, 112, 67, 0.08) 85%,
+        transparent 100%
+      )
+      1 !important;
+  }
+</style>

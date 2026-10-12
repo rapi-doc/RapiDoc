@@ -5,10 +5,10 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
 <ExampleLayout
   title="Rapidoc Themes"
   description="Demonstrates Various themes and presets by RapiDoc"
-  specUrl="/specs/petstore.yaml"
+  specUrl="/specs/bookstore.yaml"
   autoRenderRapiDoc={true}
   controller="pretty"
-  preset={['color']}
+  controls={['theme', 'color-scheme', 'render-style', 'show-method-in-nav-bar', 'use-path-in-nav-bar', 'nav-item-spacing']}
   rapidocProps={{
     'render-style': 'read',
     'show-info': 'true',

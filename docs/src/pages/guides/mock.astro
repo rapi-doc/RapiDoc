@@ -17,7 +17,7 @@ const basicMockCode = `<script type="module" src="https://unpkg.com/rapidoc/dist
 
 const multiStatusCode = `<!-- Cycle through 200, 429, and 500 to test retry logic and banners -->
 <rapi-doc
-  spec-url="/specs/mock.yaml"
+  spec-url="/specs/reqres.yaml"
   mock-server="true"
   mock-server-status-code="200, 429, 500"
   mock-server-status-strategy="cycle"
@@ -314,7 +314,7 @@ const mockAttributes = [
           <div class="rd-embed-container">
             <rapi-doc
               id="live-mock-rapidoc"
-              spec-url="/specs/mock.yaml"
+              spec-url="/specs/reqres.yaml"
               mock-server="true"
               mock-server-delay="300"
               mock-server-log="true"

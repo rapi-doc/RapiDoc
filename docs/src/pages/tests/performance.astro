@@ -112,7 +112,7 @@ import 'rapidoc';
         <div class="rd-kpi-card">
           <div class="rd-kpi-val">&lt; 450 <span class="rd-kpi-unit">ms</span></div>
           <div class="rd-kpi-label">900+ Endpoints Rendered</div>
-          <div class="rd-kpi-desc">Sub-half-second initial paint on massive 4.8MB enterprise specifications with 2,500+ schemas.</div>
+          <div class="rd-kpi-desc">Sub-half-second initial paint on massive enterprise specifications with 1,100+ operations.</div>
         </div>
       </div>
     </header>
@@ -141,7 +141,7 @@ import 'rapidoc';
                 aria-expanded="false"
                 aria-labelledby="label-spec-select"
               >
-                <span class="rd-selected-text">Mega API Matrix (900+ Operations, 4.8 MB)</span>
+                <span class="rd-selected-text">GitHub Large (1,100+ Operations, 8.2 MB)</span>
                 <svg
                   class="rd-select-arrow"
                   width="14"
@@ -159,18 +159,17 @@ import 'rapidoc';
               <div class="rd-custom-select-menu" role="listbox">
                 <div
                   class="rd-select-option"
-                  data-value="petstore"
-                  data-label="Swagger Petstore (Baseline, 24 KB)"
-                  data-size="24 KB"
-                  data-ops="20"
-                  data-schemas="6"
-                  data-url="/specs/petstore-3-0-3.yaml"
+                  data-value="bookstore"
+                  data-label="Bookstore (Baseline, 13.8 KB)"
+                  data-size="13.8 KB"
+                  data-ops="12"
+                  data-url="/specs-test/bookstore.yaml"
                   role="option"
                   tabindex="0"
                 >
                   <div class="rd-option-main">
-                    <span class="rd-option-label">Swagger Petstore</span>
-                    <span class="rd-option-badge">Baseline, 24 KB</span>
+                    <span class="rd-option-label">Bookstore</span>
+                    <span class="rd-option-badge">Baseline, 13.8 KB</span>
                   </div>
                   <svg
                     class="rd-option-check"
@@ -189,18 +188,17 @@ import 'rapidoc';
 
                 <div
                   class="rd-select-option"
-                  data-value="enterprise"
-                  data-label="Enterprise Cluster (Deep Schemas, 3.2 MB)"
-                  data-size="3.2 MB"
-                  data-ops="38"
-                  data-schemas="3,010"
-                  data-url="/specs/large-spec2-v3.json"
+                  data-value="stripe"
+                  data-label="Stripe Deep Schema (Deep Schemas, 7.0 MB)"
+                  data-size="7.0 MB"
+                  data-ops="644"
+                  data-url="/specs-test/stripe-deep-schema.yaml"
                   role="option"
                   tabindex="0"
                 >
                   <div class="rd-option-main">
-                    <span class="rd-option-label">Enterprise Cluster</span>
-                    <span class="rd-option-badge">Deep Schemas, 3.2 MB</span>
+                    <span class="rd-option-label">Stripe Deep Schema</span>
+                    <span class="rd-option-badge">Deep Schemas, 7.0 MB</span>
                   </div>
                   <svg
                     class="rd-option-check"
@@ -219,19 +217,18 @@ import 'rapidoc';
 
                 <div
                   class="rd-select-option is-selected"
-                  data-value="mega"
-                  data-label="Mega API Matrix (900+ Operations, 4.8 MB)"
-                  data-size="4.8 MB"
-                  data-ops="917"
-                  data-schemas="2,511"
-                  data-url="/specs/large-spec-v3.json"
+                  data-value="github"
+                  data-label="GitHub Large (1,100+ Operations, 8.2 MB)"
+                  data-size="8.2 MB"
+                  data-ops="1,128"
+                  data-url="/specs-test/github-large.yaml"
                   role="option"
                   aria-selected="true"
                   tabindex="0"
                 >
                   <div class="rd-option-main">
-                    <span class="rd-option-label">Mega API Matrix</span>
-                    <span class="rd-option-badge">900+ Operations, 4.8 MB</span>
+                    <span class="rd-option-label">GitHub Large</span>
+                    <span class="rd-option-badge">1,100+ Operations, 8.2 MB</span>
                   </div>
                   <svg
                     class="rd-option-check"
@@ -365,10 +362,6 @@ import 'rapidoc';
             <span class="rd-score-label">Total Operations</span>
             <span class="rd-score-val" id="stat-ops">917</span>
           </div>
-          <div class="rd-score-item">
-            <span class="rd-score-label">Schema Models</span>
-            <span class="rd-score-val" id="stat-schemas">2,511</span>
-          </div>
           <div class="rd-score-item highlight-score">
             <span class="rd-score-label">Render & Parse Time</span>
             <span class="rd-score-val text-emerald" id="stat-timer">Ready to test</span>
@@ -426,7 +419,6 @@ import 'rapidoc';
               <th>Format</th>
               <th>File Size</th>
               <th>Operations</th>
-              <th>Schemas</th>
               <th>Focused Mode</th>
               <th>View Mode</th>
               <th>Read Mode</th>
@@ -447,7 +439,6 @@ import 'rapidoc';
                   </td>
                   <td>{item.fileSize}</td>
                   <td>{item.operations}</td>
-                  <td>{item.schemas}</td>
                   <td>
                     <span class="rd-pill-fast rd-pill-focused">{item.focusedModeTime}</span>
                   </td>
@@ -886,19 +877,17 @@ import 'rapidoc';
   const runBtn = document.getElementById('benchmark-run-btn');
   const statSize = document.getElementById('stat-size');
   const statOps = document.getElementById('stat-ops');
-  const statSchemas = document.getElementById('stat-schemas');
   const statTimer = document.getElementById('stat-timer');
   const statusMsg = document.getElementById('sandbox-status');
   const placeholder = document.getElementById('benchmark-placeholder');
   const host = document.getElementById('benchmark-host');
 
   let currentSpec = {
-    value: 'mega',
-    url: '/specs/large-spec-v3.json',
-    size: '4.8 MB',
-    ops: '917',
-    schemas: '2,511',
-    label: 'Mega API Matrix (900+ Operations, 4.8 MB)',
+    value: 'github',
+    url: '/specs-test/github-large.yaml',
+    size: '8.2 MB',
+    ops: '1,128',
+    label: 'GitHub Large (1,100+ Operations, 8.2 MB)',
   };
 
   let currentMode = 'focused';
@@ -906,7 +895,6 @@ import 'rapidoc';
   function updateScoreboard() {
     if (statSize) statSize.textContent = currentSpec.size;
     if (statOps) statOps.textContent = currentSpec.ops;
-    if (statSchemas) statSchemas.textContent = currentSpec.schemas;
   }
 
   // Toggle Spec Dropdown
@@ -934,10 +922,9 @@ import 'rapidoc';
       const url = opt.getAttribute('data-url') || '';
       const size = opt.getAttribute('data-size') || '';
       const ops = opt.getAttribute('data-ops') || '';
-      const schemas = opt.getAttribute('data-schemas') || '';
       const label = opt.getAttribute('data-label') || opt.querySelector('.rd-option-label')?.textContent || '';
 
-      currentSpec = { value: val, url, size, ops, schemas, label };
+      currentSpec = { value: val, url, size, ops, label };
 
       if (specText) specText.textContent = label;
 

@@ -86,7 +86,6 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   <button type="button" class="rd-hud-trigger" aria-expanded="false" title={`Open ${title}`}>
     <span class="rd-hud-status-dot" aria-hidden="true"></span>
     <span class="rd-hud-trigger-title">{title}</span>
-    <span class="rd-hud-toggle-icon">▲</span>
   </button>
 
   <!-- Expanded controls drawer / panel -->
@@ -455,8 +454,8 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 
       function syncTuckUi() {
         const isTucked = hud.classList.contains('is-tucked-right');
-        tuckBtn?.setAttribute('title', isTucked ? 'Float at Bottom' : 'Tuck to Right Side Drawer');
-        tuckBtn?.setAttribute('aria-label', isTucked ? 'Float at Bottom' : 'Tuck to Right Side Drawer');
+        tuckBtn?.setAttribute('title', isTucked ? 'Tuck to Bottom Right' : 'Tuck to Right Side Drawer');
+        tuckBtn?.setAttribute('aria-label', isTucked ? 'Tuck to Bottom Right' : 'Tuck to Right Side Drawer');
       }
 
       tuckBtn?.addEventListener('click', e => {
@@ -1015,11 +1014,12 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     flex-shrink: 0;
   }
 
-  /* Floating Bottom Mode */
+  /* Floating Bottom Mode (docked towards bottom right) */
   .rd-controller-hud:not(.is-tucked-right) {
     bottom: 1.2em !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+    right: 1.2em !important;
+    left: auto !important;
+    transform: none !important;
     width: auto !important;
     max-width: 95vw !important;
   }
@@ -1051,12 +1051,6 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 
   .rd-controller-hud .rd-hud-trigger-title {
     letter-spacing: 0.04em;
-  }
-
-  .rd-controller-hud .rd-hud-toggle-icon {
-    font-size: 0.85em;
-    opacity: 0.7;
-    margin-left: 0.2em;
   }
 
   /* Status indicator dot */
@@ -1699,10 +1693,6 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     border-right: none !important;
     border-color: rgba(245, 158, 11, 0.4) !important;
     box-shadow: -4px 0 20px rgba(0, 0, 0, 0.6) !important;
-  }
-
-  .rd-controller-hud.is-tucked-right.is-collapsed .rd-hud-toggle-icon {
-    transform: rotate(90deg);
   }
 
   /* Mobile responsiveness */

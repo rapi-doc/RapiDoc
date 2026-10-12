@@ -1,6 +1,6 @@
 openapi: 3.2.0
 info:
-  title: Bookstore API
+  title: RapiDoc Bookstore API
   description: >
     Sample Bookstore API showcasing OpenAPI 3.2 features:
     native QUERY, TRACE, additionalOperations (COPY, PURGE),
