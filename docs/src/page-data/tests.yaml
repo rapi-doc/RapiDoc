@@ -86,9 +86,8 @@ advanced:
   - data-types:
       title: Primitive & Complex Data Types
       validates:
-        - JSON request bodies with primitive and nested object types
-        - Complex schemas with multiple levels of nested objects and primitives
-        - Request and response parameters with constraints, validation rules, and deprecations
+        - Primitive and nested object types
+        - Parameters with constraints and deprecations
   - data-types-multiple:
       title: 'Multi-Type Fields (type: [string, number])'
       validates:

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.5",
+    "@tabler/icons-astro": "^3.49.0",
     "rapidoc": "*"
   },
   "devDependencies": {

@@ -4,6 +4,14 @@ import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import '../../styles/styling.css';
+import {
+  IconArrowRight,
+  IconLayoutSidebarLeftCollapse,
+  IconColumns2,
+  IconMoon,
+  IconSun,
+  IconCopy,
+} from '@tabler/icons-astro';
 
 const coreThemingAttributes = [
   {
@@ -267,9 +275,7 @@ function setScale(size) {
           <div class="rd-recipe-action">
             <a href="/examples/themes" target="_blank" class="rd-btn rd-btn-primary">
               <span>View Live Theme Switcher Demo</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="M5 12h14m-7-7 7 7-7 7"></path>
-              </svg>
+              <IconArrowRight size={14} stroke={2.5} />
             </a>
           </div>
         </div>
@@ -1248,17 +1254,11 @@ function setScale(size) {
                         data-render="focused"
                         title="Standard focused/read mode with navigation bar"
                       >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                          ><rect x="3" y="3" width="6" height="18" rx="1"></rect><rect x="12" y="3" width="9" height="18" rx="1"
-                          ></rect></svg
-                        >
+                        <IconLayoutSidebarLeftCollapse size={12} stroke={2} />
                         Focused
                       </button>
                       <button type="button" class="rd-seg-btn" data-render="view" title="View mode: Side-by-side cards without navigation">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                          ><rect x="3" y="3" width="8" height="18" rx="1"></rect><rect x="13" y="3" width="8" height="18" rx="1"
-                          ></rect></svg
-                        >
+                        <IconColumns2 size={12} stroke={2} />
                         View
                       </button>
                     </div>
@@ -1281,19 +1281,11 @@ function setScale(size) {
 
                       <div class="rd-segmented-pill" id="demo-scheme-control">
                         <button type="button" class="rd-seg-btn active" data-scheme="dark" title="Dark Scheme">
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            ><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg
-                          >
+                          <IconMoon size={11} stroke={2} />
                           Dark
                         </button>
                         <button type="button" class="rd-seg-btn" data-scheme="light" title="Light Scheme">
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            ><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line
-                              x1="12"
-                              y1="21"
-                              x2="12"
-                              y2="23"></line></svg
-                          >
+                          <IconSun size={11} stroke={2} />
                           Light
                         </button>
                       </div>
@@ -1333,10 +1325,7 @@ function setScale(size) {
                 <span class="code-dot green"></span>
                 <span class="code-title">index.html</span>
                 <button type="button" class="rd-copy-code-btn" id="demo-copy-code-btn" title="Copy Code">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    ><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path
-                      d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg
-                  >
+                  <IconCopy size={12} stroke={2} />
                   <span id="demo-copy-text">Copy</span>
                 </button>
               </div>
@@ -1565,9 +1554,7 @@ function setScale(size) {
       </p>
       <a href="/guides/css" class="rd-action-primary rd-next-link">
         <span>Explore Custom CSS & Shadow Parts Guide</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-          ><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg
-        >
+        <IconArrowRight size={16} stroke={2.5} />
       </a>
     </section>
   </main>

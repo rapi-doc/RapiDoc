@@ -4,6 +4,13 @@ import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { stylingData } from '../../page-data/styling-data';
 import '../../styles/styling.css';
+import {
+  IconSearch,
+  IconSearchOff,
+  IconX,
+  IconCopy,
+  IconArrowRight,
+} from '@tabler/icons-astro';
 
 const totalParts = stylingData.parts.reduce((acc, cat) => acc + cat.items.length, 0);
 const totalVariables = stylingData.variables.reduce((acc, cat) => acc + cat.items.length, 0);
@@ -76,10 +83,7 @@ const totalCategories = stylingData.parts.length;
       <!-- Live Search & Interactive Filter Controls -->
       <div class="rd-filter-controls">
         <div class="rd-search-wrapper">
-          <svg class="rd-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+          <IconSearch size={18} class="rd-search-icon" stroke={2} />
           <input
             id="styling-search-input"
             type="text"
@@ -88,10 +92,7 @@ const totalCategories = stylingData.parts.length;
             class="rd-search-input"
           />
           <button id="clear-search-btn" class="rd-clear-btn" aria-label="Clear search" style="display: none;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <IconX size={14} stroke={2} />
           </button>
         </div>
 
@@ -109,10 +110,7 @@ const totalCategories = stylingData.parts.length;
       <!-- Empty State -->
       <div id="catalog-empty-state" class="rd-empty-state" style="display: none;">
         <div class="rd-empty-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+          <IconSearchOff size={32} stroke={1.8} />
         </div>
         <h3 class="rd-empty-title">No matching styling items found <span id="empty-query-text" class="text-gradient"></span></h3>
         <p class="rd-empty-desc">Try searching for a different keyword or reset your active category filter.</p>
@@ -156,10 +154,7 @@ const totalCategories = stylingData.parts.length;
                           <td class="col-name">
                             <button class="rd-copy-pill var-pill" data-copy={`${item.name}`} title="Click to copy variable">
                               <code>{item.name}</code>
-                              <svg class="copy-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                              </svg>
+                              <IconCopy size={12} class="copy-svg" stroke={2} />
                             </button>
                           </td>
                           <td class="col-default">
@@ -214,10 +209,7 @@ const totalCategories = stylingData.parts.length;
                           <td class="col-name">
                             <button class="rd-copy-pill" data-copy={`rapi-doc::part(${item.name})`} title="Click to copy ::part selector">
                               <code>::{item.name}</code>
-                              <svg class="copy-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                              </svg>
+                              <IconCopy size={12} class="copy-svg" stroke={2} />
                             </button>
                           </td>
                           <td class="col-target">
@@ -245,11 +237,11 @@ const totalCategories = stylingData.parts.length;
       <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
         <a href="/guides/slots" class="rd-action-primary" style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
           <span>Named HTML Slots Guide</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          <IconArrowRight size={16} stroke={2.5} />
         </a>
         <a href="/guides/theme" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
           <span>Themes & Brand Colors Guide</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          <IconArrowRight size={16} stroke={2.5} />
         </a>
       </div>
     </section>

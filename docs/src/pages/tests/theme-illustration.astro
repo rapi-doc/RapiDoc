@@ -1,6 +1,12 @@
 ---
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
 import PageBanner from '../../components/PageBanner.astro';
+import {
+  IconLayoutSidebarLeftCollapse,
+  IconColumns2,
+  IconMoon,
+  IconSun,
+} from '@tabler/icons-astro';
 ---
 
 <GlobalLayout>
@@ -21,11 +27,11 @@ import PageBanner from '../../components/PageBanner.astro';
           <label class="group-title">Render Style</label>
           <div class="segmented-control" id="render-style-control">
             <button type="button" class="segment-btn active" data-render="focused" title="Standard focused/read mode with navigation bar">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="6" height="18" rx="1"></rect><rect x="12" y="3" width="9" height="18" rx="1"></rect></svg>
+              <IconLayoutSidebarLeftCollapse size={14} stroke={2} />
               Focused / Read
             </button>
             <button type="button" class="segment-btn" data-render="view" title="View mode: No navigation, Request and Response side-by-side">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="18" rx="1"></rect><rect x="13" y="3" width="8" height="18" rx="1"></rect></svg>
+              <IconColumns2 size={14} stroke={2} />
               View (Side-by-Side)
             </button>
           </div>
@@ -58,11 +64,11 @@ import PageBanner from '../../components/PageBanner.astro';
           <label class="group-title">Color Scheme</label>
           <div class="segmented-control" id="scheme-control">
             <button type="button" class="segment-btn active" data-scheme="dark">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+              <IconMoon size={14} />
               Dark
             </button>
             <button type="button" class="segment-btn" data-scheme="light">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+              <IconSun size={14} />
               Light
             </button>
           </div>

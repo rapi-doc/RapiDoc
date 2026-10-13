@@ -4,6 +4,13 @@ import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import RapidocMiniComparisonTable from '../../components/RapidocMiniComparisonTable.astro';
+import {
+  IconFileText,
+  IconLayersSubtract,
+  IconGitBranch,
+  IconBell,
+  IconArrowRight,
+} from '@tabler/icons-astro';
 
 const basicMiniCode = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 
@@ -260,13 +267,7 @@ const attributes = [
       <div class="rd-usecase-grid">
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-              <polyline points="10 9 9 9 8 9"/>
-            </svg>
+            <IconFileText size={22} stroke={2} />
           </div>
           <h3>Blog & Tutorial Writing</h3>
           <p>
@@ -276,11 +277,7 @@ const attributes = [
 
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-              <polyline points="2 17 12 22 22 17"/>
-              <polyline points="2 12 12 17 22 12"/>
-            </svg>
+            <IconLayersSubtract size={22} stroke={2} />
           </div>
           <h3>Step-by-Step Onboarding</h3>
           <p>
@@ -290,13 +287,7 @@ const attributes = [
 
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="18" cy="18" r="3"/>
-              <circle cx="6" cy="6" r="3"/>
-              <circle cx="18" cy="6" r="3"/>
-              <path d="M6 9v12"/>
-              <path d="M18 9a9 9 0 0 1-9 9H6"/>
-            </svg>
+            <IconGitBranch size={22} stroke={2} />
           </div>
           <h3>Microservice Storytelling</h3>
           <p>
@@ -306,10 +297,7 @@ const attributes = [
 
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
+            <IconBell size={22} stroke={2} />
           </div>
           <h3>Release Notes & Changelogs</h3>
           <p>
@@ -639,9 +627,7 @@ const attributes = [
         <div class="rd-callout-actions">
           <a href="/quickstart" class="rd-btn rd-btn-primary rd-btn-lg">
             <span>Quick Start Guide</span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M5 12h14m-7-7 7 7-7 7" />
-            </svg>
+            <IconArrowRight size={15} stroke={2.5} />
           </a>
           <a href="/api" class="rd-btn rd-btn-secondary rd-btn-lg">
             <span>Full API Specification</span>

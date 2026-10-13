@@ -3,6 +3,114 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
 import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { exampleListData, SubExample } from '../../page-data/example-list';
+import {
+  IconSearch,
+  IconSearchOff,
+  IconX,
+  IconArrowRight,
+  IconArrowUpRight,
+  IconApi,
+  IconPalette,
+  IconBrush,
+  IconLayout,
+  IconTerminal2,
+  IconSitemap,
+  IconComponents,
+  IconLayoutSidebar,
+  IconPuzzle,
+  IconMarkdown,
+  IconListTree,
+  IconTags,
+  IconLink,
+  IconCode,
+  IconSourceCode,
+  IconBadge,
+  IconCopy,
+  IconUpload,
+  IconFileTypePdf,
+  IconPaperclip,
+  IconStack2,
+  IconFolderCode,
+  IconVariable,
+  IconKey,
+  IconShieldCheck,
+  IconShieldLock,
+  IconBracketsContain,
+  IconBrowser,
+  IconBraces,
+  IconServer,
+  IconPhoneCall,
+  IconWebhook,
+  IconLayersLinked,
+  IconFiles,
+  IconGitMerge,
+  IconDatabase,
+  IconSparkles,
+  IconBook,
+  IconBolt,
+} from '@tabler/icons-astro';
+
+function getCardIconComponent(title: string, category: string, isDoc?: boolean) {
+  const t = title.toLowerCase();
+  if (t.includes('how to use') || t.includes('quickstart')) return IconBook;
+  if (t.includes('pet store') || t.includes('open api')) return IconApi;
+  if (t.includes('theme') && t.includes('color')) return IconPalette;
+  if (t.includes('css styling')) return IconBrush;
+  if (t.includes('rendering mode') || t.includes('render styles')) return IconLayout;
+  if (t.includes('console') || t.includes('try')) return IconTerminal2;
+  if (t.includes('advance styling')) return IconSparkles;
+  if (t.includes('schema style')) return IconSitemap;
+  if (t.includes('show component')) return IconComponents;
+  if (t.includes('nav') && t.includes('style')) return IconLayoutSidebar;
+  if (t.includes('slot')) return IconPuzzle;
+  if (t.includes('markdown headings')) return IconListTree;
+  if (t.includes('markdown')) return IconMarkdown;
+  if (t.includes('tag-focused') || t.includes('tags with focused')) return IconTags;
+  if (t.includes('performance')) return IconBolt;
+  if (t.includes('link')) return IconLink;
+  if (t.includes('syntax highlight')) return IconCode;
+  if (t.includes('code sample')) return IconSourceCode;
+  if (t.includes('badge')) return IconBadge;
+  if (t.includes('add your example') || t.includes('examples-multiple')) return IconCopy;
+  if (t.includes('file upload')) return IconUpload;
+  if (t.includes('binary response')) return IconFileTypePdf;
+  if (t.includes('multipart')) return IconPaperclip;
+  if (t.includes('request body') || t.includes('multiple request')) return IconStack2;
+  if (t.includes('arrange') && t.includes('tag')) return IconFolderCode;
+  if (t.includes('parameter') || t.includes('dynamic param')) return IconVariable;
+  if (t.includes('search')) return IconSearch;
+  if (t.includes('oauth setup') || t.includes('oauth extension')) return IconShieldCheck;
+  if (t.includes('oauth')) return IconKey;
+  if (t.includes('auth') || t.includes('security')) return IconShieldLock;
+  if (t.includes('api key')) return IconKey;
+  if (t.includes('additional prop')) return IconBracketsContain;
+  if (t.includes('embed') && t.includes('html')) return IconBrowser;
+  if (t.includes('json') && t.includes('spec')) return IconBraces;
+  if (t.includes('server') && t.includes('template')) return IconServer;
+  if (t.includes('callback')) return IconPhoneCall;
+  if (t.includes('webhook')) return IconWebhook;
+  if (t.includes('datatype') || t.includes('multi-data')) return IconLayersLinked;
+  if (t.includes('split') || t.includes('multiple file') || t.includes('external-ref')) return IconFiles;
+  if (t.includes('mini')) return IconComponents;
+  if (t.includes('composition') || t.includes('one of') || t.includes('all of') || t.includes('any of')) return IconGitMerge;
+
+  switch (category) {
+    case 'Theming & Branding':
+      return IconPalette;
+    case 'Console & Interactive':
+      return IconTerminal2;
+    case 'OpenAPI 3.1 & Schemas':
+      return IconDatabase;
+    case 'Security & Auth':
+      return IconShieldLock;
+    case 'Advanced & Extensibility':
+      return IconSparkles;
+    case 'Guides & Docs':
+      return IconBook;
+    default:
+      return isDoc ? IconBook : IconLayout;
+  }
+}
 
 // Extract unique categories for filter tabs (examples only)
 const allExamples = exampleListData.examples
@@ -60,10 +168,7 @@ const categories = [
       <div class="rd-controls-bar">
         <!-- Live Search Input -->
         <div class="rd-search-wrapper">
-          <svg class="rd-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <IconSearch size={18} class="rd-search-icon" />
           <input
             type="text"
             id="example-search"
@@ -71,7 +176,9 @@ const categories = [
             placeholder="Search examples by keyword (e.g., oauth, schema, markdown, file, theme)..."
             aria-label="Search examples"
           />
-          <button id="clear-search" class="rd-clear-btn" title="Clear search">✕</button>
+          <button id="clear-search" class="rd-clear-btn" title="Clear search" aria-label="Clear search">
+            <IconX size={14} />
+          </button>
         </div>
 
         <!-- Filter Count -->
@@ -102,6 +209,7 @@ const categories = [
           const isDoc = item.isDoc ?? false;
           const isWide = item.isWide ?? false;
           const hasDirectLink = Boolean(item.href && !item.subExamples);
+          const CardIcon = getCardIconComponent(item.title, item.category, isDoc);
 
           return (
             <div
@@ -113,28 +221,15 @@ const categories = [
               <!-- Card Top Header -->
               <div class="rd-card-top">
                 <div class="rd-card-identity">
-                  {item.img ? (
-                    <img src={item.img} alt={item.title} class="rd-card-icon" />
-                  ) : (
-                    <div class="rd-card-icon-fallback">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        {isDoc ? (
-                          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z"></path>
-                        ) : (
-                          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                        )}
-                      </svg>
-                    </div>
-                  )}
+                  <div class="rd-card-icon-box" title={item.title}>
+                    <CardIcon size={20} stroke={2} />
+                  </div>
                   <span class="rd-card-cat-badge">{item.category}</span>
                 </div>
 
                 {hasDirectLink && (
                   <a href={item.href} class="rd-corner-arrow" title={`Open ${item.title}`}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <line x1="7" y1="17" x2="17" y2="7"></line>
-                      <polyline points="7 7 17 7 17 17"></polyline>
-                    </svg>
+                    <IconArrowUpRight size={14} stroke={2.5} />
                   </a>
                 )}
               </div>
@@ -165,9 +260,7 @@ const categories = [
                       return (
                         <a href={subObj.href} class="rd-sub-btn">
                           <span>{subTitle}</span>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14m-7-7 7 7-7 7"/>
-                          </svg>
+                          <IconArrowRight size={12} stroke={2} />
                         </a>
                       );
                     })}
@@ -180,9 +273,7 @@ const categories = [
                 <div class="rd-card-footer">
                   <a href={item.href} class="rd-action-link">
                     <span>{isDoc ? 'Read Documentation' : 'View Live Demo'}</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M5 12h14m-7-7 7 7-7 7"/>
-                    </svg>
+                    <IconArrowRight size={14} stroke={2} />
                   </a>
                 </div>
               )}
@@ -194,7 +285,9 @@ const categories = [
 
     <!-- Empty Results Message -->
     <div id="empty-state" class="rd-empty-state">
-      <div class="rd-empty-icon">🔍</div>
+      <div class="rd-empty-icon">
+        <IconSearchOff size={36} stroke={1.75} />
+      </div>
       <h3 class="rd-empty-title">No matching examples found</h3>
       <p class="rd-empty-desc">Try searching for a different keyword or reset the category filters.</p>
       <button id="reset-filters-btn" class="rd-btn rd-btn-primary">Reset Filters</button>
@@ -614,6 +707,25 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+.rd-card-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.rd-item-card:hover .rd-card-icon-box {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: var(--rd-accent);
+  color: #fff;
+  box-shadow: 0 0 10px var(--rd-accent-glow);
 }
 .rd-card-icon {
   width: 28px;

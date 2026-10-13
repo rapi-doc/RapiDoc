@@ -3,6 +3,13 @@ import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 import PrettyRapidocTuner from '../components/PrettyRapidocTuner.astro';
 import '../styles/global.css';
 import '../styles/sandbox.css';
+import {
+  IconEdit,
+  IconUpload,
+  IconAdjustmentsHorizontal,
+  IconHome,
+  IconRotate,
+} from '@tabler/icons-astro';
 
 const defaultSpec = '/specs/sandbox.yaml';
 const pageTitle = 'Interactive OpenAPI Spec Sandbox & Live Editor | RapiDoc';
@@ -35,53 +42,26 @@ const pageDescription =
     <nav class="dr-floating-bar" id="dr-floating-bar" aria-label="Sandbox controls">
       <!-- 1. Editor -->
       <button type="button" class="dr-btn dr-btn-accent" id="dr-btn-editor" title="Open Spec Editor (Shortcut: E)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-        </svg>
+        <IconEdit size={14} stroke={2} />
         <span>Editor</span>
       </button>
 
       <!-- 2. Upload -->
       <label class="dr-btn" title="Upload local .yaml or .json spec file">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>
-        </svg>
+        <IconUpload size={14} stroke={2} />
         <span>Upload</span>
         <input type="file" id="dr-file-input" accept=".yaml,.yml,.json" style="display: none;" />
       </label>
 
       <!-- 3. Tuner -->
       <button type="button" class="dr-btn" id="dr-btn-tuner" title="Open RapiDoc Tuner (Shortcut: Cmd+K)">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <line x1="4" y1="21" x2="4" y2="14"></line>
-          <line x1="4" y1="10" x2="4" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12" y2="3"></line>
-          <line x1="20" y1="21" x2="20" y2="16"></line>
-          <line x1="20" y1="12" x2="20" y2="3"></line>
-          <line x1="1" y1="14" x2="7" y2="14"></line>
-          <line x1="9" y1="8" x2="15" y2="8"></line>
-          <line x1="17" y1="16" x2="23" y2="16"></line>
-        </svg>
+        <IconAdjustmentsHorizontal size={14} stroke={2} />
         <span>Tuner</span>
       </button>
 
       <!-- 4. Home -->
       <a href="/" class="dr-btn dr-btn-icon" title="Return to Home page">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
+        <IconHome size={14} stroke={2} />
       </a>
     </nav>
 
@@ -149,19 +129,7 @@ const pageDescription =
         <div class="dr-drawer-actions">
           <button type="button" class="dr-btn" id="dr-btn-format-json" style="display: none;">Format JSON</button>
           <button type="button" class="dr-btn" id="dr-btn-reset-drawer" title="Reset editor to original spec text">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-              <path d="M3 3v5h5"></path>
-            </svg>
+            <IconRotate size={13} stroke={2} />
             <span>Reset</span>
           </button>
           <button type="button" class="dr-btn" id="dr-btn-cancel-drawer">Cancel</button>

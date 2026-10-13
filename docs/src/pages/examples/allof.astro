@@ -5,15 +5,19 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 const specUrl = getSpecUrl(Astro.url);
 ---
 
-<ExampleLayout>
-  <rapi-doc
-    id = "thedoc"
-    spec-url = {specUrl}
-    show-header = "false"
-    show-info = "false"
-    allow-server-selection = "false"
-    allow-authentication = "false"
-    default-schema-tab = "schema" 
-    render-style = "read"
-  > </rapi-doc>
-</ExampleLayout>
+<ExampleLayout
+  title="Example | Schema Composition - all-of"
+  description="Demonstrates Schema Composition using All-Of in RapiDoc"
+  autoRenderRapiDoc={true}
+  controller="pretty"
+  preset={['schema']}
+  rapidocProps={{
+    'spec-url': specUrl,
+    'show-header': 'false',
+    'show-info': 'false',
+    'allow-server-selection': 'false',
+    'allow-authentication': 'false',
+    'default-schema-tab': 'schema',
+    'render-style': 'read',
+  }}
+/>

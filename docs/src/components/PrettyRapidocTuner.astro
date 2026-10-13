@@ -14,6 +14,13 @@ import {
   type ControlDef,
   type ControllerPreset,
 } from './controller-registry';
+import {
+  IconAdjustmentsHorizontal,
+  IconFileCode,
+  IconRotate,
+  IconX,
+  IconInfoCircle,
+} from '@tabler/icons-astro';
 
 export type { ControlOption, ControlCategory, SegmentedControl, ToggleControl, ControlDef, ControllerPreset };
 
@@ -94,27 +101,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
         aria-label="Open RapiDoc Options Drawer"
         title={`Open ${title} (Cmd+K)`}
       >
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <line x1="4" y1="21" x2="4" y2="14"></line>
-          <line x1="4" y1="10" x2="4" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12" y2="3"></line>
-          <line x1="20" y1="21" x2="20" y2="16"></line>
-          <line x1="20" y1="12" x2="20" y2="3"></line>
-          <line x1="1" y1="14" x2="7" y2="14"></line>
-          <line x1="9" y1="8" x2="15" y2="8"></line>
-          <line x1="17" y1="16" x2="23" y2="16"></line>
-        </svg>
+        <IconAdjustmentsHorizontal size={15} stroke={2.2} aria-hidden="true" />
         <span class="rd-tab-label">{title}</span>
       </button>
     )
@@ -143,10 +130,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
               class="rd-pretty-action-btn rd-pretty-spec-btn"
               title="Open active OpenAPI spec file"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
+              <IconFileCode size={12} stroke={2.2} />
               <span>Spec</span>
             </a>
           )}
@@ -167,19 +151,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
             class="rd-pretty-action-btn rd-pretty-reset-btn"
             title="Reset all options to default"
           >
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-              <path d="M3 3v5h5"></path>
-            </svg>
+            <IconRotate size={13} stroke={2.2} />
             <span>Reset</span>
           </button>
 
@@ -190,19 +162,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
             aria-label="Close Controls Drawer"
             title="Close Drawer (Esc)"
           >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <IconX size={15} stroke={2.2} />
           </button>
         </div>
       </div>
@@ -238,21 +198,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                           </div>
                           {ctrl.info && (
                             <span class="rd-option-info-badge">
-                              <svg
-                                width="12"
-                                height="12"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2.2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                aria-hidden="true"
-                              >
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="16" x2="12" y2="12" />
-                                <line x1="12" y1="8" x2="12.01" y2="8" />
-                              </svg>
+                              <IconInfoCircle size={12} stroke={2.2} aria-hidden="true" />
                               <span class="rd-option-info-text">{ctrl.info}</span>
                             </span>
                           )}
@@ -331,21 +277,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                         </div>
                         {ctrl.info && (
                           <span class="rd-option-info-badge">
-                            <svg
-                              width="12"
-                              height="12"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              aria-hidden="true"
-                            >
-                              <circle cx="12" cy="12" r="10" />
-                              <line x1="12" y1="16" x2="12" y2="12" />
-                              <line x1="12" y1="8" x2="12.01" y2="8" />
-                            </svg>
+                            <IconInfoCircle size={12} stroke={2.2} aria-hidden="true" />
                             <span class="rd-option-info-text">{ctrl.info}</span>
                           </span>
                         )}

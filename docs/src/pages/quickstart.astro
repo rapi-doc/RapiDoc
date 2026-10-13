@@ -3,6 +3,13 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
+import {
+  IconSearch,
+  IconSearchOff,
+  IconX,
+  IconArrowUpRight,
+  IconArrowRight,
+} from '@tabler/icons-astro';
 
 interface Recipe {
   id: string;
@@ -481,10 +488,7 @@ const categories = [
       <!-- Live Search & Interactive Filter Controls -->
       <div class="rd-search-section">
         <div class="rd-search-wrapper">
-          <svg class="rd-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <IconSearch size={20} class="rd-search-icon" stroke={2} />
           <input
             id="ref-search"
             type="text"
@@ -493,10 +497,7 @@ const categories = [
             class="rd-search-input"
           />
           <button id="clear-ref-search" class="rd-clear-btn" aria-label="Clear search" style="display: none;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <IconX size={16} stroke={2} />
           </button>
         </div>
 
@@ -516,7 +517,9 @@ const categories = [
 
     <!-- Empty Search State -->
     <div id="ref-empty-state" class="rd-empty-state" style="display: none;">
-      <div class="rd-empty-icon">🔍</div>
+      <div class="rd-empty-icon">
+        <IconSearchOff size={36} stroke={1.75} />
+      </div>
       <h3 class="rd-empty-title">
         No matching recipes found <span id="empty-query-text" class="text-gradient"></span>
       </h3>
@@ -567,9 +570,7 @@ const categories = [
                         {recipe.demoUrl && (
                           <a href={recipe.demoUrl} class="rd-demo-btn" target="_blank" rel="noopener">
                             <span>Launch Demo</span>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                              <path d="M7 17l9.2-9.2M17 17V8H8" />
-                            </svg>
+                            <IconArrowUpRight size={13} stroke={2.5} />
                           </a>
                         )}
                       </div>
@@ -607,9 +608,7 @@ const categories = [
         <div class="rd-callout-actions">
           <a href="/examples" class="rd-btn rd-btn-primary rd-btn-lg">
             <span>Browse Full Examples Gallery</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M5 12h14m-7-7 7 7-7 7"></path>
-            </svg>
+            <IconArrowRight size={16} stroke={2.5} />
           </a>
           <a href="/examples/example100" class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
             <span>Open JavaScript Playground ↗</span>

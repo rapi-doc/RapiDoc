@@ -3,6 +3,15 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
 import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
+import {
+  IconChevronDown,
+  IconCheck,
+  IconPlayerPlay,
+  IconShieldOff,
+  IconBox,
+  IconBolt,
+  IconTarget,
+} from '@tabler/icons-astro';
 
 const basicMockCode = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 
@@ -165,22 +174,20 @@ const mockAttributes = [
               <div class="rd-custom-select" id="endpoint-custom-select">
                 <button type="button" class="rd-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                   <span class="rd-select-value">GET https://reqres.in/api/users (List Paginated)</span>
-                  <svg class="rd-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                  <IconChevronDown size={14} class="rd-select-chevron" stroke={2} />
                 </button>
                 <div class="rd-select-menu" role="listbox">
                   <div class="rd-select-option selected" role="option" aria-selected="true" data-value="https://reqres.in/api/users" data-method="GET">
                     <span>GET https://reqres.in/api/users (List Paginated)</span>
-                    <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                   </div>
                   <div class="rd-select-option" role="option" aria-selected="false" data-value="https://reqres.in/api/users/2" data-method="GET">
                     <span>GET https://reqres.in/api/users/2 (Single User)</span>
-                    <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                   </div>
                   <div class="rd-select-option" role="option" aria-selected="false" data-value="https://reqres.in/api/users" data-method="POST">
                     <span>POST https://reqres.in/api/users (Create User)</span>
-                    <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                   </div>
                 </div>
                 <!-- Native hidden select for DOM & script access -->
@@ -198,38 +205,36 @@ const mockAttributes = [
                 <div class="rd-custom-select" id="status-custom-select">
                   <button type="button" class="rd-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                     <span class="rd-select-value">Auto (First 2xx)</span>
-                    <svg class="rd-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
+                    <IconChevronDown size={14} class="rd-select-chevron" stroke={2} />
                   </button>
                   <div class="rd-select-menu" role="listbox">
                     <div class="rd-select-option selected" role="option" aria-selected="true" data-value="" data-strategy="first">
                       <span>Auto (First 2xx)</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="200">
                       <span>200 OK</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="400">
                       <span>400 Bad Request</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="404">
                       <span>404 Not Found</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="500">
                       <span>500 Server Error</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="200, 400, 500" data-strategy="cycle">
                       <span>Cycle (200 &rarr; 400 &rarr; 500)</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="200, 500" data-strategy="random">
                       <span>Random Chaos (200 / 500)</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                   </div>
                   <select id="status-select" class="rd-sr-select" tabindex="-1" aria-hidden="true">
@@ -249,26 +254,24 @@ const mockAttributes = [
                 <div class="rd-custom-select" id="delay-custom-select">
                   <button type="button" class="rd-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                     <span class="rd-select-value">300ms (Fast 4G)</span>
-                    <svg class="rd-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
+                    <IconChevronDown size={14} class="rd-select-chevron" stroke={2} />
                   </button>
                   <div class="rd-select-menu" role="listbox">
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="0">
                       <span>0ms (Instant)</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                     <div class="rd-select-option selected" role="option" aria-selected="true" data-value="300">
                       <span>300ms (Fast 4G)</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="800">
                       <span>800ms (Slow Network)</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="1500">
                       <span>1500ms (High Latency)</span>
-                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
                     </div>
                   </div>
                   <select id="delay-select" class="rd-sr-select" tabindex="-1" aria-hidden="true">
@@ -282,9 +285,7 @@ const mockAttributes = [
             </div>
 
             <button id="send-fetch-btn" class="rd-fetch-btn">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="6 3 20 12 6 21 6 3"></polygon>
-              </svg>
+              <IconPlayerPlay size={15} stroke={2} />
               <span>Execute In-Page <code>fetch()</code></span>
             </button>
 
@@ -341,10 +342,7 @@ const mockAttributes = [
       <div class="rd-usecase-grid">
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-            </svg>
+            <IconShieldOff size={22} stroke={2} />
           </div>
           <h3>The Cross-Origin CORS Trap</h3>
           <p>
@@ -354,11 +352,7 @@ const mockAttributes = [
 
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-              <line x1="12" y1="22.08" x2="12" y2="12"/>
-            </svg>
+            <IconBox size={22} stroke={2} />
           </div>
           <h3>Heavy Containers & Node Services</h3>
           <p>
@@ -368,9 +362,7 @@ const mockAttributes = [
 
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
+            <IconBolt size={22} stroke={2} />
           </div>
           <h3>Zero-Dependency Native Interception</h3>
           <p>
@@ -380,11 +372,7 @@ const mockAttributes = [
 
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <circle cx="12" cy="12" r="6"/>
-              <circle cx="12" cy="12" r="2"/>
-            </svg>
+            <IconTarget size={22} stroke={2} />
           </div>
           <h3>Unified Source of Truth</h3>
           <p>

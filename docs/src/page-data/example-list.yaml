@@ -6,7 +6,7 @@ examples:
       isDoc: true
       category: Guides & Docs
 
-  - Openn API Example:
+  - Open API Example:
       description:  Interactive showcase demonstrating how RapiDoc renders a OpenAPI 3.1 and 3.2 specifications.  
       category: Layouts & Views
       img: /assets/images/dog.png
@@ -253,14 +253,3 @@ examples:
             href: /examples/anyof
         - ALL OF:
             href: /examples/allof
-
-  - Request/Response Demo:
-      href: /examples/reqres
-      description: Connect to live mock servers for realistic sandbox testing without deploying backend infrastructure.
-      category: Console & Interactive
-
-  - Live Configurator:
-      img: /assets/images/playground.png
-      href: /examples/rapidoc-demo
-      description: Interactive drawer allowing you to toggle and test every RapiDoc attribute in real time.
-      category: Console & Interactive

@@ -5,6 +5,10 @@ import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import { stylingData } from '../../page-data/styling-data';
 import '../../styles/styling.css';
+import {
+  IconArrowRight,
+  IconCopy,
+} from '@tabler/icons-astro';
 
 const slotsData = stylingData.slots;
 const totalSlots = slotsData.length;
@@ -230,9 +234,7 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
           <div class="rd-recipe-action">
             <a href="/examples/slots" target="_blank" class="rd-btn rd-btn-primary">
               <span>Launch Interactive Slots Demo</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="M5 12h14m-7-7 7 7-7 7" />
-              </svg>
+              <IconArrowRight size={14} stroke={2.5} />
             </a>
           </div>
         </div>
@@ -322,10 +324,7 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
                   <td class="col-slot-name">
                     <button class="rd-copy-pill" data-copy={`slot="${slot.name}"`} title="Click to copy slot attribute">
                       <code>{slot.name}</code>
-                      <svg class="copy-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                      </svg>
+                      <IconCopy size={12} class="copy-svg" stroke={2} />
                     </button>
                   </td>
                   <td class="col-slot-placement">
@@ -349,11 +348,11 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
       <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
         <a href="/guides/css" class="rd-action-primary" style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
           <span>Custom CSS & Shadow Parts Guide</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          <IconArrowRight size={16} stroke={2.5} />
         </a>
         <a href="/guides/theme" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
           <span>Themes & Brand Colors Guide</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          <IconArrowRight size={16} stroke={2.5} />
         </a>
       </div>
     </section>

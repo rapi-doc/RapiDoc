@@ -3,6 +3,12 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { testListData, TestItem } from '../page-data/tests';
+import {
+  IconSearch,
+  IconSearchOff,
+  IconX,
+  IconArrowUpRight,
+} from '@tabler/icons-astro';
 
 // Extract visible test suites
 const basicTests = testListData.basic
@@ -79,10 +85,7 @@ let totalAssertions = 0;
       <!-- Live Search & Interactive Filter Bar -->
       <div class="rd-search-section">
         <div class="rd-search-wrapper">
-          <svg class="rd-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <IconSearch size={20} class="rd-search-icon" stroke={2} />
           <input
             id="tests-search"
             type="text"
@@ -91,10 +94,7 @@ let totalAssertions = 0;
             class="rd-search-input"
           />
           <button id="clear-tests-search" class="rd-clear-btn" aria-label="Clear search" style="display: none;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <IconX size={16} stroke={2} />
           </button>
         </div>
 
@@ -110,7 +110,9 @@ let totalAssertions = 0;
 
     <!-- Empty Search State -->
     <div id="tests-empty-state" class="rd-empty-state" style="display: none;">
-      <div class="rd-empty-icon">🔍</div>
+      <div class="rd-empty-icon">
+        <IconSearchOff size={36} stroke={1.75} />
+      </div>
       <h3 class="rd-empty-title">No matching test suites found <span id="empty-query-text" class="text-gradient"></span></h3>
       <p class="rd-empty-desc">Try searching for a different keyword, feature, or reset the filter.</p>
       <button id="reset-tests-search-btn" class="rd-btn rd-btn-primary">Reset Search</button>
@@ -155,9 +157,7 @@ let totalAssertions = 0;
                       <div class="rd-slug-row">
                         <a href={`/tests/${test.slug}`} class="rd-launch-badge" target="_blank" rel="noopener" title={`Launch live preview: /tests/${test.slug}`}>
                           <span>/tests/{test.slug}</span>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M7 17l9.2-9.2M17 17V8H8"/>
-                          </svg>
+                          <IconArrowUpRight size={12} stroke={2.5} />
                         </a>
                       </div>
                     </div>
@@ -228,9 +228,7 @@ let totalAssertions = 0;
                         <div class="rd-slug-row">
                           <a href={`/tests/${test.slug}`} class="rd-launch-badge" target="_blank" rel="noopener" title={`Launch live preview: /tests/${test.slug}`}>
                             <span>/tests/{test.slug}</span>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M7 17l9.2-9.2M17 17V8H8"/>
-                            </svg>
+                            <IconArrowUpRight size={12} stroke={2.5} />
                           </a>
                         </div>
                       </div>
@@ -923,8 +921,7 @@ let totalAssertions = 0;
   gap: 6px;
 }
 .rd-val-tag {
-  font-family: var(--rd-font-mono);
-  font-size: 12.5px;
+  font-size: 12px;
   padding: 3px 8px;
   border-radius: 4px;
   background: rgba(16, 185, 129, 0.12);
