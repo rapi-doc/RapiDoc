@@ -605,28 +605,36 @@ json2xml- TestCase
   </root>
 */
 export function json2xml(obj, level = 1) {
+  if (obj === null || obj === undefined) {
+    return '';
+  }
   const indent = '  '.repeat(level);
   let xmlText = '';
-  if (level === 1 && typeof obj !== 'object') {
+  if (typeof obj !== 'object') {
     return `\n${indent}${obj.toString()}`;
   }
   for (const prop in obj) {
-    const tagNameOrProp = obj[prop]['::XML_TAG'] || prop;
-    let tagName = '';
-    if (Array.isArray(obj[prop])) {
-      tagName = tagNameOrProp[0]['::XML_TAG'] || `${prop}`;
-    } else {
-      tagName = tagNameOrProp;
-    }
     if (prop.startsWith('::')) {
       continue;
     }
-    if (Array.isArray(obj[prop])) {
-      xmlText = `${xmlText}\n${indent}<${tagName}>${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
-    } else if (typeof obj[prop] === 'object') {
-      xmlText = `${xmlText}\n${indent}<${tagName}>${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
+    const val = obj[prop];
+    let tagName = prop;
+    if (Array.isArray(val)) {
+      tagName = val['::XML_TAG'] || val[0]?.['::XML_TAG'] || prop;
+    } else if (val && typeof val === 'object') {
+      tagName = val['::XML_TAG'] || prop;
+    } else if (Array.isArray(obj) && obj['::XML_TAG']) {
+      tagName = obj['::XML_TAG'];
+    }
+
+    if (val === null || val === undefined) {
+      xmlText = `${xmlText}\n${indent}<${tagName}></${tagName}>`;
+    } else if (Array.isArray(val)) {
+      xmlText = `${xmlText}\n${indent}<${tagName}>${json2xml(val, level + 1)}\n${indent}</${tagName}>`;
+    } else if (typeof val === 'object') {
+      xmlText = `${xmlText}\n${indent}<${tagName}>${json2xml(val, level + 1)}\n${indent}</${tagName}>`;
     } else {
-      xmlText = `${xmlText}\n${indent}<${tagName}>${obj[prop].toString()}</${tagName}>`;
+      xmlText = `${xmlText}\n${indent}<${tagName}>${val.toString()}</${tagName}>`;
     }
   }
   return xmlText;

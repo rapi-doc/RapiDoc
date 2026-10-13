@@ -1,6 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { generateExample, getTypeInfo, isBinaryFileField, standardizeExample } from '../../packages/rapidoc/src/utils/schema-utils.js';
+import {
+  generateExample,
+  getTypeInfo,
+  isBinaryFileField,
+  standardizeExample,
+  json2xml,
+} from '../../packages/rapidoc/src/utils/schema-utils.js';
 
 describe('generateExample', () => {
   it('should use single "example" when "examples" is undefined', () => {
@@ -472,5 +478,74 @@ describe('standardizeExample', () => {
 
   it('should return undefined for undefined', () => {
     assert.equal(standardizeExample(undefined), undefined);
+  });
+});
+
+describe('json2xml', () => {
+  it('should handle null and undefined input gracefully without throwing', () => {
+    assert.strictEqual(json2xml(null), '');
+    assert.strictEqual(json2xml(undefined), '');
+  });
+
+  it('should render empty tags for null and undefined property values', () => {
+    const obj = {
+      id: 1,
+      nullableField: null,
+      undefinedField: undefined,
+    };
+    const xml = json2xml(obj, 1);
+    assert.ok(xml.includes('<id>1</id>'));
+    assert.ok(xml.includes('<nullableField></nullableField>'));
+    assert.ok(xml.includes('<undefinedField></undefinedField>'));
+  });
+
+  it('should resolve tag name from array item ::XML_TAG', () => {
+    const obj = {
+      items: [
+        { name: 'item1', '::XML_TAG': 'CustomItem' },
+        { name: 'item2', '::XML_TAG': 'CustomItem' },
+      ],
+    };
+    const xml = json2xml(obj, 1);
+    assert.ok(xml.includes('<CustomItem>'));
+    assert.ok(xml.includes('</CustomItem>'));
+  });
+
+  it('should resolve tag name when array itself has ::XML_TAG', () => {
+    const arr = ['apple', 'banana'];
+    arr['::XML_TAG'] = 'Fruit';
+    const obj = { fruits: arr };
+    const xml = json2xml(obj, 1);
+    assert.ok(xml.includes('<Fruit>'));
+    assert.ok(xml.includes('</Fruit>'));
+  });
+
+  it('should generate XML without throwing when schema contains undefined property from allOf primitive (repro issue)', () => {
+    const reproSchema = {
+      type: 'object',
+      xml: { name: 'Order' },
+      properties: {
+        id: { type: 'integer' },
+        detail: {
+          type: 'object',
+          properties: {
+            status: {
+              description: 'Order status',
+              allOf: [{ type: 'string', enum: ['open', 'closed'] }],
+            },
+          },
+        },
+      },
+    };
+
+    const result = generateExample(reproSchema, 'application/xml', null, null, true, true, 'text');
+    assert.ok(result.length >= 1);
+    assert.ok(result[0].exampleValue.includes('<?xml version="1.0" encoding="UTF-8"?>'));
+    assert.ok(result[0].exampleValue.includes('<Order>'));
+    assert.ok(result[0].exampleValue.includes('<id>0</id>'));
+    assert.ok(result[0].exampleValue.includes('<detail>'));
+    assert.ok(result[0].exampleValue.includes('<status></status>'));
+    assert.ok(result[0].exampleValue.includes('</detail>'));
+    assert.ok(result[0].exampleValue.includes('</Order>'));
   });
 });
