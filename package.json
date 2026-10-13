@@ -23,7 +23,10 @@
     "test:parser": "node tests/perf/benchmark.js",
     "test:perf": "node tests/perf/render-benchmark.js",
     "test:component": "node --test tests/component/*.test.js",
-    "test:unit": "node --test tests/unit/*.test.js"
+    "test:unit": "node --test tests/unit/*.test.js",
+    "test:e2e": "node --test tests/e2e/*.test.js",
+    "test:visual": "node --test tests/visual/*.test.js",
+    "test:all": "npm run test:unit && npm run test:component && npm run test:e2e && npm run test:visual"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

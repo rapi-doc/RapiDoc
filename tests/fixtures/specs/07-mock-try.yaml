@@ -1,0 +1,85 @@
+openapi: 3.1.0
+info:
+  title: Mock and Try-It-Out Test API
+  version: 1.0.0
+  description: Validates allow-try, show-curl-before-try, server variable selection, and request execution.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Primary Local Server
+  - url: https://{environment}.example.com:{port}/api
+    description: Dynamic Environment Server
+    variables:
+      environment:
+        default: staging
+        enum:
+          - dev
+          - staging
+          - prod
+        description: Target deployment tier
+      port:
+        default: '8443'
+        description: Connection port
+paths:
+  /echo:
+    get:
+      summary: Echo parameters via GET
+      description: Returns query and header parameters back to the caller.
+      parameters:
+        - name: message
+          in: query
+          required: true
+          schema:
+            type: string
+            default: Hello RapiDoc
+        - name: X-Trace-Id
+          in: header
+          schema:
+            type: string
+            example: trace-abc-123
+      responses:
+        '200':
+          description: Echo response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: string
+                  trace:
+                    type: string
+  /calculate:
+    post:
+      summary: Execute calculation
+      description: Computes result from request body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - a
+                - b
+                - operation
+              properties:
+                a:
+                  type: number
+                  example: 15
+                b:
+                  type: number
+                  example: 5
+                operation:
+                  type: string
+                  enum: [add, subtract, multiply, divide]
+                  default: add
+      responses:
+        '200':
+          description: Calculation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: number

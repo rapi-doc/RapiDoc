@@ -1,0 +1,113 @@
+openapi: 3.1.0
+info:
+  title: Schemas, Nesting and Markdown Tables Test API
+  version: 1.0.0
+  description: Validates schema trees, schema tables, expand levels, required/deprecated fields, and markdown tables inside property descriptions.
+paths:
+  /company:
+    get:
+      summary: Get enterprise company structure
+      description: Returns multi-level nested schema for tree and table view testing.
+      responses:
+        '200':
+          description: Company schema response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+components:
+  schemas:
+    Company:
+      type: object
+      required:
+        - companyId
+        - legalName
+        - headquarters
+      properties:
+        companyId:
+          type: string
+          format: uuid
+          description: Unique company identifier.
+        legalName:
+          type: string
+          minLength: 2
+          maxLength: 80
+          description: Registered legal corporate name.
+        legacyRegistrationNumber:
+          type: string
+          deprecated: true
+          description: Deprecated national registration number.
+        headquarters:
+          $ref: '#/components/schemas/Address'
+        departments:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Department'
+    Address:
+      type: object
+      required:
+        - street
+        - city
+        - country
+      properties:
+        street:
+          type: string
+          description: Street name and number.
+        city:
+          type: string
+          description: City or municipality.
+        postalCode:
+          type: string
+          pattern: '^[0-9]{5}(-[0-9]{4})?$'
+          description: Standard postal code format.
+        country:
+          type: string
+          description: |
+            ISO Country code description with markdown table:
+            | Code | Country |
+            | :--- | :--- |
+            | `US` | United States |
+            | `UK` | United Kingdom |
+            | `DE` | Germany |
+    Department:
+      type: object
+      required:
+        - name
+        - budget
+      properties:
+        name:
+          type: string
+          description: Department title.
+        budget:
+          type: number
+          minimum: 1000
+          maximum: 10000000
+          description: Annual allocated budget in USD.
+        manager:
+          $ref: '#/components/schemas/Employee'
+    Employee:
+      type: object
+      required:
+        - employeeId
+        - fullName
+      properties:
+        employeeId:
+          type: integer
+          minimum: 1
+          description: Sequential employee identifier.
+        fullName:
+          type: string
+          description: Full employee name.
+        role:
+          type: string
+          enum: [engineer, manager, director, vp]
+          default: engineer
+          description: |
+            Role tier classification:
+            | Role | Level |
+            | :--- | :--- |
+            | `engineer` | L3-L5 |
+            | `manager` | M1-M2 |
+            | `director` | D1 |
+            | `vp` | VP |

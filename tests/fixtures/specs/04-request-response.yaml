@@ -1,0 +1,127 @@
+openapi: 3.1.0
+info:
+  title: Request Payloads & Response Status Codes Test API
+  version: 1.0.0
+  description: Validates multipart uploads, urlencoded forms, multiple response status tabs, and response headers.
+paths:
+  /files/upload:
+    post:
+      summary: Upload document with metadata
+      description: Tests multipart/form-data with binary file inputs and structured text metadata.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - documentFile
+                - category
+              properties:
+                documentFile:
+                  type: string
+                  format: binary
+                  description: Document file to upload.
+                category:
+                  type: string
+                  enum: [invoice, contract, receipt]
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: File uploaded successfully
+          headers:
+            X-Upload-Id:
+              schema:
+                type: string
+              description: Unique upload tracking token.
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining in hourly quota.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+                  fileName:
+                    type: string
+                  sizeBytes:
+                    type: integer
+        '400':
+          description: Bad request - invalid file type or missing required fields
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  code:
+                    type: string
+        '500':
+          description: Internal processing failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /login:
+    post:
+      summary: Submit login credentials via form-urlencoded
+      description: Tests standard application/x-www-form-urlencoded form inputs.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                rememberMe:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Authentication succeeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  expiresIn:
+                    type: integer
+        '401':
+          description: Invalid username or password
+  /download:
+    get:
+      summary: Download binary report
+      description: Tests binary octet-stream response content.
+      responses:
+        '200':
+          description: Binary file content
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                example: attachment; filename="report.pdf"
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary

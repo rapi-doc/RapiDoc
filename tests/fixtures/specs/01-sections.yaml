@@ -1,0 +1,101 @@
+openapi: 3.1.0
+info:
+  title: Sections and Navigation Test API
+  version: 1.0.0
+  description: API specification designed to test layout modes, section toggles, tag sorting, and navigation behavior.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Primary Local Server
+tags:
+  - name: Zebra
+    description: Tag starting with Z for testing alphabetical tag sorting.
+  - name: Animals
+    description: Tag starting with A for testing tag sorting and description scroll.
+  - name: Users
+    description: User management operations.
+paths:
+  /animals/cats:
+    get:
+      tags:
+        - Animals
+      summary: List all cats
+      description: Returns a collection of cats.
+      operationId: listCats
+      responses:
+        '200':
+          description: A list of cats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Animal'
+  /animals/dogs:
+    get:
+      tags:
+        - Animals
+      summary: List all dogs
+      description: Returns a collection of dogs.
+      operationId: listDogs
+      responses:
+        '200':
+          description: A list of dogs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Animal'
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List all users
+      description: Retrieve user accounts.
+      operationId: listUsers
+      responses:
+        '200':
+          description: User collection
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /zebra/stripes:
+    get:
+      tags:
+        - Zebra
+      summary: Get zebra stripe pattern
+      description: Retrieve pattern details for zebras.
+      operationId: getZebraStripes
+      responses:
+        '200':
+          description: Zebra stripes info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+components:
+  schemas:
+    Animal:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        species:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        username:
+          type: string

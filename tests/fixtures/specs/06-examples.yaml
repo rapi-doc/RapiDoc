@@ -1,0 +1,84 @@
+openapi: 3.1.0
+info:
+  title: Schema and Parameter Examples Test API
+  version: 1.0.0
+  description: Validates example pre-population (fill-request-fields-with-example), named examples, and response example dropdowns.
+paths:
+  /orders:
+    post:
+      summary: Create new order
+      description: Tests parameter examples and multiple named request body examples.
+      parameters:
+        - name: customerId
+          in: query
+          required: true
+          example: 'CUST-9876'
+          schema:
+            type: string
+        - name: notifyEmail
+          in: query
+          example: 'buyer@example.com'
+          schema:
+            type: string
+            format: email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderType
+                - quantity
+              properties:
+                orderType:
+                  type: string
+                  example: express
+                quantity:
+                  type: integer
+                  example: 10
+                notes:
+                  type: string
+                  example: Please deliver before noon.
+            examples:
+              smallExpressOrder:
+                summary: Small Express Order
+                description: Fast fulfillment example for 2 units.
+                value:
+                  orderType: express
+                  quantity: 2
+                  notes: Urgent rush order
+              bulkStandardOrder:
+                summary: Bulk Standard Order
+                description: Standard ground shipment for 500 units.
+                value:
+                  orderType: standard
+                  quantity: 500
+                  notes: Freight delivery dock 4
+      responses:
+        '201':
+          description: Order confirmation with multiple named examples
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: string
+                  status:
+                    type: string
+                  estimatedArrival:
+                    type: string
+              examples:
+                confirmedOrder:
+                  summary: Confirmed Order Example
+                  value:
+                    orderId: ORD-00123
+                    status: confirmed
+                    estimatedArrival: 2026-10-20
+                backordered:
+                  summary: Backordered Item Example
+                  value:
+                    orderId: ORD-00999
+                    status: backordered
+                    estimatedArrival: 2026-11-15

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>RapiDoc Automated Test Harness</title>
+  <script type="module" src="/rapidoc-min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      box-sizing: border-box;
+      background-color: #090d16;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    rapi-doc {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Unclipped height mode for full-document screenshots */
+    rapi-doc.full-height-mode {
+      height: auto !important;
+      min-height: 100% !important;
+    }
+  </style>
+</head>
+<body>
+  <rapi-doc id="thedoc"></rapi-doc>
+
+  <script type="module">
+    const urlParams = new URLSearchParams(window.location.search);
+    const doc = document.getElementById('thedoc');
+
+    // Default attributes
+    const config = {
+      'spec-url': urlParams.get('spec-url') || urlParams.get('spec') || '/specs/01-sections.yaml',
+      'render-style': urlParams.get('render-style') || 'read',
+      'schema-style': urlParams.get('schema-style') || 'tree',
+      'theme': urlParams.get('theme') || 'dark',
+      'show-header': urlParams.get('show-header') || 'false',
+      'show-info': urlParams.get('show-info') || 'true',
+      'allow-try': urlParams.get('allow-try') || 'true',
+      'allow-server-selection': urlParams.get('allow-server-selection') || 'true',
+      'allow-authentication': urlParams.get('allow-authentication') || 'true',
+    };
+
+    // Apply any explicit URL param overrides
+    for (const [key, val] of urlParams.entries()) {
+      if (key !== 'spec' && key !== 'full-height') {
+        config[key] = val;
+      }
+    }
+
+    // Set attributes on rapi-doc element
+    for (const [attr, val] of Object.entries(config)) {
+      if (val !== null && val !== undefined && val !== '') {
+        doc.setAttribute(attr, val);
+      }
+    }
+
+    if (urlParams.get('full-height') === 'true') {
+      doc.classList.add('full-height-mode');
+    }
+
+    window.__RAPIDOC_READY__ = false;
+
+    doc.addEventListener('spec-loaded', () => {
+      window.__RAPIDOC_SPEC_LOADED__ = true;
+    });
+
+    doc.addEventListener('after-render', () => {
+      window.__RAPIDOC_READY__ = true;
+      document.body.setAttribute('data-rapidoc-ready', 'true');
+    });
+  </script>
+</body>
+</html>

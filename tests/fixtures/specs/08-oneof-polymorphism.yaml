@@ -1,0 +1,162 @@
+openapi: 3.1.0
+info:
+  title: Polymorphism and Composition Test API
+  version: 1.0.0
+  description: Validates oneOf with discriminator, oneOf variant tabs, allOf inheritance, and anyOf combinations.
+paths:
+  /shapes:
+    post:
+      summary: Create polymorphic shape with discriminator
+      description: Tests oneOf schemas equipped with an explicit discriminator and mapping.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Shape'
+      responses:
+        '201':
+          description: Created shape
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shape'
+  /notifications:
+    post:
+      summary: Send notification (oneOf without discriminator)
+      description: Tests variant switcher pill tabs for oneOf without a discriminator.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/EmailNotification'
+                - $ref: '#/components/schemas/SmsNotification'
+                - $ref: '#/components/schemas/PushNotification'
+      responses:
+        '200':
+          description: Notification sent
+  /profiles:
+    get:
+      summary: Get composite profile (allOf inheritance)
+      description: Tests allOf schema composition where multiple objects are merged together.
+      responses:
+        '200':
+          description: Merged user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuperUserProfile'
+components:
+  schemas:
+    Shape:
+      type: object
+      required:
+        - shapeType
+      discriminator:
+        propertyName: shapeType
+        mapping:
+          circle: '#/components/schemas/Circle'
+          rectangle: '#/components/schemas/Rectangle'
+      properties:
+        shapeType:
+          type: string
+          description: Discriminator property determining concrete subtype.
+    Circle:
+      allOf:
+        - $ref: '#/components/schemas/Shape'
+        - type: object
+          required:
+            - radius
+          properties:
+            radius:
+              type: number
+              minimum: 0.1
+              description: Circle radius in centimeters.
+    Rectangle:
+      allOf:
+        - $ref: '#/components/schemas/Shape'
+        - type: object
+          required:
+            - width
+            - height
+          properties:
+            width:
+              type: number
+              minimum: 0.1
+            height:
+              type: number
+              minimum: 0.1
+    EmailNotification:
+      type: object
+      title: Email
+      required:
+        - recipientEmail
+        - subject
+      properties:
+        recipientEmail:
+          type: string
+          format: email
+        subject:
+          type: string
+        bodyText:
+          type: string
+    SmsNotification:
+      type: object
+      title: SMS
+      required:
+        - phoneNumber
+        - message
+      properties:
+        phoneNumber:
+          type: string
+          pattern: '^\+[1-9]\d{1,14}$'
+        message:
+          type: string
+          maxLength: 160
+    PushNotification:
+      type: object
+      title: Push
+      required:
+        - deviceToken
+        - alert
+      properties:
+        deviceToken:
+          type: string
+        alert:
+          type: string
+    BaseEntity:
+      type: object
+      required:
+        - id
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+    UserCredentials:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+    SuperUserProfile:
+      allOf:
+        - $ref: '#/components/schemas/BaseEntity'
+        - $ref: '#/components/schemas/UserCredentials'
+        - type: object
+          properties:
+            permissions:
+              type: array
+              items:
+                type: string
+            department:
+              type: string

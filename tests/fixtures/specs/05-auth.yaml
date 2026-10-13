@@ -1,0 +1,109 @@
+openapi: 3.1.0
+info:
+  title: Security Schemes & Authentication Test API
+  version: 1.0.0
+  description: Validates API keys, HTTP Bearer tokens, HTTP Basic, OAuth2 flows, and multi-security requirements.
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /public/ping:
+    get:
+      summary: Public unauthenticated ping
+      description: Accessible without any security credentials.
+      security: []
+      responses:
+        '200':
+          description: Pong response
+  /secure/api-key:
+    get:
+      summary: Protected by header API Key
+      description: Requires X-API-KEY header.
+      security:
+        - HeaderApiKey: []
+      responses:
+        '200':
+          description: Authorized with header API Key
+  /secure/query-key:
+    get:
+      summary: Protected by query API Key
+      description: Requires apiKey query parameter.
+      security:
+        - QueryApiKey: []
+      responses:
+        '200':
+          description: Authorized with query API Key
+  /secure/bearer:
+    get:
+      summary: Protected by HTTP Bearer JWT
+      description: Requires Bearer authentication header.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Authorized with Bearer JWT
+  /secure/basic:
+    get:
+      summary: Protected by HTTP Basic Auth
+      description: Requires Basic authentication credentials.
+      security:
+        - BasicAuth: []
+      responses:
+        '200':
+          description: Authorized with Basic Auth
+  /secure/oauth2:
+    get:
+      summary: Protected by OAuth2 authorization code flow
+      description: Requires read:reports scope.
+      security:
+        - OAuth2Auth:
+            - read:reports
+      responses:
+        '200':
+          description: Authorized with OAuth2
+  /secure/multi-auth:
+    post:
+      summary: Protected by complex AND / OR security requirements
+      description: Requires either (BearerAuth AND HeaderApiKey) OR (OAuth2Auth).
+      security:
+        - BearerAuth: []
+          HeaderApiKey: []
+        - OAuth2Auth:
+            - write:reports
+      responses:
+        '200':
+          description: Authorized with multi-scheme
+components:
+  securitySchemes:
+    HeaderApiKey:
+      type: apiKey
+      name: X-API-KEY
+      in: header
+      description: Standard header-based API key.
+    QueryApiKey:
+      type: apiKey
+      name: api_key
+      in: query
+      description: Query-parameter-based API key.
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JSON Web Token in standard Authorization header.
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: HTTP Basic username and password.
+    OAuth2Auth:
+      type: oauth2
+      description: OAuth2 authorization flow.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/oauth/authorize
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            read:reports: View statistical reports
+            write:reports: Create or modify reports
+        clientCredentials:
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            admin: Full administrative privileges
