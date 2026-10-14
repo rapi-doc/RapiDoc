@@ -1707,3 +1707,33 @@ export function getSchemaFromParam(param) {
   }
   return [null, null, null];
 }
+
+export const EMPTY_ARRAY = Object.freeze([]);
+
+export function getMergedProperties(schema, visited = new Set()) {
+  if (!schema || typeof schema !== 'object' || visited.has(schema)) {
+    return {};
+  }
+  visited.add(schema);
+  const properties = { ...(schema.properties || {}) };
+  if (Array.isArray(schema.allOf)) {
+    schema.allOf.forEach((sub) => {
+      Object.assign(properties, getMergedProperties(sub, visited));
+    });
+  }
+  return properties;
+}
+
+export function getMergedRequired(schema, visited = new Set()) {
+  if (!schema || typeof schema !== 'object' || visited.has(schema)) {
+    return [];
+  }
+  visited.add(schema);
+  const required = Array.isArray(schema.required) ? [...schema.required] : [];
+  if (Array.isArray(schema.allOf)) {
+    schema.allOf.forEach((sub) => {
+      required.push(...getMergedRequired(sub, visited));
+    });
+  }
+  return [...new Set(required)];
+}

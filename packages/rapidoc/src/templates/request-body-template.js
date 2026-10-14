@@ -8,7 +8,17 @@ import { repeat } from 'lit/directives/repeat.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
-import { schemaToAST, getTypeInfo, isBinaryFileField, generateExample, normalizeExamples, standardizeExample } from '~/utils/schema-utils';
+import {
+  schemaToAST,
+  getTypeInfo,
+  isBinaryFileField,
+  generateExample,
+  normalizeExamples,
+  standardizeExample,
+  EMPTY_ARRAY,
+  getMergedProperties,
+  getMergedRequired,
+} from '~/utils/schema-utils';
 import '~/components/schema-tree';
 import '~/components/schema-table';
 import '~/components/tag-input';
@@ -96,34 +106,6 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
   `;
 }
 
-const EMPTY_ARRAY = [];
-
-function getMergedProperties(schema) {
-  if (!schema || typeof schema !== 'object') {
-    return {};
-  }
-  let properties = { ...(schema.properties || {}) };
-  if (Array.isArray(schema.allOf)) {
-    schema.allOf.forEach((sub) => {
-      Object.assign(properties, getMergedProperties(sub));
-    });
-  }
-  return properties;
-}
-
-function getMergedRequired(schema) {
-  if (!schema || typeof schema !== 'object') {
-    return [];
-  }
-  let required = Array.isArray(schema.required) ? [...schema.required] : [];
-  if (Array.isArray(schema.allOf)) {
-    schema.allOf.forEach((sub) => {
-      required.push(...getMergedRequired(sub));
-    });
-  }
-  return [...new Set(required)];
-}
-
 export function formDataTemplate(schema, mimeType, exampleValue = '') {
   const formDataTableRows = [];
   const properties = getMergedProperties(schema);
@@ -177,10 +159,6 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                   data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                                   data-array="false"
                                   data-file-array="true"
-                                  @change="${(e) => {
-                                    const requestPanelEl = this.getRequestPanel(e);
-                                    this.liveCURLSyntaxUpdate(requestPanelEl);
-                                  }}"
                                 />
                                 <button class="file-input-remove-btn" @click="${() => this.onRemoveFileInput(fieldName, key)}">
                                   &#x2715;
@@ -213,14 +191,6 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                 : fieldExamples
                               : EMPTY_ARRAY
                           }"
-                          @input="${(e) => {
-                            const requestPanelEl = this.getRequestPanel(e);
-                            this.liveCURLSyntaxUpdate(requestPanelEl);
-                          }}"
-                          @change="${(e) => {
-                            const requestPanelEl = this.getRequestPanel(e);
-                            this.liveCURLSyntaxUpdate(requestPanelEl);
-                          }}"
                         >
                         </tag-input>
                       `
@@ -240,14 +210,6 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                     data-pname="${fieldName}"
                                     data-example="${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
                                     data-array="false"
-                                    @input="${(e) => {
-                                      const requestPanelEl = this.getRequestPanel(e);
-                                      this.liveCURLSyntaxUpdate(requestPanelEl);
-                                    }}"
-                                    @change="${(e) => {
-                                      const requestPanelEl = this.getRequestPanel(e);
-                                      this.liveCURLSyntaxUpdate(requestPanelEl);
-                                    }}"
                                   />`
                                 : ''
                             }

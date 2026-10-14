@@ -5,20 +5,26 @@ export default class TagInput extends LitElement {
     let tagItemTmpl = '';
     if (Array.isArray(this.value)) {
       tagItemTmpl = html`${this.value
-        .filter((v) => typeof v === 'string' && v.trim() !== '')
+        .filter((v) => v !== '' && v !== null && v !== undefined && String(v).trim() !== '')
         .map((v) => html`<span class="tag">${v}</span>`)}`;
     }
-    return html`<div class="tags">
+    return html`<div class="tags" @click="${(e) => this.focusEditor(e)}">
       ${tagItemTmpl}
       <input
         type="text"
         class="editor"
         @paste="${(e) => this.afterPaste(e)}"
-        @keydown="${this.afterKeyDown}"
-        @blur="${this.onBlur}"
+        @keydown="${(e) => this.afterKeyDown(e)}"
+        @blur="${(e) => this.onBlur(e)}"
         placeholder="${this.placeholder || ''}"
       />
     </div>`;
+  }
+
+  focusEditor(e) {
+    if (e.target.classList.contains('tags')) {
+      this.shadowRoot?.querySelector('.editor')?.focus();
+    }
   }
 
   static get properties() {
@@ -67,23 +73,24 @@ export default class TagInput extends LitElement {
   }
 
   afterKeyDown(e) {
-    if (e.keyCode === 13) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
       e.stopPropagation();
       e.preventDefault();
-      if (e.target.value) {
+      const val = e.target.value ? e.target.value.trim() : '';
+      if (val) {
         if (Array.isArray(this.value)) {
-          this.value = [...this.value, e.target.value];
+          this.value = [...this.value, val];
         } else {
-          this.value = [e.target.value];
+          this.value = [val];
         }
         e.target.value = '';
         this.dispatchEvents();
       }
-    } else if (e.keyCode === 8) {
-      if (e.target.value.length === 0) {
+    } else if (e.key === 'Backspace' || e.key === 'Delete' || e.keyCode === 8 || e.keyCode === 46) {
+      if (!e.target.value || e.target.value.length === 0) {
         if (Array.isArray(this.value) && this.value.length > 0) {
-          this.value.splice(-1);
-          this.value = [...this.value];
+          e.preventDefault();
+          this.value = this.value.slice(0, -1);
           this.dispatchEvents();
         }
       }
@@ -91,11 +98,12 @@ export default class TagInput extends LitElement {
   }
 
   onBlur(e) {
-    if (e.target.value) {
+    const val = e.target.value ? e.target.value.trim() : '';
+    if (val) {
       if (Array.isArray(this.value)) {
-        this.value = [...this.value, e.target.value];
+        this.value = [...this.value, val];
       } else {
-        this.value = [e.target.value];
+        this.value = [val];
       }
       e.target.value = '';
       this.dispatchEvents();

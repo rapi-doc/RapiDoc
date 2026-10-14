@@ -14,11 +14,10 @@ import {
   generateExample,
   standardizeExample,
   anyExampleWithSummaryOrDescription,
+  EMPTY_ARRAY,
 } from '~/utils/schema-utils';
 import '~/components/schema-tree';
 import '~/components/tag-input';
-
-const EMPTY_ARRAY = [];
 
 export function renderExample(example, paramType, paramName) {
   return html`
