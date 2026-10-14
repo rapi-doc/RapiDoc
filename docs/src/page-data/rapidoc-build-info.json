@@ -1,21 +1,21 @@
 {
   "name": "rapidoc",
-  "version": "11.0.0",
-  "versionTag": "v11.0.0",
+  "version": "11.0.1",
+  "versionTag": "v11.0.1",
   "versionShort": "v11.0",
-  "buildTime": "2026-10-14T12:13:06.311Z",
+  "buildTime": "2026-10-14T15:10:42.648Z",
   "bundle": {
     "minified": {
-      "bytes": 536414,
-      "formatted": "524 KB",
-      "kb": 524,
-      "exactKb": 523.8
+      "bytes": 537093,
+      "formatted": "525 KB",
+      "kb": 525,
+      "exactKb": 524.5
     },
     "gzip": {
-      "bytes": 138705,
-      "formatted": "135 KB",
-      "kb": 135,
-      "exactKb": 135.5
+      "bytes": 138863,
+      "formatted": "136 KB",
+      "kb": 136,
+      "exactKb": 135.6
     }
   }
 }

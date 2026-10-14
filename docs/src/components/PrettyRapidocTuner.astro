@@ -808,6 +808,12 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
             } else {
               target.setAttribute(attr, val);
             }
+            const camelProp = attr.replace(/-([a-z])/g, (_, g) => g.toUpperCase());
+            if (camelProp in target) {
+              try {
+                target[camelProp] = val;
+              } catch (_) {}
+            }
             if (attr === 'render-style') {
               const syncLayout = val === 'read' || val === 'focused' ? 'column' : 'row';
               target.setAttribute('layout', syncLayout);
@@ -826,6 +832,12 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           if (attr) {
             const newVal = e.target.checked ? 'true' : 'false';
             target.setAttribute(attr, newVal);
+            const camelProp = attr.replace(/-([a-z])/g, (_, g) => g.toUpperCase());
+            if (camelProp in target) {
+              try {
+                target[camelProp] = newVal;
+              } catch (_) {}
+            }
             syncControllerState();
           }
           return;
