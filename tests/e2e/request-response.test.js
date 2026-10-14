@@ -74,4 +74,25 @@ describe('E2E: Request Payloads & Response Status Tabs', () => {
     });
     assert.equal(headersRendered, true, 'Response headers should be rendered in api-response');
   });
+
+  it('preserves response schema and example display in focused mode after navigation or selection reset', async () => {
+    await loadHarness(page, baseUrl, {
+      spec: '/specs/04-request-response.yaml',
+      'render-style': 'focused',
+      'show-info': 'false',
+    });
+
+    const isSchemaVisible = await page.evaluate(async () => {
+      const doc = document.getElementById('thedoc');
+      await doc.scrollToPath('post-/files/upload');
+      const apiResp = doc.shadowRoot.querySelector('api-response');
+      if (!apiResp || !apiResp.shadowRoot) return false;
+      const tabPanels = Array.from(apiResp.shadowRoot.querySelectorAll('[part="tab-panel"]'));
+      return tabPanels.some((panel) => {
+        const style = window.getComputedStyle(panel.closest('div[style*="display"]'));
+        return style.display !== 'none';
+      });
+    });
+    assert.equal(isSchemaVisible, true, 'Response schema tabs should remain visible after scrollToPath in focused mode');
+  });
 });

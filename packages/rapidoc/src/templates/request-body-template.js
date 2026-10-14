@@ -334,6 +334,8 @@ export default function requestBodyTemplate() {
       example: content[mimeType].example,
       examples: content[mimeType].examples,
     });
+    // Fallback guard: If selectedRequestBodyType was cleared (e.g., after focused-mode navigation),
+    // automatically latch onto the first available MIME type (e.g., application/json).
     if (!this.selectedRequestBodyType) {
       this.selectedRequestBodyType = mimeType;
     }

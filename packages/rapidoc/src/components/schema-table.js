@@ -5,17 +5,7 @@ import { sanitizeHTML } from '../utils/sanitize.js';
 import FontStyles from '~/styles/font-styles';
 import SchemaStyles from '~/styles/schema-styles';
 import CustomStyles from '~/styles/custom-styles';
-
-function hasMultilineDescription(desc) {
-  if (!desc || typeof desc !== 'string') {
-    return false;
-  }
-  const cleaned = desc
-    .trim()
-    .replace(/<br\s*\/?>$/i, '')
-    .trim();
-  return cleaned.includes('<br') || cleaned.includes('\n');
-}
+import { hasMultilineDescription } from '~/utils/markdown-utils';
 
 export default class SchemaTable extends LitElement {
   static get properties() {

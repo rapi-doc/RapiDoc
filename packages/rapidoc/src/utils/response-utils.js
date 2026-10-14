@@ -1,4 +1,5 @@
 import { formatXml } from './xml-utils.js';
+import { schemaToAST, generateExample, standardizeExample } from './schema-utils.js';
 
 /**
  * Parses and processes a standard Fetch API Response into RapiDoc formatted response state.
@@ -105,5 +106,93 @@ export async function processFetchResponse(fetchResponse) {
     responseBlobType,
     responseBlobUrl,
     respContentDisposition,
+  };
+}
+
+/**
+ * Pre-computes schema ASTs, examples, and headers for all response codes and MIME types.
+ * Pure function extracted from api-response component to enable caching and unit testing.
+ *
+ * @param {object} responses - OpenAPI responses map
+ * @param {object} [options]
+ * @param {boolean|string} [options.callback=false]
+ * @param {boolean|string} [options.webhook=false]
+ * @returns {{
+ *   headersForEachRespStatus: object,
+ *   mimeResponsesForEachStatus: object,
+ *   defaultStatus: string,
+ *   defaultMimeType: string
+ * }}
+ */
+export function prepareResponseDefinitions(responses, options = {}) {
+  const { callback = false, webhook = false } = options;
+  const isCallbackOrWebhook = callback === true || callback === 'true' || webhook === true || webhook === 'true';
+
+  const headersForEachRespStatus = {};
+  const mimeResponsesForEachStatus = {};
+  let defaultStatus = '';
+  let defaultMimeType = '';
+
+  if (!responses || typeof responses !== 'object') {
+    return {
+      headersForEachRespStatus,
+      mimeResponsesForEachStatus,
+      defaultStatus,
+      defaultMimeType,
+    };
+  }
+
+  for (const statusCode of Object.keys(responses)) {
+    if (statusCode === '$$ref') {
+      continue;
+    }
+    if (!defaultStatus) {
+      defaultStatus = statusCode;
+    }
+    const allMimeResp = {};
+    const content = responses[statusCode]?.content;
+
+    if (content && typeof content === 'object') {
+      for (const mimeResp of Object.keys(content)) {
+        const mimeRespObj = content[mimeResp];
+        if (!defaultMimeType) {
+          defaultMimeType = mimeResp;
+        }
+
+        const schemaTree = mimeRespObj?.schema ? schemaToAST(mimeRespObj.schema) : null;
+        const respExamples = generateExample(
+          mimeRespObj?.schema,
+          mimeResp,
+          standardizeExample(mimeRespObj?.examples),
+          standardizeExample(mimeRespObj?.example),
+          !isCallbackOrWebhook,
+          isCallbackOrWebhook,
+          mimeResp.includes('json') ? 'json' : 'text'
+        );
+
+        allMimeResp[mimeResp] = {
+          description: responses[statusCode].description,
+          examples: respExamples,
+          selectedExample: respExamples[0]?.exampleId || '',
+          schemaTree,
+        };
+      }
+    }
+
+    const tempHeaders = [];
+    if (responses[statusCode]?.headers) {
+      for (const key of Object.keys(responses[statusCode].headers)) {
+        tempHeaders.push({ name: key, ...responses[statusCode].headers[key] });
+      }
+    }
+    headersForEachRespStatus[statusCode] = tempHeaders;
+    mimeResponsesForEachStatus[statusCode] = allMimeResp;
+  }
+
+  return {
+    headersForEachRespStatus,
+    mimeResponsesForEachStatus,
+    defaultStatus,
+    defaultMimeType,
   };
 }

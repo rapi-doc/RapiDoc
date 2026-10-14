@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { processFetchResponse } from '../../packages/rapidoc/src/utils/response-utils.js';
+import { processFetchResponse, prepareResponseDefinitions } from '../../packages/rapidoc/src/utils/response-utils.js';
 
 describe('processFetchResponse', () => {
   it('should parse JSON response and format with 2-space indentation', async () => {
@@ -77,5 +77,60 @@ describe('processFetchResponse', () => {
     const result = await processFetchResponse(response);
     assert.equal(result.responseText, '');
     assert.equal(result.responseIsBlob, false);
+  });
+});
+
+describe('prepareResponseDefinitions', () => {
+  it('should process responses into schema ASTs, examples, and headers', () => {
+    const responses = {
+      200: {
+        description: 'Successful response',
+        headers: {
+          'X-Rate-Limit': {
+            description: 'Requests remaining',
+            schema: { type: 'integer' },
+          },
+        },
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer', example: 1 },
+                name: { type: 'string', example: 'Widget' },
+              },
+            },
+          },
+        },
+      },
+      404: {
+        description: 'Not found',
+      },
+    };
+
+    const defs = prepareResponseDefinitions(responses);
+
+    assert.equal(defs.defaultStatus, '200');
+    assert.equal(defs.defaultMimeType, 'application/json');
+
+    // Headers
+    assert.equal(defs.headersForEachRespStatus['200'].length, 1);
+    assert.equal(defs.headersForEachRespStatus['200'][0].name, 'X-Rate-Limit');
+
+    // MIME responses
+    const jsonResp = defs.mimeResponsesForEachStatus['200']['application/json'];
+    assert.ok(jsonResp);
+    assert.equal(jsonResp.description, 'Successful response');
+    assert.ok(jsonResp.schemaTree);
+    assert.equal(jsonResp.schemaTree.kind, 'object');
+    assert.ok(jsonResp.examples.length > 0);
+  });
+
+  it('should handle null or invalid responses gracefully', () => {
+    const defs = prepareResponseDefinitions(null);
+    assert.deepEqual(defs.headersForEachRespStatus, {});
+    assert.deepEqual(defs.mimeResponsesForEachStatus, {});
+    assert.equal(defs.defaultStatus, '');
+    assert.equal(defs.defaultMimeType, '');
   });
 });

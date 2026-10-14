@@ -2,7 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
-import { schemaToAST, generateExample, standardizeExample } from '~/utils/schema-utils';
+import { prepareResponseDefinitions } from '../utils/response-utils.js';
 import FontStyles from '~/styles/font-styles';
 import FlexStyles from '~/styles/flex-styles';
 import TableStyles from '~/styles/table-styles';
@@ -18,6 +18,8 @@ export default class ApiResponse extends LitElement {
   constructor() {
     super();
     this.selectedStatus = '';
+    this.defaultStatus = '';
+    this.defaultMimeType = '';
     this.headersForEachRespStatus = {};
     this.mimeResponsesForEachStatus = {};
     this.activeSchemaTab = 'schema';
@@ -89,6 +91,7 @@ export default class ApiResponse extends LitElement {
 
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
+    // Sync configuration options passed down from parent <rapi-doc>
     if (this.config && changedProperties.has('config')) {
       if (this.config.renderStyle) this.renderStyle = this.config.renderStyle;
       if (this.config.schemaStyle) this.schemaStyle = this.config.schemaStyle;
@@ -96,11 +99,31 @@ export default class ApiResponse extends LitElement {
       if (this.config.schemaDescriptionExpanded !== undefined) this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
       if (this.config.allowSchemaDescriptionExpandToggle !== undefined)
         this.allowSchemaDescriptionExpandToggle = this.config.allowSchemaDescriptionExpandToggle;
+      // In responses, readOnly fields are shown by default ('false') while writeOnly fields are hidden ('true').
+      // For webhooks, this behavior is inverted unless configured to 'never'.
       if (this.config.schemaHideReadOnly !== undefined)
         this.schemaHideReadOnly = this.config.schemaHideReadOnly === 'never' ? 'false' : this.webhook === 'true' ? 'true' : 'false';
       if (this.config.schemaHideWriteOnly !== undefined)
         this.schemaHideWriteOnly = this.config.schemaHideWriteOnly === 'never' ? 'false' : this.webhook === 'true' ? 'false' : 'true';
       if (this.config.defaultSchemaTab) this.activeSchemaTab = this.config.defaultSchemaTab;
+    }
+    // Parse response definitions, headers, examples, and AST schemas when responses change
+    if (changedProperties.has('responses') || changedProperties.has('callback') || changedProperties.has('webhook')) {
+      const defs = prepareResponseDefinitions(this.responses, {
+        callback: this.callback,
+        webhook: this.webhook,
+      });
+      this.headersForEachRespStatus = defs.headersForEachRespStatus;
+      this.mimeResponsesForEachStatus = defs.mimeResponsesForEachStatus;
+      this.defaultStatus = defs.defaultStatus;
+      this.defaultMimeType = defs.defaultMimeType;
+      // Default to primary status code (e.g. '200') if none is currently selected or if the old status doesn't exist on this response
+      if (!this.selectedStatus || !this.responses[this.selectedStatus]) {
+        this.selectedStatus = defs.defaultStatus;
+      }
+      if (!this.selectedMimeType) {
+        this.selectedMimeType = defs.defaultMimeType;
+      }
     }
   }
 
@@ -113,51 +136,31 @@ export default class ApiResponse extends LitElement {
     </div> `;
   }
 
+  // Called by rapi-doc after navigating in focused mode.
+  // In focused mode, the single <api-response> element instance is reused across operations.
+  // We reset selections back to the default status code and MIME type of the active endpoint,
+  // preventing user selections from a prior endpoint (e.g., status 400) from carrying over or hiding panels.
   resetSelection() {
-    this.selectedStatus = '';
-    this.selectedMimeType = '';
+    this.selectedStatus = this.defaultStatus || (this.responses ? Object.keys(this.responses).find((k) => k !== '$$ref') || '' : '');
+    if (this.selectedStatus && this.mimeResponsesForEachStatus?.[this.selectedStatus]) {
+      this.selectedMimeType = Object.keys(this.mimeResponsesForEachStatus[this.selectedStatus])[0] || '';
+    } else {
+      this.selectedMimeType = this.defaultMimeType || '';
+    }
   }
 
   responseTemplate() {
     if (!this.responses) {
       return '';
     }
-    for (const statusCode in this.responses) {
-      if (!this.selectedStatus) {
-        this.selectedStatus = statusCode;
-      }
-      const allMimeResp = {};
-      for (const mimeResp in this.responses[statusCode]?.content) {
-        const mimeRespObj = this.responses[statusCode].content[mimeResp];
-        if (!this.selectedMimeType) {
-          this.selectedMimeType = mimeResp;
-        }
-        // Generate Schema
-        const schemaTree = schemaToAST(mimeRespObj.schema);
-        // Generate Example
-        const respExamples = generateExample(
-          mimeRespObj.schema,
-          mimeResp,
-          standardizeExample(mimeRespObj.examples),
-          standardizeExample(mimeRespObj.example),
-          this.callback === 'true' || this.webhook === 'true' ? false : true,
-          this.callback === 'true' || this.webhook === 'true' ? true : false,
-          mimeResp.includes('json') ? 'json' : 'text'
-        );
-        allMimeResp[mimeResp] = {
-          description: this.responses[statusCode].description,
-          examples: respExamples,
-          selectedExample: respExamples[0]?.exampleId || '',
-          schemaTree,
-        };
-      }
-      // Headers for each response status
-      const tempHeaders = [];
-      for (const key in this.responses[statusCode]?.headers) {
-        tempHeaders.push({ name: key, ...this.responses[statusCode].headers[key] });
-      }
-      this.headersForEachRespStatus[statusCode] = tempHeaders;
-      this.mimeResponsesForEachStatus[statusCode] = allMimeResp;
+    // Fallback guard: Ensure selectedStatus and selectedMimeType always point to valid options
+    // for this endpoint, even if resetSelection was called or responses have not re-rendered yet.
+    if (!this.selectedStatus || !this.responses[this.selectedStatus]) {
+      this.selectedStatus =
+        this.defaultStatus || Object.keys(this.responses).find((k) => k !== '$$ref') || Object.keys(this.responses)[0] || '';
+    }
+    if (!this.selectedMimeType && this.selectedStatus && this.mimeResponsesForEachStatus?.[this.selectedStatus]) {
+      this.selectedMimeType = Object.keys(this.mimeResponsesForEachStatus[this.selectedStatus])[0] || this.defaultMimeType || '';
     }
     return html`
       ${
@@ -202,7 +205,7 @@ export default class ApiResponse extends LitElement {
               }
             </div>
             ${
-              Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
+              !this.mimeResponsesForEachStatus[status] || Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
                 ? ''
                 : html`<div part="tab-panel" class="tab-panel col">
                     <div

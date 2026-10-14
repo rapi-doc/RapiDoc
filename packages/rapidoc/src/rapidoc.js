@@ -1195,8 +1195,10 @@ export default class RapiDoc extends LitElement {
     } else if (this.renderStyle === 'focused') {
       // If goto-path is provided and no location-hash is present then try to scroll to default element
       if (!this.gotoPath) {
-        const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec.tags[0]?.paths[0];
-        this.scrollToPath(defaultElementId);
+        const defaultElementId = this.showInfo === 'true' ? 'overview' : this.resolvedSpec.tags[0]?.paths[0]?.elementId;
+        if (defaultElementId) {
+          this.scrollToPath(defaultElementId);
+        }
       }
     }
   }
@@ -1438,7 +1440,7 @@ export default class RapiDoc extends LitElement {
     }
     if (this.renderStyle === 'focused') {
       const requestEl = this.shadowRoot.querySelector('api-request');
-      if (requestEl) {
+      if (typeof requestEl?.beforeNavigationFocusedMode === 'function') {
         requestEl.beforeNavigationFocusedMode();
       }
     }
@@ -1473,14 +1475,16 @@ export default class RapiDoc extends LitElement {
         isValidElementId = false;
       }
       if (isValidElementId) {
-        // for focused style it is important to reset request-body-selection and response selection which maintains the state for in case of multiple req-body or multiple response mime-type
+        // In focused mode, <api-request> and <api-response> component instances are reused across endpoint switches
+        // to avoid expensive DOM re-creation. Reset their selection state so selections from the previous operation
+        // (such as alternative request bodies or non-default status codes) do not persist into the new operation.
         if (this.renderStyle === 'focused') {
           const requestEl = this.shadowRoot.querySelector('api-request');
-          if (requestEl) {
+          if (typeof requestEl?.afterNavigationFocusedMode === 'function') {
             requestEl.afterNavigationFocusedMode();
           }
           const responseEl = this.shadowRoot.querySelector('api-response');
-          if (responseEl) {
+          if (typeof responseEl?.resetSelection === 'function') {
             responseEl.resetSelection();
           }
         }
