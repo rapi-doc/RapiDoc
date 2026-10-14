@@ -24,7 +24,16 @@ export default class TagInput extends LitElement {
   static get properties() {
     return {
       placeholder: { type: String },
-      value: { type: Array, attribute: 'value' },
+      value: {
+        type: Array,
+        attribute: 'value',
+        hasChanged(newVal, oldVal) {
+          if (newVal === oldVal) return false;
+          if (!Array.isArray(newVal) || !Array.isArray(oldVal)) return true;
+          if (newVal.length !== oldVal.length) return true;
+          return newVal.some((v, i) => v !== oldVal[i]);
+        },
+      },
     };
   }
 
@@ -37,6 +46,11 @@ export default class TagInput extends LitElement {
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
+  dispatchEvents() {
+    this.dispatchEvent(new CustomEvent('change', { bubbles: true, composed: true, detail: { value: this.value } }));
+    this.dispatchEvent(new CustomEvent('input', { bubbles: true, composed: true, detail: { value: this.value } }));
+  }
+
   afterPaste(e) {
     const clipboardData = e.clipboardData || window.clipboardData;
     const pastedData = clipboardData.getData('Text');
@@ -47,6 +61,7 @@ export default class TagInput extends LitElement {
       } else {
         this.value = pastedArray;
       }
+      this.dispatchEvents();
     }
     e.preventDefault();
   }
@@ -62,12 +77,14 @@ export default class TagInput extends LitElement {
           this.value = [e.target.value];
         }
         e.target.value = '';
+        this.dispatchEvents();
       }
     } else if (e.keyCode === 8) {
       if (e.target.value.length === 0) {
         if (Array.isArray(this.value) && this.value.length > 0) {
           this.value.splice(-1);
           this.value = [...this.value];
+          this.dispatchEvents();
         }
       }
     }
@@ -81,6 +98,7 @@ export default class TagInput extends LitElement {
         this.value = [e.target.value];
       }
       e.target.value = '';
+      this.dispatchEvents();
     }
   }
 

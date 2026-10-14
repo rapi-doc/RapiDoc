@@ -232,7 +232,20 @@ export default class ApiRequest extends LitElement {
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
           inputParametersTemplate.call(this, 'query')
         )}
-        ${requestBodyTemplate.call(this)}
+        ${guard(
+          [
+            this.method,
+            this.path,
+            this.allowTry,
+            this.request_body,
+            this.selectedRequestBodyType,
+            this.selectedRequestBodyExample,
+            this.activeSchemaTab,
+            this.fileInputKeys,
+            this.fillRequestFieldsWithExample,
+          ],
+          () => requestBodyTemplate.call(this)
+        )}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
           inputParametersTemplate.call(this, 'header')
         )}
@@ -564,7 +577,10 @@ export default class ApiRequest extends LitElement {
               formDataParams.append(el.dataset.pname, el.value);
             }
           } else if (el.value && Array.isArray(el.value)) {
-            formDataParams.append(el.dataset.pname, el.value.join(','));
+            const vals = el.value.filter((v) => typeof v === 'string' && v.trim() !== '');
+            vals.forEach((v) => {
+              formDataParams.append(el.dataset.pname, v);
+            });
           }
         });
         fetchOptions.body = formDataParams;
@@ -774,21 +790,12 @@ export default class ApiRequest extends LitElement {
       curlData = ` --data-binary @${fetchOptions.body.name} \\\n`;
     } else if (fetchOptions.body instanceof FormData) {
       curlForm = Array.from(fetchOptions.body)
-        .reduce((aggregator, [key, value]) => {
+        .map(([key, value]) => {
           if (value instanceof File) {
-            return [...aggregator, ` -F "${key}=@${value.name}"`];
+            return ` -F "${key}=@${value.name}"`;
           }
-
-          const multiple = value.match(/([^,],)/gm);
-
-          if (multiple) {
-            const multipleResults = multiple.map((one) => `-F "${key}[]=${one}"`);
-
-            return [...aggregator, ...multipleResults];
-          }
-
-          return [...aggregator, ` -F "${key}=${value}"`];
-        }, [])
+          return ` -F "${key}=${value}"`;
+        })
         .join('\\\n');
     } else if (requestBodyContainerEl && requestBodyContainerEl.dataset.selectedRequestBodyType) {
       const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;

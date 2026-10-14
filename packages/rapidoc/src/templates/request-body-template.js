@@ -96,11 +96,41 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
   `;
 }
 
+const EMPTY_ARRAY = [];
+
+function getMergedProperties(schema) {
+  if (!schema || typeof schema !== 'object') {
+    return {};
+  }
+  let properties = { ...(schema.properties || {}) };
+  if (Array.isArray(schema.allOf)) {
+    schema.allOf.forEach((sub) => {
+      Object.assign(properties, getMergedProperties(sub));
+    });
+  }
+  return properties;
+}
+
+function getMergedRequired(schema) {
+  if (!schema || typeof schema !== 'object') {
+    return [];
+  }
+  let required = Array.isArray(schema.required) ? [...schema.required] : [];
+  if (Array.isArray(schema.allOf)) {
+    schema.allOf.forEach((sub) => {
+      required.push(...getMergedRequired(sub));
+    });
+  }
+  return [...new Set(required)];
+}
+
 export function formDataTemplate(schema, mimeType, exampleValue = '') {
   const formDataTableRows = [];
-  if (schema.properties) {
-    for (const fieldName in schema.properties) {
-      const fieldSchema = schema.properties[fieldName];
+  const properties = getMergedProperties(schema);
+  const required = getMergedRequired(schema);
+  if (Object.keys(properties).length > 0) {
+    for (const fieldName in properties) {
+      const fieldSchema = properties[fieldName];
       if (fieldSchema.readOnly) {
         continue;
       }
@@ -113,9 +143,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
         html` <tr title="${fieldSchema.deprecated ? 'Deprecated' : ''}">
             <td style="width:${labelColWidth}; min-width:100px;">
               <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}">
-                ${fieldName}${
-                  schema.required?.includes(fieldName) || fieldSchema.required ? html`<span style="color:var(--red);">*</span>` : ''
-                }
+                ${fieldName}${required.includes(fieldName) || fieldSchema.required ? html`<span style="color:var(--red);">*</span>` : ''}
               </div>
               <div class="param-type">
                 ${
@@ -149,6 +177,10 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                   data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                                   data-array="false"
                                   data-file-array="true"
+                                  @change="${(e) => {
+                                    const requestPanelEl = this.getRequestPanel(e);
+                                    this.liveCURLSyntaxUpdate(requestPanelEl);
+                                  }}"
                                 />
                                 <button class="file-input-remove-btn" @click="${() => this.onRemoveFileInput(fieldName, key)}">
                                   &#x2715;
@@ -175,8 +207,20 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                           data-array="true"
                           placeholder="add-multiple &#x21a9;"
                           .value="${
-                            Array.isArray(fieldExamples) ? (Array.isArray(fieldExamples[0]) ? fieldExamples[0] : fieldExamples) : []
+                            Array.isArray(fieldExamples)
+                              ? Array.isArray(fieldExamples[0])
+                                ? fieldExamples[0]
+                                : fieldExamples
+                              : EMPTY_ARRAY
                           }"
+                          @input="${(e) => {
+                            const requestPanelEl = this.getRequestPanel(e);
+                            this.liveCURLSyntaxUpdate(requestPanelEl);
+                          }}"
+                          @change="${(e) => {
+                            const requestPanelEl = this.getRequestPanel(e);
+                            this.liveCURLSyntaxUpdate(requestPanelEl);
+                          }}"
                         >
                         </tag-input>
                       `
@@ -196,6 +240,14 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                     data-pname="${fieldName}"
                                     data-example="${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
                                     data-array="false"
+                                    @input="${(e) => {
+                                      const requestPanelEl = this.getRequestPanel(e);
+                                      this.liveCURLSyntaxUpdate(requestPanelEl);
+                                    }}"
+                                    @change="${(e) => {
+                                      const requestPanelEl = this.getRequestPanel(e);
+                                      this.liveCURLSyntaxUpdate(requestPanelEl);
+                                    }}"
                                   />`
                                 : ''
                             }
@@ -233,6 +285,8 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                           } else {
                                             inputEl.value = e.target.dataset.enum;
                                           }
+                                          const requestPanelEl = this.getRequestPanel(e);
+                                          this.liveCURLSyntaxUpdate(requestPanelEl);
                                         }
                                       }}"
                                     >
@@ -262,7 +316,19 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
       );
     }
     return html`
-      <table role="presentation" style="width:100%;" class="m-table">
+      <table
+        role="presentation"
+        style="width:100%;"
+        class="m-table"
+        @input="${(e) => {
+          const requestPanelEl = this.getRequestPanel(e);
+          this.liveCURLSyntaxUpdate(requestPanelEl);
+        }}"
+        @change="${(e) => {
+          const requestPanelEl = this.getRequestPanel(e);
+          this.liveCURLSyntaxUpdate(requestPanelEl);
+        }}"
+      >
         ${formDataTableRows}
       </table>
     `;

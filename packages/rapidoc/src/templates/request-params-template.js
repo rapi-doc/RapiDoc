@@ -18,6 +18,8 @@ import {
 import '~/components/schema-tree';
 import '~/components/tag-input';
 
+const EMPTY_ARRAY = [];
+
 export function renderExample(example, paramType, paramName) {
   return html`
     ${paramType === 'array' ? '[' : ''}
@@ -189,15 +191,23 @@ export function inputParametersTemplate(paramType) {
                         placeholder="add-multiple &#x21a9;"
                         .value="${
                           param['x-fill-example'] === 'no'
-                            ? []
+                            ? EMPTY_ARRAY
                             : live(
                                 this.fillRequestFieldsWithExample === 'true'
                                   ? Array.isArray(example.exampleVal)
                                     ? example.exampleVal
                                     : [example.exampleVal]
-                                  : []
+                                  : EMPTY_ARRAY
                               )
                         }"
+                        @input="${(e) => {
+                          const requestPanelEl = this.getRequestPanel(e);
+                          this.liveCURLSyntaxUpdate(requestPanelEl);
+                        }}"
+                        @change="${(e) => {
+                          const requestPanelEl = this.getRequestPanel(e);
+                          this.liveCURLSyntaxUpdate(requestPanelEl);
+                        }}"
                       >
                       </tag-input>`
                     : paramSchema.type === 'object' || paramSchema.type.split('┃').includes('object')
