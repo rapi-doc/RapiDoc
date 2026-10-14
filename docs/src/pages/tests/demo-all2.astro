@@ -3,18 +3,14 @@ import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
 ---
 
 <TestCaseLayout
-  title="Interactive Test Harness Demo | RapiDoc"
-  description="Demonstration page showcasing the new TestCaseLayout and floating RapidocTuner HUD."
+  title="Test | Demo All Config Using RapidocTuner | RapiDoc"
+  description="RapidocTuner to configure RapiDoc with all options"
   specUrl="/specs-test/petstore.yaml"
   preset={['all']}
   rapidocProps={{
     'render-style': 'read',
-    'schema-style': 'tree',
-    'theme': 'dark',
     'show-info': 'true',
     'show-header': 'false',
-    'allow-try': 'true',
-    'allow-server-selection': 'true',
   }}
 >
   <!-- Custom test action button injected into the RapidocTuner HUD via slot="controller" -->

@@ -5,10 +5,7 @@ import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import { stylingData } from '../../page-data/styling-data';
 import '../../styles/styling.css';
-import {
-  IconArrowRight,
-  IconCopy,
-} from '@tabler/icons-astro';
+import { IconArrowRight, IconCopy } from '@tabler/icons-astro';
 
 const slotsData = stylingData.slots;
 const totalSlots = slotsData.length;
@@ -76,7 +73,7 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
 ---
 
 <GlobalLayout
-  title="Named HTML Slots & Custom UI Injection Guide | RapiDoc"
+  title="Guide | Slots | RapiDoc"
   description="Inject custom HTML markup, brand logos, corporate announcement banners, auth guidance, and footers into RapiDoc's Shadow DOM using standard Web Component slots."
   keywords="RapiDoc slots, Web Component slot, OpenAPI custom HTML, Swagger logo slot, Shadow DOM slot injection"
 >
@@ -98,8 +95,9 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
       </h1>
 
       <p class="rd-page-subtitle">
-        Because RapiDoc is encapsulated in a Shadow DOM, external DOM elements cannot be arbitrarily injected into its tree.
-        Standard Web Component <code>&lt;slot&gt;</code> elements expose designated insertion zones where you can inject custom HTML markup directly into RapiDoc's internal layout.
+        Because RapiDoc is encapsulated in a Shadow DOM, external DOM elements cannot be arbitrarily injected into its tree. Standard Web
+        Component <code>&lt;slot&gt;</code> elements expose designated insertion zones where you can inject custom HTML markup directly into RapiDoc's
+        internal layout.
       </p>
 
       <div class="rd-stats-bar">
@@ -218,7 +216,9 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
         <div class="rd-section-badge">Implementation Recipe</div>
         <h2 class="rd-section-title">Production Portal with Custom Slots</h2>
         <p class="rd-section-desc">
-          Combine un-slotted announcement banners with targeted <code class="mono-code">slot="logo"</code>, <code class="mono-code">slot="nav-logo"</code>, <code class="mono-code">slot="header"</code>, and <code class="mono-code">slot="footer"</code> elements.
+          Combine un-slotted announcement banners with targeted <code class="mono-code">slot="logo"</code>, <code class="mono-code"
+            >slot="nav-logo"</code
+          >, <code class="mono-code">slot="header"</code>, and <code class="mono-code">slot="footer"</code> elements.
         </p>
       </div>
 
@@ -228,7 +228,9 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
             <div class="rd-recipe-tag">Interactive Blueprint</div>
             <h3 class="rd-recipe-heading">Full Portal Slot Composition</h3>
             <p class="rd-recipe-text">
-              Pass arbitrary HTML elements (images, buttons, alerts, links) directly as child elements of <code class="mono-code">&lt;rapi-doc&gt;</code>.
+              Pass arbitrary HTML elements (images, buttons, alerts, links) directly as child elements of <code class="mono-code"
+                >&lt;rapi-doc&gt;</code
+              >.
             </p>
           </div>
           <div class="rd-recipe-action">
@@ -263,13 +265,16 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
         <div class="rd-section-badge">Dynamic Slots</div>
         <h2 class="rd-section-title">Tag-Specific & Endpoint-Specific Slots</h2>
         <p class="rd-section-desc">
-          In addition to structural container slots, RapiDoc provisions dynamic slot names for every tag group and operation based on its OpenAPI element identifiers.
+          In addition to structural container slots, RapiDoc provisions dynamic slot names for every tag group and operation based on its
+          OpenAPI element identifiers.
         </p>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px;">
         <!-- Tag Slot -->
-        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+        <div
+          style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px;"
+        >
           <h3 style="font-size: 17px; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
             <span>Targeting Tag Groups:</span>
             <code style="color: #38bdf8; font-size: 14px;">slot="tag--{'{name}'}"</code>
@@ -283,7 +288,9 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
         </div>
 
         <!-- Endpoint Slot -->
-        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+        <div
+          style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px;"
+        >
           <h3 style="font-size: 17px; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
             <span>Targeting Operations:</span>
             <code style="color: #38bdf8; font-size: 14px;">slot="{'{method}-{path}'}"</code>
@@ -340,17 +347,28 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
     </section>
 
     <!-- Cross Navigation Banner -->
-    <section class="rd-section-block" style="text-align: center; background: rgba(15,23,42,0.6); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 40px 24px; margin-top: 48px;">
+    <section
+      class="rd-section-block"
+      style="text-align: center; background: rgba(15,23,42,0.6); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 40px 24px; margin-top: 48px;"
+    >
       <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px;">Looking for CSS Shadow Parts or Themes?</h3>
       <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 20px; font-size: 14px; line-height: 1.6;">
-        Explore our Custom CSS guide to style internal elements with W3C Shadow Parts, or check out our Themes guide for built-in color presets and design tokens.
+        Explore our Custom CSS guide to style internal elements with W3C Shadow Parts, or check out our Themes guide for built-in color
+        presets and design tokens.
       </p>
       <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
-        <a href="/guides/css" class="rd-action-primary" style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
+        <a
+          href="/guides/css"
+          class="rd-action-primary"
+          style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;"
+        >
           <span>Custom CSS & Shadow Parts Guide</span>
           <IconArrowRight size={16} stroke={2.5} />
         </a>
-        <a href="/guides/theme" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
+        <a
+          href="/guides/theme"
+          style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;"
+        >
           <span>Themes & Brand Colors Guide</span>
           <IconArrowRight size={16} stroke={2.5} />
         </a>

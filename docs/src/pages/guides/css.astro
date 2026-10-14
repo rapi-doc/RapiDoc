@@ -4,13 +4,7 @@ import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { stylingData } from '../../page-data/styling-data';
 import '../../styles/styling.css';
-import {
-  IconSearch,
-  IconSearchOff,
-  IconX,
-  IconCopy,
-  IconArrowRight,
-} from '@tabler/icons-astro';
+import { IconSearch, IconSearchOff, IconX, IconCopy, IconArrowRight } from '@tabler/icons-astro';
 
 const totalParts = stylingData.parts.reduce((acc, cat) => acc + cat.items.length, 0);
 const totalVariables = stylingData.variables.reduce((acc, cat) => acc + cat.items.length, 0);
@@ -18,7 +12,7 @@ const totalCategories = stylingData.parts.length;
 ---
 
 <GlobalLayout
-  title="Custom CSS, Design Tokens & Shadow Parts (::part) | RapiDoc"
+  title="Guide | Custom CSS, Shadow Parts (::part) | RapiDoc"
   description="Deeply customize RapiDoc OpenAPI UI via CSS custom properties (variables) and W3C standard CSS Shadow Parts (::part) without breaking encapsulation."
   keywords="RapiDoc CSS parts, Shadow DOM styling, OpenAPI custom CSS, CSS variables catalog, Swagger ::part, design tokens"
 >
@@ -40,8 +34,9 @@ const totalCategories = stylingData.parts.length;
       </h1>
 
       <p class="rd-page-subtitle">
-        Because RapiDoc is built as a standard W3C Web Component, its markup resides inside an isolated Shadow DOM.
-        Safely customize internal styles using CSS Custom Properties (Design Tokens) and standard CSS Shadow Parts (<code>::part()</code>) without breaking encapsulation.
+        Because RapiDoc is built as a standard W3C Web Component, its markup resides inside an isolated Shadow DOM. Safely customize
+        internal styles using CSS Custom Properties (Design Tokens) and standard CSS Shadow Parts (<code>::part()</code>) without breaking
+        encapsulation.
       </p>
 
       <div class="rd-stats-bar">
@@ -61,10 +56,16 @@ const totalCategories = stylingData.parts.length;
 
       <!-- Quick Jump Navigation -->
       <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px;">
-        <a href="#variables-catalog" style="font-size: 13px; font-weight: 600; color: #34d399; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); padding: 6px 14px; border-radius: 9999px; text-decoration: none;">
+        <a
+          href="#variables-catalog"
+          style="font-size: 13px; font-weight: 600; color: #34d399; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); padding: 6px 14px; border-radius: 9999px; text-decoration: none;"
+        >
           🎨 CSS Custom Properties ({totalVariables})
         </a>
-        <a href="#parts-catalog" style="font-size: 13px; font-weight: 600; color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); padding: 6px 14px; border-radius: 9999px; text-decoration: none;">
+        <a
+          href="#parts-catalog"
+          style="font-size: 13px; font-weight: 600; color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); padding: 6px 14px; border-radius: 9999px; text-decoration: none;"
+        >
           🧩 CSS Shadow Parts ({totalParts})
         </a>
       </div>
@@ -76,7 +77,8 @@ const totalCategories = stylingData.parts.length;
         <div class="rd-section-badge">Complete Reference</div>
         <h2 class="rd-section-title">Design Tokens & Shadow Parts Catalog</h2>
         <p class="rd-section-desc">
-          Both CSS Custom Properties and CSS Shadow Parts are displayed below. Use the search bar or category filters to quickly locate specific tokens or elements across both catalogs.
+          Both CSS Custom Properties and CSS Shadow Parts are displayed below. Use the search bar or category filters to quickly locate
+          specific tokens or elements across both catalogs.
         </p>
       </div>
 
@@ -101,7 +103,9 @@ const totalCategories = stylingData.parts.length;
           <button class="rd-pill active" data-category="all">All Categories</button>
           {
             stylingData.parts.map((cat) => (
-              <button class="rd-pill" data-category={cat.category}>{cat.category}</button>
+              <button class="rd-pill" data-category={cat.category}>
+                {cat.category}
+              </button>
             ))
           }
         </div>
@@ -119,9 +123,13 @@ const totalCategories = stylingData.parts.length;
 
       <!-- CATALOG 1: CSS CUSTOM PROPERTIES (DESIGN TOKENS) -->
       <div id="variables-catalog" class="rd-catalog-wrapper" style="margin-top: 36px; margin-bottom: 64px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(16,185,129,0.3); padding-bottom: 12px; margin-bottom: 24px;">
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(16,185,129,0.3); padding-bottom: 12px; margin-bottom: 24px;"
+        >
           <div>
-            <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #34d399; background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;">
+            <div
+              style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #34d399; background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;"
+            >
               Design System Tokens
             </div>
             <h3 style="font-size: 24px; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.02em;">
@@ -150,7 +158,13 @@ const totalCategories = stylingData.parts.length;
                     </thead>
                     <tbody>
                       {cat.items.map((item) => (
-                        <tr class="rd-catalog-row" data-name={item.name} data-default={item.default} data-desc={item.description} data-category={cat.category}>
+                        <tr
+                          class="rd-catalog-row"
+                          data-name={item.name}
+                          data-default={item.default}
+                          data-desc={item.description}
+                          data-category={cat.category}
+                        >
                           <td class="col-name">
                             <button class="rd-copy-pill var-pill" data-copy={`${item.name}`} title="Click to copy variable">
                               <code>{item.name}</code>
@@ -174,9 +188,13 @@ const totalCategories = stylingData.parts.length;
 
       <!-- CATALOG 2: CSS SHADOW PARTS (::part()) DIRECTLY BELOW -->
       <div id="parts-catalog" class="rd-catalog-wrapper" style="margin-top: 48px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(56,189,248,0.3); padding-bottom: 12px; margin-bottom: 24px;">
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(56,189,248,0.3); padding-bottom: 12px; margin-bottom: 24px;"
+        >
           <div>
-            <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;">
+            <div
+              style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;"
+            >
               Shadow Boundary Piercing
             </div>
             <h3 style="font-size: 24px; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.02em;">
@@ -198,14 +216,22 @@ const totalCategories = stylingData.parts.length;
                   <table class="rd-catalog-table">
                     <thead>
                       <tr>
-                        <th class="col-name">Part Name (<code>::part</code>)</th>
+                        <th class="col-name">
+                          Part Name (<code>::part</code>)
+                        </th>
                         <th class="col-target">HTML Element</th>
                         <th class="col-desc">Description & Purpose</th>
                       </tr>
                     </thead>
                     <tbody>
                       {cat.items.map((item) => (
-                        <tr class="rd-catalog-row" data-name={item.name} data-target={item.target} data-desc={item.description} data-category={cat.category}>
+                        <tr
+                          class="rd-catalog-row"
+                          data-name={item.name}
+                          data-target={item.target}
+                          data-desc={item.description}
+                          data-category={cat.category}
+                        >
                           <td class="col-name">
                             <button class="rd-copy-pill" data-copy={`rapi-doc::part(${item.name})`} title="Click to copy ::part selector">
                               <code>::{item.name}</code>
@@ -229,17 +255,28 @@ const totalCategories = stylingData.parts.length;
     </section>
 
     <!-- Cross Navigation Banner -->
-    <section class="rd-section-block" style="text-align: center; background: rgba(15,23,42,0.6); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 40px 24px; margin-top: 64px;">
+    <section
+      class="rd-section-block"
+      style="text-align: center; background: rgba(15,23,42,0.6); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 40px 24px; margin-top: 64px;"
+    >
       <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px;">Looking for Named HTML Slots or Theme Presets?</h3>
       <p style="color: #94a3b8; max-width: 620px; margin: 0 auto 24px; font-size: 14px; line-height: 1.6;">
-        Inject corporate logos, banners, headers, and footers with standard Web Component slots, or configure declarative color presets in our Themes guide.
+        Inject corporate logos, banners, headers, and footers with standard Web Component slots, or configure declarative color presets in
+        our Themes guide.
       </p>
       <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
-        <a href="/guides/slots" class="rd-action-primary" style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
+        <a
+          href="/guides/slots"
+          class="rd-action-primary"
+          style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;"
+        >
           <span>Named HTML Slots Guide</span>
           <IconArrowRight size={16} stroke={2.5} />
         </a>
-        <a href="/guides/theme" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
+        <a
+          href="/guides/theme"
+          style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;"
+        >
           <span>Themes & Brand Colors Guide</span>
           <IconArrowRight size={16} stroke={2.5} />
         </a>

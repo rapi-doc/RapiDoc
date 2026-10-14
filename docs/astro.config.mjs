@@ -35,16 +35,7 @@ export default defineConfig({
     '/mock': '/guides/mock',
     '/oauth': '/guides/oauth',
     '/theme': '/guides/theme',
-    '/perf': '/tests/performance',
-    '/font': '/examples/font',
-    '/examples/font-size': '/examples/font',
-    '/examples/render-read-light': '/examples/render-styles',
-    '/examples/render-view-light': '/examples/render-styles',
-    '/examples/schema-table': '/examples/schema-styles',
-    '/examples/schema-tab-default': '/examples/schema-styles',
-    '/examples/search-by-params': '/examples/search',
-    '/examples/mock': '/examples/reqres',
-    '/examples/header-color': '/examples/themes',
+    '/perf': '/tests/performance'
   },
   integrations: [
     starlight({

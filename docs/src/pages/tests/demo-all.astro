@@ -4,8 +4,8 @@ import PrettyRapidocTuner from '../../components/PrettyRapidocTuner.astro';
 ---
 
 <TestCaseLayout
-  title="Pretty Test Harness Demo | RapiDoc"
-  description="Demonstrates using PrettyRapidocTuner in TestCaseLayout with custom test action slot."
+  title="Test | Demo All Config Using PrettyRapidocTuner | RapiDoc"
+  description="PrettyRapidocTuner to configure RapiDoc with all options"
   specUrl="/specs-test/petstore.yaml"
   preset={['all']}
   tuckedRight={false}
@@ -13,13 +13,8 @@ import PrettyRapidocTuner from '../../components/PrettyRapidocTuner.astro';
   controllerSize="large"
   rapidocProps={{
     'render-style': 'read',
-    'schema-style': 'tree',
-    'color-scheme': 'dark',
     'show-info': 'true',
     'show-header': 'false',
-    'allow-try': 'true',
-    'allow-server-selection': 'true',
-    theme: 'emerald',
   }}
 >
   <!-- Custom test action button injected into the PrettyRapidocTuner via slot="controller" -->
