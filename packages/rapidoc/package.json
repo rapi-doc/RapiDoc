@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "homepage": "https://rapidocui.com",
@@ -12,7 +12,6 @@
   "keywords": [
     "OpenAPI",
     "OpenAPI Specification",
-    "Swagger",
     "JSON-Schema",
     "API",
     "REST",
@@ -20,6 +19,8 @@
     "Custom Element",
     "Web Component",
     "rapidoc",
+    "redoc",
+    "scalar",
     "swagger",
     "swagger ui",
     "openapi ui",
@@ -27,7 +28,8 @@
     "openapi viewer",
     "openapi renderer",
     "openapi explorer",
-    "swagger themes",
+    "openapi parser",
+    "openapi preview",
     "Mock Server"
   ],
   "type": "module",

@@ -218,6 +218,42 @@ export default class ApiRequest extends LitElement {
     ];
   }
 
+  /** Shared schema & display configurations that affect both parameters and request body */
+  get commonConfigDeps() {
+    return [
+      this.schemaStyle,
+      this.schemaExpandLevel,
+      this.schemaDescriptionExpanded,
+      this.allowSchemaDescriptionExpandToggle,
+      this.schemaHideReadOnly,
+      this.schemaHideWriteOnly,
+      this.fillRequestFieldsWithExample,
+      this.renderStyle,
+      this.allowTry,
+      this.callback,
+      this.webhook,
+    ];
+  }
+
+  /** Dependencies for query/path/header/cookie parameters */
+  get parameterGuardDeps() {
+    return [this.method, this.path, this.parameters, this.activeParameterSchemaTabs, ...this.commonConfigDeps];
+  }
+
+  /** Dependencies for the request body template */
+  get requestBodyGuardDeps() {
+    return [
+      this.method,
+      this.path,
+      this.request_body,
+      this.selectedRequestBodyType,
+      this.selectedRequestBodyExample,
+      this.activeSchemaTab,
+      this.fileInputKeys,
+      ...this.commonConfigDeps,
+    ];
+  }
+
   render() {
     return html`<div
       class="col regular-font request-panel ${
@@ -228,32 +264,11 @@ export default class ApiRequest extends LitElement {
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
       <div>
-        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
-          inputParametersTemplate.call(this, 'path')
-        )}
-        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
-          inputParametersTemplate.call(this, 'query')
-        )}
-        ${guard(
-          [
-            this.method,
-            this.path,
-            this.allowTry,
-            this.request_body,
-            this.selectedRequestBodyType,
-            this.selectedRequestBodyExample,
-            this.activeSchemaTab,
-            this.fileInputKeys,
-            this.fillRequestFieldsWithExample,
-          ],
-          () => requestBodyTemplate.call(this)
-        )}
-        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
-          inputParametersTemplate.call(this, 'header')
-        )}
-        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
-          inputParametersTemplate.call(this, 'cookie')
-        )}
+        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'path'))}
+        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'query'))}
+        ${guard(this.requestBodyGuardDeps, () => requestBodyTemplate.call(this))}
+        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'header'))}
+        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'cookie'))}
         ${this.allowTry === 'false' ? '' : html`${apiCallTemplate.call(this)}`}
       </div>
     </div>`;

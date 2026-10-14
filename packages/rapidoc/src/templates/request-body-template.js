@@ -94,13 +94,29 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
         data-tab="schema"
         style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"
       >
-        <schema-tree
-          .data="${formdataPartSchema}"
-          schema-expand-level="${this.schemaExpandLevel}"
-          schema-description-expanded="${this.schemaDescriptionExpanded}"
-          allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-        >
-        </schema-tree>
+        ${
+          this.schemaStyle === 'table'
+            ? html`
+                <schema-table
+                  .data="${formdataPartSchema}"
+                  schema-expand-level="${this.schemaExpandLevel}"
+                  schema-description-expanded="${this.schemaDescriptionExpanded}"
+                  allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+                  exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+                >
+                </schema-table>
+              `
+            : html`
+                <schema-tree
+                  .data="${formdataPartSchema}"
+                  schema-expand-level="${this.schemaExpandLevel}"
+                  schema-description-expanded="${this.schemaDescriptionExpanded}"
+                  allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+                  exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+                >
+                </schema-tree>
+              `
+        }
       </div>`}
     </div>
   `;

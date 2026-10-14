@@ -131,4 +131,133 @@ describe('E2E: Dynamic Attribute Reactivity', () => {
     });
     assert.equal(layout, 'column');
   });
+
+  it('reactively toggles schema-style between tree and table in request and response schemas', async () => {
+    await loadHarness(page, baseUrl, {
+      spec: '/specs/06-examples.yaml',
+      'render-style': 'read',
+      'schema-style': 'tree',
+      'default-schema-tab': 'schema',
+    });
+
+    // Check request body initial schema style is schema-tree
+    let hasSchemaTree = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const req = doc.shadowRoot.querySelector('api-request');
+      return req?.shadowRoot.querySelector('schema-tree') !== null;
+    });
+    let hasSchemaTable = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const req = doc.shadowRoot.querySelector('api-request');
+      return req?.shadowRoot.querySelector('schema-table') !== null;
+    });
+    assert.equal(hasSchemaTree, true, 'Request should initially render <schema-tree>');
+    assert.equal(hasSchemaTable, false, 'Request should not render <schema-table>');
+
+    // Dynamically switch schema-style to table
+    await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      doc.setAttribute('schema-style', 'table');
+    });
+    await page.waitForTimeout(200);
+
+    hasSchemaTree = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const req = doc.shadowRoot.querySelector('api-request');
+      return req?.shadowRoot.querySelector('schema-tree') !== null;
+    });
+    hasSchemaTable = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const req = doc.shadowRoot.querySelector('api-request');
+      return req?.shadowRoot.querySelector('schema-table') !== null;
+    });
+    assert.equal(hasSchemaTable, true, 'Request should reactively re-render to <schema-table>');
+    assert.equal(hasSchemaTree, false, 'Request should no longer render <schema-tree>');
+
+    // Switch back to tree
+    await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      doc.setAttribute('schema-style', 'tree');
+    });
+    await page.waitForTimeout(200);
+
+    hasSchemaTree = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const req = doc.shadowRoot.querySelector('api-request');
+      return req?.shadowRoot.querySelector('schema-tree') !== null;
+    });
+    assert.equal(hasSchemaTree, true, 'Request should reactively switch back to <schema-tree>');
+  });
+
+  it('reactively toggles fill-request-fields-with-example for query parameters and body', async () => {
+    await loadHarness(page, baseUrl, {
+      spec: '/specs/06-examples.yaml',
+      'render-style': 'read',
+      'fill-request-fields-with-example': 'false',
+    });
+
+    let paramValue = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const req = doc.shadowRoot.querySelector('api-request');
+      const input = req?.shadowRoot.querySelector('input.request-param');
+      return input ? input.value : null;
+    });
+    assert.equal(paramValue, '', 'Parameter input should initially be empty');
+
+    // Dynamically enable filling examples
+    await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      doc.setAttribute('fill-request-fields-with-example', 'true');
+    });
+    await page.waitForTimeout(200);
+
+    paramValue = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const req = doc.shadowRoot.querySelector('api-request');
+      const input = req?.shadowRoot.querySelector('input.request-param');
+      return input ? input.value : null;
+    });
+    assert.equal(paramValue, 'CUST-9876', 'Parameter input should reactively populate with example');
+  });
+
+  it('reactively toggles show-info and allow-try sections at runtime', async () => {
+    await loadHarness(page, baseUrl, {
+      spec: '/specs/01-sections.yaml',
+      'render-style': 'read',
+      'show-info': 'true',
+      'allow-try': 'true',
+    });
+
+    let infoVisible = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      return doc.shadowRoot.querySelector('#overview') !== null;
+    });
+    let tryBtnVisible = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const req = doc.shadowRoot.querySelector('api-request');
+      return req?.shadowRoot.querySelector('button[part*="btn-try"]') !== null;
+    });
+    assert.equal(infoVisible, true, 'Overview should initially exist');
+    assert.equal(tryBtnVisible, true, 'Try button should initially exist');
+
+    // Dynamically hide info and disable try
+    await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      doc.setAttribute('show-info', 'false');
+      doc.setAttribute('allow-try', 'false');
+    });
+    await page.waitForTimeout(200);
+
+    infoVisible = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      return doc.shadowRoot.querySelector('#overview') !== null;
+    });
+    tryBtnVisible = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const req = doc.shadowRoot.querySelector('api-request');
+      return req?.shadowRoot.querySelector('button[part*="btn-try"]') !== null;
+    });
+    assert.equal(infoVisible, false, 'Overview should be removed when show-info is false');
+    assert.equal(tryBtnVisible, false, 'Try button should be removed when allow-try is false');
+  });
 });
