@@ -3,13 +3,7 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
-import {
-  IconSearch,
-  IconSearchOff,
-  IconX,
-  IconArrowUpRight,
-  IconArrowRight,
-} from '@tabler/icons-astro';
+import { IconSearch, IconSearchOff, IconX, IconArrowUpRight, IconArrowRight } from '@tabler/icons-astro';
 
 interface Recipe {
   id: string;
@@ -610,7 +604,7 @@ const categories = [
             <span>Browse Full Examples Gallery</span>
             <IconArrowRight size={16} stroke={2.5} />
           </a>
-          <a href="/examples/example100" class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
+          <a href="/sandbox" class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
             <span>Open JavaScript Playground ↗</span>
           </a>
           <a href="/api" class="rd-btn rd-btn-ghost rd-btn-lg">
