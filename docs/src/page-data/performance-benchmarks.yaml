@@ -35,7 +35,7 @@ benchmarks:
     domNodesFocused: ~4,962 nodes
     scrollStability: 60 FPS
     badge: Large Spec
-rapidocVersion: 11.0.0-beta
+rapidocVersion: 11.0.0
 lastUpdated: 2026-10-12T15:46:14.850Z
 parserBenchmarks:
   - id: bookstore
