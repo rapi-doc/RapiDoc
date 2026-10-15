@@ -134,6 +134,125 @@ export default css`
     border-color: var(--primary);
   }
 
+  @supports (appearance: base-select) {
+    select,
+    select::picker(select) {
+      appearance: base-select;
+    }
+
+    select {
+      background-image: none;
+      padding: 5px 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    select:focus-visible {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: var(--focus-shadow);
+    }
+
+    select::picker(select) {
+      background: var(--input-background);
+      color: var(--foreground);
+      border: 1px solid var(--input-border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      padding: 4px;
+      font-family: var(--font-regular);
+      font-size: var(--font-size-small);
+      scrollbar-width: thin;
+      scrollbar-color: var(--input-border) var(--input-background);
+    }
+
+    select option {
+      display: flex;
+      align-items: center;
+      padding: 4px 6px;
+      border-radius: var(--radius);
+      color: var(--foreground);
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--font-regular);
+      font-size: var(--font-size-small);
+      transition:
+        background 0.15s ease,
+        color 0.15s ease;
+    }
+
+    select option:hover,
+    select option:focus-visible {
+      background: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    select option:checked {
+      background: color-mix(in srgb, var(--primary) 8%, transparent);
+      color: var(--foreground);
+      font-weight: 500;
+    }
+
+    select option:checked:hover,
+    select option:checked:focus-visible {
+      background: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    select::picker-icon {
+      content: '⌵';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      margin-left: 8px;
+      margin-top: -3px;
+      line-height: 1;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--muted-foreground);
+      transform-origin: 50% 68%;
+      transition:
+        transform 0.2s ease,
+        color 0.15s ease;
+    }
+
+    select:hover::picker-icon {
+      color: var(--primary);
+    }
+
+    select:open::picker-icon {
+      transform: rotate(180deg);
+    }
+
+    select option::checkmark {
+      content: '➜';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+      line-height: 1;
+      font-size: 11px;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    select option:not(:checked)::checkmark {
+      visibility: hidden;
+    }
+
+    select option:hover::checkmark,
+    select option:focus-visible::checkmark,
+    select option:checked:hover::checkmark,
+    select option:checked:focus-visible::checkmark {
+      color: var(--primary-foreground);
+    }
+  }
+
   textarea::placeholder,
   input[type='text']::placeholder,
   input[type='password']::placeholder {

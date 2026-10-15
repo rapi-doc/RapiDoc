@@ -74,7 +74,7 @@ export default function navbarTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return html`<nav class="nav-bar" part="section-navbar">
       <div class="nav-bar-header" part="section-navbar-header">
-        <slot name="nav-logo" class="logo"></slot>
+        <slot name="nav-logo" class="logo" part="section-navbar-logo"></slot>
       </div>
     </nav>`;
   }
@@ -89,7 +89,7 @@ export default function navbarTemplate() {
         @keyup="${(e) => navBarClickAndEnterHandler.call(this, e)}"
       >
         <div class="nav-bar-header" part="section-navbar-header">
-          <slot name="nav-logo" class="logo"></slot>
+          <slot name="nav-logo" class="logo" part="section-navbar-logo"></slot>
           ${
             this.allowSearch === 'false' && this.allowAdvancedSearch === 'false'
               ? ''

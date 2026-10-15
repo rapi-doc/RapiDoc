@@ -146,6 +146,8 @@ export default css`
   }
   ::slotted([slot='nav-logo']) {
     max-height: var(--nav-logo-max-height, 60px);
+    overflow: hidden;
+    box-sizing: border-box;
     width: auto;
     padding: 16px 16px 0 16px;
     object-fit: contain;
