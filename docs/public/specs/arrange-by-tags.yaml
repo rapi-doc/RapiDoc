@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Arranging Endpoints by Tags
+  title: Arranging Endpoints using OpenAPI's Tag Object
   description: >
     Following OpenAPI spec demonstrates how to arrange the paths using tags. (even though the paths are defined in random order in the spec but they are shown in the order as they are defined under `tags` section)
 

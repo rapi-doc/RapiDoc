@@ -1,0 +1,341 @@
+openapi: 3.1.0
+info:
+  title: Webhooks & Event Notification API
+  version: 1.0.0
+  description: |
+    This sample OpenAPI 3.1 specification demonstrates **Webhooks** along with standard REST operations.
+
+    In OpenAPI 3.1, top-level `webhooks` describe out-of-band asynchronous HTTP requests initiated by the server and sent to a subscriber's receiver endpoint.
+
+    - **Standard Operations** (`paths`): Endpoints that clients invoke directly to register and manage webhook subscriptions.
+    - **Webhooks** (`webhooks`): Events triggered by domain state changes and dispatched to registered subscriber callback URLs.
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production API Server
+
+tags:
+  - name: Subscriptions
+    description: Standard REST endpoints for managing webhook subscription endpoints.
+  - name: Webhooks
+    description: Out-of-band events dispatched to registered client endpoints.
+
+paths:
+  /subscriptions:
+    post:
+      summary: Register a webhook subscription
+      description: Register a target endpoint URL to receive webhook event notifications.
+      operationId: createSubscription
+      tags:
+        - Subscriptions
+      requestBody:
+        required: true
+        description: Configuration for the webhook destination and subscribed event topics.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionRequest'
+            example:
+              url: https://client-app.example.com/webhooks
+              events:
+                - order.created
+                - order.status_changed
+              description: Production order processing webhook
+      responses:
+        '201':
+          description: Subscription created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              example:
+                id: sub_9f8b2c4e1a6d
+                url: https://client-app.example.com/webhooks
+                events:
+                  - order.created
+                  - order.status_changed
+                status: active
+                createdAt: '2026-10-15T10:00:00Z'
+        '400':
+          description: Invalid subscription payload or invalid destination URL.
+
+  /subscriptions/{id}:
+    get:
+      summary: Get subscription details
+      description: Retrieve the configuration and delivery health of an existing webhook subscription.
+      operationId: getSubscription
+      tags:
+        - Subscriptions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique subscription identifier
+          schema:
+            type: string
+            example: sub_9f8b2c4e1a6d
+      responses:
+        '200':
+          description: Subscription details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '404':
+          description: Subscription not found.
+
+webhooks:
+  orderCreated:
+    post:
+      summary: Order created notification
+      description: |
+        Dispatched out-of-band when a customer completes checkout and an order is successfully created.
+        Receivers must verify the `X-Webhook-Signature` header to ensure authenticity and respond with an HTTP `200` status.
+      operationId: onOrderCreated
+      tags:
+        - Webhooks
+      parameters:
+        - name: X-Webhook-Signature
+          in: header
+          required: true
+          description: HMAC-SHA256 signature generated using the subscription shared secret to verify event payload integrity.
+          schema:
+            type: string
+            example: t=1729000000,v1=9c4a6b2e1f8d3c5a7b9e0d2f4a6b8c0e2a4f6d8c0e2a4f6d8c0e2a4f6d8c0e2a
+        - name: X-Event-ID
+          in: header
+          required: true
+          description: Unique identifier for idempotency handling and duplicate event suppression.
+          schema:
+            type: string
+            format: uuid
+            example: 550e8400-e29b-41d4-a716-446655440000
+      requestBody:
+        required: true
+        description: Complete details of the newly created order.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreatedPayload'
+      responses:
+        '200':
+          description: Webhook received and acknowledged by subscriber.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                    example: true
+        '500':
+          description: Receiver processing failure. The webhook event will be retried with exponential backoff.
+
+  orderStatusChanged:
+    post:
+      summary: Order status update notification
+      description: |
+        Dispatched out-of-band when an order transitions between lifecycle states (e.g., `processing` -> `shipped`, `delivered`, or `cancelled`).
+      operationId: onOrderStatusChanged
+      tags:
+        - Webhooks
+      parameters:
+        - name: X-Webhook-Signature
+          in: header
+          required: true
+          description: HMAC-SHA256 signature to verify event integrity.
+          schema:
+            type: string
+        - name: X-Event-ID
+          in: header
+          required: true
+          description: Unique event identifier for idempotency.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        description: Order transition metadata and status difference.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderStatusChangedPayload'
+      responses:
+        '200':
+          description: Status transition webhook acknowledged.
+
+components:
+  schemas:
+    SubscriptionRequest:
+      type: object
+      required:
+        - url
+        - events
+      properties:
+        url:
+          type: string
+          format: uri
+          description: The HTTPS endpoint where webhook POST requests should be sent.
+          example: https://client-app.example.com/webhooks
+        events:
+          type: array
+          description: Event topics this endpoint should subscribe to.
+          items:
+            type: string
+            enum:
+              - order.created
+              - order.status_changed
+              - order.refunded
+          example:
+            - order.created
+            - order.status_changed
+        description:
+          type: string
+          description: Optional note describing the purpose of this webhook integration.
+          example: Primary production order dispatcher
+
+    Subscription:
+      type: object
+      required:
+        - id
+        - url
+        - events
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          description: Unique subscription identifier.
+          example: sub_9f8b2c4e1a6d
+        url:
+          type: string
+          format: uri
+          example: https://client-app.example.com/webhooks
+        events:
+          type: array
+          items:
+            type: string
+          example:
+            - order.created
+            - order.status_changed
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+            - suspended
+          example: active
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-10-15T10:00:00Z'
+
+    OrderCreatedPayload:
+      type: object
+      required:
+        - event
+        - eventId
+        - timestamp
+        - data
+      properties:
+        event:
+          type: string
+          example: order.created
+        eventId:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-10-15T10:00:00Z'
+        data:
+          type: object
+          required:
+            - orderId
+            - customerId
+            - currency
+            - totalAmount
+            - items
+          properties:
+            orderId:
+              type: string
+              example: ord_1024
+            customerId:
+              type: string
+              example: cus_7781
+            currency:
+              type: string
+              example: USD
+            totalAmount:
+              type: number
+              format: float
+              example: 129.50
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderItem'
+
+    OrderStatusChangedPayload:
+      type: object
+      required:
+        - event
+        - eventId
+        - timestamp
+        - data
+      properties:
+        event:
+          type: string
+          example: order.status_changed
+        eventId:
+          type: string
+          format: uuid
+          example: 7b3e1c2d-8f9a-4b5c-9d0e-1a2b3c4d5e6f
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-10-15T10:30:00Z'
+        data:
+          type: object
+          required:
+            - orderId
+            - previousStatus
+            - currentStatus
+          properties:
+            orderId:
+              type: string
+              example: ord_1024
+            previousStatus:
+              type: string
+              enum: [pending, processing, shipped, delivered, cancelled]
+              example: processing
+            currentStatus:
+              type: string
+              enum: [pending, processing, shipped, delivered, cancelled]
+              example: shipped
+            trackingNumber:
+              type: string
+              example: 1Z9999999999999999
+
+    OrderItem:
+      type: object
+      required:
+        - itemId
+        - name
+        - quantity
+        - unitPrice
+      properties:
+        itemId:
+          type: string
+          example: itm_402
+        name:
+          type: string
+          example: Wireless Noise-Cancelling Headphones
+        quantity:
+          type: integer
+          minimum: 1
+          example: 1
+        unitPrice:
+          type: number
+          format: float
+          example: 129.50
