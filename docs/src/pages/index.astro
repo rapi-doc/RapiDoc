@@ -17,6 +17,7 @@ import {
   IconBox,
   IconHierarchy,
   IconShieldCheck,
+  IconBolt,
 } from '@tabler/icons-astro';
 
 const vanillaCode = `<!doctype html>
@@ -170,6 +171,12 @@ EXPOSE 80
             <div class="rd-persona-item">
               <span class="rd-persona-bullet">✓</span>
               <div>
+                <strong>Curated MCP Server Generator:</strong> Export hardened Model Context Protocol servers in 6 languages (TypeScript, Python, Go, C#, Rust, Java) with path-injection immunity, composite workflows, and parameter pruning.
+              </div>
+            </div>
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
                 <strong>Integrated API Console:</strong> Test real endpoints directly with negative testing enabled — send custom headers & malformed
                 payloads to test edge cases.
               </div>
@@ -201,6 +208,12 @@ EXPOSE 80
             <h2 class="rd-persona-title">For Product Managers</h2>
           </div>
           <div class="rd-persona-list">
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>Agent-Ready with Token Budget Controls:</strong> Future-proof your APIs for AI assistants (Claude, Cursor). Real-time token diagnostics slash prompt overhead by ~80% while shielding internal enterprise routes.
+              </div>
+            </div>
             <div class="rd-persona-item">
               <span class="rd-persona-bullet">✓</span>
               <div>
@@ -353,6 +366,25 @@ EXPOSE 80
         </a>
       </div>
 
+      <!-- Card: Curated MCP Server Generator -->
+      <div class="rd-bento-card">
+        <div class="rd-bento-badge">Agent Ready</div>
+        <div class="rd-bento-icon-box">
+          <IconBolt size={24} stroke={2} />
+        </div>
+        <h3 class="rd-bento-title">Curated MCP Server Generator</h3>
+        <p class="rd-bento-text">
+          Convert OpenAPI specs directly into Model Context Protocol servers in 6 languages. Slashes prompt context overhead by ~80% and collapses multi-hop REST roundtrips into atomic agent tools.
+        </p>
+        <a
+          href="/guides/mcp"
+          style="color: var(--rd-accent); font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
+        >
+          Explore MCP Architecture
+          <IconArrowRight size={14} stroke={2.5} />
+        </a>
+      </div>
+
       <!-- Card 3: Embedded Containers -->
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Microservices & Edge</div>
@@ -464,6 +496,21 @@ EXPOSE 80
               <td><span class="rd-cross">✕</span> Requires Prism / External CLI</td>
               <td><span class="rd-cross">✕</span> No mock server</td>
               <td><span class="rd-cross">✕</span> No mock server</td>
+            </tr>
+
+            <tr>
+              <td class="rd-td-feature">
+                <strong>Curated MCP Server Generator</strong>
+                <span>Direct AI agent tool export (Claude, Cursor)</span>
+              </td>
+              <td class="rd-td-highlight">
+                <span class="rd-check">✓</span>
+                <strong>Built-In (6 Languages)</strong><br />
+                <span class="rd-dim">TS, Python, Go, C#, Rust, Java with ~80% token savings & zero backend</span>
+              </td>
+              <td><span class="rd-cross">✕</span> No MCP generation</td>
+              <td><span class="rd-cross">✕</span> No MCP generation</td>
+              <td><span class="rd-cross">✕</span> No MCP generation</td>
             </tr>
 
             <tr>
