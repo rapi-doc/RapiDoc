@@ -407,7 +407,7 @@ Methods:
       description: >
         Programmatically scrolls the viewport to focus on a specific endpoint section.
         The <span class="mono fg-color">path</span> argument must be formatted as <span class="mono fg-color">{method}-{path}</span> (e.g., <span class="mono fg-color">get-/user/login</span>).
-      example: /examples/collapsable
+      example: /tests/collapsable
     - name: setHttpUserNameAndPassword(securitySchemeId, username, password)
       description: >
         Programmatically supplies username and password credentials for an HTTP Basic security scheme declared in the spec.

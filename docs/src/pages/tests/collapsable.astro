@@ -1,28 +1,30 @@
 ---
-import ExampleLayout from '../../layouts/ExampleLayout.astro';
-import { getSpecUrl } from '../../utils/getSpecUrl';
-
-const specUrl = getSpecUrl(Astro.url);
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
 ---
-<ExampleLayout
-  preset={['all']}
-  showMethods={true}
+
+<TestCaseLayout
+  showController={false}
+  autoRenderRapiDoc={false}
 >
   <rapi-doc
     id="thedoc"
-    spec-url={specUrl}
+    spec-url="/specs-test/collapsable.yaml"
     show-header="false"
     allow-authentication="false"
     allow-server-selection="false"
     show-info="true"
-  > 
+  >
     <div class="control-panel" slot="fixed-header">
       <div style="padding:16px; display: flex; justify-content: center; align-items: center;">
-        <span>Use</span> <span class="mono yellow" style="margin: 0 5px;">scrollToPath(path:string)</span> <span>method to goto:</span>
+        <span>Use</span>
+        <span class="mono yellow" style="margin: 0 5px;">scrollToPath(path:string)</span>
+        <span>method to goto:</span>
       </div>
       <button class="btn" onclick="document.getElementById('thedoc').scrollToPath('overview')">Overview</button>
-      <button class="btn" onclick="document.getElementById('thedoc').scrollToPath('get-/path1-in-closed-tag')">valid path (in collapsed tag)</button>
+      <button class="btn" onclick="document.getElementById('thedoc').scrollToPath('get-/path1-in-closed-tag')"
+        >valid path (in collapsed tag)</button
+      >
       <button class="btn" onclick="document.getElementById('thedoc').scrollToPath('an-incorrect-path')">non-existant path</button>
     </div>
   </rapi-doc>
-</ExampleLayout>
+</TestCaseLayout>

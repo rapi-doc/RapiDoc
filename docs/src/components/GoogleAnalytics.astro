@@ -4,23 +4,25 @@ import { GTAG_ID } from '../utils/googleAnalytics';
 interface Props {
   id?: string;
   title?: string;
+  contentGroup?: string;
 }
 
-const { id = GTAG_ID, title } = Astro.props;
+const { id = GTAG_ID, title, contentGroup } = Astro.props;
 ---
 
 <!-- Google Analytics - START -->
 <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${id}`}></script>
-<script define:vars={{ gtagId: id, pageTitle: title }} is:inline>
+<script define:vars={{ gtagId: id, pageTitle: title, contentGroup }} is:inline>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
+  var config = {};
   if (pageTitle) {
-    gtag('config', gtagId, {
-      page_title: pageTitle,
-    });
-  } else {
-    gtag('config', gtagId);
+    config.page_title = pageTitle;
   }
+  if (contentGroup) {
+    config.content_group = contentGroup;
+  }
+  gtag('config', gtagId, config);
 </script>
 <!-- Google Analytics - END -->

@@ -140,9 +140,9 @@ advanced:
       validates:
         - Complex polymorph schemas combining oneOf, allOf, and anyOf operators simultaneously
   - xxx-of-with-refs:
-      title: Composite Schemas with External References ($ref)
+      title: Schema composition with internal $refs
       validates:
-        - Schema composition where branches reference external schema models
+        - Schema composition using xxx-of and internal $refs
   - external-refs:
       title: Specs Split into Multiple Files (External $ref)
       validates:
@@ -176,6 +176,12 @@ advanced:
         - match-paths regex and glob filtering
         - match-type inclusion/exclusion rules
         - remove-endpoints-with-badge-label-as tagging filters
+  - collapsable:
+      title: Collapsible Tag Groups & Programmatic Navigation (scrollToPath)
+      description: Validates Collapsed Tags and scrollToPath() Method in RapiDoc
+      validates:
+        - Collapsing tag groups by default using x-tag-expanded: false extension
+        - Programmatic navigation and auto-expansion into collapsed tags via scrollToPath()
   - swagger-v2:
       title: Legacy Swagger 2.0 Backward Compatibility
       validates:

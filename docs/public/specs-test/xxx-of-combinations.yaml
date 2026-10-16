@@ -1,7 +1,8 @@
 openapi: 3.0.0
 info:
-  title: ONE-OF with combinations of various data types
+  title: Schema Composition (oneOf, anyOf, allOf) Combinations
   version: '1.0'
+  description: Demonstrates and validates oneOf, anyOf, allOf, and combined polymorphic schema compositions.
 paths:
   /one-of-array-and-object:
     get:
@@ -39,7 +40,7 @@ paths:
   /one-of-primitives-and-object:
     get:
       summary: ONE-OF containing Object, premitives & arrays
-      description: This **ONE OF** contains `primitives, arrays, objects, arrays of primitives and array of objects`, 
+      description: This **ONE OF** contains `primitives, arrays, objects, arrays of primitives and array of objects`,
       tags:
         - ONE-OF Combinations
       responses:
@@ -133,7 +134,7 @@ paths:
     post:
       summary: ONE-OF Options with Object as root
       tags:
-         - ONE-OF Root as Array / Object
+        - ONE-OF Root as Array / Object
       requestBody:
         description: ONE OF Option where root element is an object
         required: true
@@ -159,7 +160,7 @@ paths:
     post:
       summary: ONE-OF Options with Object as sibling
       tags:
-         - ONE-OF and Object Sibling
+        - ONE-OF and Object Sibling
       requestBody:
         description: ONE OF and Object as sibling
         required: true
@@ -224,4 +225,172 @@ paths:
       responses:
         '201':
           description: Created
-    
+
+  /any-of-representations:
+    post:
+      summary: ANY-OF with multiple data representations
+      description: Validates anyOf handling where data can match one or multiple schema options.
+      tags:
+        - ANY-OF Combinations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - account
+              properties:
+                account:
+                  anyOf:
+                    - title: By Email
+                      type: object
+                      required:
+                        - email
+                      properties:
+                        email:
+                          type: string
+                          format: email
+                          example: user@example.com
+                    - title: By Phone
+                      type: object
+                      required:
+                        - phone
+                      properties:
+                        phone:
+                          type: string
+                          example: '+1-555-0199'
+                    - title: By Username
+                      type: object
+                      required:
+                        - username
+                      properties:
+                        username:
+                          type: string
+                          example: dev_coder
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  match_type:
+                    anyOf:
+                      - type: string
+                      - type: array
+                        items:
+                          type: string
+
+  /all-of-composition:
+    get:
+      summary: ALL-OF Model Composition & Inheritance
+      description: Merges a base entity schema, timestamps, and domain-specific attributes into a unified schema view.
+      tags:
+        - ALL-OF Composition
+      responses:
+        '200':
+          description: Successfully resolved composed entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - title: Base Entity
+                    type: object
+                    required:
+                      - id
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        example: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
+                  - title: Timestamps
+                    type: object
+                    required:
+                      - created_at
+                    properties:
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: '2026-10-16T08:30:00Z'
+                      updated_at:
+                        type: string
+                        format: date-time
+                        example: '2026-10-16T08:35:00Z'
+                  - title: Audit Details
+                    type: object
+                    properties:
+                      created_by:
+                        type: string
+                        example: 'admin_user'
+                      version:
+                        type: integer
+                        example: 3
+
+  /combined-xxx-of-nested:
+    post:
+      summary: Complex Composition with allOf, anyOf, and oneOf
+      description: Deep polymorphism testing allOf merged with anyOf branches and oneOf discriminant payloads.
+      tags:
+        - Combined xxx-Of Polymorphism
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  required:
+                    - transaction_id
+                    - channel
+                  properties:
+                    transaction_id:
+                      type: string
+                      example: 'tx_10928374'
+                    channel:
+                      type: string
+                      enum: [web, mobile, api]
+                - type: object
+                  properties:
+                    payment_details:
+                      oneOf:
+                        - title: Credit Card
+                          type: object
+                          required:
+                            - card_number
+                            - expiry
+                          properties:
+                            card_number:
+                              type: string
+                              example: '4111111111111234'
+                            expiry:
+                              type: string
+                              example: '12/28'
+                        - title: Crypto Transfer
+                          type: object
+                          required:
+                            - wallet_address
+                            - network
+                          properties:
+                            wallet_address:
+                              type: string
+                              example: '0x71C...3a9'
+                            network:
+                              type: string
+                              example: 'ethereum'
+                    notification_preference:
+                      anyOf:
+                        - type: string
+                          enum: [email, sms, push]
+                        - type: array
+                          items:
+                            type: string
+                            enum: [email, sms, push]
+      responses:
+        '200':
+          description: Transaction processed

@@ -68,34 +68,21 @@ function formatSlug(s: string): string {
     .join(' ');
 }
 
+import { findTestBySlug, findExampleBySlug } from '../utils/pageMeta';
+
 let autoTitle = '';
 let autoDescription = '';
 let foundValidates: string[] = [];
 
 if (isTest) {
-  let foundTitle = '';
-  const allTests = [...(testListData?.basic || []), ...(testListData?.advanced || [])];
-  for (const item of allTests) {
-    if (item[slug]?.title) {
-      foundTitle = item[slug].title;
-      foundValidates = item[slug].validates || [];
-      break;
-    }
-  }
-  const cleanTitle = foundTitle || formatSlug(slug);
-  autoTitle = `${cleanTitle} | RapiDoc Tests`;
-  autoDescription = `OpenAPI schema edge case and rendering validation test for ${cleanTitle} in RapiDoc.`;
+  const meta = findTestBySlug(slug);
+  autoTitle = meta.title;
+  autoDescription = meta.description;
+  foundValidates = meta.validates || [];
 } else {
-  let foundTitle = '';
-  for (const group of exampleListData?.examples || []) {
-    if (group[slug]) {
-      foundTitle = Object.keys(group)[0] || '';
-      break;
-    }
-  }
-  const cleanTitle = foundTitle || formatSlug(slug);
-  autoTitle = `${cleanTitle} - Interactive OpenAPI Example | RapiDoc`;
-  autoDescription = `Interactive live example demonstrating ${cleanTitle} configuration and features in RapiDoc OpenAPI viewer.`;
+  const meta = findExampleBySlug(slug, pathname);
+  autoTitle = meta.title;
+  autoDescription = meta.description;
 }
 
 const finalTitle = propTitle || autoTitle;

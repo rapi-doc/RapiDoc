@@ -36,7 +36,6 @@ export default defineConfig({
     '/oauth': '/guides/oauth',
     '/theme': '/guides/theme',
     '/perf': '/tests/performance',
-    '/examples/external-refs': '/tests/external-refs',
   },
   integrations: [
     starlight({
@@ -56,7 +55,20 @@ export default defineConfig({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GTAG_ID}');
+            (function() {
+              var path = window.location.pathname.replace(/\\/+$/, '');
+              var segs = path.split('/').filter(Boolean);
+              var docTitle = (document.title || '').replace(/\\s*\\|\\s*RapiDoc$/i, '').trim();
+              if (!docTitle && segs.length > 0) {
+                var last = segs[segs.length - 1];
+                docTitle = last.split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+              }
+              var gaTitle = docTitle ? 'Docs / ' + docTitle : 'Docs';
+              gtag('config', '${GTAG_ID}', {
+                page_title: gaTitle,
+                content_group: 'Docs',
+              });
+            })();
           `,
         },
       ],

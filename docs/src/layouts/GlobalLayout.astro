@@ -1,9 +1,12 @@
 ---
 import '../styles/global.css';
 import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+import { computePageTitleInfo } from '../utils/pageTitle';
 
 interface Props {
   title?: string;
+  gaTitle?: string;
+  contentGroup?: string;
   description?: string;
   keywords?: string;
   image?: string;
@@ -13,6 +16,8 @@ interface Props {
 
 const {
   title,
+  gaTitle,
+  contentGroup,
   description = 'RapiDoc is a modern, fast, and customizable web component for viewing OpenAPI 3.0 & 3.1 and Swagger API specifications with an interactive console.',
   keywords = 'OpenAPI, Swagger, API documentation, Web Component, OpenAPI 3.1, REST API, API Console, RapiDoc',
   image = '/assets/images/logo.png',
@@ -20,12 +25,12 @@ const {
   noindex = false,
 } = Astro.props;
 
-// Compute clean page title
+// Compute hierarchical page title info for SEO and Google Analytics
 const siteName = 'RapiDoc';
-let pageTitle = title || 'RapiDoc - Modern OpenAPI Spec Viewer & Console Web Component';
-if (title && !title.includes('RapiDoc')) {
-  pageTitle = `${title} | ${siteName}`;
-}
+const pageInfo = computePageTitleInfo(Astro.url.pathname, title);
+const pageTitle = pageInfo.seoTitle;
+const effectiveGaTitle = gaTitle || pageInfo.gaTitle;
+const effectiveContentGroup = contentGroup || pageInfo.contentGroup;
 
 const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://rapidocui.com';
 const currentPath = Astro.url.pathname;
@@ -82,7 +87,7 @@ const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.start
     <script is:inline src="/assets/prismjs/prism.js"></script>
 
     <slot name="head" />
-    <GoogleAnalytics title={pageTitle} />
+    <GoogleAnalytics title={effectiveGaTitle} contentGroup={effectiveContentGroup} />
     <slot name="script" />
   </head>
   <body>

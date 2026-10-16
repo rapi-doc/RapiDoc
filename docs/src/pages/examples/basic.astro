@@ -2,6 +2,9 @@
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
 ---
 
-<ExampleLayout>
-  <rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" theme="dark"> </rapi-doc>
-</ExampleLayout>
+<ExampleLayout
+  autoRenderRapiDoc={true}
+  rapidocProps={{
+    'spec-url': '/specs/petstore.yaml',
+  }}
+/>

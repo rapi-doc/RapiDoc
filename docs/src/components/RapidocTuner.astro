@@ -1009,7 +1009,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     left: auto !important;
     transform: none !important;
     width: auto !important;
-    max-width: 95vw !important;
+    max-width: min(700px, 92vw) !important;
   }
 
   /* Trigger pill shown when collapsed */
@@ -1078,6 +1078,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 
   .rd-controller-hud:not(.is-tucked-right) .rd-hud-panel {
     max-height: 72vh;
+    max-width: min(700px, 92vw);
   }
 
   /* Collapsed state behavior (Floating mode) */

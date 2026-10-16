@@ -7,14 +7,12 @@ const specUrl = getSpecUrl(Astro.url);
 
 <ExampleLayout
   autoRenderRapiDoc={true}
-  showController={false}
   rapidocProps={{
     'spec-url': specUrl,
     'show-header': 'false',
     'show-info': 'true',
     'allow-server-selection': 'false',
     'allow-authentication': 'false',
-    theme: 'dark',
     'render-style': 'read',
   }}
 />
