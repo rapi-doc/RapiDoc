@@ -12,6 +12,7 @@ import '~/components/api-request';
 import '~/components/api-response';
 import componentsTemplate from '~/templates/components-template';
 import overviewTemplate from '~/templates/overview-template';
+import downloadsTemplate from '~/templates/downloads-template';
 import serverTemplate from '~/templates/server-template';
 import securitySchemeTemplate from '~/templates/security-scheme-template';
 import { expandCollapseNavBarTag } from '~/templates/navbar-template';
@@ -32,7 +33,7 @@ function wrapFocusedTemplate(templateToWrap) {
 function defaultContentTemplate() {
   // In focused mode default content is overview or first path
   if (this.showInfo === 'true') {
-    return wrapFocusedTemplate(overviewTemplate.call(this));
+    return wrapFocusedTemplate(html`${overviewTemplate.call(this)}${downloadsTemplate.call(this)}`);
   }
   const selectedTagObj = this.resolvedSpec.tags[0];
   const selectedPathObj = this.resolvedSpec.tags[0]?.paths[0];
@@ -71,7 +72,7 @@ export default function focusedEndpointTemplate() {
   let focusedTemplate;
   let i = 0;
   if (focusElId.startsWith('overview') && this.showInfo === 'true') {
-    focusedTemplate = overviewTemplate.call(this);
+    focusedTemplate = html`${overviewTemplate.call(this)}${downloadsTemplate.call(this)}`;
   } else if (focusElId === 'auth' && this.allowAuthentication === 'true') {
     focusedTemplate = securitySchemeTemplate.call(this, this.allowTry);
   } else if (focusElId === 'servers' && this.allowServerSelection === 'true') {

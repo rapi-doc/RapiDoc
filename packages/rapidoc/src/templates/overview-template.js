@@ -7,7 +7,6 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
 import Slugger from 'github-slugger';
 import { marked } from 'marked';
-import { downloadResource, viewResource } from '~/utils/common-utils';
 
 function headingRenderer() {
   const slugger = new Slugger();
@@ -76,36 +75,6 @@ export default function overviewTemplate() {
                     ? html`<span
                         ><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span
                       >`
-                    : ''
-                }
-                ${
-                  this.specUrl && this.allowSpecFileDownload === 'true'
-                    ? html`<div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
-                        <button
-                          class="m-btn thin-border"
-                          style="min-width:170px"
-                          part="btn btn-outline"
-                          @click="${() => {
-                            downloadResource(this.specUrl, 'openapi-spec');
-                          }}"
-                        >
-                          Download OpenAPI spec
-                        </button>
-                        ${
-                          this.specUrl?.trim().toLowerCase().endsWith('json')
-                            ? html`<button
-                                class="m-btn thin-border"
-                                style="width:200px"
-                                part="btn btn-outline"
-                                @click="${() => {
-                                  viewResource(this.specUrl);
-                                }}"
-                              >
-                                View OpenAPI spec (New Tab)
-                              </button>`
-                            : ''
-                        }
-                      </div>`
                     : ''
                 }
               </div>

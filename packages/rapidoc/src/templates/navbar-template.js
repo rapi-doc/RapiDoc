@@ -71,6 +71,14 @@ export function navBarClickAndEnterHandler(event) {
 
 export default function navbarTemplate() {
   const slugger = new Slugger();
+  let isFirstNavItem = true;
+  function checkFirstNav() {
+    if (isFirstNavItem) {
+      isFirstNavItem = false;
+      return true;
+    }
+    return false;
+  }
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return html`<nav class="nav-bar" part="section-navbar">
       <div class="nav-bar-header" part="section-navbar-header">
@@ -154,16 +162,20 @@ export default function navbarTemplate() {
                     ? html`
                         ${
                           this.resolvedSpec.infoDescriptionHeaders.length > 0
-                            ? html`<div
-                                class="nav-bar-info ${this.navActiveItemMarker}"
-                                id="link-overview"
-                                data-content-id="overview"
-                                data-action="navigate"
-                                tabindex="0"
-                                part="section-navbar-item section-navbar-overview"
-                              >
-                                ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
-                              </div>`
+                            ? (() => {
+                                const isFirst = checkFirstNav();
+                                return html`<div
+                                  class="nav-bar-info ${this.navActiveItemMarker}${isFirst ? ' first-nav-item' : ''}"
+                                  id="link-overview"
+                                  data-content-id="overview"
+                                  data-action="navigate"
+                                  data-first-nav-item="${isFirst ? 'true' : undefined}"
+                                  tabindex="0"
+                                  part="section-navbar-item section-navbar-overview"
+                                >
+                                  ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
+                                </div>`;
+                              })()
                             : ''
                         }
                         <div class="overview-headers">
@@ -185,45 +197,57 @@ export default function navbarTemplate() {
                             : ''
                         }
                       `
-                    : html`<div
-                        class="nav-bar-info ${this.navActiveItemMarker}"
-                        id="link-overview"
-                        data-action="navigate"
-                        data-content-id="overview"
-                        tabindex="0"
-                      >
-                        ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
-                      </div>`
+                    : (() => {
+                        const isFirst = checkFirstNav();
+                        return html`<div
+                          class="nav-bar-info ${this.navActiveItemMarker}${isFirst ? ' first-nav-item' : ''}"
+                          id="link-overview"
+                          data-action="navigate"
+                          data-content-id="overview"
+                          data-first-nav-item="${isFirst ? 'true' : undefined}"
+                          tabindex="0"
+                        >
+                          ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
+                        </div>`;
+                      })()
                 }
               `
         }
         ${
           this.allowServerSelection === 'false'
             ? ''
-            : html`<div
-                class="nav-bar-info ${this.navActiveItemMarker}"
-                id="link-servers"
-                data-action="navigate"
-                data-content-id="servers"
-                tabindex="0"
-                part="section-navbar-item section-navbar-servers"
-              >
-                API Servers
-              </div>`
+            : (() => {
+                const isFirst = checkFirstNav();
+                return html`<div
+                  class="nav-bar-info ${this.navActiveItemMarker}${isFirst ? ' first-nav-item' : ''}"
+                  id="link-servers"
+                  data-action="navigate"
+                  data-content-id="servers"
+                  data-first-nav-item="${isFirst ? 'true' : undefined}"
+                  tabindex="0"
+                  part="section-navbar-item section-navbar-servers"
+                >
+                  API Servers
+                </div>`;
+              })()
         }
         ${
           this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes
             ? ''
-            : html`<div
-                class="nav-bar-info ${this.navActiveItemMarker}"
-                id="link-auth"
-                data-action="navigate"
-                data-content-id="auth"
-                tabindex="0"
-                part="section-navbar-item section-navbar-auth"
-              >
-                Authentication
-              </div>`
+            : (() => {
+                const isFirst = checkFirstNav();
+                return html`<div
+                  class="nav-bar-info ${this.navActiveItemMarker}${isFirst ? ' first-nav-item' : ''}"
+                  id="link-auth"
+                  data-action="navigate"
+                  data-content-id="auth"
+                  data-first-nav-item="${isFirst ? 'true' : undefined}"
+                  tabindex="0"
+                  part="section-navbar-item section-navbar-auth"
+                >
+                  Authentication
+                </div>`;
+              })()
         }
 
         <div
@@ -255,28 +279,25 @@ export default function navbarTemplate() {
                 ${
                   tag.name === 'General ⦂'
                     ? html`<hr style="border:none; border-top: 1px dotted var(--muted-foreground); opacity:0.3; margin:-1px 0 0 0;" />`
-                    : html`
-                        <div
-                          class="nav-bar-tag ${this.navActiveItemMarker}"
-                          part="section-navbar-item section-navbar-tag"
-                          id="link-${tag.elementId}"
-                          data-action="${
-                            (this.renderStyle === 'read' ? 'navigate' : this.onNavTagClick === 'show-description')
-                              ? 'navigate'
-                              : 'expand-collapse-tag'
-                          }"
-                          data-content-id="${
-                            (this.renderStyle === 'read' ? `${tag.elementId}` : this.onNavTagClick === 'show-description')
-                              ? `${tag.elementId}`
-                              : ''
-                          }"
-                          data-first-path-id="${tag.firstPathId}"
-                          tabindex="0"
-                        >
-                          <div style="pointer-events:none;">${tag.displayName || tag.name}</div>
-                          <div class="nav-bar-tag-icon" tabindex="0" data-action="expand-collapse-tag"></div>
-                        </div>
-                      `
+                    : (() => {
+                        const canNavigate = this.renderStyle === 'read' || this.onNavTagClick === 'show-description';
+                        const isFirst = canNavigate ? checkFirstNav() : false;
+                        return html`
+                          <div
+                            class="nav-bar-tag ${this.navActiveItemMarker}${isFirst ? ' first-nav-item' : ''}"
+                            part="section-navbar-item section-navbar-tag"
+                            id="link-${tag.elementId}"
+                            data-action="${canNavigate ? 'navigate' : 'expand-collapse-tag'}"
+                            data-content-id="${canNavigate ? `${tag.elementId}` : ''}"
+                            data-first-nav-item="${isFirst ? 'true' : undefined}"
+                            data-first-path-id="${tag.firstPathId}"
+                            tabindex="0"
+                          >
+                            <div style="pointer-events:none;">${tag.displayName || tag.name}</div>
+                            <div class="nav-bar-tag-icon" tabindex="0" data-action="expand-collapse-tag"></div>
+                          </div>
+                        `;
+                      })()
                 }
                 ${
                   this.infoDescriptionHeadingsInNavBar === 'true'
@@ -313,35 +334,34 @@ export default function navbarTemplate() {
                       }
                       return true;
                     })
-                    .map(
-                      (p) =>
-                        html` <div
-                          class="nav-bar-path ${this.navActiveItemMarker} ${this.usePathInNavBar === 'true' ? 'small-font' : ''}"
-                          part="section-navbar-item section-navbar-path"
-                          data-action="navigate"
-                          data-content-id="${p.elementId}"
-                          id="link-${p.elementId}"
-                          tabindex="0"
-                        >
-                          <span class="nav-bar-path-inner" style="${p.deprecated ? 'filter:opacity(0.5);' : ''}">
-                            <span class="nav-bar-path-label">
-                              ${p.isWebhook ? html`<span class="nav-bar-webhook">WEBHOOK</span>` : ''}
-                              ${
-                                this.usePathInNavBar === 'true'
-                                  ? html`<span class="mono-font">${p.path}</span>`
-                                  : p.summary || p.shortSummary
-                              }
-                            </span>
-                            ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
-                              ${
-                                this.showMethodInNavBar === 'as-colored-block'
-                                  ? p.method.substring(0, 3).toUpperCase()
-                                  : p.method.toUpperCase()
-                              }
-                            </span>`}
+                    .map((p) => {
+                      const isFirst = checkFirstNav();
+                      return html` <div
+                        class="nav-bar-path ${this.navActiveItemMarker} ${this.usePathInNavBar === 'true' ? 'small-font' : ''}${isFirst ? ' first-nav-item' : ''}"
+                        part="section-navbar-item section-navbar-path"
+                        data-action="navigate"
+                        data-content-id="${p.elementId}"
+                        data-first-nav-item="${isFirst ? 'true' : undefined}"
+                        id="link-${p.elementId}"
+                        tabindex="0"
+                      >
+                        <span class="nav-bar-path-inner" style="${p.deprecated ? 'filter:opacity(0.5);' : ''}">
+                          <span class="nav-bar-path-label">
+                            ${p.isWebhook ? html`<span class="nav-bar-webhook">WEBHOOK</span>` : ''}
+                            ${
+                              this.usePathInNavBar === 'true' ? html`<span class="mono-font">${p.path}</span>` : p.summary || p.shortSummary
+                            }
                           </span>
-                        </div>`
-                    )}
+                          ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
+                            ${
+                              this.showMethodInNavBar === 'as-colored-block'
+                                ? p.method.substring(0, 3).toUpperCase()
+                                : p.method.toUpperCase()
+                            }
+                          </span>`}
+                        </span>
+                      </div>`;
+                    })}
                 </div>
               </div>`
           )}

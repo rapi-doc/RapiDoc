@@ -201,26 +201,26 @@ export default css`
     }
 
     select::picker-icon {
-      content: '⌵';
+      content: '';
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 16px;
-      height: 16px;
+      width: 12px;
+      height: 12px;
       margin-left: 8px;
-      margin-top: -3px;
-      line-height: 1;
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--muted-foreground);
-      transform-origin: 50% 68%;
+      background-color: var(--muted-foreground);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")
+        no-repeat center / contain;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")
+        no-repeat center / contain;
+      transform-origin: center center;
       transition:
         transform 0.2s ease,
-        color 0.15s ease;
+        background-color 0.15s ease;
     }
 
     select:hover::picker-icon {
-      color: var(--primary);
+      background-color: var(--primary);
     }
 
     select:open::picker-icon {

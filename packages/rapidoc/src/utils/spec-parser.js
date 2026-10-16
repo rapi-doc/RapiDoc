@@ -668,6 +668,12 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
           // commonDescription: commonPathProp.description,
           xBadges: pathOrHookObj['x-badges'] || undefined,
           xCodeSamples: pathOrHookObj['x-codeSamples'] || pathOrHookObj['x-code-samples'] || '',
+          rawOperation: pathOrHookObj,
+          xMcp: pathOrHookObj['x-mcp'] || pathOrHookObj['x-mcp-tool'] || undefined,
+          xInternal: pathOrHookObj['x-internal'] || undefined,
+          xHidden: pathOrHookObj['x-hidden'] || undefined,
+          xOpenAiIsConsequential: pathOrHookObj['x-openai-isConsequential'],
+          xSpeakeasyNameOverride: pathOrHookObj['x-speakeasy-name-override'] || undefined,
         });
       }); // End of tag path create
     }); // End of operationsToProcess

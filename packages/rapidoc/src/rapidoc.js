@@ -24,6 +24,7 @@ import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/m
 import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 import { setApiServer } from '~/templates/server-template';
+import { generateMcpServer as mcpServerGenerator, extractMcpOperations, estimateTokenCost, parseMcpTargets } from '~/utils/mcp-generator';
 
 const paramsConverter = {
   fromAttribute: (attr) => {
@@ -130,6 +131,8 @@ export default class RapiDoc extends LitElement {
       allowAdvancedSearch: { type: String, attribute: 'allow-advanced-search' },
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
       allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
+      mcp: { type: String, attribute: 'mcp' },
+      mcpServerName: { type: String, attribute: 'mcp-server-name' },
       showComponents: { type: String, attribute: 'show-components' },
       pageDirection: { type: String, attribute: 'page-direction' },
       scrollBehavior: { type: String, attribute: 'scroll-behavior' },
@@ -795,6 +798,9 @@ export default class RapiDoc extends LitElement {
     if (!this.cssClasses) {
       this.cssClasses = '';
     }
+    if (!this.mcp) {
+      this.mcp = 'none';
+    }
 
     window.addEventListener(
       'hashchange',
@@ -1269,9 +1275,20 @@ export default class RapiDoc extends LitElement {
       }
       window.setTimeout(
         () => {
+          const firstNavEl = this.shadowRoot.querySelector('.first-nav-item');
+          const isFirst = firstNavEl && firstNavEl.dataset.contentId === tmpElementId;
           const gotoEl = this.shadowRoot.getElementById(tmpElementId);
           if (gotoEl) {
-            gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+            if (isFirst) {
+              const mainContentEl = this.shadowRoot.querySelector('.main-content');
+              if (mainContentEl) {
+                mainContentEl.scrollTo({ top: 0, behavior: this.scrollBehavior });
+              } else {
+                gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+              }
+            } else {
+              gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+            }
             if (this.updateRoute === 'true') {
               this.replaceHistoryState(tmpElementId);
             }
@@ -1444,7 +1461,8 @@ export default class RapiDoc extends LitElement {
         requestEl.beforeNavigationFocusedMode();
       }
     }
-    this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView);
+    const isFirstNavItem = navEl.dataset.firstNavItem === 'true';
+    this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView, isFirstNavItem);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
     }, 500);
@@ -1456,7 +1474,7 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
-  async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true) {
+  async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true, isFirstNavItem = false) {
     if (this.renderStyle === 'focused') {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
@@ -1470,7 +1488,18 @@ export default class RapiDoc extends LitElement {
       const contentEl = this.shadowRoot.getElementById(elementId);
       if (contentEl) {
         isValidElementId = true;
-        contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+        const firstNavEl = this.shadowRoot.querySelector('.first-nav-item');
+        const isFirst = isFirstNavItem || (firstNavEl && firstNavEl.dataset.contentId === elementId);
+        if (isFirst) {
+          const mainContentEl = this.shadowRoot.querySelector('.main-content');
+          if (mainContentEl) {
+            mainContentEl.scrollTo({ top: 0, behavior: this.scrollBehavior });
+          } else {
+            contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+          }
+        } else {
+          contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+        }
       } else {
         isValidElementId = false;
       }
@@ -1537,6 +1566,67 @@ export default class RapiDoc extends LitElement {
   setApiServer(apiServerUrl) {
     // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
+  }
+
+  // Getter for normalized active MCP targets
+  get mcpTargets() {
+    return parseMcpTargets(this.mcp);
+  }
+
+  // Public Method - Generates MCP Server code and configuration in memory
+  generateMcpServer(target, options = {}) {
+    const spec = this.resolvedSpec || this.openApiSpec;
+    if (!spec) return null;
+    const defaultTarget = this.mcpTargets[0] || 'typescript';
+    return mcpServerGenerator(spec, {
+      target: target || defaultTarget,
+      serverName: this.mcpServerName,
+      ...options,
+    });
+  }
+
+  // Public Method - Triggers browser download of generated MCP server file
+  downloadMcpServer(target, options = {}) {
+    const defaultTarget = this.mcpTargets[0] || 'typescript';
+    const result = this.generateMcpServer(target || defaultTarget, options);
+    if (!result || !result.serverCode) return;
+    const t = result.target;
+    let filename = 'server.ts';
+    let mime = 'text/typescript';
+
+    if (t === 'python') {
+      filename = 'server.py';
+      mime = 'text/x-python';
+    } else if (t === 'go') {
+      filename = 'main.go';
+      mime = 'text/x-go';
+    } else if (t === 'csharp' || t === 'c#') {
+      filename = 'Program.cs';
+      mime = 'text/plain';
+    } else if (t === 'rust') {
+      filename = 'main.rs';
+      mime = 'text/x-rust';
+    } else if (t === 'java') {
+      filename = 'RapiDocMcpServer.java';
+      mime = 'text/x-java-source';
+    }
+
+    const blob = new Blob([result.serverCode], { type: mime });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  }
+
+  // Public Method - Returns token budget diagnostics for MCP tooling
+  getMcpBudget(options = {}) {
+    const spec = this.resolvedSpec || this.openApiSpec;
+    if (!spec) return null;
+    const extracted = extractMcpOperations(spec, options);
+    return estimateTokenCost(extracted.tools, extracted.resources, extracted.workflows);
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes

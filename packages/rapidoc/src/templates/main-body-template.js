@@ -14,6 +14,7 @@ import headerTemplate from '~/templates/header-template';
 import navbarTemplate from '~/templates/navbar-template';
 import advancedSearchDialogTemplate from '~/templates/advanced-search-dialog-template';
 import componentsTemplate from '~/templates/components-template';
+import downloadsTemplate from '~/templates/downloads-template';
 
 export default function mainBodyTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
@@ -75,9 +76,9 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
                         >
                           ${
                             this.renderStyle === 'focused'
-                              ? html`${focusedEndpointTemplate.call(this)}`
+                              ? html`${this.showInfo === 'false' ? downloadsTemplate.call(this) : ''}${focusedEndpointTemplate.call(this)}`
                               : html`
-                                  ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
+                                  ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''} ${downloadsTemplate.call(this)}
                                   ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
                                   ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this, this.allowTry) : ''}
                                   <div id="operations-top" class="observe-me">
