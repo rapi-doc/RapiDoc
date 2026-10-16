@@ -172,17 +172,19 @@ export default class SchemaTree extends LitElement {
           <path d="M2 2L8 8M2 8L8 2" />
         </svg>`
       : '';
+    const nullClass = node.nullable ? 'nullable' : '';
 
     // 1. Array kind
     if (node.kind === 'array') {
+      const nullMarker = node.nullable ? 'null┃' : '';
       const items = node.items;
       if (!items) {
         return html`
-          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array" title="${node.deprecated ? 'Deprecated' : ''}">
+          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
               ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
-              <span class="open-bracket array">[ ]</span>
+              <span class="open-bracket array">${nullMarker}[ ]</span>
             </div>
             <div class="td key-descr m-markdown-small">${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
           </div>
@@ -222,11 +224,11 @@ export default class SchemaTree extends LitElement {
         `;
 
         return html`
-          <div class="tr primitive" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
+          <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
               ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}:</span>` : ''}
-              <span class="${dataTypeCss}" title="${readWriteTip}">[${itemType}]${readWriteBadge}</span>
+              <span class="${dataTypeCss}" title="${readWriteTip}">${nullMarker}[${itemType}]${readWriteBadge}</span>
             </div>
             <div class="td key-descr">
               ${
@@ -245,7 +247,7 @@ export default class SchemaTree extends LitElement {
       // If array of objects
       if (items.kind === 'object') {
         const openBracket = html`<span class="open-bracket array-of-object"
-          ><span class="open-bracket-expanded">[{</span><span class="open-bracket-collapsed">[{...}]</span></span
+          >${nullMarker}<span class="open-bracket-expanded">[{</span><span class="open-bracket-collapsed">[{...}]</span></span
         >`;
         const closeBracket = '}]';
 
@@ -256,7 +258,7 @@ export default class SchemaTree extends LitElement {
 
         return html`
           <div
-            class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${items.nullable ? 'nullable' : ''}"
+            class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}"
             title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}"
           >
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
@@ -282,7 +284,7 @@ export default class SchemaTree extends LitElement {
       if (items.kind === 'array') {
         const arrType = node.arrayType !== 'object' ? node.arrayType : '';
         const openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}"
-          ><span class="open-bracket-expanded">[[ ${arrType} </span><span class="open-bracket-collapsed">[[...]]</span></span
+          >${nullMarker}<span class="open-bracket-expanded">[[ ${arrType} </span><span class="open-bracket-collapsed">[[...]]</span></span
         >`;
         const closeBracket = ']]';
 
@@ -293,7 +295,7 @@ export default class SchemaTree extends LitElement {
 
         return html`
           <div
-            class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${node.nullable ? 'nullable' : ''}"
+            class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}"
             title="${node.deprecated ? 'Deprecated' : ''}"
           >
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
@@ -318,12 +320,12 @@ export default class SchemaTree extends LitElement {
           ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
           : '';
       return html`
-        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array" title="${node.deprecated ? 'Deprecated' : ''}">
+        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
             ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
             <span class="open-bracket array"
-              ><span class="open-bracket-expanded">[</span><span class="open-bracket-collapsed">[...]</span></span
+              >${nullMarker}<span class="open-bracket-expanded">[</span><span class="open-bracket-collapsed">[...]</span></span
             >
           </div>
           <div class="td key-descr m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
@@ -337,8 +339,10 @@ export default class SchemaTree extends LitElement {
 
     // 2. Object kind
     if (node.kind === 'object') {
+      const nullClass = node.nullable ? 'nullable' : '';
+      const nullMarker = node.nullable ? 'null┃' : '';
       const openBracket = html`<span class="open-bracket object"
-        >${node.nullable ? 'null┃' : ''}<span class="open-bracket-expanded">{</span><span class="open-bracket-collapsed">{...}</span></span
+        >${nullMarker}<span class="open-bracket-expanded">{</span><span class="open-bracket-collapsed">{...}</span></span
       >`;
       const closeBracket = '}';
 
@@ -349,7 +353,7 @@ export default class SchemaTree extends LitElement {
 
       return html`
         <div
-          class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${node.nullable ? 'nullable' : ''}"
+          class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}"
           title="${node.deprecated ? 'Deprecated' : ''}"
         >
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
