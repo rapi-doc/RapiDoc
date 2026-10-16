@@ -232,8 +232,35 @@ describe('mcp-generator: TypeScript and Python code generation', () => {
         get: {
           summary: 'Get order by id',
           operationId: 'getOrder',
-          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+            { name: 'includeDetails', in: 'query', schema: { type: 'boolean' } },
+            { name: 'tags', in: 'query', schema: { type: 'array' }, description: 'Filter tags' },
+            { name: 'x-trace-id', in: 'header', schema: { type: 'string' }, description: 'Distributed tracing header' },
+          ],
           responses: { 200: { description: 'OK' } },
+        },
+      },
+      '/orders': {
+        post: {
+          summary: 'Create order',
+          operationId: 'createOrder',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['customerId'],
+                  properties: {
+                    customerId: { type: 'string' },
+                    amount: { type: 'number' },
+                  },
+                },
+              },
+            },
+          },
+          responses: { 201: { description: 'Created' } },
         },
       },
       '/shipping-tiers': {
@@ -244,35 +271,50 @@ describe('mcp-generator: TypeScript and Python code generation', () => {
         },
       },
     },
+    'x-mcp-workflows': [
+      {
+        name: 'get_order_summary',
+        description: 'Fetches order and shipping in one call',
+        parameters: { orderId: { type: 'string', description: 'Order ID' } },
+        steps: [{ call: 'getOrder' }],
+      },
+    ],
   };
 
-  it('generates valid TypeScript server code with McpServer and Zod schemas', () => {
+  it('generates valid TypeScript server code with McpServer, Zod, query, body, and auth', () => {
     const pkg = generateMcpServer(spec, { target: 'typescript' });
     assert.strictEqual(pkg.target, 'typescript');
     assert.ok(pkg.serverCode.includes('@modelcontextprotocol/sdk/server/mcp.js'));
     assert.ok(pkg.serverCode.includes("import { z } from 'zod';"));
     assert.ok(pkg.serverCode.includes('server.tool('));
     assert.ok(pkg.serverCode.includes('get_order'));
+    assert.ok(pkg.serverCode.includes('create_order'));
+    assert.ok(pkg.serverCode.includes('queryParams.set("includeDetails"'));
+    assert.ok(pkg.serverCode.includes('bodyPayload["customerId"] = args["customerId"]'));
+    assert.ok(
+      pkg.serverCode.includes('headers["x-trace-id"] = String(args["x-trace-id"])'),
+      'Should forward x-trace-id header in TypeScript'
+    );
+    assert.ok(
+      pkg.serverCode.includes("new URL(`${BASE_URL.replace(/\\/$/, '')}"),
+      'Should safely build targetUrl using new URL and strip trailing slashes'
+    );
+    assert.ok(
+      pkg.serverCode.includes('encodeURIComponent(args["id"])'),
+      'Should safely encode path variables with encodeURIComponent in TypeScript'
+    );
+    assert.ok(pkg.serverCode.includes('const resolvedKey = args?.apiKey || API_KEY'));
     assert.ok(pkg.serverCode.includes('server.resource('));
     assert.ok(pkg.serverCode.includes('reference://shipping-tiers'));
+    assert.ok(pkg.serverCode.includes('targetUrl.searchParams.set(key, val);'), 'Should propagate query params in TS resource handler');
+    assert.ok(pkg.serverCode.includes('get_order_summary'));
     assert.ok(pkg.serverCode.includes('StdioServerTransport'));
     assert.ok(pkg.files['package.json']);
     assert.ok(pkg.files['claude_desktop_config.json']);
   });
 
-  it('generates valid Python FastMCP server code with requirements.txt and zero-dependency HTTP', () => {
-    const specWithWorkflow = {
-      ...spec,
-      'x-mcp-workflows': [
-        {
-          name: 'get_order_summary',
-          description: 'Fetches order and shipping in one call',
-          parameters: { orderId: { type: 'string', description: 'Order ID' } },
-          steps: [{ call: 'getOrder' }],
-        },
-      ],
-    };
-    const pkg = generateMcpServer(specWithWorkflow, { target: 'python' });
+  it('generates valid Python FastMCP server code with requirements.txt, zero-dependency HTTP, query, and body', () => {
+    const pkg = generateMcpServer(spec, { target: 'python' });
     assert.strictEqual(pkg.target, 'python');
     assert.ok(pkg.serverCode.includes('from fastmcp import FastMCP'));
     assert.ok(pkg.serverCode.includes('import urllib.request'));
@@ -280,8 +322,25 @@ describe('mcp-generator: TypeScript and Python code generation', () => {
     assert.ok(!pkg.serverCode.includes('requests'), 'Should use built-in urllib instead of 3rd party requests');
     assert.ok(pkg.serverCode.includes('@mcp.tool('));
     assert.ok(pkg.serverCode.includes('def get_order('));
+    assert.ok(pkg.serverCode.includes('def create_order('));
+    assert.ok(pkg.serverCode.includes('params["includeDetails"] = include_details'));
+    assert.ok(pkg.serverCode.includes('body_payload["customerId"] = customer_id'));
+    assert.ok(pkg.serverCode.includes('headers["x-trace-id"] = str(x_trace_id)'), 'Should forward x-trace-id header in Python');
+    assert.ok(pkg.serverCode.includes("url = f\"{BASE_URL.rstrip('/')}"), 'Should strip trailing slashes from BASE_URL in Python');
+    assert.ok(pkg.serverCode.includes('resolved_key = api_key or API_KEY'));
+    assert.ok(pkg.serverCode.includes('safe_id = urllib.parse.quote(str(id))'), 'Should sanitize path parameter with urllib.parse.quote');
+    assert.ok(pkg.serverCode.includes('{safe_id}'), 'Should bind safe escaped path variable');
     assert.ok(pkg.serverCode.includes('@mcp.resource('));
     assert.ok(pkg.serverCode.includes('reference://shipping-tiers'));
+    assert.ok(pkg.serverCode.includes('(uri: str = "") -> str:'), 'Should accept uri string context in FastMCP resource callback');
+    assert.ok(
+      pkg.serverCode.includes('parsed_query.get("apiKey") or parsed_query.get("api_key")'),
+      'Should extract dynamic auth key from resource URI'
+    );
+    assert.ok(
+      pkg.serverCode.includes('k.lower() not in ["apikey", "api_key"]'),
+      'Should forward non-auth query parameters to downstream resource'
+    );
     assert.ok(pkg.serverCode.includes('def get_order_summary('), 'Should generate composite workflow function');
     assert.ok(pkg.files['server.py']);
     assert.ok(pkg.files['requirements.txt']);
@@ -289,47 +348,198 @@ describe('mcp-generator: TypeScript and Python code generation', () => {
     assert.ok(pkg.files['README.md'].includes('pip install -r requirements.txt'));
   });
 
-  it('generates valid Go server code with mark3labs/mcp-go and go.mod', () => {
+  it('generates valid Go server code with mark3labs/mcp-go, query, body, and auth', () => {
     const pkg = generateMcpServer(spec, { target: 'go' });
     assert.strictEqual(pkg.target, 'go');
     assert.ok(pkg.serverCode.includes('github.com/mark3labs/mcp-go/mcp'));
     assert.ok(pkg.serverCode.includes('s.AddTool(mcp.NewTool("get_order"'));
+    assert.ok(pkg.serverCode.includes('s.AddTool(mcp.NewTool("create_order"'));
+    assert.ok(
+      pkg.serverCode.includes('func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {'),
+      'Should generate valid, complete tool callback signature in Go'
+    );
+    assert.ok(
+      pkg.serverCode.includes('url.PathEscape(fmt.Sprintf("%v", args["id"]))'),
+      'Should escape path parameters using url.PathEscape in Go'
+    );
+    assert.ok(
+      pkg.serverCode.includes('mcp.WithList("tags", mcp.Description("Filter tags"))'),
+      'Should map array parameter to mcp.WithList in Go'
+    );
+    assert.ok(pkg.serverCode.includes('queryParams := url.Values{}'));
+    assert.ok(pkg.serverCode.includes('queryParams.Set("includeDetails"'));
+    assert.ok(pkg.serverCode.includes('bodyPayload["customerId"] = v'));
+    assert.ok(pkg.serverCode.includes('req.Header.Set("x-trace-id", fmt.Sprintf("%v", v))'), 'Should forward x-trace-id header in Go');
+    assert.ok(pkg.serverCode.includes('strings.TrimRight(baseURL, "/")'), 'Should strip trailing slashes from baseURL in Go');
+    assert.ok(pkg.serverCode.includes('resolvedKey := apiKey'));
     assert.ok(pkg.serverCode.includes('s.AddResource(mcp.NewResource("reference://shipping-tiers"'));
+    assert.ok(
+      pkg.serverCode.includes('if incomingURL, err := url.Parse(request.Params.URI); err == nil {'),
+      'Should parse incoming request.Params.URI in Go resource callback'
+    );
+    assert.ok(pkg.serverCode.includes('passedKey := q.Get("apiKey")'), 'Should extract dynamic apiKey from query params in Go resource');
+    assert.ok(pkg.serverCode.includes('targetQuery.Set(k, v[0])'), 'Should forward non-auth query parameters downstream in Go resource');
+    assert.ok(pkg.serverCode.includes('s.AddTool(mcp.NewTool("get_order_summary"'));
     assert.ok(pkg.files['main.go']);
     assert.ok(pkg.files['go.mod']);
     assert.ok(pkg.files['go.mod'].includes('github.com/mark3labs/mcp-go'));
     assert.ok(pkg.files['README.md'].includes('go mod tidy'));
   });
 
-  it('generates valid C# (.NET) server code with Server.csproj', () => {
+  it('generates valid C# (.NET) server code with query, body, workflows, and multi-tenancy', () => {
     const pkg = generateMcpServer(spec, { target: 'csharp' });
     assert.strictEqual(pkg.target, 'csharp');
     assert.ok(pkg.serverCode.includes('ModelContextProtocol.NET.Server'));
+    assert.ok(pkg.serverCode.includes('using System.Web;'), 'Should include System.Web for query parsing');
     assert.ok(pkg.serverCode.includes('[McpTool("get_order"'));
+    assert.ok(pkg.serverCode.includes('[McpTool("create_order"'));
+    assert.ok(
+      pkg.serverCode.includes('var safeId = Uri.EscapeDataString(id?.ToString() ?? "");'),
+      'Should sanitize path parameters with Uri.EscapeDataString in C#'
+    );
+    assert.ok(pkg.serverCode.includes('IEnumerable<string> tags = default'), 'Should map array parameters to IEnumerable<string> in C#');
+    assert.ok(pkg.serverCode.includes('var queryParams = new List<string>();'));
+    assert.ok(pkg.serverCode.includes('var bodyPayload = new Dictionary<string, object>();'));
+    assert.ok(pkg.serverCode.includes('StringContent(JsonSerializer.Serialize(bodyPayload)'));
+    assert.ok(
+      pkg.serverCode.includes('request.Headers.TryAddWithoutValidation("x-trace-id", xTraceId)'),
+      'Should forward x-trace-id header in C#'
+    );
+    assert.ok(pkg.serverCode.includes("BaseUrl.TrimEnd('/')"), 'Should strip trailing slashes from BaseUrl in C#');
+    assert.ok(pkg.serverCode.includes('var resolvedKey = !string.IsNullOrEmpty(apiKey) ? apiKey : ApiKey;'));
     assert.ok(pkg.serverCode.includes('[McpResource("reference://shipping-tiers"'));
+    assert.ok(pkg.serverCode.includes('GetShippingTiers(string uri = "")'), 'Should accept uri parameter in C# resource method');
+    assert.ok(
+      pkg.serverCode.includes('var dynamicKey = incomingParams["apiKey"] ?? incomingParams["api_key"]'),
+      'Should extract dynamic auth key from resource URI in C#'
+    );
+    assert.ok(
+      pkg.serverCode.includes('outboundQuery[key] = incomingParams[key]'),
+      'Should mirror non-auth parameters downstream in C# resource'
+    );
+    assert.ok(pkg.serverCode.includes('[McpTool("get_order_summary"'));
     assert.ok(pkg.files['Program.cs']);
     assert.ok(pkg.files['Server.csproj']);
     assert.ok(pkg.files['README.md'].includes('dotnet run'));
   });
 
-  it('generates valid Rust server code with Cargo.toml', () => {
+  it('generates valid Rust server code with query, body, workflows, and multi-tenancy', () => {
     const pkg = generateMcpServer(spec, { target: 'rust' });
     assert.strictEqual(pkg.target, 'rust');
     assert.ok(pkg.serverCode.includes('mcp_sdk::server'));
     assert.ok(pkg.serverCode.includes('"get_order" => {'));
+    assert.ok(pkg.serverCode.includes('"create_order" => {'));
+    assert.ok(pkg.serverCode.includes('urlencoding::encode'), 'Should escape path parameters with urlencoding::encode in Rust');
+    assert.ok(pkg.serverCode.includes('let mut query_params: Vec<(&str, String)> = Vec::new();'));
+    assert.ok(pkg.serverCode.includes('req = req.query(&query_params);'));
+    assert.ok(pkg.serverCode.includes('let mut body_map = serde_json::Map::new();'));
+    assert.ok(pkg.serverCode.includes('req = req.json(&body_map);'));
+    assert.ok(pkg.serverCode.includes('req = req.header("x-trace-id", h)'), 'Should forward x-trace-id header in Rust');
+    assert.ok(pkg.serverCode.includes("base_url.trim_end_matches('/')"), 'Should strip trailing slashes from base_url in Rust');
+    assert.ok(pkg.serverCode.includes('let resolved_key = args.get("api_key")'));
+    assert.ok(pkg.serverCode.includes('"get_order_summary" => {'));
+    assert.ok(pkg.serverCode.includes('"reference://shipping-tiers" => {'));
+    assert.ok(pkg.serverCode.includes("uri.split_once('?')"), 'Should split resource URI on query boundary in Rust');
+    assert.ok(
+      pkg.serverCode.includes('resolved_key = Some(v.to_string())'),
+      'Should dynamically extract auth key from resource URI in Rust'
+    );
+    assert.ok(pkg.serverCode.includes('server.add_tool('), 'Should register tools with server.add_tool in Rust');
+    assert.ok(pkg.serverCode.includes('.property("tags", "array"'), 'Should register array schema property in Rust');
+    assert.ok(pkg.serverCode.includes('ToolResponse::error('), 'Should gracefully catch errors without crashing in Rust');
     assert.ok(pkg.files['src/main.rs']);
     assert.ok(pkg.files['Cargo.toml']);
+    assert.ok(pkg.files['Cargo.toml'].includes('urlencoding = "2.1"'), 'Should declare urlencoding dependency in Cargo.toml');
     assert.ok(pkg.files['README.md'].includes('cargo build --release'));
   });
 
-  it('generates valid Java Spring AI server code with pom.xml', () => {
+  it('generates valid Java Spring AI server code with pom.xml, records, and zero broken String.format', () => {
     const pkg = generateMcpServer(spec, { target: 'java' });
     assert.strictEqual(pkg.target, 'java');
     assert.ok(pkg.serverCode.includes('org.springframework.boot'));
     assert.ok(pkg.serverCode.includes('@SpringBootApplication'));
+    assert.ok(pkg.serverCode.includes('public record GetOrderRequest'), 'Should generate typed Java record for tool arguments');
+    assert.ok(pkg.serverCode.includes('public record CreateOrderRequest'), 'Should generate typed Java record for POST tool arguments');
+    assert.ok(pkg.serverCode.includes('@JsonPropertyDescription("id")'), 'Should annotate record fields with @JsonPropertyDescription');
+    assert.ok(
+      pkg.serverCode.includes('@JsonPropertyDescription("Distributed tracing header")'),
+      'Should expose tracing header in record fields'
+    );
+    assert.ok(pkg.serverCode.includes('Function<GetOrderRequest, String> getOrder()'), 'Should use strongly typed record in Function bean');
+    assert.ok(pkg.serverCode.includes('Function<CreateOrderRequest, String> createOrder()'));
+    assert.ok(
+      !pkg.serverCode.includes('String.format("%s/orders/%s", baseUrl)'),
+      'Must not generate broken String.format missing path arguments'
+    );
+    assert.ok(pkg.serverCode.includes('UriUtils.encodePath'), 'Should use UriUtils.encodePath for path parameter binding');
+    assert.ok(pkg.serverCode.includes('UriComponentsBuilder.fromUriString'), 'Should build URIs using UriComponentsBuilder');
+    assert.ok(pkg.serverCode.includes('uriBuilder.queryParam("includeDetails"'));
+    assert.ok(
+      pkg.serverCode.includes('spec.header("x-trace-id", String.valueOf(request.xTraceId()))'),
+      'Should forward x-trace-id header parameter to RestClient'
+    );
+    assert.ok(pkg.serverCode.includes('.body(bodyPayload)'));
+    assert.ok(pkg.serverCode.includes('getOrderSummary()'));
+    assert.ok(
+      pkg.serverCode.includes('Function<Map<String, Object>, String> getShippingTiers()'),
+      'Should use standard Map<String, Object> compatible with Spring AI resource routing'
+    );
+    assert.ok(
+      pkg.serverCode.includes('@JsonProperty("x-trace-id")'),
+      'Should annotate header parameter with explicit @JsonProperty wire name'
+    );
+    assert.ok(
+      pkg.serverCode.includes('@JsonProperty(value = "id", required = true)'),
+      'Should annotate required parameter with explicit @JsonProperty wire name'
+    );
+    assert.ok(
+      pkg.serverCode.includes('Description("Resource: get_shipping_tiers (reference://shipping-tiers{?apiKey,api_key})")'),
+      'Should expose RFC 6570 URI template in resource description'
+    );
+    assert.ok(pkg.serverCode.includes('args.containsKey("apiKey")'), 'Should extract session apiKey from URI query parameters map');
+    assert.ok(
+      pkg.serverCode.includes('UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.baseUrl);'),
+      'Should use UriComponentsBuilder for resources'
+    );
+    assert.ok(
+      pkg.serverCode.includes('uriBuilder.path("/shipping-tiers");'),
+      'Should independently bind path to UriComponentsBuilder for safe normalization'
+    );
+    assert.ok(
+      pkg.serverCode.includes('uriBuilder.queryParam(key, value);'),
+      'Should forward client query variables to outbound resource URL'
+    );
+    assert.ok(!pkg.serverCode.includes('this.baseUrl + "/shipping-tiers"'), 'Must not use direct string concatenation for resource URIs');
+    assert.ok(
+      !pkg.serverCode.includes('private final ObjectMapper objectMapper = new ObjectMapper();'),
+      'Class must not define dead ObjectMapper field'
+    );
     assert.ok(pkg.files['src/main/java/com/rapidoc/mcp/RapiDocMcpServer.java']);
     assert.ok(pkg.files['pom.xml']);
     assert.ok(pkg.files['README.md'].includes('./mvnw spring-boot:run'));
+  });
+
+  it('omits ObjectMapper completely when no workflows exist in Java', () => {
+    const specWithoutWorkflows = {
+      openapi: '3.0.3',
+      info: { title: 'Simple API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: { summary: 'List items', operationId: 'listItems', responses: { 200: { description: 'OK' } } },
+        },
+        '/info': {
+          get: {
+            summary: 'App info',
+            'x-mcp': { type: 'resource', uri: 'reference://info' },
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    };
+    const pkg = generateMcpServer(specWithoutWorkflows, { target: 'java' });
+    assert.ok(!pkg.serverCode.includes('ObjectMapper'), 'Must not import or instantiate ObjectMapper when there are no workflows');
+    assert.ok(pkg.serverCode.includes('Function<Map<String, Object>, String> getInfo()'), 'Should use standard resource routing');
+    assert.ok(pkg.serverCode.includes('args.containsKey("apiKey")'), 'Should support dynamic apiKey in resource via URI query params');
   });
 
   it('generates host configuration snippets for Claude Desktop and Cursor', () => {
@@ -351,10 +561,7 @@ describe('mcp-generator: parseMcpTargets attribute normalization and kill-switch
   });
 
   it('parses comma-separated string with whitespace and mixed casing', () => {
-    assert.deepStrictEqual(
-      parseMcpTargets(' TypeScript , Python , GO '),
-      ['typescript', 'python', 'go']
-    );
+    assert.deepStrictEqual(parseMcpTargets(' TypeScript , Python , GO '), ['typescript', 'python', 'go']);
   });
 
   it('parses JavaScript arrays and JSON string arrays', () => {
@@ -396,14 +603,7 @@ describe('mcp-generator: parseMcpTargets attribute normalization and kill-switch
   });
 
   it('deduplicates targets in the returned array', () => {
-    assert.deepStrictEqual(
-      parseMcpTargets('python, python, go, python'),
-      ['python', 'go']
-    );
-    assert.deepStrictEqual(
-      parseMcpTargets(['go', 'go', 'rust']),
-      ['go', 'rust']
-    );
+    assert.deepStrictEqual(parseMcpTargets('python, python, go, python'), ['python', 'go']);
+    assert.deepStrictEqual(parseMcpTargets(['go', 'go', 'rust']), ['go', 'rust']);
   });
 });
-
