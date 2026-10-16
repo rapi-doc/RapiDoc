@@ -1,7 +1,6 @@
 examples:
-
   - Open API Example:
-      description:  Interactive showcase demonstrating how RapiDoc renders a OpenAPI 3.1 and 3.2 specifications.  
+      description: Interactive showcase demonstrating how RapiDoc renders a OpenAPI 3.1 and 3.2 specifications.
       category: Layouts & Views
       img: /assets/images/dog.png
       subExamples:
@@ -185,12 +184,6 @@ examples:
       href: /examples/multi-datatypes
       description: Utilize OpenAPI 3.1 multi-type declarations conforming to the latest JSON Schema specifications.
       category: OpenAPI 3.1 & Schemas
-
-  - Spec Split into Multiple Files:
-      img: assets/images/multifile.png
-      href: /examples/external-refs
-      description: Modularize enterprise API catalogs by splitting schemas and operations across multiple linked JSON/YAML files.
-      category: Advanced & Extensibility
 
   - Schema Composition:
       description: Model polymorphic inheritance and data variations using oneOf, anyOf, and allOf schema combinations.

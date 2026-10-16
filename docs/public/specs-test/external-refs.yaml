@@ -66,4 +66,4 @@ paths:
           content:
             application/json:
               schema: 
-                $ref: '../specs/partial.yaml#/components/schemas/user'
+                $ref: '../specs-test/partial.yaml#/components/schemas/user'

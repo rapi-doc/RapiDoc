@@ -8,4 +8,4 @@ paths:
       summary: External Refs
       description: Using external refs in spec
       responses:
-        $ref: ../specs/partial-responses.yaml
+        $ref: ../specs-test/partial-responses.yaml

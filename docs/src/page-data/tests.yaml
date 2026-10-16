@@ -143,6 +143,11 @@ advanced:
       title: Composite Schemas with External References ($ref)
       validates:
         - Schema composition where branches reference external schema models
+  - external-refs:
+      title: Specs Split into Multiple Files (External $ref)
+      validates:
+        - Resolving external schema references across multiple linked OpenAPI files
+        - Relative path dereferencing for external schemas and responses
   - xxx-of-nesting:
       title: Nested Composition Operators
       validates:

@@ -35,7 +35,8 @@ export default defineConfig({
     '/mock': '/guides/mock',
     '/oauth': '/guides/oauth',
     '/theme': '/guides/theme',
-    '/perf': '/tests/performance'
+    '/perf': '/tests/performance',
+    '/examples/external-refs': '/tests/external-refs',
   },
   integrations: [
     starlight({
@@ -84,9 +85,7 @@ export default defineConfig({
         },
         {
           label: 'Migration',
-          items: [
-            { label: 'Migrating from v10 to v11', slug: 'docs/migration/v10-to-v11' },
-          ],
+          items: [{ label: 'Migrating from v10 to v11', slug: 'docs/migration/v10-to-v11' }],
         },
         {
           label: 'Theming & Deep Styling',

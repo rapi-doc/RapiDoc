@@ -111,4 +111,13 @@ test('theme-validation', async (t) => {
     assert.doesNotMatch(navStyles.cssText, /var\(--nav-accent,/);
     assert.doesNotMatch(navStyles.cssText, /--nav-accent-foreground/);
   });
+
+  await t.test('--nav-logo slot uses --nav-logo-max-height and overflow clipping', () => {
+    // Assert --nav-logo-max-height token exists
+    assert.match(themeTokens.cssText, /--nav-logo-max-height:\s*60px;/);
+
+    // Assert nav styles use var(--nav-logo-max-height, 60px) and overflow: hidden
+    assert.match(navStyles.cssText, /max-height:\s*var\(--nav-logo-max-height,\s*60px\);/);
+    assert.match(navStyles.cssText, /overflow:\s*hidden;/);
+  });
 });
