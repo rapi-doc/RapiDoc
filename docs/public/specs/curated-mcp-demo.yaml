@@ -1,0 +1,364 @@
+openapi: 3.1.0
+info:
+  title: Apex Commerce & Fulfillment API
+  version: 2.4.0
+  description: |
+    Comprehensive E-Commerce Order Fulfillment, Customer Care, and Logistics API.
+    Designed to showcase **Curated Model Context Protocol (MCP) tooling vs Naive 1:1 REST conversion**.
+servers:
+  - url: https://api.apexcommerce.io/v2
+    description: Production API Server
+  - url: http://localhost:8080/v2
+    description: Local Sandbox
+
+security:
+  - BearerAuth: []
+
+# Root-level Composite Workflows (Addresses Jeremiah Lowin's "Atomicity Anti-Pattern")
+# Collapses 3 distinct atomic HTTP roundtrips (customer + orders + items) into 1 server-side tool call.
+x-mcp-workflows:
+  - name: get_customer_order_summary
+    description: "Fetches customer profile, subscription status, and latest 3 orders with distilled items in a single tool call."
+    parameters:
+      customerId:
+        type: string
+        description: "Unique customer UUID (e.g., 'cust_98234')"
+    steps:
+      - call: getCustomer
+        args: { id: "$params.customerId" }
+      - call: listOrders
+        args: { customerId: "$params.customerId", limit: 3 }
+
+paths:
+  # ==========================================
+  # 1. CUSTOMER PROFILE (Atomic endpoint)
+  # ==========================================
+  /customers/{customerId}:
+    get:
+      summary: Retrieve customer account profile
+      operationId: getCustomer
+      description: Returns customer name, contact email, default billing address, and account status.
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Customer ID
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Bearer token (automatically abstracted by RapiDoc MCP Generator)
+      responses:
+        '200':
+          description: Customer record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfile'
+
+  # ==========================================
+  # 2. ORDERS LIST (Atomic with parameter noise)
+  # ==========================================
+  /customers/{customerId}/orders:
+    get:
+      summary: List customer orders
+      operationId: listOrders
+      description: Returns paginated order history for the specified customer.
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Number of items to return
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, processing, shipped, delivered, cancelled]
+          description: Order status filter
+        # Internal / transport parameters that naive converters leak into LLM prompts
+        - name: internalWarehouseId
+          in: query
+          x-speakeasy-param-ignore: true
+          schema:
+            type: string
+          description: Internal fulfillment routing node
+        - name: X-Trace-Id
+          in: header
+          schema:
+            type: string
+          description: Distributed tracing header
+      responses:
+        '200':
+          description: Orders array
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderSummary'
+
+  # ==========================================
+  # 3. ORDER ITEMS (Atomic hop #3)
+  # ==========================================
+  /orders/{orderId}/items:
+    get:
+      summary: Get order line items
+      operationId: getOrderItems
+      description: Returns itemized product breakdown for a given order ID.
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Line items list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderItem'
+
+  # ==========================================
+  # 4. PLACE ORDER (Curated Mutation with x-mcp)
+  # ==========================================
+  /orders:
+    post:
+      summary: Create customer purchase order
+      operationId: createOrder
+      # x-mcp vendor extension curates tool name, agent prompt instructions, and parameter whitelist
+      x-mcp:
+        name: place_customer_order
+        description: |
+          Places a confirmed purchase order for the customer.
+          Ensure you have verified the recipient's shipping address and selected items with the user before calling this tool.
+        requireConfirmation: true
+        readOnly: false
+        parameters:
+          include:
+            - customerId
+            - items
+            - shippingAddress
+            - priority
+          defaults:
+            priority: standard
+          descriptions:
+            customerId: "Customer UUID (e.g. 'cust_98234')"
+            items: "List of SKU items and quantities to purchase"
+        response:
+          filter: "id, orderNumber, status, total, estimatedDelivery"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customerId
+                - items
+                - shippingAddress
+              properties:
+                customerId:
+                  type: string
+                  description: Target customer identifier
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [sku, quantity]
+                    properties:
+                      sku: { type: string }
+                      quantity: { type: integer, minimum: 1 }
+                shippingAddress:
+                  type: string
+                  description: Full street destination address
+                priority:
+                  type: string
+                  enum: [standard, express, overnight]
+                # Non-essential internal fields pruned by x-mcp whitelist:
+                affiliateTrackingCode:
+                  type: string
+                  description: Marketing attribution affiliate code
+                internalFraudScore:
+                  type: number
+                  description: Algorithmic fraud rating
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderSummary'
+
+  # ==========================================
+  # 5. REFUND PAYMENT (Consequential mutation with OpenAI/Speakeasy aliases)
+  # ==========================================
+  /payments/{paymentId}/refund:
+    post:
+      summary: Issue payment refund
+      operationId: refundPayment
+      # Compatibility aliases from Speakeasy and OpenAI
+      x-speakeasy-name-override: refund_customer_payment
+      x-openai-isConsequential: true
+      description: Initiates a partial or full refund for a processed charge.
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, reason]
+              properties:
+                amount:
+                  type: number
+                  description: Amount in USD to refund
+                reason:
+                  type: string
+                  enum: [customer_return, duplicate_charge, defective_goods, fraud]
+      responses:
+        '200':
+          description: Refund transaction confirmed
+
+  # ==========================================
+  # 6. SHIPPING TIERS (Explicit MCP Resource)
+  # ==========================================
+  /shipping-tiers:
+    get:
+      summary: Available shipping delivery tiers
+      operationId: getShippingTiers
+      # Explicitly declared as an MCP Resource (reference data attached to prompt, not a tool)
+      x-mcp:
+        type: resource
+        uri: "reference://shipping-tiers"
+        name: "Shipping Delivery Tiers SLA"
+        mimeType: "application/json"
+      responses:
+        '200':
+          description: List of shipping tiers and SLA transit times
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    tier: { type: string }
+                    transitDays: { type: integer }
+                    baseRate: { type: number }
+
+  # ==========================================
+  # 7. CURRENCIES (Auto-detected MCP Resource)
+  # ==========================================
+  /currencies:
+    get:
+      summary: Supported ISO currencies list
+      operationId: getCurrencies
+      description: Returns accepted transaction currency codes.
+      responses:
+        '200':
+          description: Currency list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: string, example: "USD" }
+
+  # ==========================================
+  # 8. INTERNAL ADMIN ROUTES (Excluded via Redocly x-internal)
+  # ==========================================
+  /admin/health:
+    get:
+      summary: Kubernetes cluster health check
+      operationId: getClusterHealth
+      x-internal: true
+      responses:
+        '200':
+          description: Health status
+
+  /admin/cache/purge:
+    post:
+      summary: Flush Redis application cache
+      operationId: purgeAppCache
+      x-internal: true
+      responses:
+        '200':
+          description: Cache flushed
+
+  # ==========================================
+  # 9. NOISY ANALYTICS (Excluded via x-mcp.enabled: false)
+  # ==========================================
+  /analytics/audit-log:
+    get:
+      summary: Raw streaming audit events
+      operationId: getAuditLog
+      x-mcp:
+        enabled: false
+      responses:
+        '200':
+          description: Stream of events
+
+  # ==========================================
+  # 10. DEPRECATED ENDPOINT (Auto-excluded by generator heuristics)
+  # ==========================================
+  /legacy/orders-v0:
+    get:
+      summary: Deprecated v0 orders endpoint
+      operationId: getLegacyOrders
+      deprecated: true
+      responses:
+        '200':
+          description: Deprecated payload
+
+components:
+  schemas:
+    CustomerProfile:
+      type: object
+      properties:
+        id: { type: string, example: "cust_98234" }
+        fullName: { type: string, example: "Alice Johnson" }
+        email: { type: string, example: "alice@example.com" }
+        accountTier: { type: string, enum: [standard, vip, wholesale] }
+        createdAt: { type: string, format: date-time }
+
+    OrderSummary:
+      type: object
+      properties:
+        id: { type: string, example: "ord_102938" }
+        orderNumber: { type: string, example: "APX-84729" }
+        status: { type: string, example: "shipped" }
+        total: { type: number, example: 149.50 }
+        currency: { type: string, example: "USD" }
+        createdAt: { type: string, format: date-time }
+
+    OrderItem:
+      type: object
+      properties:
+        sku: { type: string, example: "SKU-BLK-T-MD" }
+        title: { type: string, example: "Vintage Cotton Tee (Medium)" }
+        quantity: { type: integer, example: 2 }
+        unitPrice: { type: number, example: 29.99 }
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter Bearer token for authorized customer and order operations

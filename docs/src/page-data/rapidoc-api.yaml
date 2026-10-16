@@ -239,6 +239,21 @@ Attributes:
         allowed: ['true', 'false']
         description: When set to <span class="mono fg-color">true</span>, displays convenient buttons in the overview section to download the raw OpenAPI specification file or view it in a new tab.
         default: 'false'
+      - name: mcp
+        allowed:
+          - none
+          - typescript
+          - python
+          - go
+          - csharp
+          - rust
+          - java
+        description: Enables Model Context Protocol (MCP) server export for AI agents. Accepts a single target language, comma-separated targets (e.g. <span class="mono fg-color">"typescript, python"</span>), or an array of strings in JavaScript (<span class="mono fg-color">['typescript', 'python']</span>). When multiple targets are configured, an export dropdown menu is rendered in the overview section. Setting or including <span class="mono fg-color">none</span> (or <span class="mono fg-color">false</span>) completely disables export.
+        default: 'none'
+        example: /examples/mcp-server
+      - name: mcp-server-name
+        description: Custom name for the generated MCP server. Defaults to the API specification title.
+        default: (empty)
       - name: allow-search
         allowed: ['true', 'false']
         description: Enables the instant search and filtering input in the navigation sidebar.
@@ -431,6 +446,15 @@ Methods:
           </script>
           ...
         </html>
+    - name: generateMcpServer(target, options)
+      description: >
+        Programmatically generates an MCP server in memory. Returns an object containing <span class="mono fg-color">serverCode</span>, <span class="mono fg-color">hostConfig</span> (for Claude Desktop / Cursor), and <span class="mono fg-color">budget</span> (token diagnostics).
+    - name: downloadMcpServer(target, options)
+      description: >
+        Programmatically triggers browser download of the generated MCP server file (<span class="mono fg-color">server.ts</span> or <span class="mono fg-color">server.py</span>).
+    - name: getMcpBudget(options)
+      description: >
+        Returns prompt token overhead diagnostics and context footprint warnings for the current OpenAPI specification.
 
 Events:
   description: Custom DOM events dispatched by `<rapi-doc>` to intercept requests, handle lifecycle transitions, and customize runtime behavior.

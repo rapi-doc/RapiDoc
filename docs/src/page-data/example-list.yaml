@@ -42,6 +42,12 @@ examples:
       description: Call and test live API endpoints directly within the documentation, with support for negative and edge-case testing.
       category: Console & Interactive
 
+  - Model Context Protocol (MCP) Server:
+      img: /assets/images/terminal.png
+      href: /examples/mcp-server
+      description: Generate token-efficient, agent-friendly MCP servers from OpenAPI specs. Contrasts curated agent tooling vs plain 1:1 conversion.
+      category: Console & Interactive
+
   - Schema Styles:
       img: /assets/images/schema-style.png
       href: /examples/schema-styles

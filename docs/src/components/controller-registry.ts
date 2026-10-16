@@ -40,6 +40,7 @@ export type ControllerPreset =
   | 'slots'
   | 'slot'
   | 'demo'
+  | 'mcp'
   | 'none'
   | 'auto';
 
@@ -449,6 +450,20 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     tip: 'Show download button for the active OpenAPI spec',
     category: 'sections',
   },
+  mcp: {
+    type: 'segmented',
+    attr: 'mcp',
+    label: 'MCP Export',
+    tip: 'Configure supported MCP server export languages or disable with None',
+    category: 'sections',
+    options: [
+      { label: 'None', rawVal: 'none', isDefault: true },
+      { label: 'TypeScript', rawVal: 'typescript' },
+      { label: 'Python', rawVal: 'python' },
+      { label: 'Go', rawVal: 'go' },
+      { label: 'All 6 Targets', rawVal: 'typescript, python, go, csharp, rust, java' },
+    ],
+  },
   'mock-server': {
     type: 'toggle',
     attr: 'mock-server',
@@ -534,7 +549,17 @@ export const PRESETS: Record<string, string[]> = {
     'show-components',
     'allow-search',
     'allow-spec-file-download',
+    'mcp',
     'mock-server',
+  ],
+  mcp: [
+    'mcp',
+    'render-style',
+    'theme',
+    'show-info',
+    'allow-server-selection',
+    'allow-authentication',
+    'allow-spec-file-download',
   ],
   none: [],
 };

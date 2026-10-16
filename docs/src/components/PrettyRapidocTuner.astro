@@ -361,6 +361,19 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                   </button>
                 </div>
               </div>
+
+              <!-- downloadMcpServer -->
+              <div class="rd-option-card rd-option-card--multi" data-method="downloadMcpServer">
+                <div class="rd-option-info">
+                  <div class="rd-option-label" data-human="MCP Server" data-raw="downloadMcpServer()">
+                    MCP Server
+                  </div>
+                  <div class="rd-option-tip">Download curated MCP server file (TypeScript or Python)</div>
+                </div>
+                <button type="button" class="rd-pretty-action-btn rd-mcp-exec-btn" style="margin-left: auto;">
+                  <span data-human="Download" data-raw="Call">Download</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -872,6 +885,15 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
         const scrollExecBtn = e.target.closest('.rd-scroll-exec-btn');
         if (scrollExecBtn) {
           executeScrollTo();
+          return;
+        }
+
+        const mcpExecBtn = e.target.closest('.rd-mcp-exec-btn');
+        if (mcpExecBtn) {
+          const target = getTarget();
+          if (target && typeof target.downloadMcpServer === 'function') {
+            target.downloadMcpServer();
+          }
           return;
         }
       });

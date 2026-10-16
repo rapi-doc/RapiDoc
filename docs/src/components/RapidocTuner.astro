@@ -311,6 +311,23 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
                 </button>
               </div>
             </div>
+
+            <!-- downloadMcpServer() -->
+            <div class="rd-control-row" data-method="downloadMcpServer">
+              <span
+                class="rd-control-label"
+                data-human="MCP Server"
+                data-raw="downloadMcpServer()"
+              >MCP Server</span>
+              <button
+                type="button"
+                class="rd-method-exec-btn rd-method-mcp-btn"
+                title="Execute downloadMcpServer()"
+                style="padding: 2px 8px;"
+              >
+                <span data-human="Download Server" data-raw="Call">Download Server</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -839,6 +856,15 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
         const scrollExecBtn = e.target.closest('.rd-scroll-exec-btn');
         if (scrollExecBtn) {
           executeScrollTo();
+          return;
+        }
+
+        const mcpExecBtn = e.target.closest('.rd-method-mcp-btn');
+        if (mcpExecBtn) {
+          const target = getTarget();
+          if (target && typeof target.downloadMcpServer === 'function') {
+            target.downloadMcpServer();
+          }
           return;
         }
 

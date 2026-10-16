@@ -1,0 +1,278 @@
+---
+title: Curated MCP Server Generator
+description: Shape token-efficient, agent-first Model Context Protocol (MCP) servers directly from your OpenAPI specifications using vendor extensions and smart heuristics.
+---
+
+import { Aside, Tabs, TabItem, Steps, Card, CardGrid } from '@astrojs/starlight/components';
+
+As AI agents (like Claude Desktop, Cursor, and autonomous assistants) become primary consumers of APIs, exposing your backend to LLMs via the **Model Context Protocol (MCP)** is essential.
+
+However, as emphasized by Jeremiah Lowin (creator of FastMCP) in [*Stop Converting Your REST APIs to MCP*](https://jlowin.dev/blog/stop-converting-rest-apis-to-mcp), **naive 1:1 REST-to-MCP conversions fail in production**. Exposing every HTTP endpoint as an individual tool floods the agent's context window, leaks internal endpoints, and forces the model into slow, error-prone multi-hop roundtrips.
+
+RapiDoc includes a client-side **Curated MCP Server Generator** that uses **smart heuristics** and **OpenAPI vendor extensions (`x-mcp-*`)** to prune parameters, eliminate token tax, and compile your spec into clean MCP servers.
+
+<Aside type="tip" title="Interactive Showcase & Live Tuner">
+  Want to see the code generator in action and inspect side-by-side token comparisons? Visit the [Curated MCP Server Showcase](/examples/mcp-server) or read the [MCP Implementation Guide](/guides/mcp).
+</Aside>
+
+---
+
+## The Problem: The Naive 1:1 Conversion Trap
+
+Converting every OpenAPI path directly into an MCP tool creates several critical problems for LLM agents:
+
+<CardGrid>
+  <Card title="Context Window Explosion" icon="warning">
+    A typical 40-endpoint REST API exposes ~4,000 to 8,000 tokens of raw JSON schemas. This prompt overhead is re-injected on **every conversation turn**, drastically increasing inference cost and latency.
+  </Card>
+  <Card title="Chained Atomic Hops" icon="random">
+    To complete a business task (e.g. "cancel an order"), an agent must chain multiple atomic REST calls (`getCustomer` &rarr; `getOrders` &rarr; `findItems` &rarr; `cancel`). Each hop is a separate LLM roundtrip prone to compounding errors.
+  </Card>
+  <Card title="Internal & Admin Leaks" icon="error">
+    Naive converters expose internal infrastructure endpoints (`/healthz`, `/metrics`, `/admin/users/debug`), confusing the model and creating potential security risks.
+  </Card>
+  <Card title="Auth & Transport Pollution" icon="puzzle">
+    Headers like `Authorization`, `Cookie`, `X-Api-Key`, and `User-Agent` are exposed as tool arguments, forcing the model to guess or hallucinate authentication tokens.
+  </Card>
+</CardGrid>
+
+---
+
+## 1. Zero-Config Smart Heuristics
+
+Even without custom vendor extensions, RapiDoc applies smart defaults when compiling your OpenAPI spec:
+
+1. **Automatic Header Pruning**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, and transport metadata are stripped from LLM tool arguments and mapped to host environment variables (`process.env.API_KEY`, `os.environ["API_KEY"]`).
+2. **Deprecated Endpoint Elimination**: Any operation marked `deprecated: true` is automatically excluded.
+3. **Static Resource Classification**: Parameterless `GET` lookups (e.g., `/currencies`, `/tax-rates`, `/shipping-tiers`) are converted into **MCP Resources** (`reference://...`) instead of tools, avoiding function-calling overhead.
+4. **Token Budget Calculation**: Real-time diagnostic calculation estimates prompt token overhead and warns when total tools exceed recommended limits (>30 tools or >5,000 tokens).
+
+---
+
+## 2. Shaping MCP with Vendor Extensions
+
+By annotating your OpenAPI spec with `x-mcp` and supported industry aliases, you have granular control over how AI agents perceive and interact with your API.
+
+### Extension Reference Table
+
+| Extension | Target | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `x-mcp.name` | Operation | `string` | Agent-friendly snake_case tool name (e.g., `place_customer_order`). |
+| `x-mcp.description` | Operation | `string` | Concise, agent-focused prompt instructions specifying when and how to call the tool. |
+| `x-mcp.type` | Operation | `tool` \| `resource` | Explicitly declares an endpoint as an actionable Tool or a static read-only Resource. |
+| `x-mcp.uri` | Operation | `string` | Custom URI scheme for resources (e.g., `reference://shipping-tiers`). |
+| `x-mcp.parameters.include` | Operation | `string[]` | Whitelist of essential parameters to expose to the LLM. Strips internal/debug noise. |
+| `x-mcp.parameters.exclude` | Operation | `string[]` | Blacklist of parameters to hide from the agent. |
+| `x-mcp.parameters.defaults` | Operation | `object` | Default argument values pre-filled for the agent (e.g., `{ priority: "standard" }`). |
+| `x-mcp.parameters.descriptions` | Operation | `object` | Custom parameter descriptions optimized for prompt engineering. |
+| `x-mcp.requireConfirmation` | Operation | `boolean` | Flags mutating or financial tools as requiring user consent. |
+| `x-mcp-workflows` | Root Spec | `array` | Defines high-level composite workflows that collapse multiple REST calls into 1 tool. |
+| `x-internal` / `x-hidden` | Operation | `boolean` | Compatibility alias (Redocly/Scalar) to auto-exclude admin routes. |
+| `x-openai-isConsequential` | Operation | `boolean` | OpenAI Actions alias to mark consequential operations. |
+| `x-speakeasy-name-override` | Operation | `string` | Speakeasy alias to customize tool naming. |
+
+---
+
+## 3. Annotated OpenAPI Example
+
+Here is a real-world OpenAPI 3.x snippet illustrating how `x-mcp` extensions transform noisy REST operations into clean agent tools:
+
+```yaml
+openapi: 3.0.3
+info:
+  title: Apex Commerce Fulfillment API
+  version: 2.4.0
+
+# 1. Composite Task Tool: Collapses 3 atomic REST calls into 1 server-side tool
+x-mcp-workflows:
+  - name: get_customer_order_summary
+    description: "Fetches customer profile, subscription status, and latest 3 orders in a single tool call."
+    parameters:
+      customerId:
+        type: string
+        description: "Unique customer UUID (e.g., 'cust_98234')"
+    steps:
+      - call: getCustomer
+      - call: listOrders
+
+paths:
+  # 2. Curated Mutating Tool with Parameter Pruning & Confirmation Flag
+  /orders:
+    post:
+      summary: Place a new order
+      operationId: placeOrder
+      x-mcp:
+        name: place_customer_order
+        description: "Places a verified order for the customer. Requires confirmation before dispatch."
+        requireConfirmation: true
+        parameters:
+          include:
+            - customerId
+            - items
+            - shippingMethod
+          defaults:
+            shippingMethod: "standard"
+          descriptions:
+            customerId: "Customer UUID account identifier"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, items]
+              properties:
+                customerId: { type: string }
+                items: { type: array, items: { type: string } }
+                shippingMethod: { type: string, enum: [standard, express, overnight] }
+                internalTraceToken: { type: string } # Automatically stripped!
+                debugClientTimestamp: { type: string } # Automatically stripped!
+
+  # 3. Static Reference Table as an MCP Resource
+  /shipping-tiers:
+    get:
+      summary: Get shipping tiers
+      description: Static reference list of carrier delivery estimates and pricing tiers.
+      x-mcp:
+        type: resource
+        uri: "reference://shipping-tiers"
+
+  # 4. Hidden Admin Endpoint (Auto-excluded)
+  /admin/database/vacuum:
+    post:
+      summary: Trigger internal database maintenance
+      x-internal: true # Excluded from generated MCP tools!
+```
+
+---
+
+## 4. Multi-Target Code Generation
+
+RapiDoc generates production-ready, single-file MCP servers across **6 major programming languages**:
+
+<Tabs>
+  <TabItem label="TypeScript">
+    Built with `@modelcontextprotocol/sdk` and `zod` schema validation:
+    ```bash
+    # Run generated TypeScript server
+    API_KEY="your-key" npx tsx server.ts
+    ```
+  </TabItem>
+  <TabItem label="Python (FastMCP)">
+    Uses Jeremiah Lowin's `fastmcp` with Python's built-in `urllib.request` (0 networking dependencies):
+    ```bash
+    pip install -r requirements.txt
+    export API_KEY="your-key"
+    fastmcp run server.py
+    ```
+  </TabItem>
+  <TabItem label="Go">
+    Uses `mark3labs/mcp-go` and Go's standard library `net/http` to compile a standalone static binary:
+    ```bash
+    go mod tidy
+    go build -o server main.go
+    export API_KEY="your-key"
+    ./server
+    ```
+  </TabItem>
+  <TabItem label="C# (.NET)">
+    Uses `ModelContextProtocol.NET` with .NET 8 / 9 and native `HttpClient`:
+    ```bash
+    dotnet restore
+    export API_KEY="your-key"
+    dotnet run
+    ```
+  </TabItem>
+  <TabItem label="Rust">
+    Uses `mcp-sdk` and `tokio` for ultra-low memory usage (under 10 MB RAM):
+    ```bash
+    cargo build --release
+    export API_KEY="your-key"
+    ./target/release/server
+    ```
+  </TabItem>
+  <TabItem label="Java (Spring AI)">
+    Uses Spring AI MCP starter with `@Bean` function definitions:
+    ```bash
+    export API_KEY="your-key"
+    ./mvnw spring-boot:run
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 5. Integrating with `<rapi-doc>`
+
+### HTML Attributes
+
+Configure the **`mcp`** attribute on your `<rapi-doc>` element:
+
+```html
+<!-- Single target (direct export button) -->
+<rapi-doc
+  spec-url="/specs/my-api.yaml"
+  mcp="typescript"
+  mcp-server-name="my-api-mcp"
+> </rapi-doc>
+
+<!-- Multiple targets (interactive export dropdown) -->
+<rapi-doc
+  spec-url="/specs/my-api.yaml"
+  mcp="typescript, python, go, csharp, rust, java"
+  mcp-server-name="my-api-mcp"
+> </rapi-doc>
+```
+
+- **`mcp`** (`string | string[]`, default: `"none"`): Enables and configures MCP server export for AI agents.
+  - **Single language:** e.g. `mcp="python"` renders a direct `[Export MCP Server (Python)]` button in the API overview.
+  - **Multiple languages:** Comma-separated string in HTML (e.g. `mcp="typescript, python, go"`) or string array in JavaScript (e.g. `doc.mcp = ['typescript', 'python']`). Renders an `[Export MCP Server ▾]` dropdown menu.
+  - **Supported targets:** `typescript`, `python`, `go`, `csharp` (or `c#`), `rust`, `java`.
+  - **Kill-switch:** Setting or including `"none"` or `"false"` anywhere in the list (e.g. `mcp="none, python, go"` or `doc.mcp = ['none', 'python']`) completely disables export.
+- **`mcp-server-name`** (`string`, optional): Custom identifier for the generated MCP server. Defaults to the specification title.
+
+### Programmatic JavaScript API
+
+You can generate code, trigger downloads, or inspect token costs programmatically:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+// 1. Generate in-memory code, host configuration, and token diagnostics
+const result = doc.generateMcpServer('python', { serverName: 'my_store_mcp' });
+console.log(result.serverCode); // Complete Python FastMCP source
+console.log(result.budget);     // { totalTools: 5, estimatedTokens: 850, ... }
+console.log(result.hostConfig); // Claude Desktop / Cursor config JSON
+
+// 2. Trigger browser download of server file (e.g. server.py, main.go, server.ts)
+doc.downloadMcpServer('go');
+
+// 3. Inspect token budget overhead before exporting
+const budget = doc.getMcpBudget();
+console.log(`Overhead: ~${budget.estimatedTokens} tokens/turn across ${budget.totalTools} tools.`);
+```
+
+---
+
+## 6. Configuring AI Host Clients
+
+Every generated MCP package includes ready-to-use configuration for **Claude Desktop** and **Cursor**:
+
+### Claude Desktop Configuration
+Copy the generated snippet to your `claude_desktop_config.json`:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "my_api_mcp": {
+      "command": "npx",
+      "args": ["-y", "tsx", "server.ts"],
+      "env": {
+        "API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```

@@ -1,0 +1,902 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import {
+  IconCheck,
+  IconCopy,
+  IconArrowRight,
+  IconArrowUpRight,
+  IconBolt,
+  IconTarget,
+  IconFileCode,
+  IconPlayerPlay,
+} from '@tabler/icons-astro';
+
+const naiveVsCuratedSnippet = `# Naive 1:1 conversion (raw endpoint)
+# Problem: 14 tools, 4,200 tokens overhead, leaks internal trace tokens
+/orders:
+  post:
+    summary: Create order
+    # No curation: LLM sees 15 fields including internalDebugTrace, clientTelemetry
+
+# Curated with RapiDoc x-mcp extensions:
+# Result: 1 tool, clean prompt, 3 parameters, confirmation guardrail
+/orders:
+  post:
+    summary: Create order
+    x-mcp:
+      name: place_customer_order
+      description: "Places a verified order for the customer. Requires confirmation before billing."
+      requireConfirmation: true
+      parameters:
+        include:
+          - customerId
+          - items
+          - shippingMethod
+        defaults:
+          shippingMethod: "standard"
+        descriptions:
+          customerId: "Unique customer UUID"`;
+
+const compositeWorkflowSnippet = `# Root-level composite task workflow
+# Collapses 3 distinct HTTP roundtrips into 1 single tool call for the agent
+x-mcp-workflows:
+  - name: get_customer_order_summary
+    description: "Fetches customer profile, subscription status, and latest 3 orders in a single tool call."
+    parameters:
+      customerId:
+        type: string
+        description: "Unique customer UUID (e.g. 'cust_98234')"
+    steps:
+      - call: getCustomer
+        args: { id: "$params.customerId" }
+      - call: listOrders
+        args: { customerId: "$params.customerId", limit: 3 }`;
+
+const staticResourceSnippet = `# Distinguishing Actionable Tools from Static Data
+# Parameterless lookups are compiled into MCP Resources (reference://...)
+/shipping-tiers:
+  get:
+    summary: Supported carrier shipping tiers
+    description: Static lookup table of carrier delivery speeds and pricing.
+    x-mcp:
+      type: resource
+      uri: "reference://shipping-tiers"`;
+
+const rapiDocTagSnippet = `<!-- 1. Enable MCP Export button in API overview -->
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+
+<rapi-doc
+  spec-url="/specs/curated-mcp-demo.yaml"
+  mcp="typescript, python, go"
+  mcp-server-name="my-api-mcp"
+  theme="slate"
+> </rapi-doc>`;
+
+const programmaticApiSnippet = `// Access the RapiDoc custom element in JavaScript
+const doc = document.querySelector('rapi-doc');
+
+// 1. Generate in-memory code & Claude Desktop / Cursor configuration
+const result = doc.generateMcpServer('python');
+console.log(result.serverCode);   // FastMCP Python source code
+console.log(result.hostConfig);   // Claude Desktop JSON config
+console.log(result.budget);       // { totalTools: 5, estimatedTokens: 850 }
+
+// 2. Trigger browser download of server file (server.ts, server.py, main.go, Program.cs)
+doc.downloadMcpServer('go');
+
+// 3. Inspect token budget overhead before exporting
+const budget = doc.getMcpBudget();
+console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget.totalTools} tools\`);`;
+---
+
+<GlobalLayout
+  title="Curated MCP Server Guide & Vendor Extensions | RapiDoc"
+  description="Learn how to shape token-efficient, agent-first Model Context Protocol (MCP) servers from OpenAPI specs using x-mcp vendor extensions and smart heuristics."
+  keywords="Model Context Protocol, MCP, OpenAPI to MCP, x-mcp, FastMCP, Claude Desktop, Cursor, AI agents, RapiDoc MCP"
+>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <!-- Reusable Frosted Glass Navigation -->
+  <SiteNavbar activePage="guides" />
+
+  <main class="mcp-guide-main">
+    <!-- Hero Header -->
+    <header class="mcp-guide-header">
+      <div class="mcp-badge-pill">
+        <span class="mcp-badge-pulse"></span>
+        <span class="mcp-badge-text">Model Context Protocol • AI Agent Engineering</span>
+      </div>
+
+      <h1 class="mcp-page-title">
+        Shaping Curated <span class="text-gradient">MCP Servers</span>
+      </h1>
+
+      <p class="mcp-page-subtitle">
+        How to use OpenAPI vendor extensions (<code>x-mcp-*</code>) and smart heuristics to eliminate prompt token tax,
+        collapse multi-hop REST roundtrips, and compile production-ready AI agent servers directly in the browser.
+      </p>
+
+      <div class="mcp-cta-row">
+        <a href="/examples/mcp-server" class="mcp-btn primary">
+          <IconPlayerPlay size={18} stroke={2} />
+          <span>Interactive Showcase Demo</span>
+        </a>
+        <a href="/docs/advanced/mcp-server" class="mcp-btn secondary">
+          <IconFileCode size={18} stroke={2} />
+          <span>Technical Reference Docs</span>
+          <IconArrowUpRight size={16} stroke={2} />
+        </a>
+      </div>
+
+      <div class="mcp-quick-stats">
+        <div class="mcp-stat-chip">
+          <span class="mcp-stat-num">~80%</span>
+          <span class="mcp-stat-txt">Token Overhead Reduction</span>
+        </div>
+        <div class="mcp-stat-chip">
+          <span class="mcp-stat-num">6 Targets</span>
+          <span class="mcp-stat-txt">TS, Python, Go, C#, Rust, Java</span>
+        </div>
+        <div class="mcp-stat-chip">
+          <span class="mcp-stat-num">Zero Backend</span>
+          <span class="mcp-stat-txt">Runs 100% in Browser</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Sections -->
+    <div class="mcp-guide-content">
+      <!-- Section 1: The Core Philosophy -->
+      <section class="mcp-section">
+        <div class="section-tag">Philosophy</div>
+        <h2 class="section-heading">Why Naive 1:1 REST-to-MCP Fails</h2>
+        <p class="section-lead">
+          When teams first connect OpenAPI to AI agents, their initial instinct is to convert every REST endpoint into an individual MCP tool.
+          As Jeremiah Lowin explains in <em>"Stop Converting Your REST APIs to MCP"</em>, this naive approach severely degrades LLM performance:
+        </p>
+
+        <div class="comparison-grid">
+          <div class="comparison-card naive">
+            <div class="card-status-badge badge-danger">Naive 1:1 Conversion</div>
+            <h3 class="card-title">Endpoint-as-a-Tool Trap</h3>
+            <ul class="comparison-list">
+              <li><strong>Token Window Bloat:</strong> 30–50 raw JSON schemas consume 4,000–8,000 tokens on <em>every conversation turn</em>.</li>
+              <li><strong>Chained Atomic Hops:</strong> Agents must guess and execute 3–4 sequential calls (get customer &rarr; get orders &rarr; get items) just to fulfill one user intent.</li>
+              <li><strong>Internal Leaks:</strong> Infrastructure endpoints (<code>/healthz</code>, <code>/metrics</code>, <code>/admin/debug</code>) confuse the model.</li>
+              <li><strong>Transport Pollution:</strong> Headers like <code>Authorization</code>, <code>Cookie</code>, and <code>X-Api-Key</code> pollute tool parameters.</li>
+            </ul>
+          </div>
+
+          <div class="comparison-card curated">
+            <div class="card-status-badge badge-success">RapiDoc Curated MCP</div>
+            <h3 class="card-title">Agent-First Tool Design</h3>
+            <ul class="comparison-list">
+              <li><strong>Lean Token Footprint:</strong> Parameter pruning and curated tool sets drop prompt cost by <strong>~80%</strong> (~850 tokens).</li>
+              <li><strong>Composite Workflows:</strong> Multi-step REST hops collapse into single task tools via <code>x-mcp-workflows</code>.</li>
+              <li><strong>Zero Admin Leaks:</strong> Automatic filtering via <code>x-internal</code>, <code>x-hidden</code>, and <code>deprecated: true</code>.</li>
+              <li><strong>Clean Auth Separation:</strong> Transport headers are automatically stripped into environment variables (<code>process.env.API_KEY</code>).</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Zero-Config Smart Heuristics -->
+      <section class="mcp-section">
+        <div class="section-tag">Zero Configuration</div>
+        <h2 class="section-heading">Smart Heuristics (Out of the Box)</h2>
+        <p class="section-lead">
+          Even if your OpenAPI spec does not contain custom vendor extensions, RapiDoc applies smart heuristics during export:
+        </p>
+
+        <div class="heuristics-cards">
+          <div class="heuristic-card">
+            <div class="heuristic-icon"><IconCheck size={20} /></div>
+            <div>
+              <h4>Header & Transport Sanitization</h4>
+              <p>Headers like <code>Authorization</code>, <code>Cookie</code>, <code>X-Api-Key</code>, <code>User-Agent</code>, and <code>Accept</code> are stripped from LLM parameter schemas and mapped to host environment variables.</p>
+            </div>
+          </div>
+          <div class="heuristic-card">
+            <div class="heuristic-icon"><IconCheck size={20} /></div>
+            <div>
+              <h4>Deprecated Route Exclusion</h4>
+              <p>Operations marked with <code>deprecated: true</code> are automatically omitted from generated agent tools to prevent models from utilizing stale APIs.</p>
+            </div>
+          </div>
+          <div class="heuristic-card">
+            <div class="heuristic-icon"><IconCheck size={20} /></div>
+            <div>
+              <h4>Static Resource Classification</h4>
+              <p>Zero-parameter <code>GET</code> endpoints (such as <code>/currencies</code> or <code>/shipping-tiers</code>) are converted into <strong>MCP Resources</strong> (<code>reference://...</code>), preserving tool calling budgets.</p>
+            </div>
+          </div>
+          <div class="heuristic-card">
+            <div class="heuristic-icon"><IconCheck size={20} /></div>
+            <div>
+              <h4>Token Budget Diagnostics</h4>
+              <p>RapiDoc dynamically estimates prompt context tokens per conversation turn and generates warnings if tool count exceeds 30 or context exceeds 5,000 tokens.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Vendor Extensions Specification -->
+      <section class="mcp-section">
+        <div class="section-tag">Specification</div>
+        <h2 class="section-heading">The <code>x-mcp</code> Extension Family</h2>
+        <p class="section-lead">
+          Use the following vendor extensions to shape how agents interact with your operations:
+        </p>
+
+        <!-- 3.1: Tool Curation & Parameter Pruning -->
+        <div class="sub-topic">
+          <h3>1. Parameter Pruning & Agent Descriptions</h3>
+          <p>
+            REST APIs often contain telemetry, internal tracking tokens, and debug fields that confuse agents.
+            Use <code>x-mcp.parameters.include</code> to expose only essential business parameters:
+          </p>
+          <CodeBlock code={naiveVsCuratedSnippet} lang="yaml" filename="openapi.yaml (Tool Curation)" />
+        </div>
+
+        <!-- 3.2: Tools vs Resources -->
+        <div class="sub-topic">
+          <h3>2. Declaring MCP Resources (Read-Only Lookups)</h3>
+          <p>
+            In the Model Context Protocol, <strong>Tools</strong> represent executable actions with side-effects, while <strong>Resources</strong>
+            represent contextual reference data (like database catalogs, tax rates, or pricing tiers) that the model can inspect without function calling:
+          </p>
+          <CodeBlock code={staticResourceSnippet} lang="yaml" filename="openapi.yaml (MCP Resource)" />
+        </div>
+
+        <!-- 3.3: Composite Task Workflows -->
+        <div class="sub-topic">
+          <h3>3. Composite Task Workflows (<code>x-mcp-workflows</code>)</h3>
+          <p>
+            Instead of having the agent call <code>getCustomer</code>, then <code>listOrders</code>, and then <code>getOrderItems</code>,
+            define a root-level composite workflow. The generated server executes the individual HTTP hops internally and returns consolidated JSON to the agent in <strong>1 single tool call</strong>:
+          </p>
+          <CodeBlock code={compositeWorkflowSnippet} lang="yaml" filename="openapi.yaml (Composite Workflows)" />
+        </div>
+
+        <!-- 3.4: Vendor Compatibility Matrix Table -->
+        <div class="sub-topic">
+          <h3>4. Vendor Extension Reference & Compatibility Matrix</h3>
+          <div class="table-container">
+            <table class="mcp-spec-table">
+              <thead>
+                <tr>
+                  <th>Extension Key</th>
+                  <th>Applies To</th>
+                  <th>Type</th>
+                  <th>Purpose & Compatibility</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>x-mcp.name</code></td>
+                  <td>Operation</td>
+                  <td>string</td>
+                  <td>Agent-friendly snake_case tool name (e.g., <code>place_customer_order</code>).</td>
+                </tr>
+                <tr>
+                  <td><code>x-mcp.description</code></td>
+                  <td>Operation</td>
+                  <td>string</td>
+                  <td>Prompt engineering instructions tailored specifically for LLMs.</td>
+                </tr>
+                <tr>
+                  <td><code>x-mcp.type</code></td>
+                  <td>Operation</td>
+                  <td><code>tool | resource</code></td>
+                  <td>Explicitly assigns the endpoint as an actionable Tool or a reference Resource.</td>
+                </tr>
+                <tr>
+                  <td><code>x-mcp.uri</code></td>
+                  <td>Operation</td>
+                  <td>string</td>
+                  <td>Resource URI identifier (e.g., <code>reference://shipping-tiers</code>).</td>
+                </tr>
+                <tr>
+                  <td><code>x-mcp.parameters.include</code></td>
+                  <td>Operation</td>
+                  <td>array&lt;string&gt;</td>
+                  <td>Whitelist of parameters exposed to the LLM (prunes all other fields).</td>
+                </tr>
+                <tr>
+                  <td><code>x-mcp.parameters.exclude</code></td>
+                  <td>Operation</td>
+                  <td>array&lt;string&gt;</td>
+                  <td>Blacklist of parameters hidden from the agent.</td>
+                </tr>
+                <tr>
+                  <td><code>x-mcp.parameters.defaults</code></td>
+                  <td>Operation</td>
+                  <td>object</td>
+                  <td>Default argument values pre-filled for the agent.</td>
+                </tr>
+                <tr>
+                  <td><code>x-mcp.requireConfirmation</code></td>
+                  <td>Operation</td>
+                  <td>boolean</td>
+                  <td>Flags mutating/financial actions as requiring user confirmation.</td>
+                </tr>
+                <tr>
+                  <td><code>x-mcp-workflows</code></td>
+                  <td>Root Spec</td>
+                  <td>array</td>
+                  <td>Multi-step composite workflows collapsing REST hops into single tools.</td>
+                </tr>
+                <tr>
+                  <td><code>x-internal</code> / <code>x-hidden</code></td>
+                  <td>Operation</td>
+                  <td>boolean</td>
+                  <td><strong>Compatibility alias:</strong> Redocly & Scalar internal endpoint exclusion.</td>
+                </tr>
+                <tr>
+                  <td><code>x-openai-isConsequential</code></td>
+                  <td>Operation</td>
+                  <td>boolean</td>
+                  <td><strong>Compatibility alias:</strong> OpenAI ChatGPT Actions safety flag.</td>
+                </tr>
+                <tr>
+                  <td><code>x-speakeasy-name-override</code></td>
+                  <td>Operation</td>
+                  <td>string</td>
+                  <td><strong>Compatibility alias:</strong> Speakeasy SDK tool naming override.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Multi-Target Code Generation -->
+      <section class="mcp-section">
+        <div class="section-tag">Polyglot Runtimes</div>
+        <h2 class="section-heading">Supported Target Languages</h2>
+        <p class="section-lead">
+          RapiDoc generates self-contained, production-ready server implementations across 6 popular languages:
+        </p>
+
+        <div class="targets-grid">
+          <div class="target-card">
+            <div class="target-badge">TypeScript</div>
+            <h4>@modelcontextprotocol/sdk</h4>
+            <p>Single-file TypeScript server with full <code>zod</code> parameter validation, async fetch handlers, and StdioServerTransport.</p>
+            <div class="target-command">API_KEY="key" npx tsx server.ts</div>
+          </div>
+
+          <div class="target-card">
+            <div class="target-badge">Python</div>
+            <h4>FastMCP (The "Sweet Spot")</h4>
+            <p>Uses Jeremiah Lowin's <code>fastmcp</code> with Python's built-in <code>urllib.request</code>. Zero 3rd party networking dependencies.</p>
+            <div class="target-command">fastmcp run server.py</div>
+          </div>
+
+          <div class="target-card">
+            <div class="target-badge">Go</div>
+            <h4>mark3labs/mcp-go</h4>
+            <p>Compiles to a single standalone static binary with zero host dependencies. Standard library <code>net/http</code>.</p>
+            <div class="target-command">go build -o server && ./server</div>
+          </div>
+
+          <div class="target-card">
+            <div class="target-badge">C# (.NET)</div>
+            <h4>ModelContextProtocol.NET</h4>
+            <p>Built for .NET 8 / 9 enterprise environments, Microsoft Semantic Kernel integration, and native <code>HttpClient</code>.</p>
+            <div class="target-command">dotnet run</div>
+          </div>
+
+          <div class="target-card">
+            <div class="target-badge">Rust</div>
+            <h4>mcp-sdk + tokio</h4>
+            <p>Ultra-low memory footprint (&lt;10 MB RAM), zero-cost abstractions, and instant cold starts.</p>
+            <div class="target-command">cargo build --release</div>
+          </div>
+
+          <div class="target-card">
+            <div class="target-badge">Java</div>
+            <h4>Spring AI MCP</h4>
+            <p>Uses Spring AI MCP starter with <code>@Bean</code> function tools and Spring Boot <code>RestClient</code>.</p>
+            <div class="target-command">./mvnw spring-boot:run</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Integration & API -->
+      <section class="mcp-section">
+        <div class="section-tag">Integration</div>
+        <h2 class="section-heading">Using MCP in Your Documentation</h2>
+        <p class="section-lead">
+          Enable the MCP generator in your documentation portal with a single attribute, or trigger it programmatically:
+        </p>
+
+        <div class="sub-topic">
+          <h3>Declarative HTML Setup</h3>
+          <CodeBlock code={rapiDocTagSnippet} lang="html" filename="index.html" />
+        </div>
+
+        <div class="sub-topic">
+          <h3>Programmatic JavaScript API</h3>
+          <CodeBlock code={programmaticApiSnippet} lang="javascript" filename="app.js" />
+        </div>
+      </section>
+
+      <!-- Section 6: Next Steps Callout -->
+      <section class="mcp-cta-box">
+        <div class="mcp-cta-content">
+          <h3>Ready to test the Curated MCP Generator?</h3>
+          <p>Explore our live interactive demo with side-by-side token diagnostics, tuner options, and syntax-highlighted code inspection.</p>
+          <div class="cta-actions">
+            <a href="/examples/mcp-server" class="mcp-btn primary">
+              <span>Open MCP Showcase Demo</span>
+              <IconArrowRight size={18} stroke={2} />
+            </a>
+            <a href="/docs/advanced/mcp-server" class="mcp-btn secondary">
+              <span>View Technical Docs</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<style>
+  /* --------------------------------------------------
+   * Ambient Glow Elements
+   * -------------------------------------------------- */
+  .ambient-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow-emerald {
+    top: 50px;
+    left: -150px;
+    background: radial-gradient(circle, #10b981 0%, transparent 70%);
+  }
+  .glow-indigo {
+    top: 300px;
+    right: -150px;
+    background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+  }
+  .glow-cyan {
+    top: 900px;
+    left: 20%;
+    background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+  }
+
+  /* --------------------------------------------------
+   * Main Layout
+   * -------------------------------------------------- */
+  .mcp-guide-main {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    font-family: var(--font-regular, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+    color: var(--fg, #e2e8f0);
+  }
+
+  /* --------------------------------------------------
+   * Hero Header
+   * -------------------------------------------------- */
+  .mcp-guide-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .mcp-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    margin-bottom: 20px;
+  }
+  .mcp-badge-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+    animation: pulse 2s infinite;
+  }
+  .mcp-badge-text {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #34d399;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.9); }
+  }
+
+  .mcp-page-title {
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+    color: #ffffff;
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .mcp-page-subtitle {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #94a3b8;
+    max-width: 780px;
+    margin: 0 auto 32px;
+  }
+
+  .mcp-cta-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .mcp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .mcp-btn.primary {
+    background: #10b981;
+    color: #042f2e;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+  }
+  .mcp-btn.primary:hover {
+    background: #34d399;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+  }
+  .mcp-btn.secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+  }
+  .mcp-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+  }
+
+  .mcp-quick-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .mcp-stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 24px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .mcp-stat-num {
+    font-size: 20px;
+    font-weight: 700;
+    color: #34d399;
+  }
+  .mcp-stat-txt {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+
+  /* --------------------------------------------------
+   * Section Styling
+   * -------------------------------------------------- */
+  .mcp-section {
+    margin-bottom: 72px;
+  }
+  .section-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #10b981;
+    margin-bottom: 8px;
+  }
+  .section-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  .section-lead {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #94a3b8;
+    margin: 0 0 28px;
+    max-width: 860px;
+  }
+  .sub-topic {
+    margin-top: 36px;
+  }
+  .sub-topic h3 {
+    font-size: 19px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0 0 10px;
+  }
+  .sub-topic p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #94a3b8;
+    margin: 0 0 16px;
+  }
+
+  /* --------------------------------------------------
+   * Comparison Cards (Naive vs Curated)
+   * -------------------------------------------------- */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .comparison-card {
+    padding: 24px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    backdrop-filter: blur(8px);
+  }
+  .comparison-card.naive {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.02);
+  }
+  .comparison-card.curated {
+    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.03);
+  }
+  .card-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .badge-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+  }
+  .badge-success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 16px;
+  }
+  .comparison-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #cbd5e1;
+  }
+  .comparison-list li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+  }
+  .comparison-card.naive .comparison-list li::before {
+    content: "✕";
+    position: absolute;
+    left: 0;
+    color: #ef4444;
+    font-weight: 700;
+  }
+  .comparison-card.curated .comparison-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: 700;
+  }
+
+  /* --------------------------------------------------
+   * Heuristics Cards
+   * -------------------------------------------------- */
+  .heuristics-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+  }
+  .heuristic-card {
+    display: flex;
+    gap: 14px;
+    padding: 18px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+  }
+  .heuristic-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .heuristic-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 6px;
+  }
+  .heuristic-card p {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #94a3b8;
+    margin: 0;
+  }
+
+  /* --------------------------------------------------
+   * Table Styling
+   * -------------------------------------------------- */
+  .table-container {
+    overflow-x: auto;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.4);
+    margin-top: 14px;
+  }
+  .mcp-spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+  .mcp-spec-table th,
+  .mcp-spec-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .mcp-spec-table th {
+    background: rgba(15, 23, 42, 0.8);
+    font-weight: 600;
+    color: #f1f5f9;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .mcp-spec-table td {
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+  .mcp-spec-table code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #38bdf8;
+    font-family: monospace;
+  }
+
+  /* --------------------------------------------------
+   * Target Cards
+   * -------------------------------------------------- */
+  .targets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .target-card {
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+  }
+  .target-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .target-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 8px;
+  }
+  .target-card p {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #94a3b8;
+    margin: 0 0 14px;
+  }
+  .target-command {
+    font-family: monospace;
+    font-size: 11px;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    color: #34d399;
+  }
+
+  /* --------------------------------------------------
+   * Callout CTA Box
+   * -------------------------------------------------- */
+  .mcp-cta-box {
+    padding: 40px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(56, 189, 248, 0.04) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 16px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+  .mcp-cta-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 10px;
+  }
+  .mcp-cta-content p {
+    font-size: 15px;
+    color: #94a3b8;
+    margin: 0 0 24px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+</style>

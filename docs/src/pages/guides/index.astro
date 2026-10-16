@@ -12,9 +12,20 @@ import {
   IconArrowRight,
   IconBolt,
   IconFlask,
+  IconSparkles,
 } from '@tabler/icons-astro';
 
 const guides = [
+  {
+    title: 'Curated MCP Server & Agent Tooling',
+    slug: '/guides/mcp',
+    badge: 'AI & MCP Guide',
+    badgeColor: 'emerald',
+    icon: 'mcp',
+    desc: 'Transform OpenAPI specifications into token-efficient Model Context Protocol (MCP) servers. Prune prompt context, collapse multi-hop REST roundtrips via x-mcp-workflows, and export to 6 runtimes.',
+    tags: ['Model Context Protocol', 'Vendor Extensions', 'x-mcp-workflows', 'FastMCP & SDKs'],
+    readTime: '8 min read',
+  },
   {
     title: 'Mock Server & API Simulation',
     slug: '/guides/mock',
@@ -110,7 +121,7 @@ const guides = [
 
       <div class="rd-quick-stats">
         <div class="rd-stat-chip">
-          <span class="rd-stat-num">6</span>
+          <span class="rd-stat-num">7</span>
           <span class="rd-stat-txt">Deep Dive Guides</span>
         </div>
         <div class="rd-stat-chip">
@@ -136,6 +147,7 @@ const guides = [
 
             <div class="rd-card-body">
               <div class="rd-card-icon-wrap">
+                {g.icon === 'mcp' && <IconSparkles size={22} stroke={2} />}
                 {g.icon === 'mock' && <IconServer2 size={22} stroke={2} />}
                 {g.icon === 'oauth' && <IconLock size={22} stroke={2} />}
                 {g.icon === 'theme' && <IconPalette size={22} stroke={2} />}

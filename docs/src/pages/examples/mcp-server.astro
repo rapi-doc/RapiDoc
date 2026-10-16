@@ -1,0 +1,394 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+
+const sampleSpecUrl = '/specs/curated-mcp-demo.yaml';
+---
+
+<ExampleLayout
+  title="Curated MCP Server Generator | RapiDoc"
+  description="Generate token-efficient, agent-friendly MCP servers from OpenAPI specs. Contrasts curated agent tooling vs plain 1:1 conversion."
+  autoRenderRapiDoc={false}
+  controller="pretty"
+  preset="mcp"
+  specUrl={sampleSpecUrl}
+  rapidocProps={{
+    'spec-url': sampleSpecUrl,
+    'mcp': 'typescript, python, go, csharp, rust, java',
+    'mcp-server-name': 'apex-commerce-mcp',
+    'allow-spec-file-download': 'true',
+    'render-style': 'read',
+    'show-header': 'true',
+    'show-info': 'true',
+    'allow-server-selection': 'true',
+    'allow-authentication': 'true',
+    'theme': 'slate',
+  }}
+>
+  <rapi-doc
+    id="thedoc"
+    spec-url={sampleSpecUrl}
+    mcp="typescript, python, go, csharp, rust, java"
+    mcp-server-name="apex-commerce-mcp"
+    allow-spec-file-download="true"
+    render-style="read"
+    show-header="true"
+    show-info="true"
+    allow-server-selection="true"
+    allow-authentication="true"
+    theme="slate"
+  >
+    <!-- Slotted directly into RapiDoc's overview section -->
+    <div slot="overview" class="mcp-showcase-container">
+    <div class="mcp-card-header">
+      <div class="mcp-badge-pill">Model Context Protocol</div>
+      <h2 class="mcp-title">Curated MCP Server vs. Plain 1:1 Conversion</h2>
+      <p class="mcp-subtitle">
+        As described by Jeremiah Lowin in <em>"Stop Converting Your REST APIs to MCP"</em>, naive 1:1 endpoint converters 
+        poison AI agents with context bloat, chained atomic hops, and leaked internal endpoints.
+        RapiDoc’s client-side generator uses smart heuristics and <code>x-mcp-*</code> vendor extensions to produce clean, curated MCP servers.
+      </p>
+    </div>
+
+    <!-- Side-by-Side Comparison Grid -->
+    <div class="mcp-grid">
+      <!-- Curated Column -->
+      <div class="mcp-col mcp-col--curated">
+        <div class="mcp-col-header">
+          <span class="mcp-icon">✨</span>
+          <div>
+            <div class="mcp-col-title">Curated MCP Server</div>
+            <div class="mcp-col-sub">RapiDoc Smart Generator (Agent-First)</div>
+          </div>
+          <span class="mcp-status-tag mcp-status-tag--success">Recommended</span>
+        </div>
+        <ul class="mcp-stats-list">
+          <li>
+            <strong class="text-green">~850 tokens</strong> / turn context overhead <span class="mcp-savings">(-80% token tax)</span>
+          </li>
+          <li>
+            <strong>5 Agent-Focused Tools</strong> with pruned parameters and clean prompt descriptions
+          </li>
+          <li>
+            <strong>1 Composite Workflow</strong> (<code>get_customer_order_summary</code>) replacing 3 atomic REST hops
+          </li>
+          <li>
+            <strong>2 Static Resources</strong> (<code>reference://shipping-tiers</code>, <code>reference://currencies</code>)
+          </li>
+          <li>
+            <strong>Auto-Excluded</strong> internal admin routes (<code>x-internal: true</code>) and deprecated paths
+          </li>
+          <li>
+            <strong>Guarded Actions</strong> (<code>refund_customer_payment</code> marked as consequential/destructive)
+          </li>
+        </ul>
+      </div>
+
+      <!-- Naive 1:1 Column -->
+      <div class="mcp-col mcp-col--naive">
+        <div class="mcp-col-header">
+          <span class="mcp-icon">⚠️</span>
+          <div>
+            <div class="mcp-col-title">Plain 1:1 Conversion</div>
+            <div class="mcp-col-sub">Traditional REST Wrapper (Human-Centric)</div>
+          </div>
+          <span class="mcp-status-tag mcp-status-tag--danger">Anti-Pattern</span>
+        </div>
+        <ul class="mcp-stats-list">
+          <li>
+            <strong class="text-red">~4,200+ tokens</strong> / turn prompt context bloat
+          </li>
+          <li>
+            <strong>14 Atomic Tools</strong> forcing LLMs through 3 sequential HTTP roundtrips
+          </li>
+          <li>
+            <strong>0 Resources</strong> (static tables & currencies pollutes the active tool catalog)
+          </li>
+          <li>
+            <strong>Leaked Endpoints</strong>: <code>/admin/health</code> and <code>/admin/cache/purge</code> exposed to agent
+          </li>
+          <li>
+            <strong>Parameter Noise</strong>: Internal warehouse routing IDs and fraud scores visible to LLM
+          </li>
+          <li>
+            <strong>No Safety Guardrails</strong>: Destructive financial operations unflagged
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Interactive Live Code Preview & Actions -->
+    <div class="mcp-actions-bar">
+      <div class="mcp-actions-label">
+        <strong>Try it:</strong> Click <em>"Export MCP Server"</em> in the action bar above or use the options below:
+      </div>
+      <div class="mcp-button-group">
+        <button type="button" class="mcp-action-btn primary" id="btn-inspect-mcp">
+          <span class="btn-icon">⚡</span> TypeScript
+        </button>
+        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-python">
+          <span class="btn-icon">🐍</span> Python
+        </button>
+        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-go">
+          <span class="btn-icon">🐹</span> Go
+        </button>
+        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-csharp">
+          <span class="btn-icon">🔷</span> C# (.NET)
+        </button>
+        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-rust">
+          <span class="btn-icon">🦀</span> Rust
+        </button>
+        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-java">
+          <span class="btn-icon">☕</span> Java
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsible Code Preview Drawer -->
+    <div id="mcp-code-preview" class="mcp-code-drawer" style="display: none;">
+      <div class="mcp-drawer-header">
+        <span id="mcp-drawer-title" class="mcp-drawer-title">Generated TypeScript MCP Server</span>
+        <button type="button" id="btn-close-drawer" class="mcp-close-btn">&times;</button>
+      </div>
+      <pre class="mcp-code-block"><code id="mcp-code-content">// Loading generated code...</code></pre>
+    </div>
+  </div>
+</rapi-doc>
+
+  <style>
+    .mcp-showcase-container {
+      margin: 16px 0 24px 0;
+      padding: 24px;
+      border-radius: 12px;
+      background: var(--bg2, rgba(255, 255, 255, 0.03));
+      border: 1px solid var(--border, rgba(128, 128, 128, 0.2));
+      font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    .mcp-card-header {
+      margin-bottom: 20px;
+    }
+    .mcp-badge-pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+      margin-bottom: 8px;
+    }
+    .mcp-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: var(--fg, #ffffff);
+    }
+    .mcp-subtitle {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--fg2, #94a3b8);
+      margin: 0;
+      max-width: 900px;
+    }
+    .mcp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .mcp-col {
+      padding: 16px 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border, rgba(128, 128, 128, 0.15));
+      background: var(--bg, rgba(0, 0, 0, 0.2));
+    }
+    .mcp-col--curated {
+      border-color: rgba(34, 197, 94, 0.4);
+      background: rgba(34, 197, 94, 0.03);
+    }
+    .mcp-col--naive {
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.02);
+    }
+    .mcp-col-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border, rgba(128, 128, 128, 0.1));
+    }
+    .mcp-icon {
+      font-size: 24px;
+    }
+    .mcp-col-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--fg, #ffffff);
+    }
+    .mcp-col-sub {
+      font-size: 11px;
+      color: var(--fg2, #94a3b8);
+    }
+    .mcp-status-tag {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .mcp-status-tag--success {
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+    }
+    .mcp-status-tag--danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+    .mcp-stats-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--fg, #cbd5e1);
+    }
+    .mcp-stats-list li::before {
+      content: "•";
+      color: var(--fg2, #64748b);
+      display: inline-block;
+      width: 1em;
+      margin-left: -1em;
+    }
+    .text-green { color: #22c55e; }
+    .text-red { color: #ef4444; }
+    .mcp-savings {
+      font-weight: 700;
+      color: #22c55e;
+      background: rgba(34, 197, 94, 0.1);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .mcp-actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border, rgba(128, 128, 128, 0.15));
+    }
+    .mcp-actions-label {
+      font-size: 12px;
+      color: var(--fg2, #94a3b8);
+    }
+    .mcp-button-group {
+      display: flex;
+      gap: 8px;
+    }
+    .mcp-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border, rgba(128, 128, 128, 0.2));
+      background: var(--bg, #1e293b);
+      color: var(--fg, #f8fafc);
+    }
+    .mcp-action-btn:hover {
+      background: var(--primary, #3b82f6);
+      color: #ffffff;
+      border-color: transparent;
+    }
+    .mcp-code-drawer {
+      margin-top: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border, rgba(128, 128, 128, 0.2));
+      background: #0f172a;
+      overflow: hidden;
+    }
+    .mcp-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: #1e293b;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .mcp-close-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .mcp-close-btn:hover {
+      color: #ffffff;
+    }
+    .mcp-code-block {
+      margin: 0;
+      padding: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: var(--font-mono, monospace);
+      font-size: 11px;
+      line-height: 1.5;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+    }
+  </style>
+
+  <script is:inline slot="script">
+    window.addEventListener('DOMContentLoaded', () => {
+      const docEl = document.getElementById('thedoc');
+      const drawer = document.getElementById('mcp-code-preview');
+      const drawerTitle = document.getElementById('mcp-drawer-title');
+      const codeContent = document.getElementById('mcp-code-content');
+      const closeBtn = document.getElementById('btn-close-drawer');
+
+      if (!docEl) return;
+
+      const titles = {
+        typescript: 'Generated TypeScript Server (@modelcontextprotocol/sdk)',
+        python: 'Generated Python Server (FastMCP)',
+        go: 'Generated Go Server (mark3labs/mcp-go)',
+        csharp: 'Generated C# / .NET Server (ModelContextProtocol.NET)',
+        rust: 'Generated Rust Server (mcp-sdk / tokio)',
+        java: 'Generated Java Server (Spring AI MCP)',
+      };
+
+      function showCode(target) {
+        if (!docEl.generateMcpServer) return;
+        const res = docEl.generateMcpServer(target);
+        if (!res) return;
+        drawer.style.display = 'block';
+        drawerTitle.textContent = titles[target] || `Generated ${target} Server`;
+        codeContent.textContent = res.serverCode;
+        drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      document.getElementById('btn-inspect-mcp')?.addEventListener('click', () => showCode('typescript'));
+      document.getElementById('btn-inspect-python')?.addEventListener('click', () => showCode('python'));
+      document.getElementById('btn-inspect-go')?.addEventListener('click', () => showCode('go'));
+      document.getElementById('btn-inspect-csharp')?.addEventListener('click', () => showCode('csharp'));
+      document.getElementById('btn-inspect-rust')?.addEventListener('click', () => showCode('rust'));
+      document.getElementById('btn-inspect-java')?.addEventListener('click', () => showCode('java'));
+
+      closeBtn?.addEventListener('click', () => {
+        drawer.style.display = 'none';
+      });
+    });
+  </script>
+</ExampleLayout>
