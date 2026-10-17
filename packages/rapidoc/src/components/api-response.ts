@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
@@ -14,7 +15,29 @@ import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/schema-table';
 
+@customElement('api-response')
 export default class ApiResponse extends LitElement {
+  @property({ type: Object }) config: any;
+  @property({ type: String }) callback = '';
+  @property({ type: String }) webhook = '';
+  @property({ type: Object }) responses: any;
+  @property({ type: Object }) parser: any;
+  @property({ type: String, attribute: 'schema-style' }) schemaStyle = '';
+  @property({ type: String, attribute: 'render-style' }) renderStyle = '';
+  @property({ type: String, attribute: 'selected-status' }) selectedStatus = '';
+  @property({ type: String, attribute: 'selected-mime-type' }) selectedMimeType = '';
+  @property({ type: String, attribute: 'active-schema-tab' }) activeSchemaTab = 'schema';
+  @property({ type: Number, attribute: 'schema-expand-level' }) schemaExpandLevel = 99999;
+  @property({ type: String, attribute: 'schema-description-expanded' }) schemaDescriptionExpanded = 'false';
+  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' }) allowSchemaDescriptionExpandToggle = 'false';
+  @property({ type: String, attribute: 'schema-hide-read-only' }) schemaHideReadOnly = 'false';
+  @property({ type: String, attribute: 'schema-hide-write-only' }) schemaHideWriteOnly = 'true';
+
+  defaultStatus = '';
+  defaultMimeType = '';
+  headersForEachRespStatus: any = {};
+  mimeResponsesForEachStatus: any = {};
+
   constructor() {
     super();
     this.selectedStatus = '';
@@ -23,26 +46,6 @@ export default class ApiResponse extends LitElement {
     this.headersForEachRespStatus = {};
     this.mimeResponsesForEachStatus = {};
     this.activeSchemaTab = 'schema';
-  }
-
-  static get properties() {
-    return {
-      config: { type: Object },
-      callback: { type: String },
-      webhook: { type: String },
-      responses: { type: Object },
-      parser: { type: Object },
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      renderStyle: { type: String, attribute: 'render-style' },
-      selectedStatus: { type: String, attribute: 'selected-status' },
-      selectedMimeType: { type: String, attribute: 'selected-mime-type' },
-      activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
-      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
-      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
-    };
   }
 
   static get styles() {
@@ -428,6 +431,3 @@ ${mimeRespDetails.examples[0].exampleValue}</pre>
     }`;
   }
 }
-
-// Register the element with the browser
-customElements.define('api-response', ApiResponse);

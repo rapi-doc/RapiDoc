@@ -30,19 +30,7 @@ export interface ToggleControl {
 export type ControlDef = SegmentedControl | ToggleControl;
 
 export type ControllerPreset =
-  | 'all'
-  | 'minimal'
-  | 'schema'
-  | 'nav'
-  | 'sections'
-  | 'colors'
-  | 'color'
-  | 'slots'
-  | 'slot'
-  | 'demo'
-  | 'mcp'
-  | 'none'
-  | 'auto';
+  'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'color' | 'slots' | 'slot' | 'demo' | 'mcp' | 'none' | 'auto';
 
 export const CONTROL_REGISTRY: Record<string, ControlDef> = {
   // Appearance & Layout
@@ -552,15 +540,7 @@ export const PRESETS: Record<string, string[]> = {
     'mcp',
     'mock-server',
   ],
-  mcp: [
-    'mcp',
-    'render-style',
-    'theme',
-    'show-info',
-    'allow-server-selection',
-    'allow-authentication',
-    'allow-spec-file-download',
-  ],
+  mcp: ['mcp', 'render-style', 'theme', 'show-info', 'allow-server-selection', 'allow-authentication', 'allow-spec-file-download'],
   none: [],
 };
 
@@ -571,7 +551,7 @@ const ATTRIBUTE_ALIASES: Record<string, string> = {
   'nav-accent-color': 'theme',
   'nav-logo': 'slot-nav-logo',
   'fixed-header': 'slot-fixed-header',
-  'default': 'slot-default',
+  default: 'slot-default',
   'default-slot': 'slot-default',
   'slot:nav-logo': 'slot-nav-logo',
   'slot:fixed-header': 'slot-fixed-header',
@@ -641,4 +621,3 @@ export function groupControlsByCategory(
     }))
     .filter((g) => g.controls.length > 0);
 }
-

@@ -1,6 +1,27 @@
 import { LitElement, html, css } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 
+@customElement('tag-input')
 export default class TagInput extends LitElement {
+  @property({ type: String }) placeholder = '';
+
+  @property({
+    type: Array,
+    attribute: 'value',
+    hasChanged(newVal, oldVal) {
+      if (newVal === oldVal) return false;
+      if (!Array.isArray(newVal) || !Array.isArray(oldVal)) return true;
+      if (newVal.length !== oldVal.length) return true;
+      return newVal.some((v, i) => v !== oldVal[i]);
+    },
+  })
+  value = [];
+
+  // For backwards compatibility with static properties inspection in tests
+  static get properties() {
+    return Object.fromEntries(this.elementProperties || []);
+  }
+
   render() {
     let tagItemTmpl = '';
     if (Array.isArray(this.value)) {
@@ -25,22 +46,6 @@ export default class TagInput extends LitElement {
     if (e.target.classList.contains('tags')) {
       this.shadowRoot?.querySelector('.editor')?.focus();
     }
-  }
-
-  static get properties() {
-    return {
-      placeholder: { type: String },
-      value: {
-        type: Array,
-        attribute: 'value',
-        hasChanged(newVal, oldVal) {
-          if (newVal === oldVal) return false;
-          if (!Array.isArray(newVal) || !Array.isArray(oldVal)) return true;
-          if (newVal.length !== oldVal.length) return true;
-          return newVal.some((v, i) => v !== oldVal[i]);
-        },
-      },
-    };
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -162,5 +167,3 @@ export default class TagInput extends LitElement {
     ];
   }
 }
-// Register the element with the browser
-customElements.define('tag-input', TagInput);

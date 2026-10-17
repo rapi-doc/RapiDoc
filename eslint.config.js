@@ -3,6 +3,7 @@ import pluginJs from '@eslint/js';
 import { configs as litConfigs } from 'eslint-plugin-lit';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
+import tsParser from '@typescript-eslint/parser';
 
 export default [
   {
@@ -18,7 +19,17 @@ export default [
   pluginJs.configs.recommended, // ESLint recommended
   litConfigs['flat/recommended'], // Lit recommended
   {
-    files: ['**/*.js'],
+    files: ['**/*.ts'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+  },
+  {
+    files: ['**/*.{js,ts}'],
     plugins: {
       prettier: eslintPluginPrettier, // Add Prettier plugin
     },

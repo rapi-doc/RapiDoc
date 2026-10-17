@@ -1,4 +1,9 @@
+import { customElement } from 'lit/decorators.js';
+
+@customElement('oauth-receiver')
 export default class OauthReceiver extends HTMLElement {
+  target: any;
+
   connectedCallback() {
     this.receiveAuthParms();
     window.addEventListener('storage', (e) => this.relayAuthParams(e), true);
@@ -9,7 +14,7 @@ export default class OauthReceiver extends HTMLElement {
    * to the window opener through `window.postMessage`.
    */
   receiveAuthParms() {
-    let authData = {};
+    let authData: any = {};
     if (document.location.search) {
       // Applies to authorizationCode flow
       const params = new URLSearchParams(document.location.search);
@@ -55,4 +60,3 @@ export default class OauthReceiver extends HTMLElement {
     }
   }
 }
-customElements.define('oauth-receiver', OauthReceiver);

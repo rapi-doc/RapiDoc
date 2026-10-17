@@ -1,21 +1,22 @@
 import { LitElement, html } from 'lit';
+import { property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from 'marked';
 import { sanitizeHTML } from '../utils/sanitize.js';
 import { hasMultilineDescription } from '../utils/markdown-utils.js';
 
 export default class SchemaBaseElement extends LitElement {
-  static get properties() {
-    return {
-      config: { type: Object },
-      data: { type: Object },
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
-      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
-      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
-    };
-  }
+  @property({ type: Object }) config: any;
+  @property({ type: Object }) data: any;
+  @property({ type: Number, attribute: 'schema-expand-level' }) schemaExpandLevel = 99999;
+  @property({ type: String, attribute: 'schema-description-expanded' }) schemaDescriptionExpanded = 'false';
+  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' }) allowSchemaDescriptionExpandToggle = 'false';
+  @property({ type: String, attribute: 'schema-hide-read-only' }) schemaHideReadOnly = 'true';
+  @property({ type: String, attribute: 'schema-hide-write-only' }) schemaHideWriteOnly = 'true';
+
+  _resizeObserver: any;
+  _lastDescThreshold: any;
+  _lastFieldThreshold: any;
 
   connectedCallback() {
     super.connectedCallback();

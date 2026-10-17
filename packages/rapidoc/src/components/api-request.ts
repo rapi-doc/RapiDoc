@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import { guard } from 'lit/directives/guard.js';
 import { scheduleHighlight } from '~/utils/highlighter';
 import TableStyles from '~/styles/table-styles';
@@ -17,7 +18,62 @@ import { inputParametersTemplate } from '~/templates/request-params-template';
 import requestBodyTemplate from '~/templates/request-body-template';
 import apiCallTemplate from '~/templates/api-response-template';
 
+@customElement('api-request')
 export default class ApiRequest extends LitElement {
+  @property({ type: Object }) config: any;
+  @property({ type: String, attribute: 'server-url' }) serverUrl = '';
+  @property({ type: Array }) servers: any = [];
+  @property({ type: String }) method = '';
+  @property({ type: String }) path = '';
+  @property({ type: Array }) security: any = [];
+  @property({ type: Array }) parameters: any = [];
+  @property({ type: Object }) request_body: any;
+  @property({ type: Array }) api_keys: any = [];
+  @property({ type: Object }) parser: any;
+  @property({ type: String }) accept = '';
+  @property({ type: String }) callback = '';
+  @property({ type: String }) webhook = '';
+  @property({ type: String, attribute: 'fill-request-fields-with-example' }) fillRequestFieldsWithExample = '';
+  @property({ type: String, attribute: 'allow-try' }) allowTry = 'true';
+  @property({ type: String, attribute: 'show-curl-before-try' }) showCurlBeforeTry = 'false';
+  @property({ type: String, attribute: 'render-style' }) renderStyle = 'view';
+  @property({ type: String, attribute: 'schema-style' }) schemaStyle = 'tree';
+  @property({ type: String, attribute: 'active-schema-tab' }) activeSchemaTab = 'schema';
+  @property({
+    type: Object,
+    converter: {
+      fromAttribute: (attr: string) => JSON.parse(attr),
+      toAttribute: (prop: any) => JSON.stringify(prop),
+    },
+    attribute: 'active-parameter-schema-tabs',
+  })
+  activeParameterSchemaTabs: any = {};
+  @property({ type: Number, attribute: 'schema-expand-level' }) schemaExpandLevel = 99999;
+  @property({ type: String, attribute: 'schema-description-expanded' }) schemaDescriptionExpanded = 'false';
+  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' }) allowSchemaDescriptionExpandToggle = 'false';
+  @property({ type: String, attribute: 'schema-hide-read-only' }) schemaHideReadOnly = 'true';
+  @property({ type: String, attribute: 'schema-hide-write-only' }) schemaHideWriteOnly = 'false';
+  @property({ type: String, attribute: 'fetch-credentials' }) fetchCredentials = '';
+
+  // Internal reactive state
+  @state() responseMessage: any = '';
+  @state() responseText = '';
+  @state() responseHeaders: any = '';
+  @state() responseStatus = 'success';
+  @state() responseUrl = '';
+  @state() curlSyntax = '';
+  @state() responseIsBlob = false;
+  @state() responseBlobType = '';
+  @state() responseBlobUrl = '';
+  @state() respContentDisposition = '';
+  @state() activeResponseTab = 'response'; // allowed values: response, headers, curl
+  @state() selectedRequestBodyType = '';
+  @state() selectedRequestBodyExample = '';
+  @state() fileInputKeys: any = {};
+  @state() loading = false;
+
+  activeAbortController: any = null;
+
   constructor() {
     super();
     this.responseMessage = '';
@@ -30,67 +86,12 @@ export default class ApiRequest extends LitElement {
     this.responseBlobType = '';
     this.responseBlobUrl = '';
     this.respContentDisposition = '';
-    this.activeResponseTab = 'response'; // allowed values: response, headers, curl
+    this.activeResponseTab = 'response';
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
     this.activeParameterSchemaTabs = {};
     this.fileInputKeys = {};
     this.loading = false;
-  }
-
-  static get properties() {
-    return {
-      config: { type: Object },
-      serverUrl: { type: String, attribute: 'server-url' },
-      servers: { type: Array },
-      method: { type: String },
-      path: { type: String },
-      security: { type: Array },
-      parameters: { type: Array },
-      request_body: { type: Object },
-      api_keys: { type: Array },
-      parser: { type: Object },
-      accept: { type: String },
-      callback: { type: String },
-      webhook: { type: String },
-      fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
-      allowTry: { type: String, attribute: 'allow-try' },
-      showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
-      renderStyle: { type: String, attribute: 'render-style' },
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
-      activeParameterSchemaTabs: {
-        type: Object,
-        converter: {
-          fromAttribute: (attr) => JSON.parse(attr),
-          toAttribute: (prop) => JSON.stringify(prop),
-        },
-        attribute: 'active-parameter-schema-tabs',
-      },
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
-      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
-      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
-      fetchCredentials: { type: String, attribute: 'fetch-credentials' },
-
-      // Internal reactive state
-      responseMessage: { state: true },
-      responseText: { state: true },
-      responseHeaders: { state: true },
-      responseStatus: { state: true },
-      responseUrl: { state: true },
-      curlSyntax: { state: true },
-      responseIsBlob: { state: true },
-      responseBlobType: { state: true },
-      responseBlobUrl: { state: true },
-      respContentDisposition: { state: true },
-      activeResponseTab: { state: true },
-      selectedRequestBodyType: { state: true },
-      selectedRequestBodyExample: { state: true },
-      fileInputKeys: { state: true },
-      loading: { state: true },
-    };
   }
 
   static get styles() {
@@ -433,7 +434,7 @@ export default class ApiRequest extends LitElement {
 
   buildFetchBodyOptions(requestPanelEl) {
     const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-    const fetchOptions = {
+    const fetchOptions: any = {
       method: this.method.toUpperCase(),
     };
     if (requestBodyContainerEl) {
@@ -445,8 +446,8 @@ export default class ApiRequest extends LitElement {
         } else {
           const formUrlEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-urlencode']")];
           const fields = formUrlEls
-            .filter((v) => v.type !== 'file')
-            .map((el) => ({
+            .filter((v: any) => v.type !== 'file')
+            .map((el: any) => ({
               name: el.dataset.pname,
               value: el.value,
               isArray: el.dataset.array !== 'false',
@@ -455,7 +456,7 @@ export default class ApiRequest extends LitElement {
         }
       } else if (requestBodyType.includes('form-data')) {
         const formDataEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-data']")];
-        const fields = formDataEls.map((el) => ({
+        const fields = formDataEls.map((el: any) => ({
           name: el.dataset.pname,
           value: el.value,
           file: el.type === 'file' ? el.files?.[0] : undefined,
@@ -463,12 +464,12 @@ export default class ApiRequest extends LitElement {
         }));
         fetchOptions.body = buildMultipartFormData(fields);
       } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(requestBodyType)) {
-        const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
+        const bodyParamFileEl: any = requestPanelEl.querySelector('.request-body-param-file');
         if (bodyParamFileEl?.files[0]) {
           fetchOptions.body = bodyParamFileEl.files[0];
         }
       } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
-        const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
+        const exampleTextAreaEl: any = requestPanelEl.querySelector('.request-body-param-user-input');
         if (exampleTextAreaEl?.value) {
           fetchOptions.body = exampleTextAreaEl.value;
         }
@@ -627,7 +628,7 @@ export default class ApiRequest extends LitElement {
     let body = fetchOptions?.body;
 
     if (!body && requestBodyContainerEl) {
-      const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
+      const exampleTextAreaEl: any = requestPanelEl.querySelector('.request-body-param-user-input');
       if (exampleTextAreaEl?.value) {
         body = exampleTextAreaEl.value;
       }
@@ -716,6 +717,3 @@ export default class ApiRequest extends LitElement {
     super.disconnectedCallback();
   }
 }
-
-// Register the element with the browser
-customElements.define('api-request', ApiRequest);

@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
       ...(!isDev
         ? [
             minifyHTML({
-              include: ['src/**/*.js'],
+              include: ['src/**/*.{js,ts}'],
             }),
           ]
         : []),
@@ -71,7 +71,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '~': resolve(__dirname, './src'),
-        '~/rapidoc': resolve(__dirname, './src/rapidoc.js'),
+        '~/rapidoc': resolve(__dirname, './src/rapidoc.ts'),
       },
     },
     build: {

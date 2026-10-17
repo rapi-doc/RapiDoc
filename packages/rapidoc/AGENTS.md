@@ -74,7 +74,7 @@ packages/rapidoc/src/
    - Every byte matters. Run `npm run build:size` before adding any library.
    - Prefer native browser APIs or lightweight algorithms over heavy NPM dependencies.
 3. **Lit Guidelines**:
-   - Use standard Lit properties declaration `static get properties() { return { ... } }`.
+   - Use TypeScript experimental decorators (`@customElement`, `@property`, `@state`).
    - Ensure clean template rendering with the `html` tag.
    - Do not query the DOM directly when a reactive property or template binding suffices.
    - Isolate styling using Lit's `css` tagged template literals and expose custom CSS properties (`--bg`, `--fg`, etc.) and CSS parts (`::part(...)`).

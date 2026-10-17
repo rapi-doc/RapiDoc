@@ -1,9 +1,11 @@
 import { html, css } from 'lit';
+import { customElement } from 'lit/decorators.js';
 import FontStyles from '../styles/font-styles.js';
 import SchemaStyles from '../styles/schema-styles.js';
 import CustomStyles from '../styles/custom-styles.js';
-import SchemaBaseElement from './schema-base-element.js';
+import SchemaBaseElement from './schema-base-element';
 
+@customElement('schema-table')
 export default class SchemaTable extends SchemaBaseElement {
   static get styles() {
     return [
@@ -456,4 +458,3 @@ export default class SchemaTable extends SchemaBaseElement {
     return '';
   }
 }
-customElements.define('schema-table', SchemaTable);

@@ -1,4 +1,5 @@
 import { css, LitElement } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
 import { marked } from 'marked';
 import Slugger from 'github-slugger';
@@ -49,6 +50,7 @@ const paramsConverter = {
   },
 };
 
+@customElement('rapi-doc')
 export default class RapiDoc extends LitElement {
   constructor() {
     super();
@@ -68,106 +70,102 @@ export default class RapiDoc extends LitElement {
     this._isDefaultingLayout = false;
   }
 
-  static get properties() {
-    return {
-      // Heading
-      headingText: { type: String, attribute: 'heading-text' },
-      gotoPath: { type: String, attribute: 'goto-path' },
+  // Heading
+  @property({ type: String, attribute: 'heading-text' }) headingText = '';
+  @property({ type: String, attribute: 'goto-path' }) gotoPath = '';
 
-      // Spec
-      updateRoute: { type: String, attribute: 'update-route' },
-      routePrefix: { type: String, attribute: 'route-prefix' },
-      specUrl: { type: String, attribute: 'spec-url' },
-      sortTags: { type: String, attribute: 'sort-tags' },
-      sortSchemas: { type: String, attribute: 'sort-schemas' },
-      generateMissingTags: { type: String, attribute: 'generate-missing-tags' },
-      sortEndpointsBy: { type: String, attribute: 'sort-endpoints-by' },
-      specFile: { type: String, attribute: false },
+  // Spec
+  @property({ type: String, attribute: 'update-route' }) updateRoute = 'true';
+  @property({ type: String, attribute: 'route-prefix' }) routePrefix = '#';
+  @property({ type: String, attribute: 'spec-url' }) specUrl = '';
+  @property({ type: String, attribute: 'sort-tags' }) sortTags = 'false';
+  @property({ type: String, attribute: 'sort-schemas' }) sortSchemas = 'false';
+  @property({ type: String, attribute: 'generate-missing-tags' }) generateMissingTags = 'false';
+  @property({ type: String, attribute: 'sort-endpoints-by' }) sortEndpointsBy = 'path';
+  @property({ type: String, attribute: false }) specFile: any;
 
-      // UI Layouts
-      layout: { type: String, reflect: true },
-      renderStyle: { type: String, attribute: 'render-style' },
-      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
-      responseAreaHeight: { type: String, attribute: 'response-area-height' },
-      fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
-      persistAuth: { type: String, attribute: 'persist-auth' },
-      onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
+  // UI Layouts
+  @property({ type: String, reflect: true }) layout = 'row';
+  @property({ type: String, attribute: 'render-style' }) renderStyle = 'view';
+  @property({ type: String, attribute: 'default-schema-tab' }) defaultSchemaTab = 'example';
+  @property({ type: String, attribute: 'response-area-height' }) responseAreaHeight = '400px';
+  @property({ type: String, attribute: 'fill-request-fields-with-example' }) fillRequestFieldsWithExample = 'true';
+  @property({ type: String, attribute: 'persist-auth' }) persistAuth = 'false';
+  @property({ type: String, attribute: 'on-nav-tag-click' }) onNavTagClick = 'expand-collapse';
 
-      // Schema Styles
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
-      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
+  // Schema Styles
+  @property({ type: String, attribute: 'schema-style' }) schemaStyle = 'tree';
+  @property({ type: Number, attribute: 'schema-expand-level' }) schemaExpandLevel = 99999;
+  @property({ type: String, attribute: 'schema-description-expanded' }) schemaDescriptionExpanded = 'false';
+  @property({ type: String, attribute: 'schema-hide-read-only' }) schemaHideReadOnly = 'true';
+  @property({ type: String, attribute: 'schema-hide-write-only' }) schemaHideWriteOnly = 'true';
 
-      // API Server
-      apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
-      defaultApiServerUrl: { type: String, attribute: 'default-api-server' },
-      serverUrl: { type: String, attribute: 'server-url' },
-      oauthReceiver: { type: String, attribute: 'oauth-receiver' },
-      additionalAuthorizeParams: { type: Object, attribute: 'additional-authorize-params', converter: paramsConverter },
-      additionalTokenParams: { type: Object, attribute: 'additional-token-params', converter: paramsConverter },
+  // API Server
+  @property({ type: String, attribute: 'api-key-name' }) apiKeyName = '';
+  @property({ type: String, attribute: 'api-key-location' }) apiKeyLocation = 'header';
+  @property({ type: String, attribute: 'api-key-value' }) apiKeyValue = '-';
+  @property({ type: String, attribute: 'default-api-server' }) defaultApiServerUrl = '';
+  @property({ type: String, attribute: 'server-url' }) serverUrl = '';
+  @property({ type: String, attribute: 'oauth-receiver' }) oauthReceiver = 'oauth-receiver.html';
+  @property({ type: Object, attribute: 'additional-authorize-params', converter: paramsConverter }) additionalAuthorizeParams: any;
+  @property({ type: Object, attribute: 'additional-token-params', converter: paramsConverter }) additionalTokenParams: any;
 
-      // Mock Server
-      mockServer: { type: String, attribute: 'mock-server' },
-      mockServerStatusCode: { type: String, attribute: 'mock-server-status-code' },
-      mockServerStatusStrategy: { type: String, attribute: 'mock-server-status-strategy' },
-      mockServerDelay: { type: Number, attribute: 'mock-server-delay' },
-      mockServerLog: { type: String, attribute: 'mock-server-log' },
+  // Mock Server
+  @property({ type: String, attribute: 'mock-server' }) mockServer = 'false';
+  @property({ type: String, attribute: 'mock-server-status-code' }) mockServerStatusCode = '200';
+  @property({ type: String, attribute: 'mock-server-status-strategy' }) mockServerStatusStrategy = 'example';
+  @property({ type: Number, attribute: 'mock-server-delay' }) mockServerDelay = 0;
+  @property({ type: String, attribute: 'mock-server-log' }) mockServerLog = 'false';
 
-      // Hide/Show Sections & Enable Disable actions
-      showHeader: { type: String, attribute: 'show-header' },
-      showSideNav: { type: String, attribute: 'show-side-nav' },
-      showInfo: { type: String, attribute: 'show-info' },
-      allowAuthentication: { type: String, attribute: 'allow-authentication' },
-      allowTry: { type: String, attribute: 'allow-try' },
-      showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
-      allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
-      allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
-      allowSpecFileDownload: { type: String, attribute: 'allow-spec-file-download' },
-      allowSearch: { type: String, attribute: 'allow-search' },
-      allowAdvancedSearch: { type: String, attribute: 'allow-advanced-search' },
-      allowServerSelection: { type: String, attribute: 'allow-server-selection' },
-      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
-      mcp: { type: String, attribute: 'mcp' },
-      mcpServerName: { type: String, attribute: 'mcp-server-name' },
-      showComponents: { type: String, attribute: 'show-components' },
-      pageDirection: { type: String, attribute: 'page-direction' },
-      scrollBehavior: { type: String, attribute: 'scroll-behavior' },
+  // Hide/Show Sections & Enable Disable actions
+  @property({ type: String, attribute: 'show-header' }) showHeader = 'true';
+  @property({ type: String, attribute: 'show-side-nav' }) showSideNav = 'true';
+  @property({ type: String, attribute: 'show-info' }) showInfo = 'true';
+  @property({ type: String, attribute: 'allow-authentication' }) allowAuthentication = 'true';
+  @property({ type: String, attribute: 'allow-try' }) allowTry = 'true';
+  @property({ type: String, attribute: 'show-curl-before-try' }) showCurlBeforeTry = 'false';
+  @property({ type: String, attribute: 'allow-spec-url-load' }) allowSpecUrlLoad = 'true';
+  @property({ type: String, attribute: 'allow-spec-file-load' }) allowSpecFileLoad = 'true';
+  @property({ type: String, attribute: 'allow-spec-file-download' }) allowSpecFileDownload = 'false';
+  @property({ type: String, attribute: 'allow-search' }) allowSearch = 'true';
+  @property({ type: String, attribute: 'allow-advanced-search' }) allowAdvancedSearch = 'true';
+  @property({ type: String, attribute: 'allow-server-selection' }) allowServerSelection = 'true';
+  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' }) allowSchemaDescriptionExpandToggle = 'true';
+  @property({ type: String, attribute: 'mcp' }) mcp = 'true';
+  @property({ type: String, attribute: 'mcp-server-name' }) mcpServerName = '';
+  @property({ type: String, attribute: 'show-components' }) showComponents = 'false';
+  @property({ type: String, attribute: 'page-direction' }) pageDirection = 'ltr';
+  @property({ type: String, attribute: 'scroll-behavior' }) scrollBehavior = 'smooth';
 
-      // Main Colors and Font
-      theme: { type: String, reflect: true },
-      colorScheme: { type: String, attribute: 'color-scheme', reflect: true },
-      radius: { type: String, reflect: true },
-      scale: { type: String, reflect: true },
-      loadFonts: { type: String, attribute: 'load-fonts' },
-      cssFile: { type: String, attribute: 'css-file' },
-      cssClasses: { type: String, attribute: 'css-classes' },
+  // Main Colors and Font
+  @property({ type: String, reflect: true }) theme = 'amber';
+  @property({ type: String, attribute: 'color-scheme', reflect: true }) colorScheme = 'dark';
+  @property({ type: String, reflect: true }) radius = 'sm';
+  @property({ type: String, reflect: true }) scale = 'default';
+  @property({ type: String, attribute: 'load-fonts' }) loadFonts = 'true';
+  @property({ type: String, attribute: 'css-file' }) cssFile = '';
+  @property({ type: String, attribute: 'css-classes' }) cssClasses = '';
 
-      // Nav Bar
-      navItemSpacing: { type: String, attribute: 'nav-item-spacing', reflect: true },
-      navActiveItemMarker: { type: String, attribute: 'nav-active-item-marker' },
-      showMethodInNavBar: { type: String, attribute: 'show-method-in-nav-bar' },
-      usePathInNavBar: { type: String, attribute: 'use-path-in-nav-bar' },
-      infoDescriptionHeadingsInNavBar: { type: String, attribute: 'info-description-headings-in-navbar' },
+  // Nav Bar
+  @property({ type: String, attribute: 'nav-item-spacing', reflect: true }) navItemSpacing = 'default';
+  @property({ type: String, attribute: 'nav-active-item-marker' }) navActiveItemMarker = 'left-bar';
+  @property({ type: String, attribute: 'show-method-in-nav-bar' }) showMethodInNavBar = 'false';
+  @property({ type: String, attribute: 'use-path-in-nav-bar' }) usePathInNavBar = 'false';
+  @property({ type: String, attribute: 'info-description-headings-in-navbar' }) infoDescriptionHeadingsInNavBar = 'false';
 
-      // Fetch Options
-      fetchCredentials: { type: String, attribute: 'fetch-credentials' },
+  // Fetch Options
+  @property({ type: String, attribute: 'fetch-credentials' }) fetchCredentials = '';
 
-      // Filters
-      matchPaths: { type: String, attribute: 'match-paths' },
-      matchType: { type: String, attribute: 'match-type' },
-      removeEndpointsWithBadgeLabelAs: { type: String, attribute: 'remove-endpoints-with-badge-label-as' },
+  // Filters
+  @property({ type: String, attribute: 'match-paths' }) matchPaths = '';
+  @property({ type: String, attribute: 'match-type' }) matchType = 'includes';
+  @property({ type: String, attribute: 'remove-endpoints-with-badge-label-as' }) removeEndpointsWithBadgeLabelAs = '';
 
-      // Internal Properties
-      loading: { type: Boolean }, // indicates spec is being loaded
-      focusedElementId: { type: String }, // updating the focusedElementId will automatically render appropriate section in focused mode
-      advancedSearchMatches: { type: Object },
-      searchVal: { type: String },
-    };
-  }
+  // Internal Properties
+  @property({ type: Boolean }) loading = false;
+  @property({ type: String }) focusedElementId = '';
+  @property({ type: Object }) advancedSearchMatches: any;
+  @property({ type: String }) searchVal = '';
 
   static get styles() {
     return [
@@ -1645,4 +1643,3 @@ export default class RapiDoc extends LitElement {
     }, delay);
   }
 }
-customElements.define('rapi-doc', RapiDoc);

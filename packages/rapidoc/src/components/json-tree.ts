@@ -1,17 +1,15 @@
 import { LitElement, html, css } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { copyToClipboard } from '~/utils/common-utils';
 import FontStyles from '~/styles/font-styles';
 import BorderStyles from '~/styles/border-styles';
 import InputStyles from '~/styles/input-styles';
 import CustomStyles from '~/styles/custom-styles';
 
+@customElement('json-tree')
 export default class JsonTree extends LitElement {
-  static get properties() {
-    return {
-      data: { type: Object },
-      renderStyle: { type: String, attribute: 'render-style' },
-    };
-  }
+  @property({ type: Object }) data = null;
+  @property({ type: String, attribute: 'render-style' }) renderStyle = '';
 
   static get styles() {
     return [
@@ -170,5 +168,3 @@ export default class JsonTree extends LitElement {
     }
   }
 }
-// Register the element with the browser
-customElements.define('json-tree', JsonTree);

@@ -140,9 +140,9 @@ export default defineConfig({
     resolve: {
       alias: {
         '~': rapidocSrcPath,
-        '~/rapidoc': resolve(rapidocSrcPath, 'rapidoc.js'),
-        '~/rapidoc-mini': resolve(rapidocSrcPath, 'rapidoc-mini.js'),
-        '~/oauth-receiver': resolve(rapidocSrcPath, 'oauth-receiver.js'),
+        '~/rapidoc': resolve(rapidocSrcPath, 'rapidoc.ts'),
+        '~/rapidoc-mini': resolve(rapidocSrcPath, 'rapidoc-mini.ts'),
+        '~/oauth-receiver': resolve(rapidocSrcPath, 'oauth-receiver.ts'),
         rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },
     },

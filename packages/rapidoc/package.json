@@ -42,11 +42,11 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:size": "ANALYZE=true vite build",
-    "lint": "eslint './src/**/*.js'",
-    "format": "prettier --check './src/**/*.{js,html,css}'",
-    "format-fix": "prettier --write './src/**/*.{js,html,css}'",
+    "lint": "eslint './src/**/*.{js,ts}'",
+    "format": "prettier --check './src/**/*.{js,ts,html,css}'",
+    "format-fix": "prettier --write './src/**/*.{js,ts,html,css}'",
     "analyze": "lit-analyzer src",
-    "test": "node --test ../../tests/unit/*.test.js"
+    "test": "node --import ../../scripts/test-loader.mjs --test ../../tests/unit/*.test.js"
   },
   "dependencies": {
     "@scalar/openapi-parser": "^0.29.13",

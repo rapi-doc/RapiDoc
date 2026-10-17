@@ -1,4 +1,5 @@
 import { css, LitElement } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { scheduleHighlight } from '~/utils/highlighter';
 
 // Styles
@@ -22,7 +23,7 @@ import { setApiServer } from '~/templates/server-template';
 import '~/utils/markdown-utils';
 
 const paramsConverter = {
-  fromAttribute: (attr) => {
+  fromAttribute: (attr: string | null) => {
     if (!attr) {
       return null;
     }
@@ -36,7 +37,7 @@ const paramsConverter = {
     }
     return trimmed;
   },
-  toAttribute: (prop) => {
+  toAttribute: (prop: any) => {
     if (typeof prop === 'object' && prop !== null) {
       return JSON.stringify(prop);
     }
@@ -44,7 +45,77 @@ const paramsConverter = {
   },
 };
 
+@customElement('rapi-doc-mini')
 export default class RapiDocMini extends LitElement {
+  // Spec
+  @property({ type: String, attribute: 'spec-url' }) specUrl = '';
+  @property({ type: String, attribute: 'sort-endpoints-by' }) sortEndpointsBy = 'path';
+
+  // UI Layouts
+  @property({ type: String }) layout = 'row';
+  @property({ type: String, attribute: 'paths-expanded' }) pathsExpanded: any = 'false';
+  @property({ type: String, attribute: 'default-schema-tab' }) defaultSchemaTab = 'example';
+  @property({ type: String, attribute: 'response-area-height' }) responseAreaHeight = '300px';
+  @property({ type: String, attribute: 'show-summary-when-collapsed' }) showSummaryWhenCollapsed = 'true';
+  @property({ type: String, attribute: 'fill-request-fields-with-example' }) fillRequestFieldsWithExample = 'true';
+  @property({ type: String, attribute: 'persist-auth' }) persistAuth = 'false';
+
+  // Schema Styles
+  @property({ type: String, attribute: 'schema-style' }) schemaStyle = 'tree';
+  @property({ type: Number, attribute: 'schema-expand-level' }) schemaExpandLevel = 99999;
+  @property({ type: String, attribute: 'schema-description-expanded' }) schemaDescriptionExpanded = 'false';
+
+  // API Server
+  @property({ type: String, attribute: 'api-key-name' }) apiKeyName = '';
+  @property({ type: String, attribute: 'api-key-location' }) apiKeyLocation = 'header';
+  @property({ type: String, attribute: 'api-key-value' }) apiKeyValue = '-';
+  @property({ type: String, attribute: 'default-api-server' }) defaultApiServerUrl = '';
+  @property({ type: String, attribute: 'server-url' }) serverUrl = '';
+  @property({ type: String, attribute: 'oauth-receiver' }) oauthReceiver = 'oauth-receiver.html';
+  @property({ type: Object, attribute: 'additional-authorize-params', converter: paramsConverter }) additionalAuthorizeParams: any;
+  @property({ type: Object, attribute: 'additional-token-params', converter: paramsConverter }) additionalTokenParams: any;
+
+  // Mock Server
+  @property({ type: String, attribute: 'mock-server' }) mockServer = 'false';
+  @property({ type: String, attribute: 'mock-server-status-code' }) mockServerStatusCode = '200';
+  @property({ type: String, attribute: 'mock-server-status-strategy' }) mockServerStatusStrategy = 'example';
+  @property({ type: Number, attribute: 'mock-server-delay' }) mockServerDelay = 0;
+  @property({ type: String, attribute: 'mock-server-log' }) mockServerLog = 'false';
+
+  @property({ type: String, attribute: 'allow-try' }) allowTry = 'true';
+  @property({ type: String, attribute: 'show-curl-before-try' }) showCurlBeforeTry = 'false';
+
+  // Main Colors and Font
+  @property({ type: String, reflect: true }) theme = 'amber';
+  @property({ type: String, attribute: 'color-scheme', reflect: true }) colorScheme = 'dark';
+  @property({ type: String, reflect: true }) radius = 'sm';
+  @property({ type: String, reflect: true }) scale = 'default';
+  @property({ type: String, attribute: 'load-fonts' }) loadFonts = 'true';
+
+  // Fetch Options
+  @property({ type: String, attribute: 'fetch-credentials' }) fetchCredentials = '';
+
+  // Filters
+  @property({ type: String, attribute: 'match-paths' }) matchPaths = '';
+  @property({ type: String, attribute: 'match-type' }) matchType = 'includes';
+  @property({ type: String, attribute: 'remove-endpoints-with-badge-label-as' }) removeEndpointsWithBadgeLabelAs = '';
+
+  // Internal Properties
+  @property({ type: Boolean }) loading = false;
+
+  isMini: boolean;
+  updateRoute: string;
+  renderStyle: string;
+  showHeader: string;
+  allowAdvancedSearch: string;
+  resolvedSpec: any;
+  selectedServer: any;
+  loadFailed: boolean;
+  sortTags: any;
+  generateMissingTags: any;
+  sortSchemas: any;
+  allowSchemaDescriptionExpandToggle: any;
+
   constructor() {
     super();
     this.isMini = true;
@@ -52,66 +123,7 @@ export default class RapiDocMini extends LitElement {
     this.renderStyle = 'view';
     this.showHeader = 'false';
     this.allowAdvancedSearch = 'false';
-  }
-
-  static get properties() {
-    return {
-      // Spec
-      specUrl: { type: String, attribute: 'spec-url' },
-      sortEndpointsBy: { type: String, attribute: 'sort-endpoints-by' },
-
-      // UI Layouts
-      layout: { type: String },
-      pathsExpanded: { type: String, attribute: 'paths-expanded' },
-      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
-      responseAreaHeight: { type: String, attribute: 'response-area-height' },
-      showSummaryWhenCollapsed: { type: String, attribute: 'show-summary-when-collapsed' },
-      fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
-      persistAuth: { type: String, attribute: 'persist-auth' },
-
-      // Schema Styles
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-
-      // API Server
-      apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
-      defaultApiServerUrl: { type: String, attribute: 'default-api-server' },
-      serverUrl: { type: String, attribute: 'server-url' },
-      oauthReceiver: { type: String, attribute: 'oauth-receiver' },
-      additionalAuthorizeParams: { type: Object, attribute: 'additional-authorize-params', converter: paramsConverter },
-      additionalTokenParams: { type: Object, attribute: 'additional-token-params', converter: paramsConverter },
-
-      // Mock Server
-      mockServer: { type: String, attribute: 'mock-server' },
-      mockServerStatusCode: { type: String, attribute: 'mock-server-status-code' },
-      mockServerStatusStrategy: { type: String, attribute: 'mock-server-status-strategy' },
-      mockServerDelay: { type: Number, attribute: 'mock-server-delay' },
-      mockServerLog: { type: String, attribute: 'mock-server-log' },
-
-      allowTry: { type: String, attribute: 'allow-try' },
-      showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
-
-      // Main Colors and Font
-      theme: { type: String, reflect: true },
-      colorScheme: { type: String, attribute: 'color-scheme', reflect: true },
-      radius: { type: String, reflect: true },
-      scale: { type: String, reflect: true },
-      loadFonts: { type: String, attribute: 'load-fonts' },
-
-      // Fetch Options
-      fetchCredentials: { type: String, attribute: 'fetch-credentials' },
-
-      // Filters
-      matchPaths: { type: String, attribute: 'match-paths' },
-      matchType: { type: String, attribute: 'match-type' },
-      removeEndpointsWithBadgeLabelAs: { type: String, attribute: 'remove-endpoints-with-badge-label-as' },
-
-      // Internal Properties
-      loading: { type: Boolean }, // indicates spec is being loaded
-    };
+    this.loadFailed = false;
   }
 
   static get styles() {
@@ -161,7 +173,7 @@ export default class RapiDocMini extends LitElement {
     super.connectedCallback();
 
     if (this.loadFonts !== 'false') {
-      const fontDescriptor = {
+      const fontDescriptor: any = {
         family: 'Open Sans',
         style: 'normal',
         weight: '300',
@@ -399,7 +411,7 @@ export default class RapiDocMini extends LitElement {
 
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
+          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v: any) => v.securitySchemeId === rapidocApiKey);
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
               securitySchemeId: rapidocApiKey,
@@ -424,7 +436,7 @@ export default class RapiDocMini extends LitElement {
   }
 
   onSpecUrlChange() {
-    this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
+    this.setAttribute('spec-url', (this.shadowRoot.getElementById('spec-url') as any).value);
   }
 
   // Public Method
@@ -458,7 +470,7 @@ export default class RapiDocMini extends LitElement {
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
-    } catch (err) {
+    } catch (err: any) {
       this.loading = false;
       this.loadFailed = true;
       this.resolvedSpec = null;
@@ -497,7 +509,7 @@ export default class RapiDocMini extends LitElement {
           computedUrl: this.serverUrl,
         };
       } else if (this.resolvedSpec.servers) {
-        this.selectedServer = this.resolvedSpec.servers.find((v) => v.url === this.defaultApiServerUrl);
+        this.selectedServer = this.resolvedSpec.servers.find((v: any) => v.url === this.defaultApiServerUrl);
       }
     }
     if (!this.selectedServer) {
@@ -533,4 +545,3 @@ export default class RapiDocMini extends LitElement {
     }
   }
 }
-customElements.define('rapi-doc-mini', RapiDocMini);
