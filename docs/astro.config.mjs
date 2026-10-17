@@ -36,6 +36,8 @@ export default defineConfig({
     '/oauth': '/guides/oauth',
     '/theme': '/guides/theme',
     '/perf': '/tests/performance',
+    '/guide/prerender': '/guides/prerender',
+    '/prerender': '/guides/prerender',
   },
   integrations: [
     starlight({
@@ -143,6 +145,7 @@ export default defineConfig({
         '~/rapidoc': resolve(rapidocSrcPath, 'rapidoc.ts'),
         '~/rapidoc-mini': resolve(rapidocSrcPath, 'rapidoc-mini.ts'),
         '~/oauth-receiver': resolve(rapidocSrcPath, 'oauth-receiver.ts'),
+        'rapidoc/static': resolve(rapidocSrcPath, 'static/index.js'),
         rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },
     },

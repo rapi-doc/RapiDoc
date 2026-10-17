@@ -86,6 +86,16 @@ const guides = [
     tags: ['Micro-Component', 'Path Filtering', 'Blog Embeds', 'Zero-Config'],
     readTime: '5 min read',
   },
+  {
+    title: 'Static Pre-Rendering & SSG',
+    slug: '/guides/prerender',
+    badge: 'Architecture Guide',
+    badgeColor: 'blue',
+    icon: 'prerender',
+    desc: 'Pre-render OpenAPI specifications on the server with Declarative Shadow DOM (DSD) or Light DOM. Zero-FOUC instant paint, SEO indexing, and seamless hydration in Astro, Next.js, Nuxt, and Node.js.',
+    tags: ['Declarative Shadow DOM', 'SSR / SSG', 'Astro & Nuxt', 'Zudoku Clone', 'Instant Paint'],
+    readTime: '7 min read',
+  },
 ];
 ---
 
@@ -154,6 +164,7 @@ const guides = [
                 {g.icon === 'css' && <IconCode size={22} stroke={2} />}
                 {g.icon === 'slots' && <IconLayoutGrid size={22} stroke={2} />}
                 {g.icon === 'mini' && <IconComponents size={22} stroke={2} />}
+                {g.icon === 'prerender' && <IconBolt size={22} stroke={2} />}
               </div>
 
               <h2 class="rd-card-title">{g.title}</h2>

@@ -1,0 +1,995 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import {
+  IconBolt,
+  IconServer2,
+  IconCpu,
+  IconArrowRight,
+  IconCheck,
+  IconLayersSubtract,
+  IconSparkles,
+  IconShieldCheck,
+  IconFlame,
+  IconCode,
+  IconBrandAstro,
+  IconBrandNextjs,
+  IconSearch,
+  IconEye,
+  IconExternalLink,
+} from '@tabler/icons-astro';
+
+import { renderStaticDoc, renderStaticEndpoint } from 'rapidoc/static';
+
+// Pre-render a sample endpoint card at build-time to show live pre-rendering in action!
+const sampleSpecObj = {
+  openapi: '3.1.0',
+  info: {
+    title: 'Cosmo Cargo API',
+    version: '1.2.0',
+    description: 'Cloud Logistics & Intelligent Freight Dispatch Engine.',
+  },
+  servers: [{ url: 'https://api.cosmocargo.dev/v1' }],
+  'x-tagGroups': [
+    {
+      name: 'Shipment Logistics',
+      description: 'Core shipment operations',
+      tags: ['Shipments', 'Tracking'],
+    },
+  ],
+  tags: [
+    { name: 'Shipments', description: 'Create and query freight shipments' },
+    { name: 'Tracking', description: 'Real-time telemetry and milestone events' },
+  ],
+  paths: {
+    '/shipments/{shipmentId}': {
+      get: {
+        summary: 'Retrieve Shipment Details',
+        description: 'Returns real-time cargo milestone telemetry, carrier transit status, and customs clearance documents.',
+        operationId: 'getShipmentById',
+        tags: ['Shipments'],
+        parameters: [
+          {
+            name: 'shipmentId',
+            in: 'path',
+            required: true,
+            description: 'Unique carrier tracking UUID or tracking code.',
+            schema: { type: 'string', example: 'shp_9942a1b7' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Shipment record found and returned.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string', example: 'shp_9942a1b7' },
+                    status: { type: 'string', enum: ['in_transit', 'delivered', 'customs_hold'], example: 'in_transit' },
+                    origin: { type: 'string', example: 'Frankfurt Hub (FRA)' },
+                    destination: { type: 'string', example: 'Singapore Cargo Terminal (SIN)' },
+                    eta: { type: 'string', format: 'date-time', example: '2026-10-24T18:30:00Z' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+let livePreviewHtml = '';
+try {
+  livePreviewHtml = await renderStaticEndpoint({
+    spec: sampleSpecObj,
+    path: '/shipments/{shipmentId}',
+    method: 'get',
+    theme: 'amber',
+    colorScheme: 'dark',
+    includeStyles: true,
+  });
+} catch (err) {
+  livePreviewHtml = `<div class="error-box">Preview generation error: ${err.message}</div>`;
+}
+
+const nodeSnippet = `// prerender.mjs - Standalone Node.js / Bun script
+import fs from 'node:fs';
+import { renderStaticDoc } from 'rapidoc/static';
+
+// 1. Pre-render the OpenAPI specification into Declarative Shadow DOM
+const staticHtml = await renderStaticDoc({
+  spec: './specs/petstore.yaml', // file path, remote URL, or JSON/YAML string
+  renderStyle: 'read',           // 'read' | 'view' | 'focused'
+  theme: 'amber',                // 'amber' | 'blue' | 'emerald' | 'violet' | hex
+  colorScheme: 'dark',           // 'dark' | 'light' | 'system'
+  outputMode: 'dsd',             // Declarative Shadow DOM (default)
+});
+
+// 2. Wrap inside standard HTML boilerplate with optional client bundle
+const htmlPage = \`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Reference</title>
+  
+  <!-- Client bundle enables interactive Try-It console, live search, and tab switching -->
+  <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+</head>
+<body style="margin: 0; padding: 0; background: #0f172a;">
+  \${staticHtml}
+</body>
+</html>\`;
+
+// 3. Save to disk
+fs.writeFileSync('./dist/api.html', htmlPage, 'utf-8');
+console.log('API Reference pre-rendered successfully to dist/api.html');`;
+
+const astroSnippet = `---
+// src/pages/api.astro - Astro SSG Page
+import { renderStaticDoc } from 'rapidoc/static';
+
+// Executed at BUILD TIME on the server
+const preRenderedDoc = await renderStaticDoc({
+  spec: './public/specs/petstore.json',
+  renderStyle: 'read',
+  theme: 'amber',
+  colorScheme: 'dark',
+});
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Petstore API Reference</title>
+
+    <!-- Client bundle hydrates the pre-rendered shadow DOM with zero FOUC -->
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body style="margin: 0; padding: 0;">
+    <!-- Injects server-rendered Declarative Shadow DOM -->
+    <Fragment set:html={preRenderedDoc} />
+  </body>
+</html>`;
+
+const nextjsSnippet = `// app/api-reference/page.tsx - Next.js App Router (React Server Component)
+import { renderStaticDoc } from 'rapidoc/static';
+import Script from 'next/script';
+
+export const revalidate = 3600; // ISR: Re-cache once per hour
+
+export default async function ApiReferencePage() {
+  const staticDocHtml = await renderStaticDoc({
+    spec: 'https://api.example.com/openapi.json',
+    renderStyle: 'read',
+    theme: 'amber',
+    colorScheme: 'dark',
+  });
+
+  return (
+    <main style={{ minHeight: '100vh', margin: 0, padding: 0 }}>
+      {/* Client-side hydration for Try-It console & filter */}
+      <Script
+        type="module"
+        src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"
+        strategy="lazyOnload"
+      />
+      <div dangerouslySetInnerHTML={{ __html: staticDocHtml }} />
+    </main>
+  );
+}`;
+
+const endpointCardSnippet = `// MDX / Developer Portal Endpoint Embedding (Zudoku / Cosmo Cargo Style)
+import { renderStaticEndpoint, renderStaticSchema } from 'rapidoc/static';
+
+// Pre-render a single endpoint card inside a guide article
+export const shipmentEndpointHtml = await renderStaticEndpoint({
+  spec: './specs/logistics.yaml',
+  path: '/v1/shipments/{shipmentId}',
+  method: 'get',
+  theme: 'amber',
+  colorScheme: 'dark',
+  allowTry: false, // Static documentation view
+});
+
+// Pre-render a standalone JSON Schema model
+export const schemaHtml = await renderStaticSchema({
+  spec: './specs/logistics.yaml',
+  schema: 'ShipmentResponse',
+  style: 'table', // 'table' or 'tree'
+  theme: 'amber',
+});`;
+
+const dsdExplanationSnippet = `<!-- Declarative Shadow DOM output from renderStaticDoc({ outputMode: 'dsd' }) -->
+<rapi-doc theme="amber" color-scheme="dark" render-style="read" layout="column">
+  <!-- Native browser Declarative Shadow DOM -->
+  <template shadowrootmode="open">
+    <style>
+      /* Complete scoped design tokens, layout, typography, and method badges */
+      :host { all: initial; display: flex; ... }
+    </style>
+    
+    <!-- Complete pre-rendered HTML DOM: navbar, tag groups, endpoints, schemas -->
+    <div id="the-main-body" class="body">
+      <nav class="nav-bar"> ... </nav>
+      <main class="main-content">
+        <section class="m-endpoint regular-font get expanded"> ... </section>
+      </main>
+    </div>
+  </template>
+</rapi-doc>`;
+
+const optionsTable = [
+  {
+    name: 'spec',
+    type: 'string | object',
+    default: '(required)',
+    desc: 'Path to local file (.json/.yaml), remote HTTPS URL, raw YAML/JSON string, or pre-parsed spec object.',
+  },
+  {
+    name: 'renderStyle',
+    type: "'read' | 'view' | 'focused'",
+    default: "'read'",
+    desc: 'Layout style: continuous document ("read"), collapsible accordions ("view"), or single-endpoint sidebar ("focused").',
+  },
+  {
+    name: 'theme',
+    type: 'string',
+    default: "'amber'",
+    desc: 'Design token color preset ("amber", "blue", "emerald", "violet", "rose", etc.) or custom hex code.',
+  },
+  {
+    name: 'colorScheme',
+    type: "'dark' | 'light' | 'system'",
+    default: "'dark'",
+    desc: 'Active color scheme applied to background, cards, text, and method badges.',
+  },
+  {
+    name: 'outputMode',
+    type: "'dsd' | 'html' | 'light'",
+    default: "'dsd'",
+    desc: 'Container format: Declarative Shadow DOM with native browser hydration ("dsd") or scoped Light DOM div ("html").',
+  },
+  {
+    name: 'includeStyles',
+    type: 'boolean',
+    default: 'true',
+    desc: 'Whether to inline the complete bundled CSS styles directly within the pre-rendered container.',
+  },
+  {
+    name: 'schemaStyle',
+    type: "'table' | 'tree'",
+    default: "'table'",
+    desc: 'Default display style for JSON Schemas and parameter objects.',
+  },
+  {
+    name: 'schemaExpandLevel',
+    type: 'number',
+    default: '99999',
+    desc: 'Initial expansion depth for nested schemas.',
+  },
+  {
+    name: 'allowTry',
+    type: 'boolean',
+    default: 'true',
+    desc: 'Whether to include the interactive request execution console markup.',
+  },
+  {
+    name: 'allowSearch',
+    type: 'boolean',
+    default: 'true',
+    desc: 'Whether the sidebar search and filter input is included.',
+  },
+];
+---
+
+<GlobalLayout
+  title="Static Pre-Rendering & SSG Guide | RapiDoc"
+  description="Learn how to pre-render OpenAPI specifications on the server into fast, SEO-friendly Declarative Shadow DOM with RapiDoc. Works with Astro, Next.js, Nuxt, and Node.js."
+  keywords="OpenAPI pre-rendering, SSG API docs, Declarative Shadow DOM, Astro OpenAPI, Zudoku clone, RapiDoc static"
+>
+  <!-- RapiDoc Client Bundle for Hydration -->
+  <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
+
+  <!-- Ambient Glow Elements -->
+  <div class="ambient-glow glow-blue"></div>
+  <div class="ambient-glow glow-amber"></div>
+  <div class="ambient-glow glow-emerald"></div>
+
+  <!-- Reusable Header Navbar -->
+  <SiteNavbar activePage="guides" />
+
+  <main class="rd-prerender-main">
+    <!-- Hero Header -->
+    <header class="rd-hero">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">New in RapiDoc v11 • Isomorphic Engine</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Static <span class="text-gradient">Pre-Rendering</span> & SSG
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Generate complete, beautifully styled API documentation on the server using <strong>Declarative Shadow DOM (DSD)</strong> or semantic <strong>Light DOM</strong>.
+        Achieve <strong>zero FOUC</strong>, <strong>instant First Contentful Paint</strong>, and complete search engine indexability across <strong>Astro</strong>, <strong>Next.js</strong>, <strong>Nuxt</strong>, or pure Node.js scripts.
+      </p>
+
+      <!-- Architecture Highlights Bar -->
+      <div class="rd-stats-bar">
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">0 ms</span>
+          <span class="rd-stat-label">Zero-FOUC First Paint</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">DSD Native</span>
+          <span class="rd-stat-label">Declarative Shadow DOM</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">100% SEO</span>
+          <span class="rd-stat-label">Server Crawlable HTML</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Zudoku Style</span>
+          <span class="rd-stat-label">Isolated Endpoint Cards</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Why Pre-render Comparison Section -->
+    <section class="rd-section">
+      <div class="rd-section-header">
+        <span class="rd-section-badge">Performance & Core Web Vitals</span>
+        <h2 class="rd-section-title">Why Pre-Render on the Server?</h2>
+        <p class="rd-section-desc">
+          Traditional client-only OpenAPI viewers (Swagger UI, standard Web Components, Redoc) force the visitor's browser to execute heavy CPU tasks before anything is visible. RapiDoc static pre-rendering moves this computation to your build server.
+        </p>
+      </div>
+
+      <div class="rd-comparison-grid">
+        <div class="rd-compare-card bad">
+          <div class="rd-compare-badge">Traditional Client-Only Rendering</div>
+          <ul class="rd-compare-list">
+            <li>
+              <span class="cross">✕</span>
+              <span><strong>Slow LCP:</strong> Browser must fetch 600KB+ JS, download remote YAML/JSON, and dereference complex schemas.</span>
+            </li>
+            <li>
+              <span class="cross">✕</span>
+              <span><strong>FOUC & Blank Screens:</strong> Users stare at a blank canvas or spinning loader for 1.5–3 seconds.</span>
+            </li>
+            <li>
+              <span class="cross">✕</span>
+              <span><strong>Poor SEO:</strong> Search crawlers that do not execute client JavaScript index an empty shell.</span>
+            </li>
+            <li>
+              <span class="cross">✕</span>
+              <span><strong>No MDX Embedding:</strong> Difficult to cleanly embed individual endpoints inside documentation guides.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="rd-compare-card good">
+          <div class="rd-compare-badge">RapiDoc Static Pre-Rendering (DSD)</div>
+          <ul class="rd-compare-list">
+            <li>
+              <span class="check">✓</span>
+              <span><strong>Instant First Paint:</strong> Complete HTML and CSS stream directly from your CDN/edge server.</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span><strong>Zero FOUC:</strong> Native browser Declarative Shadow DOM renders styles and layout before any JS executes.</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span><strong>Full SEO Indexing:</strong> Googlebot and AI crawlers index all endpoint paths, parameters, schemas, and descriptions.</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span><strong>Seamless Hydration:</strong> Client script attaches smoothly to the existing DOM for Try-It and live filtering.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Pre-rendered Preview Section -->
+    <section class="rd-section">
+      <div class="rd-section-header">
+        <span class="rd-section-badge">Live Demonstration</span>
+        <h2 class="rd-section-title">Pre-Rendered Endpoint Preview</h2>
+        <p class="rd-section-desc">
+          The endpoint card below was generated <strong>at build-time on the server</strong> by <code>renderStaticEndpoint()</code> with zero client-side JavaScript execution.
+        </p>
+      </div>
+
+      <div class="rd-live-card">
+        <div class="rd-live-header">
+          <div class="rd-live-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="rd-live-title">Server Pre-Rendered HTML • GET /shipments/&#123;shipmentId&#125;</span>
+          <span class="rd-live-badge">Zero JS First Paint</span>
+        </div>
+        <div class="rd-live-body">
+          <Fragment set:html={livePreviewHtml} />
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 1: Standalone Node.js Script -->
+    <section class="rd-section" id="node-script">
+      <div class="rd-section-header">
+        <span class="rd-section-badge">Quick Start • Method 1</span>
+        <h2 class="rd-section-title">Pre-Rendering via Node.js or Bun</h2>
+        <p class="rd-section-desc">
+          Generate static <code>.html</code> files in your build pipeline with a single function call. Works out of the box in Node.js &gt;= 22 or Bun.
+        </p>
+      </div>
+
+      <CodeBlock
+        code={nodeSnippet}
+        lang="javascript"
+        filename="prerender.mjs"
+      />
+    </section>
+
+    <!-- Step 2: Astro Integration -->
+    <section class="rd-section" id="astro">
+      <div class="rd-section-header">
+        <span class="rd-section-badge">Framework Integration • Method 2</span>
+        <h2 class="rd-section-title">Pre-Rendering in Astro</h2>
+        <p class="rd-section-desc">
+          Astro's zero-JS-by-default architecture is the perfect companion for RapiDoc's isomorphic renderer. Use <code>renderStaticDoc</code> inside your frontmatter.
+        </p>
+      </div>
+
+      <CodeBlock
+        code={astroSnippet}
+        lang="astro"
+        filename="src/pages/api.astro"
+      />
+    </section>
+
+    <!-- Step 3: Next.js & Nuxt Server Components -->
+    <section class="rd-section" id="nextjs">
+      <div class="rd-section-header">
+        <span class="rd-section-badge">Framework Integration • Method 3</span>
+        <h2 class="rd-section-title">Pre-Rendering in Next.js & Nuxt</h2>
+        <p class="rd-section-desc">
+          Render API documentation inside React Server Components or Nuxt SSR routes with Incremental Static Regeneration (ISR).
+        </p>
+      </div>
+
+      <CodeBlock
+        code={nextjsSnippet}
+        lang="typescript"
+        filename="app/api-reference/page.tsx"
+      />
+    </section>
+
+    <!-- Step 4: Isolated Endpoints for Developer Portals (Zudoku Style) -->
+    <section class="rd-section" id="developer-portal">
+      <div class="rd-section-header">
+        <span class="rd-section-badge">Portal Architecture • Method 4</span>
+        <h2 class="rd-section-title">Isolated Endpoints & Schemas for MDX Guides</h2>
+        <p class="rd-section-desc">
+          Building a custom developer portal like <strong>Zudoku</strong> or <strong>Cosmo Cargo</strong>? Use <code>renderStaticEndpoint()</code> and <code>renderStaticSchema()</code> to embed isolated operations directly into Markdown and MDX articles.
+        </p>
+      </div>
+
+      <CodeBlock
+        code={endpointCardSnippet}
+        lang="javascript"
+        filename="portal-renderer.js"
+      />
+    </section>
+
+    <!-- Deep Dive: How Declarative Shadow DOM Works -->
+    <section class="rd-section" id="dsd-deep-dive">
+      <div class="rd-section-header">
+        <span class="rd-section-badge">Under the Hood</span>
+        <h2 class="rd-section-title">How Declarative Shadow DOM (DSD) Operates</h2>
+        <p class="rd-section-desc">
+          Declarative Shadow DOM allows standard HTML to declare encapsulated shadow roots without calling <code>element.attachShadow()</code> via JavaScript.
+        </p>
+      </div>
+
+      <CodeBlock
+        code={dsdExplanationSnippet}
+        lang="html"
+        filename="declarative-shadow-dom.html"
+      />
+
+      <div class="rd-callout info">
+        <div class="rd-callout-icon">💡</div>
+        <div class="rd-callout-content">
+          <strong>Need Light DOM instead of Shadow DOM?</strong>
+          <p>
+            If your project uses a CSS framework (like Tailwind or Bootstrap) that needs to style RapiDoc's internal elements directly, specify <code>outputMode: 'html'</code> or <code>'light'</code>. RapiDoc will emit a standard semantic <code>&lt;div class="rapidoc-static-container"&gt;</code> instead of a custom element.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Reference Options Table -->
+    <section class="rd-section" id="options-reference">
+      <div class="rd-section-header">
+        <span class="rd-section-badge">API Reference</span>
+        <h2 class="rd-section-title">renderStaticDoc() Configuration Options</h2>
+        <p class="rd-section-desc">
+          Complete options dictionary accepted by <code>renderStaticDoc()</code>.
+        </p>
+      </div>
+
+      <div class="rd-table-wrap">
+        <table class="rd-table">
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {optionsTable.map((opt) => (
+              <tr>
+                <td><code>{opt.name}</code></td>
+                <td><span class="type-badge">{opt.type}</span></td>
+                <td><code>{opt.default}</code></td>
+                <td>{opt.desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Summary & Next Steps -->
+    <section class="rd-next-steps">
+      <div class="rd-next-steps-card">
+        <div class="rd-next-steps-content">
+          <span class="rd-badge-pill">Ready to Explore?</span>
+          <h2>Build Your Next-Gen API Portal Today</h2>
+          <p>
+            Explore 3-tier navigation with <code>x-tagGroups</code>, customize themes with design tokens, or embed interactive consoles into blogs.
+          </p>
+          <div class="rd-actions">
+            <a href="/examples/arrange-by-tags" class="rd-btn primary">
+              <span>View 3-Tier Navigation Demo</span>
+              <IconArrowRight size={16} stroke={2} />
+            </a>
+            <a href="/guides/mini" class="rd-btn outline">
+              <span>RapiDoc Mini Guide</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<style>
+  /* =========================================================================
+     PAGE STYLING & AMBIENT AESTHETICS
+     ========================================================================= */
+  .rd-prerender-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-regular, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+    color: var(--foreground, #e2e8f0);
+  }
+
+  /* Ambient Glow Gradients */
+  .ambient-glow {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.18;
+  }
+  .glow-blue {
+    top: 5%;
+    left: 15%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #38bdf8 0%, rgba(56, 189, 248, 0) 70%);
+  }
+  .glow-amber {
+    top: 35%;
+    right: 10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, #f59e0b 0%, rgba(245, 158, 11, 0) 70%);
+  }
+  .glow-emerald {
+    bottom: 10%;
+    left: 20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #10b981 0%, rgba(16, 185, 129, 0) 70%);
+  }
+
+  /* Hero Section */
+  .rd-hero {
+    text-align: center;
+    max-width: 860px;
+    margin: 0 auto 72px;
+  }
+
+  .rd-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+  .rd-badge-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 12px #38bdf8;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .rd-page-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .rd-page-subtitle {
+    font-size: 1.15rem;
+    line-height: 1.65;
+    color: #94a3b8;
+    margin-bottom: 36px;
+  }
+  .rd-page-subtitle strong {
+    color: #f1f5f9;
+  }
+
+  /* Key Metrics / Highlights Bar */
+  .rd-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 36px;
+  }
+  .rd-stat-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .rd-stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(56, 189, 248, 0.3);
+  }
+  .rd-stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #38bdf8;
+    letter-spacing: -0.02em;
+  }
+  .rd-stat-label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  /* Section Styling */
+  .rd-section {
+    margin-bottom: 80px;
+  }
+  .rd-section-header {
+    margin-bottom: 28px;
+  }
+  .rd-section-badge {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #f59e0b;
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+  .rd-section-title {
+    font-size: 1.85rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #f8fafc;
+    margin-bottom: 12px;
+  }
+  .rd-section-desc {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #94a3b8;
+    max-width: 800px;
+  }
+  .rd-section-desc code {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  /* Comparison Grid */
+  .rd-comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+  .rd-compare-card {
+    border-radius: 14px;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .rd-compare-card.bad {
+    border-color: rgba(239, 68, 68, 0.25);
+  }
+  .rd-compare-card.good {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: rgba(16, 185, 129, 0.03);
+  }
+  .rd-compare-badge {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .bad .rd-compare-badge { color: #f87171; }
+  .good .rd-compare-badge { color: #34d399; }
+  .rd-compare-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .rd-compare-list li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #cbd5e1;
+  }
+  .cross {
+    color: #ef4444;
+    font-weight: 800;
+  }
+  .check {
+    color: #10b981;
+    font-weight: 800;
+  }
+
+  /* Live Preview Card */
+  .rd-live-card {
+    border-radius: 12px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    background: #0f172a;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+  .rd-live-header {
+    background: rgba(30, 41, 59, 0.8);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .rd-live-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .dot.red { background: #ef4444; }
+  .dot.yellow { background: #f59e0b; }
+  .dot.green { background: #10b981; }
+  .rd-live-title {
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    color: #e2e8f0;
+    flex: 1;
+  }
+  .rd-live-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  .rd-live-body {
+    padding: 24px;
+  }
+
+  /* Callout */
+  .rd-callout {
+    display: flex;
+    gap: 16px;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-top: 24px;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+  }
+  .rd-callout-icon {
+    font-size: 24px;
+    line-height: 1;
+  }
+  .rd-callout-content strong {
+    color: #38bdf8;
+    display: block;
+    margin-bottom: 6px;
+    font-size: 1rem;
+  }
+  .rd-callout-content p {
+    margin: 0;
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  /* Table */
+  .rd-table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.5);
+  }
+  .rd-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    text-align: left;
+  }
+  .rd-table th {
+    background: rgba(30, 41, 59, 0.7);
+    padding: 14px 18px;
+    color: #f8fafc;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .rd-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+  .rd-table tr:last-child td {
+    border-bottom: none;
+  }
+  .rd-table td code {
+    background: rgba(255, 255, 255, 0.06);
+    color: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.85em;
+  }
+  .type-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--font-mono, monospace);
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+  }
+
+  /* Next Steps Card */
+  .rd-next-steps-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .rd-next-steps-content {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .rd-next-steps-card h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 16px 0 12px;
+  }
+  .rd-next-steps-card p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+  .rd-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .rd-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .rd-btn.primary {
+    background: #38bdf8;
+    color: #0f172a;
+    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.3);
+  }
+  .rd-btn.primary:hover {
+    background: #7dd3fc;
+    transform: translateY(-2px);
+  }
+  .rd-btn.outline {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #f1f5f9;
+  }
+  .rd-btn.outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+</style>

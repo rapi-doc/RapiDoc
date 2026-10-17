@@ -101,9 +101,9 @@ test('theme-validation', async (t) => {
     // Assert nav styles use var(--nav-accent-fg, var(--primary)) for left-bar active text color
     assert.match(navStyles.cssText, /color:\s*var\(--nav-accent-fg,\s*var\(--primary\)\);/);
 
-    // Assert colored-block active items use standard var(--primary) and var(--primary-foreground)
-    assert.match(navStyles.cssText, /background:\s*var\(--primary\);/);
-    assert.match(navStyles.cssText, /color:\s*var\(--primary-foreground\);/);
+    // Assert active items always use left-bar marker style
+    assert.match(navStyles.cssText, /\.left-bar\.active/);
+    assert.doesNotMatch(navStyles.cssText, /\.colored-block\.active/);
 
     // Assert --nav-accent and --nav-accent-foreground are completely dropped
     assert.doesNotMatch(themeTokens.cssText, /--nav-accent:/);

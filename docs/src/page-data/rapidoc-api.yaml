@@ -121,10 +121,12 @@ Attributes:
         default: 'false'
         example: /examples/nav-item-as-path
       - name: nav-active-item-marker
+        deprecated: true
         allowed:
           - left-bar
           - colored-block
-        description: Visual indicator style for the currently active navigation item.
+        description: >
+          <span class="red bold">[DEPRECATED]</span> RapiDoc now standardizes on the modern left-bar active indicator across all modes.
         default: left-bar
       - name: nav-item-spacing
         allowed:
@@ -134,13 +136,23 @@ Attributes:
         description: Controls vertical density and padding between sidebar navigation items.
         default: default
         example: /examples/navbar-spacing
+      - name: nav-item-overflow
+        allowed:
+          - ellipsis
+          - wrap
+        description: >
+          Controls text truncation behavior for long endpoint paths and operation summaries in the navigation sidebar.
+          When set to <span class="mono yellow">ellipsis</span> (default), long paths truncate with a clean ellipsis.
+          When set to <span class="mono yellow">wrap</span>, long items wrap across multiple lines without clipping.
+        default: ellipsis
       - name: on-nav-tag-click
+        deprecated: true
         allowed:
           - expand-collapse
           - show-description
         description: >
-          Configures sidebar tag click behavior: either toggles expand/collapse of nested operations, or navigates directly to the tag description section.<br/>
-          <span class="orange">Note: Applies only to <span class="mono yellow">render-style="focused"</span>.</span>
+          <span class="red bold">[DEPRECATED]</span> All clicks on navigation tags and tag-groups now uniformly toggle expand/collapse.<br/>
+          Previously configured sidebar tag click behavior in focused mode.
         default: expand-collapse
 
   - UI Layout and Placement Attributes:
@@ -572,9 +584,19 @@ Extensions:
       description: >
         Annotates endpoints with short, color-coded badges (e.g., "Internal", "Beta", "v2").
         Combine with the <span class="mono yellow">remove-endpoints-with-badge-label-as</span> attribute to filter out restricted or internal APIs from public documentation.
-    - name: x-tag-expanded
+    - name: x-tagGroups
       description: >
-        Controls whether endpoints grouped under a tag start expanded or collapsed (applies in view and focused render styles).
+        Top-level vendor extension defining a 3-tier navigation hierarchy (compatible with ReDoc / Zudoku).
+        Organizes API tags into higher-level groups in the sidebar navigation, read mode sections, and view mode accordions.
+        Takes an array of group objects, each with <code>name</code>, optional <code>description</code>, and a <code>tags</code> list of tag names.
+      example: /examples/arrange-by-tags
+    - name: x-tag-groups
+      description: Alternative kebab-case syntax for <span class="mono yellow">x-tagGroups</span>.
+    - name: x-tag-expanded
+      allowed: ['true', 'false']
+      description: >
+        Controls initial expansion state. Can be configured on individual tags or on top-level <span class="mono yellow">x-tagGroups</span> items to start sections expanded or collapsed.
+      default: 'true'
     - name: x-fill-example
       allowed:
         - 'yes'

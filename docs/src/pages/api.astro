@@ -218,6 +218,12 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
                                   <IconArrowUpRight size={11} stroke={2.5} />
                                 </a>
                               )}
+
+                              {attr.deprecated && (
+                                <span class="rd-deprecated-badge">
+                                  Deprecated
+                                </span>
+                              )}
                             </div>
                           </td>
 
@@ -1234,6 +1240,20 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
   background: rgba(56, 189, 248, 0.2);
   color: #7dd3fc;
   border-color: #38bdf8;
+}
+
+.rd-deprecated-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.3);
 }
 
 /* Allowed Values Tag Row */

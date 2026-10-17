@@ -59,7 +59,8 @@ The table below outlines how RapiDoc constructs element IDs across your specific
 | **Overview Section**  | `overview`                        | Static identifier for the API title, version, and general description card.                      |
 | **API Servers**       | `servers`                         | Static identifier for the server configuration and URL selector panel.                           |
 | **Authentication**    | `auth`                            | Static identifier for security schemes (Bearer tokens, API keys, OAuth).                         |
-| **Tag Group**         | `tag--{tag-name}`                 | Prefix `tag--` followed by the sanitized tag name.                                               |
+| **Tag Group (Top-level)** | `tag-group--{group-name}`         | Prefix `tag-group--` followed by sanitized group name from `x-tagGroups`.                       |
+| **Tag Section**       | `tag--{tag-name}`                 | Prefix `tag--` followed by the sanitized tag name.                                               |
 | **Path / Operation**  | `{method}-{path}`                 | Lowercase HTTP verb (`get`, `post`, `put`, `delete`, `patch`), a hyphen, and the sanitized path. |
 | **Overview Headings** | `overview--{heading-slug}`        | Prefix `overview--` followed by GitHub-slugger formatted heading text.                           |
 | **Tag Headings**      | `tag--{tag-name}--{heading-slug}` | Tag element ID followed by GitHub-slugger formatted heading text.                                |
@@ -96,13 +97,66 @@ Any character matching **spaces, `#`, `:`, `?`, `&`, `=`, `{`, or `}`** is autom
   post-/api/v1/search-type-user
   ```
 
-- **Tag Groups**:
+- **Tag Groups & Tags**:
+  - Tag Group `Shipment Logistics` &rarr; `tag-group--Shipment-Logistics`
   - Tag `Users` &rarr; `tag--Users`
   - Tag `User Management & Auth` &rarr; `tag--User-Management---Auth`
 
 ---
 
-## 2. Writing Cross-References in OpenAPI Specs
+## 2. 3-Tier Navigation Hierarchy (`x-tagGroups` / `x-tag-groups`)
+
+For large enterprise APIs with dozens of domain categories, standard 2-tier navigation (Tag &rarr; Operation) can produce an overly long sidebar. RapiDoc natively supports the **`x-tagGroups`** (and kebab-case **`x-tag-groups`**) top-level vendor extension, popularized by ReDoc and developer portals like Zudoku / Cosmo Cargo.
+
+When declared at the root of your specification, RapiDoc organizes tags into collapsible high-level groups across the sidebar, `view` mode accordions, and `read` mode section breaks:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Enterprise Logistics API
+  version: 2.0.0
+
+# 3-Tier Navigation grouping
+x-tagGroups:
+  - name: Shipment Management
+    description: Core shipment dispatch, rates, and tracking endpoints
+    tags:
+      - Shipments
+      - Tracking
+      - Rates
+  - name: Billing & Accounts
+    description: Customer invoicing, payments, and account balances
+    tags:
+      - Invoices
+      - Payments
+
+tags:
+  - name: Shipments
+    description: Dispatch and label generation
+  - name: Tracking
+    description: Real-time milestone status
+```
+
+### Controlling Initial Expansion (`x-tag-expanded`)
+
+You can control whether groups or tags start expanded or collapsed using `x-tag-expanded`:
+
+```yaml
+x-tagGroups:
+  - name: Advanced Analytics
+    x-tag-expanded: false # Collapsed by default
+    tags:
+      - Metrics
+      - Telemetry
+```
+
+<Aside type="note" title="Unified Click & Interaction Behavior">
+All clicks on tags or tag-groups in the sidebar uniformly expand or collapse the section, and automatically highlight the parent container when child endpoints are selected. The previous attributes `on-nav-tag-click` and `nav-active-item-marker` have been deprecated in favor of this standardized interaction and left-bar active styling.
+</Aside>
+
+---
+
+## 3. Writing Cross-References in OpenAPI Specs
 
 You can embed Markdown links inside any OpenAPI text field, including `info.description`, tag descriptions, operation descriptions, parameter descriptions, and response explanations.
 
@@ -165,7 +219,7 @@ paths:
 
 ---
 
-## 3. Sidebar Headings in the Navigation Bar
+## 4. Sidebar Headings in the Navigation Bar
 
 When authoring comprehensive documentation inside `info.description`, you may want major topic headings to appear directly inside the sidebar navigation bar alongside endpoints.
 
@@ -193,9 +247,18 @@ RapiDoc provides the `info-description-headings-in-navbar` attribute:
 
 ---
 
-## 4. URL Routing & Deep Link Sharing
+## 5. URL Routing & Deep Link Sharing
 
-RapiDoc includes built-in browser routing integration so that developers can bookmark or share direct links to specific operations.
+To enable seamless bookmarking, browser back/forward history navigation, and team link sharing, enable RapiDoc's route synchronization:
+
+```html
+<rapi-doc
+  spec-url="/specs/petstore.json"
+  update-route="true"
+  route-prefix="#"
+>
+</rapi-doc>
+```
 
 ### Configuration Attributes
 
@@ -218,9 +281,9 @@ When users navigate, the browser URL updates to `https://yourapp.com/#/get-/pet/
 
 ---
 
-## 5. Custom HTML Links via Web Component Slots
+## 6. Custom HTML Links via Web Component Slots
 
-For brand identity or custom UI controls, you can inject styled HTML elements and navigation links into designated Web Component slots inside `<rapi-doc>`.
+RapiDoc exposes slots that let you insert custom navigation components (e.g. breadcrumbs, cross-documentation links, developer portal banners) that link into specific API sections.
 
 Unlike Markdown links, slotted HTML links allow complete control over typography, custom colors, icons, badges, and layout:
 
@@ -270,7 +333,7 @@ Unlike Markdown links, slotted HTML links allow complete control over typography
 
 ---
 
-## 6. Programmatic JavaScript Navigation
+## 7. Programmatic JavaScript Navigation
 
 You can also trigger navigation programmatically from your host application's JavaScript code using RapiDoc's public DOM methods:
 
