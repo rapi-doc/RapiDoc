@@ -44,6 +44,12 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/Department'
+        tags:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Optional list of company tags.
     Address:
       type: object
       required:

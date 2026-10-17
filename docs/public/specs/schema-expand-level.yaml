@@ -76,6 +76,7 @@ components:
         photoUrls:
           description: The list of URL to a cute photos featuring pet
           type: array
+          nullable: true
           maxItems: 20
           items:
             type: string
@@ -83,6 +84,7 @@ components:
         tags:
           description: Tags attached to the pet
           type: array
+          nullable: true
           minItems: 1
           items:
             $ref: '#/components/schemas/Tag'

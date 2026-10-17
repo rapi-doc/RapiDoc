@@ -2,10 +2,10 @@ import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from 'marked';
 import { sanitizeHTML } from '../utils/sanitize.js';
-import FontStyles from '~/styles/font-styles';
-import SchemaStyles from '~/styles/schema-styles';
-import CustomStyles from '~/styles/custom-styles';
-import { hasMultilineDescription } from '~/utils/markdown-utils';
+import FontStyles from '../styles/font-styles.js';
+import SchemaStyles from '../styles/schema-styles.js';
+import CustomStyles from '../styles/custom-styles.js';
+import { hasMultilineDescription } from '../utils/markdown-utils.js';
 
 export default class SchemaTable extends LitElement {
   static get properties() {
@@ -174,6 +174,7 @@ export default class SchemaTable extends LitElement {
 
     const leftPadding = 16 * (indentLevel + 1);
     const isExpanded = schemaLevel < this.schemaExpandLevel;
+    const nullClass = node.nullable ? 'nullable' : '';
     const deprecatedIcon = node.deprecated
       ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
           <path d="M2 2L8 8M2 8L8 2" />
@@ -192,13 +193,14 @@ export default class SchemaTable extends LitElement {
           hasText && hasExtra
             ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
             : '';
+        const typeLabel = node.dataTypeLabel || (node.nullable ? 'array ┃ null' : 'array');
         return html`
-          <div class="tr array" data-obj="${node.name || ''}">
+          <div class="tr array ${nullClass}" data-obj="${node.name || ''}">
             <div class="td key" style="padding-left:${leftPadding}px">
               <span class="key-label">${deprecatedIcon}${node.name || ''}</span>
               ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
             </div>
-            <div class="td key-type" title="${readWriteTip}">array${readWriteBadge}</div>
+            <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
             <div class="td key-descr" style="font-size: var(--font-size-small)">
               ${hasText ? html`<span class="m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description)))}</span>` : ''}
             </div>
@@ -238,12 +240,14 @@ export default class SchemaTable extends LitElement {
         `;
 
         return html`
-          <div class="tr primitive" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
+          <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
               ${deprecatedIcon} ${node.name ? html`<span class="key-label">${node.name}</span>` : ''}
               ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
             </div>
-            <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">[${itemType}]${readWriteBadge}</div>
+            <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">
+              [${itemType}]${node.nullable ? ' ┃ null' : ''}${readWriteBadge}
+            </div>
             <div class="td key-descr" style="font-size: var(--font-size-small)">
               ${
                 hasText
@@ -258,7 +262,18 @@ export default class SchemaTable extends LitElement {
         `;
       }
 
-      const arrLabel = items.kind === 'object' ? 'array of object' : `array of array ${node.arrayType ? `of ${node.arrayType}` : ''}`;
+      let arrLabel = 'array';
+      if (items.kind === 'object') {
+        arrLabel = 'array of object';
+      } else if (items.kind === 'array') {
+        arrLabel = `array of array ${node.arrayType ? `of ${node.arrayType}` : ''}`.trim();
+      } else if (items.kind === 'union') {
+        arrLabel = 'array of union';
+      }
+      if (node.nullable) {
+        arrLabel += ' ┃ null';
+      }
+
       const hasText = !!(node.description || items.description);
       const hasExtra = hasMultilineDescription(node.description) || hasMultilineDescription(items.description);
       const descrExpander =
@@ -278,7 +293,7 @@ export default class SchemaTable extends LitElement {
 
       return html`
         <div
-          class="tr ${isExpanded ? 'expanded' : 'collapsed'} array"
+          class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}"
           data-obj="${node.name || ''}"
           title="${node.deprecated ? `Deprecated ${node.name}` : node.name || ''}"
         >
@@ -343,7 +358,7 @@ export default class SchemaTable extends LitElement {
           node.name
             ? html`
                 <div
-                  class="tr ${isExpanded ? 'expanded' : 'collapsed'} object"
+                  class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}"
                   data-obj="${node.name}"
                   title="${node.deprecated ? `Deprecated ${node.name}` : node.name}"
                 >
@@ -454,7 +469,7 @@ export default class SchemaTable extends LitElement {
       `;
 
       return html`
-        <div class="tr primitive" title="${node.deprecated ? 'Deprecated' : ''}">
+        <div class="tr primitive ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
             ${deprecatedIcon} ${node.name ? html`<span class="key-label">${node.name}</span>` : ''}
             ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}

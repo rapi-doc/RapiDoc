@@ -252,6 +252,29 @@ describe('schemaToAST', () => {
       assert.strictEqual(ast.maxItems, 10);
       assert.strictEqual(ast.uniqueItems, true);
     });
+
+    it('should capture nullable array and dataTypeLabel in OpenAPI 3.0', () => {
+      const schema = {
+        type: 'array',
+        nullable: true,
+        items: { type: 'string' },
+      };
+      const ast = schemaToAST(schema);
+      assert.strictEqual(ast.kind, 'array');
+      assert.strictEqual(ast.nullable, true);
+      assert.strictEqual(ast.dataTypeLabel, 'array ┃ null');
+    });
+
+    it('should capture nullable array and dataTypeLabel in OpenAPI 3.1 (type array with null)', () => {
+      const schema = {
+        type: ['array', 'null'],
+        items: { type: 'integer' },
+      };
+      const ast = schemaToAST(schema);
+      assert.strictEqual(ast.kind, 'array');
+      assert.strictEqual(ast.nullable, true);
+      assert.strictEqual(ast.dataTypeLabel, 'array ┃ null');
+    });
   });
 
   describe('allOf schemas', () => {

@@ -93,4 +93,42 @@ describe('E2E: Schema Trees, Tables & Deep Nesting', () => {
     });
     assert.equal(hasDeprecated, true, 'Deprecated property should have visual indicator');
   });
+
+  it('renders null marker on nullable array in schema-tree', async () => {
+    await loadHarness(page, baseUrl, {
+      spec: '/specs/03-schemas.yaml',
+      'render-style': 'read',
+      'schema-style': 'tree',
+      'default-schema-tab': 'schema',
+    });
+
+    const hasNullArrayMarker = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const resp = doc.shadowRoot.querySelector('api-response');
+      const tree = resp && resp.shadowRoot ? resp.shadowRoot.querySelector('schema-tree') : null;
+      if (!tree || !tree.shadowRoot) return false;
+      const text = tree.shadowRoot.textContent || '';
+      return text.includes('null┃[string]');
+    });
+    assert.equal(hasNullArrayMarker, true, 'schema-tree should render null┃[string] for nullable array');
+  });
+
+  it('renders null marker on nullable array in schema-table', async () => {
+    await loadHarness(page, baseUrl, {
+      spec: '/specs/03-schemas.yaml',
+      'render-style': 'read',
+      'schema-style': 'table',
+      'default-schema-tab': 'schema',
+    });
+
+    const hasNullArrayTable = await page.evaluate(() => {
+      const doc = document.getElementById('thedoc');
+      const resp = doc.shadowRoot.querySelector('api-response');
+      const table = resp && resp.shadowRoot ? resp.shadowRoot.querySelector('schema-table') : null;
+      if (!table || !table.shadowRoot) return false;
+      const text = table.shadowRoot.textContent || '';
+      return text.includes('[string] ┃ null');
+    });
+    assert.equal(hasNullArrayTable, true, 'schema-table should render [string] ┃ null for nullable array');
+  });
 });

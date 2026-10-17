@@ -2,11 +2,11 @@ import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
-import FontStyles from '~/styles/font-styles';
-import SchemaStyles from '~/styles/schema-styles';
-import BorderStyles from '~/styles/border-styles';
-import CustomStyles from '~/styles/custom-styles';
-import { hasMultilineDescription } from '~/utils/markdown-utils';
+import FontStyles from '../styles/font-styles.js';
+import SchemaStyles from '../styles/schema-styles.js';
+import BorderStyles from '../styles/border-styles.js';
+import CustomStyles from '../styles/custom-styles.js';
+import { hasMultilineDescription } from '../utils/markdown-utils.js';
 
 export default class SchemaTree extends LitElement {
   static get properties() {
@@ -167,16 +167,16 @@ export default class SchemaTree extends LitElement {
     const isExpanded = schemaLevel < this.schemaExpandLevel;
     const readWriteBadge = node.readOnly ? html` 🆁` : node.writeOnly ? html` 🆆` : '';
     const readWriteTip = node.readOnly ? 'Read-Only' : node.writeOnly ? 'Write-Only' : '';
+    const nullMarker = node.nullable ? 'null┃' : '';
+    const nullClass = node.nullable ? 'nullable' : '';
     const deprecatedIcon = node.deprecated
       ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
           <path d="M2 2L8 8M2 8L8 2" />
         </svg>`
       : '';
-    const nullClass = node.nullable ? 'nullable' : '';
 
     // 1. Array kind
     if (node.kind === 'array') {
-      const nullMarker = node.nullable ? 'null┃' : '';
       const items = node.items;
       if (!items) {
         return html`
@@ -294,10 +294,7 @@ export default class SchemaTree extends LitElement {
           : '';
 
         return html`
-          <div
-            class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}"
-            title="${node.deprecated ? 'Deprecated' : ''}"
-          >
+          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
               ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
@@ -339,8 +336,6 @@ export default class SchemaTree extends LitElement {
 
     // 2. Object kind
     if (node.kind === 'object') {
-      const nullClass = node.nullable ? 'nullable' : '';
-      const nullMarker = node.nullable ? 'null┃' : '';
       const openBracket = html`<span class="open-bracket object"
         >${nullMarker}<span class="open-bracket-expanded">{</span><span class="open-bracket-collapsed">{...}</span></span
       >`;
@@ -352,10 +347,7 @@ export default class SchemaTree extends LitElement {
         : '';
 
       return html`
-        <div
-          class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}"
-          title="${node.deprecated ? 'Deprecated' : ''}"
-        >
+        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
             ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
