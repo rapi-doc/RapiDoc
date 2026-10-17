@@ -139,6 +139,25 @@ const totalCategories = stylingData.parts.length;
           <span style="font-size: 12.5px; color: #94a3b8; font-family: monospace;">:host variables</span>
         </div>
 
+        <!-- Quick Link Banner to Advanced Schema Sizing & Thresholds -->
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; gap: 16px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; padding: 14px 20px; margin-bottom: 24px;"
+        >
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">📐</span>
+            <span style="font-size: 13.5px; color: #cbd5e1;">
+              Looking for <strong>Schema Model Sizing, Truncation Calculations & Container Queries</strong>?
+            </span>
+          </div>
+          <a
+            href="/docs/theming/css-parts/#schema-sizing-and-truncation"
+            style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #34d399; text-decoration: none; white-space: nowrap;"
+          >
+            <span>Advanced Schema Guide in Docs</span>
+            <IconArrowRight size={14} stroke={2.5} />
+          </a>
+        </div>
+
         <div id="variables-catalog-container" class="rd-catalog-grid">
           {
             stylingData.variables.map((cat) => (
@@ -174,7 +193,7 @@ const totalCategories = stylingData.parts.length;
                           <td class="col-default">
                             <span class="rd-default-badge">{item.default}</span>
                           </td>
-                          <td class="col-desc">{item.description}</td>
+                          <td class="col-desc"><Fragment set:html={item.description} /></td>
                         </tr>
                       ))}
                     </tbody>

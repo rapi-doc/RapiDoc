@@ -6,6 +6,24 @@ export default css`
   *:after {
     box-sizing: border-box;
   }
+  :host {
+    container-type: inline-size;
+    interpolate-size: allow-keywords;
+    --_desc-threshold-default: 75;
+    --_field-threshold-default: 48;
+  }
+  @container (max-width: 650px) {
+    :host {
+      --_desc-threshold-default: 45;
+      --_field-threshold-default: 32;
+    }
+  }
+  @container (min-width: 1200px) {
+    :host {
+      --_desc-threshold-default: 95;
+      --_field-threshold-default: 55;
+    }
+  }
   .tr {
     display: flex;
     flex: none;
@@ -13,6 +31,14 @@ export default css`
     box-sizing: content-box;
     border-bottom: 1px dotted transparent;
     transition: max-height 0.3s ease-out;
+  }
+  .tr.expanded-descr {
+    max-height: 3000px;
+  }
+  @supports (interpolate-size: allow-keywords) {
+    .tr.expanded-descr {
+      max-height: max-content;
+    }
   }
   .td {
     display: block;
@@ -39,6 +65,10 @@ export default css`
     transform: rotate(45deg);
     transition: transform 0.2s ease;
     margin-right: 4px;
+    border-radius: 2px;
+  }
+  .key-descr .descr-expand-toggle:focus-visible {
+    outline: 2px solid var(--primary);
   }
 
   .key-descr .m-markdown-small {

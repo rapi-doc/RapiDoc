@@ -2,6 +2,7 @@ import { LitElement, html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from 'marked';
 import { sanitizeHTML } from '../utils/sanitize.js';
+import { hasMultilineDescription } from '../utils/markdown-utils.js';
 
 export default class SchemaBaseElement extends LitElement {
   static get properties() {
@@ -14,6 +15,46 @@ export default class SchemaBaseElement extends LitElement {
       schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
       schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
     };
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(() => {
+        const { descThreshold, fieldNameThreshold } = this.getThresholds();
+        if (descThreshold !== this._lastDescThreshold || fieldNameThreshold !== this._lastFieldThreshold) {
+          this._lastDescThreshold = descThreshold;
+          this._lastFieldThreshold = fieldNameThreshold;
+          this.requestUpdate();
+        }
+      });
+      this._resizeObserver.observe(this);
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._resizeObserver?.disconnect();
+  }
+
+  getThresholds() {
+    if (typeof window === 'undefined' || typeof getComputedStyle === 'undefined') {
+      return { descThreshold: 75, fieldNameThreshold: 48 };
+    }
+    try {
+      const styles = getComputedStyle(this);
+      const descVal = styles.getPropertyValue('--schema-description-threshold')?.trim();
+      const defaultDesc = styles.getPropertyValue('--_desc-threshold-default')?.trim();
+      const descThreshold = parseInt(descVal || defaultDesc, 10) || 75;
+
+      const fieldVal = styles.getPropertyValue('--schema-field-name-threshold')?.trim();
+      const defaultField = styles.getPropertyValue('--_field-threshold-default')?.trim();
+      const fieldNameThreshold = parseInt(fieldVal || defaultField, 10) || 48;
+
+      return { descThreshold, fieldNameThreshold };
+    } catch {
+      return { descThreshold: 75, fieldNameThreshold: 48 };
+    }
   }
 
   willUpdate(changedProperties) {
@@ -49,12 +90,18 @@ export default class SchemaBaseElement extends LitElement {
     } else if (e.target.classList.contains('descr-expand-toggle')) {
       const trEl = e.target.closest('.tr');
       if (trEl) {
-        trEl.classList.toggle('expanded-descr');
-        if (trEl.classList.contains('expanded-descr')) {
-          trEl.style.maxHeight = `${trEl.scrollHeight}px`;
-        } else {
-          trEl.style.maxHeight = '';
-        }
+        const isExpanded = trEl.classList.toggle('expanded-descr');
+        e.target.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+      }
+    }
+  }
+
+  handleKeyDown(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const toggleTrigger = e.target.closest('.open-bracket, .obj-toggle, .descr-expand-toggle, .schema-multiline-toggle');
+      if (toggleTrigger) {
+        e.preventDefault();
+        toggleTrigger.click();
       }
     }
   }
@@ -64,10 +111,15 @@ export default class SchemaBaseElement extends LitElement {
     if (!rowEl) {
       return;
     }
-    if (rowEl.classList.contains('expanded')) {
-      rowEl.classList.replace('expanded', 'collapsed');
-    } else {
+    const isExpanding = rowEl.classList.contains('collapsed');
+    if (isExpanding) {
       rowEl.classList.replace('collapsed', 'expanded');
+    } else {
+      rowEl.classList.replace('expanded', 'collapsed');
+    }
+    const toggleEl = rowEl.querySelector('.open-bracket, .obj-toggle');
+    if (toggleEl) {
+      toggleEl.setAttribute('aria-expanded', isExpanding ? 'true' : 'false');
     }
   }
 
@@ -136,9 +188,28 @@ export default class SchemaBaseElement extends LitElement {
     return html`${unsafeHTML(sanitizeHTML(marked(text)))}`;
   }
 
+  isDescriptionExpandable(desc, hasChips = false, extraDesc = '', fieldName = '') {
+    if (hasChips) {
+      return true;
+    }
+    const { descThreshold, fieldNameThreshold } = this.getThresholds();
+    if (fieldName && typeof fieldName === 'string' && fieldName.trim().length > fieldNameThreshold) {
+      return true;
+    }
+    const check = (d) => Boolean(d && typeof d === 'string' && (hasMultilineDescription(d) || d.trim().length > descThreshold));
+    return check(desc) || check(extraDesc);
+  }
+
   renderDescrExpander(hasText, hasExtra) {
     return hasText && hasExtra
-      ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
+      ? html`<span
+          class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}"
+          role="button"
+          tabindex="0"
+          aria-label="Toggle description"
+          aria-expanded="${this.schemaDescriptionExpanded === 'true' ? 'true' : 'false'}"
+          >➔</span
+        >`
       : '';
   }
 

@@ -3,7 +3,6 @@ import FontStyles from '../styles/font-styles.js';
 import SchemaStyles from '../styles/schema-styles.js';
 import BorderStyles from '../styles/border-styles.js';
 import CustomStyles from '../styles/custom-styles.js';
-import { hasMultilineDescription } from '../utils/markdown-utils.js';
 import SchemaBaseElement from './schema-base-element.js';
 
 export default class SchemaTree extends SchemaBaseElement {
@@ -25,6 +24,11 @@ export default class SchemaTree extends SchemaBaseElement {
         .collapsed-all-descr .tr:not(.expanded-descr) {
           overflow: hidden;
           max-height: calc(var(--font-size-small) + 8px);
+        }
+        .collapsed-all-descr .tr:not(.expanded-descr) .key {
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
         .tree .tr.expanded-descr {
           max-height: none;
@@ -55,6 +59,10 @@ export default class SchemaTree extends SchemaBaseElement {
           color: var(--primary);
           background: var(--muted);
           border: 1px solid var(--border);
+        }
+        .open-bracket:focus-visible {
+          outline: 2px solid var(--primary);
+          border-color: var(--primary);
         }
         .close-bracket {
           display: inline-block;
@@ -95,6 +103,7 @@ export default class SchemaTree extends SchemaBaseElement {
     return html` <div
       class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}"
       @click="${(e) => this.handleAllEvents(e)}"
+      @keydown="${(e) => this.handleKeyDown(e)}"
     >
       ${this.renderToolbar(rootType)}
       <span part="schema-description" class="m-markdown"> ${this.renderDescriptionHtml(rootDescription)}</span>
@@ -115,16 +124,19 @@ export default class SchemaTree extends SchemaBaseElement {
     const nullMarker = node.nullable ? 'null┃' : '';
     const nullClass = node.nullable ? 'nullable' : '';
     const deprecatedIcon = this.renderDeprecatedIcon(node);
+    const { fieldNameThreshold } = this.getThresholds();
+    const isLongName = Boolean(node.name && typeof node.name === 'string' && node.name.length > fieldNameThreshold);
 
     // 1. Array kind
     if (node.kind === 'array') {
       const items = node.items;
       if (!items) {
+        const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
         return html`
           <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               <span class="open-bracket array">${nullMarker}[ ]</span>
             </div>
             <div class="td key-descr m-markdown-small">${this.renderDescriptionHtml(node.description || '')}</div>
@@ -136,17 +148,18 @@ export default class SchemaTree extends SchemaBaseElement {
       if (items.kind === 'primitive') {
         const itemType = items.format || items.contentMediaType || items.type || 'string';
         const dataTypeCss = this.getDataTypeCss(itemType);
-        const hasText = !!(node.description || items.description);
+        const hasText = !!(node.description || items.description || isLongName);
         const hasItemChips = this.hasDetailChips(items);
-        const hasExtra = hasItemChips || hasMultilineDescription(node.description) || hasMultilineDescription(items.description);
+        const hasExtra = this.isDescriptionExpandable(node.description, hasItemChips, items.description, node.name);
         const descrExpander = this.renderDescrExpander(hasText, hasExtra);
         const detailChips = this.renderDetailChips(items);
+        const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
         return html`
           <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}:</span>` : ''}
+              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}:</span>` : ''}
               <span class="${dataTypeCss}" title="${readWriteTip}">${nullMarker}[${itemType}]${readWriteBadge}</span>
             </div>
             <div class="td key-descr">
@@ -165,13 +178,20 @@ export default class SchemaTree extends SchemaBaseElement {
 
       // If array of objects
       if (items.kind === 'object') {
-        const openBracket = html`<span class="open-bracket array-of-object"
+        const openBracket = html`<span
+          class="open-bracket array-of-object"
+          role="button"
+          tabindex="0"
+          aria-label="Toggle ${node.name || 'object'}"
+          aria-expanded="${isExpanded ? 'true' : 'false'}"
           >${nullMarker}<span class="open-bracket-expanded">[{</span><span class="open-bracket-collapsed">[{...}]</span></span
         >`;
         const closeBracket = '}]';
 
-        const hasExtra = hasMultilineDescription(node.description);
-        const descrExpander = this.renderDescrExpander(!!node.description, hasExtra);
+        const hasText = !!(node.description || items.description || isLongName);
+        const hasExtra = this.isDescriptionExpandable(node.description, false, items.description, node.name);
+        const descrExpander = this.renderDescrExpander(hasText, hasExtra);
+        const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
         return html`
           <div
@@ -180,7 +200,7 @@ export default class SchemaTree extends SchemaBaseElement {
           >
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               ${openBracket}
             </div>
             <div class="td key-descr m-markdown-small">
@@ -200,19 +220,27 @@ export default class SchemaTree extends SchemaBaseElement {
       // If array of arrays
       if (items.kind === 'array') {
         const arrType = node.arrayType !== 'object' ? node.arrayType : '';
-        const openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}"
+        const openBracket = html`<span
+          class="open-bracket array-of-array"
+          data-array-type="${arrType}"
+          role="button"
+          tabindex="0"
+          aria-label="Toggle ${node.name || 'array'}"
+          aria-expanded="${isExpanded ? 'true' : 'false'}"
           >${nullMarker}<span class="open-bracket-expanded">[[ ${arrType} </span><span class="open-bracket-collapsed">[[...]]</span></span
         >`;
         const closeBracket = ']]';
 
-        const hasExtra = hasMultilineDescription(node.description);
-        const descrExpander = this.renderDescrExpander(!!node.description, hasExtra);
+        const hasText = !!(node.description || items?.description || isLongName);
+        const hasExtra = this.isDescriptionExpandable(node.description, false, items?.description, node.name);
+        const descrExpander = this.renderDescrExpander(hasText, hasExtra);
+        const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
         return html`
           <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               ${openBracket}
             </div>
             <div class="td key-descr m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</div>
@@ -225,15 +253,21 @@ export default class SchemaTree extends SchemaBaseElement {
       }
 
       // If array of unions or others
-      const hasText = !!node.description;
-      const hasExtra = hasMultilineDescription(node.description);
+      const hasText = !!(node.description || isLongName);
+      const hasExtra = this.isDescriptionExpandable(node.description, false, '', node.name);
       const descrExpander = this.renderDescrExpander(hasText, hasExtra);
+      const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
       return html`
         <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
-            ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
-            <span class="open-bracket array"
+            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+            <span
+              class="open-bracket array"
+              role="button"
+              tabindex="0"
+              aria-label="Toggle ${node.name || 'array'}"
+              aria-expanded="${isExpanded ? 'true' : 'false'}"
               >${nullMarker}<span class="open-bracket-expanded">[</span><span class="open-bracket-collapsed">[...]</span></span
             >
           </div>
@@ -248,19 +282,26 @@ export default class SchemaTree extends SchemaBaseElement {
 
     // 2. Object kind
     if (node.kind === 'object') {
-      const openBracket = html`<span class="open-bracket object"
+      const openBracket = html`<span
+        class="open-bracket object"
+        role="button"
+        tabindex="0"
+        aria-label="Toggle ${node.name || 'object'}"
+        aria-expanded="${isExpanded ? 'true' : 'false'}"
         >${nullMarker}<span class="open-bracket-expanded">{</span><span class="open-bracket-collapsed">{...}</span></span
       >`;
       const closeBracket = '}';
 
-      const hasExtra = hasMultilineDescription(node.description);
-      const descrExpander = this.renderDescrExpander(!!node.description, hasExtra);
+      const hasText = !!(node.description || isLongName);
+      const hasExtra = this.isDescriptionExpandable(node.description, false, '', node.name);
+      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
+      const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
       return html`
         <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
-            ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
             ${openBracket}
           </div>
           <div class="td key-descr m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</div>
@@ -280,7 +321,7 @@ export default class SchemaTree extends SchemaBaseElement {
       const opLabel = (node.operator === 'anyOf' ? 'ANY OF' : 'ONE OF') + (node.suffix ? ` ${node.suffix}` : '');
       const newIndent = parentType === 'xxx-of-option' ? indentLevel : indentLevel + 1;
       const hasText = !!node.description;
-      const hasExtra = hasMultilineDescription(node.description);
+      const hasExtra = this.isDescriptionExpandable(node.description);
       const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       return html`
@@ -312,17 +353,18 @@ export default class SchemaTree extends SchemaBaseElement {
     // 4. Primitive kind
     if (node.kind === 'primitive') {
       const dataTypeCss = this.getDataTypeCss(node.type);
-      const hasText = !!(node.description || node.title);
+      const hasText = !!(node.description || node.title || isLongName);
       const hasDetailChips = this.hasDetailChips(node);
-      const hasExtra = hasDetailChips || hasMultilineDescription(node.description);
+      const hasExtra = this.isDescriptionExpandable(node.description, hasDetailChips, '', node.name);
       const descrExpander = this.renderDescrExpander(hasText, hasExtra);
       const detailChips = this.renderDetailChips(node);
+      const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
       return html`
         <div class="tr primitive" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
-            ${node.name ? html`<span class="key-label">${node.name}${node.required ? html`<span style="color:var(--red);">*</span>` : ''}:</span>` : ''}
+            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red);">*</span>` : ''}:</span>` : ''}
             <span class="${dataTypeCss}" title="${readWriteTip}">
               ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}
             </span>

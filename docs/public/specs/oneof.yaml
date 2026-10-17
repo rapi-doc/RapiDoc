@@ -12,14 +12,14 @@ paths:
       summary: Schema defined using one-of
       operationId: empDetails
       responses:
-        "200":
+        '200':
           description: Checkout the model tab to view object schemas defined using one-of
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/employee"
+                  $ref: '#/components/schemas/employee'
   /one-of/schema:
     get:
       tags:
@@ -27,7 +27,7 @@ paths:
       summary: ONE-OF schema example generation test
       operationId: empDetails
       responses:
-        "200":
+        '200':
           description: Should generate 2 examples one with each option and the properties
           content:
             application/json:
@@ -56,7 +56,7 @@ paths:
       summary: ONE-OF schema example generation test but with senseless options
       operationId: empDetails
       responses:
-        "200":
+        '200':
           description: Should only generate examples for options that are objects
           content:
             application/json:
@@ -87,7 +87,7 @@ paths:
       summary: ONE-OF schema example generation with object and primitives at the root level (no common properties)
       operationId: empDetails
       responses:
-        "200":
+        '200':
           description: Should generate examples for both the object and primitive options, but not for null
           content:
             application/json:
@@ -118,11 +118,16 @@ components:
         id:
           type: string
           description: Employee ID
+        primaryCorporateEntityRegistrationIdentificationNumber:
+          type: string
+          description: Global corporate entity registration and compliance identification code
+        internalCorporateAdministrativeTaxIdentifier:
+          type: string
         employee:
           description: Employee Details (Worker or Manager)
           oneOf:
-            - $ref: "#/components/schemas/manager"
-            - $ref: "#/components/schemas/worker"
+            - $ref: '#/components/schemas/manager'
+            - $ref: '#/components/schemas/worker'
     manager:
       title: Manager
       type: object
@@ -131,13 +136,16 @@ components:
         name:
           type: string
           description: Name of employee
+        departmentExecutiveLeadershipPortfolioIdentifier:
+          type: string
+          description: Unique organization-wide executive portfolio identifier for management operations
         directReports:
           type: integer
           description: Count of direct reports
         managePower:
           oneOf:
-            - $ref: "#/components/schemas/peopleManager"
-            - $ref: "#/components/schemas/costManager"
+            - $ref: '#/components/schemas/peopleManager'
+            - $ref: '#/components/schemas/costManager'
     worker:
       title: Worker
       type: object

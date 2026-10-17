@@ -2,7 +2,6 @@ import { html, css } from 'lit';
 import FontStyles from '../styles/font-styles.js';
 import SchemaStyles from '../styles/schema-styles.js';
 import CustomStyles from '../styles/custom-styles.js';
-import { hasMultilineDescription } from '../utils/markdown-utils.js';
 import SchemaBaseElement from './schema-base-element.js';
 
 export default class SchemaTable extends SchemaBaseElement {
@@ -16,6 +15,22 @@ export default class SchemaTable extends SchemaBaseElement {
           text-align: left;
           line-height: calc(var(--font-size-small) + 6px);
         }
+        .table-container {
+          border: 1px solid var(--border);
+          overflow-x: auto;
+          max-width: 100%;
+        }
+        .table-header {
+          display: flex;
+          background: var(--card);
+          padding: 8px 4px;
+          border-bottom: 1px solid var(--border);
+        }
+        .table-header .td {
+          font-family: var(--font-regular);
+          font-weight: bold;
+          color: var(--foreground);
+        }
         .table .tr {
           width: calc(100% - 5px);
           padding: 0 0 0 5px;
@@ -28,6 +43,7 @@ export default class SchemaTable extends SchemaBaseElement {
           width: var(--table-schema-key-width, 240px);
           text-overflow: var(--table-schema-key-text-overflow, ellipsis);
           white-space: var(--table-schema-key-whitespace, nowrap);
+          overflow: hidden;
         }
         .key .key-label {
           font-size: var(--font-size-mono);
@@ -42,28 +58,37 @@ export default class SchemaTable extends SchemaBaseElement {
         }
         .collapsed-all-descr .tr:not(.expanded-descr) {
           overflow: hidden;
-          max-height: calc(var(--font-size-small) + var(--font-size-small));
-        }
-        .table .tr.expanded-descr {
-          max-height: none;
+          max-height: calc(var(--font-size-small) + 16px);
         }
 
         .obj-toggle {
-          padding: 0 2px;
-          border-radius: 2px;
+          background: transparent;
           border: 1px solid transparent;
-          display: inline-block;
+          padding: 0;
+          border-radius: 2px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           margin-left: -16px;
+          margin-top: -2px;
           color: var(--primary);
           cursor: pointer;
-          font-size: calc(var(--font-size-small) + 4px);
+          font-size: 14px;
           font-family: var(--font-mono);
-          background-clip: border-box;
+          line-height: 12px;
+          width: 14px;
+          height: 14px;
           min-width: 14px;
           text-align: center;
           user-select: none;
+          box-sizing: border-box;
+          vertical-align: middle;
         }
         .obj-toggle:hover {
+          border-color: var(--primary);
+        }
+        .obj-toggle:focus-visible {
+          outline: 2px solid var(--primary);
           border-color: var(--primary);
         }
         .tr.expanded .obj-toggle::after {
@@ -77,6 +102,43 @@ export default class SchemaTable extends SchemaBaseElement {
         }
         .tr.collapsed + .object-body {
           display: none;
+        }
+
+        @supports (grid-template-columns: subgrid) {
+          .table-container {
+            display: grid;
+            grid-template-columns: minmax(var(--table-schema-key-width, 240px), auto) minmax(150px, auto) 1fr;
+          }
+          .table-header,
+          .table .tr {
+            display: grid;
+            grid-column: 1 / -1;
+            grid-template-columns: subgrid;
+            width: 100%;
+            padding: 0 4px;
+            box-sizing: border-box;
+          }
+          .table-header .key,
+          .table .tr .key {
+            width: auto;
+          }
+          .table-header .key-type,
+          .table .tr .key-type {
+            width: auto;
+          }
+          .table-header .key-descr,
+          .table .tr .key-descr {
+            min-width: 0;
+          }
+          .table .object-body {
+            display: contents;
+          }
+          .table .tr.collapsed + .object-body {
+            display: none;
+          }
+          .table .tr.expanded + .object-body {
+            display: contents;
+          }
         }
       `,
       CustomStyles,
@@ -95,14 +157,15 @@ export default class SchemaTable extends SchemaBaseElement {
       <div
         class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}"
         @click="${(e) => this.handleAllEvents(e)}"
+        @keydown="${(e) => this.handleKeyDown(e)}"
       >
         ${this.renderToolbar(rootType)}
         <span part="schema-description" class="m-markdown"> ${this.renderDescriptionHtml(rootDescription)} </span>
-        <div style="border:1px solid var(--border)">
-          <div style="display:flex; background: var(--card); padding:8px 4px; border-bottom:1px solid var(--border);">
-            <div class="key" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Field</div>
-            <div class="key-type" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Type</div>
-            <div class="key-descr" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Description</div>
+        <div class="table-container">
+          <div class="tr table-header">
+            <div class="td key">Field</div>
+            <div class="td key-type">Type</div>
+            <div class="td key-descr">Description</div>
           </div>
           ${this.renderAST(this.data)}
         </div>
@@ -127,13 +190,13 @@ export default class SchemaTable extends SchemaBaseElement {
       const items = node.items;
       if (!items) {
         const hasText = !!node.description;
-        const hasExtra = hasMultilineDescription(node.description);
+        const hasExtra = this.isDescriptionExpandable(node.description);
         const descrExpander = this.renderDescrExpander(hasText, hasExtra);
         const typeLabel = node.dataTypeLabel || (node.nullable ? 'array ┃ null' : 'array');
         return html`
           <div class="tr array ${nullClass}" data-obj="${node.name || ''}">
             <div class="td key" style="padding-left:${leftPadding}px">
-              <span class="key-label">${deprecatedIcon}${node.name || ''}</span>
+              <span class="key-label" title="${node.name || ''}">${deprecatedIcon}${node.name || ''}</span>
               ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
             </div>
             <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
@@ -149,14 +212,14 @@ export default class SchemaTable extends SchemaBaseElement {
         const dataTypeCss = this.getDataTypeCss(itemType);
         const hasText = !!(node.description || items.description);
         const hasItemChips = this.hasDetailChips(items);
-        const hasExtra = hasItemChips || hasMultilineDescription(node.description) || hasMultilineDescription(items.description);
+        const hasExtra = this.isDescriptionExpandable(node.description, hasItemChips, items.description);
         const descrExpander = this.renderDescrExpander(hasText, hasExtra);
         const detailChips = this.renderDetailChips(items);
 
         return html`
           <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-              ${deprecatedIcon} ${node.name ? html`<span class="key-label">${node.name}</span>` : ''}
+              ${deprecatedIcon} ${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
               ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
             </div>
             <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">
@@ -189,7 +252,7 @@ export default class SchemaTable extends SchemaBaseElement {
       }
 
       const hasText = !!(node.description || items.description);
-      const hasExtra = hasMultilineDescription(node.description) || hasMultilineDescription(items.description);
+      const hasExtra = this.isDescriptionExpandable(node.description, false, items.description);
       const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       const hasChildren =
@@ -209,8 +272,18 @@ export default class SchemaTable extends SchemaBaseElement {
           title="${node.deprecated ? `Deprecated ${node.name}` : node.name || ''}"
         >
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-            ${node.name && hasChildren ? html`<span class="obj-toggle" data-obj="${node.name}"></span>` : ''}
-            <span class="key-label" style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}">
+            ${
+              node.name && hasChildren
+                ? html`<button
+                    type="button"
+                    class="obj-toggle"
+                    data-obj="${node.name}"
+                    aria-label="Toggle ${node.name}"
+                    aria-expanded="${isExpanded ? 'true' : 'false'}"
+                  ></button>`
+                : ''
+            }
+            <span class="key-label" title="${node.name || ''}" style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}">
               ${deprecatedIcon}${node.name || ''}
             </span>
             ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
@@ -251,7 +324,7 @@ export default class SchemaTable extends SchemaBaseElement {
     if (node.kind === 'object') {
       const typeLabel = node.dataTypeLabel || (node.nullable ? 'object ┃ null' : 'object');
       const hasText = !!node.description;
-      const hasExtra = hasMultilineDescription(node.description);
+      const hasExtra = this.isDescriptionExpandable(node.description);
       const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       const hasChildren = !!(
@@ -271,8 +344,22 @@ export default class SchemaTable extends SchemaBaseElement {
                   title="${node.deprecated ? `Deprecated ${node.name}` : node.name}"
                 >
                   <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-                    ${hasChildren ? html`<span class="obj-toggle" data-obj="${node.name}"></span>` : ''}
-                    <span class="key-label" style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}">
+                    ${
+                      hasChildren
+                        ? html`<button
+                            type="button"
+                            class="obj-toggle"
+                            data-obj="${node.name}"
+                            aria-label="Toggle ${node.name}"
+                            aria-expanded="${isExpanded ? 'true' : 'false'}"
+                          ></button>`
+                        : ''
+                    }
+                    <span
+                      class="key-label"
+                      title="${node.name || ''}"
+                      style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}"
+                    >
                       ${deprecatedIcon}${node.name}
                     </span>
                     ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
@@ -304,7 +391,7 @@ export default class SchemaTable extends SchemaBaseElement {
     if (node.kind === 'union') {
       const opLabel = (node.operator === 'anyOf' ? 'ANY OF' : 'ONE OF') + (node.suffix ? ` ${node.suffix}` : '');
       const hasText = !!node.description;
-      const hasExtra = hasMultilineDescription(node.description);
+      const hasExtra = this.isDescriptionExpandable(node.description);
       const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       return html`
@@ -341,14 +428,14 @@ export default class SchemaTable extends SchemaBaseElement {
       const dataTypeCss = this.getDataTypeCss(node.type);
       const hasText = !!(node.description || node.title);
       const hasDetailChips = this.hasDetailChips(node);
-      const hasExtra = hasDetailChips || hasMultilineDescription(node.description);
+      const hasExtra = this.isDescriptionExpandable(node.description, hasDetailChips);
       const descrExpander = this.renderDescrExpander(hasText, hasExtra);
       const detailChips = this.renderDetailChips(node);
 
       return html`
         <div class="tr primitive ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-            ${deprecatedIcon} ${node.name ? html`<span class="key-label">${node.name}</span>` : ''}
+            ${deprecatedIcon} ${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
             ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
           </div>
           <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">

@@ -157,3 +157,75 @@ rapi-doc::part(label-selected-server) {
   `radius`, `scale`), and reserving `::part()` for high-impact visual customizations such as gradients, backdrop filters, and custom
   container borders.
 </Aside>
+
+---
+
+<a id="schema-sizing-and-truncation"></a>
+
+## 5. Schema Sizing, Truncation & Threshold Calculations
+
+RapiDoc automatically calculates when to truncate property keys and when to display description row expanders (`➔`). Because `<rapi-doc>` offers both **Tree mode** and **Table mode**, the truncation and expander mechanics differ to suit each layout's geometric constraints.
+
+### Layout Architectural Differences
+
+<Tabs>
+  <TabItem label="Tree Mode Structure">
+    In **Tree mode**, property names, data types, constraints, and descriptions are displayed in a continuous, hierarchically indented horizontal line:
+
+    <div style="margin: 16px 0; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1);">
+      <img src="/assets/images/schema-tree-mode.png" alt="RapiDoc Schema Tree Mode Structure" style="width: 100%; display: block;" />
+    </div>
+
+    - **Field Column**: Has a dynamic minimum column width (`min-width: calc(400px - indent)`).
+    - **Long Property Names**: When a property name exceeds `--schema-field-name-threshold` (default: `48` characters on desktop), it is truncated with a clean ellipsis (`text-overflow: ellipsis`) and a native hover tooltip (`title="..."`) is provided.
+    - **Dual-Purpose Row Expander (`➔`)**: The row expander button unwraps the entire row. It appears whenever **either**:
+      1. The **field name** exceeds `--schema-field-name-threshold` (revealing the full property name and its `: type` on click), **OR**
+      2. The **description** is multiline, has metadata constraint chips, or exceeds `--schema-description-threshold`.
+  </TabItem>
+  <TabItem label="Table Mode Structure">
+    In **Table mode**, the schema is formatted into a strict 3-column CSS subgrid:
+
+    <div style="margin: 16px 0; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1);">
+      <img src="/assets/images/schema-table-mode.png" alt="RapiDoc Schema Table Mode Structure" style="width: 100%; display: block;" />
+    </div>
+
+    - **Field Column (`.key`)**: Dedicated column with a width controlled by `--table-schema-key-width` (default: `240px`). Long property names truncate with an ellipsis and show full text via hover tooltips (`title="..."`).
+    - **Type Column (`.key-type`)**: Fixed minimum column (~150px) displaying data types and nullability badges.
+    - **Description Column (`.key-descr`)**: Flexible `1fr` column spanning the remaining container width.
+    - **Single-Purpose Expander (`➔`)**: The expander button lives exclusively inside the **Description column**. It toggles the description text and chips between 1-line clamped and full multiline view. It depends **only** on `--schema-description-threshold` and multiline/chips—field name length does not affect it.
+  </TabItem>
+</Tabs>
+
+### Threshold Matrix & Calculation Rules
+
+| Schema Layout | Expander Trigger Conditions | Active Custom Properties | Native Hover Tooltip |
+| :--- | :--- | :--- | :--- |
+| **Tree Mode** (`<schema-tree>`) | `desc.length > descThreshold`<br/>**OR** `hasMultiline` / `hasChips`<br/>**OR** `fieldName.length > fieldNameThreshold` | `--schema-description-threshold`<br/>`--schema-field-name-threshold` | Yes (`title` on `.key-label`) |
+| **Table Mode** (`<schema-table>`) | `desc.length > descThreshold`<br/>**OR** `hasMultiline` / `hasChips` | `--schema-description-threshold`<br/>*(Field column width set by `--table-schema-key-width`)* | Yes (`title` on `.key-label`) |
+
+### Dynamic CSS Container Queries (`@container`)
+
+Instead of static, rigid character counts, RapiDoc uses CSS Container Queries (`@container`) on the component's `:host` (`container-type: inline-size`). A zero-overhead `ResizeObserver` recalculates the thresholds only when a container query breakpoint is crossed, adapting seamlessly when embedded in split-panes, sidebars, or responsive containers:
+
+| Container Width | `--schema-description-threshold` | `--schema-field-name-threshold` | Typical Context |
+| :--- | :---: | :---: | :--- |
+| **Compact / Split-Pane** (`< 650px`) | `45` | `32` | Mobile devices, documentation sidebars, narrow modal dialogs |
+| **Default / Laptop** (`650px – 1199px`) | `75` | `48` | Standard laptop displays, half-screen browser windows |
+| **Wide / Desktop** (`≥ 1200px`) | `95` | `55` | Full-width monitors, ultra-wide desktop documentation portals |
+
+### Customizing Thresholds via CSS
+
+You can override these calculations globally or per-container without altering HTML attributes:
+
+```css
+rapi-doc {
+  /* Increase threshold to let longer descriptions remain single-line */
+  --schema-description-threshold: 90;
+
+  /* Allow longer field names in Tree mode before truncating with an ellipsis */
+  --schema-field-name-threshold: 60;
+
+  /* Allocate more width for property names in Table mode */
+  --table-schema-key-width: 300px;
+}
+```

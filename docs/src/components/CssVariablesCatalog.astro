@@ -41,7 +41,7 @@ const categories = category
                   <code class="default-pill">{item.default}</code>
                 </td>
                 <td class="col-desc">
-                  {item.description}
+                  <Fragment set:html={item.description} />
                 </td>
               </tr>
             ))}
@@ -138,6 +138,16 @@ const categories = category
   width: 40%;
   min-width: 240px;
   color: #cbd5e1;
+}
+
+.col-desc a {
+  color: #38bdf8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.col-desc a:hover {
+  color: #7dd3fc;
 }
 
 .var-pill {

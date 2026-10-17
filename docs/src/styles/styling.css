@@ -763,6 +763,14 @@
   color: #cbd5e1;
   line-height: 1.55;
 }
+.col-desc a {
+  color: #38bdf8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.col-desc a:hover {
+  color: #7dd3fc;
+}
 
 /* Copyable Pills */
 .rd-copy-pill {
