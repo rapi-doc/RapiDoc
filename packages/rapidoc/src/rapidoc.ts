@@ -189,6 +189,9 @@ export default class RapiDoc extends LitElement {
   // Startup
   connectedCallback() {
     super.connectedCallback();
+    if (this.shadowRoot && this.shadowRoot.querySelector('.main-content')) {
+      this._hasDsd = true;
+    }
     const parent = this.parentElement;
     if (parent) {
       if (parent.offsetWidth === 0 && parent.style.width === '') {
@@ -432,6 +435,21 @@ export default class RapiDoc extends LitElement {
       },
       true
     );
+
+    // Auto-hydrate from inlined spec or spec-url attribute if not already loaded
+    if (!this.resolvedSpec) {
+      const inlinedSpecEl = this.querySelector('script[type="application/json"][slot="rapidoc-spec"]');
+      if (inlinedSpecEl?.textContent) {
+        try {
+          const parsed = JSON.parse(inlinedSpecEl.textContent);
+          this.loadSpec(parsed);
+        } catch {
+          // ignore parse error
+        }
+      } else if (this.getAttribute('spec-url')) {
+        this.loadSpec(this.getAttribute('spec-url'));
+      }
+    }
   }
 
   // Cleanup
@@ -475,7 +493,22 @@ export default class RapiDoc extends LitElement {
     }
   }
 
+  _clearDsdIfNeeded() {
+    if (this._hasDsd && this.shadowRoot) {
+      this.shadowRoot.replaceChildren();
+      if (this.renderOptions) {
+        delete this.renderOptions.renderBefore;
+      }
+      this._hasDsd = false;
+    }
+  }
+
   render() {
+    if (this._hasDsd && !this.resolvedSpec) {
+      return noChange;
+    }
+    this._clearDsdIfNeeded();
+
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
     const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
     // adding custom style for RapiDoc
@@ -736,12 +769,14 @@ export default class RapiDoc extends LitElement {
     }
     this.searchVal = '';
     try {
-      this.resolvedSpec = {
-        specLoadError: false,
-        isSpecLoading: true,
-        tags: [],
-      };
-      this.loading = true;
+      if (!this._hasDsd) {
+        this.resolvedSpec = {
+          specLoadError: false,
+          isSpecLoading: true,
+          tags: [],
+        };
+        this.loading = true;
+      }
       this.loadFailed = false;
       const spec = await ProcessSpec.call(
         this,
@@ -762,6 +797,7 @@ export default class RapiDoc extends LitElement {
       this.afterSpecParsedAndValidated(spec);
     } catch (err) {
       this.loading = false;
+      this._clearDsdIfNeeded();
       this.loadFailed = true;
       this.resolvedSpec = null;
       console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`);
@@ -769,6 +805,7 @@ export default class RapiDoc extends LitElement {
   }
 
   async afterSpecParsedAndValidated(spec) {
+    this._clearDsdIfNeeded();
     this.resolvedSpec = spec;
     this.selectedServer = undefined;
     if (this.defaultApiServerUrl) {

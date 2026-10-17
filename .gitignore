@@ -4,6 +4,7 @@ node_modules
 dist/
 docs/dist/
 stats.html
+prerender-demo.html
 
 # local env files
 .env.local

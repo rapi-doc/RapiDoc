@@ -112,6 +112,9 @@ export default class ApiResponse extends LitElement {
     }
     // Parse response definitions, headers, examples, and AST schemas when responses change
     if (changedProperties.has('responses') || changedProperties.has('callback') || changedProperties.has('webhook')) {
+      if (!this.responses || typeof this.responses !== 'object') {
+        return;
+      }
       const defs = prepareResponseDefinitions(this.responses, {
         callback: this.callback,
         webhook: this.webhook,
@@ -121,7 +124,7 @@ export default class ApiResponse extends LitElement {
       this.defaultStatus = defs.defaultStatus;
       this.defaultMimeType = defs.defaultMimeType;
       // Default to primary status code (e.g. '200') if none is currently selected or if the old status doesn't exist on this response
-      if (!this.selectedStatus || !this.responses[this.selectedStatus]) {
+      if (!this.selectedStatus || !this.responses?.[this.selectedStatus]) {
         this.selectedStatus = defs.defaultStatus;
       }
       if (!this.selectedMimeType) {

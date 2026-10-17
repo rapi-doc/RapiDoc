@@ -5,19 +5,26 @@ import { fileURLToPath } from 'node:url';
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
+    let target = specifier;
+    if (specifier === '~') {
+      target = fileURLToPath(new URL('../packages/rapidoc/src/index.js', import.meta.url));
+    } else if (specifier.startsWith('~/')) {
+      target = fileURLToPath(new URL('../packages/rapidoc/src/' + specifier.slice(2), import.meta.url));
+    }
+
     try {
-      return nextResolve(specifier, context);
+      return nextResolve(target, context);
     } catch (err) {
-      if (specifier.endsWith('.js')) {
+      if (target.endsWith('.js')) {
         try {
-          return nextResolve(specifier.slice(0, -3) + '.ts', context);
+          return nextResolve(target.slice(0, -3) + '.ts', context);
         } catch {}
       } else {
         try {
-          return nextResolve(specifier + '.ts', context);
+          return nextResolve(target + '.ts', context);
         } catch {}
         try {
-          return nextResolve(specifier + '.js', context);
+          return nextResolve(target + '.js', context);
         } catch {}
       }
       throw err;

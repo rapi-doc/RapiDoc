@@ -20,6 +20,7 @@
     "format-fix": "prettier --config .prettierrc --write './packages/**/*.{js,ts,html,css}' './docs/src/**/*.{js,ts,html,css}'",
     "analyze": "npm run analyze --workspace=rapidoc",
     "publish:rapidoc": "npm publish --workspace=rapidoc",
+    "prerender:demo": "node --import ./scripts/test-loader.mjs scripts/prerender-demo.mjs",
     "test:parser": "node tests/perf/benchmark.js",
     "test:perf": "node tests/perf/render-benchmark.js",
     "test:component": "node --import ./scripts/test-loader.mjs --test tests/component/*.test.js",

@@ -35,8 +35,19 @@
   "type": "module",
   "main": "dist/rapidoc-min.js",
   "module": "dist/rapidoc-min.js",
+  "exports": {
+    ".": {
+      "browser": "./dist/rapidoc-min.js",
+      "default": "./dist/rapidoc-min.js"
+    },
+    "./static": {
+      "import": "./src/static/index.js",
+      "types": "./src/static/index.d.ts"
+    }
+  },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "build": "vite build",
