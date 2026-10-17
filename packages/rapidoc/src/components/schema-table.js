@@ -1,49 +1,11 @@
-import { LitElement, html, css } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { marked } from 'marked';
-import { sanitizeHTML } from '../utils/sanitize.js';
+import { html, css } from 'lit';
 import FontStyles from '../styles/font-styles.js';
 import SchemaStyles from '../styles/schema-styles.js';
 import CustomStyles from '../styles/custom-styles.js';
 import { hasMultilineDescription } from '../utils/markdown-utils.js';
+import SchemaBaseElement from './schema-base-element.js';
 
-export default class SchemaTable extends LitElement {
-  static get properties() {
-    return {
-      config: { type: Object },
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
-      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
-      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
-      data: { type: Object },
-    };
-  }
-
-  willUpdate(changedProperties) {
-    super.willUpdate?.(changedProperties);
-    if (this.config && changedProperties.has('config')) {
-      if (this.config.schemaExpandLevel !== undefined) this.schemaExpandLevel = this.config.schemaExpandLevel;
-      if (this.config.schemaDescriptionExpanded !== undefined) this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
-      if (this.config.allowSchemaDescriptionExpandToggle !== undefined)
-        this.allowSchemaDescriptionExpandToggle = this.config.allowSchemaDescriptionExpandToggle;
-      if (this.config.schemaHideReadOnly !== undefined) this.schemaHideReadOnly = this.config.schemaHideReadOnly;
-      if (this.config.schemaHideWriteOnly !== undefined) this.schemaHideWriteOnly = this.config.schemaHideWriteOnly;
-    }
-    if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
-      this.schemaExpandLevel = 99999;
-    }
-    if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) {
-      this.schemaDescriptionExpanded = 'false';
-    }
-    if (!this.schemaHideReadOnly || !'true false'.includes(this.schemaHideReadOnly)) {
-      this.schemaHideReadOnly = 'true';
-    }
-    if (!this.schemaHideWriteOnly || !'true false'.includes(this.schemaHideWriteOnly)) {
-      this.schemaHideWriteOnly = 'true';
-    }
-  }
-
+export default class SchemaTable extends SchemaBaseElement {
   static get styles() {
     return [
       FontStyles,
@@ -134,20 +96,8 @@ export default class SchemaTable extends LitElement {
         class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}"
         @click="${(e) => this.handleAllEvents(e)}"
       >
-        <div class="toolbar">
-          <div class="toolbar-item schema-root-type ${rootType} ">${rootType}</div>
-          ${
-            this.allowSchemaDescriptionExpandToggle === 'true'
-              ? html`
-                  <div style="flex:1"></div>
-                  <div part="schema-multiline-toggle" class="toolbar-item schema-multiline-toggle">
-                    ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
-                  </div>
-                `
-              : ''
-          }
-        </div>
-        <span part="schema-description" class="m-markdown"> ${unsafeHTML(sanitizeHTML(marked(rootDescription)))} </span>
+        ${this.renderToolbar(rootType)}
+        <span part="schema-description" class="m-markdown"> ${this.renderDescriptionHtml(rootDescription)} </span>
         <div style="border:1px solid var(--border)">
           <div style="display:flex; background: var(--card); padding:8px 4px; border-bottom:1px solid var(--border);">
             <div class="key" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Field</div>
@@ -161,27 +111,16 @@ export default class SchemaTable extends LitElement {
   }
 
   renderAST(node, parentType = '', schemaLevel = 0, indentLevel = 0) {
-    if (!node) {
-      return '';
-    }
-
-    if (this.schemaHideReadOnly === 'true' && node.readOnly) {
-      return '';
-    }
-    if (this.schemaHideWriteOnly === 'true' && node.writeOnly) {
+    if (this.isFieldHidden(node)) {
       return '';
     }
 
     const leftPadding = 16 * (indentLevel + 1);
     const isExpanded = schemaLevel < this.schemaExpandLevel;
     const nullClass = node.nullable ? 'nullable' : '';
-    const deprecatedIcon = node.deprecated
-      ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
-          <path d="M2 2L8 8M2 8L8 2" />
-        </svg>`
-      : '';
-    const readWriteBadge = node.readOnly ? ' 🆁' : node.writeOnly ? ' 🆆' : '';
-    const readWriteTip = node.readOnly ? 'Read-Only' : node.writeOnly ? 'Write-Only' : '';
+    const deprecatedIcon = this.renderDeprecatedIcon(node);
+    const readWriteBadge = this.getReadWriteBadge(node);
+    const readWriteTip = this.getReadWriteTip(node);
 
     // 1. Array kind
     if (node.kind === 'array') {
@@ -189,10 +128,7 @@ export default class SchemaTable extends LitElement {
       if (!items) {
         const hasText = !!node.description;
         const hasExtra = hasMultilineDescription(node.description);
-        const descrExpander =
-          hasText && hasExtra
-            ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
-            : '';
+        const descrExpander = this.renderDescrExpander(hasText, hasExtra);
         const typeLabel = node.dataTypeLabel || (node.nullable ? 'array ┃ null' : 'array');
         return html`
           <div class="tr array ${nullClass}" data-obj="${node.name || ''}">
@@ -202,7 +138,7 @@ export default class SchemaTable extends LitElement {
             </div>
             <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
             <div class="td key-descr" style="font-size: var(--font-size-small)">
-              ${hasText ? html`<span class="m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description)))}</span>` : ''}
+              ${hasText ? html`<span class="m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description)}</span>` : ''}
             </div>
           </div>
         `;
@@ -210,34 +146,12 @@ export default class SchemaTable extends LitElement {
 
       if (items.kind === 'primitive') {
         const itemType = items.format || items.contentMediaType || items.type || 'string';
-        const dataTypeCss = itemType
-          .replace(/┃.*/g, '')
-          .replace(/[^a-zA-Z0-9+]/g, '')
-          .substring(0, 4)
-          .toLowerCase();
+        const dataTypeCss = this.getDataTypeCss(itemType);
         const hasText = !!(node.description || items.description);
-        const hasItemChips = !!(
-          items.constraints ||
-          items.defaultValue ||
-          items.allowedValues ||
-          items.pattern ||
-          items.contentMediaType ||
-          items.contentEncoding
-        );
+        const hasItemChips = this.hasDetailChips(items);
         const hasExtra = hasItemChips || hasMultilineDescription(node.description) || hasMultilineDescription(items.description);
-        const descrExpander =
-          hasText && hasExtra
-            ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
-            : '';
-
-        const detailChips = html`
-          ${items.constraints ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Constraints: </span>${items.constraints}</div>` : ''}
-          ${items.defaultValue ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Default: </span>${items.defaultValue}</div>` : ''}
-          ${items.allowedValues ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">${items.type === 'const' ? 'Value' : 'Allowed'}: </span>${items.allowedValues}</div>` : ''}
-          ${items.pattern ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Pattern: </span>${items.pattern}</div>` : ''}
-          ${items.contentMediaType ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Media-Type: </span>${items.contentMediaType}</div>` : ''}
-          ${items.contentEncoding ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Encoding: </span>${items.contentEncoding}</div>` : ''}
-        `;
+        const descrExpander = this.renderDescrExpander(hasText, hasExtra);
+        const detailChips = this.renderDetailChips(items);
 
         return html`
           <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
@@ -252,7 +166,7 @@ export default class SchemaTable extends LitElement {
               ${
                 hasText
                   ? html`<span class="m-markdown-small"
-                      >${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || items.description)))}</span
+                      >${descrExpander} ${this.renderDescriptionHtml(node.description || items.description)}</span
                     >`
                   : ''
               }
@@ -276,10 +190,7 @@ export default class SchemaTable extends LitElement {
 
       const hasText = !!(node.description || items.description);
       const hasExtra = hasMultilineDescription(node.description) || hasMultilineDescription(items.description);
-      const descrExpander =
-        hasText && hasExtra
-          ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
-          : '';
+      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       const hasChildren =
         items.kind === 'object'
@@ -309,7 +220,7 @@ export default class SchemaTable extends LitElement {
             ${
               hasText
                 ? html`<span class="m-markdown-small"
-                    >${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || items.description || '')))}</span
+                    >${descrExpander} ${this.renderDescriptionHtml(node.description || items.description || '')}</span
                   >`
                 : ''
             }
@@ -338,13 +249,10 @@ export default class SchemaTable extends LitElement {
 
     // 2. Object kind
     if (node.kind === 'object') {
-      const typeLabel = node.dataTypeLabel || 'object';
+      const typeLabel = node.dataTypeLabel || (node.nullable ? 'object ┃ null' : 'object');
       const hasText = !!node.description;
       const hasExtra = hasMultilineDescription(node.description);
-      const descrExpander =
-        hasText && hasExtra
-          ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
-          : '';
+      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       const hasChildren = !!(
         (node.properties && node.properties.length > 0) ||
@@ -371,13 +279,7 @@ export default class SchemaTable extends LitElement {
                   </div>
                   <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
                   <div class="td key-descr" style="font-size: var(--font-size-small)">
-                    ${
-                      hasText
-                        ? html`<span class="m-markdown-small"
-                            >${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</span
-                          >`
-                        : ''
-                    }
+                    ${hasText ? html`<span class="m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</span>` : ''}
                   </div>
                 </div>
               `
@@ -403,10 +305,7 @@ export default class SchemaTable extends LitElement {
       const opLabel = (node.operator === 'anyOf' ? 'ANY OF' : 'ONE OF') + (node.suffix ? ` ${node.suffix}` : '');
       const hasText = !!node.description;
       const hasExtra = hasMultilineDescription(node.description);
-      const descrExpander =
-        hasText && hasExtra
-          ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
-          : '';
+      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       return html`
         ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel, indentLevel))}
@@ -416,7 +315,7 @@ export default class SchemaTable extends LitElement {
           </div>
           <div class="td key-type"></div>
           <div class="td key-descr" style="font-size: var(--font-size-small)">
-            ${hasText ? html`<span class="m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</span>` : ''}
+            ${hasText ? html`<span class="m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</span>` : ''}
           </div>
         </div>
         <div class="object-body">
@@ -439,34 +338,12 @@ export default class SchemaTable extends LitElement {
 
     // 4. Primitive kind
     if (node.kind === 'primitive') {
-      const dataTypeCss = (node.type || '')
-        .replace(/┃.*/g, '')
-        .replace(/[^a-zA-Z0-9+]/g, '')
-        .substring(0, 4)
-        .toLowerCase();
+      const dataTypeCss = this.getDataTypeCss(node.type);
       const hasText = !!(node.description || node.title);
-      const hasDetailChips = !!(
-        node.constraints ||
-        node.defaultValue ||
-        node.allowedValues ||
-        node.pattern ||
-        node.contentMediaType ||
-        node.contentEncoding
-      );
+      const hasDetailChips = this.hasDetailChips(node);
       const hasExtra = hasDetailChips || hasMultilineDescription(node.description);
-      const descrExpander =
-        hasText && hasExtra
-          ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
-          : '';
-
-      const detailChips = html`
-        ${node.constraints ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Constraints: </span>${node.constraints}</div>` : ''}
-        ${node.defaultValue ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Default: </span>${node.defaultValue}</div>` : ''}
-        ${node.allowedValues ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">${node.type === 'const' ? 'Value' : 'Allowed'}: </span>${node.allowedValues}</div>` : ''}
-        ${node.pattern ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Pattern: </span>${node.pattern}</div>` : ''}
-        ${node.contentMediaType ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Media-Type: </span>${node.contentMediaType}</div>` : ''}
-        ${node.contentEncoding ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Encoding: </span>${node.contentEncoding}</div>` : ''}
-      `;
+      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
+      const detailChips = this.renderDetailChips(node);
 
       return html`
         <div class="tr primitive ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
@@ -480,20 +357,7 @@ export default class SchemaTable extends LitElement {
           <div class="td key-descr" style="font-size: var(--font-size-small)">
             ${
               hasText
-                ? html`<span class="m-markdown-small"
-                    >${descrExpander}
-                    ${unsafeHTML(
-                      sanitizeHTML(
-                        marked(
-                          node.title
-                            ? node.description
-                              ? `<b>${node.title}:</b> ${node.description}`
-                              : `<b>${node.title}</b>`
-                            : node.description
-                        )
-                      )
-                    )}</span
-                  >`
+                ? html`<span class="m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description, node.title)}</span>`
                 : ''
             }
             ${hasText && hasDetailChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
@@ -503,36 +367,6 @@ export default class SchemaTable extends LitElement {
     }
 
     return '';
-  }
-
-  handleAllEvents(e) {
-    if (e.target.classList.contains('obj-toggle')) {
-      this.toggleObjectExpand(e);
-    } else if (e.target.classList.contains('schema-multiline-toggle')) {
-      this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
-    } else if (e.target.classList.contains('descr-expand-toggle')) {
-      const trEl = e.target.closest('.tr');
-      if (trEl) {
-        trEl.classList.toggle('expanded-descr');
-        if (trEl.classList.contains('expanded-descr')) {
-          trEl.style.maxHeight = `${trEl.scrollHeight}px`;
-        } else {
-          trEl.style.maxHeight = '';
-        }
-      }
-    }
-  }
-
-  toggleObjectExpand(e) {
-    const rowEl = e.target.closest('.tr');
-    if (!rowEl) {
-      return;
-    }
-    if (rowEl.classList.contains('expanded')) {
-      rowEl.classList.replace('expanded', 'collapsed');
-    } else {
-      rowEl.classList.replace('collapsed', 'expanded');
-    }
   }
 }
 customElements.define('schema-table', SchemaTable);
