@@ -168,9 +168,6 @@ export default css`
     justify-content: space-between;
     flex-direction: row;
   }
-  .nav-bar.read .nav-bar-tag-icon {
-    display: none;
-  }
   .nav-bar-paths-under-tag {
     overflow: hidden;
     transition:
@@ -196,29 +193,52 @@ export default css`
     color: var(--primary);
   }
 
-  .nav-bar-tag-icon {
+  .nav-bar-tag-icon,
+  .nav-bar-tag-group-icon {
+    font-size: 14px;
     color: var(--muted-foreground);
-    font-size: 20px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    user-select: none;
+    transition: color 0.15s ease;
   }
-  .nav-bar-tag-icon:hover {
+  .nav-bar-tag-icon:hover,
+  .nav-bar-tag-group-icon:hover {
     color: var(--foreground);
   }
-  .nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon::after {
-    content: '⌵';
-    width: 16px;
-    height: 16px;
-    text-align: center;
+
+  .nav-bar-tag-icon::after,
+  .nav-bar-tag-group-icon::after {
+    content: '';
+    width: 14px;
+    height: 14px;
     display: inline-block;
-    transform: rotate(-90deg);
+    background-color: currentColor;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    -webkit-mask-size: 14px 14px;
+    mask-size: 14px 14px;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
     transition: transform 0.2s ease-out 0s;
+    transform-origin: center;
   }
-  .nav-bar.focused .nav-bar-tag-and-paths.expanded .nav-bar-tag-icon::after {
-    content: '⌵';
-    width: 16px;
-    height: 16px;
-    text-align: center;
-    display: inline-block;
-    transition: transform 0.2s ease-out 0s;
+
+  .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon::after,
+  .nav-bar-tag-group.collapsed .nav-bar-tag-group-icon::after {
+    transform: rotate(-90deg);
+  }
+
+  .nav-bar-tag-and-paths.expanded .nav-bar-tag-icon::after,
+  .nav-bar-tag-group.expanded .nav-bar-tag-group-icon::after {
+    transform: rotate(0deg);
   }
   .nav-scroll::-webkit-scrollbar {
     width: 8px;
@@ -229,14 +249,56 @@ export default css`
   .nav-scroll::-webkit-scrollbar-thumb {
     background: var(--muted);
   }
+  .nav-bar-tag-group {
+    margin-top: 6px;
+    margin-bottom: 2px;
+  }
+  .nav-bar-tag-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 15px 4px 6px;
+    font-size: var(--font-size-small);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    user-select: none;
+    border-inline-start: 4px solid transparent;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .nav-bar-tag-group-header:hover {
+    color: var(--foreground);
+  }
+  .nav-bar-tag-group-title {
+    flex: 1;
+    min-width: 0;
+  }
+  .nav-bar-tag-group.collapsed .nav-bar-tags-under-group {
+    display: none;
+  }
+  .nav-bar-tags-under-group {
+    padding-left: 6px;
+    border-inline-start: 1px solid var(--border);
+    margin-inline-start: 10px;
+  }
 
   .nav-bar-tag {
-    font-size: var(--font-size-regular);
+    font-size: var(--font-size-small);
     color: var(--primary);
     border-inline-start: 4px solid transparent;
-    font-weight: bold;
-    padding: 15px 15px 15px 10px;
+    font-weight: 600;
+    padding: 10px 15px 10px 10px;
     text-transform: capitalize;
+    min-width: 0;
+  }
+  .nav-bar-tag-title {
+    flex: 1;
+    min-width: 0;
+    pointer-events: none;
   }
 
   .nav-bar-components,
@@ -263,6 +325,7 @@ export default css`
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    min-width: 0;
     pointer-events: none;
   }
 
@@ -271,8 +334,6 @@ export default css`
     align-items: baseline;
     min-width: 0;
     flex: 1;
-    overflow-wrap: break-word;
-    word-break: break-word;
   }
 
   .nav-bar-webhook {
@@ -285,7 +346,8 @@ export default css`
   .nav-bar-h1,
   .nav-bar-h2,
   .nav-bar-path {
-    font-size: calc(var(--font-size-small) + 1px);
+    font-size: var(--font-size-small);
+    font-weight: 400;
     padding: var(--nav-item-padding);
   }
   .nav-bar-path.small-font {
@@ -293,9 +355,9 @@ export default css`
   }
 
   .nav-bar-info {
-    font-size: var(--font-size-regular);
-    padding: 16px 10px;
-    font-weight: bold;
+    font-size: var(--font-size-small);
+    padding: 12px 10px;
+    font-weight: 600;
   }
   .nav-bar-section {
     display: flex;
@@ -304,7 +366,7 @@ export default css`
     font-size: var(--font-size-small);
     color: var(--muted-foreground);
     padding: var(--nav-item-padding);
-    font-weight: bold;
+    font-weight: 700;
   }
   .nav-bar-section.operations {
     cursor: pointer;
@@ -324,6 +386,7 @@ export default css`
     padding-inline-start: 28px;
   }
 
+  /* Active item indicator - always left-bar style */
   .nav-bar-h1.left-bar.active,
   .nav-bar-h2.left-bar.active,
   .nav-bar-info.left-bar.active,
@@ -343,24 +406,20 @@ export default css`
     color: var(--nav-accent-fg, var(--primary));
   }
 
-  .nav-bar-h1.colored-block.active,
-  .nav-bar-h2.colored-block.active,
-  .nav-bar-info.colored-block.active,
-  .nav-bar-tag.colored-block.active,
-  .nav-bar-path.colored-block.active,
-  .nav-bar-section.colored-block.operations.active {
-    background: var(--primary);
-    color: var(--primary-foreground);
+  /* Highlight collapsed parents using modern CSS :has() */
+  .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag {
+    border-inline-start-color: var(--primary);
+    color: var(--nav-accent-fg, var(--primary));
   }
 
-  .nav-bar-h1.colored-block.active:hover,
-  .nav-bar-h2.colored-block.active:hover,
-  .nav-bar-info.colored-block.active:hover,
-  .nav-bar-tag.colored-block.active:hover,
-  .nav-bar-path.colored-block.active:hover,
-  .nav-bar-section.colored-block.operations.active:hover {
-    background: var(--primary);
-    color: var(--primary-foreground);
+  .nav-bar-tag-group.collapsed:has(.active) > .nav-bar-tag-group-header {
+    border-inline-start-color: var(--primary);
+    color: var(--nav-accent-fg, var(--primary));
+  }
+
+  .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag:hover,
+  .nav-bar-tag-group.collapsed:has(.active) > .nav-bar-tag-group-header:hover {
+    color: var(--nav-accent-fg, var(--primary));
   }
 
   .nav-bar-h1:hover,
@@ -370,5 +429,43 @@ export default css`
   .nav-bar-path:hover {
     color: var(--nav-hover-fg, var(--foreground));
     background: var(--nav-hover-bg, var(--muted));
+  }
+
+  /* nav-item-overflow: ellipsis (default) vs wrap */
+  :host([nav-item-overflow='ellipsis']) .nav-bar-tag-group-title,
+  :host(:not([nav-item-overflow])) .nav-bar-tag-group-title,
+  .overflow-ellipsis .nav-bar-tag-group-title,
+  :host([nav-item-overflow='ellipsis']) .nav-bar-tag-title,
+  :host(:not([nav-item-overflow])) .nav-bar-tag-title,
+  .overflow-ellipsis .nav-bar-tag-title,
+  :host([nav-item-overflow='ellipsis']) .nav-bar-path-label,
+  :host(:not([nav-item-overflow])) .nav-bar-path-label,
+  .overflow-ellipsis .nav-bar-path-label,
+  :host([nav-item-overflow='ellipsis']) .nav-bar-info,
+  :host(:not([nav-item-overflow])) .nav-bar-info,
+  .overflow-ellipsis .nav-bar-info,
+  :host([nav-item-overflow='ellipsis']) .nav-bar-section-title,
+  :host(:not([nav-item-overflow])) .nav-bar-section-title,
+  .overflow-ellipsis .nav-bar-section-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+
+  :host([nav-item-overflow='wrap']) .nav-bar-tag-group-title,
+  .overflow-wrap .nav-bar-tag-group-title,
+  :host([nav-item-overflow='wrap']) .nav-bar-tag-title,
+  .overflow-wrap .nav-bar-tag-title,
+  :host([nav-item-overflow='wrap']) .nav-bar-path-label,
+  .overflow-wrap .nav-bar-path-label,
+  :host([nav-item-overflow='wrap']) .nav-bar-info,
+  .overflow-wrap .nav-bar-info,
+  :host([nav-item-overflow='wrap']) .nav-bar-section-title,
+  .overflow-wrap .nav-bar-section-title {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
   }
 `;

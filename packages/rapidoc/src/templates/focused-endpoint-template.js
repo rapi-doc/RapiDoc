@@ -38,7 +38,9 @@ function defaultContentTemplate() {
   const selectedTagObj = this.resolvedSpec.tags[0];
   const selectedPathObj = this.resolvedSpec.tags[0]?.paths[0];
   return selectedTagObj && selectedPathObj
-    ? wrapFocusedTemplate(expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name))
+    ? wrapFocusedTemplate(
+        expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name || '', selectedTagObj.description || '', true)
+      )
     : wrapFocusedTemplate('');
 }
 
@@ -46,7 +48,7 @@ function focusedTagBodyTemplate(tag) {
   return html`
     <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
     ${
-      this.onNavTagClick === 'show-description' && tag.description
+      tag.description
         ? html`<div class="m-markdown">
             ${unsafeHTML(`<div class="m-markdown regular-font">
             ${sanitizeHTML(
@@ -63,6 +65,10 @@ function focusedTagBodyTemplate(tag) {
 }
 
 export default function focusedEndpointTemplate() {
+  if (!this.focusedElementId && this.resolvedSpec) {
+    this.focusedElementId =
+      this.showInfo === 'false' || this.showInfo === false ? this.resolvedSpec.tags?.[0]?.paths?.[0]?.elementId || '' : 'overview';
+  }
   if (!this.focusedElementId || !this.resolvedSpec) {
     return;
   }
@@ -101,9 +107,10 @@ export default function focusedEndpointTemplate() {
       // In focused mode we must expand the nav-bar tag element if it is collapsed
       const newNavEl = this.shadowRoot.getElementById(`link-${focusElId}`);
       expandCollapseNavBarTag(newNavEl, 'expand');
+      const isFirst = selectedTagObj?.paths?.[0]?.elementId === selectedPathObj.elementId;
       focusedTemplate = wrapFocusedTemplate.call(
         this,
-        expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name || '', selectedTagObj.description || '')
+        expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name || '', selectedTagObj.description || '', isFirst)
       );
     } else {
       // if focusedElementId is not found then show the default content (overview or first-path)

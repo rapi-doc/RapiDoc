@@ -52,7 +52,10 @@ export function getMatchedComponents(searchVal, component) {
   return component.name.toLowerCase().includes(searchVal.toLowerCase());
 }
 
-export function getMatchedPaths(searchVal, path, tagName = '') {
+export function getMatchedPaths(searchVal = '', path, tagName = '') {
+  if (!searchVal) {
+    return true;
+  }
   const stringToSearch =
     `${path.method} ${path.path} ${path.summary || ''} ${path.description || ''} ${path.operationId || ''} ${tagName}`.toLowerCase();
   return stringToSearch.includes(searchVal.toLowerCase());

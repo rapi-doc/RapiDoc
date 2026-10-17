@@ -22,24 +22,7 @@ function headingRenderer(tagElementId) {
   return renderer;
 }
 
-function expandCollapseTagDescription(e) {
-  const tagDescriptionEl = e.target.closest('.tag-container').querySelector('.tag-description');
-  const tagIconEl = e.target.closest('.tag-container').querySelector('.tag-icon');
-  if (tagDescriptionEl && tagIconEl) {
-    const isExpanded = tagDescriptionEl.classList.contains('expanded');
-    if (isExpanded) {
-      tagDescriptionEl.style.maxHeight = 0;
-      tagDescriptionEl.classList.replace('expanded', 'collapsed');
-      tagIconEl.classList.replace('expanded', 'collapsed');
-    } else {
-      tagDescriptionEl.style.maxHeight = `${tagDescriptionEl.scrollHeight}px`;
-      tagDescriptionEl.classList.replace('collapsed', 'expanded');
-      tagIconEl.classList.replace('collapsed', 'expanded');
-    }
-  }
-}
-
-export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
+export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '', isFirst = false) {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
     for (const acceptContentType in path.responses[respStatus]?.content) {
@@ -65,36 +48,24 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
       class="expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} "
       part="section-operation ${path.elementId}"
       id="${path.elementId}"
+      data-first-operation-in-tag="${isFirst ? 'true' : undefined}"
     >
       ${
-        this.renderStyle === 'focused' && tagName !== 'General ⦂'
+        this.renderStyle === 'focused' && tagName
           ? html`
-              <div class="tag-container" part="section-operation-tag">
+              <div class="tag-container" part="section-operation-tag" style="margin-bottom: 16px;">
                 <span class="upper" style="font-weight:bold; font-size:18px;"> ${tagName} </span>
                 ${
-                  tagDescription
-                    ? html` <svg
-                          class="tag-icon collapsed"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          stroke-width="2"
-                          fill="none"
-                          style="stroke:var(--primary); vertical-align:top; cursor:pointer"
-                          @click="${(e) => {
-                            expandCollapseTagDescription.call(this, e);
-                          }}"
-                        >
-                          <path d="M12 20h-6a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8"></path>
-                          <path d="M18 4v17"></path>
-                          <path d="M15 18l3 3l3 -3"></path>
-                        </svg>
+                  isFirst && tagDescription
+                    ? html`
                         <div
-                          class="tag-description collapsed"
-                          style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border)"
+                          class="tag-description regular-font"
+                          part="section-tag-description"
+                          style="margin-top:12px; padding:12px 14px; background:var(--code-bg); border-radius:var(--card-radius); border:1px solid var(--border);"
                         >
-                          <div class="m-markdown" style="padding:8px">${unsafeHTML(sanitizeHTML(marked(tagDescription)))}</div>
-                        </div>`
+                          <div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(tagDescription)))}</div>
+                        </div>
+                      `
                     : ''
                 }
               </div>
@@ -228,33 +199,63 @@ export default function expandedEndpointTemplate() {
   if (!this.resolvedSpec) {
     return '';
   }
-  return html`
-    ${this.resolvedSpec.tags.map(
-      (tag) => html`
-        <section
-          id="${tag.elementId}"
-          part="section-tag"
-          class="regular-font section-gap--read-mode observe-me"
-          style="border-top:1px solid var(--primary);"
-        >
-          <div class="title tag" part="section-tag-title label-tag-title">${tag.displayName || tag.name}</div>
-          <slot name="${tag.elementId}"></slot>
-          <div class="regular-font-size">
-            ${unsafeHTML(`
-          <div class="m-markdown regular-font">
-          ${sanitizeHTML(
-            marked(
-              tag.description || '',
-              this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
-            )
-          )}
-        </div>`)}
-          </div>
-        </section>
-        <section class="regular-font section-gap--read-mode" part="section-operations-in-tag">
-          ${tag.paths.map((path) => expandedEndpointBodyTemplate.call(this, path))}
-        </section>
-      `
-    )}
+
+  const renderTagSections = (tag) => html`
+    <section
+      id="${tag.elementId}"
+      part="section-tag"
+      class="regular-font section-gap--read-mode observe-me"
+      style="border-top:1px solid var(--primary);"
+    >
+      <div class="title tag" part="section-tag-title label-tag-title">${tag.displayName || tag.name}</div>
+      <slot name="${tag.elementId}"></slot>
+      <div class="regular-font-size">
+        ${unsafeHTML(`
+      <div class="m-markdown regular-font">
+      ${sanitizeHTML(
+        marked(
+          tag.description || '',
+          this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
+        )
+      )}
+    </div>`)}
+      </div>
+    </section>
+    <section class="regular-font section-gap--read-mode" part="section-operations-in-tag">
+      ${tag.paths.map((path, idx) => expandedEndpointBodyTemplate.call(this, path, tag.name, tag.description, idx === 0))}
+    </section>
   `;
+
+  if (this.resolvedSpec.tagGroups && this.resolvedSpec.tagGroups.length > 0) {
+    return html`
+      ${this.resolvedSpec.tagGroups.map(
+        (group) => html`
+          <section
+            id="${group.elementId}"
+            part="section-tag-group"
+            class="regular-font section-gap--read-mode observe-me"
+            style="border-top: 2px solid var(--primary); margin-top: 28px;"
+          >
+            <div
+              class="title tag-group"
+              part="section-tag-group-title"
+              style="font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary);"
+            >
+              ${group.displayName || group.name}
+            </div>
+            ${
+              group.description
+                ? html`<div class="regular-font-size m-markdown" style="padding: 8px 0;">
+                    ${unsafeHTML(sanitizeHTML(marked(group.description)))}
+                  </div>`
+                : ''
+            }
+          </section>
+          ${group.tags.map((tag) => renderTagSections(tag))}
+        `
+      )}
+    `;
+  }
+
+  return html`${this.resolvedSpec.tags.map((tag) => renderTagSections(tag))}`;
 }

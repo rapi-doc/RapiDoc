@@ -208,6 +208,7 @@ export default async function ProcessSpec(
           version: '',
         },
         tags: [],
+        tagGroups: [],
       };
     }
   } catch (err) {
@@ -230,6 +231,7 @@ export default async function ProcessSpec(
         version: '',
       },
       tags: [],
+      tagGroups: [],
     };
   }
 
@@ -237,6 +239,9 @@ export default async function ProcessSpec(
 
   // Tags with Paths and WebHooks
   const tags = groupByTags(jsonParsedSpec, sortEndpointsBy, generateMissingTags, sortTags);
+
+  // 3-Level Tag Groups (x-tagGroups / x-tag-groups)
+  const tagGroups = groupByTagGroups(jsonParsedSpec, tags);
 
   // Components
   const components = getComponents(jsonParsedSpec, sortSchemas);
@@ -335,6 +340,7 @@ export default async function ProcessSpec(
     info: jsonParsedSpec.info,
     infoDescriptionHeaders,
     tags,
+    tagGroups,
     components,
     externalDocs: jsonParsedSpec.externalDocs,
     securitySchemes,
@@ -517,6 +523,17 @@ function getComponents(openApiSpec, sortSchemas = false) {
   return components || [];
 }
 
+export function isTagExpanded(obj) {
+  if (!obj) {
+    return true;
+  }
+  const val = obj['x-tag-expanded'] ?? obj['x-tagExpanded'] ?? obj['x-expanded'] ?? obj.expanded;
+  if (val === false || val === 'false') {
+    return false;
+  }
+  return true;
+}
+
 function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags = false, sortTags = false) {
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace', 'query']; // this is also used for ordering endpoints by methods
   const tags =
@@ -529,7 +546,7 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
           description: v.description || '',
           headers: v.description ? getHeadersFromMarkdown(v.description) : [],
           paths: [],
-          expanded: v['x-tag-expanded'] !== false,
+          expanded: isTagExpanded(v),
         }))
       : [];
 
@@ -607,7 +624,7 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
             description: specTagsItem?.description || '',
             headers: specTagsItem?.description ? getHeadersFromMarkdown(specTagsItem.description) : [],
             paths: [],
-            expanded: specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true,
+            expanded: isTagExpanded(specTagsItem),
           };
           tags.push(tagObj);
         }
@@ -706,4 +723,49 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
     });
   }
   return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
+}
+
+/**
+ * Organizes parsed tags into 3-tier tag groups based on the `x-tagGroups` or `x-tag-groups` vendor extension.
+ * If the extension is absent, returns an empty array to maintain backward-compatible 2-tier navigation.
+ *
+ * @param {object} openApiSpec - The root OpenAPI specification object.
+ * @param {Array<object>} tags - The processed tags array returned by groupByTags.
+ * @returns {Array<object>} Array of tag group objects, or empty array if no tag groups are defined.
+ */
+export function groupByTagGroups(openApiSpec, tags = []) {
+  const rawGroups = openApiSpec?.['x-tagGroups'] || openApiSpec?.['x-tag-groups'] || openApiSpec?.['x-taggroups'];
+  if (!rawGroups || !Array.isArray(rawGroups) || rawGroups.length === 0) {
+    return [];
+  }
+
+  const assignedTagNames = new Set();
+  const groups = [];
+
+  rawGroups.forEach((g) => {
+    if (!g || !g.name) return;
+    const targetTagNames = Array.isArray(g.tags) ? g.tags : [];
+    const groupTags = [];
+    targetTagNames.forEach((tName) => {
+      if (typeof tName !== 'string') return;
+      const foundTag = tags.find((t) => t.name === tName || t.name.toLowerCase() === tName.toLowerCase());
+      if (foundTag && !groupTags.includes(foundTag)) {
+        groupTags.push(foundTag);
+        assignedTagNames.add(foundTag.name);
+      }
+    });
+
+    if (groupTags.length > 0) {
+      groups.push({
+        name: g.name,
+        displayName: g['x-displayName'] || g.displayName || g.name,
+        description: g.description || '',
+        elementId: `tag-group--${g.name.replace(invalidCharsRegEx, '-')}`,
+        tags: groupTags,
+        expanded: isTagExpanded(g),
+      });
+    }
+  });
+
+  return groups;
 }

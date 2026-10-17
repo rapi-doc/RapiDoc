@@ -31,13 +31,20 @@ function toggleExpand(path) {
 }
 
 export function expandCollapseAll(operationsRootEl, action = 'expand-all') {
+  const groupList = [...operationsRootEl.querySelectorAll('.section-tag-group')];
   const elList = [...operationsRootEl.querySelectorAll('.section-tag')];
   if (action === 'expand-all') {
-    elList.map((el) => {
+    groupList.forEach((el) => {
+      el.classList.replace('collapsed', 'expanded');
+    });
+    elList.forEach((el) => {
       el.classList.replace('collapsed', 'expanded');
     });
   } else {
-    elList.map((el) => {
+    groupList.forEach((el) => {
+      el.classList.replace('expanded', 'collapsed');
+    });
+    elList.forEach((el) => {
       el.classList.replace('expanded', 'collapsed');
     });
   }
@@ -235,6 +242,85 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
   if (!this.resolvedSpec) {
     return '';
   }
+  const renderTagSection = (tag) => html`
+    ${
+      isMini
+        ? html`
+            <div class="section-tag-body">
+              ${
+                tag.description
+                  ? html`<div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
+                      ${unsafeHTML(sanitizeHTML(marked(tag.description || '')))}
+                    </div>`
+                  : ''
+              }
+              ${tag.paths
+                .filter((path) => {
+                  if (this.searchVal) {
+                    return getMatchedPaths(this.searchVal, path, tag.name);
+                  }
+                  return true;
+                })
+                .map(
+                  (path, idx) =>
+                    html` <section
+                      id="${path.elementId}"
+                      class="m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}"
+                      data-first-operation-in-tag="${idx === 0 ? 'true' : undefined}"
+                    >
+                      ${endpointHeadTemplate.call(this, path, pathsExpanded)}
+                      ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+                    </section>`
+                )}
+            </div>
+          `
+        : html`
+            <div class="regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}">
+              <div
+                class="section-tag-header"
+                @click="${() => {
+                  tag.expanded = !tag.expanded;
+                  this.requestUpdate();
+                }}"
+              >
+                <div id="${tag.elementId}" class="sub-title tag" style="color:var(--primary)">${tag.displayName || tag.name}</div>
+              </div>
+              <div class="section-tag-body">
+                <slot name="${tag.elementId}"></slot>
+                ${
+                  tag.description
+                    ? html`<div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
+                        ${unsafeHTML(sanitizeHTML(marked(tag.description || '')))}
+                      </div>`
+                    : ''
+                }
+                ${tag.paths
+                  .filter((v) => {
+                    if (this.searchVal) {
+                      return getMatchedPaths(this.searchVal, v, tag.name);
+                    }
+                    return true;
+                  })
+                  .map(
+                    (path, idx) =>
+                      html` <section
+                        part="section-endpoint"
+                        id="${path.elementId}"
+                        class="m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}"
+                        data-first-operation-in-tag="${idx === 0 ? 'true' : undefined}"
+                      >
+                        ${endpointHeadTemplate.call(this, path, pathsExpanded)}
+                        ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+                      </section>`
+                  )}
+              </div>
+            </div>
+          `
+    }
+  `;
+
+  const hasTagGroups = this.resolvedSpec.tagGroups && this.resolvedSpec.tagGroups.length > 0;
+
   return html`${
     isMini
       ? ''
@@ -247,69 +333,39 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
           &nbsp; sections
         </div>`
   }
-  ${this.resolvedSpec.tags.map(
-    (tag) => html`
-      ${
-        isMini
-          ? html`
-              <div class="section-tag-body">
-                ${tag.paths
-                  .filter((path) => {
-                    if (this.searchVal) {
-                      return getMatchedPaths(this.searchVal, path, tag.name);
-                    }
-                    return true;
-                  })
-                  .map(
-                    (path) =>
-                      html` <section
-                        id="${path.elementId}"
-                        class="m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}"
-                      >
-                        ${endpointHeadTemplate.call(this, path, pathsExpanded)}
-                        ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
-                      </section>`
-                  )}
-              </div>
-            `
-          : html`
-              <div class="regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}">
+  ${
+    hasTagGroups
+      ? this.resolvedSpec.tagGroups.map(
+          (group) => html`
+            <div class="regular-font section-gap section-tag-group ${group.expanded ? 'expanded' : 'collapsed'}" id="${group.elementId}">
+              <div
+                class="section-tag-group-header"
+                @click="${() => {
+                  group.expanded = !group.expanded;
+                  this.requestUpdate();
+                }}"
+              >
                 <div
-                  class="section-tag-header"
-                  @click="${() => {
-                    tag.expanded = !tag.expanded;
-                    this.requestUpdate();
-                  }}"
+                  class="sub-title tag-group"
+                  style="color:var(--foreground); font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;"
                 >
-                  <div id="${tag.elementId}" class="sub-title tag" style="color:var(--primary)">${tag.displayName || tag.name}</div>
+                  ${group.displayName || group.name}
                 </div>
-                <div class="section-tag-body">
-                  <slot name="${tag.elementId}"></slot>
-                  <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
-                    ${unsafeHTML(sanitizeHTML(marked(tag.description || '')))}
-                  </div>
-                  ${tag.paths
-                    .filter((v) => {
-                      if (this.searchVal) {
-                        return getMatchedPaths(this.searchVal, v, tag.name);
-                      }
-                      return true;
-                    })
-                    .map(
-                      (path) =>
-                        html` <section
-                          part="section-endpoint"
-                          id="${path.elementId}"
-                          class="m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}"
-                        >
-                          ${endpointHeadTemplate.call(this, path, pathsExpanded)}
-                          ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
-                        </section>`
-                    )}
-                </div>
+                <div class="section-tag-group-icon"></div>
               </div>
-            `
-      }
-    `
-  )}`;
+              <div class="section-tag-group-body">
+                ${
+                  group.description
+                    ? html`<div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
+                        ${unsafeHTML(sanitizeHTML(marked(group.description || '')))}
+                      </div>`
+                    : ''
+                }
+                ${group.tags.map((tag) => renderTagSection(tag))}
+              </div>
+            </div>
+          `
+        )
+      : this.resolvedSpec.tags.map((tag) => renderTagSection(tag))
+  }`;
 }
