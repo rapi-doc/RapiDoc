@@ -20,7 +20,15 @@ import { schemaToAST } from '../utils/schema-utils.js';
 import SchemaTable from '../components/schema-table.ts';
 import SchemaTree from '../components/schema-tree.ts';
 import { getBundledCss } from '../styles/css-bundle.js';
-import { renderTemplateToString } from './serializer.js';
+import { renderTemplateToString, escapeHtml } from './serializer.js';
+
+function toKebabCase(str) {
+  return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
+function toCamelCase(str) {
+  return str.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
+}
 
 /**
  * Resolves an OpenAPI specification from a file path, URL, JSON/YAML string, or JS object.
@@ -73,17 +81,17 @@ export async function resolveSpecInput(specInput, options = {}) {
 
   return ProcessSpec(
     rawSpec,
-    options.generateMissingTags ?? false,
-    options.sortTags ?? false,
-    options.sortSchemas ?? false,
-    options.sortEndpointsBy ?? 'none',
-    options.apiKey ?? '',
-    options.apiKeyLocation ?? '',
-    options.apiKeyValue ?? '',
-    options.serverUrl ?? '',
-    options.matchPaths ?? '',
-    options.matchType ?? '',
-    options.removeEndpointsWithBadgeLabelAs ?? ''
+    options.generateMissingTags ?? options['generate-missing-tags'] ?? false,
+    options.sortTags ?? options['sort-tags'] ?? false,
+    options.sortSchemas ?? options['sort-schemas'] ?? false,
+    options.sortEndpointsBy ?? options['sort-endpoints-by'] ?? 'none',
+    options.apiKey ?? options.apiKeyName ?? options['api-key-name'] ?? '',
+    options.apiKeyLocation ?? options['api-key-location'] ?? '',
+    options.apiKeyValue ?? options['api-key-value'] ?? '',
+    options.serverUrl ?? options['server-url'] ?? '',
+    options.matchPaths ?? options['match-paths'] ?? '',
+    options.matchType ?? options['match-type'] ?? '',
+    options.removeEndpointsWithBadgeLabelAs ?? options['remove-endpoints-with-badge-label-as'] ?? ''
   );
 }
 
@@ -117,32 +125,49 @@ export async function resolveSpecInput(specInput, options = {}) {
  * @returns {Promise<string>} Fully rendered static HTML string
  */
 export async function renderStaticDoc(options = {}) {
-  const {
-    spec,
-    renderStyle = 'read',
-    theme = 'amber',
-    colorScheme = 'dark',
-    showHeader = true,
-    showSideNav = true,
-    showInfo = true,
-    allowSearch = true,
-    allowAdvancedSearch = false,
-    allowServerSelection = true,
-    allowAuthentication = true,
-    allowTry = true,
-    schemaStyle = 'table',
-    schemaExpandLevel = 99999,
-    defaultSchemaTab = 'example',
-    outputMode = 'dsd',
-    includeStyles = true,
-  } = options;
+  // Normalize option names to support both camelCase and kebab-case
+  const normalized = {};
+  for (const [key, val] of Object.entries(options)) {
+    normalized[key] = val;
+    normalized[toCamelCase(key)] = val;
+  }
+
+  const spec = options.spec ?? normalized.spec;
+  const renderStyle = normalized.renderStyle ?? 'read';
+  const theme = normalized.theme ?? 'amber';
+  const colorScheme = normalized.colorScheme ?? 'dark';
+  const showHeader = normalized.showHeader ?? true;
+  const showSideNav = normalized.showSideNav ?? true;
+  const showInfo = normalized.showInfo ?? true;
+  const allowSearch = normalized.allowSearch ?? true;
+  const allowAdvancedSearch = normalized.allowAdvancedSearch ?? false;
+  const allowServerSelection = normalized.allowServerSelection ?? true;
+  const allowAuthentication = normalized.allowAuthentication ?? true;
+  const allowTry = normalized.allowTry ?? true;
+  const schemaStyle = normalized.schemaStyle ?? 'table';
+  const schemaExpandLevel = normalized.schemaExpandLevel ?? 99999;
+  const defaultSchemaTab = normalized.defaultSchemaTab ?? 'example';
+  const outputMode = normalized.outputMode ?? 'dsd';
+  const includeStyles = normalized.includeStyles ?? true;
+  const pageDirection = normalized.pageDirection ?? 'ltr';
 
   const defaultLayout = renderStyle === 'read' || renderStyle === 'focused' ? 'column' : 'row';
-  const layout = options.layout || defaultLayout;
+  const layout = normalized.layout || defaultLayout;
 
-  const resolvedSpec = await resolveSpecInput(spec, options);
+  const resolvedSpec = await resolveSpecInput(spec, normalized);
+
+  const INTERNAL_KEYS = new Set(['spec', 'outputMode', 'includeStyles', 'inlineSpec', 'focusedElementId']);
+
+  // Pass any custom options into the template context
+  const customContextProps = {};
+  for (const [key, val] of Object.entries(normalized)) {
+    if (!INTERNAL_KEYS.has(key) && val !== undefined && val !== null) {
+      customContextProps[key] = typeof val === 'boolean' ? String(val) : val;
+    }
+  }
 
   const context = {
+    ...customContextProps,
     resolvedSpec,
     renderStyle,
     layout,
@@ -159,7 +184,7 @@ export async function renderStaticDoc(options = {}) {
     schemaStyle,
     schemaExpandLevel,
     defaultSchemaTab,
-    pageDirection: options.pageDirection || 'ltr',
+    pageDirection,
     config: {
       renderStyle,
       schemaStyle,
@@ -167,7 +192,7 @@ export async function renderStaticDoc(options = {}) {
       defaultSchemaTab,
       allowTry: String(allowTry),
     },
-    matchPaths: options.matchPaths || '',
+    matchPaths: normalized.matchPaths || '',
     selectedServer: resolvedSpec.servers?.[0],
     focusedElementId:
       options.focusedElementId ||
@@ -181,7 +206,7 @@ export async function renderStaticDoc(options = {}) {
   if (outputMode === 'html' || outputMode === 'light') {
     const scopeClass = 'rapidoc-static-container';
     const cssText = includeStyles ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${scopeClass}` })}</style>` : '';
-    return `<div class="${scopeClass}" data-theme="${theme}" data-color-scheme="${colorScheme}" data-render-style="${renderStyle}" data-layout="${layout}">
+    return `<div class="${scopeClass}" data-theme="${escapeHtml(theme)}" data-color-scheme="${escapeHtml(colorScheme)}" data-render-style="${escapeHtml(renderStyle)}" data-layout="${escapeHtml(layout)}" data-schema-style="${escapeHtml(schemaStyle)}">
 ${cssText}
 ${serializedBody}
 </div>`;
@@ -189,13 +214,48 @@ ${serializedBody}
 
   // Default: Declarative Shadow DOM (DSD)
   const cssText = includeStyles ? `<style>${getBundledCss({ theme, colorScheme })}</style>` : '';
-  const specUrlAttr = typeof spec === 'string' && (spec.startsWith('http://') || spec.startsWith('https://')) ? ` spec-url="${spec}"` : '';
   const specScript =
     options.inlineSpec !== false && typeof spec === 'object' && spec !== null
       ? `  <script type="application/json" slot="rapidoc-spec">${JSON.stringify(spec).replace(/<\/script/gi, '<\\/script')}</script>\n`
       : '';
 
-  return `<rapi-doc theme="${theme}" color-scheme="${colorScheme}" render-style="${renderStyle}" layout="${layout}"${specUrlAttr}>
+  // Construct complete attributes map to ensure exact client hydration parity
+  const attrsMap = new Map();
+  attrsMap.set('theme', theme);
+  attrsMap.set('color-scheme', colorScheme);
+  attrsMap.set('render-style', renderStyle);
+  attrsMap.set('layout', layout);
+  attrsMap.set('schema-style', schemaStyle);
+  attrsMap.set('schema-expand-level', String(schemaExpandLevel));
+  attrsMap.set('default-schema-tab', defaultSchemaTab);
+  attrsMap.set('show-header', String(showHeader));
+  attrsMap.set('show-side-nav', String(showSideNav));
+  attrsMap.set('show-info', String(showInfo));
+  attrsMap.set('allow-search', String(allowSearch));
+  attrsMap.set('allow-advanced-search', String(allowAdvancedSearch));
+  attrsMap.set('allow-server-selection', String(allowServerSelection));
+  attrsMap.set('allow-authentication', String(allowAuthentication));
+  attrsMap.set('allow-try', String(allowTry));
+  attrsMap.set('page-direction', pageDirection);
+
+  // Reflect any additional user-provided options to custom element attributes (converted to kebab-case)
+  for (const [key, val] of Object.entries(options)) {
+    const camel = toCamelCase(key);
+    if (!INTERNAL_KEYS.has(camel) && !INTERNAL_KEYS.has(key) && val !== undefined && val !== null) {
+      const kebab = toKebabCase(camel);
+      attrsMap.set(kebab, typeof val === 'boolean' ? String(val) : String(val));
+    }
+  }
+
+  if (typeof spec === 'string' && (spec.startsWith('http://') || spec.startsWith('https://'))) {
+    attrsMap.set('spec-url', spec);
+  }
+
+  const attrsString = Array.from(attrsMap.entries())
+    .map(([name, value]) => `${name}="${escapeHtml(value)}"`)
+    .join(' ');
+
+  return `<rapi-doc ${attrsString}>
 ${specScript}  <template shadowrootmode="open">
 ${cssText}
 ${serializedBody}

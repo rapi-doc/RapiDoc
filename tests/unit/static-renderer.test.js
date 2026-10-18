@@ -271,6 +271,128 @@ describe('Static Document Pre-Rendering (renderStaticDoc)', () => {
     assert.ok(htmlOutput.includes('Swagger Petstore'), 'Should load and render local JSON spec');
     assert.ok(htmlOutput.includes('shadowrootmode="open"'));
   });
+
+  it('should serialize all default SSR configuration attributes onto <rapi-doc> tag to prevent hydration mismatch', async () => {
+    const htmlOutput = await renderStaticDoc({
+      spec: sampleSpec,
+    });
+
+    // Extract the opening <rapi-doc ...> tag
+    const openingTagMatch = htmlOutput.match(/<rapi-doc\s+([^>]+)>/);
+    assert.ok(openingTagMatch, '<rapi-doc> opening tag must exist');
+    const openingTagAttrs = openingTagMatch[1];
+
+    // Verify key attributes that prevent client-side hydration drift/mismatch
+    assert.ok(openingTagAttrs.includes('schema-style="table"'), 'Must serialize schema-style="table" (preventing drift to tree)');
+    assert.ok(openingTagAttrs.includes('allow-advanced-search="false"'), 'Must serialize allow-advanced-search="false" (preventing modal injection)');
+    assert.ok(openingTagAttrs.includes('show-header="true"'), 'Must serialize show-header="true"');
+    assert.ok(openingTagAttrs.includes('show-side-nav="true"'), 'Must serialize show-side-nav="true"');
+    assert.ok(openingTagAttrs.includes('show-info="true"'), 'Must serialize show-info="true"');
+    assert.ok(openingTagAttrs.includes('allow-search="true"'), 'Must serialize allow-search="true"');
+    assert.ok(openingTagAttrs.includes('allow-server-selection="true"'), 'Must serialize allow-server-selection="true"');
+    assert.ok(openingTagAttrs.includes('allow-authentication="true"'), 'Must serialize allow-authentication="true"');
+    assert.ok(openingTagAttrs.includes('allow-try="true"'), 'Must serialize allow-try="true"');
+    assert.ok(openingTagAttrs.includes('render-style="read"'), 'Must serialize render-style="read"');
+    assert.ok(openingTagAttrs.includes('layout="column"'), 'Must serialize layout="column"');
+    assert.ok(openingTagAttrs.includes('theme="amber"'), 'Must serialize theme="amber"');
+    assert.ok(openingTagAttrs.includes('color-scheme="dark"'), 'Must serialize color-scheme="dark"');
+    assert.ok(openingTagAttrs.includes('page-direction="ltr"'), 'Must serialize page-direction="ltr"');
+    assert.ok(openingTagAttrs.includes('default-schema-tab="example"'), 'Must serialize default-schema-tab="example"');
+    assert.ok(openingTagAttrs.includes('schema-expand-level="99999"'), 'Must serialize schema-expand-level="99999"');
+  });
+
+  it('should serialize customized options onto <rapi-doc> tag and reflect them in static shadow DOM', async () => {
+    const htmlOutput = await renderStaticDoc({
+      spec: sampleSpec,
+      schemaStyle: 'tree',
+      allowTry: false,
+      showHeader: false,
+      showSideNav: false,
+      allowSearch: false,
+      theme: 'violet',
+      colorScheme: 'light',
+    });
+
+    const openingTagMatch = htmlOutput.match(/<rapi-doc\s+([^>]+)>/);
+    assert.ok(openingTagMatch);
+    const attrs = openingTagMatch[1];
+
+    assert.ok(attrs.includes('schema-style="tree"'), 'Must serialize customized schema-style');
+    assert.ok(attrs.includes('allow-try="false"'), 'Must serialize customized allow-try="false"');
+    assert.ok(attrs.includes('show-header="false"'), 'Must serialize show-header="false"');
+    assert.ok(attrs.includes('show-side-nav="false"'), 'Must serialize show-side-nav="false"');
+    assert.ok(attrs.includes('allow-search="false"'), 'Must serialize allow-search="false"');
+    assert.ok(attrs.includes('theme="violet"'), 'Must serialize theme="violet"');
+    assert.ok(attrs.includes('color-scheme="light"'), 'Must serialize color-scheme="light"');
+
+    // Also verify that the static shadow DOM reflects these disabled features
+    assert.ok(!htmlOutput.includes('class="header"'), 'Header markup must be omitted when showHeader is false');
+    assert.ok(!htmlOutput.includes('class="nav-bar'), 'Navbar markup must be omitted when showSideNav is false');
+  });
+
+  it('should support both camelCase and kebab-case options and forward custom RapiDoc attributes', async () => {
+    const specWithComponents = {
+      ...sampleSpec,
+      components: {
+        schemas: {
+          ShipmentRecord: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+            },
+          },
+        },
+      },
+    };
+
+    const htmlOutput = await renderStaticDoc({
+      spec: specWithComponents,
+      'schema-style': 'tree',
+      'allow-try': false,
+      showMethodInNavBar: 'as-colored-block',
+      usePathInNavBar: true,
+      'nav-item-spacing': 'relaxed',
+      showComponents: true,
+      headingText: 'Logistics API Gateway',
+    });
+
+    const openingTagMatch = htmlOutput.match(/<rapi-doc\s+([^>]+)>/);
+    assert.ok(openingTagMatch);
+    const attrs = openingTagMatch[1];
+
+    assert.ok(attrs.includes('schema-style="tree"'), 'Supports kebab-case schema-style');
+    assert.ok(attrs.includes('allow-try="false"'), 'Supports kebab-case allow-try');
+    assert.ok(attrs.includes('show-method-in-nav-bar="as-colored-block"'), 'Forwards showMethodInNavBar to kebab-case');
+    assert.ok(attrs.includes('use-path-in-nav-bar="true"'), 'Forwards usePathInNavBar');
+    assert.ok(attrs.includes('nav-item-spacing="relaxed"'), 'Forwards nav-item-spacing');
+    assert.ok(attrs.includes('show-components="true"'), 'Forwards showComponents as string boolean');
+    assert.ok(attrs.includes('heading-text="Logistics API Gateway"'), 'Forwards headingText');
+
+    // Verify template context picked up custom properties during SSR
+    assert.ok(htmlOutput.includes('nav-method as-colored-block'), 'Template rendered with custom navbar method style');
+    assert.ok(htmlOutput.includes('Logistics API Gateway'), 'Template rendered headingText in header-title');
+    assert.ok(htmlOutput.includes('ShipmentRecord'), 'Template rendered components section when showComponents: true');
+  });
+
+  it('should serialize spec-url and spec processing options onto <rapi-doc> tag', async () => {
+    const remoteUrl = 'https://api.cosmocargo.dev/v2/openapi.json';
+    const htmlOutput = await renderStaticDoc({
+      spec: sampleSpec,
+      specUrl: remoteUrl,
+      sortEndpointsBy: 'method',
+      serverUrl: 'https://staging.cosmocargo.dev',
+      matchPaths: '/v1/shipments',
+    });
+
+    const openingTagMatch = htmlOutput.match(/<rapi-doc\s+([^>]+)>/);
+    assert.ok(openingTagMatch);
+    const attrs = openingTagMatch[1];
+
+    assert.ok(attrs.includes(`spec-url="${remoteUrl}"`), 'Must serialize spec-url');
+    assert.ok(attrs.includes('sort-endpoints-by="method"'), 'Must serialize sort-endpoints-by');
+    assert.ok(attrs.includes('server-url="https://staging.cosmocargo.dev"'), 'Must serialize server-url');
+    assert.ok(attrs.includes('match-paths="/v1/shipments"'), 'Must serialize match-paths');
+  });
 });
 
 describe('Static Isolated Endpoint Pre-Rendering (renderStaticEndpoint)', () => {

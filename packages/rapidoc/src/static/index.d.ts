@@ -24,6 +24,7 @@ export interface StaticDocOptions {
   includeStyles?: boolean;
   matchPaths?: string;
   pageDirection?: 'ltr' | 'rtl';
+  [key: string]: any;
 }
 
 export interface StaticEndpointOptions {
