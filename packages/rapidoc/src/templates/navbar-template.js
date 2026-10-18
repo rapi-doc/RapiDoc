@@ -80,7 +80,7 @@ export function navBarClickAndEnterHandler(event) {
   if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
     return;
   }
-  const navEl = event.target;
+  const navEl = event.target.closest('[data-action]') || event.target;
   // Ignore clicks or enter inside the search / filter controls or logo slot
   if (
     navEl.closest('#nav-bar-search') ||
@@ -127,7 +127,7 @@ export default function navbarTemplate() {
   return html`
     <button id="nav-bar-btn" part="btn-navbar" class="btn" @click="${this.onOpenNavBarToggle}">☰</button>
     <nav id="nav-bar" class="nav-bar ${this.renderStyle} overflow-${this.navItemOverflow || 'ellipsis'}" part="section-navbar">
-      <nav
+      <div
         class="nav-scroll"
         tabindex="-1"
         part="section-navbar-scroll"
@@ -203,7 +203,7 @@ export default function navbarTemplate() {
                             ? (() => {
                                 const isFirst = checkFirstNav();
                                 return html`<div
-                                  class="nav-bar-info left-bar${isFirst ? ' first-nav-item' : ''}"
+                                  class="nav-bar-info${isFirst ? ' first-nav-item' : ''}"
                                   id="link-overview"
                                   data-content-id="overview"
                                   data-action="navigate"
@@ -220,7 +220,7 @@ export default function navbarTemplate() {
                           ${this.resolvedSpec.infoDescriptionHeaders.map((header) => {
                             const headerElId = slugger.slug(header.text);
                             return html`<div
-                              class="nav-bar-h${header.depth} left-bar"
+                              class="nav-bar-h${header.depth}"
                               id="link-overview--${headerElId}"
                               data-action="navigate"
                               data-content-id="overview--${headerElId}"
@@ -238,7 +238,7 @@ export default function navbarTemplate() {
                     : (() => {
                         const isFirst = checkFirstNav();
                         return html`<div
-                          class="nav-bar-info left-bar${isFirst ? ' first-nav-item' : ''}"
+                          class="nav-bar-info${isFirst ? ' first-nav-item' : ''}"
                           id="link-overview"
                           data-action="navigate"
                           data-content-id="overview"
@@ -257,7 +257,7 @@ export default function navbarTemplate() {
             : (() => {
                 const isFirst = checkFirstNav();
                 return html`<div
-                  class="nav-bar-info left-bar${isFirst ? ' first-nav-item' : ''}"
+                  class="nav-bar-info${isFirst ? ' first-nav-item' : ''}"
                   id="link-servers"
                   data-action="navigate"
                   data-content-id="servers"
@@ -275,7 +275,7 @@ export default function navbarTemplate() {
             : (() => {
                 const isFirst = checkFirstNav();
                 return html`<div
-                  class="nav-bar-info left-bar${isFirst ? ' first-nav-item' : ''}"
+                  class="nav-bar-info${isFirst ? ' first-nav-item' : ''}"
                   id="link-auth"
                   data-action="navigate"
                   data-content-id="auth"
@@ -311,7 +311,7 @@ export default function navbarTemplate() {
           const renderNavTagItem = (tag) =>
             html` <div class="nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}">
               <div
-                class="nav-bar-tag left-bar"
+                class="nav-bar-tag"
                 part="section-navbar-item section-navbar-tag"
                 id="link-${tag.elementId}"
                 data-action="expand-collapse-tag"
@@ -331,7 +331,7 @@ export default function navbarTemplate() {
                         return tag.headers.map((header) => {
                           const headerElId = tagSlugger.slug(header.text);
                           return html` <div
-                            class="nav-bar-h${header.depth} left-bar"
+                            class="nav-bar-h${header.depth}"
                             part="section-navbar-item section-navbar-h${header.depth}"
                             id="link-${tag.elementId}--${headerElId}"
                             data-action="navigate"
@@ -357,7 +357,8 @@ export default function navbarTemplate() {
                   .map((p) => {
                     const isFirst = checkFirstNav();
                     return html` <div
-                      class="nav-bar-path left-bar ${this.usePathInNavBar === 'true' ? 'small-font' : ''}${isFirst ? ' first-nav-item' : ''}"
+                      class="nav-bar-path${isFirst ? ' first-nav-item' : ''}"
+                      style="${p.deprecated ? 'filter:opacity(0.5);' : ''}"
                       part="section-navbar-item section-navbar-path"
                       data-action="navigate"
                       data-content-id="${p.elementId}"
@@ -365,17 +366,13 @@ export default function navbarTemplate() {
                       id="link-${p.elementId}"
                       tabindex="0"
                     >
-                      <span class="nav-bar-path-inner" style="${p.deprecated ? 'filter:opacity(0.5);' : ''}">
-                        <span class="nav-bar-path-label">
-                          ${p.isWebhook ? html`<span class="nav-bar-webhook">WEBHOOK</span>` : ''}
-                          ${this.usePathInNavBar === 'true' ? html`<span class="mono-font">${p.path}</span>` : p.summary || p.shortSummary}
-                        </span>
-                        ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
-                          ${
-                            this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()
-                          }
-                        </span>`}
+                      <span class="nav-bar-path-label">
+                        ${p.isWebhook ? html`<span class="nav-bar-webhook">WEBHOOK</span>` : ''}
+                        ${this.usePathInNavBar === 'true' ? html`<span class="mono-font">${p.path}</span>` : p.summary || p.shortSummary}
                       </span>
+                      ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
+                        ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
+                      </span>`}
                     </div>`;
                   })}
               </div>
@@ -441,7 +438,7 @@ export default function navbarTemplate() {
                 )}`
             : ''
         }
-      </nav>
+      </div>
     </nav>
   `;
 }

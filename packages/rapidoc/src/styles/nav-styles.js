@@ -116,6 +116,7 @@ export default css`
     background-blend-mode: multiply;
     border-right: 1px solid var(--border);
     line-height: calc(var(--font-size-small) + 4px);
+    font-size: var(--font-size-small);
     position: relative;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -258,7 +259,6 @@ export default css`
     align-items: center;
     justify-content: space-between;
     padding: 8px 15px 4px 6px;
-    font-size: var(--font-size-small);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -287,7 +287,6 @@ export default css`
   }
 
   .nav-bar-tag {
-    font-size: var(--font-size-small);
     color: var(--primary);
     border-inline-start: 4px solid transparent;
     font-weight: 600;
@@ -319,13 +318,15 @@ export default css`
       color 0.15s ease;
   }
 
-  .nav-bar-path-inner {
-    display: flex;
-    width: 100%;
+  .nav-bar-path {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
     min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .nav-bar-path > * {
     pointer-events: none;
   }
 
@@ -346,16 +347,11 @@ export default css`
   .nav-bar-h1,
   .nav-bar-h2,
   .nav-bar-path {
-    font-size: var(--font-size-small);
     font-weight: 400;
     padding: var(--nav-item-padding);
   }
-  .nav-bar-path.small-font {
-    font-size: var(--font-size-small);
-  }
 
   .nav-bar-info {
-    font-size: var(--font-size-small);
     padding: 12px 10px;
     font-weight: 600;
   }
@@ -363,7 +359,6 @@ export default css`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    font-size: var(--font-size-small);
     color: var(--muted-foreground);
     padding: var(--nav-item-padding);
     font-weight: 700;
@@ -387,6 +382,12 @@ export default css`
   }
 
   /* Active item indicator - always left-bar style */
+  .nav-bar-h1.active,
+  .nav-bar-h2.active,
+  .nav-bar-info.active,
+  .nav-bar-tag.active,
+  .nav-bar-path.active,
+  .nav-bar-section.operations.active,
   .nav-bar-h1.left-bar.active,
   .nav-bar-h2.left-bar.active,
   .nav-bar-info.left-bar.active,
@@ -397,6 +398,12 @@ export default css`
     color: var(--nav-accent-fg, var(--primary));
   }
 
+  .nav-bar-h1.active:hover,
+  .nav-bar-h2.active:hover,
+  .nav-bar-info.active:hover,
+  .nav-bar-tag.active:hover,
+  .nav-bar-path.active:hover,
+  .nav-bar-section.operations.active:hover,
   .nav-bar-h1.left-bar.active:hover,
   .nav-bar-h2.left-bar.active:hover,
   .nav-bar-info.left-bar.active:hover,

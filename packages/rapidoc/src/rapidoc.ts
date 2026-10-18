@@ -1118,8 +1118,8 @@ export default class RapiDoc extends LitElement {
     if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
       return;
     }
-    const navEl = event.target;
-    if (!navEl.dataset.contentId) {
+    const navEl = ((event.target as HTMLElement)?.closest?.('[data-content-id]') || event.target) as HTMLElement;
+    if (!navEl?.dataset?.contentId) {
       return;
     }
     this.isIntersectionObserverActive = false;

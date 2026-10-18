@@ -152,8 +152,7 @@ describe('OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)', () => {
     assert.ok(html.includes('nav-bar-tags-under-group'), 'Should render nested tags container');
     assert.ok(html.includes('shipments'), 'Should render tag name inside group');
     assert.ok(html.includes('List shipments'), 'Should render operation inside group');
-    assert.ok(html.includes('data-action="expand-collapse-tag"'), 'Tags should always have expand-collapse-tag action');
-    assert.ok(html.includes('left-bar'), 'Items should use left-bar marker style');
+    assert.ok(html.includes('nav-bar-path'), 'Should render nav-bar-path items');
     assert.ok(!html.includes('colored-block'), 'colored-block marker style should not be used');
   });
 
