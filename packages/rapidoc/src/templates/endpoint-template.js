@@ -320,6 +320,13 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
   `;
 
   const hasTagGroups = this.resolvedSpec.tagGroups && this.resolvedSpec.tagGroups.length > 0;
+  const assignedTagNames = new Set();
+  if (hasTagGroups) {
+    this.resolvedSpec.tagGroups.forEach((group) => {
+      (group.tags || []).forEach((tag) => assignedTagNames.add(tag.name.toLowerCase()));
+    });
+  }
+  const remainingTags = hasTagGroups ? (this.resolvedSpec.tags || []).filter((tag) => !assignedTagNames.has(tag.name.toLowerCase())) : [];
 
   return html`${
     isMini
@@ -335,37 +342,40 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
   }
   ${
     hasTagGroups
-      ? this.resolvedSpec.tagGroups.map(
-          (group) => html`
-            <div class="regular-font section-gap section-tag-group ${group.expanded ? 'expanded' : 'collapsed'}" id="${group.elementId}">
-              <div
-                class="section-tag-group-header"
-                @click="${() => {
-                  group.expanded = !group.expanded;
-                  this.requestUpdate();
-                }}"
-              >
+      ? html`
+          ${this.resolvedSpec.tagGroups.map(
+            (group) => html`
+              <div class="regular-font section-gap section-tag-group ${group.expanded ? 'expanded' : 'collapsed'}" id="${group.elementId}">
                 <div
-                  class="sub-title tag-group"
-                  style="color:var(--foreground); font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;"
+                  class="section-tag-group-header"
+                  @click="${() => {
+                    group.expanded = !group.expanded;
+                    this.requestUpdate();
+                  }}"
                 >
-                  ${group.displayName || group.name}
+                  <div
+                    class="sub-title tag-group"
+                    style="color:var(--foreground); font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;"
+                  >
+                    ${group.displayName || group.name}
+                  </div>
+                  <div class="section-tag-group-icon"></div>
                 </div>
-                <div class="section-tag-group-icon"></div>
+                <div class="section-tag-group-body">
+                  ${
+                    group.description
+                      ? html`<div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
+                          ${unsafeHTML(sanitizeHTML(marked(group.description || '')))}
+                        </div>`
+                      : ''
+                  }
+                  ${group.tags.map((tag) => renderTagSection(tag))}
+                </div>
               </div>
-              <div class="section-tag-group-body">
-                ${
-                  group.description
-                    ? html`<div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
-                        ${unsafeHTML(sanitizeHTML(marked(group.description || '')))}
-                      </div>`
-                    : ''
-                }
-                ${group.tags.map((tag) => renderTagSection(tag))}
-              </div>
-            </div>
-          `
-        )
+            `
+          )}
+          ${remainingTags.map((tag) => renderTagSection(tag))}
+        `
       : this.resolvedSpec.tags.map((tag) => renderTagSection(tag))
   }`;
 }

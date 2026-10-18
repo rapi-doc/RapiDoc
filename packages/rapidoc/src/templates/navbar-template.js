@@ -42,6 +42,48 @@ export function expandParentNavContainers(navLinkEl) {
   expandCollapseNavBarTag(navLinkEl, 'expand');
 }
 
+export function isInternalOrHidden(item) {
+  if (!item || typeof item !== 'object') return false;
+  return (
+    item.xInternal === true ||
+    item.xInternal === 'true' ||
+    item.xHidden === true ||
+    item.xHidden === 'true' ||
+    item['x-internal'] === true ||
+    item['x-internal'] === 'true' ||
+    item['x-hidden'] === true ||
+    item['x-hidden'] === 'true' ||
+    item.rawOperation?.['x-internal'] === true ||
+    item.rawOperation?.['x-internal'] === 'true' ||
+    item.rawOperation?.['x-hidden'] === true ||
+    item.rawOperation?.['x-hidden'] === 'true'
+  );
+}
+
+export function isNavPathVisible(path, searchVal, tagName) {
+  if (isInternalOrHidden(path)) {
+    return false;
+  }
+  if (searchVal) {
+    return getMatchedPaths(searchVal, path, tagName);
+  }
+  return true;
+}
+
+export function isNavTagVisible(tag, searchVal) {
+  if (isInternalOrHidden(tag)) {
+    return false;
+  }
+  return (tag.paths || []).some((path) => isNavPathVisible(path, searchVal, tag.name));
+}
+
+export function isNavTagGroupVisible(group, searchVal) {
+  if (isInternalOrHidden(group)) {
+    return false;
+  }
+  return (group.tags || []).some((tag) => isNavTagVisible(tag, searchVal));
+}
+
 export function expandCollapseAll(event, action = 'expand-all') {
   if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
     return;
@@ -308,14 +350,18 @@ export default function navbarTemplate() {
 
         <!-- TAGS AND PATHS (3-tier if tagGroups exist, else 2-tier) -->
         ${(() => {
-          const renderNavTagItem = (tag) =>
-            html` <div class="nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}">
+          const renderNavTagItem = (tag) => {
+            const visiblePaths = (tag.paths || []).filter((p) => isNavPathVisible(p, this.searchVal, tag.name));
+            if (visiblePaths.length === 0) return '';
+            const firstPathId = visiblePaths[0].elementId;
+
+            return html` <div class="nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}">
               <div
                 class="nav-bar-tag"
                 part="section-navbar-item section-navbar-tag"
                 id="link-${tag.elementId}"
                 data-action="expand-collapse-tag"
-                data-first-path-id="${tag.firstPathId}"
+                data-first-path-id="${firstPathId}"
                 tabindex="0"
                 role="button"
                 aria-expanded="${tag.expanded ? 'true' : 'false'}"
@@ -347,65 +393,70 @@ export default function navbarTemplate() {
               }
               <div class="nav-bar-paths-under-tag">
                 <!-- Paths in each tag (endpoints) -->
-                ${tag.paths
-                  .filter((v) => {
-                    if (this.searchVal) {
-                      return getMatchedPaths(this.searchVal, v, tag.name);
-                    }
-                    return true;
-                  })
-                  .map((p) => {
-                    const isFirst = checkFirstNav();
-                    return html` <div
-                      class="nav-bar-path${isFirst ? ' first-nav-item' : ''}"
-                      style="${p.deprecated ? 'filter:opacity(0.5);' : ''}"
-                      part="section-navbar-item section-navbar-path"
-                      data-action="navigate"
-                      data-content-id="${p.elementId}"
-                      data-first-nav-item="${isFirst ? 'true' : undefined}"
-                      id="link-${p.elementId}"
-                      tabindex="0"
-                    >
-                      <span class="nav-bar-path-label">
-                        ${p.isWebhook ? html`<span class="nav-bar-webhook">WEBHOOK</span>` : ''}
-                        ${this.usePathInNavBar === 'true' ? html`<span class="mono-font">${p.path}</span>` : p.summary || p.shortSummary}
-                      </span>
-                      ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
-                        ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
-                      </span>`}
-                    </div>`;
-                  })}
+                ${visiblePaths.map((p) => {
+                  const isFirst = checkFirstNav();
+                  return html` <div
+                    class="nav-bar-path${isFirst ? ' first-nav-item' : ''}"
+                    style="${p.deprecated ? 'filter:opacity(0.5);' : ''}"
+                    part="section-navbar-item section-navbar-path"
+                    data-action="navigate"
+                    data-content-id="${p.elementId}"
+                    data-first-nav-item="${isFirst ? 'true' : undefined}"
+                    id="link-${p.elementId}"
+                    tabindex="0"
+                  >
+                    <span class="nav-bar-path-label">
+                      ${p.isWebhook ? html`<span class="nav-bar-webhook">WEBHOOK</span>` : ''}
+                      ${this.usePathInNavBar === 'true' ? html`<span class="mono-font">${p.path}</span>` : p.summary || p.shortSummary}
+                    </span>
+                    ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
+                      ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
+                    </span>`}
+                  </div>`;
+                })}
               </div>
             </div>`;
+          };
 
           if (this.resolvedSpec.tagGroups && this.resolvedSpec.tagGroups.length > 0) {
-            return this.resolvedSpec.tagGroups.map((group) => {
-              const groupTags = group.tags.filter(
-                (tag) => tag.paths.filter((path) => getMatchedPaths(this.searchVal, path, tag.name)).length
-              );
-              if (groupTags.length === 0) return '';
-              return html`
-                <div class="nav-bar-tag-group ${group.expanded ? 'expanded' : 'collapsed'}" id="link-${group.elementId}">
-                  <div
-                    class="nav-bar-tag-group-header"
-                    part="section-navbar-item section-navbar-tag-group"
-                    data-action="expand-collapse-tag-group"
-                    tabindex="0"
-                    role="button"
-                    aria-expanded="${group.expanded ? 'true' : 'false'}"
-                  >
-                    <div class="nav-bar-tag-group-title">${group.displayName || group.name}</div>
-                    <div class="nav-bar-tag-group-icon" tabindex="0" data-action="expand-collapse-tag-group"></div>
-                  </div>
-                  <div class="nav-bar-tags-under-group">${groupTags.map((tag) => renderNavTagItem(tag))}</div>
-                </div>
-              `;
+            const assignedTagNames = new Set();
+            this.resolvedSpec.tagGroups.forEach((group) => {
+              (group.tags || []).forEach((tag) => {
+                assignedTagNames.add(tag.name.toLowerCase());
+              });
             });
+
+            const renderedGroups = this.resolvedSpec.tagGroups
+              .filter((group) => isNavTagGroupVisible(group, this.searchVal))
+              .map((group) => {
+                const groupTags = group.tags.filter((tag) => isNavTagVisible(tag, this.searchVal));
+                if (groupTags.length === 0) return '';
+                return html`
+                  <div class="nav-bar-tag-group ${group.expanded ? 'expanded' : 'collapsed'}" id="link-${group.elementId}">
+                    <div
+                      class="nav-bar-tag-group-header"
+                      part="section-navbar-item section-navbar-tag-group"
+                      data-action="expand-collapse-tag-group"
+                      tabindex="0"
+                      role="button"
+                      aria-expanded="${group.expanded ? 'true' : 'false'}"
+                    >
+                      <div class="nav-bar-tag-group-title">${group.displayName || group.name}</div>
+                      <div class="nav-bar-tag-group-icon" tabindex="0" data-action="expand-collapse-tag-group"></div>
+                    </div>
+                    <div class="nav-bar-tags-under-group">${groupTags.map((tag) => renderNavTagItem(tag))}</div>
+                  </div>
+                `;
+              });
+
+            const remainingTags = (this.resolvedSpec.tags || [])
+              .filter((tag) => !assignedTagNames.has(tag.name.toLowerCase()) && isNavTagVisible(tag, this.searchVal))
+              .map((tag) => renderNavTagItem(tag));
+
+            return html`${renderedGroups}${remainingTags}`;
           }
 
-          return this.resolvedSpec.tags
-            .filter((tag) => tag.paths.filter((path) => getMatchedPaths(this.searchVal, path, tag.name)).length)
-            .map((tag) => renderNavTagItem(tag));
+          return (this.resolvedSpec.tags || []).filter((tag) => isNavTagVisible(tag, this.searchVal)).map((tag) => renderNavTagItem(tag));
         })()}
 
         <!-- COMPONENTS -->

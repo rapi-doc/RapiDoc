@@ -547,6 +547,8 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
           headers: v.description ? getHeadersFromMarkdown(v.description) : [],
           paths: [],
           expanded: isTagExpanded(v),
+          xInternal: v['x-internal'] ?? undefined,
+          xHidden: v['x-hidden'] ?? undefined,
         }))
       : [];
 
@@ -603,7 +605,7 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
             pathTags.push(pathOrHookNameKey.substring(0, firstWordEndIndex));
           }
         } else {
-          pathTags.push('General ⦂');
+          pathTags.push('General');
         }
       }
 
@@ -621,10 +623,13 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
             show: true,
             elementId: `tag--${tag.replace(invalidCharsRegEx, '-')}`,
             name: tag,
+            displayName: specTagsItem?.['x-displayName'] || specTagsItem?.name || tag,
             description: specTagsItem?.description || '',
             headers: specTagsItem?.description ? getHeadersFromMarkdown(specTagsItem.description) : [],
             paths: [],
             expanded: isTagExpanded(specTagsItem),
+            xInternal: specTagsItem?.['x-internal'] ?? undefined,
+            xHidden: specTagsItem?.['x-hidden'] ?? undefined,
           };
           tags.push(tagObj);
         }
@@ -687,8 +692,8 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
           xCodeSamples: pathOrHookObj['x-codeSamples'] || pathOrHookObj['x-code-samples'] || '',
           rawOperation: pathOrHookObj,
           xMcp: pathOrHookObj['x-mcp'] || pathOrHookObj['x-mcp-tool'] || undefined,
-          xInternal: pathOrHookObj['x-internal'] || undefined,
-          xHidden: pathOrHookObj['x-hidden'] || undefined,
+          xInternal: pathOrHookObj['x-internal'] ?? pathsAndWebhooks[pathOrHookName]?.['x-internal'] ?? undefined,
+          xHidden: pathOrHookObj['x-hidden'] ?? pathsAndWebhooks[pathOrHookName]?.['x-hidden'] ?? undefined,
           xOpenAiIsConsequential: pathOrHookObj['x-openai-isConsequential'],
           xSpeakeasyNameOverride: pathOrHookObj['x-speakeasy-name-override'] || undefined,
         });
@@ -763,6 +768,8 @@ export function groupByTagGroups(openApiSpec, tags = []) {
         elementId: `tag-group--${g.name.replace(invalidCharsRegEx, '-')}`,
         tags: groupTags,
         expanded: isTagExpanded(g),
+        xInternal: g['x-internal'] ?? undefined,
+        xHidden: g['x-hidden'] ?? undefined,
       });
     }
   });

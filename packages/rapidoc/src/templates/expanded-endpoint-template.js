@@ -227,6 +227,12 @@ export default function expandedEndpointTemplate() {
   `;
 
   if (this.resolvedSpec.tagGroups && this.resolvedSpec.tagGroups.length > 0) {
+    const assignedTagNames = new Set();
+    this.resolvedSpec.tagGroups.forEach((group) => {
+      (group.tags || []).forEach((tag) => assignedTagNames.add(tag.name.toLowerCase()));
+    });
+    const remainingTags = (this.resolvedSpec.tags || []).filter((tag) => !assignedTagNames.has(tag.name.toLowerCase()));
+
     return html`
       ${this.resolvedSpec.tagGroups.map(
         (group) => html`
@@ -254,6 +260,7 @@ export default function expandedEndpointTemplate() {
           ${group.tags.map((tag) => renderTagSections(tag))}
         `
       )}
+      ${remainingTags.map((tag) => renderTagSections(tag))}
     `;
   }
 

@@ -116,7 +116,7 @@ export default css`
     background-blend-mode: multiply;
     border-right: 1px solid var(--border);
     line-height: calc(var(--font-size-small) + 4px);
-    font-size: var(--font-size-small);
+    font-size: calc(var(--font-size-small) + 1px);
     position: relative;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -171,6 +171,7 @@ export default css`
   }
   .nav-bar-paths-under-tag {
     overflow: hidden;
+    padding-left: 10px;
     transition:
       max-height 0.2s ease-out,
       visibility 0.3s;
@@ -281,7 +282,6 @@ export default css`
     display: none;
   }
   .nav-bar-tags-under-group {
-    padding-left: 6px;
     border-inline-start: 1px solid var(--border);
     margin-inline-start: 10px;
   }

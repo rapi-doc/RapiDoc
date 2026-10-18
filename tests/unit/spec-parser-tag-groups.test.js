@@ -452,6 +452,234 @@ describe('OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)', () => {
       'Should style collapsed tag group containing active element'
     );
   });
+
+  it('should include both x-tagGroups and remaining left-out tags in navbar', async () => {
+    const navbarTemplate = (await import('../../packages/rapidoc/src/templates/navbar-template.js')).default;
+    const specObj = {
+      openapi: '3.1.0',
+      info: { title: 'Test Portal', version: '1.0.0' },
+      'x-tagGroups': [
+        {
+          name: 'Core Group',
+          tags: ['grouped-tag'],
+        },
+      ],
+      tags: [
+        { name: 'grouped-tag', description: 'Grouped tag desc' },
+        { name: 'standalone-tag', description: 'Left out tag desc' },
+      ],
+      paths: {
+        '/grouped': { get: { tags: ['grouped-tag'], summary: 'Grouped Op', responses: { 200: { description: 'OK' } } } },
+        '/standalone': { get: { tags: ['standalone-tag'], summary: 'Standalone Op', responses: { 200: { description: 'OK' } } } },
+      },
+    };
+
+    const parsed = await ProcessSpec(specObj, false);
+    const context = {
+      resolvedSpec: parsed,
+      renderStyle: 'read',
+      showSideNav: 'true',
+      showInfo: 'false',
+      showHeader: 'true',
+      allowAdvancedSearch: 'false',
+    };
+
+    const html = renderTemplateToString(navbarTemplate.call(context));
+    // Verify tag group is rendered
+    assert.ok(html.includes('Core Group'), 'Should render Core Group');
+    assert.ok(html.includes('grouped-tag'), 'Should render grouped-tag under group');
+    assert.ok(html.includes('Grouped Op'), 'Should render Grouped Op');
+
+    // Verify left-out standalone tag is ALSO rendered
+    assert.ok(html.includes('standalone-tag'), 'Should render left-out standalone-tag');
+    assert.ok(html.includes('Standalone Op'), 'Should render Standalone Op under left-out tag');
+  });
+
+  it('should associate untagged operations with General tag and render it in navbar', async () => {
+    const navbarTemplate = (await import('../../packages/rapidoc/src/templates/navbar-template.js')).default;
+    const specObj = {
+      openapi: '3.1.0',
+      info: { title: 'Test Portal', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            summary: 'Health check',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/version': {
+          get: {
+            summary: 'Version check',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    };
+
+    const parsed = await ProcessSpec(specObj, false);
+    const generalTag = parsed.tags.find((t) => t.name === 'General');
+    assert.ok(generalTag, 'General tag should be created for untagged operations');
+    assert.equal(generalTag.paths.length, 2);
+
+    const context = {
+      resolvedSpec: parsed,
+      renderStyle: 'focused',
+      showSideNav: 'true',
+      showInfo: 'false',
+      showHeader: 'true',
+      allowAdvancedSearch: 'false',
+    };
+
+    const html = renderTemplateToString(navbarTemplate.call(context));
+    assert.ok(html.includes('General'), 'Navbar should render General tag');
+    assert.ok(html.includes('Health check'), 'Navbar should render Health check under General');
+    assert.ok(html.includes('Version check'), 'Navbar should render Version check under General');
+  });
+
+  it('should exclude x-internal and x-hidden operations, tags, and groups from navigation', async () => {
+    const navbarTemplate = (await import('../../packages/rapidoc/src/templates/navbar-template.js')).default;
+    const specObj = {
+      openapi: '3.1.0',
+      info: { title: 'Test Portal', version: '1.0.0' },
+      'x-tagGroups': [
+        {
+          name: 'Public Group',
+          tags: ['public-tag', 'mixed-tag'],
+        },
+        {
+          name: 'Hidden Group',
+          'x-hidden': true,
+          tags: ['hidden-group-tag'],
+        },
+      ],
+      tags: [
+        { name: 'public-tag' },
+        { name: 'mixed-tag' },
+        { name: 'hidden-group-tag' },
+        { name: 'internal-tag', 'x-internal': true },
+      ],
+      paths: {
+        '/public': {
+          get: {
+            tags: ['public-tag'],
+            summary: 'Visible Public Op',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/mixed/public': {
+          get: {
+            tags: ['mixed-tag'],
+            summary: 'Visible In Mixed Tag',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/mixed/internal': {
+          get: {
+            tags: ['mixed-tag'],
+            summary: 'Secret Internal Op',
+            'x-internal': true,
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/mixed/hidden': {
+          get: {
+            tags: ['mixed-tag'],
+            summary: 'Hidden Op',
+            'x-hidden': true,
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/internal-tag-op': {
+          get: {
+            tags: ['internal-tag'],
+            summary: 'Op In Internal Tag',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/hidden-group-op': {
+          get: {
+            tags: ['hidden-group-tag'],
+            summary: 'Op In Hidden Group',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    };
+
+    const parsed = await ProcessSpec(specObj, false);
+    const context = {
+      resolvedSpec: parsed,
+      renderStyle: 'focused',
+      showSideNav: 'true',
+      showInfo: 'false',
+      showHeader: 'true',
+      allowAdvancedSearch: 'false',
+    };
+
+    const html = renderTemplateToString(navbarTemplate.call(context));
+
+    // Visible items
+    assert.ok(html.includes('Public Group'), 'Public Group should be rendered');
+    assert.ok(html.includes('Visible Public Op'), 'Visible Public Op should be rendered');
+    assert.ok(html.includes('Visible In Mixed Tag'), 'Visible In Mixed Tag should be rendered');
+
+    // Excluded items
+    assert.ok(!html.includes('Secret Internal Op'), 'x-internal operation must not be in navbar');
+    assert.ok(!html.includes('Hidden Op'), 'x-hidden operation must not be in navbar');
+    assert.ok(!html.includes('internal-tag'), 'x-internal tag must not be in navbar');
+    assert.ok(!html.includes('Op In Internal Tag'), 'Operations under x-internal tag must not be in navbar');
+    assert.ok(!html.includes('Hidden Group'), 'x-hidden tag group must not be in navbar');
+    assert.ok(!html.includes('Op In Hidden Group'), 'Operations under x-hidden group must not be in navbar');
+  });
+
+  it('should parse and render user shipment spec with tagGroups, remaining tags, and General tag', async () => {
+    const fs = await import('node:fs/promises');
+    const path = await import('node:path');
+    const navbarTemplate = (await import('../../packages/rapidoc/src/templates/navbar-template.js')).default;
+
+    const shipmentSpecPath = path.resolve('docs/public/specs-test/shipment.json');
+    const specRaw = await fs.readFile(shipmentSpecPath, 'utf8');
+    const specObj = JSON.parse(specRaw);
+
+    const parsed = await ProcessSpec(specObj, false);
+
+    // Groups check
+    assert.equal(parsed.tagGroups.length, 2);
+    assert.equal(parsed.tagGroups[0].name, 'Shipment');
+    assert.equal(parsed.tagGroups[1].name, 'Billing & International');
+
+    // General tag check (health & version)
+    const generalTag = parsed.tags.find((t) => t.name === 'General');
+    assert.ok(generalTag, 'General tag should be created for /health and /version');
+    assert.ok(generalTag.paths.some((p) => p.path === '/health'));
+    assert.ok(generalTag.paths.some((p) => p.path === '/version'));
+
+    // Remaining tags check
+    const context = {
+      resolvedSpec: parsed,
+      renderStyle: 'focused',
+      showSideNav: 'true',
+      showInfo: 'false',
+      showHeader: 'true',
+      allowAdvancedSearch: 'false',
+    };
+
+    const html = renderTemplateToString(navbarTemplate.call(context));
+
+    // Tag groups rendered
+    assert.ok(html.includes('Shipment'), 'Should render Shipment group');
+    assert.ok(html.includes('Billing & International'), 'Should render Billing & International group');
+    assert.ok(html.includes('Shipment Management'), 'Should render Shipment Management in group');
+    assert.ok(html.includes('Rates & Billing'), 'Should render Rates & Billing in group');
+
+    // Left-out tags rendered
+    assert.ok(html.includes('Documentation'), 'Should render left-out Documentation tag');
+    assert.ok(html.includes('Schemas'), 'Should render left-out Schemas tag');
+    assert.ok(html.includes('Organization Management'), 'Should render left-out Organization Management tag');
+    assert.ok(html.includes('Route Planning'), 'Should render left-out Route Planning tag');
+    assert.ok(html.includes('Authentication'), 'Should render left-out Authentication tag');
+    assert.ok(html.includes('General'), 'Should render left-out General tag');
+  });
 });
 
 
