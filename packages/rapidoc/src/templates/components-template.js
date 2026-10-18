@@ -11,35 +11,34 @@ import '~/components/schema-tree';
 import '~/components/schema-table';
 
 function schemaBodyTemplate(sComponent) {
-  return html`<div class="divider"></div>
-    <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}">
-      <div style="font-weight:bold">
-        ${sComponent.name} <span style="color:var(--muted-foreground); font-size:var(--font-size-small); font-weight:400;"> Schema </span>
-      </div>
-      ${
-        this.schemaStyle === 'table'
-          ? html` <schema-table
-              .data="${schemaToAST(sComponent.component)}"
-              schema-expand-level="${this.schemaExpandLevel}"
-              schema-description-expanded="${this.schemaDescriptionExpanded}"
-              allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-              schema-hide-read-only="false"
-              schema-hide-write-only="${this.schemaHideWriteOnly}"
-              exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-            >
-            </schema-table>`
-          : html`<schema-tree
-              .data="${schemaToAST(sComponent.component)}"
-              schema-expand-level="${this.schemaExpandLevel}"
-              schema-description-expanded="${this.schemaDescriptionExpanded}"
-              allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-              schema-hide-read-only="false"
-              schema-hide-write-only="${this.schemaHideWriteOnly}"
-              exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-            >
-            </schema-tree>`
-      }
-    </div>`;
+  return html` <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}">
+    <div class="bold-text">
+      ${sComponent.name} <span style="color:var(--muted-foreground); font-size:var(--font-size-small); font-weight:400;"> Schema </span>
+    </div>
+    ${
+      this.schemaStyle === 'table'
+        ? html` <schema-table
+            .data="${schemaToAST(sComponent.component)}"
+            schema-expand-level="${this.schemaExpandLevel}"
+            schema-description-expanded="${this.schemaDescriptionExpanded}"
+            allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+            schema-hide-read-only="false"
+            schema-hide-write-only="${this.schemaHideWriteOnly}"
+            exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          >
+          </schema-table>`
+        : html`<schema-tree
+            .data="${schemaToAST(sComponent.component)}"
+            schema-expand-level="${this.schemaExpandLevel}"
+            schema-description-expanded="${this.schemaDescriptionExpanded}"
+            allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+            schema-hide-read-only="false"
+            schema-hide-write-only="${this.schemaHideWriteOnly}"
+            exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          >
+          </schema-tree>`
+    }
+  </div>`;
 }
 
 function componentBodyTemplate(sComponent, componentType) {
@@ -47,10 +46,9 @@ function componentBodyTemplate(sComponent, componentType) {
     return schemaBodyTemplate.call(this, sComponent);
   }
   return html`
-    <div class="divider"></div>
     <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}">
       ${html`
-        <div style="font-weight:bold">
+        <div class="bold-text">
           ${sComponent.name}
           <span style="color:var(--muted-foreground); font-size:var(--font-size-small); font-weight:400"> ${componentType} </span>
         </div>
@@ -73,15 +71,9 @@ export default function componentsTemplate() {
   return html`
     ${this.resolvedSpec.components.map(
       (component) => html`
-        <div
-          id="cmp--${component.name.toLowerCase()}"
-          class="regular-font section-gap--read-mode observe-me"
-          style="border-top:1px solid var(--primary);"
-        >
+        <div id="cmp--${component.name.toLowerCase()}" class="regular-font section-gap--read-mode observe-me read-mode-tag">
           <div class="title tag">${component.name}</div>
-          <div class="regular-font-size">
-            ${unsafeHTML(`<div class='m-markdown regular-font'>${sanitizeHTML(marked(component.description || ''))}</div>`)}
-          </div>
+          ${unsafeHTML(`<div class='m-markdown regular-font'>${sanitizeHTML(marked(component.description || ''))}</div>`)}
         </div>
         <div class="regular-font section-gap--read-mode">
           ${component.subComponents

@@ -21,6 +21,80 @@ export default css`
     overflow-wrap: break-word;
     word-break: break-all;
     display: none;
+    margin-inline-start: auto;
+    padding-inline-start: 16px;
+  }
+
+  .external-docs-box {
+    background: var(--muted);
+    padding: 2px 8px 8px 8px;
+    margin: 8px 0;
+    border-radius: var(--card-radius);
+  }
+
+  .external-docs-link {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-small);
+  }
+
+  .external-docs-arrow {
+    transform: rotate(270deg) scale(1.5);
+    display: inline-block;
+    margin-left: 5px;
+  }
+
+  .param-constraint {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .section-expand-collapse-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
+  .callback-operation-list {
+    margin-left: 16px;
+    width: 100%;
+  }
+
+  .callback-operation-item {
+    margin-top: 12px;
+  }
+
+  .callback-operation-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .callback-method {
+    width: 70px;
+    border: none;
+    margin: 0;
+    padding: 0;
+    line-height: 20px;
+    vertical-align: baseline;
+    text-align: left;
+  }
+
+  .read-mode-tag {
+    border-top: 1px solid var(--primary);
+  }
+
+  .read-mode-group {
+    border-top: 2px solid var(--primary);
+    margin-top: 28px;
+  }
+
+  .title.tag-group {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--primary);
   }
 
   .m-endpoint {

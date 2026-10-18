@@ -49,15 +49,15 @@ function focusedTagBodyTemplate(tag) {
     <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
     ${
       tag.description
-        ? html`<div class="m-markdown">
-            ${unsafeHTML(`<div class="m-markdown regular-font">
-            ${sanitizeHTML(
-              marked(
-                tag.description || '',
-                this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
+        ? html`<div class="m-markdown regular-font">
+            ${unsafeHTML(
+              sanitizeHTML(
+                marked(
+                  tag.description || '',
+                  this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
+                )
               )
             )}
-          </div>`)}
           </div>`
         : ''
     }
@@ -76,7 +76,6 @@ export default function focusedEndpointTemplate() {
   let selectedPathObj = null;
   let selectedTagObj = null;
   let focusedTemplate;
-  let i = 0;
   if (focusElId.startsWith('overview') && this.showInfo === 'true') {
     focusedTemplate = html`${overviewTemplate.call(this)}${downloadsTemplate.call(this)}`;
   } else if (focusElId === 'auth' && this.allowAuthentication === 'true') {
@@ -96,9 +95,9 @@ export default function focusedEndpointTemplate() {
       focusedTemplate = defaultContentTemplate.call(this);
     }
   } else {
-    for (i = 0; i < this.resolvedSpec.tags.length; i += 1) {
-      selectedTagObj = this.resolvedSpec.tags[i];
-      selectedPathObj = this.resolvedSpec.tags[i].paths.find((v) => `${v.elementId}` === focusElId);
+    for (const tag of this.resolvedSpec.tags) {
+      selectedTagObj = tag;
+      selectedPathObj = tag.paths.find((v) => `${v.elementId}` === focusElId);
       if (selectedPathObj) {
         break;
       }

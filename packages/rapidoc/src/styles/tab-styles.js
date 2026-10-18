@@ -47,4 +47,9 @@ export default css`
     position: relative;
     min-height: 50px;
   }
+  .tab-content .toolbar-btn {
+    position: absolute;
+    top: 12px;
+    right: 8px;
+  }
 `;

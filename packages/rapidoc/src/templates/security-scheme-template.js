@@ -727,7 +727,6 @@ export default function securitySchemeTemplate(allowTry = 'true') {
     return '';
   }
 
-  console.log('allowTry: ', allowTry);
   const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => v.finalKeyValue);
   if (!providedApiKeys) {
     return;
@@ -742,11 +741,10 @@ export default function securitySchemeTemplate(allowTry = 'true') {
       <div class="sub-title regular-font">AUTHENTICATION</div>
       ${
         allowTry === 'true'
-          ? html`<div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
+          ? html`<div class="small-font-size" style="display:flex; align-items: center; justify-content: space-between; min-height:30px">
               ${
                 providedApiKeys.length > 0
                   ? html`<div class="blue-text">${providedApiKeys.length} API key applied</div>
-                      <div style="flex:1"></div>
                       <button
                         class="m-btn thin-border"
                         part="btn btn-outline"

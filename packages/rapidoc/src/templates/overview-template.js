@@ -27,15 +27,11 @@ export default function overviewTemplate() {
       ${
         this.resolvedSpec?.info
           ? html`
-              <div id="api-title" part="section-overview-title" style="font-size:32px">
+              <div id="api-title" part="section-overview-title">
                 ${this.resolvedSpec.info.title}
-                ${
-                  !this.resolvedSpec.info.version
-                    ? ''
-                    : html`<span style="font-size:var(--font-size-small);font-weight:bold"> ${this.resolvedSpec.info.version} </span>`
-                }
+                ${!this.resolvedSpec.info.version ? '' : html`<span class="version"> ${this.resolvedSpec.info.version} </span>`}
               </div>
-              <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px;">
+              <div id="api-info">
                 ${
                   this.resolvedSpec.info.contact?.email
                     ? html`<span
@@ -79,20 +75,20 @@ export default function overviewTemplate() {
                 }
               </div>
               <slot name="overview"></slot>
-              <div id="api-description">
-                ${
-                  this.resolvedSpec.info.description
-                    ? html`${unsafeHTML(
-                        sanitizeHTML(`<div class="m-markdown regular-font">
-                        ${marked(
-                          this.resolvedSpec.info.description,
-                          this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined
-                        )}
-                      </div>`)
-                      )}`
-                    : ''
-                }
-              </div>
+              ${
+                this.resolvedSpec.info.description
+                  ? html`<div id="api-description" class="m-markdown regular-font">
+                      ${unsafeHTML(
+                        sanitizeHTML(
+                          marked(
+                            this.resolvedSpec.info.description,
+                            this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined
+                          )
+                        )
+                      )}
+                    </div>`
+                  : ''
+              }
             `
           : ''
       }

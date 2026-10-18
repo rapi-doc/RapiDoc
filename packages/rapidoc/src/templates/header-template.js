@@ -5,7 +5,7 @@ import { html } from 'lit';
 import logoTemplate from '~/templates/logo-template';
 
 export default function headerTemplate() {
-  return html`<header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;">
+  return html`<header class="row main-header regular-font" part="section-header">
     <div class="only-large-screen-flex" style="align-items: center;">
       <slot name="logo" class="logo" part="section-logo">
         ${logoTemplate('height:36px;width:36px;margin-left:5px')}
@@ -13,7 +13,7 @@ export default function headerTemplate() {
       </slot>
       <div class="header-title" part="label-header-title">${this.headingText}</div>
     </div>
-    <div style="margin: 0px 8px;display:flex;flex:1">
+    <div class="main-header-controls">
       ${
         this.allowSpecUrlLoad === 'false'
           ? ''
@@ -29,7 +29,7 @@ export default function headerTemplate() {
                 @change="${this.onSpecUrlChange}"
                 spellcheck="false"
               />
-              <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
+              <div class="header-action-icon" @click="${this.onSpecUrlChange}">&#x21a9;</div>
             `
       }
       ${
@@ -70,7 +70,7 @@ export default function headerTemplate() {
                 style="max-width:130px;margin-left:10px;"
                 spellcheck="false"
               />
-              <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
+              <div class="header-action-icon" @click="${this.onSearchChange}">&#x21a9;</div>
             `
       }
       ${

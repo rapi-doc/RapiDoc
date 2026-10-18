@@ -463,7 +463,6 @@ export default function navbarTemplate() {
         ${
           this.resolvedSpec.components && this.showComponents === 'true'
             ? html` <div id="link-components" class="nav-bar-section components">
-                  <div></div>
                   <div class="nav-bar-section-title">COMPONENTS</div>
                 </div>
                 ${this.resolvedSpec.components.map((component) =>

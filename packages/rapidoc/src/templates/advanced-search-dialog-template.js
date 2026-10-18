@@ -9,7 +9,7 @@ export default function advancedSearchDialogTemplate() {
       <button type="button" @click="${(e) => this.onAdvancedSearchClose(e)}">&times;</button>
     </header>
     <div class="dialog-box-content">
-      <span class="advanced-search-options">
+      <div class="advanced-search-options">
         <input
           id="input-advanced-search-dialog"
           style="width:100%; padding-right:20px;"
@@ -19,66 +19,61 @@ export default function advancedSearchDialogTemplate() {
           spellcheck="false"
           @keyup="${(e) => this.onAdvancedSearch(e, 400)}"
         />
-        <div style="display:flex; gap:16px; flex-wrap:wrap; margin:8px 0 24px;">
-          <div>
+        <div class="search-options-row">
+          <label class="search-option-label" for="search-api-path">
             <input
-              style="cursor:pointer;"
               type="checkbox"
               part="checkbox checkbox-search-dialog"
               id="search-api-path"
               checked
               @change="${(e) => this.onAdvancedSearch(e, 0)}"
             />
-            <label for="search-api-path" style="cursor:pointer;"> API Path </label>
-          </div>
-          <div>
+            API Path
+          </label>
+          <label class="search-option-label" for="search-api-descr">
             <input
-              style="cursor:pointer;"
               type="checkbox"
               part="checkbox checkbox-search-dialog"
               id="search-api-descr"
               checked
               @change="${(e) => this.onAdvancedSearch(e, 0)}"
             />
-            <label style="cursor:pointer;" for="search-api-descr"> API Description </label>
-          </div>
-          <div>
+            API Description
+          </label>
+          <label class="search-option-label" for="search-api-params">
             <input
-              style="cursor:pointer;"
               type="checkbox"
               part="checkbox checkbox-search-dialog"
               id="search-api-params"
               @change="${(e) => this.onAdvancedSearch(e, 0)}"
             />
-            <label style="cursor:pointer;" for="search-api-params"> API Parameters </label>
-          </div>
-          <div>
+            API Parameters
+          </label>
+          <label class="search-option-label" for="search-api-request-body">
             <input
-              style="cursor:pointer;"
               type="checkbox"
               part="checkbox checkbox-search-dialog"
               id="search-api-request-body"
               @change="${(e) => this.onAdvancedSearch(e, 0)}"
             />
-            <label style="cursor:pointer;" for="search-api-request-body"> Request Body Parameters </label>
-          </div>
-          <div>
+            Request Body Parameters
+          </label>
+          <label class="search-option-label" for="search-api-resp-descr">
             <input
-              style="cursor:pointer;"
               type="checkbox"
               part="checkbox checkbox-search-dialog"
               id="search-api-resp-descr"
               @change="${(e) => this.onAdvancedSearch(e, 0)}"
             />
-            <label style="cursor:pointer;" for="search-api-resp-descr"> Response Description </label>
-          </div>
+            Response Description
+          </label>
         </div>
-      </span>
+      </div>
       ${this.advancedSearchMatches?.map(
         (path) => html`
           <div
-            class="mono-font small-font-size hover-bg"
-            style="padding: 5px; cursor: pointer; border-bottom: 1px solid var(--border); ${path.deprecated ? 'filter:opacity(0.5);' : ''}"
+            class="mono-font small-font-size hover-bg search-match-row"
+            style="${path.deprecated ? 'filter:opacity(0.5);' : ''}"
             data-content-id="${path.elementId}"
             tabindex="0"
             @click="${(e) => {
@@ -88,9 +83,9 @@ export default function advancedSearchDialogTemplate() {
               this.scrollToEventTarget(e, true);
             }}"
           >
-            <span style="pointer-events: none" class="upper bold-text method-fg ${path.method}">${path.method}</span>
-            <span style="pointer-events: none">${path.path}</span>
-            <span style="pointer-events: none" class="regular-font gray-text">${path.summary}</span>
+            <span class="upper bold-text method-fg ${path.method}">${path.method}</span>
+            <span>${path.path}</span>
+            <span class="regular-font gray-text">${path.summary}</span>
           </div>
         `
       )}

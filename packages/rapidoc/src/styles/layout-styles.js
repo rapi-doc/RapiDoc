@@ -189,6 +189,14 @@ export default css`
   .main-header {
     background: var(--background);
     color: var(--foreground);
+    padding: 8px 4px;
+    min-height: 48px;
+  }
+  .main-header-controls {
+    margin: 0 8px;
+    display: flex;
+    flex: 1;
+    align-items: center;
   }
   .header-title {
     font-size: calc(var(--font-size-regular) + 8px);
@@ -233,6 +241,73 @@ export default css`
     border-top: 2px solid var(--border);
     margin: 24px 0;
     width: 100%;
+  }
+
+  .downloads-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 12px 0;
+  }
+  .download-btn {
+    min-width: 170px;
+    height: 32px;
+    line-height: 30px;
+    padding: 0 14px;
+    white-space: nowrap;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .download-btn.view-spec {
+    min-width: 190px;
+  }
+  .download-select {
+    min-width: 180px;
+    height: 32px;
+    line-height: 30px;
+    padding: 0 14px;
+    white-space: nowrap;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  .header-action-icon {
+    margin: 6px 5px 0 -24px;
+    font-size: var(--font-size-regular);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  #spec-not-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--border);
+    padding: 12px;
+    overflow-wrap: anywhere;
+    font-size: var(--font-size-small);
+    color: var(--red);
+    font-family: var(--font-mono);
+  }
+
+  .server-opt-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 4px 0;
+  }
+  .server-opt-row input[type='radio'],
+  .server-opt-row label {
+    cursor: pointer;
   }
 
   .tooltip {

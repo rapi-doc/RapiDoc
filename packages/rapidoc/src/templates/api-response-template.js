@@ -37,9 +37,8 @@ export function apiResponseTabTemplate() {
     }
     responseContent = html`<code class="language-${responseFormat}">${this.responseText}</code>`;
   }
-  return html` <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+  return html` <div class="row" style="font-size:var(--font-size-small); margin:5px 0; justify-content:space-between; align-items:center;">
       <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
-      <div style="flex:1"></div>
       <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
     </div>
     <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
@@ -112,7 +111,6 @@ export function apiResponseTabTemplate() {
             >
               <button
                 class="toolbar-btn"
-                style="position:absolute; top:12px; right:8px"
                 @click="${(e) => {
                   copyToClipboard(this.responseText, e);
                 }}"
@@ -131,7 +129,6 @@ ${responseContent}</pre>
       >
         <button
           class="toolbar-btn"
-          style="position:absolute; top:12px; right:8px"
           @click="${(e) => {
             copyToClipboard(this.responseHeaders, e);
           }}"
@@ -146,25 +143,19 @@ ${responseContent}</pre>
 }
 
 export function apiCallTemplate() {
-  const selectedServerHtml = html`
-    <div style="display:flex; flex-direction:column;">
-      ${
-        this.serverUrl
-          ? html`<div style="display:flex; align-items:baseline;">
-              <div style="font-weight:bold; padding-right:5px;">API Server</div>
-              <span class="gray-text"> ${this.serverUrl} </span>
-            </div>`
-          : ''
-      }
-    </div>
-  `;
+  const selectedServerHtml = this.serverUrl
+    ? html`<div style="display:flex; align-items:baseline; overflow:hidden;">
+        <div style="font-weight:bold; padding-right:5px;">API Server</div>
+        <span class="gray-text"> ${this.serverUrl} </span>
+      </div>`
+    : '';
 
   return html`<div
       style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 8px; margin:16px 0; font-size:var(--font-size-small);"
       part="wrap-request-btn"
     >
       <div class="hide-in-small-screen" style="display:flex; flex-direction:column; margin:0; flex:1 1 180px; min-width:0;">
-        <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;">${selectedServerHtml}</div>
+        ${selectedServerHtml}
         <div style="display:flex; flex-wrap:wrap;">
           <div style="font-weight:bold; padding-right:5px;">Authentication</div>
           ${

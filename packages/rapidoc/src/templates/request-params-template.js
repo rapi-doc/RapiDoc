@@ -331,9 +331,9 @@ export function inputParametersTemplate(paramType) {
           paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
             ? html` <td colspan="${this.allowTry === 'true' ? '1' : '2'}">
                 <div class="param-constraint">
-                  ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br />` : ''}
-                  ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br />` : ''}
-                  ${paramSchema.constrain ? html`${paramSchema.constrain}<br />` : ''}
+                  ${paramSchema.default ? html`<div><span style="font-weight:bold">Default: </span>${paramSchema.default}</div>` : ''}
+                  ${paramSchema.pattern ? html`<div><span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}</div>` : ''}
+                  ${paramSchema.constrain ? html`<div>${paramSchema.constrain}</div>` : ''}
                   ${
                     paramSchema.allowedValues &&
                     String(paramSchema.allowedValues)
@@ -368,7 +368,7 @@ export function inputParametersTemplate(paramType) {
       <tr>
         ${this.allowTry === 'true' ? html`<td style="border:none"></td>` : ''}
         <td colspan="2" style="border:none">
-          <span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(param.description || '')))} </span>
+          <div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(param.description || '')))}</div>
           ${exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
         </td>
       </tr>

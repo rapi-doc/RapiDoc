@@ -493,17 +493,15 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
     ) {
       if (reqBody.mimeType === this.selectedRequestBodyType) {
         reqBodyFileInputHtml = html`
-          <div class="small-font-size bold-text row">
-            <input
-              id="input-request-body-param-file"
-              type="file"
-              part="file-input"
-              style="max-width:100%"
-              class="request-body-param-file"
-              data-ptype="${reqBody.mimeType}"
-              spellcheck="false"
-            />
-          </div>
+          <input
+            id="input-request-body-param-file"
+            type="file"
+            part="file-input"
+            style="max-width:100%"
+            class="request-body-param-file small-font-size bold-text"
+            data-ptype="${reqBody.mimeType}"
+            spellcheck="false"
+          />
         `;
       }
     }
@@ -554,10 +552,11 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
 
   return html`
     <div class="request-body-container" data-selected-request-body-type="${ifDefined(this.selectedRequestBodyType)}">
-      <div class="table-title top-gap row">
-        REQUEST BODY ${this.request_body.required ? html`<span class="mono-font" style="color:var(--red)">*</span>` : ''}
-        <span style="font-weight:normal; margin-left:5px"> ${this.selectedRequestBodyType}</span>
-        <span style="flex:1"></span>
+      <div class="table-title top-gap row" style="justify-content:space-between; align-items:center;">
+        <div>
+          REQUEST BODY ${this.request_body.required ? html`<span class="mono-font" style="color:var(--red)">*</span>` : ''}
+          <span style="font-weight:normal; margin-left:5px"> ${this.selectedRequestBodyType}</span>
+        </div>
         ${reqBodyTypeSelectorHtml}
       </div>
       ${

@@ -114,17 +114,13 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
       ${pathSecurityTemplate.call(this, path.security)}
       ${
         path.externalDocs?.url || path.externalDocs?.description
-          ? html`<div style="background:var(--muted); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--card-radius)">
+          ? html`<div class="external-docs-box">
               <div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}</div>
               ${
                 path.externalDocs?.url
-                  ? html`<a
-                      style="font-family:var(--font-mono); font-size:var(--font-size-small)"
-                      href="${path.externalDocs?.url}"
-                      target="_blank"
-                    >
+                  ? html`<a class="external-docs-link" href="${path.externalDocs?.url}" target="_blank">
                       ${path.externalDocs?.url}
-                      <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
+                      <div class="external-docs-arrow">⇲</div>
                     </a>`
                   : ''
               }
@@ -201,25 +197,18 @@ export default function expandedEndpointTemplate() {
   }
 
   const renderTagSections = (tag) => html`
-    <section
-      id="${tag.elementId}"
-      part="section-tag"
-      class="regular-font section-gap--read-mode observe-me"
-      style="border-top:1px solid var(--primary);"
-    >
+    <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me read-mode-tag">
       <div class="title tag" part="section-tag-title label-tag-title">${tag.displayName || tag.name}</div>
       <slot name="${tag.elementId}"></slot>
-      <div class="regular-font-size">
-        ${unsafeHTML(`
-      <div class="m-markdown regular-font">
-      ${sanitizeHTML(
-        marked(
-          tag.description || '',
-          this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
-        )
-      )}
-    </div>`)}
-      </div>
+      ${unsafeHTML(`
+        <div class="m-markdown regular-font">
+          ${sanitizeHTML(
+            marked(
+              tag.description || '',
+              this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
+            )
+          )}
+        </div>`)}
     </section>
     <section class="regular-font section-gap--read-mode" part="section-operations-in-tag">
       ${tag.paths.map((path, idx) => expandedEndpointBodyTemplate.call(this, path, tag.name, tag.description, idx === 0))}
@@ -236,24 +225,11 @@ export default function expandedEndpointTemplate() {
     return html`
       ${this.resolvedSpec.tagGroups.map(
         (group) => html`
-          <section
-            id="${group.elementId}"
-            part="section-tag-group"
-            class="regular-font section-gap--read-mode observe-me"
-            style="border-top: 2px solid var(--primary); margin-top: 28px;"
-          >
-            <div
-              class="title tag-group"
-              part="section-tag-group-title"
-              style="font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary);"
-            >
-              ${group.displayName || group.name}
-            </div>
+          <section id="${group.elementId}" part="section-tag-group" class="regular-font section-gap--read-mode observe-me read-mode-group">
+            <div class="title tag-group" part="section-tag-group-title">${group.displayName || group.name}</div>
             ${
               group.description
-                ? html`<div class="regular-font-size m-markdown" style="padding: 8px 0;">
-                    ${unsafeHTML(sanitizeHTML(marked(group.description)))}
-                  </div>`
+                ? html`<div class="m-markdown" style="padding: 8px 0;">${unsafeHTML(sanitizeHTML(marked(group.description)))}</div>`
                 : ''
             }
           </section>

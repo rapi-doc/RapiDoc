@@ -89,8 +89,7 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
       }
       ${
         this.showSummaryWhenCollapsed
-          ? html` <div class="only-large-screen" style="min-width:60px; flex:1"></div>
-              <div part="section-endpoint-head-description" class="descr">${path.summary || path.shortSummary}</div>`
+          ? html`<div part="section-endpoint-head-description" class="descr">${path.summary || path.shortSummary}</div>`
           : ''
       }
     </summary>
@@ -154,17 +153,13 @@ function endpointBodyTemplate(path) {
       }
       ${
         path.externalDocs?.url || path.externalDocs?.description
-          ? html`<div style="background:var(--muted); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--card-radius)">
+          ? html`<div class="external-docs-box">
               <div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}</div>
               ${
                 path.externalDocs?.url
-                  ? html`<a
-                      style="font-family:var(--font-mono); font-size:var(--font-size-small)"
-                      href="${path.externalDocs?.url}"
-                      target="_blank"
-                    >
+                  ? html`<a class="external-docs-link" href="${path.externalDocs?.url}" target="_blank">
                       ${path.externalDocs?.url}
-                      <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
+                      <div class="external-docs-arrow">⇲</div>
                     </a>`
                   : ''
               }
@@ -331,7 +326,7 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
   return html`${
     isMini
       ? ''
-      : html`<div style="display:flex; justify-content:flex-end;">
+      : html`<div class="section-expand-collapse-container">
           <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary); cursor:pointer;"> Expand all </span>
           &nbsp;|&nbsp;
           <span @click="${(e) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary); cursor:pointer;">

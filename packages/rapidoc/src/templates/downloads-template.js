@@ -22,24 +22,13 @@ export default function downloadsTemplate() {
     sectionClass = 'section-gap--read-mode';
   }
 
-  const btnStyle =
-    'min-width:170px; height:32px; line-height:30px; padding:0 14px; white-space:nowrap; vertical-align:middle; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;';
-  const selectStyle =
-    'min-width:180px; height:32px; line-height:30px; padding:0 14px; white-space:nowrap; vertical-align:middle; display:inline-flex; align-items:center; justify-content:space-between; box-sizing:border-box; cursor:pointer;';
-
   return html`
-    <section
-      id="downloads"
-      part="section-downloads"
-      class="downloads-bar observe-me ${sectionClass}"
-      style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:flex-start; margin:12px 0;"
-    >
+    <section id="downloads" part="section-downloads" class="downloads-bar observe-me ${sectionClass}">
       ${
         showSpecDownload
           ? html`
               <button
-                class="m-btn thin-border"
-                style="${btnStyle}"
+                class="m-btn thin-border download-btn"
                 part="btn btn-outline"
                 @click="${() => {
                   downloadResource(this.specUrl, 'openapi-spec');
@@ -50,8 +39,7 @@ export default function downloadsTemplate() {
               ${
                 this.specUrl?.trim().toLowerCase().endsWith('json')
                   ? html`<button
-                      class="m-btn thin-border"
-                      style="min-width:190px; height:32px; line-height:30px; padding:0 14px; white-space:nowrap; vertical-align:middle; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;"
+                      class="m-btn thin-border download-btn view-spec"
                       part="btn btn-outline"
                       @click="${() => {
                         viewResource(this.specUrl);
@@ -68,8 +56,7 @@ export default function downloadsTemplate() {
         showMcpExport
           ? mcpTargets.length === 1
             ? html`<button
-                class="m-btn thin-border"
-                style="${btnStyle}"
+                class="m-btn thin-border download-btn"
                 part="btn btn-outline btn-mcp-export"
                 @click="${() => {
                   this.downloadMcpServer(mcpTargets[0]);
@@ -78,8 +65,7 @@ export default function downloadsTemplate() {
                 Export MCP Server (${MCP_TARGET_LABELS[mcpTargets[0]] || mcpTargets[0]})
               </button>`
             : html`<select
-                class="m-btn thin-border"
-                style="${selectStyle}"
+                class="m-btn thin-border download-select"
                 part="btn btn-outline btn-mcp-export"
                 @change="${(e) => {
                   const target = e.target.value;

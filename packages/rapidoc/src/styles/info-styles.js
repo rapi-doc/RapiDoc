@@ -1,6 +1,14 @@
 import { css } from 'lit';
 
 export default css`
+  #api-title {
+    font-size: 32px;
+  }
+  #api-title .version {
+    font-size: var(--font-size-small);
+    font-weight: bold;
+  }
+
   #api-info {
     font-size: calc(var(--font-size-regular) - 1px);
     margin-top: 8px;

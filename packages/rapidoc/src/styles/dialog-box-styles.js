@@ -70,4 +70,33 @@ export default css`
     flex-grow: 1;
     font-size: 24px;
   }
+
+  .search-options-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 8px 0 24px;
+  }
+
+  .search-option-label {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    user-select: none;
+  }
+
+  .search-option-label input {
+    cursor: pointer;
+  }
+
+  .search-match-row {
+    padding: 5px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-match-row * {
+    pointer-events: none;
+  }
 `;
