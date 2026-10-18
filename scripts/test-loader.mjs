@@ -10,6 +10,8 @@ registerHooks({
       target = fileURLToPath(new URL('../packages/rapidoc/src/index.js', import.meta.url));
     } else if (specifier.startsWith('~/')) {
       target = fileURLToPath(new URL('../packages/rapidoc/src/' + specifier.slice(2), import.meta.url));
+    } else if (specifier === 'rapidoc/static' || specifier === 'rapidoc/prerender') {
+      target = fileURLToPath(new URL('../packages/rapidoc/src/static/index.js', import.meta.url));
     }
 
     try {
