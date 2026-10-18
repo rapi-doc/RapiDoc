@@ -43,10 +43,6 @@
     "./static": {
       "import": "./dist/rapidoc-static-min.js",
       "types": "./src/static/index.d.ts"
-    },
-    "./prerender": {
-      "import": "./dist/rapidoc-static-min.js",
-      "types": "./src/static/index.d.ts"
     }
   },
   "files": [

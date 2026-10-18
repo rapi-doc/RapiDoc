@@ -124,7 +124,7 @@ export async function resolveSpecInput(specInput, options = {}) {
  * @param {boolean} [options.includeStyles=true] - Whether to include bundled CSS in the output
  * @returns {Promise<string>} Fully rendered static HTML string
  */
-export async function renderStaticDoc(options = {}) {
+export async function renderRapiDoc(options = {}) {
   // Normalize option names to support both camelCase and kebab-case
   const normalized = {};
   for (const [key, val] of Object.entries(options)) {
@@ -278,7 +278,7 @@ ${serializedBody}
  * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
  * @returns {Promise<string>} Rendered HTML string of the isolated endpoint
  */
-export async function renderStaticEndpoint(options = {}) {
+export async function renderEndpoint(options = {}) {
   const {
     spec,
     path: targetPathStr,
@@ -292,7 +292,7 @@ export async function renderStaticEndpoint(options = {}) {
   } = options;
 
   if (!targetPathStr || !targetMethodStr) {
-    throw new Error('Both `path` and `method` are required for renderStaticEndpoint().');
+    throw new Error('Both `path` and `method` are required for renderEndpoint().');
   }
 
   const normalizedMethod = targetMethodStr.toLowerCase().trim();
@@ -360,7 +360,7 @@ ${serializedHtml}
  * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
  * @returns {Promise<string>} Rendered schema HTML string
  */
-export async function renderStaticSchema(options = {}) {
+export async function renderSchema(options = {}) {
   const { schema, spec, style = 'table', schemaExpandLevel = 99999, theme = 'amber', colorScheme = 'dark', includeStyles = true } = options;
 
   let resolvedSchema = schema;
@@ -383,7 +383,7 @@ export async function renderStaticSchema(options = {}) {
   }
 
   if (!resolvedSchema || typeof resolvedSchema !== 'object') {
-    throw new Error('Invalid schema provided to renderStaticSchema().');
+    throw new Error('Invalid schema provided to renderSchema().');
   }
 
   const ast = schemaToAST(resolvedSchema);
@@ -413,7 +413,7 @@ ${serializedHtml}
 
 export default {
   resolveSpecInput,
-  renderStaticDoc,
-  renderStaticEndpoint,
-  renderStaticSchema,
+  renderRapiDoc,
+  renderEndpoint,
+  renderSchema,
 };

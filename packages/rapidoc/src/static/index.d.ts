@@ -3,7 +3,7 @@
  * TypeScript Type Definitions for 'rapidoc/static'
  */
 
-export interface StaticDocOptions {
+export interface RenderRapiDocOptions {
   spec: string | object;
   renderStyle?: 'read' | 'view' | 'focused';
   theme?: string;
@@ -27,7 +27,9 @@ export interface StaticDocOptions {
   [key: string]: any;
 }
 
-export interface StaticEndpointOptions {
+export type RapiDocOptions = RenderRapiDocOptions;
+
+export interface RenderEndpointOptions {
   spec: string | object;
   path: string;
   method: string;
@@ -40,7 +42,7 @@ export interface StaticEndpointOptions {
   schemaStyle?: 'table' | 'tree';
 }
 
-export interface StaticSchemaOptions {
+export interface RenderSchemaOptions {
   schema: object | string;
   spec?: string | object;
   style?: 'table' | 'tree';
@@ -85,38 +87,11 @@ export interface SpecNavigation {
   tags: NavigationTag[];
 }
 
-export interface CatalogEntry {
-  id: string;
-  title: string;
-  version: string;
-  description: string;
-  servers: string[];
-  contact: object | null;
-  license: object | null;
-  endpointsCount: number;
-  tagGroupsCount: number;
-  tagsCount: number;
-  methodsSummary: Record<string, number>;
-  [key: string]: any;
-}
-
-export interface SeoMetadata {
-  title: string;
-  description: string;
-  jsonLd: Record<string, any>;
-  jsonLdScript: string;
-  openGraph: Record<string, string>;
-  metaTags: string;
-}
-
-export function renderStaticDoc(options: StaticDocOptions): Promise<string>;
-export function renderStaticEndpoint(options: StaticEndpointOptions): Promise<string>;
-export function renderStaticSchema(options: StaticSchemaOptions): Promise<string>;
+export function renderRapiDoc(options: RenderRapiDocOptions): Promise<string>;
+export function renderEndpoint(options: RenderEndpointOptions): Promise<string>;
+export function renderSchema(options: RenderSchemaOptions): Promise<string>;
 export function resolveSpecInput(specInput: string | object, options?: any): Promise<any>;
 export function renderTemplateToString(result: any, options?: { stripComments?: boolean }): string;
 export function escapeHtml(str: string): string;
 export function getSpecNavigation(specInput: string | object, options?: any): Promise<SpecNavigation>;
-export function getCatalogMetadata(specsList: Array<string | object>, options?: any): Promise<CatalogEntry[]>;
-export function getSingleCatalogEntry(specItem: string | object, options?: any): Promise<CatalogEntry>;
-export function generateSeoMetadata(specInput: string | object, options?: { baseUrl?: string }): Promise<SeoMetadata>;
 export function getBundledCss(options?: { theme?: string; colorScheme?: string; scope?: string }): string;

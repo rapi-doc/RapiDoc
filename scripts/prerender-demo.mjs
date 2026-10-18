@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { renderStaticDoc } from 'rapidoc/static';
+import { renderRapiDoc } from 'rapidoc/static';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,8 +70,8 @@ const sampleSpec = {
 
 console.log('Rendering OpenAPI spec to Declarative Shadow DOM (DSD)...');
 
-// 2. Pre-render the document on the server using renderStaticDoc
-const dsdHtml = await renderStaticDoc({
+// 2. Pre-render the document on the server using renderRapiDoc
+const dsdHtml = await renderRapiDoc({
   spec: sampleSpec,
   renderStyle: 'read',
   theme: 'dark',

@@ -8,12 +8,10 @@ import { guard } from 'lit/directives/guard.js';
 import {
   renderTemplateToString,
   escapeHtml,
-  renderStaticDoc,
-  renderStaticEndpoint,
-  renderStaticSchema,
+  renderRapiDoc,
+  renderEndpoint,
+  renderSchema,
   getSpecNavigation,
-  getCatalogMetadata,
-  generateSeoMetadata,
   getBundledCss,
 } from 'rapidoc/static';
 
@@ -227,9 +225,9 @@ describe('Isomorphic Template Serializer (renderTemplateToString)', () => {
   });
 });
 
-describe('Static Document Pre-Rendering (renderStaticDoc)', () => {
+describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
   it('should render Declarative Shadow DOM (DSD) format by default', async () => {
-    const htmlOutput = await renderStaticDoc({
+    const htmlOutput = await renderRapiDoc({
       spec: sampleSpec,
       renderStyle: 'read',
       theme: 'amber',
@@ -246,7 +244,7 @@ describe('Static Document Pre-Rendering (renderStaticDoc)', () => {
   });
 
   it('should render Light DOM format when outputMode is "html" or "light"', async () => {
-    const htmlOutput = await renderStaticDoc({
+    const htmlOutput = await renderRapiDoc({
       spec: sampleSpec,
       renderStyle: 'view',
       theme: 'emerald',
@@ -262,7 +260,7 @@ describe('Static Document Pre-Rendering (renderStaticDoc)', () => {
   });
 
   it('should load and render spec from a local file path', async () => {
-    const htmlOutput = await renderStaticDoc({
+    const htmlOutput = await renderRapiDoc({
       spec: './docs/public/specs/petstore.json',
       renderStyle: 'read',
       theme: 'blue',
@@ -273,7 +271,7 @@ describe('Static Document Pre-Rendering (renderStaticDoc)', () => {
   });
 
   it('should serialize all default SSR configuration attributes onto <rapi-doc> tag to prevent hydration mismatch', async () => {
-    const htmlOutput = await renderStaticDoc({
+    const htmlOutput = await renderRapiDoc({
       spec: sampleSpec,
     });
 
@@ -302,7 +300,7 @@ describe('Static Document Pre-Rendering (renderStaticDoc)', () => {
   });
 
   it('should serialize customized options onto <rapi-doc> tag and reflect them in static shadow DOM', async () => {
-    const htmlOutput = await renderStaticDoc({
+    const htmlOutput = await renderRapiDoc({
       spec: sampleSpec,
       schemaStyle: 'tree',
       allowTry: false,
@@ -345,7 +343,7 @@ describe('Static Document Pre-Rendering (renderStaticDoc)', () => {
       },
     };
 
-    const htmlOutput = await renderStaticDoc({
+    const htmlOutput = await renderRapiDoc({
       spec: specWithComponents,
       'schema-style': 'tree',
       'allow-try': false,
@@ -376,7 +374,7 @@ describe('Static Document Pre-Rendering (renderStaticDoc)', () => {
 
   it('should serialize spec-url and spec processing options onto <rapi-doc> tag', async () => {
     const remoteUrl = 'https://api.cosmocargo.dev/v2/openapi.json';
-    const htmlOutput = await renderStaticDoc({
+    const htmlOutput = await renderRapiDoc({
       spec: sampleSpec,
       specUrl: remoteUrl,
       sortEndpointsBy: 'method',
@@ -395,9 +393,9 @@ describe('Static Document Pre-Rendering (renderStaticDoc)', () => {
   });
 });
 
-describe('Static Isolated Endpoint Pre-Rendering (renderStaticEndpoint)', () => {
+describe('Static Isolated Endpoint Pre-Rendering (renderEndpoint)', () => {
   it('should render an isolated endpoint card with parameters and path', async () => {
-    const htmlOutput = await renderStaticEndpoint({
+    const htmlOutput = await renderEndpoint({
       spec: sampleSpec,
       path: '/v1/shipments',
       method: 'get',
@@ -411,7 +409,7 @@ describe('Static Isolated Endpoint Pre-Rendering (renderStaticEndpoint)', () => 
   });
 
   it('should be case-insensitive for HTTP methods', async () => {
-    const htmlOutput = await renderStaticEndpoint({
+    const htmlOutput = await renderEndpoint({
       spec: sampleSpec,
       path: '/v1/tracking/{trackingNumber}',
       method: 'GET',
@@ -425,7 +423,7 @@ describe('Static Isolated Endpoint Pre-Rendering (renderStaticEndpoint)', () => 
   it('should throw descriptive error when endpoint is not found in spec', async () => {
     await assert.rejects(
       async () => {
-        await renderStaticEndpoint({
+        await renderEndpoint({
           spec: sampleSpec,
           path: '/nonexistent/path',
           method: 'delete',
@@ -436,9 +434,9 @@ describe('Static Isolated Endpoint Pre-Rendering (renderStaticEndpoint)', () => 
   });
 });
 
-describe('Static Schema Pre-Rendering (renderStaticSchema)', () => {
+describe('Static Schema Pre-Rendering (renderSchema)', () => {
   it('should render schema in table format with column headers and fields', async () => {
-    const htmlOutput = await renderStaticSchema({
+    const htmlOutput = await renderSchema({
       schema: sampleSpec.components.schemas.Shipment,
       style: 'table',
       theme: 'rose',
@@ -453,7 +451,7 @@ describe('Static Schema Pre-Rendering (renderStaticSchema)', () => {
   });
 
   it('should render schema in tree format', async () => {
-    const htmlOutput = await renderStaticSchema({
+    const htmlOutput = await renderSchema({
       schema: sampleSpec.components.schemas.Shipment,
       style: 'tree',
       theme: 'amber',
@@ -465,7 +463,7 @@ describe('Static Schema Pre-Rendering (renderStaticSchema)', () => {
   });
 
   it('should resolve named schema from spec.components.schemas', async () => {
-    const htmlOutput = await renderStaticSchema({
+    const htmlOutput = await renderSchema({
       spec: sampleSpec,
       schema: 'Shipment',
       style: 'table',
@@ -476,7 +474,7 @@ describe('Static Schema Pre-Rendering (renderStaticSchema)', () => {
   });
 });
 
-describe('Portal Navigation & Catalog Helpers (getSpecNavigation, getCatalogMetadata, generateSeoMetadata)', () => {
+describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () => {
   it('getSpecNavigation should extract 3-level navigation hierarchy when x-tagGroups is defined', async () => {
     const nav = await getSpecNavigation(sampleSpec);
 
@@ -493,36 +491,6 @@ describe('Portal Navigation & Catalog Helpers (getSpecNavigation, getCatalogMeta
     assert.equal(shipmentsTag.paths.length, 2, 'Should have 2 operations under Shipments');
     assert.equal(shipmentsTag.paths[0].method, 'get');
     assert.equal(shipmentsTag.paths[0].path, '/v1/shipments');
-  });
-
-  it('getCatalogMetadata should extract API Catalog overview cards', async () => {
-    const catalog = await getCatalogMetadata([sampleSpec, { id: 'petstore-card', spec: './docs/public/specs/petstore.json' }]);
-
-    assert.equal(catalog.length, 2);
-    assert.equal(catalog[0].title, 'Cosmo Cargo API');
-    assert.equal(catalog[0].endpointsCount, 4);
-    assert.equal(catalog[0].tagGroupsCount, 2);
-    assert.equal(catalog[0].methodsSummary.get, 3);
-    assert.equal(catalog[0].methodsSummary.post, 1);
-
-    assert.equal(catalog[1].id, 'petstore-card');
-    assert.equal(catalog[1].title, 'Swagger Petstore');
-    assert.ok(catalog[1].endpointsCount > 0);
-  });
-
-  it('generateSeoMetadata should extract WebAPI JSON-LD and OpenGraph tags', async () => {
-    const seo = await generateSeoMetadata(sampleSpec, { baseUrl: 'https://cosmocargo.dev/api' });
-
-    assert.ok(seo.title.includes('Cosmo Cargo API v2.4.0'));
-    assert.equal(seo.jsonLd['@context'], 'https://schema.org');
-    assert.equal(seo.jsonLd['@type'], 'WebAPI');
-    assert.equal(seo.jsonLd.name, 'Cosmo Cargo API');
-    assert.equal(seo.jsonLd.documentation, 'https://cosmocargo.dev/api');
-    assert.equal(seo.jsonLd.provider?.name, 'Cosmo Support');
-
-    assert.ok(seo.jsonLdScript.includes('<script type="application/ld+json">'));
-    assert.ok(seo.metaTags.includes('<title>'));
-    assert.ok(seo.metaTags.includes('<meta property="og:title"'));
   });
 
   it('getBundledCss should return valid CSS and support Light DOM scoping', () => {

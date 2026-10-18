@@ -21,7 +21,7 @@ import {
   IconExternalLink,
 } from '@tabler/icons-astro';
 
-import { renderStaticDoc, renderStaticEndpoint } from 'rapidoc/static';
+import { renderRapiDoc, renderEndpoint } from 'rapidoc/static';
 
 // Pre-render a sample endpoint card at build-time to show live pre-rendering in action!
 const sampleSpecObj = {
@@ -85,7 +85,7 @@ const sampleSpecObj = {
 
 let livePreviewHtml = '';
 try {
-  livePreviewHtml = await renderStaticEndpoint({
+  livePreviewHtml = await renderEndpoint({
     spec: sampleSpecObj,
     path: '/shipments/{shipmentId}',
     method: 'get',
@@ -99,10 +99,10 @@ try {
 
 const nodeSnippet = `// prerender.mjs - Standalone Node.js / Bun script
 import fs from 'node:fs';
-import { renderStaticDoc } from 'rapidoc/static';
+import { renderRapiDoc } from 'rapidoc/static';
 
 // 1. Pre-render the OpenAPI specification into Declarative Shadow DOM
-const staticHtml = await renderStaticDoc({
+const staticHtml = await renderRapiDoc({
   spec: './specs/petstore.yaml', // file path, remote URL, or JSON/YAML string
   renderStyle: 'read',           // 'read' | 'view' | 'focused'
   theme: 'amber',                // 'amber' | 'blue' | 'emerald' | 'violet' | hex
@@ -132,10 +132,10 @@ console.log('API Reference pre-rendered successfully to dist/api.html');`;
 
 const astroSnippet = `---
 // src/pages/api.astro - Astro SSG Page
-import { renderStaticDoc } from 'rapidoc/static';
+import { renderRapiDoc } from 'rapidoc/static';
 
 // Executed at BUILD TIME on the server
-const preRenderedDoc = await renderStaticDoc({
+const preRenderedDoc = await renderRapiDoc({
   spec: './public/specs/petstore.json',
   renderStyle: 'read',
   theme: 'amber',
@@ -160,13 +160,13 @@ const preRenderedDoc = await renderStaticDoc({
 </html>`;
 
 const nextjsSnippet = `// app/api-reference/page.tsx - Next.js App Router (React Server Component)
-import { renderStaticDoc } from 'rapidoc/static';
+import { renderRapiDoc } from 'rapidoc/static';
 import Script from 'next/script';
 
 export const revalidate = 3600; // ISR: Re-cache once per hour
 
 export default async function ApiReferencePage() {
-  const staticDocHtml = await renderStaticDoc({
+  const staticDocHtml = await renderRapiDoc({
     spec: 'https://api.example.com/openapi.json',
     renderStyle: 'read',
     theme: 'amber',
@@ -187,10 +187,10 @@ export default async function ApiReferencePage() {
 }`;
 
 const endpointCardSnippet = `// MDX / Developer Portal Endpoint Embedding (Zudoku / Cosmo Cargo Style)
-import { renderStaticEndpoint, renderStaticSchema } from 'rapidoc/static';
+import { renderEndpoint, renderSchema } from 'rapidoc/static';
 
 // Pre-render a single endpoint card inside a guide article
-export const shipmentEndpointHtml = await renderStaticEndpoint({
+export const shipmentEndpointHtml = await renderEndpoint({
   spec: './specs/logistics.yaml',
   path: '/v1/shipments/{shipmentId}',
   method: 'get',
@@ -200,14 +200,14 @@ export const shipmentEndpointHtml = await renderStaticEndpoint({
 });
 
 // Pre-render a standalone JSON Schema model
-export const schemaHtml = await renderStaticSchema({
+export const schemaHtml = await renderSchema({
   spec: './specs/logistics.yaml',
   schema: 'ShipmentResponse',
   style: 'table', // 'table' or 'tree'
   theme: 'amber',
 });`;
 
-const dsdExplanationSnippet = `<!-- Declarative Shadow DOM output from renderStaticDoc({ outputMode: 'dsd' }) -->
+const dsdExplanationSnippet = `<!-- Declarative Shadow DOM output from renderRapiDoc({ outputMode: 'dsd' }) -->
 <rapi-doc theme="amber" color-scheme="dark" render-style="read" layout="column">
   <!-- Native browser Declarative Shadow DOM -->
   <template shadowrootmode="open">
@@ -407,7 +407,7 @@ const optionsTable = [
         <span class="rd-section-badge">Live Demonstration</span>
         <h2 class="rd-section-title">Pre-Rendered Endpoint Preview</h2>
         <p class="rd-section-desc">
-          The endpoint card below was generated <strong>at build-time on the server</strong> by <code>renderStaticEndpoint()</code> with zero client-side JavaScript execution.
+          The endpoint card below was generated <strong>at build-time on the server</strong> by <code>renderEndpoint()</code> with zero client-side JavaScript execution.
         </p>
       </div>
 
@@ -450,7 +450,7 @@ const optionsTable = [
         <span class="rd-section-badge">Framework Integration • Method 2</span>
         <h2 class="rd-section-title">Pre-Rendering in Astro</h2>
         <p class="rd-section-desc">
-          Astro's zero-JS-by-default architecture is the perfect companion for RapiDoc's isomorphic renderer. Use <code>renderStaticDoc</code> inside your frontmatter.
+          Astro's zero-JS-by-default architecture is the perfect companion for RapiDoc's isomorphic renderer. Use <code>renderRapiDoc</code> inside your frontmatter.
         </p>
       </div>
 
@@ -484,7 +484,7 @@ const optionsTable = [
         <span class="rd-section-badge">Portal Architecture • Method 4</span>
         <h2 class="rd-section-title">Isolated Endpoints & Schemas for MDX Guides</h2>
         <p class="rd-section-desc">
-          Building a custom developer portal like <strong>Zudoku</strong> or <strong>Cosmo Cargo</strong>? Use <code>renderStaticEndpoint()</code> and <code>renderStaticSchema()</code> to embed isolated operations directly into Markdown and MDX articles.
+          Building a custom developer portal like <strong>Zudoku</strong> or <strong>Cosmo Cargo</strong>? Use <code>renderEndpoint()</code> and <code>renderSchema()</code> to embed isolated operations directly into Markdown and MDX articles.
         </p>
       </div>
 
@@ -526,9 +526,9 @@ const optionsTable = [
     <section class="rd-section" id="options-reference">
       <div class="rd-section-header">
         <span class="rd-section-badge">API Reference</span>
-        <h2 class="rd-section-title">renderStaticDoc() Configuration Options</h2>
+        <h2 class="rd-section-title">renderRapiDoc() Configuration Options</h2>
         <p class="rd-section-desc">
-          Complete options dictionary accepted by <code>renderStaticDoc()</code>.
+          Complete options dictionary accepted by <code>renderRapiDoc()</code>.
         </p>
       </div>
 
