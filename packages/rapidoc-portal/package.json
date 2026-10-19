@@ -1,9 +1,23 @@
 {
-  "name": "rapidoc-portal",
+  "name": "@rapidoc/portal",
   "version": "0.1.0",
-  "description": "PocketBase developer portal for hosting and securing OpenAPI specs with RapiDoc",
+  "description": "Docs-as-code developer portal framework for OpenAPI and Markdoc with RapiDoc",
   "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./config": "./src/config/index.js",
+    "./markdoc": "./src/markdoc/index.js",
+    "./search": "./src/search/index.js"
+  },
   "scripts": {
-    "dev": "echo 'PocketBase portal coming soon'"
+    "test": "node --test tests/**/*.test.js"
+  },
+  "dependencies": {
+    "@markdoc/markdoc": "^0.5.10",
+    "github-slugger": "^2.0.0",
+    "rapidoc": "*",
+    "yaml": "^2.9.1",
+    "zod": "^3.24.2"
   }
 }
