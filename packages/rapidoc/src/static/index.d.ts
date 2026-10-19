@@ -87,6 +87,20 @@ export interface SpecNavigation {
   tags: NavigationTag[];
 }
 
+export interface RenderNavBarHtmlOptions {
+  basePath?: string;
+  activeHref?: string;
+  includeSearch?: boolean;
+  searchPlaceholder?: string;
+  backToDocsHref?: string;
+  backToDocsLabel?: string;
+  itemClassName?: string;
+  includeOverview?: boolean;
+  methodBadgeFormat?: '3-char' | 'full';
+  usePathInNav?: boolean;
+  routingMode?: 'tag-pages' | 'single-page';
+}
+
 export function renderRapiDoc(options: RenderRapiDocOptions): Promise<string>;
 export function renderEndpoint(options: RenderEndpointOptions): Promise<string>;
 export function renderSchema(options: RenderSchemaOptions): Promise<string>;
@@ -94,4 +108,9 @@ export function resolveSpecInput(specInput: string | object, options?: any): Pro
 export function renderTemplateToString(result: any, options?: { stripComments?: boolean }): string;
 export function escapeHtml(str: string): string;
 export function getSpecNavigation(specInput: string | object, options?: any): Promise<SpecNavigation>;
+export function getNavBarHtml(specInput: string | object, options?: RenderNavBarHtmlOptions): Promise<string>;
+export function renderNavBarHtml(resolvedSpec: any, options?: RenderNavBarHtmlOptions): string;
+export function getMethodBadge(method: string, format?: '3-char' | 'full'): string;
 export function getBundledCss(options?: { theme?: string; colorScheme?: string; scope?: string }): string;
+export function getNavCss(scope?: string): string;
+export function toKebabCase(str: string): string;

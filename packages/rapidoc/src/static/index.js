@@ -8,8 +8,9 @@
 
 import { renderRapiDoc, renderEndpoint, renderSchema, resolveSpecInput } from './render.js';
 import { renderTemplateToString, escapeHtml } from './serializer.js';
-import { getSpecNavigation } from './navigation.js';
-import { getBundledCss } from '../styles/css-bundle.js';
+import { getSpecNavigation, getNavBarHtml, renderNavBarHtml, getMethodBadge } from './navigation.js';
+import { getBundledCss, getNavCss } from '../styles/css-bundle.js';
+import { toKebabCase } from '../utils/slugger.js';
 
 export {
   renderRapiDoc,
@@ -19,7 +20,12 @@ export {
   renderTemplateToString,
   escapeHtml,
   getSpecNavigation,
+  getNavBarHtml,
+  renderNavBarHtml,
+  getMethodBadge,
   getBundledCss,
+  getNavCss,
+  toKebabCase,
 };
 
 export default {
@@ -30,5 +36,10 @@ export default {
   renderTemplateToString,
   escapeHtml,
   getSpecNavigation,
+  getNavBarHtml,
+  renderNavBarHtml,
+  getMethodBadge,
   getBundledCss,
+  getNavCss,
+  toKebabCase,
 };

@@ -12,7 +12,11 @@ import {
   renderEndpoint,
   renderSchema,
   getSpecNavigation,
+  getNavBarHtml,
+  renderNavBarHtml,
+  getMethodBadge,
   getBundledCss,
+  getNavCss,
 } from 'rapidoc/static';
 
 const sampleSpec = {
@@ -502,4 +506,51 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
     assert.ok(!lightCss.includes(':host {'));
     assert.ok(lightCss.includes('.my-portal'));
   });
+
+  it('getMethodBadge should format 3-character badges matching core RapiDoc', () => {
+    assert.equal(getMethodBadge('delete'), 'DEL');
+    assert.equal(getMethodBadge('post'), 'POS');
+    assert.equal(getMethodBadge('get'), 'GET');
+    assert.equal(getMethodBadge('put'), 'PUT');
+    assert.equal(getMethodBadge('patch'), 'PAT');
+    assert.equal(getMethodBadge('get', 'full'), 'GET');
+    assert.equal(getMethodBadge('delete', 'full'), 'DELETE');
+  });
+
+  it('getNavBarHtml and renderNavBarHtml should serialize matching 3-tier HTML directly from spec', async () => {
+    const html = await getNavBarHtml(sampleSpec, {
+      basePath: '/apis/shipments',
+      activeHref: '/apis/shipments#shipments--list-shipments',
+    });
+
+    assert.ok(html.includes('class="nav-bar-tag-group expanded"'));
+    assert.ok(html.includes('class="nav-bar-tag-group-header"'));
+    assert.ok(html.includes('class="nav-bar-tag-and-paths expanded"'));
+    assert.ok(html.includes('class="nav-bar-tag"'));
+    assert.ok(html.includes('class="nav-bar-paths-under-tag"'));
+    assert.ok(html.includes('class="nav-bar-path active"'));
+    assert.ok(html.includes('class="nav-method as-colored-block get"'));
+    assert.ok(html.includes('>GET</span>'));
+    assert.ok(html.includes('href="/apis/shipments#overview"'));
+    assert.ok(html.includes('href="/apis/shipments#shipments--list-shipments"'));
+    assert.ok(html.includes('Shipment Logistics'));
+    assert.ok(html.includes('Shipments'));
+
+    // Multi-page Tag Mode: routingMode: 'tag-pages'
+    const tagPagesHtml = await getNavBarHtml(sampleSpec, {
+      basePath: '/apis/shipments',
+      routingMode: 'tag-pages',
+    });
+    assert.ok(tagPagesHtml.includes('href="/apis/shipments/shipments#list-shipments"'));
+  });
+
+  it('getNavCss should return complete scoped navigation styles including method badges', () => {
+    const navCss = getNavCss('.portal-sidebar');
+    assert.ok(navCss.includes('.portal-sidebar {'));
+    assert.ok(navCss.includes('.nav-bar-path'));
+    assert.ok(navCss.includes('.nav-bar-tag-group'));
+    assert.ok(navCss.includes('.nav-method.as-colored-block'));
+    assert.ok(navCss.includes('.nav-method.as-colored-block.delete'));
+  });
 });
+
