@@ -7,9 +7,6 @@ Attributes:
         description: When set to "true", automatically updates the browser's URL address hash as the user scrolls through or clicks on different sections.
         allowed: ['true', 'false']
         default: true
-      - name: route-prefix
-        description: Custom prefix prepended to route hashes to integrate seamlessly with third-party routers (e.g. #/).
-        default: '#'
       - name: sort-tags
         description: >
           Sorts tags in alphabetical order. When set to "false", preserves the tag order defined in the OpenAPI specification.

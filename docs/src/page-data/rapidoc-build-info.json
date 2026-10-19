@@ -3,19 +3,19 @@
   "version": "12.0.0",
   "versionTag": "v12.0.0",
   "versionShort": "v12.0",
-  "buildTime": "2026-10-18T06:45:39.833Z",
+  "buildTime": "2026-10-19T13:01:09.287Z",
   "bundle": {
     "minified": {
-      "bytes": 620970,
-      "formatted": "606 KB",
-      "kb": 606,
-      "exactKb": 606.4
+      "bytes": 624894,
+      "formatted": "610 KB",
+      "kb": 610,
+      "exactKb": 610.2
     },
     "gzip": {
-      "bytes": 160661,
-      "formatted": "157 KB",
-      "kb": 157,
-      "exactKb": 156.9
+      "bytes": 161632,
+      "formatted": "158 KB",
+      "kb": 158,
+      "exactKb": 157.8
     }
   }
 }

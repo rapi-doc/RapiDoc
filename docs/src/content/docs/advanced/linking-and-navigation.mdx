@@ -255,7 +255,6 @@ To enable seamless bookmarking, browser back/forward history navigation, and tea
 <rapi-doc
   spec-url="/specs/petstore.json"
   update-route="true"
-  route-prefix="#"
 >
 </rapi-doc>
 ```
@@ -265,19 +264,22 @@ To enable seamless bookmarking, browser back/forward history navigation, and tea
 | Attribute         | Type      | Default    | Description                                                                                                                                                  |
 | :---------------- | :-------- | :--------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `update-route`    | `boolean` | `"true"`   | When `true`, automatically updates the browser URL hash as the user scrolls through or clicks operations. Set to `"false"` to disable URL hash modification. |
-| `route-prefix`    | `string`  | `"#"`      | Prefix prepended to the route hash in the address bar. Useful when integrating with client-side SPA routers (e.g., `route-prefix="#/"` for hash routing).    |
 | `goto-path`       | `string`  | `""`       | Target element ID to automatically scroll/navigate to immediately after the specification loads if no URL hash is present.                                   |
 | `scroll-behavior` | `string`  | `"smooth"` | Controls scrolling animation style (`"smooth"` or `"auto"`).                                                                                                 |
 
-### Example: Custom Router Prefix for SPAs
+### SPA Framework Integration (Vue, React, Angular)
 
-If your host single-page application (Vue Router, Angular, HashRouter) uses `#/` prefix conventions:
+When embedding `<rapi-doc>` inside an SPA framework where the host router manages URL state, disable internal URL updates and listen to the `@nav-active-change` event:
 
 ```html
-<rapi-doc spec-url="/specs/petstore.yaml" update-route="true" route-prefix="#/" goto-path="get-/pet/-petId-"> </rapi-doc>
+<rapi-doc
+  spec-url="/specs/petstore.yaml"
+  update-route="false"
+  :goto-path="activeEndpoint"
+  @nav-active-change="handleNavChange"
+>
+</rapi-doc>
 ```
-
-When users navigate, the browser URL updates to `https://yourapp.com/#/get-/pet/-petId-`.
 
 ---
 

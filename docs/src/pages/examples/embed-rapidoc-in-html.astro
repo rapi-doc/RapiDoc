@@ -1,6 +1,7 @@
 ---
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
-const fillData = 'The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.';
+const fillData =
+  'The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.';
 ---
 
 <ExampleLayout>
@@ -15,15 +16,16 @@ const fillData = 'The quick brown fox jumps over the lazy dog. The quick brown f
       <p>{fillData}</p>
       <p>{fillData}</p>
     </div>
-    <rapi-doc style="flex:1; border:4px solid #aaa; border-radius:4px;" 
-      spec-url = "/specs/petstore.yaml" 
-      show-header = "false"
-      show-info = "false"
-      allow-authentication = "false"
-      allow-server-selection = "false"
-      theme = "dark"
-      layout = "column"
-    > 
+    <rapi-doc
+      style="flex:1; border:4px solid #aaa; border-radius:4px;"
+      spec-url="/specs/petstore.yaml"
+      show-header="false"
+      show-info="false"
+      render-style="read"
+      allow-authentication="false"
+      allow-server-selection="false"
+      theme="dark"
+    >
     </rapi-doc>
   </div>
 </ExampleLayout>

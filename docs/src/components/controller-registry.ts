@@ -241,18 +241,6 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
       { label: 'False', rawVal: 'false' },
     ],
   },
-  'route-prefix': {
-    type: 'segmented',
-    attr: 'route-prefix',
-    label: 'Route Prefix',
-    tip: 'URL hash prefix for endpoint routing',
-    category: 'navigation',
-    options: [
-      { label: '#', rawVal: '#', isDefault: true },
-      { label: '#/', rawVal: '#/' },
-      { label: '#!', rawVal: '#!' },
-    ],
-  },
   'on-nav-tag-click': {
     type: 'segmented',
     attr: 'on-nav-tag-click',
@@ -525,7 +513,6 @@ export const PRESETS: Record<string, string[]> = {
     'nav-item-spacing',
     'sort-tags',
     'update-route',
-    'route-prefix',
   ],
   sections: [
     'show-header',
