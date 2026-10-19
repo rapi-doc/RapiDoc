@@ -1,0 +1,28 @@
+{
+  "name": "create-rapidoc",
+  "version": "0.1.0",
+  "description": "Interactive scaffolding CLI to create new RapiDoc Developer Portals",
+  "type": "module",
+  "bin": {
+    "create-rapidoc": "./src/index.js"
+  },
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./scaffold": "./src/scaffold.js"
+  },
+  "scripts": {
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": [
+    "rapidoc",
+    "create-rapidoc",
+    "openapi",
+    "developer-portal",
+    "scaffold",
+    "documentation"
+  ],
+  "dependencies": {
+    "yaml": "^2.9.1"
+  }
+}

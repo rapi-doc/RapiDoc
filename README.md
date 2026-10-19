@@ -70,11 +70,11 @@ astro-rapidoc/
 │   │   ├── package.json         # Library package config
 │   │   └── vite.config.mjs      # Dedicated library build config
 │   │
-│   ├── rapidoc-cli/             # Command-line utility (lint, preview, bundle)
+│   ├── rapidoc-cli/             # Command-line utility (@rapidoc/cli) for validation, preview & migration
 │   │   ├── src/                 # CLI source code
 │   │   └── package.json
 │   │
-│   └── rapidoc-portal/          # PocketBase developer portal to host & secure specs
+│   └── rapidoc-portal/          # Docs-as-code developer portal framework (@rapidoc/portal)
 │       └── package.json
 │
 ├── docs/                        # Astro documentation & showcase site (GitHub Pages)

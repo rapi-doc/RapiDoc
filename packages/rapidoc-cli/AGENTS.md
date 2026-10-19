@@ -3,7 +3,7 @@
 ## 1. Package Scope & Identity
 `packages/rapidoc-cli` provides a command-line interface for RapiDoc to validate OpenAPI specifications, launch local preview servers, and bundle specs.
 
-- **Package Name**: `rapidoc-cli`
+- **Package Name**: `@rapidoc/cli`
 - **Binary Name**: `rapidoc`
 - **Entry Point**: `src/index.js`
 - **Module Type**: ESM (`"type": "module"`)

@@ -1,5 +1,5 @@
 {
-  "name": "rapidoc-cli",
+  "name": "@rapidoc/cli",
   "version": "0.1.0",
   "description": "Command line utility for RapiDoc (validation, preview, bundling)",
   "type": "module",
@@ -7,9 +7,11 @@
     "rapidoc": "./src/index.js"
   },
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "node --test tests/**/*.test.js"
   },
   "dependencies": {
+    "@rapidoc/portal": "*",
     "@scalar/openapi-parser": "^0.29.13"
   }
 }

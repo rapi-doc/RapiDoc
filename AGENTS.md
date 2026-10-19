@@ -12,8 +12,8 @@ This repository is managed as an **npm workspaces** monorepo running on **Node.j
 astro-rapidoc/
 ├── packages/
 │   ├── rapidoc/          # Core RapiDoc Web Component library (Lit, Vite)
-│   ├── rapidoc-cli/      # Command-line utility for validation and preview
-│   └── rapidoc-portal/   # PocketBase developer portal (early-stage)
+│   ├── rapidoc-cli/      # Command-line utility for validation, preview, and migration (@rapidoc/cli)
+│   └── rapidoc-portal/   # Developer portal framework for OpenAPI & Markdoc (@rapidoc/portal)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── tests/
 │   ├── unit/             # Node.js built-in test runner unit tests (*.test.js)
@@ -50,8 +50,8 @@ All agents must strictly adhere to the following system boundaries:
   - Consumes `packages/rapidoc` via npm workspaces (`"rapidoc": "*"`).
   - Aliases `rapidoc` and `~` to `../packages/rapidoc/src/` in development for instantaneous hot reloading.
   - The Astro dev server and build pipeline automatically compile `packages/rapidoc` into `rapidoc-min.js` if missing.
-- **CLI & Portal (`packages/rapidoc-cli`, `packages/rapidoc-portal`)**:
-  - Maintain clean boundaries. `rapidoc-cli` is a Node CLI utility focusing on OpenAPI validation, local preview, and bundling.
+- **CLI & Portal (`packages/rapidoc-cli` [@rapidoc/cli], `packages/rapidoc-portal` [@rapidoc/portal])**:
+  - Maintain clean boundaries. `@rapidoc/cli` is a Node CLI utility focusing on OpenAPI validation, local preview, and migration. `@rapidoc/portal` is the docs-as-code developer portal engine.
 
 ### Build Artifact Hygiene
 
