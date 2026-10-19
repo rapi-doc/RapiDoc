@@ -294,10 +294,19 @@ export default css`
     text-transform: capitalize;
     min-width: 0;
   }
-  .nav-bar-tag-title {
+  .nav-bar-tag a,
+  .nav-bar-tag-title,
+  a.nav-bar-tag-title {
+    color: inherit;
+    text-decoration: none;
     flex: 1;
     min-width: 0;
-    pointer-events: none;
+  }
+  .nav-bar-tag a:hover,
+  .nav-bar-tag-title:hover,
+  a.nav-bar-tag-title:hover {
+    color: inherit;
+    text-decoration: none;
   }
 
   .nav-bar-components,
@@ -318,12 +327,19 @@ export default css`
       color 0.15s ease;
   }
 
-  .nav-bar-path {
+  .nav-bar-path,
+  a.nav-bar-path {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
     min-width: 0;
     box-sizing: border-box;
+    text-decoration: none;
+  }
+
+  .nav-bar-path:hover,
+  a.nav-bar-path:hover {
+    text-decoration: none;
   }
 
   .nav-bar-path > * {
@@ -342,6 +358,109 @@ export default css`
     margin-right: 8px;
     font-size: calc(var(--font-size-small) - 2px);
     flex-shrink: 0;
+  }
+
+  .nav-method {
+    font-weight: bold;
+    margin-inline-start: auto;
+    flex-shrink: 0;
+    font-size: calc(var(--font-size-small) - 2px);
+    white-space: nowrap;
+  }
+  .nav-method.false {
+    display: none;
+  }
+
+  .nav-method.as-colored-text {
+    color: var(--method-default);
+  }
+  .nav-method.as-colored-text.get {
+    color: var(--nav-get-color, var(--method-get));
+  }
+  .nav-method.as-colored-text.put {
+    color: var(--nav-put-color, var(--method-put));
+  }
+  .nav-method.as-colored-text.post {
+    color: var(--nav-post-color, var(--method-post));
+  }
+  .nav-method.as-colored-text.delete {
+    color: var(--nav-delete-color, var(--method-delete));
+  }
+  .nav-method.as-colored-text.head {
+    color: var(--nav-head-color, var(--method-head));
+  }
+  .nav-method.as-colored-text.patch {
+    color: var(--nav-patch-color, var(--method-patch));
+  }
+  .nav-method.as-colored-text.options {
+    color: var(--nav-options-color, var(--method-options));
+  }
+  .nav-method.as-colored-text.trace {
+    color: var(--nav-trace-color, var(--method-trace));
+  }
+  .nav-method.as-colored-text.query {
+    color: var(--nav-query-color, var(--method-query));
+  }
+  .nav-method.as-colored-text.copy {
+    color: var(--nav-copy-color, var(--method-copy, var(--method-default)));
+  }
+  .nav-method.as-colored-text.purge {
+    color: var(--nav-purge-color, var(--method-purge, var(--method-default)));
+  }
+
+  .nav-method.as-colored-block {
+    padding: 1px 4px;
+    min-width: 32px;
+    text-align: center;
+    border-radius: var(--radius);
+    color: var(--nav-method-badge-fg, var(--method-badge-fg, #000));
+    background: var(--method-default);
+    font-weight: 700;
+  }
+  :host([color-scheme='light']) .nav-method.as-colored-block {
+    color: var(--nav-method-badge-fg, var(--method-badge-fg, #fff));
+  }
+  @media (prefers-color-scheme: light) {
+    :host([color-scheme='system']) .nav-method.as-colored-block {
+      color: var(--nav-method-badge-fg, var(--method-badge-fg, #fff));
+    }
+  }
+  .colored-block .nav-method.as-colored-block {
+    outline: 1px solid;
+  }
+
+  .nav-method.as-colored-block.get {
+    background: var(--nav-get-color, var(--method-get));
+  }
+  .nav-method.as-colored-block.put {
+    background: var(--nav-put-color, var(--method-put));
+  }
+  .nav-method.as-colored-block.post {
+    background: var(--nav-post-color, var(--method-post));
+  }
+  .nav-method.as-colored-block.delete {
+    background: var(--nav-delete-color, var(--method-delete));
+  }
+  .nav-method.as-colored-block.head {
+    background: var(--nav-head-color, var(--method-head));
+  }
+  .nav-method.as-colored-block.patch {
+    background: var(--nav-patch-color, var(--method-patch));
+  }
+  .nav-method.as-colored-block.options {
+    background: var(--nav-options-color, var(--method-options));
+  }
+  .nav-method.as-colored-block.trace {
+    background: var(--nav-trace-color, var(--method-trace));
+  }
+  .nav-method.as-colored-block.query {
+    background: var(--nav-query-color, var(--method-query));
+  }
+  .nav-method.as-colored-block.copy {
+    background: var(--nav-copy-color, var(--method-copy, var(--method-default)));
+  }
+  .nav-method.as-colored-block.purge {
+    background: var(--nav-purge-color, var(--method-purge, var(--method-default)));
   }
 
   .nav-bar-h1,
@@ -364,14 +483,7 @@ export default css`
     font-weight: 700;
   }
   .nav-bar-section.operations {
-    cursor: pointer;
-    transition:
-      background 0.15s ease,
-      color 0.15s ease;
-  }
-  .nav-bar-section.operations:hover {
-    color: var(--nav-hover-fg, var(--foreground));
-    background: var(--nav-hover-bg, var(--muted));
+    display: none !important;
   }
 
   .nav-bar-section:first-child {

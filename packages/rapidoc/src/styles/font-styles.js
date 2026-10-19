@@ -158,7 +158,11 @@ export default css`
   }
   a {
     color: var(--blue);
+    text-decoration: none;
     cursor: pointer;
+  }
+  a:hover {
+    text-decoration: underline;
   }
   a.inactive-link {
     color: var(--foreground);

@@ -57,4 +57,22 @@ export function getBundledCss(options = {}) {
   return combinedCss;
 }
 
+/**
+ * Returns RapiDoc's navigation CSS text for shared usage in @rapidoc/portal.
+ *
+ * @param {string} [scope=''] - Optional outer selector
+ * @returns {string} Navigation CSS string
+ */
+export function getNavCss(scope = '') {
+  let navCss = NavStyles && NavStyles.cssText ? NavStyles.cssText : String(NavStyles || '');
+  if (scope && scope !== ':host') {
+    navCss = navCss
+      .replace(/:host\(([^)]+)\)/g, `${scope}$1`)
+      .replace(/:host\b/g, scope)
+      .replace(/::slotted\(([^)]+)\)/g, `$1`);
+    navCss = `${scope} {\n${navCss}\n}`;
+  }
+  return navCss;
+}
+
 export default getBundledCss;
