@@ -35,7 +35,7 @@ test('OpenAPI 3.2 bookstore spec parsing', async (t) => {
     const queryEndpoint = booksTag.paths.find((p) => p.method === 'query');
     assert.ok(queryEndpoint, 'QUERY /books endpoint should be registered');
     assert.equal(queryEndpoint.path, '/books');
-    assert.equal(queryEndpoint.elementId, 'query-/books');
+    assert.equal(queryEndpoint.elementId, 'query-books');
     assert.equal(queryEndpoint.summary, 'Advanced catalog search');
     assert.ok(queryEndpoint.requestBody, 'QUERY method must support requestBody');
     assert.ok(queryEndpoint.requestBody.content['application/json'], 'QUERY should have application/json body');
@@ -48,7 +48,7 @@ test('OpenAPI 3.2 bookstore spec parsing', async (t) => {
     const traceEndpoint = systemTag.paths.find((p) => p.method === 'trace');
     assert.ok(traceEndpoint, 'TRACE /diagnostics endpoint should be registered');
     assert.equal(traceEndpoint.path, '/diagnostics');
-    assert.equal(traceEndpoint.elementId, 'trace-/diagnostics');
+    assert.equal(traceEndpoint.elementId, 'trace-diagnostics');
     assert.equal(traceEndpoint.summary, 'Diagnostic loopback trace');
   });
 

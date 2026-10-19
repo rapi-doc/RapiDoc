@@ -37,7 +37,7 @@ describe('OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)', () => {
     assert.equal(groups.length, 2); // 2 declared groups, unassigned tags are strictly omitted
 
     assert.equal(groups[0].name, 'Shipment Operations');
-    assert.equal(groups[0].elementId, 'tag-group--Shipment-Operations');
+    assert.equal(groups[0].elementId, 'tag-group--shipment-operations');
     assert.equal(groups[0].tags.length, 2);
     assert.equal(groups[0].tags[0].name, 'shipments');
     assert.equal(groups[0].tags[1].name, 'tracking');

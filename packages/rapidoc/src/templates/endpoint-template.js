@@ -21,7 +21,7 @@ function toggleExpand(path) {
   } else {
     path.expanded = true; // Expand
     if (this.updateRoute === 'true') {
-      const newHash = `${this.routePrefix || '#'}${path.elementId}`;
+      const newHash = `#${path.elementId}`;
       if (window.location.hash !== newHash) {
         this.replaceHistoryState(path.elementId);
       }

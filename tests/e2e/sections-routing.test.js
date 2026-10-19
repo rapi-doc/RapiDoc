@@ -91,7 +91,6 @@ describe('E2E: Sections, Navigation & Client Routing', () => {
       spec: '/specs/01-sections.yaml',
       'render-style': 'read',
       'update-route': 'true',
-      'route-prefix': '#test/',
     });
 
     // Click on nav item
@@ -108,6 +107,6 @@ describe('E2E: Sections, Navigation & Client Routing', () => {
 
     await page.waitForTimeout(400);
     const hash = await page.evaluate(() => window.location.hash);
-    assert.ok(hash.startsWith('#test/'), `Hash should start with #test/, got: ${hash}`);
+    assert.ok(hash.startsWith('#'), `Hash should start with #, got: ${hash}`);
   });
 });

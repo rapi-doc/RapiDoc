@@ -78,7 +78,6 @@ export default class RapiDoc extends LitElement {
 
   // Spec
   @property({ type: String, attribute: 'update-route' }) updateRoute = 'true';
-  @property({ type: String, attribute: 'route-prefix' }) routePrefix = '#';
   @property({ type: String, attribute: 'spec-url' }) specUrl = '';
   @property({ type: String, attribute: 'sort-tags' }) sortTags = 'false';
   @property({ type: String, attribute: 'sort-schemas' }) sortSchemas = 'false';
@@ -88,7 +87,7 @@ export default class RapiDoc extends LitElement {
 
   // UI Layouts
   @property({ type: String, reflect: true }) layout = 'row';
-  @property({ type: String, attribute: 'render-style' }) renderStyle = 'view';
+  @property({ type: String, attribute: 'render-style' }) renderStyle = 'read';
   @property({ type: String, attribute: 'default-schema-tab' }) defaultSchemaTab = 'example';
   @property({ type: String, attribute: 'response-area-height' }) responseAreaHeight = '400px';
   @property({ type: String, attribute: 'fill-request-fields-with-example' }) fillRequestFieldsWithExample = 'true';
@@ -137,6 +136,7 @@ export default class RapiDoc extends LitElement {
   @property({ type: String, attribute: 'show-components' }) showComponents = 'false';
   @property({ type: String, attribute: 'page-direction' }) pageDirection = 'ltr';
   @property({ type: String, attribute: 'scroll-behavior' }) scrollBehavior = 'smooth';
+  @property({ type: String, attribute: 'auto-height' }) autoHeight = 'false';
 
   // Main Colors and Font
   @property({ type: String, reflect: true }) theme = 'amber';
@@ -193,26 +193,24 @@ export default class RapiDoc extends LitElement {
       this._hasDsd = true;
     }
     const parent = this.parentElement;
-    if (parent) {
+    if (parent && parent.tagName === 'BODY') {
       if (parent.offsetWidth === 0 && parent.style.width === '') {
         parent.style.width = '100vw';
       }
       if (parent.offsetHeight === 0 && parent.style.height === '') {
         parent.style.height = '100vh';
       }
-      if (parent.tagName === 'BODY') {
-        if (!parent.style.marginTop) {
-          parent.style.marginTop = '0';
-        }
-        if (!parent.style.marginRight) {
-          parent.style.marginRight = '0';
-        }
-        if (!parent.style.marginBottom) {
-          parent.style.marginBottom = '0';
-        }
-        if (!parent.style.marginLeft) {
-          parent.style.marginLeft = '0';
-        }
+      if (!parent.style.marginTop) {
+        parent.style.marginTop = '0';
+      }
+      if (!parent.style.marginRight) {
+        parent.style.marginRight = '0';
+      }
+      if (!parent.style.marginBottom) {
+        parent.style.marginBottom = '0';
+      }
+      if (!parent.style.marginLeft) {
+        parent.style.marginLeft = '0';
       }
     }
 
@@ -350,9 +348,6 @@ export default class RapiDoc extends LitElement {
     }
     if (!this.updateRoute || !'true, false,'.includes(`${this.updateRoute},`)) {
       this.updateRoute = 'true';
-    }
-    if (!this.routePrefix) {
-      this.routePrefix = '#';
     }
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) {
       this.sortTags = 'false';
@@ -858,6 +853,8 @@ export default class RapiDoc extends LitElement {
       } else {
         this.scrollToPath(elementId);
       }
+    } else if (this.gotoPath) {
+      this.scrollToPath(this.gotoPath);
     } else if (this.renderStyle === 'focused') {
       // If goto-path is provided and no location-hash is present then try to scroll to default element
       if (!this.gotoPath) {
@@ -870,39 +867,22 @@ export default class RapiDoc extends LitElement {
   }
 
   /**
-   * Return the URL from where is served the RapiDoc component, removing any hash and route prefix
+   * Return the URL from where is served the RapiDoc component, removing any hash
    */
   getComponentBaseURL() {
-    const { href } = window.location;
-
-    // Remove end of string # or /
-    const cleanRouterPrefix = this.routePrefix.replace(/(#|\/)$/, '');
-
-    if (!cleanRouterPrefix) {
-      return href.split('#')[0];
-    }
-
-    const indexOfRoutePrefix = href.lastIndexOf(cleanRouterPrefix);
-
-    if (indexOfRoutePrefix === -1) {
-      return href;
-    }
-
-    return href.slice(0, indexOfRoutePrefix);
+    return window.location.href.split('#')[0];
   }
 
   /**
-   * From the URL return the ID of the element whether it is in the hash or if used a router prefix without a hash
+   * From the URL return the ID of the element from the location hash
    */
   getElementIDFromURL() {
-    const baseURL = this.getComponentBaseURL();
-    const elementId = window.location.href.replace(baseURL + this.routePrefix, '');
-    return elementId;
+    return window.location.hash ? window.location.hash.substring(1) : '';
   }
 
   replaceHistoryState(hashId) {
     const baseURL = this.getComponentBaseURL();
-    window.history.replaceState(null, null, `${baseURL}${this.routePrefix || '#'}${hashId}`);
+    window.history.replaceState(null, null, hashId ? `${baseURL}#${hashId}` : baseURL);
   }
 
   expandAndGotoOperation(elementId, scrollToElement = true) {
@@ -949,16 +929,34 @@ export default class RapiDoc extends LitElement {
           const isFirst = firstNavEl && firstNavEl.dataset.contentId === tmpElementId;
           const gotoEl = this.shadowRoot.getElementById(tmpElementId);
           if (gotoEl) {
-            if (isFirst) {
-              const mainContentEl = this.shadowRoot.querySelector('.main-content');
+            const mainContentEl = this.shadowRoot.querySelector('.main-content');
+            if (this.autoHeight === 'true') {
+              gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+            } else if (isFirst) {
               if (mainContentEl) {
                 mainContentEl.scrollTo({ top: 0, behavior: this.scrollBehavior });
               } else {
                 gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
               }
+            } else if (mainContentEl) {
+              const containerRect = mainContentEl.getBoundingClientRect();
+              const targetRect = gotoEl.getBoundingClientRect();
+              const targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
+              mainContentEl.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
             } else {
               gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
             }
+            this._activeElementId = tmpElementId;
+            this.dispatchEvent(
+              new CustomEvent('nav-active-change', {
+                detail: {
+                  id: tmpElementId,
+                  elementId: tmpElementId,
+                },
+                bubbles: true,
+                composed: true,
+              })
+            );
             if (this.updateRoute === 'true') {
               this.replaceHistoryState(tmpElementId);
             }
@@ -1040,53 +1038,70 @@ export default class RapiDoc extends LitElement {
     }
 
     const targetId = bestEl.id;
-    const newNavEl = this.shadowRoot.getElementById(`link-${targetId}`);
-    if (!newNavEl || newNavEl.classList.contains('active')) {
+    if (this._activeElementId === targetId) {
       return;
     }
+    this._activeElementId = targetId;
 
     if (this._intersectionRaf) {
       cancelAnimationFrame(this._intersectionRaf);
     }
 
     this._intersectionRaf = requestAnimationFrame(() => {
-      const oldNavEl = this.shadowRoot.querySelector(
-        '.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active'
+      // 1. Dispatch custom event so outer portals/host apps can sync active state
+      this.dispatchEvent(
+        new CustomEvent('nav-active-change', {
+          detail: {
+            id: targetId,
+            elementId: targetId,
+          },
+          bubbles: true,
+          composed: true,
+        })
       );
-
-      if (oldNavEl && oldNavEl !== newNavEl) {
-        oldNavEl.classList.remove('active');
-        oldNavEl.part.remove('section-navbar-active-item');
-      }
-
-      expandParentNavContainers(newNavEl);
-      newNavEl.classList.add('active');
-      newNavEl.part.add('section-navbar-active-item');
-
-      // Scroll sidebar only if the active item is out of view
-      const navScrollEl = newNavEl.closest('.nav-scroll');
-      if (navScrollEl) {
-        const headerEl = navScrollEl.querySelector('.nav-bar-header') || navScrollEl.querySelector('.nav-bar-search-container');
-        const topOffset = headerEl ? headerEl.offsetHeight : 0;
-
-        if (newNavEl.offsetTop <= topOffset + 30) {
-          if (navScrollEl.scrollTop > 0) {
-            const behavior = this.scrollBehavior === 'auto' ? 'auto' : 'smooth';
-            navScrollEl.scrollTo({ top: 0, behavior });
-          }
-        } else {
-          const scrollRect = navScrollEl.getBoundingClientRect();
-          const itemRect = newNavEl.getBoundingClientRect();
-          const isOutOfView = itemRect.top < scrollRect.top + topOffset + 15 || itemRect.bottom > scrollRect.bottom - 40;
-          if (isOutOfView) {
-            const behavior = this.scrollBehavior === 'auto' ? 'auto' : 'smooth';
-            newNavEl.scrollIntoView({ behavior, block: 'nearest' });
-          }
-        }
-      }
 
       if (this.updateRoute === 'true') {
         this.replaceHistoryState(targetId);
+      }
+
+      // 2. If internal navbar is active (show-side-nav="true"), update Shadow DOM elements
+      const newNavEl = this.shadowRoot.getElementById(`link-${targetId}`);
+      if (newNavEl) {
+        const oldNavEl = this.shadowRoot.querySelector(
+          '.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active'
+        );
+
+        if (oldNavEl && oldNavEl !== newNavEl) {
+          oldNavEl.classList.remove('active');
+          oldNavEl.part.remove('section-navbar-active-item');
+        }
+
+        expandParentNavContainers(newNavEl);
+        newNavEl.classList.add('active');
+        newNavEl.part.add('section-navbar-active-item');
+
+        // Scroll sidebar only if the active item is out of view
+        const navScrollEl = newNavEl.closest('.nav-scroll');
+        if (navScrollEl) {
+          const headerEl = navScrollEl.querySelector('.nav-bar-header') || navScrollEl.querySelector('.nav-bar-search-container');
+          const topOffset = headerEl ? headerEl.offsetHeight : 0;
+
+          if (newNavEl.offsetTop <= topOffset + 30) {
+            if (navScrollEl.scrollTop > 0) {
+              const behavior = this.scrollBehavior === 'auto' ? 'auto' : 'smooth';
+              navScrollEl.scrollTo({ top: 0, behavior });
+            }
+          } else {
+            const scrollRect = navScrollEl.getBoundingClientRect();
+            const itemRect = newNavEl.getBoundingClientRect();
+            const isOutOfView = itemRect.top < scrollRect.top + topOffset + 15 || itemRect.bottom > scrollRect.bottom - 40;
+            if (isOutOfView) {
+              const behavior = this.scrollBehavior === 'auto' ? 'auto' : 'smooth';
+              const targetTop = itemRect.top - scrollRect.top + navScrollEl.scrollTop - 20;
+              navScrollEl.scrollTo({ top: targetTop, behavior });
+            }
+          }
+        }
       }
     });
   }
@@ -1097,7 +1112,15 @@ export default class RapiDoc extends LitElement {
       if (e.target.getAttribute('href').startsWith('#')) {
         const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
         if (gotoEl) {
-          gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+          const mainContentEl = this.shadowRoot.querySelector('.main-content');
+          if (mainContentEl) {
+            const containerRect = mainContentEl.getBoundingClientRect();
+            const targetRect = gotoEl.getBoundingClientRect();
+            const targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
+            mainContentEl.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
+          } else {
+            gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+          }
         }
       }
     }
@@ -1155,24 +1178,32 @@ export default class RapiDoc extends LitElement {
     if (this.renderStyle === 'view') {
       this.expandAndGotoOperation(elementId, expandPath, true);
     } else {
-      let isValidElementId = false;
-      const contentEl = this.shadowRoot.getElementById(elementId);
+      const contentEl =
+        this.shadowRoot.getElementById(elementId) ||
+        this.shadowRoot.querySelector(`[data-op-slug="${CSS.escape(elementId)}"]`) ||
+        this.shadowRoot.querySelector(`[id$="--${CSS.escape(elementId)}"]`) ||
+        this.shadowRoot.getElementById(elementId.replace(/^[a-z0-9_-]+--/, ''));
+      const isValidElementId = Boolean(contentEl);
       if (contentEl) {
-        isValidElementId = true;
         const firstNavEl = this.shadowRoot.querySelector('.first-nav-item');
         const isFirst = isFirstNavItem || (firstNavEl && firstNavEl.dataset.contentId === elementId);
-        if (isFirst) {
-          const mainContentEl = this.shadowRoot.querySelector('.main-content');
+        const mainContentEl = this.shadowRoot.querySelector('.main-content');
+        if (this.autoHeight === 'true' || this.hasAttribute('auto-height')) {
+          contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+        } else if (isFirst) {
           if (mainContentEl) {
             mainContentEl.scrollTo({ top: 0, behavior: this.scrollBehavior });
           } else {
             contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
           }
+        } else if (mainContentEl) {
+          const containerRect = mainContentEl.getBoundingClientRect();
+          const targetRect = contentEl.getBoundingClientRect();
+          const targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
+          mainContentEl.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
         } else {
           contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
         }
-      } else {
-        isValidElementId = false;
       }
       if (isValidElementId) {
         // In focused mode, <api-request> and <api-response> component instances are reused across endpoint switches
@@ -1190,6 +1221,17 @@ export default class RapiDoc extends LitElement {
         }
 
         // Update Location Hash
+        this._activeElementId = elementId;
+        this.dispatchEvent(
+          new CustomEvent('nav-active-change', {
+            detail: {
+              id: elementId,
+              elementId,
+            },
+            bubbles: true,
+            composed: true,
+          })
+        );
         if (this.updateRoute === 'true') {
           this.replaceHistoryState(elementId);
         }
@@ -1200,7 +1242,15 @@ export default class RapiDoc extends LitElement {
         if (newNavEl) {
           expandParentNavContainers(newNavEl);
           if (scrollNavItemToView) {
-            newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
+            const navScrollEl = this.shadowRoot.querySelector('.nav-scroll');
+            if (navScrollEl) {
+              const scrollRect = navScrollEl.getBoundingClientRect();
+              const itemRect = newNavEl.getBoundingClientRect();
+              const targetTop = itemRect.top - scrollRect.top + navScrollEl.scrollTop - navScrollEl.clientHeight / 2;
+              navScrollEl.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
+            } else {
+              newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
+            }
           }
           await sleep(0);
           const oldNavEl = this.shadowRoot.querySelector(

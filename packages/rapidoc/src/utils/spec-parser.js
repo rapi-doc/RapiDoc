@@ -2,6 +2,13 @@ import { dereference, load, upgrade } from '@scalar/openapi-parser';
 import { parse as parseYaml } from 'yaml';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from './common-utils.js';
+import { OperationSlugger, toKebabCase } from './slugger.js';
+
+function toPascalCase(str) {
+  return String(str || '')
+    .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+    .replace(/^[a-z]/, (chr) => chr.toUpperCase());
+}
 
 function isUrlLike(value) {
   if (typeof value !== 'string') {
@@ -44,10 +51,12 @@ function createBrowserFetchPlugin(baseUrl) {
     },
     // Resolves relative $ref paths (e.g. '../common/models.yaml') against their parent document URL
     resolvePath(parentPath, reference) {
-      if (reference.startsWith('http://') || reference.startsWith('https://')) {
+      if (typeof reference === 'string' && (reference.startsWith('http://') || reference.startsWith('https://'))) {
         return reference;
       }
-      const parentUrl = parentPath && (parentPath.startsWith('http://') || parentPath.startsWith('https://')) ? new URL(parentPath) : base;
+      const isParentString = typeof parentPath === 'string';
+      const parentUrl =
+        isParentString && (parentPath.startsWith('http://') || parentPath.startsWith('https://')) ? new URL(parentPath) : base;
       return new URL(reference, parentUrl).href;
     },
     // Fetches the target URL via native fetch and returns the parsed spec or raw text
@@ -235,10 +244,13 @@ export default async function ProcessSpec(
     };
   }
 
-  // const pathGroups = groupByPaths(jsonParsedSpec);
+  const hasTagGroups = Boolean(
+    (jsonParsedSpec?.['x-tagGroups'] && jsonParsedSpec['x-tagGroups'].length > 0) ||
+    (jsonParsedSpec?.['x-tag-groups'] && jsonParsedSpec['x-tag-groups'].length > 0)
+  );
 
   // Tags with Paths and WebHooks
-  const tags = groupByTags(jsonParsedSpec, sortEndpointsBy, generateMissingTags, sortTags);
+  const tags = groupByTags(jsonParsedSpec, sortEndpointsBy, generateMissingTags, sortTags, hasTagGroups);
 
   // 3-Level Tag Groups (x-tagGroups / x-tag-groups)
   const tagGroups = groupByTagGroups(jsonParsedSpec, tags);
@@ -534,13 +546,15 @@ export function isTagExpanded(obj) {
   return true;
 }
 
-function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags = false, sortTags = false) {
+function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags = false, sortTags = false, hasTagGroups = false) {
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace', 'query']; // this is also used for ordering endpoints by methods
+  const slugger = new OperationSlugger();
+
   const tags =
     openApiSpec.tags && Array.isArray(openApiSpec.tags) && openApiSpec.tags.length > 0
       ? openApiSpec.tags.map((v) => ({
           show: true,
-          elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
+          elementId: slugger.slugTag(v.name),
           name: v.name,
           displayName: v['x-displayName'] || v.name,
           description: v.description || '',
@@ -621,7 +635,7 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
         if (!tagObj) {
           tagObj = {
             show: true,
-            elementId: `tag--${tag.replace(invalidCharsRegEx, '-')}`,
+            elementId: slugger.slugTag(tag),
             name: tag,
             displayName: specTagsItem?.['x-displayName'] || specTagsItem?.name || tag,
             description: specTagsItem?.description || '',
@@ -665,6 +679,23 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
           }
         }
 
+        const cleanPath = (pathOrHookName || '')
+          .replace(/[{}]/g, '')
+          .replace(/[^a-zA-Z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        const fallbackOpId = `${methodName}${toPascalCase(cleanPath)}`;
+        const operationId = pathOrHookObj.operationId || fallbackOpId;
+        const tagSlug = hasTagGroups ? toKebabCase(tag) : '';
+        const elementId = slugger.slug(
+          {
+            method: methodName,
+            path: pathOrHookName,
+            operationId: pathOrHookObj.operationId,
+            summary: pathOrHookObj.summary || pathOrHookObj.description,
+          },
+          tagSlug
+        );
+
         // Update Responses
         tagObj.paths.push({
           show: true,
@@ -677,8 +708,8 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
           shortSummary,
           method: methodName,
           path: pathOrHookName,
-          operationId: pathOrHookObj.operationId,
-          elementId: `${methodName}-${pathOrHookName.replace(invalidCharsRegEx, '-')}`,
+          operationId,
+          elementId,
           servers: pathOrHookObj.servers ? commonPathProp.servers.concat(pathOrHookObj.servers) : commonPathProp.servers,
           parameters: finalParameters,
           requestBody: pathOrHookObj.requestBody,
@@ -702,8 +733,8 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
   }
 
   const tagsWithSortedPaths = tags.filter((tag) => tag.paths && tag.paths.length > 0);
-  if (sortEndpointsBy !== 'none') {
-    tagsWithSortedPaths.forEach((tag) => {
+  tagsWithSortedPaths.forEach((tag) => {
+    if (sortEndpointsBy !== 'none') {
       if (sortEndpointsBy === 'method') {
         tag.paths.sort((a, b) => {
           const idxA = supportedMethods.indexOf(a.method);
@@ -724,9 +755,9 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
       } else if (sortEndpointsBy === 'path') {
         tag.paths.sort((a, b) => a.path.localeCompare(b.path));
       }
-      tag.firstPathId = tag.paths[0].elementId;
-    });
-  }
+    }
+    tag.firstPathId = tag.paths[0]?.elementId || '';
+  });
   return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
 }
 
@@ -744,6 +775,7 @@ export function groupByTagGroups(openApiSpec, tags = []) {
     return [];
   }
 
+  const slugger = new OperationSlugger();
   const assignedTagNames = new Set();
   const groups = [];
 
@@ -765,7 +797,7 @@ export function groupByTagGroups(openApiSpec, tags = []) {
         name: g.name,
         displayName: g['x-displayName'] || g.displayName || g.name,
         description: g.description || '',
-        elementId: `tag-group--${g.name.replace(invalidCharsRegEx, '-')}`,
+        elementId: slugger.slugTagGroup(g.name),
         tags: groupTags,
         expanded: isTagExpanded(g),
         xInternal: g['x-internal'] ?? undefined,
