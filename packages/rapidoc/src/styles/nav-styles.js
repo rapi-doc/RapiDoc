@@ -9,7 +9,7 @@ export default css`
   }
   .btn-clear-filter {
     margin-left: 5px;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     width: 75px;
     padding: 6px 8px;
   }
@@ -77,7 +77,7 @@ export default css`
     transform: translateY(-50%);
     font-size: var(--font-size-regular);
     cursor: pointer;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     opacity: 0.6;
     user-select: none;
   }
@@ -111,7 +111,7 @@ export default css`
     width: 0;
     height: 100%;
     overflow: hidden;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     background: var(--background);
     background-blend-mode: multiply;
     border-right: 1px solid var(--border);
@@ -198,7 +198,7 @@ export default css`
   .nav-bar-tag-icon,
   .nav-bar-tag-group-icon {
     font-size: 14px;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -263,7 +263,7 @@ export default css`
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     cursor: pointer;
     user-select: none;
     border-inline-start: 4px solid transparent;
@@ -319,7 +319,7 @@ export default css`
     cursor: pointer;
     width: 100%;
     border: none;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     background: transparent;
     border-inline-start: 4px solid transparent;
     transition:
@@ -478,7 +478,7 @@ export default css`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     padding: var(--nav-item-padding);
     font-weight: 700;
   }

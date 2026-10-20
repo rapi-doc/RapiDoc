@@ -439,7 +439,7 @@ export default css`
   :host(:not([theme])[color-scheme='light']) {
     --primary: #f76b39;
     --primary-foreground: #000000;
-    --foreground: #555555;
+    --foreground: #333333;
     --ring: #d97706;
   }
 
