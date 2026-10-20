@@ -112,6 +112,7 @@ describe('RapiDoc Portal Shell & SSG Build Engine (Milestone 4)', () => {
     // Check assets
     assert.ok(fs.existsSync(path.join(distDir, 'assets/portal.css')));
     assert.ok(fs.existsSync(path.join(distDir, 'assets/portal.js')));
+    assert.ok(fs.existsSync(path.join(distDir, 'assets/rapidoc-theme.css')));
     assert.ok(fs.existsSync(path.join(distDir, 'assets/rapidoc-nav.css')));
     assert.ok(fs.existsSync(path.join(distDir, 'assets/rapidoc-min.js')));
 

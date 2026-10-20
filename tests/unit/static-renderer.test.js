@@ -17,6 +17,7 @@ import {
   getMethodBadge,
   getBundledCss,
   getNavCss,
+  getThemeTokensCss,
 } from 'rapidoc/static';
 
 const sampleSpec = {
@@ -551,6 +552,17 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
     assert.ok(navCss.includes('.nav-bar-tag-group'));
     assert.ok(navCss.includes('.nav-method.as-colored-block'));
     assert.ok(navCss.includes('.nav-method.as-colored-block.delete'));
+  });
+
+  it('getThemeTokensCss should return adapted design system tokens for portal light and dark modes', () => {
+    const amberTokens = getThemeTokensCss('amber');
+    assert.ok(amberTokens.includes('[data-theme=\'light\']'));
+    assert.ok(amberTokens.includes('[data-theme=\'dark\']'));
+    assert.ok(amberTokens.includes('--primary: #f76b39;'));
+
+    const blueTokens = getThemeTokensCss('blue');
+    assert.ok(blueTokens.includes('--primary: #488bf8ff;'));
+    assert.ok(blueTokens.includes('--primary: #2563eb;'));
   });
 });
 

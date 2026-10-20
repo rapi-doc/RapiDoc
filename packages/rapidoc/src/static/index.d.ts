@@ -113,4 +113,5 @@ export function renderNavBarHtml(resolvedSpec: any, options?: RenderNavBarHtmlOp
 export function getMethodBadge(method: string, format?: '3-char' | 'full'): string;
 export function getBundledCss(options?: { theme?: string; colorScheme?: string; scope?: string }): string;
 export function getNavCss(scope?: string): string;
+export function getThemeTokensCss(theme?: string, scope?: string): string;
 export function toKebabCase(str: string): string;

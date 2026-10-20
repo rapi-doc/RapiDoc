@@ -6,7 +6,7 @@ import { compileMarkdoc } from '../markdoc/compiler.js';
 import { generateShell } from '../shell/template.js';
 import { buildSearchIndex } from '../search/indexer.js';
 import { parseSpecFile, extractApiMetadata } from '../openapi/index.js';
-import { getNavBarHtml, getNavCss, toKebabCase } from 'rapidoc/static';
+import { getNavBarHtml, getNavCss, getThemeTokensCss, toKebabCase } from 'rapidoc/static';
 
 function escapeHtml(str = '') {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -82,6 +82,17 @@ export async function buildPortal(projectDir = process.cwd(), options = {}) {
   }
   if (sharedNavCss) {
     fs.writeFileSync(path.join(assetsOutDir, 'rapidoc-nav.css'), sharedNavCss, 'utf8');
+  }
+
+  const selectedTheme = config.rapidoc?.theme || 'amber';
+  let sharedThemeCss = '';
+  try {
+    sharedThemeCss = getThemeTokensCss(selectedTheme);
+  } catch (err) {
+    console.warn('[compiler] Could not extract getThemeTokensCss:', err.message);
+  }
+  if (sharedThemeCss) {
+    fs.writeFileSync(path.join(assetsOutDir, 'rapidoc-theme.css'), sharedThemeCss, 'utf8');
   }
 
   if (fs.existsSync(assetsSrcDir)) {

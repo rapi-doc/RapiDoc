@@ -77,4 +77,36 @@ export function getNavCss(scope = '') {
   return navCss;
 }
 
+/**
+ * Returns RapiDoc's design system & theme tokens CSS text for shared usage in @rapidoc/portal.
+ * Converts Web Component :host rules into Light DOM portal selectors (:root, [data-theme='dark'], [data-theme='light']).
+ *
+ * @param {string} [theme='amber'] - Theme preset name ('amber', 'blue', 'emerald', etc.)
+ * @param {string} [scope=':root'] - Scope selector
+ * @returns {string} Theme tokens CSS string
+ */
+export function getThemeTokensCss(theme = 'amber', scope = ':root') {
+  let tokensCss = ThemeTokens && ThemeTokens.cssText ? ThemeTokens.cssText : String(ThemeTokens || '');
+  const activeTheme = theme && typeof theme === 'string' ? theme.trim().toLowerCase() : 'amber';
+
+  tokensCss = tokensCss
+    .replace(/:host\(\[theme='([^']+)'\]\[color-scheme='light'\]\)/g, (match, t) =>
+      t === activeTheme ? "[data-theme='light']" : `[data-theme='light'][data-theme-preset='${t}']`
+    )
+    .replace(/:host\(\[theme='([^']+)'\]\)/g, (match, t) =>
+      t === activeTheme ? `${scope}, [data-theme='dark']` : `[data-theme='dark'][data-theme-preset='${t}']`
+    )
+    .replace(/:host\(:not\(\[theme\]\)\[color-scheme='light'\]\)/g, "[data-theme='light']")
+    .replace(/:host\(:not\(\[theme\]\)\)/g, `${scope}, [data-theme='dark']`)
+    .replace(/:host\(\[color-scheme='light'\]\)/g, "[data-theme='light']")
+    .replace(/:host\(\[color-scheme='dark'\]\)/g, "[data-theme='dark']")
+    .replace(/:host\(\[color-scheme='system'\]\)/g, "[data-theme='dark']")
+    .replace(/:host\(:not\(\[color-scheme\]\)\)/g, `${scope}, [data-theme='dark']`)
+    .replace(/:host\b/g, scope);
+
+  const dynamicTokens = `\n${scope}, [data-theme='dark'] {\n  --primary-hover: color-mix(in srgb, var(--primary) 85%, #000000);\n}\n[data-theme='light'] {\n  --primary-hover: color-mix(in srgb, var(--primary) 85%, #000000);\n}\n`;
+
+  return tokensCss + dynamicTokens;
+}
+
 export default getBundledCss;
