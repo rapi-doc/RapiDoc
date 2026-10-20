@@ -65,8 +65,8 @@ export function generateShell({
   let announcementHtml = '';
   if (site.announcement?.text) {
     const ann = site.announcement;
-    const bgStyle = ann.bgColor ? `--portal-announcement-bg: ${ann.bgColor};` : '';
-    const fgStyle = ann.textColor ? `--portal-announcement-fg: ${ann.textColor};` : '';
+    const bgStyle = ann.bgColor ? `--announcement-bg: ${ann.bgColor};` : '';
+    const fgStyle = ann.textColor ? `--announcement-fg: ${ann.textColor};` : '';
     const styleAttr = bgStyle || fgStyle ? `style="${bgStyle} ${fgStyle}"` : '';
 
     announcementHtml = `
@@ -417,22 +417,28 @@ export function generateShell({
   // Dynamic CSS variables for primary and link colors
   const customStyles = [];
   if (config.rapidoc?.['primary-color']) {
-    customStyles.push(`--portal-primary: ${escapeHtml(config.rapidoc['primary-color'])};`);
+    customStyles.push(`--primary: ${escapeHtml(config.rapidoc['primary-color'])};`);
+    customStyles.push(`--ring: ${escapeHtml(config.rapidoc['primary-color'])};`);
   }
   if (config.rapidoc?.['link-color']) {
-    customStyles.push(`--portal-link: ${escapeHtml(config.rapidoc['link-color'])};`);
+    customStyles.push(`--link: ${escapeHtml(config.rapidoc['link-color'])};`);
   }
   const dynamicStyleTag = customStyles.length > 0 ? `<style>:root { ${customStyles.join(' ')} }</style>` : '';
 
+  const defaultTheme = config.rapidoc?.['color-scheme'] || 'dark';
+
   // 9. Assemble Full HTML Document
   return `<!DOCTYPE html>
-<html lang="en" data-theme="${config.rapidoc?.theme || 'dark'}" class="${currentLayout === 'landing' ? 'portal-html-landing' : ''}">
+<html lang="en" data-theme="${defaultTheme}" class="${currentLayout === 'landing' ? 'portal-html-landing' : ''}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(pageTitle)}</title>
   ${metaDescription ? `<meta name="description" content="${escapeHtml(metaDescription)}">` : ''}
   <link rel="icon" href="${escapeHtml(site.favicon || '/favicon.ico')}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600;700&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="${escapeHtml(baseAssetsPath)}/rapidoc-nav.css">
   <link rel="stylesheet" href="${escapeHtml(baseAssetsPath)}/portal.css">
   ${dynamicStyleTag}

@@ -191,10 +191,19 @@ export default class RapiDocMini extends LitElement {
         "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UNirkOUuhpKKSTjw.woff2) format('woff2')",
         fontDescriptor
       );
+      fontDescriptor.weight = '700';
+      const fontWeight700 = new FontFace(
+        'Open Sans',
+        "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UN7rgOUuhpKKSTjw.woff2) format('woff2')",
+        fontDescriptor
+      );
       fontWeight300.load().then((font) => {
         document.fonts.add(font);
       });
       fontWeight600.load().then((font) => {
+        document.fonts.add(font);
+      });
+      fontWeight700.load().then((font) => {
         document.fonts.add(font);
       });
     }

@@ -86,8 +86,7 @@ function normalizeNavigation(navItems, apis) {
 function normalizeRapiDocOptions(options = {}) {
   const normalized = {};
   for (const [key, value] of Object.entries(options)) {
-    const kebabKey = camelToKebab(key);
-    normalized[kebabKey] = value;
+    normalized[camelToKebab(key)] = value;
   }
   return normalized;
 }

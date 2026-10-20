@@ -45,7 +45,7 @@ describe('RapiDoc Portal Shell & SSG Build Engine (Milestone 4)', () => {
     // 1. Announcement Banner checks
     assert.ok(html.includes('portal-announcement'));
     assert.ok(html.includes('Inter-galactic shipping now live!'));
-    assert.ok(html.includes('--portal-announcement-bg: #facc15'));
+    assert.ok(html.includes('--announcement-bg: #facc15'));
     assert.ok(html.includes('portal-announcement-close'));
 
     // 2. Row 1 Header checks

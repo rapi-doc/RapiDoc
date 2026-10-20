@@ -67,10 +67,12 @@ export function getNavCss(scope = '') {
   let navCss = NavStyles && NavStyles.cssText ? NavStyles.cssText : String(NavStyles || '');
   if (scope && scope !== ':host') {
     navCss = navCss
+      .replace(/:host\(\[color-scheme='([^']+)'\]\)/g, `[data-theme='$1'] ${scope}, ${scope}[color-scheme='$1']`)
       .replace(/:host\(([^)]+)\)/g, `${scope}$1`)
       .replace(/:host\b/g, scope)
-      .replace(/::slotted\(([^)]+)\)/g, `$1`);
-    navCss = `${scope} {\n${navCss}\n}`;
+      .replace(/::slotted\(([^)]+)\)/g, `$1`)
+      .replace(/^\s*\.nav-bar\s*\{/gm, '&.nav-bar, & {');
+    navCss = `${scope} {\n  --nav-item-padding: 0.3125rem 1rem 0.3125rem 0.625rem;\n${navCss}\n}\n[data-theme='light'] ${scope} .nav-method.as-colored-block {\n  color: var(--nav-method-badge-fg, var(--method-badge-fg, #fff));\n}\n`;
   }
   return navCss;
 }

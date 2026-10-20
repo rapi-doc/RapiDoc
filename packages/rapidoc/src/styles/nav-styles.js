@@ -467,7 +467,7 @@ export default css`
   .nav-bar-h2,
   .nav-bar-path {
     font-weight: 400;
-    padding: var(--nav-item-padding);
+    padding: var(--nav-item-padding, 0.3125rem 1rem 0.3125rem 0.625rem);
   }
 
   .nav-bar-info {

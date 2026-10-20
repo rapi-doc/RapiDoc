@@ -233,10 +233,19 @@ export default class RapiDoc extends LitElement {
         "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UNirkOUuhpKKSTjw.woff2) format('woff2')",
         fontDescriptor
       );
+      fontDescriptor.weight = '700';
+      const fontWeight700 = new FontFace(
+        'Open Sans',
+        "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UN7rgOUuhpKKSTjw.woff2) format('woff2')",
+        fontDescriptor
+      );
       fontWeight300.load().then((font) => {
         document.fonts.add(font);
       });
       fontWeight600.load().then((font) => {
+        document.fonts.add(font);
+      });
+      fontWeight700.load().then((font) => {
         document.fonts.add(font);
       });
     }
@@ -265,6 +274,10 @@ export default class RapiDoc extends LitElement {
     }
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
+    }
+    if (this.theme === 'light' || this.theme === 'dark') {
+      this.colorScheme = this.theme;
+      this.theme = 'amber';
     }
     const normalizedTheme = normalizeTheme(this.theme);
     this.theme = normalizedTheme.theme;
@@ -535,12 +548,27 @@ export default class RapiDoc extends LitElement {
     scheduleHighlight(this.shadowRoot);
 
     if (changedProperties.has('theme')) {
+      if (this.theme === 'light' || this.theme === 'dark') {
+        this.colorScheme = this.theme;
+        this.setAttribute('color-scheme', this.colorScheme);
+        this.theme = 'amber';
+        this.setAttribute('theme', 'amber');
+      }
       const normalizedTheme = normalizeTheme(this.theme);
       if (this.theme !== normalizedTheme.theme) {
         this.theme = normalizedTheme.theme;
         this.setAttribute('theme', this.theme);
       }
       applyCustomTheme(this, this.theme);
+    }
+
+    if (changedProperties.has('colorScheme')) {
+      if (!this.colorScheme || !'dark, light, system,'.includes(`${this.colorScheme},`)) {
+        this.colorScheme = 'dark';
+      }
+      if (this.getAttribute('color-scheme') !== this.colorScheme) {
+        this.setAttribute('color-scheme', this.colorScheme);
+      }
     }
 
     if (changedProperties.has('mockServer')) {

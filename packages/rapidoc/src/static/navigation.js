@@ -325,7 +325,9 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
   if (includeOverview && resolvedSpec.info) {
     const overviewTitle = resolvedSpec.info.title || 'Overview';
     const href = `${basePath}#overview`;
-    const isActive = Boolean(activeHref && (activeHref === href || !activeHref.includes('#')));
+    const isActive = Boolean(
+      activeHref && (activeHref === href || activeHref === basePath || activeHref === `${basePath}/` || activeHref.endsWith('#overview'))
+    );
     overviewHtml = `
       <a
         href="${escapeHtml(href)}"

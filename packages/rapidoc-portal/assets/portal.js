@@ -5,6 +5,14 @@
 
 (function () {
   // 1. Theme Management
+  function updateRapiDocTheme(colorScheme) {
+    const rapDocs = document.querySelectorAll('rapi-doc');
+    rapDocs.forEach((doc) => {
+      doc.setAttribute('color-scheme', colorScheme);
+      doc.colorScheme = colorScheme;
+    });
+  }
+
   function initTheme() {
     const savedTheme = localStorage.getItem('rapidoc-portal-theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -12,6 +20,14 @@
 
     document.documentElement.setAttribute('data-theme', initialTheme);
     updateThemeToggleIcon(initialTheme);
+    updateRapiDocTheme(initialTheme);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        const theme = document.documentElement.getAttribute('data-theme') || initialTheme;
+        updateRapiDocTheme(theme);
+      });
+    }
 
     const toggleBtn = document.querySelector('.portal-theme-toggle');
     if (toggleBtn) {
@@ -21,12 +37,7 @@
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('rapidoc-portal-theme', next);
         updateThemeToggleIcon(next);
-
-        // Notify RapiDoc components of theme change if present
-        const rapDocs = document.querySelectorAll('rapi-doc');
-        rapDocs.forEach((doc) => {
-          doc.setAttribute('theme', next);
-        });
+        updateRapiDocTheme(next);
       });
     }
   }

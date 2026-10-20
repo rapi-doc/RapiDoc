@@ -164,7 +164,9 @@ export async function buildPortal(projectDir = process.cwd(), options = {}) {
     if (specData?.info?.description && !api.description) api.description = specData.info.description;
     if (specData?.info?.title && (!api.title || api.title === api.id)) api.title = specData.info.title;
 
+    const initialColorScheme = config.rapidoc?.['color-scheme'] || 'dark';
     const rapidocAttrs = Object.entries(config.rapidoc || {})
+      .filter(([k]) => k !== 'color-scheme')
       .map(([k, v]) => `${k}="${v}"`)
       .join(' ');
 
@@ -172,23 +174,19 @@ export async function buildPortal(projectDir = process.cwd(), options = {}) {
       <div class="portal-rapidoc-fullview">
         <rapi-doc
           spec-url="${specUrl}"
+          color-scheme="${initialColorScheme}"
           show-side-nav="false"
           show-header="false"
           update-route="false"
           render-style="read"
           auto-height="true"
-          bg-color="transparent"
-          text-color="#f8fafc"
-          primary-color="#f59e0b"
           allow-authentication="true"
           allow-server-selection="false"
           allow-try="true"
           schema-style="table"
           use-path-in-nav-bar="true"
           nav-item-spacing="compact"
-          regular-font="var(--portal-font-sans)"
-          mono-font="var(--portal-font-mono)"
-          font-size="small"
+          scale="sm"
           style="--content-padding: 24px 32px;"
           ${gotoPath ? `goto-path="${gotoPath}"` : ''}
           ${rapidocAttrs}
