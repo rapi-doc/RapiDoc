@@ -18,7 +18,7 @@ import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
 import DialogBoxStyles from '~/styles/dialog-box-styles';
 import LayoutStyles from '~/styles/layout-styles';
-import ThemeTokens, { applyCustomTheme, normalizeTheme } from '~/styles/theme-tokens';
+import ThemeTokens, { applyCustomTheme, isValidHexColor, normalizeTheme } from '~/styles/theme-tokens';
 
 import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
@@ -140,6 +140,7 @@ export default class RapiDoc extends LitElement {
 
   // Main Colors and Font
   @property({ type: String, reflect: true }) theme = 'amber';
+  @property({ type: String, attribute: 'primary-color' }) primaryColor = '';
   @property({ type: String, attribute: 'color-scheme', reflect: true }) colorScheme = 'dark';
   @property({ type: String, reflect: true }) radius = 'sm';
   @property({ type: String, reflect: true }) scale = 'default';
@@ -278,6 +279,9 @@ export default class RapiDoc extends LitElement {
     if (this.theme === 'light' || this.theme === 'dark') {
       this.colorScheme = this.theme;
       this.theme = 'amber';
+    }
+    if (this.primaryColor && isValidHexColor(this.primaryColor)) {
+      this.theme = this.primaryColor;
     }
     const normalizedTheme = normalizeTheme(this.theme);
     this.theme = normalizedTheme.theme;
@@ -559,6 +563,12 @@ export default class RapiDoc extends LitElement {
         this.theme = normalizedTheme.theme;
         this.setAttribute('theme', this.theme);
       }
+      applyCustomTheme(this, this.theme);
+    }
+
+    if (changedProperties.has('primaryColor') && this.primaryColor && isValidHexColor(this.primaryColor)) {
+      this.theme = this.primaryColor;
+      this.setAttribute('theme', this.theme);
       applyCustomTheme(this, this.theme);
     }
 

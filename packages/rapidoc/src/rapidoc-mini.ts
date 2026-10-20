@@ -13,7 +13,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 
 import EndpointStyles from '~/styles/endpoint-styles';
-import ThemeTokens, { applyCustomTheme, normalizeTheme } from '~/styles/theme-tokens';
+import ThemeTokens, { applyCustomTheme, isValidHexColor, normalizeTheme } from '~/styles/theme-tokens';
 import { rapidocApiKey } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/mock-interceptor';
@@ -87,6 +87,7 @@ export default class RapiDocMini extends LitElement {
 
   // Main Colors and Font
   @property({ type: String, reflect: true }) theme = 'amber';
+  @property({ type: String, attribute: 'primary-color' }) primaryColor = '';
   @property({ type: String, attribute: 'color-scheme', reflect: true }) colorScheme = 'dark';
   @property({ type: String, reflect: true }) radius = 'sm';
   @property({ type: String, reflect: true }) scale = 'default';
@@ -217,6 +218,9 @@ export default class RapiDocMini extends LitElement {
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
     }
+    if (this.primaryColor && isValidHexColor(this.primaryColor)) {
+      this.theme = this.primaryColor;
+    }
     const normalizedTheme = normalizeTheme(this.theme);
     this.theme = normalizedTheme.theme;
     this.setAttribute('theme', this.theme);
@@ -343,6 +347,12 @@ export default class RapiDocMini extends LitElement {
         this.theme = normalizedTheme.theme;
         this.setAttribute('theme', this.theme);
       }
+      applyCustomTheme(this, this.theme);
+    }
+
+    if (changedProperties.has('primaryColor') && this.primaryColor && isValidHexColor(this.primaryColor)) {
+      this.theme = this.primaryColor;
+      this.setAttribute('theme', this.theme);
       applyCustomTheme(this, this.theme);
     }
 

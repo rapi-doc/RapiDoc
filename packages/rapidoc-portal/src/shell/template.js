@@ -416,9 +416,10 @@ export function generateShell({
 
   // Dynamic CSS variables for primary and link colors
   const customStyles = [];
-  if (config.rapidoc?.['primary-color']) {
-    customStyles.push(`--primary: ${escapeHtml(config.rapidoc['primary-color'])};`);
-    customStyles.push(`--ring: ${escapeHtml(config.rapidoc['primary-color'])};`);
+  const primaryColor = config.rapidoc?.['primary-color'];
+  if (primaryColor && primaryColor !== '#f76b39') {
+    customStyles.push(`--primary: ${escapeHtml(primaryColor)};`);
+    customStyles.push(`--ring: ${escapeHtml(primaryColor)};`);
   }
   if (config.rapidoc?.['link-color']) {
     customStyles.push(`--link: ${escapeHtml(config.rapidoc['link-color'])};`);

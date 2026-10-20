@@ -43,7 +43,7 @@ describe('RapiDoc Portal Configuration Engine (Milestone 2)', () => {
     // RapiDoc options checks
     assert.equal(config.rapidoc['render-style'], 'read');
     assert.equal(config.rapidoc['schema-style'], 'tree');
-    assert.equal(config.rapidoc['primary-color'], '#f59e0b');
+    assert.equal(config.rapidoc['primary-color'], '#f76b39');
     assert.equal(config.rapidoc['show-header'], 'false');
     assert.equal(config.rapidoc['show-side-nav'], 'false');
 

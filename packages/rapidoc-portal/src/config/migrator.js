@@ -43,7 +43,7 @@ export async function generateMigratedConfig(sourceDir) {
       'allow-try': normalized.rapidoc['allow-try'] !== undefined ? normalized.rapidoc['allow-try'] : true,
       'allow-authentication': normalized.rapidoc['allow-authentication'] !== undefined ? normalized.rapidoc['allow-authentication'] : true,
       theme: normalized.rapidoc.theme || 'dark',
-      'primary-color': normalized.rapidoc['primary-color'] || '#f59e0b',
+      'primary-color': normalized.rapidoc['primary-color'] || '#f76b39',
     },
     search: {
       enabled: normalized.search.enabled,
