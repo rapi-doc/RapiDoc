@@ -51,6 +51,9 @@ export function normalizeTheme(theme) {
   if (THEME_PRESETS.includes(lower)) {
     return { theme: lower };
   }
+  if (lower === '#f76b39') {
+    return { theme: 'amber' };
+  }
   if (isValidHexColor(trimmed)) {
     return { theme: trimmed };
   }
@@ -291,9 +294,9 @@ export default css`
   :host([color-scheme='light']) {
     /* Surfaces */
     --background: #ffffff;
-    --foreground: #09090b;
+    --foreground: #555555;
     --card: #f4f4f5;
-    --card-foreground: #09090b;
+    --card-foreground: #555555;
     --muted: #f4f4f5;
     --muted-foreground: #71717a;
     --border: #e4e4e7;
@@ -357,9 +360,9 @@ export default css`
   @media (prefers-color-scheme: light) {
     :host([color-scheme='system']) {
       --background: #ffffff;
-      --foreground: #09090b;
+      --foreground: #555555;
       --card: #f4f4f5;
-      --card-foreground: #09090b;
+      --card-foreground: #555555;
       --muted: #f4f4f5;
       --muted-foreground: #71717a;
       --border: #e4e4e7;

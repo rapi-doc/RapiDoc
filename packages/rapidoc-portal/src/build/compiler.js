@@ -177,7 +177,7 @@ export async function buildPortal(projectDir = process.cwd(), options = {}) {
 
     const initialColorScheme = config.rapidoc?.['color-scheme'] || 'dark';
     const rapidocAttrs = Object.entries(config.rapidoc || {})
-      .filter(([k]) => k !== 'color-scheme')
+      .filter(([k, v]) => k !== 'color-scheme' && !(k === 'primary-color' && v === '#f76b39'))
       .map(([k, v]) => `${k}="${v}"`)
       .join(' ');
 

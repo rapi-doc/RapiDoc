@@ -120,4 +120,15 @@ test('theme-validation', async (t) => {
     assert.match(navStyles.cssText, /max-height:\s*var\(--nav-logo-max-height,\s*60px\);/);
     assert.match(navStyles.cssText, /overflow:\s*hidden;/);
   });
+
+  await t.test('normalizeTheme maps #f76b39 to amber preset', () => {
+    assert.deepEqual(normalizeTheme('#f76b39'), { theme: 'amber' });
+    assert.deepEqual(normalizeTheme('#F76B39'), { theme: 'amber' });
+    assert.deepEqual(normalizeTheme('  #f76b39  '), { theme: 'amber' });
+  });
+
+  await t.test('light theme default surfaces use #555555 for softer medium-gray foreground', () => {
+    assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--foreground:\s*#555555;/);
+    assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--card-foreground:\s*#555555;/);
+  });
 });

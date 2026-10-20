@@ -567,7 +567,7 @@ export default class RapiDoc extends LitElement {
     }
 
     if (changedProperties.has('primaryColor') && this.primaryColor && isValidHexColor(this.primaryColor)) {
-      this.theme = this.primaryColor;
+      this.theme = normalizeTheme(this.primaryColor).theme;
       this.setAttribute('theme', this.theme);
       applyCustomTheme(this, this.theme);
     }
