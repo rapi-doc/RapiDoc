@@ -33,3 +33,19 @@ Run these commands from `packages/rapidoc-portal`:
 - Maintain strict modularity and zero runtime coupling to external databases.
 - Adhere to the monorepo-wide code style rules defined in the root `AGENTS.md` (Node.js >= 22.12.0, ESM, 2 spaces, Prettier).
 - Provide clean programmatic APIs exported from this package for CLI and integration use.
+
+---
+
+## 5. RapiDoc Static & Independent Scrolling Invariants
+
+When implementing or modifying API documentation layouts in `@rapidoc/portal`:
+
+1. **Strict Separation of Navigation & Content**:
+   - **Never** render an internal sidebar inside `<rapi-doc>` (`show-side-nav="false"` and `show-header="false"` are strictly mandatory).
+   - Generate the sidebar statically at build time using `getNavBarHtml(spec, options)` from `rapidoc/static` into the outer portal layout (`.portal-sidebar`).
+2. **Independent Scrolling Shell**:
+   - The root viewport must be locked (`height: 100%; max-height: 100vh; overflow: hidden`).
+   - Navigation (`.portal-sidebar .nav-scroll`) and API content (`.portal-main`) must be isolated sibling scroll containers with `overflow-y: auto` and `overscroll-behavior: contain`.
+3. **Decoupled Scroll Synchronization**:
+   - Nav clicks scroll the main content via `targetEl.scrollIntoView()` or `rapiDocEl.scrollToPath(id)`.
+   - Content scrolling syncs the sidebar by listening to `nav-active-change` events emitted by `<rapi-doc>`.

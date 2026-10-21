@@ -84,3 +84,7 @@ packages/rapidoc/src/
    - Run `npm test` after modifying any parser or schema rendering utility.
 5. **No Direct `console.log` in Production**:
    - Strip debug logging before finalizing changes; `vite.config.mjs` removes `console` in production bundles, but keeping the source clean avoids unintended warning noise.
+6. **Declarative Shadow DOM (DSD) Hydration Hygiene**:
+   - When pre-rendering with DSD (`outputMode: 'dsd'`), `_clearDsdIfNeeded()` must replace all children (`this.shadowRoot.replaceChildren()`) and reset render options before Lit mounts its dynamic template result.
+   - Whenever changes are made to `src/rapidoc.ts` or static rendering logic, execute `npm run build:rapidoc` to keep `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js` in sync.
+
