@@ -1,6 +1,7 @@
 ---
 import fs from 'node:fs';
 import path from 'node:path';
+import DualToneIcon from './DualToneIcon.astro';
 
 interface Props {
   portalConfig?: any;
@@ -35,8 +36,8 @@ const logoHref = logo.href || '/';
 // Normalize header links
 let headerLinks = site.headerLinks || [];
 if (!headerLinks || headerLinks.length === 0) {
-  // Adaptive auto-derivation if headerLinks is omitted
   headerLinks = [
+    { label: 'Shipment API', href: '/apis/shipments' },
     { label: 'Documentation', href: '/docs/documentation' },
     { label: 'API Catalog', href: '/catalog' },
   ];
@@ -47,7 +48,7 @@ if (!headerLinks || headerLinks.length === 0) {
         label: a.title || a.id,
         href: a.path || `/apis/${a.id}`,
         description: a.description || `Interactive OpenAPI reference for ${a.title || a.id}`,
-        icon: '⚡',
+        icon: 'zap',
       })),
     });
   }
@@ -57,9 +58,21 @@ const currentPath = Astro.url?.pathname || '/';
 ---
 
 <header class="portal-header-root">
+  <script is:inline>
+    try {
+      if (sessionStorage.getItem('portal-announcement-dismissed') === 'true') {
+        document.documentElement.classList.add('portal-announcement-dismissed');
+      }
+    } catch {}
+  </script>
+
   {
     announcement?.text && (
-      <aside class="portal-announcement-bar" id="portal-announcement" style={announcement.bgColor ? `background-color: ${announcement.bgColor}; color: ${announcement.textColor || '#000000'};` : ''}>
+      <aside
+        class="portal-announcement-bar"
+        id="portal-announcement"
+        style={announcement.bgColor ? `background-color: ${announcement.bgColor}; color: ${announcement.textColor || '#000000'};` : ''}
+      >
         <div class="portal-announcement-inner">
           <span class="portal-announcement-msg">{announcement.text}</span>
           {announcement.link && (
@@ -88,13 +101,12 @@ const currentPath = Astro.url?.pathname || '/';
         <span class="portal-brand-text">{title}</span>
       </a>
 
-      <!-- Desktop Navigation Links & Mega-Menus -->
+      <!-- Desktop Navigation Links & Mega-Menus (Cypress.io style) -->
       <nav class="portal-nav-menu" aria-label="Main Navigation">
         {
-          headerLinks.map((link: any) => {
+          headerLinks.map((link) => {
             const hasSubmenu = Array.isArray(link.items) && link.items.length > 0;
-            const itemCount = hasSubmenu ? link.items.length : 0;
-            const isWide = itemCount >= 4;
+            const anyHasFeatures = hasSubmenu && link.items.some((it) => Array.isArray(it.features) && it.features.length > 0);
 
             if (hasSubmenu) {
               return (
@@ -111,24 +123,62 @@ const currentPath = Astro.url?.pathname || '/';
                     </svg>
                   </button>
 
-                  <div class:list={['portal-megamenu-panel', { 'is-wide': isWide }]}>
-                    <div class="portal-megamenu-grid">
-                      {link.items.map((item: any) => (
-                        <a href={item.href || item.path || '#'} class="portal-megamenu-card">
-                          <div class="portal-card-icon-box">
-                            <span class="portal-card-icon">{item.icon || '⚡'}</span>
-                          </div>
-                          <div class="portal-card-body">
-                            <div class="portal-card-title-row">
-                              <span class="portal-card-title">{item.label || item.title}</span>
-                              {item.badge && <span class="portal-card-badge">{item.badge}</span>}
-                              <span class="portal-card-arrow">&rarr;</span>
+                  <div class="portal-megamenu-panel">
+                    {anyHasFeatures ? (
+                      /* Cypress.io Sectioned Mode: Hero card + 2-column feature links below it */
+                      <div class="portal-megamenu-sections">
+                        {link.items.map((item, idx) => {
+                          const hasFeats = Array.isArray(item.features) && item.features.length > 0;
+                          return (
+                            <div class:list={['portal-megamenu-section', { 'with-divider': idx < link.items.length - 1 }]}>
+                              <a href={item.href || item.path || '#'} class="portal-megamenu-hero-card">
+                                <div class="portal-card-icon-box" data-icon-type={item.icon || 'zap'}>
+                                  <DualToneIcon name={item.icon || 'zap'} size={22} />
+                                </div>
+                                <div class="portal-card-body">
+                                  <div class="portal-card-title-row">
+                                    <span class="portal-card-title">{item.label || item.title}</span>
+                                    {item.badge && <span class="portal-card-badge">{item.badge}</span>}
+                                    <span class="portal-card-arrow">&rarr;</span>
+                                  </div>
+                                  {item.description && <p class="portal-card-desc">{item.description}</p>}
+                                </div>
+                              </a>
+
+                              {hasFeats && (
+                                <div class="portal-features-grid">
+                                  {item.features.map((feat) => (
+                                    <a href={feat.href || item.href || '#'} class="portal-feature-item">
+                                      <DualToneIcon name={feat.icon || 'check'} size={15} class="portal-feature-icon" />
+                                      <span class="portal-feature-label">{feat.label || feat.title}</span>
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                            {item.description && <p class="portal-card-desc">{item.description}</p>}
-                          </div>
-                        </a>
-                      ))}
-                    </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      /* Cypress.io 2-Column Grid Mode: Wide cards side by side */
+                      <div class="portal-megamenu-grid">
+                        {link.items.map((item) => (
+                          <a href={item.href || item.path || '#'} class="portal-megamenu-card">
+                            <div class="portal-card-icon-box" data-icon-type={item.icon || 'zap'}>
+                              <DualToneIcon name={item.icon || 'zap'} size={22} />
+                            </div>
+                            <div class="portal-card-body">
+                              <div class="portal-card-title-row">
+                                <span class="portal-card-title">{item.label || item.title}</span>
+                                {item.badge && <span class="portal-card-badge">{item.badge}</span>}
+                                <span class="portal-card-arrow">&rarr;</span>
+                              </div>
+                              {item.description && <p class="portal-card-desc">{item.description}</p>}
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -150,7 +200,7 @@ const currentPath = Astro.url?.pathname || '/';
       </nav>
     </div>
 
-    <!-- Right Header Actions (Search, Theme Toggle, CTA) -->
+    <!-- Right Header Actions (Search, Theme Toggle, Mobile) -->
     <div class="portal-nav-right">
       <button type="button" class="portal-search-trigger" id="portal-search-btn" aria-label="Search documentation (⌘K)">
         <svg class="portal-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -180,16 +230,16 @@ const currentPath = Astro.url?.pathname || '/';
   <div class="portal-mobile-drawer" id="portal-mobile-drawer" hidden>
     <div class="portal-mobile-inner">
       {
-        headerLinks.map((link: any) => {
+        headerLinks.map((link) => {
           if (link.items && link.items.length > 0) {
             return (
               <div class="portal-mobile-section">
                 <div class="portal-mobile-section-title">{link.label}</div>
                 <div class="portal-mobile-links">
-                  {link.items.map((item: any) => (
+                  {link.items.map((item) => (
                     <a href={item.href || item.path || '#'} class="portal-mobile-item">
-                      <span class="portal-mobile-item-icon">{item.icon || '⚡'}</span>
-                      <span class="portal-mobile-item-label">{item.label || item.title}</span>
+                      <DualToneIcon name={item.icon || 'zap'} size={18} class="portal-mobile-icon" />
+                      <span>{item.label || item.title}</span>
                     </a>
                   ))}
                 </div>
@@ -208,20 +258,25 @@ const currentPath = Astro.url?.pathname || '/';
 </header>
 
 <style is:global>
-  /* Announcement Bar */
+  /* Header Container */
   .portal-header-root {
-    --ph-bg: var(--background, var(--sl-color-bg, #0f172a));
-    --ph-fg: var(--foreground, var(--sl-color-text, #ffffff));
-    --ph-muted: var(--muted-foreground, var(--sl-color-gray-3, #94a3b8));
-    --ph-primary: var(--primary, var(--sl-color-accent, #f76b39));
-    --ph-border: var(--border, var(--sl-color-hairline, rgba(255, 255, 255, 0.12)));
+    --ph-bg: var(--portal-bg, #0b0f19);
+    --ph-surface: var(--portal-surface, #111827);
+    --ph-fg: var(--portal-fg, #f8fafc);
+    --ph-muted: var(--portal-muted, #94a3b8);
+    --ph-primary: var(--portal-primary, #f76b39);
+    --ph-border: var(--portal-border, rgba(255, 255, 255, 0.08));
+    --ph-border-subtle: var(--portal-border-subtle, rgba(255, 255, 255, 0.04));
+
     width: 100%;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
     flex-shrink: 0;
     font-family: var(--font-regular, var(--sl-font-system, system-ui, sans-serif));
   }
+
+  /* Sticky Announcement Bar */
   .portal-announcement-bar {
     display: flex;
     align-items: center;
@@ -229,7 +284,9 @@ const currentPath = Astro.url?.pathname || '/';
     padding: 0.5rem 1.25rem;
     font-size: 0.875rem;
     font-weight: 600;
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 1001;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
   .portal-announcement-inner {
@@ -262,9 +319,9 @@ const currentPath = Astro.url?.pathname || '/';
     align-items: center;
     justify-content: space-between;
     padding: 0 1.5rem;
-    background-color: color-mix(in srgb, var(--ph-bg) 92%, transparent);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background-color: color-mix(in srgb, var(--ph-bg) 94%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--ph-border);
     box-sizing: border-box;
   }
@@ -282,7 +339,7 @@ const currentPath = Astro.url?.pathname || '/';
     gap: 0.625rem;
     font-weight: 700;
     font-size: 1.125rem;
-    color: var(--foreground, #ffffff);
+    color: var(--ph-fg);
     text-decoration: none;
     letter-spacing: -0.01em;
   }
@@ -297,7 +354,7 @@ const currentPath = Astro.url?.pathname || '/';
   .portal-nav-menu {
     display: none;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.35rem;
   }
   @media (min-width: 768px) {
     .portal-nav-menu {
@@ -309,14 +366,14 @@ const currentPath = Astro.url?.pathname || '/';
     padding: 0.5rem 0.875rem;
     font-size: 0.9375rem;
     font-weight: 500;
-    color: var(--muted-foreground, #94a3b8);
+    color: var(--ph-muted);
     text-decoration: none;
     border-radius: 6px;
     transition: color 0.15s ease, background-color 0.15s ease;
   }
   .portal-nav-link:hover,
   .portal-nav-link.active {
-    color: var(--foreground, #ffffff);
+    color: var(--ph-fg);
     background-color: rgba(255, 255, 255, 0.06);
   }
 
@@ -331,7 +388,7 @@ const currentPath = Astro.url?.pathname || '/';
     padding: 0.5rem 0.875rem;
     font-size: 0.9375rem;
     font-weight: 500;
-    color: var(--muted-foreground, #94a3b8);
+    color: var(--ph-muted);
     background: transparent;
     border: none;
     border-radius: 6px;
@@ -341,8 +398,9 @@ const currentPath = Astro.url?.pathname || '/';
   }
   .portal-dropdown-trigger:hover,
   .portal-dropdown-wrapper:hover .portal-dropdown-trigger,
-  .portal-dropdown-wrapper:focus-within .portal-dropdown-trigger {
-    color: var(--foreground, #ffffff);
+  .portal-dropdown-wrapper:focus-within .portal-dropdown-trigger,
+  .portal-dropdown-wrapper.is-open .portal-dropdown-trigger {
+    color: var(--ph-fg);
     background-color: rgba(255, 255, 255, 0.06);
   }
   .portal-chevron {
@@ -359,71 +417,175 @@ const currentPath = Astro.url?.pathname || '/';
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    width: 360px;
-    background: color-mix(in srgb, var(--ph-bg) 96%, #000000);
+    width: 720px;
+    background: var(--ph-surface, #111827);
     border: 1px solid var(--ph-border);
-    border-radius: 12px;
-    padding: 0.75rem;
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     opacity: 0;
     visibility: hidden;
     transform: translateY(6px);
     transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
     z-index: 1000;
+    pointer-events: none;
   }
-  .portal-megamenu-panel.is-wide {
-    width: 640px;
-  }
+
+  /* Show panel on hover or clicked open */
   .portal-dropdown-wrapper:hover .portal-megamenu-panel,
-  .portal-dropdown-wrapper:focus-within .portal-megamenu-panel,
   .portal-dropdown-wrapper.is-open .portal-megamenu-panel {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+    pointer-events: auto;
   }
 
+  /* Anti-overlap rule: When hovering any nav link or trigger, un-hovered panels MUST be hidden */
+  .portal-nav-menu:hover .portal-dropdown-wrapper.is-open:not(:hover) .portal-megamenu-panel {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(6px) !important;
+  }
+
+  /* Cypress Sectioned Layout */
+  .portal-megamenu-sections {
+    display: flex;
+    flex-direction: column;
+  }
+  .portal-megamenu-section {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+  .portal-megamenu-section.with-divider {
+    border-bottom: 1px solid var(--ph-border-subtle, rgba(255, 255, 255, 0.06));
+  }
+  .portal-megamenu-section:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+
+  .portal-megamenu-hero-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+  .portal-megamenu-hero-card:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .portal-features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 1.5rem;
+    padding-left: 3.75rem;
+    margin-top: 0.4rem;
+  }
+  .portal-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--ph-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .portal-feature-item:hover {
+    color: var(--ph-fg);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  .portal-feature-icon {
+    color: var(--ph-muted);
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+  }
+  .portal-feature-item:hover .portal-feature-icon {
+    color: var(--ph-primary);
+  }
+
+  /* 2-Column Card Grid (Products Mode) */
   .portal-megamenu-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.35rem;
-  }
-  .portal-megamenu-panel.is-wide .portal-megamenu-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
-  /* Mega-Menu Card */
   .portal-megamenu-card {
     display: flex;
     align-items: flex-start;
     gap: 0.875rem;
     padding: 0.75rem;
-    border-radius: 8px;
+    border-radius: 10px;
     text-decoration: none;
-    transition: background-color 0.15s ease, transform 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
     border: 1px solid transparent;
   }
   .portal-megamenu-card:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.08);
-    transform: translateY(-1px);
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.06);
   }
 
+  /* Dual-Tone Icon Box */
   .portal-card-icon-box {
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--primary, #f76b39) 15%, transparent);
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    background: color-mix(in srgb, var(--ph-primary) 14%, transparent);
+    color: var(--ph-primary);
+    border: 1px solid color-mix(in srgb, var(--ph-primary) 24%, transparent);
   }
-  .portal-card-icon {
-    font-size: 1.25rem;
+  .portal-card-icon-box[data-icon-type*="satellit"],
+  .portal-card-icon-box[data-icon-type*="track"],
+  .portal-card-icon-box[data-icon-type*="radar"] {
+    background: rgba(56, 189, 248, 0.14);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.28);
   }
+  .portal-card-icon-box[data-icon-type*="zap"],
+  .portal-card-icon-box[data-icon-type*="warp"] {
+    background: rgba(245, 158, 11, 0.14);
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.28);
+  }
+  .portal-card-icon-box[data-icon-type*="box"],
+  .portal-card-icon-box[data-icon-type*="contain"] {
+    background: rgba(52, 211, 153, 0.14);
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.28);
+  }
+  .portal-card-icon-box[data-icon-type*="rock"],
+  .portal-card-icon-box[data-icon-type*="fleet"] {
+    background: rgba(167, 139, 250, 0.14);
+    color: #a78bfa;
+    border-color: rgba(167, 139, 250, 0.28);
+  }
+  .portal-card-icon-box[data-icon-type*="grid"],
+  .portal-card-icon-box[data-icon-type*="catalog"] {
+    background: rgba(251, 113, 133, 0.14);
+    color: #fb7185;
+    border-color: rgba(251, 113, 133, 0.28);
+  }
+  .portal-card-icon-box[data-icon-type*="shield"],
+  .portal-card-icon-box[data-icon-type*="custom"] {
+    background: rgba(45, 212, 191, 0.14);
+    color: #2dd4bf;
+    border-color: rgba(45, 212, 191, 0.28);
+  }
+
   .portal-card-body {
     flex: 1;
     min-width: 0;
@@ -435,13 +597,27 @@ const currentPath = Astro.url?.pathname || '/';
     margin-bottom: 0.25rem;
   }
   .portal-card-title {
-    font-weight: 600;
-    font-size: 0.9375rem;
-    color: var(--foreground, #ffffff);
-    transition: color 0.15s ease;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ph-fg);
+    letter-spacing: -0.01em;
   }
-  .portal-megamenu-card:hover .portal-card-title {
-    color: var(--primary, #f76b39);
+  .portal-card-arrow {
+    color: var(--ph-muted);
+    transition: transform 0.15s ease, color 0.15s ease;
+    margin-left: 0.35rem;
+    font-size: 1.05rem;
+  }
+  .portal-megamenu-hero-card:hover .portal-card-arrow,
+  .portal-megamenu-card:hover .portal-card-arrow {
+    transform: translateX(3px);
+    color: var(--ph-fg);
+  }
+  .portal-card-desc {
+    font-size: 0.875rem;
+    color: var(--ph-muted);
+    margin: 0.25rem 0 0;
+    line-height: 1.45;
   }
   .portal-card-badge {
     font-size: 0.6875rem;
@@ -449,98 +625,74 @@ const currentPath = Astro.url?.pathname || '/';
     text-transform: uppercase;
     padding: 0.15rem 0.4rem;
     border-radius: 4px;
-    background: var(--primary, #f76b39);
+    background: var(--ph-primary);
     color: #000000;
   }
-  .portal-card-arrow {
-    margin-left: auto;
-    color: var(--muted-foreground, #94a3b8);
-    opacity: 0;
-    transform: translateX(-4px);
-    transition: all 0.15s ease;
-  }
-  .portal-megamenu-card:hover .portal-card-arrow {
-    opacity: 1;
-    transform: translateX(0);
-    color: var(--primary, #f76b39);
-  }
-  .portal-card-desc {
-    font-size: 0.8125rem;
-    color: var(--muted-foreground, #94a3b8);
-    line-height: 1.35;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
 
-  /* Right Action Controls */
+  /* Right Header Controls */
   .portal-nav-right {
     display: flex;
     align-items: center;
     gap: 0.75rem;
   }
 
-  /* Search Trigger Button */
   .portal-search-trigger {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.375rem 0.75rem;
+    gap: 0.625rem;
+    padding: 0.4rem 0.75rem;
+    background: color-mix(in srgb, var(--ph-bg) 80%, transparent);
+    border: 1px solid var(--ph-border);
     border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
-    color: var(--muted-foreground, #94a3b8);
-    font-size: 0.875rem;
+    color: var(--ph-muted);
     cursor: pointer;
-    transition: border-color 0.15s, background-color 0.15s;
+    font-family: inherit;
+    font-size: 0.875rem;
+    transition: all 0.15s ease;
   }
   .portal-search-trigger:hover {
-    border-color: var(--primary, #f76b39);
-    background-color: rgba(255, 255, 255, 0.08);
+    border-color: var(--ph-primary);
+    color: var(--ph-fg);
   }
   .portal-search-kbd {
-    font-family: inherit;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    padding: 0.1rem 0.35rem;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.15rem 0.4rem;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    color: inherit;
+    font-size: 0.75rem;
+    font-family: inherit;
   }
 
-  /* Theme Toggle Button */
   .portal-theme-btn {
     width: 36px;
     height: 36px;
-    border-radius: 8px;
-    background: transparent;
-    border: 1px solid transparent;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.15rem;
-    transition: background-color 0.15s;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--ph-border);
+    cursor: pointer;
+    color: var(--ph-muted);
+    transition: all 0.15s ease;
   }
   .portal-theme-btn:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-  }
-  [data-theme='light'] .portal-theme-icon-light {
-    display: none;
-  }
-  [data-theme='light'] .portal-theme-icon-dark {
-    display: inline;
-  }
-  [data-theme='dark'] .portal-theme-icon-light {
-    display: inline;
-  }
-  [data-theme='dark'] .portal-theme-icon-dark {
-    display: none;
+    border-color: var(--ph-primary);
+    color: var(--ph-fg);
   }
 
-  /* Mobile Hamburger */
+  :root[data-theme='dark'] .portal-theme-icon-light {
+    display: none;
+  }
+  :root[data-theme='dark'] .portal-theme-icon-dark {
+    display: inline-block;
+  }
+  :root[data-theme='light'] .portal-theme-icon-dark {
+    display: none;
+  }
+  :root[data-theme='light'] .portal-theme-icon-light {
+    display: inline-block;
+  }
+
   .portal-mobile-toggle {
     display: flex;
     align-items: center;
@@ -549,7 +701,7 @@ const currentPath = Astro.url?.pathname || '/';
     height: 36px;
     background: transparent;
     border: none;
-    color: var(--foreground, #ffffff);
+    color: var(--ph-fg);
     cursor: pointer;
   }
   @media (min-width: 768px) {
@@ -560,9 +712,8 @@ const currentPath = Astro.url?.pathname || '/';
 
   /* Mobile Drawer */
   .portal-mobile-drawer {
-    display: block;
-    background-color: var(--background, #0f172a);
-    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    background: var(--ph-surface);
+    border-bottom: 1px solid var(--ph-border);
     padding: 1rem 1.5rem;
   }
   @media (min-width: 768px) {
@@ -580,7 +731,7 @@ const currentPath = Astro.url?.pathname || '/';
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: var(--primary, #f76b39);
+    color: var(--ph-primary);
     margin-bottom: 0.5rem;
     letter-spacing: 0.05em;
   }
@@ -594,7 +745,7 @@ const currentPath = Astro.url?.pathname || '/';
     align-items: center;
     gap: 0.625rem;
     padding: 0.5rem 0.75rem;
-    color: var(--foreground, #ffffff);
+    color: var(--ph-fg);
     text-decoration: none;
     border-radius: 6px;
     font-size: 0.9375rem;
@@ -606,7 +757,7 @@ const currentPath = Astro.url?.pathname || '/';
     display: block;
     padding: 0.5rem 0.75rem;
     font-size: 0.9375rem;
-    color: var(--foreground, #ffffff);
+    color: var(--ph-fg);
     text-decoration: none;
     font-weight: 500;
   }
@@ -622,8 +773,10 @@ const currentPath = Astro.url?.pathname || '/';
         const current = root.getAttribute('data-theme') || 'dark';
         const next = current === 'dark' ? 'light' : 'dark';
         root.setAttribute('data-theme', next);
-        localStorage.setItem('starlight-theme', next);
-        localStorage.setItem('portal-theme', next);
+        try {
+          localStorage.setItem('starlight-theme', next);
+          localStorage.setItem('portal-theme', next);
+        } catch {}
 
         // Update rapi-doc if present
         const rapiDoc = document.querySelector('rapi-doc');
@@ -637,12 +790,12 @@ const currentPath = Astro.url?.pathname || '/';
     const closeAnnounce = document.getElementById('portal-announcement-close');
     const announceBar = document.getElementById('portal-announcement');
     if (closeAnnounce && announceBar) {
-      if (sessionStorage.getItem('portal-announcement-dismissed') === 'true') {
-        announceBar.style.display = 'none';
-      }
       closeAnnounce.addEventListener('click', () => {
         announceBar.style.display = 'none';
-        sessionStorage.setItem('portal-announcement-dismissed', 'true');
+        document.documentElement.classList.add('portal-announcement-dismissed');
+        try {
+          sessionStorage.setItem('portal-announcement-dismissed', 'true');
+        } catch {}
       });
     }
 
@@ -650,31 +803,55 @@ const currentPath = Astro.url?.pathname || '/';
     const searchBtn = document.getElementById('portal-search-btn');
     if (searchBtn) {
       searchBtn.addEventListener('click', () => {
-        // Try opening Starlight Pagefind modal button if present
         const slSearch = document.querySelector('button[data-open-modal]');
         if (slSearch) {
           slSearch.click();
         } else {
-          // Check for rapi-doc search dialog
           const rapiDoc = document.querySelector('rapi-doc');
           if (rapiDoc && typeof rapiDoc.openSearchDialog === 'function') {
             rapiDoc.openSearchDialog();
           } else {
-            // Trigger ⌘K keyboard shortcut
             window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
           }
         }
       });
     }
 
-    // 4. Dropdown triggers (click toggle for touch/keyboard)
+    // 4. Anti-overlapping Mega-Menus & Dropdowns
+    const wrappers = document.querySelectorAll('.portal-dropdown-wrapper');
+    const navMenu = document.querySelector('.portal-nav-menu');
+
+    // On hover of any dropdown wrapper, immediately close any other open wrapper
+    wrappers.forEach((wrapper) => {
+      wrapper.addEventListener('mouseenter', () => {
+        wrappers.forEach((w) => {
+          if (w !== wrapper && w.classList.contains('is-open')) {
+            w.classList.remove('is-open');
+            const btn = w.querySelector('.portal-dropdown-trigger');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+          }
+        });
+      });
+    });
+
+    if (navMenu) {
+      navMenu.addEventListener('mouseleave', () => {
+        wrappers.forEach((w) => {
+          w.classList.remove('is-open');
+          const btn = w.querySelector('.portal-dropdown-trigger');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+
+    // Clicking a trigger toggles only that trigger and closes all others
     document.querySelectorAll('.portal-dropdown-trigger').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const wrapper = btn.closest('.portal-dropdown-wrapper');
         if (!wrapper) return;
         const wasOpen = wrapper.classList.contains('is-open');
-        document.querySelectorAll('.portal-dropdown-wrapper.is-open').forEach((w) => {
+        wrappers.forEach((w) => {
           w.classList.remove('is-open');
           const b = w.querySelector('.portal-dropdown-trigger');
           if (b) b.setAttribute('aria-expanded', 'false');
@@ -689,7 +866,7 @@ const currentPath = Astro.url?.pathname || '/';
     // Close open dropdowns when clicking outside
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.portal-dropdown-wrapper')) {
-        document.querySelectorAll('.portal-dropdown-wrapper.is-open').forEach((w) => {
+        wrappers.forEach((w) => {
           w.classList.remove('is-open');
           const btn = w.querySelector('.portal-dropdown-trigger');
           if (btn) btn.setAttribute('aria-expanded', 'false');

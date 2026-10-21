@@ -18,3 +18,5 @@ export { default as Trademark } from './Trademark.astro';
 export { default as SpaceWarning } from './SpaceWarning.astro';
 export { default as OpenPlaygroundButton } from './OpenPlaygroundButton.astro';
 export { default as PortalHeader } from './PortalHeader.astro';
+export { default as PortalFooter } from './PortalFooter.astro';
+export { default as DualToneIcon } from './DualToneIcon.astro';

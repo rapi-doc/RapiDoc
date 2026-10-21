@@ -9,19 +9,64 @@ import path from 'node:path';
  */
 function generateStarlightCustomCss(primaryColor = '#f76b39', themePreset = 'amber') {
   return `
-:root {
-  --sl-color-accent-low: #36170c;
+:root,
+:root[data-theme='dark'] {
+  --portal-bg: #0b0f19;
+  --portal-surface: #111827;
+  --portal-card: #151d30;
+  --portal-border: rgba(255, 255, 255, 0.08);
+  --portal-border-subtle: rgba(255, 255, 255, 0.04);
+  --portal-fg: #f8fafc;
+  --portal-muted: #94a3b8;
+  --portal-primary: ${primaryColor};
+  --portal-header-height: 98px;
+
+  /* Starlight unification */
+  --sl-color-bg: #0b0f19;
+  --sl-color-bg-nav: rgba(11, 15, 25, 0.92);
+  --sl-color-bg-sidebar: #0b0f19;
+  --sl-color-black: #0b0f19;
+  --sl-color-gray-6: #111827;
+  --sl-color-gray-7: #0b0f19;
+  --sl-color-hairline: rgba(255, 255, 255, 0.08);
+  --sl-color-hairline-light: rgba(255, 255, 255, 0.04);
+  --sl-color-white: #f8fafc;
+  --sl-color-gray-1: #f1f5f9;
+  --sl-color-gray-2: #cbd5e1;
+  --sl-color-gray-3: #94a3b8;
+  --sl-color-gray-4: #64748b;
+  --sl-color-gray-5: #475569;
+
   --sl-color-accent: ${primaryColor};
-  --sl-color-accent-high: #ffad85;
-  --sl-color-white: #ffffff;
-  --sl-font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  --sl-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --sl-color-accent-low: color-mix(in srgb, ${primaryColor} 18%, transparent);
+  --sl-color-accent-high: color-mix(in srgb, ${primaryColor} 80%, #ffffff);
+
+  --sl-font-system: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --sl-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 [data-theme='light'] {
+  --portal-bg: #f8fafc;
+  --portal-surface: #ffffff;
+  --portal-card: #ffffff;
+  --portal-border: rgba(0, 0, 0, 0.08);
+  --portal-fg: #0f172a;
+  --portal-muted: #64748b;
+
+  --sl-color-bg: #f8fafc;
+  --sl-color-bg-nav: rgba(255, 255, 255, 0.92);
+  --sl-color-bg-sidebar: #f8fafc;
+  --sl-color-black: #ffffff;
+  --sl-color-white: #0f172a;
   --sl-color-accent-low: #ffe3d6;
   --sl-color-accent: ${primaryColor};
   --sl-color-accent-high: #94300a;
+}
+
+body {
+  background-color: var(--portal-bg, #0b0f19) !important;
+  color: var(--portal-fg, #f8fafc) !important;
+  font-family: var(--sl-font-system);
 }
 
 /* Seamless RapiDoc full-viewport and embedded container styling */
@@ -39,12 +84,40 @@ function generateStarlightCustomCss(primaryColor = '#f76b39', themePreset = 'amb
   margin: 1.5rem 0;
 }
 
-/* Seamless PortalHeader integration in Starlight */
+/* Sticky Portal Header in Starlight */
 header.header {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
   padding: 0 !important;
   height: auto !important;
+  max-height: none !important;
   background: transparent !important;
   border-bottom: none !important;
+  z-index: 1000 !important;
+}
+
+.page.sl-flex {
+  padding-top: 0 !important;
+}
+
+.main-frame {
+  padding-top: 0 !important;
+}
+
+@media (min-width: 50rem) {
+  .sidebar-pane {
+    top: var(--portal-header-height, 98px) !important;
+    height: calc(100vh - var(--portal-header-height, 98px)) !important;
+  }
+}
+
+html.portal-announcement-dismissed {
+  --portal-header-height: 60px !important;
+}
+html.portal-announcement-dismissed #portal-announcement {
+  display: none !important;
 }
 `;
 }
