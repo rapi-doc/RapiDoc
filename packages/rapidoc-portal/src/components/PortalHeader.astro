@@ -1,0 +1,665 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+
+interface Props {
+  portalConfig?: any;
+}
+
+let config = Astro.props.portalConfig;
+if (!config) {
+  try {
+    const configPath = path.resolve(process.cwd(), 'rapidoc.portal.json');
+    if (fs.existsSync(configPath)) {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    }
+  } catch {
+    config = {};
+  }
+}
+
+const site = config?.site || {};
+const announcement = site.announcement;
+const logo = site.logo || {};
+const title = logo.text || site.title || 'Developer Portal';
+const icon = logo.icon || '🚀';
+const logoHref = logo.href || '/';
+
+// Normalize header links
+let headerLinks = site.headerLinks || [];
+if (!headerLinks || headerLinks.length === 0) {
+  // Adaptive auto-derivation if headerLinks is omitted
+  headerLinks = [
+    { label: 'Documentation', href: '/docs/documentation' },
+    { label: 'API Catalog', href: '/catalog' },
+  ];
+  if (config?.apis && config.apis.length > 0) {
+    headerLinks.push({
+      label: 'APIs',
+      items: config.apis.map((a: any) => ({
+        label: a.title || a.id,
+        href: a.path || `/apis/${a.id}`,
+        description: a.description || `Interactive OpenAPI reference for ${a.title || a.id}`,
+        icon: '⚡',
+      })),
+    });
+  }
+}
+
+const currentPath = Astro.url?.pathname || '/';
+---
+
+<header class="portal-header-root">
+  {
+    announcement?.text && (
+      <aside class="portal-announcement-bar" id="portal-announcement" style={announcement.bgColor ? `background-color: ${announcement.bgColor}; color: ${announcement.textColor || '#000000'};` : ''}>
+        <div class="portal-announcement-inner">
+          <span class="portal-announcement-msg">{announcement.text}</span>
+          {announcement.link && (
+            <a href={announcement.link} class="portal-announcement-cta">
+              Explore &rarr;
+            </a>
+          )}
+        </div>
+        {announcement.dismissible !== false && (
+          <button type="button" class="portal-announcement-close" id="portal-announcement-close" aria-label="Dismiss announcement">
+            &times;
+          </button>
+        )}
+      </aside>
+    )
+  }
+
+  <div class="portal-navbar">
+    <div class="portal-nav-left">
+      <a href={logoHref} class="portal-brand" aria-label={`${title} Home`}>
+        {logo.light ? (
+          <img src={logo.light} alt={logo.alt || title} class="portal-brand-img" />
+        ) : (
+          <span class="portal-brand-icon">{icon}</span>
+        )}
+        <span class="portal-brand-text">{title}</span>
+      </a>
+
+      <!-- Desktop Navigation Links & Mega-Menus -->
+      <nav class="portal-nav-menu" aria-label="Main Navigation">
+        {
+          headerLinks.map((link: any) => {
+            const hasSubmenu = Array.isArray(link.items) && link.items.length > 0;
+            const itemCount = hasSubmenu ? link.items.length : 0;
+            const isWide = itemCount >= 4;
+
+            if (hasSubmenu) {
+              return (
+                <div class="portal-dropdown-wrapper">
+                  <button
+                    type="button"
+                    class="portal-nav-button portal-dropdown-trigger"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                  >
+                    <span>{link.label}</span>
+                    <svg class="portal-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+
+                  <div class:list={['portal-megamenu-panel', { 'is-wide': isWide }]}>
+                    <div class="portal-megamenu-grid">
+                      {link.items.map((item: any) => (
+                        <a href={item.href || item.path || '#'} class="portal-megamenu-card">
+                          <div class="portal-card-icon-box">
+                            <span class="portal-card-icon">{item.icon || '⚡'}</span>
+                          </div>
+                          <div class="portal-card-body">
+                            <div class="portal-card-title-row">
+                              <span class="portal-card-title">{item.label || item.title}</span>
+                              {item.badge && <span class="portal-card-badge">{item.badge}</span>}
+                              <span class="portal-card-arrow">&rarr;</span>
+                            </div>
+                            {item.description && <p class="portal-card-desc">{item.description}</p>}
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            const isDirectActive = currentPath === link.href || currentPath === link.path || (link.href !== '/' && currentPath.startsWith(link.href || link.path));
+            return (
+              <a
+                href={link.href || link.path || '#'}
+                class:list={['portal-nav-link', { active: isDirectActive }]}
+                target={link.href?.startsWith('http') ? '_blank' : undefined}
+                rel={link.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+              >
+                {link.label}
+              </a>
+            );
+          })
+        }
+      </nav>
+    </div>
+
+    <!-- Right Header Actions (Search, Theme Toggle, CTA) -->
+    <div class="portal-nav-right">
+      <button type="button" class="portal-search-trigger" id="portal-search-btn" aria-label="Search documentation (⌘K)">
+        <svg class="portal-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span class="portal-search-text">Search...</span>
+        <kbd class="portal-search-kbd">⌘K</kbd>
+      </button>
+
+      <button type="button" class="portal-theme-btn" id="portal-theme-toggle" aria-label="Toggle theme">
+        <span class="portal-theme-icon-dark">🌙</span>
+        <span class="portal-theme-icon-light">☀️</span>
+      </button>
+
+      <button type="button" class="portal-mobile-toggle" id="portal-mobile-menu-btn" aria-label="Toggle mobile menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Drawer -->
+  <div class="portal-mobile-drawer" id="portal-mobile-drawer" hidden>
+    <div class="portal-mobile-inner">
+      {
+        headerLinks.map((link: any) => {
+          if (link.items && link.items.length > 0) {
+            return (
+              <div class="portal-mobile-section">
+                <div class="portal-mobile-section-title">{link.label}</div>
+                <div class="portal-mobile-links">
+                  {link.items.map((item: any) => (
+                    <a href={item.href || item.path || '#'} class="portal-mobile-item">
+                      <span class="portal-mobile-item-icon">{item.icon || '⚡'}</span>
+                      <span class="portal-mobile-item-label">{item.label || item.title}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+          return (
+            <a href={link.href || link.path || '#'} class="portal-mobile-direct-link">
+              {link.label}
+            </a>
+          );
+        })
+      }
+    </div>
+  </div>
+</header>
+
+<style is:global>
+  /* Announcement Bar */
+  .portal-header-root {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+  .portal-announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  .portal-announcement-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .portal-announcement-cta {
+    text-decoration: underline;
+    font-weight: 700;
+  }
+  .portal-announcement-close {
+    position: absolute;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    opacity: 0.75;
+  }
+  .portal-announcement-close:hover {
+    opacity: 1;
+  }
+
+  /* Main Top Bar */
+  .portal-navbar {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    background-color: color-mix(in srgb, var(--background, #0f172a) 90%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    box-sizing: border-box;
+  }
+
+  .portal-nav-left {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  /* Brand */
+  .portal-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--foreground, #ffffff);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .portal-brand-icon {
+    font-size: 1.35rem;
+  }
+  .portal-brand-text {
+    font-weight: 700;
+  }
+
+  /* Menu Links */
+  .portal-nav-menu {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  @media (min-width: 768px) {
+    .portal-nav-menu {
+      display: flex;
+    }
+  }
+
+  .portal-nav-link {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--muted-foreground, #94a3b8);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .portal-nav-link:hover,
+  .portal-nav-link.active {
+    color: var(--foreground, #ffffff);
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  /* Dropdown Trigger */
+  .portal-dropdown-wrapper {
+    position: relative;
+  }
+  .portal-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--muted-foreground, #94a3b8);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .portal-dropdown-trigger:hover,
+  .portal-dropdown-wrapper:hover .portal-dropdown-trigger,
+  .portal-dropdown-wrapper:focus-within .portal-dropdown-trigger {
+    color: var(--foreground, #ffffff);
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+  .portal-chevron {
+    transition: transform 0.2s ease;
+  }
+  .portal-dropdown-wrapper:hover .portal-chevron,
+  .portal-dropdown-wrapper:focus-within .portal-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Mega-Menu Panel (Cypress.io Aesthetic) */
+  .portal-megamenu-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 360px;
+    background: color-mix(in srgb, var(--background, #0f172a) 96%, #000000);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+    border-radius: 12px;
+    padding: 0.75rem;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+    z-index: 1000;
+  }
+  .portal-megamenu-panel.is-wide {
+    width: 640px;
+  }
+  .portal-dropdown-wrapper:hover .portal-megamenu-panel,
+  .portal-dropdown-wrapper:focus-within .portal-megamenu-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .portal-megamenu-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+  .portal-megamenu-panel.is-wide .portal-megamenu-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  /* Mega-Menu Card */
+  .portal-megamenu-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+    border: 1px solid transparent;
+  }
+  .portal-megamenu-card:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .portal-card-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--primary, #f76b39) 15%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .portal-card-icon {
+    font-size: 1.25rem;
+  }
+  .portal-card-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .portal-card-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .portal-card-title {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--foreground, #ffffff);
+    transition: color 0.15s ease;
+  }
+  .portal-megamenu-card:hover .portal-card-title {
+    color: var(--primary, #f76b39);
+  }
+  .portal-card-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: var(--primary, #f76b39);
+    color: #000000;
+  }
+  .portal-card-arrow {
+    margin-left: auto;
+    color: var(--muted-foreground, #94a3b8);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all 0.15s ease;
+  }
+  .portal-megamenu-card:hover .portal-card-arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--primary, #f76b39);
+  }
+  .portal-card-desc {
+    font-size: 0.8125rem;
+    color: var(--muted-foreground, #94a3b8);
+    line-height: 1.35;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Right Action Controls */
+  .portal-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Search Trigger Button */
+  .portal-search-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+    color: var(--muted-foreground, #94a3b8);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+  .portal-search-trigger:hover {
+    border-color: var(--primary, #f76b39);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+  .portal-search-kbd {
+    font-family: inherit;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+  }
+
+  /* Theme Toggle Button */
+  .portal-theme-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    transition: background-color 0.15s;
+  }
+  .portal-theme-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+  [data-theme='light'] .portal-theme-icon-light {
+    display: none;
+  }
+  [data-theme='light'] .portal-theme-icon-dark {
+    display: inline;
+  }
+  [data-theme='dark'] .portal-theme-icon-light {
+    display: inline;
+  }
+  [data-theme='dark'] .portal-theme-icon-dark {
+    display: none;
+  }
+
+  /* Mobile Hamburger */
+  .portal-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    color: var(--foreground, #ffffff);
+    cursor: pointer;
+  }
+  @media (min-width: 768px) {
+    .portal-mobile-toggle {
+      display: none;
+    }
+  }
+
+  /* Mobile Drawer */
+  .portal-mobile-drawer {
+    display: block;
+    background-color: var(--background, #0f172a);
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    padding: 1rem 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .portal-mobile-drawer {
+      display: none !important;
+    }
+  }
+  .portal-mobile-drawer[hidden] {
+    display: none;
+  }
+  .portal-mobile-section {
+    margin-bottom: 1rem;
+  }
+  .portal-mobile-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--primary, #f76b39);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  .portal-mobile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .portal-mobile-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--foreground, #ffffff);
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+  }
+  .portal-mobile-item:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+  .portal-mobile-direct-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--foreground, #ffffff);
+    text-decoration: none;
+    font-weight: 500;
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Theme Toggle
+    const themeBtn = document.getElementById('portal-theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const root = document.documentElement;
+        const current = root.getAttribute('data-theme') || 'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('starlight-theme', next);
+        localStorage.setItem('portal-theme', next);
+
+        // Update rapi-doc if present
+        const rapiDoc = document.querySelector('rapi-doc');
+        if (rapiDoc) {
+          rapiDoc.setAttribute('color-scheme', next);
+        }
+      });
+    }
+
+    // 2. Announcement Dismissal
+    const closeAnnounce = document.getElementById('portal-announcement-close');
+    const announceBar = document.getElementById('portal-announcement');
+    if (closeAnnounce && announceBar) {
+      if (sessionStorage.getItem('portal-announcement-dismissed') === 'true') {
+        announceBar.style.display = 'none';
+      }
+      closeAnnounce.addEventListener('click', () => {
+        announceBar.style.display = 'none';
+        sessionStorage.setItem('portal-announcement-dismissed', 'true');
+      });
+    }
+
+    // 3. Search Trigger (⌘K)
+    const searchBtn = document.getElementById('portal-search-btn');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', () => {
+        // Try opening Starlight Pagefind modal button if present
+        const slSearch = document.querySelector('button[data-open-modal]');
+        if (slSearch) {
+          slSearch.click();
+        } else {
+          // Fallback event
+          window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
+        }
+      });
+    }
+
+    // 4. Mobile Menu Toggle
+    const mobileBtn = document.getElementById('portal-mobile-menu-btn');
+    const mobileDrawer = document.getElementById('portal-mobile-drawer');
+    if (mobileBtn && mobileDrawer) {
+      mobileBtn.addEventListener('click', () => {
+        const isHidden = mobileDrawer.hasAttribute('hidden');
+        if (isHidden) {
+          mobileDrawer.removeAttribute('hidden');
+          mobileBtn.setAttribute('aria-expanded', 'true');
+        } else {
+          mobileDrawer.setAttribute('hidden', '');
+          mobileBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  });
+</script>

@@ -116,6 +116,7 @@ export async function prepareAstroWorkspace(projectDir = process.cwd()) {
   const srcDir = path.join(workspaceDir, 'src');
   const pagesDir = path.join(srcDir, 'pages');
   const stylesDir = path.join(srcDir, 'styles');
+  const componentsDir = path.join(srcDir, 'components');
   const docsContentDir = path.join(srcDir, 'content', 'docs', 'docs');
   const publicDir = path.join(workspaceDir, 'public');
   const publicAssetsDir = path.join(publicDir, 'assets');
@@ -123,9 +124,15 @@ export async function prepareAstroWorkspace(projectDir = process.cwd()) {
 
   fs.mkdirSync(pagesDir, { recursive: true });
   fs.mkdirSync(stylesDir, { recursive: true });
+  fs.mkdirSync(componentsDir, { recursive: true });
   fs.mkdirSync(docsContentDir, { recursive: true });
   fs.mkdirSync(publicAssetsDir, { recursive: true });
   fs.mkdirSync(publicSpecsDir, { recursive: true });
+
+  const portalComponentsDir = path.join(PORTAL_ROOT, 'src/components');
+  if (fs.existsSync(portalComponentsDir)) {
+    fs.cpSync(portalComponentsDir, componentsDir, { recursive: true });
+  }
 
   // Symlink monorepo node_modules into .rapidoc so Vite & Astro resolve all packages seamlessly
   const monorepoNodeModules = path.resolve(PORTAL_ROOT, '../../node_modules');
