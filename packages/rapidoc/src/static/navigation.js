@@ -231,12 +231,7 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
     const title = usePathInNav ? path : op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`;
     const methodBadge = getMethodBadge(method, methodBadgeFormat);
     const isActive = Boolean(
-      activeHref &&
-      (activeHref === href ||
-        activeHref === `${cleanBase}/${tagSlug}` ||
-        activeHref.endsWith(`#${contentId}`) ||
-        activeHref.endsWith(contentId) ||
-        (opSlug && activeHref.endsWith(`#${opSlug}`)))
+      activeHref && (activeHref === href || activeHref.endsWith(`#${contentId}`) || (opSlug && activeHref.endsWith(`#${opSlug}`)))
     );
     const deprecatedStyle = op.deprecated ? 'style="filter:opacity(0.5);"' : '';
     const extraClass = itemClassName ? ` ${itemClassName}` : '';

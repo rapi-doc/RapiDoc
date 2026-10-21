@@ -15,6 +15,7 @@ import {
   generateApiRouteAstro,
   generateCatalogAstro,
   generateIndexAstro,
+  generateDocsRedirectAstro,
 } from './templates.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -167,6 +168,13 @@ export async function prepareAstroWorkspace(projectDir = process.cwd()) {
   fs.writeFileSync(path.join(pagesDir, '[...apiRoute].astro'), generateApiRouteAstro(), 'utf8');
   fs.writeFileSync(path.join(pagesDir, 'catalog.astro'), generateCatalogAstro(), 'utf8');
   fs.writeFileSync(path.join(pagesDir, 'index.astro'), generateIndexAstro(), 'utf8');
+
+  // Prevent directory listing exposure on /docs/ by redirecting to primary documentation route
+  const defaultDocPath = config.navigation?.[0]?.items?.[0]?.path || config.navigation?.[0]?.path || '/docs/documentation';
+  const targetDocUrl = defaultDocPath.startsWith('/docs') ? defaultDocPath : `/docs/${defaultDocPath.replace(/^\//, '')}`;
+  const pagesDocsDir = path.join(pagesDir, 'docs');
+  fs.mkdirSync(pagesDocsDir, { recursive: true });
+  fs.writeFileSync(path.join(pagesDocsDir, 'index.astro'), generateDocsRedirectAstro(targetDocUrl), 'utf8');
 
   // 5. Copy & normalize documentation files into src/content/docs/docs/
   const userDocsDir = config.docs?.fullPath || path.resolve(baseDir, 'docs');

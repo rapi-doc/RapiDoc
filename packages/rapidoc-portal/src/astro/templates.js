@@ -57,6 +57,7 @@ export function generateApiRouteAstro() {
   return `---
 import '../styles/starlight-custom.css';
 import PortalHeader from '../components/PortalHeader.astro';
+import PortalFooter from '../components/PortalFooter.astro';
 import { getNavBarHtml, getNavCss, getThemeTokensCss, toKebabCase } from 'rapidoc/static';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -239,6 +240,12 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
         scrollbar-width: thin;
         background-color: var(--portal-bg, #0b0f19);
       }
+      .portal-main-inner {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
       rapi-doc {
         display: block;
         width: 100%;
@@ -256,23 +263,26 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
       </aside>
 
       <main class="portal-main">
-        <rapi-doc
-          spec-url={specUrl}
-          color-scheme={initialColorScheme}
-          theme={themePreset}
-          show-side-nav="false"
-          show-header="false"
-          update-route="false"
-          render-style="read"
-          auto-height="true"
-          allow-authentication="true"
-          allow-server-selection="false"
-          allow-try="true"
-          schema-style="table"
-          use-path-in-nav-bar="true"
-          nav-item-spacing="compact"
-          goto-path={activeTagSlug ? activeTagSlug : undefined}
-        ></rapi-doc>
+        <div class="portal-main-inner">
+          <rapi-doc
+            spec-url={specUrl}
+            color-scheme={initialColorScheme}
+            theme={themePreset}
+            show-side-nav="false"
+            show-header="false"
+            update-route="false"
+            render-style="read"
+            auto-height="true"
+            allow-authentication="true"
+            allow-server-selection="false"
+            allow-try="true"
+            schema-style="table"
+            use-path-in-nav-bar="true"
+            nav-item-spacing="compact"
+            goto-path={activeTagSlug ? activeTagSlug : undefined}
+          ></rapi-doc>
+          <PortalFooter portalConfig={portalConfig} mode="compact" />
+        </div>
       </main>
     </div>
 
@@ -280,62 +290,63 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
       document.addEventListener('DOMContentLoaded', () => {
         const sidebar = document.querySelector('.portal-sidebar');
         const rapiDocEl = document.querySelector('rapi-doc');
+        const portalMain = document.querySelector('.portal-main');
         if (!sidebar || !rapiDocEl) return;
 
-        // Sync clicks from static sidebar to internal rapidoc elements
-        sidebar.addEventListener('click', (e) => {
-          const link = e.target.closest('.portal-sidebar-op-item, .nav-bar-path');
-          if (!link) return;
-
-          const href = link.getAttribute('href');
-          if (!href) return;
-
-          const hashIdx = href.indexOf('#');
-          const elementId = hashIdx !== -1 ? href.substring(hashIdx + 1) : '';
-          if (!elementId) return;
-
-          const targetEl = rapiDocEl.shadowRoot?.getElementById(elementId) ||
-                           rapiDocEl.shadowRoot?.querySelector('[data-op-slug="' + CSS.escape(elementId) + '"]') ||
-                           rapiDocEl.shadowRoot?.querySelector('[id$="--' + CSS.escape(elementId) + '"]');
-
-          if (targetEl || elementId === 'overview') {
-            e.preventDefault();
-            window.history.pushState(null, '', href);
-            sidebar.querySelectorAll('.active').forEach((el) => el.classList.remove('active'));
-            link.classList.add('active');
-
-            if (targetEl) {
-              targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else if (typeof rapiDocEl.scrollToPath === 'function') {
-              rapiDocEl.scrollToPath(elementId);
-            }
-          }
-        });
-
-        // Tag expand / collapse chevron
-        sidebar.addEventListener('click', (e) => {
-          const chevron = e.target.closest('.nav-bar-tag-icon');
-          if (!chevron) return;
-          const tagParent = chevron.closest('.nav-bar-tag-and-paths');
-          if (tagParent) {
-            tagParent.classList.toggle('expanded');
-            tagParent.classList.toggle('collapsed');
-          }
-        });
-
-        // Main content scroll -> update sidebar active item
-        rapiDocEl.addEventListener('nav-active-change', (e) => {
-          const targetId = e.detail?.id || e.detail?.elementId;
-          if (!targetId) return;
-
-          sidebar.querySelectorAll('.active').forEach((el) => el.classList.remove('active'));
-          const matchingLink = document.getElementById('link-' + targetId) ||
+        function findMatchingLink(targetId) {
+          if (!targetId) return null;
+          let link =
+            document.getElementById('link-' + targetId) ||
             sidebar.querySelector('.nav-bar-path[data-content-id="' + CSS.escape(targetId) + '"]') ||
             sidebar.querySelector('.nav-bar-path[data-op-slug="' + CSS.escape(targetId) + '"]') ||
-            sidebar.querySelector('.nav-bar-path[data-content-id$="--' + CSS.escape(targetId) + '"]');
+            sidebar.querySelector('.nav-bar-path[data-content-id$="--' + CSS.escape(targetId) + '"]') ||
+            sidebar.querySelector('.nav-bar-path[data-content-id="' + CSS.escape(targetId.replace(/^[a-z0-9_-]+--/, '')) + '"]');
 
+          if (
+            link &&
+            !link.classList.contains('nav-bar-path') &&
+            !link.classList.contains('nav-bar-info') &&
+            !link.classList.contains('portal-sidebar-op-item')
+          ) {
+            link = link.querySelector('.nav-bar-path');
+          }
+          return link;
+        }
+
+        function setActiveNavId(targetId, updateHistory = true) {
+          if (!targetId) return;
+
+          if (targetId === 'overview') {
+            sidebar.querySelectorAll('.active').forEach((l) => l.classList.remove('active'));
+            const overviewLink = document.getElementById('link-overview') || sidebar.querySelector('.nav-bar-info');
+            if (overviewLink) overviewLink.classList.add('active');
+            return;
+          }
+
+          const matchingLink = findMatchingLink(targetId);
           if (matchingLink) {
+            if (matchingLink.classList.contains('active')) return;
+            sidebar.querySelectorAll('.active').forEach((l) => l.classList.remove('active'));
             matchingLink.classList.add('active');
+
+            if (updateHistory) {
+              const matchingHref = matchingLink.getAttribute('href');
+              if (matchingHref) {
+                window.history.replaceState(null, '', matchingHref);
+              }
+            }
+
+            const parentTag = matchingLink.closest('.nav-bar-tag-and-paths');
+            if (parentTag && parentTag.classList.contains('collapsed')) {
+              parentTag.classList.replace('collapsed', 'expanded');
+              parentTag.querySelector('.nav-bar-tag')?.setAttribute('aria-expanded', 'true');
+            }
+            const parentGroup = matchingLink.closest('.nav-bar-tag-group');
+            if (parentGroup && parentGroup.classList.contains('collapsed')) {
+              parentGroup.classList.replace('collapsed', 'expanded');
+              parentGroup.querySelector('.nav-bar-tag-group-header')?.setAttribute('aria-expanded', 'true');
+            }
+
             const navScroll = sidebar.querySelector('.nav-scroll');
             if (navScroll) {
               const itemRect = matchingLink.getBoundingClientRect();
@@ -346,7 +357,148 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
               }
             }
           }
+        }
+
+        function resolveTargetElement(elementId) {
+          if (!elementId) return null;
+          return (
+            rapiDocEl.shadowRoot?.getElementById(elementId) ||
+            rapiDocEl.shadowRoot?.querySelector('[data-op-slug="' + CSS.escape(elementId) + '"]') ||
+            rapiDocEl.shadowRoot?.querySelector('[id$="--' + CSS.escape(elementId) + '"]') ||
+            rapiDocEl.shadowRoot?.getElementById(elementId.replace(/^[a-z0-9_-]+--/, ''))
+          );
+        }
+
+        // 1. Sidebar Link Clicks
+        sidebar.addEventListener('click', (e) => {
+          // If clicked chevron specifically, toggle tag expansion
+          if (e.target.closest('.nav-bar-tag-icon')) {
+            const tagContainer = e.target.closest('.nav-bar-tag-and-paths');
+            if (tagContainer) {
+              tagContainer.classList.toggle('expanded');
+              tagContainer.classList.toggle('collapsed');
+            }
+            return;
+          }
+
+          const link = e.target.closest('.portal-sidebar-op-item, .nav-bar-path, .nav-bar-info, .nav-bar-tag, .nav-bar-tag-title');
+          if (!link) return;
+
+          const href = link.getAttribute('href') || link.getAttribute('data-tag-href');
+          if (!href) return;
+
+          const hashIdx = href.indexOf('#');
+          const elementId = hashIdx !== -1 ? href.substring(hashIdx + 1) : '';
+
+          // Unconditionally prevent default jump to top on in-page hash links
+          e.preventDefault();
+          window.history.pushState(null, '', href);
+
+          sidebar.querySelectorAll('.active').forEach((el) => el.classList.remove('active'));
+          if (
+            link.classList.contains('nav-bar-path') ||
+            link.classList.contains('nav-bar-info') ||
+            link.classList.contains('portal-sidebar-op-item')
+          ) {
+            link.classList.add('active');
+          }
+
+          const parentTag = link.closest('.nav-bar-tag-and-paths');
+          if (parentTag && parentTag.classList.contains('collapsed')) {
+            parentTag.classList.replace('collapsed', 'expanded');
+            parentTag.querySelector('.nav-bar-tag')?.setAttribute('aria-expanded', 'true');
+          }
+
+          let targetEl = resolveTargetElement(elementId);
+          if (!targetEl && (link.classList.contains('nav-bar-tag') || link.classList.contains('nav-bar-tag-title'))) {
+            const tagContainer = link.closest('.nav-bar-tag-and-paths');
+            const tagContentId = tagContainer?.id?.replace(/^link-/, '');
+            if (tagContentId) {
+              targetEl = resolveTargetElement(tagContentId);
+            }
+          }
+
+          if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else if (elementId && typeof rapiDocEl.scrollToPath === 'function') {
+            rapiDocEl.scrollToPath(elementId);
+          }
         });
+
+        // 2. Listen for scroll events on .portal-main to update sidebar selection marker
+        let scrollTicking = false;
+        function updateActiveOnScroll() {
+          if (!portalMain || !rapiDocEl.shadowRoot) return;
+          const headings = Array.from(rapiDocEl.shadowRoot.querySelectorAll('.observe-me[id]'));
+          if (!headings.length) return;
+
+          const containerRect = portalMain.getBoundingClientRect();
+          const threshold = containerRect.top + 100;
+
+          let activeHeading = null;
+          for (const h of headings) {
+            const rect = h.getBoundingClientRect();
+            if (rect.top <= threshold) {
+              activeHeading = h;
+            } else {
+              break;
+            }
+          }
+
+          if (!activeHeading && headings.length > 0) {
+            activeHeading = headings[0];
+          }
+
+          if (activeHeading && activeHeading.id) {
+            setActiveNavId(activeHeading.id);
+          }
+        }
+
+        if (portalMain) {
+          portalMain.addEventListener(
+            'scroll',
+            () => {
+              if (!scrollTicking) {
+                requestAnimationFrame(() => {
+                  updateActiveOnScroll();
+                  scrollTicking = false;
+                });
+                scrollTicking = true;
+              }
+            },
+            { passive: true }
+          );
+        }
+
+        // 3. Listen for internal <rapi-doc> nav-active-change event
+        rapiDocEl.addEventListener('nav-active-change', (e) => {
+          const targetId = e.detail?.id || e.detail?.elementId;
+          if (targetId) {
+            setActiveNavId(targetId);
+          }
+        });
+
+        // 4. Initial Sync from URL hash
+        function syncActiveHash() {
+          if (window.location.hash) {
+            const rawHash = window.location.hash.replace(/^#/, '');
+            if (rawHash) {
+              setActiveNavId(rawHash, false);
+              const targetEl = resolveTargetElement(rawHash);
+              if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              } else if (typeof rapiDocEl.scrollToPath === 'function') {
+                rapiDocEl.scrollToPath(rawHash);
+              }
+            }
+          }
+        }
+
+        window.addEventListener('hashchange', syncActiveHash);
+        rapiDocEl.addEventListener('spec-loaded', () => {
+          setTimeout(syncActiveHash, 100);
+        });
+        setTimeout(syncActiveHash, 300);
       });
     </script>
   </body>
@@ -937,6 +1089,24 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
     </main>
 
     <PortalFooter portalConfig={portalConfig} />
+  </body>
+</html>
+`;
+}
+
+export function generateDocsRedirectAstro(targetUrl = '/docs/documentation') {
+  return `---
+return Astro.redirect(${JSON.stringify(targetUrl)});
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0;url=${targetUrl}" />
+    <title>Redirecting to Documentation...</title>
+  </head>
+  <body>
+    <p>Redirecting to <a href="${targetUrl}">${targetUrl}</a>...</p>
   </body>
 </html>
 `;

@@ -119,6 +119,28 @@ html.portal-announcement-dismissed {
 html.portal-announcement-dismissed #portal-announcement {
   display: none !important;
 }
+
+/* Documentation Sidebar Hover and Active Styling */
+.sidebar-pane a {
+  color: var(--portal-muted, #94a3b8) !important;
+  border-radius: 6px !important;
+  transition: color 0.15s ease, background-color 0.15s ease !important;
+}
+
+.sidebar-pane a:hover {
+  color: var(--portal-fg, #f8fafc) !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.sidebar-pane a[aria-current="page"] {
+  color: var(--portal-primary, ${primaryColor}) !important;
+  background-color: color-mix(in srgb, var(--portal-primary, ${primaryColor}) 16%, transparent) !important;
+  font-weight: 600 !important;
+}
+
+.sidebar-pane a[aria-current="page"] span {
+  color: var(--portal-primary, ${primaryColor}) !important;
+}
 `;
 }
 
@@ -153,20 +175,6 @@ export function buildStarlightSidebar(navigation = [], apis = []) {
         link: (group.path || group.href).replace(/^\/?docs\/?/, '/docs/'),
       });
     }
-  }
-
-  // 2. APIs & Reference section
-  if (apis && apis.length > 0) {
-    const apiItems = apis.map((api) => ({
-      label: api.title || `${api.id} API`,
-      link: api.path || `/apis/${api.id}`,
-      badge: api.category ? { text: api.category, variant: 'note' } : undefined,
-    }));
-
-    sidebar.push({
-      label: 'API Reference',
-      items: apiItems,
-    });
   }
 
   return sidebar;
