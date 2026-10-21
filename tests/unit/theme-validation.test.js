@@ -127,8 +127,14 @@ test('theme-validation', async (t) => {
     assert.deepEqual(normalizeTheme('  #f76b39  '), { theme: 'amber' });
   });
 
-  await t.test('light theme default surfaces use #555555 for softer medium-gray foreground', () => {
-    assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--foreground:\s*#555555;/);
-    assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--card-foreground:\s*#555555;/);
+  await t.test('light theme default surfaces use #333333 foreground and derived card-foreground', () => {
+    assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--foreground:\s*#333333;/);
+    assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--card-foreground:\s*color-mix/);
+  });
+
+  await t.test('--font-sans and --font-regular typography tokens are defined', () => {
+    assert.match(themeTokens.cssText, /--font-sans:\s*'Open Sans'/);
+    assert.match(themeTokens.cssText, /--font-regular:\s*var\(--font-sans\);/);
+    assert.match(themeTokens.cssText, /--font-mono:\s*'Roboto Mono'/);
   });
 });

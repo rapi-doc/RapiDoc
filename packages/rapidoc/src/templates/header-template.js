@@ -46,7 +46,7 @@ export default function headerTemplate() {
                 spellcheck="false"
               />
               <button
-                class="m-btn primary only-large-screen"
+                class="btn btn-primary only-large-screen"
                 style="margin-left:10px;"
                 part="btn btn-fill"
                 @click="${this.onFileLoadClick}"
@@ -78,7 +78,7 @@ export default function headerTemplate() {
           ? ''
           : html`
               <button
-                class="m-btn primary only-large-screen"
+                class="btn btn-primary only-large-screen"
                 part="btn btn-fill btn-search"
                 style="margin-left:10px;"
                 @click="${this.onShowAdvancedSearchClicked}"

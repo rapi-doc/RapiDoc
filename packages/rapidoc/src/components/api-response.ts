@@ -66,10 +66,11 @@ export default class ApiResponse extends LitElement {
         .resp-head {
           vertical-align: middle;
           padding: 16px 0 8px;
-        }
-        .resp-head.divider {
-          border-top: 1px solid var(--border);
-          margin-top: 10px;
+
+          &.divider {
+            border-top: 1px solid var(--border);
+            margin-top: 10px;
+          }
         }
         .resp-status {
           font-weight: bold;
@@ -186,7 +187,7 @@ export default class ApiResponse extends LitElement {
                               this.selectedMimeType = undefined;
                             }
                           }}"
-                          class="m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}"
+                          class="btn btn-sm ${this.selectedStatus === respStatus ? 'btn-primary' : 'btn-outline'}"
                           part="btn ${
                             this.selectedStatus === respStatus ? 'btn-response-status btn-selected-response-status' : ' btn-response-status'
                           }"

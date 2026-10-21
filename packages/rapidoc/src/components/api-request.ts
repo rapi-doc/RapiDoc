@@ -127,9 +127,10 @@ export default class ApiRequest extends LitElement {
         .param-name {
           color: var(--foreground);
           font-family: var(--font-mono);
-        }
-        .param-name.deprecated {
-          color: var(--red);
+
+          &.deprecated {
+            color: var(--red);
+          }
         }
         .param-type {
           color: var(--muted-foreground);
@@ -137,9 +138,10 @@ export default class ApiRequest extends LitElement {
         }
         .param-constraint {
           min-width: 100px;
-        }
-        .param-constraint:empty {
-          display: none;
+
+          &:empty {
+            display: none;
+          }
         }
         .top-gap {
           margin-top: 24px;
@@ -158,25 +160,28 @@ export default class ApiRequest extends LitElement {
         .response-message {
           font-weight: bold;
           text-overflow: ellipsis;
-        }
-        .response-message.error {
-          color: var(--red);
-        }
-        .response-message.success {
-          color: var(--blue);
+
+          &.error {
+            color: var(--red);
+          }
+          &.success {
+            color: var(--blue);
+          }
         }
 
         .file-input-container {
           align-items: flex-start;
           width: 100%;
-        }
-        .file-input-container .input-set {
-          width: 100%;
-          display: flex;
-          align-items: center;
-        }
-        .file-input-container .input-set:first-child .file-input-remove-btn {
-          visibility: hidden;
+
+          & .input-set {
+            width: 100%;
+            display: flex;
+            align-items: center;
+
+            &:first-child .file-input-remove-btn {
+              visibility: hidden;
+            }
+          }
         }
 
         .file-input-remove-btn {
@@ -196,11 +201,12 @@ export default class ApiRequest extends LitElement {
           opacity: 0.3;
           cursor: pointer;
           padding: 4px 8px;
-        }
-        .v-tab-btn.active {
-          font-weight: bold;
-          background: var(--background);
-          opacity: 1;
+
+          &.active {
+            font-weight: bold;
+            background: var(--background);
+            opacity: 1;
+          }
         }
 
         @container (min-width: 768px) {

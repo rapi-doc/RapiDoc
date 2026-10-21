@@ -28,7 +28,7 @@ export default function downloadsTemplate() {
         showSpecDownload
           ? html`
               <button
-                class="m-btn thin-border download-btn"
+                class="btn btn-outline download-btn"
                 part="btn btn-outline"
                 @click="${() => {
                   downloadResource(this.specUrl, 'openapi-spec');
@@ -39,7 +39,7 @@ export default function downloadsTemplate() {
               ${
                 this.specUrl?.trim().toLowerCase().endsWith('json')
                   ? html`<button
-                      class="m-btn thin-border download-btn view-spec"
+                      class="btn btn-outline download-btn view-spec"
                       part="btn btn-outline"
                       @click="${() => {
                         viewResource(this.specUrl);
@@ -56,7 +56,7 @@ export default function downloadsTemplate() {
         showMcpExport
           ? mcpTargets.length === 1
             ? html`<button
-                class="m-btn thin-border download-btn"
+                class="btn btn-outline download-btn"
                 part="btn btn-outline btn-mcp-export"
                 @click="${() => {
                   this.downloadMcpServer(mcpTargets[0]);
@@ -65,7 +65,7 @@ export default function downloadsTemplate() {
                 Export MCP Server (${MCP_TARGET_LABELS[mcpTargets[0]] || mcpTargets[0]})
               </button>`
             : html`<select
-                class="m-btn thin-border download-select"
+                class="btn btn-outline download-select"
                 part="btn btn-outline btn-mcp-export"
                 @change="${(e) => {
                   const target = e.target.value;

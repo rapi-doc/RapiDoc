@@ -679,7 +679,7 @@ function oAuthFlowTemplate(
                         flowName === 'implicit' ||
                         flowName === 'password'
                           ? html` <button
-                              class="m-btn thin-border"
+                              class="btn btn-outline"
                               part="btn btn-outline"
                               @click="${(e) => {
                                 onInvokeOAuthFlow.call(
@@ -746,7 +746,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                 providedApiKeys.length > 0
                   ? html`<div class="blue-text">${providedApiKeys.length} API key applied</div>
                       <button
-                        class="m-btn thin-border"
+                        class="btn btn-outline"
                         part="btn btn-outline"
                         @click=${() => {
                           onClearAllApiKeys.call(this);
@@ -769,12 +769,12 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                     <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
                       <td style="max-width:500px; overflow-wrap: break-word;">
                         <div style="line-height:28px; margin-bottom:5px;">
-                          <span style="font-weight:bold; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
+                          <span style="font-weight:600; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
                           ${
                             v.finalKeyValue
                               ? html`<span class="blue-text"> ${v.finalKeyValue ? 'Key Applied' : ''} </span>
                                   <button
-                                    class="m-btn thin-border small"
+                                    class="btn btn-outline btn-sm"
                                     part="btn btn-outline"
                                     @click=${() => {
                                       removeApiKey.call(this, v.securitySchemeId);
@@ -803,7 +803,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                                   id="${v.type}-${v.securitySchemeId}-api-key-input"
                                                 />
                                                 <button
-                                                  class="m-btn thin-border"
+                                                  class="btn btn-outline"
                                                   style="margin-left:5px;"
                                                   part="btn btn-outline"
                                                   @click="${() => {
@@ -849,7 +849,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                           id="input-${v.type}-${v.securitySchemeId}-api-key-password"
                                         />
                                         <button
-                                          class="m-btn thin-border"
+                                          class="btn btn-outline"
                                           @click="${() => {
                                             onApiKeyChange.call(this, v.securitySchemeId);
                                           }}"
@@ -880,7 +880,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                           id="${v.type}-${v.securitySchemeId}-api-key-input"
                                         />
                                         <button
-                                          class="m-btn thin-border"
+                                          class="btn btn-outline"
                                           style="margin-left:5px;"
                                           part="btn btn-outline"
                                           @click="${() => {

@@ -19,71 +19,85 @@ export default class SchemaTree extends SchemaBaseElement {
           text-align: left;
           direction: ltr;
           line-height: calc(var(--font-size-small) + 6px);
+
+          & .tr:hover {
+            background-color: rgba(0, 0, 0, 0.15);
+          }
+          & .tr.expanded-descr {
+            max-height: none;
+          }
+          & .key {
+            max-width: 300px;
+          }
+          &.collapsed-all-descr .tr:not(.expanded-descr) {
+            overflow: hidden;
+            max-height: calc(var(--font-size-small) + 8px);
+
+            & .key {
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+            }
+          }
         }
-        .tree .tr:hover {
-          background: var(--muted);
+
+        .tr {
+          &.expanded {
+            &:hover {
+              & > .td.key > .open-bracket,
+              & + .inside-bracket + .close-bracket {
+                color: var(--primary);
+              }
+              & + .inside-bracket {
+                border-left: 1px solid var(--muted-foreground);
+              }
+            }
+            & .open-bracket .open-bracket-collapsed {
+              display: none;
+            }
+          }
+          &.collapsed {
+            & + .inside-bracket,
+            & + .inside-bracket + .close-bracket {
+              overflow: hidden;
+              display: none;
+            }
+            & .open-bracket .open-bracket-expanded {
+              display: none;
+            }
+          }
         }
-        .collapsed-all-descr .tr:not(.expanded-descr) {
-          overflow: hidden;
-          max-height: calc(var(--font-size-small) + 8px);
+
+        .inside-bracket {
+          &.xxx-of-option {
+            border-left: 1px solid transparent;
+          }
+          &.object,
+          &.array {
+            border-left: 1px dotted var(--border);
+          }
         }
-        .collapsed-all-descr .tr:not(.expanded-descr) .key {
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
-        .tree .tr.expanded-descr {
-          max-height: none;
-        }
-        .tree .key {
-          max-width: 300px;
-        }
-        .tr.expanded:hover > .td.key > .open-bracket {
-          color: var(--primary);
-        }
-        .tr.expanded:hover + .inside-bracket {
-          border-left: 1px solid var(--muted-foreground);
-        }
-        .tr.expanded:hover + .inside-bracket + .close-bracket {
-          color: var(--primary);
-        }
-        .inside-bracket.xxx-of-option {
-          border-left: 1px solid transparent;
-        }
+
         .open-bracket {
           display: inline-block;
           padding: 0 20px 0 0;
           cursor: pointer;
           border: 1px solid transparent;
           border-radius: var(--card-radius);
+
+          &:hover {
+            color: var(--primary);
+            border: 1px solid var(--border);
+          }
+          &:focus-visible {
+            outline: 2px solid var(--primary);
+            border-color: var(--primary);
+          }
         }
-        .open-bracket:hover {
-          color: var(--primary);
-          background: var(--muted);
-          border: 1px solid var(--border);
-        }
-        .open-bracket:focus-visible {
-          outline: 2px solid var(--primary);
-          border-color: var(--primary);
-        }
+
         .close-bracket {
           display: inline-block;
           font-family: var(--font-mono);
-        }
-        .tr.collapsed + .inside-bracket,
-        .tr.collapsed + .inside-bracket + .close-bracket {
-          overflow: hidden;
-          display: none;
-        }
-        .inside-bracket.object,
-        .inside-bracket.array {
-          border-left: 1px dotted var(--border);
-        }
-        .tr.expanded .open-bracket .open-bracket-collapsed {
-          display: none;
-        }
-        .tr.collapsed .open-bracket .open-bracket-expanded {
-          display: none;
         }
       `,
       CustomStyles,

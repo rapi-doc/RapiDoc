@@ -31,13 +31,13 @@ export default css`
     box-sizing: content-box;
     border-bottom: 1px dotted transparent;
     transition: max-height 0.3s ease-out;
-  }
-  .tr.expanded-descr {
-    max-height: 3000px;
-  }
-  @supports (interpolate-size: allow-keywords) {
-    .tr.expanded-descr {
-      max-height: max-content;
+
+    &.expanded-descr {
+      max-height: 3000px;
+
+      @supports (interpolate-size: allow-keywords) {
+        max-height: max-content;
+      }
     }
   }
   .td {
@@ -53,56 +53,6 @@ export default css`
   .collapsed-all-descr .key {
     overflow: hidden;
   }
-  .expanded-all-descr .key-descr .descr-expand-toggle {
-    display: none;
-  }
-
-  .key-descr .descr-expand-toggle {
-    display: inline-block;
-    user-select: none;
-    color: var(--foreground);
-    cursor: pointer;
-    transform: rotate(45deg);
-    transition: transform 0.2s ease;
-    margin-right: 4px;
-    border-radius: 2px;
-  }
-  .key-descr .descr-expand-toggle:focus-visible {
-    outline: 2px solid var(--primary);
-  }
-
-  .key-descr .m-markdown-small {
-    display: inline-block;
-    vertical-align: top;
-    max-width: 100%;
-  }
-  .key-descr .m-markdown-small p {
-    display: inline;
-    margin: 0;
-  }
-  .key-descr .m-markdown-small p + p {
-    display: block;
-    margin-top: 4px;
-  }
-
-  .key-descr .item-details {
-    display: block;
-    margin-top: 2px;
-  }
-
-  .expanded-descr .key-descr .descr-expand-toggle,
-  .key-descr .descr-expand-toggle.expanded-descr {
-    transform: rotate(270deg);
-  }
-
-  .key-descr .descr-expand-toggle:hover {
-    color: var(--primary);
-  }
-
-  .expanded-descr .more-content {
-    display: none;
-  }
-
   .key-descr {
     font-family: var(--font-regular);
     color: var(--muted-foreground);
@@ -110,10 +60,69 @@ export default css`
     text-overflow: ellipsis;
     overflow: hidden;
     display: none;
+
+    & .descr-expand-toggle {
+      display: inline-block;
+      user-select: none;
+      color: var(--foreground);
+      cursor: pointer;
+      transform: rotate(45deg);
+      transition: transform 0.2s ease;
+      margin-right: 4px;
+      border-radius: 2px;
+
+      &:hover {
+        color: var(--primary);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--primary);
+      }
+
+      &.expanded-descr {
+        transform: rotate(270deg);
+      }
+    }
+
+    & .m-markdown-small {
+      display: inline-block;
+      vertical-align: top;
+      max-width: 100%;
+
+      & p {
+        display: inline;
+        margin: 0;
+
+        & + p {
+          display: block;
+          margin-top: 4px;
+        }
+      }
+    }
+
+    & .item-details {
+      display: block;
+      margin-top: 2px;
+    }
   }
-  .expanded-descr .key-descr {
-    max-height: auto;
-    overflow: hidden;
+
+  .expanded-descr {
+    & .key-descr {
+      max-height: auto;
+      overflow: hidden;
+      display: none;
+
+      & .descr-expand-toggle {
+        transform: rotate(270deg);
+      }
+    }
+
+    & .more-content {
+      display: none;
+    }
+  }
+
+  .expanded-all-descr .key-descr .descr-expand-toggle {
     display: none;
   }
 
@@ -190,15 +199,16 @@ export default css`
     cursor: pointer;
     padding: 5px 0;
     margin: 0 2px;
+
+    &:first-of-type {
+      margin: 0 2px 0 0;
+    }
   }
   .schema-root-type {
     cursor: auto;
-    color: var(--card-foreground);
-    font-weight: bold;
+    color: var(--muted-foreground);
+    font-weight: 600;
     text-transform: uppercase;
-  }
-  .toolbar-item:first-of-type {
-    margin: 0 2px 0 0;
   }
 
   @container (min-width: 500px) {

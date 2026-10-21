@@ -183,7 +183,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                             `
                           )}
                           <button
-                            class="m-btn primary file-input-add-btn"
+                            class="btn btn-primary file-input-add-btn"
                             part="btn btn-fill"
                             style="margin:4px 0 0 0; padding:2px 8px; align-self:flex-start;"
                             @click="${() => this.onAddFileInput(fieldName)}"
@@ -240,8 +240,8 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                     ${
                       paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
                         ? html` <div class="param-constraint">
-                            ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br />` : ''}
-                            ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br />` : ''}
+                            ${paramSchema.default ? html`<span style="font-weight:600; color:var(--muted-foreground)">Default: </span>${paramSchema.default}<br />` : ''}
+                            ${paramSchema.pattern ? html`<span style="font-weight:600; color:var(--muted-foreground)">Pattern: </span>${paramSchema.pattern}<br />` : ''}
                             ${paramSchema.constrain ? html`${paramSchema.constrain}<br />` : ''}
                             ${
                               paramSchema.allowedValues &&
@@ -249,7 +249,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                 .split('┃')
                                 .map(
                                   (v, i) =>
-                                    html` ${i > 0 ? '┃' : html`<span style="font-weight:bold">Allowed: </span>`}
+                                    html` ${i > 0 ? '┃' : html`<span style="font-weight:600; color:var(--muted-foreground)">Allowed: </span>`}
                                     ${html` <a
                                       part="anchor anchor-param-constraint"
                                       class="${this.allowTry === 'true' ? '' : 'inactive-link'}"

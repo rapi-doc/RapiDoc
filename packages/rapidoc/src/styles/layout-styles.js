@@ -338,31 +338,34 @@ export default css`
     border: 1px solid var(--border);
     border-left-width: 4px;
     margin-left: 2px;
-  }
-  .tooltip a {
-    color: var(--card-foreground);
-    text-decoration: none;
-  }
-  .tooltip-text {
-    color: var(--card-foreground);
-    max-width: 400px;
-    position: absolute;
-    z-index: 1;
-    background: var(--card);
-    visibility: hidden;
 
-    overflow-wrap: break-word;
-  }
-  .tooltip:hover {
-    color: var(--primary);
-    border-color: var(--primary);
-  }
-  .tooltip:hover a:hover {
-    color: var(--primary);
-  }
+    & a {
+      color: var(--card-foreground);
+      text-decoration: none;
+    }
 
-  .tooltip:hover .tooltip-text {
-    visibility: visible;
+    & .tooltip-text {
+      color: var(--card-foreground);
+      max-width: 400px;
+      position: absolute;
+      z-index: 1;
+      background: var(--card);
+      visibility: hidden;
+      overflow-wrap: break-word;
+    }
+
+    &:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+
+      & a:hover {
+        color: var(--primary);
+      }
+
+      & .tooltip-text {
+        visibility: visible;
+      }
+    }
   }
 
   @keyframes spin {

@@ -39,7 +39,7 @@ export function apiResponseTabTemplate() {
   }
   return html` <div class="row" style="font-size:var(--font-size-small); margin:5px 0; justify-content:space-between; align-items:center;">
       <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
-      <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
+      <button class="btn btn-outline" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
     </div>
     <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
       <div
@@ -47,7 +47,7 @@ export function apiResponseTabTemplate() {
         part="tab-btn-row"
         class="tab-buttons row"
         @click="${(e) => {
-          if (e.target.classList.contains('tab-btn') === false) {
+          if (e.target.classList.contains('tab-btn') === false && e.target.classList.contains('tab') === false) {
             return;
           }
           this.activeResponseTab = e.target.dataset.tab;
@@ -80,7 +80,7 @@ export function apiResponseTabTemplate() {
                   : ''
               }
               <button
-                class="m-btn thin-border mar-top-8"
+                class="btn btn-outline mar-top-8"
                 style="width:135px"
                 @click="${() => {
                   downloadResource(this.responseBlobUrl, this.respContentDisposition);
@@ -92,7 +92,7 @@ export function apiResponseTabTemplate() {
               ${
                 this.responseBlobType === 'view' || this.responseBlobType === 'image'
                   ? html`<button
-                      class="m-btn thin-border mar-top-8"
+                      class="btn btn-outline mar-top-8"
                       style="width:135px"
                       @click="${() => {
                         viewResource(this.responseBlobUrl);
@@ -145,7 +145,7 @@ ${responseContent}</pre>
 export function apiCallTemplate() {
   const selectedServerHtml = this.serverUrl
     ? html`<div style="display:flex; align-items:baseline; overflow:hidden;">
-        <div style="font-weight:bold; padding-right:5px;">API Server</div>
+        <div style="font-weight:600; padding-right:5px;">API Server</div>
         <span class="gray-text"> ${this.serverUrl} </span>
       </div>`
     : '';
@@ -157,7 +157,7 @@ export function apiCallTemplate() {
       <div class="hide-in-small-screen" style="display:flex; flex-direction:column; margin:0; flex:1 1 180px; min-width:0;">
         ${selectedServerHtml}
         <div style="display:flex; flex-wrap:wrap;">
-          <div style="font-weight:bold; padding-right:5px;">Authentication</div>
+          <div style="font-weight:600; padding-right:5px;">Authentication</div>
           ${
             this.security?.length > 0 && !this.security.every((s) => !s || Object.keys(s).length === 0)
               ? html` ${
@@ -181,7 +181,7 @@ export function apiCallTemplate() {
         ${
           this.parameters.length > 0 || this.request_body
             ? html` <button
-                  class="m-btn thin-border"
+                  class="btn btn-outline"
                   part="btn btn-outline btn-fill"
                   ?disabled="${this.loading}"
                   @click="${this.onFillRequestData}"
@@ -190,7 +190,7 @@ export function apiCallTemplate() {
                   FILL EXAMPLE
                 </button>
                 <button
-                  class="m-btn thin-border"
+                  class="btn btn-outline"
                   part="btn btn-outline btn-clear"
                   ?disabled="${this.loading}"
                   @click="${this.onClearRequestData}"
@@ -200,7 +200,7 @@ export function apiCallTemplate() {
             : ''
         }
         <button
-          class="m-btn primary thin-border"
+          class="btn btn-primary"
           part="btn btn-try"
           ?disabled="${this.loading}"
           aria-busy="${this.loading}"

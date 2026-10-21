@@ -4,25 +4,27 @@ export default css`
   .only-large-screen {
     display: none;
   }
-  .endpoint-head .path {
-    display: flex;
-    font-family: var(--font-mono);
-    font-size: var(--font-size-small);
-    align-items: center;
-    overflow-wrap: break-word;
-    word-break: break-all;
-  }
+  .endpoint-head {
+    & .path {
+      display: flex;
+      font-family: var(--font-mono);
+      font-size: var(--font-size-small);
+      align-items: center;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
 
-  .endpoint-head .descr {
-    font-size: var(--font-size-small);
-    color: var(--muted-foreground);
-    font-weight: 400;
-    align-items: center;
-    overflow-wrap: break-word;
-    word-break: break-all;
-    display: none;
-    margin-inline-start: auto;
-    padding-inline-start: 16px;
+    & .descr {
+      font-size: var(--font-size-small);
+      color: var(--muted-foreground);
+      font-weight: 400;
+      align-items: center;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      display: none;
+      margin-inline-start: auto;
+      padding-inline-start: 16px;
+    }
   }
 
   .external-docs-box {

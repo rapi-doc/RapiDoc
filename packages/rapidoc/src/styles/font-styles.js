@@ -280,6 +280,13 @@ export default css`
     padding: 12px;
     background: var(--input-background);
     color: var(--foreground);
+
+    & code {
+      border: none;
+      padding: 0;
+      background: transparent;
+      color: var(--code-fg);
+    }
   }
 
   .m-markdown-small pre {
@@ -287,22 +294,13 @@ export default css`
     padding: 2px 4px;
     background: var(--input-background);
     color: var(--card-foreground);
-  }
 
-  .m-markdown-small pre code,
-  .m-markdown pre code {
-    border: none;
-    padding: 0;
-    background: transparent;
-  }
-
-  .m-markdown pre code {
-    color: var(--code-fg);
-  }
-
-  .m-markdown-small pre code {
-    color: var(--card-foreground);
-    background: transparent;
+    & code {
+      border: none;
+      padding: 0;
+      background: transparent;
+      color: var(--card-foreground);
+    }
   }
 
   .m-markdown ul,

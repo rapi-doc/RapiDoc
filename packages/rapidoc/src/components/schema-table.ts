@@ -16,51 +16,70 @@ export default class SchemaTable extends SchemaBaseElement {
           font-size: var(--font-size-small);
           text-align: left;
           line-height: calc(var(--font-size-small) + 6px);
-        }
-        .table-container {
-          border: 1px solid var(--border);
-          overflow-x: auto;
-          max-width: 100%;
-        }
-        .table-header {
-          display: flex;
-          background: var(--card);
-          padding: 8px 4px;
-          border-bottom: 1px solid var(--border);
-        }
-        .table-header .td {
-          font-family: var(--font-regular);
-          font-weight: bold;
-          color: var(--foreground);
-        }
-        .table .tr {
-          width: calc(100% - 5px);
-          padding: 0 0 0 5px;
-          border-bottom: 1px dotted var(--border);
-        }
-        .table .td {
-          padding: 4px 0;
-        }
-        .table .key {
-          width: var(--table-schema-key-width, 240px);
-          text-overflow: var(--table-schema-key-text-overflow, ellipsis);
-          white-space: var(--table-schema-key-whitespace, nowrap);
-          overflow: hidden;
-        }
-        .key .key-label {
-          font-size: var(--font-size-mono);
-        }
-        .key.deprecated .key-label {
-          color: var(--red);
-        }
 
-        .table .key-type {
-          white-space: normal;
-          width: 150px;
-        }
-        .collapsed-all-descr .tr:not(.expanded-descr) {
-          overflow: hidden;
-          max-height: calc(var(--font-size-small) + 16px);
+          & .table-container {
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            max-width: 100%;
+          }
+          & .table-header {
+            display: flex;
+            background: var(--card);
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--border);
+
+            & .td {
+              font-family: var(--font-regular);
+              font-weight: bold;
+              color: var(--foreground);
+            }
+          }
+          & .tr {
+            width: calc(100% - 5px);
+            padding: 0 0 0 5px;
+            border-bottom: 1px dotted var(--border);
+
+            &.expanded {
+              & .obj-toggle::after {
+                content: '-';
+              }
+              & + .object-body {
+                display: block;
+              }
+            }
+            &.collapsed {
+              & .obj-toggle::after {
+                content: '+';
+              }
+              & + .object-body {
+                display: none;
+              }
+            }
+          }
+          & .td {
+            padding: 4px 0;
+          }
+          & .key {
+            width: var(--table-schema-key-width, 240px);
+            text-overflow: var(--table-schema-key-text-overflow, ellipsis);
+            white-space: var(--table-schema-key-whitespace, nowrap);
+            overflow: hidden;
+
+            & .key-label {
+              font-size: var(--font-size-mono);
+            }
+            &.deprecated .key-label {
+              color: var(--red);
+            }
+          }
+          & .key-type {
+            white-space: normal;
+            width: 150px;
+          }
+          &.collapsed-all-descr .tr:not(.expanded-descr) {
+            overflow: hidden;
+            max-height: calc(var(--font-size-small) + 16px);
+          }
         }
 
         .obj-toggle {
@@ -85,61 +104,48 @@ export default class SchemaTable extends SchemaBaseElement {
           user-select: none;
           box-sizing: border-box;
           vertical-align: middle;
-        }
-        .obj-toggle:hover {
-          border-color: var(--primary);
-        }
-        .obj-toggle:focus-visible {
-          outline: 2px solid var(--primary);
-          border-color: var(--primary);
-        }
-        .tr.expanded .obj-toggle::after {
-          content: '-';
-        }
-        .tr.collapsed .obj-toggle::after {
-          content: '+';
-        }
-        .tr.expanded + .object-body {
-          display: block;
-        }
-        .tr.collapsed + .object-body {
-          display: none;
+
+          &:hover {
+            border-color: var(--primary);
+          }
+          &:focus-visible {
+            outline: 2px solid var(--primary);
+            border-color: var(--primary);
+          }
         }
 
         @supports (grid-template-columns: subgrid) {
-          .table-container {
-            display: grid;
-            grid-template-columns: minmax(var(--table-schema-key-width, 240px), auto) minmax(150px, auto) 1fr;
-          }
-          .table-header,
-          .table .tr {
-            display: grid;
-            grid-column: 1 / -1;
-            grid-template-columns: subgrid;
-            width: 100%;
-            padding: 0 4px;
-            box-sizing: border-box;
-          }
-          .table-header .key,
-          .table .tr .key {
-            width: auto;
-          }
-          .table-header .key-type,
-          .table .tr .key-type {
-            width: auto;
-          }
-          .table-header .key-descr,
-          .table .tr .key-descr {
-            min-width: 0;
-          }
-          .table .object-body {
-            display: contents;
-          }
-          .table .tr.collapsed + .object-body {
-            display: none;
-          }
-          .table .tr.expanded + .object-body {
-            display: contents;
+          .table {
+            & .table-container {
+              display: grid;
+              grid-template-columns: minmax(var(--table-schema-key-width, 240px), auto) minmax(150px, auto) 1fr;
+            }
+            & .table-header,
+            & .tr {
+              display: grid;
+              grid-column: 1 / -1;
+              grid-template-columns: subgrid;
+              width: 100%;
+              padding: 0 4px;
+              box-sizing: border-box;
+
+              & .key,
+              & .key-type {
+                width: auto;
+              }
+              & .key-descr {
+                min-width: 0;
+              }
+            }
+            & .object-body {
+              display: contents;
+            }
+            & .tr.collapsed + .object-body {
+              display: none;
+            }
+            & .tr.expanded + .object-body {
+              display: contents;
+            }
           }
         }
       `,

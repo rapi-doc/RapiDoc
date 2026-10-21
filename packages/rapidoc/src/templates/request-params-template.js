@@ -69,7 +69,7 @@ export function renderLongFormatExamples(exampleList, paramType, paramName) {
 export function exampleListTemplate(paramName, paramType, exampleList = []) {
   return html` ${
     exampleList.length > 0
-      ? html`<span style="font-weight:bold">Examples: </span> ${
+      ? html`<span style="font-weight:600; color:var(--muted-foreground)">Examples: </span> ${
             anyExampleWithSummaryOrDescription(exampleList)
               ? renderLongFormatExamples.call(this, exampleList, paramType, paramName)
               : renderShortFormatExamples.call(this, exampleList, paramType, paramName)
@@ -331,8 +331,8 @@ export function inputParametersTemplate(paramType) {
           paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
             ? html` <td colspan="${this.allowTry === 'true' ? '1' : '2'}">
                 <div class="param-constraint">
-                  ${paramSchema.default ? html`<div><span style="font-weight:bold">Default: </span>${paramSchema.default}</div>` : ''}
-                  ${paramSchema.pattern ? html`<div><span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}</div>` : ''}
+                  ${paramSchema.default ? html`<div><span style="font-weight:600; color:var(--muted-foreground)">Default: </span>${paramSchema.default}</div>` : ''}
+                  ${paramSchema.pattern ? html`<div><span style="font-weight:600; color:var(--muted-foreground)">Pattern: </span>${paramSchema.pattern}</div>` : ''}
                   ${paramSchema.constrain ? html`<div>${paramSchema.constrain}</div>` : ''}
                   ${
                     paramSchema.allowedValues &&
@@ -340,7 +340,7 @@ export function inputParametersTemplate(paramType) {
                       .split('┃')
                       .map(
                         (v, i) =>
-                          html` ${i > 0 ? '┃' : html`<span style="font-weight:bold">Allowed: </span>`}
+                          html` ${i > 0 ? '┃' : html`<span style="font-weight:600; color:var(--muted-foreground);">Allowed: </span>`}
                           ${html` <a
                             part="anchor anchor-param-constraint"
                             class="${this.allowTry === 'true' ? '' : 'inactive-link'}"

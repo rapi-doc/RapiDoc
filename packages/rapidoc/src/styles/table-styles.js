@@ -9,49 +9,50 @@ export default css`
     margin: 0;
     max-width: 100%;
     direction: ltr;
-  }
-  .m-table tr:first-child td,
-  .m-table tr:first-child th {
-    border-top: 0 none;
-  }
-  .m-table td,
-  .m-table th {
-    font-size: var(--font-size-small);
-    line-height: calc(var(--font-size-small) + 4px);
-    padding: 4px 5px 4px;
-    vertical-align: top;
-  }
 
-  .m-table.padded-12 td,
-  .m-table.padded-12 th {
-    padding: 12px;
-  }
+    & tr:first-child td,
+    & tr:first-child th {
+      border-top: 0 none;
+    }
 
-  .m-table td:not([align]),
-  .m-table th:not([align]) {
-    text-align: start;
-  }
+    & td,
+    & th {
+      font-size: var(--font-size-small);
+      line-height: calc(var(--font-size-small) + 4px);
+      padding: 4px 5px 4px;
+      vertical-align: top;
 
-  .m-table th {
-    color: var(--card-foreground);
-    font-size: var(--font-size-small);
-    line-height: calc(var(--font-size-small) + 18px);
-    font-weight: 600;
-    letter-spacing: normal;
-    background: var(--card);
-    vertical-align: bottom;
-    border-bottom: 1px solid var(--border);
-  }
+      &:not([align]) {
+        text-align: start;
+      }
+    }
 
-  .m-table > tbody > tr > td,
-  .m-table > tr > td {
-    border-top: 1px solid var(--border);
-    text-overflow: ellipsis;
-    overflow: hidden;
+    &.padded-12 td,
+    &.padded-12 th {
+      padding: 12px;
+    }
+
+    & th {
+      color: var(--card-foreground);
+      font-size: var(--font-size-small);
+      line-height: calc(var(--font-size-small) + 18px);
+      font-weight: 600;
+      letter-spacing: normal;
+      background: var(--card);
+      vertical-align: bottom;
+      border-bottom: 1px solid var(--border);
+    }
+
+    & > tbody > tr > td,
+    & > tr > td {
+      border-top: 1px solid var(--border);
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
   }
   .table-title {
     font-size: var(--font-size-small);
-    font-weight: bold;
+    font-weight: 600;
     vertical-align: middle;
     margin: 12px 0 4px 0;
   }

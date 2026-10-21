@@ -206,7 +206,7 @@ export default function navbarTemplate() {
                               this.searchVal
                                 ? html` <button
                                     @click="${this.onClearSearch}"
-                                    class="m-btn thin-border btn-clear-filter"
+                                    class="btn btn-outline btn-clear-filter"
                                     part="btn btn-outline btn-clear-filter"
                                   >
                                     CLEAR
@@ -221,7 +221,7 @@ export default function navbarTemplate() {
                         : html`
                             <button
                               id="advanced-search-btn"
-                              class="m-btn primary"
+                              class="btn btn-primary"
                               part="btn btn-fill btn-search"
                               @click="${this.onShowAdvancedSearchClicked}"
                             >

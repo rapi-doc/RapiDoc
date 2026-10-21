@@ -1,11 +1,15 @@
 import { css } from 'lit';
 
 export default css`
-  /* Button */
-  .m-btn {
+  /* =========================================================================
+     1. BUTTONS (.btn)
+     ========================================================================= */
+  .btn {
     border-radius: var(--radius);
     font-weight: 600;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.4em 1em;
     font-size: var(--font-size-small);
     outline: 0;
@@ -25,53 +29,147 @@ export default css`
       color 0.2s ease,
       border-color 0.2s ease,
       transform 0.1s ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--primary) 28%, transparent);
+      color: var(--foreground);
+    }
+
+    &:disabled {
+      background: var(--muted);
+      color: var(--muted-foreground);
+      border-color: var(--border);
+      cursor: not-allowed;
+      opacity: 0.4;
+      box-shadow: none;
+    }
+
+    &:active {
+      filter: brightness(85%);
+      transform: scale(0.97);
+      transition: scale 0s;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-shadow);
+    }
   }
-  .m-btn:hover {
-    background: color-mix(in srgb, var(--primary) 28%, transparent);
-    color: var(--foreground);
-  }
-  .m-btn.primary {
+
+  /* Primary Variant (High-priority action: e.g. Try-it, Save, Load) */
+  .btn-primary,
+  .btn.primary {
     background: var(--primary);
+    border-color: var(--primary);
     color: var(--primary-foreground);
+
+    &:hover {
+      background: var(--primary);
+      filter: brightness(110%);
+      color: var(--primary-foreground);
+    }
   }
-  .m-btn.primary:hover {
-    background: var(--primary);
-    filter: brightness(110%);
-    color: var(--primary-foreground);
-  }
-  .m-btn.thin-border {
-    border-width: 1px;
-  }
-  .m-btn.large {
-    padding: 0.55em 1.1em;
-  }
-  .m-btn.small {
-    padding: 0.35em 0.85em;
-  }
-  .m-btn.tiny {
-    padding: 0.3em 0.5em;
-  }
-  .m-btn.circle {
-    border-radius: 50%;
-  }
-  .m-btn.nav {
-    border: 1px solid var(--primary);
-  }
-  .m-btn.nav:hover {
-    background: var(--primary);
-  }
-  .m-btn:disabled {
+
+  /* Secondary Variant (Muted surface action) */
+  .btn-secondary,
+  .btn.secondary {
     background: var(--muted);
-    color: var(--muted-foreground);
     border-color: var(--border);
-    cursor: not-allowed;
-    opacity: 0.4;
+    color: var(--foreground);
+    box-shadow: none;
+
+    &:hover {
+      background: color-mix(in srgb, var(--muted) 80%, var(--foreground));
+      color: var(--foreground);
+    }
   }
-  .m-btn:active {
-    filter: brightness(85%);
-    transform: scale(0.97);
-    transition: scale 0s;
+
+  /* Outline Variant (Transparent background with crisp border) */
+  .btn-outline,
+  .btn.thin-border {
+    border-width: 1px;
+    border-color: var(--border);
+    background: transparent;
+    color: var(--foreground);
+    box-shadow: none;
+
+    &:hover {
+      background: var(--muted);
+      border-color: var(--muted-foreground);
+      color: var(--foreground);
+    }
   }
+
+  /* Ghost Variant (Borderless, transparent until hover) */
+  .btn-ghost,
+  .btn.ghost {
+    border-color: transparent;
+    background: transparent;
+    color: var(--muted-foreground);
+    box-shadow: none;
+
+    &:hover {
+      background: var(--muted);
+      color: var(--foreground);
+    }
+  }
+
+  /* Destructive Variant (Danger / Clear / Reset actions) */
+  .btn-destructive,
+  .btn.destructive {
+    border-color: var(--method-delete, #ef4444);
+    background: color-mix(in srgb, var(--method-delete, #ef4444) 15%, transparent);
+    color: var(--method-delete, #ef4444);
+
+    &:hover {
+      background: var(--method-delete, #ef4444);
+      color: #ffffff;
+    }
+  }
+
+  /* Link Variant */
+  .btn-link,
+  .btn.link {
+    border-color: transparent;
+    background: transparent;
+    color: var(--blue, #3b82f6);
+    box-shadow: none;
+    text-decoration: underline;
+    padding: 0;
+  }
+
+  /* Sizes */
+  .btn-lg,
+  .btn.large {
+    padding: 0.55em 1.1em;
+    font-size: var(--font-size-regular);
+  }
+  .btn-sm,
+  .btn.small {
+    padding: 0.35em 0.85em;
+    font-size: var(--font-size-small);
+  }
+  .btn-xs,
+  .btn.tiny {
+    padding: 0.25em 0.5em;
+    font-size: 11px;
+  }
+  .btn-icon,
+  .btn.circle {
+    border-radius: 50%;
+    padding: 0.35em;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+  }
+  .btn.nav {
+    border: 1px solid var(--primary);
+
+    &:hover {
+      background: var(--primary);
+    }
+  }
+
   .toolbar-btn {
     cursor: pointer;
     padding: 4px;
@@ -84,6 +182,48 @@ export default css`
     background: var(--primary);
   }
 
+  /* =========================================================================
+     2. BADGES (.badge)
+     ========================================================================= */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    user-select: none;
+  }
+  .badge-secondary {
+    background: var(--muted);
+    color: var(--foreground);
+    border-color: var(--border);
+  }
+  .badge-outline {
+    background: transparent;
+    color: var(--foreground);
+    border-color: var(--border);
+  }
+  .badge-destructive {
+    background: color-mix(in srgb, var(--method-delete, #ef4444) 15%, transparent);
+    color: var(--method-delete, #ef4444);
+    border-color: var(--method-delete, #ef4444);
+  }
+  .badge-sm {
+    padding: 1px 4px;
+    font-size: 10px;
+  }
+
+  /* =========================================================================
+     3. FORM INPUTS (.input)
+     ========================================================================= */
+  .input,
   input,
   textarea,
   select,
@@ -104,6 +244,7 @@ export default css`
   }
 
   /* Form Inputs */
+  .input,
   pre,
   select,
   textarea,
@@ -113,8 +254,27 @@ export default css`
     font-family: var(--font-mono);
     font-weight: 400;
     font-size: var(--font-size-small);
-    transition: border 0.2s;
-    padding: 6px 5px;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+    padding: 6px 8px;
+  }
+
+  .input:focus,
+  .input:focus-visible,
+  input[type='text']:focus,
+  input[type='text']:focus-visible,
+  input[type='password']:focus,
+  input[type='password']:focus-visible,
+  textarea:focus,
+  textarea:focus-visible {
+    border-color: var(--primary);
+    box-shadow: var(--focus-shadow);
+  }
+
+  .input-sm {
+    padding: 4px 6px;
+    font-size: var(--font-size-small);
   }
 
   select {

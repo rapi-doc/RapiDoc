@@ -4,6 +4,7 @@ export default css`
   .tab-panel {
     border: none;
   }
+  .tabs,
   .tab-buttons {
     height: 30px;
     padding: 4px 4px 0 4px;
@@ -12,11 +13,14 @@ export default css`
     overflow-y: hidden;
     overflow-x: auto;
     scrollbar-width: thin;
+
+    &::-webkit-scrollbar {
+      height: 1px;
+      background: var(--border);
+    }
   }
-  .tab-buttons::-webkit-scrollbar {
-    height: 1px;
-    background: var(--border);
-  }
+
+  .tab,
   .tab-btn {
     border: none;
     border-radius: 0;
@@ -32,24 +36,30 @@ export default css`
     margin-inline-end: 16px;
     padding: 2px 4px;
     transition: color 0.15s ease;
-  }
-  .tab-btn.active {
-    border-bottom: 2px solid var(--primary);
-    font-weight: 600;
-    color: var(--primary);
+
+    &.tab-active,
+    &.active {
+      border-bottom: 2px solid var(--primary);
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    &:hover,
+    &:focus-visible {
+      outline: none;
+      color: var(--primary);
+    }
   }
 
-  .tab-btn:hover {
-    color: var(--primary);
-  }
   .tab-content {
     margin: -1px 0 0 0;
     position: relative;
     min-height: 50px;
-  }
-  .tab-content .toolbar-btn {
-    position: absolute;
-    top: 12px;
-    right: 8px;
+
+    & .toolbar-btn {
+      position: absolute;
+      top: 12px;
+      right: 8px;
+    }
   }
 `;

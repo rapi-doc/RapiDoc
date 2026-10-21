@@ -40,23 +40,23 @@ export default css`
     overflow: hidden;
     border-top-left-radius: var(--card-radius);
     border-top-right-radius: var(--card-radius);
-  }
+    & button {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--foreground);
+      border: none;
+      outline: none;
+      background: transparent;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      margin-inline-end: -8px;
 
-  .dialog-box-header button {
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--foreground);
-    border: none;
-    outline: none;
-    background: transparent;
-    cursor: pointer;
-    border: 1px solid transparent;
-    border-radius: 50%;
-    margin-inline-end: -8px;
-  }
-  .dialog-box-header button:hover {
-    border-color: var(--primary);
+      &:hover {
+        border-color: var(--primary);
+      }
+    }
   }
 
   .dialog-box-content {

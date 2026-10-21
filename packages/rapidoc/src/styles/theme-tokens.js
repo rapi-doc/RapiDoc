@@ -124,8 +124,9 @@ export default css`
      ========================================================================= */
   :host {
     /* --- Typography Tokens --- */
+    --font-sans: 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif;
+    --font-regular: var(--font-sans);
     --font-mono: 'Roboto Mono', Monaco, 'Andale Mono', Consolas, monospace;
-    --font-regular: var(--font-sans, 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif);
 
     /* --- Default Corner Radii & Geometry --- */
     --radius: 0.25rem;
@@ -221,24 +222,47 @@ export default css`
      3. SURFACE & COLOR SCHEME (color-scheme)
      ========================================================================= */
 
-  /* --- 3A. Dark Mode Surfaces (Default / System Dark) --- */
+  /* --------- 3A. DARK (Default) --------- */
   :host,
   :host([color-scheme='dark']),
   :host([color-scheme='system']),
   :host(:not([color-scheme])) {
     /* Surfaces */
-    --background: var(--_preset-bg, #09090b);
-    --foreground: var(--_preset-fg, #fafafa);
-    --card: var(--_preset-card, #18181b);
-    --card-foreground: var(--_preset-card-fg, #fafafa);
-    --muted: var(--_preset-muted, #27272a);
-    --muted-foreground: #a1a1aa;
-    --border: var(--_preset-border, #27272a);
-    --nav-hover-bg: color-mix(in srgb, var(--background) 85%, #000000);
-    --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
+
+    --background: oklch(0.2533 0.016 252.42);
+    --foreground: oklch(0.97807 0.029 256.847);
+
+    /*
+    --background: oklch(0.2613 0.0134 272.84);
+    --foreground: #cccccc;
+    */
+
+    /* Card Vars:
+      card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
+      card-foreground : Text & icon color on elevated surfaces (dialog content, table header labels, tooltip text, schema type badges)
+    */
+    --card: color-mix(in srgb, var(--background) 92%, var(--foreground));
+    --card-foreground: color-mix(in srgb, var(--foreground) 90%, #ffffff);
+
+    /* Muted Vars:
+      muted (bg)       : input tags, secondary buttons, table footers, and code backgrounds
+      muted-foreground : inactive tabs, parameter descriptions, schema constraints, and timestamps
+    */
+    --muted: color-mix(in srgb, var(--background) 86%, var(--foreground));
+    --muted-foreground: color-mix(in srgb, var(--foreground) 65%, var(--background));
+
+    /* Border Vars:
+      border: dividing lines for tables, cards, sections, and panels
+    */
+    --border: color-mix(in srgb, var(--background) 90%, var(--foreground));
+
+    --nav-hover-bg: color-mix(in srgb, var(--background) 88%, var(--foreground));
     --nav-hover-fg: var(--foreground);
-    --input-background: color-mix(in srgb, var(--background) 75%, #000000);
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+
+    --input-background: color-mix(in srgb, var(--background) 80%, #000000);
+    --input-border: oklch(from var(--border) calc(l - 0.05) c h);
+
+    /* Alias for form control background (shadcn compatibility) */
     --input: var(--input-background);
 
     /* HTTP Method Badges (Dark Mode: High Vibrancy) */
@@ -290,28 +314,44 @@ export default css`
     --code-operator-color: var(--syntax-operator);
   }
 
-  /* --- 3B. Light Mode Surfaces --- */
+  /* --------- 3B. LIGHT  --------- */
   :host([color-scheme='light']) {
     /* Surfaces */
     --background: #ffffff;
-    --foreground: #555555;
-    --card: #f4f4f5;
-    --card-foreground: #555555;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --border: #e4e4e7;
-    --nav-hover-bg: color-mix(in srgb, var(--background) 95%, #000000);
-    --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
+    --foreground: #444444;
+
+    /* Card Vars:
+      card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
+      card-foreground : Text & icon color on elevated surfaces
+    */
+    --card: color-mix(in srgb, var(--background) 96%, var(--foreground));
+    --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+
+    /* Muted Vars:
+      muted (bg)       : input tags, secondary buttons, table footers, and code backgrounds
+      muted-foreground : inactive tabs, parameter descriptions, schema constraints, and timestamps
+    */
+    --muted: color-mix(in srgb, var(--background) 94%, var(--foreground));
+    --muted-foreground: color-mix(in srgb, var(--foreground) 60%, var(--background));
+
+    /* Border Vars:
+      border: dividing lines for tables, cards, sections, and panels
+    */
+    --border: color-mix(in srgb, var(--background) 88%, var(--foreground));
+
+    --nav-hover-bg: color-mix(in srgb, var(--background) 92%, var(--foreground));
     --nav-hover-fg: var(--foreground);
-    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
+
+    --input-background: color-mix(in srgb, var(--background) 96%, var(--foreground));
+    --input-border: color-mix(in srgb, var(--border) 75%, var(--foreground));
+    /* Alias for form control background (shadcn compatibility) */
     --input: var(--input-background);
 
     /* HTTP Method Badges (Light Mode: High Contrast) */
-    --method-get: #2563eb;
-    --method-post: #059669;
+    --method-get: #099cff;
+    --method-post: #2da963;
     --method-put: #c2410c;
-    --method-delete: #dc2626;
+    --method-delete: #fd2c4fff;
     --method-patch: #7c3aed;
     --method-head: #b45309;
     --method-options: #0e7490;
@@ -356,13 +396,13 @@ export default css`
     --code-operator-color: var(--syntax-operator);
   }
 
-  /* --- 3C. System Mode Dynamic Surfaces --- */
+  /* --------- 3C. SYSTEM --------- */
   @media (prefers-color-scheme: light) {
     :host([color-scheme='system']) {
       --background: #ffffff;
-      --foreground: #555555;
+      --foreground: #333333;
       --card: #f4f4f5;
-      --card-foreground: #555555;
+      --card-foreground: #444444;
       --muted: #f4f4f5;
       --muted-foreground: #71717a;
       --border: #e4e4e7;
@@ -423,78 +463,88 @@ export default css`
      4. BRAND THEME PRESETS (theme)
      ========================================================================= */
 
-  /* --- Preset 1: AMBER (Default) --- */
+  /* --------- 1. AMBER (Default) --------- */
   :host,
   :host([theme='amber']),
   :host(:not([theme])) {
     --primary: #f76b39;
     --primary-foreground: #000000;
-    --foreground: #cccccc;
-    --ring: #f76b39;
-    --_preset-bg: oklch(0.2613 0.0134 272.84);
-    --_preset-card: oklch(0.2613 0.0134 272.84);
-    --_preset-border: #363636ff;
   }
   :host([theme='amber'][color-scheme='light']),
   :host(:not([theme])[color-scheme='light']) {
     --primary: #f76b39;
     --primary-foreground: #000000;
-    --foreground: #333333;
-    --ring: #d97706;
   }
 
-  /* --- Preset 2: BLUE --- */
+  /* --------- 2. BLUE --------- */
   :host([theme='blue']) {
     --primary: #488bf8ff;
     --primary-foreground: #ffffff;
     --ring: #488bf8ff;
-    --_preset-bg: #1c1b1bff;
-    --_preset-fg: #e5e5e5;
-    --_preset-border: #414146ff;
+    --background: #1c1b1bff;
+    --foreground: #e5e5e5;
+    --border: #414146ff;
   }
   :host([theme='blue'][color-scheme='light']) {
     --primary: #2563eb;
     --primary-foreground: #ffffff;
+    --foreground: #333333;
+    --background: #ffffff;
+    --card: #f4f4f5;
+    --card-foreground: #444444;
+    --border: #e4e4e7;
     --ring: #2563eb;
   }
 
-  /* --- Preset 3: EMERALD --- */
+  /* --------- 3. EMERALD --------- */
   :host([theme='emerald']) {
     --primary: #03bf80ff;
     --primary-foreground: #0f331dff;
     --ring: #03bf80ff;
-    --_preset-bg: #060913;
-    --_preset-fg: #e2e8f0;
-    --_preset-card: #0f172a;
-    --_preset-card-fg: #f8fafc;
-    --_preset-muted: #111827;
-    --_preset-border: #242c29ff;
+    --background: #060913;
+    --foreground: #e2e8f0;
+    --card: #0f172a;
+    --card-foreground: #f8fafc;
+    --muted: #111827;
+    --border: #242c29ff;
   }
   :host([theme='emerald'][color-scheme='light']) {
     --primary: #059669;
     --primary-foreground: #ffffff;
+    --foreground: #333333;
+    --background: #ffffff;
+    --card: #f4f4f5;
+    --card-foreground: #444444;
+    --muted: #f4f4f5;
+    --border: #e4e4e7;
     --ring: #059669;
   }
 
-  /* --- Preset 4: VIOLET --- */
+  /* --------- 4. VIOLET --------- */
   :host([theme='violet']) {
     --primary: #8b5cf6;
     --primary-foreground: #ffffff;
     --ring: #8b5cf6;
-    --_preset-bg: #130e20;
-    --_preset-fg: #f5f3ff;
-    --_preset-card: #1e1633;
-    --_preset-card-fg: #f5f3ff;
-    --_preset-muted: #19122b;
-    --_preset-border: #342854;
+    --background: #130e20;
+    --foreground: #f5f3ff;
+    --card: #1e1633;
+    --card-foreground: #f5f3ff;
+    --muted: #19122b;
+    --border: #342854;
   }
   :host([theme='violet'][color-scheme='light']) {
     --primary: #7c3aed;
     --primary-foreground: #ffffff;
+    --foreground: #333333;
+    --background: #ffffff;
+    --card: #f4f4f5;
+    --card-foreground: #444444;
+    --muted: #f4f4f5;
+    --border: #e4e4e7;
     --ring: #7c3aed;
   }
 
-  /* --- Preset 5: GRAPHITE --- */
+  /* --------- 5. GRAPHITE --------- */
   :host([theme='graphite']) {
     --primary: #fafafa;
     --primary-foreground: #18181b;
@@ -504,24 +554,33 @@ export default css`
     --primary: #18181b;
     --primary-foreground: #fafafa;
     --foreground: #111111;
+    --background: #ffffff;
+    --card: #f4f4f5;
+    --card-foreground: #444444;
+    --border: #e4e4e7;
     --muted-foreground: #222222;
     --ring: #27272a;
   }
 
-  /* --- Preset 6: ROSE --- */
+  /* --------- 6. ROSE --------- */
   :host([theme='rose']) {
     --primary: #ee5d7cff;
     --ring: #ee5d7cff;
-    --_preset-bg: oklch(0.2613 0.0134 272.84);
-    --_preset-card: oklch(0.2613 0.0134 272.84);
+    --background: oklch(0.2613 0.0134 272.84);
+    --card: oklch(0.2613 0.0134 272.84);
   }
   :host([theme='rose'][color-scheme='light']) {
     --primary: #e11d48;
     --primary-foreground: #ffffff;
+    --foreground: #333333;
+    --background: #ffffff;
+    --card: #f4f4f5;
+    --card-foreground: #444444;
+    --border: #e4e4e7;
     --ring: #e11d48;
   }
 
-  /* --- Preset 7: SLATE --- */
+  /* --------- 7. SLATE --------- */
   :host([theme='slate']) {
     --primary: #64748b;
     --primary-foreground: #ffffff;
@@ -531,6 +590,11 @@ export default css`
   :host([theme='slate'][color-scheme='light']) {
     --primary: #475569;
     --primary-foreground: #ffffff;
+    --foreground: #333333;
+    --background: #ffffff;
+    --card: #f4f4f5;
+    --card-foreground: #444444;
+    --border: #e4e4e7;
     --ring: #475569;
   }
 

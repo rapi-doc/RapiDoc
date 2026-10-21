@@ -46,37 +46,38 @@ export default class JsonTree extends LitElement {
           cursor: pointer;
           border: 1px solid transparent;
           border-radius: var(--card-radius);
+
+          &:hover {
+            color: var(--primary);
+            border: 1px solid var(--border);
+          }
+
+          &.expanded:hover ~ .inside-bracket {
+            border-left: 1px solid var(--muted-foreground);
+          }
+          &.expanded:hover ~ .close-bracket {
+            color: var(--primary);
+          }
+          &.collapsed + .inside-bracket,
+          &.collapsed + .inside-bracket + .close-bracket {
+            display: none;
+          }
+          &.expanded .open-bracket-collapsed {
+            display: none;
+          }
+          &.collapsed .open-bracket-expanded {
+            display: none;
+          }
         }
         .close-bracket {
           border: 1px solid transparent;
           border-radius: var(--card-radius);
           display: inline-block;
         }
-        .open-bracket:hover {
-          color: var(--primary);
-          background: var(--muted);
-          border: 1px solid var(--border);
-        }
-        .open-bracket.expanded:hover ~ .inside-bracket {
-          border-left: 1px solid var(--muted-foreground);
-        }
-        .open-bracket.expanded:hover ~ .close-bracket {
-          color: var(--primary);
-        }
         .inside-bracket {
           padding-left: 12px;
           overflow: hidden;
           border-left: 1px dotted var(--border);
-        }
-        .open-bracket.collapsed + .inside-bracket,
-        .open-bracket.collapsed + .inside-bracket + .close-bracket {
-          display: none;
-        }
-        .open-bracket.expanded .open-bracket-collapsed {
-          display: none;
-        }
-        .open-bracket.collapsed .open-bracket-expanded {
-          display: none;
         }
 
         .string {
