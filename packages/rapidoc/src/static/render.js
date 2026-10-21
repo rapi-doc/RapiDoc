@@ -4,13 +4,42 @@
  * Runs seamlessly in Node.js >= 22, Bun, Astro, Nuxt, Next.js, and custom SSG scripts.
  */
 
-// Minimal polyfill for customElements registry in pure Node/Bun environments
+// Safe idempotent customElements registry in pure Node/Bun/SSR environments
 if (typeof globalThis.customElements === 'undefined') {
+  const registry = new Map();
   globalThis.customElements = {
-    define: () => {},
-    get: () => undefined,
+    define: (name, constructor) => {
+      registry.set(name, constructor);
+    },
+    get: (name) => registry.get(name),
     whenDefined: () => Promise.resolve(),
   };
+} else if (globalThis.customElements && !globalThis.customElements.__safeDefinePatched) {
+  const origDefine = globalThis.customElements.define;
+  globalThis.customElements.define = function (name, constructor, options) {
+    if (!this.get(name)) {
+      try {
+        origDefine.call(this, name, constructor, options);
+      } catch {
+        // Safe fallback if already registered in registry
+      }
+    }
+  };
+  globalThis.customElements.__safeDefinePatched = true;
+}
+
+if (typeof CustomElementRegistry !== 'undefined' && !CustomElementRegistry.prototype.__safeDefinePatched) {
+  const origProtoDefine = CustomElementRegistry.prototype.define;
+  CustomElementRegistry.prototype.define = function (name, constructor, options) {
+    if (!this.get(name)) {
+      try {
+        origProtoDefine.call(this, name, constructor, options);
+      } catch {
+        // Safe fallback if already registered in registry
+      }
+    }
+  };
+  CustomElementRegistry.prototype.__safeDefinePatched = true;
 }
 
 import ProcessSpec from '../utils/spec-parser.js';

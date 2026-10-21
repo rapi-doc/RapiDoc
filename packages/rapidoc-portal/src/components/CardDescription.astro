@@ -1,0 +1,6 @@
+---
+const { class: className = '', ...props } = Astro.props;
+---
+<p class:list={['portal-card-desc text-sm text-[var(--sl-color-gray-2,#a0aec0)] m-0 leading-normal', className]} {...props}>
+  <slot />
+</p>

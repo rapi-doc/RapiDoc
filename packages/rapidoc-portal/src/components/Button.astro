@@ -1,0 +1,75 @@
+---
+interface Props {
+  variant?: 'default' | 'outline' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  to?: string;
+  class?: string;
+  [key: string]: any;
+}
+
+const { variant = 'default', size = 'md', href, to, class: className = '', ...rest } = Astro.props;
+const targetHref = href || to;
+const Tag = targetHref ? 'a' : 'button';
+---
+
+<Tag
+  href={targetHref}
+  class={`portal-button portal-button--${variant} portal-button--${size} ${className}`}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .portal-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.925rem;
+    padding: 0.55rem 1.15rem;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    line-height: 1.4;
+  }
+  .portal-button--default {
+    background: var(--sl-color-accent, #f76b39);
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  }
+  .portal-button--default:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    color: #ffffff;
+  }
+  .portal-button--outline {
+    background: transparent;
+    border-color: var(--sl-color-hairline, #334155);
+    color: var(--sl-color-white, #ffffff);
+  }
+  .portal-button--outline:hover {
+    border-color: var(--sl-color-accent, #f76b39);
+    color: var(--sl-color-accent, #f76b39);
+    background: rgba(247, 107, 57, 0.08);
+  }
+  .portal-button--secondary {
+    background: #1e293b;
+    color: #f1f5f9;
+  }
+  .portal-button--secondary:hover {
+    background: #334155;
+  }
+  .portal-button--sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  .portal-button--lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.05rem;
+  }
+</style>

@@ -1,0 +1,28 @@
+---
+interface Props {
+  title?: string;
+  icon?: string;
+  class?: string;
+}
+
+const { title, icon, class: className = '', ...props } = Astro.props;
+---
+
+<div class:list={['portal-card p-5 my-4 rounded-xl border border-[var(--sl-color-hairline,#2d3748)] bg-[var(--sl-color-gray-6,#161e2e)]', className]} {...props}>
+  {title && (
+    <h4 class="portal-card-title text-lg font-bold text-[var(--sl-color-white,#fff)] mb-2 flex items-center gap-2">
+      {icon && <span>{icon}</span>}
+      <span>{title}</span>
+    </h4>
+  )}
+  <slot />
+</div>
+
+<style>
+  .portal-card {
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .portal-card:hover {
+    border-color: var(--sl-color-accent, #f76b39);
+  }
+</style>

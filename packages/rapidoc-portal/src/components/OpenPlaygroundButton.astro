@@ -1,0 +1,47 @@
+---
+interface Props {
+  server?: string;
+  url?: string;
+  method?: string;
+  [key: string]: any;
+}
+
+const { server, url, method = 'GET', ...rest } = Astro.props;
+const target = url || server || '/catalog';
+---
+
+<a href={target} class="portal-playground-btn" {...rest}>
+  <span class="method-tag">{method}</span>
+  <slot>Try in API Playground &rarr;</slot>
+</a>
+
+<style>
+  .portal-playground-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .portal-playground-btn:hover {
+    border-color: var(--sl-color-accent, #f76b39);
+    background: #0f172a;
+    color: var(--sl-color-accent, #f76b39);
+  }
+  .method-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: rgba(247, 107, 57, 0.2);
+    color: var(--sl-color-accent, #f76b39);
+    text-transform: uppercase;
+  }
+</style>

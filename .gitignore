@@ -2,7 +2,9 @@
 node_modules
 .astro/
 dist/
+dist-astro/
 docs/dist/
+.portal-engine/
 stats.html
 prerender-demo.html
 

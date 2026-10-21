@@ -1,0 +1,63 @@
+---
+interface Props {
+  text?: string;
+  variant?: 'default' | 'note' | 'danger' | 'success' | 'caution' | 'tip' | 'secondary' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+  [key: string]: any;
+}
+
+const { text, variant = 'default', size = 'sm', class: className = '', ...rest } = Astro.props;
+
+// Map non-standard variants
+let normalizedVariant = variant;
+if (variant === 'secondary') normalizedVariant = 'default';
+if (variant === 'warning') normalizedVariant = 'caution';
+---
+
+<span class={`sl-badge ${normalizedVariant} ${size} ${className}`} {...rest}>
+  {text ? text : <slot />}
+</span>
+
+<style>
+  .sl-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--sl-text-xs, 0.75rem);
+    font-weight: 600;
+    line-height: 1;
+    padding: 0.2rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid var(--sl-color-border, #334155);
+    background-color: var(--sl-color-bg, #1e293b);
+    color: var(--sl-color-text, #f1f5f9);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .sl-badge.default {
+    background-color: rgba(247, 107, 57, 0.15);
+    border-color: rgba(247, 107, 57, 0.3);
+    color: var(--sl-color-accent, #f76b39);
+  }
+  .sl-badge.tip, .sl-badge.success {
+    background-color: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+  }
+  .sl-badge.caution {
+    background-color: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+  }
+  .sl-badge.danger {
+    background-color: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+  .sl-badge.note {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+  }
+</style>

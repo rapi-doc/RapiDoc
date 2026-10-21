@@ -6,7 +6,8 @@
 :root,
 [data-theme='dark'] {
   /* Typography Tokens */
-  --font-regular: var(--font-sans, 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif);
+  --font-sans: 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif;
+  --font-regular: var(--font-sans);
   --font-mono: 'Roboto Mono', Monaco, 'Andale Mono', Consolas, monospace;
 
   /* Geometry & Scale */

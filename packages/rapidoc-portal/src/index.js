@@ -16,3 +16,10 @@ export { compileMarkdoc, compileDocFile, createMarkdocConfig, tags as markdocTag
 export { generateShell } from './shell/index.js';
 export { buildPortal } from './build/index.js';
 export { stripMarkup, extractDocSections, indexOpenApiSpec, buildSearchIndex, searchRecords } from './search/index.js';
+export {
+  buildStarlightSidebar,
+  createStarlightConfig,
+  prepareAstroWorkspace,
+  buildPortalWithAstro,
+  devPortalWithAstro,
+} from './astro/index.js';

@@ -1,0 +1,23 @@
+---
+import { Aside } from '@astrojs/starlight/components';
+
+interface Props {
+  type?: 'note' | 'tip' | 'caution' | 'danger' | 'warning' | 'info' | 'success';
+  title?: string;
+  [key: string]: any;
+}
+
+const { type = 'note', title, ...rest } = Astro.props;
+
+let normalizedType: 'note' | 'tip' | 'caution' | 'danger' = 'note';
+if (type === 'warning') normalizedType = 'caution';
+else if (type === 'info') normalizedType = 'note';
+else if (type === 'success') normalizedType = 'tip';
+else if (['note', 'tip', 'caution', 'danger'].includes(type)) {
+  normalizedType = type as any;
+}
+---
+
+<Aside type={normalizedType} title={title} {...rest}>
+  <slot />
+</Aside>

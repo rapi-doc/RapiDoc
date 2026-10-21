@@ -1,0 +1,55 @@
+---
+interface Props {
+  sector?: string;
+  [key: string]: any;
+}
+
+const { sector, ...rest } = Astro.props;
+const label = sector ? `Space Warning (Sector ${sector})` : 'Space Warning';
+---
+
+<aside class="space-warning-callout" {...rest}>
+  <div class="space-warning-header">
+    <svg class="space-warning-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+    </svg>
+    <span class="space-warning-title">{label}</span>
+  </div>
+  <div class="space-warning-content">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .space-warning-callout {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    border: 1px solid #f59e0b;
+    background: rgba(245, 158, 11, 0.08);
+    color: #fef3c7;
+  }
+  .space-warning-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: #f59e0b;
+    margin-bottom: 0.5rem;
+  }
+  .space-warning-icon {
+    flex-shrink: 0;
+  }
+  .space-warning-title {
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+  }
+  .space-warning-content {
+    font-size: 0.925rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+  }
+  .space-warning-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>
