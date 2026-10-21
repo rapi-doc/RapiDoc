@@ -33,14 +33,29 @@ const title = logo.text || site.title || 'Developer Portal';
 const icon = logo.icon || '🚀';
 const logoHref = logo.href || '/';
 
-// Normalize header links
-let headerLinks = site.headerLinks || [];
+// Normalize header links according to priority:
+// 1. Documentation
+// 2. API Catalog
+// 3. Highlighted / Pinned APIs (1 to 3 APIs)
+// 4. Dropdown menus (Solutions, Products, etc.)
+// 5. Utilities (Login, etc.)
+const configFeaturedIds = site.featuredApis || site.highlightedApis || site.pinnedApis || [];
+const pinnedApis = (config?.apis || []).filter(
+  (a: any) => a.featured || a.highlighted || a.pinned || configFeaturedIds.includes(a.id)
+).slice(0, 3);
+
+let headerLinks = site.headerLinks;
 if (!headerLinks || headerLinks.length === 0) {
   headerLinks = [
-    { label: 'Shipment API', href: '/apis/shipments' },
     { label: 'Documentation', href: '/docs/documentation' },
     { label: 'API Catalog', href: '/catalog' },
   ];
+  pinnedApis.forEach((a: any) => {
+    headerLinks.push({
+      label: a.title || a.id,
+      href: a.path || `/apis/${a.id}`,
+    });
+  });
   if (config?.apis && config.apis.length > 0) {
     headerLinks.push({
       label: 'APIs',
@@ -52,6 +67,12 @@ if (!headerLinks || headerLinks.length === 0) {
       })),
     });
   }
+} else {
+  // If user provided headerLinks, ensure Documentation is present
+  const hasDocLink = headerLinks.some((l: any) => l.href?.includes('/docs') || l.label?.toLowerCase().includes('doc'));
+  if (!hasDocLink) {
+    headerLinks = [{ label: 'Documentation', href: '/docs/documentation' }, ...headerLinks];
+  }
 }
 
 const currentPath = Astro.url?.pathname || '/';
@@ -60,6 +81,10 @@ const currentPath = Astro.url?.pathname || '/';
 <header class="portal-header-root">
   <script is:inline>
     try {
+      const navEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      if (navEntry && navEntry.type === 'reload') {
+        sessionStorage.removeItem('portal-announcement-dismissed');
+      }
       if (sessionStorage.getItem('portal-announcement-dismissed') === 'true') {
         document.documentElement.classList.add('portal-announcement-dismissed');
       }
@@ -380,6 +405,8 @@ const currentPath = Astro.url?.pathname || '/';
   /* Dropdown Trigger */
   .portal-dropdown-wrapper {
     position: relative;
+    display: inline-flex;
+    align-items: center;
   }
   .portal-dropdown-trigger {
     display: flex;
@@ -415,13 +442,15 @@ const currentPath = Astro.url?.pathname || '/';
   /* Mega-Menu Panel (Cypress.io Aesthetic) */
   .portal-megamenu-panel {
     position: absolute;
-    top: calc(100% + 8px);
+    top: 100%;
     left: 0;
     width: 720px;
+    max-width: min(720px, calc(100vw - 2rem));
     background: var(--ph-surface, #111827);
     border: 1px solid var(--ph-border);
     border-radius: 16px;
     padding: 1.25rem 1.5rem;
+    margin-top: 6px;
     box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -433,6 +462,17 @@ const currentPath = Astro.url?.pathname || '/';
     pointer-events: none;
   }
 
+  /* Invisible hover bridge connecting trigger to panel to prevent closing on mouse move */
+  .portal-megamenu-panel::before {
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background: transparent;
+  }
+
   /* Show panel on hover or clicked open */
   .portal-dropdown-wrapper:hover .portal-megamenu-panel,
   .portal-dropdown-wrapper.is-open .portal-megamenu-panel {
@@ -442,12 +482,11 @@ const currentPath = Astro.url?.pathname || '/';
     pointer-events: auto;
   }
 
-  /* Anti-overlap rule: When hovering any nav link or trigger, un-hovered panels MUST be hidden */
-  .portal-nav-menu:hover .portal-dropdown-wrapper.is-open:not(:hover) .portal-megamenu-panel {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    transform: translateY(6px) !important;
+  /* Sibling suppression: only suppress when ANOTHER dropdown wrapper is actively hovered */
+  .portal-nav-menu:has(.portal-dropdown-wrapper:hover) .portal-dropdown-wrapper.is-open:not(:hover) .portal-megamenu-panel {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   /* Cypress Sectioned Layout */
@@ -830,6 +869,18 @@ const currentPath = Astro.url?.pathname || '/';
             const btn = w.querySelector('.portal-dropdown-trigger');
             if (btn) btn.setAttribute('aria-expanded', 'false');
           }
+        });
+      });
+    });
+
+    // When hovering direct links, close any open dropdowns
+    const directLinks = document.querySelectorAll('.portal-nav-link');
+    directLinks.forEach((link) => {
+      link.addEventListener('mouseenter', () => {
+        wrappers.forEach((w) => {
+          w.classList.remove('is-open');
+          const btn = w.querySelector('.portal-dropdown-trigger');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
         });
       });
     });

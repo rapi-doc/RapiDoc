@@ -523,7 +523,10 @@ const configPath = path.resolve(process.cwd(), 'rapidoc.portal.json');
 const portalConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 const site = portalConfig.site || {};
 const apis = portalConfig.apis || [];
-const featuredApis = apis.slice(0, 6);
+const configFeaturedIds = site.featuredApis || site.highlightedApis || site.pinnedApis || [];
+const highlightedApis = apis.filter((a) => a.featured || a.highlighted || a.pinned || configFeaturedIds.includes(a.id));
+const firstHighlightedApi = highlightedApis[0];
+const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice(1) : apis.slice(0, 6);
 ---
 
 <!doctype html>
@@ -539,7 +542,9 @@ const featuredApis = apis.slice(0, 6);
         background-color: var(--portal-bg, #0b0f19);
         color: var(--portal-fg, #f8fafc);
         font-family: var(--sl-font-system, system-ui, sans-serif);
-        overflow-x: hidden;
+      }
+      main {
+        overflow-x: clip;
       }
 
       /* Hero Section */
@@ -837,15 +842,18 @@ const featuredApis = apis.slice(0, 6);
         </p>
 
         <div class="landing-cta-group">
-          <a href="/apis/shipments" class="landing-btn-primary">
-            <span>Explore Shipment API &rarr;</span>
+          <a href="/docs/documentation" class="landing-btn-primary">
+            <span>Read Docs</span>
+            <span>&rarr;</span>
           </a>
           <a href="/catalog" class="landing-btn-secondary">
-            <span>Browse API Catalog</span>
+            <span>API Catalog</span>
           </a>
-          <a href="/docs/shipping-process" class="landing-btn-secondary">
-            <span>Read Docs</span>
-          </a>
+          {firstHighlightedApi && (
+            <a href={firstHighlightedApi.path || \`/apis/\${firstHighlightedApi.id}\`} class="landing-btn-secondary">
+              <span>{firstHighlightedApi.title || firstHighlightedApi.id} Reference</span>
+            </a>
+          )}
         </div>
 
         <!-- Live Code Card -->
@@ -916,7 +924,7 @@ const featuredApis = apis.slice(0, 6);
         </div>
 
         <div class="apis-grid">
-          {featuredApis.map((api) => (
+          {remainingFeaturedApis.map((api) => (
             <a href={api.path || \`/apis/\${api.id}\`} class="landing-api-card">
               <div class="landing-api-badge">{api.category || 'Core'}</div>
               <h3 class="landing-api-title">{api.title || \`\${api.id} API\`}</h3>
