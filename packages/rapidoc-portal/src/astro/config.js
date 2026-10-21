@@ -38,6 +38,14 @@ function generateStarlightCustomCss(primaryColor = '#f76b39', themePreset = 'amb
   overflow: hidden;
   margin: 1.5rem 0;
 }
+
+/* Seamless PortalHeader integration in Starlight */
+header.header {
+  padding: 0 !important;
+  height: auto !important;
+  background: transparent !important;
+  border-bottom: none !important;
+}
 `;
 }
 

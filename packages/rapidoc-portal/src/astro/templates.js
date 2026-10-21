@@ -16,6 +16,9 @@ export default defineConfig({
       title: ${JSON.stringify(siteTitle)},
       disable404Route: true,
       sidebar: ${sidebarConfigJson},
+      components: {
+        Header: './src/components/PortalHeader.astro',
+      },
       customCss: ['./src/styles/starlight-custom.css'],
       expressiveCode: {
         themes: ['github-dark', 'github-light'],
@@ -52,6 +55,7 @@ export const collections = {
 export function generateApiRouteAstro() {
   return `---
 import '../styles/starlight-custom.css';
+import PortalHeader from '../components/PortalHeader.astro';
 import { getNavBarHtml, getNavCss, getThemeTokensCss, toKebabCase } from 'rapidoc/static';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -189,62 +193,12 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
         display: flex;
         flex-direction: column;
       }
-      .rapidoc-top-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 1.5rem;
-        height: 54px;
-        flex-shrink: 0;
-        box-sizing: border-box;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--border, #2d3748);
-        position: relative;
-        z-index: 50;
-      }
-      .rapidoc-top-left {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-      .brand-link {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #ffffff;
-        text-decoration: none;
-      }
-      .breadcrumb-separator {
-        color: #64748b;
-      }
-      .current-api-title {
-        color: var(--primary, #f76b39);
-        font-weight: 600;
-      }
-      .rapidoc-top-right {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-      }
-      .top-nav-link {
-        color: #cbd5e1;
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: color 0.15s ease;
-      }
-      .top-nav-link:hover {
-        color: #ffffff;
-      }
       .portal-container {
         display: grid;
         grid-template-columns: 280px minmax(0, 1fr);
         flex: 1 1 0%;
         min-height: 0;
-        height: calc(100vh - 54px);
+        height: 100%;
         overflow: hidden;
         width: 100%;
       }
@@ -293,20 +247,7 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
     </style>
   </head>
   <body>
-    <header class="rapidoc-top-bar">
-      <div class="rapidoc-top-left">
-        <a href="/" class="brand-link">
-          {portalConfig.site?.logo?.icon && <span>{portalConfig.site.logo.icon}</span>}
-          <span>{portalConfig.site?.title || 'Developer Portal'}</span>
-        </a>
-        <span class="breadcrumb-separator">/</span>
-        <span class="current-api-title">{api.title || api.id}</span>
-      </div>
-      <div class="rapidoc-top-right">
-        <a href="/catalog" class="top-nav-link">API Catalog</a>
-        <a href="/docs/documentation" class="top-nav-link">Documentation</a>
-      </div>
-    </header>
+    <PortalHeader portalConfig={portalConfig} />
 
     <div class="portal-container">
       <aside class="portal-sidebar nav-bar" aria-label="API Navigation">
@@ -415,6 +356,8 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
 
 export function generateCatalogAstro() {
   return `---
+import '../styles/starlight-custom.css';
+import PortalHeader from '../components/PortalHeader.astro';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -436,7 +379,6 @@ for (const api of apis) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>API Catalog — {portalConfig.site?.title || 'Developer Portal'}</title>
-    <link rel="stylesheet" href="/src/styles/starlight-custom.css" />
     <style>
       html, body {
         margin: 0;
@@ -444,37 +386,6 @@ for (const api of apis) {
         background-color: var(--sl-color-black, #0f172a);
         color: var(--sl-color-white, #ffffff);
         font-family: var(--sl-font-system, system-ui, sans-serif);
-      }
-      .catalog-top-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem 1.5rem;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--sl-color-hairline, #2d3748);
-        position: sticky;
-        top: 0;
-        z-index: 50;
-      }
-      .brand-link {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #ffffff;
-        text-decoration: none;
-      }
-      .top-nav-link {
-        color: #cbd5e1;
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        margin-left: 1.25rem;
-      }
-      .top-nav-link:hover {
-        color: #ffffff;
       }
       .catalog-container {
         max-width: 1200px;
@@ -562,16 +473,7 @@ for (const api of apis) {
     </style>
   </head>
   <body>
-    <header class="catalog-top-bar">
-      <a href="/" class="brand-link">
-        {portalConfig.site?.logo?.icon && <span>{portalConfig.site.logo.icon}</span>}
-        <span>{portalConfig.site?.title || 'Developer Portal'}</span>
-      </a>
-      <nav>
-        <a href="/catalog" class="top-nav-link" style="color: var(--sl-color-accent, #f76b39);">API Catalog</a>
-        <a href="/docs/documentation" class="top-nav-link">Documentation</a>
-      </nav>
-    </header>
+    <PortalHeader portalConfig={portalConfig} />
 
     <div class="catalog-container">
       <div class="catalog-hero">

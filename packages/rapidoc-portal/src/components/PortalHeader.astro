@@ -9,9 +9,16 @@ interface Props {
 let config = Astro.props.portalConfig;
 if (!config) {
   try {
-    const configPath = path.resolve(process.cwd(), 'rapidoc.portal.json');
-    if (fs.existsSync(configPath)) {
-      config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    const candidatePaths = [
+      path.resolve(process.cwd(), 'rapidoc.portal.json'),
+      path.resolve(process.cwd(), '.rapidoc', 'rapidoc.portal.json'),
+      path.resolve(process.cwd(), '..', 'rapidoc.portal.json'),
+    ];
+    for (const p of candidatePaths) {
+      if (fs.existsSync(p)) {
+        config = JSON.parse(fs.readFileSync(p, 'utf8'));
+        break;
+      }
     }
   } catch {
     config = {};
@@ -203,11 +210,17 @@ const currentPath = Astro.url?.pathname || '/';
 <style is:global>
   /* Announcement Bar */
   .portal-header-root {
+    --ph-bg: var(--background, var(--sl-color-bg, #0f172a));
+    --ph-fg: var(--foreground, var(--sl-color-text, #ffffff));
+    --ph-muted: var(--muted-foreground, var(--sl-color-gray-3, #94a3b8));
+    --ph-primary: var(--primary, var(--sl-color-accent, #f76b39));
+    --ph-border: var(--border, var(--sl-color-hairline, rgba(255, 255, 255, 0.12)));
     width: 100%;
     position: sticky;
     top: 0;
     z-index: 100;
     flex-shrink: 0;
+    font-family: var(--font-regular, var(--sl-font-system, system-ui, sans-serif));
   }
   .portal-announcement-bar {
     display: flex;
@@ -249,10 +262,10 @@ const currentPath = Astro.url?.pathname || '/';
     align-items: center;
     justify-content: space-between;
     padding: 0 1.5rem;
-    background-color: color-mix(in srgb, var(--background, #0f172a) 90%, transparent);
+    background-color: color-mix(in srgb, var(--ph-bg) 92%, transparent);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    border-bottom: 1px solid var(--ph-border);
     box-sizing: border-box;
   }
 
@@ -336,7 +349,8 @@ const currentPath = Astro.url?.pathname || '/';
     transition: transform 0.2s ease;
   }
   .portal-dropdown-wrapper:hover .portal-chevron,
-  .portal-dropdown-wrapper:focus-within .portal-chevron {
+  .portal-dropdown-wrapper:focus-within .portal-chevron,
+  .portal-dropdown-wrapper.is-open .portal-chevron {
     transform: rotate(180deg);
   }
 
@@ -346,8 +360,8 @@ const currentPath = Astro.url?.pathname || '/';
     top: calc(100% + 8px);
     left: 0;
     width: 360px;
-    background: color-mix(in srgb, var(--background, #0f172a) 96%, #000000);
-    border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+    background: color-mix(in srgb, var(--ph-bg) 96%, #000000);
+    border: 1px solid var(--ph-border);
     border-radius: 12px;
     padding: 0.75rem;
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -363,7 +377,8 @@ const currentPath = Astro.url?.pathname || '/';
     width: 640px;
   }
   .portal-dropdown-wrapper:hover .portal-megamenu-panel,
-  .portal-dropdown-wrapper:focus-within .portal-megamenu-panel {
+  .portal-dropdown-wrapper:focus-within .portal-megamenu-panel,
+  .portal-dropdown-wrapper.is-open .portal-megamenu-panel {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -640,13 +655,49 @@ const currentPath = Astro.url?.pathname || '/';
         if (slSearch) {
           slSearch.click();
         } else {
-          // Fallback event
-          window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
+          // Check for rapi-doc search dialog
+          const rapiDoc = document.querySelector('rapi-doc');
+          if (rapiDoc && typeof rapiDoc.openSearchDialog === 'function') {
+            rapiDoc.openSearchDialog();
+          } else {
+            // Trigger ⌘K keyboard shortcut
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
+          }
         }
       });
     }
 
-    // 4. Mobile Menu Toggle
+    // 4. Dropdown triggers (click toggle for touch/keyboard)
+    document.querySelectorAll('.portal-dropdown-trigger').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wrapper = btn.closest('.portal-dropdown-wrapper');
+        if (!wrapper) return;
+        const wasOpen = wrapper.classList.contains('is-open');
+        document.querySelectorAll('.portal-dropdown-wrapper.is-open').forEach((w) => {
+          w.classList.remove('is-open');
+          const b = w.querySelector('.portal-dropdown-trigger');
+          if (b) b.setAttribute('aria-expanded', 'false');
+        });
+        if (!wasOpen) {
+          wrapper.classList.add('is-open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    // Close open dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.portal-dropdown-wrapper')) {
+        document.querySelectorAll('.portal-dropdown-wrapper.is-open').forEach((w) => {
+          w.classList.remove('is-open');
+          const btn = w.querySelector('.portal-dropdown-trigger');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
+
+    // 5. Mobile Menu Toggle
     const mobileBtn = document.getElementById('portal-mobile-menu-btn');
     const mobileDrawer = document.getElementById('portal-mobile-drawer');
     if (mobileBtn && mobileDrawer) {
