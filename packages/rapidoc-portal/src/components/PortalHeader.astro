@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import DualToneIcon from './DualToneIcon.astro';
+import PortalSearchModal from './PortalSearchModal.astro';
 
 interface Props {
   portalConfig?: any;
@@ -282,16 +283,18 @@ const currentPath = Astro.url?.pathname || '/';
   </div>
 </header>
 
+<PortalSearchModal portalConfig={config} />
+
 <style is:global>
   /* Header Container */
   .portal-header-root {
-    --ph-bg: var(--portal-bg, #0b0f19);
-    --ph-surface: var(--portal-surface, #111827);
-    --ph-fg: var(--portal-fg, #f8fafc);
-    --ph-muted: var(--portal-muted, #94a3b8);
+    --ph-bg: var(--portal-bg, oklch(0.2613 0.0134 272.84));
+    --ph-surface: var(--portal-surface, oklch(0.2613 0.0134 272.84));
+    --ph-fg: var(--portal-fg, #cccccc);
+    --ph-muted: var(--portal-muted, #8b949e);
     --ph-primary: var(--portal-primary, #f76b39);
-    --ph-border: var(--portal-border, rgba(255, 255, 255, 0.08));
-    --ph-border-subtle: var(--portal-border-subtle, rgba(255, 255, 255, 0.04));
+    --ph-border: var(--portal-border, #363636);
+    --ph-border-subtle: var(--portal-border-subtle, rgba(255, 255, 255, 0.06));
 
     width: 100%;
     position: sticky;
@@ -441,12 +444,13 @@ const currentPath = Astro.url?.pathname || '/';
 
   /* Mega-Menu Panel (Cypress.io Aesthetic) */
   .portal-megamenu-panel {
+    display: none;
     position: absolute;
     top: 100%;
     left: 0;
-    width: 720px;
-    max-width: min(720px, calc(100vw - 2rem));
-    background: var(--ph-surface, #111827);
+    width: 680px;
+    max-width: min(680px, calc(100vw - 2rem));
+    background: var(--ph-surface, oklch(0.2613 0.0134 272.84));
     border: 1px solid var(--ph-border);
     border-radius: 16px;
     padding: 1.25rem 1.5rem;
@@ -462,6 +466,13 @@ const currentPath = Astro.url?.pathname || '/';
     pointer-events: none;
   }
 
+  /* Right-align dropdown if near right edge */
+  .portal-dropdown-wrapper:last-child .portal-megamenu-panel,
+  .portal-dropdown-wrapper:nth-last-child(2) .portal-megamenu-panel {
+    left: auto;
+    right: 0;
+  }
+
   /* Invisible hover bridge connecting trigger to panel to prevent closing on mouse move */
   .portal-megamenu-panel::before {
     content: '';
@@ -475,7 +486,9 @@ const currentPath = Astro.url?.pathname || '/';
 
   /* Show panel on hover or clicked open */
   .portal-dropdown-wrapper:hover .portal-megamenu-panel,
+  .portal-dropdown-wrapper:focus-within .portal-megamenu-panel,
   .portal-dropdown-wrapper.is-open .portal-megamenu-panel {
+    display: block;
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -484,6 +497,7 @@ const currentPath = Astro.url?.pathname || '/';
 
   /* Sibling suppression: only suppress when ANOTHER dropdown wrapper is actively hovered */
   .portal-nav-menu:has(.portal-dropdown-wrapper:hover) .portal-dropdown-wrapper.is-open:not(:hover) .portal-megamenu-panel {
+    display: none !important;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -804,6 +818,24 @@ const currentPath = Astro.url?.pathname || '/';
 
 <script is:inline>
   document.addEventListener('DOMContentLoaded', () => {
+    // 0. Dynamic Header Height Synchronization
+    const headerEl = document.querySelector('.portal-header-root');
+    const updateHeaderHeight = () => {
+      if (headerEl) {
+        const h = Math.round(headerEl.getBoundingClientRect().height);
+        if (h > 0) {
+          document.documentElement.style.setProperty('--portal-header-height', `${h}px`);
+          document.documentElement.style.setProperty('--sl-header-height', `${h}px`);
+          document.documentElement.style.setProperty('--sl-nav-height', `${h}px`);
+        }
+      }
+    };
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    if (typeof ResizeObserver !== 'undefined' && headerEl) {
+      new ResizeObserver(updateHeaderHeight).observe(headerEl);
+    }
+
     // 1. Theme Toggle
     const themeBtn = document.getElementById('portal-theme-toggle');
     if (themeBtn) {
@@ -835,6 +867,7 @@ const currentPath = Astro.url?.pathname || '/';
         try {
           sessionStorage.setItem('portal-announcement-dismissed', 'true');
         } catch {}
+        setTimeout(updateHeaderHeight, 0);
       });
     }
 

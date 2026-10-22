@@ -1,0 +1,119 @@
+---
+import DefaultSidebar from '@astrojs/starlight/components/Sidebar.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+let portalConfig: any = {};
+try {
+  const candidatePaths = [
+    path.resolve(process.cwd(), 'rapidoc.portal.json'),
+    path.resolve(process.cwd(), '.rapidoc', 'rapidoc.portal.json'),
+    path.resolve(process.cwd(), '..', 'rapidoc.portal.json'),
+  ];
+  for (const p of candidatePaths) {
+    if (fs.existsSync(p)) {
+      portalConfig = JSON.parse(fs.readFileSync(p, 'utf8'));
+      break;
+    }
+  }
+} catch {}
+
+const primaryApi = portalConfig.apis?.[0] || { path: '/apis/shipments', title: 'Shipment API' };
+const targetApiPath = primaryApi.path || `/apis/${primaryApi.id}`;
+const targetApiTitle = primaryApi.title || `${primaryApi.id} API`;
+---
+
+<div class="portal-docs-sidebar-root">
+  <div class="portal-docs-sidebar-scroll">
+    <DefaultSidebar {...Astro.props}><slot /></DefaultSidebar>
+  </div>
+  <div class="portal-sidebar-docked-footer">
+    <a href={targetApiPath} class="portal-sidebar-footer-link">
+      <span>See {targetApiTitle} &rarr;</span>
+    </a>
+  </div>
+</div>
+
+<style is:global>
+  .sidebar-pane {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .sidebar-pane .sidebar-content {
+    flex: 1 1 0% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .portal-docs-sidebar-root {
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .portal-docs-sidebar-scroll {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin !important;
+    padding: 1rem !important;
+  }
+
+  .portal-sidebar-docked-footer {
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 1.25rem !important;
+    border-top: 1px solid var(--portal-border, #363636) !important;
+    background: var(--portal-bg, oklch(0.2613 0.0134 272.84)) !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+  }
+
+  .portal-sidebar-footer-link {
+    color: var(--portal-muted, #8b949e) !important;
+    text-decoration: none !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    transition: color 0.15s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  .portal-sidebar-footer-link:hover {
+    color: var(--portal-fg, #cccccc) !important;
+  }
+
+  [data-theme='light'] .portal-sidebar-docked-footer {
+    background: #ffffff !important;
+    border-color: #e4e4e7 !important;
+  }
+
+  [data-theme='light'] .portal-sidebar-footer-link {
+    color: #555555 !important;
+  }
+
+  [data-theme='light'] .portal-sidebar-footer-link:hover {
+    color: #111111 !important;
+  }
+</style>

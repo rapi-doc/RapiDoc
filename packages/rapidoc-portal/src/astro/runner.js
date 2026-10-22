@@ -17,6 +17,7 @@ import {
   generateIndexAstro,
   generateDocsRedirectAstro,
 } from './templates.js';
+import { buildSearchIndex } from '../search/indexer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,18 +30,29 @@ function normalizeDocFrontmatter(rawContent, fileName = '') {
   let content = rawContent;
   const hasFrontmatter = content.startsWith('---');
 
-  let title = '';
   let sidebarLabel = '';
 
   if (hasFrontmatter) {
     const endMatch = content.indexOf('---', 3);
     if (endMatch !== -1) {
+      const frontmatterEndIndex = endMatch + 3;
       const frontmatterText = content.slice(3, endMatch);
       const titleMatch = frontmatterText.match(/(?:^|\n)title:\s*["']?([^"'\n]+)["']?/);
       if (titleMatch) {
         const cleanTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
         if (cleanTitle !== titleMatch[1]) {
           content = content.replace(titleMatch[0], `\ntitle: "${cleanTitle.replace(/"/g, '\\"')}"`);
+        }
+        // Strip duplicate # Heading in the body if it matches cleanTitle
+        const bodyContent = content.slice(frontmatterEndIndex);
+        const dupHeadingMatch = bodyContent.match(/(?:^|\n)#\s+([^\n#]+)/);
+        if (dupHeadingMatch) {
+          const bodyHeadingText = dupHeadingMatch[1].trim().replace(/<[^>]+>/g, '');
+          if (bodyHeadingText.toLowerCase() === cleanTitle.toLowerCase()) {
+            const bodyHeadingIdx = bodyContent.indexOf(dupHeadingMatch[0]);
+            const newBody = bodyContent.slice(0, bodyHeadingIdx) + bodyContent.slice(bodyHeadingIdx + dupHeadingMatch[0].length);
+            content = content.slice(0, frontmatterEndIndex) + newBody;
+          }
         }
         return content; // Already has title
       }
@@ -52,9 +64,15 @@ function normalizeDocFrontmatter(rawContent, fileName = '') {
   }
 
   // Extract first markdown # Heading
+  let title;
   const headingMatch = content.match(/(?:^|\n)#\s+([^\n#]+)/);
   if (headingMatch) {
     title = headingMatch[1].trim();
+    // Strip the # Heading line from the body so Starlight's page title doesn't duplicate it
+    const headingIndex = content.indexOf(headingMatch[0]);
+    if (headingIndex !== -1) {
+      content = content.slice(0, headingIndex) + content.slice(headingIndex + headingMatch[0].length);
+    }
   } else if (sidebarLabel) {
     title = sidebarLabel;
   } else {
@@ -72,7 +90,7 @@ function normalizeDocFrontmatter(rawContent, fileName = '') {
     return `---\ntitle: "${safeTitle}"\n${content.slice(4)}`;
   } else {
     // Prepend frontmatter
-    return `---\ntitle: "${safeTitle}"\n---\n\n${content}`;
+    return `---\ntitle: "${safeTitle}"\n---\n\n${content.trimStart()}`;
   }
 }
 
@@ -280,6 +298,21 @@ export async function prepareAstroWorkspace(projectDir = process.cwd()) {
   let bundleCopied = false;
   for (const candidate of rapidocBundleCandidates) {
     if (fs.existsSync(candidate)) {
+      const isLocalWorkspace = candidate.includes('/rapidoc/dist/');
+      if (isLocalWorkspace) {
+        try {
+          const content = fs.readFileSync(candidate, 'utf8');
+          const isStale = !content.includes('nav-active-change') || !content.includes('slugger');
+          const srcTs = path.join(PORTAL_ROOT, '../rapidoc/src/rapidoc.ts');
+          const isOlderThanSrc = fs.existsSync(srcTs) && fs.statSync(srcTs).mtimeMs > fs.statSync(candidate).mtimeMs;
+          if (isStale || isOlderThanSrc) {
+            const { execSync } = await import('node:child_process');
+            execSync('npm run build:rapidoc', { cwd: path.resolve(PORTAL_ROOT, '../..'), stdio: 'pipe' });
+          }
+        } catch {
+          // If auto-rebuild fails, proceed with available candidate
+        }
+      }
       fs.copyFileSync(candidate, path.join(publicAssetsDir, 'rapidoc-min.js'));
       bundleCopied = true;
       break;
@@ -287,6 +320,27 @@ export async function prepareAstroWorkspace(projectDir = process.cwd()) {
   }
   if (!bundleCopied) {
     fs.writeFileSync(path.join(publicAssetsDir, 'rapidoc-min.js'), 'import "https://unpkg.com/rapidoc/dist/rapidoc-min.js";', 'utf8');
+  }
+
+  // 8. Build full-text search index across docs and OpenAPI specifications
+  const docFilePaths = [];
+  function collectDocFiles(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, ent.name);
+      if (ent.isDirectory()) collectDocFiles(full);
+      else if (['.md', '.mdx', '.markdoc'].includes(path.extname(ent.name).toLowerCase())) docFilePaths.push(full);
+    }
+  }
+  collectDocFiles(userDocsDir);
+
+  try {
+    const searchIndex = buildSearchIndex(config, baseDir, docFilePaths);
+    const searchIndexJson = JSON.stringify(searchIndex);
+    fs.writeFileSync(path.join(publicDir, 'search-index.json'), searchIndexJson, 'utf8');
+    fs.writeFileSync(path.join(publicAssetsDir, 'search-index.json'), searchIndexJson, 'utf8');
+  } catch (err) {
+    console.warn('[runner] Failed to build search index:', err.message);
   }
 
   return { workspaceDir, config, baseDir };
@@ -326,7 +380,6 @@ export async function buildPortalWithAstro(projectDir = process.cwd(), options =
 export async function devPortalWithAstro(projectDir = process.cwd(), options = {}) {
   const { workspaceDir } = await prepareAstroWorkspace(projectDir);
 
-  const originalCwd = process.cwd();
   process.chdir(workspaceDir);
 
   const server = await astroDev({

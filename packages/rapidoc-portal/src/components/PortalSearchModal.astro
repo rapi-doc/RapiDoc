@@ -1,0 +1,585 @@
+---
+interface Props {
+  portalConfig?: any;
+}
+
+const { portalConfig = {} } = Astro.props;
+---
+
+<!-- Full-Text Search Modal (⌘K / Ctrl+K) -->
+<div id="portal-search-modal" class="portal-search-modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="Search Documentation">
+  <div class="portal-search-modal-dialog">
+    <div class="portal-search-modal-header">
+      <span class="portal-search-modal-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </span>
+      <input
+        type="search"
+        class="portal-search-modal-input"
+        placeholder="Search documentation, guides, and APIs..."
+        aria-label="Search"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button class="portal-search-modal-close" aria-label="Close search">&times;</button>
+    </div>
+
+    <div class="portal-search-modal-filters">
+      <button type="button" class="portal-search-filter-btn active" data-filter="all">All</button>
+      <button type="button" class="portal-search-filter-btn" data-filter="doc">Guides & Docs</button>
+      <button type="button" class="portal-search-filter-btn" data-filter="api">API Operations</button>
+    </div>
+
+    <div class="portal-search-modal-body">
+      <div class="portal-search-modal-results" role="listbox"></div>
+      <div class="portal-search-modal-empty hidden">No results found for "<span class="portal-search-empty-query"></span>"</div>
+      <div class="portal-search-modal-hint">Type keywords to search across guides, tutorials, and APIs...</div>
+    </div>
+
+    <div class="portal-search-modal-footer">
+      <div class="portal-search-footer-hint"><kbd class="portal-kbd">↑</kbd><kbd class="portal-kbd">↓</kbd> <span>Navigate</span></div>
+      <div class="portal-search-footer-hint"><kbd class="portal-kbd">↵</kbd> <span>Select</span></div>
+      <div class="portal-search-footer-hint"><kbd class="portal-kbd">ESC</kbd> <span>Close</span></div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    const modal = document.getElementById('portal-search-modal');
+    if (!modal) return;
+
+    const input = modal.querySelector('.portal-search-modal-input');
+    const closeBtn = modal.querySelector('.portal-search-modal-close');
+    const resultsContainer = modal.querySelector('.portal-search-modal-results');
+    const emptyState = modal.querySelector('.portal-search-modal-empty');
+    const emptyQuerySpan = modal.querySelector('.portal-search-empty-query');
+    const hintState = modal.querySelector('.portal-search-modal-hint');
+    const filterBtns = modal.querySelectorAll('.portal-search-filter-btn');
+
+    let searchRecords = null;
+    let isLoading = false;
+    let activeFilter = 'all';
+    let currentResults = [];
+    let selectedIndex = 0;
+
+    async function loadSearchIndex() {
+      if (searchRecords || isLoading) return;
+      isLoading = true;
+      try {
+        const candidateUrls = ['/search-index.json', '/assets/search-index.json'];
+        for (const url of candidateUrls) {
+          try {
+            const res = await fetch(url);
+            if (res.ok) {
+              const data = await res.json();
+              searchRecords = data.records || [];
+              break;
+            }
+          } catch {}
+        }
+      } catch (err) {
+        console.warn('Failed to load search index:', err);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      loadSearchIndex();
+      setTimeout(() => {
+        if (input) {
+          input.focus();
+          if (input.value) {
+            performSearch(input.value);
+          }
+        }
+      }, 50);
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      if (input) input.value = '';
+      if (resultsContainer) resultsContainer.innerHTML = '';
+      if (emptyState) emptyState.classList.add('hidden');
+      if (hintState) hintState.classList.remove('hidden');
+      selectedIndex = 0;
+    }
+
+    // Keyboard trigger: ⌘K or Ctrl+K or / (when not typing in an input)
+    document.addEventListener('keydown', (e) => {
+      const isCmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k';
+      const isSlash = e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName);
+
+      if (isCmdK || isSlash) {
+        e.preventDefault();
+        if (modal.classList.contains('hidden')) {
+          openModal();
+        } else {
+          closeModal();
+        }
+      } else if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        e.preventDefault();
+        closeModal();
+      }
+    });
+
+    // Listen for search button click in header
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#portal-search-btn, .portal-search-trigger')) {
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.getAttribute('data-filter') || 'all';
+        if (input && input.value) {
+          performSearch(input.value);
+        }
+      });
+    });
+
+    function performSearch(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        resultsContainer.innerHTML = '';
+        emptyState.classList.add('hidden');
+        hintState.classList.remove('hidden');
+        currentResults = [];
+        selectedIndex = 0;
+        return;
+      }
+
+      hintState.classList.add('hidden');
+
+      if (!searchRecords || !searchRecords.length) {
+        resultsContainer.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        if (emptyQuerySpan) emptyQuerySpan.textContent = query;
+        return;
+      }
+
+      const tokens = q.split(/\\s+/).filter(Boolean);
+      const scored = [];
+
+      for (const record of searchRecords) {
+        if (activeFilter !== 'all' && record.type !== activeFilter) {
+          continue;
+        }
+
+        const titleLower = (record.title || '').toLowerCase();
+        const subtitleLower = (record.subtitle || '').toLowerCase();
+        const endpointLower = (record.endpoint || '').toLowerCase();
+        const methodLower = (record.method || '').toLowerCase();
+        const categoryLower = (record.category || '').toLowerCase();
+        const contentLower = (record.content || '').toLowerCase();
+
+        let score = 0;
+        let matchesAllTokens = true;
+
+        for (const token of tokens) {
+          let tokenMatched = false;
+          if (titleLower.includes(token)) {
+            score += titleLower.startsWith(token) ? 25 : 15;
+            tokenMatched = true;
+          }
+          if (endpointLower.includes(token)) {
+            score += endpointLower.startsWith(token) ? 20 : 12;
+            tokenMatched = true;
+          }
+          if (subtitleLower.includes(token)) {
+            score += 10;
+            tokenMatched = true;
+          }
+          if (methodLower === token) {
+            score += 15;
+            tokenMatched = true;
+          }
+          if (categoryLower.includes(token)) {
+            score += 8;
+            tokenMatched = true;
+          }
+          if (contentLower.includes(token)) {
+            score += 4;
+            tokenMatched = true;
+          }
+
+          if (!tokenMatched) {
+            matchesAllTokens = false;
+            break;
+          }
+        }
+
+        if (matchesAllTokens && score > 0) {
+          if (titleLower === q || endpointLower === q) score += 30;
+          scored.push({ ...record, score });
+        }
+      }
+
+      scored.sort((a, b) => b.score - a.score);
+      currentResults = scored.slice(0, 15);
+      selectedIndex = 0;
+      renderResults(currentResults, tokens, query);
+    }
+
+    function highlightText(text, tokens) {
+      if (!text) return '';
+      let escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      for (const token of tokens) {
+        if (!token) continue;
+        const re = new RegExp('(' + token.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&') + ')', 'gi');
+        escaped = escaped.replace(re, '<mark class="portal-search-match">$1</mark>');
+      }
+      return escaped;
+    }
+
+    function renderResults(results, tokens, query) {
+      resultsContainer.innerHTML = '';
+      if (!results.length) {
+        emptyState.classList.remove('hidden');
+        if (emptyQuerySpan) emptyQuerySpan.textContent = query;
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      results.forEach((item, idx) => {
+        const link = document.createElement('a');
+        link.href = item.url;
+        link.className = 'portal-search-result-item ' + (idx === selectedIndex ? 'selected' : '');
+        link.setAttribute('role', 'option');
+        link.setAttribute('data-index', idx);
+
+        let badgeHtml = '';
+        if (item.type === 'api' && item.method) {
+          const methodClass = 'method-' + item.method.toLowerCase();
+          badgeHtml = '<span class="portal-search-badge ' + methodClass + '">' + item.method + '</span>';
+        } else {
+          badgeHtml = '<span class="portal-search-badge badge-doc">DOC</span>';
+        }
+
+        const titleHtml = highlightText(item.title, tokens);
+        const endpointHtml = item.endpoint
+          ? '<span class="portal-search-result-endpoint">' + highlightText(item.endpoint, tokens) + '</span>'
+          : '';
+        const snippetHtml = item.content ? highlightText(item.content.slice(0, 140) + '...', tokens) : '';
+
+        link.innerHTML =
+          '<div class="portal-search-result-header">' +
+          badgeHtml +
+          '<span>' + titleHtml + '</span>' +
+          endpointHtml +
+          '<span class="portal-search-result-category">' + (item.category || '') + '</span>' +
+          '</div>' +
+          (snippetHtml ? '<div class="portal-search-result-snippet">' + snippetHtml + '</div>' : '');
+
+        link.addEventListener('click', closeModal);
+        resultsContainer.appendChild(link);
+      });
+    }
+
+    function updateSelection(newIdx) {
+      const items = resultsContainer.querySelectorAll('.portal-search-result-item');
+      if (!items.length) return;
+      if (newIdx < 0) newIdx = items.length - 1;
+      if (newIdx >= items.length) newIdx = 0;
+      selectedIndex = newIdx;
+      items.forEach((it, i) => {
+        if (i === selectedIndex) {
+          it.classList.add('selected');
+          it.scrollIntoView({ block: 'nearest' });
+        } else {
+          it.classList.remove('selected');
+        }
+      });
+    }
+
+    if (input) {
+      input.addEventListener('input', (e) => performSearch(e.target.value));
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          updateSelection(selectedIndex + 1);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          updateSelection(selectedIndex - 1);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (currentResults[selectedIndex]) {
+            const url = currentResults[selectedIndex].url;
+            closeModal();
+            window.location.href = url;
+          }
+        }
+      });
+    }
+  })();
+</script>
+
+<style is:global>
+  .portal-search-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+    animation: fadeIn 0.15s ease-out;
+  }
+
+  .portal-search-modal-backdrop.hidden {
+    display: none !important;
+  }
+
+  .portal-search-modal-dialog {
+    width: 100%;
+    max-width: 640px;
+    background: var(--portal-surface, oklch(0.2613 0.0134 272.84));
+    border: 1px solid var(--portal-border, #363636);
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+  }
+
+  .portal-search-modal-header {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--portal-border, #363636);
+    gap: 0.75rem;
+  }
+
+  .portal-search-modal-icon {
+    color: var(--portal-muted, #8b949e);
+    display: flex;
+    align-items: center;
+  }
+
+  .portal-search-modal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--portal-fg, #cccccc);
+    font-size: 1.0625rem;
+    font-family: inherit;
+  }
+
+  .portal-search-modal-input::placeholder {
+    color: var(--portal-muted, #8b949e);
+  }
+
+  .portal-search-modal-close {
+    background: transparent;
+    border: none;
+    color: var(--portal-muted, #8b949e);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+
+  .portal-search-modal-close:hover {
+    color: var(--portal-fg, #cccccc);
+  }
+
+  .portal-search-modal-filters {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-bottom: 1px solid var(--portal-border, #363636);
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  .portal-search-filter-btn {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: transparent;
+    color: var(--portal-muted, #8b949e);
+    border: 1px solid var(--portal-border, #363636);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .portal-search-filter-btn:hover {
+    color: var(--portal-fg, #cccccc);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .portal-search-filter-btn.active {
+    background: var(--portal-primary, #f76b39);
+    color: #000000;
+    font-weight: 700;
+    border-color: var(--portal-primary, #f76b39);
+  }
+
+  .portal-search-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+    max-height: 50vh;
+  }
+
+  .portal-search-modal-results {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .portal-search-result-item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+    color: var(--portal-fg, #cccccc);
+    border-left: 3px solid transparent;
+    transition: background-color 0.1s ease;
+  }
+
+  .portal-search-result-item:hover,
+  .portal-search-result-item.selected {
+    background: rgba(255, 255, 255, 0.06);
+    border-left-color: var(--portal-primary, #f76b39);
+  }
+
+  .portal-search-result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .portal-search-badge {
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .portal-search-badge.method-get { background: rgba(92, 152, 249, 0.15); color: #5c98f9; }
+  .portal-search-badge.method-post { background: rgba(104, 204, 151, 0.15); color: #68cc97; }
+  .portal-search-badge.method-put { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+  .portal-search-badge.method-delete { background: rgba(247, 82, 82, 0.15); color: #f75252; }
+  .portal-search-badge.badge-doc { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+
+  .portal-search-result-endpoint {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--portal-muted, #8b949e);
+  }
+
+  .portal-search-result-category {
+    margin-left: auto;
+    font-size: 0.6875rem;
+    color: var(--portal-muted, #8b949e);
+    text-transform: uppercase;
+  }
+
+  .portal-search-result-snippet {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--portal-muted, #8b949e);
+    line-height: 1.4;
+  }
+
+  .portal-search-match {
+    background: rgba(247, 107, 57, 0.25);
+    color: var(--portal-primary, #f76b39);
+    border-radius: 2px;
+    padding: 0 2px;
+  }
+
+  .portal-search-modal-empty,
+  .portal-search-modal-hint {
+    padding: 2.5rem 1.25rem;
+    text-align: center;
+    color: var(--portal-muted, #8b949e);
+    font-size: 0.875rem;
+  }
+
+  .portal-search-modal-footer {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.625rem 1.25rem;
+    border-top: 1px solid var(--portal-border, #363636);
+    background: rgba(0, 0, 0, 0.15);
+    font-size: 0.75rem;
+    color: var(--portal-muted, #8b949e);
+  }
+
+  .portal-search-footer-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .portal-kbd {
+    display: inline-block;
+    padding: 0.125rem 0.375rem;
+    font-size: 0.6875rem;
+    line-height: 1;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid #363636;
+    color: var(--portal-fg, #cccccc);
+    font-family: inherit;
+  }
+
+  [data-theme='light'] .portal-search-modal-dialog {
+    background: #ffffff;
+    border-color: #e4e4e7;
+  }
+  [data-theme='light'] .portal-search-modal-header {
+    border-color: #e4e4e7;
+  }
+  [data-theme='light'] .portal-search-modal-filters {
+    background: #f4f4f5;
+    border-color: #e4e4e7;
+  }
+  [data-theme='light'] .portal-search-filter-btn {
+    border-color: #e4e4e7;
+  }
+  [data-theme='light'] .portal-search-modal-footer {
+    background: #f4f4f5;
+    border-color: #e4e4e7;
+  }
+  [data-theme='light'] .portal-kbd {
+    background: #ffffff;
+    border-color: #e4e4e7;
+    color: #555555;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>

@@ -2,71 +2,96 @@
  * Maps rapidoc.config.yaml into Astro + Starlight configuration.
  */
 
-import path from 'node:path';
-
-/**
- * Converts a hex color into an HSL-friendly or CSS custom properties palette for Starlight.
- */
-function generateStarlightCustomCss(primaryColor = '#f76b39', themePreset = 'amber') {
+function generateStarlightCustomCss(primaryColor = '#f76b39') {
   return `
 :root,
 :root[data-theme='dark'] {
-  --portal-bg: #0b0f19;
-  --portal-surface: #111827;
-  --portal-card: #151d30;
-  --portal-border: rgba(255, 255, 255, 0.08);
-  --portal-border-subtle: rgba(255, 255, 255, 0.04);
-  --portal-fg: #f8fafc;
-  --portal-muted: #94a3b8;
+  --portal-bg: oklch(0.2613 0.0134 272.84);
+  --portal-surface: oklch(0.2613 0.0134 272.84);
+  --portal-card: oklch(0.2613 0.0134 272.84);
+  --portal-border: #363636;
+  --portal-border-subtle: rgba(255, 255, 255, 0.06);
+  --portal-fg: #cccccc;
+  --portal-muted: #8b949e;
   --portal-primary: ${primaryColor};
-  --portal-header-height: 98px;
+  --portal-header-height: 101px;
 
   /* Starlight unification */
-  --sl-color-bg: #0b0f19;
-  --sl-color-bg-nav: rgba(11, 15, 25, 0.92);
-  --sl-color-bg-sidebar: #0b0f19;
-  --sl-color-black: #0b0f19;
-  --sl-color-gray-6: #111827;
-  --sl-color-gray-7: #0b0f19;
-  --sl-color-hairline: rgba(255, 255, 255, 0.08);
+  --sl-header-height: var(--portal-header-height, 101px) !important;
+  --sl-nav-height: var(--portal-header-height, 101px) !important;
+  --sl-color-bg: oklch(0.2613 0.0134 272.84);
+  --sl-color-bg-nav: color-mix(in srgb, oklch(0.2613 0.0134 272.84) 92%, transparent);
+  --sl-color-bg-sidebar: oklch(0.2613 0.0134 272.84);
+  --sl-color-bg-inline-code: #3b3c45;
+  --sl-color-black: oklch(0.2613 0.0134 272.84);
+  --sl-color-gray-6: oklch(0.235 0.0134 272.84);
+  --sl-color-gray-7: oklch(0.2613 0.0134 272.84);
+  --sl-color-hairline: #363636;
   --sl-color-hairline-light: rgba(255, 255, 255, 0.04);
-  --sl-color-white: #f8fafc;
-  --sl-color-gray-1: #f1f5f9;
-  --sl-color-gray-2: #cbd5e1;
-  --sl-color-gray-3: #94a3b8;
+  --sl-color-white: #cccccc;
+  --sl-color-gray-1: #e5e5e5;
+  --sl-color-gray-2: #cccccc;
+  --sl-color-gray-3: #8b949e;
   --sl-color-gray-4: #64748b;
-  --sl-color-gray-5: #475569;
+  --sl-color-gray-5: #363636;
 
   --sl-color-accent: ${primaryColor};
   --sl-color-accent-low: color-mix(in srgb, ${primaryColor} 18%, transparent);
   --sl-color-accent-high: color-mix(in srgb, ${primaryColor} 80%, #ffffff);
 
-  --sl-font-system: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  --sl-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --sl-font-system: var(--font-regular, 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif);
+  --sl-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', Consolas, monospace;
 }
 
 [data-theme='light'] {
-  --portal-bg: #f8fafc;
-  --portal-surface: #ffffff;
-  --portal-card: #ffffff;
-  --portal-border: rgba(0, 0, 0, 0.08);
-  --portal-fg: #0f172a;
-  --portal-muted: #64748b;
+  --portal-bg: #ffffff;
+  --portal-surface: #f4f4f5;
+  --portal-card: #f4f4f5;
+  --portal-border: #e4e4e7;
+  --portal-border-subtle: #f4f4f5;
+  --portal-fg: #555555;
+  --portal-muted: #71717a;
 
-  --sl-color-bg: #f8fafc;
-  --sl-color-bg-nav: rgba(255, 255, 255, 0.92);
-  --sl-color-bg-sidebar: #f8fafc;
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: rgba(255, 255, 255, 0.95);
+  --sl-color-bg-sidebar: #f4f4f5;
+  --sl-color-bg-inline-code: #e2e8f0;
   --sl-color-black: #ffffff;
-  --sl-color-white: #0f172a;
+  --sl-color-white: #555555;
+  --sl-color-gray-1: #111111;
+  --sl-color-gray-2: #333333;
+  --sl-color-gray-3: #555555;
+  --sl-color-gray-4: #71717a;
+  --sl-color-gray-5: #cbd5e1;
+  --sl-color-gray-6: #f4f4f5;
+  --sl-color-gray-7: #ffffff;
+  --sl-color-hairline: #e4e4e7;
+  --sl-color-hairline-light: rgba(0, 0, 0, 0.04);
   --sl-color-accent-low: #ffe3d6;
   --sl-color-accent: ${primaryColor};
   --sl-color-accent-high: #94300a;
 }
 
 body {
-  background-color: var(--portal-bg, #0b0f19) !important;
-  color: var(--portal-fg, #f8fafc) !important;
+  background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84)) !important;
+  color: var(--portal-fg, #cccccc) !important;
   font-family: var(--sl-font-system);
+}
+
+/* Inline code tags styling across dark and light modes matching release_12_0_0 */
+:not(pre) > code {
+  background-color: var(--sl-color-bg-inline-code, #3b3c45) !important;
+  color: var(--inline-code-fg, #c4c6d1) !important;
+  border: 1px solid var(--portal-border, #363636) !important;
+  padding: 0.15em 0.35em !important;
+  border-radius: 4px !important;
+  font-size: 0.875em !important;
+}
+
+[data-theme='light'] :not(pre) > code {
+  background-color: #e2e8f0 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
 }
 
 /* Seamless RapiDoc full-viewport and embedded container styling */
@@ -108,13 +133,145 @@ header.header {
 
 @media (min-width: 50rem) {
   .sidebar-pane {
-    top: var(--portal-header-height, 98px) !important;
-    height: calc(100vh - var(--portal-header-height, 98px)) !important;
+    top: var(--portal-header-height, 101px) !important;
+    height: calc(100vh - var(--portal-header-height, 101px)) !important;
+    max-height: calc(100vh - var(--portal-header-height, 101px)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: hidden !important;
   }
+
+  .sidebar-pane .sidebar-content {
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+}
+
+.portal-docs-sidebar-root {
+  height: 100% !important;
+  min-height: 100% !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.portal-docs-sidebar-scroll {
+  flex: 1 1 auto !important;
+}
+
+/* Right Sidebar (On this page / TOC) sticky positioning below custom header */
+@media (min-width: 72rem) {
+  .right-sidebar-container {
+    top: 0 !important;
+    height: calc(100vh - var(--portal-header-height, 101px)) !important;
+    max-height: calc(100vh - var(--portal-header-height, 101px)) !important;
+  }
+  .right-sidebar {
+    top: var(--portal-header-height, 101px) !important;
+    height: calc(100vh - var(--portal-header-height, 101px)) !important;
+    max-height: calc(100vh - var(--portal-header-height, 101px)) !important;
+    padding-top: 1.5rem !important;
+  }
+}
+
+mobile-starlight-toc {
+  top: var(--portal-header-height, 101px) !important;
+}
+
+.portal-sidebar-docked-footer {
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 1.25rem !important;
+  border-top: 1px solid var(--portal-border, #363636) !important;
+  background: var(--portal-bg, oklch(0.2613 0.0134 272.84)) !important;
+  flex-shrink: 0 !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 20 !important;
+}
+
+.portal-sidebar-footer-link {
+  color: var(--portal-muted, #8b949e) !important;
+  text-decoration: none !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  transition: color 0.15s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  width: 100% !important;
+}
+
+.portal-sidebar-footer-link:hover {
+  color: var(--portal-fg, #cccccc) !important;
+}
+
+/* Documentation Content & Footer Alignment */
+.main-pane footer.portal-content-footer,
+.main-pane .portal-content-footer {
+  width: 100% !important;
+  max-width: none !important;
+  margin: clamp(2.5rem, 5vh, 4rem) 0 1.5rem 0 !important;
+  border-top: 1px solid var(--portal-border, #363636) !important;
+  padding: 1.25rem 0 0 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: transparent !important;
+  height: auto !important;
+  min-height: auto !important;
+}
+
+.portal-content-footer-container {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  font-size: 0.8125rem !important;
+}
+
+.portal-content-footer-copy {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.portal-content-footer-links {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.625rem !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+}
+
+.portal-content-footer-link {
+  white-space: nowrap !important;
+}
+
+.portal-content-footer-social {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  flex-shrink: 0 !important;
 }
 
 html.portal-announcement-dismissed {
   --portal-header-height: 60px !important;
+  --sl-header-height: 60px !important;
 }
 html.portal-announcement-dismissed #portal-announcement {
   display: none !important;
@@ -122,14 +279,26 @@ html.portal-announcement-dismissed #portal-announcement {
 
 /* Documentation Sidebar Hover and Active Styling */
 .sidebar-pane a {
-  color: var(--portal-muted, #94a3b8) !important;
+  color: var(--portal-muted, #8b949e) !important;
   border-radius: 6px !important;
   transition: color 0.15s ease, background-color 0.15s ease !important;
 }
 
 .sidebar-pane a:hover {
-  color: var(--portal-fg, #f8fafc) !important;
+  color: var(--portal-fg, #cccccc) !important;
   background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme='light'] .sidebar-pane a:hover {
+  color: #111111 !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme='light'] .portal-sidebar-docked-footer,
+[data-theme='light'] footer.portal-content-footer,
+[data-theme='light'] .portal-content-footer {
+  background: #ffffff !important;
+  border-color: #e4e4e7 !important;
 }
 
 .sidebar-pane a[aria-current="page"] {
@@ -175,6 +344,20 @@ export function buildStarlightSidebar(navigation = [], apis = []) {
         link: (group.path || group.href).replace(/^\/?docs\/?/, '/docs/'),
       });
     }
+  }
+
+  // 2. APIs & Reference section
+  if (apis && apis.length > 0) {
+    const apiItems = apis.map((api) => ({
+      label: api.title || `${api.id} API`,
+      link: api.path || `/apis/${api.id}`,
+      badge: api.category ? { text: api.category, variant: 'note' } : undefined,
+    }));
+
+    sidebar.push({
+      label: 'API Reference',
+      items: apiItems,
+    });
   }
 
   return sidebar;

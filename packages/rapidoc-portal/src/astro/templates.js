@@ -2,7 +2,7 @@
  * Generates the Astro template files for the .rapidoc engine workspace.
  */
 
-export function generateAstroConfigMjs({ siteTitle, primaryColor = '#f76b39', sidebarConfigJson }) {
+export function generateAstroConfigMjs({ siteTitle, sidebarConfigJson }) {
   return `import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
@@ -19,6 +19,7 @@ export default defineConfig({
       components: {
         Header: './src/components/PortalHeader.astro',
         Footer: './src/components/PortalFooter.astro',
+        Sidebar: './src/components/PortalDocsSidebar.astro',
       },
       customCss: ['./src/styles/starlight-custom.css'],
       expressiveCode: {
@@ -169,7 +170,7 @@ try {
 }
 
 const navCss = getNavCss('.portal-sidebar');
-const themeTokensCss = getThemeTokensCss({ theme: themePreset });
+const themeTokensCss = getThemeTokensCss(themePreset);
 ---
 
 <!doctype html>
@@ -189,8 +190,8 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
         height: 100%;
         max-height: 100vh;
         overflow: hidden;
-        background-color: var(--portal-bg, #0b0f19);
-        color: var(--portal-fg, #f8fafc);
+        background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
+        color: var(--portal-fg, #cccccc);
         font-family: var(--font-regular, system-ui, sans-serif);
         display: flex;
         flex-direction: column;
@@ -213,8 +214,8 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        border-right: 1px solid var(--portal-border, rgba(255, 255, 255, 0.08));
-        background-color: var(--portal-bg, #0b0f19);
+        border-right: 1px solid var(--portal-border, #363636);
+        background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
         box-sizing: border-box;
       }
       .portal-sidebar .nav-scroll {
@@ -238,7 +239,7 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
         scroll-behavior: smooth;
         padding: 0;
         scrollbar-width: thin;
-        background-color: var(--portal-bg, #0b0f19);
+        background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
       }
       .portal-main-inner {
         min-height: 100%;
@@ -252,6 +253,49 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
         padding: 24px 32px;
         box-sizing: border-box;
       }
+      .portal-sidebar-body {
+        flex: 1 1 0%;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .portal-sidebar-docked-footer {
+        height: 52px;
+        min-height: 52px;
+        max-height: 52px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        padding: 0 1.25rem;
+        border-top: 1px solid var(--portal-border, #363636);
+        background: var(--portal-bg, oklch(0.2613 0.0134 272.84));
+        flex-shrink: 0;
+      }
+      .portal-sidebar-footer-link {
+        color: var(--portal-muted, #8b949e);
+        text-decoration: none !important;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        transition: color 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+      }
+      .portal-sidebar-footer-link:hover {
+        color: var(--portal-fg, #cccccc);
+      }
+      [data-theme='light'] .portal-sidebar-docked-footer {
+        background: #ffffff;
+        border-color: #e4e4e7;
+      }
+      [data-theme='light'] .portal-sidebar-footer-link {
+        color: #555555;
+      }
+      [data-theme='light'] .portal-sidebar-footer-link:hover {
+        color: #111111;
+      }
     </style>
   </head>
   <body>
@@ -259,7 +303,14 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
 
     <div class="portal-container">
       <aside class="portal-sidebar nav-bar" aria-label="API Navigation">
-        <Fragment set:html={sidebarNavHtml} />
+        <div class="portal-sidebar-body">
+          <Fragment set:html={sidebarNavHtml} />
+        </div>
+        <div class="portal-sidebar-docked-footer">
+          <a href="/docs/documentation" class="portal-sidebar-footer-link">
+            <span>&larr; Documentation</span>
+          </a>
+        </div>
       </aside>
 
       <main class="portal-main">
@@ -290,215 +341,30 @@ const themeTokensCss = getThemeTokensCss({ theme: themePreset });
       document.addEventListener('DOMContentLoaded', () => {
         const sidebar = document.querySelector('.portal-sidebar');
         const rapiDocEl = document.querySelector('rapi-doc');
-        const portalMain = document.querySelector('.portal-main');
         if (!sidebar || !rapiDocEl) return;
 
-        function findMatchingLink(targetId) {
-          if (!targetId) return null;
-          let link =
-            document.getElementById('link-' + targetId) ||
-            sidebar.querySelector('.nav-bar-path[data-content-id="' + CSS.escape(targetId) + '"]') ||
-            sidebar.querySelector('.nav-bar-path[data-op-slug="' + CSS.escape(targetId) + '"]') ||
-            sidebar.querySelector('.nav-bar-path[data-content-id$="--' + CSS.escape(targetId) + '"]') ||
-            sidebar.querySelector('.nav-bar-path[data-content-id="' + CSS.escape(targetId.replace(/^[a-z0-9_-]+--/, '')) + '"]');
-
-          if (
-            link &&
-            !link.classList.contains('nav-bar-path') &&
-            !link.classList.contains('nav-bar-info') &&
-            !link.classList.contains('portal-sidebar-op-item')
-          ) {
-            link = link.querySelector('.nav-bar-path');
+        // Dynamic theme synchronization
+        const syncColorScheme = () => {
+          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+          if (rapiDocEl.getAttribute('color-scheme') !== currentTheme) {
+            rapiDocEl.setAttribute('color-scheme', currentTheme);
           }
-          return link;
+        };
+        const themeObserver = new MutationObserver(syncColorScheme);
+        themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+        // Centralized navbar binding via <rapi-doc>
+        const bindNav = () => {
+          if (typeof rapiDocEl.bindNavBar === 'function') {
+            rapiDocEl.bindNavBar(sidebar);
+          }
+        };
+
+        if (typeof rapiDocEl.bindNavBar === 'function') {
+          bindNav();
+        } else {
+          customElements.whenDefined('rapi-doc').then(bindNav);
         }
-
-        function setActiveNavId(targetId, updateHistory = true) {
-          if (!targetId) return;
-
-          if (targetId === 'overview') {
-            sidebar.querySelectorAll('.active').forEach((l) => l.classList.remove('active'));
-            const overviewLink = document.getElementById('link-overview') || sidebar.querySelector('.nav-bar-info');
-            if (overviewLink) overviewLink.classList.add('active');
-            return;
-          }
-
-          const matchingLink = findMatchingLink(targetId);
-          if (matchingLink) {
-            if (matchingLink.classList.contains('active')) return;
-            sidebar.querySelectorAll('.active').forEach((l) => l.classList.remove('active'));
-            matchingLink.classList.add('active');
-
-            if (updateHistory) {
-              const matchingHref = matchingLink.getAttribute('href');
-              if (matchingHref) {
-                window.history.replaceState(null, '', matchingHref);
-              }
-            }
-
-            const parentTag = matchingLink.closest('.nav-bar-tag-and-paths');
-            if (parentTag && parentTag.classList.contains('collapsed')) {
-              parentTag.classList.replace('collapsed', 'expanded');
-              parentTag.querySelector('.nav-bar-tag')?.setAttribute('aria-expanded', 'true');
-            }
-            const parentGroup = matchingLink.closest('.nav-bar-tag-group');
-            if (parentGroup && parentGroup.classList.contains('collapsed')) {
-              parentGroup.classList.replace('collapsed', 'expanded');
-              parentGroup.querySelector('.nav-bar-tag-group-header')?.setAttribute('aria-expanded', 'true');
-            }
-
-            const navScroll = sidebar.querySelector('.nav-scroll');
-            if (navScroll) {
-              const itemRect = matchingLink.getBoundingClientRect();
-              const scrollRect = navScroll.getBoundingClientRect();
-              if (itemRect.top < scrollRect.top + 20 || itemRect.bottom > scrollRect.bottom - 40) {
-                const targetTop = itemRect.top - scrollRect.top + navScroll.scrollTop - 40;
-                navScroll.scrollTo({ top: targetTop, behavior: 'smooth' });
-              }
-            }
-          }
-        }
-
-        function resolveTargetElement(elementId) {
-          if (!elementId) return null;
-          return (
-            rapiDocEl.shadowRoot?.getElementById(elementId) ||
-            rapiDocEl.shadowRoot?.querySelector('[data-op-slug="' + CSS.escape(elementId) + '"]') ||
-            rapiDocEl.shadowRoot?.querySelector('[id$="--' + CSS.escape(elementId) + '"]') ||
-            rapiDocEl.shadowRoot?.getElementById(elementId.replace(/^[a-z0-9_-]+--/, ''))
-          );
-        }
-
-        // 1. Sidebar Link Clicks
-        sidebar.addEventListener('click', (e) => {
-          // If clicked chevron specifically, toggle tag expansion
-          if (e.target.closest('.nav-bar-tag-icon')) {
-            const tagContainer = e.target.closest('.nav-bar-tag-and-paths');
-            if (tagContainer) {
-              tagContainer.classList.toggle('expanded');
-              tagContainer.classList.toggle('collapsed');
-            }
-            return;
-          }
-
-          const link = e.target.closest('.portal-sidebar-op-item, .nav-bar-path, .nav-bar-info, .nav-bar-tag, .nav-bar-tag-title');
-          if (!link) return;
-
-          const href = link.getAttribute('href') || link.getAttribute('data-tag-href');
-          if (!href) return;
-
-          const hashIdx = href.indexOf('#');
-          const elementId = hashIdx !== -1 ? href.substring(hashIdx + 1) : '';
-
-          // Unconditionally prevent default jump to top on in-page hash links
-          e.preventDefault();
-          window.history.pushState(null, '', href);
-
-          sidebar.querySelectorAll('.active').forEach((el) => el.classList.remove('active'));
-          if (
-            link.classList.contains('nav-bar-path') ||
-            link.classList.contains('nav-bar-info') ||
-            link.classList.contains('portal-sidebar-op-item')
-          ) {
-            link.classList.add('active');
-          }
-
-          const parentTag = link.closest('.nav-bar-tag-and-paths');
-          if (parentTag && parentTag.classList.contains('collapsed')) {
-            parentTag.classList.replace('collapsed', 'expanded');
-            parentTag.querySelector('.nav-bar-tag')?.setAttribute('aria-expanded', 'true');
-          }
-
-          let targetEl = resolveTargetElement(elementId);
-          if (!targetEl && (link.classList.contains('nav-bar-tag') || link.classList.contains('nav-bar-tag-title'))) {
-            const tagContainer = link.closest('.nav-bar-tag-and-paths');
-            const tagContentId = tagContainer?.id?.replace(/^link-/, '');
-            if (tagContentId) {
-              targetEl = resolveTargetElement(tagContentId);
-            }
-          }
-
-          if (targetEl) {
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } else if (elementId && typeof rapiDocEl.scrollToPath === 'function') {
-            rapiDocEl.scrollToPath(elementId);
-          }
-        });
-
-        // 2. Listen for scroll events on .portal-main to update sidebar selection marker
-        let scrollTicking = false;
-        function updateActiveOnScroll() {
-          if (!portalMain || !rapiDocEl.shadowRoot) return;
-          const headings = Array.from(rapiDocEl.shadowRoot.querySelectorAll('.observe-me[id]'));
-          if (!headings.length) return;
-
-          const containerRect = portalMain.getBoundingClientRect();
-          const threshold = containerRect.top + 100;
-
-          let activeHeading = null;
-          for (const h of headings) {
-            const rect = h.getBoundingClientRect();
-            if (rect.top <= threshold) {
-              activeHeading = h;
-            } else {
-              break;
-            }
-          }
-
-          if (!activeHeading && headings.length > 0) {
-            activeHeading = headings[0];
-          }
-
-          if (activeHeading && activeHeading.id) {
-            setActiveNavId(activeHeading.id);
-          }
-        }
-
-        if (portalMain) {
-          portalMain.addEventListener(
-            'scroll',
-            () => {
-              if (!scrollTicking) {
-                requestAnimationFrame(() => {
-                  updateActiveOnScroll();
-                  scrollTicking = false;
-                });
-                scrollTicking = true;
-              }
-            },
-            { passive: true }
-          );
-        }
-
-        // 3. Listen for internal <rapi-doc> nav-active-change event
-        rapiDocEl.addEventListener('nav-active-change', (e) => {
-          const targetId = e.detail?.id || e.detail?.elementId;
-          if (targetId) {
-            setActiveNavId(targetId);
-          }
-        });
-
-        // 4. Initial Sync from URL hash
-        function syncActiveHash() {
-          if (window.location.hash) {
-            const rawHash = window.location.hash.replace(/^#/, '');
-            if (rawHash) {
-              setActiveNavId(rawHash, false);
-              const targetEl = resolveTargetElement(rawHash);
-              if (targetEl) {
-                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              } else if (typeof rapiDocEl.scrollToPath === 'function') {
-                rapiDocEl.scrollToPath(rawHash);
-              }
-            }
-          }
-        }
-
-        window.addEventListener('hashchange', syncActiveHash);
-        rapiDocEl.addEventListener('spec-loaded', () => {
-          setTimeout(syncActiveHash, 100);
-        });
-        setTimeout(syncActiveHash, 300);
       });
     </script>
   </body>
@@ -536,8 +402,8 @@ for (const api of apis) {
       html, body {
         margin: 0;
         padding: 0;
-        background-color: var(--portal-bg, #0b0f19);
-        color: var(--portal-fg, #f8fafc);
+        background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
+        color: var(--portal-fg, #cccccc);
         font-family: var(--sl-font-system, system-ui, sans-serif);
       }
       .catalog-container {
@@ -556,7 +422,7 @@ for (const api of apis) {
       }
       .catalog-hero p {
         font-size: 1.25rem;
-        color: var(--portal-muted, #94a3b8);
+        color: var(--portal-muted, #8b949e);
       }
       .catalog-section {
         margin-bottom: 3rem;
@@ -565,7 +431,7 @@ for (const api of apis) {
         font-size: 1.5rem;
         font-weight: 700;
         margin-bottom: 1.25rem;
-        border-bottom: 1px solid var(--portal-border, rgba(255, 255, 255, 0.08));
+        border-bottom: 1px solid var(--portal-border, #363636);
         padding-bottom: 0.5rem;
       }
       .api-grid {
@@ -578,8 +444,8 @@ for (const api of apis) {
         flex-direction: column;
         padding: 1.5rem;
         border-radius: 12px;
-        background: var(--portal-surface, #111827);
-        border: 1px solid var(--portal-border, rgba(255, 255, 255, 0.08));
+        background: var(--portal-surface, oklch(0.2613 0.0134 272.84));
+        border: 1px solid var(--portal-border, #363636);
         text-decoration: none;
         transition: transform 0.2s ease, border-color 0.2s ease;
       }
@@ -603,17 +469,17 @@ for (const api of apis) {
       }
       .api-version {
         font-size: 0.8rem;
-        color: var(--portal-muted, #94a3b8);
+        color: var(--portal-muted, #8b949e);
       }
       .api-card-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: var(--portal-fg, #ffffff);
+        color: var(--portal-fg, #cccccc);
         margin: 0 0 0.5rem;
       }
       .api-card-desc {
         font-size: 0.95rem;
-        color: var(--portal-muted, #94a3b8);
+        color: var(--portal-muted, #8b949e);
         flex: 1;
         line-height: 1.5;
         margin-bottom: 1rem;
@@ -691,8 +557,8 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
       html, body {
         margin: 0;
         padding: 0;
-        background-color: var(--portal-bg, #0b0f19);
-        color: var(--portal-fg, #f8fafc);
+        background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
+        color: var(--portal-fg, #cccccc);
         font-family: var(--sl-font-system, system-ui, sans-serif);
       }
       main {
@@ -732,14 +598,14 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
         line-height: 1.15;
         max-width: 960px;
         margin: 0 0 1.25rem;
-        background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+        background: linear-gradient(135deg, #ffffff 40%, #8b949e 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
 
       .landing-subtitle {
         font-size: clamp(1.1rem, 2vw, 1.25rem);
-        color: var(--portal-muted, #94a3b8);
+        color: var(--portal-muted, #8b949e);
         max-width: 720px;
         line-height: 1.6;
         margin: 0 0 2.5rem;
@@ -779,8 +645,8 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
         padding: 0.875rem 1.75rem;
         border-radius: 10px;
         background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--portal-border, rgba(255, 255, 255, 0.12));
-        color: var(--portal-fg, #ffffff);
+        border: 1px solid var(--portal-border, #363636);
+        color: var(--portal-fg, #cccccc);
         font-weight: 600;
         font-size: 0.95rem;
         text-decoration: none;
@@ -796,8 +662,8 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
       .landing-code-card {
         width: 100%;
         max-width: 820px;
-        background: var(--portal-surface, #111827);
-        border: 1px solid var(--portal-border, rgba(255, 255, 255, 0.08));
+        background: var(--portal-surface, oklch(0.2613 0.0134 272.84));
+        border: 1px solid var(--portal-border, #363636);
         border-radius: 14px;
         box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
         overflow: hidden;
@@ -810,7 +676,7 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
         justify-content: space-between;
         padding: 0.75rem 1.25rem;
         background: rgba(255, 255, 255, 0.02);
-        border-bottom: 1px solid var(--portal-border, rgba(255, 255, 255, 0.06));
+        border-bottom: 1px solid var(--portal-border, #363636);
       }
 
       .landing-dots {
@@ -828,7 +694,7 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
 
       .landing-code-title {
         font-size: 0.8125rem;
-        color: var(--portal-muted, #94a3b8);
+        color: var(--portal-muted, #8b949e);
         font-family: var(--sl-font-mono, monospace);
       }
 
@@ -840,7 +706,7 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
         overflow-x: auto;
         margin: 0;
       }
-      .code-comment { color: #64748b; }
+      .code-comment { color: #8b949e; }
       .code-keyword { color: #f43f5e; font-weight: 600; }
       .code-string { color: #34d399; }
       .code-prop { color: #38bdf8; }
@@ -870,10 +736,11 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
         font-weight: 800;
         margin: 0 0 0.75rem;
         letter-spacing: -0.02em;
+        color: var(--portal-fg, #cccccc);
       }
       .section-desc {
         font-size: 1.125rem;
-        color: var(--portal-muted, #94a3b8);
+        color: var(--portal-muted, #8b949e);
         max-width: 600px;
         margin: 0 auto;
       }
@@ -887,8 +754,8 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
       .feature-card {
         padding: 2rem;
         border-radius: 14px;
-        background: var(--portal-surface, #111827);
-        border: 1px solid var(--portal-border, rgba(255, 255, 255, 0.08));
+        background: var(--portal-surface, oklch(0.2613 0.0134 272.84));
+        border: 1px solid var(--portal-border, #363636);
         transition: transform 0.2s ease, border-color 0.2s ease;
       }
       .feature-card:hover {
@@ -913,12 +780,12 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
         font-size: 1.25rem;
         font-weight: 700;
         margin: 0 0 0.5rem;
-        color: var(--portal-fg, #ffffff);
+        color: var(--portal-fg, #cccccc);
       }
       .feature-text {
         font-size: 0.9375rem;
         line-height: 1.6;
-        color: var(--portal-muted, #94a3b8);
+        color: var(--portal-muted, #8b949e);
         margin: 0;
       }
 
@@ -936,8 +803,8 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
       .landing-api-card {
         padding: 1.5rem;
         border-radius: 12px;
-        background: var(--portal-surface, #111827);
-        border: 1px solid var(--portal-border, rgba(255, 255, 255, 0.08));
+        background: var(--portal-surface, oklch(0.2613 0.0134 272.84));
+        border: 1px solid var(--portal-border, #363636);
         text-decoration: none;
         display: flex;
         flex-direction: column;
@@ -957,12 +824,12 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
       .landing-api-title {
         font-size: 1.2rem;
         font-weight: 700;
-        color: var(--portal-fg, #ffffff);
+        color: var(--portal-fg, #cccccc);
         margin: 0 0 0.5rem;
       }
       .landing-api-desc {
         font-size: 0.9rem;
-        color: var(--portal-muted, #94a3b8);
+        color: var(--portal-muted, #8b949e);
         line-height: 1.5;
         flex: 1;
         margin: 0 0 1rem;
@@ -971,6 +838,44 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
         font-size: 0.875rem;
         font-weight: 600;
         color: var(--portal-primary, #f76b39);
+      }
+
+      /* Light Mode Overrides for Landing Page */
+      [data-theme='light'] .landing-title {
+        background: linear-gradient(135deg, #111111 40%, #555555 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      [data-theme='light'] .landing-badge {
+        background: rgba(247, 107, 57, 0.1);
+        border-color: rgba(247, 107, 57, 0.25);
+      }
+      [data-theme='light'] .landing-btn-secondary {
+        background: #ffffff;
+        border-color: #e4e4e7;
+        color: #555555;
+      }
+      [data-theme='light'] .landing-btn-secondary:hover {
+        background: #f4f4f5;
+        color: #111111;
+        border-color: #cbd5e1;
+      }
+      [data-theme='light'] .landing-code-card {
+        background: #f4f4f5;
+        border-color: #e4e4e7;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+      }
+      [data-theme='light'] .landing-code-header {
+        background: #ffffff;
+        border-color: #e4e4e7;
+      }
+      [data-theme='light'] .feature-card {
+        background: #f4f4f5;
+        border-color: #e4e4e7;
+      }
+      [data-theme='light'] .landing-api-card {
+        background: #f4f4f5;
+        border-color: #e4e4e7;
       }
     </style>
   </head>
