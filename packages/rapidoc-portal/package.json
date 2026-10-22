@@ -12,7 +12,7 @@
     "./components": "./src/components/index.js"
   },
   "scripts": {
-    "test": "node --test tests/**/*.test.js"
+    "test": "node --test --test-concurrency=1 tests/**/*.test.js"
   },
   "dependencies": {
     "@markdoc/markdoc": "^0.5.10",

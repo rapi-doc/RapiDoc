@@ -2,7 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildPortal, buildPortalWithAstro, devPortalWithAstro, migrateConfig } from '@rapidoc/portal';
+import { buildPortalWithAstro, devPortalWithAstro, migrateConfig } from '@rapidoc/portal';
 import { validate } from '@scalar/openapi-parser';
 
 const args = process.argv.slice(2);
@@ -24,14 +24,13 @@ Commands:
   --version, -v           Show version information
 
 Options:
-  --engine <name>         SSG engine: 'astro' (default) or 'static'
   --outDir <path>         Output directory for static assets (default: dist)
   --port <number>         Development server port (default: 4321)
 
 Examples:
   rapidoc dev
   rapidoc build
-  rapidoc build ./my-api-portal --engine astro
+  rapidoc build ./my-api-portal
   rapidoc validate ./specs/orders-api.yaml
   rapidoc migrate --from redocly
 `);
@@ -54,28 +53,18 @@ async function handleDev() {
 
 async function handleBuild() {
   const targetDir = args[1] && !args[1].startsWith('--') ? args[1] : process.cwd();
-  const engineIdx = args.indexOf('--engine');
-  const engine = engineIdx !== -1 ? args[engineIdx + 1] : 'astro';
 
   console.log(`\n🚀 Building RapiDoc Portal in: ${targetDir}`);
-  console.log(`   Engine: ${engine === 'astro' ? 'Astro + Starlight' : 'Static Generator'}`);
+  console.log(`   Engine: Astro + Starlight`);
 
   try {
     const outDirIdx = args.indexOf('--outDir');
     const outDir = outDirIdx !== -1 ? args[outDirIdx + 1] : 'dist';
 
-    if (engine === 'astro') {
-      const result = await buildPortalWithAstro(targetDir, { outDir });
-      console.log(`\n✨ Astro build completed successfully in ${result.durationMs}ms!`);
-      console.log(`   • APIs compiled:   ${result.apisCount}`);
-      console.log(`   • Output folder:   ${result.outDir}\n`);
-    } else {
-      const result = await buildPortal(targetDir, { outDir });
-      console.log(`\n✨ Build completed successfully in ${result.durationMs}ms!`);
-      console.log(`   • Pages generated: ${result.pagesCount}`);
-      console.log(`   • APIs compiled:   ${result.apisCount}`);
-      console.log(`   • Output folder:   ${result.outDir}\n`);
-    }
+    const result = await buildPortalWithAstro(targetDir, { outDir });
+    console.log(`\n✨ Astro build completed successfully in ${result.durationMs}ms!`);
+    console.log(`   • APIs compiled:   ${result.apisCount}`);
+    console.log(`   • Output folder:   ${result.outDir}\n`);
   } catch (err) {
     console.error(`\n❌ Build failed: ${err.message}\n`);
     process.exit(1);

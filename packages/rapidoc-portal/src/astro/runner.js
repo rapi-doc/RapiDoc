@@ -97,11 +97,20 @@ function normalizeDocFrontmatter(rawContent, fileName = '') {
 /**
  * Prepares the .rapidoc workspace inside the user's project.
  */
-export async function prepareAstroWorkspace(projectDir = process.cwd()) {
+export async function prepareAstroWorkspace(projectDir = process.cwd(), options = {}) {
   const { config, configPath } = await loadConfig(projectDir);
   const baseDir = path.dirname(configPath);
-  // Place workspace inside PORTAL_ROOT/.portal-engine so Node resolution finds monorepo dependencies naturally
-  const workspaceDir = path.resolve(PORTAL_ROOT, '.portal-engine');
+  // Place workspace inside PORTAL_ROOT so Node resolution finds monorepo dependencies naturally
+  const projectKey = path.basename(path.resolve(projectDir));
+  const isDemoPortal = projectDir.includes('demo-api-portal');
+  const workspaceName =
+    options.workspaceDir ||
+    (options.outDir && options.outDir !== 'dist'
+      ? `.portal-engine-${options.outDir}`
+      : isDemoPortal
+        ? '.portal-engine'
+        : `.portal-engine-${projectKey}`);
+  const workspaceDir = path.resolve(PORTAL_ROOT, workspaceName);
 
   // Clean previous workspace
   if (fs.existsSync(workspaceDir)) {
@@ -351,7 +360,7 @@ export async function prepareAstroWorkspace(projectDir = process.cwd()) {
  */
 export async function buildPortalWithAstro(projectDir = process.cwd(), options = {}) {
   const startTime = Date.now();
-  const { workspaceDir, config, baseDir } = await prepareAstroWorkspace(projectDir);
+  const { workspaceDir, config, baseDir } = await prepareAstroWorkspace(projectDir, options);
   const outDir = path.resolve(baseDir, options.outDir || 'dist');
 
   // Save current directory and switch to workspace for Astro
@@ -364,6 +373,13 @@ export async function buildPortalWithAstro(projectDir = process.cwd(), options =
     });
   } finally {
     process.chdir(originalCwd);
+    if (path.basename(workspaceDir).startsWith('.portal-engine-')) {
+      try {
+        fs.rmSync(workspaceDir, { recursive: true, force: true, maxRetries: 3 });
+      } catch {
+        // Cleanup temp workspace
+      }
+    }
   }
 
   return {
@@ -378,7 +394,7 @@ export async function buildPortalWithAstro(projectDir = process.cwd(), options =
  * Runs the Astro + Starlight live development server.
  */
 export async function devPortalWithAstro(projectDir = process.cwd(), options = {}) {
-  const { workspaceDir } = await prepareAstroWorkspace(projectDir);
+  const { workspaceDir } = await prepareAstroWorkspace(projectDir, options);
 
   process.chdir(workspaceDir);
 

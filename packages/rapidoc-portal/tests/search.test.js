@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import { stripMarkup, extractDocSections, indexOpenApiSpec, buildSearchIndex, searchRecords } from '../src/search/indexer.js';
 import { loadConfig } from '../src/config/loader.js';
-import { buildPortal } from '../src/build/compiler.js';
+import { buildPortalWithAstro } from '../src/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -102,13 +102,13 @@ Content under subsection.`;
     );
   });
 
-  await t.test('buildPortal should generate dist/assets/search-index.json during SSG build', async () => {
+  await t.test('buildPortalWithAstro should generate dist/assets/search-index.json during SSG build', async () => {
     const tempOut = 'dist-search-test';
     const tempOutDir = path.join(DEMO_PORTAL_DIR, tempOut);
     try {
-      const result = await buildPortal(DEMO_PORTAL_DIR, { outDir: tempOut });
+      const result = await buildPortalWithAstro(DEMO_PORTAL_DIR, { outDir: tempOut });
       assert.strictEqual(result.success, true);
-      assert.ok(result.searchRecordsCount > 20, 'Search index should be compiled');
+      assert.ok(result.apisCount > 0, 'APIs should be compiled');
 
       const searchIndexPath = path.join(result.outDir, 'assets/search-index.json');
       assert.strictEqual(fs.existsSync(searchIndexPath), true);

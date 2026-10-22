@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 
 import { scaffoldProject } from '../src/scaffold.js';
-import { buildPortal } from '../../rapidoc-portal/src/build/compiler.js';
+import { buildPortalWithAstro } from '../../rapidoc-portal/src/index.js';
 import { validate } from '@scalar/openapi-parser';
 
 test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
@@ -55,20 +55,16 @@ test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
     assert.strictEqual(result.valid, true, 'Scaffolded OpenAPI specification must be 100% valid');
   });
 
-  await t.test('scaffolded project should compile cleanly with buildPortal (end-to-end SSG)', async () => {
+  await t.test('scaffolded project should compile cleanly with buildPortalWithAstro (end-to-end SSG)', async () => {
     const projectDir = path.join(tempDir, 'sample-portal');
-    const buildResult = await buildPortal(projectDir);
+    const buildResult = await buildPortalWithAstro(projectDir);
 
     assert.strictEqual(buildResult.success, true);
-    assert.ok(buildResult.pagesCount >= 3, 'Should render landing, docs, and API pages');
     assert.strictEqual(buildResult.apisCount, 1);
-    assert.ok(buildResult.searchRecordsCount > 0, 'Should compile search index');
 
     // Verify dist artifacts
     const distDir = path.join(projectDir, 'dist');
     assert.ok(fs.existsSync(path.join(distDir, 'index.html')));
-    assert.ok(fs.existsSync(path.join(distDir, 'assets/portal.css')));
-    assert.ok(fs.existsSync(path.join(distDir, 'assets/portal.js')));
     assert.ok(fs.existsSync(path.join(distDir, 'assets/search-index.json')));
     assert.ok(fs.existsSync(path.join(distDir, 'apis/core/index.html')));
     assert.ok(fs.existsSync(path.join(distDir, 'docs/getting-started/index.html')));
