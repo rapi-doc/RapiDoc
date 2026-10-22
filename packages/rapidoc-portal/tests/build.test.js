@@ -99,7 +99,8 @@ describe('RapiDoc Portal Shell & SSG Build Engine (Milestone 4)', () => {
   });
 
   it('should run buildPortal on demo-api-portal and compile static HTML files into dist/', async () => {
-    const result = await buildPortal(DEMO_PORTAL_DIR);
+    const testOutDir = 'dist-test-static';
+    const result = await buildPortal(DEMO_PORTAL_DIR, { outDir: testOutDir });
 
     assert.equal(result.success, true);
     assert.ok(result.pagesCount >= 10);
@@ -155,5 +156,8 @@ describe('RapiDoc Portal Shell & SSG Build Engine (Milestone 4)', () => {
     assert.ok(tagPageContent.includes('goto-path="tag--shipment-management"'));
     assert.ok(tagPageContent.includes('update-route="false"'));
     assert.ok(tagPageContent.includes('href="/apis/shipments/shipment-management#track-shipment"'));
+
+    // Clean up test output dir
+    fs.rmSync(distDir, { recursive: true, force: true });
   });
 });
