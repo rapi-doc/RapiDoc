@@ -218,25 +218,90 @@ mobile-starlight-toc {
 }
 
 /* Documentation Content & Footer Alignment */
+.main-pane {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: calc(100vh - var(--portal-header-height, 101px)) !important;
+}
+
+.main-pane > main {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
+  padding: 0 !important;
+}
+
+/* Remove Starlight internal hairline divider between content panels */
+.main-pane .content-panel + .content-panel {
+  border-top: none !important;
+}
+
+/* Page title content panel */
+.main-pane .content-panel:first-child {
+  padding: 1.5rem var(--sl-content-pad-x, 1.5rem) 0 var(--sl-content-pad-x, 1.5rem) !important;
+}
+
+.main-pane .content-panel:first-child > .sl-container {
+  max-width: var(--sl-content-width, 860px) !important;
+  margin-inline: var(--sl-content-margin-inline, auto) !important;
+}
+
+/* Article & Footer content panel: stretch full height with zero bottom padding */
+.main-pane .content-panel:last-child {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  padding: 0 !important;
+}
+
+.main-pane .content-panel:last-child > .sl-container {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Constrain article markdown body to standard content width and margin */
+.main-pane .sl-markdown-content {
+  flex: 1 0 auto !important;
+  max-width: var(--sl-content-width, 860px) !important;
+  width: 100% !important;
+  margin-inline: var(--sl-content-margin-inline, auto) !important;
+  padding: 1.5rem var(--sl-content-pad-x, 1.5rem) !important;
+  box-sizing: border-box !important;
+}
+
+/* Full-width docked footer spanning entire main pane */
 .main-pane footer.portal-content-footer,
 .main-pane .portal-content-footer {
   width: 100% !important;
   max-width: none !important;
-  margin: clamp(2.5rem, 5vh, 4rem) 0 1.5rem 0 !important;
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
   border-top: 1px solid var(--portal-border, #363636) !important;
-  padding: 1.25rem 0 0 0 !important;
+  padding: 0 !important;
   box-sizing: border-box !important;
   display: flex !important;
-  flex-direction: row !important;
   align-items: center !important;
-  justify-content: space-between !important;
-  background: transparent !important;
-  height: auto !important;
-  min-height: auto !important;
+  justify-content: center !important;
+  background: var(--portal-bg, oklch(0.2613 0.0134 272.84)) !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  flex-shrink: 0 !important;
 }
 
-.portal-content-footer-container {
+/* Footer container lines up with main content's left/right margins */
+.main-pane .portal-content-footer-container {
   width: 100% !important;
+  max-width: var(--sl-content-width, 860px) !important;
+  margin-inline: var(--sl-content-margin-inline, auto) !important;
+  padding: 0 var(--sl-content-pad-x, 1.5rem) !important;
+  box-sizing: border-box !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
@@ -315,12 +380,15 @@ html.portal-announcement-dismissed #portal-announcement {
 
 /**
  * Converts portal navigation items to Starlight sidebar format.
+ * Documentation sidebar contains only narrative docs/guides by default.
  *
  * @param {Array} navigation - rapidoc.config.yaml navigation array
  * @param {Array} apis - rapidoc.config.yaml apis array
+ * @param {object} [options] - Optional sidebar builder flags
+ * @param {boolean} [options.includeApis=false] - Whether to include API Reference in sidebar
  * @returns {Array} Starlight sidebar configuration
  */
-export function buildStarlightSidebar(navigation = [], apis = []) {
+export function buildStarlightSidebar(navigation = [], apis = [], options = {}) {
   const sidebar = [];
 
   // 1. Guides & Narrative Docs navigation
@@ -346,8 +414,8 @@ export function buildStarlightSidebar(navigation = [], apis = []) {
     }
   }
 
-  // 2. APIs & Reference section
-  if (apis && apis.length > 0) {
+  // 2. APIs & Reference section (only if explicitly enabled via options.includeApis)
+  if (options.includeApis && apis && apis.length > 0) {
     const apiItems = apis.map((api) => ({
       label: api.title || `${api.id} API`,
       link: api.path || `/apis/${api.id}`,

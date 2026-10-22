@@ -24,18 +24,20 @@ describe('RapiDoc Portal Astro + Starlight Engine Bridge', () => {
 
     const sidebar = buildStarlightSidebar(mockNav, mockApis);
 
-    // Verify guides group
-    assert.equal(sidebar.length, 2);
+    // Verify docs sidebar only contains narrative docs by default
+    assert.equal(sidebar.length, 1);
     assert.equal(sidebar[0].label, 'Space Operations');
     assert.equal(sidebar[0].items.length, 2);
     assert.equal(sidebar[0].items[0].link, '/docs/shipping-process');
 
-    // Verify APIs group
-    assert.equal(sidebar[1].label, 'API Reference');
-    assert.equal(sidebar[1].items.length, 2);
-    assert.equal(sidebar[1].items[0].label, 'Shipment API');
-    assert.equal(sidebar[1].items[0].link, '/apis/shipments');
-    assert.equal(sidebar[1].items[0].badge?.text, 'Core');
+    // Verify APIs group can be included if explicitly requested via options
+    const sidebarWithApis = buildStarlightSidebar(mockNav, mockApis, { includeApis: true });
+    assert.equal(sidebarWithApis.length, 2);
+    assert.equal(sidebarWithApis[1].label, 'API Reference');
+    assert.equal(sidebarWithApis[1].items.length, 2);
+    assert.equal(sidebarWithApis[1].items[0].label, 'Shipment API');
+    assert.equal(sidebarWithApis[1].items[0].link, '/apis/shipments');
+    assert.equal(sidebarWithApis[1].items[0].badge?.text, 'Core');
   });
 
   it('should create complete Starlight configuration object', async () => {

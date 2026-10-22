@@ -225,7 +225,7 @@ if (compactLinks.length === 0 && columns) {
     min-height: 52px;
     max-height: 52px;
     box-sizing: border-box;
-    padding: 0 1.5rem;
+    padding: 0;
     width: 100%;
     max-width: none;
     flex-shrink: 0;
@@ -242,6 +242,10 @@ if (compactLinks.length === 0 && columns) {
 
   .portal-content-footer-container {
     width: 100%;
+    max-width: var(--sl-content-width, 860px);
+    margin-inline: var(--sl-content-margin-inline, auto);
+    padding: 0 var(--sl-content-pad-x, 1.5rem);
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
