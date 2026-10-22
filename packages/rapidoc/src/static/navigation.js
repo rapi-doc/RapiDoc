@@ -13,24 +13,10 @@
 import { resolveSpecInput } from './render.js';
 import { escapeHtml } from './serializer.js';
 import { OperationSlugger, toKebabCase } from '../utils/slugger.js';
+import { bindNavBar } from '../utils/bind-navbar.js';
+import { isInternalOrHidden } from '../utils/common-utils.js';
 
-export function isInternalOrHidden(item) {
-  if (!item || typeof item !== 'object') return false;
-  return (
-    item.xInternal === true ||
-    item.xInternal === 'true' ||
-    item.xHidden === true ||
-    item.xHidden === 'true' ||
-    item['x-internal'] === true ||
-    item['x-internal'] === 'true' ||
-    item['x-hidden'] === true ||
-    item['x-hidden'] === 'true' ||
-    item.rawOperation?.['x-internal'] === true ||
-    item.rawOperation?.['x-internal'] === 'true' ||
-    item.rawOperation?.['x-hidden'] === true ||
-    item.rawOperation?.['x-hidden'] === 'true'
-  );
-}
+export { isInternalOrHidden };
 
 /**
  * Normalizes HTTP method badge string (3-character format matching core RapiDoc).
@@ -51,8 +37,12 @@ export function getMethodBadge(method, format = '3-char') {
 
 /**
  * Retrieves visible operations for a tag, supporting both parsed and raw specs.
+ *
+ * @param {Object} tag
+ * @param {Object} spec
+ * @param {OperationSlugger} [sharedSlugger]
  */
-function getTagOperations(tag, spec) {
+function getTagOperations(tag, spec, sharedSlugger) {
   if (Array.isArray(tag.paths) && tag.paths.length > 0) {
     return tag.paths.filter((p) => !isInternalOrHidden(p));
   }
@@ -61,7 +51,7 @@ function getTagOperations(tag, spec) {
   const tagName = (tag.name || '').toLowerCase();
   const operations = [];
   const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'];
-  const slugger = new OperationSlugger();
+  const slugger = sharedSlugger || new OperationSlugger();
   const tagSlug = toKebabCase(tag.name);
 
   for (const [pathKey, pathObj] of Object.entries(spec.paths)) {
@@ -100,16 +90,16 @@ function getTagOperations(tag, spec) {
  *
  * @param {string|Object} specInput - Specification file path, URL, raw string, or parsed spec
  * @param {Object} [options]
- * @returns {Promise<{ title: string, version: string, description: string, tagGroups: Array, tags: Array }>}
+ * @returns {Promise<{ title: string, version: string, description: string, tagGroups: Array, tags: Array, remainingTags: Array }>}
  */
 export async function getSpecNavigation(specInput, options = {}) {
   const resolvedSpec = await resolveSpecInput(specInput, options);
   const slugger = new OperationSlugger();
 
-  const tags = (resolvedSpec.tags || [])
+  const allTags = (resolvedSpec.tags || [])
     .filter((t) => !isInternalOrHidden(t))
     .map((t) => {
-      const paths = getTagOperations(t, resolvedSpec);
+      const paths = getTagOperations(t, resolvedSpec, slugger);
       return {
         name: t.name || t.displayName || '',
         displayName: t.displayName || t.name || '',
@@ -121,13 +111,15 @@ export async function getSpecNavigation(specInput, options = {}) {
     })
     .filter((t) => t.paths.length > 0);
 
+  const assignedTagNames = new Set();
   const tagGroups = (resolvedSpec.tagGroups || [])
     .filter((group) => !isInternalOrHidden(group))
     .map((group) => {
       const groupTags = (group.tags || [])
         .filter((t) => !isInternalOrHidden(t))
         .map((t) => {
-          const paths = getTagOperations(t, resolvedSpec);
+          assignedTagNames.add((t.name || '').toLowerCase());
+          const paths = getTagOperations(t, resolvedSpec, slugger);
           return {
             name: t.name || t.displayName || '',
             displayName: t.displayName || t.name || '',
@@ -151,13 +143,181 @@ export async function getSpecNavigation(specInput, options = {}) {
     })
     .filter(Boolean);
 
+  const remainingTags = tagGroups.length > 0 ? allTags.filter((t) => !assignedTagNames.has(t.name.toLowerCase())) : [];
+
   return {
     title: resolvedSpec.info?.title || '',
     version: resolvedSpec.info?.version || '',
     description: resolvedSpec.info?.description || '',
     tagGroups,
-    tags,
+    tags: allTags,
+    remainingTags,
   };
+}
+
+/**
+ * Renders a single operation item link.
+ */
+function renderOperation(op, tagSlug, ctx) {
+  if (!op || isInternalOrHidden(op)) return '';
+  const method = op.method ? op.method.toLowerCase() : 'get';
+  const path = op.path || '';
+
+  // Extract clean operation slug without tag prefix
+  const rawElementId = op.elementId || ctx.slugger.slug(op, tagSlug);
+  let opSlug;
+  let hierarchicalId;
+
+  if (op.elementId) {
+    hierarchicalId = op.elementId;
+    if (tagSlug && tagSlug !== 'general') {
+      const prefix = `${tagSlug}--`;
+      opSlug = hierarchicalId.startsWith(prefix)
+        ? hierarchicalId.slice(prefix.length)
+        : ctx.slugger.slugOp
+          ? ctx.slugger.slugOp(op)
+          : hierarchicalId;
+    } else {
+      opSlug = hierarchicalId;
+    }
+  } else {
+    opSlug = ctx.slugger.slugOp ? ctx.slugger.slugOp(op) : rawElementId.replace(/^[a-z0-9_-]+--/, '');
+    hierarchicalId = tagSlug && tagSlug !== 'general' ? `${tagSlug}--${opSlug}` : opSlug;
+  }
+
+  let href;
+  let contentId;
+  if (ctx.routingMode === 'tag-pages' && tagSlug && tagSlug !== 'general') {
+    href = `${ctx.cleanBase}/${tagSlug}#${opSlug}`;
+    contentId = opSlug;
+  } else {
+    href = `${ctx.cleanBase}#${hierarchicalId}`;
+    contentId = hierarchicalId;
+  }
+
+  const title = ctx.usePathInNav ? path : op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`;
+  const methodBadge = getMethodBadge(method, ctx.methodBadgeFormat);
+  const isActive = Boolean(
+    ctx.activeHref &&
+    (ctx.activeHref === href || ctx.activeHref.endsWith(`#${contentId}`) || (opSlug && ctx.activeHref.endsWith(`#${opSlug}`)))
+  );
+  const deprecatedClass = op.deprecated ? ' deprecated' : '';
+  const extraClass = ctx.itemClassName ? ` ${ctx.itemClassName}` : '';
+
+  return `
+    <a
+      href="${escapeHtml(href)}"
+      class="nav-bar-path${extraClass} ${isActive ? 'active' : ''}${deprecatedClass}"
+      part="section-navbar-item section-navbar-path"
+      data-action="navigate"
+      data-content-id="${contentId}"
+      data-op-slug="${opSlug}"
+      data-path="${escapeHtml(path)}"
+      id="link-${contentId}"
+      tabindex="0"
+    >
+      <span class="nav-bar-path-label">${escapeHtml(title)}</span>
+      <span class="nav-method as-colored-block ${method}">${methodBadge}</span>
+    </a>`;
+}
+
+/**
+ * Renders a tag accordion section and its underlying operations.
+ */
+function renderTag(tag, ctx) {
+  if (!tag || isInternalOrHidden(tag)) return '';
+  const visiblePaths = getTagOperations(tag, ctx.resolvedSpec, ctx.slugger);
+  if (visiblePaths.length === 0) return '';
+  const tagSlug = toKebabCase(tag.name);
+  const elementId = tag.elementId || ctx.slugger.slugTag(tag.name);
+  const title = tag.displayName || tag.name || '';
+  const isExpanded = tag.expanded !== false;
+  const pathsHtml = visiblePaths.map((op) => renderOperation(op, tagSlug, ctx)).join('');
+  const tagHref =
+    ctx.routingMode === 'tag-pages' && tagSlug && tagSlug !== 'general' ? `${ctx.cleanBase}/${tagSlug}` : `${ctx.basePath}#${elementId}`;
+
+  return `
+    <div class="nav-bar-tag-and-paths ${isExpanded ? 'expanded' : 'collapsed'}" id="link-${elementId}">
+      <div
+        class="nav-bar-tag"
+        part="section-navbar-item section-navbar-tag"
+        id="link-${elementId}-header"
+        data-action="expand-collapse-tag"
+        data-tag-href="${escapeHtml(tagHref)}"
+        tabindex="0"
+        role="button"
+        aria-expanded="${isExpanded ? 'true' : 'false'}"
+      >
+        <div class="nav-bar-tag-title" data-tag-href="${escapeHtml(tagHref)}">${escapeHtml(title)}</div>
+        <div class="nav-bar-tag-icon" tabindex="0" data-action="expand-collapse-tag"></div>
+      </div>
+      <div class="nav-bar-paths-under-tag">
+        ${pathsHtml}
+      </div>
+    </div>`;
+}
+
+/**
+ * Renders a 3-tier tag group accordion.
+ */
+function renderGroup(group, ctx) {
+  if (!group || isInternalOrHidden(group)) return '';
+  const groupTagsHtml = (group.tags || [])
+    .map((t) => renderTag(t, ctx))
+    .filter(Boolean)
+    .join('');
+  if (!groupTagsHtml) return '';
+  const groupId = group.elementId || ctx.slugger.slugTagGroup(group.name);
+  const title = group.displayName || group.name || '';
+  const isExpanded = group.expanded !== false;
+
+  return `
+    <div class="nav-bar-tag-group ${isExpanded ? 'expanded' : 'collapsed'}" id="link-${groupId}">
+      <div
+        class="nav-bar-tag-group-header"
+        part="section-navbar-item section-navbar-tag-group"
+        data-action="expand-collapse-tag-group"
+        tabindex="0"
+        role="button"
+        aria-expanded="${isExpanded ? 'true' : 'false'}"
+      >
+        <div class="nav-bar-tag-group-title">${escapeHtml(title)}</div>
+        <div class="nav-bar-tag-group-icon" tabindex="0" data-action="expand-collapse-tag-group"></div>
+      </div>
+      <div class="nav-bar-tags-under-group">
+        ${groupTagsHtml}
+      </div>
+    </div>`;
+}
+
+/**
+ * Renders standard RapiDoc navigation filter/search header HTML.
+ *
+ * @param {Object} [options]
+ * @param {string} [options.searchPlaceholder='Filter...']
+ * @param {string} [options.inputClassName='']
+ * @returns {string}
+ */
+export function getNavFilterHtml(options = {}) {
+  const placeholder = options.searchPlaceholder || options.placeholder || 'Filter...';
+  const extraClass = options.inputClassName ? ` ${options.inputClassName}` : '';
+  return `
+      <div class="nav-bar-header" part="section-navbar-header">
+        <div class="nav-bar-search-container" part="section-navbar-search">
+          <div class="nav-bar-search-input-wrapper">
+            <input
+              id="nav-bar-search"
+              part="textbox textbox-nav-filter"
+              class="nav-bar-search-input portal-filter-input${extraClass}"
+              type="text"
+              placeholder="${escapeHtml(placeholder)}"
+              aria-label="Filter endpoints"
+              spellcheck="false"
+            />
+            <span class="nav-bar-search-icon">🔍</span>
+          </div>
+        </div>
+      </div>`;
 }
 
 /**
@@ -174,7 +334,7 @@ export async function getNavBarHtml(specInput, options = {}) {
 
 /**
  * Pure, zero-dependency HTML string generator for OpenAPI navigation.
- * Produces identical markup and CSS classes as core RapiDoc's navbarTemplate directly from the spec.
+ * Produces standard RapiDoc navigation HTML directly from the spec.
  *
  * @param {Object} resolvedSpec - Resolved OpenAPI specification
  * @param {Object} [options]
@@ -206,115 +366,20 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
   } = options;
 
   const slugger = new OperationSlugger();
+  const cleanBase = basePath.replace(/\/$/, '');
 
-  function renderOperation(op, tagSlug = '') {
-    if (!op || isInternalOrHidden(op)) return '';
-    const method = op.method ? op.method.toLowerCase() : 'get';
-    const path = op.path || '';
-    const cleanBase = basePath.replace(/\/$/, '');
-
-    // Extract clean operation slug (without tag prefix)
-    const rawElementId = op.elementId || slugger.slug(op, tagSlug);
-    const opSlug = slugger.slugOp ? slugger.slugOp(op) : rawElementId.replace(/^[a-z0-9_-]+--/, '');
-    const hierarchicalId = tagSlug && tagSlug !== 'general' ? `${tagSlug}--${opSlug}` : opSlug;
-
-    let href;
-    let contentId;
-    if (routingMode === 'tag-pages' && tagSlug && tagSlug !== 'general') {
-      href = `${cleanBase}/${tagSlug}#${opSlug}`;
-      contentId = opSlug;
-    } else {
-      href = `${cleanBase}#${hierarchicalId}`;
-      contentId = hierarchicalId;
-    }
-
-    const title = usePathInNav ? path : op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`;
-    const methodBadge = getMethodBadge(method, methodBadgeFormat);
-    const isActive = Boolean(
-      activeHref && (activeHref === href || activeHref.endsWith(`#${contentId}`) || (opSlug && activeHref.endsWith(`#${opSlug}`)))
-    );
-    const deprecatedStyle = op.deprecated ? 'style="filter:opacity(0.5);"' : '';
-    const extraClass = itemClassName ? ` ${itemClassName}` : '';
-
-    return `
-      <a
-        href="${escapeHtml(href)}"
-        class="nav-bar-path${extraClass} ${isActive ? 'active' : ''}"
-        ${deprecatedStyle}
-        part="section-navbar-item section-navbar-path"
-        data-action="navigate"
-        data-content-id="${escapeHtml(contentId)}"
-        data-op-slug="${escapeHtml(opSlug)}"
-        data-path="${escapeHtml(path)}"
-        id="link-${escapeHtml(contentId)}"
-        tabindex="0"
-      >
-        <span class="nav-bar-path-label">${escapeHtml(title)}</span>
-        <span class="nav-method as-colored-block ${escapeHtml(method)}">${escapeHtml(methodBadge)}</span>
-      </a>`;
-  }
-
-  function renderTag(tag) {
-    if (!tag || isInternalOrHidden(tag)) return '';
-    const visiblePaths = getTagOperations(tag, resolvedSpec);
-    if (visiblePaths.length === 0) return '';
-    const tagSlug = toKebabCase(tag.name);
-    const elementId = tag.elementId || slugger.slugTag(tag.name);
-    const title = tag.displayName || tag.name || '';
-    const isExpanded = tag.expanded !== false;
-    const pathsHtml = visiblePaths.map((op) => renderOperation(op, tagSlug)).join('');
-    const tagHref =
-      routingMode === 'tag-pages' && tagSlug && tagSlug !== 'general'
-        ? `${basePath.replace(/\/$/, '')}/${tagSlug}`
-        : `${basePath}#${elementId}`;
-
-    return `
-      <div class="nav-bar-tag-and-paths ${isExpanded ? 'expanded' : 'collapsed'}" id="link-${escapeHtml(elementId)}">
-        <div
-          class="nav-bar-tag"
-          part="section-navbar-item section-navbar-tag"
-          id="link-${escapeHtml(elementId)}-header"
-          data-action="expand-collapse-tag"
-          data-tag-href="${escapeHtml(tagHref)}"
-          tabindex="0"
-          role="button"
-          aria-expanded="${isExpanded ? 'true' : 'false'}"
-        >
-          <div class="nav-bar-tag-title" data-tag-href="${escapeHtml(tagHref)}">${escapeHtml(title)}</div>
-          <div class="nav-bar-tag-icon" tabindex="0" data-action="expand-collapse-tag"></div>
-        </div>
-        <div class="nav-bar-paths-under-tag">
-          ${pathsHtml}
-        </div>
-      </div>`;
-  }
-
-  function renderGroup(group) {
-    if (!group || isInternalOrHidden(group)) return '';
-    const groupTagsHtml = (group.tags || []).map(renderTag).filter(Boolean).join('');
-    if (!groupTagsHtml) return '';
-    const groupId = group.elementId || slugger.slugTagGroup(group.name);
-    const title = group.displayName || group.name || '';
-    const isExpanded = group.expanded !== false;
-
-    return `
-      <div class="nav-bar-tag-group ${isExpanded ? 'expanded' : 'collapsed'}" id="link-${escapeHtml(groupId)}">
-        <div
-          class="nav-bar-tag-group-header"
-          part="section-navbar-item section-navbar-tag-group"
-          data-action="expand-collapse-tag-group"
-          tabindex="0"
-          role="button"
-          aria-expanded="${isExpanded ? 'true' : 'false'}"
-        >
-          <div class="nav-bar-tag-group-title">${escapeHtml(title)}</div>
-          <div class="nav-bar-tag-group-icon" tabindex="0" data-action="expand-collapse-tag-group"></div>
-        </div>
-        <div class="nav-bar-tags-under-group">
-          ${groupTagsHtml}
-        </div>
-      </div>`;
-  }
+  const ctx = {
+    basePath,
+    cleanBase,
+    activeHref,
+    routingMode,
+    itemClassName,
+    includeOverview,
+    methodBadgeFormat,
+    usePathInNav,
+    resolvedSpec,
+    slugger,
+  };
 
   let overviewHtml = '';
   if (includeOverview && resolvedSpec.info) {
@@ -344,14 +409,14 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
       .filter((g) => !isInternalOrHidden(g))
       .map((group) => {
         (group.tags || []).forEach((t) => assignedTagNames.add((t.name || '').toLowerCase()));
-        return renderGroup(group);
+        return renderGroup(group, ctx);
       })
       .filter(Boolean)
       .join('');
 
     const remainingTagsHtml = (resolvedSpec.tags || [])
       .filter((t) => !assignedTagNames.has((t.name || '').toLowerCase()) && !isInternalOrHidden(t))
-      .map(renderTag)
+      .map((t) => renderTag(t, ctx))
       .filter(Boolean)
       .join('');
 
@@ -359,35 +424,17 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
   } else {
     bodyHtml = (resolvedSpec.tags || [])
       .filter((t) => !isInternalOrHidden(t))
-      .map(renderTag)
+      .map((t) => renderTag(t, ctx))
       .filter(Boolean)
       .join('');
   }
 
-  const searchHeaderHtml = includeSearch
-    ? `
-      <div class="nav-bar-header" part="section-navbar-header">
-        <div class="nav-bar-search-container" part="section-navbar-search">
-          <div class="nav-bar-search-input-wrapper">
-            <input
-              id="nav-bar-search"
-              part="textbox textbox-nav-filter"
-              class="nav-bar-search-input portal-filter-input"
-              type="text"
-              placeholder="${escapeHtml(searchPlaceholder)}"
-              aria-label="Filter endpoints"
-              spellcheck="false"
-            />
-            <span class="nav-bar-search-icon">🔍</span>
-          </div>
-          <button type="button" class="portal-search-btn" id="advanced-search-btn" part="btn btn-fill btn-search">SEARCH</button>
-        </div>
-      </div>`
-    : '';
+  // Dedicated in-place filter input header (without redundant SEARCH modal button)
+  const searchHeaderHtml = includeSearch ? getNavFilterHtml({ searchPlaceholder }) : '';
 
   const backLinkHtml = backToDocsHref
     ? `
-      <div class="portal-sidebar-footer-link" style="padding: 16px 12px;">
+      <div class="portal-sidebar-footer-link">
         <a href="${escapeHtml(backToDocsHref)}" class="nav-bar-path">
           <span class="nav-bar-path-label">&larr; ${escapeHtml(backToDocsLabel)}</span>
         </a>
@@ -403,10 +450,14 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
     </div>`;
 }
 
+export { bindNavBar };
+
 export default {
   getSpecNavigation,
   getNavBarHtml,
   renderNavBarHtml,
+  getNavFilterHtml,
   getMethodBadge,
   isInternalOrHidden,
+  bindNavBar,
 };

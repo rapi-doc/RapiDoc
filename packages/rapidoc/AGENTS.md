@@ -87,4 +87,8 @@ packages/rapidoc/src/
 6. **Declarative Shadow DOM (DSD) Hydration Hygiene**:
    - When pre-rendering with DSD (`outputMode: 'dsd'`), `_clearDsdIfNeeded()` must replace all children (`this.shadowRoot.replaceChildren()`) and reset render options before Lit mounts its dynamic template result.
    - Whenever changes are made to `src/rapidoc.ts` or static rendering logic, execute `npm run build:rapidoc` to keep `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js` in sync.
+7. **NEVER Revert `dist/rapidoc-min.js` via Git Checkout**:
+   - `packages/rapidoc/dist/rapidoc-min.js` is tracked in git at an older commit (`4ff07e3f`).
+   - **DO NOT** run `git checkout packages/rapidoc/dist/rapidoc-min.js` or `git restore` to clean up `git status`. Doing so restores the obsolete pre-slugger bundle and breaks navigation/scrolling across all portal pages.
+   - Always keep `dist/rapidoc-min.js` compiled via `npm run build:rapidoc`.
 

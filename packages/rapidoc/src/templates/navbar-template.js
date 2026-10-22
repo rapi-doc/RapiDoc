@@ -3,7 +3,7 @@
  */
 import { html } from 'lit';
 import Slugger from 'github-slugger';
-import { getMatchedPaths } from '~/utils/common-utils';
+import { getMatchedPaths, isInternalOrHidden } from '~/utils/common-utils';
 
 export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
   const tagAndPathEl = navLinkEl?.closest('.nav-bar-tag-and-paths');
@@ -42,23 +42,7 @@ export function expandParentNavContainers(navLinkEl) {
   expandCollapseNavBarTag(navLinkEl, 'expand');
 }
 
-export function isInternalOrHidden(item) {
-  if (!item || typeof item !== 'object') return false;
-  return (
-    item.xInternal === true ||
-    item.xInternal === 'true' ||
-    item.xHidden === true ||
-    item.xHidden === 'true' ||
-    item['x-internal'] === true ||
-    item['x-internal'] === 'true' ||
-    item['x-hidden'] === true ||
-    item['x-hidden'] === 'true' ||
-    item.rawOperation?.['x-internal'] === true ||
-    item.rawOperation?.['x-internal'] === 'true' ||
-    item.rawOperation?.['x-hidden'] === true ||
-    item.rawOperation?.['x-hidden'] === 'true'
-  );
-}
+export { isInternalOrHidden };
 
 export function isNavPathVisible(path, searchVal, tagName) {
   if (isInternalOrHidden(path)) {

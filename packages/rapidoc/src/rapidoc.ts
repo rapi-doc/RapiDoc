@@ -28,6 +28,7 @@ import { expandParentNavContainers } from '~/templates/navbar-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 import { setApiServer } from '~/templates/server-template';
 import { generateMcpServer as mcpServerGenerator, extractMcpOperations, estimateTokenCost, parseMcpTargets } from '~/utils/mcp-generator';
+import { bindNavBar } from '~/utils/bind-navbar';
 
 const paramsConverter = {
   fromAttribute: (attr) => {
@@ -56,20 +57,16 @@ const paramsConverter = {
 export default class RapiDoc extends LitElement {
   constructor() {
     super();
-    const intersectionObserverOptions = {
-      rootMargin: '0px 0px -50% 0px', // Target the top 50% reading zone of viewport
-      threshold: 0,
-    };
     this.showSummaryWhenCollapsed = true;
     this._intersectingElements = new Map();
     // Will activate intersection observer only after spec load and hash analyze
     // to scroll to the proper element without being reverted by observer behavior
     this.isIntersectionObserverActive = false;
-    this.intersectionObserver = new IntersectionObserver((entries) => {
-      this.onIntersect(entries);
-    }, intersectionObserverOptions);
     this._userSetLayout = false;
     this._isDefaultingLayout = false;
+    this._observerLockTimeout = null;
+    this._observerLockCleanup = null;
+    this.initIntersectionObserver();
   }
 
   // Heading
@@ -137,6 +134,7 @@ export default class RapiDoc extends LitElement {
   @property({ type: String, attribute: 'page-direction' }) pageDirection = 'ltr';
   @property({ type: String, attribute: 'scroll-behavior' }) scrollBehavior = 'smooth';
   @property({ type: String, attribute: 'auto-height' }) autoHeight = 'false';
+  @property({ type: String, attribute: 'scroll-container' }) scrollContainer = '';
 
   // Main Colors and Font
   @property({ type: String, reflect: true }) theme = 'amber';
@@ -190,6 +188,7 @@ export default class RapiDoc extends LitElement {
   // Startup
   connectedCallback() {
     super.connectedCallback();
+    this.initIntersectionObserver();
     if (this.shadowRoot && this.shadowRoot.querySelector('.main-content')) {
       this._hasDsd = true;
     }
@@ -469,6 +468,14 @@ export default class RapiDoc extends LitElement {
     if (this._intersectionRaf) {
       cancelAnimationFrame(this._intersectionRaf);
     }
+    if (typeof this._observerLockCleanup === 'function') {
+      this._observerLockCleanup();
+      this._observerLockCleanup = null;
+    }
+    if (this._observerLockTimeout) {
+      clearTimeout(this._observerLockTimeout);
+      this._observerLockTimeout = null;
+    }
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
@@ -605,6 +612,9 @@ export default class RapiDoc extends LitElement {
         delay: this.mockServerDelay,
         log: this.mockServerLog,
       });
+    }
+    if (changedProperties.has('scrollContainer')) {
+      this.initIntersectionObserver();
     }
   }
 
@@ -968,9 +978,21 @@ export default class RapiDoc extends LitElement {
           const gotoEl = this.shadowRoot.getElementById(tmpElementId);
           if (gotoEl) {
             const mainContentEl = this.shadowRoot.querySelector('.main-content');
+            let targetTop: number;
             if (this.autoHeight === 'true') {
-              gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+              if (this._scrollRootContainer) {
+                const containerRect = this._scrollRootContainer.getBoundingClientRect();
+                const targetRect = gotoEl.getBoundingClientRect();
+                targetTop = targetRect.top - containerRect.top + this._scrollRootContainer.scrollTop;
+                this.lockObserverDuringScroll(gotoEl, tmpElementId, targetTop);
+                this._scrollRootContainer.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
+              } else {
+                this.lockObserverDuringScroll(gotoEl, tmpElementId);
+                gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+              }
             } else if (isFirst) {
+              targetTop = 0;
+              this.lockObserverDuringScroll(gotoEl, tmpElementId, targetTop);
               if (mainContentEl) {
                 mainContentEl.scrollTo({ top: 0, behavior: this.scrollBehavior });
               } else {
@@ -979,9 +1001,11 @@ export default class RapiDoc extends LitElement {
             } else if (mainContentEl) {
               const containerRect = mainContentEl.getBoundingClientRect();
               const targetRect = gotoEl.getBoundingClientRect();
-              const targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
+              targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
+              this.lockObserverDuringScroll(gotoEl, tmpElementId, targetTop);
               mainContentEl.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
             } else {
+              this.lockObserverDuringScroll(gotoEl, tmpElementId);
               gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
             }
             this._activeElementId = tmpElementId;
@@ -1025,6 +1049,58 @@ export default class RapiDoc extends LitElement {
     return this.resolvedSpec?.tags?.find((tag) => tag.paths.find((path) => path.elementId === id));
   }
 
+  initIntersectionObserver() {
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
+    let container = null;
+    if (this.scrollContainer && typeof document !== 'undefined') {
+      try {
+        container = document.querySelector(this.scrollContainer);
+        const isAncestor = Boolean(
+          container &&
+          (container.contains(this) ||
+            (this.assignedSlot && container.contains(this.assignedSlot)) ||
+            (container.shadowRoot && container.shadowRoot.contains(this.assignedSlot)))
+        );
+        if (container && !isAncestor) {
+          // If the specified element is not an ancestor of <rapi-doc>, IntersectionObserver cannot observe inside it
+          console.warn(
+            `RapiDoc: The element specified by scroll-container ("${this.scrollContainer}") is not an ancestor of <rapi-doc>. Falling back to auto-detection.`
+          );
+          container = null;
+        }
+      } catch {
+        // Ignore invalid query selector
+      }
+    }
+    if (!container && typeof window !== 'undefined') {
+      let parent: any = this.assignedSlot ? this.assignedSlot.parentElement : this.parentElement;
+      while (parent && parent !== document.body && parent !== document.documentElement) {
+        const overflowY = window.getComputedStyle(parent).overflowY;
+        if (overflowY === 'auto' || overflowY === 'scroll') {
+          container = parent;
+          break;
+        }
+        parent =
+          parent.parentElement ||
+          (parent.getRootNode && parent.getRootNode() instanceof ShadowRoot ? (parent.getRootNode() as ShadowRoot).host : null);
+      }
+    }
+    this._scrollRootContainer = container;
+    const intersectionObserverOptions = {
+      root: container,
+      rootMargin: '0px 0px -50% 0px',
+      threshold: 0,
+    };
+    this.intersectionObserver = new IntersectionObserver((entries) => {
+      this.onIntersect(entries);
+    }, intersectionObserverOptions);
+    if (this.isIntersectionObserverActive) {
+      this.observeExpandedContent();
+    }
+  }
+
   onIntersect(entries) {
     if (this.isIntersectionObserverActive === false) {
       return;
@@ -1051,11 +1127,12 @@ export default class RapiDoc extends LitElement {
       return;
     }
 
+    const containerTop = this._scrollRootContainer ? this._scrollRootContainer.getBoundingClientRect().top : 0;
     const visibleHeadings = [];
     const scrolledPast = [];
 
     for (const el of activeCandidates) {
-      const top = el.getBoundingClientRect().top;
+      const top = el.getBoundingClientRect().top - containerTop;
       if (top >= 0) {
         visibleHeadings.push({ el, top });
       } else {
@@ -1087,11 +1164,20 @@ export default class RapiDoc extends LitElement {
 
     this._intersectionRaf = requestAnimationFrame(() => {
       // 1. Dispatch custom event so outer portals/host apps can sync active state
+      let resolvedOperationId = targetId;
+      if (targetId.startsWith('tag--') && this.resolvedSpec?.tags) {
+        const matchingTag = this.resolvedSpec.tags.find((t) => t.elementId === targetId);
+        if (matchingTag?.paths?.[0]?.elementId) {
+          resolvedOperationId = matchingTag.paths[0].elementId;
+        }
+      }
+
       this.dispatchEvent(
         new CustomEvent('nav-active-change', {
           detail: {
             id: targetId,
             elementId: targetId,
+            operationId: resolvedOperationId,
           },
           bubbles: true,
           composed: true,
@@ -1165,6 +1251,103 @@ export default class RapiDoc extends LitElement {
   }
 
   /**
+   * Temporarily deactivates the IntersectionObserver during navigation/programmatic scrolling,
+   * preventing intermediate elements from hijacking the active navbar item while smooth scrolling.
+   * Re-activates the observer once scrolling finishes (via 'scrollend', debounced scroll fallback, or safety timeout).
+   *
+   * @param {HTMLElement | null} targetEl - The element being scrolled to
+   * @param {string} targetId - Element / operation identifier
+   * @param {number} [targetTop] - Target scroll offset if known
+   */
+  lockObserverDuringScroll(targetEl: HTMLElement | null, targetId: string = '', targetTop?: number) {
+    if (this._intersectionRaf) {
+      cancelAnimationFrame(this._intersectionRaf);
+      this._intersectionRaf = null;
+    }
+
+    if (typeof this._observerLockCleanup === 'function') {
+      this._observerLockCleanup();
+      this._observerLockCleanup = null;
+    }
+    if (this._observerLockTimeout) {
+      clearTimeout(this._observerLockTimeout);
+      this._observerLockTimeout = null;
+    }
+
+    this.isIntersectionObserverActive = false;
+    if (this._intersectingElements) {
+      this._intersectingElements.clear();
+      if (targetEl && targetId) {
+        this._intersectingElements.set(targetId, targetEl);
+      }
+    }
+    if (targetId) {
+      this._activeElementId = targetId;
+    }
+
+    const isAutoHeight = this.autoHeight === 'true' || this.hasAttribute('auto-height');
+    const scrollContainer: any = isAutoHeight
+      ? this._scrollRootContainer || (typeof window !== 'undefined' ? window : null)
+      : this.shadowRoot?.querySelector('.main-content') || (typeof window !== 'undefined' ? window : null);
+
+    if (!scrollContainer || typeof window === 'undefined') {
+      this.isIntersectionObserverActive = true;
+      return;
+    }
+
+    let isUnlocked = false;
+    const unlock = () => {
+      if (isUnlocked) return;
+      isUnlocked = true;
+      if (cleanup) {
+        cleanup();
+        cleanup = null;
+        this._observerLockCleanup = null;
+      }
+      if (this._observerLockTimeout) {
+        clearTimeout(this._observerLockTimeout);
+        this._observerLockTimeout = null;
+      }
+
+      if (targetEl && targetId && this._intersectingElements) {
+        this._intersectingElements.set(targetId, targetEl);
+      }
+      this.isIntersectionObserverActive = true;
+    };
+
+    let debounceTimer: any = null;
+    const onScroll = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(unlock, 120);
+    };
+
+    const onScrollEnd = () => {
+      unlock();
+    };
+
+    let cleanup: any = () => {
+      scrollContainer.removeEventListener?.('scrollend', onScrollEnd);
+      window.removeEventListener?.('scrollend', onScrollEnd);
+      scrollContainer.removeEventListener?.('scroll', onScroll);
+      window.removeEventListener?.('scroll', onScroll);
+      clearTimeout(debounceTimer);
+    };
+    this._observerLockCleanup = cleanup;
+
+    if ('onscrollend' in window) {
+      scrollContainer.addEventListener?.('scrollend', onScrollEnd, { once: true, passive: true });
+      window.addEventListener?.('scrollend', onScrollEnd, { once: true, passive: true });
+    }
+    scrollContainer.addEventListener?.('scroll', onScroll, { passive: true });
+    window.addEventListener?.('scroll', onScroll, { passive: true });
+
+    const currentScrollTop = scrollContainer === window ? window.scrollY : scrollContainer.scrollTop || 0;
+    const isZeroDistance = typeof targetTop === 'number' && Math.abs(targetTop - currentScrollTop) < 3;
+    const maxSafetyDelay = isZeroDistance ? 60 : this.scrollBehavior === 'auto' ? 100 : 1200;
+    this._observerLockTimeout = setTimeout(unlock, maxSafetyDelay);
+  }
+
+  /**
    * Called by
    *  - onClick of Navigation Bar
    *  - onClick of Advanced Search items
@@ -1172,8 +1355,7 @@ export default class RapiDoc extends LitElement {
    * Functionality:
    *  1. First deactivate IntersectionObserver
    *  2. Scroll to the element
-   *  3. Activate IntersectionObserver (after little delay)
-   *
+   *  3. Activate IntersectionObserver (after scroll completes)
    */
   async scrollToEventTarget(event, scrollNavItemToView = true) {
     if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
@@ -1183,10 +1365,6 @@ export default class RapiDoc extends LitElement {
     if (!navEl?.dataset?.contentId) {
       return;
     }
-    this.isIntersectionObserverActive = false;
-    if (this._intersectingElements) {
-      this._intersectingElements.clear();
-    }
     if (this.renderStyle === 'focused') {
       const requestEl = this.shadowRoot.querySelector('api-request');
       if (typeof requestEl?.beforeNavigationFocusedMode === 'function') {
@@ -1195,9 +1373,20 @@ export default class RapiDoc extends LitElement {
     }
     const isFirstNavItem = navEl.dataset.firstNavItem === 'true';
     this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView, isFirstNavItem);
-    setTimeout(() => {
-      this.isIntersectionObserverActive = true;
-    }, 500);
+  }
+
+  // Public Method - Returns the DOM element in ShadowRoot matching elementId, operationId, or slug
+  getTargetElement(elementId: string): HTMLElement | null {
+    if (!elementId || !this.shadowRoot) return null;
+    return (this.shadowRoot.getElementById(elementId) ||
+      this.shadowRoot.querySelector(`[data-op-slug="${CSS.escape(elementId)}"]`) ||
+      this.shadowRoot.querySelector(`[id$="--${CSS.escape(elementId)}"]`) ||
+      this.shadowRoot.getElementById(elementId.replace(/^[a-z0-9_-]+--/, ''))) as HTMLElement | null;
+  }
+
+  // Public Method - Binds an external navbar to this <rapi-doc> element
+  bindNavBar(sidebar: HTMLElement | string, options?: any) {
+    return bindNavBar(sidebar, this, options);
   }
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
@@ -1216,19 +1405,28 @@ export default class RapiDoc extends LitElement {
     if (this.renderStyle === 'view') {
       this.expandAndGotoOperation(elementId, expandPath, true);
     } else {
-      const contentEl =
-        this.shadowRoot.getElementById(elementId) ||
-        this.shadowRoot.querySelector(`[data-op-slug="${CSS.escape(elementId)}"]`) ||
-        this.shadowRoot.querySelector(`[id$="--${CSS.escape(elementId)}"]`) ||
-        this.shadowRoot.getElementById(elementId.replace(/^[a-z0-9_-]+--/, ''));
+      const contentEl = this.getTargetElement(elementId);
       const isValidElementId = Boolean(contentEl);
       if (contentEl) {
         const firstNavEl = this.shadowRoot.querySelector('.first-nav-item');
         const isFirst = isFirstNavItem || (firstNavEl && firstNavEl.dataset.contentId === elementId);
         const mainContentEl = this.shadowRoot.querySelector('.main-content');
+        let targetTop: number;
+
         if (this.autoHeight === 'true' || this.hasAttribute('auto-height')) {
-          contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+          if (this._scrollRootContainer) {
+            const containerRect = this._scrollRootContainer.getBoundingClientRect();
+            const targetRect = contentEl.getBoundingClientRect();
+            targetTop = targetRect.top - containerRect.top + this._scrollRootContainer.scrollTop;
+            this.lockObserverDuringScroll(contentEl, elementId, targetTop);
+            this._scrollRootContainer.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
+          } else {
+            this.lockObserverDuringScroll(contentEl, elementId);
+            contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+          }
         } else if (isFirst) {
+          targetTop = 0;
+          this.lockObserverDuringScroll(contentEl, elementId, targetTop);
           if (mainContentEl) {
             mainContentEl.scrollTo({ top: 0, behavior: this.scrollBehavior });
           } else {
@@ -1237,9 +1435,11 @@ export default class RapiDoc extends LitElement {
         } else if (mainContentEl) {
           const containerRect = mainContentEl.getBoundingClientRect();
           const targetRect = contentEl.getBoundingClientRect();
-          const targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
+          targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
+          this.lockObserverDuringScroll(contentEl, elementId, targetTop);
           mainContentEl.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
         } else {
+          this.lockObserverDuringScroll(contentEl, elementId);
           contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
         }
       }

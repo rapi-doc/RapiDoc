@@ -110,6 +110,12 @@ export function escapeHtml(str: string): string;
 export function getSpecNavigation(specInput: string | object, options?: any): Promise<SpecNavigation>;
 export function getNavBarHtml(specInput: string | object, options?: RenderNavBarHtmlOptions): Promise<string>;
 export function renderNavBarHtml(resolvedSpec: any, options?: RenderNavBarHtmlOptions): string;
+export function getNavFilterHtml(options?: { searchPlaceholder?: string; inputClassName?: string }): string;
+export function bindNavBar(
+  sidebar: HTMLElement | string,
+  rapiDoc?: HTMLElement | string,
+  options?: { activeClass?: string; updateHistory?: boolean }
+): () => void;
 export function getMethodBadge(method: string, format?: '3-char' | 'full'): string;
 export function getBundledCss(options?: { theme?: string; colorScheme?: string; scope?: string }): string;
 export function getNavCss(scope?: string): string;

@@ -172,11 +172,10 @@ export default css`
   .nav-bar-paths-under-tag {
     overflow: hidden;
     padding-left: 10px;
-    transition:
-      max-height 0.2s ease-out,
-      visibility 0.3s;
   }
-  .collapsed .nav-bar-paths-under-tag {
+  .collapsed .nav-bar-paths-under-tag,
+  .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag {
+    display: none;
     visibility: hidden;
     max-height: 0;
   }
@@ -344,6 +343,14 @@ export default css`
 
   .nav-bar-path > * {
     pointer-events: none;
+  }
+
+  .nav-bar-path.deprecated {
+    filter: opacity(0.5);
+  }
+
+  .portal-sidebar-footer-link {
+    padding: 16px 12px;
   }
 
   .nav-bar-path-label {

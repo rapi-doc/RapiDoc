@@ -87,20 +87,29 @@ export function getNavCss(scope = '') {
  */
 export function getThemeTokensCss(theme = 'amber', scope = ':root') {
   let tokensCss = ThemeTokens && ThemeTokens.cssText ? ThemeTokens.cssText : String(ThemeTokens || '');
-  const activeTheme = theme && typeof theme === 'string' ? theme.trim().toLowerCase() : 'amber';
+  const activeTheme =
+    typeof theme === 'string'
+      ? theme.trim().toLowerCase()
+      : typeof theme === 'object' && theme?.theme
+        ? String(theme.theme).trim().toLowerCase()
+        : 'amber';
 
   tokensCss = tokensCss
     .replace(/:host\(\[theme='([^']+)'\]\[color-scheme='light'\]\)/g, (match, t) =>
       t === activeTheme ? "[data-theme='light']" : `[data-theme='light'][data-theme-preset='${t}']`
     )
+    .replace(/:host\(\[theme='([^']+)'\]\[color-scheme='system'\]\)/g, (match, t) =>
+      t === activeTheme ? "[data-theme='system']" : `[data-theme='system'][data-theme-preset='${t}']`
+    )
     .replace(/:host\(\[theme='([^']+)'\]\)/g, (match, t) =>
       t === activeTheme ? `${scope}, [data-theme='dark']` : `[data-theme='dark'][data-theme-preset='${t}']`
     )
     .replace(/:host\(:not\(\[theme\]\)\[color-scheme='light'\]\)/g, "[data-theme='light']")
+    .replace(/:host\(:not\(\[theme\]\)\[color-scheme='system'\]\)/g, "[data-theme='system']")
     .replace(/:host\(:not\(\[theme\]\)\)/g, `${scope}, [data-theme='dark']`)
     .replace(/:host\(\[color-scheme='light'\]\)/g, "[data-theme='light']")
     .replace(/:host\(\[color-scheme='dark'\]\)/g, "[data-theme='dark']")
-    .replace(/:host\(\[color-scheme='system'\]\)/g, "[data-theme='dark']")
+    .replace(/:host\(\[color-scheme='system'\]\)/g, "[data-theme='system']")
     .replace(/:host\(:not\(\[color-scheme\]\)\)/g, `${scope}, [data-theme='dark']`)
     .replace(/:host\b/g, scope);
 

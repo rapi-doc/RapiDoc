@@ -61,6 +61,24 @@ export function getMatchedPaths(searchVal = '', path, tagName = '') {
   return stringToSearch.includes(searchVal.toLowerCase());
 }
 
+export function isInternalOrHidden(item) {
+  if (!item || typeof item !== 'object') return false;
+  return (
+    item.xInternal === true ||
+    item.xInternal === 'true' ||
+    item.xHidden === true ||
+    item.xHidden === 'true' ||
+    item['x-internal'] === true ||
+    item['x-internal'] === 'true' ||
+    item['x-hidden'] === true ||
+    item['x-hidden'] === 'true' ||
+    item.rawOperation?.['x-internal'] === true ||
+    item.rawOperation?.['x-internal'] === 'true' ||
+    item.rawOperation?.['x-hidden'] === true ||
+    item.rawOperation?.['x-hidden'] === 'true'
+  );
+}
+
 export function schemaKeys(schemaProps, result = new Set()) {
   if (!schemaProps) {
     return result;

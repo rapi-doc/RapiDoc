@@ -14,11 +14,14 @@ import {
   getSpecNavigation,
   getNavBarHtml,
   renderNavBarHtml,
+  getNavFilterHtml,
+  bindNavBar,
   getMethodBadge,
   getBundledCss,
   getNavCss,
   getThemeTokensCss,
 } from 'rapidoc/static';
+import { isInternalOrHidden } from '~/utils/common-utils';
 
 const sampleSpec = {
   openapi: '3.1.0',
@@ -537,12 +540,37 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
     assert.ok(html.includes('Shipment Logistics'));
     assert.ok(html.includes('Shipments'));
 
+    assert.ok(html.includes('class="nav-bar-search-input portal-filter-input"'));
+    assert.ok(!html.includes('id="advanced-search-btn"'), 'Must not render redundant advanced-search-btn');
+
     // Multi-page Tag Mode: routingMode: 'tag-pages'
     const tagPagesHtml = await getNavBarHtml(sampleSpec, {
       basePath: '/apis/shipments',
       routingMode: 'tag-pages',
     });
     assert.ok(tagPagesHtml.includes('href="/apis/shipments/shipments#list-shipments"'));
+  });
+
+  it('getNavFilterHtml should generate clean dedicated filter header without search modal button', () => {
+    const filterHtml = getNavFilterHtml({ searchPlaceholder: 'Search APIs...' });
+    assert.ok(filterHtml.includes('class="nav-bar-header"'));
+    assert.ok(filterHtml.includes('placeholder="Search APIs..."'));
+    assert.ok(filterHtml.includes('portal-filter-input'));
+    assert.ok(!filterHtml.includes('advanced-search-btn'));
+  });
+
+  it('isInternalOrHidden should correctly identify internal or hidden operations and tags', () => {
+    assert.equal(isInternalOrHidden({ 'x-internal': true }), true);
+    assert.equal(isInternalOrHidden({ 'x-hidden': true }), true);
+    assert.equal(isInternalOrHidden({ xInternal: true }), true);
+    assert.equal(isInternalOrHidden({ xHidden: 'true' }), true);
+    assert.equal(isInternalOrHidden({ rawOperation: { 'x-internal': true } }), true);
+    assert.equal(isInternalOrHidden({ summary: 'Public Endpoint' }), false);
+    assert.equal(isInternalOrHidden(null), false);
+  });
+
+  it('bindNavBar should be exported as a callable binding function', () => {
+    assert.equal(typeof bindNavBar, 'function');
   });
 
   it('getNavCss should return complete scoped navigation styles including method badges', () => {
