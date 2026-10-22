@@ -2,7 +2,21 @@
  * Generates the Astro template files for the .rapidoc engine workspace.
  */
 
-export function generateAstroConfigMjs({ siteTitle, sidebarConfigJson }) {
+export function generateAstroConfigMjs({ siteTitle, sidebarConfigJson, headConfigJson }) {
+  const defaultHead = JSON.stringify(
+    [
+      {
+        tag: 'script',
+        attrs: {
+          type: 'module',
+          src: '/assets/rapidoc-min.js',
+        },
+      },
+    ],
+    null,
+    2
+  );
+
   return `import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
@@ -25,15 +39,7 @@ export default defineConfig({
       expressiveCode: {
         themes: ['github-dark', 'github-light'],
       },
-      head: [
-        {
-          tag: 'script',
-          attrs: {
-            type: 'module',
-            src: '/assets/rapidoc-min.js',
-          },
-        },
-      ],
+      head: ${headConfigJson || defaultHead},
     }),
   ],
 });
@@ -171,6 +177,14 @@ try {
 
 const navCss = getNavCss('.portal-sidebar');
 const themeTokensCss = getThemeTokensCss(themePreset);
+
+const fontConfig = portalConfig.theme?.font;
+const fontSans = fontConfig?.name
+  ? \`'\${fontConfig.name}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif\`
+  : \`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif\`;
+const fontMono = fontConfig?.monoName
+  ? \`'\${fontConfig.monoName}', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace\`
+  : \`ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace\`;
 ---
 
 <!doctype html>
@@ -179,10 +193,36 @@ const themeTokensCss = getThemeTokensCss(themePreset);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{api.title || \`\${api.id} API\`} — {portalConfig.site?.title || 'Developer Portal'}</title>
+    {fontConfig?.url && (
+      <>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href={fontConfig.url} />
+      </>
+    )}
+    {fontConfig?.monoUrl && (
+      <link rel="stylesheet" href={fontConfig.monoUrl} />
+    )}
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('starlight-theme') || localStorage.getItem('portal-theme');
+          const theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
     <style set:html={themeTokensCss}></style>
     <style set:html={navCss}></style>
     <script type="module" src="/assets/rapidoc-min.js"></script>
-    <style is:global>
+    <style is:global define:vars={{ fontSans, fontMono }}>
+      :root {
+        --font-sans: var(--fontSans);
+        --font-mono: var(--fontMono);
+        --font-regular: var(--font-sans);
+        --portal-font: var(--font-sans);
+        --portal-font-mono: var(--font-mono);
+      }
       html, body {
         margin: 0;
         padding: 0;
@@ -192,9 +232,18 @@ const themeTokensCss = getThemeTokensCss(themePreset);
         overflow: hidden;
         background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
         color: var(--portal-fg, #cccccc);
-        font-family: var(--font-regular, system-ui, sans-serif);
+        font-family: var(--font-regular, var(--font-sans));
         display: flex;
         flex-direction: column;
+      }
+      rapi-doc {
+        --font-sans: var(--font-sans);
+        --font-regular: var(--font-regular);
+        --font-mono: var(--font-mono);
+        --rapidoc-font: var(--font-sans);
+        --rapidoc-font-mono: var(--font-mono);
+        --rapidoc-bg: var(--portal-bg);
+        --rapidoc-fg: var(--portal-fg);
       }
       .portal-container {
         display: grid;
@@ -330,6 +379,7 @@ const themeTokensCss = getThemeTokensCss(themePreset);
             schema-style="table"
             use-path-in-nav-bar="true"
             nav-item-spacing="compact"
+            load-fonts="false"
             goto-path={activeTagSlug ? activeTagSlug : undefined}
           ></rapi-doc>
           <PortalFooter portalConfig={portalConfig} mode="compact" />
@@ -350,6 +400,7 @@ const themeTokensCss = getThemeTokensCss(themePreset);
             rapiDocEl.setAttribute('color-scheme', currentTheme);
           }
         };
+        syncColorScheme();
         const themeObserver = new MutationObserver(syncColorScheme);
         themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
@@ -390,6 +441,14 @@ for (const api of apis) {
   if (!categorized.has(cat)) categorized.set(cat, []);
   categorized.get(cat).push(api);
 }
+
+const fontConfig = portalConfig.theme?.font;
+const fontSans = fontConfig?.name
+  ? \`'\${fontConfig.name}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif\`
+  : \`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif\`;
+const fontMono = fontConfig?.monoName
+  ? \`'\${fontConfig.monoName}', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace\`
+  : \`ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace\`;
 ---
 
 <!doctype html>
@@ -398,13 +457,39 @@ for (const api of apis) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>API Catalog — {portalConfig.site?.title || 'Developer Portal'}</title>
-    <style>
+    {fontConfig?.url && (
+      <>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href={fontConfig.url} />
+      </>
+    )}
+    {fontConfig?.monoUrl && (
+      <link rel="stylesheet" href={fontConfig.monoUrl} />
+    )}
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('starlight-theme') || localStorage.getItem('portal-theme');
+          const theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
+    <style define:vars={{ fontSans, fontMono }}>
+      :root {
+        --font-sans: var(--fontSans);
+        --font-mono: var(--fontMono);
+        --font-regular: var(--font-sans);
+        --portal-font: var(--font-sans);
+        --portal-font-mono: var(--font-mono);
+      }
       html, body {
         margin: 0;
         padding: 0;
         background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
         color: var(--portal-fg, #cccccc);
-        font-family: var(--sl-font-system, system-ui, sans-serif);
+        font-family: var(--font-regular, var(--font-sans));
       }
       .catalog-container {
         max-width: 1200px;
@@ -545,6 +630,14 @@ const configFeaturedIds = site.featuredApis || site.highlightedApis || site.pinn
 const highlightedApis = apis.filter((a) => a.featured || a.highlighted || a.pinned || configFeaturedIds.includes(a.id));
 const firstHighlightedApi = highlightedApis[0];
 const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice(1) : apis.slice(0, 6);
+
+const fontConfig = portalConfig.theme?.font;
+const fontSans = fontConfig?.name
+  ? \`'\${fontConfig.name}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif\`
+  : \`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif\`;
+const fontMono = fontConfig?.monoName
+  ? \`'\${fontConfig.monoName}', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace\`
+  : \`ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace\`;
 ---
 
 <!doctype html>
@@ -553,13 +646,39 @@ const remainingFeaturedApis = highlightedApis.length > 1 ? highlightedApis.slice
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{site.title || 'Developer Portal'} — Universal API Platform</title>
-    <style>
+    {fontConfig?.url && (
+      <>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href={fontConfig.url} />
+      </>
+    )}
+    {fontConfig?.monoUrl && (
+      <link rel="stylesheet" href={fontConfig.monoUrl} />
+    )}
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('starlight-theme') || localStorage.getItem('portal-theme');
+          const theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
+    <style define:vars={{ fontSans, fontMono }}>
+      :root {
+        --font-sans: var(--fontSans);
+        --font-mono: var(--fontMono);
+        --font-regular: var(--font-sans);
+        --portal-font: var(--font-sans);
+        --portal-font-mono: var(--font-mono);
+      }
       html, body {
         margin: 0;
         padding: 0;
         background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
         color: var(--portal-fg, #cccccc);
-        font-family: var(--sl-font-system, system-ui, sans-serif);
+        font-family: var(--font-regular, var(--font-sans));
       }
       main {
         overflow-x: clip;

@@ -181,10 +181,22 @@ export async function prepareAstroWorkspace(projectDir = process.cwd(), options 
   fs.writeFileSync(path.join(stylesDir, 'starlight-custom.css'), customCssContent, 'utf8');
   fs.writeFileSync(path.join(publicAssetsDir, 'starlight-custom.css'), customCssContent, 'utf8');
 
+  const headItems = [
+    {
+      tag: 'script',
+      attrs: {
+        type: 'module',
+        src: '/assets/rapidoc-min.js',
+      },
+    },
+    ...(starlightConfig.head || []),
+  ];
+
   const astroConfigMjs = generateAstroConfigMjs({
     siteTitle: config.site?.title || 'Developer Portal',
     primaryColor: config.rapidoc?.['primary-color'] || '#f76b39',
     sidebarConfigJson: JSON.stringify(starlightConfig.sidebar, null, 2),
+    headConfigJson: JSON.stringify(headItems, null, 2),
   });
   fs.writeFileSync(path.join(workspaceDir, 'astro.config.mjs'), astroConfigMjs, 'utf8');
 

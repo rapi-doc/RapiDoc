@@ -151,6 +151,7 @@ When executing tasks in this repository, follow these rules:
      - [`packages/rapidoc-cli/AGENTS.md`](file:///Users/mrin/work/astro-rapidoc/packages/rapidoc-cli/AGENTS.md)
      - [`packages/rapidoc-portal/AGENTS.md`](file:///Users/mrin/work/astro-rapidoc/packages/rapidoc-portal/AGENTS.md)
 3. **No Unsolicited File Deletions**:
-   - Preserve existing public specs (`docs/public/specs/`) and backward compatibility for `<rapi-doc>` attributes and methods.
+   - Preserve existing public specs (`docs/public/specs/`)
 4. **Commits and Git State**:
+   - **Never run `git commit` unless explicitly instructed by the user.** Keep all working tree changes uncommitted for user review.
    - Never commit `dist/` or other build artifacts to Git.

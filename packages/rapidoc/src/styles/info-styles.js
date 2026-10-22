@@ -3,6 +3,7 @@ import { css } from 'lit';
 export default css`
   #api-title {
     font-size: 32px;
+    font-weight: 700;
   }
   #api-title .version {
     font-size: var(--font-size-small);

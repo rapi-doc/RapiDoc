@@ -177,6 +177,13 @@ export function normalizeConfig(rawConfig, baseDir = process.cwd()) {
       }
     : { path: '/catalog', label: 'API Catalog', title: 'API Catalog' };
 
+  // 8. Theme & Font Configuration
+  const rawTheme = rawConfig.theme || {};
+  const normalizedTheme = {
+    font: rawTheme.font || null,
+    ...rawTheme,
+  };
+
   return {
     site: normalizedSite,
     apis: normalizedApis,
@@ -185,6 +192,7 @@ export function normalizeConfig(rawConfig, baseDir = process.cwd()) {
     rapidoc: normalizedRapiDoc,
     search: normalizedSearch,
     catalog: normalizedCatalog,
+    theme: normalizedTheme,
     baseDir,
   };
 }

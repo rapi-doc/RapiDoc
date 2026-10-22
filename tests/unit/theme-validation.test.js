@@ -133,8 +133,8 @@ test('theme-validation', async (t) => {
   });
 
   await t.test('--font-sans and --font-regular typography tokens are defined', () => {
-    assert.match(themeTokens.cssText, /--font-sans:\s*'Open Sans'/);
+    assert.match(themeTokens.cssText, /--font-sans:\s*var\(--rapidoc-font,\s*var\(--portal-font/);
     assert.match(themeTokens.cssText, /--font-regular:\s*var\(--font-sans\);/);
-    assert.match(themeTokens.cssText, /--font-mono:\s*'Roboto Mono'/);
+    assert.match(themeTokens.cssText, /--font-mono:\s*var\(--rapidoc-font-mono/);
   });
 });

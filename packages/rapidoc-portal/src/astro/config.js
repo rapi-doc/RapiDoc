@@ -2,7 +2,14 @@
  * Maps rapidoc.config.yaml into Astro + Starlight configuration.
  */
 
-function generateStarlightCustomCss(primaryColor = '#f76b39') {
+function generateStarlightCustomCss(primaryColor = '#f76b39', themePreset = 'amber', fontConfig = null) {
+  const fontSansValue = fontConfig?.name
+    ? `'${fontConfig.name}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`
+    : `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`;
+  const fontMonoValue = fontConfig?.monoName
+    ? `'${fontConfig.monoName}', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`
+    : `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace`;
+
   return `
 :root,
 :root[data-theme='dark'] {
@@ -39,8 +46,15 @@ function generateStarlightCustomCss(primaryColor = '#f76b39') {
   --sl-color-accent-low: color-mix(in srgb, ${primaryColor} 18%, transparent);
   --sl-color-accent-high: color-mix(in srgb, ${primaryColor} 80%, #ffffff);
 
-  --sl-font-system: var(--font-regular, 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif);
-  --sl-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', Consolas, monospace;
+  --font-sans: ${fontSansValue};
+  --font-mono: ${fontMonoValue};
+  --font-regular: var(--font-sans);
+  --portal-font: var(--font-sans);
+  --portal-font-mono: var(--font-mono);
+
+  --sl-font-system: var(--font-sans);
+  --sl-font-mono: var(--font-mono);
+  --sl-font: var(--font-sans);
 }
 
 [data-theme='light'] {
@@ -70,12 +84,26 @@ function generateStarlightCustomCss(primaryColor = '#f76b39') {
   --sl-color-accent-low: #ffe3d6;
   --sl-color-accent: ${primaryColor};
   --sl-color-accent-high: #94300a;
+
+  --font-sans: ${fontSansValue};
+  --font-mono: ${fontMonoValue};
+  --font-regular: var(--font-sans);
+  --portal-font: var(--font-sans);
+  --portal-font-mono: var(--font-mono);
+
+  --sl-font-system: var(--font-sans);
+  --sl-font-mono: var(--font-mono);
+  --sl-font: var(--font-sans);
 }
 
-body {
+html, body {
   background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84)) !important;
   color: var(--portal-fg, #cccccc) !important;
-  font-family: var(--sl-font-system);
+  font-family: var(--font-sans) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans) !important;
 }
 
 /* Inline code tags styling across dark and light modes matching release_12_0_0 */
@@ -485,8 +513,47 @@ export function createStarlightConfig(portalConfig) {
     ];
   }
 
+  // Add custom CDN web fonts if configured
+  const fontConfig = portalConfig.theme?.font;
+  if (fontConfig?.url) {
+    starlightConfig.head = [
+      ...(starlightConfig.head || []),
+      {
+        tag: 'link',
+        attrs: {
+          rel: 'preconnect',
+          href: 'https://fonts.googleapis.com',
+        },
+      },
+      {
+        tag: 'link',
+        attrs: {
+          rel: 'preconnect',
+          href: 'https://fonts.gstatic.com',
+          crossorigin: '',
+        },
+      },
+      {
+        tag: 'link',
+        attrs: {
+          rel: 'stylesheet',
+          href: fontConfig.url,
+        },
+      },
+    ];
+    if (fontConfig.monoUrl) {
+      starlightConfig.head.push({
+        tag: 'link',
+        attrs: {
+          rel: 'stylesheet',
+          href: fontConfig.monoUrl,
+        },
+      });
+    }
+  }
+
   return {
     starlightConfig,
-    customCssContent: generateStarlightCustomCss(primaryColor, themePreset),
+    customCssContent: generateStarlightCustomCss(primaryColor, themePreset, fontConfig),
   };
 }

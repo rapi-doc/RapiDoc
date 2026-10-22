@@ -301,17 +301,22 @@ const currentPath = Astro.url?.pathname || '/';
     top: 0;
     z-index: 1000;
     flex-shrink: 0;
-    font-family: var(--font-regular, var(--sl-font-system, system-ui, sans-serif));
+    font-family: var(--font-regular, var(--font-sans, var(--portal-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif)));
+    line-height: 1.4;
   }
 
   /* Sticky Announcement Bar */
   .portal-announcement-bar {
+    box-sizing: border-box;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0.5rem 1.25rem;
     font-size: 0.875rem;
+    line-height: 1.25rem;
     font-weight: 600;
+    font-family: inherit;
     position: sticky;
     top: 0;
     z-index: 1001;
@@ -321,10 +326,15 @@ const currentPath = Astro.url?.pathname || '/';
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    line-height: 1.25rem;
+  }
+  .portal-announcement-msg {
+    line-height: 1.25rem;
   }
   .portal-announcement-cta {
     text-decoration: underline;
     font-weight: 700;
+    line-height: 1.25rem;
   }
   .portal-announcement-close {
     position: absolute;

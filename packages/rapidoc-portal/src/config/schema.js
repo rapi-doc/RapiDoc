@@ -161,6 +161,26 @@ export const SearchConfigSchema = z.union([
 ]);
 
 /**
+ * Typography & Web Font Configuration Schema.
+ */
+export const FontConfigSchema = z
+  .object({
+    name: z.string().optional(),
+    url: z.string().optional(),
+    monoName: z.string().optional(),
+    monoUrl: z.string().optional(),
+  })
+  .optional();
+
+export const ThemeConfigSchema = z
+  .object({
+    font: FontConfigSchema,
+    openapi: z.record(z.string(), z.any()).optional(),
+  })
+  .passthrough()
+  .default({});
+
+/**
  * Tolerant Super-Set Configuration Schema.
  * Accepts rapidoc.config.yaml, rapidoc.config.ts, redocly.yaml, and zudoku.config.ts.
  */
@@ -171,7 +191,7 @@ export const RapidocConfigSchema = z.object({
   navigation: z.array(NavItemSchema).optional(),
   sidebars: z.array(NavItemSchema).optional(), // Redocly alias
   rapidoc: z.record(z.string(), z.any()).default({}),
-  theme: z.record(z.string(), z.any()).default({}),
+  theme: ThemeConfigSchema.default({}),
   search: SearchConfigSchema.default({ enabled: true, provider: 'pagefind' }),
   catalog: z.any().optional(),
   catalogs: z.any().optional(), // Zudoku alias

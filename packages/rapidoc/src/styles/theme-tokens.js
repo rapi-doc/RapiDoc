@@ -124,9 +124,15 @@ export default css`
      ========================================================================= */
   :host {
     /* --- Typography Tokens --- */
-    --font-sans: 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif;
+    --font-sans: var(
+      --rapidoc-font,
+      var(--portal-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif)
+    );
     --font-regular: var(--font-sans);
-    --font-mono: 'Roboto Mono', Monaco, 'Andale Mono', Consolas, monospace;
+    --font-mono: var(
+      --rapidoc-font-mono,
+      var(--portal-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace)
+    );
 
     /* --- Default Corner Radii & Geometry --- */
     --radius: 0.25rem;
@@ -228,14 +234,8 @@ export default css`
   :host([color-scheme='system']),
   :host(:not([color-scheme])) {
     /* Surfaces */
-
-    --background: oklch(0.2533 0.016 252.42);
-    --foreground: oklch(0.97807 0.029 256.847);
-
-    /*
-    --background: oklch(0.2613 0.0134 272.84);
-    --foreground: #cccccc;
-    */
+    --background: var(--rapidoc-bg, var(--portal-bg, oklch(0.2613 0.0134 272.84)));
+    --foreground: var(--rapidoc-fg, var(--portal-fg, #cccccc));
 
     /* Card Vars:
       card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
@@ -317,8 +317,8 @@ export default css`
   /* --------- 3B. LIGHT  --------- */
   :host([color-scheme='light']) {
     /* Surfaces */
-    --background: #ffffff;
-    --foreground: #444444;
+    --background: var(--rapidoc-bg, var(--portal-bg, #ffffff));
+    --foreground: var(--rapidoc-fg, var(--portal-fg, #444444));
 
     /* Card Vars:
       card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
