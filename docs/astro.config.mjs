@@ -201,13 +201,25 @@ export default defineConfig({
             next();
           });
 
-          // Watch rapidoc source changes and trigger page reload
-          watch(rapidocSrcPath, { recursive: true }, () => {
-            const hot = server.hot || server.ws;
-            hot?.send({
-              type: 'full-reload',
-              path: '*',
-            });
+          // Watch rapidoc source changes and trigger page reload. Invalidate the changed module first and
+          // debounce: this watcher can fire before Vite's own, and reloading then serves a mix of new and
+          // stale cached modules (e.g. a new font-styles.js with an old theme-tokens.js).
+          let reloadTimer;
+          watch(rapidocSrcPath, { recursive: true }, (_event, filename) => {
+            const moduleGraph = server.environments?.client?.moduleGraph ?? server.moduleGraph;
+            if (filename) {
+              for (const mod of moduleGraph.getModulesByFile(resolve(rapidocSrcPath, filename)) ?? []) {
+                moduleGraph.invalidateModule(mod);
+              }
+            }
+            clearTimeout(reloadTimer);
+            reloadTimer = setTimeout(() => {
+              const hot = server.hot || server.ws;
+              hot?.send({
+                type: 'full-reload',
+                path: '*',
+              });
+            }, 150);
           });
 
           // Watch yaml changes and trigger reload
