@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { loadConfig, normalizeConfig, RapidocConfigSchema, generateMigratedConfig, findConfigFile } from '../src/index.js';
 
 describe('RapiDoc Portal Configuration Engine (Milestone 2)', () => {
-  const DEMO_PORTAL_DIR = '/Users/mrin/work/demo-api-portal';
+  const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal', import.meta.url));
 
   it('should load and normalize rapidoc.config.yaml from demo-api-portal', async () => {
     const loaded = await loadConfig(DEMO_PORTAL_DIR);

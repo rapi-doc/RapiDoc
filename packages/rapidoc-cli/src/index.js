@@ -2,7 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildPortalWithAstro, devPortalWithAstro, migrateConfig } from '@rapidoc/portal';
+import { buildPortal, startDevServer, migrateConfig } from '@rapidoc/portal';
 import { validate } from '@scalar/openapi-parser';
 
 const args = process.argv.slice(2);
@@ -26,6 +26,7 @@ Commands:
 Options:
   --outDir <path>         Output directory for static assets (default: dist)
   --port <number>         Development server port (default: 4321)
+  --debug                 Keep the temporary Astro workspace and print its path (for debugging the engine)
 
 Examples:
   rapidoc dev
@@ -44,7 +45,9 @@ async function handleDev() {
   try {
     const portIdx = args.indexOf('--port');
     const port = portIdx !== -1 ? parseInt(args[portIdx + 1], 10) : 4321;
-    await devPortalWithAstro(targetDir, { port });
+    const keepWorkspace = args.includes('--debug');
+    const devServer = await startDevServer(targetDir, { port, keepWorkspace });
+    if (keepWorkspace) console.log(`   • Workspace (kept): ${devServer.workspaceDir}\n`);
   } catch (err) {
     console.error(`\n❌ Dev server failed: ${err.message}\n`);
     process.exit(1);
@@ -61,10 +64,14 @@ async function handleBuild() {
     const outDirIdx = args.indexOf('--outDir');
     const outDir = outDirIdx !== -1 ? args[outDirIdx + 1] : 'dist';
 
-    const result = await buildPortalWithAstro(targetDir, { outDir });
+    const keepWorkspace = args.includes('--debug');
+
+    const result = await buildPortal(targetDir, { outDir, keepWorkspace });
     console.log(`\n✨ Astro build completed successfully in ${result.durationMs}ms!`);
     console.log(`   • APIs compiled:   ${result.apisCount}`);
-    console.log(`   • Output folder:   ${result.outDir}\n`);
+    console.log(`   • Output folder:   ${result.outDir}`);
+    if (result.workspaceDir) console.log(`   • Workspace (kept): ${result.workspaceDir}`);
+    console.log('');
   } catch (err) {
     console.error(`\n❌ Build failed: ${err.message}\n`);
     process.exit(1);

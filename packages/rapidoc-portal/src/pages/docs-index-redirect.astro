@@ -1,0 +1,22 @@
+---
+import portalConfig from 'virtual:rapidoc-portal/config';
+
+// /docs has no page of its own; send visitors to the first documentation entry in `navigation:`.
+const firstNav = portalConfig.navigation?.[0];
+const defaultDocPath = firstNav?.items?.[0]?.path || firstNav?.path || '/docs/documentation';
+const targetUrl = defaultDocPath.startsWith('/docs') ? defaultDocPath : `/docs/${defaultDocPath.replace(/^\//, '')}`;
+
+return Astro.redirect(targetUrl);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0;url=${targetUrl}`} />
+    <title>Redirecting to Documentation...</title>
+  </head>
+  <body>
+    <p>Redirecting to <a href={targetUrl}>{targetUrl}</a>...</p>
+  </body>
+</html>

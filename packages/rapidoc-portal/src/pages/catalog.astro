@@ -1,0 +1,180 @@
+---
+import 'virtual:rapidoc-portal/theme.css';
+import PortalHeader from '../components/PortalHeader.astro';
+import PortalFooter from '../components/PortalFooter.astro';
+import portalConfig from 'virtual:rapidoc-portal/config';
+
+const apis = portalConfig.apis || [];
+
+const categorized = new Map();
+for (const api of apis) {
+  const cat = api.category || 'General';
+  if (!categorized.has(cat)) categorized.set(cat, []);
+  categorized.get(cat).push(api);
+}
+
+const fontConfig = portalConfig.theme?.font;
+const fontSans = fontConfig?.name
+  ? `'${fontConfig.name}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`
+  : `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`;
+const fontMono = fontConfig?.monoName
+  ? `'${fontConfig.monoName}', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`
+  : `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace`;
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API Catalog — {portalConfig.site?.title || 'Developer Portal'}</title>
+    {fontConfig?.url && (
+      <>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href={fontConfig.url} />
+      </>
+    )}
+    {fontConfig?.monoUrl && (
+      <link rel="stylesheet" href={fontConfig.monoUrl} />
+    )}
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('starlight-theme') || localStorage.getItem('portal-theme');
+          const theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
+    <style define:vars={{ fontSans, fontMono }}>
+      :root {
+        --font-sans: var(--fontSans);
+        --font-mono: var(--fontMono);
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
+        color: var(--portal-fg, #cccccc);
+        font-family: var(--font-sans);
+      }
+      .catalog-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem 5rem;
+      }
+      .catalog-hero {
+        text-align: center;
+        margin-bottom: 3.5rem;
+      }
+      .catalog-hero h1 {
+        font-size: 2.75rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+      }
+      .catalog-hero p {
+        font-size: 1.25rem;
+        color: var(--portal-muted, #8b949e);
+      }
+      .catalog-section {
+        margin-bottom: 3rem;
+      }
+      .category-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid var(--portal-border, #363636);
+        padding-bottom: 0.5rem;
+      }
+      .api-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+      }
+      .api-card {
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        border-radius: 12px;
+        background: var(--portal-surface, oklch(0.2613 0.0134 272.84));
+        border: 1px solid var(--portal-border, #363636);
+        text-decoration: none;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+      }
+      .api-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--portal-primary, #f76b39);
+      }
+      .api-card-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+      }
+      .api-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        background: color-mix(in srgb, var(--portal-primary, #f76b39) 15%, transparent);
+        color: var(--portal-primary, #f76b39);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+      }
+      .api-version {
+        font-size: 0.8rem;
+        color: var(--portal-muted, #8b949e);
+      }
+      .api-card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--portal-fg, #cccccc);
+        margin: 0 0 0.5rem;
+      }
+      .api-card-desc {
+        font-size: 0.95rem;
+        color: var(--portal-muted, #8b949e);
+        flex: 1;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+      .api-card-footer {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--portal-primary, #f76b39);
+      }
+    </style>
+  </head>
+  <body>
+    <PortalHeader portalConfig={portalConfig} />
+
+    <div class="catalog-container">
+      <div class="catalog-hero">
+        <h1>API Catalog</h1>
+        <p>Discover, explore, and integrate with our comprehensive developer APIs.</p>
+      </div>
+
+      {Array.from(categorized.entries()).map(([category, items]) => (
+        <section class="catalog-section">
+          <h2 class="category-title">{category}</h2>
+          <div class="api-grid">
+            {items.map((api) => (
+              <a href={api.path || `/apis/${api.id}`} class="api-card">
+                <div class="api-card-header">
+                  <span class="api-badge">{api.category || 'REST'}</span>
+                  {api.version && <span class="api-version">{api.version}</span>}
+                </div>
+                <h3 class="api-card-title">{api.title || api.id}</h3>
+                <p class="api-card-desc">{api.description || 'Interactive OpenAPI documentation and live request testing.'}</p>
+                <div class="api-card-footer">
+                  <span>Explore Reference &rarr;</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+
+    <PortalFooter portalConfig={portalConfig} />
+  </body>
+</html>

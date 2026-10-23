@@ -1,16 +1,8 @@
-/**
- * Maps rapidoc.config.yaml into Astro + Starlight configuration.
+/*
+ * RapiDoc Portal theme for Starlight and the portal pages.
+ * Tokens replaced at build time by src/engine/theme-css.js:
+ *   PORTAL_PRIMARY_COLOR, FONT_SANS_STACK, FONT_MONO_STACK (each wrapped in double underscores)
  */
-
-function generateStarlightCustomCss(primaryColor = '#f76b39', themePreset = 'amber', fontConfig = null) {
-  const fontSansValue = fontConfig?.name
-    ? `'${fontConfig.name}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`
-    : `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`;
-  const fontMonoValue = fontConfig?.monoName
-    ? `'${fontConfig.monoName}', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`
-    : `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace`;
-
-  return `
 :root,
 :root[data-theme='dark'] {
   --portal-bg: oklch(0.2613 0.0134 272.84);
@@ -20,7 +12,7 @@ function generateStarlightCustomCss(primaryColor = '#f76b39', themePreset = 'amb
   --portal-border-subtle: rgba(255, 255, 255, 0.06);
   --portal-fg: #cccccc;
   --portal-muted: #8b949e;
-  --portal-primary: ${primaryColor};
+  --portal-primary: __PORTAL_PRIMARY_COLOR__;
   --portal-header-height: 101px;
 
   /* Starlight unification */
@@ -42,15 +34,12 @@ function generateStarlightCustomCss(primaryColor = '#f76b39', themePreset = 'amb
   --sl-color-gray-4: #64748b;
   --sl-color-gray-5: #363636;
 
-  --sl-color-accent: ${primaryColor};
-  --sl-color-accent-low: color-mix(in srgb, ${primaryColor} 18%, transparent);
-  --sl-color-accent-high: color-mix(in srgb, ${primaryColor} 80%, #ffffff);
+  --sl-color-accent: __PORTAL_PRIMARY_COLOR__;
+  --sl-color-accent-low: color-mix(in srgb, __PORTAL_PRIMARY_COLOR__ 18%, transparent);
+  --sl-color-accent-high: color-mix(in srgb, __PORTAL_PRIMARY_COLOR__ 80%, #ffffff);
 
-  --font-sans: ${fontSansValue};
-  --font-mono: ${fontMonoValue};
-  --font-regular: var(--font-sans);
-  --portal-font: var(--font-sans);
-  --portal-font-mono: var(--font-mono);
+  --font-sans: __FONT_SANS_STACK__;
+  --font-mono: __FONT_MONO_STACK__;
 
   --sl-font-system: var(--font-sans);
   --sl-font-mono: var(--font-mono);
@@ -82,34 +71,37 @@ function generateStarlightCustomCss(primaryColor = '#f76b39', themePreset = 'amb
   --sl-color-hairline: #e4e4e7;
   --sl-color-hairline-light: rgba(0, 0, 0, 0.04);
   --sl-color-accent-low: #ffe3d6;
-  --sl-color-accent: ${primaryColor};
+  --sl-color-accent: __PORTAL_PRIMARY_COLOR__;
   --sl-color-accent-high: #94300a;
 
-  --font-sans: ${fontSansValue};
-  --font-mono: ${fontMonoValue};
-  --font-regular: var(--font-sans);
-  --portal-font: var(--font-sans);
-  --portal-font-mono: var(--font-mono);
+  --font-sans: __FONT_SANS_STACK__;
+  --font-mono: __FONT_MONO_STACK__;
 
   --sl-font-system: var(--font-sans);
   --sl-font-mono: var(--font-mono);
   --sl-font: var(--font-sans);
 }
 
-html, body {
+html,
+body {
   background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84)) !important;
   color: var(--portal-fg, #cccccc) !important;
   font-family: var(--font-sans) !important;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-sans) !important;
 }
 
 /* Inline code tags styling across dark and light modes matching release_12_0_0 */
 :not(pre) > code {
   background-color: var(--sl-color-bg-inline-code, #3b3c45) !important;
-  color: var(--inline-code-fg, #c4c6d1) !important;
+  color: var(--portal-fg) !important;
   border: 1px solid var(--portal-border, #363636) !important;
   padding: 0.15em 0.35em !important;
   border-radius: 4px !important;
@@ -374,7 +366,9 @@ html.portal-announcement-dismissed #portal-announcement {
 .sidebar-pane a {
   color: var(--portal-muted, #8b949e) !important;
   border-radius: 6px !important;
-  transition: color 0.15s ease, background-color 0.15s ease !important;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease !important;
 }
 
 .sidebar-pane a:hover {
@@ -394,166 +388,12 @@ html.portal-announcement-dismissed #portal-announcement {
   border-color: #e4e4e7 !important;
 }
 
-.sidebar-pane a[aria-current="page"] {
-  color: var(--portal-primary, ${primaryColor}) !important;
-  background-color: color-mix(in srgb, var(--portal-primary, ${primaryColor}) 16%, transparent) !important;
+.sidebar-pane a[aria-current='page'] {
+  color: var(--portal-primary, __PORTAL_PRIMARY_COLOR__) !important;
+  background-color: color-mix(in srgb, var(--portal-primary, __PORTAL_PRIMARY_COLOR__) 16%, transparent) !important;
   font-weight: 600 !important;
 }
 
-.sidebar-pane a[aria-current="page"] span {
-  color: var(--portal-primary, ${primaryColor}) !important;
-}
-`;
-}
-
-/**
- * Converts portal navigation items to Starlight sidebar format.
- * Documentation sidebar contains only narrative docs/guides by default.
- *
- * @param {Array} navigation - rapidoc.config.yaml navigation array
- * @param {Array} apis - rapidoc.config.yaml apis array
- * @param {object} [options] - Optional sidebar builder flags
- * @param {boolean} [options.includeApis=false] - Whether to include API Reference in sidebar
- * @returns {Array} Starlight sidebar configuration
- */
-export function buildStarlightSidebar(navigation = [], apis = [], options = {}) {
-  const sidebar = [];
-
-  // 1. Guides & Narrative Docs navigation
-  for (const group of navigation) {
-    if (group.title && group.items) {
-      const groupItems = (group.items || []).map((item) => {
-        const link = item.path || item.href || (item.slug ? `/docs/${item.slug}` : '');
-        return {
-          label: item.label || item.title || 'Untitled',
-          link: link.replace(/^\/?docs\/?/, '/docs/'),
-        };
-      });
-
-      sidebar.push({
-        label: group.title,
-        items: groupItems,
-      });
-    } else if (group.label && (group.path || group.href)) {
-      sidebar.push({
-        label: group.label,
-        link: (group.path || group.href).replace(/^\/?docs\/?/, '/docs/'),
-      });
-    }
-  }
-
-  // 2. APIs & Reference section (only if explicitly enabled via options.includeApis)
-  if (options.includeApis && apis && apis.length > 0) {
-    const apiItems = apis.map((api) => ({
-      label: api.title || `${api.id} API`,
-      link: api.path || `/apis/${api.id}`,
-      badge: api.category ? { text: api.category, variant: 'note' } : undefined,
-    }));
-
-    sidebar.push({
-      label: 'API Reference',
-      items: apiItems,
-    });
-  }
-
-  return sidebar;
-}
-
-/**
- * Builds the full Starlight configuration object from normalized rapidoc.config.yaml.
- *
- * @param {object} portalConfig - Normalized rapidoc.config.yaml
- * @returns {object} Starlight user config
- */
-export function createStarlightConfig(portalConfig) {
-  const site = portalConfig.site || {};
-  const primaryColor = portalConfig.rapidoc?.['primary-color'] || '#f76b39';
-  const themePreset = portalConfig.rapidoc?.theme || 'amber';
-
-  const socialLinks = [];
-  if (site.footer?.social) {
-    for (const item of site.footer.social) {
-      if (item.href && item.icon) {
-        socialLinks.push({
-          icon: item.icon.toLowerCase(),
-          label: item.icon,
-          href: item.href,
-        });
-      }
-    }
-  }
-
-  const sidebar = buildStarlightSidebar(portalConfig.navigation || [], portalConfig.apis || []);
-
-  const starlightConfig = {
-    title: site.title || 'Developer Portal',
-    description: site.description || site.tagline || '',
-    social: socialLinks,
-    sidebar,
-    customCss: ['./src/styles/starlight-custom.css'],
-    expressiveCode: {
-      themes: ['github-dark', 'github-light'],
-      styleOverrides: {
-        borderRadius: '8px',
-      },
-    },
-  };
-
-  // Add announcement if configured
-  if (site.announcement?.text) {
-    starlightConfig.head = [
-      ...(starlightConfig.head || []),
-      {
-        tag: 'meta',
-        attrs: {
-          name: 'announcement:text',
-          content: site.announcement.text,
-        },
-      },
-    ];
-  }
-
-  // Add custom CDN web fonts if configured
-  const fontConfig = portalConfig.theme?.font;
-  if (fontConfig?.url) {
-    starlightConfig.head = [
-      ...(starlightConfig.head || []),
-      {
-        tag: 'link',
-        attrs: {
-          rel: 'preconnect',
-          href: 'https://fonts.googleapis.com',
-        },
-      },
-      {
-        tag: 'link',
-        attrs: {
-          rel: 'preconnect',
-          href: 'https://fonts.gstatic.com',
-          crossorigin: '',
-        },
-      },
-      {
-        tag: 'link',
-        attrs: {
-          rel: 'stylesheet',
-          href: fontConfig.url,
-        },
-      },
-    ];
-    if (fontConfig.monoUrl) {
-      starlightConfig.head.push({
-        tag: 'link',
-        attrs: {
-          rel: 'stylesheet',
-          href: fontConfig.monoUrl,
-        },
-      });
-    }
-  }
-
-  return {
-    starlightConfig,
-    customCssContent: generateStarlightCustomCss(primaryColor, themePreset, fontConfig),
-  };
+.sidebar-pane a[aria-current='page'] span {
+  color: var(--portal-primary, __PORTAL_PRIMARY_COLOR__) !important;
 }

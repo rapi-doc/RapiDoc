@@ -2,15 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import fs from 'node:fs';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 import { stripMarkup, extractDocSections, indexOpenApiSpec, buildSearchIndex, searchRecords } from '../src/search/indexer.js';
 import { loadConfig } from '../src/config/loader.js';
-import { buildPortalWithAstro } from '../src/index.js';
+import { buildPortal } from '../src/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DEMO_PORTAL_DIR = '/Users/mrin/work/demo-api-portal';
+const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal');
 
 test('RapiDoc Portal Full-Text Search Engine (Milestone 5)', async (t) => {
   await t.test('stripMarkup should strip frontmatter, markdoc tags, code blocks and formatting', () => {
@@ -102,15 +103,14 @@ Content under subsection.`;
     );
   });
 
-  await t.test('buildPortalWithAstro should generate dist/assets/search-index.json during SSG build', async () => {
-    const tempOut = 'dist-search-test';
-    const tempOutDir = path.join(DEMO_PORTAL_DIR, tempOut);
+  await t.test('buildPortal should generate dist/search-index.json during SSG build', async () => {
+    const tempOutDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-search-test-'));
     try {
-      const result = await buildPortalWithAstro(DEMO_PORTAL_DIR, { outDir: tempOut });
+      const result = await buildPortal(DEMO_PORTAL_DIR, { outDir: tempOutDir });
       assert.strictEqual(result.success, true);
       assert.ok(result.apisCount > 0, 'APIs should be compiled');
 
-      const searchIndexPath = path.join(result.outDir, 'assets/search-index.json');
+      const searchIndexPath = path.join(result.outDir, 'search-index.json');
       assert.strictEqual(fs.existsSync(searchIndexPath), true);
 
       const parsedJson = JSON.parse(fs.readFileSync(searchIndexPath, 'utf8'));

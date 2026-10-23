@@ -2,9 +2,8 @@
 node_modules
 .astro/
 dist/
-dist-astro/
 docs/dist/
-.portal-engine/
+.test-tmp/
 stats.html
 prerender-demo.html
 

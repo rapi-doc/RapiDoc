@@ -283,6 +283,7 @@ const STARTER_PACKAGE_JSON = (projectName) =>
 
 const STARTER_GITIGNORE = `node_modules/
 dist/
+.rapidoc-temp/
 .DS_Store
 `;
 

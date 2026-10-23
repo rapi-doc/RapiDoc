@@ -70,7 +70,7 @@ const { portalConfig = {} } = Astro.props;
       if (searchRecords || isLoading) return;
       isLoading = true;
       try {
-        const candidateUrls = ['/search-index.json', '/assets/search-index.json'];
+        const candidateUrls = ['/search-index.json'];
         for (const url of candidateUrls) {
           try {
             const res = await fetch(url);

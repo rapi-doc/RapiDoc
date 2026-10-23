@@ -1,10 +1,15 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { compileMarkdoc, compileDocFile, extractHeadings } from '../src/index.js';
 
 describe('RapiDoc Portal Markdoc Engine (Milestone 3)', () => {
-  const DEMO_GUIDES_DIR = '/Users/mrin/work/demo-api-portal/docs/guides';
+  const DEMO_GUIDES_DIR = path.join(
+    process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal', import.meta.url)),
+    'docs/guides'
+  );
 
   it('should compile order-fulfillment.markdoc from demo-api-portal', () => {
     const filePath = `${DEMO_GUIDES_DIR}/order-fulfillment.markdoc`;

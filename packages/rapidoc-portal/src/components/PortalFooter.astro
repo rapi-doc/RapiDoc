@@ -1,30 +1,12 @@
 ---
-import fs from 'node:fs';
-import path from 'node:path';
+import portalConfig from 'virtual:rapidoc-portal/config';
 
 interface Props {
   portalConfig?: any;
   mode?: 'auto' | 'columns' | 'compact';
 }
 
-let config = Astro.props.portalConfig;
-if (!config) {
-  try {
-    const candidatePaths = [
-      path.resolve(process.cwd(), 'rapidoc.portal.json'),
-      path.resolve(process.cwd(), '.rapidoc', 'rapidoc.portal.json'),
-      path.resolve(process.cwd(), '..', 'rapidoc.portal.json'),
-    ];
-    for (const p of candidatePaths) {
-      if (fs.existsSync(p)) {
-        config = JSON.parse(fs.readFileSync(p, 'utf8'));
-        break;
-      }
-    }
-  } catch {
-    config = {};
-  }
-}
+const config = Astro.props.portalConfig ?? portalConfig;
 
 const site = config?.site || {};
 if (site.footer === false) {
@@ -232,7 +214,7 @@ if (compactLinks.length === 0 && columns) {
     display: flex;
     align-items: center;
     background: var(--portal-bg, oklch(0.2613 0.0134 272.84));
-    font-family: var(--font-regular, var(--sl-font-system, system-ui, sans-serif));
+    font-family: var(--font-sans, var(--sl-font-system, system-ui, sans-serif));
   }
 
   [data-theme='light'] .portal-content-footer {
@@ -308,7 +290,7 @@ if (compactLinks.length === 0 && columns) {
     background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
     border-top: 1px solid var(--portal-border, #363636);
     color: var(--portal-muted, #8b949e);
-    font-family: var(--font-regular, var(--sl-font-system, system-ui, sans-serif));
+    font-family: var(--font-sans, var(--sl-font-system, system-ui, sans-serif));
     padding: 3.5rem 1.5rem 2.5rem;
     box-sizing: border-box;
     width: 100%;

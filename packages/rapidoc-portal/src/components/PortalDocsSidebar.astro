@@ -1,22 +1,6 @@
 ---
 import DefaultSidebar from '@astrojs/starlight/components/Sidebar.astro';
-import fs from 'node:fs';
-import path from 'node:path';
-
-let portalConfig: any = {};
-try {
-  const candidatePaths = [
-    path.resolve(process.cwd(), 'rapidoc.portal.json'),
-    path.resolve(process.cwd(), '.rapidoc', 'rapidoc.portal.json'),
-    path.resolve(process.cwd(), '..', 'rapidoc.portal.json'),
-  ];
-  for (const p of candidatePaths) {
-    if (fs.existsSync(p)) {
-      portalConfig = JSON.parse(fs.readFileSync(p, 'utf8'));
-      break;
-    }
-  }
-} catch {}
+import portalConfig from 'virtual:rapidoc-portal/config';
 
 const primaryApi = portalConfig.apis?.[0] || { path: '/apis/shipments', title: 'Shipment API' };
 const targetApiPath = primaryApi.path || `/apis/${primaryApi.id}`;

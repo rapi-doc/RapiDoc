@@ -1,6 +1,5 @@
 ---
-import fs from 'node:fs';
-import path from 'node:path';
+import portalConfig from 'virtual:rapidoc-portal/config';
 import DualToneIcon from './DualToneIcon.astro';
 import PortalSearchModal from './PortalSearchModal.astro';
 
@@ -8,24 +7,7 @@ interface Props {
   portalConfig?: any;
 }
 
-let config = Astro.props.portalConfig;
-if (!config) {
-  try {
-    const candidatePaths = [
-      path.resolve(process.cwd(), 'rapidoc.portal.json'),
-      path.resolve(process.cwd(), '.rapidoc', 'rapidoc.portal.json'),
-      path.resolve(process.cwd(), '..', 'rapidoc.portal.json'),
-    ];
-    for (const p of candidatePaths) {
-      if (fs.existsSync(p)) {
-        config = JSON.parse(fs.readFileSync(p, 'utf8'));
-        break;
-      }
-    }
-  } catch {
-    config = {};
-  }
-}
+const config = Astro.props.portalConfig ?? portalConfig;
 
 const site = config?.site || {};
 const announcement = site.announcement;
@@ -301,7 +283,7 @@ const currentPath = Astro.url?.pathname || '/';
     top: 0;
     z-index: 1000;
     flex-shrink: 0;
-    font-family: var(--font-regular, var(--font-sans, var(--portal-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif)));
+    font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif);
     line-height: 1.4;
   }
 

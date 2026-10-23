@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const CLI_PATH = path.resolve(__dirname, '../src/index.js');
-const DEMO_PORTAL_DIR = '/Users/mrin/work/demo-api-portal';
+const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal');
 
 test('@rapidoc/cli Command-Line Tool (Milestone 6)', async (t) => {
   await t.test('--help should print usage and commands', () => {

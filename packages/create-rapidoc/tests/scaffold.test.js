@@ -2,23 +2,23 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import fs from 'node:fs';
-import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 import { scaffoldProject } from '../src/scaffold.js';
-import { buildPortalWithAstro } from '../../rapidoc-portal/src/index.js';
+import { buildPortal } from '../../rapidoc-portal/src/index.js';
 import { validate } from '@scalar/openapi-parser';
 
+// The scaffolded project must share a parent folder with the monorepo's node_modules (Astro only
+// compiles .astro files that do), so it is created in <repo>/.test-tmp/ rather than the OS temp folder.
+const TEST_TMP_ROOT = fileURLToPath(new URL('../../../.test-tmp', import.meta.url));
+
 test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'create-rapidoc-test-'));
+  fs.mkdirSync(TEST_TMP_ROOT, { recursive: true });
+  const tempDir = fs.mkdtempSync(path.join(TEST_TMP_ROOT, 'create-rapidoc-test-'));
 
   t.after(() => {
-    if (fs.existsSync(tempDir)) {
-      try {
-        fs.rmSync(tempDir, { recursive: true, force: true, maxRetries: 3 });
-      } catch {
-        // Cleanup temp dir
-      }
-    }
+    fs.rmSync(tempDir, { recursive: true, force: true, maxRetries: 3 });
+    if (fs.readdirSync(TEST_TMP_ROOT).length === 0) fs.rmdirSync(TEST_TMP_ROOT);
   });
 
   await t.test('scaffoldProject should generate a complete starter portal repository', () => {
@@ -55,9 +55,9 @@ test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
     assert.strictEqual(result.valid, true, 'Scaffolded OpenAPI specification must be 100% valid');
   });
 
-  await t.test('scaffolded project should compile cleanly with buildPortalWithAstro (end-to-end SSG)', async () => {
+  await t.test('scaffolded project should compile cleanly with buildPortal (end-to-end SSG)', async () => {
     const projectDir = path.join(tempDir, 'sample-portal');
-    const buildResult = await buildPortalWithAstro(projectDir);
+    const buildResult = await buildPortal(projectDir);
 
     assert.strictEqual(buildResult.success, true);
     assert.strictEqual(buildResult.apisCount, 1);
@@ -65,7 +65,7 @@ test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
     // Verify dist artifacts
     const distDir = path.join(projectDir, 'dist');
     assert.ok(fs.existsSync(path.join(distDir, 'index.html')));
-    assert.ok(fs.existsSync(path.join(distDir, 'assets/search-index.json')));
+    assert.ok(fs.existsSync(path.join(distDir, 'search-index.json')));
     assert.ok(fs.existsSync(path.join(distDir, 'apis/core/index.html')));
     assert.ok(fs.existsSync(path.join(distDir, 'docs/getting-started/index.html')));
   });

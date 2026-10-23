@@ -57,6 +57,72 @@ Include the script in your HTML page and use the `<rapi-doc>` custom element:
 
 ---
 
+## Generating a Developer Portal with RapiDoc Portal
+
+Beyond embedding `<rapi-doc>` in a page, this repository ships **RapiDoc Portal**: a docs-as-code engine that turns a folder of OpenAPI specs and guides into a complete static developer portal (home page, API catalog, interactive API references, guides and full-text search).
+
+### 1. Create a portal project
+
+```bash
+npm create rapidoc@latest my-portal
+cd my-portal && npm install
+```
+
+This scaffolds:
+
+```text
+my-portal/
+├── rapidoc.config.yaml     # Site title, APIs, navigation, theme
+├── specs/api.yaml          # Your OpenAPI 3.x / Swagger 2.0 specs
+└── docs/                   # Guides in Markdown (.md), MDX (.mdx) or Markdoc (.markdoc)
+```
+
+### 2. Describe your portal
+
+Add specs to `specs/` and guides to `docs/`, then wire them up in `rapidoc.config.yaml`:
+
+```yaml
+site:
+  title: Acme Developer Portal
+apis:
+  - id: orders
+    title: Orders API
+    root: ./specs/orders.yaml   # each API gets a reference page at `path`
+    path: /apis/orders
+    category: Commerce          # groups APIs in the /catalog page
+navigation:
+  - title: Guides
+    items:
+      - label: Getting Started
+        path: /docs/getting-started
+```
+
+### 3. Preview locally
+
+```bash
+npx rapidoc dev        # http://localhost:4321, reloads as you edit docs, specs or config
+```
+
+### 4. Build and host
+
+```bash
+npx rapidoc build      # static site in ./dist
+```
+
+Upload `dist/` to any static host (GitHub Pages, Netlify, S3, Nginx). Check specs before publishing with `npx rapidoc validate ./specs/orders.yaml`.
+
+### What happens during a build
+
+1. `rapidoc.config.yaml` is loaded and validated (Redocly and Zudoku configs are accepted too).
+2. A temporary Astro project is created at `my-portal/.rapidoc-temp/` with normalized copies of your guides, your specs, the `rapidoc-min.js` bundle and a search index.
+3. Astro + Starlight render the guides; the portal's own pages render the home page, API catalog and one RapiDoc reference page per API.
+4. The static site is written to `dist/`.
+5. `.rapidoc-temp/` is deleted, so your project is left exactly as it was apart from `dist/`.
+
+See [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md) for the full configuration reference, the guide syntax (Markdoc tags, MDX components) and the programmatic API. The `demo-api-portal` repository is the reference portal used to dog-food these packages.
+
+---
+
 ## Repository Architecture
 
 This repository is structured as a **Monorepo** using workspaces, compatible with **Node/npm**, **pnpm**, and **Bun**:
@@ -74,7 +140,12 @@ astro-rapidoc/
 │   │   ├── src/                 # CLI source code
 │   │   └── package.json
 │   │
-│   └── rapidoc-portal/          # Docs-as-code developer portal framework (@rapidoc/portal)
+│   ├── rapidoc-portal/          # Docs-as-code developer portal engine (@rapidoc/portal)
+│   │   ├── src/engine/          # Build & dev pipeline (temp workspace, Astro + Starlight)
+│   │   ├── src/pages/           # Portal pages: home, catalog, API reference
+│   │   └── package.json
+│   │
+│   └── create-rapidoc/          # Project scaffolder (npm create rapidoc)
 │       └── package.json
 │
 ├── docs/                        # Astro documentation & showcase site (GitHub Pages)
@@ -217,7 +288,7 @@ All primary commands can be run from the root of the repository:
 The documentation site is built with modern **Astro** using clean, extensionless URLs (`/api`, `/examples`, `/list`, `/quickstart`).
 
 ### Deployment via GitHub Actions
-When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/mrin/work/astro-rapidoc/.github/workflows/deploy-docs.yml) GitHub Action automatically:
+When code is pushed to `master` or `main`, the [deploy-docs.yml](.github/workflows/deploy-docs.yml) GitHub Action automatically:
 1. Compiles the `rapidoc` library bundle (`packages/rapidoc/dist/rapidoc-min.js`).
 2. Builds the Astro documentation site into `docs/dist/` (`npm run build`).
 3. Deploys the static output directory (`docs/dist/`) directly to **GitHub Pages** using `@actions/deploy-pages`.
@@ -231,7 +302,7 @@ When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/m
 
 OpenAPI specs are organized inside `docs/public/` based on their visibility and purpose:
 
-* **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](file:///Users/mrin/work/astro-rapidoc/docs/src/data/example-list.yaml) and displayed on `rapidocweb.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
+* **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](docs/src/data/example-list.yaml) and displayed on `rapidocweb.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
 * **`docs/public/specs-test/`**: Internal edge-case and boundary specs used for UI verification and regression tests (e.g., `circular-refs.yaml`, `xxx-of-combinations.yaml`).
 * **`docs/public/specs-test/parser/`**: Malformed or invalid specs used to test CLI validation and error reporting (e.g., `invalid-syntax.yaml`, `missing-info.yaml`, `broken-ref.yaml`).
 
@@ -242,7 +313,7 @@ OpenAPI specs are organized inside `docs/public/` based on their visibility and 
 - [x] Modernize project dependencies (Vite + Astro + Node 22+)
 - [x] Restructure as a multi-package Monorepo
 - [ ] Build `rapidoc-cli` for OpenAPI linting and local zero-config previews
-- [ ] Build `rapidoc-portal` with PocketBase for developer API portals
+- [ ] Build `rapidoc-portal`, a docs-as-code developer portal engine (Astro + Starlight)
 - [ ] Automated visual regression testing suite with Playwright
 - [ ] Web Content Accessibility Guidelines (WCAG 2.1) compliance enhancements
 
