@@ -1,0 +1,19 @@
+---
+/** {% step title="..." %} inside {% steps %}. */
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<li>
+  {
+    title && (
+      <p>
+        <strong>{title}</strong>
+      </p>
+    )
+  }
+  <slot />
+</li>

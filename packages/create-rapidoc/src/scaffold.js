@@ -179,6 +179,12 @@ Validate schema payloads against the sandbox environment before going live.
 {% /step %}
 {% /steps %}
 
+## Try It
+
+Any operation from your specs can be embedded live in a guide (\`spec\` is the API's \`id\` in \`rapidoc.config.yaml\`):
+
+{% api-operation spec="core" path="/items" method="get" /%}
+
 ## Code Examples
 
 {% tabs %}

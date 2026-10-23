@@ -9,18 +9,23 @@
     "./config": "./src/config/index.js",
     "./markdoc": "./src/markdoc/index.js",
     "./search": "./src/search/index.js",
-    "./components": "./src/components/index.js"
+    "./components": "./src/components/index.js",
+    "./markdoc/astro": "./src/markdoc/astro-config.js",
+    "./markdoc/components": "./src/markdoc/components.js"
   },
   "scripts": {
-    "test": "node --test --test-concurrency=1 tests/**/*.test.js"
+    "test": "node --test --test-concurrency=1 tests/**/*.test.js",
+    "layout:baseline": "RAPIDOC_LAYOUT_OUT=tests/layout node --test tests/layout.test.js"
   },
   "dependencies": {
+    "@astrojs/markdoc": "^2.1.1",
+    "@astrojs/starlight": "^0.42.6",
+    "@astrojs/starlight-markdoc": "^0.7.0",
     "@markdoc/markdoc": "^0.5.10",
+    "astro": "^7.4.0",
     "github-slugger": "^2.0.0",
     "rapidoc": "*",
     "yaml": "^2.9.1",
-    "zod": "^3.24.2",
-    "astro": "^7.4.0",
-    "@astrojs/starlight": "^0.42.6"
+    "zod": "^3.24.2"
   }
 }

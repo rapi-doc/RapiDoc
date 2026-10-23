@@ -1,0 +1,40 @@
+---
+/**
+ * {% card title="..." icon="..." href="..." %}: a Starlight card, linked when `href` is set.
+ * `icon` is a Starlight icon name: https://starlight.astro.build/reference/icons/
+ */
+import { Card } from '@astrojs/starlight/components';
+
+interface Props {
+  title: string;
+  icon?: any;
+  href?: string;
+}
+
+const { title, icon, href } = Astro.props;
+---
+
+{
+  href ? (
+    <a href={href} class="portal-card-link">
+      <Card title={title} icon={icon}>
+        <slot />
+      </Card>
+    </a>
+  ) : (
+    <Card title={title} icon={icon}>
+      <slot />
+    </Card>
+  )
+}
+
+<style>
+  .portal-card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+  .portal-card-link:hover :global(.card) {
+    border-color: var(--sl-color-accent);
+  }
+</style>

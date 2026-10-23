@@ -141,10 +141,23 @@ function injectComponentImports(content) {
 }
 
 /**
- * Turns a raw doc file into content Starlight accepts.
+ * Turns a raw doc file into content Starlight accepts. Markdoc has no imports, so only MDX and
+ * Markdown get component imports.
  */
 export function normalizeDocContent(rawContent, fileName = '') {
-  return injectComponentImports(rewriteZudokuSyntax(normalizeDocFrontmatter(rawContent, fileName)));
+  const content = rewriteZudokuSyntax(normalizeDocFrontmatter(rawContent, fileName));
+  return isMarkdocFile(fileName) ? content : injectComponentImports(content);
+}
+
+function isMarkdocFile(fileName) {
+  return path.extname(fileName).toLowerCase() === '.markdoc';
+}
+
+/**
+ * Path of a doc in the workspace: `.markdoc` becomes `.mdoc`, the extension @astrojs/markdoc loads.
+ */
+function workspaceDocPath(relPath) {
+  return isMarkdocFile(relPath) ? relPath.replace(/\.markdoc$/i, '.mdoc') : relPath;
 }
 
 function isDocFile(fileName) {
@@ -179,7 +192,7 @@ function collectDesiredDocs(srcDir) {
     if (ext === '.md' && fs.existsSync(path.join(entry.parentPath, `${path.parse(entry.name).name}.mdx`))) continue;
 
     if (isDocFile(entry.name)) {
-      desired.set(relPath, normalizeDocContent(fs.readFileSync(srcPath, 'utf8'), entry.name));
+      desired.set(workspaceDocPath(relPath), normalizeDocContent(fs.readFileSync(srcPath, 'utf8'), entry.name));
     } else if (entry.name !== '.DS_Store') {
       desired.set(relPath, fs.readFileSync(srcPath));
     }

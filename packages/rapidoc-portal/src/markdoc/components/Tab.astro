@@ -1,0 +1,13 @@
+---
+/** {% tab name="..." %} (or label="...") inside {% tabs %}. */
+import { TabItem } from '@astrojs/starlight/components';
+
+interface Props {
+  name?: string;
+  label?: string;
+}
+
+const { name, label } = Astro.props;
+---
+
+<TabItem label={label ?? name ?? 'Tab'}><slot /></TabItem>

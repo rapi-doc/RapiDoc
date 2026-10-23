@@ -1,0 +1,22 @@
+---
+/**
+ * Starlight Sidebar override. On narrow screens the sidebar is the only menu, so the header links
+ * are listed above the documentation navigation (hidden from 50rem, where the header shows them).
+ */
+import DefaultSidebar from '@astrojs/starlight/components/Sidebar.astro';
+import portalConfig from 'virtual:rapidoc-portal/config';
+import PortalMobileNav from './PortalMobileNav.astro';
+import { resolveHeaderLinks } from './header-links.js';
+---
+
+<div class="portal-sidebar-header-links md:sl-hidden">
+  <PortalMobileNav links={resolveHeaderLinks(portalConfig)} />
+</div>
+<DefaultSidebar><slot /></DefaultSidebar>
+
+<style>
+  .portal-sidebar-header-links {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--sl-color-hairline-shade);
+  }
+</style>

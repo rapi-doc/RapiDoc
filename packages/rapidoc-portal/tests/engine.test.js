@@ -77,6 +77,7 @@ describe('RapiDoc Portal build engine', () => {
       assert.equal(workspace.root, path.join(DEMO_PORTAL_DIR, WORKSPACE_DIRNAME));
       for (const file of [
         'package.json',
+        'markdoc.config.mjs',
         'src/content.config.ts',
         'public/assets/rapidoc-min.js',
         'public/search-index.json',
@@ -97,6 +98,14 @@ describe('RapiDoc Portal build engine', () => {
         gettingStartedContent.includes('title: "Welcome to the BrewCraft Developer Platform"'),
         'Should extract first heading as title'
       );
+
+      // .markdoc docs become .mdoc, the extension @astrojs/markdoc loads, without MDX imports
+      const guidesDir = path.join(workspace.docsContentDir, 'guides');
+      assert.ok(fs.existsSync(path.join(guidesDir, 'order-fulfillment.mdoc')), '.markdoc should be synced as .mdoc');
+      assert.ok(!fs.existsSync(path.join(guidesDir, 'order-fulfillment.markdoc')));
+      const markdocDoc = fs.readFileSync(path.join(guidesDir, 'order-fulfillment.mdoc'), 'utf8');
+      assert.ok(markdocDoc.startsWith('---\ntitle:'), 'Markdoc docs get a title too');
+      assert.ok(!markdocDoc.includes('import {'), 'Markdoc docs get no component imports');
     } finally {
       removePortalWorkspace(workspace);
     }
@@ -117,6 +126,24 @@ describe('RapiDoc Portal build engine', () => {
       assert.ok(fs.existsSync(path.join(outDir, 'apis/shipments/index.html')), 'API reference index.html should exist');
       assert.ok(fs.existsSync(path.join(outDir, 'docs/documentation/index.html')), 'Starlight Docs index.html should exist');
       assert.ok(fs.existsSync(path.join(outDir, 'search-index.json')), 'Search index should exist');
+
+      // Markdoc guides render with Starlight components
+      const read = (page) => fs.readFileSync(path.join(outDir, page, 'index.html'), 'utf8');
+      const fulfillment = read('docs/guides/order-fulfillment');
+      assert.ok(fulfillment.includes('starlight-aside'), '{% callout %} renders as a Starlight aside');
+      assert.ok(fulfillment.includes('<starlight-tabs'), '{% tabs %} renders as Starlight tabs');
+      assert.ok(fulfillment.includes('sl-steps'), '{% steps %} renders as Starlight steps');
+      assert.ok(!fulfillment.includes('{%'), 'no unrendered Markdoc tags');
+      assert.ok(read('docs/guides/loyalty-and-rewards').includes('Bloom Tier'));
+
+      // {% api-operation %}: a <rapi-doc-mini> showing one operation, and the bundle only where it is used
+      const firstShipment = read('docs/guides/first-shipment');
+      assert.equal(firstShipment.match(/<rapi-doc-mini/g)?.length, 2);
+      assert.ok(firstShipment.includes('spec-url="/specs/shipments.json"'));
+      assert.ok(firstShipment.includes('match-paths="^post /shipments$"'));
+      assert.ok(firstShipment.includes('/assets/rapidoc-min.js'), 'pages with an embed load RapiDoc');
+      assert.ok(fulfillment.includes('API operation not found'), 'an unknown spec id shows a notice');
+      assert.ok(!fulfillment.includes('/assets/rapidoc-min.js'), 'pages without a working embed do not load RapiDoc');
 
       assert.deepEqual(listTree(DEMO_PORTAL_DIR), projectBefore, 'build must not add or remove files in the project');
     } finally {

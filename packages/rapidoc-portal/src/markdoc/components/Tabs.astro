@@ -1,0 +1,10 @@
+---
+/** {% tabs %} of {% tab name="..." %} items: Starlight tabs. */
+import { Tabs } from '@astrojs/starlight/components';
+
+interface Props {
+  syncKey?: string;
+}
+---
+
+<Tabs syncKey={Astro.props.syncKey}><slot /></Tabs>

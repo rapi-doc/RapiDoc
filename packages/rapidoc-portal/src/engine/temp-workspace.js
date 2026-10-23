@@ -5,8 +5,9 @@
  *   <project>/.rapidoc-temp/
  *     node_modules -> symlink to the folder Astro is installed in
  *     package.json             lists the dependencies Astro must bundle (Starlight, portal, rapidoc)
+ *     markdoc.config.mjs       Markdoc tags for .mdoc docs (src/markdoc/astro-config.js)
  *     src/content.config.ts
- *     src/content/docs/docs/   normalized copy of the project's docs/
+ *     src/content/docs/docs/   normalized copy of the project's docs/ (.markdoc renamed to .mdoc)
  *     public/specs/            OpenAPI specs from `apis:`
  *     public/assets/           rapidoc-min.js
  *     public/search-index.json
@@ -31,8 +32,22 @@ const WORKSPACE_PACKAGE_JSON = {
   name: 'rapidoc-portal-workspace',
   private: true,
   type: 'module',
-  dependencies: { '@astrojs/starlight': '*', '@rapidoc/portal': '*', astro: '*', rapidoc: '*' },
+  dependencies: {
+    '@astrojs/markdoc': '*',
+    '@astrojs/starlight': '*',
+    '@astrojs/starlight-markdoc': '*',
+    '@rapidoc/portal': '*',
+    astro: '*',
+    rapidoc: '*',
+  },
 };
+
+// Read by @astrojs/markdoc from the project root: renders .mdoc docs (synced from .markdoc).
+const MARKDOC_CONFIG_MJS = `import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+import { portalMarkdocConfig } from '@rapidoc/portal/markdoc/astro';
+
+export default defineMarkdocConfig(portalMarkdocConfig());
+`;
 
 const CONTENT_CONFIG_TS = `import { defineCollection } from 'astro:content';
 import { docsLoader } from '@astrojs/starlight/loaders';
@@ -95,6 +110,7 @@ export async function createPortalWorkspace(projectDir = process.cwd()) {
     fs.symlinkSync(resolveDependencyRoot(), path.join(root, 'node_modules'), 'junction');
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(WORKSPACE_PACKAGE_JSON, null, 2), 'utf8');
     fs.writeFileSync(path.join(root, 'src', 'content.config.ts'), CONTENT_CONFIG_TS, 'utf8');
+    fs.writeFileSync(path.join(root, 'markdoc.config.mjs'), MARKDOC_CONFIG_MJS, 'utf8');
 
     copySpecs(config, workspace.publicDir);
     copyRapidocBundle(workspace.publicDir);

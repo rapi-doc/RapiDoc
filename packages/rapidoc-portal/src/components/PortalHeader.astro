@@ -1,10 +1,14 @@
 ---
 import portalConfig from 'virtual:rapidoc-portal/config';
 import DualToneIcon from './DualToneIcon.astro';
+import PortalMobileNav from './PortalMobileNav.astro';
 import PortalSearchModal from './PortalSearchModal.astro';
+import { resolveHeaderLinks } from './header-links.js';
 
 interface Props {
   portalConfig?: any;
+  /** id of the page's popover sidebar, opened by the menu button on narrow screens */
+  sidebarId?: string;
 }
 
 const config = Astro.props.portalConfig ?? portalConfig;
@@ -15,53 +19,23 @@ const logo = site.logo || {};
 const title = logo.text || site.title || 'Developer Portal';
 const icon = logo.icon || '🚀';
 const logoHref = logo.href || '/';
+const headerLinks = resolveHeaderLinks(config);
 
-// Normalize header links according to priority:
-// 1. Documentation
-// 2. API Catalog
-// 3. Highlighted / Pinned APIs (1 to 3 APIs)
-// 4. Dropdown menus (Solutions, Products, etc.)
-// 5. Utilities (Login, etc.)
-const configFeaturedIds = site.featuredApis || site.highlightedApis || site.pinnedApis || [];
-const pinnedApis = (config?.apis || []).filter(
-  (a: any) => a.featured || a.highlighted || a.pinned || configFeaturedIds.includes(a.id)
-).slice(0, 3);
-
-let headerLinks = site.headerLinks;
-if (!headerLinks || headerLinks.length === 0) {
-  headerLinks = [
-    { label: 'Documentation', href: '/docs/documentation' },
-    { label: 'API Catalog', href: '/catalog' },
-  ];
-  pinnedApis.forEach((a: any) => {
-    headerLinks.push({
-      label: a.title || a.id,
-      href: a.path || `/apis/${a.id}`,
-    });
-  });
-  if (config?.apis && config.apis.length > 0) {
-    headerLinks.push({
-      label: 'APIs',
-      items: config.apis.map((a: any) => ({
-        label: a.title || a.id,
-        href: a.path || `/apis/${a.id}`,
-        description: a.description || `Interactive OpenAPI reference for ${a.title || a.id}`,
-        icon: 'zap',
-      })),
-    });
-  }
-} else {
-  // If user provided headerLinks, ensure Documentation is present
-  const hasDocLink = headerLinks.some((l: any) => l.href?.includes('/docs') || l.label?.toLowerCase().includes('doc'));
-  if (!hasDocLink) {
-    headerLinks = [{ label: 'Documentation', href: '/docs/documentation' }, ...headerLinks];
-  }
+// On pages with a sidebar, the menu button opens the sidebar on narrow screens, and the sidebar
+// lists the header links above its own navigation (PortalSidebar.astro, api-reference.astro).
+let sidebarId = Astro.props.sidebarId;
+if (!sidebarId) {
+  // Starlight's `starlightRoute` getter throws on pages Starlight does not render (home, catalog, APIs).
+  try {
+    if (Astro.locals.starlightRoute?.hasSidebar) sidebarId = 'starlight__sidebar';
+  } catch {}
 }
+const hasSidebar = Boolean(sidebarId);
 
 const currentPath = Astro.url?.pathname || '/';
 ---
 
-<header class="portal-header-root">
+<header class="portal-header-root" data-portal-region="header" data-has-sidebar={hasSidebar ? '' : undefined}>
   <script is:inline>
     try {
       const navEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
@@ -98,7 +72,7 @@ const currentPath = Astro.url?.pathname || '/';
     )
   }
 
-  <div class="portal-navbar">
+  <div class="portal-navbar" data-portal-region="header-inner">
     <div class="portal-nav-left">
       <a href={logoHref} class="portal-brand" aria-label={`${title} Home`}>
         {logo.light ? (
@@ -231,37 +205,23 @@ const currentPath = Astro.url?.pathname || '/';
           <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
       </button>
+      {
+        hasSidebar && (
+          <button type="button" class="portal-mobile-toggle portal-sidebar-toggle" popovertarget={sidebarId} aria-label="Toggle menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        )
+      }
     </div>
   </div>
 
   <!-- Mobile Drawer -->
   <div class="portal-mobile-drawer" id="portal-mobile-drawer" hidden>
-    <div class="portal-mobile-inner">
-      {
-        headerLinks.map((link) => {
-          if (link.items && link.items.length > 0) {
-            return (
-              <div class="portal-mobile-section">
-                <div class="portal-mobile-section-title">{link.label}</div>
-                <div class="portal-mobile-links">
-                  {link.items.map((item) => (
-                    <a href={item.href || item.path || '#'} class="portal-mobile-item">
-                      <DualToneIcon name={item.icon || 'zap'} size={18} class="portal-mobile-icon" />
-                      <span>{item.label || item.title}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            );
-          }
-          return (
-            <a href={link.href || link.path || '#'} class="portal-mobile-direct-link">
-              {link.label}
-            </a>
-          );
-        })
-      }
-    </div>
+    <PortalMobileNav links={headerLinks} />
   </div>
 </header>
 
@@ -287,40 +247,46 @@ const currentPath = Astro.url?.pathname || '/';
     line-height: 1.4;
   }
 
-  /* Sticky Announcement Bar */
+  /* Announcement bar: one line of fixed height (--portal-banner-height), so the header height is
+     known before paint. Long text is truncated. */
   .portal-announcement-bar {
     box-sizing: border-box;
+    position: relative;
     width: 100%;
+    height: var(--portal-banner-height);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 1.25rem;
+    padding: 0 2.75rem;
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 600;
     font-family: inherit;
-    position: sticky;
-    top: 0;
-    z-index: 1001;
+    white-space: nowrap;
+    overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  html.portal-announcement-dismissed .portal-announcement-bar {
+    display: none;
   }
   .portal-announcement-inner {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    line-height: 1.25rem;
+    min-width: 0;
   }
   .portal-announcement-msg {
-    line-height: 1.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .portal-announcement-cta {
+    flex-shrink: 0;
     text-decoration: underline;
     font-weight: 700;
-    line-height: 1.25rem;
   }
   .portal-announcement-close {
     position: absolute;
-    right: 1rem;
+    right: 0.75rem;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -334,14 +300,14 @@ const currentPath = Astro.url?.pathname || '/';
 
   /* Main Top Bar */
   .portal-navbar {
-    height: 60px;
+    height: var(--portal-navbar-height);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1.5rem;
-    background-color: color-mix(in srgb, var(--ph-bg) 94%, transparent);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    gap: 1rem;
+    padding-inline: var(--portal-shell-pad-x);
+    /* Opaque: the sidebar slides under the header when the footer pushes it up. */
+    background-color: var(--ph-bg);
     border-bottom: 1px solid var(--ph-border);
     box-sizing: border-box;
   }
@@ -350,6 +316,7 @@ const currentPath = Astro.url?.pathname || '/';
     display: flex;
     align-items: center;
     gap: 2rem;
+    min-width: 0;
   }
 
   /* Brand */
@@ -362,12 +329,16 @@ const currentPath = Astro.url?.pathname || '/';
     color: var(--ph-fg);
     text-decoration: none;
     letter-spacing: -0.01em;
+    min-width: 0;
   }
   .portal-brand-icon {
     font-size: 1.35rem;
   }
   .portal-brand-text {
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Menu Links */
@@ -376,13 +347,14 @@ const currentPath = Astro.url?.pathname || '/';
     align-items: center;
     gap: 0.35rem;
   }
-  @media (min-width: 768px) {
+  @media (min-width: 72rem) {
     .portal-nav-menu {
       display: flex;
     }
   }
 
   .portal-nav-link {
+    white-space: nowrap;
     padding: 0.5rem 0.875rem;
     font-size: 0.9375rem;
     font-weight: 500;
@@ -404,6 +376,7 @@ const currentPath = Astro.url?.pathname || '/';
     align-items: center;
   }
   .portal-dropdown-trigger {
+    white-space: nowrap;
     display: flex;
     align-items: center;
     gap: 0.35rem;
@@ -489,7 +462,7 @@ const currentPath = Astro.url?.pathname || '/';
 
   /* Sibling suppression: only suppress when ANOTHER dropdown wrapper is actively hovered */
   .portal-nav-menu:has(.portal-dropdown-wrapper:hover) .portal-dropdown-wrapper.is-open:not(:hover) .portal-megamenu-panel {
-    display: none !important;
+    display: none;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -699,6 +672,12 @@ const currentPath = Astro.url?.pathname || '/';
     border-color: var(--ph-primary);
     color: var(--ph-fg);
   }
+  @media (width < 80rem) {
+    .portal-search-text,
+    .portal-search-kbd {
+      display: none;
+    }
+  }
   .portal-search-kbd {
     background: rgba(255, 255, 255, 0.08);
     padding: 0.15rem 0.4rem;
@@ -749,9 +728,22 @@ const currentPath = Astro.url?.pathname || '/';
     color: var(--ph-fg);
     cursor: pointer;
   }
-  @media (min-width: 768px) {
+  .portal-sidebar-toggle {
+    display: none;
+  }
+  @media (min-width: 72rem) {
     .portal-mobile-toggle {
       display: none;
+    }
+  }
+  /* Narrow docs pages: one menu button, which opens the sidebar (it lists the header links too). */
+  @media (width < 50rem) {
+    .portal-header-root[data-has-sidebar] .portal-mobile-toggle:not(.portal-sidebar-toggle),
+    .portal-header-root[data-has-sidebar] .portal-mobile-drawer {
+      display: none;
+    }
+    .portal-header-root[data-has-sidebar] .portal-sidebar-toggle {
+      display: flex;
     }
   }
 
@@ -759,75 +751,22 @@ const currentPath = Astro.url?.pathname || '/';
   .portal-mobile-drawer {
     background: var(--ph-surface);
     border-bottom: 1px solid var(--ph-border);
-    padding: 1rem 1.5rem;
-  }
-  @media (min-width: 768px) {
-    .portal-mobile-drawer {
-      display: none !important;
-    }
+    padding: 1rem var(--portal-shell-pad-x);
+    max-height: calc(100dvh - var(--sl-nav-height));
+    overflow-y: auto;
   }
   .portal-mobile-drawer[hidden] {
     display: none;
   }
-  .portal-mobile-section {
-    margin-bottom: 1rem;
-  }
-  .portal-mobile-section-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--ph-primary);
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.05em;
-  }
-  .portal-mobile-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-  .portal-mobile-item {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    padding: 0.5rem 0.75rem;
-    color: var(--ph-fg);
-    text-decoration: none;
-    border-radius: 6px;
-    font-size: 0.9375rem;
-  }
-  .portal-mobile-item:hover {
-    background-color: rgba(255, 255, 255, 0.06);
-  }
-  .portal-mobile-direct-link {
-    display: block;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9375rem;
-    color: var(--ph-fg);
-    text-decoration: none;
-    font-weight: 500;
+  @media (min-width: 72rem) {
+    .portal-mobile-drawer {
+      display: none;
+    }
   }
 </style>
 
 <script is:inline>
   document.addEventListener('DOMContentLoaded', () => {
-    // 0. Dynamic Header Height Synchronization
-    const headerEl = document.querySelector('.portal-header-root');
-    const updateHeaderHeight = () => {
-      if (headerEl) {
-        const h = Math.round(headerEl.getBoundingClientRect().height);
-        if (h > 0) {
-          document.documentElement.style.setProperty('--portal-header-height', `${h}px`);
-          document.documentElement.style.setProperty('--sl-header-height', `${h}px`);
-          document.documentElement.style.setProperty('--sl-nav-height', `${h}px`);
-        }
-      }
-    };
-    updateHeaderHeight();
-    window.addEventListener('resize', updateHeaderHeight);
-    if (typeof ResizeObserver !== 'undefined' && headerEl) {
-      new ResizeObserver(updateHeaderHeight).observe(headerEl);
-    }
-
     // 1. Theme Toggle
     const themeBtn = document.getElementById('portal-theme-toggle');
     if (themeBtn) {
@@ -853,13 +792,12 @@ const currentPath = Astro.url?.pathname || '/';
     const closeAnnounce = document.getElementById('portal-announcement-close');
     const announceBar = document.getElementById('portal-announcement');
     if (closeAnnounce && announceBar) {
+      // The class hides the bar and sets --portal-banner-height to 0 (portal-theme.css).
       closeAnnounce.addEventListener('click', () => {
-        announceBar.style.display = 'none';
         document.documentElement.classList.add('portal-announcement-dismissed');
         try {
           sessionStorage.setItem('portal-announcement-dismissed', 'true');
         } catch {}
-        setTimeout(updateHeaderHeight, 0);
       });
     }
 

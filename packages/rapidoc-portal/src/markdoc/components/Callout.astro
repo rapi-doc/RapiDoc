@@ -1,0 +1,22 @@
+---
+/** {% callout type="info|tip|warning|danger|caution|note" title="..." %}: a Starlight aside. */
+import { Aside } from '@astrojs/starlight/components';
+
+interface Props {
+  type?: string;
+  title?: string;
+}
+
+const ASIDE_TYPES: Record<string, 'note' | 'tip' | 'caution' | 'danger'> = {
+  info: 'note',
+  note: 'note',
+  tip: 'tip',
+  warning: 'caution',
+  caution: 'caution',
+  danger: 'danger',
+};
+
+const { type = 'info', title } = Astro.props;
+---
+
+<Aside type={ASIDE_TYPES[type] ?? 'note'} title={title}><slot /></Aside>

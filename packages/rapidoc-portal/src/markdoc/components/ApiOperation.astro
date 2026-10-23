@@ -1,0 +1,76 @@
+---
+/**
+ * {% api-operation spec="<api id>" path="/orders" method="post" title="..." /%}: one operation of a
+ * portal API, interactive, rendered by <rapi-doc-mini>. `spec` is the `id` of an entry in `apis:`.
+ *
+ * The RapiDoc bundle is loaded only on pages that contain an embed.
+ */
+import { Aside } from '@astrojs/starlight/components';
+import portalConfig from 'virtual:rapidoc-portal/config';
+import { operationMatchPattern } from '../operation.js';
+
+interface Props {
+  spec: string;
+  path: string;
+  method?: string;
+  title?: string;
+}
+
+const { spec, path, method = 'get', title } = Astro.props;
+const apis = portalConfig.apis || [];
+const api = apis.find((a: any) => a.id === spec);
+
+if (!api) {
+  console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: no API with id "${spec}" in apis:`);
+}
+
+const specUrl = api && (api.isRemote ? api.root : `/specs/${api.fullPath.split(/[\\/]/).pop()}`);
+const matchPaths = operationMatchPattern(method, path);
+const rapidoc = portalConfig.rapidoc || {};
+---
+
+{
+  api ? (
+    <figure class="portal-api-operation not-content" data-api={spec} data-method={method.toUpperCase()} data-path={path}>
+      {title && <figcaption>{title}</figcaption>}
+      <rapi-doc-mini
+        spec-url={specUrl}
+        match-paths={matchPaths}
+        match-type="regex"
+        paths-expanded="true"
+        layout="column"
+        color-scheme="auto"
+        theme={rapidoc.theme}
+        primary-color={rapidoc['primary-color']}
+        schema-style={rapidoc['schema-style']}
+        load-fonts="false"
+      />
+      <script is:inline type="module" src="/assets/rapidoc-min.js" />
+    </figure>
+  ) : (
+    <Aside type="caution" title="API operation not found">
+      No API with id <code>{spec}</code> in <code>apis:</code> of <code>rapidoc.config.yaml</code>
+      {apis.length > 0 && <>. Available ids: {apis.map((a: any) => a.id).join(', ')}</>}.
+    </Aside>
+  )
+}
+
+<style>
+  .portal-api-operation {
+    margin: 1.5rem 0;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  figcaption {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    font-weight: 600;
+  }
+  rapi-doc-mini {
+    display: block;
+    padding: 0.5rem 1rem 1rem;
+    --font-sans: inherit;
+    --font-mono: inherit;
+  }
+</style>

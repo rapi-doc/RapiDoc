@@ -1,0 +1,77 @@
+---
+/**
+ * Header links as a vertical list, for narrow screens: inside the header's drop-down drawer, and at
+ * the top of the documentation sidebar menu.
+ */
+import DualToneIcon from './DualToneIcon.astro';
+
+interface Props {
+  links: any[];
+}
+
+const { links } = Astro.props;
+---
+
+<div class="portal-mobile-nav">
+  {
+    links.map((link) =>
+      link.items?.length ? (
+        <div class="portal-mobile-section">
+          <div class="portal-mobile-section-title">{link.label}</div>
+          <div class="portal-mobile-links">
+            {link.items.map((item: any) => (
+              <a href={item.href || item.path || '#'} class="portal-mobile-item">
+                <DualToneIcon name={item.icon || 'zap'} size={18} class="portal-mobile-icon" />
+                <span>{item.label || item.title}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <a href={link.href || link.path || '#'} class="portal-mobile-direct-link">
+          {link.label}
+        </a>
+      )
+    )
+  }
+</div>
+
+<style is:global>
+  .portal-mobile-section {
+    margin-bottom: 1rem;
+  }
+  .portal-mobile-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--portal-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  .portal-mobile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .portal-mobile-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--portal-fg);
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+  }
+  .portal-mobile-item:hover {
+    background-color: var(--portal-hover-bg);
+  }
+  .portal-mobile-direct-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--portal-fg);
+    text-decoration: none;
+    font-weight: 500;
+  }
+</style>

@@ -18,7 +18,7 @@
    - `README.md`
    - Valid OpenAPI 3.1 sample specification in `specs/api.yaml`
    - Starter Markdown guide in `docs/getting-started.md`
-   - Starter Markdoc guide in `docs/guides/overview.markdoc` demonstrating callouts, tabs, and step tags
+   - Starter Markdoc guide in `docs/guides/overview.markdoc` demonstrating callouts, tabs, step tags, and a live `api-operation` embed of the starter spec
 2. Supports interactive or headless scaffolding (`--title`, `--force`).
 3. Out-of-the-box buildable: freshly scaffolded projects immediately build with `rapidoc build`.
 

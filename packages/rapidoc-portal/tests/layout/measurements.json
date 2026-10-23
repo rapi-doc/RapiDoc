@@ -1,0 +1,3921 @@
+{
+  "home@desktop": {
+    "path": "/",
+    "viewport": {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 2180.781,
+        "bottom": 2470.781,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 2237.781,
+        "bottom": 2430.781,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1440,
+      "scrollHeight": 2471,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 1394.781,
+        "bottom": 1684.781,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 1451.781,
+        "bottom": 1644.781,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 786,
+      "scrollWidth": 1440,
+      "scrollHeight": 2471,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 754.781,
+        "bottom": 1044.781,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 811.781,
+        "bottom": 1004.781,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1426,
+      "scrollWidth": 1440,
+      "scrollHeight": 2471,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 609.781,
+        "bottom": 899.781,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 666.781,
+        "bottom": 859.781,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1571,
+      "scrollWidth": 1440,
+      "scrollHeight": 2471,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "home@laptop": {
+    "path": "/",
+    "viewport": {
+      "id": "laptop",
+      "width": 1024,
+      "height": 768
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 2505.734,
+        "bottom": 2795.734,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 2562.734,
+        "bottom": 2755.734,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1024,
+      "scrollHeight": 2796,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 1491.734,
+        "bottom": 1781.734,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 1548.734,
+        "bottom": 1741.734,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1014,
+      "scrollWidth": 1024,
+      "scrollHeight": 2796,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 622.734,
+        "bottom": 912.734,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 679.734,
+        "bottom": 872.734,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1883,
+      "scrollWidth": 1024,
+      "scrollHeight": 2796,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 477.734,
+        "bottom": 767.734,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 534.734,
+        "bottom": 727.734,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 2028,
+      "scrollWidth": 1024,
+      "scrollHeight": 2796,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "home@mobile": {
+    "path": "/",
+    "viewport": {
+      "id": "mobile",
+      "width": 375,
+      "height": 812
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 3822.031,
+        "bottom": 4426.813,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 3879.031,
+        "bottom": 4386.813,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 375,
+      "scrollHeight": 4427,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 2014.031,
+        "bottom": 2618.813,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 2071.031,
+        "bottom": 2578.813,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1808,
+      "scrollWidth": 375,
+      "scrollHeight": 4427,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 509.031,
+        "bottom": 1113.813,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 566.031,
+        "bottom": 1073.813,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 3313,
+      "scrollWidth": 375,
+      "scrollHeight": 4427,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 207.031,
+        "bottom": 811.813,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 264.031,
+        "bottom": 771.813,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 3615,
+      "scrollWidth": 375,
+      "scrollHeight": 4427,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "catalog@desktop": {
+    "path": "/catalog/",
+    "viewport": {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 2225.406,
+        "bottom": 2515.406,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 2282.406,
+        "bottom": 2475.406,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1440,
+      "scrollHeight": 2515,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 1417.406,
+        "bottom": 1707.406,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 1474.406,
+        "bottom": 1667.406,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 808,
+      "scrollWidth": 1440,
+      "scrollHeight": 2515,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 755.406,
+        "bottom": 1045.406,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 812.406,
+        "bottom": 1005.406,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1470,
+      "scrollWidth": 1440,
+      "scrollHeight": 2515,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 610.406,
+        "bottom": 900.406,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 667.406,
+        "bottom": 860.406,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1615,
+      "scrollWidth": 1440,
+      "scrollHeight": 2515,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "catalog@laptop": {
+    "path": "/catalog/",
+    "viewport": {
+      "id": "laptop",
+      "width": 1024,
+      "height": 768
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 2065.625,
+        "bottom": 2355.625,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 2122.625,
+        "bottom": 2315.625,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1024,
+      "scrollHeight": 2356,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 1271.625,
+        "bottom": 1561.625,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 1328.625,
+        "bottom": 1521.625,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 794,
+      "scrollWidth": 1024,
+      "scrollHeight": 2356,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 622.625,
+        "bottom": 912.625,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 679.625,
+        "bottom": 872.625,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1443,
+      "scrollWidth": 1024,
+      "scrollHeight": 2356,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 477.625,
+        "bottom": 767.625,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 534.625,
+        "bottom": 727.625,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1588,
+      "scrollWidth": 1024,
+      "scrollHeight": 2356,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "catalog@mobile": {
+    "path": "/catalog/",
+    "viewport": {
+      "id": "mobile",
+      "width": 375,
+      "height": 812
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 2990.875,
+        "bottom": 3595.656,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 3047.875,
+        "bottom": 3555.656,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 375,
+      "scrollHeight": 3596,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 1598.875,
+        "bottom": 2203.656,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 1655.875,
+        "bottom": 2163.656,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1392,
+      "scrollWidth": 375,
+      "scrollHeight": 3596,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 508.875,
+        "bottom": 1113.656,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 565.875,
+        "bottom": 1073.656,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 2482,
+      "scrollWidth": 375,
+      "scrollHeight": 3596,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 206.875,
+        "bottom": 811.656,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 263.875,
+        "bottom": 771.656,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 2784,
+      "scrollWidth": 375,
+      "scrollHeight": 3596,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "docs@desktop": {
+    "path": "/docs/shipping-process/",
+    "viewport": {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 900,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": {
+        "top": 96,
+        "bottom": 900,
+        "left": 1080,
+        "right": 1440,
+        "width": 360,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 1080
+      },
+      "footer": {
+        "top": 2177.172,
+        "bottom": 2508.672,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 331.5,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 2234.172,
+        "bottom": 2468.672,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 234.5,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        }
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1440,
+      "scrollHeight": 2509,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 900,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": {
+        "top": 96,
+        "bottom": 900,
+        "left": 1080,
+        "right": 1440,
+        "width": 360,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 1080
+      },
+      "footer": {
+        "top": 1372.172,
+        "bottom": 1703.672,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 331.5,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 1429.172,
+        "bottom": 1663.672,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 234.5,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        }
+      },
+      "contentScroller": null,
+      "scrollY": 805,
+      "scrollWidth": 1440,
+      "scrollHeight": 2509,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -69.828,
+        "bottom": 734.172,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": {
+        "top": -69.828,
+        "bottom": 734.172,
+        "left": 1080,
+        "right": 1440,
+        "width": 360,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 1080
+      },
+      "footer": {
+        "top": 734.172,
+        "bottom": 1065.672,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 331.5,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 791.172,
+        "bottom": 1025.672,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 234.5,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        }
+      },
+      "contentScroller": null,
+      "scrollY": 1443,
+      "scrollWidth": 1440,
+      "scrollHeight": 2509,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -235.828,
+        "bottom": 568.172,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": {
+        "top": -235.828,
+        "bottom": 568.172,
+        "left": 1080,
+        "right": 1440,
+        "width": 360,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 1080
+      },
+      "footer": {
+        "top": 568.172,
+        "bottom": 899.672,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 331.5,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 625.172,
+        "bottom": 859.672,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 234.5,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        }
+      },
+      "contentScroller": null,
+      "scrollY": 1609,
+      "scrollWidth": 1440,
+      "scrollHeight": 2509,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "docs@laptop": {
+    "path": "/docs/shipping-process/",
+    "viewport": {
+      "id": "laptop",
+      "width": 1024,
+      "height": 768
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 768,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 2221.203,
+        "bottom": 2552.703,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 331.5,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 2278.203,
+        "bottom": 2512.703,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 234.5,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1024,
+      "scrollHeight": 2553,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 768,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 1328.203,
+        "bottom": 1659.703,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 331.5,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 1385.203,
+        "bottom": 1619.703,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 234.5,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 893,
+      "scrollWidth": 1024,
+      "scrollHeight": 2553,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -69.797,
+        "bottom": 602.203,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 602.203,
+        "bottom": 933.703,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 331.5,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 659.203,
+        "bottom": 893.703,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 234.5,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1619,
+      "scrollWidth": 1024,
+      "scrollHeight": 2553,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -235.797,
+        "bottom": 436.203,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 436.203,
+        "bottom": 767.703,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 331.5,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 493.203,
+        "bottom": 727.703,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 234.5,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1785,
+      "scrollWidth": 1024,
+      "scrollHeight": 2553,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "docs@mobile": {
+    "path": "/docs/shipping-process/",
+    "viewport": {
+      "id": "mobile",
+      "width": 375,
+      "height": 812
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 2589.141,
+        "bottom": 3288.703,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 699.563,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 2646.141,
+        "bottom": 3248.703,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 602.563,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 375,
+      "scrollHeight": 3289,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 1350.141,
+        "bottom": 2049.703,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 699.563,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 1407.141,
+        "bottom": 2009.703,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 602.563,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 1239,
+      "scrollWidth": 375,
+      "scrollHeight": 3289,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 462.141,
+        "bottom": 1161.703,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 699.563,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 519.141,
+        "bottom": 1121.703,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 602.563,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 2127,
+      "scrollWidth": 375,
+      "scrollHeight": 3289,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 112.141,
+        "bottom": 811.703,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 699.563,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 169.141,
+        "bottom": 771.703,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 602.563,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 2477,
+      "scrollWidth": 375,
+      "scrollHeight": 3289,
+      "footerCount": 1,
+      "hasPagination": true,
+      "loadsRapidoc": false,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "api@desktop": {
+    "path": "/apis/shipments/",
+    "viewport": {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 900,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 38886.484,
+        "bottom": 39176.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 38943.484,
+        "bottom": 39136.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1440,
+      "scrollHeight": 39176,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 900,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 19748.484,
+        "bottom": 20038.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 19805.484,
+        "bottom": 19998.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 19138,
+      "scrollWidth": 1440,
+      "scrollHeight": 39176,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -48.516,
+        "bottom": 755.484,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 755.484,
+        "bottom": 1045.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 812.484,
+        "bottom": 1005.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 38131,
+      "scrollWidth": 1440,
+      "scrollHeight": 39176,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -193.516,
+        "bottom": 610.484,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 610.484,
+        "bottom": 900.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 667.484,
+        "bottom": 860.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 38276,
+      "scrollWidth": 1440,
+      "scrollHeight": 39176,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "api@laptop": {
+    "path": "/apis/shipments/",
+    "viewport": {
+      "id": "laptop",
+      "width": 1024,
+      "height": 768
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 768,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 39290.984,
+        "bottom": 39580.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 39347.984,
+        "bottom": 39540.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1024,
+      "scrollHeight": 39581,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 768,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 19883.984,
+        "bottom": 20173.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 19940.984,
+        "bottom": 20133.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 19407,
+      "scrollWidth": 1024,
+      "scrollHeight": 39581,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -49.016,
+        "bottom": 622.984,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 622.984,
+        "bottom": 912.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 679.984,
+        "bottom": 872.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 38668,
+      "scrollWidth": 1024,
+      "scrollHeight": 39581,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -194.016,
+        "bottom": 477.984,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 477.984,
+        "bottom": 767.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 534.984,
+        "bottom": 727.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 38813,
+      "scrollWidth": 1024,
+      "scrollHeight": 39581,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "api@mobile": {
+    "path": "/apis/shipments/",
+    "viewport": {
+      "id": "mobile",
+      "width": 375,
+      "height": 812
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 46515.531,
+        "bottom": 47120.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 46572.531,
+        "bottom": 47080.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 375,
+      "scrollHeight": 47120,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 23361.531,
+        "bottom": 23966.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 23418.531,
+        "bottom": 23926.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 23154,
+      "scrollWidth": 375,
+      "scrollHeight": 47120,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 509.531,
+        "bottom": 1114.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 566.531,
+        "bottom": 1074.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 46006,
+      "scrollWidth": 375,
+      "scrollHeight": 47120,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 207.531,
+        "bottom": 812.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 264.531,
+        "bottom": 772.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 46308,
+      "scrollWidth": 375,
+      "scrollHeight": 47120,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "api-tag@desktop": {
+    "path": "/apis/shipments/tracking-notifications/",
+    "viewport": {
+      "id": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 900,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 38886.484,
+        "bottom": 39176.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 38943.484,
+        "bottom": 39136.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1440,
+      "scrollHeight": 39176,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 900,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 19748.484,
+        "bottom": 20038.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 19805.484,
+        "bottom": 19998.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 19138,
+      "scrollWidth": 1440,
+      "scrollHeight": 39176,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -48.516,
+        "bottom": 755.484,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 755.484,
+        "bottom": 1045.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 812.484,
+        "bottom": 1005.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 38131,
+      "scrollWidth": 1440,
+      "scrollHeight": 39176,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -193.516,
+        "bottom": 610.484,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 804,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 610.484,
+        "bottom": 900.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 667.484,
+        "bottom": 860.484,
+        "left": 0,
+        "right": 1440,
+        "width": 1440,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 38276,
+      "scrollWidth": 1440,
+      "scrollHeight": 39176,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "api-tag@laptop": {
+    "path": "/apis/shipments/tracking-notifications/",
+    "viewport": {
+      "id": "laptop",
+      "width": 1024,
+      "height": 768
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 768,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 39290.984,
+        "bottom": 39580.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 39347.984,
+        "bottom": 39540.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 1024,
+      "scrollHeight": 39581,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": 96,
+        "bottom": 768,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 19883.984,
+        "bottom": 20173.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 19940.984,
+        "bottom": 20133.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "self"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 19407,
+      "scrollWidth": 1024,
+      "scrollHeight": 39581,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -49.016,
+        "bottom": 622.984,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 622.984,
+        "bottom": 912.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 679.984,
+        "bottom": 872.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 38668,
+      "scrollWidth": 1024,
+      "scrollHeight": 39581,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": {
+        "top": -194.016,
+        "bottom": 477.984,
+        "left": 0,
+        "right": 300,
+        "width": 300,
+        "height": 672,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "toc": null,
+      "footer": {
+        "top": 477.984,
+        "bottom": 767.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 290,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 534.984,
+        "bottom": 727.984,
+        "left": 0,
+        "right": 1024,
+        "width": 1024,
+        "height": 193,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": {
+          "belowHeader": "self",
+          "screenBottom": "footer",
+          "aboveFooter": "self",
+          "belowFooter": "footer"
+        },
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 38813,
+      "scrollWidth": 1024,
+      "scrollHeight": 39581,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    }
+  },
+  "api-tag@mobile": {
+    "path": "/apis/shipments/tracking-notifications/",
+    "viewport": {
+      "id": "mobile",
+      "width": 375,
+      "height": 812
+    },
+    "layoutShift": 0,
+    "top": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 46515.531,
+        "bottom": 47120.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 46572.531,
+        "bottom": 47080.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 0,
+      "scrollWidth": 375,
+      "scrollHeight": 47120,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "middle": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 23361.531,
+        "bottom": 23966.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 23418.531,
+        "bottom": 23926.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 23154,
+      "scrollWidth": 375,
+      "scrollHeight": 47120,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "reveal": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 509.531,
+        "bottom": 1114.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 566.531,
+        "bottom": 1074.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 46006,
+      "scrollWidth": 375,
+      "scrollHeight": 47120,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    },
+    "end": {
+      "header": {
+        "top": 0,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 96,
+        "position": "sticky",
+        "contentLeft": 0
+      },
+      "headerInner": {
+        "top": 36,
+        "bottom": 96,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 60,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "sidebar": null,
+      "toc": null,
+      "footer": {
+        "top": 207.531,
+        "bottom": 812.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 604.781,
+        "position": "static",
+        "contentLeft": 0
+      },
+      "footerInner": {
+        "top": 264.531,
+        "bottom": 772.313,
+        "left": 0,
+        "right": 375,
+        "width": 375,
+        "height": 507.781,
+        "position": "static",
+        "contentLeft": 24
+      },
+      "headerContentBottom": 96,
+      "seen": {
+        "sidebar": null,
+        "toc": null
+      },
+      "contentScroller": null,
+      "scrollY": 46308,
+      "scrollWidth": 375,
+      "scrollHeight": 47120,
+      "footerCount": 1,
+      "hasPagination": false,
+      "loadsRapidoc": true,
+      "hasSidebarDockedBar": false
+    }
+  }
+}

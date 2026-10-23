@@ -32,3 +32,6 @@ yarn-error.log*
 *.sw*
 # Claude Code personal settings
 .claude/settings.local.json
+
+# Portal layout baseline screenshots (npm run layout:baseline in packages/rapidoc-portal)
+packages/rapidoc-portal/tests/layout/screenshots/

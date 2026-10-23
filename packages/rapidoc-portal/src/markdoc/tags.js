@@ -1,5 +1,6 @@
 import Markdoc from '@markdoc/markdoc';
 import GithubSlugger from 'github-slugger';
+import { operationMatchPattern } from './operation.js';
 
 /**
  * Callout Banner Tag ({% callout type="info|tip|warning|danger" title="..." %})
@@ -220,7 +221,8 @@ export const cardGrid = {
 
 /**
  * Interactive RapiDoc Endpoint Tag ({% api-operation spec="..." path="..." method="..." %})
- * Embeds a standalone interactive RapiDoc API console directly in documentation!
+ * Embeds one operation as <rapi-doc-mini>. `spec` is an API id; pass `variables: { specUrls: { [id]: url } }`
+ * to compileMarkdoc() to fill in its spec-url. (Portal pages use components/ApiOperation.astro instead.)
  */
 export const apiOperation = {
   render: 'PortalApiOperation',
@@ -234,6 +236,7 @@ export const apiOperation = {
     const attributes = node.transformAttributes(config);
     const methodUpper = (attributes.method || 'GET').toUpperCase();
     const methodLower = methodUpper.toLowerCase();
+    const specUrl = config.variables?.specUrls?.[attributes.spec];
 
     return new Markdoc.Tag(
       'div',
@@ -256,10 +259,13 @@ export const apiOperation = {
             'data-embed-endpoint': `${attributes.spec}:${methodUpper}:${attributes.path}`,
           },
           [
-            new Markdoc.Tag('rapi-doc-operation', {
-              'spec-id': attributes.spec,
-              path: attributes.path,
-              method: methodLower,
+            new Markdoc.Tag('rapi-doc-mini', {
+              ...(specUrl ? { 'spec-url': specUrl } : {}),
+              'match-paths': operationMatchPattern(methodLower, attributes.path),
+              'match-type': 'regex',
+              'paths-expanded': 'true',
+              layout: 'column',
+              'color-scheme': 'auto',
             }),
           ]
         ),

@@ -1,223 +1,88 @@
 ---
 name: rapidoc-static-navigation
-description: Implement independent scrolling and navigation synchronization for RapiDoc using RapiDoc Static getNavBarHtml and headless rapi-doc.
-when_to_use: Building or changing a portal/API-reference layout with a sidebar next to <rapi-doc>, wiring nav clicks or nav-active-change scroll sync, fixing duplicate sidebars or scroll bleed, or using getNavBarHtml/getNavCss from rapidoc/static.
+description: Build an API reference layout with a static sidebar from rapidoc/static getNavBarHtml next to a headless <rapi-doc>, in a page-scrolling app shell with a sticky sidebar and sticky header.
+when_to_use: Building or changing a portal/API-reference layout with a sidebar next to <rapi-doc>, wiring nav clicks or nav-active-change sync, fixing duplicate sidebars, headings hidden under a sticky header, or using getNavBarHtml/getNavCss from rapidoc/static.
 ---
 
-# RapiDoc Static Navigation & Independent Scrolling Pattern
+# RapiDoc static navigation in a page-scrolling shell
 
-This skill guides you through implementing decoupled, dual-pane or multi-column documentation layouts where the navigation sidebar and the main API content scroll independently, without duplicated DOM or hydration drift.
-
----
-
-## 1. Core Architecture Overview
-
-In developer portals, embedding `<rapi-doc show-side-nav="true">` inside a documentation page layout causes nested sidebars, layout conflicts, and hydration duplication.
-
-The battle-tested **`release_12_0_0`** pattern separates navigation from content:
+The portal's API pages (`src/pages/api-reference.astro`, on `src/components/PortalLayout.astro`) use the same app shell as the documentation pages, like docs.cypress.io and Zudoku:
 
 ```text
-┌────────────────────────────────────────────────────────┐
-│ Fixed Top Bar / Header (e.g. 54px)                     │
-├──────────────────────────┬─────────────────────────────┤
-│ .portal-sidebar          │ .portal-main                │
-│ (Static HTML via         │ (Headless <rapi-doc         │
-│  getNavBarHtml)          │  show-side-nav="false">)    │
-│                          │                             │
-│ overflow-y: auto         │ overflow-y: auto            │
-│ overscroll-behavior:     │ overscroll-behavior:        │
-│ contain                  │ contain                     │
-└──────────────────────────┴─────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│ header (position: sticky; top: 0)                    │
+├───────────────────────┬──────────────────────────────┤
+│ sidebar               │ <rapi-doc auto-height>        │
+│ position: sticky      │ (the page scrolls)            │
+│ top: header height    │                               │
+│ height: 100dvh - hdr  │                               │
+│ its .nav-scroll       │                               │
+│ scrolls on its own    │                               │
+├───────────────────────┴──────────────────────────────┤
+│ site footer (full width; pushes the sidebar up)       │
+└──────────────────────────────────────────────────────┘
 ```
 
----
+The page is the scroll container. Never lock the viewport (`html, body { overflow: hidden }`) or give the content its own scroll box: the site footer could not then be revealed below the sidebar.
 
-## 2. Step 1: Pre-Render Navigation via `getNavBarHtml`
+## 1. Sidebar: static HTML from `getNavBarHtml`
 
-Use `getNavBarHtml` from `rapidoc/static` at build time to generate the semantic HTML sidebar:
+```js
+import { getNavBarHtml, getNavCss, getThemeTokensCss } from 'rapidoc/static';
 
-```javascript
-import { getNavBarHtml, getNavCss } from 'rapidoc/static';
-
-const sidebarHtml = await getNavBarHtml(specData, {
-  basePath: '/apis/shipments',
-  activeHref: '/apis/shipments',
-  routingMode: 'single-page', // or 'tag-pages'
+const sidebarNavHtml = await getNavBarHtml(spec, {
+  basePath: api.path,
+  activeHref: currentPath,
+  routingMode: 'tag-pages', // or 'single-page'
   includeSearch: true,
-  searchPlaceholder: 'Filter endpoints...',
   itemClassName: 'portal-sidebar-op-item',
 });
-
-// Navigation styles scoped to the sidebar container
-const navCss = getNavCss('.portal-sidebar');
+const navCss = getNavCss('.portal-sidebar'); // scoped to the element with this class
 ```
 
----
-
-## 3. Step 2: Render Headless `<rapi-doc>` in Main Content
-
-Configure `<rapi-doc>` as a pure content reader without its internal header or sidebar:
+`getNavCss(scope)` also styles the scope element itself (`&.nav-bar, & { width: 0; height: 100%; position: relative; ... }`). Put the nav in its own element inside the layout's sidebar, so these rules never fight the sticky positioning:
 
 ```html
-<main class="portal-main">
-  <rapi-doc
-    spec-url="/specs/shipment.yaml"
-    show-side-nav="false"
-    show-header="false"
-    render-style="read"
-    auto-height="true"
-    schema-style="table"
-    allow-try="true"
-    allow-authentication="true"
-    allow-server-selection="false"
-    nav-item-spacing="compact"
-  ></rapi-doc>
-</main>
+<aside id="portal-api-sidebar" class="portal-layout-sidebar" popover="auto" data-portal-region="sidebar">
+  <div class="portal-api-nav portal-sidebar nav-bar"><!-- sidebarNavHtml --></div>
+</aside>
 ```
-
----
-
-## 4. Step 3: CSS Layout for Independent Scrolling
-
-Enforce viewport locking and isolated scroll containers:
 
 ```css
-/* 1. Lock root document viewport */
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  max-height: 100vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 2. Top Bar */
-.portal-header {
-  height: 54px;
-  flex-shrink: 0;
-}
-
-/* 3. 2-Column Split Body Grid */
-.portal-container {
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  flex: 1 1 0%;
-  min-height: 0;
-  height: calc(100vh - 54px);
-  overflow: hidden;
-}
-
-/* 4. Left Sidebar with Independent Scroll */
-.portal-sidebar {
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--border-color, #363636);
-}
-
-.portal-sidebar .nav-scroll {
-  flex: 1 1 0%;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-}
-
-/* 5. Main Content with Independent Scroll */
-.portal-main {
-  flex: 1;
-  height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-}
-
-rapi-doc {
-  display: block;
-  width: 100%;
-}
+.portal-api-nav.portal-sidebar.nav-bar { display: flex; flex: 1 1 0%; min-height: 0; width: auto; height: auto; border-right: 0; }
+.portal-sidebar .nav-scroll { flex: 1 1 0%; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 ```
 
----
+`PortalLayout.astro` makes `.portal-layout-sidebar` sticky from 50rem and a popover menu below that (opened by the header's menu button via `sidebarId`).
 
-## 5. Step 4: Bi-Directional Scroll & Click Synchronization
+## 2. Content: headless `<rapi-doc>`
 
-Add the client-side event sync script:
-
-```javascript
-function initApiScrollSync() {
-  const sidebar = document.querySelector('.portal-sidebar');
-  const rapiDocEl = document.querySelector('rapi-doc');
-  if (!sidebar || !rapiDocEl) return;
-
-  // A. Nav Click -> Smooth Scroll Main Content
-  sidebar.addEventListener('click', (e) => {
-    const link = e.target.closest('.nav-bar-path, .nav-bar-info, .nav-bar-tag');
-    if (!link) return;
-
-    const href = link.getAttribute('href') || link.getAttribute('data-tag-href');
-    if (!href) return;
-
-    const hashIdx = href.indexOf('#');
-    const elementId = hashIdx !== -1 ? href.substring(hashIdx + 1) : '';
-    if (!elementId) return;
-
-    const targetEl = rapiDocEl.shadowRoot?.getElementById(elementId) ||
-                     rapiDocEl.shadowRoot?.querySelector(`[data-op-slug="${CSS.escape(elementId)}"]`);
-
-    if (targetEl || elementId === 'overview') {
-      e.preventDefault();
-      window.history.pushState(null, '', href);
-
-      sidebar.querySelectorAll('.active').forEach((el) => el.classList.remove('active'));
-      link.classList.add('active');
-
-      if (targetEl) {
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else if (typeof rapiDocEl.scrollToPath === 'function') {
-        rapiDocEl.scrollToPath(elementId);
-      }
-    }
-  });
-
-  // B. Main Content Scroll -> Update Sidebar Selection & Gentle Scroll
-  rapiDocEl.addEventListener('nav-active-change', (e) => {
-    const targetId = e.detail?.id || e.detail?.elementId;
-    if (!targetId) return;
-
-    sidebar.querySelectorAll('.active').forEach((el) => el.classList.remove('active'));
-
-    const matchingLink = document.getElementById(`link-${targetId}`) ||
-      sidebar.querySelector(`.nav-bar-path[data-content-id="${CSS.escape(targetId)}"]`) ||
-      sidebar.querySelector(`.nav-bar-path[data-op-slug="${CSS.escape(targetId)}"]`);
-
-    if (matchingLink) {
-      matchingLink.classList.add('active');
-
-      // Auto-scroll sidebar if item is out of view
-      const navScroll = sidebar.querySelector('.nav-scroll');
-      if (navScroll) {
-        const itemRect = matchingLink.getBoundingClientRect();
-        const scrollRect = navScroll.getBoundingClientRect();
-        if (itemRect.top < scrollRect.top + 20 || itemRect.bottom > scrollRect.bottom - 40) {
-          const targetTop = itemRect.top - scrollRect.top + navScroll.scrollTop - 40;
-          navScroll.scrollTo({ top: targetTop, behavior: 'smooth' });
-        }
-      }
-    }
-  });
-}
+```html
+<rapi-doc
+  spec-url="/specs/shipments.json"
+  show-side-nav="false"   <!-- the portal renders the nav -->
+  show-header="false"
+  auto-height="true"      <!-- the page scrolls, not RapiDoc -->
+  color-scheme="auto"     <!-- follows the page's CSS color-scheme (Starlight's theme toggle) -->
+  update-route="false"
+></rapi-doc>
 ```
 
----
+- **Sticky header offset**: with `auto-height`, RapiDoc scrolls a target to just below the page's `scroll-padding-top`, and its active-section tracking ignores sections hidden under it. `PortalLayout` sets `html { scroll-padding-top: calc(var(--sl-nav-height) + 1rem) }`; a page without it can pass `scroll-offset="<px>"`.
+- **Theme**: `color-scheme="auto"` reads the page's CSS `color-scheme` (`:root[data-theme='light'] { color-scheme: light }`) and re-reads it when `<html>` attributes change. No theme-sync script is needed.
 
-## 6. DSD Hydration Hygiene Checklist
+## 3. Sync: `bindNavBar`
 
-- [ ] Rebuild bundles whenever core or static code changes: `npm run build:rapidoc`.
-- [ ] If using DSD pre-rendering (`outputMode: 'dsd'`), ensure `_clearDsdIfNeeded()` runs `this.shadowRoot.replaceChildren()` before Lit reconciliation.
-- [ ] For portal layouts, favor `getNavBarHtml()` + `<rapi-doc show-side-nav="false">` to eliminate any possibility of duplicate navbars.
+```js
+const nav = document.querySelector('.portal-api-nav');
+const rapiDocEl = document.querySelector('rapi-doc');
+const bind = () => rapiDocEl.bindNavBar(nav);
+typeof rapiDocEl.bindNavBar === 'function' ? bind() : customElements.whenDefined('rapi-doc').then(bind);
+```
+
+`bindNavBar` (from `rapidoc/src/utils/bind-navbar.js`) handles nav clicks → `scrollToPath`, `nav-active-change` → active link, keeping the active link in view inside `.nav-scroll` only (it never scrolls the page), the filter box, and history/hash updates. On narrow screens, also close the popover sidebar after a link is chosen (`sidebar.hidePopover()`).
+
+## 4. Checks
+
+- `npm run test:portal` includes `tests/layout.test.js`: sticky sidebar fills the screen, footer revealed below it, no inner scroll box, no sideways scroll, no layout shift, sidebar hidden on narrow screens.
+- After changes in `packages/rapidoc/src` (core or `static/`), run `npm run build:rapidoc`; `tests/e2e/scroll-offset.test.js` and `tests/e2e/color-scheme-auto.test.js` cover the two attributes this layout relies on.

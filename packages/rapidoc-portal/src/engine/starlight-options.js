@@ -86,7 +86,8 @@ function fontHeadEntries(fontConfig) {
 export function createStarlightOptions(portalConfig) {
   const site = portalConfig.site || {};
 
-  const head = [{ tag: 'script', attrs: { type: 'module', src: '/assets/rapidoc-min.js' } }];
+  // No <rapi-doc> on documentation pages: the RapiDoc bundle is loaded by the API reference pages only.
+  const head = [];
   if (site.announcement?.text) {
     head.push({ tag: 'meta', attrs: { name: 'announcement:text', content: site.announcement.text } });
   }
@@ -96,10 +97,13 @@ export function createStarlightOptions(portalConfig) {
     title: site.title || 'Developer Portal',
     disable404Route: true,
     sidebar: buildStarlightSidebar(portalConfig.navigation || [], portalConfig.apis || []),
+    // Starlight's own Footer stays: it renders prev/next links, the edit link and the last-updated
+    // date. The site footer is rendered by PortalPageFrame below the whole shell.
     components: {
       Header: componentPath('PortalHeader.astro'),
-      Footer: componentPath('PortalFooter.astro'),
-      Sidebar: componentPath('PortalDocsSidebar.astro'),
+      PageFrame: componentPath('PortalPageFrame.astro'),
+      TwoColumnContent: componentPath('PortalTwoColumnContent.astro'),
+      Sidebar: componentPath('PortalSidebar.astro'),
     },
     customCss: [THEME_CSS_MODULE],
     expressiveCode: {

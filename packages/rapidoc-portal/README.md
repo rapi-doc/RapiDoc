@@ -4,7 +4,7 @@ A docs-as-code developer portal engine. Point it at a folder of OpenAPI specs an
 
 - **Home page** introducing the portal and its APIs
 - **API catalog** (`/catalog`) grouped by category
-- **Interactive API reference** for each spec, rendered by the [RapiDoc](../rapidoc) web component with a static, independently scrolling sidebar
+- **Interactive API reference** for each spec, rendered by the [RapiDoc](../rapidoc) web component, with a static sidebar that stays in view while the page scrolls
 - **Guides** (`/docs/...`) rendered by [Astro Starlight](https://starlight.astro.build/)
 - **Full-text search** across guides and API operations
 
@@ -86,7 +86,10 @@ The full, validated schema lives in [`src/config/schema.js`](src/config/schema.j
 
 - **Markdown (`.md`)**: a first `# Heading` becomes the page title when there's no frontmatter `title`.
 - **MDX (`.mdx`)**: portal components can be used without importing them: `Callout`, `Card` (+ `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`), `Badge`, `Button`, `Link`, `Steps`, `Tabs`, `TabItem`, `OpenPlaygroundButton`. Starlight components (`Aside`, `CardGrid`, `LinkCard`, `FileTree`, ...) are exported from `@rapidoc/portal/components`.
-- **Markdoc (`.markdoc`)**: built-in tags `callout`, `tabs`/`tab`, `steps`/`step`, `card`, `card-grid`, `badge`, and `api-operation` (embeds a live operation from one of your specs).
+- **Markdoc (`.markdoc`)**: rendered by Astro's Markdoc integration with Starlight's components, so headings, the table of contents and code blocks work as in Markdown. Tags:
+  - `{% callout type="info|tip|warning|danger" title="..." %}`, `{% tabs %}{% tab name="..." %}`, `{% steps %}{% step title="..." %}`, `{% card-grid %}{% card title="..." icon="..." href="..." %}`, `{% badge text="..." variant="..." /%}`. Card icons are [Starlight icon names](https://starlight.astro.build/reference/icons/).
+  - `{% api-operation spec="<api id>" path="/shipments" method="post" title="..." /%}` embeds one live, interactive operation (`<rapi-doc-mini>`). `spec` is the `id` of an entry in `apis:`; an unknown id shows a notice on the page and a build warning. Pages with an embed load the RapiDoc bundle; other docs pages don't.
+  - Starlight's own Markdoc tags (`aside`, `tabitem`, `cardgrid`, `linkcard`, `filetree`, ...) work too.
 - If both `page.md` and `page.mdx` exist, the `.mdx` one is used.
 - Zudoku imports (`zudoku/ui/...`) and `<Stepper>` are rewritten automatically, so migrated docs work as-is.
 

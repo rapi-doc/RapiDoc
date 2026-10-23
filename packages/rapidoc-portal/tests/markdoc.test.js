@@ -42,8 +42,10 @@ describe('RapiDoc Portal Markdoc Engine (Milestone 3)', () => {
     assert.ok(result.html.includes('data-spec="orders"'));
     assert.ok(result.html.includes('data-path="/orders"'));
     assert.ok(result.html.includes('data-method="POST"'));
-    assert.ok(result.html.includes('<rapi-doc-operation'));
-    assert.ok(result.html.includes('spec-id="orders"'));
+    assert.ok(result.html.includes('<rapi-doc-mini'));
+    assert.ok(result.html.includes('match-paths="^post /orders$"'));
+    assert.ok(result.html.includes('match-type="regex"'));
+    assert.ok(!result.html.includes('spec-url='), 'no spec-url without a specUrls variable');
 
     // 2. Verify Table of Contents (TOC)
     assert.equal(result.toc.length, 2);
@@ -81,6 +83,14 @@ describe('RapiDoc Portal Markdoc Engine (Milestone 3)', () => {
     assert.equal(result.toc.length, 2);
     assert.equal(result.toc[0].title, 'Loyalty Tiers');
     assert.equal(result.toc[1].title, 'Redeeming Rewards');
+  });
+
+  it('should fill in the embed spec-url from the specUrls variable and match exactly one operation', () => {
+    const result = compileMarkdoc('{% api-operation spec="shipments" path="/shipments/{trackingNumber}" method="get" /%}', {
+      variables: { specUrls: { shipments: '/specs/shipments.json' } },
+    });
+    assert.ok(result.html.includes('spec-url="/specs/shipments.json"'));
+    assert.ok(result.html.includes('match-paths="^get /shipments/\\{trackingNumber\\}$"'), result.html);
   });
 
   it('should generate unique anchor slugs for duplicate headings', () => {

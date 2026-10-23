@@ -6,6 +6,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import markdoc from '@astrojs/markdoc';
 import starlight from '@astrojs/starlight';
 import { createStarlightOptions, THEME_CSS_MODULE } from './starlight-options.js';
 import { renderThemeCss } from './theme-css.js';
@@ -82,7 +83,8 @@ export function createAstroConfig(workspace, overrides = {}) {
     configFile: false,
     site: 'https://developer.portal',
     build: { format: 'directory' },
-    integrations: [starlight(createStarlightOptions(workspace.config)), rapidocPortal({ portalConfig: workspace.config })],
+    // markdoc() renders .mdoc docs with the workspace's markdoc.config.mjs; it must come before Starlight.
+    integrations: [markdoc(), starlight(createStarlightOptions(workspace.config)), rapidocPortal({ portalConfig: workspace.config })],
     vite: { server: { fs: { allow: allowedServeDirs(workspace.root) } } },
     ...overrides,
   };

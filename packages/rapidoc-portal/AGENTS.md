@@ -12,7 +12,7 @@
 
 ## 2. Core Functional Responsibilities (Milestones 1–6)
 1. **Tolerant Configuration Parser**: Reads `rapidoc.config.yaml` / `rapidoc.config.ts`, supporting Redocly and Zudoku aliases transparently (`root`/`input`, `navigation`/`sidebars`).
-2. **First-Class Markdoc Processor**: Parses `.markdoc` and `.md` into safe ASTs with built-in tags (`callout`, `tabs`, `steps`, `card-grid`, `api-operation`).
+2. **First-Class Markdoc**: `.markdoc` docs are synced as `.mdoc` and rendered by `@astrojs/markdoc` with `src/markdoc/astro-config.js` (Starlight's Markdoc preset + the portal tags as Starlight components in `src/markdoc/components/`; `api-operation` → `<rapi-doc-mini>`). `src/markdoc/tags.js` holds the same tags as plain HTML for the `compileMarkdoc()` API; keep both in step.
 3. **Portal Layout Shell**: Delivers top navigation, collapsible sidebar navigation, breadcrumbs, and Table of Contents with scroll-spy.
 4. **RapiDoc Web Component Bridge**: Mounts `<rapi-doc>` for interactive API reference viewing and embeds live operations in guides.
 5. **Full-Text Client Search**: Build-time indexing of prose and OpenAPI schemas via Pagefind.
@@ -27,8 +27,11 @@ Run these commands from `packages/rapidoc-portal`:
 | Command | Purpose |
 | :--- | :--- |
 | `npm test` | Runs `tests/**/*.test.js` serially (`--test-concurrency=1`) |
+| `npm run layout:baseline` | Runs `tests/layout.test.js` and writes `tests/layout/measurements.json` plus screenshots (git-ignored) to `tests/layout/` |
 
 From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-rapidoc` suites together.
+
+**Layout rules** (`tests/layout.test.js`): builds `demo-api-portal`, serves it, and measures the app shell in headless Chrome (skipped if no Chrome is found) for each page kind (landing, docs, API) at 1440, 1024 and 375px wide. Rules tagged `todo: { <kind>: 'Phase N' }` describe the target shell and are reported but not enforced. When a change makes one pass, remove its tag. Re-run `npm run layout:baseline` after layout changes so the `measurements.json` diff shows what moved.
 
 ---
 
@@ -43,8 +46,16 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 | `temp-workspace.js` | Creates/removes `<project>/.rapidoc-temp/` (node_modules symlink, `package.json`, content config, docs copy, public assets) |
 | `sync-docs.js` | Idempotent docs mirror + normalization (frontmatter title, `.md`/`.mdx` dedupe, Zudoku rewrites, component auto-imports) |
 | `sync-assets.js` | Specs, `rapidoc-min.js` (throws if missing or stale — never rebuilds), `search-index.json` |
-| `astro-integration.js` | Inline Astro config: Starlight + injected routes for `src/pages/*.astro` + virtual modules |
+| `astro-integration.js` | Inline Astro config: Markdoc + Starlight + injected routes for `src/pages/*.astro` + virtual modules |
 | `starlight-options.js` / `theme-css.js` | Config → Starlight options / `styles/portal-theme.css` with tokens filled in |
+
+**App shell**. Every page has the same frame: sticky header, optional sticky sidebar, full-width footer, page scroll. Pages Starlight does not render (home, catalog, API reference) use `components/PortalLayout.astro`. Docs pages use these Starlight component overrides, set in `starlight-options.js`:
+- `PortalPageFrame.astro` (`PageFrame`): sticky header, then a grid of [sticky full-height sidebar | content], then the full-width `PortalFooter`. The page scrolls; at the end the footer pushes the sidebar up. Below 50rem the sidebar is Starlight's popover, opened by the header's menu button.
+- `PortalTwoColumnContent.astro` (`TwoColumnContent`): sticky "On this page" column.
+- `PortalSidebar.astro` (`Sidebar`): Starlight's sidebar, with the header links above it on narrow screens.
+- `PortalHeader.astro` (`Header`). Starlight's own `Footer` is kept for prev/next, edit link and last-updated.
+- Header height is CSS-only: `--sl-nav-height` = `--portal-banner-height` + `--portal-navbar-height` (`portal-theme.css`). Keep both rows fixed-height; never measure the header in JS.
+- `portal-theme.css` is unlayered, so it already beats Starlight's `@layer starlight.*` rules. Don't use `!important`.
 
 Invariants:
 - **No leftovers**: the only thing a run may leave in the project is the output folder. Never write elsewhere in the user's project or into this package.
@@ -61,19 +72,15 @@ Invariants:
 
 ---
 
-## 6. RapiDoc Static & Independent Scrolling Invariants
+## 6. API Reference Pages (RapiDoc Static + headless `<rapi-doc>`)
 
-When implementing or modifying API documentation layouts in `@rapidoc/portal` (full worked pattern with CSS and sync script: `.claude/skills/rapidoc-static-navigation/SKILL.md`):
+API pages use the same app shell as the docs (`PortalLayout.astro`; full pattern: `.claude/skills/rapidoc-static-navigation/SKILL.md`):
 
-1. **Strict Separation of Navigation & Content**:
-   - **Never** render an internal sidebar inside `<rapi-doc>` (`show-side-nav="false"` and `show-header="false"` are strictly mandatory).
-   - Generate the sidebar statically at build time using `getNavBarHtml(spec, options)` from `rapidoc/static` into the outer portal layout (`.portal-sidebar`).
-2. **Independent Scrolling Shell**:
-   - The root viewport must be locked (`height: 100%; max-height: 100vh; overflow: hidden`).
-   - Navigation (`.portal-sidebar .nav-scroll`) and API content (`.portal-main`) must be isolated sibling scroll containers with `overflow-y: auto` and `overscroll-behavior: contain`.
-3. **Decoupled Scroll Synchronization**:
-   - Nav clicks scroll the main content via `targetEl.scrollIntoView()` or `rapiDocEl.scrollToPath(id)`.
-   - Content scrolling syncs the sidebar by listening to `nav-active-change` events emitted by `<rapi-doc>`.
+1. **Separate navigation and content**: never render RapiDoc's own sidebar or header (`show-side-nav="false"`, `show-header="false"`). The sidebar is static HTML from `getNavBarHtml(spec, options)` (`rapidoc/static`), in its own `.portal-sidebar.nav-bar` element inside the layout's sticky sidebar, because `getNavCss()` styles its scope element.
+2. **The page scrolls**: `<rapi-doc auto-height="true">` in the normal page flow, sticky sidebar, full-width footer below. Never lock the viewport or give the content its own scroll box. The sidebar's `.nav-scroll` scrolls on its own.
+3. **Sticky header offset and theme**: `html { scroll-padding-top }` (set by `PortalLayout`) is RapiDoc's scroll offset (or `scroll-offset="<px>"`); `color-scheme="auto"` follows the portal theme.
+4. **Sync**: `rapiDocEl.bindNavBar(navEl)`, which keeps the active link in view inside the sidebar without scrolling the page.
+5. **Bundle**: `rapidoc-min.js` is loaded by API pages only, never from the Starlight `head`.
 
 ---
 

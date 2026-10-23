@@ -1,7 +1,7 @@
 ---
-import 'virtual:rapidoc-portal/theme.css';
-import PortalHeader from '../components/PortalHeader.astro';
-import PortalFooter from '../components/PortalFooter.astro';
+import PortalLayout from '../components/PortalLayout.astro';
+import PortalMobileNav from '../components/PortalMobileNav.astro';
+import { resolveHeaderLinks } from '../components/header-links.js';
 import { getNavBarHtml, getNavCss, getThemeTokensCss, toKebabCase } from 'rapidoc/static';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -94,7 +94,6 @@ if (!api.isRemote && api.fullPath && fs.existsSync(api.fullPath)) {
 }
 
 const themePreset = portalConfig.rapidoc?.theme || 'amber';
-const initialColorScheme = portalConfig.rapidoc?.['color-scheme'] || 'dark';
 
 let sidebarNavHtml = '';
 try {
@@ -113,260 +112,142 @@ try {
 const navCss = getNavCss('.portal-sidebar');
 const themeTokensCss = getThemeTokensCss(themePreset);
 
-const fontConfig = portalConfig.theme?.font;
-const fontSans = fontConfig?.name
-  ? `'${fontConfig.name}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`
-  : `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`;
-const fontMono = fontConfig?.monoName
-  ? `'${fontConfig.monoName}', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`
-  : `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace`;
+// <rapi-doc> attributes: portal defaults, then the `rapidoc:` config, then what this layout requires
+// (navigation lives in the portal sidebar, the page scrolls, colors follow the portal theme).
+const rapidocAttributes = {
+  'render-style': 'read',
+  'schema-style': 'table',
+  scale: 'lg',
+  'allow-try': 'true',
+  'allow-authentication': 'true',
+  'allow-server-selection': 'false',
+  'use-path-in-nav-bar': 'true',
+  'nav-item-spacing': 'compact',
+  'load-fonts': 'false',
+  theme: themePreset,
+  ...portalConfig.rapidoc,
+  'spec-url': specUrl,
+  'show-side-nav': 'false',
+  'show-header': 'false',
+  'update-route': 'false',
+  'auto-height': 'true',
+  'color-scheme': 'auto',
+  'goto-path': activeTagSlug || undefined,
+};
 ---
 
-<!doctype html>
-<html lang="en" data-theme={initialColorScheme}>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{api.title || `${api.id} API`} — {portalConfig.site?.title || 'Developer Portal'}</title>
-    {fontConfig?.url && (
-      <>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link rel="stylesheet" href={fontConfig.url} />
-      </>
-    )}
-    {fontConfig?.monoUrl && (
-      <link rel="stylesheet" href={fontConfig.monoUrl} />
-    )}
-    <script is:inline>
-      (function () {
-        try {
-          const stored = localStorage.getItem('starlight-theme') || localStorage.getItem('portal-theme');
-          const theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-          document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
-      })();
-    </script>
+<PortalLayout title={`${api.title || `${api.id} API`} — ${portalConfig.site?.title || 'Developer Portal'}`} sidebarId="portal-api-sidebar">
+  <Fragment slot="head">
     <style set:html={themeTokensCss}></style>
     <style set:html={navCss}></style>
     <script type="module" src="/assets/rapidoc-min.js"></script>
-    <style is:global define:vars={{ fontSans, fontMono }}>
-      :root {
-        --font-sans: var(--fontSans);
-        --font-mono: var(--fontMono);
-      }
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        max-height: 100vh;
-        overflow: hidden;
-        background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
-        color: var(--portal-fg, #cccccc);
-        font-family: var(--font-sans);
-        display: flex;
-        flex-direction: column;
-      }
-      rapi-doc {
-        /* Portal colours and fonts. A rule on the element overrides RapiDoc's own :host defaults;
-           `inherit` takes the page's :root value (writing var(--font-sans) here would reference itself). */
-        --background: var(--portal-bg);
-        --foreground: var(--portal-fg);
-        --font-sans: inherit;
-        --font-mono: inherit;
-        /* Same type scale as the Starlight guide pages (@astrojs/starlight props.css) */
-        --heading-weight: 600;
-        --heading-line-height: 1.2;
-        --line-height: 1.75;
-        --h1-font-size: 2.1875rem;
-        --h2-font-size: 1.8125rem;
-        --h3-font-size: 1.5rem;
-        --h4-font-size: 1.25rem;
-        --h5-font-size: 1.125rem;
-        --h6-font-size: 1rem;
-      }
-      @media (min-width: 50em) {
-        rapi-doc {
-          --h1-font-size: 2.625rem;
-          --h2-font-size: 2.1875rem;
-          --h3-font-size: 1.8125rem;
-          --h4-font-size: 1.5rem;
-        }
-      }
-      .portal-container {
-        display: grid;
-        grid-template-columns: 280px minmax(0, 1fr);
-        flex: 1 1 0%;
-        min-height: 0;
-        height: 100%;
-        overflow: hidden;
-        width: 100%;
-      }
-      .portal-sidebar {
-        width: 280px;
-        min-width: 280px;
-        max-width: 280px;
-        height: 100%;
-        max-height: 100%;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        border-right: 1px solid var(--portal-border, #363636);
-        background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
-        box-sizing: border-box;
-      }
-      .portal-sidebar .nav-scroll {
-        flex: 1 1 0%;
-        min-height: 0;
-        width: 100%;
-        overflow-y: auto;
-        overflow-x: hidden;
-        overscroll-behavior: contain;
-        padding: 8px 0;
-        box-sizing: border-box;
-        scrollbar-width: thin;
-      }
-      .portal-main {
-        flex: 1 1 0%;
-        height: 100%;
-        max-height: 100%;
-        overflow-y: auto;
-        overflow-x: hidden;
-        overscroll-behavior: contain;
-        scroll-behavior: smooth;
-        padding: 0;
-        scrollbar-width: thin;
-        background-color: var(--portal-bg, oklch(0.2613 0.0134 272.84));
-      }
-      .portal-main-inner {
-        min-height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      }
-      rapi-doc {
-        display: block;
-        width: 100%;
-        padding: 24px 32px;
-        box-sizing: border-box;
-      }
-      .portal-sidebar-body {
-        flex: 1 1 0%;
-        min-height: 0;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-      }
-      .portal-sidebar-docked-footer {
-        height: 52px;
-        min-height: 52px;
-        max-height: 52px;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        padding: 0 1.25rem;
-        border-top: 1px solid var(--portal-border, #363636);
-        background: var(--portal-bg, oklch(0.2613 0.0134 272.84));
-        flex-shrink: 0;
-      }
-      .portal-sidebar-footer-link {
-        color: var(--portal-muted, #8b949e);
-        text-decoration: none !important;
-        font-size: 0.8125rem;
-        font-weight: 500;
-        transition: color 0.15s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        width: 100%;
-      }
-      .portal-sidebar-footer-link:hover {
-        color: var(--portal-fg, #cccccc);
-      }
-      [data-theme='light'] .portal-sidebar-docked-footer {
-        background: #ffffff;
-        border-color: #e4e4e7;
-      }
-      [data-theme='light'] .portal-sidebar-footer-link {
-        color: #555555;
-      }
-      [data-theme='light'] .portal-sidebar-footer-link:hover {
-        color: #111111;
-      }
-    </style>
-  </head>
-  <body>
-    <PortalHeader portalConfig={portalConfig} />
+  </Fragment>
 
-    <div class="portal-container">
-      <aside class="portal-sidebar nav-bar" aria-label="API Navigation">
-        <div class="portal-sidebar-body">
-          <Fragment set:html={sidebarNavHtml} />
-        </div>
-        <div class="portal-sidebar-docked-footer">
-          <a href="/docs/documentation" class="portal-sidebar-footer-link">
-            <span>&larr; Documentation</span>
-          </a>
-        </div>
-      </aside>
-
-      <main class="portal-main">
-        <div class="portal-main-inner">
-          <rapi-doc
-            spec-url={specUrl}
-            color-scheme={initialColorScheme}
-            theme={themePreset}
-            show-side-nav="false"
-            show-header="false"
-            update-route="false"
-            render-style="read"
-            scale="lg"
-            auto-height="true"
-            allow-authentication="true"
-            allow-server-selection="false"
-            allow-try="true"
-            schema-style="table"
-            use-path-in-nav-bar="true"
-            nav-item-spacing="compact"
-            load-fonts="false"
-            goto-path={activeTagSlug ? activeTagSlug : undefined}
-          ></rapi-doc>
-          <PortalFooter portalConfig={portalConfig} mode="compact" />
-        </div>
-      </main>
+  <aside slot="sidebar" id="portal-api-sidebar" class="portal-layout-sidebar" popover="auto" data-portal-region="sidebar" aria-label="API navigation">
+    <div class="portal-api-header-links">
+      <PortalMobileNav links={resolveHeaderLinks(portalConfig)} />
     </div>
+    <!-- The nav CSS from rapidoc/static styles its scope element, so it gets an element of its own. -->
+    <div class="portal-api-nav portal-sidebar nav-bar">
+      <Fragment set:html={sidebarNavHtml} />
+    </div>
+  </aside>
 
-    <script is:inline>
-      document.addEventListener('DOMContentLoaded', () => {
-        const sidebar = document.querySelector('.portal-sidebar');
-        const rapiDocEl = document.querySelector('rapi-doc');
-        if (!sidebar || !rapiDocEl) return;
+  <main class="portal-api-main">
+    <rapi-doc {...rapidocAttributes}></rapi-doc>
+  </main>
+</PortalLayout>
 
-        // Dynamic theme synchronization
-        const syncColorScheme = () => {
-          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-          if (rapiDocEl.getAttribute('color-scheme') !== currentTheme) {
-            rapiDocEl.setAttribute('color-scheme', currentTheme);
-          }
-        };
-        syncColorScheme();
-        const themeObserver = new MutationObserver(syncColorScheme);
-        themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+<style is:global>
+  rapi-doc {
+    display: block;
+    width: 100%;
+    padding: 24px 32px;
+    box-sizing: border-box;
+    /* Keeps the footer below the fold while the spec loads, so it does not jump down after. */
+    min-height: calc(100dvh - var(--sl-nav-height));
 
-        // Centralized navbar binding via <rapi-doc>
-        const bindNav = () => {
-          if (typeof rapiDocEl.bindNavBar === 'function') {
-            rapiDocEl.bindNavBar(sidebar);
-          }
-        };
+    /* Portal colours and fonts. A rule on the element overrides RapiDoc's own :host defaults;
+       `inherit` takes the page's :root value (writing var(--font-sans) here would reference itself). */
+    --background: var(--portal-bg);
+    --foreground: var(--portal-fg);
+    --font-sans: inherit;
+    --font-mono: inherit;
+    /* Same type scale as the Starlight guide pages (@astrojs/starlight props.css) */
+    --heading-weight: 600;
+    --heading-line-height: 1.2;
+    --line-height: 1.75;
+    --h1-font-size: 2.1875rem;
+    --h2-font-size: 1.8125rem;
+    --h3-font-size: 1.5rem;
+    --h4-font-size: 1.25rem;
+    --h5-font-size: 1.125rem;
+    --h6-font-size: 1rem;
+  }
+  @media (min-width: 50em) {
+    rapi-doc {
+      --h1-font-size: 2.625rem;
+      --h2-font-size: 2.1875rem;
+      --h3-font-size: 1.8125rem;
+      --h4-font-size: 1.5rem;
+    }
+  }
+  @media (width < 50rem) {
+    rapi-doc {
+      padding: 16px;
+    }
+  }
+  /* Fill the sidebar below the (mobile) header links; the nav CSS sizes its root for RapiDoc's own layout. */
+  .portal-api-nav.portal-sidebar.nav-bar {
+    display: flex;
+    flex: 1 1 0%;
+    min-height: 0;
+    width: auto;
+    height: auto;
+    border-right: 0;
+  }
 
-        if (typeof rapiDocEl.bindNavBar === 'function') {
-          bindNav();
-        } else {
-          customElements.whenDefined('rapi-doc').then(bindNav);
-        }
-      });
-    </script>
-  </body>
-</html>
+  .portal-sidebar .nav-scroll {
+    flex: 1 1 0%;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    padding: 8px 0;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+  }
+
+  .portal-api-header-links {
+    padding: 1rem var(--portal-shell-pad-x);
+    border-bottom: 1px solid var(--portal-border);
+  }
+  @media (min-width: 50rem) {
+    .portal-api-header-links {
+      display: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.getElementById('portal-api-sidebar');
+    const nav = sidebar?.querySelector('.portal-api-nav');
+    const rapiDocEl = document.querySelector('rapi-doc');
+    if (!sidebar || !nav || !rapiDocEl) return;
+
+    // On narrow screens the sidebar is a popover menu: close it once a link is chosen.
+    sidebar.addEventListener('click', (event) => {
+      if (event.target.closest('a') && sidebar.matches(':popover-open')) sidebar.hidePopover();
+    });
+
+    // Sidebar links scroll <rapi-doc>, and scrolling <rapi-doc> highlights the current link.
+    const bindNav = () => rapiDocEl.bindNavBar(nav);
+    if (typeof rapiDocEl.bindNavBar === 'function') {
+      bindNav();
+    } else {
+      customElements.whenDefined('rapi-doc').then(bindNav);
+    }
+  });
+</script>
