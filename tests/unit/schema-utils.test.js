@@ -361,6 +361,21 @@ describe('getTypeInfo', () => {
     assert.strictEqual(info.constrain, '5 to 20 chars');
   });
 
+  it('should keep string length constraints when format or enum replaces the type label', () => {
+    const uri = getTypeInfo({ type: 'string', format: 'uri', maxLength: 2048 });
+    assert.strictEqual(uri.type, 'uri');
+    assert.strictEqual(uri.constrain, 'Max 2048 chars');
+
+    assert.strictEqual(getTypeInfo({ type: 'string', format: 'email', minLength: 6, maxLength: 254 }).constrain, '6 to 254 chars');
+    assert.strictEqual(getTypeInfo({ type: 'string', enum: ['ab', 'abc'], minLength: 2 }).constrain, 'Min 2 chars');
+    assert.strictEqual(getTypeInfo({ anyOf: [{ type: 'string', format: 'uuid', maxLength: 36 }, { type: 'null' }] }).constrain, 'Max 36 chars');
+  });
+
+  it('should put the separator before "Max" for max-only string lengths', () => {
+    assert.strictEqual(getTypeInfo({ type: 'string', maxLength: 10 }).constrain, 'Max 10 chars');
+    assert.strictEqual(getTypeInfo({ type: ['integer', 'string'], minimum: 1, maxLength: 10 }).constrain, 'Min 1┃Max 10 chars');
+  });
+
   it('should inherit allowedValues from enum in anyOf', () => {
     const schema = {
       anyOf: [

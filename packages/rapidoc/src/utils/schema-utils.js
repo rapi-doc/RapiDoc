@@ -262,7 +262,9 @@ export function getTypeInfo(schema) {
       constrain += `${constrain ? '┃' : ''} multiple of ${multVal}`;
     }
   }
-  if (dataType.match(/string/g)) {
+  // dataType shows the format or enum in place of 'string' (e.g. 'email', 'uri'), so check the declared type too
+  const declaredTypes = [].concat(effectiveSchema.type || []);
+  if (declaredTypes.includes('string') || dataType.match(/string/g)) {
     const minLen = schema.minLength !== undefined ? schema.minLength : effectiveSchema.minLength;
     const maxLen = schema.maxLength !== undefined ? schema.maxLength : effectiveSchema.maxLength;
     if (minLen !== undefined && maxLen !== undefined) {
@@ -270,7 +272,7 @@ export function getTypeInfo(schema) {
     } else if (minLen !== undefined) {
       constrain += `${constrain ? '┃' : ''}Min ${minLen} chars`;
     } else if (maxLen !== undefined) {
-      constrain += `Max ${constrain ? '┃' : ''}${maxLen} chars`;
+      constrain += `${constrain ? '┃' : ''}Max ${maxLen} chars`;
     }
   }
   info.constrain = constrain;
