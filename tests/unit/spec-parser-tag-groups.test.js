@@ -258,7 +258,10 @@ describe('OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)', () => {
     };
 
     const htmlFirst = renderTemplateToString(focusedEndpointTemplate.call(contextFirst));
-    assert.ok(htmlFirst.includes('data-first-operation-in-tag="true"'), 'First operation in focused mode should have data-first-operation-in-tag');
+    assert.ok(
+      htmlFirst.includes('data-first-operation-in-tag="true"'),
+      'First operation in focused mode should have data-first-operation-in-tag'
+    );
     assert.ok(htmlFirst.includes('Billing and invoice operations'), 'First operation should display tag description in focused mode');
 
     // Second operation focused
@@ -272,8 +275,14 @@ describe('OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)', () => {
     };
 
     const htmlSecond = renderTemplateToString(focusedEndpointTemplate.call(contextSecond));
-    assert.ok(!htmlSecond.includes('data-first-operation-in-tag="true"'), 'Second operation in focused mode should not have data-first-operation-in-tag');
-    assert.ok(!htmlSecond.includes('Billing and invoice operations'), 'Second operation should not display tag description in focused mode');
+    assert.ok(
+      !htmlSecond.includes('data-first-operation-in-tag="true"'),
+      'Second operation in focused mode should not have data-first-operation-in-tag'
+    );
+    assert.ok(
+      !htmlSecond.includes('Billing and invoice operations'),
+      'Second operation should not display tag description in focused mode'
+    );
   });
 
   it('should apply overflow-ellipsis by default and overflow-wrap when nav-item-overflow="wrap"', async () => {
@@ -552,12 +561,7 @@ describe('OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)', () => {
           tags: ['hidden-group-tag'],
         },
       ],
-      tags: [
-        { name: 'public-tag' },
-        { name: 'mixed-tag' },
-        { name: 'hidden-group-tag' },
-        { name: 'internal-tag', 'x-internal': true },
-      ],
+      tags: [{ name: 'public-tag' }, { name: 'mixed-tag' }, { name: 'hidden-group-tag' }, { name: 'internal-tag', 'x-internal': true }],
       paths: {
         '/public': {
           get: {
@@ -681,5 +685,3 @@ describe('OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)', () => {
     assert.ok(html.includes('General'), 'Should render left-out General tag');
   });
 });
-
-

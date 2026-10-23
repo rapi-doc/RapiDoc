@@ -69,7 +69,7 @@ const sampleSpec = {
           },
         ],
         responses: {
-          '200': {
+          200: {
             description: 'A list of shipments',
             content: {
               'application/json': {
@@ -96,7 +96,7 @@ const sampleSpec = {
           },
         },
         responses: {
-          '201': {
+          201: {
             description: 'Shipment created successfully',
             content: {
               'application/json': {
@@ -122,7 +122,7 @@ const sampleSpec = {
           },
         ],
         responses: {
-          '200': {
+          200: {
             description: 'Tracking status details',
           },
         },
@@ -134,7 +134,7 @@ const sampleSpec = {
         operationId: 'listInvoices',
         tags: ['Billing'],
         responses: {
-          '200': {
+          200: {
             description: 'List of invoices',
           },
         },
@@ -290,7 +290,10 @@ describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
 
     // Verify key attributes that prevent client-side hydration drift/mismatch
     assert.ok(openingTagAttrs.includes('schema-style="table"'), 'Must serialize schema-style="table" (preventing drift to tree)');
-    assert.ok(openingTagAttrs.includes('allow-advanced-search="false"'), 'Must serialize allow-advanced-search="false" (preventing modal injection)');
+    assert.ok(
+      openingTagAttrs.includes('allow-advanced-search="false"'),
+      'Must serialize allow-advanced-search="false" (preventing modal injection)'
+    );
     assert.ok(openingTagAttrs.includes('show-header="true"'), 'Must serialize show-header="true"');
     assert.ok(openingTagAttrs.includes('show-side-nav="true"'), 'Must serialize show-side-nav="true"');
     assert.ok(openingTagAttrs.includes('show-info="true"'), 'Must serialize show-info="true"');
@@ -429,16 +432,13 @@ describe('Static Isolated Endpoint Pre-Rendering (renderEndpoint)', () => {
   });
 
   it('should throw descriptive error when endpoint is not found in spec', async () => {
-    await assert.rejects(
-      async () => {
-        await renderEndpoint({
-          spec: sampleSpec,
-          path: '/nonexistent/path',
-          method: 'delete',
-        });
-      },
-      /Endpoint not found in spec/
-    );
+    await assert.rejects(async () => {
+      await renderEndpoint({
+        spec: sampleSpec,
+        path: '/nonexistent/path',
+        method: 'delete',
+      });
+    }, /Endpoint not found in spec/);
   });
 });
 
@@ -584,8 +584,8 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
 
   it('getThemeTokensCss should return adapted design system tokens for portal light and dark modes', () => {
     const amberTokens = getThemeTokensCss('amber');
-    assert.ok(amberTokens.includes('[data-theme=\'light\']'));
-    assert.ok(amberTokens.includes('[data-theme=\'dark\']'));
+    assert.ok(amberTokens.includes("[data-theme='light']"));
+    assert.ok(amberTokens.includes("[data-theme='dark']"));
     assert.ok(amberTokens.includes('--primary: #f76b39;'));
 
     const blueTokens = getThemeTokensCss('blue');
@@ -593,4 +593,3 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
     assert.ok(blueTokens.includes('--primary: #2563eb;'));
   });
 });
-
