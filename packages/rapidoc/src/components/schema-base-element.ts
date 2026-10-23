@@ -139,7 +139,7 @@ export default class SchemaBaseElement extends LitElement {
 
   renderDeprecatedIcon(node) {
     return node?.deprecated
-      ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
+      ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--destructive); margin-right:-6px">
           <path d="M2 2L8 8M2 8L8 2" />
         </svg>`
       : '';

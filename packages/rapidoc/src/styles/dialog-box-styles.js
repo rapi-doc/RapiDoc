@@ -13,7 +13,7 @@ export default css`
     background: var(--card);
     padding: 0;
     color: var(--card-foreground);
-    border-radius: var(--card-radius);
+    border-radius: min(var(--radius), 0.5rem);
     max-height: 70vh;
     height: 70vh;
     max-width: 70vw;
@@ -38,8 +38,8 @@ export default css`
     max-height: 60px;
     border-bottom: 1px solid var(--border);
     overflow: hidden;
-    border-top-left-radius: var(--card-radius);
-    border-top-right-radius: var(--card-radius);
+    border-top-left-radius: min(var(--radius), 0.5rem);
+    border-top-right-radius: min(var(--radius), 0.5rem);
     & button {
       font-size: 1.5rem;
       font-weight: 700;

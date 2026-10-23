@@ -54,7 +54,7 @@ export default css`
     overflow: hidden;
   }
   .key-descr {
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
     color: var(--muted-foreground);
     flex-shrink: 1;
     text-overflow: ellipsis;
@@ -141,7 +141,7 @@ export default css`
   }
 
   .xxx-of-descr {
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
     color: var(--primary);
     font-size: calc(var(--font-size-small) - 2px);
     margin-inline-start: 4px;
@@ -174,7 +174,7 @@ export default css`
     color: var(--blue);
   }
   .null {
-    color: var(--red);
+    color: var(--destructive);
   }
   .bool,
   .boolean {

@@ -27,10 +27,14 @@ export default function overviewTemplate() {
       ${
         this.resolvedSpec?.info
           ? html`
-              <div id="api-title" part="section-overview-title">
+              <h1 id="api-title" class="rapidoc-heading" part="section-overview-title heading heading-1">
                 ${this.resolvedSpec.info.title}
-                ${!this.resolvedSpec.info.version ? '' : html`<span class="version"> ${this.resolvedSpec.info.version} </span>`}
-              </div>
+                ${
+                  !this.resolvedSpec.info.version
+                    ? ''
+                    : html`<span class="version" part="label-overview-version">${this.resolvedSpec.info.version}</span>`
+                }
+              </h1>
               <div id="api-info">
                 ${
                   this.resolvedSpec.info.contact?.email

@@ -99,7 +99,7 @@ export function isLightColor(color) {
 
 /**
  * Dynamically applies custom corporate brand hex colors to the host element.
- * Calculates luminance and injects `--primary`, `--ring`, and `--primary-foreground`.
+ * Calculates luminance and injects `--primary` and `--primary-foreground` (`--ring` follows `--primary`).
  * @param {HTMLElement} element - Custom element host target.
  * @param {string} themeVal - User-supplied theme attribute value.
  */
@@ -107,13 +107,11 @@ export function applyCustomTheme(element, themeVal) {
   if (!element || !element.style) return;
   if (!themeVal || THEME_PRESETS.includes(themeVal.trim().toLowerCase()) || !isValidHexColor(themeVal)) {
     element.style.removeProperty('--primary');
-    element.style.removeProperty('--ring');
     element.style.removeProperty('--primary-foreground');
     return;
   }
   const hex = themeVal.trim();
   element.style.setProperty('--primary', hex);
-  element.style.setProperty('--ring', hex);
   const fg = isLightColor(hex) ? '#000000' : '#ffffff';
   element.style.setProperty('--primary-foreground', fg);
 }
@@ -123,42 +121,57 @@ export default css`
      1. ROOT DESIGN TOKEN DEFAULTS (:host)
      ========================================================================= */
   :host {
-    /* --- Typography Tokens --- */
-    --font-sans: var(
-      --rapidoc-font,
-      var(--portal-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif)
-    );
-    --font-regular: var(--font-sans);
-    --font-mono: var(
-      --rapidoc-font-mono,
-      var(--portal-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace)
-    );
+    /* --- Fonts (shadcn/ui) --- */
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace;
 
-    /* --- Default Corner Radii & Geometry --- */
+    /* --- Headings & Prose (RapiDoc headings and markdown descriptions) --- */
+    --heading-font: var(--font-sans);
+    --heading-weight: 600;
+    --heading-line-height: 1.25;
+    --heading-letter-spacing: normal;
+    --heading-color: var(--foreground);
+    --heading-margin-top: 1.5em;
+    --heading-margin-bottom: 0.5em;
+    --h1-font-size: 2rem;
+    --h2-font-size: 1.5rem;
+    --h3-font-size: 1.25rem;
+    --h4-font-size: 1rem;
+    --h5-font-size: 0.875rem;
+    --h6-font-size: 0.8125rem;
+    --label-heading-font-size: var(--font-size-small);
+    --line-height: 1.6;
+    --paragraph-spacing: 1em;
+
+    /* --- Corner Radius (shadcn/ui) --- */
     --radius: 0.25rem;
-    --card-radius: 4px;
-    --border-radius: var(--radius);
 
-    /* --- Layout Dimensions --- */
-    --ui-base-size: 14px;
+    /* --- Sizes & Layout --- */
     --font-size-small: 12px;
     --font-size-mono: 13px;
     --font-size-regular: 14px;
-    --nav-width: 18.75rem;
-    --nav-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
-    --nav-logo-max-height: 60px;
     --resp-area-height: 400px;
-    --layout: row;
     --table-schema-key-width: 240px;
     --table-schema-key-text-overflow: ellipsis;
     --table-schema-key-whitespace: nowrap;
-    --scroll-bar-width: 8px;
+    --scroll-margin-top: 120px;
 
     /* --- Focus Ring & Selection --- */
+    --ring: var(--primary);
     --focus-shadow: 0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);
     --selection-bg: color-mix(in srgb, var(--primary) 25%, transparent);
     --selection-fg: var(--foreground);
-    --nav-accent-fg: var(--primary);
+
+    /* --- Navigation Sidebar (shadcn/ui sidebar tokens) --- */
+    --sidebar-width: 18.75rem;
+    --sidebar-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
+    --sidebar-logo-max-height: 60px;
+    --sidebar: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
   }
 
   /* =========================================================================
@@ -168,60 +181,52 @@ export default css`
   /* --- 2A. Corner Radius Scale (radius) --- */
   :host([radius='none']) {
     --radius: 0px;
-    --card-radius: 0px;
   }
   :host([radius='sm']),
   :host(:not([radius])) {
     --radius: 0.25rem;
-    --card-radius: 4px;
   }
   :host([radius='md']) {
     --radius: 0.375rem;
-    --card-radius: 6px;
   }
   :host([radius='lg']) {
     --radius: 0.5rem;
-    --card-radius: 8px;
   }
   :host([radius='full']) {
     --radius: 9999px;
-    --card-radius: 8px;
   }
 
   /* --- 2B. UI Scale & Typography (scale) --- */
   :host([scale='sm']) {
-    --ui-base-size: 13px;
     --font-size-small: 11px;
     --font-size-mono: 12px;
     --font-size-regular: 13px;
-    --nav-width: 17rem;
+    --sidebar-width: 17rem;
   }
   :host([scale='default']),
   :host(:not([scale])) {
-    --ui-base-size: 14px;
     --font-size-small: 12px;
     --font-size-mono: 13px;
     --font-size-regular: 14px;
-    --nav-width: 18.75rem;
+    --sidebar-width: 18.75rem;
   }
   :host([scale='lg']) {
-    --ui-base-size: 16px;
     --font-size-small: 14px;
     --font-size-mono: 15px;
     --font-size-regular: 16px;
-    --nav-width: 21rem;
+    --sidebar-width: 21rem;
   }
 
   /* --- 2C. Navigation Density (nav-item-spacing) --- */
   :host([nav-item-spacing='compact']) {
-    --nav-item-padding: 0.3125rem 1rem 0.3125rem 0.625rem;
+    --sidebar-item-padding: 0.3125rem 1rem 0.3125rem 0.625rem;
   }
   :host([nav-item-spacing='default']),
   :host(:not([nav-item-spacing])) {
-    --nav-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
+    --sidebar-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
   }
   :host([nav-item-spacing='relaxed']) {
-    --nav-item-padding: 0.625rem 1rem 0.625rem 0.625rem;
+    --sidebar-item-padding: 0.625rem 1rem 0.625rem 0.625rem;
   }
 
   /* =========================================================================
@@ -234,8 +239,8 @@ export default css`
   :host([color-scheme='system']),
   :host(:not([color-scheme])) {
     /* Surfaces */
-    --background: var(--rapidoc-bg, var(--portal-bg, oklch(0.2613 0.0134 272.84)));
-    --foreground: var(--rapidoc-fg, var(--portal-fg, #cccccc));
+    --background: oklch(0.2613 0.0134 272.84);
+    --foreground: #cccccc;
 
     /* Card Vars:
       card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
@@ -256,14 +261,10 @@ export default css`
     */
     --border: color-mix(in srgb, var(--background) 90%, var(--foreground));
 
-    --nav-hover-bg: color-mix(in srgb, var(--background) 88%, var(--foreground));
-    --nav-hover-fg: var(--foreground);
+    --sidebar-accent: color-mix(in srgb, var(--background) 88%, var(--foreground));
 
+    --input: oklch(from var(--border) calc(l - 0.05) c h);
     --input-background: color-mix(in srgb, var(--background) 80%, #000000);
-    --input-border: oklch(from var(--border) calc(l - 0.05) c h);
-
-    /* Alias for form control background (shadcn compatibility) */
-    --input: var(--input-background);
 
     /* HTTP Method Badges (Dark Mode: High Vibrancy) */
     --method-get: #5c98f9ff;
@@ -278,7 +279,9 @@ export default css`
     --method-default: #64748b;
     --method-badge-fg: #000000;
 
-    /* Status Helpers */
+    --destructive: #ef4444;
+
+    /* Named colours (also used by x-badges: color: blue | green | ...) */
     --blue: #3b82f6;
     --green: #10b981;
     --orange: #f59e0b;
@@ -304,21 +307,15 @@ export default css`
     --syntax-deleted: #ff7b72;
 
     /* Code Blocks */
+
     --code-bg: var(--input-background);
-    --code-fg: var(--foreground);
-    --inline-code-fg: #c4c6d1;
-    --inline-code-bg: #3b3c45;
-    --markdown-fg: #c4c6d1;
-    --code-property-color: var(--syntax-property);
-    --code-keyword-color: var(--syntax-keyword);
-    --code-operator-color: var(--syntax-operator);
   }
 
   /* --------- 3B. LIGHT  --------- */
   :host([color-scheme='light']) {
     /* Surfaces */
-    --background: var(--rapidoc-bg, var(--portal-bg, #ffffff));
-    --foreground: var(--rapidoc-fg, var(--portal-fg, #444444));
+    --background: #ffffff;
+    --foreground: #444444;
 
     /* Card Vars:
       card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
@@ -339,13 +336,10 @@ export default css`
     */
     --border: color-mix(in srgb, var(--background) 88%, var(--foreground));
 
-    --nav-hover-bg: color-mix(in srgb, var(--background) 92%, var(--foreground));
-    --nav-hover-fg: var(--foreground);
+    --sidebar-accent: color-mix(in srgb, var(--background) 92%, var(--foreground));
 
+    --input: color-mix(in srgb, var(--border) 75%, var(--foreground));
     --input-background: color-mix(in srgb, var(--background) 96%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 75%, var(--foreground));
-    /* Alias for form control background (shadcn compatibility) */
-    --input: var(--input-background);
 
     /* HTTP Method Badges (Light Mode: High Contrast) */
     --method-get: #099cff;
@@ -360,7 +354,9 @@ export default css`
     --method-default: #475569;
     --method-badge-fg: #ffffff;
 
-    /* Status Helpers */
+    --destructive: #dc2626;
+
+    /* Named colours (also used by x-badges: color: blue | green | ...) */
     --blue: #2768f4ff;
     --green: #059669;
     --orange: #d97706;
@@ -386,14 +382,8 @@ export default css`
     --syntax-deleted: #cf222e;
 
     /* Code Blocks */
+
     --code-bg: var(--input-background);
-    --code-fg: var(--foreground);
-    --inline-code-fg: #334155;
-    --inline-code-bg: #e2e8f0;
-    --markdown-fg: #475569;
-    --code-property-color: var(--syntax-property);
-    --code-keyword-color: var(--syntax-keyword);
-    --code-operator-color: var(--syntax-operator);
   }
 
   /* --------- 3C. SYSTEM --------- */
@@ -406,12 +396,9 @@ export default css`
       --muted: #f4f4f5;
       --muted-foreground: #71717a;
       --border: #e4e4e7;
-      --nav-hover-bg: color-mix(in srgb, var(--background) 95%, #000000);
-      --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
-      --nav-hover-fg: var(--foreground);
+      --sidebar-accent: oklch(from var(--background) calc(l - 0.04) c h);
+      --input: color-mix(in srgb, var(--border) 80%, var(--foreground));
       --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input: var(--input-background);
 
       --method-get: #2563eb;
       --method-post: #059669;
@@ -424,6 +411,8 @@ export default css`
       --method-query: #4f46e5;
       --method-default: #475569;
       --method-badge-fg: #ffffff;
+
+      --destructive: #dc2626;
 
       --blue: #2768f4ff;
       --green: #059669;
@@ -449,13 +438,6 @@ export default css`
       --syntax-deleted: #cf222e;
 
       --code-bg: var(--input-background);
-      --code-fg: var(--foreground);
-      --inline-code-fg: #334155;
-      --inline-code-bg: #e2e8f0;
-      --markdown-fg: #475569;
-      --code-property-color: var(--syntax-property);
-      --code-keyword-color: var(--syntax-keyword);
-      --code-operator-color: var(--syntax-operator);
     }
   }
 
@@ -480,7 +462,6 @@ export default css`
   :host([theme='blue']) {
     --primary: #488bf8ff;
     --primary-foreground: #ffffff;
-    --ring: #488bf8ff;
     --background: #1c1b1bff;
     --foreground: #e5e5e5;
     --border: #414146ff;
@@ -493,19 +474,17 @@ export default css`
     --card: #f4f4f5;
     --card-foreground: #444444;
     --border: #e4e4e7;
-    --ring: #2563eb;
   }
 
   /* --------- 3. EMERALD --------- */
   :host([theme='emerald']) {
     --primary: #03bf80ff;
     --primary-foreground: #0f331dff;
-    --ring: #03bf80ff;
     --background: #060913;
     --foreground: #e2e8f0;
     --card: #0f172a;
     --card-foreground: #f8fafc;
-    --muted: #111827;
+    --muted: #1e293b;
     --border: #242c29ff;
   }
   :host([theme='emerald'][color-scheme='light']) {
@@ -517,19 +496,17 @@ export default css`
     --card-foreground: #444444;
     --muted: #f4f4f5;
     --border: #e4e4e7;
-    --ring: #059669;
   }
 
   /* --------- 4. VIOLET --------- */
   :host([theme='violet']) {
     --primary: #8b5cf6;
     --primary-foreground: #ffffff;
-    --ring: #8b5cf6;
     --background: #130e20;
     --foreground: #f5f3ff;
     --card: #1e1633;
     --card-foreground: #f5f3ff;
-    --muted: #19122b;
+    --muted: #2a2045;
     --border: #342854;
   }
   :host([theme='violet'][color-scheme='light']) {
@@ -541,7 +518,6 @@ export default css`
     --card-foreground: #444444;
     --muted: #f4f4f5;
     --border: #e4e4e7;
-    --ring: #7c3aed;
   }
 
   /* --------- 5. GRAPHITE --------- */
@@ -565,7 +541,6 @@ export default css`
   /* --------- 6. ROSE --------- */
   :host([theme='rose']) {
     --primary: #ee5d7cff;
-    --ring: #ee5d7cff;
     --background: oklch(0.2613 0.0134 272.84);
     --card: oklch(0.2613 0.0134 272.84);
   }
@@ -577,15 +552,13 @@ export default css`
     --card: #f4f4f5;
     --card-foreground: #444444;
     --border: #e4e4e7;
-    --ring: #e11d48;
   }
 
   /* --------- 7. SLATE --------- */
   :host([theme='slate']) {
     --primary: #64748b;
     --primary-foreground: #ffffff;
-    --nav-accent-fg: #ffffff;
-    --ring: #64748b;
+    --sidebar-primary: #ffffff;
   }
   :host([theme='slate'][color-scheme='light']) {
     --primary: #475569;
@@ -595,7 +568,6 @@ export default css`
     --card: #f4f4f5;
     --card-foreground: #444444;
     --border: #e4e4e7;
-    --ring: #475569;
   }
 
   /* =========================================================================
@@ -606,43 +578,70 @@ export default css`
     :host(:not([theme])[color-scheme='system']) {
       --primary: #d97706;
       --primary-foreground: #ffffff;
-      --ring: #d97706;
     }
 
     :host([theme='blue'][color-scheme='system']) {
       --primary: #2563eb;
       --primary-foreground: #ffffff;
-      --ring: #2563eb;
+      --foreground: #333333;
+      --background: #ffffff;
+      --card: #f4f4f5;
+      --card-foreground: #444444;
+      --border: #e4e4e7;
     }
 
     :host([theme='emerald'][color-scheme='system']) {
       --primary: #059669;
       --primary-foreground: #ffffff;
-      --ring: #059669;
+      --foreground: #333333;
+      --background: #ffffff;
+      --card: #f4f4f5;
+      --card-foreground: #444444;
+      --muted: #f4f4f5;
+      --border: #e4e4e7;
     }
 
     :host([theme='violet'][color-scheme='system']) {
       --primary: #7c3aed;
       --primary-foreground: #ffffff;
-      --ring: #7c3aed;
+      --foreground: #333333;
+      --background: #ffffff;
+      --card: #f4f4f5;
+      --card-foreground: #444444;
+      --muted: #f4f4f5;
+      --border: #e4e4e7;
     }
 
     :host([theme='graphite'][color-scheme='system']) {
       --primary: #18181b;
       --primary-foreground: #fafafa;
       --ring: #27272a;
+      --foreground: #111111;
+      --background: #ffffff;
+      --card: #f4f4f5;
+      --card-foreground: #444444;
+      --border: #e4e4e7;
+      --muted-foreground: #222222;
     }
 
     :host([theme='rose'][color-scheme='system']) {
       --primary: #e11d48;
       --primary-foreground: #ffffff;
-      --ring: #e11d48;
+      --foreground: #333333;
+      --background: #ffffff;
+      --card: #f4f4f5;
+      --card-foreground: #444444;
+      --border: #e4e4e7;
     }
 
     :host([theme='slate'][color-scheme='system']) {
       --primary: #475569;
       --primary-foreground: #ffffff;
-      --ring: #475569;
+      --foreground: #333333;
+      --background: #ffffff;
+      --card: #f4f4f5;
+      --card-foreground: #444444;
+      --border: #e4e4e7;
     }
   }
 `;

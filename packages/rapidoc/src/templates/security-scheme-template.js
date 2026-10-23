@@ -245,13 +245,13 @@ async function fetchAccessToken(
       }
     } else {
       if (respDisplayEl) {
-        respDisplayEl.innerHTML = `<span style="color:var(--red)">${tokenResp.error_description || tokenResp.error || 'Unable to get access token'}</span>`;
+        respDisplayEl.innerHTML = `<span style="color:var(--destructive)">${tokenResp.error_description || tokenResp.error || 'Unable to get access token'}</span>`;
       }
       return false;
     }
   } catch {
     if (respDisplayEl) {
-      respDisplayEl.innerHTML = '<span style="color:var(--red)">Failed to get access token</span>';
+      respDisplayEl.innerHTML = '<span style="color:var(--destructive)">Failed to get access token</span>';
     }
     return false;
   }
@@ -537,7 +537,7 @@ function oAuthFlowTemplate(
   }
   return html`
     <div class="oauth-flow ${flowName}" style="padding: 12px 0; margin-bottom:12px;">
-      <div class="tiny-title upper" style="margin-bottom:8px;">${flowNameDisplay}</div>
+      <h3 class="rapidoc-heading label-heading tiny-title upper" part="heading heading-3">${flowNameDisplay}</h3>
       ${
         authorizationUrl
           ? html`<div style="margin-bottom:5px">
@@ -738,7 +738,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
       style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;"
       class="observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}"
     >
-      <div class="sub-title regular-font">AUTHENTICATION</div>
+      <h2 class="rapidoc-heading sub-title regular-font" part="section-auth-title heading heading-2">Authentication</h2>
       ${
         allowTry === 'true'
           ? html`<div class="small-font-size" style="display:flex; align-items: center; justify-content: space-between; min-height:30px">

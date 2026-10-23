@@ -8,7 +8,7 @@ import { scheduleHighlight } from '~/utils/highlighter';
 
 export default function codeSamplesTemplate(xCodeSamples) {
   return html` <div class="code-samples-container">
-    <div class="table-title top-gap">CODE SAMPLES</div>
+    <h4 class="rapidoc-heading label-heading table-title top-gap" part="heading heading-4">Code samples</h4>
     <div
       part="tab-panel"
       class="tab-panel col"

@@ -76,7 +76,7 @@ export function apiResponseTabTemplate() {
             >
               ${
                 this.responseBlobType === 'image'
-                  ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${ifDefined(this.responseBlobUrl)}"></img>`
+                  ? html`<img style="max-height:var(--resp-area-height); object-fit:contain;" class="mar-top-8" src="${ifDefined(this.responseBlobUrl)}"></img>`
                   : ''
               }
               <button
@@ -118,7 +118,7 @@ export function apiResponseTabTemplate() {
               >
                 Copy
               </button>
-              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">
+              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height); resize:vertical; overflow:auto">
 ${responseContent}</pre>
             </div>`
       }
@@ -171,7 +171,7 @@ export function apiCallTemplate() {
                       </div>`
                     : this.security.some((s) => !s || Object.keys(s).length === 0)
                       ? html`<div class="gray-text">Optional <span class="gray-text">(None Applied)</span></div>`
-                      : html`<div class="gray-text">Required <span style="color:var(--red)">(None Applied)</span></div>`
+                      : html`<div class="gray-text">Required <span style="color:var(--destructive)">(None Applied)</span></div>`
                 }`
               : html`<span class="gray-text"> Not Required </span>`
           }

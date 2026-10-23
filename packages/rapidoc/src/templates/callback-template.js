@@ -5,11 +5,11 @@ import { html } from 'lit';
 
 export default function callbackTemplate(callbacks) {
   return html`
-    <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
+    <h4 class="rapidoc-heading label-heading req-res-title" part="heading heading-4">Callbacks</h4>
     ${Object.entries(callbacks).map(
       (kv) => html`
         <div class="tiny-title" style="padding: 12px; border:1px solid var(--border)">
-          ${kv[0]}
+          <h5 class="rapidoc-heading callback-name" part="heading heading-5">${kv[0]}</h5>
           ${Object.entries(kv[1]).map(
             (pathObj) => html`
               <div class="callback-operation-list mono-font small-font-size">
@@ -44,7 +44,8 @@ export default function callbackTemplate(callbacks) {
                           schema-hide-read-only="false"
                           schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
                           fetch-credentials="${this.fetchCredentials}"
-                          exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                          exportparts="section-request-title:section-request-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
+            wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
                           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
                           file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
                           anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
@@ -65,7 +66,8 @@ export default function callbackTemplate(callbacks) {
                           allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
                           schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
                           schema-hide-write-only="false"
-                          exportparts="btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+                          exportparts="section-response-title:section-response-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
+            btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
                           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
                           schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
                         >

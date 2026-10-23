@@ -6,11 +6,11 @@ export default css`
   }
   .border {
     border: 1px solid var(--border);
-    border-radius: var(--card-radius);
+    border-radius: min(var(--radius), 0.5rem);
   }
   .light-border {
     border: 1px solid var(--border);
-    border-radius: var(--card-radius);
+    border-radius: min(var(--radius), 0.5rem);
   }
   .pad-8-16 {
     padding: 8px 16px;

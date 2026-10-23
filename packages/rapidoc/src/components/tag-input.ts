@@ -123,8 +123,8 @@ export default class TagInput extends LitElement {
           flex-wrap: wrap;
           outline: none;
           padding: 0;
-          border-radius: var(--border-radius);
-          border: 1px solid var(--input-border);
+          border-radius: var(--radius);
+          border: 1px solid var(--input);
           cursor: text;
           overflow: hidden;
           background: var(--input-background);
@@ -138,7 +138,7 @@ export default class TagInput extends LitElement {
           border: 1px solid var(--border);
           background: var(--muted);
           color: var(--muted-foreground);
-          border-radius: var(--border-radius);
+          border-radius: var(--radius);
           word-break: break-all;
           font-size: var(--font-size-small);
         }

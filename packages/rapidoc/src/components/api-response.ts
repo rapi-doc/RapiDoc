@@ -136,9 +136,13 @@ export default class ApiResponse extends LitElement {
 
   render() {
     return html`<div class="col regular-font response-panel ${this.renderStyle}-mode">
-      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} ">
-        ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
-      </div>
+      ${
+        this.callback === 'true'
+          ? html`<h6 class="rapidoc-heading label-heading tiny-title" part="section-response-title heading heading-6">
+              Callback response
+            </h6>`
+          : html`<h4 class="rapidoc-heading label-heading req-res-title" part="section-response-title heading heading-4">Response</h4>`
+      }
       <div>${this.responseTemplate()}</div>
     </div> `;
   }
@@ -256,10 +260,10 @@ export default class ApiResponse extends LitElement {
   }
 
   responseHeaderListTemplate(respHeaders) {
-    return html`<div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div>
+    return html`<h5 class="rapidoc-heading label-heading resp-headers" part="heading heading-5">Response headers</h5>
       <table
         role="presentation"
-        style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border); border-radius: var(--card-radius)"
+        style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border); border-radius: min(var(--radius), 0.5rem)"
         class="small-font-size mono-font"
       >
         ${respHeaders.map(
@@ -313,7 +317,7 @@ export default class ApiResponse extends LitElement {
     if (!mimeRespDetails || !mimeRespDetails.examples || mimeRespDetails.examples.length === 0) {
       return html`
         <pre
-          style="color:var(--red)"
+          style="color:var(--destructive)"
           class="${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel border-top'}"
         >
  No example provided </pre>
@@ -405,7 +409,8 @@ ${mimeRespDetails.examples[0].exampleValue}</pre>
   mimeSchemaTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
       return html`
-        <pre style="color:var(--red)" class="${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top'}"> Schema not found</pre>
+        <pre style="color:var(--destructive)" class="${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top'}">
+ Schema not found</pre>
       `;
     }
     return html` ${

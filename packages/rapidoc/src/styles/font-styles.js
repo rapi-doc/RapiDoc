@@ -9,7 +9,7 @@ export default css`
     color: var(--selection-fg);
   }
   .regular-font {
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
   }
   .mono-font {
     font-family: var(--font-mono);
@@ -24,7 +24,7 @@ export default css`
     text-wrap: balance;
   }
   .req-res-title {
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
     font-size: calc(var(--font-size-small) + 0.25rem);
     font-weight: bold;
     margin-bottom: 0.5rem;
@@ -54,14 +54,14 @@ export default css`
     color: var(--muted-foreground);
   }
   .red-text {
-    color: var(--red);
+    color: var(--destructive);
   }
   .blue-text {
     color: var(--blue);
   }
   .multiline {
     overflow: scroll;
-    max-height: var(--resp-area-height, 400px);
+    max-height: var(--resp-area-height);
     color: var(--muted-foreground);
   }
   .method-fg {
@@ -95,64 +95,96 @@ export default css`
     color: var(--method-query);
   }
   .method-fg.copy {
-    color: var(--method-copy, var(--method-default));
+    color: var(--method-default);
   }
   .method-fg.purge {
-    color: var(--method-purge, var(--method-default));
+    color: var(--method-default);
   }
 
-  h1 {
-    font-family: var(--font-regular);
-    font-size: 1.75rem;
-    padding-top: 0.625rem;
-    letter-spacing: normal;
-    font-weight: normal;
-  }
-  h2 {
-    font-family: var(--font-regular);
-    font-size: 1.5rem;
-    padding-top: 0.625rem;
-    letter-spacing: normal;
-    font-weight: normal;
-  }
-  h3 {
-    font-family: var(--font-regular);
-    font-size: 1.25rem;
-    padding-top: 0.625rem;
-    letter-spacing: normal;
-    font-weight: normal;
-  }
-  h4 {
-    font-family: var(--font-regular);
-    font-size: 1rem;
-    padding-top: 0.625rem;
-    letter-spacing: normal;
-    font-weight: normal;
-  }
-  h5 {
-    font-family: var(--font-regular);
-    font-size: 0.875rem;
-    padding-top: 0.625rem;
-    letter-spacing: normal;
-    font-weight: normal;
-  }
-  h6 {
-    font-family: var(--font-regular);
-    font-size: 0.75rem;
-    padding-top: 0.625rem;
-    letter-spacing: normal;
-    font-weight: normal;
-  }
-
+  /*
+   * Headings: one scale for RapiDoc's own headings (.rapidoc-heading) and headings rendered from
+   * markdown descriptions, so both line up with surrounding docs content. The custom properties and
+   * their defaults are defined in theme-tokens.js; override them on the element, e.g.
+   * rapi-doc { --h2-font-size: 1.8125rem; --heading-weight: 700; }
+   */
   h1,
   h2,
   h3,
   h4,
   h5,
-  h6 {
-    margin-block-end: 0.2em;
+  h6,
+  .rapidoc-heading:is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--heading-font);
+    font-weight: var(--heading-weight);
+    line-height: var(--heading-line-height);
+    letter-spacing: var(--heading-letter-spacing);
+    color: var(--heading-color);
+    margin-block: var(--heading-margin-top) var(--heading-margin-bottom);
+    padding: 0;
     text-wrap: balance;
   }
+  h1,
+  h1.rapidoc-heading {
+    font-size: var(--h1-font-size);
+  }
+  h2,
+  h2.rapidoc-heading {
+    font-size: var(--h2-font-size);
+  }
+  h3,
+  h3.rapidoc-heading {
+    font-size: var(--h3-font-size);
+  }
+  h4,
+  h4.rapidoc-heading {
+    font-size: var(--h4-font-size);
+  }
+  h5,
+  h5.rapidoc-heading {
+    font-size: var(--h5-font-size);
+  }
+  h6,
+  h6.rapidoc-heading {
+    font-size: var(--h6-font-size);
+  }
+  :is(h1, h2, h3, h4, h5, h6):first-child,
+  .rapidoc-heading:is(h1, h2, h3, h4, h5, h6):first-child {
+    margin-block-start: 0;
+  }
+
+  /* Compact small-caps labels (Request, Response, Path parameters, ...) */
+  .rapidoc-heading.label-heading {
+    font-size: var(--label-heading-font-size);
+    font-weight: var(--heading-weight);
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-block: 16px 6px;
+  }
+  .rapidoc-heading.label-heading.req-res-title {
+    font-size: calc(var(--font-size-small) + 0.25rem);
+    margin-block: 0 0.5rem;
+  }
+  .rapidoc-heading.label-heading.tiny-title {
+    font-size: calc(var(--font-size-small) + 1px);
+    margin-block: 0 8px;
+  }
+  .table-title > .rapidoc-heading.label-heading {
+    margin: 0;
+  }
+  /* Keeps the heading outline complete for assistive tech without showing a duplicate title */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
   p {
     margin-block-start: 0.5em;
   }
@@ -180,19 +212,19 @@ export default css`
   .m-markdown,
   .m-markdown-small {
     display: block;
-    color: var(--markdown-fg, var(--foreground));
+    color: var(--foreground);
   }
 
   .m-markdown p,
   .m-markdown span {
     font-size: var(--font-size-regular);
-    line-height: calc(var(--font-size-regular) + 8px);
+    line-height: var(--line-height);
     color: inherit;
   }
   .m-markdown li {
     font-size: var(--font-size-regular);
-    line-height: calc(var(--font-size-regular) + 10px);
-    margin-block: 4px;
+    line-height: var(--line-height);
+    margin-block: 0.25em;
     color: inherit;
   }
 
@@ -233,7 +265,7 @@ export default css`
   }
 
   .m-markdown p:not(:first-child) {
-    margin-block-start: 24px;
+    margin-block-start: var(--paragraph-spacing);
   }
 
   .m-markdown-small p:not(:first-child) {
@@ -255,9 +287,9 @@ export default css`
   .m-markdown-small code,
   .m-markdown code {
     padding: 1px 6px;
-    border-radius: var(--card-radius);
-    color: var(--inline-code-fg);
-    background-color: var(--inline-code-bg, var(--muted));
+    border-radius: min(var(--radius), 0.5rem);
+    color: var(--foreground);
+    background-color: var(--muted);
     font-size: calc(var(--font-size-mono));
     line-height: 1.2;
   }
@@ -272,8 +304,8 @@ export default css`
     white-space: pre-wrap;
     overflow-x: auto;
     line-height: normal;
-    border-radius: var(--card-radius);
-    border: 1px solid var(--input-border);
+    border-radius: min(var(--radius), 0.5rem);
+    border: 1px solid var(--input);
   }
 
   .m-markdown pre {
@@ -285,7 +317,7 @@ export default css`
       border: none;
       padding: 0;
       background: transparent;
-      color: var(--code-fg);
+      color: var(--foreground);
     }
   }
 
@@ -331,7 +363,7 @@ export default css`
     margin: 10px 0;
     border-collapse: separate;
     border: 1px solid var(--border);
-    border-radius: var(--card-radius);
+    border-radius: min(var(--radius), 0.5rem);
     font-size: calc(var(--font-size-small) + 1px);
     line-height: calc(var(--font-size-small) + 4px);
     max-width: 100%;

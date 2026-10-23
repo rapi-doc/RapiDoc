@@ -29,7 +29,7 @@ export default class SchemaTable extends SchemaBaseElement {
             border-bottom: 1px solid var(--border);
 
             & .td {
-              font-family: var(--font-regular);
+              font-family: var(--font-sans);
               font-weight: bold;
               color: var(--foreground);
             }
@@ -60,16 +60,16 @@ export default class SchemaTable extends SchemaBaseElement {
             padding: 4px 0;
           }
           & .key {
-            width: var(--table-schema-key-width, 240px);
-            text-overflow: var(--table-schema-key-text-overflow, ellipsis);
-            white-space: var(--table-schema-key-whitespace, nowrap);
+            width: var(--table-schema-key-width);
+            text-overflow: var(--table-schema-key-text-overflow);
+            white-space: var(--table-schema-key-whitespace);
             overflow: hidden;
 
             & .key-label {
               font-size: var(--font-size-mono);
             }
             &.deprecated .key-label {
-              color: var(--red);
+              color: var(--destructive);
             }
           }
           & .key-type {
@@ -118,7 +118,7 @@ export default class SchemaTable extends SchemaBaseElement {
           .table {
             & .table-container {
               display: grid;
-              grid-template-columns: minmax(var(--table-schema-key-width, 240px), auto) minmax(150px, auto) 1fr;
+              grid-template-columns: minmax(var(--table-schema-key-width), auto) minmax(150px, auto) 1fr;
             }
             & .table-header,
             & .tr {
@@ -205,7 +205,7 @@ export default class SchemaTable extends SchemaBaseElement {
           <div class="tr array ${nullClass}" data-obj="${node.name || ''}">
             <div class="td key" style="padding-left:${leftPadding}px">
               <span class="key-label" title="${node.name || ''}">${deprecatedIcon}${node.name || ''}</span>
-              ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
+              ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
             </div>
             <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
             <div class="td key-descr" style="font-size: var(--font-size-small)">
@@ -228,7 +228,7 @@ export default class SchemaTable extends SchemaBaseElement {
           <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
               ${deprecatedIcon} ${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
-              ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
+              ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
             </div>
             <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">
               [${itemType}]${node.nullable ? ' ┃ null' : ''}${readWriteBadge}
@@ -294,7 +294,7 @@ export default class SchemaTable extends SchemaBaseElement {
             <span class="key-label" title="${node.name || ''}" style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}">
               ${deprecatedIcon}${node.name || ''}
             </span>
-            ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
+            ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
           </div>
           <div class="td key-type" title="${readWriteTip}">${arrLabel}${readWriteBadge}</div>
           <div class="td key-descr" style="font-size: var(--font-size-small)">
@@ -370,7 +370,7 @@ export default class SchemaTable extends SchemaBaseElement {
                     >
                       ${deprecatedIcon}${node.name}
                     </span>
-                    ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
+                    ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
                   </div>
                   <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
                   <div class="td key-descr" style="font-size: var(--font-size-small)">
@@ -444,7 +444,7 @@ export default class SchemaTable extends SchemaBaseElement {
         <div class="tr primitive ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
             ${deprecatedIcon} ${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
-            ${node.required ? html`<span style="color:var(--red);">*</span>` : ''}
+            ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
           </div>
           <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">
             ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}

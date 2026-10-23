@@ -82,42 +82,29 @@ test('theme-validation', async (t) => {
     assert.deepEqual(normalizeTheme(undefined), { theme: 'amber' });
   });
 
-  await t.test('--nav-hover-fg token is defined and used correctly', () => {
-    // Assert --nav-hover-fg token is declared in theme tokens
-    assert.match(themeTokens.cssText, /--nav-hover-fg:\s*var\(--foreground\);/);
+  await t.test('navigation uses the shadcn/ui --sidebar-* tokens', () => {
+    for (const token of [
+      '--sidebar',
+      '--sidebar-foreground',
+      '--sidebar-primary',
+      '--sidebar-border',
+      '--sidebar-ring',
+      '--sidebar-width',
+    ]) {
+      assert.match(themeTokens.cssText, new RegExp(`${token}:`), `${token} must be defined`);
+    }
+    assert.match(navStyles.cssText, /background:\s*var\(--sidebar\);/);
+    assert.match(navStyles.cssText, /color:\s*var\(--sidebar-accent-foreground\);\s*background:\s*var\(--sidebar-accent\);/);
+    assert.match(navStyles.cssText, /border-inline-start:\s*4px solid var\(--sidebar-primary\);\s*color:\s*var\(--sidebar-primary\);/);
 
-    // Assert nav styles use var(--nav-hover-fg, var(--foreground))
-    assert.match(navStyles.cssText, /var\(--nav-hover-fg,\s*var\(--foreground\)\)/);
-
-    // Assert deprecated --nav-hover-text has been completely dropped
-    assert.doesNotMatch(themeTokens.cssText, /--nav-hover-text/);
-    assert.doesNotMatch(navStyles.cssText, /--nav-hover-text/);
-  });
-
-  await t.test('--nav-accent-fg token is defined and used correctly', () => {
-    // Assert --nav-accent-fg token is declared in theme tokens (defaults to var(--primary))
-    assert.match(themeTokens.cssText, /--nav-accent-fg:\s*var\(--primary\);/);
-
-    // Assert nav styles use var(--nav-accent-fg, var(--primary)) for left-bar active text color
-    assert.match(navStyles.cssText, /color:\s*var\(--nav-accent-fg,\s*var\(--primary\)\);/);
-
-    // Assert active items always use left-bar marker style
+    // Active items always use the left-bar marker style
     assert.match(navStyles.cssText, /\.left-bar\.active/);
     assert.doesNotMatch(navStyles.cssText, /\.colored-block\.active/);
-
-    // Assert --nav-accent and --nav-accent-foreground are completely dropped
-    assert.doesNotMatch(themeTokens.cssText, /--nav-accent:/);
-    assert.doesNotMatch(themeTokens.cssText, /--nav-accent-foreground/);
-    assert.doesNotMatch(navStyles.cssText, /var\(--nav-accent,/);
-    assert.doesNotMatch(navStyles.cssText, /--nav-accent-foreground/);
   });
 
-  await t.test('--nav-logo slot uses --nav-logo-max-height and overflow clipping', () => {
-    // Assert --nav-logo-max-height token exists
-    assert.match(themeTokens.cssText, /--nav-logo-max-height:\s*60px;/);
-
-    // Assert nav styles use var(--nav-logo-max-height, 60px) and overflow: hidden
-    assert.match(navStyles.cssText, /max-height:\s*var\(--nav-logo-max-height,\s*60px\);/);
+  await t.test('sidebar logo slot uses --sidebar-logo-max-height and overflow clipping', () => {
+    assert.match(themeTokens.cssText, /--sidebar-logo-max-height:\s*60px;/);
+    assert.match(navStyles.cssText, /max-height:\s*var\(--sidebar-logo-max-height\);/);
     assert.match(navStyles.cssText, /overflow:\s*hidden;/);
   });
 
@@ -132,9 +119,13 @@ test('theme-validation', async (t) => {
     assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--card-foreground:\s*color-mix/);
   });
 
-  await t.test('--font-sans and --font-regular typography tokens are defined', () => {
-    assert.match(themeTokens.cssText, /--font-sans:\s*var\(\s*--rapidoc-font,\s*var\(\s*--portal-font/);
-    assert.match(themeTokens.cssText, /--font-regular:\s*var\(--font-sans\);/);
-    assert.match(themeTokens.cssText, /--font-mono:\s*var\(\s*--rapidoc-font-mono/);
+  await t.test('--ring follows --primary so every theme has a focus ring', () => {
+    assert.match(themeTokens.cssText, /--ring:\s*var\(--primary\);/);
+    assert.match(themeTokens.cssText, /--focus-shadow:[^;]*var\(--ring\)/);
+  });
+
+  await t.test('--font-sans and --font-mono are plain shadcn/ui font tokens', () => {
+    assert.match(themeTokens.cssText, /--font-sans:\s*-apple-system/);
+    assert.match(themeTokens.cssText, /--font-mono:\s*ui-monospace/);
   });
 });

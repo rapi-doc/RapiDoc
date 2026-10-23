@@ -31,7 +31,7 @@ export default css`
     white-space: nowrap;
     cursor: pointer;
     outline: none;
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
     font-size: var(--font-size-small);
     margin-inline-end: 16px;
     padding: 2px 4px;

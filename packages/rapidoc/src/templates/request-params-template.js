@@ -60,7 +60,7 @@ export function renderLongFormatExamples(exampleList, paramType, paramName) {
       (v) =>
         html`<li>
           ${renderExample.call(this, v, paramType, paramName)} ${v.summary?.length > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ''}
-          ${v.description?.length > 0 ? html`<p>${unsafeHTML(sanitizeHTML(marked(v.description)))}</p>` : ''}
+          ${v.description?.length > 0 ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(v.description)))}</div>` : ''}
         </li>`
     )}
   </ul>`;
@@ -85,13 +85,13 @@ export function inputParametersTemplate(paramType) {
   }
   let title = '';
   if (paramType === 'path') {
-    title = 'PATH PARAMETERS';
+    title = 'Path parameters';
   } else if (paramType === 'query') {
-    title = 'QUERY-STRING PARAMETERS';
+    title = 'Query-string parameters';
   } else if (paramType === 'header') {
-    title = 'REQUEST HEADERS';
+    title = 'Request headers';
   } else if (paramType === 'cookie') {
-    title = 'COOKIES';
+    title = 'Cookies';
   }
 
   const tableRows = [];
@@ -151,12 +151,12 @@ export function inputParametersTemplate(paramType) {
           <div class="param-name ${param.deprecated ? 'deprecated' : ''}">
             ${
               param.deprecated
-                ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
+                ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--destructive); margin-right:-6px">
                     <path d="M2 2L8 8M2 8L8 2" />
                   </svg>`
                 : ''
             }
-            ${param.required ? html`<span style="color:var(--red)">*</span>` : ''} ${param.name}
+            ${param.required ? html`<span style="color:var(--destructive)">*</span>` : ''} ${param.name}
           </div>
           <div class="param-type">
             ${
@@ -375,7 +375,7 @@ export function inputParametersTemplate(paramType) {
     `);
   }
 
-  return html` <div class="table-title top-gap">${title}</div>
+  return html` <h5 class="rapidoc-heading label-heading table-title top-gap" part="heading heading-5">${title}</h5>
     <div style="display:block; overflow-x:auto; max-width:100%;">
       <table role="presentation" class="m-table" style="width:100%; word-break:break-word;">
         ${tableRows}

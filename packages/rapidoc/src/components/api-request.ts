@@ -129,12 +129,12 @@ export default class ApiRequest extends LitElement {
           font-family: var(--font-mono);
 
           &.deprecated {
-            color: var(--red);
+            color: var(--destructive);
           }
         }
         .param-type {
           color: var(--muted-foreground);
-          font-family: var(--font-regular);
+          font-family: var(--font-sans);
         }
         .param-constraint {
           min-width: 100px;
@@ -162,7 +162,7 @@ export default class ApiRequest extends LitElement {
           text-overflow: ellipsis;
 
           &.error {
-            color: var(--red);
+            color: var(--destructive);
           }
           &.success {
             color: var(--blue);
@@ -186,7 +186,7 @@ export default class ApiRequest extends LitElement {
 
         .file-input-remove-btn {
           font-size: 16px;
-          color: var(--red);
+          color: var(--destructive);
           outline: none;
           border: none;
           background: none;
@@ -267,9 +267,11 @@ export default class ApiRequest extends LitElement {
         'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'
       }"
     >
-      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} ">
-        ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
-      </div>
+      ${
+        this.callback === 'true'
+          ? html`<h6 class="rapidoc-heading label-heading tiny-title" part="section-request-title heading heading-6">Callback request</h6>`
+          : html`<h4 class="rapidoc-heading label-heading req-res-title" part="section-request-title heading heading-4">Request</h4>`
+      }
       <div>
         ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'path'))}
         ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'query'))}

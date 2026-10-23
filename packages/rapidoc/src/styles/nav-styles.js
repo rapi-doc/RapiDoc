@@ -56,7 +56,7 @@ export default css`
     width: 100%;
     padding: 6px 28px 6px 10px;
     color: var(--foreground);
-    border: 1px solid var(--input-border);
+    border: 1px solid var(--input);
     border-radius: var(--radius);
     background: var(--input-background);
     font-size: calc(var(--font-size-small) + 1px);
@@ -67,8 +67,8 @@ export default css`
   }
   .nav-bar-search-input:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent);
+    border-color: var(--sidebar-ring);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--sidebar-ring) 25%, transparent);
   }
   .nav-bar-search-icon {
     position: absolute;
@@ -111,10 +111,10 @@ export default css`
     width: 0;
     height: 100%;
     overflow: hidden;
-    color: var(--foreground);
-    background: var(--background);
+    color: var(--sidebar-foreground);
+    background: var(--sidebar);
     background-blend-mode: multiply;
-    border-right: 1px solid var(--border);
+    border-right: 1px solid var(--sidebar-border);
     line-height: calc(var(--font-size-small) + 4px);
     font-size: calc(var(--font-size-small) + 1px);
     position: relative;
@@ -146,7 +146,7 @@ export default css`
     outline-offset: 2px;
   }
   ::slotted([slot='nav-logo']) {
-    max-height: var(--nav-logo-max-height, 60px);
+    max-height: var(--sidebar-logo-max-height);
     overflow: hidden;
     box-sizing: border-box;
     width: auto;
@@ -410,10 +410,10 @@ export default css`
     color: var(--method-query);
   }
   .nav-method.as-colored-text.copy {
-    color: var(--method-copy, var(--method-default));
+    color: var(--method-default);
   }
   .nav-method.as-colored-text.purge {
-    color: var(--method-purge, var(--method-default));
+    color: var(--method-default);
   }
 
   .nav-method.as-colored-block {
@@ -421,16 +421,16 @@ export default css`
     min-width: 32px;
     text-align: center;
     border-radius: 4px;
-    color: var(--method-badge-fg, #000);
+    color: var(--method-badge-fg);
     background: var(--method-default);
     font-weight: 600;
   }
   :host([color-scheme='light']) .nav-method.as-colored-block {
-    color: var(--method-badge-fg, #fff);
+    color: var(--method-badge-fg);
   }
   @media (prefers-color-scheme: light) {
     :host([color-scheme='system']) .nav-method.as-colored-block {
-      color: var(--method-badge-fg, #fff);
+      color: var(--method-badge-fg);
     }
   }
   .colored-block .nav-method.as-colored-block {
@@ -465,17 +465,17 @@ export default css`
     background: var(--method-query);
   }
   .nav-method.as-colored-block.copy {
-    background: var(--method-copy, var(--method-default));
+    background: var(--method-default);
   }
   .nav-method.as-colored-block.purge {
-    background: var(--method-purge, var(--method-default));
+    background: var(--method-default);
   }
 
   .nav-bar-h1,
   .nav-bar-h2,
   .nav-bar-path {
     font-weight: 400;
-    padding: var(--nav-item-padding, 0.3125rem 1rem 0.3125rem 0.625rem);
+    padding: var(--sidebar-item-padding);
   }
 
   .nav-bar-info {
@@ -487,7 +487,7 @@ export default css`
     flex-direction: row;
     justify-content: space-between;
     color: var(--foreground);
-    padding: var(--nav-item-padding);
+    padding: var(--sidebar-item-padding);
     font-weight: 700;
   }
   .nav-bar-section.operations {
@@ -514,8 +514,8 @@ export default css`
   .nav-bar-tag.left-bar.active,
   .nav-bar-path.left-bar.active,
   .nav-bar-section.left-bar.operations.active {
-    border-inline-start: 4px solid var(--primary);
-    color: var(--nav-accent-fg, var(--primary));
+    border-inline-start: 4px solid var(--sidebar-primary);
+    color: var(--sidebar-primary);
   }
 
   .nav-bar-h1.active:hover,
@@ -530,23 +530,23 @@ export default css`
   .nav-bar-tag.left-bar.active:hover,
   .nav-bar-path.left-bar.active:hover,
   .nav-bar-section.left-bar.operations.active:hover {
-    color: var(--nav-accent-fg, var(--primary));
+    color: var(--sidebar-primary);
   }
 
   /* Highlight collapsed parents using modern CSS :has() */
   .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag {
-    border-inline-start-color: var(--primary);
-    color: var(--nav-accent-fg, var(--primary));
+    border-inline-start-color: var(--sidebar-primary);
+    color: var(--sidebar-primary);
   }
 
   .nav-bar-tag-group.collapsed:has(.active) > .nav-bar-tag-group-header {
-    border-inline-start-color: var(--primary);
-    color: var(--nav-accent-fg, var(--primary));
+    border-inline-start-color: var(--sidebar-primary);
+    color: var(--sidebar-primary);
   }
 
   .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag:hover,
   .nav-bar-tag-group.collapsed:has(.active) > .nav-bar-tag-group-header:hover {
-    color: var(--nav-accent-fg, var(--primary));
+    color: var(--sidebar-primary);
   }
 
   .nav-bar-h1:hover,
@@ -554,8 +554,8 @@ export default css`
   .nav-bar-info:hover,
   .nav-bar-tag:hover,
   .nav-bar-path:hover {
-    color: var(--nav-hover-fg, var(--foreground));
-    background: var(--nav-hover-bg, var(--muted));
+    color: var(--sidebar-accent-foreground);
+    background: var(--sidebar-accent);
   }
 
   /* nav-item-overflow: ellipsis (default) vs wrap */

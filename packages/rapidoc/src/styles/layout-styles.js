@@ -17,7 +17,7 @@ export default css`
     letter-spacing: normal;
     color: var(--foreground);
     background: var(--background);
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
     container-type: inline-size;
   }
   :where(button, input[type='checkbox'], [tabindex='0']):focus-visible {
@@ -68,8 +68,8 @@ export default css`
   }
 
   .main-content-inner--read-mode {
-    padding: var(--content-padding, 0 8px);
-    padding-bottom: var(--read-mode-bottom-padding, min(70vh, 600px));
+    padding: 0 8px;
+    padding-bottom: min(70vh, 600px);
   }
   .main-content::-webkit-scrollbar {
     width: 8px;
@@ -88,13 +88,13 @@ export default css`
   .section-gap,
   .section-gap--focused-mode,
   .section-gap--read-mode {
-    padding: var(--content-padding, 0px 4px);
-    scroll-margin-top: var(--scroll-margin-top, 120px);
+    padding: 0px 4px;
+    scroll-margin-top: var(--scroll-margin-top);
   }
 
   :host([auto-height]) .main-content-inner--read-mode,
   :host([auto-height='true']) .main-content-inner--read-mode {
-    padding-bottom: var(--read-mode-bottom-padding, 40px);
+    padding-bottom: 40px;
   }
   .section-tag-header {
     position: relative;
@@ -206,9 +206,6 @@ export default css`
   .only-large-screen {
     display: none;
   }
-  .tag.title {
-    text-transform: uppercase;
-  }
   .main-header {
     background: var(--background);
     color: var(--foreground);
@@ -251,7 +248,7 @@ export default css`
   }
   .expanded-endpoint-body .tag-description {
     background: var(--code-bg);
-    border-radius: var(--card-radius);
+    border-radius: min(var(--radius), 0.5rem);
     transition: max-height 0.2s ease-out;
   }
   .expanded-endpoint-body .tag-icon {
@@ -318,7 +315,7 @@ export default css`
     padding: 12px;
     overflow-wrap: anywhere;
     font-size: var(--font-size-small);
-    color: var(--red);
+    color: var(--destructive);
     font-family: var(--font-mono);
   }
 
@@ -411,7 +408,7 @@ export default css`
 
   @container (min-width: 1024px) {
     .nav-bar {
-      width: var(--nav-width, 18.75rem);
+      width: var(--sidebar-width);
       display: flex;
     }
     #nav-bar-btn {

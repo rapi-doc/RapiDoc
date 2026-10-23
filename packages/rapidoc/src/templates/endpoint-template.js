@@ -70,9 +70,7 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
         ${path.path}
         ${
           path.isWebhook
-            ? html`<span
-                style="font-family: var(--font-regular); font-size: var(--font-size-small); color:var(--primary); margin-left: 16px"
-              >
+            ? html`<span style="font-family: var(--font-sans); font-size: var(--font-size-small); color:var(--primary); margin-left: 16px">
                 Webhook</span
               >`
             : ''
@@ -81,7 +79,7 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
       ${
         path.deprecated
           ? html` <span
-              style="font-size:var(--font-size-small); text-transform:uppercase; font-weight:bold; color:var(--red); margin:2px 0 0 5px;"
+              style="font-size:var(--font-size-small); text-transform:uppercase; font-weight:bold; color:var(--destructive); margin:2px 0 0 5px;"
             >
               deprecated
             </span>`
@@ -122,10 +120,10 @@ function endpointBodyTemplate(path) {
     <div class="summary">
       ${
         path.summary
-          ? html`<div class="title" part="section-endpoint-body-title">${path.summary}</div>`
+          ? html`<h3 class="rapidoc-heading title" part="section-endpoint-body-title heading heading-3">${path.summary}</h3>`
           : path.shortSummary !== path.description
-            ? html`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>`
-            : ''
+            ? html`<h3 class="rapidoc-heading title" part="section-endpoint-body-title heading heading-3">${path.shortSummary}</h3>`
+            : html`<h3 class="visually-hidden">${path.method.toUpperCase()} ${path.path}</h3>`
       }
       ${
         path.xBadges && path.xBadges?.length > 0
@@ -159,7 +157,7 @@ function endpointBodyTemplate(path) {
                 path.externalDocs?.url
                   ? html`<a class="external-docs-link" href="${path.externalDocs?.url}" target="_blank">
                       ${path.externalDocs?.url}
-                      <div class="external-docs-arrow">⇲</div>
+                      <span class="external-docs-arrow">⇲</span>
                     </a>`
                   : ''
               }
@@ -197,7 +195,8 @@ function endpointBodyTemplate(path) {
           schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials="${this.fetchCredentials}"
-          exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+          exportparts="section-request-title:section-request-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
+            wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
           file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
           anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
@@ -223,7 +222,8 @@ function endpointBodyTemplate(path) {
         schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
         schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
         selected-status="${Object.keys(path.responses || {})[0] || ''}"
-        exportparts="btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
+        exportparts="section-response-title:section-response-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
+            btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
         textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
         tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
         schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
@@ -278,7 +278,9 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
                   this.requestUpdate();
                 }}"
               >
-                <div id="${tag.elementId}" class="sub-title tag" style="color:var(--primary)">${tag.displayName || tag.name}</div>
+                <h2 id="${tag.elementId}" class="rapidoc-heading sub-title tag" part="heading heading-2" style="color:var(--primary)">
+                  ${tag.displayName || tag.name}
+                </h2>
               </div>
               <div class="section-tag-body">
                 <slot name="${tag.elementId}"></slot>
@@ -348,12 +350,13 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
                     this.requestUpdate();
                   }}"
                 >
-                  <div
-                    class="sub-title tag-group"
+                  <h2
+                    class="rapidoc-heading sub-title tag-group"
+                    part="heading heading-2"
                     style="color:var(--foreground); font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;"
                   >
                     ${group.displayName || group.name}
-                  </div>
+                  </h2>
                   <div class="section-tag-group-icon"></div>
                 </div>
                 <div class="section-tag-group-body">

@@ -40,7 +40,7 @@ function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
-        <div class="table-title">SERVER VARIABLES</div>
+        <h3 class="rapidoc-heading label-heading table-title" part="heading heading-3">Server variables</h3>
         <table class="m-table" role="presentation">
           ${Object.entries(this.selectedServer.variables).map(
             (kv) => html`
@@ -100,19 +100,19 @@ export default function serverTemplate() {
     style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;"
     class="regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}"
   >
-    <div part="section-servers-title" class="sub-title" style="display:flex; align-items:center; gap:8px;">
-      API SERVER
+    <h2 part="section-servers-title heading heading-2" class="rapidoc-heading sub-title" style="display:flex; align-items:center; gap:8px;">
+      API Server
       ${
         this.mockServer === 'true'
           ? html`<span
-              style="font-size:var(--font-size-small); font-weight:bold; color:var(--green, #10b981); border:1px solid var(--green, #10b981); border-radius:4px; padding:1px 6px; letter-spacing:0.5px;"
+              style="font-size:var(--font-size-small); font-weight:bold; color:var(--green); border:1px solid var(--green); border-radius:4px; padding:1px 6px; letter-spacing:0.5px;"
               title="In-browser mock server is active"
             >
               MOCK ACTIVE
             </span>`
           : ''
       }
-    </div>
+    </h2>
     <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);">
       ${
         !this.resolvedSpec.servers || this.resolvedSpec.servers?.length === 0
@@ -141,7 +141,7 @@ export default function serverTemplate() {
       }
       <div class="table-title primary-text" part="label-selected-server">
         SELECTED: ${this.selectedServer?.computedUrl || 'none'}
-        ${this.mockServer === 'true' ? html`<span style="color:var(--green, #10b981); margin-left:6px;">(Mocked)</span>` : ''}
+        ${this.mockServer === 'true' ? html`<span style="color:var(--green); margin-left:6px;">(Mocked)</span>` : ''}
       </div>
     </div>
     <slot name="servers"></slot>

@@ -31,7 +31,7 @@ export default css`
     background: var(--muted);
     padding: 2px 8px 8px 8px;
     margin: 8px 0;
-    border-radius: var(--card-radius);
+    border-radius: min(var(--radius), 0.5rem);
   }
 
   .external-docs-link {
@@ -128,23 +128,23 @@ export default css`
   }
   .m-endpoint > .endpoint-head.put:hover,
   .m-endpoint > .endpoint-head.put.expanded {
-    border-color: var(--method-put, var(--orange));
-    background: color-mix(in srgb, var(--method-put, var(--orange)) 10%, transparent);
+    border-color: var(--method-put);
+    background: color-mix(in srgb, var(--method-put) 10%, transparent);
   }
   .m-endpoint > .endpoint-head.post:hover,
   .m-endpoint > .endpoint-head.post.expanded {
-    border-color: var(--method-post, var(--green));
-    background: color-mix(in srgb, var(--method-post, var(--green)) 10%, transparent);
+    border-color: var(--method-post);
+    background: color-mix(in srgb, var(--method-post) 10%, transparent);
   }
   .m-endpoint > .endpoint-head.get:hover,
   .m-endpoint > .endpoint-head.get.expanded {
-    border-color: var(--method-get, var(--blue));
-    background: color-mix(in srgb, var(--method-get, var(--blue)) 10%, transparent);
+    border-color: var(--method-get);
+    background: color-mix(in srgb, var(--method-get) 10%, transparent);
   }
   .m-endpoint > .endpoint-head.delete:hover,
   .m-endpoint > .endpoint-head.delete.expanded {
-    border-color: var(--method-delete, var(--red));
-    background: color-mix(in srgb, var(--method-delete, var(--red)) 10%, transparent);
+    border-color: var(--method-delete);
+    background: color-mix(in srgb, var(--method-delete) 10%, transparent);
   }
 
   .m-endpoint > .endpoint-head.head:hover,
@@ -190,32 +190,32 @@ export default css`
     border-bottom-right-radius: min(var(--radius), 1rem);
     box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
   }
-  .m-endpoint .endpoint-body.delete {
-    border-color: var(--red);
-  }
-  .m-endpoint .endpoint-body.put {
-    border-color: var(--orange);
+  .m-endpoint .endpoint-body.get {
+    border-color: var(--method-get);
   }
   .m-endpoint .endpoint-body.post {
-    border-color: var(--green);
+    border-color: var(--method-post);
   }
-  .m-endpoint .endpoint-body.get {
-    border-color: var(--blue);
+  .m-endpoint .endpoint-body.put {
+    border-color: var(--method-put);
   }
-  .m-endpoint .endpoint-body.head,
-  .m-endpoint .endpoint-body.patch,
+  .m-endpoint .endpoint-body.delete {
+    border-color: var(--method-delete);
+  }
+  .m-endpoint .endpoint-body.patch {
+    border-color: var(--method-patch);
+  }
+  .m-endpoint .endpoint-body.head {
+    border-color: var(--method-head);
+  }
   .m-endpoint .endpoint-body.options {
-    border-color: var(--yellow);
+    border-color: var(--method-options);
   }
   .m-endpoint .endpoint-body.trace {
-    border-color: var(--pink);
+    border-color: var(--method-trace);
   }
   .m-endpoint .endpoint-body.query {
-    border-color: var(--purple);
-  }
-  .m-endpoint .endpoint-body.copy,
-  .m-endpoint .endpoint-body.purge {
-    border-color: var(--method-color, var(--method-default));
+    border-color: var(--method-query);
   }
 
   .m-endpoint .endpoint-body.deprecated {
@@ -232,9 +232,7 @@ export default css`
     padding: 8px 8px;
   }
   .summary .title {
-    font-size: calc(var(--font-size-regular) + 2px);
-    margin-bottom: 6px;
-    word-break: break-all;
+    overflow-wrap: anywhere;
   }
 
   .endpoint-head .method {
@@ -283,10 +281,10 @@ export default css`
     border: 2px solid var(--method-query);
   }
   .endpoint-head .method.copy {
-    border: 2px solid var(--method-copy, var(--method-default));
+    border: 2px solid var(--method-default);
   }
   .endpoint-head .method.purge {
-    border: 2px solid var(--method-purge, var(--method-default));
+    border: 2px solid var(--method-default);
   }
 
   .head {
@@ -317,10 +315,10 @@ export default css`
     --method-color: var(--method-delete);
   }
   .copy {
-    --method-color: var(--method-copy, var(--method-default));
+    --method-color: var(--method-default);
   }
   .purge {
-    --method-color: var(--method-purge, var(--method-default));
+    --method-color: var(--method-default);
   }
 
   .req-resp-container {
@@ -389,7 +387,7 @@ export default css`
     border-color: var(--blue);
   }
   .delete .view-mode-request {
-    border-color: var(--red);
+    border-color: var(--destructive);
   }
   .trace .view-mode-request {
     border-color: var(--pink);
@@ -418,7 +416,7 @@ export default css`
     }
     .req-resp-container,
     .expanded-req-resp-container {
-      flex-direction: var(--layout, row);
+      flex-direction: row;
       flex-wrap: nowrap;
     }
     :host([layout='column']) .req-resp-container,
@@ -513,7 +511,7 @@ export default css`
     }
     .delete .expanded-endpoint-body .request-panel,
     .delete .expanded-req-resp-container .request-panel {
-      border-color: color-mix(in srgb, var(--red) 50%, transparent);
+      border-color: color-mix(in srgb, var(--destructive) 50%, transparent);
     }
     .trace .expanded-endpoint-body .request-panel,
     .trace .expanded-req-resp-container .request-panel {

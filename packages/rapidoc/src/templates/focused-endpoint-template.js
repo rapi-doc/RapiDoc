@@ -46,7 +46,9 @@ function defaultContentTemplate() {
 
 function focusedTagBodyTemplate(tag) {
   return html`
-    <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
+    <h2 id="${tag.elementId}" class="rapidoc-heading title tag" part="section-tag-title label-tag-title heading heading-2">
+      ${tag.displayName || tag.name}
+    </h2>
     ${
       tag.description
         ? html`<div class="m-markdown regular-font">
@@ -104,7 +106,7 @@ export default function focusedEndpointTemplate() {
     }
     if (selectedPathObj) {
       // In focused mode we must expand the nav-bar tag element if it is collapsed
-      const newNavEl = this.shadowRoot.getElementById(`link-${focusElId}`);
+      const newNavEl = this.shadowRoot?.getElementById(`link-${focusElId}`); // no shadowRoot when pre-rendering
       expandCollapseNavBarTag(newNavEl, 'expand');
       const isFirst = selectedTagObj?.paths?.[0]?.elementId === selectedPathObj.elementId;
       focusedTemplate = wrapFocusedTemplate.call(

@@ -141,7 +141,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
         html` <tr title="${fieldSchema.deprecated ? 'Deprecated' : ''}">
             <td style="width:${labelColWidth}; min-width:100px;">
               <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}">
-                ${fieldName}${required.includes(fieldName) || fieldSchema.required ? html`<span style="color:var(--red);">*</span>` : ''}
+                ${fieldName}${required.includes(fieldName) || fieldSchema.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
               </div>
               <div class="param-type">
                 ${
@@ -553,10 +553,10 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
   return html`
     <div class="request-body-container" data-selected-request-body-type="${ifDefined(this.selectedRequestBodyType)}">
       <div class="table-title top-gap row" style="justify-content:space-between; align-items:center;">
-        <div>
-          REQUEST BODY ${this.request_body.required ? html`<span class="mono-font" style="color:var(--red)">*</span>` : ''}
-          <span style="font-weight:normal; margin-left:5px"> ${this.selectedRequestBodyType}</span>
-        </div>
+        <h5 class="rapidoc-heading label-heading" part="heading heading-5">
+          Request body ${this.request_body.required ? html`<span class="mono-font" style="color:var(--destructive)">*</span>` : ''}
+          <span style="font-weight:normal; margin-left:5px; text-transform:none"> ${this.selectedRequestBodyType}</span>
+        </h5>
         ${reqBodyTypeSelectorHtml}
       </div>
       ${

@@ -12,9 +12,9 @@ import '~/components/schema-table';
 
 function schemaBodyTemplate(sComponent) {
   return html` <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}">
-    <div class="bold-text">
+    <h3 class="rapidoc-heading component-title" part="heading heading-3">
       ${sComponent.name} <span style="color:var(--muted-foreground); font-size:var(--font-size-small); font-weight:400;"> Schema </span>
-    </div>
+    </h3>
     ${
       this.schemaStyle === 'table'
         ? html` <schema-table
@@ -48,10 +48,10 @@ function componentBodyTemplate(sComponent, componentType) {
   return html`
     <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}">
       ${html`
-        <div class="bold-text">
+        <h3 class="rapidoc-heading component-title" part="heading heading-3">
           ${sComponent.name}
           <span style="color:var(--muted-foreground); font-size:var(--font-size-small); font-weight:400"> ${componentType} </span>
-        </div>
+        </h3>
         ${
           sComponent.component
             ? html`<div class="mono-font regular-font-size" style="padding: 8px 0; color:var(--card-foreground)">
@@ -72,7 +72,7 @@ export default function componentsTemplate() {
     ${this.resolvedSpec.components.map(
       (component) => html`
         <div id="cmp--${component.name.toLowerCase()}" class="regular-font section-gap--read-mode observe-me read-mode-tag">
-          <div class="title tag">${component.name}</div>
+          <h2 class="rapidoc-heading title tag" part="heading heading-2">${component.name}</h2>
           ${unsafeHTML(`<div class='m-markdown regular-font'>${sanitizeHTML(marked(component.description || ''))}</div>`)}
         </div>
         <div class="regular-font section-gap--read-mode">

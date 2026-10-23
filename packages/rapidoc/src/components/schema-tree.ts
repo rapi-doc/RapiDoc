@@ -83,7 +83,7 @@ export default class SchemaTree extends SchemaBaseElement {
           padding: 0 20px 0 0;
           cursor: pointer;
           border: 1px solid transparent;
-          border-radius: var(--card-radius);
+          border-radius: min(var(--radius), 0.5rem);
 
           &:hover {
             color: var(--primary);
@@ -108,7 +108,7 @@ export default class SchemaTree extends SchemaBaseElement {
     if (!this.data) {
       return html`
         <div class="tree">
-          <span class="mono-font" style="color:var(--red)"> Schema not found </span>
+          <span class="mono-font" style="color:var(--destructive)"> Schema not found </span>
         </div>
       `;
     }
@@ -152,7 +152,7 @@ export default class SchemaTree extends SchemaBaseElement {
           <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               <span class="open-bracket array">${nullMarker}[ ]</span>
             </div>
             <div class="td key-descr m-markdown-small">${this.renderDescriptionHtml(node.description || '')}</div>
@@ -175,7 +175,7 @@ export default class SchemaTree extends SchemaBaseElement {
           <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}:</span>` : ''}
+              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}:</span>` : ''}
               <span class="${dataTypeCss}" title="${readWriteTip}">${nullMarker}[${itemType}]${readWriteBadge}</span>
             </div>
             <div class="td key-descr">
@@ -216,7 +216,7 @@ export default class SchemaTree extends SchemaBaseElement {
           >
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               ${openBracket}
             </div>
             <div class="td key-descr m-markdown-small">
@@ -256,7 +256,7 @@ export default class SchemaTree extends SchemaBaseElement {
           <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               ${openBracket}
             </div>
             <div class="td key-descr m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</div>
@@ -277,7 +277,7 @@ export default class SchemaTree extends SchemaBaseElement {
         <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
-            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
             <span
               class="open-bracket array"
               role="button"
@@ -317,7 +317,7 @@ export default class SchemaTree extends SchemaBaseElement {
         <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
-            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
             ${openBracket}
           </div>
           <div class="td key-descr m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</div>
@@ -380,7 +380,7 @@ export default class SchemaTree extends SchemaBaseElement {
         <div class="tr primitive" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
-            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--red);">*</span>` : ''}:</span>` : ''}
+            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}:</span>` : ''}
             <span class="${dataTypeCss}" title="${readWriteTip}">
               ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}
             </span>

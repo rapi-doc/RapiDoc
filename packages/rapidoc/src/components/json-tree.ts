@@ -45,7 +45,7 @@ export default class JsonTree extends LitElement {
           padding: 0 20px 0 0;
           cursor: pointer;
           border: 1px solid transparent;
-          border-radius: var(--card-radius);
+          border-radius: min(var(--radius), 0.5rem);
 
           &:hover {
             color: var(--primary);
@@ -71,7 +71,7 @@ export default class JsonTree extends LitElement {
         }
         .close-bracket {
           border: 1px solid transparent;
-          border-radius: var(--card-radius);
+          border-radius: min(var(--radius), 0.5rem);
           display: inline-block;
         }
         .inside-bracket {
@@ -87,7 +87,7 @@ export default class JsonTree extends LitElement {
           color: var(--blue);
         }
         .null {
-          color: var(--red);
+          color: var(--destructive);
         }
         .boolean {
           color: var(--purple);

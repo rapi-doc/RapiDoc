@@ -117,12 +117,12 @@ export default css`
   /* Destructive Variant (Danger / Clear / Reset actions) */
   .btn-destructive,
   .btn.destructive {
-    border-color: var(--method-delete, #ef4444);
-    background: color-mix(in srgb, var(--method-delete, #ef4444) 15%, transparent);
-    color: var(--method-delete, #ef4444);
+    border-color: var(--method-delete);
+    background: color-mix(in srgb, var(--method-delete) 15%, transparent);
+    color: var(--method-delete);
 
     &:hover {
-      background: var(--method-delete, #ef4444);
+      background: var(--method-delete);
       color: #ffffff;
     }
   }
@@ -132,7 +132,7 @@ export default css`
   .btn.link {
     border-color: transparent;
     background: transparent;
-    color: var(--blue, #3b82f6);
+    color: var(--blue);
     box-shadow: none;
     text-decoration: underline;
     padding: 0;
@@ -211,9 +211,9 @@ export default css`
     border-color: var(--border);
   }
   .badge-destructive {
-    background: color-mix(in srgb, var(--method-delete, #ef4444) 15%, transparent);
-    color: var(--method-delete, #ef4444);
-    border-color: var(--method-delete, #ef4444);
+    background: color-mix(in srgb, var(--method-delete) 15%, transparent);
+    color: var(--method-delete);
+    border-color: var(--method-delete);
   }
   .badge-sm {
     padding: 1px 4px;
@@ -231,15 +231,15 @@ export default css`
     color: var(--foreground);
     outline: none;
     background: var(--input-background);
-    border: 1px solid var(--input-border);
+    border: 1px solid var(--input);
     border-radius: var(--radius);
   }
   textarea,
   pre {
-    border-radius: var(--card-radius);
+    border-radius: min(var(--radius), 0.5rem);
   }
   button {
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
     color: var(--foreground);
   }
 
@@ -278,7 +278,7 @@ export default css`
   }
 
   select {
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
     padding: 5px 30px 5px 5px;
     background-image: url('data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%3E%3Cpath%20d%3D%22M10.3%203.3L6%207.6%201.7%203.3A1%201%200%2000.3%204.7l5%205a1%201%200%20001.4%200l5-5a1%201%200%2010-1.4-1.4z%22%20fill%3D%22%23777777%22%2F%3E%3C%2Fsvg%3E');
     background-position: calc(100% - 5px) center;
@@ -317,14 +317,14 @@ export default css`
     select::picker(select) {
       background: var(--input-background);
       color: var(--foreground);
-      border: 1px solid var(--input-border);
+      border: 1px solid var(--input);
       border-radius: var(--radius);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
       padding: 4px;
-      font-family: var(--font-regular);
+      font-family: var(--font-sans);
       font-size: var(--font-size-small);
       scrollbar-width: thin;
-      scrollbar-color: var(--input-border) var(--input-background);
+      scrollbar-color: var(--input) var(--input-background);
     }
 
     select option {
@@ -335,7 +335,7 @@ export default css`
       color: var(--foreground);
       background: transparent;
       cursor: pointer;
-      font-family: var(--font-regular);
+      font-family: var(--font-sans);
       font-size: var(--font-size-small);
       transition:
         background 0.15s ease,
@@ -421,18 +421,18 @@ export default css`
   }
 
   input[type='file'] {
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
     padding: 2px;
     cursor: pointer;
     background: var(--input-background);
-    border: 1px solid var(--input-border);
+    border: 1px solid var(--input);
     border-radius: var(--radius);
     min-height: calc(var(--font-size-small) + 1.125rem);
   }
 
   input[type='file']::file-selector-button,
   input[type='file']::-webkit-file-upload-button {
-    font-family: var(--font-regular);
+    font-family: var(--font-sans);
     font-size: var(--font-size-small);
     outline: none;
     cursor: pointer;
@@ -447,7 +447,7 @@ export default css`
   pre,
   textarea {
     scrollbar-width: thin;
-    scrollbar-color: var(--input-border) var(--input-background);
+    scrollbar-color: var(--input) var(--input-background);
   }
 
   pre::-webkit-scrollbar,
@@ -464,7 +464,7 @@ export default css`
   pre::-webkit-scrollbar-thumb,
   textarea::-webkit-scrollbar-thumb {
     border-radius: 2px;
-    background: var(--input-border);
+    background: var(--input);
   }
 
   .link {

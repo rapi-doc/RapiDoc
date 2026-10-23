@@ -54,14 +54,14 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
         this.renderStyle === 'focused' && tagName
           ? html`
               <div class="tag-container" part="section-operation-tag" style="margin-bottom: 16px;">
-                <span class="upper" style="font-weight:bold; font-size:18px;"> ${tagName} </span>
+                <h2 class="rapidoc-heading upper" part="heading heading-2" style="font-size:18px; margin:0;">${tagName}</h2>
                 ${
                   isFirst && tagDescription
                     ? html`
                         <div
                           class="tag-description regular-font"
                           part="section-tag-description"
-                          style="margin-top:12px; padding:12px 14px; background:var(--code-bg); border-radius:var(--card-radius); border:1px solid var(--border);"
+                          style="margin-top:12px; padding:12px 14px; background:var(--code-bg); border-radius:min(var(--radius), 0.5rem); border:1px solid var(--border);"
                         >
                           <div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(tagDescription)))}</div>
                         </div>
@@ -89,7 +89,9 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
               `
             : ''
         }
-        <h2 part="section-operation-summary">${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
+        <h3 class="rapidoc-heading operation-summary" part="section-operation-summary heading heading-3">
+          ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}
+        </h3>
         ${
           path.isWebhook
             ? html`<span
@@ -120,7 +122,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                 path.externalDocs?.url
                   ? html`<a class="external-docs-link" href="${path.externalDocs?.url}" target="_blank">
                       ${path.externalDocs?.url}
-                      <div class="external-docs-arrow">⇲</div>
+                      <span class="external-docs-arrow">⇲</span>
                     </a>`
                   : ''
               }
@@ -156,7 +158,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
             schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
             schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
             fetch-credentials="${this.fetchCredentials}"
-            exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+            exportparts="section-request-title:section-request-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
+            wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
@@ -181,7 +184,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
           schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status="${Object.keys(path.responses || {})[0] || ''}"
-          exportparts="btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+          exportparts="section-response-title:section-response-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
+            btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
           schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         >
@@ -198,7 +202,7 @@ export default function expandedEndpointTemplate() {
 
   const renderTagSections = (tag) => html`
     <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me read-mode-tag">
-      <div class="title tag" part="section-tag-title label-tag-title">${tag.displayName || tag.name}</div>
+      <h2 class="rapidoc-heading title tag" part="section-tag-title label-tag-title heading heading-2">${tag.displayName || tag.name}</h2>
       <slot name="${tag.elementId}"></slot>
       ${unsafeHTML(`
         <div class="m-markdown regular-font">
@@ -226,7 +230,9 @@ export default function expandedEndpointTemplate() {
       ${this.resolvedSpec.tagGroups.map(
         (group) => html`
           <section id="${group.elementId}" part="section-tag-group" class="regular-font section-gap--read-mode observe-me read-mode-group">
-            <div class="title tag-group" part="section-tag-group-title">${group.displayName || group.name}</div>
+            <h2 class="rapidoc-heading title tag-group" part="section-tag-group-title heading heading-2">
+              ${group.displayName || group.name}
+            </h2>
             ${
               group.description
                 ? html`<div class="m-markdown" style="padding: 8px 0;">${unsafeHTML(sanitizeHTML(marked(group.description)))}</div>`

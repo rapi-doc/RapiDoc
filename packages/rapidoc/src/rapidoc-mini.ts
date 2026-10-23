@@ -153,7 +153,7 @@ export default class RapiDocMini extends LitElement {
           letter-spacing: normal;
           color: var(--foreground);
           background: var(--background);
-          font-family: var(--font-regular);
+          font-family: var(--font-sans);
           container-type: inline-size;
         }
 
