@@ -2,6 +2,9 @@
  * Copies a portal project's docs/ folder into the Starlight content folder of the temp
  * workspace, normalizing each Markdown/MDX/Markdoc file so Starlight accepts it.
  *
+ * Docs are served under /docs/ (content folder `docs/`), except docs/index.{md,mdx,markdoc}: that is the
+ * site's home page (content folder root, served at /).
+ *
  * syncDocs() is idempotent: it only writes files whose content changed and removes files
  * whose source is gone, so the dev server can call it again on every docs change.
  */
@@ -10,6 +13,23 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 export const DOC_EXTENSIONS = ['.md', '.mdx', '.markdoc'];
+
+const HOME_DOC = /^index\.(md|mdx|markdoc)$/i;
+
+/** The home page doc (docs/index.*), or null. */
+export function findHomeDoc(docsDir) {
+  if (!fs.existsSync(docsDir)) return null;
+  const name = fs.readdirSync(docsDir).find((file) => HOME_DOC.test(file));
+  return name ? path.join(docsDir, name) : null;
+}
+
+/** Adds `key: value` to the frontmatter unless the page sets the key itself. */
+function addFrontmatterField(content, key, value) {
+  if (!content.startsWith('---')) return content;
+  const end = content.indexOf('\n---', 3);
+  if (end === -1 || new RegExp(`(^|\\n)${key}:`).test(content.slice(3, end))) return content;
+  return `---\n${key}: ${JSON.stringify(value)}${content.slice(3)}`;
+}
 
 /** Components that may be used in MDX without an explicit import; imports are injected. */
 const AUTO_IMPORTED_COMPONENTS = [
@@ -180,7 +200,7 @@ export function listDocFiles(dir) {
  * Computes the files the workspace should contain: relative path -> content (string or Buffer).
  * When both `x.md` and `x.mdx` exist, only the .mdx is kept to avoid duplicate Starlight slugs.
  */
-function collectDesiredDocs(srcDir) {
+function collectDesiredDocs(srcDir, { editUrl } = {}) {
   const desired = new Map();
   if (!fs.existsSync(srcDir)) return desired;
   for (const entry of fs.readdirSync(srcDir, { withFileTypes: true, recursive: true })) {
@@ -191,10 +211,13 @@ function collectDesiredDocs(srcDir) {
 
     if (ext === '.md' && fs.existsSync(path.join(entry.parentPath, `${path.parse(entry.name).name}.mdx`))) continue;
 
+    const destRel = HOME_DOC.test(relPath) ? relPath : path.join('docs', relPath);
     if (isDocFile(entry.name)) {
-      desired.set(workspaceDocPath(relPath), normalizeDocContent(fs.readFileSync(srcPath, 'utf8'), entry.name));
+      let content = normalizeDocContent(fs.readFileSync(srcPath, 'utf8'), entry.name);
+      if (editUrl) content = addFrontmatterField(content, 'editUrl', `${editUrl.replace(/\/?$/, '/')}${relPath.split(path.sep).join('/')}`);
+      desired.set(workspaceDocPath(destRel), content);
     } else if (entry.name !== '.DS_Store') {
-      desired.set(relPath, fs.readFileSync(srcPath));
+      desired.set(destRel, fs.readFileSync(srcPath));
     }
   }
   return desired;
@@ -207,11 +230,15 @@ function sameContent(destPath, content) {
 }
 
 /**
- * Mirrors srcDir (the project's docs/) into destDir (the workspace content folder).
+ * Mirrors srcDir (the project's docs/) into destDir (the workspace's Starlight content folder).
  * Returns the number of files written or removed.
+ *
+ * @param {string} srcDir
+ * @param {string} destDir
+ * @param {{ editUrl?: string | null }} [options] - editUrl: base URL of srcDir in the repository
  */
-export function syncDocs(srcDir, destDir) {
-  const desired = collectDesiredDocs(srcDir);
+export function syncDocs(srcDir, destDir, options = {}) {
+  const desired = collectDesiredDocs(srcDir, options);
   let changes = 0;
 
   for (const [relPath, content] of desired) {

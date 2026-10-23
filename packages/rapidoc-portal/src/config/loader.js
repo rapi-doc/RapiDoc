@@ -3,23 +3,26 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import YAML from 'yaml';
 import { RapidocConfigSchema } from './schema.js';
-import { normalizeConfig } from './normalizer.js';
+import { checkReferences, normalizeConfig } from './normalizer.js';
+import { ConfigError, describeIssues } from './errors.js';
 
 export const CONFIG_CANDIDATES = [
-  // Primary RapiDoc config formats
   'rapidoc.config.yaml',
   'rapidoc.config.yml',
   'rapidoc.config.json',
   'rapidoc.config.js',
   'rapidoc.config.mjs',
   'rapidoc.config.ts',
-  // Fallbacks
-  'redocly.yaml',
-  'redocly.yml',
-  'zudoku.config.ts',
-  'zudoku.config.js',
-  'zudoku.config.mjs',
 ];
+
+/** Configs of other portals, which `rapidoc migrate` converts. */
+const FOREIGN_CONFIGS = {
+  'redocly.yaml': 'redocly',
+  'redocly.yml': 'redocly',
+  'zudoku.config.ts': 'zudoku',
+  'zudoku.config.js': 'zudoku',
+  'zudoku.config.mjs': 'zudoku',
+};
 
 /**
  * Searches for a valid configuration file in the specified directory.
@@ -40,7 +43,7 @@ export function findConfigFile(dir = process.cwd()) {
 /**
  * Parses raw file content according to its extension.
  */
-async function parseRawFile(filePath) {
+export async function parseRawFile(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   const rawText = fs.readFileSync(filePath, 'utf8');
 
@@ -76,10 +79,32 @@ async function parseRawFile(filePath) {
 }
 
 /**
+ * Validates a raw config object and normalizes it.
+ *
+ * @param {object} rawConfig - Parsed rapidoc.config.* contents
+ * @param {string} baseDir - Folder of the config file (spec and docs paths are relative to it)
+ * @param {string} [fileName] - Shown in error messages
+ * @returns {object} Normalized portal config
+ * @throws {ConfigError}
+ */
+export function resolveConfig(rawConfig, baseDir, fileName = 'rapidoc.config.yaml') {
+  const result = RapidocConfigSchema.safeParse(rawConfig);
+  if (!result.success) throw new ConfigError(fileName, describeIssues(result.error.issues));
+  const problems = checkReferences(result.data);
+  if (problems.length)
+    throw new ConfigError(
+      fileName,
+      problems.map((text) => ({ text, legacy: false }))
+    );
+  return normalizeConfig(result.data, baseDir);
+}
+
+/**
  * Loads, validates, and normalizes a RapiDoc Portal configuration file.
  *
  * @param {string} dirOrFilePath - Path to config file, or directory containing it
- * @returns {Promise<{ config: object, rawConfig: object, configPath: string, format: string, isFallback: boolean }>}
+ * @returns {Promise<{ config: object, rawConfig: object, configPath: string, format: string }>}
+ * @throws {ConfigError} When the config is invalid
  */
 export async function loadConfig(dirOrFilePath = process.cwd()) {
   let targetPath = path.resolve(dirOrFilePath);
@@ -87,8 +112,11 @@ export async function loadConfig(dirOrFilePath = process.cwd()) {
   if (fs.existsSync(targetPath) && fs.statSync(targetPath).isDirectory()) {
     const detected = findConfigFile(targetPath);
     if (!detected) {
+      const foreign = Object.keys(FOREIGN_CONFIGS).find((name) => fs.existsSync(path.join(targetPath, name)));
       throw new Error(
-        `No RapiDoc or fallback configuration file found in "${targetPath}". Expected one of: ${CONFIG_CANDIDATES.join(', ')}`
+        foreign
+          ? `Found ${foreign} but no rapidoc.config.yaml in "${targetPath}". Run \`rapidoc migrate --from ${FOREIGN_CONFIGS[foreign]}\` to create one.`
+          : `No RapiDoc configuration file found in "${targetPath}". Expected one of: ${CONFIG_CANDIDATES.join(', ')}`
       );
     }
     targetPath = detected;
@@ -96,45 +124,13 @@ export async function loadConfig(dirOrFilePath = process.cwd()) {
     throw new Error(`Configuration file not found: "${targetPath}"`);
   }
 
-  const baseDir = path.dirname(targetPath);
-  const fileName = path.basename(targetPath);
-  const isRedocly = fileName.startsWith('redocly.');
-  const isZudoku = fileName.startsWith('zudoku.config.');
-  const isFallback = isRedocly || isZudoku;
-
-  // 1. Read & parse raw config file
-  let rawConfig = await parseRawFile(targetPath);
-
-  // 2. If Redocly config is detected, check for companion sidebars.yaml
-  if (isRedocly && !rawConfig.navigation && !rawConfig.sidebars) {
-    const sidebarCandidates = ['sidebars.yaml', 'sidebars.yml'];
-    for (const sb of sidebarCandidates) {
-      const sbPath = path.join(baseDir, sb);
-      if (fs.existsSync(sbPath)) {
-        try {
-          const sbContent = YAML.parse(fs.readFileSync(sbPath, 'utf8'));
-          if (Array.isArray(sbContent)) {
-            rawConfig.sidebars = sbContent;
-          }
-        } catch {
-          // ignore sidebar parse error if malformed
-        }
-        break;
-      }
-    }
-  }
-
-  // 3. Validate against Tolerant Super-Set Schema
-  const validated = RapidocConfigSchema.parse(rawConfig);
-
-  // 4. Normalize to canonical internal structure
-  const normalized = normalizeConfig(validated, baseDir);
+  const rawConfig = (await parseRawFile(targetPath)) || {};
+  const config = resolveConfig(rawConfig, path.dirname(targetPath), path.basename(targetPath));
 
   return {
-    config: normalized,
+    config,
     rawConfig,
     configPath: targetPath,
     format: path.extname(targetPath).replace('.', ''),
-    isFallback,
   };
 }

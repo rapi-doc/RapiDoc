@@ -1,199 +1,216 @@
 import { z } from 'zod';
 
 /**
- * Single API specification item schema.
- * Tolerantly accepts Redocly's 'root' or Zudoku's 'input', and aliases.
+ * rapidoc.config.yaml schema (v2). Strict: an unknown key is an error, so a typo never disappears silently.
+ * Pure validation, no transforms: normalizer.js turns a valid config into what the portal pages read, and
+ * the same schema generates schema.json for editor autocomplete (scripts/generate-schema.js).
+ *
+ * Conventions: `label` is the text of anything clickable, `href` is any URL, `items` are children.
+ * Navigation items are told apart by their keys (`slug`, `href`, `items`, `autogenerate`, `api`, `catalog`).
  */
-export const ApiItemSchema = z
-  .object({
-    id: z.string().optional(),
-    name: z.string().optional(),
-    root: z.string().optional(),
-    input: z.string().optional(),
-    spec: z.string().optional(),
-    path: z.string().optional(),
-    title: z.string().optional(),
-    version: z.string().optional(),
-    description: z.string().optional(),
-    category: z.string().optional(),
-    categories: z.any().optional(),
-  })
-  .refine((data) => data.root || data.input || data.spec, {
-    message: 'Each API entry must define a spec location using "root", "input", or "spec".',
-  });
 
-/**
- * APIs catalog schema: accepts either Redocly map ({ [id]: spec }) or Zudoku list (spec[]).
- */
-export const ApisCatalogSchema = z.union([
-  // Array format (Zudoku style)
-  z.array(ApiItemSchema),
-  // Record format (Redocly style: { payments: { root: "..." } } or { payments: "./spec.yaml" })
-  z.record(z.string(), z.union([z.string().transform((str) => ({ root: str })), ApiItemSchema])),
-]);
-
-/**
- * Navigation item or category schema.
- * Tolerantly accepts title/label/group, and path/page/href/api.
- */
-export const NavItemSchema = z.lazy(() =>
-  z.union([
-    // Simple string reference to a doc page (e.g. "overview" or "/docs/overview")
-    z.string().transform((str) => ({ label: str, path: str })),
-    // Category or Link object
-    z.object({
-      title: z.string().optional(),
-      label: z.string().optional(),
-      group: z.string().optional(),
-      path: z.string().optional(),
-      page: z.string().optional(),
-      href: z.string().optional(),
-      to: z.string().optional(),
-      api: z.string().optional(),
-      items: z.array(z.any()).optional(),
+const label = z.string().min(1).describe('Text shown for the item.');
+const href = z.string().min(1).describe('A path on this site (/docs/intro) or a full URL.');
+const icon = z
+  .string()
+  .describe('Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon).');
+const badge = z
+  .union([
+    z.string(),
+    z.strictObject({
+      text: z.string(),
+      variant: z.enum(['note', 'tip', 'caution', 'danger', 'success', 'default']).optional(),
     }),
   ])
-);
+  .describe('Small label shown next to the item.');
 
-/**
- * Site Branding & Metadata Schema.
- */
-export const SiteConfigSchema = z.object({
-  title: z.string().default('Developer Portal'),
-  tagline: z.string().optional(),
+/** Exactly one of `keys` must be set; used to tell navigation item kinds apart. */
+function exactlyOne(keys, where) {
+  return (item, ctx) => {
+    const present = keys.filter((key) => item[key] !== undefined);
+    if (present.length !== 1) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          present.length === 0
+            ? `${where} needs one of: ${keys.join(', ')}`
+            : `${where} can have only one of: ${keys.join(', ')} (found ${present.join(', ')})`,
+      });
+    }
+  };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Sidebar (the items of a documentation tab)
+// ---------------------------------------------------------------------------------------------
+
+const SIDEBAR_KINDS = ['slug', 'href', 'items', 'autogenerate', 'api'];
+
+export const SidebarItemSchema = z.union([
+  z.string().min(1).describe('A doc page by its path in docs/, without extension (guides/first-shipment). The label is the page title.'),
+  z
+    .strictObject({
+      label: label.optional(),
+      slug: z.string().min(1).optional().describe('A doc page by its path in docs/, without extension.'),
+      href: href.optional(),
+      get items() {
+        return z.array(SidebarItemSchema).optional().describe('A group of items.');
+      },
+      autogenerate: z.string().optional().describe('Every page in this folder of docs/, as a group.'),
+      api: z.string().optional().describe('Link to the reference page of the API with this id.'),
+      badge: badge.optional(),
+      collapsed: z.boolean().optional().describe('Start a group collapsed.'),
+    })
+    .superRefine(exactlyOne(SIDEBAR_KINDS, 'A sidebar item'))
+    .superRefine((item, ctx) => {
+      if (!item.label && (item.href || item.items || item.autogenerate)) {
+        ctx.addIssue({ code: 'custom', message: 'A link, group or autogenerated group needs a label', path: ['label'] });
+      }
+    }),
+]);
+
+// ---------------------------------------------------------------------------------------------
+// Navigation: the tabs of the header's second row
+// ---------------------------------------------------------------------------------------------
+
+const TAB_KINDS = ['items', 'autogenerate', 'api', 'catalog', 'href'];
+
+export const TabSchema = z
+  .strictObject({
+    label,
+    icon: icon.optional(),
+    badge: badge.optional(),
+    items: z.array(SidebarItemSchema).optional().describe("Documentation tab: this tab's sidebar."),
+    autogenerate: z.string().optional().describe('Documentation tab whose sidebar is every page in this folder of docs/.'),
+    api: z.string().optional().describe('API tab: the reference page of the API with this id.'),
+    catalog: z.literal(true).optional().describe('Catalog tab: every API on /catalog, grouped by category.'),
+    href: href.optional().describe('Link tab.'),
+  })
+  .superRefine(exactlyOne(TAB_KINDS, 'A navigation tab'));
+
+// ---------------------------------------------------------------------------------------------
+// Header: the first row (logo | search | links + theme switcher)
+// ---------------------------------------------------------------------------------------------
+
+const MenuLinkSchema = z.strictObject({ label, href, icon: icon.optional() });
+
+const MenuItemSchema = z.strictObject({
+  label,
+  href,
+  icon: icon.optional(),
   description: z.string().optional(),
-  logo: z
-    .union([
-      z.string().transform((src) => ({ light: src, dark: src, alt: 'Logo' })),
-      z.object({
-        light: z.string().optional(),
-        dark: z.string().optional(),
-        src: z.union([z.string(), z.object({ light: z.string(), dark: z.string() })]).optional(),
-        alt: z.string().default('Logo'),
-        href: z.string().default('/'),
-      }),
-    ])
-    .optional(),
-  favicon: z.string().optional(),
-  baseUrl: z.string().default('/'),
-  announcement: z
-    .object({
-      text: z.string(),
-      link: z.string().optional(),
-      dismissible: z.boolean().default(true),
-      bgColor: z.string().optional(),
-      textColor: z.string().optional(),
-    })
-    .optional(),
-  headerLinks: z
-    .array(
-      z.object({
-        label: z.string(),
-        path: z.string().optional(),
-        href: z.string().optional(),
-        icon: z.string().optional(),
-        items: z
-          .array(
-            z.object({
-              label: z.string(),
-              title: z.string().optional(),
-              path: z.string().optional(),
-              href: z.string().optional(),
-              icon: z.string().optional(),
-              description: z.string().optional(),
-            })
-          )
-          .optional(),
-      })
-    )
-    .optional(),
-  footer: z
-    .object({
-      columns: z
-        .array(
-          z.object({
-            title: z.string(),
-            links: z.array(
-              z.object({
-                label: z.string(),
-                href: z.string().optional(),
-                path: z.string().optional(),
-              })
-            ),
-          })
-        )
-        .optional(),
-      social: z
-        .array(
-          z.object({
-            icon: z.string(),
-            href: z.string(),
-          })
-        )
-        .optional(),
-      copyright: z.string().optional(),
-      branding: z.string().optional(),
-    })
-    .optional(),
+  badge: badge.optional(),
+  items: z.array(MenuLinkSchema).optional().describe('Shortcut links shown under the item in the mega-menu.'),
 });
 
-/**
- * Docs Content Directory Schema.
- */
-export const DocsConfigSchema = z.union([
-  z.string().transform((dir) => ({ dir, engine: 'markdoc' })),
-  z.object({
-    dir: z.string().default('./docs'),
-    files: z.string().optional(),
-    engine: z.enum(['markdoc', 'markdown', 'mdx']).default('markdoc'),
-  }),
-]);
-
-/**
- * Search Configuration Schema.
- */
-export const SearchConfigSchema = z.union([
-  z.boolean().transform((enabled) => ({ enabled, provider: 'pagefind' })),
-  z.object({
-    enabled: z.boolean().default(true),
-    provider: z.string().default('pagefind'),
-  }),
-]);
-
-/**
- * Typography & Web Font Configuration Schema.
- */
-export const FontConfigSchema = z
-  .object({
-    name: z.string().optional(),
-    url: z.string().optional(),
-    monoName: z.string().optional(),
-    monoUrl: z.string().optional(),
+export const HeaderLinkSchema = z
+  .strictObject({
+    label,
+    href: href.optional(),
+    icon: icon.optional(),
+    style: z.enum(['link', 'button', 'primary']).optional().describe('link (default), button (outlined) or primary (filled).'),
+    items: z.array(MenuItemSchema).min(1).optional().describe('Dropdown items; an icon or description makes it a mega-menu.'),
   })
-  .optional();
+  .superRefine(exactlyOne(['href', 'items'], 'A header link'));
 
-export const ThemeConfigSchema = z
-  .object({
-    font: FontConfigSchema,
-    openapi: z.record(z.string(), z.any()).optional(),
-  })
-  .passthrough()
-  .default({});
+export const HeaderSchema = z.strictObject({
+  links: z.array(HeaderLinkSchema).optional().describe('Links and dropdown menus right of the search.'),
+  themeSwitcher: z.boolean().optional().describe('Show the light/dark switcher (default true).'),
+});
 
-/**
- * Tolerant Super-Set Configuration Schema.
- * Accepts rapidoc.config.yaml, rapidoc.config.ts, redocly.yaml, and zudoku.config.ts.
- */
-export const RapidocConfigSchema = z.object({
-  site: SiteConfigSchema.default({}),
-  apis: ApisCatalogSchema.default({}),
-  docs: DocsConfigSchema.default({ dir: './docs', engine: 'markdoc' }),
-  navigation: z.array(NavItemSchema).optional(),
-  sidebars: z.array(NavItemSchema).optional(), // Redocly alias
-  rapidoc: z.record(z.string(), z.any()).default({}),
-  theme: ThemeConfigSchema.default({}),
-  search: SearchConfigSchema.default({ enabled: true, provider: 'pagefind' }),
-  catalog: z.any().optional(),
-  catalogs: z.any().optional(), // Zudoku alias
-  footer: z.any().optional(),
+// ---------------------------------------------------------------------------------------------
+// Site, theme, APIs, docs, footer
+// ---------------------------------------------------------------------------------------------
+
+const imageSrc = z.union([z.string(), z.strictObject({ light: z.string(), dark: z.string() })]);
+
+export const SiteSchema = z.strictObject({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  url: z.url().optional().describe('Public URL of the portal, for canonical links and the sitemap.'),
+  logo: z
+    .strictObject({
+      src: imageSrc.optional().describe('Image in public/, or { light, dark }.'),
+      text: z.string().optional().describe('Wordmark shown next to the image (default: no text with an image, the title without).'),
+      alt: z.string().optional(),
+      href: href.optional().describe('Where the logo links to (default /).'),
+    })
+    .optional(),
+  favicon: z.string().optional().describe('Icon in public/, e.g. /favicon.svg.'),
+  banner: z
+    .strictObject({
+      message: z.string().min(1),
+      href: href.optional(),
+      dismissible: z.boolean().optional().describe('Default true.'),
+      background: z.string().optional().describe('CSS color.'),
+      color: z.string().optional().describe('CSS text color.'),
+    })
+    .optional()
+    .describe('Announcement bar above the header.'),
+});
+
+const fontSchema = z.strictObject({
+  family: z.string().min(1).describe('Font family name; with no url it is loaded from Google Fonts.'),
+  url: z
+    .string()
+    .optional()
+    .describe('Stylesheet that loads the font (another CDN or a CSS file in public/). Default: the family from Google Fonts.'),
+});
+
+export const ThemeSchema = z.strictObject({
+  primary: z.string().optional().describe('Accent color (default #f76b39).'),
+  mode: z.enum(['auto', 'dark', 'light']).optional().describe('Theme until the visitor picks one; auto follows the OS (default).'),
+  fonts: z.strictObject({ sans: fontSchema.optional(), mono: fontSchema.optional() }).optional(),
+});
+
+export const ApiSchema = z.strictObject({
+  id: z
+    .string()
+    .regex(/^[a-z0-9][a-z0-9-]*$/, 'use lowercase letters, digits and dashes')
+    .describe('Referenced by navigation (api:) and the api-operation tag.'),
+  spec: z.string().min(1).describe('OpenAPI file (relative to this config) or URL.'),
+  path: z.string().startsWith('/').optional().describe('Reference page URL (default /apis/<id>).'),
+  title: z.string().optional().describe('Default: info.title of the spec.'),
+  description: z.string().optional().describe('Default: info.description of the spec.'),
+  category: z.string().optional().describe('Group on the API catalog page (default General).'),
+});
+
+export const DocsSchema = z.strictObject({
+  dir: z.string().optional().describe('Folder with .md, .mdx and .markdoc pages (default ./docs).'),
+  toc: z
+    .union([
+      z.literal(false),
+      z.strictObject({
+        minHeadingLevel: z.number().int().min(1).max(6).optional(),
+        maxHeadingLevel: z.number().int().min(1).max(6).optional(),
+      }),
+    ])
+    .optional()
+    .describe('"On this page" headings (default levels 2 to 3), or false.'),
+  editUrl: z.string().optional().describe('Base URL of the docs folder in your repository; adds an "Edit page" link.'),
+});
+
+const footerLinkSchema = z.strictObject({ label, href });
+
+export const FooterSchema = z.strictObject({
+  columns: z.array(z.strictObject({ title: z.string(), links: z.array(footerLinkSchema) })).optional(),
+  social: z.array(z.strictObject({ icon: z.enum(['github', 'x', 'discord', 'linkedin', 'youtube']), href })).optional(),
+  copyright: z.string().optional(),
+  branding: z.boolean().optional().describe('Show "Powered by RapiDoc" (default true).'),
+});
+
+const rapidocValue = z.union([z.string(), z.number(), z.boolean()]);
+
+export const RapidocConfigSchema = z.strictObject({
+  $schema: z.string().optional(),
+  site: SiteSchema,
+  theme: ThemeSchema.optional(),
+  header: HeaderSchema.optional(),
+  navigation: z.array(TabSchema).optional().describe('The header tabs; each documentation tab has its own sidebar.'),
+  apis: z.array(ApiSchema).optional(),
+  docs: DocsSchema.optional(),
+  footer: z.union([FooterSchema, z.literal(false)]).optional(),
+  rapidoc: z.record(z.string(), rapidocValue).optional().describe('<rapi-doc> attributes for the API reference pages.'),
+  search: z.boolean().optional().describe('Full-text search (default true).'),
+  redirects: z.array(z.strictObject({ from: z.string().startsWith('/'), to: href })).optional(),
 });

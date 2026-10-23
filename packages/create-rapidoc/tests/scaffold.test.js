@@ -38,6 +38,7 @@ test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
     assert.ok(fs.existsSync(path.join(projectDir, '.gitignore')));
     assert.ok(fs.existsSync(path.join(projectDir, 'README.md')));
     assert.ok(fs.existsSync(path.join(projectDir, 'specs/api.yaml')));
+    assert.ok(fs.existsSync(path.join(projectDir, 'docs/index.markdoc')));
     assert.ok(fs.existsSync(path.join(projectDir, 'docs/getting-started.md')));
     assert.ok(fs.existsSync(path.join(projectDir, 'docs/guides/overview.markdoc')));
 

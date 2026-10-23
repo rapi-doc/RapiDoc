@@ -11,11 +11,13 @@
     "./search": "./src/search/index.js",
     "./components": "./src/components/index.js",
     "./markdoc/astro": "./src/markdoc/astro-config.js",
-    "./markdoc/components": "./src/markdoc/components.js"
+    "./markdoc/components": "./src/markdoc/components.js",
+    "./schema.json": "./schema.json"
   },
   "scripts": {
     "test": "node --test --test-concurrency=1 tests/**/*.test.js",
-    "layout:baseline": "RAPIDOC_LAYOUT_OUT=tests/layout node --test tests/layout.test.js"
+    "layout:baseline": "RAPIDOC_LAYOUT_OUT=tests/layout node --test tests/layout.test.js",
+    "schema": "node scripts/generate-schema.js"
   },
   "dependencies": {
     "@astrojs/markdoc": "^2.1.1",
@@ -26,6 +28,6 @@
     "github-slugger": "^2.0.0",
     "rapidoc": "*",
     "yaml": "^2.9.1",
-    "zod": "^3.24.2"
+    "zod": "^4.6.7"
   }
 }

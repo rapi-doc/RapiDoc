@@ -15,6 +15,8 @@ import 'virtual:rapidoc-portal/theme.css';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import PortalFooter from './PortalFooter.astro';
 import PortalHeader from './PortalHeader.astro';
+import { fontHeadEntries } from '../engine/starlight-options.js';
+import { themeBootstrapScript } from './theme-script.js';
 
 interface Props {
   title: string;
@@ -22,8 +24,8 @@ interface Props {
   sidebarId?: string;
 }
 
-const { title, description = portalConfig.site?.description, sidebarId } = Astro.props;
-const font = portalConfig.theme?.font;
+const { title, description = portalConfig.site.description, sidebarId } = Astro.props;
+const fontLinks = fontHeadEntries(portalConfig.theme.fonts);
 const hasSidebar = Astro.slots.has('sidebar');
 ---
 
@@ -34,25 +36,9 @@ const hasSidebar = Astro.slots.has('sidebar');
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
-    {
-      font?.url && (
-        <>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-          <link rel="stylesheet" href={font.url} />
-        </>
-      )
-    }
-    {font?.monoUrl && <link rel="stylesheet" href={font.monoUrl} />}
-    <script is:inline>
-      // Same theme as the documentation pages: Starlight stores the choice under 'starlight-theme'.
-      try {
-        const stored = localStorage.getItem('starlight-theme');
-        const theme =
-          stored === 'light' || stored === 'dark' ? stored : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
-      } catch {}
-    </script>
+    {portalConfig.site.favicon && <link rel="icon" href={portalConfig.site.favicon} />}
+    {fontLinks.map((entry) => <link {...entry.attrs} />)}
+    <script is:inline set:html={`${themeBootstrapScript(portalConfig.theme.mode)};`} />
     <slot name="head" />
   </head>
   <body>

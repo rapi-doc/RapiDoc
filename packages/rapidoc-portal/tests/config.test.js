@@ -4,201 +4,293 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadConfig, normalizeConfig, RapidocConfigSchema, generateMigratedConfig, findConfigFile } from '../src/index.js';
+import YAML from 'yaml';
+import { ConfigError, convertConfig, generateMigratedConfig, loadConfig, migrateConfig, resolveConfig } from '../src/index.js';
+import { configJsonSchema } from '../src/config/json-schema.js';
 
-describe('RapiDoc Portal Configuration Engine (Milestone 2)', () => {
-  const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal', import.meta.url));
+const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal', import.meta.url));
 
-  it('should load and normalize rapidoc.config.yaml from demo-api-portal', async () => {
-    const loaded = await loadConfig(DEMO_PORTAL_DIR);
+async function withTempDir(files, fn) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-config-test-'));
+  try {
+    for (const [name, content] of Object.entries(files)) {
+      fs.mkdirSync(path.dirname(path.join(dir, name)), { recursive: true });
+      fs.writeFileSync(path.join(dir, name), content);
+    }
+    return await fn(dir);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
 
-    assert.equal(loaded.isFallback, false);
-    assert.equal(loaded.format, 'yaml');
-    assert.ok(loaded.configPath.endsWith('rapidoc.config.yaml'));
+/** The problems a config is rejected with. */
+function problemsOf(raw) {
+  try {
+    resolveConfig(raw, '/tmp');
+  } catch (err) {
+    assert.ok(err instanceof ConfigError, err.message);
+    return err.problems;
+  }
+  assert.fail('config should be rejected');
+}
 
-    const { config } = loaded;
+describe('rapidoc.config.yaml (v2)', () => {
+  it('loads demo-api-portal', async () => {
+    const { config, format, configPath } = await loadConfig(DEMO_PORTAL_DIR);
+    assert.equal(format, 'yaml');
+    assert.ok(configPath.endsWith('rapidoc.config.yaml'));
 
-    // Site checks
     assert.equal(config.site.title, 'Cosmo Cargo Inc.');
+    assert.equal(config.site.logo.light, '/logo.svg');
+    assert.equal(config.site.banner.dismissible, true);
+    assert.deepEqual(config.theme, {
+      primary: '#f76b39',
+      mode: 'dark',
+      fonts: {
+        sans: { family: 'Inter', url: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' },
+        mono: null,
+      },
+    });
 
-    // APIs checks (9 specs)
+    assert.deepEqual(
+      config.tabs.map((t) => [t.label, t.kind, t.href]),
+      [
+        ['Documentation', 'docs', '/docs/documentation/'],
+        ['Shipments', 'api', '/apis/shipments'],
+        ['API Catalog', 'catalog', '/catalog'],
+      ]
+    );
+    assert.deepEqual(
+      config.header.links.map((l) => l.label),
+      ['Solutions', 'Products', 'Login']
+    );
+
     assert.equal(config.apis.length, 9);
-    const shipmentsApi = config.apis.find((a) => a.id === 'shipments');
-    assert.ok(shipmentsApi);
-    assert.equal(shipmentsApi.title, 'Shipment API');
-    assert.equal(shipmentsApi.path, '/apis/shipments');
-    assert.equal(shipmentsApi.isRemote, false);
-    assert.ok(fs.existsSync(shipmentsApi.fullPath));
+    const shipments = config.apis.find((a) => a.id === 'shipments');
+    assert.equal(shipments.path, '/apis/shipments');
+    assert.equal(shipments.isRemote, false);
+    assert.ok(fs.existsSync(shipments.fullPath));
+    assert.equal(config.apis.find((a) => a.id === 'labels').path, '/catalog/api-label');
 
-    const interplanetaryApi = config.apis.find((a) => a.id === 'interplanetary');
-    assert.ok(interplanetaryApi);
-
-    // Docs checks
     assert.ok(fs.existsSync(config.docs.fullPath));
-
-    // Navigation checks
-    // Navigation checks
-    assert.ok(config.navigation.length >= 4);
-    assert.equal(config.navigation[0].title, 'General Information');
-
-    // RapiDoc options checks
-    assert.equal(config.rapidoc['render-style'], 'read');
-    assert.equal(config.rapidoc['schema-style'], 'tree');
-    assert.equal(config.rapidoc['primary-color'], '#f76b39');
-    assert.equal(config.rapidoc['show-header'], 'false');
-    assert.equal(config.rapidoc['show-side-nav'], 'false');
-
-    // Search checks
-    assert.equal(config.search.enabled, true);
-    assert.equal(config.search.provider, 'pagefind');
+    assert.equal(config.docs.home, true, 'docs/index.markdoc is the home page');
+    assert.deepEqual(config.rapidoc, { 'render-style': 'read', 'schema-style': 'tree' });
+    assert.equal(config.search, true);
   });
 
-  it('should tolerantly accept Redocly-style config (root, sidebars, theme.openapi)', () => {
-    const redoclyRaw = {
-      site: { title: 'Redocly Ported Portal' },
-      apis: {
-        billing: {
-          root: './specs/billing.yaml',
-          path: '/billing',
-        },
-      },
-      sidebars: [
-        {
-          group: 'Guides',
-          items: ['intro.md', { label: 'Billing API', api: 'billing' }],
-        },
-      ],
-      theme: {
-        openapi: {
-          renderStyle: 'focused',
-          primaryColor: '#6366f1',
-        },
-      },
-    };
-
-    const validated = RapidocConfigSchema.parse(redoclyRaw);
-    const normalized = normalizeConfig(validated, '/tmp');
-
-    assert.equal(normalized.apis.length, 1);
-    assert.equal(normalized.apis[0].id, 'billing');
-    assert.equal(normalized.apis[0].root, './specs/billing.yaml');
-    assert.equal(normalized.navigation.length, 1);
-    assert.equal(normalized.navigation[0].title, 'Guides');
-    assert.equal(normalized.navigation[0].items[1].type, 'api');
-    assert.equal(normalized.rapidoc['render-style'], 'focused');
-    assert.equal(normalized.rapidoc['primary-color'], '#6366f1');
+  it('fills defaults and reads API titles from the spec', async () => {
+    await withTempDir(
+      { 'specs/orders.yaml': 'openapi: 3.1.0\ninfo:\n  title: Orders API\n  version: 2.1.0\n  description: Place orders.\npaths: {}\n' },
+      (dir) => {
+        const config = resolveConfig({ site: { title: 'Acme' }, apis: [{ id: 'orders', spec: './specs/orders.yaml' }] }, dir);
+        const [orders] = config.apis;
+        assert.equal(orders.title, 'Orders API');
+        assert.equal(orders.description, 'Place orders.');
+        assert.equal(orders.version, '2.1.0');
+        assert.equal(orders.path, '/apis/orders');
+        assert.equal(orders.category, 'General');
+        assert.equal(config.theme.mode, 'auto');
+        assert.equal(config.site.logo.text, 'Acme', 'no logo image: the title is the wordmark');
+        assert.equal(config.footer.branding, true);
+        assert.deepEqual(config.tabs, []);
+      }
+    );
   });
 
-  it('should tolerantly accept Zudoku-style config (input, navigation array, docs.files)', () => {
-    const zudokuRaw = {
-      site: { title: 'Zudoku Ported Portal' },
+  it('loads a font from Google Fonts unless it has a url', () => {
+    const { fonts } = resolveConfig(
+      {
+        site: { title: 'Acme' },
+        theme: { fonts: { sans: { family: 'IBM Plex Sans' }, mono: { family: 'Mono', url: '/fonts/mono.css' } } },
+      },
+      '/tmp'
+    ).theme;
+    assert.equal(fonts.sans.url, 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+    assert.equal(fonts.mono.url, '/fonts/mono.css');
+  });
+
+  it('rejects unknown keys with their path and the v2 name', () => {
+    const problems = problemsOf({
+      site: { title: 'Acme', announcement: { text: 'Hi' } },
+      navigation: [{ label: 'Docs', items: [{ label: 'Intro', path: '/docs/intro' }] }],
+      apis: [{ id: 'orders', root: './orders.yaml' }],
+    });
+    assert.ok(problems.includes('site: unknown key "announcement" (use site.banner)'), problems.join('\n'));
+    assert.ok(problems.includes('navigation[0].items[0]: unknown key "path" (use href (links) or slug (doc pages))'), problems.join('\n'));
+    assert.ok(problems.includes('apis[0]: unknown key "root" (use spec)'), problems.join('\n'));
+  });
+
+  it('suggests rapidoc migrate for a v1 config', () => {
+    assert.throws(
+      () => resolveConfig({ site: { title: 'Acme', headerLinks: [] } }, '/tmp'),
+      (err) => err instanceof ConfigError && err.message.includes('rapidoc migrate --from v1')
+    );
+  });
+
+  it('tells navigation item kinds apart by their keys', () => {
+    const problems = problemsOf({
+      site: { title: 'Acme' },
+      navigation: [{ label: 'Docs', items: [{ href: '/x' }] }, { label: 'Both', api: 'a', href: '/x' }, { label: 'None' }],
+      apis: [{ id: 'a', spec: 'https://example.com/a.yaml' }],
+    });
+    assert.ok(problems.includes('navigation[0].items[0].label: A link, group or autogenerated group needs a label'), problems.join('\n'));
+    assert.ok(
+      problems.includes('navigation[1]: A navigation tab can have only one of: items, autogenerate, api, catalog, href (found api, href)')
+    );
+    assert.ok(problems.includes('navigation[2]: A navigation tab needs one of: items, autogenerate, api, catalog, href'));
+  });
+
+  it('checks references between sections and attributes the portal manages', () => {
+    const problems = problemsOf({
+      site: { title: 'Acme' },
+      navigation: [{ label: 'Orders', api: 'order' }],
       apis: [
-        {
-          input: 'https://example.com/petstore.yaml',
-          path: '/petstore',
-          title: 'Petstore API',
-        },
+        { id: 'orders', spec: 'https://example.com/orders.yaml' },
+        { id: 'orders', spec: 'https://example.com/orders-v2.yaml' },
       ],
-      docs: {
-        files: './pages',
-        engine: 'mdx',
+      rapidoc: { 'show-header': false, 'primary-color': '#000', 'render-style': 'read' },
+    });
+    assert.deepEqual(problems, [
+      'apis[1].id: "orders" is used by another API',
+      'navigation[0].api: no API with id "order" in apis (ids: orders)',
+      'rapidoc.show-header: set by the portal',
+      'rapidoc.primary-color: set by the portal; use theme.primary',
+    ]);
+  });
+
+  it('points Redocly and Zudoku projects to rapidoc migrate', async () => {
+    await withTempDir({ 'redocly.yaml': 'apis: {}\n' }, (dir) =>
+      assert.rejects(loadConfig(dir), /Found redocly\.yaml.*rapidoc migrate --from redocly/s)
+    );
+  });
+
+  it('ships an up-to-date schema.json (npm run schema)', () => {
+    const committed = JSON.parse(fs.readFileSync(new URL('../schema.json', import.meta.url), 'utf8'));
+    assert.deepEqual(committed, configJsonSchema());
+    assert.equal(committed.additionalProperties, false);
+  });
+});
+
+describe('rapidoc migrate', () => {
+  it('converts a v1 config: header links become tabs and header links, old keys get v2 names', () => {
+    const { config, problems } = convertConfig(
+      {
+        site: {
+          title: 'Acme',
+          logo: { text: 'ACME', icon: '🚀' },
+          announcement: { text: 'New!', link: '/docs/new', bgColor: '#f00' },
+          headerLinks: [
+            { label: 'Docs', href: '/docs/intro' },
+            { label: 'Orders', href: '/apis/orders' },
+            { label: 'Catalog', href: '/catalog' },
+            { label: 'Products', items: [{ label: 'Boxes', href: '/docs/boxes', features: [{ label: 'Sizes', path: '/docs/sizes' }] }] },
+            { label: 'Login', href: '/login' },
+          ],
+          footer: { copyright: '© Acme', branding: 'powered by RapiDoc' },
+        },
+        docs: { path: './docs', toc: true },
+        apis: [{ id: 'orders', root: './orders.yaml', path: '/apis/orders', featured: true }],
+        navigation: [
+          {
+            title: 'Start',
+            icon: 'rocket',
+            items: [
+              { label: 'Intro', path: '/docs/intro' },
+              { label: 'Orders API', api: 'orders' },
+            ],
+          },
+        ],
+        rapidoc: { 'render-style': 'read', 'show-header': 'false', 'color-scheme': 'dark', 'primary-color': '#f76b39' },
+        theme: { font: { name: 'Inter', url: 'https://fonts.example/inter.css' } },
+      },
+      'v1'
+    );
+    assert.deepEqual(problems, []);
+    assert.deepEqual(config, {
+      site: { title: 'Acme', logo: { text: 'ACME' }, banner: { message: 'New!', href: '/docs/new', background: '#f00' } },
+      theme: { primary: '#f76b39', mode: 'dark', fonts: { sans: { family: 'Inter', url: 'https://fonts.example/inter.css' } } },
+      header: {
+        links: [
+          { label: 'Products', items: [{ label: 'Boxes', href: '/docs/boxes', items: [{ label: 'Sizes', href: '/docs/sizes' }] }] },
+          { label: 'Login', href: '/login' },
+        ],
       },
       navigation: [
         {
-          title: 'Documentation',
-          items: ['introduction', { label: 'Petstore', to: '/petstore' }],
+          label: 'Docs',
+          icon: 'book',
+          items: [
+            {
+              label: 'Start',
+              items: [
+                { label: 'Intro', slug: 'intro' },
+                { label: 'Orders API', api: 'orders' },
+              ],
+            },
+          ],
         },
+        { label: 'Orders', icon: 'code', api: 'orders' },
+        { label: 'Catalog', icon: 'grid', catalog: true },
       ],
-      rapidoc: {
-        renderStyle: 'read',
-      },
-    };
-
-    const validated = RapidocConfigSchema.parse(zudokuRaw);
-    const normalized = normalizeConfig(validated, '/tmp');
-
-    assert.equal(normalized.apis.length, 1);
-    assert.equal(normalized.apis[0].isRemote, true);
-    assert.equal(normalized.apis[0].root, 'https://example.com/petstore.yaml');
-    assert.equal(normalized.docs.engine, 'mdx');
-    assert.equal(normalized.rapidoc['render-style'], 'read');
-  });
-
-  it('should auto-detect and parse fallback redocly.yaml and sidebars.yaml', async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-fallback-test-'));
-
-    try {
-      // Create redocly.yaml
-      fs.writeFileSync(
-        path.join(tmpDir, 'redocly.yaml'),
-        `
-apis:
-  v1:
-    root: ./openapi.yaml
-    path: /api/v1
-theme:
-  openapi:
-    theme: dark
-`
-      );
-
-      // Create sidebars.yaml
-      fs.writeFileSync(
-        path.join(tmpDir, 'sidebars.yaml'),
-        `
-- group: Getting Started
-  items:
-    - label: Welcome
-      page: welcome.md
-`
-      );
-
-      const loaded = await loadConfig(tmpDir);
-      assert.equal(loaded.isFallback, true);
-      assert.equal(loaded.config.apis.length, 1);
-      assert.equal(loaded.config.apis[0].id, 'v1');
-      assert.equal(loaded.config.navigation.length, 1);
-      assert.equal(loaded.config.navigation[0].title, 'Getting Started');
-      assert.equal(loaded.config.navigation[0].items[0].label, 'Welcome');
-    } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true });
-    }
-  });
-
-  it('should generate migrated rapidoc.config.yaml from redocly project', async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-migrator-test-'));
-
-    try {
-      fs.writeFileSync(
-        path.join(tmpDir, 'redocly.yaml'),
-        `
-apis:
-  inventory:
-    root: ./inventory.yaml
-    title: Inventory API
-`
-      );
-
-      const migratedYaml = await generateMigratedConfig(tmpDir);
-      assert.ok(migratedYaml.includes('Inventory API'));
-      assert.ok(migratedYaml.includes('render-style: focused'));
-      assert.ok(migratedYaml.includes('inventory.yaml'));
-    } finally {
-      fs.rmSync(tmpDir, { recursive: true, force: true });
-    }
-  });
-
-  it('should throw validation error when an API item has no root, input, or spec', () => {
-    const invalidConfig = {
-      apis: {
-        badApi: {
-          title: 'Missing Spec Path',
-        },
-      },
-    };
-
-    assert.throws(() => {
-      RapidocConfigSchema.parse(invalidConfig);
+      apis: [{ id: 'orders', spec: './orders.yaml' }],
+      footer: { copyright: '© Acme' },
+      rapidoc: { 'render-style': 'read' },
     });
+  });
+
+  it('converts a Redocly project with sidebars.yaml', async () => {
+    await withTempDir(
+      {
+        'redocly.yaml':
+          'apis:\n  inventory:\n    root: ./inventory.yaml\n    title: Inventory API\ntheme:\n  openapi:\n    primaryColor: "#6366f1"\n',
+        'sidebars.yaml': '- group: Getting Started\n  items:\n    - label: Welcome\n      page: welcome.md\n',
+      },
+      async (dir) => {
+        const { content, problems } = await generateMigratedConfig(dir, 'redocly');
+        assert.deepEqual(problems, []);
+        assert.ok(content.startsWith('# yaml-language-server: $schema='));
+        const config = YAML.parse(content);
+        assert.deepEqual(config.apis, [{ id: 'inventory', spec: './inventory.yaml', title: 'Inventory API' }]);
+        assert.equal(config.theme.primary, '#6366f1');
+        assert.deepEqual(config.navigation[0].items, [{ label: 'Getting Started', items: [{ label: 'Welcome', slug: 'welcome' }] }]);
+        assert.ok(config.navigation.some((tab) => tab.catalog));
+      }
+    );
+  });
+
+  it('converts a Zudoku config: its top-level navigation items are the tabs', () => {
+    const { config, problems } = convertConfig(
+      {
+        site: { title: 'Zudoku Portal', logo: { src: { light: '/light.svg', dark: '/dark.svg' } } },
+        apis: { type: 'file', input: './openapi.yaml', path: '/api' },
+        docs: { files: '/pages/**/*.{md,mdx}' },
+        navigation: [
+          { type: 'category', label: 'Docs', icon: 'book', items: ['introduction', { type: 'doc', file: 'guides/auth', label: 'Auth' }] },
+          { type: 'link', to: '/api', label: 'API Reference' },
+        ],
+      },
+      'zudoku'
+    );
+    assert.deepEqual(problems, []);
+    assert.deepEqual(config.navigation, [
+      { label: 'Docs', icon: 'book', items: ['introduction', { label: 'Auth', slug: 'guides/auth' }] },
+      { label: 'API Reference', api: 'openapi' },
+    ]);
+    assert.deepEqual(config.apis, [{ id: 'openapi', spec: './openapi.yaml', path: '/api' }]);
+    assert.deepEqual(config.docs, { dir: './pages' });
+    assert.deepEqual(config.site.logo, { src: { light: '/light.svg', dark: '/dark.svg' } });
+  });
+
+  it('migrates a v1 rapidoc.config.yaml in place and keeps the old file', async () => {
+    await withTempDir(
+      { 'rapidoc.config.yaml': 'site:\n  title: Old\n  headerLinks:\n    - label: Login\n      href: /login\n' },
+      async (dir) => {
+        const result = await migrateConfig(dir, { from: 'v1' });
+        assert.equal(result.backupPath, path.join(dir, 'rapidoc.config.v1.yaml'));
+        assert.ok(fs.readFileSync(result.backupPath, 'utf8').includes('headerLinks'));
+        const { config } = await loadConfig(dir);
+        assert.deepEqual(config.header.links, [{ label: 'Login', href: '/login' }]);
+      }
+    );
   });
 });

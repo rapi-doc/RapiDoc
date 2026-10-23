@@ -1,0 +1,680 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "site": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "url": {
+          "description": "Public URL of the portal, for canonical links and the sitemap.",
+          "type": "string",
+          "format": "uri"
+        },
+        "logo": {
+          "type": "object",
+          "properties": {
+            "src": {
+              "description": "Image in public/, or { light, dark }.",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "light": {
+                      "type": "string"
+                    },
+                    "dark": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "light",
+                    "dark"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "text": {
+              "description": "Wordmark shown next to the image (default: no text with an image, the title without).",
+              "type": "string"
+            },
+            "alt": {
+              "type": "string"
+            },
+            "href": {
+              "description": "Where the logo links to (default /).",
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "favicon": {
+          "description": "Icon in public/, e.g. /favicon.svg.",
+          "type": "string"
+        },
+        "banner": {
+          "description": "Announcement bar above the header.",
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "href": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A path on this site (/docs/intro) or a full URL."
+            },
+            "dismissible": {
+              "description": "Default true.",
+              "type": "boolean"
+            },
+            "background": {
+              "description": "CSS color.",
+              "type": "string"
+            },
+            "color": {
+              "description": "CSS text color.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "theme": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "description": "Accent color (default #f76b39).",
+          "type": "string"
+        },
+        "mode": {
+          "description": "Theme until the visitor picks one; auto follows the OS (default).",
+          "type": "string",
+          "enum": [
+            "auto",
+            "dark",
+            "light"
+          ]
+        },
+        "fonts": {
+          "type": "object",
+          "properties": {
+            "sans": {
+              "type": "object",
+              "properties": {
+                "family": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Font family name; with no url it is loaded from Google Fonts."
+                },
+                "url": {
+                  "description": "Stylesheet that loads the font (another CDN or a CSS file in public/). Default: the family from Google Fonts.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "family"
+              ],
+              "additionalProperties": false
+            },
+            "mono": {
+              "type": "object",
+              "properties": {
+                "family": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Font family name; with no url it is loaded from Google Fonts."
+                },
+                "url": {
+                  "description": "Stylesheet that loads the font (another CDN or a CSS file in public/). Default: the family from Google Fonts.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "family"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "header": {
+      "type": "object",
+      "properties": {
+        "links": {
+          "description": "Links and dropdown menus right of the search.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Text shown for the item."
+              },
+              "href": {
+                "type": "string",
+                "minLength": 1,
+                "description": "A path on this site (/docs/intro) or a full URL."
+              },
+              "icon": {
+                "type": "string",
+                "description": "Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon)."
+              },
+              "style": {
+                "description": "link (default), button (outlined) or primary (filled).",
+                "type": "string",
+                "enum": [
+                  "link",
+                  "button",
+                  "primary"
+                ]
+              },
+              "items": {
+                "description": "Dropdown items; an icon or description makes it a mega-menu.",
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Text shown for the item."
+                    },
+                    "href": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "A path on this site (/docs/intro) or a full URL."
+                    },
+                    "icon": {
+                      "type": "string",
+                      "description": "Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon)."
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "badge": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "variant": {
+                              "type": "string",
+                              "enum": [
+                                "note",
+                                "tip",
+                                "caution",
+                                "danger",
+                                "success",
+                                "default"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "text"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ],
+                      "description": "Small label shown next to the item."
+                    },
+                    "items": {
+                      "description": "Shortcut links shown under the item in the mega-menu.",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Text shown for the item."
+                          },
+                          "href": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "A path on this site (/docs/intro) or a full URL."
+                          },
+                          "icon": {
+                            "type": "string",
+                            "description": "Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon)."
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "href"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "href"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "themeSwitcher": {
+          "description": "Show the light/dark switcher (default true).",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "navigation": {
+      "description": "The header tabs; each documentation tab has its own sidebar.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Text shown for the item."
+          },
+          "icon": {
+            "type": "string",
+            "description": "Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon)."
+          },
+          "badge": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "variant": {
+                    "type": "string",
+                    "enum": [
+                      "note",
+                      "tip",
+                      "caution",
+                      "danger",
+                      "success",
+                      "default"
+                    ]
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Small label shown next to the item."
+          },
+          "items": {
+            "description": "Documentation tab: this tab's sidebar.",
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema0"
+            }
+          },
+          "autogenerate": {
+            "description": "Documentation tab whose sidebar is every page in this folder of docs/.",
+            "type": "string"
+          },
+          "api": {
+            "description": "API tab: the reference page of the API with this id.",
+            "type": "string"
+          },
+          "catalog": {
+            "description": "Catalog tab: every API on /catalog, grouped by category.",
+            "type": "boolean",
+            "const": true
+          },
+          "href": {
+            "description": "Link tab.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "apis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$",
+            "description": "Referenced by navigation (api:) and the api-operation tag."
+          },
+          "spec": {
+            "type": "string",
+            "minLength": 1,
+            "description": "OpenAPI file (relative to this config) or URL."
+          },
+          "path": {
+            "description": "Reference page URL (default /apis/<id>).",
+            "type": "string",
+            "format": "starts_with",
+            "pattern": "^\\/.*"
+          },
+          "title": {
+            "description": "Default: info.title of the spec.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Default: info.description of the spec.",
+            "type": "string"
+          },
+          "category": {
+            "description": "Group on the API catalog page (default General).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "spec"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "docs": {
+      "type": "object",
+      "properties": {
+        "dir": {
+          "description": "Folder with .md, .mdx and .markdoc pages (default ./docs).",
+          "type": "string"
+        },
+        "toc": {
+          "description": "\"On this page\" headings (default levels 2 to 3), or false.",
+          "anyOf": [
+            {
+              "type": "boolean",
+              "const": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "minHeadingLevel": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 6
+                },
+                "maxHeadingLevel": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 6
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "editUrl": {
+          "description": "Base URL of the docs folder in your repository; adds an \"Edit page\" link.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "footer": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "links": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Text shown for the item."
+                        },
+                        "href": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "A path on this site (/docs/intro) or a full URL."
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "href"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "title",
+                  "links"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "social": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "icon": {
+                    "type": "string",
+                    "enum": [
+                      "github",
+                      "x",
+                      "discord",
+                      "linkedin",
+                      "youtube"
+                    ]
+                  },
+                  "href": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "A path on this site (/docs/intro) or a full URL."
+                  }
+                },
+                "required": [
+                  "icon",
+                  "href"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "copyright": {
+              "type": "string"
+            },
+            "branding": {
+              "description": "Show \"Powered by RapiDoc\" (default true).",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "boolean",
+          "const": false
+        }
+      ]
+    },
+    "rapidoc": {
+      "description": "<rapi-doc> attributes for the API reference pages.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean"
+        ]
+      }
+    },
+    "search": {
+      "description": "Full-text search (default true).",
+      "type": "boolean"
+    },
+    "redirects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "starts_with",
+            "pattern": "^\\/.*"
+          },
+          "to": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A path on this site (/docs/intro) or a full URL."
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "site"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "description": "A doc page by its path in docs/, without extension (guides/first-shipment). The label is the page title."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Text shown for the item."
+            },
+            "slug": {
+              "description": "A doc page by its path in docs/, without extension.",
+              "type": "string",
+              "minLength": 1
+            },
+            "href": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A path on this site (/docs/intro) or a full URL."
+            },
+            "items": {
+              "description": "A group of items.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/__schema0"
+              }
+            },
+            "autogenerate": {
+              "description": "Every page in this folder of docs/, as a group.",
+              "type": "string"
+            },
+            "api": {
+              "description": "Link to the reference page of the API with this id.",
+              "type": "string"
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    },
+                    "variant": {
+                      "type": "string",
+                      "enum": [
+                        "note",
+                        "tip",
+                        "caution",
+                        "danger",
+                        "success",
+                        "default"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "text"
+                  ],
+                  "additionalProperties": false
+                }
+              ],
+              "description": "Small label shown next to the item."
+            },
+            "collapsed": {
+              "description": "Start a group collapsed.",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "$id": "https://rapidocweb.com/schema/rapidoc-config.json",
+  "title": "RapiDoc Portal configuration (rapidoc.config.yaml)"
+}

@@ -72,9 +72,9 @@ This scaffolds:
 
 ```text
 my-portal/
-├── rapidoc.config.yaml     # Site title, APIs, navigation, theme
+├── rapidoc.config.yaml     # Site, header, navigation tabs, theme, APIs
 ├── specs/api.yaml          # Your OpenAPI 3.x / Swagger 2.0 specs
-└── docs/                   # Guides in Markdown (.md), MDX (.mdx) or Markdoc (.markdoc)
+└── docs/                   # Guides in Markdown (.md), MDX (.mdx) or Markdoc (.markdoc); docs/index.* is the home page
 ```
 
 ### 2. Describe your portal
@@ -84,18 +84,21 @@ Add specs to `specs/` and guides to `docs/`, then wire them up in `rapidoc.confi
 ```yaml
 site:
   title: Acme Developer Portal
+navigation:                     # the header tabs; a documentation tab has its own sidebar
+  - label: Guides
+    items:
+      - getting-started         # docs/getting-started.md
+  - label: Orders API
+    api: orders
+  - label: API Catalog
+    catalog: true
 apis:
   - id: orders
-    title: Orders API
-    root: ./specs/orders.yaml   # each API gets a reference page at `path`
-    path: /apis/orders
-    category: Commerce          # groups APIs in the /catalog page
-navigation:
-  - title: Guides
-    items:
-      - label: Getting Started
-        path: /docs/getting-started
+    spec: ./specs/orders.yaml   # reference page at /apis/orders
+    category: Commerce          # groups APIs on the /catalog page
 ```
+
+Every key is checked: a typo fails the build with its location. Coming from Redocly, Zudoku or an older RapiDoc config? `npx rapidoc migrate --from redocly|zudoku|v1` converts it. The full reference is in [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md#configuration-rapidocconfigyaml).
 
 ### 3. Preview locally
 
@@ -113,9 +116,9 @@ Upload `dist/` to any static host (GitHub Pages, Netlify, S3, Nginx). Check spec
 
 ### What happens during a build
 
-1. `rapidoc.config.yaml` is loaded and validated (Redocly and Zudoku configs are accepted too).
+1. `rapidoc.config.yaml` is loaded and validated.
 2. A temporary Astro project is created at `my-portal/.rapidoc-temp/` with normalized copies of your guides, your specs, the `rapidoc-min.js` bundle and a search index.
-3. Astro + Starlight render the guides; the portal's own pages render the home page, API catalog and one RapiDoc reference page per API.
+3. Astro + Starlight render the guides and the home page; the portal's own pages render the API catalog and one RapiDoc reference page per API.
 4. The static site is written to `dist/`.
 5. `.rapidoc-temp/` is deleted, so your project is left exactly as it was apart from `dist/`.
 

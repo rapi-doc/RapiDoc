@@ -7,74 +7,31 @@ import { fileURLToPath } from 'node:url';
 const componentPath = (name) => fileURLToPath(new URL(`../components/${name}`, import.meta.url));
 
 export const THEME_CSS_MODULE = 'virtual:rapidoc-portal/theme.css';
+export const ROUTE_MIDDLEWARE_PATH = fileURLToPath(new URL('./route-middleware.js', import.meta.url));
 
 /**
- * Converts portal navigation items to Starlight sidebar format.
- * Documentation sidebar contains only narrative docs/guides by default.
+ * Starlight's sidebar: one group per documentation tab, in tab order. route-middleware.js shows only
+ * the group of the current page's tab. Without documentation tabs, every page in docs/.
  *
- * @param {Array} navigation - rapidoc.config.yaml navigation array
- * @param {Array} apis - rapidoc.config.yaml apis array
- * @param {object} [options] - Optional sidebar builder flags
- * @param {boolean} [options.includeApis=false] - Whether to include API Reference in sidebar
- * @returns {Array} Starlight sidebar configuration
+ * @param {Array} tabs - Normalized `tabs`
  */
-export function buildStarlightSidebar(navigation = [], apis = [], options = {}) {
-  const sidebar = [];
-
-  // 1. Guides & Narrative Docs navigation
-  for (const group of navigation) {
-    if (group.title && group.items) {
-      const groupItems = (group.items || []).map((item) => {
-        const link = item.path || item.href || (item.slug ? `/docs/${item.slug}` : '');
-        return {
-          label: item.label || item.title || 'Untitled',
-          link: link.replace(/^\/?docs\/?/, '/docs/'),
-        };
-      });
-
-      sidebar.push({
-        label: group.title,
-        items: groupItems,
-      });
-    } else if (group.label && (group.path || group.href)) {
-      sidebar.push({
-        label: group.label,
-        link: (group.path || group.href).replace(/^\/?docs\/?/, '/docs/'),
-      });
-    }
-  }
-
-  // 2. APIs & Reference section (only if explicitly enabled via options.includeApis)
-  if (options.includeApis && apis && apis.length > 0) {
-    const apiItems = apis.map((api) => ({
-      label: api.title || `${api.id} API`,
-      link: api.path || `/apis/${api.id}`,
-      badge: api.category ? { text: api.category, variant: 'note' } : undefined,
-    }));
-
-    sidebar.push({
-      label: 'API Reference',
-      items: apiItems,
-    });
-  }
-
-  return sidebar;
+export function buildStarlightSidebar(tabs = []) {
+  const docsTabs = tabs.filter((tab) => tab.kind === 'docs');
+  if (docsTabs.length === 0) return [{ label: 'Documentation', autogenerate: { directory: 'docs' } }];
+  return docsTabs.map((tab) => ({ label: tab.label, items: tab.sidebar }));
 }
 
 /**
- * Builds font <link> head entries for a configured web font.
+ * <link> head entries for the configured web fonts.
  */
-function fontHeadEntries(fontConfig) {
-  if (!fontConfig?.url) return [];
-  const entries = [
+export function fontHeadEntries(fonts = {}) {
+  const urls = [fonts.sans?.url, fonts.mono?.url].filter(Boolean);
+  if (urls.length === 0) return [];
+  return [
     { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.googleapis.com' } },
     { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' } },
-    { tag: 'link', attrs: { rel: 'stylesheet', href: fontConfig.url } },
+    ...urls.map((href) => ({ tag: 'link', attrs: { rel: 'stylesheet', href } })),
   ];
-  if (fontConfig.monoUrl) {
-    entries.push({ tag: 'link', attrs: { rel: 'stylesheet', href: fontConfig.monoUrl } });
-  }
-  return entries;
 }
 
 /**
@@ -84,19 +41,17 @@ function fontHeadEntries(fontConfig) {
  * @returns {object} Starlight user config
  */
 export function createStarlightOptions(portalConfig) {
-  const site = portalConfig.site || {};
-
-  // No <rapi-doc> on documentation pages: the RapiDoc bundle is loaded by the API reference pages only.
-  const head = [];
-  if (site.announcement?.text) {
-    head.push({ tag: 'meta', attrs: { name: 'announcement:text', content: site.announcement.text } });
-  }
-  head.push(...fontHeadEntries(portalConfig.theme?.font));
+  const { site, docs } = portalConfig;
 
   return {
-    title: site.title || 'Developer Portal',
+    title: site.title,
+    ...(site.description && { description: site.description }),
+    ...(site.favicon && { favicon: site.favicon }),
     disable404Route: true,
-    sidebar: buildStarlightSidebar(portalConfig.navigation || [], portalConfig.apis || []),
+    sidebar: buildStarlightSidebar(portalConfig.tabs),
+    routeMiddleware: [ROUTE_MIDDLEWARE_PATH],
+    tableOfContents: docs.toc === false ? false : { minHeadingLevel: 2, maxHeadingLevel: 3, ...docs.toc },
+    pagefind: portalConfig.search,
     // Starlight's own Footer stays: it renders prev/next links, the edit link and the last-updated
     // date. The site footer is rendered by PortalPageFrame below the whole shell.
     components: {
@@ -104,11 +59,13 @@ export function createStarlightOptions(portalConfig) {
       PageFrame: componentPath('PortalPageFrame.astro'),
       TwoColumnContent: componentPath('PortalTwoColumnContent.astro'),
       Sidebar: componentPath('PortalSidebar.astro'),
+      ThemeProvider: componentPath('PortalThemeProvider.astro'),
     },
     customCss: [THEME_CSS_MODULE],
     expressiveCode: {
       themes: ['github-dark', 'github-light'],
     },
-    head,
+    // No <rapi-doc> on documentation pages: the RapiDoc bundle is loaded by the API reference pages only.
+    head: fontHeadEntries(portalConfig.theme.fonts),
   };
 }

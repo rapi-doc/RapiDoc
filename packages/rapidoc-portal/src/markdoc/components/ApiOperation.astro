@@ -24,7 +24,7 @@ if (!api) {
   console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: no API with id "${spec}" in apis:`);
 }
 
-const specUrl = api && (api.isRemote ? api.root : `/specs/${api.fullPath.split(/[\\/]/).pop()}`);
+const specUrl = api && (api.isRemote ? api.spec : `/specs/${api.fullPath.split(/[\\/]/).pop()}`);
 const matchPaths = operationMatchPattern(method, path);
 const rapidoc = portalConfig.rapidoc || {};
 ---
@@ -41,7 +41,7 @@ const rapidoc = portalConfig.rapidoc || {};
         layout="column"
         color-scheme="auto"
         theme={rapidoc.theme}
-        primary-color={rapidoc['primary-color']}
+        primary-color={portalConfig.theme.primary}
         schema-style={rapidoc['schema-style']}
         load-fonts="false"
       />

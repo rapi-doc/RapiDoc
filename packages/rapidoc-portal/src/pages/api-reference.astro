@@ -1,7 +1,7 @@
 ---
 import PortalLayout from '../components/PortalLayout.astro';
 import PortalMobileNav from '../components/PortalMobileNav.astro';
-import { resolveHeaderLinks } from '../components/header-links.js';
+import { mobileNavLinks } from '../components/header-nav.js';
 import { getNavBarHtml, getNavCss, getThemeTokensCss, toKebabCase } from 'rapidoc/static';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -76,9 +76,9 @@ export async function getStaticPaths() {
 
 const { api, portalConfig, activeTagSlug = '', currentPath = api.path } = Astro.props;
 
-let specInput = api.root;
+let specInput = api.spec;
 const specFileName = api.fullPath ? path.basename(api.fullPath) : `${api.id}.json`;
-const specUrl = api.isRemote ? api.root : `/specs/${specFileName}`;
+const specUrl = api.isRemote ? api.spec : `/specs/${specFileName}`;
 
 if (!api.isRemote && api.fullPath && fs.existsSync(api.fullPath)) {
   const raw = fs.readFileSync(api.fullPath, 'utf8');
@@ -93,7 +93,7 @@ if (!api.isRemote && api.fullPath && fs.existsSync(api.fullPath)) {
   }
 }
 
-const themePreset = portalConfig.rapidoc?.theme || 'amber';
+const themePreset = portalConfig.rapidoc.theme || 'amber';
 
 let sidebarNavHtml = '';
 try {
@@ -126,6 +126,7 @@ const rapidocAttributes = {
   'load-fonts': 'false',
   theme: themePreset,
   ...portalConfig.rapidoc,
+  'primary-color': portalConfig.theme.primary,
   'spec-url': specUrl,
   'show-side-nav': 'false',
   'show-header': 'false',
@@ -136,7 +137,7 @@ const rapidocAttributes = {
 };
 ---
 
-<PortalLayout title={`${api.title || `${api.id} API`} — ${portalConfig.site?.title || 'Developer Portal'}`} sidebarId="portal-api-sidebar">
+<PortalLayout title={`${api.title} — ${portalConfig.site.title}`} sidebarId="portal-api-sidebar">
   <Fragment slot="head">
     <style set:html={themeTokensCss}></style>
     <style set:html={navCss}></style>
@@ -145,7 +146,7 @@ const rapidocAttributes = {
 
   <aside slot="sidebar" id="portal-api-sidebar" class="portal-layout-sidebar" popover="auto" data-portal-region="sidebar" aria-label="API navigation">
     <div class="portal-api-header-links">
-      <PortalMobileNav links={resolveHeaderLinks(portalConfig)} />
+      <PortalMobileNav links={mobileNavLinks(portalConfig)} />
     </div>
     <!-- The nav CSS from rapidoc/static styles its scope element, so it gets an element of its own. -->
     <div class="portal-api-nav portal-sidebar nav-bar">

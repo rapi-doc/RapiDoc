@@ -12,10 +12,10 @@ for (const api of apis) {
 }
 ---
 
-<PortalLayout title={`API Catalog — ${portalConfig.site?.title || 'Developer Portal'}`}>
+<PortalLayout title={`${portalConfig.catalog.label} — ${portalConfig.site.title}`}>
   <div class="catalog-container">
     <div class="catalog-hero">
-      <h1>API Catalog</h1>
+      <h1>{portalConfig.catalog.label}</h1>
       <p>Discover, explore, and integrate with our comprehensive developer APIs.</p>
     </div>
 

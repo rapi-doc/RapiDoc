@@ -2,7 +2,7 @@
 
 A docs-as-code developer portal engine. Point it at a folder of OpenAPI specs and Markdown / MDX / Markdoc guides, describe the site in `rapidoc.config.yaml`, and it produces a static portal:
 
-- **Home page** introducing the portal and its APIs
+- **Home page** from `docs/index.md` / `.mdx` / `.markdoc` (without one, `/` opens the first tab)
 - **API catalog** (`/catalog`) grouped by category
 - **Interactive API reference** for each spec, rendered by the [RapiDoc](../rapidoc) web component, with a static sidebar that stays in view while the page scrolls
 - **Guides** (`/docs/...`) rendered by [Astro Starlight](https://starlight.astro.build/)
@@ -16,10 +16,12 @@ You normally use it through the `rapidoc` CLI (`@rapidoc/cli`); this package is 
 
 ```text
 my-portal/
-├── rapidoc.config.yaml     # Site, APIs, navigation, theme
+├── rapidoc.config.yaml     # Site, header, navigation tabs, theme, APIs
+├── public/                 # Static files served from / (logo, favicon, images)
 ├── specs/                  # OpenAPI 3.0 / 3.1 / Swagger 2.0 files (YAML or JSON)
 │   └── orders.yaml
 └── docs/                   # Guides: .md, .mdx, .markdoc (sub-folders become URL segments)
+    ├── index.markdoc       # the home page (optional)
     ├── getting-started.md
     └── guides/
         └── checkout.mdx
@@ -31,54 +33,105 @@ Start one with `npm create rapidoc@latest my-portal`. The `demo-api-portal` repo
 
 ## Configuration (`rapidoc.config.yaml`)
 
-The engine also accepts `rapidoc.config.{yml,json,js,mjs,ts}`, and reads Redocly (`redocly.yaml`) and Zudoku (`zudoku.config.*`) configs as fallbacks.
+The header has two rows. Row 1 holds the logo, the search, `header.links` and the theme switcher. Row 2 has one tab per `navigation` entry, and each documentation tab has its own sidebar. On narrow screens both rows collapse into the menu.
+
+Conventions: `label` is the text of anything clickable, `href` is any URL, and `items` are children (dropdown items, mega-menu links, sidebar groups). A navigation item's kind comes from its keys: `slug` (or a plain string), `href`, `items`, `autogenerate`, `api` or `catalog`.
+
+The schema is strict: an unknown key fails the build with its path, e.g. `navigation[0].items[2]: unknown key "path" (use href (links) or slug (doc pages))`. Add the comment on the first line below for autocomplete in editors (the JSON Schema ships as `@rapidoc/portal/schema.json`). The engine also reads `rapidoc.config.{yml,json,js,mjs,ts}`.
 
 ```yaml
+# yaml-language-server: $schema=./node_modules/@rapidoc/portal/schema.json
 site:
   title: Cosmo Cargo Inc.
   description: Interstellar shipping APIs.
-  logo: /assets/logo.svg            # or { light, dark, alt, href }
-  announcement:                     # optional banner
-    text: Inter-galactic shipping is live!
-    link: /docs/shipping-process
-  headerLinks:                      # top navigation; `items` makes a dropdown
-    - label: Documentation
-      href: /docs/documentation
-    - label: API Catalog
-      href: /catalog
-  footer:
-    columns: [{ title: Company, links: [{ label: About, href: /about }] }]
-    social: [{ icon: github, href: https://github.com/acme }]
-
-apis:                               # list (Zudoku style) or map (Redocly style)
-  - id: shipments
-    title: Shipment API
-    root: ./specs/shipments.json    # also accepted: input, spec
-    path: /apis/shipments           # URL of the reference page
-    category: Core                  # catalog grouping
-
-docs:
-  dir: ./docs                       # default ./docs
-
-navigation:                         # guide sidebar (alias: sidebars)
-  - title: Getting Started
-    items:
-      - label: Introduction
-        path: /docs/getting-started
-
-rapidoc:                            # reference-page options currently honored:
-  primary-color: "#f76b39"          # portal accent color
-  color-scheme: dark                # initial color scheme of reference pages
-  theme: amber                      # RapiDoc theme preset
+  url: https://cosmocargo.dev # canonical URLs and sitemap
+  logo:
+    src: /logo.svg # in public/; or { light: ..., dark: ... }
+    text: COSMO CARGO # wordmark next to the image
+  favicon: /favicon.svg
+  banner: # announcement bar above the header
+    message: Inter-galactic shipping is live!
+    href: /docs/shipping-process
+    dismissible: true
+    background: '#f76b39'
+    color: '#000000'
 
 theme:
-  font:
-    name: Inter
-    url: https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap
-    monoName: JetBrains Mono        # optional, with monoUrl
+  primary: '#f76b39' # accent color, also used by the API reference
+  mode: auto # auto | dark | light, until the visitor picks one
+  fonts: # a family alone loads from Google Fonts (weights 400-700)
+    sans: { family: Inter }
+    mono: { family: JetBrains Mono, url: /fonts/mono.css } # url: another CDN or a CSS file in public/
+
+header: # row 1, right of the search
+  themeSwitcher: true
+  links:
+    - label: Solutions
+      items: # dropdown; an icon or description makes it a mega-menu
+        - label: Tracking
+          icon: satellite
+          description: Real-time tracking
+          href: /docs/tracking
+          items: [{ label: Webhooks, icon: server, href: /docs/webhooks }]
+    - label: Login
+      href: /login
+      style: button # link (default) | button | primary
+
+navigation: # row 2: one tab per entry
+  - label: Documentation
+    icon: book
+    items: # this tab's sidebar
+      - getting-started # doc page (path in docs/, no extension); label = page title
+      - label: Shipping
+        items:
+          - guides/first-shipment
+          - { label: Ship States, href: /docs/ship-states }
+      - label: Support
+        collapsed: true
+        autogenerate: support # every page in docs/support/
+  - label: Shipments
+    icon: code
+    api: shipments # the API's reference page
+  - label: API Catalog
+    icon: grid
+    catalog: true # /catalog, APIs grouped by category
+  - label: Blog
+    href: https://example.com/blog
+
+apis:
+  - id: shipments # used by `api:` and {% api-operation spec="..." %}
+    spec: ./specs/shipments.json # file or URL
+    category: Core # catalog group (default General)
+    # path: /apis/shipments            # default /apis/<id>
+    # title, description               # default: info.title / info.description of the spec
+
+docs:
+  dir: ./docs # default ./docs
+  toc: { minHeadingLevel: 2, maxHeadingLevel: 3 } # or false
+  editUrl: https://github.com/acme/portal/edit/main/docs/ # adds "Edit page" links
+
+footer: # or false
+  columns: [{ title: Company, links: [{ label: About, href: /about }] }]
+  social: [{ icon: github, href: https://github.com/acme }] # github, x, discord, linkedin, youtube
+  copyright: © 2026 Cosmo Cargo, Inc.
+  branding: true # "Powered by RapiDoc"
+
+rapidoc: # <rapi-doc> attributes for the API reference pages
+  render-style: read
+  schema-style: tree
+
+search: true
+redirects:
+  - { from: /old-page, to: /docs/new-page }
 ```
 
-The full, validated schema lives in [`src/config/schema.js`](src/config/schema.js).
+Docs pages in no tab's sidebar belong to the first documentation tab; APIs without a tab of their own belong to the catalog tab. The portal sets some `<rapi-doc>` attributes itself (`spec-url`, `show-header`, `show-side-nav`, `auto-height`, `update-route`, `goto-path`, `color-scheme`, `primary-color`); setting them under `rapidoc:` is an error that names the key to use instead.
+
+The schema lives in [`src/config/schema.js`](src/config/schema.js). After changing it, run `npm run schema` to regenerate `schema.json`.
+
+### Migrating
+
+`rapidoc migrate --from v1|redocly|zudoku` writes a v2 `rapidoc.config.yaml` from an older RapiDoc config, a Redocly project (`redocly.yaml` + `sidebars.yaml`) or a Zudoku config. A v1 config it replaces is kept as `rapidoc.config.v1.yaml`, and anything the conversion could not resolve is listed. Only the migrator knows the older key names.
 
 ---
 
@@ -100,7 +153,7 @@ The full, validated schema lives in [`src/config/schema.js`](src/config/schema.j
 `rapidoc build` (or `buildPortal()`) runs these steps:
 
 1. **Load and validate** `rapidoc.config.yaml` ([`src/config/`](src/config/)).
-2. **Create a temporary workspace** at `<project>/.rapidoc-temp/`. It holds only what Astro needs on disk: a normalized copy of `docs/`, the specs, the `rapidoc-min.js` bundle and the search index ([`src/engine/temp-workspace.js`](src/engine/temp-workspace.js), [`sync-docs.js`](src/engine/sync-docs.js), [`sync-assets.js`](src/engine/sync-assets.js)).
+2. **Create a temporary workspace** at `<project>/.rapidoc-temp/`. It holds only what Astro needs on disk: a normalized copy of `docs/` (`docs/index.*` becomes the home page), the project's `public/` folder, the specs, the `rapidoc-min.js` bundle and the search index ([`src/engine/temp-workspace.js`](src/engine/temp-workspace.js), [`sync-docs.js`](src/engine/sync-docs.js), [`sync-assets.js`](src/engine/sync-assets.js)).
 3. **Run Astro + Starlight** with an inline config. The portal pages ([`src/pages/`](src/pages/)) and components ([`src/components/`](src/components/)) come straight from this package; they read the config and theme through the virtual modules `virtual:rapidoc-portal/config` and `virtual:rapidoc-portal/theme.css` ([`src/engine/astro-integration.js`](src/engine/astro-integration.js)).
 4. **Write the static site** to `<project>/dist/` (or `--outDir`).
 5. **Delete `.rapidoc-temp/`**, even when the build fails. Your project folder ends up exactly as it was, plus `dist/`.
@@ -137,7 +190,7 @@ Other exports: config helpers (`normalizeConfig`, `migrateConfig`, `RapidocConfi
 
 ```text
 src/
-├── config/        Config loading, normalization, schema, Redocly/Zudoku migration
+├── config/        Strict schema (schema.js → schema.json), errors, loader, normalizer (tabs, sidebars), migrator (v1/Redocly/Zudoku)
 ├── engine/
 │   ├── build-portal.js        buildPortal(): workspace → astro build → cleanup
 │   ├── dev-server.js          startDevServer(): workspace → astro dev → watch → cleanup
@@ -145,9 +198,10 @@ src/
 │   ├── sync-docs.js           Copy + normalize docs into the workspace
 │   ├── sync-assets.js         Specs, rapidoc-min.js (fails if stale), search index
 │   ├── astro-integration.js   Inline Astro config, injected routes, virtual modules
-│   ├── starlight-options.js   Config → Starlight options and sidebar
+│   ├── starlight-options.js   Config → Starlight options and sidebar (one group per documentation tab)
+│   ├── route-middleware.js    Shows the current tab's sidebar group; prev/next stay inside the tab
 │   └── theme-css.js           Renders styles/portal-theme.css for the config
-├── pages/         home, catalog, api-reference, docs-index-redirect (.astro)
+├── pages/         catalog, api-reference, first-tab-redirect (.astro)
 ├── components/    Portal header/footer/sidebar/search and MDX components
 ├── styles/        portal-theme.css
 ├── markdoc/       Markdoc tags, nodes, compiler

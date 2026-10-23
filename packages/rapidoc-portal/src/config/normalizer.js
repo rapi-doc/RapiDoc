@@ -1,198 +1,262 @@
+import fs from 'node:fs';
 import path from 'node:path';
+import YAML from 'yaml';
+import { MANAGED_RAPIDOC_ATTRIBUTES } from './errors.js';
+import { findHomeDoc } from '../engine/sync-docs.js';
 
 /**
- * Converts camelCase string to kebab-case.
- * e.g. renderStyle -> render-style
- */
-function camelToKebab(str) {
-  return str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
-}
-
-/**
- * Normalizes an API definition into a unified object.
- */
-function normalizeApiItem(id, item, baseDir) {
-  const specLocation = item.root || item.input || item.spec;
-  const isRemote = /^https?:\/\//i.test(specLocation);
-  const apiId = id || item.id || item.name || path.basename(specLocation, path.extname(specLocation));
-  const routePath = item.path || `/apis/${apiId}`;
-
-  return {
-    id: apiId,
-    root: specLocation,
-    fullPath: isRemote ? specLocation : path.resolve(baseDir, specLocation),
-    isRemote,
-    path: routePath,
-    title: item.title || apiId,
-    version: item.version || '',
-    description: item.description || '',
-    category: item.category || (Array.isArray(item.categories) && item.categories[0]?.label) || 'General',
-  };
-}
-
-/**
- * Normalizes navigation items into a standard category/link tree.
- */
-function normalizeNavigation(navItems, apis) {
-  if (!navItems || !Array.isArray(navItems)) {
-    return [];
-  }
-
-  const apiMap = new Map(apis.map((a) => [a.id, a]));
-
-  return navItems.map((group) => {
-    const title = group.title || group.label || group.group || 'General';
-    const items = (group.items || []).map((item) => {
-      if (typeof item === 'string') {
-        return {
-          label: item,
-          path: item.startsWith('/') ? item : `/docs/${item}`,
-          type: 'doc',
-        };
-      }
-
-      const label = item.label || item.title || item.name || '';
-      const apiRef = item.api || item.apiId;
-
-      if (apiRef && apiMap.has(apiRef)) {
-        const targetApi = apiMap.get(apiRef);
-        return {
-          label: label || targetApi.title,
-          path: targetApi.path,
-          api: apiRef,
-          type: 'api',
-        };
-      }
-
-      const itemPath = item.path || item.page || item.href || item.to || '';
-      return {
-        label,
-        path: itemPath,
-        type: itemPath.startsWith('http') ? 'external' : 'doc',
-      };
-    });
-
-    return {
-      title,
-      items,
-    };
-  });
-}
-
-/**
- * Normalizes RapiDoc Web Component attributes.
- * Maps camelCase options to standard kebab-case attributes used by <rapi-doc>.
- */
-function normalizeRapiDocOptions(options = {}) {
-  const normalized = {};
-  for (const [key, value] of Object.entries(options)) {
-    normalized[camelToKebab(key)] = value;
-  }
-  return normalized;
-}
-
-/**
- * Main Normalizer: converts validated raw config into canonical internal representation.
+ * Turns a valid rapidoc.config.yaml (schema.js) into the config the portal pages read:
+ * defaults filled in, API metadata read from the specs, and `navigation` resolved into header tabs,
+ * each documentation tab with its Starlight sidebar and the URL prefixes it covers.
  *
- * @param {object} rawConfig - Validated raw configuration object
- * @param {string} baseDir - Base directory where the config file was found
- * @returns {object} Canonical RapiDoc Portal configuration
+ * Documentation pages live under /docs/ (the docs folder is mirrored to src/content/docs/docs/).
  */
-export function normalizeConfig(rawConfig, baseDir = process.cwd()) {
-  // 1. Normalize APIs
-  let rawApis = rawConfig.apis || {};
-  let normalizedApis = [];
 
-  if (Array.isArray(rawApis)) {
-    normalizedApis = rawApis.map((item, idx) => normalizeApiItem(item.id || `api-${idx + 1}`, item, baseDir));
-  } else if (typeof rawApis === 'object' && rawApis !== null) {
-    normalizedApis = Object.entries(rawApis).map(([id, item]) => normalizeApiItem(id, item, baseDir));
+export const CATALOG_PATH = '/catalog';
+export const DEFAULT_PRIMARY_COLOR = '#f76b39';
+
+const isExternal = (href) => /^[a-z][a-z0-9+.-]*:/i.test(href);
+
+/** `guides/first-shipment` or `/guides/index` → `guides/first-shipment`, `guides` */
+function cleanSlug(slug) {
+  return slug
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/(^|\/)index$/, '')
+    .replace(/\.(md|mdx|markdoc|mdoc)$/, '');
+}
+
+const docUrl = (slug) => (slug ? `/docs/${slug}/` : '/docs/');
+
+/** info.title / info.description / info.version of a local spec, or {} if it cannot be read. */
+function readSpecInfo(fullPath) {
+  try {
+    const text = fs.readFileSync(fullPath, 'utf8');
+    const spec = fullPath.endsWith('.json') ? JSON.parse(text) : YAML.parse(text);
+    return spec?.info || {};
+  } catch {
+    return {};
   }
+}
 
-  // 2. Normalize Docs Directory
-  const rawDocs = rawConfig.docs || { dir: './docs', engine: 'markdoc' };
-  const docsDir = rawDocs.dir || rawDocs.files || './docs';
-  const normalizedDocs = {
-    dir: docsDir,
-    fullPath: path.resolve(baseDir, docsDir),
-    engine: rawDocs.engine || 'markdoc',
+function normalizeApi(api, baseDir) {
+  const isRemote = isExternal(api.spec);
+  const fullPath = isRemote ? api.spec : path.resolve(baseDir, api.spec);
+  const info = isRemote ? {} : readSpecInfo(fullPath);
+  return {
+    id: api.id,
+    spec: api.spec,
+    fullPath,
+    isRemote,
+    path: (api.path || `/apis/${api.id}`).replace(/\/+$/, ''),
+    title: api.title || info.title || api.id,
+    description: api.description ?? info.description ?? '',
+    version: info.version || '',
+    category: api.category || 'General',
   };
+}
 
-  // 3. Normalize Navigation (combining navigation and sidebars)
-  const rawNav = rawConfig.navigation || rawConfig.sidebars || [];
-  const normalizedNav = normalizeNavigation(rawNav, normalizedApis);
+/** Google Fonts stylesheet for a family name, in the weights the portal uses. */
+export function googleFontsUrl(family) {
+  return `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g, '+')}:wght@400;500;600;700&display=swap`;
+}
 
-  // 4. Normalize Site Info
-  const rawSite = rawConfig.site || {};
-  let normalizedLogo = null;
-  if (rawSite.logo) {
-    if (typeof rawSite.logo === 'string') {
-      normalizedLogo = { light: rawSite.logo, dark: rawSite.logo, alt: rawSite.title || 'Logo', href: '/' };
-    } else if (typeof rawSite.logo === 'object') {
-      const src = rawSite.logo.src;
-      const light = rawSite.logo.light || (typeof src === 'object' ? src.light : src) || '';
-      const dark = rawSite.logo.dark || (typeof src === 'object' ? src.dark : src) || light;
-      normalizedLogo = {
-        light,
-        dark,
-        alt: rawSite.logo.alt || rawSite.title || 'Logo',
-        href: rawSite.logo.href || '/',
+/** A font with only a `family` is loaded from Google Fonts; `url` points anywhere else. */
+function normalizeFont(font) {
+  return font ? { family: font.family, url: font.url || googleFontsUrl(font.family) } : null;
+}
+
+/** First doc page (sorted) inside a docs sub-folder, as a slug. */
+function firstDocIn(docsDir, dir) {
+  const folder = path.join(docsDir, dir);
+  if (!fs.existsSync(folder)) return cleanSlug(dir);
+  const files = fs
+    .readdirSync(folder, { recursive: true })
+    .filter((f) => /\.(md|mdx|markdoc)$/.test(f))
+    .sort();
+  return files.length ? cleanSlug(path.posix.join(dir, files[0].split(path.sep).join('/'))) : cleanSlug(dir);
+}
+
+/**
+ * Sidebar items → Starlight sidebar entries, plus every URL prefix they cover and the first page.
+ */
+function buildSidebar(items, ctx) {
+  const covered = [];
+  let firstHref;
+  const visit = (item) => {
+    if (typeof item === 'string') item = { slug: item };
+    if (item.slug !== undefined) {
+      const slug = cleanSlug(item.slug);
+      covered.push(docUrl(slug));
+      firstHref ??= docUrl(slug);
+      return { slug: slug ? `docs/${slug}` : 'docs', ...(item.label && { label: item.label }), ...(item.badge && { badge: item.badge }) };
+    }
+    if (item.autogenerate !== undefined) {
+      const dir = cleanSlug(item.autogenerate);
+      covered.push(docUrl(dir));
+      firstHref ??= docUrl(firstDocIn(ctx.docsDir, dir));
+      // Starlight wants a labelled group around the autogenerate entry.
+      return {
+        label: item.label,
+        items: [{ autogenerate: { directory: dir ? `docs/${dir}` : 'docs' } }],
+        ...(item.collapsed !== undefined && { collapsed: item.collapsed }),
+        ...(item.badge && { badge: item.badge }),
       };
     }
+    if (item.api !== undefined) {
+      const api = ctx.apiById.get(item.api);
+      firstHref ??= api.path;
+      return { label: item.label || api.title, link: api.path, ...(item.badge && { badge: item.badge }) };
+    }
+    if (item.items !== undefined) {
+      return {
+        label: item.label,
+        items: item.items.map(visit),
+        ...(item.collapsed !== undefined && { collapsed: item.collapsed }),
+        ...(item.badge && { badge: item.badge }),
+      };
+    }
+    if (!isExternal(item.href)) firstHref ??= item.href;
+    return {
+      label: item.label,
+      link: item.href,
+      ...(isExternal(item.href) && { attrs: { target: '_blank', rel: 'noopener noreferrer' } }),
+      ...(item.badge && { badge: item.badge }),
+    };
+  };
+  const sidebar = items.map(visit);
+  return { sidebar, covered, firstHref };
+}
+
+/**
+ * `navigation` → header tabs. Every tab gets `href` (where it links) and `match` (URL prefixes for
+ * which it is the active tab; the longest match wins). Documentation tabs also get `sidebar`.
+ */
+function buildTabs(navigation, ctx) {
+  const tabs = navigation.map((tab) => {
+    const base = { label: tab.label, icon: tab.icon, badge: tab.badge };
+    if (tab.items || tab.autogenerate !== undefined) {
+      const items = tab.items || [{ label: tab.label, autogenerate: tab.autogenerate }];
+      const { sidebar, covered, firstHref } = buildSidebar(items, ctx);
+      // A tab that is one autogenerated folder shows that folder's pages, not a group around them.
+      const flat = tab.items ? sidebar : sidebar[0].items;
+      return { ...base, kind: 'docs', href: firstHref || '/docs/', match: covered, sidebar: flat };
+    }
+    if (tab.api) {
+      const api = ctx.apiById.get(tab.api);
+      return { ...base, kind: 'api', api: api.id, href: api.path, match: [api.path] };
+    }
+    if (tab.catalog) {
+      return { ...base, kind: 'catalog', href: CATALOG_PATH, match: [CATALOG_PATH] };
+    }
+    return { ...base, kind: 'link', href: tab.href, match: isExternal(tab.href) ? [] : [tab.href] };
+  });
+
+  // Docs pages listed in no tab belong to the first documentation tab; APIs without a tab of their own
+  // belong to the catalog tab.
+  const firstDocs = tabs.find((t) => t.kind === 'docs');
+  if (firstDocs) firstDocs.match.push('/docs/');
+  const catalogTab = tabs.find((t) => t.kind === 'catalog');
+  if (catalogTab) {
+    const tabbed = new Set(tabs.filter((t) => t.kind === 'api').map((t) => t.api));
+    catalogTab.match.push(...ctx.apis.filter((a) => !tabbed.has(a.id)).map((a) => a.path));
   }
+  return tabs;
+}
 
-  const normalizedSite = {
-    title: rawSite.title || 'Developer Portal',
-    tagline: rawSite.tagline || rawSite.description || '',
-    description: rawSite.description || rawSite.tagline || '',
-    logo: normalizedLogo,
-    favicon: rawSite.favicon || '/favicon.ico',
-    baseUrl: rawSite.baseUrl || '/',
-    announcement: rawSite.announcement || rawConfig.announcement || null,
-    headerLinks: rawSite.headerLinks || rawConfig.headerLinks || null,
-    footer: rawSite.footer || rawConfig.footer || null,
+/**
+ * Checks that need the whole config: references between sections and <rapi-doc> attributes the
+ * portal manages. Returns problem descriptions (empty when the config is consistent).
+ *
+ * @param {object} raw - Config that passed RapidocConfigSchema
+ * @returns {string[]}
+ */
+export function checkReferences(raw) {
+  const problems = [];
+  const apiIds = new Set();
+  (raw.apis || []).forEach((api, i) => {
+    if (apiIds.has(api.id)) problems.push(`apis[${i}].id: "${api.id}" is used by another API`);
+    apiIds.add(api.id);
+  });
+  const known = [...apiIds].join(', ') || 'none';
+  const checkApi = (id, where) => {
+    if (id !== undefined && !apiIds.has(id)) problems.push(`${where}.api: no API with id "${id}" in apis (ids: ${known})`);
   };
+  const visit = (items, where) =>
+    items.forEach((item, i) => {
+      if (typeof item !== 'object') return;
+      checkApi(item.api, `${where}[${i}]`);
+      if (item.items) visit(item.items, `${where}[${i}].items`);
+    });
+  (raw.navigation || []).forEach((tab, i) => {
+    checkApi(tab.api, `navigation[${i}]`);
+    if (tab.items) visit(tab.items, `navigation[${i}].items`);
+  });
+  if ((raw.navigation || []).filter((t) => t.catalog).length > 1) problems.push('navigation: only one tab can have `catalog: true`');
 
-  // 5. Normalize RapiDoc Component Attributes
-  const rapidocConfig = {
-    ...rawConfig.rapidoc,
-    ...(rawConfig.theme?.openapi || {}), // Support Redocly's theme.openapi flags if present
+  for (const key of Object.keys(raw.rapidoc || {})) {
+    if (key in MANAGED_RAPIDOC_ATTRIBUTES) {
+      const instead = MANAGED_RAPIDOC_ATTRIBUTES[key];
+      problems.push(`rapidoc.${key}: set by the portal${instead ? `; use ${instead}` : ''}`);
+    }
+  }
+  return problems;
+}
+
+/**
+ * @param {object} raw - Config that passed RapidocConfigSchema and checkReferences()
+ * @param {string} baseDir - Folder of the config file
+ * @returns {object} The portal config (exposed to pages as `virtual:rapidoc-portal/config`)
+ */
+export function normalizeConfig(raw, baseDir = process.cwd()) {
+  const apis = (raw.apis || []).map((api) => normalizeApi(api, baseDir));
+  const docsDir = raw.docs?.dir || './docs';
+  const docs = {
+    dir: docsDir,
+    fullPath: path.resolve(baseDir, docsDir),
+    toc: raw.docs?.toc ?? {},
+    editUrl: raw.docs?.editUrl || null,
   };
-  const normalizedRapiDoc = normalizeRapiDocOptions(rapidocConfig);
+  docs.home = Boolean(findHomeDoc(docs.fullPath));
 
-  // 6. Search
-  const rawSearch = rawConfig.search || { enabled: true, provider: 'pagefind' };
-  const normalizedSearch = {
-    enabled: typeof rawSearch === 'boolean' ? rawSearch : rawSearch.enabled !== false,
-    provider: rawSearch.provider || 'pagefind',
-  };
+  const tabs = buildTabs(raw.navigation || [], { apis, apiById: new Map(apis.map((a) => [a.id, a])), docsDir: docs.fullPath });
+  const catalogTab = tabs.find((t) => t.kind === 'catalog');
 
-  // 7. Catalog Configuration
-  const rawCatalog = rawConfig.catalog || rawConfig.catalogs || null;
-  const normalizedCatalog = rawCatalog
-    ? {
-        path: typeof rawCatalog === 'object' && rawCatalog.path ? rawCatalog.path : '/catalog',
-        label: typeof rawCatalog === 'object' && rawCatalog.label ? rawCatalog.label : 'API Catalog',
-        title: typeof rawCatalog === 'object' && rawCatalog.title ? rawCatalog.title : 'API Catalog',
-      }
-    : { path: '/catalog', label: 'API Catalog', title: 'API Catalog' };
-
-  // 8. Theme & Font Configuration
-  const rawTheme = rawConfig.theme || {};
-  const normalizedTheme = {
-    font: rawTheme.font || null,
-    ...rawTheme,
+  const site = raw.site;
+  const logoSrc = site.logo?.src;
+  const logo = {
+    light: typeof logoSrc === 'object' ? logoSrc.light : logoSrc || null,
+    dark: typeof logoSrc === 'object' ? logoSrc.dark : logoSrc || null,
+    text: site.logo?.text ?? (logoSrc ? null : site.title),
+    alt: site.logo?.alt || site.title,
+    href: site.logo?.href || '/',
   };
 
   return {
-    site: normalizedSite,
-    apis: normalizedApis,
-    docs: normalizedDocs,
-    navigation: normalizedNav,
-    rapidoc: normalizedRapiDoc,
-    search: normalizedSearch,
-    catalog: normalizedCatalog,
-    theme: normalizedTheme,
+    site: {
+      title: site.title,
+      description: site.description || '',
+      url: site.url || null,
+      logo,
+      favicon: site.favicon || null,
+      banner: site.banner ? { dismissible: true, ...site.banner } : null,
+    },
+    theme: {
+      primary: raw.theme?.primary || DEFAULT_PRIMARY_COLOR,
+      mode: raw.theme?.mode || 'auto',
+      fonts: { sans: normalizeFont(raw.theme?.fonts?.sans), mono: normalizeFont(raw.theme?.fonts?.mono) },
+    },
+    header: {
+      links: raw.header?.links || [],
+      themeSwitcher: raw.header?.themeSwitcher !== false,
+    },
+    tabs,
+    apis,
+    catalog: { path: CATALOG_PATH, label: catalogTab?.label || 'API Catalog' },
+    docs,
+    footer: raw.footer === false ? false : { branding: true, ...raw.footer },
+    rapidoc: Object.fromEntries(Object.entries(raw.rapidoc || {}).map(([key, value]) => [key, String(value)])),
+    search: raw.search !== false,
+    redirects: raw.redirects || [],
     baseDir,
   };
 }

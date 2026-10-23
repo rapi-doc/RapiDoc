@@ -4,8 +4,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildPortal, buildStarlightSidebar, loadConfig } from '../src/index.js';
-import { createStarlightOptions } from '../src/engine/starlight-options.js';
+import { buildPortal, loadConfig, resolveConfig } from '../src/index.js';
+import { buildStarlightSidebar, createStarlightOptions } from '../src/engine/starlight-options.js';
 import { renderThemeCss } from '../src/engine/theme-css.js';
 import { createPortalWorkspace, removePortalWorkspace, resolveDependencyRoot, WORKSPACE_DIRNAME } from '../src/engine/temp-workspace.js';
 
@@ -25,37 +25,34 @@ function listTree(dir, base = dir) {
 }
 
 describe('RapiDoc Portal build engine', () => {
-  it('should generate valid Starlight sidebar structure from portal config', () => {
-    const mockNav = [
+  it('should build one Starlight sidebar group per documentation tab', () => {
+    const config = resolveConfig(
       {
-        title: 'Space Operations',
+        site: { title: 'Acme' },
+        navigation: [
+          {
+            label: 'Guides',
+            items: ['intro', { label: 'Space', items: [{ slug: 'shipping', label: 'Shipping' }] }, { label: 'API', api: 'orders' }],
+          },
+          { label: 'Orders', api: 'orders' },
+          { label: 'Help', autogenerate: 'support' },
+        ],
+        apis: [{ id: 'orders', spec: 'https://example.com/orders.yaml', title: 'Orders API' }],
+      },
+      '/tmp'
+    );
+    assert.deepEqual(buildStarlightSidebar(config.tabs), [
+      {
+        label: 'Guides',
         items: [
-          { label: 'Shipping Process', path: '/docs/shipping-process' },
-          { label: 'Tracking', path: '/docs/tracking' },
+          { slug: 'docs/intro' },
+          { label: 'Space', items: [{ slug: 'docs/shipping', label: 'Shipping' }] },
+          { label: 'API', link: '/apis/orders' },
         ],
       },
-    ];
-    const mockApis = [
-      { id: 'shipments', title: 'Shipment API', path: '/apis/shipments', category: 'Core' },
-      { id: 'labels', title: 'Labels API', path: '/catalog/api-label', category: 'Printing' },
-    ];
-
-    const sidebar = buildStarlightSidebar(mockNav, mockApis);
-
-    // Verify docs sidebar only contains narrative docs by default
-    assert.equal(sidebar.length, 1);
-    assert.equal(sidebar[0].label, 'Space Operations');
-    assert.equal(sidebar[0].items.length, 2);
-    assert.equal(sidebar[0].items[0].link, '/docs/shipping-process');
-
-    // Verify APIs group can be included if explicitly requested via options
-    const sidebarWithApis = buildStarlightSidebar(mockNav, mockApis, { includeApis: true });
-    assert.equal(sidebarWithApis.length, 2);
-    assert.equal(sidebarWithApis[1].label, 'API Reference');
-    assert.equal(sidebarWithApis[1].items.length, 2);
-    assert.equal(sidebarWithApis[1].items[0].label, 'Shipment API');
-    assert.equal(sidebarWithApis[1].items[0].link, '/apis/shipments');
-    assert.equal(sidebarWithApis[1].items[0].badge?.text, 'Core');
+      { label: 'Help', items: [{ autogenerate: { directory: 'docs/support' } }] },
+    ]);
+    assert.deepEqual(buildStarlightSidebar([]), [{ label: 'Documentation', autogenerate: { directory: 'docs' } }], 'no tabs: every doc');
   });
 
   it('should create Starlight options and theme CSS from the portal config', async () => {
@@ -66,6 +63,8 @@ describe('RapiDoc Portal build engine', () => {
     assert.equal(options.title, 'Cosmo Cargo Inc.');
     assert.ok(options.sidebar.length > 0);
     assert.ok(path.isAbsolute(options.components.Header), 'component overrides should be absolute paths');
+    assert.ok(path.isAbsolute(options.routeMiddleware[0]), 'route middleware should be an absolute path');
+    assert.deepEqual(options.tableOfContents, { minHeadingLevel: 2, maxHeadingLevel: 3 });
     assert.ok(themeCss.includes('--sl-color-accent: #f76b39'));
     assert.ok(themeCss.includes('.rapidoc-fullscreen-portal'));
     assert.ok(!themeCss.includes('__PORTAL_PRIMARY_COLOR__'), 'all theme tokens should be replaced');
@@ -126,9 +125,26 @@ describe('RapiDoc Portal build engine', () => {
       assert.ok(fs.existsSync(path.join(outDir, 'apis/shipments/index.html')), 'API reference index.html should exist');
       assert.ok(fs.existsSync(path.join(outDir, 'docs/documentation/index.html')), 'Starlight Docs index.html should exist');
       assert.ok(fs.existsSync(path.join(outDir, 'search-index.json')), 'Search index should exist');
+      assert.ok(fs.existsSync(path.join(outDir, 'logo.svg')), "the project's public/ folder is copied");
 
       // Markdoc guides render with Starlight components
       const read = (page) => fs.readFileSync(path.join(outDir, page, 'index.html'), 'utf8');
+
+      // docs/index.markdoc is the home page; the header tabs mark the current section
+      const home = read('');
+      assert.ok(home.includes('Cosmo Cargo Developer Platform'), 'docs/index.* renders at /');
+      assert.ok(!home.includes('sl-sidebar-pane'), 'the splash home page has no sidebar');
+      const activeTab = (html) =>
+        html.match(/<a[^>]*class="portal-tab[^"]*"[^>]*aria-current="page"[^>]*>[\s\S]*?<span>([^<]+)<\/span>/)?.[1];
+      assert.equal(activeTab(read('docs/shipping-process')), 'Documentation');
+      assert.equal(activeTab(read('apis/shipments')), 'Shipments');
+      assert.equal(activeTab(read('catalog/api-label')), 'API Catalog', 'an API without a tab belongs to the catalog tab');
+      assert.equal(activeTab(home), undefined);
+
+      // The documentation tab's sidebar, with an autogenerated group
+      const shippingProcess = read('docs/shipping-process');
+      assert.ok(shippingProcess.includes('Space Operations'));
+      assert.ok(shippingProcess.includes('href="/docs/support/faq/"'), 'autogenerate: support lists the folder');
       const fulfillment = read('docs/guides/order-fulfillment');
       assert.ok(fulfillment.includes('starlight-aside'), '{% callout %} renders as a Starlight aside');
       assert.ok(fulfillment.includes('<starlight-tabs'), '{% tabs %} renders as Starlight tabs');

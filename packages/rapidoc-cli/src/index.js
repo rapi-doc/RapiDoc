@@ -2,7 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildPortal, startDevServer, migrateConfig } from '@rapidoc/portal';
+import { buildPortal, startDevServer, migrateConfig, MIGRATION_SOURCES } from '@rapidoc/portal';
 import { validate } from '@scalar/openapi-parser';
 
 const args = process.argv.slice(2);
@@ -19,7 +19,7 @@ Commands:
   dev [dir]               Launches local development server with HMR (Astro + Starlight)
   build [dir]             Pre-renders static developer portal into dist/ (SSG)
   validate <spec>         Validates an OpenAPI 3.0 / 3.1 specification file
-  migrate --from <src>    Migrates existing redocly or zudoku project to rapidoc.config.yaml
+  migrate --from <src>    Converts a v1 rapidoc.config.yaml, a Redocly or a Zudoku project to rapidoc.config.yaml (v1, redocly, zudoku)
   --help, -h              Show this help message
   --version, -v           Show version information
 
@@ -34,6 +34,7 @@ Examples:
   rapidoc build ./my-api-portal
   rapidoc validate ./specs/orders-api.yaml
   rapidoc migrate --from redocly
+  rapidoc migrate --from v1
 `);
 }
 
@@ -106,19 +107,25 @@ async function handleValidate() {
 
 async function handleMigrate() {
   const fromIdx = args.indexOf('--from');
-  const source = fromIdx !== -1 ? args[fromIdx + 1] : null;
+  const source = fromIdx !== -1 ? args[fromIdx + 1]?.toLowerCase() : null;
+  const sources = Object.keys(MIGRATION_SOURCES);
 
-  if (!source || !['redocly', 'zudoku'].includes(source.toLowerCase())) {
-    console.error('Error: Please specify source framework using --from redocly or --from zudoku.');
+  if (!source || !sources.includes(source)) {
+    console.error(`Error: Please specify the source with --from ${sources.join(' | ')}.`);
     process.exit(1);
   }
 
   const targetDir = process.cwd();
-  console.log(`\n🔄 Migrating ${source} project in ${targetDir} to rapidoc.config.yaml...`);
+  console.log(`\n🔄 Migrating ${source} config in ${targetDir} to rapidoc.config.yaml...`);
 
   try {
-    const result = await migrateConfig(targetDir, { overwrite: true });
-    console.log(`\n✅ Successfully generated rapidoc.config.yaml at: ${result.filePath}\n`);
+    const result = await migrateConfig(targetDir, { from: source, overwrite: true });
+    console.log(`\n✅ Successfully generated rapidoc.config.yaml at: ${result.filePath}`);
+    if (result.backupPath) console.log(`   The previous config is kept as ${path.basename(result.backupPath)}.`);
+    if (result.problems.length) {
+      console.log(`\n⚠️  Fix these before building:\n${result.problems.map((p) => `   - ${p}`).join('\n')}`);
+    }
+    console.log('');
   } catch (err) {
     console.error(`\n❌ Migration failed: ${err.message}\n`);
     process.exit(1);

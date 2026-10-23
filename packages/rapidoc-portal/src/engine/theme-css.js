@@ -4,10 +4,11 @@
 
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { DEFAULT_PRIMARY_COLOR } from '../config/normalizer.js';
+
+export { DEFAULT_PRIMARY_COLOR };
 
 const THEME_CSS_PATH = fileURLToPath(new URL('../styles/portal-theme.css', import.meta.url));
-
-export const DEFAULT_PRIMARY_COLOR = '#f76b39';
 
 const SYSTEM_SANS_STACK = `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`;
 const SYSTEM_MONO_STACK = `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
@@ -18,10 +19,10 @@ const DEFAULT_MONO_STACK = `ui-monospace, SFMono-Regular, Menlo, Monaco, Consola
  * @returns {string} CSS with the primary color and font stacks filled in
  */
 export function renderThemeCss(portalConfig = {}) {
-  const primaryColor = portalConfig.rapidoc?.['primary-color'] || DEFAULT_PRIMARY_COLOR;
-  const font = portalConfig.theme?.font;
-  const fontSans = font?.name ? `'${font.name}', ${SYSTEM_SANS_STACK}` : SYSTEM_SANS_STACK;
-  const fontMono = font?.monoName ? `'${font.monoName}', ${SYSTEM_MONO_STACK}` : DEFAULT_MONO_STACK;
+  const primaryColor = portalConfig.theme?.primary || DEFAULT_PRIMARY_COLOR;
+  const fonts = portalConfig.theme?.fonts || {};
+  const fontSans = fonts.sans ? `'${fonts.sans.family}', ${SYSTEM_SANS_STACK}` : SYSTEM_SANS_STACK;
+  const fontMono = fonts.mono ? `'${fonts.mono.family}', ${SYSTEM_MONO_STACK}` : DEFAULT_MONO_STACK;
 
   return fs
     .readFileSync(THEME_CSS_PATH, 'utf8')

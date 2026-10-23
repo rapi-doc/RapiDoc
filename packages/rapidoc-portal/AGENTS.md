@@ -11,7 +11,7 @@
 ---
 
 ## 2. Core Functional Responsibilities (Milestones 1–6)
-1. **Tolerant Configuration Parser**: Reads `rapidoc.config.yaml` / `rapidoc.config.ts`, supporting Redocly and Zudoku aliases transparently (`root`/`input`, `navigation`/`sidebars`).
+1. **Strict Configuration (v2)**: Reads `rapidoc.config.yaml` (also `.yml/.json/.js/.mjs/.ts`) against the strict zod schema in `src/config/schema.js`; unknown keys fail with their path and a hint (`errors.js`). `normalizer.js` resolves `navigation` into header tabs (each documentation tab with its Starlight sidebar and the URL prefixes it covers). Older key names (v1, Redocly, Zudoku) live only in `migrator.js` (`rapidoc migrate`). Get user approval before changing the config contract, then run `npm run schema` to regenerate `schema.json` (a test checks it).
 2. **First-Class Markdoc**: `.markdoc` docs are synced as `.mdoc` and rendered by `@astrojs/markdoc` with `src/markdoc/astro-config.js` (Starlight's Markdoc preset + the portal tags as Starlight components in `src/markdoc/components/`; `api-operation` → `<rapi-doc-mini>`). `src/markdoc/tags.js` holds the same tags as plain HTML for the `compileMarkdoc()` API; keep both in step.
 3. **Portal Layout Shell**: Delivers top navigation, collapsible sidebar navigation, breadcrumbs, and Table of Contents with scroll-spy.
 4. **RapiDoc Web Component Bridge**: Mounts `<rapi-doc>` for interactive API reference viewing and embeds live operations in guides.
@@ -27,6 +27,7 @@ Run these commands from `packages/rapidoc-portal`:
 | Command | Purpose |
 | :--- | :--- |
 | `npm test` | Runs `tests/**/*.test.js` serially (`--test-concurrency=1`) |
+| `npm run schema` | Regenerates `schema.json` (JSON Schema of `rapidoc.config.yaml`) from `src/config/schema.js` |
 | `npm run layout:baseline` | Runs `tests/layout.test.js` and writes `tests/layout/measurements.json` plus screenshots (git-ignored) to `tests/layout/` |
 
 From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-rapidoc` suites together.
@@ -47,14 +48,16 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 | `sync-docs.js` | Idempotent docs mirror + normalization (frontmatter title, `.md`/`.mdx` dedupe, Zudoku rewrites, component auto-imports) |
 | `sync-assets.js` | Specs, `rapidoc-min.js` (throws if missing or stale — never rebuilds), `search-index.json` |
 | `astro-integration.js` | Inline Astro config: Markdoc + Starlight + injected routes for `src/pages/*.astro` + virtual modules |
-| `starlight-options.js` / `theme-css.js` | Config → Starlight options / `styles/portal-theme.css` with tokens filled in |
+| `starlight-options.js` / `theme-css.js` | Config → Starlight options (sidebar: one group per documentation tab) / `styles/portal-theme.css` with tokens filled in |
+| `route-middleware.js` | Starlight route middleware: keeps only the current tab's sidebar group, drops prev/next links into other tabs |
 
-**App shell**. Every page has the same frame: sticky header, optional sticky sidebar, full-width footer, page scroll. Pages Starlight does not render (home, catalog, API reference) use `components/PortalLayout.astro`. Docs pages use these Starlight component overrides, set in `starlight-options.js`:
+**App shell**. Every page has the same frame: sticky header, optional sticky sidebar, full-width footer, page scroll. Pages Starlight does not render (catalog, API reference) use `components/PortalLayout.astro`. The home page is the project's `docs/index.*` rendered by Starlight (usually `template: splash`); without one, `/` redirects to the first tab (`pages/first-tab-redirect.astro`). Docs pages use these Starlight component overrides, set in `starlight-options.js`:
 - `PortalPageFrame.astro` (`PageFrame`): sticky header, then a grid of [sticky full-height sidebar | content], then the full-width `PortalFooter`. The page scrolls; at the end the footer pushes the sidebar up. Below 50rem the sidebar is Starlight's popover, opened by the header's menu button.
 - `PortalTwoColumnContent.astro` (`TwoColumnContent`): sticky "On this page" column.
+- `PortalThemeProvider.astro` (`ThemeProvider`): applies `theme.mode` for visitors who have not picked a theme (same script as `PortalLayout`, from `components/theme-script.js`).
 - `PortalSidebar.astro` (`Sidebar`): Starlight's sidebar, with the header links above it on narrow screens.
-- `PortalHeader.astro` (`Header`). Starlight's own `Footer` is kept for prev/next, edit link and last-updated.
-- Header height is CSS-only: `--sl-nav-height` = `--portal-banner-height` + `--portal-navbar-height` (`portal-theme.css`). Keep both rows fixed-height; never measure the header in JS.
+- `PortalHeader.astro` (`Header`): banner (`site.banner`), row 1 (logo, search, `header.links`, theme switcher), row 2 (`config.tabs`, active tab from `activeTab()` in `components/header-nav.js`). Below 50rem the tabs row is hidden and the menus list the tabs. Starlight's own `Footer` is kept for prev/next, edit link and last-updated.
+- Header height is CSS-only: `--sl-nav-height` = `--portal-banner-height` + `--portal-navbar-height` + `--portal-tabs-height` (`portal-theme.css`). Keep every row fixed-height; never measure the header in JS.
 - `portal-theme.css` is unlayered, so it already beats Starlight's `@layer starlight.*` rules. Don't use `!important`.
 
 Invariants:

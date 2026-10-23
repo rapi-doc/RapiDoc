@@ -77,11 +77,12 @@
   --sl-font-system: var(--font-sans);
   --sl-font-mono: var(--font-mono);
 
-  /* Header = announcement bar + navbar. Both have fixed heights, so the sticky sidebar and TOC
-     know where the header ends before the page paints. */
+  /* Header = announcement bar + navbar + section tabs. All three have fixed heights, so the sticky
+     sidebar and TOC know where the header ends before the page paints. */
   --portal-banner-height: 0px;
-  --portal-navbar-height: 60px;
-  --sl-nav-height: calc(var(--portal-banner-height) + var(--portal-navbar-height));
+  --portal-navbar-height: 64px;
+  --portal-tabs-height: 48px;
+  --sl-nav-height: calc(var(--portal-banner-height) + var(--portal-navbar-height) + var(--portal-tabs-height));
 
   /* Sidebar width on pages Starlight does not render (Starlight's own --sl-sidebar-width is 18.75rem). */
   --portal-sidebar-width: 18.75rem;
@@ -93,6 +94,16 @@
 
 :root:has(#portal-announcement):not(.portal-announcement-dismissed) {
   --portal-banner-height: 36px;
+}
+
+/* The section tabs row is hidden on narrow screens (the menu lists the tabs), and absent without tabs. */
+@media (width < 50rem) {
+  :root {
+    --portal-tabs-height: 0px;
+  }
+}
+:root:not(:has(.portal-tabs)) {
+  --portal-tabs-height: 0px;
 }
 
 body {

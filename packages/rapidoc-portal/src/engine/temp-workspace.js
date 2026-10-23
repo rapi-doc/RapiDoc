@@ -8,6 +8,8 @@
  *     markdoc.config.mjs       Markdoc tags for .mdoc docs (src/markdoc/astro-config.js)
  *     src/content.config.ts
  *     src/content/docs/docs/   normalized copy of the project's docs/ (.markdoc renamed to .mdoc)
+ *     src/content/docs/index.* docs/index.*, the home page (if the project has one)
+ *     public/                  the project's public/ folder (logo, favicon, images)
  *     public/specs/            OpenAPI specs from `apis:`
  *     public/assets/           rapidoc-min.js
  *     public/search-index.json
@@ -73,12 +75,20 @@ export function resolveDependencyRoot() {
  * Re-syncs the docs copy and the search index from the project. Used on start and on docs changes.
  */
 export function refreshDocs(workspace) {
-  syncDocs(workspace.projectDocsDir, workspace.docsContentDir);
+  syncDocs(workspace.projectDocsDir, workspace.contentDir, { editUrl: workspace.config.docs.editUrl });
   try {
     writeSearchIndex(workspace.config, workspace.projectDir, listDocFiles(workspace.projectDocsDir), workspace.publicDir);
   } catch (err) {
     console.warn(`[rapidoc-portal] Search index not built: ${err.message}`);
   }
+}
+
+/**
+ * Copies the project's public/ folder (logo, favicon, images) into the workspace's public/.
+ */
+function copyProjectPublic(projectDir, publicDir) {
+  const source = path.join(projectDir, 'public');
+  if (fs.existsSync(source)) fs.cpSync(source, publicDir, { recursive: true });
 }
 
 /**
@@ -98,7 +108,8 @@ export async function createPortalWorkspace(projectDir = process.cwd()) {
     config,
     configPath,
     projectDir: resolvedProjectDir,
-    projectDocsDir: config.docs?.fullPath || path.join(resolvedProjectDir, 'docs'),
+    projectDocsDir: config.docs.fullPath,
+    contentDir: path.join(root, 'src', 'content', 'docs'),
     docsContentDir: path.join(root, 'src', 'content', 'docs', 'docs'),
     publicDir: path.join(root, 'public'),
   };
@@ -112,6 +123,7 @@ export async function createPortalWorkspace(projectDir = process.cwd()) {
     fs.writeFileSync(path.join(root, 'src', 'content.config.ts'), CONTENT_CONFIG_TS, 'utf8');
     fs.writeFileSync(path.join(root, 'markdoc.config.mjs'), MARKDOC_CONFIG_MJS, 'utf8');
 
+    copyProjectPublic(resolvedProjectDir, workspace.publicDir);
     copySpecs(config, workspace.publicDir);
     copyRapidocBundle(workspace.publicDir);
     refreshDocs(workspace);

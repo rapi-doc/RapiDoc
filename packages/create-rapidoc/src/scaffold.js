@@ -106,7 +106,6 @@ components:
 const STARTER_GETTING_STARTED = `---
 title: Getting Started
 description: Quickstart guide to integrating with the Core Developer Platform.
-layout: docs
 ---
 
 # Getting Started
@@ -152,7 +151,6 @@ Explore the interactive API console or review our [Architecture Overview](/docs/
 const STARTER_OVERVIEW = `---
 title: Architecture Overview
 description: Learn how microservices, caching, and rate limiting work across the platform.
-layout: docs
 ---
 
 # Architecture Overview
@@ -216,56 +214,83 @@ curl -H "Authorization: Bearer YOUR_TOKEN" https://api.example.com/v1/items
 {% /tabs %}
 `;
 
-const STARTER_CONFIG = (title) => `site:
+const STARTER_HOME = (title) => `---
+title: "${title}"
+description: Guides and interactive API reference.
+template: splash
+hero:
+  tagline: Everything you need to integrate with our APIs, from your first request to production.
+  actions:
+    - text: Get started
+      link: /docs/getting-started/
+      icon: right-arrow
+    - text: API reference
+      link: /apis/core
+      variant: minimal
+---
+
+{% card-grid %}
+{% card title="Getting Started" icon="rocket" href="/docs/getting-started/" %}
+Authenticate and make your first request.
+{% /card %}
+{% card title="Architecture Overview" icon="open-book" href="/docs/guides/overview/" %}
+How the platform handles caching, rate limits and failover.
+{% /card %}
+{% /card-grid %}
+`;
+
+const STARTER_CONFIG = (title) => `# yaml-language-server: $schema=./node_modules/@rapidoc/portal/schema.json
+site:
   title: "${title}"
   description: "Official developer portal and interactive API reference."
-  announcement:
-    text: "🎉 Welcome to our brand new developer portal!"
-    link: "/docs/getting-started"
-  headerLinks:
+  banner:
+    message: "🎉 Welcome to our brand new developer portal!"
+    href: "/docs/getting-started"
+
+theme:
+  primary: "#f59e0b"
+  mode: auto
+
+# Row 1 of the header: links and menus right of the search
+header:
+  links:
     - label: "Solutions"
       items:
         - label: "Getting Started"
-          icon: "🚀"
+          icon: "rocket"
           description: "Quickstart guide and developer tutorials"
           href: "/docs/getting-started"
         - label: "Core API"
-          icon: "⚡"
+          icon: "zap"
           description: "Interactive OpenAPI documentation"
           href: "/apis/core"
-    - label: "Documentation"
-      path: "/docs/getting-started"
     - label: "Login"
       href: "/login"
+      style: button
 
-docs:
-  path: "./docs"
-  toc: true
+# Row 2 of the header: one tab per entry; a documentation tab has its own sidebar
+navigation:
+  - label: "Documentation"
+    icon: "book"
+    items:
+      - label: "Guides"
+        items:
+          - getting-started
+          - guides/overview
+  - label: "Core API"
+    icon: "code"
+    api: core
+  - label: "API Catalog"
+    icon: "grid"
+    catalog: true
 
 apis:
-  - id: "core"
-    title: "Core Services API"
-    root: "./specs/api.yaml"
-    path: "/apis/core"
-
-navigation:
-  - title: "Guides"
-    items:
-      - label: "Getting Started"
-        path: "/docs/getting-started"
-      - label: "Architecture Overview"
-        path: "/docs/guides/overview"
-  - title: "API Reference"
-    items:
-      - label: "Core Services API"
-        path: "/apis/core"
-        type: "api"
+  - id: core
+    spec: "./specs/api.yaml"
 
 rapidoc:
   render-style: "focused"
   schema-style: "tree"
-  theme: "dark"
-  primary-color: "#f59e0b"
 `;
 
 const STARTER_PACKAGE_JSON = (projectName) =>
@@ -313,9 +338,10 @@ npm run preview
 ## Project Structure
 
 \`\`\`text
-├── docs/                 # Documentation pages (.md, .markdoc, .mdx)
+├── docs/                 # Documentation pages (.md, .markdoc, .mdx); docs/index.* is the home page
 ├── specs/                # OpenAPI specifications (.yaml, .json)
-├── rapidoc.config.yaml   # Portal navigation, theme, and API config
+├── public/               # Static files (logo, favicon, images), served from /
+├── rapidoc.config.yaml   # Portal header, navigation tabs, theme and APIs
 ├── package.json
 └── README.md
 \`\`\`
@@ -350,6 +376,7 @@ export function scaffoldProject(targetDir, options = {}) {
     { path: path.join(resolvedDir, '.gitignore'), content: STARTER_GITIGNORE },
     { path: path.join(resolvedDir, 'README.md'), content: STARTER_README(siteTitle) },
     { path: path.join(specsDir, 'api.yaml'), content: STARTER_SPEC },
+    { path: path.join(docsDir, 'index.markdoc'), content: STARTER_HOME(siteTitle) },
     { path: path.join(docsDir, 'getting-started.md'), content: STARTER_GETTING_STARTED },
     { path: path.join(guidesDir, 'overview.markdoc'), content: STARTER_OVERVIEW },
   ];

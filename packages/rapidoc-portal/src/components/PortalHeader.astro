@@ -3,7 +3,7 @@ import portalConfig from 'virtual:rapidoc-portal/config';
 import DualToneIcon from './DualToneIcon.astro';
 import PortalMobileNav from './PortalMobileNav.astro';
 import PortalSearchModal from './PortalSearchModal.astro';
-import { resolveHeaderLinks } from './header-links.js';
+import { activeTab } from './header-nav.js';
 
 interface Props {
   portalConfig?: any;
@@ -13,13 +13,11 @@ interface Props {
 
 const config = Astro.props.portalConfig ?? portalConfig;
 
-const site = config?.site || {};
-const announcement = site.announcement;
-const logo = site.logo || {};
-const title = logo.text || site.title || 'Developer Portal';
-const icon = logo.icon || '🚀';
-const logoHref = logo.href || '/';
-const headerLinks = resolveHeaderLinks(config);
+const { site, tabs } = config;
+const banner = site.banner;
+const logo = site.logo;
+const headerLinks = config.header.links;
+const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
 
 // On pages with a sidebar, the menu button opens the sidebar on narrow screens, and the sidebar
 // lists the header links above its own navigation (PortalSidebar.astro, api-reference.astro).
@@ -33,6 +31,22 @@ if (!sidebarId) {
 const hasSidebar = Boolean(sidebarId);
 
 const currentPath = Astro.url?.pathname || '/';
+const currentTab = activeTab(tabs, currentPath);
+
+// Lucide icons (24px grid) for the section tabs (`navigation[].icon`). Tabs without an icon show none.
+const TAB_ICONS: Record<string, string> = {
+  book: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  rocket: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
+  list: '<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>',
+  terminal: '<polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/>',
+  package: '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/>',
+  compass: '<circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/>',
+  newspaper: '<path d="M15 18h-5"/><path d="M18 14h-8"/><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2"/><rect width="8" height="4" x="10" y="6" rx="1"/>',
+  shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+};
 ---
 
 <header class="portal-header-root" data-portal-region="header" data-has-sidebar={hasSidebar ? '' : undefined}>
@@ -49,21 +63,21 @@ const currentPath = Astro.url?.pathname || '/';
   </script>
 
   {
-    announcement?.text && (
+    banner && (
       <aside
         class="portal-announcement-bar"
         id="portal-announcement"
-        style={announcement.bgColor ? `background-color: ${announcement.bgColor}; color: ${announcement.textColor || '#000000'};` : ''}
+        style={[banner.background && `background-color: ${banner.background}`, banner.color && `color: ${banner.color}`].filter(Boolean).join('; ')}
       >
         <div class="portal-announcement-inner">
-          <span class="portal-announcement-msg">{announcement.text}</span>
-          {announcement.link && (
-            <a href={announcement.link} class="portal-announcement-cta">
+          <span class="portal-announcement-msg">{banner.message}</span>
+          {banner.href && (
+            <a href={banner.href} class="portal-announcement-cta">
               Explore &rarr;
             </a>
           )}
         </div>
-        {announcement.dismissible !== false && (
+        {banner.dismissible && (
           <button type="button" class="portal-announcement-close" id="portal-announcement-close" aria-label="Dismiss announcement">
             &times;
           </button>
@@ -72,23 +86,35 @@ const currentPath = Astro.url?.pathname || '/';
     )
   }
 
+  <!-- Row 1: brand, search, links and menus, theme switcher -->
   <div class="portal-navbar" data-portal-region="header-inner">
-    <div class="portal-nav-left">
-      <a href={logoHref} class="portal-brand" aria-label={`${title} Home`}>
-        {logo.light ? (
-          <img src={logo.light} alt={logo.alt || title} class="portal-brand-img" />
-        ) : (
-          <span class="portal-brand-icon">{icon}</span>
-        )}
-        <span class="portal-brand-text">{title}</span>
-      </a>
+    <a href={logo.href} class="portal-brand" aria-label={`${site.title} home`}>
+      {logo.light && <img src={logo.light} alt={logo.text ? '' : logo.alt} class:list={['portal-brand-img', { 'portal-brand-img-light': logo.dark !== logo.light }]} />}
+      {logo.dark && logo.dark !== logo.light && <img src={logo.dark} alt={logo.text ? '' : logo.alt} class="portal-brand-img portal-brand-img-dark" />}
+      {logo.text && <span class="portal-brand-text">{logo.text}</span>}
+    </a>
 
-      <!-- Desktop Navigation Links & Mega-Menus (Cypress.io style) -->
+    {
+      config.search ? (
+        <button type="button" class="portal-search-trigger" id="portal-search-btn" aria-label="Search documentation (⌘K)">
+          <svg class="portal-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <span class="portal-search-text">Search</span>
+          <kbd class="portal-search-kbd">⌘K</kbd>
+        </button>
+      ) : (
+        <span class="portal-search-spacer" />
+      )
+    }
+
+    <div class="portal-nav-end">
       <nav class="portal-nav-menu" aria-label="Main Navigation">
         {
           headerLinks.map((link) => {
             const hasSubmenu = Array.isArray(link.items) && link.items.length > 0;
-            const anyHasFeatures = hasSubmenu && link.items.some((it) => Array.isArray(it.features) && it.features.length > 0);
+            const anyHasFeatures = hasSubmenu && link.items.some((it) => it.items?.length > 0);
 
             if (hasSubmenu) {
               return (
@@ -110,16 +136,16 @@ const currentPath = Astro.url?.pathname || '/';
                       /* Cypress.io Sectioned Mode: Hero card + 2-column feature links below it */
                       <div class="portal-megamenu-sections">
                         {link.items.map((item, idx) => {
-                          const hasFeats = Array.isArray(item.features) && item.features.length > 0;
+                          const hasFeats = item.items?.length > 0;
                           return (
                             <div class:list={['portal-megamenu-section', { 'with-divider': idx < link.items.length - 1 }]}>
-                              <a href={item.href || item.path || '#'} class="portal-megamenu-hero-card">
+                              <a href={item.href} class="portal-megamenu-hero-card">
                                 <div class="portal-card-icon-box" data-icon-type={item.icon || 'zap'}>
                                   <DualToneIcon name={item.icon || 'zap'} size={22} />
                                 </div>
                                 <div class="portal-card-body">
                                   <div class="portal-card-title-row">
-                                    <span class="portal-card-title">{item.label || item.title}</span>
+                                    <span class="portal-card-title">{item.label}</span>
                                     {item.badge && <span class="portal-card-badge">{item.badge}</span>}
                                     <span class="portal-card-arrow">&rarr;</span>
                                   </div>
@@ -129,10 +155,10 @@ const currentPath = Astro.url?.pathname || '/';
 
                               {hasFeats && (
                                 <div class="portal-features-grid">
-                                  {item.features.map((feat) => (
-                                    <a href={feat.href || item.href || '#'} class="portal-feature-item">
+                                  {item.items.map((feat) => (
+                                    <a href={feat.href} class="portal-feature-item">
                                       <DualToneIcon name={feat.icon || 'check'} size={15} class="portal-feature-icon" />
-                                      <span class="portal-feature-label">{feat.label || feat.title}</span>
+                                      <span class="portal-feature-label">{feat.label}</span>
                                     </a>
                                   ))}
                                 </div>
@@ -145,13 +171,13 @@ const currentPath = Astro.url?.pathname || '/';
                       /* Cypress.io 2-Column Grid Mode: Wide cards side by side */
                       <div class="portal-megamenu-grid">
                         {link.items.map((item) => (
-                          <a href={item.href || item.path || '#'} class="portal-megamenu-card">
+                          <a href={item.href} class="portal-megamenu-card">
                             <div class="portal-card-icon-box" data-icon-type={item.icon || 'zap'}>
                               <DualToneIcon name={item.icon || 'zap'} size={22} />
                             </div>
                             <div class="portal-card-body">
                               <div class="portal-card-title-row">
-                                <span class="portal-card-title">{item.label || item.title}</span>
+                                <span class="portal-card-title">{item.label}</span>
                                 {item.badge && <span class="portal-card-badge">{item.badge}</span>}
                                 <span class="portal-card-arrow">&rarr;</span>
                               </div>
@@ -166,13 +192,14 @@ const currentPath = Astro.url?.pathname || '/';
               );
             }
 
-            const isDirectActive = currentPath === link.href || currentPath === link.path || (link.href !== '/' && currentPath.startsWith(link.href || link.path));
+            const external = isExternal(link.href);
+            const isActive = !external && link.href !== '/' && (currentPath === link.href || currentPath.startsWith(`${link.href.replace(/\/$/, '')}/`));
             return (
               <a
-                href={link.href || link.path || '#'}
-                class:list={['portal-nav-link', { active: isDirectActive }]}
-                target={link.href?.startsWith('http') ? '_blank' : undefined}
-                rel={link.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+                href={link.href}
+                class:list={['portal-nav-link', link.style && link.style !== 'link' && `portal-nav-${link.style}`, { active: isActive }]}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
               >
                 {link.label}
               </a>
@@ -180,23 +207,23 @@ const currentPath = Astro.url?.pathname || '/';
           })
         }
       </nav>
-    </div>
 
-    <!-- Right Header Actions (Search, Theme Toggle, Mobile) -->
-    <div class="portal-nav-right">
-      <button type="button" class="portal-search-trigger" id="portal-search-btn" aria-label="Search documentation (⌘K)">
-        <svg class="portal-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <span class="portal-search-text">Search...</span>
-        <kbd class="portal-search-kbd">⌘K</kbd>
+{
+        config.header.themeSwitcher && (
+      <button type="button" class="portal-theme-btn" id="portal-theme-toggle" aria-label="Toggle dark mode">
+        <span class="portal-theme-option portal-theme-light" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+          </svg>
+        </span>
+        <span class="portal-theme-option portal-theme-dark" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+          </svg>
+        </span>
       </button>
-
-      <button type="button" class="portal-theme-btn" id="portal-theme-toggle" aria-label="Toggle theme">
-        <span class="portal-theme-icon-dark">🌙</span>
-        <span class="portal-theme-icon-light">☀️</span>
-      </button>
+        )
+      }
 
       <button type="button" class="portal-mobile-toggle" id="portal-mobile-menu-btn" aria-label="Toggle mobile menu" aria-expanded="false">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -219,9 +246,32 @@ const currentPath = Astro.url?.pathname || '/';
     </div>
   </div>
 
+  <!-- Row 2: section tabs -->
+  {
+    tabs.length > 0 && (
+      <nav class="portal-tabs" data-portal-region="header-tabs" aria-label="Sections">
+        {tabs.map((tab) => (
+          <a
+            href={tab.href}
+            class="portal-tab"
+            aria-current={tab === currentTab ? 'page' : undefined}
+            target={isExternal(tab.href) ? '_blank' : undefined}
+            rel={isExternal(tab.href) ? 'noopener noreferrer' : undefined}
+          >
+            {tab.icon && (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={TAB_ICONS[tab.icon] || TAB_ICONS.compass} />
+            )}
+            <span>{tab.label}</span>
+            {tab.badge && <span class="portal-tab-badge">{typeof tab.badge === 'string' ? tab.badge : tab.badge.text}</span>}
+          </a>
+        ))}
+      </nav>
+    )
+  }
+
   <!-- Mobile Drawer -->
   <div class="portal-mobile-drawer" id="portal-mobile-drawer" hidden>
-    <PortalMobileNav links={headerLinks} />
+    <PortalMobileNav links={[...tabs, ...headerLinks]} />
   </div>
 </header>
 
@@ -298,13 +348,12 @@ const currentPath = Astro.url?.pathname || '/';
     opacity: 1;
   }
 
-  /* Main Top Bar */
+  /* Row 1: brand | search (centred in the free space) | links, menus and theme switcher */
   .portal-navbar {
     height: var(--portal-navbar-height);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: 1.5rem;
     padding-inline: var(--portal-shell-pad-x);
     /* Opaque: the sidebar slides under the header when the footer pushes it up. */
     background-color: var(--ph-bg);
@@ -312,15 +361,16 @@ const currentPath = Astro.url?.pathname || '/';
     box-sizing: border-box;
   }
 
-  .portal-nav-left {
+  .portal-nav-end {
     display: flex;
     align-items: center;
-    gap: 2rem;
-    min-width: 0;
+    gap: 0.75rem;
+    flex-shrink: 0;
   }
 
   /* Brand */
   .portal-brand {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 0.625rem;
@@ -331,8 +381,13 @@ const currentPath = Astro.url?.pathname || '/';
     letter-spacing: -0.01em;
     min-width: 0;
   }
-  .portal-brand-icon {
-    font-size: 1.35rem;
+  .portal-brand-img {
+    height: 28px;
+    width: auto;
+  }
+  :root[data-theme='light'] .portal-brand-img-dark,
+  :root:not([data-theme='light']) .portal-brand-img-light {
+    display: none;
   }
   .portal-brand-text {
     font-weight: 700;
@@ -345,7 +400,7 @@ const currentPath = Astro.url?.pathname || '/';
   .portal-nav-menu {
     display: none;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.25rem;
   }
   @media (min-width: 72rem) {
     .portal-nav-menu {
@@ -366,7 +421,25 @@ const currentPath = Astro.url?.pathname || '/';
   .portal-nav-link:hover,
   .portal-nav-link.active {
     color: var(--ph-fg);
-    background-color: rgba(255, 255, 255, 0.06);
+    background-color: var(--portal-hover-bg);
+  }
+  /* header.links[].style: button (outlined) and primary (filled) */
+  .portal-nav-link.portal-nav-button,
+  .portal-nav-link.portal-nav-primary {
+    margin-inline-start: 0.25rem;
+    padding: 0.4rem 0.875rem;
+    border: 1px solid var(--ph-border);
+    color: var(--ph-fg);
+  }
+  .portal-nav-link.portal-nav-primary {
+    border-color: var(--ph-primary);
+    background-color: var(--ph-primary);
+    color: #000000;
+    font-weight: 600;
+  }
+  .portal-nav-link.portal-nav-primary:hover {
+    background-color: color-mix(in srgb, var(--ph-primary) 85%, #ffffff);
+    color: #000000;
   }
 
   /* Dropdown Trigger */
@@ -396,7 +469,7 @@ const currentPath = Astro.url?.pathname || '/';
   .portal-dropdown-wrapper:focus-within .portal-dropdown-trigger,
   .portal-dropdown-wrapper.is-open .portal-dropdown-trigger {
     color: var(--ph-fg);
-    background-color: rgba(255, 255, 255, 0.06);
+    background-color: var(--portal-hover-bg);
   }
   .portal-chevron {
     transition: transform 0.2s ease;
@@ -412,7 +485,7 @@ const currentPath = Astro.url?.pathname || '/';
     display: none;
     position: absolute;
     top: 100%;
-    left: 0;
+    right: 0;
     width: 680px;
     max-width: min(680px, calc(100vw - 2rem));
     background: var(--ph-surface, oklch(0.2613 0.0134 272.84));
@@ -429,13 +502,6 @@ const currentPath = Astro.url?.pathname || '/';
     transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
     z-index: 1000;
     pointer-events: none;
-  }
-
-  /* Right-align dropdown if near right edge */
-  .portal-dropdown-wrapper:last-child .portal-megamenu-panel,
-  .portal-dropdown-wrapper:nth-last-child(2) .portal-megamenu-panel {
-    left: auto;
-    right: 0;
   }
 
   /* Invisible hover bridge connecting trigger to panel to prevent closing on mouse move */
@@ -647,18 +713,16 @@ const currentPath = Astro.url?.pathname || '/';
     color: #000000;
   }
 
-  /* Right Header Controls */
-  .portal-nav-right {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
+  /* Search: a wide field from 50rem, an icon button below */
   .portal-search-trigger {
+    flex: 1 1 auto;
+    max-width: 30rem;
+    margin-inline: auto;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    padding: 0.4rem 0.75rem;
+    padding: 0 0.75rem;
     background: color-mix(in srgb, var(--ph-bg) 80%, transparent);
     border: 1px solid var(--ph-border);
     border-radius: 8px;
@@ -672,7 +736,18 @@ const currentPath = Astro.url?.pathname || '/';
     border-color: var(--ph-primary);
     color: var(--ph-fg);
   }
-  @media (width < 80rem) {
+  .portal-search-text {
+    flex: 1;
+    text-align: start;
+  }
+  @media (width < 50rem) {
+    .portal-search-trigger {
+      flex: none;
+      width: 2.5rem;
+      margin-inline: auto 0;
+      justify-content: center;
+      padding: 0;
+    }
     .portal-search-text,
     .portal-search-kbd {
       display: none;
@@ -686,35 +761,63 @@ const currentPath = Astro.url?.pathname || '/';
     font-family: inherit;
   }
 
+  /* Theme switcher: light and dark options side by side, the current one highlighted */
   .portal-theme-btn {
-    width: 36px;
-    height: 36px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 8px;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
     background: transparent;
     border: 1px solid var(--ph-border);
     cursor: pointer;
     color: var(--ph-muted);
-    transition: all 0.15s ease;
   }
-  .portal-theme-btn:hover {
-    border-color: var(--ph-primary);
+  .portal-theme-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .portal-theme-btn:hover .portal-theme-option {
     color: var(--ph-fg);
   }
+  :root[data-theme='light'] .portal-theme-light,
+  :root:not([data-theme='light']) .portal-theme-dark {
+    color: var(--ph-fg);
+    background-color: var(--portal-hover-bg);
+  }
 
-  :root[data-theme='dark'] .portal-theme-icon-light {
-    display: none;
-  }
-  :root[data-theme='dark'] .portal-theme-icon-dark {
-    display: inline-block;
-  }
-  :root[data-theme='light'] .portal-theme-icon-dark {
-    display: none;
-  }
-  :root[data-theme='light'] .portal-theme-icon-light {
-    display: inline-block;
+  /* Narrow screens: one icon per control, and the brand gives way first. */
+  @media (width < 50rem) {
+    .portal-navbar,
+    .portal-nav-end {
+      gap: 0.5rem;
+    }
+    .portal-brand {
+      flex-shrink: 1;
+    }
+    .portal-theme-btn {
+      padding: 0;
+      border: none;
+    }
+    .portal-theme-option {
+      width: 36px;
+      height: 36px;
+    }
+    :root[data-theme='light'] .portal-theme-dark,
+    :root:not([data-theme='light']) .portal-theme-light {
+      display: none;
+    }
+    :root[data-theme='light'] .portal-theme-light,
+    :root:not([data-theme='light']) .portal-theme-dark {
+      background-color: transparent;
+    }
   }
 
   .portal-mobile-toggle {
@@ -747,6 +850,61 @@ const currentPath = Astro.url?.pathname || '/';
     }
   }
 
+  /* Row 2: section tabs. Hidden below 50rem, where the menu lists them. */
+  .portal-tabs {
+    height: var(--portal-tabs-height);
+    display: flex;
+    align-items: stretch;
+    gap: 2rem;
+    padding-inline: var(--portal-shell-pad-x);
+    background-color: var(--ph-bg);
+    border-bottom: 1px solid var(--ph-border);
+    box-sizing: border-box;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  @media (width < 50rem) {
+    .portal-tabs {
+      display: none;
+    }
+  }
+  .portal-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ph-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .portal-tab:hover,
+  .portal-tab[aria-current='page'] {
+    color: var(--ph-fg);
+  }
+  .portal-tab-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    border: 1px solid var(--ph-border);
+    color: var(--ph-muted);
+  }
+  /* Keeps the links on the right when search is off. */
+  .portal-search-spacer {
+    flex: 1;
+  }
+  .portal-tab[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 2px;
+    border-radius: 2px;
+    background-color: var(--ph-primary);
+  }
+
   /* Mobile Drawer */
   .portal-mobile-drawer {
     background: var(--ph-surface);
@@ -777,14 +935,7 @@ const currentPath = Astro.url?.pathname || '/';
         root.setAttribute('data-theme', next);
         try {
           localStorage.setItem('starlight-theme', next);
-          localStorage.setItem('portal-theme', next);
         } catch {}
-
-        // Update rapi-doc if present
-        const rapiDoc = document.querySelector('rapi-doc');
-        if (rapiDoc) {
-          rapiDoc.setAttribute('color-scheme', next);
-        }
       });
     }
 

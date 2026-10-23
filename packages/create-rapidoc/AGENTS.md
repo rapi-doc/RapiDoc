@@ -12,11 +12,12 @@
 
 ## 2. Capabilities
 1. Scaffolds new portals with a single command:
-   - `rapidoc.config.yaml`
+   - `rapidoc.config.yaml` (v2: site, theme, header links, navigation tabs, apis)
    - `package.json` with `@rapidoc/cli`
    - `.gitignore`
    - `README.md`
    - Valid OpenAPI 3.1 sample specification in `specs/api.yaml`
+   - Home page in `docs/index.markdoc` (Starlight splash template with cards)
    - Starter Markdown guide in `docs/getting-started.md`
    - Starter Markdoc guide in `docs/guides/overview.markdoc` demonstrating callouts, tabs, step tags, and a live `api-operation` embed of the starter spec
 2. Supports interactive or headless scaffolding (`--title`, `--force`).

@@ -26,11 +26,12 @@ const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__di
 const OUTPUT_DIR = process.env.RAPIDOC_LAYOUT_OUT ? path.resolve(process.env.RAPIDOC_LAYOUT_OUT) : null;
 
 const PAGES = [
-  { id: 'home', path: '/', kind: 'landing' },
-  { id: 'catalog', path: '/catalog/', kind: 'landing' },
-  { id: 'docs', path: '/docs/shipping-process/', kind: 'docs' },
-  { id: 'api', path: '/apis/shipments/', kind: 'api' },
-  { id: 'api-tag', path: '/apis/shipments/tracking-notifications/', kind: 'api' },
+  // `tab`: the header tab marked as the current section (none on the home page).
+  { id: 'home', path: '/', kind: 'landing', tab: null },
+  { id: 'catalog', path: '/catalog/', kind: 'landing', tab: 'API Catalog' },
+  { id: 'docs', path: '/docs/shipping-process/', kind: 'docs', tab: 'Documentation' },
+  { id: 'api', path: '/apis/shipments/', kind: 'api', tab: 'Shipments' },
+  { id: 'api-tag', path: '/apis/shipments/tracking-notifications/', kind: 'api', tab: 'Shipments' },
 ];
 
 const VIEWPORTS = [
@@ -46,6 +47,7 @@ const KINDS = ['landing', 'docs', 'api'];
 const REGIONS = {
   header: ['[data-portal-region="header"]', 'header.header', '.portal-header-root'],
   headerInner: ['[data-portal-region="header-inner"]', '.portal-navbar'],
+  tabs: ['[data-portal-region="header-tabs"]', '.portal-tabs'],
   sidebar: ['[data-portal-region="sidebar"]', '.sidebar-pane', '.portal-sidebar'],
   toc: ['[data-portal-region="toc"]', '.right-sidebar'],
   footer: ['[data-portal-region="footer"]', 'footer.portal-footer-root', 'footer.portal-content-footer'],
@@ -87,6 +89,34 @@ const RULES = [
       if (top.headerContentBottom > top.header.bottom + TOLERANCE) {
         return `header content reaches y=${top.headerContentBottom}px, below the header's bottom edge at ${top.header.bottom}px`;
       }
+    },
+  },
+  {
+    name: 'section tabs form the second header row',
+    kinds: KINDS,
+    applies: ({ viewport }) => viewport.width >= 800,
+    check: ({ top }) => {
+      if (!top.tabs) return 'tabs row not found';
+      if (!near(top.tabs.top, top.headerInner.bottom))
+        return `tabs row starts at y=${top.tabs.top}px, the first row ends at ${top.headerInner.bottom}px`;
+      if (!near(top.tabs.bottom, top.header.bottom)) return `tabs row ends at y=${top.tabs.bottom}px, the header at ${top.header.bottom}px`;
+    },
+  },
+  {
+    name: 'section tabs move into the menu on narrow screens',
+    kinds: KINDS,
+    applies: ({ viewport }) => viewport.width < 800,
+    check: ({ top }) => {
+      if (top.tabs) return `tabs row is visible and ${top.tabs.height}px tall`;
+    },
+  },
+  {
+    name: 'the tab of the current section is marked',
+    kinds: KINDS,
+    check: ({ page, top }) => {
+      if (top.activeTabs.length > 1) return `${top.activeTabs.length} tabs are marked: ${top.activeTabs.join(', ')}`;
+      const marked = top.activeTabs[0] ?? null;
+      if (marked !== page.tab) return `marked tab is ${marked ?? 'none'}, expected ${page.tab ?? 'none'}`;
     },
   },
   {
@@ -326,6 +356,9 @@ function measureInPage(regions) {
   result.scrollWidth = document.documentElement.scrollWidth;
   result.scrollHeight = document.documentElement.scrollHeight;
   result.footerCount = document.querySelectorAll(regions.footer.join(',')).length;
+  result.activeTabs = [...document.querySelectorAll(regions.tabs.map((selector) => `${selector} [aria-current="page"]`).join(','))].map(
+    (el) => el.textContent.trim()
+  );
   result.hasPagination = Boolean(document.querySelector('.pagination-links'));
   result.loadsRapidoc = Boolean(document.querySelector('script[src*="rapidoc-min.js"]'));
   result.hasSidebarDockedBar = Boolean(document.querySelector('.portal-sidebar-docked-footer'));

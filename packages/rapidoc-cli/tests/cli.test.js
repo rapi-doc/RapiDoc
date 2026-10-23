@@ -53,7 +53,7 @@ theme:
       assert.ok(fs.existsSync(path.join(tempDir, 'rapidoc.config.yaml')));
 
       const generatedContent = fs.readFileSync(path.join(tempDir, 'rapidoc.config.yaml'), 'utf8');
-      assert.ok(generatedContent.includes('primary-color: "#6366f1"'));
+      assert.ok(generatedContent.includes('primary: "#6366f1"'));
     } finally {
       if (fs.existsSync(tempDir)) {
         fs.rmSync(tempDir, { recursive: true, force: true });

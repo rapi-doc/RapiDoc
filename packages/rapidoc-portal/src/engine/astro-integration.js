@@ -17,12 +17,15 @@ export const CONFIG_MODULE = 'virtual:rapidoc-portal/config';
 // File URLs, not path strings: Astro reads a string entrypoint as relative to the project root.
 const pageUrl = (name) => new URL(`../pages/${name}`, import.meta.url);
 
-const PORTAL_ROUTES = [
-  { pattern: '/', entrypoint: pageUrl('home.astro') },
-  { pattern: '/catalog', entrypoint: pageUrl('catalog.astro') },
-  { pattern: '/docs', entrypoint: pageUrl('docs-index-redirect.astro') },
-  { pattern: '/[...apiRoute]', entrypoint: pageUrl('api-reference.astro') },
-];
+/** Pages Starlight does not render. `/` is the home doc (docs/index.*) when there is one. */
+function portalRoutes(portalConfig) {
+  return [
+    ...(portalConfig.docs.home ? [] : [{ pattern: '/', entrypoint: pageUrl('first-tab-redirect.astro') }]),
+    { pattern: '/catalog', entrypoint: pageUrl('catalog.astro') },
+    { pattern: '/docs', entrypoint: pageUrl('first-tab-redirect.astro') },
+    { pattern: '/[...apiRoute]', entrypoint: pageUrl('api-reference.astro') },
+  ];
+}
 
 function virtualModulesPlugin(portalConfig) {
   const modules = {
@@ -64,7 +67,7 @@ export function rapidocPortal({ portalConfig }) {
     name: '@rapidoc/portal',
     hooks: {
       'astro:config:setup': ({ injectRoute, updateConfig }) => {
-        for (const route of PORTAL_ROUTES) injectRoute(route);
+        for (const route of portalRoutes(portalConfig)) injectRoute(route);
         updateConfig({ vite: { plugins: [virtualModulesPlugin(portalConfig)] } });
       },
     },
@@ -81,7 +84,8 @@ export function createAstroConfig(workspace, overrides = {}) {
   return {
     root: workspace.root,
     configFile: false,
-    site: 'https://developer.portal',
+    site: workspace.config.site.url || 'https://developer.portal',
+    redirects: Object.fromEntries(workspace.config.redirects.map(({ from, to }) => [from, to])),
     build: { format: 'directory' },
     // markdoc() renders .mdoc docs with the workspace's markdoc.config.mjs; it must come before Starlight.
     integrations: [markdoc(), starlight(createStarlightOptions(workspace.config)), rapidocPortal({ portalConfig: workspace.config })],
