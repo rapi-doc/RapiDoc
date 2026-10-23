@@ -83,6 +83,12 @@ export default css`
         margin-top: 2px;
       }
 
+      & .descr-chip {
+        display: inline-block;
+        line-break: anywhere;
+        margin-right: 8px;
+      }
+
       & .descr-more {
         display: none;
       }
@@ -91,7 +97,9 @@ export default css`
     /* constraint chips and array limits: "Allowed:", "Min Items:" … then the value in mono */
     & .descr-label,
     & b {
-      font-weight: 600;
+      font-weight: 500;
+      font-size: calc(var(--font-size-small) - 1px);
+      color: var(--primary);
     }
     & .descr-value {
       font-family: var(--font-mono);
@@ -100,8 +108,9 @@ export default css`
     }
   }
 
+  /* -90deg rather than 270deg: same direction, but it turns anticlockwise to expand and clockwise to collapse */
   .expanded-descr .key-descr .descr-expand-toggle {
-    transform: rotate(270deg);
+    transform: rotate(-90deg);
   }
 
   /* hidden, not removed, so switching to multiline doesn't shift the descriptions sideways */
@@ -132,6 +141,10 @@ export default css`
       font-weight: 400;
     }
     & > :is(ul, ol):first-child > li {
+      display: inline;
+    }
+    /* inline so a long chip is cut mid-text: an inline-block chip is dropped whole, leaving the ellipsis far from the edge */
+    & .descr-chip {
       display: inline;
     }
     & > :is(ul, ol):first-child > li:not(:first-child),

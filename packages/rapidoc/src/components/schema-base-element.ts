@@ -131,12 +131,12 @@ export default class SchemaBaseElement extends LitElement {
       return '';
     }
     return html`
-      ${node.constraints ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Constraints:</span> <span class="descr-value">${node.constraints}</span></div>` : ''}
-      ${node.defaultValue ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Default:</span> <span class="descr-value">${node.defaultValue}</span></div>` : ''}
-      ${node.allowedValues ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">${node.type === 'const' ? 'Value' : 'Allowed'}:</span> <span class="descr-value">${node.allowedValues}</span></div>` : ''}
-      ${node.pattern ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Pattern:</span> <span class="descr-value">${node.pattern}</span></div>` : ''}
-      ${node.contentMediaType ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Media-Type:</span> <span class="descr-value">${node.contentMediaType}</span></div>` : ''}
-      ${node.contentEncoding ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Encoding:</span> <span class="descr-value">${node.contentEncoding}</span></div>` : ''}
+      ${node.constraints ? html`<div class="descr-chip"><span class="descr-label">Constraints:</span> <span class="descr-value">${node.constraints}</span></div>` : ''}
+      ${node.defaultValue ? html`<div class="descr-chip"><span class="descr-label">Default:</span> <span class="descr-value">${node.defaultValue}</span></div>` : ''}
+      ${node.allowedValues ? html`<div class="descr-chip"><span class="descr-label">${node.type === 'const' ? 'Value' : 'Allowed'}:</span> <span class="descr-value">${node.allowedValues}</span></div>` : ''}
+      ${node.pattern ? html`<div class="descr-chip"><span class="descr-label">Pattern:</span> <span class="descr-value">${node.pattern}</span></div>` : ''}
+      ${node.contentMediaType ? html`<div class="descr-chip"><span class="descr-label">Media-Type:</span> <span class="descr-value">${node.contentMediaType}</span></div>` : ''}
+      ${node.contentEncoding ? html`<div class="descr-chip"><span class="descr-label">Encoding:</span> <span class="descr-value">${node.contentEncoding}</span></div>` : ''}
     `;
   }
 

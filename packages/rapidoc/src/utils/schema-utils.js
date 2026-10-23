@@ -897,34 +897,34 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
     mainText = schema.description;
   }
 
-  const extraParts = [];
+  const limits = [];
   if (schema.minItems) {
-    extraParts.push(`<b>Min Items:</b> <span class="descr-value">${schema.minItems}</span>`);
+    limits.push(`<span class="descr-label">Min Items:</span> <span class="descr-value">${schema.minItems}</span>`);
   }
   if (schema.maxItems) {
-    extraParts.push(`<b>Max Items:</b> <span class="descr-value">${schema.maxItems}</span>`);
+    limits.push(`<span class="descr-label">Max Items:</span> <span class="descr-value">${schema.maxItems}</span>`);
   }
   if (schema.uniqueItems === true) {
-    extraParts.push(`<b>Must have unique items</b>`);
+    limits.push(`<span class="descr-label">Must have unique items</span>`);
+  }
+
+  const parts = mainText ? [mainText.trim()] : [];
+  if (limits.length > 0) {
+    // Same wrapper as the constraint chips, so both sit the same distance under the description.
+    // Kept on one line so markdown treats it as a single block.
+    parts.push(`<div class="item-details">${limits.join(' ')}</div>`);
   }
   if (level > 0 && schema.items?.description) {
     let itemsMarkdown = '';
     if (schema.items.minProperties) {
-      itemsMarkdown = `<b>Min Properties:</b> <span class="descr-value">${schema.items.minProperties}</span>`;
+      itemsMarkdown = `<span class="descr-label">Min Properties:</span> <span class="descr-value">${schema.items.minProperties}</span>`;
     }
     if (schema.items.maxProperties) {
-      itemsMarkdown = `${itemsMarkdown} <b>Max Properties:</b> <span class="descr-value">${schema.items.maxProperties}</span>`;
+      itemsMarkdown = `${itemsMarkdown} <span class="descr-label">Max Properties:</span> <span class="descr-value">${schema.items.maxProperties}</span>`;
     }
-    extraParts.push(`⮕ ${itemsMarkdown} [ ${schema.items.description} ]`);
+    parts.push(`⮕ ${itemsMarkdown} [ ${schema.items.description} ]`);
   }
-
-  if (mainText && extraParts.length > 0) {
-    return `${mainText.trim()}\n\n${extraParts.join(' ')}`;
-  }
-  if (mainText) {
-    return mainText.trim();
-  }
-  return extraParts.join(' ');
+  return parts.join('\n\n');
 }
 /**
  * For changing OpenAPI-Schema to an Object Notation,

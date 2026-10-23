@@ -264,9 +264,19 @@ describe('schemaInObjectNotation', () => {
       const result = schemaInObjectNotation(schema, {});
       assert.strictEqual(result['::nullable'], true);
       assert.strictEqual(result['::dataTypeLabel'], 'array ┃ null');
-      assert.ok(result['::description'].includes('Min Items:</b> <span class="descr-value">1</span>'));
-      assert.ok(result['::description'].includes('Max Items:</b> <span class="descr-value">5</span>'));
+      assert.ok(result['::description'].includes('<span class="descr-label">Min Items:</span> <span class="descr-value">1</span>'));
+      assert.ok(result['::description'].includes('<span class="descr-label">Max Items:</span> <span class="descr-value">5</span>'));
       assert.ok(result['::description'].includes('Must have unique items'));
+    });
+
+    it('should wrap array limits in the chips container, as its own block after the description', () => {
+      const result = schemaInObjectNotation({ type: 'array', description: 'Photo URLs', maxItems: 20, items: { type: 'string' } }, {});
+      assert.strictEqual(
+        result['::description'],
+        'Photo URLs\n\n<div class="item-details"><span class="descr-label">Max Items:</span> <span class="descr-value">20</span></div>'
+      );
+      const noDescription = schemaInObjectNotation({ type: 'array', minItems: 1, items: { type: 'string' } }, {});
+      assert.ok(noDescription['::description'].startsWith('<div class="item-details">'), 'Limits alone are a single block');
     });
   });
 
