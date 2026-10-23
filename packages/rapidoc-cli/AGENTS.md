@@ -1,7 +1,7 @@
 # AGENTS.md — `packages/rapidoc-cli` (Command Line Utility)
 
 ## 1. Package Scope & Identity
-`packages/rapidoc-cli` provides a command-line interface for RapiDoc to validate OpenAPI specifications, launch local preview servers, and bundle specs.
+`packages/rapidoc-cli` provides the `rapidoc` command-line interface for `@rapidoc/portal`: `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc validate` (OpenAPI validation), and `rapidoc migrate --from redocly|zudoku` (config migration).
 
 - **Package Name**: `@rapidoc/cli`
 - **Binary Name**: `rapidoc`
@@ -14,6 +14,7 @@
 
 - **Runtime**: Node.js >= 22.12.0
 - **Parser**: `@scalar/openapi-parser` for OpenAPI specification loading and validation
+- **Portal Engine**: `@rapidoc/portal` (dev server and build are delegated to it)
 - **Shebang**: `#!/usr/bin/env node`
 
 ---
@@ -26,6 +27,7 @@ Run these commands from `packages/rapidoc-cli`:
 | :--- | :--- |
 | `npm start` | Executes `node src/index.js` |
 | `node src/index.js <args>` | Directly test CLI arguments during development |
+| `npm test` | Runs `tests/**/*.test.js` |
 
 ---
 

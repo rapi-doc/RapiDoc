@@ -4,16 +4,17 @@
 `packages/rapidoc` contains the core RapiDoc custom elements library. It produces the zero-runtime-dependency web component `<rapi-doc>` as well as companion components `<rapi-doc-mini>` and `<oauth-receiver>`.
 
 - **Package Name**: `rapidoc`
-- **Output Target**: Standalone ES Module bundle at `dist/rapidoc-min.js`
+- **Output Targets**: Standalone ES Module bundle at `dist/rapidoc-min.js`, plus the build-time static renderer at `dist/rapidoc-static-min.js` (exported as `rapidoc/static`)
 - **Component Entry**: `src/index.js`
-- **Main Element**: `src/rapidoc.js` (`<rapi-doc>`)
+- **Main Element**: `src/rapidoc.ts` (`<rapi-doc>`)
+- **Static Renderer**: `src/static/` (`getNavBarHtml`, `getNavCss`, DSD rendering)
 
 ---
 
 ## 2. Technology Stack & Build Pipeline
 
 - **Framework**: [Lit 3](https://lit.dev/) (`LitElement`, `html`, `css`)
-- **Bundler**: [Vite 6](https://vitejs.dev/) in Library Mode (`vite.config.mjs`)
+- **Bundler**: [Vite 8](https://vitejs.dev/) in Library Mode (`vite.config.mjs`, plus `vite.config.static.mjs` for `rapidoc/static`)
 - **Spec Parser**: `@scalar/openapi-parser` for OpenAPI 3.0, OpenAPI 3.1, and Swagger 2.0 dereferencing and parsing
 - **Markdown & Highlight**: `marked`, `microlighter`, `github-slugger`
 - **Rollup / Vite Plugins**:
@@ -34,14 +35,16 @@ Run these commands from `packages/rapidoc` (or from the monorepo root using `--w
 
 | Command | Purpose |
 | :--- | :--- |
-| `npm run build` | Builds the production bundle to `dist/rapidoc-min.js` |
+| `npm run build` | Builds `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js` |
+| `npm run build:client` | Builds only `dist/rapidoc-min.js` |
+| `npm run build:static` | Builds only `dist/rapidoc-static-min.js` |
 | `npm run build:dev` | Builds the unminified bundle with sourcemaps & console logs intact |
 | `npm run build:size` | Builds with `ANALYZE=true` and generates `dist/stats.html` treemap |
-| `npm run lint` | Runs ESLint against `src/**/*.js` |
-| `npm run format` | Checks Prettier formatting for `src/**/*.{js,html,css}` |
-| `npm run format-fix` | Formats `src/**/*.{js,html,css}` according to `.prettierrc` |
+| `npm run lint` | Runs ESLint against `src/**/*.{js,ts}` |
+| `npm run format` | Checks Prettier formatting for `src/**/*.{js,ts,html,css}` |
+| `npm run format-fix` | Formats `src/**/*.{js,ts,html,css}` according to `.prettierrc` |
 | `npm run analyze` | Runs `lit-analyzer src` for type/template safety |
-| `npm test` | Runs Node.js native unit tests (`node --test ../../tests/unit/*.test.js`) |
+| `npm test` | Runs Node.js native unit tests (`node --import ../../scripts/test-loader.mjs --test ../../tests/unit/*.test.js`) |
 
 ---
 
@@ -52,15 +55,16 @@ packages/rapidoc/src/
 ├── components/          # Reusable Lit UI components (nav, headers, inputs, buttons)
 ├── templates/           # Sub-templates (endpoint details, request/response bodies, security)
 ├── styles/              # Scoped CSS stylesheets and theming tokens
+├── static/              # Build-time static renderer (rapidoc/static): nav HTML, DSD output
 ├── utils/
 │   ├── spec-parser.js       # Core OpenAPI spec parser & dereferencing pipeline
-│   ├── schema-ast.js        # Schema abstract syntax tree for recursive JSON-Schema rendering
-│   ├── schema-utils.js      # Type resolver, constraints, and sample generation
+│   ├── schema-utils.js      # Type resolver, constraints, schema tree building, and sample generation
 │   ├── mock-interceptor.js  # Client-side mock server fetch interceptor
+│   ├── slugger.js           # OperationSlugger (stable operation anchors used by portal nav)
 │   └── common-utils.js      # General helpers (slugs, sanitization, copy)
-├── rapidoc.js           # Main <rapi-doc> custom element implementation
-├── rapidoc-mini.js      # Embedded mini widget (<rapi-doc-mini>)
-└── oauth-receiver.js    # OAuth 2 redirect receiver element
+├── rapidoc.ts           # Main <rapi-doc> custom element implementation
+├── rapidoc-mini.ts      # Embedded mini widget (<rapi-doc-mini>)
+└── oauth-receiver.ts    # OAuth 2 redirect receiver element
 ```
 
 ---
@@ -80,7 +84,7 @@ packages/rapidoc/src/
    - Isolate styling using Lit's `css` tagged template literals and expose custom CSS properties (`--bg`, `--fg`, etc.) and CSS parts (`::part(...)`).
 4. **OpenAPI Spec & Parser Compatibility**:
    - Maintain robust support for both OpenAPI 3.0 and OpenAPI 3.1 specifications.
-   - Ensure schema recursion depth is guarded (see `schema-ast.js` recursion limit) to avoid stack overflows on circular references.
+   - Ensure schema recursion depth is guarded (see the `level` recursion depth in `utils/schema-utils.js`) to avoid stack overflows on circular references.
    - Run `npm test` after modifying any parser or schema rendering utility.
 5. **No Direct `console.log` in Production**:
    - Strip debug logging before finalizing changes; `vite.config.mjs` removes `console` in production bundles, but keeping the source clean avoids unintended warning noise.

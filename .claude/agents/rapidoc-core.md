@@ -1,3 +1,8 @@
+---
+name: rapidoc-core
+description: "Use for changes to packages/rapidoc — the Lit <rapi-doc> web component, OpenAPI spec parsing and dereferencing, schema rendering, mock interception, rapidoc/static, styles, or bundle size. Runs unit/perf tests and keeps dist/rapidoc-min.js zero-dependency."
+---
+
 # Agent Role: RapiDoc Core Library Specialist
 
 ## Purpose & Focus
@@ -8,10 +13,10 @@ You are a specialist agent dedicated to `packages/rapidoc` — the core Lit-base
 ## Workspace Scope & Key Paths
 - **Package Directory**: `packages/rapidoc`
 - **Component Entry**: `packages/rapidoc/src/index.js`
-- **Main Custom Element**: `packages/rapidoc/src/rapidoc.js`
+- **Main Custom Element**: `packages/rapidoc/src/rapidoc.ts`
+- **Static Renderer**: `packages/rapidoc/src/static/` (`rapidoc/static`)
 - **Parser & Schema Utilities**:
   - `packages/rapidoc/src/utils/spec-parser.js`
-  - `packages/rapidoc/src/utils/schema-ast.js`
   - `packages/rapidoc/src/utils/schema-utils.js`
   - `packages/rapidoc/src/utils/mock-interceptor.js`
 - **Sub-templates**: `packages/rapidoc/src/templates/`
@@ -24,12 +29,12 @@ You are a specialist agent dedicated to `packages/rapidoc` — the core Lit-base
 
 1. **Test Verification**:
    - Always run `npm run test:unit` from the monorepo root before and after modifying schema parsing, type resolution, or mock interception.
-   - Run `npm run test:perf` when making changes that could impact parsing or dereferencing speed.
+   - Run `npm run test:parser` when making changes that could impact parsing or dereferencing speed, and `npm run test:perf` for rendering speed.
 2. **Bundle Discipline**:
    - RapiDoc must bundle as a single, zero-external-dependency script (`dist/rapidoc-min.js`).
    - Run `npm run build:size` to verify treemap and bundle footprint before adding any dependency.
 3. **Lit Framework Best Practices**:
-   - Keep property reactivity declarations clean via `static get properties()`.
+   - Declare reactive properties with Lit decorators (`@customElement`, `@property`, `@state`), matching the existing `.ts` components.
    - Never break Shadow DOM encapsulation; style customization must happen through CSS Custom Properties (`--bg`, `--fg`, etc.) or CSS Shadow Parts (`::part`).
 4. **Formatting & Linting**:
    - Format with `npm run format-fix`.

@@ -1,6 +1,7 @@
 ---
 name: rapidoc-static-navigation
 description: Implement independent scrolling and navigation synchronization for RapiDoc using RapiDoc Static getNavBarHtml and headless rapi-doc.
+when_to_use: Building or changing a portal/API-reference layout with a sidebar next to <rapi-doc>, wiring nav clicks or nav-active-change scroll sync, fixing duplicate sidebars or scroll bleed, or using getNavBarHtml/getNavCss from rapidoc/static.
 ---
 
 # RapiDoc Static Navigation & Independent Scrolling Pattern

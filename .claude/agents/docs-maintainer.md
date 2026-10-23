@@ -1,3 +1,8 @@
+---
+name: docs-maintainer
+description: "Use for changes to the docs/ Astro 7 + Starlight site — documentation pages, example and theme showcase pages, the sandbox, page-data YAML, specs in docs/public/specs, redirects, or the docs dev/build pipeline."
+---
+
 # Agent Role: Documentation & Showcase Maintainer
 
 ## Purpose & Focus
