@@ -897,10 +897,10 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
 
   const extraParts = [];
   if (schema.minItems) {
-    extraParts.push(`<b>Min Items:</b> ${schema.minItems}`);
+    extraParts.push(`<b>Min Items:</b> <span class="descr-value">${schema.minItems}</span>`);
   }
   if (schema.maxItems) {
-    extraParts.push(`<b>Max Items:</b> ${schema.maxItems}`);
+    extraParts.push(`<b>Max Items:</b> <span class="descr-value">${schema.maxItems}</span>`);
   }
   if (schema.uniqueItems === true) {
     extraParts.push(`<b>Must have unique items</b>`);
@@ -908,10 +908,10 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
   if (level > 0 && schema.items?.description) {
     let itemsMarkdown = '';
     if (schema.items.minProperties) {
-      itemsMarkdown = `<b>Min Properties:</b> ${schema.items.minProperties}`;
+      itemsMarkdown = `<b>Min Properties:</b> <span class="descr-value">${schema.items.minProperties}</span>`;
     }
     if (schema.items.maxProperties) {
-      itemsMarkdown = `${itemsMarkdown} <b>Max Properties:</b> ${schema.items.maxProperties}`;
+      itemsMarkdown = `${itemsMarkdown} <b>Max Properties:</b> <span class="descr-value">${schema.items.maxProperties}</span>`;
     }
     extraParts.push(`⮕ ${itemsMarkdown} [ ${schema.items.description} ]`);
   }

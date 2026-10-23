@@ -162,11 +162,11 @@ rapi-doc::part(label-selected-server) {
 
 <a id="schema-sizing-and-truncation"></a>
 
-## 5. Schema Sizing, Truncation & Threshold Calculations
+## 5. Schema Descriptions: Truncation & Expanding
 
-RapiDoc automatically calculates when to truncate property keys and when to display description row expanders (`➔`). Because `<rapi-doc>` offers both **Tree mode** and **Table mode**, the truncation and expander mechanics differ to suit each layout's geometric constraints.
+In both **Tree mode** and **Table mode**, each schema row shows its description on a single line. Click a description (or its `➔` arrow) to expand that row, and click again to collapse it. The **Multiline description** toolbar button expands every row at once.
 
-### Layout Architectural Differences
+### Layout Differences
 
 <Tabs>
   <TabItem label="Tree Mode Structure">
@@ -177,10 +177,7 @@ RapiDoc automatically calculates when to truncate property keys and when to disp
     </div>
 
     - **Field Column**: Has a dynamic minimum column width (`min-width: calc(400px - indent)`).
-    - **Long Property Names**: When a property name exceeds `--schema-field-name-threshold` (default: `48` characters on desktop), it is truncated with a clean ellipsis (`text-overflow: ellipsis`) and a native hover tooltip (`title="..."`) is provided.
-    - **Dual-Purpose Row Expander (`➔`)**: The row expander button unwraps the entire row. It appears whenever **either**:
-      1. The **field name** exceeds `--schema-field-name-threshold` (revealing the full property name and its `: type` on click), **OR**
-      2. The **description** is multiline, has metadata constraint chips, or exceeds `--schema-description-threshold`.
+    - **Long Property Names**: Truncated with an ellipsis, with the full name in a hover tooltip (`title="..."`). Expanding the row also shows the full name.
   </TabItem>
   <TabItem label="Table Mode Structure">
     In **Table mode**, the schema is formatted into a strict 3-column CSS subgrid:
@@ -192,39 +189,31 @@ RapiDoc automatically calculates when to truncate property keys and when to disp
     - **Field Column (`.key`)**: Dedicated column with a width controlled by `--table-schema-key-width` (default: `240px`). Long property names truncate with an ellipsis and show full text via hover tooltips (`title="..."`).
     - **Type Column (`.key-type`)**: Fixed minimum column (~150px) displaying data types and nullability badges.
     - **Description Column (`.key-descr`)**: Flexible `1fr` column spanning the remaining container width.
-    - **Single-Purpose Expander (`➔`)**: The expander button lives exclusively inside the **Description column**. It toggles the description text and chips between 1-line clamped and full multiline view. It depends **only** on `--schema-description-threshold` and multiline/chips—field name length does not affect it.
   </TabItem>
 </Tabs>
 
-### Threshold Matrix & Calculation Rules
+### What a collapsed row shows
 
-| Schema Layout | Expander Trigger Conditions | Active Custom Properties | Native Hover Tooltip |
-| :--- | :--- | :--- | :--- |
-| **Tree Mode** (`<schema-tree>`) | `desc.length > descThreshold`<br/>**OR** `hasMultiline` / `hasChips`<br/>**OR** `fieldName.length > fieldNameThreshold` | `--schema-description-threshold`<br/>`--schema-field-name-threshold` | Yes (`title` on `.key-label`) |
-| **Table Mode** (`<schema-table>`) | `desc.length > descThreshold`<br/>**OR** `hasMultiline` / `hasChips` | `--schema-description-threshold`<br/>*(Field column width set by `--table-schema-key-width`)* | Yes (`title` on `.key-label`) |
+| Description content | Collapsed row | `➔` arrow |
+| :--- | :--- | :--- |
+| One paragraph that fits | The whole paragraph | No |
+| One paragraph that is too long for the column | The start of the paragraph, cut off with a cue (see below) | No |
+| Several paragraphs, a list with several items, or a `<br>` line break | The first paragraph or list item | Yes |
+| A description plus constraints, default, allowed values or pattern | The description; the constraint chips are hidden | Yes |
+| Constraints only, no description | The constraint chips | No |
+| Nothing | An empty cell | No |
 
-### Dynamic CSS Container Queries (`@container`)
+Whether a line is too long is decided by the browser at the actual column width and font, not by counting characters, so it adapts to split panes, sidebars and resizing without any JavaScript.
 
-Instead of static, rigid character counts, RapiDoc uses CSS Container Queries (`@container`) on the component's `:host` (`container-type: inline-size`). A zero-overhead `ResizeObserver` recalculates the thresholds only when a container query breakpoint is crossed, adapting seamlessly when embedded in split-panes, sidebars, or responsive containers:
+### The truncation cue
 
-| Container Width | `--schema-description-threshold` | `--schema-field-name-threshold` | Typical Context |
-| :--- | :---: | :---: | :--- |
-| **Compact / Split-Pane** (`< 650px`) | `45` | `32` | Mobile devices, documentation sidebars, narrow modal dialogs |
-| **Default / Laptop** (`650px – 1199px`) | `75` | `48` | Standard laptop displays, half-screen browser windows |
-| **Wide / Desktop** (`≥ 1200px`) | `95` | `55` | Full-width monitors, ultra-wide desktop documentation portals |
+- **Chrome and Edge (133+)**: a cut-off line ends with a small button-style `…` badge, shown only on rows that are actually cut off. Those rows also get a pointer cursor. This uses a CSS [scroll-state container query](https://developer.chrome.com/blog/css-scroll-state-queries).
+- **Other browsers**: a cut-off line ends with a bold ellipsis in the primary color.
 
-### Customizing Thresholds via CSS
-
-You can override these calculations globally or per-container without altering HTML attributes:
+Both use `--primary` (and `--primary-foreground` for the badge on hover), so they follow your theme.
 
 ```css
 rapi-doc {
-  /* Increase threshold to let longer descriptions remain single-line */
-  --schema-description-threshold: 90;
-
-  /* Allow longer field names in Tree mode before truncating with an ellipsis */
-  --schema-field-name-threshold: 60;
-
   /* Allocate more width for property names in Table mode */
   --table-schema-key-width: 300px;
 }

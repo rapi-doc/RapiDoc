@@ -3,7 +3,6 @@ import { property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from 'marked';
 import { sanitizeHTML } from '../utils/sanitize.js';
-import { hasMultilineDescription } from '../utils/markdown-utils.js';
 
 export default class SchemaBaseElement extends LitElement {
   @property({ type: Object }) config: any;
@@ -13,50 +12,6 @@ export default class SchemaBaseElement extends LitElement {
   @property({ type: String, attribute: 'allow-schema-description-expand-toggle' }) allowSchemaDescriptionExpandToggle = 'false';
   @property({ type: String, attribute: 'schema-hide-read-only' }) schemaHideReadOnly = 'true';
   @property({ type: String, attribute: 'schema-hide-write-only' }) schemaHideWriteOnly = 'true';
-
-  _resizeObserver: any;
-  _lastDescThreshold: any;
-  _lastFieldThreshold: any;
-
-  connectedCallback() {
-    super.connectedCallback();
-    if (typeof ResizeObserver !== 'undefined') {
-      this._resizeObserver = new ResizeObserver(() => {
-        const { descThreshold, fieldNameThreshold } = this.getThresholds();
-        if (descThreshold !== this._lastDescThreshold || fieldNameThreshold !== this._lastFieldThreshold) {
-          this._lastDescThreshold = descThreshold;
-          this._lastFieldThreshold = fieldNameThreshold;
-          this.requestUpdate();
-        }
-      });
-      this._resizeObserver.observe(this);
-    }
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this._resizeObserver?.disconnect();
-  }
-
-  getThresholds() {
-    if (typeof window === 'undefined' || typeof getComputedStyle === 'undefined') {
-      return { descThreshold: 75, fieldNameThreshold: 48 };
-    }
-    try {
-      const styles = getComputedStyle(this);
-      const descVal = styles.getPropertyValue('--schema-description-threshold')?.trim();
-      const defaultDesc = styles.getPropertyValue('--_desc-threshold-default')?.trim();
-      const descThreshold = parseInt(descVal || defaultDesc, 10) || 75;
-
-      const fieldVal = styles.getPropertyValue('--schema-field-name-threshold')?.trim();
-      const defaultField = styles.getPropertyValue('--_field-threshold-default')?.trim();
-      const fieldNameThreshold = parseInt(fieldVal || defaultField, 10) || 48;
-
-      return { descThreshold, fieldNameThreshold };
-    } catch {
-      return { descThreshold: 75, fieldNameThreshold: 48 };
-    }
-  }
 
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
@@ -88,11 +43,15 @@ export default class SchemaBaseElement extends LitElement {
       this.toggleObjectExpand(toggleTrigger);
     } else if (e.target.classList.contains('schema-multiline-toggle')) {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
-    } else if (e.target.classList.contains('descr-expand-toggle')) {
+    } else if (e.target.closest('.descr-expand-toggle, .descr-body')) {
+      // Links inside a description still navigate, and selecting text to copy it doesn't toggle the row
+      if (this.schemaDescriptionExpanded === 'true' || e.target.closest('a') || window.getSelection()?.isCollapsed === false) {
+        return;
+      }
       const trEl = e.target.closest('.tr');
       if (trEl) {
         const isExpanded = trEl.classList.toggle('expanded-descr');
-        e.target.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+        trEl.querySelector('.descr-expand-toggle')?.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
       }
     }
   }
@@ -172,12 +131,12 @@ export default class SchemaBaseElement extends LitElement {
       return '';
     }
     return html`
-      ${node.constraints ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Constraints: </span>${node.constraints}</div>` : ''}
-      ${node.defaultValue ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Default: </span>${node.defaultValue}</div>` : ''}
-      ${node.allowedValues ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">${node.type === 'const' ? 'Value' : 'Allowed'}: </span>${node.allowedValues}</div>` : ''}
-      ${node.pattern ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Pattern: </span>${node.pattern}</div>` : ''}
-      ${node.contentMediaType ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Media-Type: </span>${node.contentMediaType}</div>` : ''}
-      ${node.contentEncoding ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Encoding: </span>${node.contentEncoding}</div>` : ''}
+      ${node.constraints ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Constraints:</span> <span class="descr-value">${node.constraints}</span></div>` : ''}
+      ${node.defaultValue ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Default:</span> <span class="descr-value">${node.defaultValue}</span></div>` : ''}
+      ${node.allowedValues ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">${node.type === 'const' ? 'Value' : 'Allowed'}:</span> <span class="descr-value">${node.allowedValues}</span></div>` : ''}
+      ${node.pattern ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Pattern:</span> <span class="descr-value">${node.pattern}</span></div>` : ''}
+      ${node.contentMediaType ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Media-Type:</span> <span class="descr-value">${node.contentMediaType}</span></div>` : ''}
+      ${node.contentEncoding ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="descr-label">Encoding:</span> <span class="descr-value">${node.contentEncoding}</span></div>` : ''}
     `;
   }
 
@@ -189,29 +148,49 @@ export default class SchemaBaseElement extends LitElement {
     return html`${unsafeHTML(sanitizeHTML(marked(text)))}`;
   }
 
-  isDescriptionExpandable(desc, hasChips = false, extraDesc = '', fieldName = '') {
-    if (hasChips) {
-      return true;
+  /**
+   * Description cell shared by every schema row.
+   * Collapsed rows show only the first markdown block (or the constraint chips, when there is no description) on one line,
+   * and CSS marks a cut-off line with an ellipsis, or a "…" badge where scroll-state container queries are supported.
+   * The arrow is shown only when content is known to be hidden: more markdown blocks, a line break, or chips under the text.
+   *
+   * @param {string} desc - Markdown description
+   * @param {object} [chipsNode] - Node whose constraints, default, allowed values, etc. are shown as chips
+   * @param {string} [title] - Schema title, shown in bold before the description
+   */
+  renderDescrCell(desc, chipsNode = null, title = '') {
+    const text = typeof desc === 'string' ? desc.trim() : '';
+    const hasChips = this.hasDetailChips(chipsNode);
+    if (!text && !title && !hasChips) {
+      return html`<div class="td key-descr"></div>`;
     }
-    const { descThreshold, fieldNameThreshold } = this.getThresholds();
-    if (fieldName && typeof fieldName === 'string' && fieldName.trim().length > fieldNameThreshold) {
-      return true;
-    }
-    const check = (d) => Boolean(d && typeof d === 'string' && (hasMultilineDescription(d) || d.trim().length > descThreshold));
-    return check(desc) || check(extraDesc);
-  }
-
-  renderDescrExpander(hasText, hasExtra) {
-    return hasText && hasExtra
-      ? html`<span
-          class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}"
+    const markdown = title ? (text ? `<b>${title}:</b> ${text}` : `<b>${title}</b>`) : text;
+    const tokens = markdown ? marked.lexer(markdown) : [];
+    const blocks = tokens.filter((t: any) => t.type !== 'space');
+    const hasMore =
+      blocks.length > 1 ||
+      (blocks[0]?.type === 'list' && blocks[0].items.length > 1) ||
+      /<br\s*\/?>(?!\s*$)/i.test(markdown) ||
+      (blocks.length > 0 && hasChips);
+    const isExpanded = this.schemaDescriptionExpanded === 'true';
+    return html`
+      <div class="td key-descr">
+        <span
+          class="descr-expand-toggle"
           role="button"
           tabindex="0"
           aria-label="Toggle description"
-          aria-expanded="${this.schemaDescriptionExpanded === 'true' ? 'true' : 'false'}"
+          aria-expanded="${isExpanded ? 'true' : 'false'}"
+          ?hidden="${!hasMore}"
           >➔</span
-        >`
-      : '';
+        >
+        <div class="descr-body m-markdown-small ${hasMore ? 'has-more' : ''}">
+          ${blocks.length ? unsafeHTML(sanitizeHTML(marked.parser(tokens))) : ''}
+          ${hasChips ? html`<div class="item-details">${this.renderDetailChips(chipsNode)}</div>` : ''}
+          <span class="descr-more" aria-hidden="true">…</span>
+        </div>
+      </div>
+    `;
   }
 
   renderToolbar(rootType) {

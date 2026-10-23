@@ -264,8 +264,8 @@ describe('schemaInObjectNotation', () => {
       const result = schemaInObjectNotation(schema, {});
       assert.strictEqual(result['::nullable'], true);
       assert.strictEqual(result['::dataTypeLabel'], 'array ┃ null');
-      assert.ok(result['::description'].includes('Min Items:</b> 1'));
-      assert.ok(result['::description'].includes('Max Items:</b> 5'));
+      assert.ok(result['::description'].includes('Min Items:</b> <span class="descr-value">1</span>'));
+      assert.ok(result['::description'].includes('Max Items:</b> <span class="descr-value">5</span>'));
       assert.ok(result['::description'].includes('Must have unique items'));
     });
   });

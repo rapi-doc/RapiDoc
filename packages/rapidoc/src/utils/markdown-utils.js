@@ -58,20 +58,3 @@ export function configureMarkdown() {
 }
 
 configureMarkdown();
-
-/**
- * Checks whether a markdown or HTML description contains multiline content or explicit line breaks.
- *
- * @param {string} desc - Markdown or HTML description text
- * @returns {boolean}
- */
-export function hasMultilineDescription(desc) {
-  if (!desc || typeof desc !== 'string') {
-    return false;
-  }
-  const cleaned = desc
-    .trim()
-    .replace(/<br\s*\/?>$/i, '')
-    .trim();
-  return cleaned.includes('<br') || cleaned.includes('\n');
-}

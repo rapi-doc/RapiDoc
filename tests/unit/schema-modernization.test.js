@@ -98,106 +98,86 @@ describe('Schema Modernization & Accessibility (schema-tree & schema-table)', ()
     });
   });
 
-  describe('description expander accessibility & expandability detection', () => {
-    it('should render role="button", tabindex="0", and aria-label on descr-expand-toggle', () => {
-      const expanderHtml = renderToString(tree.renderDescrExpander(true, true));
-      assert.ok(expanderHtml.includes('class="descr-expand-toggle'), 'Should render descr-expand-toggle');
-      assert.ok(expanderHtml.includes('role="button"'), 'Expander should have role="button"');
-      assert.ok(expanderHtml.includes('tabindex="0"'), 'Expander should have tabindex="0"');
-      assert.ok(expanderHtml.includes('aria-label="Toggle description"'), 'Expander should have aria-label');
-      assert.ok(expanderHtml.includes('aria-expanded="false"'), 'Expander should indicate aria-expanded');
+  describe('description cell: arrow only when content is known to be hidden', () => {
+    const cell = (desc, chipsNode = null, title = '') => renderToString(tree.renderDescrCell(desc, chipsNode, title));
+    // Value bound to the arrow's ?hidden attribute (renderToString drops booleans)
+    const arrowHidden = (desc, chipsNode = null) => {
+      const result = tree.renderDescrCell(desc, chipsNode);
+      return result.values[result.strings.findIndex((str) => str.endsWith('?hidden="'))];
+    };
+
+    it('renders an accessible arrow toggle and a one-line description body', () => {
+      const html = cell('A short description');
+      assert.ok(html.includes('class="descr-expand-toggle"'), 'Should render descr-expand-toggle');
+      assert.ok(html.includes('role="button"'), 'Arrow should have role="button"');
+      assert.ok(html.includes('tabindex="0"'), 'Arrow should have tabindex="0"');
+      assert.ok(html.includes('aria-label="Toggle description"'), 'Arrow should have aria-label');
+      assert.ok(html.includes('aria-expanded="false"'), 'Arrow should indicate aria-expanded');
+      assert.ok(html.includes('class="descr-body m-markdown-small'), 'Should render descr-body');
+      assert.ok(html.includes('class="descr-more" aria-hidden="true"'), 'Should render the "…" badge for CSS to show');
     });
 
-    it('isDescriptionExpandable returns true for long single-line descriptions (>75 chars)', () => {
-      const longDesc = 'Strategic organizational portfolio identifier assigned by executive leadership governance.';
-      assert.equal(longDesc.length > 75, true);
-      assert.equal(table.isDescriptionExpandable(longDesc), true);
-      assert.equal(tree.isDescriptionExpandable(longDesc), true);
+    it('hides the arrow for a single paragraph, however long', () => {
+      const longDesc = 'Strategic organizational portfolio identifier assigned by executive leadership governance. '.repeat(3);
+      assert.equal(arrowHidden(longDesc), true);
+      assert.equal(arrowHidden('Short desc'), true);
+      assert.equal(arrowHidden('Single line with trailing br <br>'), true);
     });
 
-    it('isDescriptionExpandable returns false for medium/short descriptions (<=75 chars) without newlines/chips', () => {
-      const mediumDesc = 'Global corporate entity registration and compliance identification code';
-      assert.equal(mediumDesc.length <= 75, true);
-      assert.equal(table.isDescriptionExpandable(mediumDesc, false), false);
-      assert.equal(tree.isDescriptionExpandable(mediumDesc, false), false);
+    it('shows the arrow for several markdown blocks, list items or line breaks', () => {
+      assert.equal(arrowHidden('First paragraph.\n\nSecond paragraph.'), false);
+      assert.equal(arrowHidden('- one\n- two'), false);
+      assert.equal(arrowHidden('Line 1<br>Line 2'), false);
+      assert.equal(arrowHidden('- only item'), true);
     });
 
-    it('isDescriptionExpandable returns true when hasChips is true or newlines exist', () => {
-      assert.equal(table.isDescriptionExpandable('short', true), true);
-      assert.equal(table.isDescriptionExpandable('line1\nline2', false), true);
-      assert.equal(table.isDescriptionExpandable('line1<br>line2', false), true);
+    it('shows the arrow when constraint chips sit under a description', () => {
+      const chipsNode = { constraints: 'min:1, max:10' };
+      assert.equal(arrowHidden('Number of items', chipsNode), false);
+      assert.ok(cell('Number of items', chipsNode).includes('class="item-details"'));
     });
 
-    it('renders descr-expand-toggle for fields with long single-line descriptions in schema-table and schema-tree', () => {
-      const longDesc = 'Strategic organizational portfolio identifier assigned by executive leadership governance.';
+    it('puts constraint chips on the first line, with no arrow, when there is no description', () => {
+      const chipsNode = { constraints: 'min:1, max:10' };
+      assert.equal(arrowHidden('', chipsNode), true);
+      assert.ok(cell('', chipsNode).includes('class="item-details"'));
+    });
+
+    it('renders an empty cell, with no arrow, when there is no description, title or chips', () => {
+      assert.equal(cell('').trim(), '<div class="td key-descr"></div>');
+      assert.equal(cell('   ').trim(), '<div class="td key-descr"></div>');
+      assert.equal(cell(undefined).trim(), '<div class="td key-descr"></div>');
+    });
+
+    it('renders a title-only primitive as a description', () => {
+      assert.ok(cell('', null, 'Identifier').includes('class="descr-body'));
+    });
+
+    it('does not show an arrow for a long field name without a description', () => {
+      const ast = schemaToAST({ type: 'object', properties: { primaryCorporateEntityRegistrationIdentificationNumber: { type: 'string' } } }, 0, 'root');
+      const treeHtml = renderToString(tree.renderAST(ast));
+      assert.ok(!treeHtml.includes('class="descr-expand-toggle"'), 'No description means no toggle');
+    });
+
+    it('uses the same description cell for every row kind in schema-tree and schema-table', () => {
       const ast = schemaToAST(
         {
           type: 'object',
           properties: {
-            departmentExecutiveLeadershipPortfolioIdentifier: {
-              type: 'string',
-              description: longDesc,
-            },
-            shortField: {
-              type: 'string',
-              description: 'Short desc',
-            },
+            obj: { type: 'object', description: 'Object desc', properties: { a: { type: 'string', description: 'Primitive desc' } } },
+            objList: { type: 'array', description: 'Array of objects desc', items: { type: 'object', properties: { b: { type: 'string' } } } },
+            matrix: { type: 'array', description: 'Array of arrays desc', items: { type: 'array', items: { type: 'string' } } },
+            tags: { type: 'array', description: 'Array of primitives desc', items: { type: 'string', minLength: 2 } },
           },
         },
         0,
         'root'
       );
-
-      const tableHtml = renderToString(table.renderAST(ast));
-      assert.ok(
-        tableHtml.includes('class="descr-expand-toggle'),
-        'schema-table should render descr-expand-toggle for long single-line description (>75 chars)'
-      );
-
-      const treeHtml = renderToString(tree.renderAST(ast));
-      assert.ok(
-        treeHtml.includes('class="descr-expand-toggle'),
-        'schema-tree should render descr-expand-toggle for long single-line description (>75 chars)'
-      );
+      for (const html of [renderToString(tree.renderAST(ast)), renderToString(table.renderAST(ast))]) {
+        assert.equal(html.match(/class="descr-body /g)?.length, 5, 'Every described row should render a descr-body');
+        assert.ok(!html.includes('class="td key-descr m-markdown-small"'), 'The markdown class belongs on descr-body, not the cell');
+      }
     });
-
-    it('isDescriptionExpandable returns true for long field names (> 48 chars) and false for <= 48 chars without description', () => {
-      const longName = 'primaryCorporateEntityRegistrationIdentificationNumber'; // 55 chars
-      assert.equal(longName.length > 48, true);
-      assert.equal(tree.isDescriptionExpandable('', false, '', longName), true);
-
-      const shortName = 'internalCorporateAdministrativeTaxIdentifier'; // 44 chars
-      assert.equal(shortName.length <= 48, true);
-      assert.equal(tree.isDescriptionExpandable('', false, '', shortName), false);
-    });
-
-    it('renders descr-expand-toggle in schema-tree for long field name (> 48 chars) even with no description', () => {
-      const ast = schemaToAST(
-        {
-          type: 'object',
-          properties: {
-            primaryCorporateEntityRegistrationIdentificationNumber: {
-              type: 'string',
-            },
-            internalCorporateAdministrativeTaxIdentifier: {
-              type: 'string',
-            },
-          },
-        },
-        0,
-        'root'
-      );
-
-      const treeHtml = renderToString(tree.renderAST(ast));
-      assert.ok(treeHtml.includes('class="descr-expand-toggle'), 'schema-tree should render descr-expand-toggle for field name > 48 chars');
-    });
-
-    it('getThresholds returns default thresholds and supports custom overrides', () => {
-      const defaults = tree.getThresholds();
-      assert.equal(defaults.descThreshold, 75);
-      assert.equal(defaults.fieldNameThreshold, 48);
-    });
-
     it('renders title tooltip on key-label in schema-table and schema-tree', () => {
       const ast = schemaToAST(
         {

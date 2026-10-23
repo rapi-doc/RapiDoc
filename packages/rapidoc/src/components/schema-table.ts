@@ -197,9 +197,6 @@ export default class SchemaTable extends SchemaBaseElement {
     if (node.kind === 'array') {
       const items = node.items;
       if (!items) {
-        const hasText = !!node.description;
-        const hasExtra = this.isDescriptionExpandable(node.description);
-        const descrExpander = this.renderDescrExpander(hasText, hasExtra);
         const typeLabel = node.dataTypeLabel || (node.nullable ? 'array ┃ null' : 'array');
         return html`
           <div class="tr array ${nullClass}" data-obj="${node.name || ''}">
@@ -208,9 +205,7 @@ export default class SchemaTable extends SchemaBaseElement {
               ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
             </div>
             <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
-            <div class="td key-descr" style="font-size: var(--font-size-small)">
-              ${hasText ? html`<span class="m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description)}</span>` : ''}
-            </div>
+            ${this.renderDescrCell(node.description)}
           </div>
         `;
       }
@@ -218,11 +213,6 @@ export default class SchemaTable extends SchemaBaseElement {
       if (items.kind === 'primitive') {
         const itemType = items.format || items.contentMediaType || items.type || 'string';
         const dataTypeCss = this.getDataTypeCss(itemType);
-        const hasText = !!(node.description || items.description);
-        const hasItemChips = this.hasDetailChips(items);
-        const hasExtra = this.isDescriptionExpandable(node.description, hasItemChips, items.description);
-        const descrExpander = this.renderDescrExpander(hasText, hasExtra);
-        const detailChips = this.renderDetailChips(items);
 
         return html`
           <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
@@ -233,16 +223,7 @@ export default class SchemaTable extends SchemaBaseElement {
             <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">
               [${itemType}]${node.nullable ? ' ┃ null' : ''}${readWriteBadge}
             </div>
-            <div class="td key-descr" style="font-size: var(--font-size-small)">
-              ${
-                hasText
-                  ? html`<span class="m-markdown-small"
-                      >${descrExpander} ${this.renderDescriptionHtml(node.description || items.description)}</span
-                    >`
-                  : ''
-              }
-              ${hasText && hasItemChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
-            </div>
+            ${this.renderDescrCell(node.description || items.description, items)}
           </div>
         `;
       }
@@ -258,10 +239,6 @@ export default class SchemaTable extends SchemaBaseElement {
       if (node.nullable) {
         arrLabel += ' ┃ null';
       }
-
-      const hasText = !!(node.description || items.description);
-      const hasExtra = this.isDescriptionExpandable(node.description, false, items.description);
-      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       const hasChildren =
         items.kind === 'object'
@@ -297,15 +274,7 @@ export default class SchemaTable extends SchemaBaseElement {
             ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
           </div>
           <div class="td key-type" title="${readWriteTip}">${arrLabel}${readWriteBadge}</div>
-          <div class="td key-descr" style="font-size: var(--font-size-small)">
-            ${
-              hasText
-                ? html`<span class="m-markdown-small"
-                    >${descrExpander} ${this.renderDescriptionHtml(node.description || items.description || '')}</span
-                  >`
-                : ''
-            }
-          </div>
+          ${this.renderDescrCell(node.description || items.description)}
         </div>
         ${
           hasChildren
@@ -331,9 +300,6 @@ export default class SchemaTable extends SchemaBaseElement {
     // 2. Object kind
     if (node.kind === 'object') {
       const typeLabel = node.dataTypeLabel || (node.nullable ? 'object ┃ null' : 'object');
-      const hasText = !!node.description;
-      const hasExtra = this.isDescriptionExpandable(node.description);
-      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       const hasChildren = !!(
         (node.properties && node.properties.length > 0) ||
@@ -373,9 +339,7 @@ export default class SchemaTable extends SchemaBaseElement {
                     ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
                   </div>
                   <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
-                  <div class="td key-descr" style="font-size: var(--font-size-small)">
-                    ${hasText ? html`<span class="m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</span>` : ''}
-                  </div>
+                  ${this.renderDescrCell(node.description)}
                 </div>
               `
             : ''
@@ -398,9 +362,6 @@ export default class SchemaTable extends SchemaBaseElement {
     // 3. Union kind (oneOf / anyOf)
     if (node.kind === 'union') {
       const opLabel = (node.operator === 'anyOf' ? 'ANY OF' : 'ONE OF') + (node.suffix ? ` ${node.suffix}` : '');
-      const hasText = !!node.description;
-      const hasExtra = this.isDescriptionExpandable(node.description);
-      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       return html`
         ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel, indentLevel))}
@@ -409,9 +370,7 @@ export default class SchemaTable extends SchemaBaseElement {
             <span class="xxx-of-key" style="margin-left:-6px">${opLabel}</span>
           </div>
           <div class="td key-type"></div>
-          <div class="td key-descr" style="font-size: var(--font-size-small)">
-            ${hasText ? html`<span class="m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</span>` : ''}
-          </div>
+          ${this.renderDescrCell(node.description)}
         </div>
         <div class="object-body">
           ${node.options?.map(
@@ -434,11 +393,6 @@ export default class SchemaTable extends SchemaBaseElement {
     // 4. Primitive kind
     if (node.kind === 'primitive') {
       const dataTypeCss = this.getDataTypeCss(node.type);
-      const hasText = !!(node.description || node.title);
-      const hasDetailChips = this.hasDetailChips(node);
-      const hasExtra = this.isDescriptionExpandable(node.description, hasDetailChips);
-      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
-      const detailChips = this.renderDetailChips(node);
 
       return html`
         <div class="tr primitive ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
@@ -449,14 +403,7 @@ export default class SchemaTable extends SchemaBaseElement {
           <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">
             ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}
           </div>
-          <div class="td key-descr" style="font-size: var(--font-size-small)">
-            ${
-              hasText
-                ? html`<span class="m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description, node.title)}</span>`
-                : ''
-            }
-            ${hasText && hasDetailChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
-          </div>
+          ${this.renderDescrCell(node.description, node, node.title)}
         </div>
       `;
     }

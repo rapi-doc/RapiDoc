@@ -9,20 +9,6 @@ export default css`
   :host {
     container-type: inline-size;
     interpolate-size: allow-keywords;
-    --_desc-threshold-default: 75;
-    --_field-threshold-default: 48;
-  }
-  @container (max-width: 650px) {
-    :host {
-      --_desc-threshold-default: 45;
-      --_field-threshold-default: 32;
-    }
-  }
-  @container (min-width: 1200px) {
-    :host {
-      --_desc-threshold-default: 95;
-      --_field-threshold-default: 55;
-    }
   }
   .tr {
     display: flex;
@@ -57,18 +43,21 @@ export default css`
     font-family: var(--font-sans);
     color: var(--muted-foreground);
     flex-shrink: 1;
-    text-overflow: ellipsis;
+    min-width: 0;
+    gap: 4px;
+    align-items: flex-start;
     overflow: hidden;
     display: none;
 
     & .descr-expand-toggle {
-      display: inline-block;
+      flex: none;
+      width: 1em;
+      text-align: center;
       user-select: none;
       color: var(--foreground);
       cursor: pointer;
       transform: rotate(45deg);
       transition: transform 0.2s ease;
-      margin-right: 4px;
       border-radius: 2px;
 
       &:hover {
@@ -79,51 +68,114 @@ export default css`
         outline: 2px solid var(--primary);
       }
 
-      &.expanded-descr {
-        transform: rotate(270deg);
+      /* keep the slot so descriptions line up whether or not a row has an arrow */
+      &[hidden] {
+        display: inline-block;
+        visibility: hidden;
       }
     }
 
-    & .m-markdown-small {
-      display: inline-block;
-      vertical-align: top;
-      max-width: 100%;
+    & .descr-body {
+      flex: 1;
+      min-width: 0;
 
-      & p {
-        display: inline;
-        margin: 0;
+      & .item-details {
+        margin-top: 2px;
+      }
 
-        & + p {
-          display: block;
-          margin-top: 4px;
-        }
+      & .descr-more {
+        display: none;
       }
     }
 
-    & .item-details {
-      display: block;
-      margin-top: 2px;
+    /* constraint chips and array limits: "Allowed:", "Min Items:" … then the value in mono */
+    & .descr-label,
+    & b {
+      font-weight: 600;
+    }
+    & .descr-value {
+      font-family: var(--font-mono);
+      font-size: var(--font-size-small);
+      line-height: 1; /* the mono font's metrics would otherwise make the line 1px taller */
     }
   }
 
-  .expanded-descr {
-    & .key-descr {
-      max-height: auto;
-      overflow: hidden;
-      display: none;
-
-      & .descr-expand-toggle {
-        transform: rotate(270deg);
-      }
-    }
-
-    & .more-content {
-      display: none;
-    }
+  .expanded-descr .key-descr .descr-expand-toggle {
+    transform: rotate(270deg);
   }
 
+  /* hidden, not removed, so switching to multiline doesn't shift the descriptions sideways */
   .expanded-all-descr .key-descr .descr-expand-toggle {
-    display: none;
+    visibility: hidden;
+  }
+
+  /* a row expanded by clicking collapses again on click */
+  .collapsed-all-descr .tr.expanded-descr .descr-body {
+    cursor: pointer;
+  }
+
+  /* Collapsed rows: only the first block (or the chips), on one line, with a colored ellipsis when it is cut off */
+  .collapsed-all-descr .tr:not(.expanded-descr) .descr-body {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+
+    & > :first-child {
+      display: inline;
+      margin: 0;
+      padding: 0;
+      white-space: inherit;
+      color: var(--foreground);
+      font-weight: 400;
+    }
+    & > :is(ul, ol):first-child > li {
+      display: inline;
+    }
+    & > :is(ul, ol):first-child > li:not(:first-child),
+    & > :not(:first-child):not(.descr-more) {
+      display: none;
+    }
+  }
+
+  /*
+   * Where scroll-state queries work, a button-style "…" badge covers the ellipsis, only on rows that are cut off.
+   * The ellipsis stays underneath, so a row whose scroll state Chrome doesn't update still shows a cue.
+   */
+  @supports (container-type: scroll-state) {
+    .collapsed-all-descr .tr:not(.expanded-descr) .descr-body {
+      container-type: scroll-state;
+      position: relative;
+
+      &:not(.has-more) {
+        cursor: auto;
+      }
+    }
+    @container scroll-state(scrollable: inline-end) {
+      .descr-body > * {
+        cursor: pointer;
+      }
+      .key-descr .descr-body > .descr-more {
+        display: inline-block;
+        position: absolute;
+        top: 1px;
+        right: 0;
+        padding: 0 4px;
+        line-height: calc(var(--font-size-small) + 2px);
+        color: var(--primary);
+        font-weight: 700;
+        background: color-mix(in srgb, var(--primary) 18%, var(--background));
+        border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
+        border-radius: 2px;
+        box-shadow: -10px 0 6px -2px var(--background);
+      }
+      .tr:hover .key-descr .descr-body > .descr-more {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+    }
   }
 
   .xxx-of-key {
@@ -213,10 +265,7 @@ export default css`
 
   @container (min-width: 500px) {
     .key-descr {
-      display: block;
-    }
-    .expanded-descr .key-descr {
-      display: block;
+      display: flex;
     }
   }
 `;

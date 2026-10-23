@@ -51,33 +51,3 @@ describe('markdown in-page anchor links', () => {
     assert.doesNotMatch(html, /anchor-link/);
   });
 });
-
-describe('hasMultilineDescription', () => {
-  it('returns false for null, undefined, or empty string', async () => {
-    const { hasMultilineDescription } = await import('../../packages/rapidoc/src/utils/markdown-utils.js');
-    assert.equal(hasMultilineDescription(null), false);
-    assert.equal(hasMultilineDescription(undefined), false);
-    assert.equal(hasMultilineDescription(''), false);
-    assert.equal(hasMultilineDescription(123), false);
-  });
-
-  it('returns false for single-line text', async () => {
-    const { hasMultilineDescription } = await import('../../packages/rapidoc/src/utils/markdown-utils.js');
-    assert.equal(hasMultilineDescription('Single line description'), false);
-    assert.equal(hasMultilineDescription('Single line with trailing br <br>'), false);
-    assert.equal(hasMultilineDescription('Single line with trailing br <br/>'), false);
-  });
-
-  it('returns true for text with newline characters', async () => {
-    const { hasMultilineDescription } = await import('../../packages/rapidoc/src/utils/markdown-utils.js');
-    assert.equal(hasMultilineDescription('First line\nSecond line'), true);
-    assert.equal(hasMultilineDescription('First line\r\nSecond line'), true);
-  });
-
-  it('returns true for text with internal <br> tags', async () => {
-    const { hasMultilineDescription } = await import('../../packages/rapidoc/src/utils/markdown-utils.js');
-    assert.equal(hasMultilineDescription('Line 1<br>Line 2'), true);
-    assert.equal(hasMultilineDescription('Line 1<br/>Line 2'), true);
-    assert.equal(hasMultilineDescription('Line 1<br />Line 2'), true);
-  });
-});

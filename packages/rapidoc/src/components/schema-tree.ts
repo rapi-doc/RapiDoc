@@ -26,6 +26,14 @@ export default class SchemaTree extends SchemaBaseElement {
           & .tr.expanded-descr {
             max-height: none;
           }
+          /* faint separators where descriptions wrap: every row in multiline mode, or around a row expanded by click */
+          &.expanded-all-descr .tr,
+          &.collapsed-all-descr .tr.expanded-descr {
+            border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+          }
+          &.collapsed-all-descr .tr.expanded-descr {
+            box-shadow: 0 -1px 0 color-mix(in srgb, var(--border) 60%, transparent);
+          }
           & .key {
             max-width: 300px;
           }
@@ -140,8 +148,6 @@ export default class SchemaTree extends SchemaBaseElement {
     const nullMarker = node.nullable ? 'null┃' : '';
     const nullClass = node.nullable ? 'nullable' : '';
     const deprecatedIcon = this.renderDeprecatedIcon(node);
-    const { fieldNameThreshold } = this.getThresholds();
-    const isLongName = Boolean(node.name && typeof node.name === 'string' && node.name.length > fieldNameThreshold);
 
     // 1. Array kind
     if (node.kind === 'array') {
@@ -155,7 +161,7 @@ export default class SchemaTree extends SchemaBaseElement {
               ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               <span class="open-bracket array">${nullMarker}[ ]</span>
             </div>
-            <div class="td key-descr m-markdown-small">${this.renderDescriptionHtml(node.description || '')}</div>
+            ${this.renderDescrCell(node.description)}
           </div>
         `;
       }
@@ -164,11 +170,6 @@ export default class SchemaTree extends SchemaBaseElement {
       if (items.kind === 'primitive') {
         const itemType = items.format || items.contentMediaType || items.type || 'string';
         const dataTypeCss = this.getDataTypeCss(itemType);
-        const hasText = !!(node.description || items.description || isLongName);
-        const hasItemChips = this.hasDetailChips(items);
-        const hasExtra = this.isDescriptionExpandable(node.description, hasItemChips, items.description, node.name);
-        const descrExpander = this.renderDescrExpander(hasText, hasExtra);
-        const detailChips = this.renderDetailChips(items);
         const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
         return html`
@@ -178,16 +179,7 @@ export default class SchemaTree extends SchemaBaseElement {
               ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}:</span>` : ''}
               <span class="${dataTypeCss}" title="${readWriteTip}">${nullMarker}[${itemType}]${readWriteBadge}</span>
             </div>
-            <div class="td key-descr">
-              ${
-                hasText
-                  ? html`<span class="m-markdown-small"
-                      >${descrExpander} ${this.renderDescriptionHtml(node.description || items.description)}</span
-                    >`
-                  : ''
-              }
-              ${hasText && hasItemChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
-            </div>
+            ${this.renderDescrCell(node.description || items.description, items)}
           </div>
         `;
       }
@@ -203,10 +195,6 @@ export default class SchemaTree extends SchemaBaseElement {
           >${nullMarker}<span class="open-bracket-expanded">[{</span><span class="open-bracket-collapsed">[{...}]</span></span
         >`;
         const closeBracket = '}]';
-
-        const hasText = !!(node.description || items.description || isLongName);
-        const hasExtra = this.isDescriptionExpandable(node.description, false, items.description, node.name);
-        const descrExpander = this.renderDescrExpander(hasText, hasExtra);
         const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
         return html`
@@ -219,9 +207,7 @@ export default class SchemaTree extends SchemaBaseElement {
               ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               ${openBracket}
             </div>
-            <div class="td key-descr m-markdown-small">
-              ${descrExpander} ${this.renderDescriptionHtml(node.description || items.description || '')}
-            </div>
+            ${this.renderDescrCell(node.description || items.description)}
           </div>
           <div class="inside-bracket object" style="padding-left:${leftPadding}px;">
             ${items.properties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
@@ -246,10 +232,6 @@ export default class SchemaTree extends SchemaBaseElement {
           >${nullMarker}<span class="open-bracket-expanded">[[ ${arrType} </span><span class="open-bracket-collapsed">[[...]]</span></span
         >`;
         const closeBracket = ']]';
-
-        const hasText = !!(node.description || items?.description || isLongName);
-        const hasExtra = this.isDescriptionExpandable(node.description, false, items?.description, node.name);
-        const descrExpander = this.renderDescrExpander(hasText, hasExtra);
         const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
         return html`
@@ -259,7 +241,7 @@ export default class SchemaTree extends SchemaBaseElement {
               ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               ${openBracket}
             </div>
-            <div class="td key-descr m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</div>
+            ${this.renderDescrCell(node.description)}
           </div>
           <div class="inside-bracket array" style="padding-left:${leftPadding}px;">
             ${this.renderAST(items, 'array', schemaLevel + 1, indentLevel + 1)}
@@ -269,9 +251,6 @@ export default class SchemaTree extends SchemaBaseElement {
       }
 
       // If array of unions or others
-      const hasText = !!(node.description || isLongName);
-      const hasExtra = this.isDescriptionExpandable(node.description, false, '', node.name);
-      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
       const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
       return html`
         <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
@@ -287,7 +266,7 @@ export default class SchemaTree extends SchemaBaseElement {
               >${nullMarker}<span class="open-bracket-expanded">[</span><span class="open-bracket-collapsed">[...]</span></span
             >
           </div>
-          <div class="td key-descr m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</div>
+          ${this.renderDescrCell(node.description)}
         </div>
         <div class="inside-bracket array" style="padding-left:${leftPadding}px;">
           ${this.renderAST(items, 'array', schemaLevel + 1, indentLevel + 1)}
@@ -307,10 +286,6 @@ export default class SchemaTree extends SchemaBaseElement {
         >${nullMarker}<span class="open-bracket-expanded">{</span><span class="open-bracket-collapsed">{...}</span></span
       >`;
       const closeBracket = '}';
-
-      const hasText = !!(node.description || isLongName);
-      const hasExtra = this.isDescriptionExpandable(node.description, false, '', node.name);
-      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
       const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
       return html`
@@ -320,7 +295,7 @@ export default class SchemaTree extends SchemaBaseElement {
             ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
             ${openBracket}
           </div>
-          <div class="td key-descr m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</div>
+          ${this.renderDescrCell(node.description)}
         </div>
         <div class="inside-bracket object" style="padding-left:${leftPadding}px;">
           ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
@@ -336,9 +311,6 @@ export default class SchemaTree extends SchemaBaseElement {
     if (node.kind === 'union') {
       const opLabel = (node.operator === 'anyOf' ? 'ANY OF' : 'ONE OF') + (node.suffix ? ` ${node.suffix}` : '');
       const newIndent = parentType === 'xxx-of-option' ? indentLevel : indentLevel + 1;
-      const hasText = !!node.description;
-      const hasExtra = this.isDescriptionExpandable(node.description);
-      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
 
       return html`
         ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel, indentLevel))}
@@ -346,7 +318,7 @@ export default class SchemaTree extends SchemaBaseElement {
           <div class="td key" style="min-width:${minFieldColWidth}px">
             <span class="key-label xxx-of-key">${opLabel}</span>
           </div>
-          <div class="td key-descr m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description || '')}</div>
+          ${this.renderDescrCell(node.description)}
         </div>
         <div class="inside-bracket xxx-of-option" style="padding-left:0px;">
           ${node.options?.map(
@@ -369,11 +341,6 @@ export default class SchemaTree extends SchemaBaseElement {
     // 4. Primitive kind
     if (node.kind === 'primitive') {
       const dataTypeCss = this.getDataTypeCss(node.type);
-      const hasText = !!(node.description || node.title || isLongName);
-      const hasDetailChips = this.hasDetailChips(node);
-      const hasExtra = this.isDescriptionExpandable(node.description, hasDetailChips, '', node.name);
-      const descrExpander = this.renderDescrExpander(hasText, hasExtra);
-      const detailChips = this.renderDetailChips(node);
       const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
       return html`
@@ -385,14 +352,7 @@ export default class SchemaTree extends SchemaBaseElement {
               ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}
             </span>
           </div>
-          <div class="td key-descr">
-            ${
-              hasText
-                ? html`<span class="m-markdown-small">${descrExpander} ${this.renderDescriptionHtml(node.description, node.title)}</span>`
-                : ''
-            }
-            ${hasText && hasDetailChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
-          </div>
+          ${this.renderDescrCell(node.description, node, node.title)}
         </div>
       `;
     }
