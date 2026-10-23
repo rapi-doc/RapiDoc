@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info:
+  title: Long Content Test API
+  version: 1.0.0
+  description: |
+    Long words with no break opportunity must wrap on narrow screens instead of widening the page.
+
+    See [`/shipments/{shipmentId}/documents/v2/commercial-invoice-legacy-format`](#overview) (inline code in a link)
+    and [/shipments/{shipmentId}/documents/v2/commercial-invoice-legacy-format](#overview)
+    or https://api.example.com/v1/shipments/00000000-0000-0000-0000-000000000000/documents/commercial-invoice-legacy-format.
+
+    ```sh
+    curl -X GET https://api.example.com/v1/shipments/00000000-0000-0000-0000-000000000000/documents/commercial-invoice-legacy-format
+    ```
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /shipments/{shipmentId}/documents/v2/commercial-invoice-legacy-format:
+    get:
+      summary: Get commercial invoice in the legacy format used before version two
+      description: |
+        Returns the invoice for [`/shipments/{shipmentId}/documents/v2/commercial-invoice-legacy-format`](#overview)
+        and `GET /shipments/{shipmentId}/documents/v2/commercial-invoice-legacy-format`.
+      parameters:
+        - name: shipmentId
+          in: path
+          required: true
+          description: Identifier such as 00000000-0000-0000-0000-000000000000-and-a-very-long-suffix-without-spaces
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The invoice document
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  documentUrlForTheCommercialInvoiceInTheLegacyFormat:
+                    type: string

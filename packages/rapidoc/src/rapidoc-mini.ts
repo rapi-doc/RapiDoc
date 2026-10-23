@@ -21,6 +21,7 @@ import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 import { setApiServer } from '~/templates/server-template';
 import '~/utils/markdown-utils';
+import { AutoColorSchemeController } from '~/utils/auto-color-scheme';
 
 const paramsConverter = {
   fromAttribute: (attr: string | null) => {
@@ -89,6 +90,8 @@ export default class RapiDocMini extends LitElement {
   @property({ type: String, reflect: true }) theme = 'amber';
   @property({ type: String, attribute: 'primary-color' }) primaryColor = '';
   @property({ type: String, attribute: 'color-scheme', reflect: true }) colorScheme = 'dark';
+  // color-scheme="auto": follows the page's theme (see utils/auto-color-scheme.js)
+  _autoColorScheme = new AutoColorSchemeController(this);
   @property({ type: String, reflect: true }) radius = 'sm';
   @property({ type: String, reflect: true }) scale = 'default';
   @property({ type: String, attribute: 'load-fonts' }) loadFonts = 'true';

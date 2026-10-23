@@ -78,6 +78,15 @@ export async function createTestServer() {
       return res.end('Harness not found');
     }
 
+    // Serve other fixture pages (e.g. /page-scroll-harness.html)
+    if (/^\/[\w-]+\.html$/.test(url)) {
+      const pagePath = path.join(rootDir, 'tests/fixtures/html', url.slice(1));
+      if (fs.existsSync(pagePath)) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        return res.end(fs.readFileSync(pagePath));
+      }
+    }
+
     // Serve fixture specs
     if (url.startsWith('/specs/')) {
       const specFilename = url.replace('/specs/', '');

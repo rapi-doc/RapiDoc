@@ -321,11 +321,12 @@ export default css`
     --method-color: var(--method-default);
   }
 
+  /* No flex-wrap: in a wrapping column each line is as wide as its widest content, so stretched
+     request/response panels would overflow narrow screens instead of fitting the container. */
   .req-resp-container {
     display: flex;
     margin-top: 16px;
     align-items: stretch;
-    flex-wrap: wrap;
     flex-direction: column;
     border-top: 1px solid var(--border);
     min-width: 0;
@@ -335,7 +336,6 @@ export default css`
     display: flex;
     margin-top: 16px;
     align-items: stretch;
-    flex-wrap: wrap;
     flex-direction: column;
     border-top: none;
     min-width: 0;
@@ -417,7 +417,6 @@ export default css`
     .req-resp-container,
     .expanded-req-resp-container {
       flex-direction: row;
-      flex-wrap: nowrap;
     }
     :host([layout='column']) .req-resp-container,
     :host([layout='column']) .expanded-req-resp-container,

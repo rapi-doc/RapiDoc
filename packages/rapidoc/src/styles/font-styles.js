@@ -213,6 +213,8 @@ export default css`
   .m-markdown-small {
     display: block;
     color: var(--foreground);
+    /* Long unbroken words (URL paths, ids, inline code) wrap instead of widening the page. */
+    overflow-wrap: anywhere;
   }
 
   .m-markdown p,
@@ -302,6 +304,7 @@ export default css`
   .m-markdown-small pre,
   .m-markdown pre {
     white-space: pre-wrap;
+    overflow-wrap: normal;
     overflow-x: auto;
     line-height: normal;
     border-radius: min(var(--radius), 0.5rem);

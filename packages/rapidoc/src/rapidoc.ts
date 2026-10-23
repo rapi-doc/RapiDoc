@@ -29,6 +29,7 @@ import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-temp
 import { setApiServer } from '~/templates/server-template';
 import { generateMcpServer as mcpServerGenerator, extractMcpOperations, estimateTokenCost, parseMcpTargets } from '~/utils/mcp-generator';
 import { bindNavBar } from '~/utils/bind-navbar';
+import { AutoColorSchemeController } from '~/utils/auto-color-scheme';
 
 const paramsConverter = {
   fromAttribute: (attr) => {
@@ -135,11 +136,14 @@ export default class RapiDoc extends LitElement {
   @property({ type: String, attribute: 'scroll-behavior' }) scrollBehavior = 'smooth';
   @property({ type: String, attribute: 'auto-height' }) autoHeight = 'false';
   @property({ type: String, attribute: 'scroll-container' }) scrollContainer = '';
+  @property({ type: String, attribute: 'scroll-offset' }) scrollOffset = '';
 
   // Main Colors and Font
   @property({ type: String, reflect: true }) theme = 'amber';
   @property({ type: String, attribute: 'primary-color' }) primaryColor = '';
   @property({ type: String, attribute: 'color-scheme', reflect: true }) colorScheme = 'dark';
+  // color-scheme="auto": follows the page's theme (see utils/auto-color-scheme.js)
+  _autoColorScheme = new AutoColorSchemeController(this);
   @property({ type: String, reflect: true }) radius = 'sm';
   @property({ type: String, reflect: true }) scale = 'default';
   @property({ type: String, attribute: 'load-fonts' }) loadFonts = 'true';
@@ -646,6 +650,9 @@ export default class RapiDoc extends LitElement {
         }, 0);
       }
     }
+    if (name === 'scroll-offset' && oldVal !== newVal) {
+      window.setTimeout(() => this.initIntersectionObserver(), 0);
+    }
     if (name === 'layout') {
       if (!this._isDefaultingLayout) {
         if (newVal !== null && 'row, column,'.includes(`${newVal},`)) {
@@ -980,16 +987,7 @@ export default class RapiDoc extends LitElement {
             const mainContentEl = this.shadowRoot.querySelector('.main-content');
             let targetTop: number;
             if (this.autoHeight === 'true') {
-              if (this._scrollRootContainer) {
-                const containerRect = this._scrollRootContainer.getBoundingClientRect();
-                const targetRect = gotoEl.getBoundingClientRect();
-                targetTop = targetRect.top - containerRect.top + this._scrollRootContainer.scrollTop;
-                this.lockObserverDuringScroll(gotoEl, tmpElementId, targetTop);
-                this._scrollRootContainer.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
-              } else {
-                this.lockObserverDuringScroll(gotoEl, tmpElementId);
-                gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
-              }
+              this.scrollAutoHeightTarget(gotoEl, tmpElementId);
             } else if (isFirst) {
               targetTop = 0;
               this.lockObserverDuringScroll(gotoEl, tmpElementId, targetTop);
@@ -1090,7 +1088,8 @@ export default class RapiDoc extends LitElement {
     this._scrollRootContainer = container;
     const intersectionObserverOptions = {
       root: container,
-      rootMargin: '0px 0px -50% 0px',
+      // Headings that slide under a sticky page header (getScrollOffset) count as scrolled past.
+      rootMargin: `-${this.getScrollOffset()}px 0px -50% 0px`,
       threshold: 0,
     };
     this.intersectionObserver = new IntersectionObserver((entries) => {
@@ -1127,7 +1126,7 @@ export default class RapiDoc extends LitElement {
       return;
     }
 
-    const containerTop = this._scrollRootContainer ? this._scrollRootContainer.getBoundingClientRect().top : 0;
+    const containerTop = (this._scrollRootContainer ? this._scrollRootContainer.getBoundingClientRect().top : 0) + this.getScrollOffset();
     const visibleHeadings = [];
     const scrolledPast = [];
 
@@ -1237,7 +1236,9 @@ export default class RapiDoc extends LitElement {
         const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
         if (gotoEl) {
           const mainContentEl = this.shadowRoot.querySelector('.main-content');
-          if (mainContentEl) {
+          if (this.autoHeight === 'true' || this.hasAttribute('auto-height')) {
+            this.scrollAutoHeightTarget(gotoEl, gotoEl.id);
+          } else if (mainContentEl) {
             const containerRect = mainContentEl.getBoundingClientRect();
             const targetRect = gotoEl.getBoundingClientRect();
             const targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
@@ -1247,6 +1248,47 @@ export default class RapiDoc extends LitElement {
           }
         }
       }
+    }
+  }
+
+  /**
+   * Height of the area at the top of the scroll root that sticky or fixed page headers cover, in px.
+   * Only applies with auto-height, where the page (or `scroll-container`) scrolls instead of RapiDoc.
+   * Uses the `scroll-offset` attribute when set, otherwise the scroll root's `scroll-padding-top`,
+   * so pages that already reserve space for their header need no extra configuration.
+   */
+  getScrollOffset(): number {
+    if (!(this.autoHeight === 'true' || this.hasAttribute('auto-height')) || typeof window === 'undefined') {
+      return 0;
+    }
+    const explicit = parseFloat(this.scrollOffset);
+    if (Number.isFinite(explicit)) {
+      return explicit;
+    }
+    const root: HTMLElement = this._scrollRootContainer || (document.scrollingElement as HTMLElement) || document.documentElement;
+    const padding = getComputedStyle(root).scrollPaddingTop;
+    const value = parseFloat(padding);
+    if (!Number.isFinite(value)) {
+      return 0;
+    }
+    return padding.endsWith('%') ? (value / 100) * root.clientHeight : value;
+  }
+
+  /**
+   * auto-height: scrolls the page, or the `scroll-container`, so that `targetEl` starts just below
+   * the area covered by sticky headers (see getScrollOffset).
+   */
+  scrollAutoHeightTarget(targetEl: HTMLElement, targetId: string) {
+    const top = targetEl.getBoundingClientRect().top - this.getScrollOffset();
+    const container = this._scrollRootContainer;
+    if (container) {
+      const targetTop = top - container.getBoundingClientRect().top + container.scrollTop;
+      this.lockObserverDuringScroll(targetEl, targetId, targetTop);
+      container.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
+    } else {
+      const targetTop = top + window.scrollY;
+      this.lockObserverDuringScroll(targetEl, targetId, targetTop);
+      window.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
     }
   }
 
@@ -1414,16 +1456,7 @@ export default class RapiDoc extends LitElement {
         let targetTop: number;
 
         if (this.autoHeight === 'true' || this.hasAttribute('auto-height')) {
-          if (this._scrollRootContainer) {
-            const containerRect = this._scrollRootContainer.getBoundingClientRect();
-            const targetRect = contentEl.getBoundingClientRect();
-            targetTop = targetRect.top - containerRect.top + this._scrollRootContainer.scrollTop;
-            this.lockObserverDuringScroll(contentEl, elementId, targetTop);
-            this._scrollRootContainer.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
-          } else {
-            this.lockObserverDuringScroll(contentEl, elementId);
-            contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
-          }
+          this.scrollAutoHeightTarget(contentEl, elementId);
         } else if (isFirst) {
           targetTop = 0;
           this.lockObserverDuringScroll(contentEl, elementId, targetTop);

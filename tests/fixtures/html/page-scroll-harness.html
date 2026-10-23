@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RapiDoc Page-Scroll Test Harness</title>
+  <script type="module" src="/rapidoc-min.js"></script>
+  <!--
+    A portal-style page: a 120px sticky site header above <rapi-doc auto-height>, so the page itself
+    scrolls. URL parameters:
+      padding=true    reserve the header height with html { scroll-padding-top: 120px }
+      page-scheme=false  do not declare a CSS color-scheme on the page
+      spec=<file>     fixture spec in /specs/ (default 01-sections.yaml)
+      any other key   set as an attribute on <rapi-doc>
+  -->
+  <style>
+    :root.page-scheme { color-scheme: dark; }
+    :root.page-scheme[data-theme='light'] { color-scheme: light; }
+    :root.with-padding { scroll-padding-top: 120px; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    #site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      height: 120px;
+      background: #202020;
+      color: #ffffff;
+    }
+    rapi-doc {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header id="site-header">Site header</header>
+  <rapi-doc id="thedoc"></rapi-doc>
+  <!-- Stands in for a site footer, so any operation can be scrolled to the top of the viewport. -->
+  <footer style="height: 100vh"></footer>
+
+  <script type="module">
+    const params = new URLSearchParams(window.location.search);
+    const root = document.documentElement;
+    if (params.get('padding') === 'true') root.classList.add('with-padding');
+    if (params.get('page-scheme') !== 'false') root.classList.add('page-scheme');
+
+    const doc = document.getElementById('thedoc');
+    const attributes = {
+      'spec-url': `/specs/${params.get('spec') || '01-sections.yaml'}`,
+      'render-style': 'read',
+      'auto-height': 'true',
+      'show-header': 'false',
+      'show-side-nav': 'false',
+      'scroll-behavior': 'auto',
+      'update-route': 'false',
+    };
+    for (const [key, value] of params.entries()) {
+      if (!['padding', 'page-scheme', 'spec'].includes(key)) attributes[key] = value;
+    }
+    for (const [name, value] of Object.entries(attributes)) doc.setAttribute(name, value);
+
+    window.__activeIds = [];
+    doc.addEventListener('nav-active-change', (e) => window.__activeIds.push(e.detail.id));
+  </script>
+</body>
+</html>

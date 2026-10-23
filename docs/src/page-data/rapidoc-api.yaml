@@ -66,7 +66,12 @@ Attributes:
           - dark
           - light
           - system
-        description: Base color scheme mode. 'system' automatically matches the user's OS preference.
+          - auto
+        description: >
+          Base color scheme mode. 'system' automatically matches the user's OS preference.
+          'auto' follows the host page: it reads the page's CSS <code>color-scheme</code> (for example
+          <code>:root[data-theme='light'] { color-scheme: light }</code>, as Starlight sets it) and updates when the
+          page switches theme; when the page declares none, it falls back to the OS preference.
         default: dark
       - name: radius
         allowed:
@@ -189,6 +194,14 @@ Attributes:
           <span class="yellow-dim">Allowed: </span>Any valid CSS height value (e.g. 400px, 50%, 60vh).<br/>
           Controls the vertical height of the interactive response payload viewer.
         default: 300px
+      - name: scroll-offset
+        description: >
+          <span class="yellow-dim">Allowed: </span>A number of pixels (e.g. 96).<br/>
+          With <code>auto-height="true"</code>, where the page scrolls instead of RapiDoc, this is the height of a
+          sticky or fixed page header. Navigation scrolls a section to just below it, and the active navigation item
+          ignores sections hidden under it. When not set, RapiDoc uses the scroll root's
+          <code>scroll-padding-top</code>, so a page that already sets it needs no extra configuration.
+        default: (scroll-padding-top of the page)
 
   - Hide and Show Attributes:
       - name: show-info
