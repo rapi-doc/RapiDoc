@@ -26,7 +26,7 @@ const coreThemingAttributes = [
     type: 'string',
     default: 'sm',
     allowed: 'none | sm | md | lg | full',
-    desc: 'Corner radius scale applied to cards, buttons, badges, parameter inputs, and dialogs (--radius and --card-radius).',
+    desc: 'Corner radius scale applied to cards, buttons, badges, parameter inputs, and dialogs (--radius).',
   },
   {
     name: 'scale',
@@ -1495,9 +1495,7 @@ function setScale(size) {
         <div class="rd-section-badge">Typography Tokens</div>
         <h2 class="rd-section-title">Custom Typography & Google Fonts Pairing</h2>
         <p class="rd-section-desc">
-          RapiDoc natively supports shadcn/ui design tokens. Set <code class="mono-code">--font-sans</code> (or <code class="mono-code"
-            >--font-regular</code
-          >) and <code class="mono-code">--font-mono</code> on <code class="mono-code">&lt;rapi-doc&gt;</code> to seamlessly apply any custom
+          RapiDoc natively supports shadcn/ui design tokens. Set <code class="mono-code">--font-sans</code> and <code class="mono-code">--font-mono</code> on <code class="mono-code">&lt;rapi-doc&gt;</code> to seamlessly apply any custom
           font family.
         </p>
       </div>

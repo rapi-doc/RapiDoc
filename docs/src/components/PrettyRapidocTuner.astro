@@ -805,7 +805,6 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
             if (attr === 'regular-font') {
               if (val === '') {
                 target.style.removeProperty('--font-sans');
-                target.style.removeProperty('--font-regular');
               } else {
                 target.style.setProperty('--font-sans', val);
               }
@@ -918,7 +917,6 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
             target.removeAttribute(attr);
             if (attr === 'regular-font') {
               target.style.removeProperty('--font-sans');
-              target.style.removeProperty('--font-regular');
             }
             if (attr === 'mono-font') target.style.removeProperty('--font-mono');
           }

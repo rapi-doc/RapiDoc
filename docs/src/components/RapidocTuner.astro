@@ -877,7 +877,6 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
             if (attr === 'regular-font') {
               if (val === '') {
                 target.style.removeProperty('--font-sans');
-                target.style.removeProperty('--font-regular');
               } else {
                 target.style.setProperty('--font-sans', val);
               }

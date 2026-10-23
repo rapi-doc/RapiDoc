@@ -1,0 +1,112 @@
+---
+title: Migrating from RapiDoc v11 to v12
+description: Upgrade guide for RapiDoc v12. CSS variables now follow shadcn/ui naming (including --sidebar-* for navigation), every variable has a real default, and RapiDoc renders semantic h1–h6 headings.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+RapiDoc **v12** cleans up the styling API. Theming uses the same CSS variable names as [shadcn/ui](https://ui.shadcn.com/docs/theming), every variable RapiDoc reads now has a default defined on the element (no more "not defined" hooks in DevTools), and titles render as real `<h1>`–`<h6>` headings.
+
+v12 has no compatibility aliases: rename the variables below in your CSS when you upgrade.
+
+---
+
+## 1. Renamed and removed CSS variables
+
+| v11 | v12 |
+| :-- | :-- |
+| `--font-regular` | `--font-sans` |
+| `--rapidoc-font`, `--portal-font` | `--font-sans` (set on `rapi-doc`) |
+| `--rapidoc-font-mono`, `--portal-font-mono` | `--font-mono` (set on `rapi-doc`) |
+| `--rapidoc-bg`, `--portal-bg` | `--background` (set on `rapi-doc`) |
+| `--rapidoc-fg`, `--portal-fg` | `--foreground` (set on `rapi-doc`) |
+| `--nav-hover-bg` | `--sidebar-accent` |
+| `--nav-hover-fg` | `--sidebar-accent-foreground` |
+| `--nav-accent-fg` | `--sidebar-primary` (also colors the active item's left marker) |
+| `--nav-width` | `--sidebar-width` |
+| `--nav-item-padding` | `--sidebar-item-padding` |
+| `--nav-logo-max-height` | `--sidebar-logo-max-height` |
+| `--input-border` | `--input` (now the shadcn/ui meaning: border color of form fields) |
+| `--input` (as a background) | `--input-background` |
+| `--card-radius`, `--border-radius` | `--radius` (cards and dialogs use `min(var(--radius), 0.5rem)`) |
+| `--code-fg`, `--markdown-fg`, `--inline-code-fg` | `--foreground` |
+| `--inline-code-bg` | `--muted` |
+| `--method-copy`, `--method-purge` | `--method-default` |
+| `--red` for errors and required markers | `--destructive` (`--red` remains for `x-badges` colors) |
+
+Removed because setting them had no effect: `--code-property-color`, `--code-keyword-color`, `--code-operator-color`, `--ui-base-size`, `--scroll-bar-width`, `--layout`, `--primary-hover`, `--schema-description-threshold`, `--schema-field-name-threshold`.
+
+Removed undocumented layout hooks: `--content-padding` and `--read-mode-bottom-padding` (style the `section-main-content` part instead).
+
+New variables:
+
+- `--sidebar`, `--sidebar-foreground`, `--sidebar-border`, `--sidebar-ring`: shadcn/ui sidebar tokens for the navigation bar.
+- `--destructive`: errors, required-field markers, and DEPRECATED labels.
+- `--scroll-margin-top` (default `120px`): space kept above a section when navigation scrolls to it.
+- Heading scale: `--h1-font-size` … `--h6-font-size`, `--heading-font`, `--heading-weight`, `--heading-line-height`, `--heading-color`, `--heading-letter-spacing`, `--heading-margin-top`, `--heading-margin-bottom`, `--label-heading-font-size`, `--line-height`, `--paragraph-spacing`.
+
+`--ring` now defaults to `var(--primary)` in every theme. In v11 it was missing for the default `amber` theme, so keyboard focus had no visible ring.
+
+---
+
+## 2. Using RapiDoc in a shadcn/ui site
+
+Set variables on the `rapi-doc` element. A rule on the element overrides RapiDoc's built-in theme, and `inherit` takes the value from your page's `:root`, so a shadcn/ui theme carries over without copying values:
+
+```css
+rapi-doc {
+  --background: inherit;
+  --foreground: inherit;
+  --card: inherit;
+  --card-foreground: inherit;
+  --primary: inherit;
+  --primary-foreground: inherit;
+  --muted: inherit;
+  --muted-foreground: inherit;
+  --border: inherit;
+  --input: inherit;
+  --radius: inherit;
+  --sidebar: inherit;
+  --sidebar-foreground: inherit;
+  --sidebar-primary: inherit;
+  --sidebar-accent: inherit;
+  --sidebar-accent-foreground: inherit;
+  --sidebar-border: inherit;
+  --font-sans: inherit;
+  --font-mono: inherit;
+}
+```
+
+<Aside type="caution" title="Don't reference a variable by its own name">
+  `rapi-doc { --font-sans: var(--font-sans); }` refers to itself, which makes the variable invalid. Use `inherit`, or a different variable
+  such as `var(--my-font)`.
+</Aside>
+
+Variables set on an ancestor (`:root`, `body`) without this rule do not reach RapiDoc, because RapiDoc defines its own defaults on the element.
+
+---
+
+## 3. Semantic headings
+
+RapiDoc titles are now real headings, so they share sizes and spacing with Markdown/MDX pages around them:
+
+| Level | Content |
+| :-- | :-- |
+| `h1` | API title (the version is a badge, part `label-overview-version`) |
+| `h2` | API Server, Authentication, tag groups, tags |
+| `h3` | Operation summaries |
+| `h4` | Request, Response, Code samples, Callbacks |
+| `h5` | Parameter, request body, and response header labels |
+
+All existing CSS parts are unchanged. New parts: `heading` and `heading-1` … `heading-6` on every generated heading, plus `section-auth-title`, `section-request-title`, and `section-response-title`.
+
+Section titles are now written in normal case ("API Server", "Authentication"). The small labels (Request, Path parameters, …) still display in capitals through CSS.
+
+---
+
+## 4. Visual changes
+
+- Inline code, markdown text, and code-block text follow the theme's `--foreground` and `--muted` instead of fixed colors.
+- View-mode operation borders use the `--method-*` colors (same as the method badges).
+- In the `slate` dark theme the active navigation marker is white, like its text.
+- Headings are bolder (`600`) and larger, and paragraphs inside descriptions are `1em` apart.

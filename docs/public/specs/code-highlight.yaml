@@ -17,93 +17,93 @@ info:
 
     <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 20px 0 32px 0;">
       <div style="flex: 1 1 180px; min-width: 160px;">
-        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: var(--radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
           <thead>
-            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
-              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">WEB</th>
-              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            <tr style="background: var(--muted); border-bottom: 1px solid var(--border);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">WEB</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--muted-foreground);">Tag</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">HTML</td><td style="padding: 5px 10px; text-align: right;"><code>html</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">CSS</td><td style="padding: 5px 10px; text-align: right;"><code>css</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">JavaScript</td><td style="padding: 5px 10px; text-align: right;"><code>js</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">TypeScript</td><td style="padding: 5px 10px; text-align: right;"><code>ts</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">TSX</td><td style="padding: 5px 10px; text-align: right;"><code>tsx</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Astro</td><td style="padding: 5px 10px; text-align: right;"><code>astro</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Svelte</td><td style="padding: 5px 10px; text-align: right;"><code>svelte</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">HTML</td><td style="padding: 5px 10px; text-align: right;"><code>html</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">CSS</td><td style="padding: 5px 10px; text-align: right;"><code>css</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">JavaScript</td><td style="padding: 5px 10px; text-align: right;"><code>js</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">TypeScript</td><td style="padding: 5px 10px; text-align: right;"><code>ts</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">TSX</td><td style="padding: 5px 10px; text-align: right;"><code>tsx</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Astro</td><td style="padding: 5px 10px; text-align: right;"><code>astro</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Svelte</td><td style="padding: 5px 10px; text-align: right;"><code>svelte</code></td></tr>
             <tr><td style="padding: 5px 10px;">Vue</td><td style="padding: 5px 10px; text-align: right;"><code>vue</code></td></tr>
           </tbody>
         </table>
       </div>
 
       <div style="flex: 1 1 180px; min-width: 160px;">
-        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: var(--radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
           <thead>
-            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
-              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">SYSTEMS</th>
-              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            <tr style="background: var(--muted); border-bottom: 1px solid var(--border);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">SYSTEMS</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--muted-foreground);">Tag</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">C</td><td style="padding: 5px 10px; text-align: right;"><code>c</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">C++</td><td style="padding: 5px 10px; text-align: right;"><code>cpp</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Rust</td><td style="padding: 5px 10px; text-align: right;"><code>rust</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">C</td><td style="padding: 5px 10px; text-align: right;"><code>c</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">C++</td><td style="padding: 5px 10px; text-align: right;"><code>cpp</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Rust</td><td style="padding: 5px 10px; text-align: right;"><code>rust</code></td></tr>
             <tr><td style="padding: 5px 10px;">Go</td><td style="padding: 5px 10px; text-align: right;"><code>go</code></td></tr>
           </tbody>
         </table>
       </div>
 
       <div style="flex: 1 1 180px; min-width: 160px;">
-        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: var(--radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
           <thead>
-            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
-              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">APPLICATION</th>
-              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            <tr style="background: var(--muted); border-bottom: 1px solid var(--border);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">APPLICATION</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--muted-foreground);">Tag</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Java</td><td style="padding: 5px 10px; text-align: right;"><code>java</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">C#</td><td style="padding: 5px 10px; text-align: right;"><code>cs</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Kotlin</td><td style="padding: 5px 10px; text-align: right;"><code>kotlin</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Objective-C</td><td style="padding: 5px 10px; text-align: right;"><code>objc</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Java</td><td style="padding: 5px 10px; text-align: right;"><code>java</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">C#</td><td style="padding: 5px 10px; text-align: right;"><code>cs</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Kotlin</td><td style="padding: 5px 10px; text-align: right;"><code>kotlin</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Objective-C</td><td style="padding: 5px 10px; text-align: right;"><code>objc</code></td></tr>
             <tr><td style="padding: 5px 10px;">PHP</td><td style="padding: 5px 10px; text-align: right;"><code>php</code></td></tr>
           </tbody>
         </table>
       </div>
 
       <div style="flex: 1 1 180px; min-width: 160px;">
-        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: var(--radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
           <thead>
-            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
-              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">SCRIPTING</th>
-              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            <tr style="background: var(--muted); border-bottom: 1px solid var(--border);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">SCRIPTING</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--muted-foreground);">Tag</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Python</td><td style="padding: 5px 10px; text-align: right;"><code>py</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Ruby</td><td style="padding: 5px 10px; text-align: right;"><code>rb</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Bash</td><td style="padding: 5px 10px; text-align: right;"><code>sh</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Perl</td><td style="padding: 5px 10px; text-align: right;"><code>perl</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">PowerShell</td><td style="padding: 5px 10px; text-align: right;"><code>ps1</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Python</td><td style="padding: 5px 10px; text-align: right;"><code>py</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Ruby</td><td style="padding: 5px 10px; text-align: right;"><code>rb</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Bash</td><td style="padding: 5px 10px; text-align: right;"><code>sh</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Perl</td><td style="padding: 5px 10px; text-align: right;"><code>perl</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">PowerShell</td><td style="padding: 5px 10px; text-align: right;"><code>ps1</code></td></tr>
             <tr><td style="padding: 5px 10px;">R</td><td style="padding: 5px 10px; text-align: right;"><code>r</code></td></tr>
           </tbody>
         </table>
       </div>
 
       <div style="flex: 1 1 180px; min-width: 160px;">
-        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: var(--radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
           <thead>
-            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
-              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">DATA & DOCS</th>
-              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            <tr style="background: var(--muted); border-bottom: 1px solid var(--border);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground);">DATA & DOCS</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--muted-foreground);">Tag</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">JSON</td><td style="padding: 5px 10px; text-align: right;"><code>json</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">YAML</td><td style="padding: 5px 10px; text-align: right;"><code>yml</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">TOML</td><td style="padding: 5px 10px; text-align: right;"><code>toml</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Markdown</td><td style="padding: 5px 10px; text-align: right;"><code>md</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">JSON</td><td style="padding: 5px 10px; text-align: right;"><code>json</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">YAML</td><td style="padding: 5px 10px; text-align: right;"><code>yml</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">TOML</td><td style="padding: 5px 10px; text-align: right;"><code>toml</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Markdown</td><td style="padding: 5px 10px; text-align: right;"><code>md</code></td></tr>
             <tr><td style="padding: 5px 10px;">HTTP</td><td style="padding: 5px 10px; text-align: right;"><code>http</code></td></tr>
           </tbody>
         </table>

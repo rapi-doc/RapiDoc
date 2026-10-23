@@ -99,7 +99,10 @@ export default defineConfig({
         },
         {
           label: 'Migration',
-          items: [{ label: 'Migrating from v10 to v11', slug: 'docs/migration/v10-to-v11' }],
+          items: [
+            { label: 'Migrating from v11 to v12', slug: 'docs/migration/v11-to-v12' },
+            { label: 'Migrating from v10 to v11', slug: 'docs/migration/v10-to-v11' },
+          ],
         },
         {
           label: 'Theming & Deep Styling',
