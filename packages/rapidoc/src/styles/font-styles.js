@@ -369,7 +369,11 @@ export default css`
     border-radius: min(var(--radius), 0.5rem);
     font-size: calc(var(--font-size-small) + 1px);
     line-height: calc(var(--font-size-small) + 4px);
+    /* Wide tables scroll inside their own box instead of widening the page */
+    display: block;
+    width: max-content;
     max-width: 100%;
+    overflow-x: auto;
   }
 
   .m-markdown-small table {
