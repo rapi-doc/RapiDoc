@@ -104,6 +104,53 @@ describe('E2E: scroll offset for sticky page headers (auto-height)', () => {
     assert.equal(result.active, result.next);
   });
 
+  it('after scrollToPath with a short operation slug, scrolling back up moves the active item', async () => {
+    // With x-tagGroups an operation's element id is "<tag>--<operation-slug>", while portal sidebars
+    // link to "#<operation-slug>".
+    await openPage(page, baseUrl, { padding: 'true', spec: '10-tag-groups.yaml' });
+    const result = await page.evaluate(async (headerHeight) => {
+      const doc = document.getElementById('thedoc');
+      const ops = [...doc.shadowRoot.querySelectorAll('.expanded-endpoint-body')];
+      const target = ops.at(-1);
+      const earlier = ops[1];
+      await doc.scrollToPath(target.id.split('--').pop());
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      window.__activeIds = [];
+      // An earlier operation fills the reading area, and the one scrolled to is below the viewport.
+      window.scrollTo(0, earlier.getBoundingClientRect().top + window.scrollY - headerHeight + 20);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return {
+        target: target.id,
+        earlier: earlier.id,
+        active: window.__activeIds.at(-1),
+        targetBelow: target.getBoundingClientRect().top > window.innerHeight,
+      };
+    }, HEADER_HEIGHT);
+    assert.ok(result.target.includes('--'), `operation ids should be tag-prefixed (${result.target})`);
+    assert.ok(result.targetBelow, 'the operation scrolled to should be below the viewport');
+    assert.equal(result.active, result.earlier);
+  });
+
+  it('a method + path anchor scrolls to its operation and reports the operation id', async () => {
+    await openPage(page, baseUrl, { padding: 'true', spec: '10-tag-groups.yaml' });
+    const result = await page.evaluate(async () => {
+      const doc = document.getElementById('thedoc');
+      window.__activeIds = [];
+      await doc.scrollToPath('get-fleet-crews');
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const target = doc.shadowRoot.getElementById('fleet--list-crews');
+      const top = target.getBoundingClientRect().top;
+      // Older RapiDoc anchor format for the same operation
+      window.scrollTo(0, 0);
+      await doc.scrollToPath('get-/cargo/routes');
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return { top, first: window.__activeIds[0], legacy: window.__activeIds.at(-1) };
+    });
+    assert.ok(Math.abs(result.top - HEADER_HEIGHT) <= 2, `target top ${result.top}px, expected ${HEADER_HEIGHT}px`);
+    assert.equal(result.first, 'fleet--list-crews');
+    assert.equal(result.legacy, 'cargo--list-routes');
+  });
+
   it('with scroll-offset="0" the operation under the header still counts as visible', async () => {
     await openPage(page, baseUrl, { padding: 'true', 'scroll-offset': '0' });
     const result = await activeAfterHidingOperationUnderHeader(page);

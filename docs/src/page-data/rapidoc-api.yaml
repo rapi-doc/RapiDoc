@@ -443,7 +443,7 @@ Methods:
     - name: scrollToPath(path)
       description: >
         Programmatically scrolls the viewport to focus on a specific endpoint section.
-        The <span class="mono fg-color">path</span> argument must be formatted as <span class="mono fg-color">{method}-{path}</span> (e.g., <span class="mono fg-color">get-/user/login</span>).
+        The <span class="mono fg-color">path</span> argument is the operation's element ID (e.g., <span class="mono fg-color">login-user</span>) or its method + path anchor (e.g., <span class="mono fg-color">get-user-login</span>; the older <span class="mono fg-color">get-/user/login</span> format also works).
       example: /tests/collapsable
     - name: setHttpUserNameAndPassword(securitySchemeId, username, password)
       description: >

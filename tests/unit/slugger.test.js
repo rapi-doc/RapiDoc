@@ -1,6 +1,13 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { OperationSlugger, toKebabCase, clampWordBoundary, createSlugger } from '../../packages/rapidoc/src/utils/slugger.js';
+import {
+  OperationSlugger,
+  toKebabCase,
+  clampWordBoundary,
+  createSlugger,
+  methodPathSlug,
+  operationAnchorSource,
+} from '../../packages/rapidoc/src/utils/slugger.js';
 import ProcessSpec from '../../packages/rapidoc/src/utils/spec-parser.js';
 
 describe('OperationSlugger and Clean Route Name Generation', () => {
@@ -157,5 +164,24 @@ describe('OperationSlugger and Clean Route Name Generation', () => {
     assert.equal(op.elementId, 'track-a-shipment');
     // fallback operationId populated for codegen / MCP tools
     assert.equal(op.operationId, 'getShipmentsShipmentId');
+  });
+
+  it('methodPathSlug builds the method + path anchor that slugOp falls back to', () => {
+    assert.equal(methodPathSlug('GET', '/routes/{originId}/estimate'), 'get-routes-originId-estimate');
+    assert.equal(methodPathSlug('post', '/'), 'post');
+    const slugger = new OperationSlugger();
+    assert.equal(
+      slugger.slugOp({ method: 'get', path: '/routes/{originId}/estimate' }),
+      methodPathSlug('get', '/routes/{originId}/estimate')
+    );
+  });
+
+  it('operationAnchorSource reports which field the anchor comes from, matching slugOp', () => {
+    assert.equal(operationAnchorSource({ operationId: 'getRouteEstimate', summary: 'Get estimate' }), 'operationId');
+    assert.equal(operationAnchorSource({ summary: 'Get estimated delivery time' }), 'summary');
+    assert.equal(operationAnchorSource({ operationId: 'operation1', summary: 'Get estimate' }), 'summary');
+    assert.equal(operationAnchorSource({ operationId: 'x'.repeat(46), summary: 'Get estimate' }), 'summary');
+    assert.equal(operationAnchorSource({ operationId: '!!!', summary: '  ' }), 'path');
+    assert.equal(operationAnchorSource({}), 'path');
   });
 });

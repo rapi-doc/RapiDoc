@@ -1,0 +1,336 @@
+openapi: 3.0.3
+info:
+  title: Tag Groups Test API
+  version: 1.0.0
+  description: Operations grouped with x-tagGroups, so operation element ids are prefixed with their tag (e.g. fleet--list-ships).
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Fleet
+    description: Fleet operations.
+  - name: Cargo
+    description: Cargo operations.
+x-tagGroups:
+  - name: Operations
+    tags:
+      - Fleet
+      - Cargo
+paths:
+  /fleet/ships:
+    get:
+      tags: [Fleet]
+      summary: List ships
+      operationId: listShips
+      description: Returns a page of ships. The response is paginated with a cursor; pass the cursor from the previous page to get the next one.
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+          description: The cursor for this listing.
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The limit for this listing.
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: The sort for this listing.
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: The filter for this listing.
+      responses:
+        '200':
+          description: A page of ships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The id of the item.
+                  name:
+                    type: string
+                    description: The name of the item.
+                  status:
+                    type: string
+                    description: The status of the item.
+                  createdAt:
+                    type: string
+                    description: The createdAt of the item.
+                  updatedAt:
+                    type: string
+                    description: The updatedAt of the item.
+                  owner:
+                    type: string
+                    description: The owner of the item.
+  /fleet/crews:
+    get:
+      tags: [Fleet]
+      summary: List crews
+      operationId: listCrews
+      description: Returns a page of crews. The response is paginated with a cursor; pass the cursor from the previous page to get the next one.
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+          description: The cursor for this listing.
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The limit for this listing.
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: The sort for this listing.
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: The filter for this listing.
+      responses:
+        '200':
+          description: A page of crews
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The id of the item.
+                  name:
+                    type: string
+                    description: The name of the item.
+                  status:
+                    type: string
+                    description: The status of the item.
+                  createdAt:
+                    type: string
+                    description: The createdAt of the item.
+                  updatedAt:
+                    type: string
+                    description: The updatedAt of the item.
+                  owner:
+                    type: string
+                    description: The owner of the item.
+  /fleet/docks:
+    get:
+      tags: [Fleet]
+      summary: List docks
+      operationId: listDocks
+      description: Returns a page of docks. The response is paginated with a cursor; pass the cursor from the previous page to get the next one.
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+          description: The cursor for this listing.
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The limit for this listing.
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: The sort for this listing.
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: The filter for this listing.
+      responses:
+        '200':
+          description: A page of docks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The id of the item.
+                  name:
+                    type: string
+                    description: The name of the item.
+                  status:
+                    type: string
+                    description: The status of the item.
+                  createdAt:
+                    type: string
+                    description: The createdAt of the item.
+                  updatedAt:
+                    type: string
+                    description: The updatedAt of the item.
+                  owner:
+                    type: string
+                    description: The owner of the item.
+  /cargo/containers:
+    get:
+      tags: [Cargo]
+      summary: List containers
+      operationId: listContainers
+      description: Returns a page of containers. The response is paginated with a cursor; pass the cursor from the previous page to get the next one.
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+          description: The cursor for this listing.
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The limit for this listing.
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: The sort for this listing.
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: The filter for this listing.
+      responses:
+        '200':
+          description: A page of containers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The id of the item.
+                  name:
+                    type: string
+                    description: The name of the item.
+                  status:
+                    type: string
+                    description: The status of the item.
+                  createdAt:
+                    type: string
+                    description: The createdAt of the item.
+                  updatedAt:
+                    type: string
+                    description: The updatedAt of the item.
+                  owner:
+                    type: string
+                    description: The owner of the item.
+  /cargo/manifests:
+    get:
+      tags: [Cargo]
+      summary: List manifests
+      operationId: listManifests
+      description: Returns a page of manifests. The response is paginated with a cursor; pass the cursor from the previous page to get the next one.
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+          description: The cursor for this listing.
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The limit for this listing.
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: The sort for this listing.
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: The filter for this listing.
+      responses:
+        '200':
+          description: A page of manifests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The id of the item.
+                  name:
+                    type: string
+                    description: The name of the item.
+                  status:
+                    type: string
+                    description: The status of the item.
+                  createdAt:
+                    type: string
+                    description: The createdAt of the item.
+                  updatedAt:
+                    type: string
+                    description: The updatedAt of the item.
+                  owner:
+                    type: string
+                    description: The owner of the item.
+  /cargo/routes:
+    get:
+      tags: [Cargo]
+      summary: List routes
+      operationId: listRoutes
+      description: Returns a page of routes. The response is paginated with a cursor; pass the cursor from the previous page to get the next one.
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+          description: The cursor for this listing.
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The limit for this listing.
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: The sort for this listing.
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: The filter for this listing.
+      responses:
+        '200':
+          description: A page of routes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The id of the item.
+                  name:
+                    type: string
+                    description: The name of the item.
+                  status:
+                    type: string
+                    description: The status of the item.
+                  createdAt:
+                    type: string
+                    description: The createdAt of the item.
+                  updatedAt:
+                    type: string
+                    description: The updatedAt of the item.
+                  owner:
+                    type: string
+                    description: The owner of the item.

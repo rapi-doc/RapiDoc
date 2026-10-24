@@ -33,6 +33,43 @@ export function clampWordBoundary(slug, maxLen = 40) {
 }
 
 /**
+ * Anchor for an operation built from its method and path only (e.g. "get-routes-id-estimate"). It changes
+ * only when the endpoint itself changes, so every operation can also be reached by it (see getTargetElement).
+ *
+ * @param {string} method
+ * @param {string} path
+ * @returns {string}
+ */
+export function methodPathSlug(method, path) {
+  const cleanMethod = (method || 'get').toLowerCase();
+  const cleanPath = (path || '')
+    .replace(/[{}]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return cleanPath ? `${cleanMethod}-${cleanPath}` : cleanMethod;
+}
+
+/**
+ * Which field an operation's anchor is built from: 'operationId' (stable), 'summary' (changes when the
+ * summary is edited) or 'path' (method + path). Mirrors the candidate order of OperationSlugger.slugOp().
+ *
+ * @param {Object} op - Operation object with { operationId, summary }
+ * @returns {'operationId' | 'summary' | 'path'}
+ */
+export function operationAnchorSource(op = {}) {
+  if (typeof op.operationId === 'string') {
+    const trimmed = op.operationId.trim();
+    if (trimmed.length > 0 && trimmed.length <= 45 && !/^(endpoint|operation|method|api)[-_]?\d+$/i.test(trimmed) && toKebabCase(trimmed)) {
+      return 'operationId';
+    }
+  }
+  if (typeof op.summary === 'string' && toKebabCase(op.summary.trim().slice(0, 100))) {
+    return 'summary';
+  }
+  return 'path';
+}
+
+/**
  * Deterministic, collision-free operation anchor slugger for OpenAPI specs.
  */
 export class OperationSlugger {
@@ -55,36 +92,20 @@ export class OperationSlugger {
    * @returns {string} Operation slug candidate
    */
   slugOp(op = {}) {
-    let candidate = '';
+    const source = operationAnchorSource(op);
 
     // Candidate 1: operationId (if concise: <= 45 chars and not a generic placeholder)
-    if (op.operationId && typeof op.operationId === 'string') {
-      const trimmed = op.operationId.trim();
-      if (trimmed.length > 0 && trimmed.length <= 45 && !/^(endpoint|operation|method|api)[-_]?\d+$/i.test(trimmed)) {
-        candidate = toKebabCase(trimmed);
-      }
+    if (source === 'operationId') {
+      return toKebabCase(op.operationId.trim());
     }
 
     // Candidate 2: summary (with early 100-char pre-slice and 40-char word-boundary clamp)
-    if (!candidate && op.summary && typeof op.summary === 'string' && op.summary.trim()) {
-      const head = op.summary.trim().slice(0, 100);
-      const slugified = toKebabCase(head);
-      if (slugified) {
-        candidate = clampWordBoundary(slugified, 40);
-      }
+    if (source === 'summary') {
+      return clampWordBoundary(toKebabCase(op.summary.trim().slice(0, 100)), 40);
     }
 
     // Candidate 3: Method + Clean Path (guaranteed fallback if both opId and summary are missing)
-    if (!candidate) {
-      const method = (op.method || 'get').toLowerCase();
-      const cleanPath = (op.path || '')
-        .replace(/[{}]/g, '')
-        .replace(/[^a-zA-Z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      candidate = cleanPath ? `${method}-${cleanPath}` : method;
-    }
-
-    return candidate;
+    return methodPathSlug(op.method, op.path);
   }
 
   /**

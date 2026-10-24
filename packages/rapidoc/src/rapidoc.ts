@@ -29,6 +29,7 @@ import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-temp
 import { setApiServer } from '~/templates/server-template';
 import { generateMcpServer as mcpServerGenerator, extractMcpOperations, estimateTokenCost, parseMcpTargets } from '~/utils/mcp-generator';
 import { bindNavBar } from '~/utils/bind-navbar';
+import { methodPathSlug } from '~/utils/slugger';
 import { AutoColorSchemeController } from '~/utils/auto-color-scheme';
 
 const paramsConverter = {
@@ -1316,15 +1317,19 @@ export default class RapiDoc extends LitElement {
       this._observerLockTimeout = null;
     }
 
+    // onIntersect tracks elements by their DOM id; targetId can be a shorter slug of the same element
+    // (e.g. "get-route-estimate" for "route-planning--get-route-estimate"). Keying by the slug would leave
+    // an entry the observer never removes, pinning the active item to this element.
+    const observedId = targetEl?.id || targetId;
     this.isIntersectionObserverActive = false;
     if (this._intersectingElements) {
       this._intersectingElements.clear();
-      if (targetEl && targetId) {
-        this._intersectingElements.set(targetId, targetEl);
+      if (targetEl && observedId) {
+        this._intersectingElements.set(observedId, targetEl);
       }
     }
-    if (targetId) {
-      this._activeElementId = targetId;
+    if (observedId) {
+      this._activeElementId = observedId;
     }
 
     const isAutoHeight = this.autoHeight === 'true' || this.hasAttribute('auto-height');
@@ -1351,8 +1356,8 @@ export default class RapiDoc extends LitElement {
         this._observerLockTimeout = null;
       }
 
-      if (targetEl && targetId && this._intersectingElements) {
-        this._intersectingElements.set(targetId, targetEl);
+      if (targetEl && observedId && this._intersectingElements) {
+        this._intersectingElements.set(observedId, targetEl);
       }
       this.isIntersectionObserverActive = true;
     };
@@ -1426,6 +1431,27 @@ export default class RapiDoc extends LitElement {
       this.shadowRoot.getElementById(elementId.replace(/^[a-z0-9_-]+--/, ''))) as HTMLElement | null;
   }
 
+  /**
+   * Every operation can also be reached by its method + path anchor (methodPathSlug, e.g.
+   * "get-routes-id-estimate"), which stays the same when its operationId or summary changes. The
+   * comparison ignores case and punctuation, so older RapiDoc anchors ("get-/routes/-id-/estimate") work too.
+   * Returns the operation's own element id for such an anchor, otherwise elementId unchanged.
+   */
+  resolveOperationAlias(elementId: string): string {
+    if (!elementId || this.getTargetElement(elementId)) return elementId;
+    const normalize = (id: string) =>
+      id
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    const wanted = normalize(elementId);
+    for (const tag of this.resolvedSpec?.tags || []) {
+      const op = tag.paths?.find((p) => normalize(methodPathSlug(p.method, p.path)) === wanted);
+      if (op) return op.elementId;
+    }
+    return elementId;
+  }
+
   // Public Method - Binds an external navbar to this <rapi-doc> element
   bindNavBar(sidebar: HTMLElement | string, options?: any) {
     return bindNavBar(sidebar, this, options);
@@ -1438,6 +1464,7 @@ export default class RapiDoc extends LitElement {
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
   async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true, isFirstNavItem = false) {
+    elementId = this.resolveOperationAlias(elementId);
     if (this.renderStyle === 'focused') {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
@@ -1492,7 +1519,7 @@ export default class RapiDoc extends LitElement {
         }
 
         // Update Location Hash
-        this._activeElementId = elementId;
+        this._activeElementId = contentEl?.id || elementId;
         this.dispatchEvent(
           new CustomEvent('nav-active-change', {
             detail: {

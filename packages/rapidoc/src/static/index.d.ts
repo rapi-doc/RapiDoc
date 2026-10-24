@@ -121,3 +121,9 @@ export function getBundledCss(options?: { theme?: string; colorScheme?: string; 
 export function getNavCss(scope?: string): string;
 export function getThemeTokensCss(theme?: string, scope?: string): string;
 export function toKebabCase(str: string): string;
+
+/** Anchor built from an operation's method and path (e.g. "get-routes-id-estimate"); <rapi-doc> resolves it to the operation. */
+export function methodPathSlug(method: string, path: string): string;
+
+/** Which field an operation's anchor is built from: 'operationId' (stable), 'summary' or 'path' (method + path). */
+export function operationAnchorSource(op: { operationId?: string; summary?: string }): 'operationId' | 'summary' | 'path';
