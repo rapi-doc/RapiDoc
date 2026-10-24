@@ -1,8 +1,9 @@
 /**
  * The temp workspace is the throwaway Astro project a portal is built from. It lives in the
- * portal project while `rapidoc build` / `rapidoc dev` runs and is deleted when they finish:
+ * portal project while `rapidoc build` / `rapidoc dev` runs and is deleted when they finish.
+ * Every run gets its own folder, so a build never touches a running dev server's workspace:
  *
- *   <project>/.rapidoc-temp/
+ *   <project>/.rapidoc-temp/<dev|build>-<pid>-<n>/
  *     node_modules -> symlink to the folder Astro is installed in
  *     package.json             lists the dependencies Astro must bundle (Starlight, portal, rapidoc)
  *     markdoc.config.mjs       Markdoc tags for .mdoc docs (src/markdoc/astro-config.js)
@@ -14,8 +15,11 @@
  *     public/assets/           rapidoc-min.js
  *     public/search-index.json
  *
- * It must sit next to the project rather than in the OS temp folder: Astro only compiles
+ * It must sit inside the project rather than in the OS temp folder: Astro only compiles
  * .astro files (Starlight's and this package's) that share a parent folder with the root.
+ *
+ * A run killed before it could clean up leaves its folder behind; the next run removes the folders
+ * of processes that are no longer running (the pid is in the folder name).
  * Pages, components and Astro config come from this package (see astro-integration.js).
  */
 
@@ -27,6 +31,28 @@ import { listDocFiles, syncDocs } from './sync-docs.js';
 import { copyRapidocBundle, copySpecs, writeSearchIndex } from './sync-assets.js';
 
 export const WORKSPACE_DIRNAME = '.rapidoc-temp';
+
+const RUN_DIR_PATTERN = /^(?:dev|build)-(\d+)-\d+$/;
+let runCounter = 0;
+
+function isProcessAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (err) {
+    return err.code === 'EPERM'; // alive, owned by another user
+  }
+}
+
+/** Removes run folders whose process has exited, and anything else that is not a run folder. */
+function removeStaleWorkspaces(parentDir) {
+  if (!fs.existsSync(parentDir)) return;
+  for (const name of fs.readdirSync(parentDir)) {
+    const pid = Number(RUN_DIR_PATTERN.exec(name)?.[1]);
+    if (pid && (pid === process.pid || isProcessAlive(pid))) continue;
+    fs.rmSync(path.join(parentDir, name), { recursive: true, force: true, maxRetries: 3 });
+  }
+}
 
 // Astro reads the root package.json to find packages with .astro files that must be bundled
 // for server rendering; without it Starlight is loaded unbundled and its astro:* imports fail.
@@ -92,16 +118,19 @@ function copyProjectPublic(projectDir, publicDir) {
 }
 
 /**
- * Loads the project's config and creates a populated temp workspace for it.
- * A workspace left behind by a crashed run is replaced.
+ * Loads the project's config and creates a populated temp workspace for this run.
  *
  * @param {string} projectDir - Folder containing rapidoc.config.yaml
+ * @param {object} [options]
+ * @param {'dev' | 'build'} [options.kind='build'] - Prefix of the run folder
  * @returns {Promise<object>} workspace descriptor; pass it to removePortalWorkspace() when done
  */
-export async function createPortalWorkspace(projectDir = process.cwd()) {
+export async function createPortalWorkspace(projectDir = process.cwd(), { kind = 'build' } = {}) {
   const { config, configPath } = await loadConfig(projectDir);
   const resolvedProjectDir = path.dirname(configPath);
-  const root = path.join(resolvedProjectDir, WORKSPACE_DIRNAME);
+  const parentDir = path.join(resolvedProjectDir, WORKSPACE_DIRNAME);
+  removeStaleWorkspaces(parentDir);
+  const root = path.join(parentDir, `${kind}-${process.pid}-${++runCounter}`);
 
   const workspace = {
     root,
@@ -114,7 +143,6 @@ export async function createPortalWorkspace(projectDir = process.cwd()) {
     publicDir: path.join(root, 'public'),
   };
 
-  removePortalWorkspace(workspace);
   fs.mkdirSync(workspace.docsContentDir, { recursive: true });
 
   try {
@@ -136,9 +164,17 @@ export async function createPortalWorkspace(projectDir = process.cwd()) {
 }
 
 /**
- * Deletes the temp workspace. The node_modules symlink is removed, never followed.
+ * Deletes the run's temp workspace, and .rapidoc-temp/ once no other run uses it. Synchronous, so it
+ * can run in a process 'exit' handler. The node_modules symlink is removed, never followed.
  */
 export function removePortalWorkspace(workspace) {
-  if (path.basename(workspace?.root || '') !== WORKSPACE_DIRNAME) return;
-  fs.rmSync(workspace.root, { recursive: true, force: true, maxRetries: 3 });
+  const root = workspace?.root || '';
+  const parentDir = path.dirname(root);
+  if (path.basename(parentDir) !== WORKSPACE_DIRNAME || !RUN_DIR_PATTERN.test(path.basename(root))) return;
+  fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
+  try {
+    fs.rmdirSync(parentDir);
+  } catch {
+    // Another run's workspace is still there (or the folder is already gone).
+  }
 }

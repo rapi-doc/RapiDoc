@@ -73,7 +73,8 @@ describe('RapiDoc Portal build engine', () => {
   it('should create and remove the temp workspace for demo-api-portal', async () => {
     const workspace = await createPortalWorkspace(DEMO_PORTAL_DIR);
     try {
-      assert.equal(workspace.root, path.join(DEMO_PORTAL_DIR, WORKSPACE_DIRNAME));
+      assert.equal(path.dirname(workspace.root), path.join(DEMO_PORTAL_DIR, WORKSPACE_DIRNAME));
+      assert.match(path.basename(workspace.root), new RegExp(`^build-${process.pid}-\\d+$`), 'one folder per run, named after the process');
       for (const file of [
         'package.json',
         'markdoc.config.mjs',
@@ -110,6 +111,29 @@ describe('RapiDoc Portal build engine', () => {
     }
     assert.ok(!fs.existsSync(workspace.root), 'workspace should be deleted');
     assert.ok(fs.existsSync(path.join(resolveDependencyRoot(), 'astro', 'package.json')), 'symlinked node_modules must survive removal');
+  });
+
+  it('should give every run its own workspace and remove only the folders of dead runs', async () => {
+    const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-ws-test-'));
+    try {
+      fs.writeFileSync(path.join(projectDir, 'rapidoc.config.yaml'), 'site: { title: Acme }\n');
+      const parentDir = path.join(projectDir, WORKSPACE_DIRNAME);
+      fs.mkdirSync(path.join(parentDir, 'dev-999999999-1'), { recursive: true }); // a run that no longer exists
+      fs.writeFileSync(path.join(parentDir, 'package.json'), '{}'); // the layout before per-run folders
+
+      const dev = await createPortalWorkspace(projectDir, { kind: 'dev' });
+      assert.deepEqual(fs.readdirSync(parentDir), [path.basename(dev.root)], 'leftovers of dead runs are removed');
+      const build = await createPortalWorkspace(projectDir, { kind: 'build' });
+      assert.ok(fs.existsSync(dev.root), "a new run leaves a live run's workspace alone");
+      assert.notEqual(build.root, dev.root);
+
+      removePortalWorkspace(build);
+      assert.ok(fs.existsSync(dev.root) && !fs.existsSync(build.root));
+      removePortalWorkspace(dev);
+      assert.ok(!fs.existsSync(parentDir), `${WORKSPACE_DIRNAME}/ goes once the last run is removed`);
+    } finally {
+      fs.rmSync(projectDir, { recursive: true, force: true });
+    }
   });
 
   it('should build demo-api-portal into static HTML and leave no files behind', async () => {

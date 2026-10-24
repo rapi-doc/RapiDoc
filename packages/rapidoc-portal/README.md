@@ -164,14 +164,14 @@ The schema lives in [`src/config/schema.js`](src/config/schema.js). After changi
 `rapidoc build` (or `buildPortal()`) runs these steps:
 
 1. **Load and validate** `rapidoc.config.yaml` ([`src/config/`](src/config/)).
-2. **Create a temporary workspace** at `<project>/.rapidoc-temp/`. It holds only what Astro needs on disk: a normalized copy of `docs/` (`docs/index.*` becomes the home page), the project's `public/` folder, the specs, the `rapidoc-min.js` bundle and the search index ([`src/engine/temp-workspace.js`](src/engine/temp-workspace.js), [`sync-docs.js`](src/engine/sync-docs.js), [`sync-assets.js`](src/engine/sync-assets.js)).
+2. **Create a temporary workspace** at `<project>/.rapidoc-temp/<dev|build>-<pid>-<n>/`, one per run, so a build never disturbs a running `rapidoc dev`. It holds only what Astro needs on disk: a normalized copy of `docs/` (`docs/index.*` becomes the home page), the project's `public/` folder, the specs, the `rapidoc-min.js` bundle and the search index ([`src/engine/temp-workspace.js`](src/engine/temp-workspace.js), [`sync-docs.js`](src/engine/sync-docs.js), [`sync-assets.js`](src/engine/sync-assets.js)).
 3. **Run Astro + Starlight** with an inline config. The portal pages ([`src/pages/`](src/pages/)) and components ([`src/components/`](src/components/)) come straight from this package; they read the config and theme through the virtual modules `virtual:rapidoc-portal/config` and `virtual:rapidoc-portal/theme.css` ([`src/engine/astro-integration.js`](src/engine/astro-integration.js)).
 4. **Write the static site** to `<project>/dist/` (or `--outDir`).
-5. **Delete `.rapidoc-temp/`**, even when the build fails. Your project folder ends up exactly as it was, plus `dist/`.
+5. **Delete the workspace** (and `.rapidoc-temp/` once no other run uses it), even when the build fails. Your project folder ends up exactly as it was, plus `dist/`.
 
-`rapidoc dev` does steps 1–3 and serves the site on `http://localhost:4321`. It watches the project: guide edits appear immediately; changes to `rapidoc.config.yaml` or a spec restart the server. `.rapidoc-temp/` is removed when the server stops (including Ctrl+C).
+`rapidoc dev` does steps 1–3 and serves the site on `http://localhost:4321`. It watches the project: guide edits appear immediately; changes to `rapidoc.config.yaml` or a spec restart the server. Its workspace is removed when the server stops, however it stops (`stop()`, Ctrl+C, SIGTERM).
 
-Add `.rapidoc-temp/` to your `.gitignore` in case a run is killed before it can clean up (projects created with `create-rapidoc` already do).
+A run killed before it can clean up (`kill -9`, a crash) leaves its folder behind; the next run removes the folders of processes that are no longer running. Add `.rapidoc-temp/` to your `.gitignore` (projects created with `create-rapidoc` already do).
 
 > **Why not the OS temp folder?** Astro only compiles `.astro` files (Starlight's and this package's) that share a parent folder with the site root, so the workspace has to live next to your project.
 
@@ -192,12 +192,12 @@ const result = await buildPortal('./my-portal', { outDir: 'dist' });
 // { success, apisCount, outDir, durationMs }
 
 const server = await startDevServer('./my-portal', { port: 4321 });
-await server.stop(); // stops Astro and removes .rapidoc-temp/
+await server.stop(); // stops Astro and removes its workspace
 
 const { config } = await loadConfig('./my-portal'); // normalized config
 ```
 
-Both `buildPortal` and `startDevServer` accept `keepWorkspace: true` (CLI: `--debug`) to leave `.rapidoc-temp/` in place for inspecting the generated Astro project.
+Both `buildPortal` and `startDevServer` accept `keepWorkspace: true` (CLI: `--debug`) to leave the run's workspace in `.rapidoc-temp/` for inspecting the generated Astro project.
 
 Other exports: config helpers (`normalizeConfig`, `migrateConfig`, `RapidocConfigSchema`), Markdoc (`compileMarkdoc`, `markdocTags`), search (`buildSearchIndex`, `searchRecords`), and spec checks (`checkPortalSpecs`, `checkApiSpec`).
 
@@ -211,7 +211,7 @@ src/
 ├── engine/
 │   ├── build-portal.js        buildPortal(): workspace → astro build → cleanup
 │   ├── dev-server.js          startDevServer(): workspace → astro dev → watch → cleanup
-│   ├── temp-workspace.js      Create / remove <project>/.rapidoc-temp/
+│   ├── temp-workspace.js      Create / remove <project>/.rapidoc-temp/<run>/
 │   ├── sync-docs.js           Copy + normalize docs into the workspace
 │   ├── sync-assets.js         Specs, rapidoc-min.js (fails if stale), search index
 │   ├── astro-integration.js   Inline Astro config, injected routes, virtual modules

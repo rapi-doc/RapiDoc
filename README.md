@@ -117,10 +117,10 @@ Upload `dist/` to any static host (GitHub Pages, Netlify, S3, Nginx). Check spec
 ### What happens during a build
 
 1. `rapidoc.config.yaml` is loaded and validated.
-2. A temporary Astro project is created at `my-portal/.rapidoc-temp/` with normalized copies of your guides, your specs, the `rapidoc-min.js` bundle and a search index.
+2. A temporary Astro project is created in `my-portal/.rapidoc-temp/` (one folder per run) with normalized copies of your guides, your specs, the `rapidoc-min.js` bundle and a search index.
 3. Astro + Starlight render the guides and the home page; the portal's own pages render the API catalog and one RapiDoc reference page per API.
 4. The static site is written to `dist/`.
-5. `.rapidoc-temp/` is deleted, so your project is left exactly as it was apart from `dist/`.
+5. The temporary project is deleted, so your project is left exactly as it was apart from `dist/`.
 
 See [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md) for the full configuration reference, the guide syntax (Markdoc tags, MDX components) and the programmatic API. The `demo-api-portal` repository is the reference portal used to dog-food these packages.
 

@@ -18,7 +18,7 @@ import { reportSpecWarnings } from './spec-checks.js';
  */
 export async function buildPortal(projectDir = process.cwd(), options = {}) {
   const startTime = Date.now();
-  const workspace = await createPortalWorkspace(projectDir);
+  const workspace = await createPortalWorkspace(projectDir, { kind: 'build' });
   reportSpecWarnings(workspace.config);
   const outDir = path.resolve(workspace.projectDir, options.outDir || 'dist');
 

@@ -44,7 +44,7 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 | :--- | :--- |
 | `build-portal.js` | `buildPortal(projectDir, { outDir, keepWorkspace })`: workspace → `astro build` → always remove workspace |
 | `dev-server.js` | `startDevServer(projectDir, { port, keepWorkspace })`: workspace → `astro dev`, watches docs/config/specs, cleans up on stop/SIGINT/SIGTERM |
-| `temp-workspace.js` | Creates/removes `<project>/.rapidoc-temp/` (node_modules symlink, `package.json`, content config, docs copy, public assets) |
+| `temp-workspace.js` | Creates/removes the run's workspace `<project>/.rapidoc-temp/<dev\|build>-<pid>-<n>/` (node_modules symlink, `package.json`, content config, docs copy, public assets); removes folders of runs whose process has exited |
 | `sync-docs.js` | Idempotent docs mirror + normalization (frontmatter title, `.md`/`.mdx` dedupe, Zudoku rewrites, component auto-imports) |
 | `sync-assets.js` | Specs, `rapidoc-min.js` (throws if missing or stale — never rebuilds), `search-index.json` |
 | `astro-integration.js` | Inline Astro config: Markdoc + Starlight + injected routes for `src/pages/*.astro` + virtual modules |
@@ -65,6 +65,7 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 Invariants:
 - **No leftovers**: the only thing a run may leave in the project is the output folder. Never write elsewhere in the user's project or into this package.
 - **No cwd coupling**: pages and components read config via `import portalConfig from 'virtual:rapidoc-portal/config'`, never from `process.cwd()`. The only `process.chdir` is in `build-portal.js`: into the workspace for the duration of `astro build` (restored in `finally`), because Astro places its prerender chunks relative to the cwd and they must resolve dependencies through the workspace's `node_modules`.
+- **One workspace per run**: a run never deletes another live run's folder (dev servers and builds run side by side); dev servers also remove theirs in a process `exit` handler, because Astro's own SIGTERM handler exits before an async stop finishes.
 - **Workspace location**: must stay inside the project. The OS temp folder does not work — Astro only compiles `.astro` files that share a parent folder with the root — and a folder inside `node_modules` makes Vite treat the pages as dependencies.
 - **Workspace `package.json` is required**: Astro reads its dependencies to decide which packages (Starlight) to bundle for SSR.
 

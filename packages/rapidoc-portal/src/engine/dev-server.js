@@ -4,7 +4,7 @@
  *   docs/ change              -> re-sync the docs copy and search index (Astro hot-reloads)
  *   config or spec change     -> rebuild the workspace and restart the Astro server
  *
- * The temp workspace is deleted on stop(), Ctrl+C (SIGINT) and SIGTERM.
+ * The temp workspace is deleted on stop(), Ctrl+C (SIGINT), SIGTERM and any other process exit.
  */
 
 import fs from 'node:fs';
@@ -38,7 +38,7 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
   let stopped = false;
 
   async function startAstro() {
-    workspace = await createPortalWorkspace(projectDir);
+    workspace = await createPortalWorkspace(projectDir, { kind: 'dev' });
     reportSpecWarnings(workspace.config);
     try {
       server = await astroDev(createAstroConfig(workspace, { server: { port, host: true } }));
@@ -102,14 +102,22 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
     process.off('SIGINT', onSignal);
     process.off('SIGTERM', onSignal);
     await stopAstro();
+    // Only now: Astro's own signal handler may exit the process while stopAstro() is awaited.
+    process.off('exit', onExit);
   }
 
   async function onSignal(signal) {
     await stop();
     process.exit(signal === 'SIGINT' ? 130 : 143);
   }
+  // Vite exits the process on SIGTERM before an async stop() can finish, so the workspace is also
+  // removed synchronously when the process exits, whatever ends it.
+  function onExit() {
+    if (!options.keepWorkspace) removePortalWorkspace(workspace);
+  }
   process.on('SIGINT', onSignal);
   process.on('SIGTERM', onSignal);
+  process.on('exit', onExit);
 
   return {
     port,
