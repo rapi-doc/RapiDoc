@@ -12,6 +12,7 @@ import path from 'node:path';
 import { dev as astroDev } from 'astro';
 import { createAstroConfig } from './astro-integration.js';
 import { createPortalWorkspace, refreshDocs, removePortalWorkspace } from './temp-workspace.js';
+import { reportSpecWarnings } from './spec-checks.js';
 
 const WATCH_DEBOUNCE_MS = 150;
 
@@ -38,6 +39,7 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
 
   async function startAstro() {
     workspace = await createPortalWorkspace(projectDir);
+    reportSpecWarnings(workspace.config);
     try {
       server = await astroDev(createAstroConfig(workspace, { server: { port, host: true } }));
     } catch (err) {

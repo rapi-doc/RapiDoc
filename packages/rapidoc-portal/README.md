@@ -174,6 +174,12 @@ Add `.rapidoc-temp/` to your `.gitignore` in case a run is killed before it can 
 
 > **Why not the OS temp folder?** Astro only compiles `.astro` files (Starlight's and this package's) that share a parent folder with the site root, so the workspace has to live next to your project.
 
+`rapidoc dev` and `rapidoc build` warn about operations without an `operationId`: their links (`/apis/<id>/<tag>#<operation>`) are built from the summary, so they change when the summary is edited. Every operation can also be linked by its method and path (`#get-orders-orderid`), which only changes with the endpoint.
+
+### Validating specs
+
+`rapidoc validate` checks every local spec in `apis:` against the OpenAPI schema (relative `$ref`s to other files resolve), prints the same `operationId` warnings, and exits with code 1 when a spec has errors, so it can gate CI. `rapidoc validate <file>` checks a single spec. Projects created with `create-rapidoc` have it as `npm run validate`.
+
 ---
 
 ## Programmatic API
@@ -192,7 +198,7 @@ const { config } = await loadConfig('./my-portal'); // normalized config
 
 Both `buildPortal` and `startDevServer` accept `keepWorkspace: true` (CLI: `--debug`) to leave `.rapidoc-temp/` in place for inspecting the generated Astro project.
 
-Other exports: config helpers (`normalizeConfig`, `migrateConfig`, `RapidocConfigSchema`), Markdoc (`compileMarkdoc`, `markdocTags`), and search (`buildSearchIndex`, `searchRecords`).
+Other exports: config helpers (`normalizeConfig`, `migrateConfig`, `RapidocConfigSchema`), Markdoc (`compileMarkdoc`, `markdocTags`), search (`buildSearchIndex`, `searchRecords`), and spec checks (`checkPortalSpecs`, `checkApiSpec`).
 
 ---
 

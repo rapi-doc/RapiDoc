@@ -46,6 +46,7 @@ test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
     const pkg = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf8'));
     assert.strictEqual(pkg.name, 'galaxy-docs');
     assert.strictEqual(pkg.scripts.build, 'rapidoc build');
+    assert.strictEqual(pkg.scripts.validate, 'rapidoc validate');
   });
 
   await t.test('scaffolded OpenAPI specification should be valid OpenAPI 3.1', async () => {

@@ -302,6 +302,7 @@ const STARTER_PACKAGE_JSON = (projectName) =>
       type: 'module',
       scripts: {
         build: 'rapidoc build',
+        validate: 'rapidoc validate',
         preview: 'npx serve dist',
       },
       devDependencies: {
@@ -334,6 +335,8 @@ npm run build
 # 3. Preview locally
 npm run preview
 \`\`\`
+
+Run \`npm run validate\` (for example in CI) to check every spec in \`apis:\` against the OpenAPI schema. It also warns about operations without an \`operationId\`, whose links change when their summary is edited.
 
 ## Project Structure
 

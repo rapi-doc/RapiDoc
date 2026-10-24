@@ -35,28 +35,19 @@ export async function getStaticPaths() {
     }
 
     if (specData) {
-      const tagsList = [];
-      if (specData.tags && Array.isArray(specData.tags)) {
-        specData.tags.forEach((t) => {
-          if (t && t.name) tagsList.push(t);
-        });
-      } else if (specData.paths) {
-        const seenTags = new Set();
-        Object.values(specData.paths).forEach((p) => {
-          if (!p || typeof p !== 'object') return;
-          ['get', 'post', 'put', 'delete', 'patch'].forEach((m) => {
-            if (p[m]?.tags && Array.isArray(p[m].tags)) {
-              p[m].tags.forEach((t) => seenTags.add(t));
-            }
-          });
-        });
-        seenTags.forEach((name) => tagsList.push({ name }));
+      // The same tags the sidebar links to (getNavBarHtml), including tags that operations use
+      // without declaring them in the spec's top-level `tags`.
+      let navTags = [];
+      try {
+        navTags = (await getSpecNavigation(specData)).tags;
+      } catch {
+        // Fall through: the API keeps its root page
       }
 
-      for (const t of tagsList) {
-        const tagSlug = toKebabCase(t.name);
+      const tagSlugs = new Set(navTags.map((t) => toKebabCase(t.name)));
+      for (const tagSlug of tagSlugs) {
         if (!tagSlug || tagSlug === 'general') continue;
-        const tagRoute = `${cleanBasePath}/${tagSlug}`;
+        const tagRoute = `${api.id}/${tagSlug}`;
         paths.push({
           params: { apiRoute: tagRoute },
           props: {

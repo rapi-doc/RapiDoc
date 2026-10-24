@@ -2,8 +2,9 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildPortal, startDevServer, migrateConfig, MIGRATION_SOURCES } from '@rapidoc/portal';
-import { validate } from '@scalar/openapi-parser';
+import { buildPortal, startDevServer, migrateConfig, MIGRATION_SOURCES, loadConfig, checkApiSpec } from '@rapidoc/portal';
+import { load, validate } from '@scalar/openapi-parser';
+import { readFiles } from '@scalar/openapi-parser/plugins/read-files';
 
 const args = process.argv.slice(2);
 const command = args[0] || '--help';
@@ -18,8 +19,8 @@ Usage:
 Commands:
   dev [dir]               Launches local development server with HMR (Astro + Starlight)
   build [dir]             Pre-renders static developer portal into dist/ (SSG)
-  validate <spec>         Validates an OpenAPI 3.0 / 3.1 specification file
-  migrate --from <src>    Converts a v1 rapidoc.config.yaml, a Redocly or a Zudoku project to rapidoc.config.yaml (v1, redocly, zudoku)
+  validate [spec|dir]     Validates one OpenAPI 3.0 / 3.1 spec, or every spec in a portal's apis: (default: current folder)
+  migrate --from <src>    Converts a Redocly or a Zudoku project to rapidoc.config.yaml (redocly, zudoku)
   --help, -h              Show this help message
   --version, -v           Show version information
 
@@ -32,9 +33,10 @@ Examples:
   rapidoc dev
   rapidoc build
   rapidoc build ./my-api-portal
+  rapidoc validate
   rapidoc validate ./specs/orders-api.yaml
   rapidoc migrate --from redocly
-  rapidoc migrate --from v1
+  rapidoc migrate --from zudoku
 `);
 }
 
@@ -79,30 +81,61 @@ async function handleBuild() {
   }
 }
 
-async function handleValidate() {
-  const specPath = args[1];
-  if (!specPath) {
-    console.error('Error: Please provide path to an OpenAPI specification file.');
-    process.exit(1);
-  }
-
-  const resolved = path.resolve(specPath);
-  if (!fs.existsSync(resolved)) {
-    console.error(`Error: File not found: ${resolved}`);
-    process.exit(1);
-  }
-
-  console.log(`\n🔍 Validating OpenAPI specification: ${specPath}...`);
-  const content = fs.readFileSync(resolved, 'utf8');
-  const result = await validate(content);
-
-  if (result.valid) {
-    console.log(`\n✅ Specification is valid OpenAPI! (${resolved})\n`);
-  } else {
-    console.error(`\n❌ Specification has validation errors:`);
+/**
+ * Validates one spec against the OpenAPI schema and prints link warnings (see checkApiSpec).
+ * Returns false when the spec has errors.
+ */
+async function validateSpec(id, fullPath) {
+  console.log(`\n🔍 ${id}: ${fullPath}`);
+  // Loading from the file (not its text) lets relative $refs to other files resolve.
+  const { filesystem } = await load(fullPath, { plugins: [readFiles()] });
+  const result = await validate(filesystem);
+  if (!result.valid) {
+    console.error(`   ❌ Specification has validation errors:`);
     console.error(result.errors);
+    return false;
+  }
+  console.log('   ✅ Specification is valid OpenAPI!');
+  for (const warning of checkApiSpec({ id, fullPath })) console.warn(`   ⚠️  ${warning}`);
+  return true;
+}
+
+// rapidoc validate <spec>: one spec file. rapidoc validate [dir]: every local spec in the portal's apis:.
+async function handleValidate() {
+  const target = path.resolve(args[1] && !args[1].startsWith('--') ? args[1] : process.cwd());
+  if (!fs.existsSync(target)) {
+    console.error(`Error: File not found: ${target}`);
     process.exit(1);
   }
+
+  if (fs.statSync(target).isFile()) {
+    console.log(`\nValidating OpenAPI specification...`);
+    const valid = await validateSpec(path.basename(target), target);
+    console.log('');
+    if (!valid) process.exit(1);
+    return;
+  }
+
+  let config;
+  try {
+    ({ config } = await loadConfig(target));
+  } catch (err) {
+    console.error(`\n❌ ${err.message}\n`);
+    process.exit(1);
+  }
+
+  console.log(`\nValidating the specs in ${target}...`);
+  let failed = 0;
+  for (const api of config.apis || []) {
+    if (api.isRemote) {
+      console.log(`\n⏭️  ${api.id}: ${api.spec} (remote, skipped)`);
+    } else if (!(await validateSpec(api.id, api.fullPath))) {
+      failed += 1;
+    }
+  }
+  const total = (config.apis || []).length;
+  console.log(failed ? `\n❌ ${failed} of ${total} specs have errors.\n` : `\n✅ ${total} specs checked, no errors.\n`);
+  if (failed) process.exit(1);
 }
 
 async function handleMigrate() {

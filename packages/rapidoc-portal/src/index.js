@@ -18,3 +18,4 @@ export { compileMarkdoc, compileDocFile, createMarkdocConfig, tags as markdocTag
 export { stripMarkup, extractDocSections, indexOpenApiSpec, buildSearchIndex, searchRecords } from './search/index.js';
 export { buildPortal } from './engine/build-portal.js';
 export { startDevServer } from './engine/dev-server.js';
+export { checkApiSpec, checkPortalSpecs, readSpecFile, summaryAnchoredOperations } from './engine/spec-checks.js';
