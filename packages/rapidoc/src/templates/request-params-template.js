@@ -362,7 +362,11 @@ export function inputParametersTemplate(paramType) {
                   }
                 </div>
               </td>`
-            : html`<td></td>`
+            : // Every row spans the same three columns (name | input | constraints), or row borders stop short.
+              // With allow-try the input already spans the constraints column.
+              this.allowTry === 'true'
+              ? ''
+              : html`<td colspan="2"></td>`
         }
       </tr>
       <tr>
