@@ -169,6 +169,12 @@ export default css`
     font-size: calc(var(--font-size-small) + 1px);
     margin-block: 0 8px;
   }
+  .table-title {
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    vertical-align: middle;
+    margin: 12px 0 4px 0;
+  }
   .table-title > .rapidoc-heading.label-heading {
     margin: 0;
   }

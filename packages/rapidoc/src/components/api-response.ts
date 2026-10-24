@@ -6,7 +6,6 @@ import { marked } from 'marked';
 import { prepareResponseDefinitions } from '../utils/response-utils.js';
 import FontStyles from '~/styles/font-styles';
 import FlexStyles from '~/styles/flex-styles';
-import TableStyles from '~/styles/table-styles';
 import ParamListStyles from '~/styles/param-list-styles';
 import InputStyles from '~/styles/input-styles';
 import TabStyles from '~/styles/tab-styles';
@@ -54,7 +53,6 @@ export default class ApiResponse extends LitElement {
       FontStyles,
       FlexStyles,
       TabStyles,
-      TableStyles,
       ParamListStyles,
       InputStyles,
       BorderStyles,

@@ -6,7 +6,7 @@ import { scheduleHighlight } from '~/utils/highlighter';
 import FontStyles from '~/styles/font-styles';
 import InputStyles from '~/styles/input-styles';
 import FlexStyles from '~/styles/flex-styles';
-import TableStyles from '~/styles/table-styles';
+import AuthStyles from '~/styles/auth-styles';
 import ParamListStyles from '~/styles/param-list-styles';
 import MicrolighterStyles from '~/styles/microlighter-styles';
 import TabStyles from '~/styles/tab-styles';
@@ -137,7 +137,7 @@ export default class RapiDocMini extends LitElement {
       FontStyles,
       InputStyles,
       FlexStyles,
-      TableStyles,
+      AuthStyles,
       ParamListStyles,
       EndpointStyles,
       MicrolighterStyles,

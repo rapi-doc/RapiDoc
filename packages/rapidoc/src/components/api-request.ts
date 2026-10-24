@@ -2,7 +2,6 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { guard } from 'lit/directives/guard.js';
 import { scheduleHighlight } from '~/utils/highlighter';
-import TableStyles from '~/styles/table-styles';
 import ParamListStyles from '~/styles/param-list-styles';
 import FlexStyles from '~/styles/flex-styles';
 import InputStyles from '~/styles/input-styles';
@@ -97,7 +96,6 @@ export default class ApiRequest extends LitElement {
 
   static get styles() {
     return [
-      TableStyles,
       ParamListStyles,
       InputStyles,
       FontStyles,
@@ -129,9 +127,6 @@ export default class ApiRequest extends LitElement {
           padding: 5px;
           resize: vertical;
           direction: ltr;
-        }
-        .example:first-child {
-          margin-top: -9px;
         }
 
         .response-message {

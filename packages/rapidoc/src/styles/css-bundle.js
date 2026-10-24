@@ -2,7 +2,7 @@ import ThemeTokens from './theme-tokens.js';
 import FontStyles from './font-styles.js';
 import InputStyles from './input-styles.js';
 import FlexStyles from './flex-styles.js';
-import TableStyles from './table-styles.js';
+import AuthStyles from './auth-styles.js';
 import ParamListStyles from './param-list-styles.js';
 import EndpointStyles from './endpoint-styles.js';
 import MicrolighterStyles from './microlighter-styles.js';
@@ -20,7 +20,7 @@ export const allStyles = [
   FontStyles,
   InputStyles,
   FlexStyles,
-  TableStyles,
+  AuthStyles,
   ParamListStyles,
   BorderStyles,
   EndpointStyles,
