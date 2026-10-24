@@ -133,6 +133,26 @@ describe('Semantic heading markup', () => {
     }
   });
 
+  it('exports every parameter-list part from <api-request> and <api-response>', async () => {
+    const html = await render({ renderStyle: 'read' });
+    const exported = [...html.matchAll(/<api-(request|response)\b[^>]*exportparts="([^"]*)"/g)].map((m) => m[2]);
+    assert.ok(exported.length > 1, 'api-request and api-response have exportparts');
+    for (const name of ['param-list', 'param', 'param-label', 'param-name', 'param-type', 'param-constraint', 'param-details']) {
+      for (const list of exported) assert.match(list, new RegExp(`(^|[\\s,])${name}:${name}(,|\\s|$)`), `exportparts lacks "${name}"`);
+    }
+  });
+
+  it('renders authentication and server variables as lists, not tables', async () => {
+    const html = await render({ renderStyle: 'read' });
+    assert.doesNotMatch(html, /class="[^"]*\bm-table\b/);
+    assert.match(html, /<ul class="auth-list"[^>]*role="list"/);
+    assert.match(html, /<ul class="param-list server-vars"[^>]*role="list"/);
+    const parts = partsOf(html);
+    for (const name of ['auth-list', 'auth-scheme', 'auth-flows', 'param-list', 'param', 'param-name', 'param-input']) {
+      assert.ok(parts.has(name), `missing part "${name}"`);
+    }
+  });
+
   it('never nests a block inside <p> or <a>', async () => {
     for (const renderStyle of ['read', 'focused']) {
       const html = await render({ renderStyle, focusedElementId: 'get-/shipments' });

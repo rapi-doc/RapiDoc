@@ -7,6 +7,7 @@ import { prepareResponseDefinitions } from '../utils/response-utils.js';
 import FontStyles from '~/styles/font-styles';
 import FlexStyles from '~/styles/flex-styles';
 import TableStyles from '~/styles/table-styles';
+import ParamListStyles from '~/styles/param-list-styles';
 import InputStyles from '~/styles/input-styles';
 import TabStyles from '~/styles/tab-styles';
 import BorderStyles from '~/styles/border-styles';
@@ -54,9 +55,13 @@ export default class ApiResponse extends LitElement {
       FlexStyles,
       TabStyles,
       TableStyles,
+      ParamListStyles,
       InputStyles,
       BorderStyles,
       css`
+        .resp-headers-list {
+          margin-bottom: 16px;
+        }
         :where(button, input[type='checkbox'], [tabindex='0']):focus-visible {
           box-shadow: var(--focus-shadow);
         }
@@ -261,33 +266,30 @@ export default class ApiResponse extends LitElement {
 
   responseHeaderListTemplate(respHeaders) {
     return html`<h5 class="rapidoc-heading label-heading resp-headers" part="heading heading-5">Response headers</h5>
-      <table
-        role="presentation"
-        style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border); border-radius: min(var(--radius), 0.5rem)"
-        class="small-font-size mono-font"
-      >
-        ${respHeaders.map(
-          (v) =>
-            html` <tr>
-              <td
-                style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--border); text-overflow: ellipsis;"
-              >
-                ${v.name || ''}
-              </td>
-              <td
-                style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--border); text-overflow: ellipsis;"
-              >
-                ${v.schema?.type || ''}
-              </td>
-              <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--border);text-overflow: ellipsis;">
-                <div class="m-markdown-small regular-font">${unsafeHTML(sanitizeHTML(marked(v.description || '')))}</div>
-              </td>
-              <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--border); text-overflow: ellipsis;">
-                ${v.schema?.example || ''}
-              </td>
-            </tr>`
-        )}
-      </table>`;
+      <div class="param-list-container resp-headers-list">
+        <ul class="param-list" part="param-list" role="list">
+          ${respHeaders.map(
+            (v) =>
+              html`<li class="param" part="param">
+                <div class="param-label" part="param-label">
+                  <div class="param-name" part="param-name">${v.name || ''}</div>
+                  ${v.schema?.type ? html`<div class="param-type" part="param-type">${v.schema.type}</div>` : ''}
+                </div>
+                ${
+                  v.schema?.example
+                    ? html`<dl class="param-constraint" part="param-constraint">
+                        <dt class="param-constraint-label" part="param-constraint-label">Example:</dt>
+                        <dd>${v.schema.example}</dd>
+                      </dl>`
+                    : ''
+                }
+                <div class="param-details" part="param-details">
+                  ${v.description ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(v.description)))}</div>` : ''}
+                </div>
+              </li>`
+          )}
+        </ul>
+      </div>`;
   }
 
   mimeTypeDropdownTemplate(mimeTypes) {

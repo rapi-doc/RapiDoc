@@ -3,6 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { guard } from 'lit/directives/guard.js';
 import { scheduleHighlight } from '~/utils/highlighter';
 import TableStyles from '~/styles/table-styles';
+import ParamListStyles from '~/styles/param-list-styles';
 import FlexStyles from '~/styles/flex-styles';
 import InputStyles from '~/styles/input-styles';
 import FontStyles from '~/styles/font-styles';
@@ -97,6 +98,7 @@ export default class ApiRequest extends LitElement {
   static get styles() {
     return [
       TableStyles,
+      ParamListStyles,
       InputStyles,
       FontStyles,
       FlexStyles,
@@ -117,31 +119,6 @@ export default class ApiRequest extends LitElement {
         }
         tag-input:focus-within {
           outline: 1px solid;
-        }
-        .param-name,
-        .param-type {
-          margin: 1px 0;
-          text-align: right;
-          line-height: var(--font-size-small);
-        }
-        .param-name {
-          color: var(--foreground);
-          font-family: var(--font-mono);
-
-          &.deprecated {
-            color: var(--destructive);
-          }
-        }
-        .param-type {
-          color: var(--muted-foreground);
-          font-family: var(--font-sans);
-        }
-        .param-constraint {
-          min-width: 100px;
-
-          &:empty {
-            display: none;
-          }
         }
         .top-gap {
           margin-top: 24px;

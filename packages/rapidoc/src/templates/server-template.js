@@ -41,51 +41,53 @@ function serverVarsTemplate() {
   return this.selectedServer && this.selectedServer.variables
     ? html`
         <h3 class="rapidoc-heading label-heading table-title" part="heading heading-3">Server variables</h3>
-        <table class="m-table" role="presentation">
-          ${Object.entries(this.selectedServer.variables).map(
-            (kv) => html`
-              <tr>
-                <td style="vertical-align: middle;">${kv[0]}</td>
-                <td>
+        <div class="param-list-container">
+          <ul class="param-list server-vars" part="param-list" role="list">
+            ${Object.entries(this.selectedServer.variables).map(
+              (kv) => html`
+                <li class="param" part="param">
+                  <div class="param-label" part="param-label">
+                    <div class="param-name" part="param-name">${kv[0]}</div>
+                  </div>
+                  <div class="param-input" part="param-input">
+                    ${
+                      kv[1].enum
+                        ? html` <select
+                            data-var="${kv[0]}"
+                            @input=${(e) => {
+                              onApiServerVarChange.call(this, e, this.selectedServer);
+                            }}
+                          >
+                            ${Object.entries(kv[1].enum).map((e) =>
+                              kv[1].default === e[1]
+                                ? html`<option selected label=${e[1]} value=${e[1]}></option>`
+                                : html`<option label=${e[1]} value=${e[1]}></option>`
+                            )}
+                          </select>`
+                        : html` <input
+                            type="text"
+                            part="textbox textbox-server-var"
+                            spellcheck="false"
+                            data-var="${kv[0]}"
+                            value="${kv[1].default}"
+                            @input=${(e) => {
+                              onApiServerVarChange.call(this, e, this.selectedServer);
+                            }}
+                          />`
+                    }
+                  </div>
                   ${
-                    kv[1].enum
-                      ? html` <select
-                          data-var="${kv[0]}"
-                          @input=${(e) => {
-                            onApiServerVarChange.call(this, e, this.selectedServer);
-                          }}
-                        >
-                          ${Object.entries(kv[1].enum).map((e) =>
-                            kv[1].default === e[1]
-                              ? html`<option selected label=${e[1]} value=${e[1]}></option>`
-                              : html`<option label=${e[1]} value=${e[1]}></option>`
-                          )}
-                        </select>`
-                      : html` <input
-                          type="text"
-                          part="textbox textbox-server-var"
-                          spellcheck="false"
-                          data-var="${kv[0]}"
-                          value="${kv[1].default}"
-                          @input=${(e) => {
-                            onApiServerVarChange.call(this, e, this.selectedServer);
-                          }}
-                        />`
+                    kv[1].description
+                      ? html`<div class="param-details" part="param-details">
+                          <div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(kv[1].description)))}</div>
+                        </div>`
+                      : ''
                   }
-                </td>
-              </tr>
-              ${
-                kv[1].description
-                  ? html`<tr>
-                      <td colspan="2" style="border:none">
-                        <span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(kv[1].description)))} </span>
-                      </td>
-                    </tr>`
-                  : ''
-              }
-            `
-          )}
-        </table>
+                </li>
+              `
+            )}
+          </ul>
+        </div>
       `
     : '';
 }

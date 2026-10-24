@@ -22,7 +22,7 @@ import {
 import '~/components/schema-tree';
 import '~/components/schema-table';
 import '~/components/tag-input';
-import { exampleListTemplate } from '~/templates/request-params-template';
+import { exampleListTemplate, constraintListTemplate, examplesBesideConstraints, renderExample } from '~/templates/request-params-template';
 
 export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) {
   // This template is used when form-data param should be send as a object (application/json, application/xml)
@@ -123,7 +123,7 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
 }
 
 export function formDataTemplate(schema, mimeType, exampleValue = '') {
-  const formDataTableRows = [];
+  const formFieldItems = [];
   const properties = getMergedProperties(schema);
   const required = getMergedRequired(schema);
   if (Object.keys(properties).length > 0) {
@@ -135,180 +135,172 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
       const fieldExamples = fieldSchema.examples || fieldSchema.example || '';
       const fieldType = fieldSchema.type;
       const paramSchema = getTypeInfo(fieldSchema);
-      const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
       const example = normalizeExamples(paramSchema.examples || paramSchema.example, paramSchema.type);
-      formDataTableRows.push(
-        html` <tr title="${fieldSchema.deprecated ? 'Deprecated' : ''}">
-            <td style="width:${labelColWidth}; min-width:100px;">
-              <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}">
-                ${fieldName}${required.includes(fieldName) || fieldSchema.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
-              </div>
-              <div class="param-type">
-                ${
-                  paramSchema.type === 'array' || paramSchema.type.split('┃').includes('array')
-                    ? `${paramSchema.arrayType || paramSchema.type}`
-                    : `${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes('┃') ? paramSchema.contentMediaType : paramSchema.type}`
-                }
-              </div>
-            </td>
-            <td
-              style="${
-                fieldType === 'object' ? 'width:100%; padding:0;' : this.allowTry === 'true' ? '' : 'display:none;'
-              } min-width:100px;"
-              colspan="${fieldType === 'object' ? 2 : 1}"
-            >
+      const hasConstraint =
+        fieldType !== 'object' && (paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern);
+      const inlineExamples = examplesBesideConstraints(fieldSchema.description, hasConstraint, example.exampleList);
+      formFieldItems.push(
+        html` <li
+          class="param ${fieldSchema.deprecated ? 'deprecated' : ''}"
+          part="param"
+          title="${fieldSchema.deprecated ? 'Deprecated' : ''}"
+        >
+          <div class="param-label" part="param-label">
+            <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}" part="param-name">
+              ${fieldName}${required.includes(fieldName) || fieldSchema.required ? html`<span class="param-required" title="Required">*</span>` : ''}
+            </div>
+            <div class="param-type" part="param-type">
               ${
-                fieldType === 'array'
-                  ? isBinaryFileField(fieldSchema.items)
-                    ? html`
-                        <div class="file-input-container col" style="align-items:flex-start; width:100%;">
-                          ${repeat(
-                            this.fileInputKeys[fieldName] ?? [0],
-                            (key) => key,
-                            (key, index) => html`
-                              <div class="input-set row" style="width:100%; margin-top: ${index > 0 ? '4px' : '0'};">
-                                <input
-                                  type="file"
-                                  part="file-input"
-                                  style="width:100%"
-                                  data-pname="${fieldName}"
-                                  data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
-                                  data-array="false"
-                                  data-file-array="true"
-                                />
-                                <button class="file-input-remove-btn" @click="${() => this.onRemoveFileInput(fieldName, key)}">
-                                  &#x2715;
-                                </button>
-                              </div>
-                            `
-                          )}
-                          <button
-                            class="btn btn-primary file-input-add-btn"
-                            part="btn btn-fill"
-                            style="margin:4px 0 0 0; padding:2px 8px; align-self:flex-start;"
-                            @click="${() => this.onAddFileInput(fieldName)}"
-                          >
-                            ADD
-                          </button>
-                        </div>
-                      `
-                    : html`
-                        <tag-input
-                          style="width:100%"
-                          data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
-                          data-pname="${fieldName}"
-                          data-example="${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}"
-                          data-array="true"
-                          placeholder="add-multiple &#x21a9;"
-                          .value="${
-                            Array.isArray(fieldExamples)
-                              ? Array.isArray(fieldExamples[0])
-                                ? fieldExamples[0]
-                                : fieldExamples
-                              : EMPTY_ARRAY
-                          }"
-                        >
-                        </tag-input>
-                      `
-                  : html` ${
-                      fieldType === 'object'
-                        ? formDataParamAsObjectTemplate.call(this, fieldName, fieldSchema, mimeType)
-                        : html`
-                            ${
-                              this.allowTry === 'true'
-                                ? html`<input
-                                    .value="${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
-                                    spellcheck="false"
-                                    type="${isBinaryFileField(fieldSchema) ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
-                                    part="textbox textbox-param"
-                                    style="width:100%"
-                                    data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
-                                    data-pname="${fieldName}"
-                                    data-example="${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
-                                    data-array="false"
-                                  />`
-                                : ''
-                            }
-                          `
-                    }`
+                paramSchema.type === 'array' || paramSchema.type.split('┃').includes('array')
+                  ? `${paramSchema.arrayType || paramSchema.type}`
+                  : `${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes('┃') ? paramSchema.contentMediaType : paramSchema.type}`
               }
-            </td>
-            ${
-              fieldType === 'object'
-                ? ''
-                : html` <td>
-                    ${
-                      paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
-                        ? html` <div class="param-constraint">
-                            ${paramSchema.default ? html`<span style="font-weight:600; color:var(--muted-foreground)">Default: </span>${paramSchema.default}<br />` : ''}
-                            ${paramSchema.pattern ? html`<span style="font-weight:600; color:var(--muted-foreground)">Pattern: </span>${paramSchema.pattern}<br />` : ''}
-                            ${paramSchema.constrain ? html`${paramSchema.constrain}<br />` : ''}
-                            ${
-                              paramSchema.allowedValues &&
-                              String(paramSchema.allowedValues)
-                                .split('┃')
-                                .map(
-                                  (v, i) =>
-                                    html` ${i > 0 ? '┃' : html`<span style="font-weight:600; color:var(--muted-foreground)">Allowed: </span>`}
-                                    ${html` <a
-                                      part="anchor anchor-param-constraint"
-                                      class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
-                                      data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
-                                      data-enum="${v.trim()}"
-                                      @click="${(e) => {
-                                        const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
-                                        if (inputEl) {
-                                          if (e.target.dataset.type === 'array') {
-                                            inputEl.value = [e.target.dataset.enum];
-                                          } else {
-                                            inputEl.value = e.target.dataset.enum;
-                                          }
-                                          const requestPanelEl = this.getRequestPanel(e);
-                                          this.liveCURLSyntaxUpdate(requestPanelEl);
-                                        }
-                                      }}"
-                                    >
-                                      ${v}
-                                    </a>`}`
-                                )
-                            }
-                          </div>`
-                        : ''
-                    }
-                  </td>`
-            }
-          </tr>
+            </div>
+          </div>
+          ${
+            fieldType !== 'object' && this.allowTry !== 'true'
+              ? ''
+              : html`<div class="param-input" part="param-input">
+                  ${
+                    fieldType === 'array'
+                      ? isBinaryFileField(fieldSchema.items)
+                        ? html`
+                            <div class="file-input-container col" style="align-items:flex-start; width:100%;">
+                              ${repeat(
+                                this.fileInputKeys[fieldName] ?? [0],
+                                (key) => key,
+                                (key, index) => html`
+                                  <div class="input-set row" style="width:100%; margin-top: ${index > 0 ? '4px' : '0'};">
+                                    <input
+                                      type="file"
+                                      part="file-input"
+                                      style="width:100%"
+                                      data-pname="${fieldName}"
+                                      data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                                      data-array="false"
+                                      data-file-array="true"
+                                    />
+                                    <button class="file-input-remove-btn" @click="${() => this.onRemoveFileInput(fieldName, key)}">
+                                      &#x2715;
+                                    </button>
+                                  </div>
+                                `
+                              )}
+                              <button
+                                class="btn btn-primary file-input-add-btn"
+                                part="btn btn-fill"
+                                style="margin:4px 0 0 0; padding:2px 8px; align-self:flex-start;"
+                                @click="${() => this.onAddFileInput(fieldName)}"
+                              >
+                                ADD
+                              </button>
+                            </div>
+                          `
+                        : html`
+                            <tag-input
+                              style="width:100%"
+                              data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                              data-pname="${fieldName}"
+                              data-example="${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}"
+                              data-array="true"
+                              placeholder="add-multiple &#x21a9;"
+                              .value="${
+                                Array.isArray(fieldExamples)
+                                  ? Array.isArray(fieldExamples[0])
+                                    ? fieldExamples[0]
+                                    : fieldExamples
+                                  : EMPTY_ARRAY
+                              }"
+                            >
+                            </tag-input>
+                          `
+                      : html` ${
+                          fieldType === 'object'
+                            ? formDataParamAsObjectTemplate.call(this, fieldName, fieldSchema, mimeType)
+                            : html`
+                                ${
+                                  this.allowTry === 'true'
+                                    ? html`<input
+                                        .value="${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                                        spellcheck="false"
+                                        type="${isBinaryFileField(fieldSchema) ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
+                                        part="textbox textbox-param"
+                                        style="width:100%"
+                                        data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                                        data-pname="${fieldName}"
+                                        data-example="${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
+                                        data-array="false"
+                                      />`
+                                    : ''
+                                }
+                              `
+                        }`
+                  }
+                </div>`
+          }
+          ${
+            hasConstraint
+              ? constraintListTemplate(
+                  paramSchema,
+                  paramSchema.allowedValues &&
+                    String(paramSchema.allowedValues)
+                      .split('┃')
+                      .map(
+                        (v) =>
+                          html`<a
+                            part="anchor anchor-param-constraint"
+                            class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                            data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
+                            data-enum="${v.trim()}"
+                            @click="${(e) => {
+                              const inputEl = e.target.closest('.param-list').querySelector(`[data-pname="${fieldName}"]`);
+                              if (inputEl) {
+                                if (e.target.dataset.type === 'array') {
+                                  inputEl.value = [e.target.dataset.enum];
+                                } else {
+                                  inputEl.value = e.target.dataset.enum;
+                                }
+                                const requestPanelEl = this.getRequestPanel(e);
+                                this.liveCURLSyntaxUpdate(requestPanelEl);
+                              }
+                            }}"
+                          >
+                            ${v}
+                          </a>`
+                      ),
+                  inlineExamples && example.exampleList.map((x) => renderExample.call(this, x, paramSchema.type, fieldName))
+                )
+              : ''
+          }
           ${
             fieldType === 'object'
               ? ''
-              : html`
-                  <tr>
-                    <td style="border:none"></td>
-                    <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;">
-                      <span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(fieldSchema.description || '')))} </span>
-                      ${exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
-                    </td>
-                  </tr>
-                `
-          }`
+              : html`<div class="param-details" part="param-details">
+                  ${fieldSchema.description ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(fieldSchema.description)))}</div>` : ''}
+                  ${inlineExamples ? '' : exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
+                </div>`
+          }
+        </li>`
       );
     }
     return html`
-      <table
-        role="presentation"
-        style="width:100%;"
-        class="m-table"
-        @input="${(e) => {
-          const requestPanelEl = this.getRequestPanel(e);
-          this.liveCURLSyntaxUpdate(requestPanelEl);
-        }}"
-        @change="${(e) => {
-          const requestPanelEl = this.getRequestPanel(e);
-          this.liveCURLSyntaxUpdate(requestPanelEl);
-        }}"
-      >
-        ${formDataTableRows}
-      </table>
+      <div class="param-list-container">
+        <ul
+          class="param-list"
+          part="param-list"
+          role="list"
+          @input="${(e) => {
+            const requestPanelEl = this.getRequestPanel(e);
+            this.liveCURLSyntaxUpdate(requestPanelEl);
+          }}"
+          @change="${(e) => {
+            const requestPanelEl = this.getRequestPanel(e);
+            this.liveCURLSyntaxUpdate(requestPanelEl);
+          }}"
+        >
+          ${formFieldItems}
+        </ul>
+      </div>
     `;
   }
 

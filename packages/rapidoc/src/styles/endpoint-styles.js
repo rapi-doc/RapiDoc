@@ -45,12 +45,6 @@ export default css`
     margin-left: 5px;
   }
 
-  .param-constraint {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
   .section-expand-collapse-container {
     display: flex;
     justify-content: flex-end;

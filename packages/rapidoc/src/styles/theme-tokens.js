@@ -156,6 +156,16 @@ export default css`
     --table-schema-key-whitespace: nowrap;
     --scroll-margin-top: 120px;
 
+    /* --- Parameter lists (request parameters, form fields, response headers) --- */
+    --param-label-width: 12rem;
+    --param-gap: 0.5rem;
+    --param-row-gap: 0.25rem;
+    --param-padding: 0.5rem;
+    --auth-scheme-padding: 0.75rem;
+    --value-list-gap: 0.375rem;
+    --value-list-row-gap: 0.125rem;
+    --value-list-label-gap: 0.25rem;
+
     /* --- Focus Ring & Selection --- */
     --ring: var(--primary);
     --focus-shadow: 0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);

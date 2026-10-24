@@ -19,6 +19,59 @@ import {
 import '~/components/schema-tree';
 import '~/components/tag-input';
 
+/**
+ * A label followed by a wrapping list of values (Allowed values, Examples).
+ * Wrapped lines hang under the first value; CSS draws the separators.
+ */
+export function valueListTemplate(label, items) {
+  return html`<div class="value-list" part="value-list">
+    <span class="param-constraint-label value-list-label" part="value-list-label">${label}</span>
+    <ul class="value-list-items" part="value-list-items" role="list">
+      ${items.map((item) => html`<li>${item}</li>`)}
+    </ul>
+  </div>`;
+}
+
+/**
+ * Constraints as label/value pairs. The labels share one column, so every value starts at the same place,
+ * whether there is one constraint or several. Limits (range, multiple of, length) and allowed values wrap
+ * as value lists, hanging under their first value.
+ */
+export function constraintListTemplate(paramSchema, allowedItems, exampleItems) {
+  const valueItems = (items) =>
+    html`<ul class="value-list-items" part="value-list-items" role="list">
+      ${items.map((item) => html`<li>${item}</li>`)}
+    </ul>`;
+  const row = (label, value) =>
+    html`<dt class="param-constraint-label" part="param-constraint-label">${label}</dt>
+      <dd>${value}</dd>`;
+  return html`<dl class="param-constraint" part="param-constraint">
+    ${paramSchema.default ? row('Default:', paramSchema.default) : ''} ${paramSchema.pattern ? row('Pattern:', paramSchema.pattern) : ''}
+    ${
+      paramSchema.constrain
+        ? row(
+            'Limits:',
+            valueItems(
+              paramSchema.constrain
+                .split('┃')
+                .map((v) => v.trim())
+                .filter(Boolean)
+            )
+          )
+        : ''
+    }
+    ${allowedItems ? row('Allowed:', valueItems(allowedItems)) : ''} ${exampleItems ? row('Examples:', valueItems(exampleItems)) : ''}
+  </dl>`;
+}
+
+/**
+ * Short examples join the constraint list (lined up with the other values) when there is no description to put them under.
+ * Long-format examples, with a summary or description, always stay in the details.
+ */
+export function examplesBesideConstraints(description, hasConstraint, exampleList = []) {
+  return !description?.trim() && Boolean(hasConstraint) && exampleList.length > 0 && !anyExampleWithSummaryOrDescription(exampleList);
+}
+
 export function renderExample(example, paramType, paramName) {
   return html`
     ${paramType === 'array' ? '[' : ''}
@@ -38,7 +91,7 @@ export function renderExample(example, paramType, paramName) {
           : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''
       }"
       @click="${(e) => {
-        const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
+        const inputEl = e.target.closest('.param-list').querySelector(`[data-pname="${paramName}"]`);
         if (inputEl) {
           inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
         }
@@ -51,11 +104,14 @@ export function renderExample(example, paramType, paramName) {
 }
 
 export function renderShortFormatExamples(examples, paramType, paramName) {
-  return html`${examples.map((x, i) => html` ${i === 0 ? '' : '┃'} ${renderExample.call(this, x, paramType, paramName)}`)}`;
+  return valueListTemplate(
+    'Examples:',
+    examples.map((x) => renderExample.call(this, x, paramType, paramName))
+  );
 }
 
 export function renderLongFormatExamples(exampleList, paramType, paramName) {
-  return html` <ul style="list-style-type: disclosure-closed;">
+  return html` <ul class="param-example-list" part="param-example-list" role="list">
     ${exampleList.map(
       (v) =>
         html`<li>
@@ -69,11 +125,10 @@ export function renderLongFormatExamples(exampleList, paramType, paramName) {
 export function exampleListTemplate(paramName, paramType, exampleList = []) {
   return html` ${
     exampleList.length > 0
-      ? html`<span style="font-weight:600; color:var(--muted-foreground)">Examples: </span> ${
-            anyExampleWithSummaryOrDescription(exampleList)
-              ? renderLongFormatExamples.call(this, exampleList, paramType, paramName)
-              : renderShortFormatExamples.call(this, exampleList, paramType, paramName)
-          }`
+      ? anyExampleWithSummaryOrDescription(exampleList)
+        ? html`<span class="param-constraint-label">Examples: </span>
+            ${renderLongFormatExamples.call(this, exampleList, paramType, paramName)}`
+        : renderShortFormatExamples.call(this, exampleList, paramType, paramName)
       : ''
   }`;
 }
@@ -94,7 +149,7 @@ export function inputParametersTemplate(paramType) {
     title = 'Cookies';
   }
 
-  const tableRows = [];
+  const paramItems = [];
   for (const param of filteredParams) {
     const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param);
     if (!declaredParamSchema) {
@@ -144,34 +199,32 @@ export function inputParametersTemplate(paramType) {
           false
         )[0]?.exampleValue || '';
     }
-    const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
-    tableRows.push(html`
-      <tr title="${param.deprecated ? 'Deprecated' : ''}">
-        <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
-          <div class="param-name ${param.deprecated ? 'deprecated' : ''}">
+    const hasConstraint = paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern;
+    const inlineExamples = examplesBesideConstraints(param.description, hasConstraint, example.exampleList);
+    paramItems.push(html`
+      <li class="param ${param.deprecated ? 'deprecated' : ''}" part="param" title="${param.deprecated ? 'Deprecated' : ''}">
+        <div class="param-label" part="param-label">
+          <div class="param-name ${param.deprecated ? 'deprecated' : ''}" part="param-name">
             ${
               param.deprecated
-                ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--destructive); margin-right:-6px">
+                ? html`<svg class="param-deprecated-icon" viewBox="0 0 10 10" width="10" height="10" aria-hidden="true">
                     <path d="M2 2L8 8M2 8L8 2" />
                   </svg>`
                 : ''
             }
-            ${param.required ? html`<span style="color:var(--destructive)">*</span>` : ''} ${param.name}
+            ${param.required ? html`<span class="param-required" title="Required">*</span>` : ''} ${param.name}
           </div>
-          <div class="param-type">
+          <div class="param-type" part="param-type">
             ${
               paramSchema.type === 'array' || paramSchema.type.split('┃').includes('array')
                 ? `${paramSchema.arrayType || paramSchema.type}`
                 : `${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes('┃') ? paramSchema.contentMediaType : paramSchema.type}`
             }
           </div>
-        </td>
+        </div>
         ${
           this.allowTry === 'true'
-            ? html` <td
-                style="min-width:100px;"
-                colspan="${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? '1' : '2'}"
-              >
+            ? html` <div class="param-input" part="param-input">
                 ${
                   paramSchema.type === 'array' ||
                   (paramSchema.type.split('┃').includes('array') && !paramSchema.type.split('┃').includes('object'))
@@ -324,65 +377,52 @@ export function inputParametersTemplate(paramType) {
                           }}
                         />`
                 }
-              </td>`
+              </div>`
             : ''
         }
         ${
-          paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
-            ? html` <td colspan="${this.allowTry === 'true' ? '1' : '2'}">
-                <div class="param-constraint">
-                  ${paramSchema.default ? html`<div><span style="font-weight:600; color:var(--muted-foreground)">Default: </span>${paramSchema.default}</div>` : ''}
-                  ${paramSchema.pattern ? html`<div><span style="font-weight:600; color:var(--muted-foreground)">Pattern: </span>${paramSchema.pattern}</div>` : ''}
-                  ${paramSchema.constrain ? html`<div>${paramSchema.constrain}</div>` : ''}
-                  ${
-                    paramSchema.allowedValues &&
-                    String(paramSchema.allowedValues)
-                      .split('┃')
-                      .map(
-                        (v, i) =>
-                          html` ${i > 0 ? '┃' : html`<span style="font-weight:600; color:var(--muted-foreground);">Allowed: </span>`}
-                          ${html` <a
-                            part="anchor anchor-param-constraint"
-                            class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
-                            data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
-                            data-enum="${v.trim()}"
-                            @click="${(e) => {
-                              const inputEl = e.target.closest('table').querySelector(`[data-pname="${param.name}"]`);
-                              if (inputEl) {
-                                if (e.target.dataset.type === 'array') {
-                                  inputEl.value = [e.target.dataset.enum];
-                                } else {
-                                  inputEl.value = e.target.dataset.enum;
-                                }
+          hasConstraint
+            ? constraintListTemplate(
+                paramSchema,
+                paramSchema.allowedValues &&
+                  String(paramSchema.allowedValues)
+                    .split('┃')
+                    .map(
+                      (v) =>
+                        html`<a
+                          part="anchor anchor-param-constraint"
+                          class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                          data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
+                          data-enum="${v.trim()}"
+                          @click="${(e) => {
+                            const inputEl = e.target.closest('.param-list').querySelector(`[data-pname="${param.name}"]`);
+                            if (inputEl) {
+                              if (e.target.dataset.type === 'array') {
+                                inputEl.value = [e.target.dataset.enum];
+                              } else {
+                                inputEl.value = e.target.dataset.enum;
                               }
-                            }}"
-                            >${v}</a
-                          >`}`
-                      )
-                  }
-                </div>
-              </td>`
-            : // Every row spans the same three columns (name | input | constraints), or row borders stop short.
-              // With allow-try the input already spans the constraints column.
-              this.allowTry === 'true'
-              ? ''
-              : html`<td colspan="2"></td>`
+                            }
+                          }}"
+                          >${v}</a
+                        >`
+                    ),
+                inlineExamples && example.exampleList.map((x) => renderExample.call(this, x, paramSchema.type, param.name))
+              )
+            : ''
         }
-      </tr>
-      <tr>
-        ${this.allowTry === 'true' ? html`<td style="border:none"></td>` : ''}
-        <td colspan="2" style="border:none">
-          <div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(param.description || '')))}</div>
-          ${exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
-        </td>
-      </tr>
+        <div class="param-details" part="param-details">
+          ${param.description ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(param.description)))}</div>` : ''}
+          ${inlineExamples ? '' : exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
+        </div>
+      </li>
     `);
   }
 
   return html` <h5 class="rapidoc-heading label-heading table-title top-gap" part="heading heading-5">${title}</h5>
-    <div style="display:block; overflow-x:auto; max-width:100%;">
-      <table role="presentation" class="m-table" style="width:100%; word-break:break-word;">
-        ${tableRows}
-      </table>
+    <div class="param-list-container">
+      <ul class="param-list" part="param-list" role="list">
+        ${paramItems}
+      </ul>
     </div>`;
 }

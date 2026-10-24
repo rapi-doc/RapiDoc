@@ -330,20 +330,33 @@ export default css`
     cursor: pointer;
   }
 
-  /* Operation security chips: a labeled line after the description, wrapping onto more lines when narrow */
+  /*
+   * Operation security chips: a labeled line after the description. A value list (see param-list-styles),
+   * so wrapped chips line up under the first chip and each "OR" stays at the end of its line.
+   */
   .operation-security {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 2px;
+    align-items: start;
     margin-block: 12px;
     min-width: 0;
     max-width: 100%;
     font-size: var(--font-size-small);
     line-height: 1.5;
   }
+  .security-label-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    /* Same height as a chip, so the label sits on the first line of chips */
+    min-height: 2em;
+  }
+  .security-chips {
+    row-gap: 4px;
+    align-items: center;
+  }
+  .value-list-items.security-chips > li:not(:last-child)::after {
+    content: 'OR';
+  }
   .security-label {
-    margin-inline-end: 6px;
     color: var(--muted-foreground);
     font-size: var(--label-heading-font-size);
     font-weight: var(--heading-weight);
@@ -353,10 +366,6 @@ export default css`
   .security-lock {
     flex: none;
     stroke: var(--muted-foreground);
-  }
-  .security-or {
-    padding: 0 4px;
-    color: var(--muted-foreground);
   }
   .security-chip {
     display: inline-flex;

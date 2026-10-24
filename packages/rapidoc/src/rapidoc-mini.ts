@@ -7,6 +7,7 @@ import FontStyles from '~/styles/font-styles';
 import InputStyles from '~/styles/input-styles';
 import FlexStyles from '~/styles/flex-styles';
 import TableStyles from '~/styles/table-styles';
+import ParamListStyles from '~/styles/param-list-styles';
 import MicrolighterStyles from '~/styles/microlighter-styles';
 import TabStyles from '~/styles/tab-styles';
 import NavStyles from '~/styles/nav-styles';
@@ -137,6 +138,7 @@ export default class RapiDocMini extends LitElement {
       InputStyles,
       FlexStyles,
       TableStyles,
+      ParamListStyles,
       EndpointStyles,
       MicrolighterStyles,
       TabStyles,

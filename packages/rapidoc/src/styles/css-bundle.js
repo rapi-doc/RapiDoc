@@ -3,6 +3,7 @@ import FontStyles from './font-styles.js';
 import InputStyles from './input-styles.js';
 import FlexStyles from './flex-styles.js';
 import TableStyles from './table-styles.js';
+import ParamListStyles from './param-list-styles.js';
 import EndpointStyles from './endpoint-styles.js';
 import MicrolighterStyles from './microlighter-styles.js';
 import TabStyles from './tab-styles.js';
@@ -20,6 +21,7 @@ export const allStyles = [
   InputStyles,
   FlexStyles,
   TableStyles,
+  ParamListStyles,
   BorderStyles,
   EndpointStyles,
   MicrolighterStyles,

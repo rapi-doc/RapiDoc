@@ -121,14 +121,14 @@ function onApiKeyChange(securitySchemeId) {
   let apiKeyValue = '';
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === securitySchemeId);
   if (securityObj) {
-    const trEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`);
-    if (trEl) {
+    const schemeEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`);
+    if (schemeEl) {
       if (securityObj.type && securityObj.scheme && securityObj.type === 'http' && securityObj.scheme.toLowerCase() === 'basic') {
-        const userVal = trEl.querySelector('.api-key-user').value.trim();
-        const passwordVal = trEl.querySelector('.api-key-password').value.trim();
+        const userVal = schemeEl.querySelector('.api-key-user').value.trim();
+        const passwordVal = schemeEl.querySelector('.api-key-password').value.trim();
         applyApiKey.call(this, securitySchemeId, userVal, passwordVal);
       } else {
-        apiKeyValue = trEl.querySelector('.api-key-input').value.trim();
+        apiKeyValue = schemeEl.querySelector('.api-key-input').value.trim();
         applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
       }
       if (this.persistAuth === 'true') {
@@ -567,7 +567,7 @@ function oAuthFlowTemplate(
                     <div
                       class="oauth-scopes"
                       part="section-auth-scopes"
-                      style="width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px"
+                      style="display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px"
                     >
                       ${Object.entries(authFlow.scopes).map(
                         (scopeAndDescr, index) =>
@@ -761,13 +761,13 @@ export default function securitySchemeTemplate(allowTry = 'true') {
       }
       ${
         this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
-          ? html` <table role="presentation" id="auth-table" class="m-table padded-12" style="width:100%;">
+          ? html` <ul class="auth-list" id="auth-list" part="auth-list" role="list">
               ${this.resolvedSpec.securitySchemes
                 .filter((v) => v.type)
                 .map(
                   (v) => html`
-                    <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
-                      <td style="max-width:500px; overflow-wrap: break-word;">
+                    <li id="security-scheme-${v.securitySchemeId}" class="auth-scheme ${v.type.toLowerCase()}" part="auth-scheme">
+                      <div class="auth-scheme-body">
                         <div style="line-height:28px; margin-bottom:5px;">
                           <span style="font-weight:600; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
                           ${
@@ -894,12 +894,10 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                 }`
                             : ''
                         }
-                      </td>
-                    </tr>
-                    ${
-                      v.type.toLowerCase() === 'oauth2'
-                        ? html`<tr>
-                            <td style="border:none; padding-left:48px">
+                      </div>
+                      ${
+                        v.type.toLowerCase() === 'oauth2'
+                          ? html`<div class="auth-flows" part="auth-flows">
                               ${Object.keys(v.flows).map((f) =>
                                 oAuthFlowTemplate.call(
                                   this,
@@ -916,13 +914,13 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                   v.flows[f]['x-token-params'] || v['x-token-params'] || null
                                 )
                               )}
-                            </td>
-                          </tr>`
-                        : ''
-                    }
+                            </div>`
+                          : ''
+                      }
+                    </li>
                   `
                 )}
-            </table>`
+            </ul>`
           : ''
       }
       <slot name="auth"></slot>
@@ -1077,78 +1075,83 @@ export function pathSecurityTemplate(pathSecurity, elementId = '') {
   const isLink = this.updateRoute === 'true' && this.allowAuthentication === 'true';
 
   return html`
-    <div class="operation-security" part="section-operation-security" role="group" aria-labelledby="${idPrefix}-label">
-      <span id="${idPrefix}-label" class="security-label" part="label-operation-security">Authorization</span>
-      <svg class="security-lock" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none">
-        <rect x="5" y="11" width="14" height="10" rx="2" />
-        <circle cx="12" cy="16" r="1" />
-        <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
-      </svg>
-      ${orSecurityKeys.map((orItem, i) => {
-        if (!orItem.securityTypes) {
-          return '';
-        }
-        const isMultiple = orItem.securityDefs.length > 1;
-        const hasDetails = orItem.securityDefs.length > 0;
-        const popoverId = `${idPrefix}-${i}`;
-        const anchorName = `${anchorPrefix}-${i}`;
-        let labelHtml;
-        if (!hasDetails) {
-          labelHtml = html`<span class="security-chip-label">${orItem.securityTypes}</span>`;
-        } else if (isLink) {
-          labelHtml = html`<a
-            part="anchor anchor-operation-security"
-            class="security-chip-label"
-            href="#auth"
-            aria-describedby="${popoverId}"
-            style="anchor-name:${anchorName}"
-            >${orItem.securityTypes}</a
-          >`;
-        } else {
-          labelHtml = html`<button
-            type="button"
-            class="security-chip-label"
-            aria-describedby="${popoverId}"
-            style="anchor-name:${anchorName}"
-            @click="${showSecurityPopover}"
-          >
-            ${orItem.securityTypes}
-          </button>`;
-        }
+    <div class="operation-security value-list" part="section-operation-security" role="group" aria-labelledby="${idPrefix}-label">
+      <span class="security-label-group value-list-label">
+        <span id="${idPrefix}-label" class="security-label" part="label-operation-security">Authorization</span>
+        <svg class="security-lock" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none">
+          <rect x="5" y="11" width="14" height="10" rx="2" />
+          <circle cx="12" cy="16" r="1" />
+          <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
+        </svg>
+      </span>
+      <ul class="value-list-items security-chips" role="list">
+        ${orSecurityKeys.map((orItem, i) => {
+          if (!orItem.securityTypes) {
+            return '';
+          }
+          const isMultiple = orItem.securityDefs.length > 1;
+          const hasDetails = orItem.securityDefs.length > 0;
+          const popoverId = `${idPrefix}-${i}`;
+          const anchorName = `${anchorPrefix}-${i}`;
+          let labelHtml;
+          if (!hasDetails) {
+            labelHtml = html`<span class="security-chip-label">${orItem.securityTypes}</span>`;
+          } else if (isLink) {
+            labelHtml = html`<a
+              part="anchor anchor-operation-security"
+              class="security-chip-label"
+              href="#auth"
+              aria-describedby="${popoverId}"
+              style="anchor-name:${anchorName}"
+              >${orItem.securityTypes}</a
+            >`;
+          } else {
+            labelHtml = html`<button
+              type="button"
+              class="security-chip-label"
+              aria-describedby="${popoverId}"
+              style="anchor-name:${anchorName}"
+              @click="${showSecurityPopover}"
+            >
+              ${orItem.securityTypes}
+            </button>`;
+          }
 
-        return html`
-          ${i !== 0 ? html`<span class="security-or">OR</span>` : ''}
-          <span
-            class="security-chip ${hasDetails ? 'has-details' : ''}"
-            part="operation-security-chip"
-            @mouseenter="${showSecurityPopover}"
-            @mouseleave="${scheduleHideSecurityPopover}"
-            @focusin="${showSecurityPopover}"
-            @focusout="${scheduleHideSecurityPopover}"
-          >
-            ${labelHtml}
-            ${
-              hasDetails
-                ? html`
-                    <div
-                      id="${popoverId}"
-                      class="security-popover"
-                      part="operation-security-details"
-                      popover="hint"
-                      role="tooltip"
-                      style="position-anchor:${anchorName}"
-                    >
-                      ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ''}
-                      <div style="padding-left:${isMultiple ? '8px' : '0'};">
-                        ${orItem.securityDefs.map((secDef, j) => renderSecuritySchemeDetail(secDef, isMultiple, j))}
-                      </div>
-                    </div>
-                  `
-                : ''
-            }
-          </span>
-        `;
-      })}
+          return html`
+            <li>
+              <span
+                class="security-chip ${hasDetails ? 'has-details' : ''}"
+                part="operation-security-chip"
+                @mouseenter="${showSecurityPopover}"
+                @mouseleave="${scheduleHideSecurityPopover}"
+                @focusin="${showSecurityPopover}"
+                @focusout="${scheduleHideSecurityPopover}"
+              >
+                ${labelHtml}
+                ${
+                  hasDetails
+                    ? html`
+                        <div
+                          id="${popoverId}"
+                          class="security-popover"
+                          part="operation-security-details"
+                          popover="hint"
+                          role="tooltip"
+                          style="position-anchor:${anchorName}"
+                        >
+                          ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ''}
+                          <div style="padding-left:${isMultiple ? '8px' : '0'};">
+                            ${orItem.securityDefs.map((secDef, j) => renderSecuritySchemeDetail(secDef, isMultiple, j))}
+                          </div>
+                        </div>
+                      `
+                    : ''
+                }
+              </span>
+            </li>
+          `;
+        })}
+      </ul>
     </div>
   `;
 }
