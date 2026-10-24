@@ -1,6 +1,7 @@
 ---
 /**
- * Site footer: brand, link columns, copyright and social links. The same full-width footer is used
+ * Site footer: an optional call-to-action band, then brand (with an optional newsletter sign-up),
+ * link columns, copyright and social links. The same full-width footer is used
  * on every page; on documentation pages it is revealed below the sidebar at the end of the page.
  */
 import portalConfig from 'virtual:rapidoc-portal/config';
@@ -21,6 +22,9 @@ const columns = footer.columns || [{ title: site.title, links: tabs.map((tab: an
 const copyright = footer.copyright || `© ${new Date().getFullYear()} ${site.title}. All rights reserved.`;
 const social = footer.social || [];
 const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
+const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {});
+const cta = footer.cta;
+const newsletter = footer.newsletter;
 
 // 24x24 icon paths for footer.social[].icon
 const SOCIAL_ICONS: Record<string, string> = {
@@ -38,6 +42,28 @@ const SOCIAL_ICONS: Record<string, string> = {
 
 <footer class="portal-footer-root print:hidden" data-portal-region="footer">
   <div class="portal-footer-container" data-portal-region="footer-inner">
+    {
+      cta && (
+        <section class="portal-footer-cta" aria-labelledby="portal-footer-cta-title">
+          <div class="portal-footer-cta-text">
+            <h2 class="portal-footer-cta-title" id="portal-footer-cta-title">
+              {cta.title}
+            </h2>
+            {cta.description && <p class="portal-footer-cta-desc">{cta.description}</p>}
+          </div>
+          {cta.links?.length > 0 && (
+            <div class="portal-footer-cta-actions">
+              {cta.links.map((link: any, i: number) => (
+                <a href={link.href} class:list={['portal-footer-cta-link', `portal-footer-cta-${link.style || (i === 0 ? 'primary' : 'button')}`]} {...external(link.href)}>
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </section>
+      )
+    }
+
     <div class="portal-footer-top">
       <div class="portal-footer-brand-col">
         <a href={logo.href} class="portal-footer-brand">
@@ -46,6 +72,25 @@ const SOCIAL_ICONS: Record<string, string> = {
           {logo.text && <span class="portal-footer-brand-title">{logo.text}</span>}
         </a>
         {site.description && <p class="portal-footer-desc">{site.description}</p>}
+        {
+          newsletter && (
+            <form class="portal-footer-newsletter" action={newsletter.action} method="post" target="_blank" aria-labelledby="portal-newsletter-title">
+              <h2 class="portal-footer-col-title" id="portal-newsletter-title">
+                {newsletter.title || 'Newsletter'}
+              </h2>
+              {newsletter.description && <p class="portal-footer-desc">{newsletter.description}</p>}
+              <div class="portal-newsletter-row">
+                <label for="portal-newsletter-email" class="portal-sr-only">
+                  Email address
+                </label>
+                <input id="portal-newsletter-email" class="portal-newsletter-input" type="email" name={newsletter.field || 'email'} required autocomplete="email" placeholder="you@example.com" />
+                <button type="submit" class="portal-newsletter-submit">
+                  {newsletter.button || 'Subscribe'}
+                </button>
+              </div>
+            </form>
+          )
+        }
       </div>
 
       <div class="portal-footer-columns">
@@ -56,12 +101,7 @@ const SOCIAL_ICONS: Record<string, string> = {
               <ul class="portal-footer-links">
                 {col.links.map((link: any) => (
                   <li>
-                    <a
-                      href={link.href}
-                      class="portal-footer-link"
-                      target={isExternal(link.href) ? '_blank' : undefined}
-                      rel={isExternal(link.href) ? 'noopener noreferrer' : undefined}
-                    >
+                    <a href={link.href} class="portal-footer-link" {...external(link.href)}>
                       {link.label}
                     </a>
                   </li>
@@ -120,6 +160,134 @@ const SOCIAL_ICONS: Record<string, string> = {
   /* Same content edges as the header bar (see --portal-shell-pad-x in portal-theme.css). */
   .portal-footer-container {
     padding-inline: var(--portal-shell-pad-x);
+  }
+
+  .portal-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .portal-footer-root :is(a, button, input):focus-visible {
+    outline: 2px solid var(--portal-primary);
+    outline-offset: 2px;
+  }
+
+  /* Call-to-action band */
+  .portal-footer-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem 2rem;
+    padding-bottom: 2.5rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--portal-border);
+  }
+
+  .portal-footer-cta-title {
+    margin: 0;
+    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--portal-fg);
+  }
+
+  .portal-footer-cta-desc {
+    margin: 0.5rem 0 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    max-width: 40rem;
+  }
+
+  .portal-footer-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .portal-footer-cta-link,
+  .portal-newsletter-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.75rem;
+    padding: 0 1.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--portal-border);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--portal-fg);
+    text-decoration: none;
+    white-space: nowrap;
+    background: transparent;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .portal-footer-cta-button:hover {
+    background-color: var(--portal-hover-bg);
+  }
+
+  .portal-footer-cta-primary,
+  .portal-newsletter-submit {
+    border-color: var(--portal-primary);
+    background-color: var(--portal-primary);
+    color: var(--portal-on-primary);
+  }
+
+  .portal-footer-cta-primary:hover,
+  .portal-newsletter-submit:hover {
+    background-color: color-mix(in srgb, var(--portal-primary) 85%, #ffffff);
+  }
+
+  /* Newsletter sign-up */
+  .portal-footer-newsletter {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .portal-footer-newsletter .portal-footer-col-title {
+    margin: 0;
+  }
+
+  .portal-newsletter-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .portal-newsletter-input {
+    flex: 1;
+    min-width: 0;
+    height: 2.75rem;
+    padding: 0 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--portal-border);
+    background-color: var(--portal-surface);
+    color: var(--portal-fg);
+    font: inherit;
+    font-size: 0.875rem;
+  }
+
+  .portal-newsletter-input::placeholder {
+    color: var(--portal-muted);
+  }
+
+  .portal-newsletter-submit {
+    padding: 0 1rem;
   }
 
   .portal-footer-top {
@@ -222,8 +390,8 @@ const SOCIAL_ICONS: Record<string, string> = {
   }
 
   .portal-footer-branding a {
-    color: var(--portal-primary);
-    text-decoration: none;
+    color: var(--portal-primary-text);
+    text-decoration: underline;
   }
 
   .portal-footer-branding a:hover {

@@ -38,6 +38,28 @@ function readSpecInfo(fullPath) {
   }
 }
 
+/**
+ * First paragraph of a Markdown description as plain text, for API cards: no headings, code blocks,
+ * link targets or emphasis markers.
+ */
+export function plainSummary(markdown = '') {
+  const paragraph =
+    String(markdown)
+      .replace(/```[\s\S]*?```/g, '')
+      .split(/\n\s*\n/)
+      .map((block) => block.trim())
+      .find((block) => block && !/^(#|\||>|[-*] |\d+\. )/.test(block)) || '';
+  return paragraph
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/(\*\*|\*)(\S[^*]*?)\1/g, '$2')
+    .replace(/(^|\W)(__|_)(\S[^_]*?)\2(?=\W|$)/g, '$1$3')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function normalizeApi(api, baseDir) {
   const isRemote = isExternal(api.spec);
   const fullPath = isRemote ? api.spec : path.resolve(baseDir, api.spec);

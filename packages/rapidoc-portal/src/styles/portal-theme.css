@@ -1,7 +1,12 @@
 /*
  * RapiDoc Portal theme for Starlight and the portal pages.
  * Tokens replaced at build time by src/engine/theme-css.js:
- *   PORTAL_PRIMARY_COLOR, FONT_SANS_STACK, FONT_MONO_STACK (each wrapped in double underscores)
+ *   PORTAL_PRIMARY_COLOR, PORTAL_ON_PRIMARY, PORTAL_PRIMARY_TEXT_LIGHT, PORTAL_PRIMARY_TEXT_DARK,
+ *   FONT_SANS_STACK, FONT_MONO_STACK (each wrapped in double underscores)
+ *
+ * Accent usage, so text keeps WCAG AA contrast for any primary color (engine/accent-colors.js):
+ * --portal-primary for fills, borders and icons; --portal-primary-text for text; --portal-on-primary for
+ * text on a primary fill; --portal-primary-tint behind accent text.
  *
  * This file is unlayered, so it takes precedence over Starlight's `@layer starlight.*` styles
  * without `!important`.
@@ -17,6 +22,9 @@
   --portal-muted: #8b949e;
   --portal-hover-bg: rgba(255, 255, 255, 0.06);
   --portal-primary: __PORTAL_PRIMARY_COLOR__;
+  --portal-primary-text: __PORTAL_PRIMARY_TEXT_DARK__;
+  --portal-on-primary: __PORTAL_ON_PRIMARY__;
+  --portal-primary-tint: color-mix(in srgb, var(--portal-primary) 12%, transparent);
 
   /* Starlight colors */
   --sl-color-bg: var(--portal-bg);
@@ -39,6 +47,7 @@
   --sl-color-accent: __PORTAL_PRIMARY_COLOR__;
   --sl-color-accent-low: color-mix(in srgb, __PORTAL_PRIMARY_COLOR__ 18%, transparent);
   --sl-color-accent-high: color-mix(in srgb, __PORTAL_PRIMARY_COLOR__ 80%, #ffffff);
+  --sl-color-text-accent: var(--portal-primary-text);
 }
 
 [data-theme='light'] {
@@ -48,8 +57,9 @@
   --portal-border: #e4e4e7;
   --portal-border-subtle: #f4f4f5;
   --portal-fg: #555555;
-  --portal-muted: #71717a;
+  --portal-muted: #63636b;
   --portal-hover-bg: rgba(0, 0, 0, 0.05);
+  --portal-primary-text: __PORTAL_PRIMARY_TEXT_LIGHT__;
 
   --sl-color-bg: #ffffff;
   --sl-color-bg-nav: rgba(255, 255, 255, 0.95);
@@ -65,8 +75,9 @@
   --sl-color-gray-6: #f4f4f5;
   --sl-color-gray-7: #ffffff;
   --sl-color-hairline-light: rgba(0, 0, 0, 0.04);
-  --sl-color-accent-low: #ffe3d6;
-  --sl-color-accent-high: #94300a;
+  --sl-color-accent-low: color-mix(in srgb, __PORTAL_PRIMARY_COLOR__ 18%, #ffffff);
+  --sl-color-accent-high: var(--portal-primary-text);
+  --sl-color-text-accent: var(--portal-primary-text);
 }
 
 /* Typography and app-shell geometry */
@@ -159,10 +170,17 @@ body {
 
 .sidebar-pane a[aria-current='page'],
 .sidebar-pane a[aria-current='page'] span {
-  color: var(--portal-primary);
+  color: var(--portal-primary-text);
   font-weight: 600;
 }
 
 .sidebar-pane a[aria-current='page'] {
-  background-color: color-mix(in srgb, var(--portal-primary) 16%, transparent);
+  background-color: var(--portal-primary-tint);
+}
+
+/* Starlight's filled buttons (hero actions, LinkButton) */
+.sl-link-button.primary {
+  background-color: var(--portal-primary);
+  border-color: var(--portal-primary);
+  color: var(--portal-on-primary);
 }

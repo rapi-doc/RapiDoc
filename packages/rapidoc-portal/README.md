@@ -111,6 +111,16 @@ docs:
   editUrl: https://github.com/acme/portal/edit/main/docs/ # adds "Edit page" links
 
 footer: # or false
+  cta: # call-to-action band at the top of the footer
+    title: Ready to ship?
+    description: Book your first shipment in minutes.
+    links: # up to 3; the first is a filled button unless style says otherwise
+      - { label: Get started, href: /docs/guides/first-shipment }
+      - { label: Contact sales, href: /contact, style: button } # primary | button
+  newsletter: # email sign-up under the footer logo
+    action: https://example.com/subscribe # your newsletter service's form endpoint (POST)
+    field: EMAIL # name of the email field it expects (default email)
+    title: Newsletter # default; also description, button (default Subscribe)
   columns: [{ title: Company, links: [{ label: About, href: /about }] }]
   social: [{ icon: github, href: https://github.com/acme }] # github, x, discord, linkedin, youtube
   copyright: © 2026 Cosmo Cargo, Inc.

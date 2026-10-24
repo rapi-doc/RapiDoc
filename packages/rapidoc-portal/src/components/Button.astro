@@ -38,14 +38,14 @@ const Tag = targetHref ? 'a' : 'button';
     line-height: 1.4;
   }
   .portal-button--default {
-    background: var(--sl-color-accent, #f76b39);
-    color: #ffffff;
+    background: var(--portal-primary, #f76b39);
+    color: var(--portal-on-primary, #000000);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   }
   .portal-button--default:hover {
     filter: brightness(1.1);
     transform: translateY(-1px);
-    color: #ffffff;
+    color: var(--portal-on-primary, #000000);
   }
   .portal-button--outline {
     background: transparent;

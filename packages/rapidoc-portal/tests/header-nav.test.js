@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { activeTab, mobileNavLinks } from '../src/components/header-nav.js';
+import { activeTab } from '../src/components/header-nav.js';
 import { resolveConfig } from '../src/config/loader.js';
 
 const config = resolveConfig(

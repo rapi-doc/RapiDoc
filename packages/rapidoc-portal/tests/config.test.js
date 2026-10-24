@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
 import { ConfigError, convertConfig, generateMigratedConfig, loadConfig, migrateConfig, resolveConfig } from '../src/index.js';
 import { configJsonSchema } from '../src/config/json-schema.js';
+import { plainSummary } from '../src/config/normalizer.js';
 
 const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal', import.meta.url));
 
@@ -97,6 +98,14 @@ describe('rapidoc.config.yaml (v2)', () => {
     );
   });
 
+  it('summarizes a Markdown API description as plain text for the catalog', () => {
+    assert.equal(
+      plainSummary('# Orders\n\nThe **Orders API** places [orders](https://x) for `snake_case` ids.\n\n## Start\n\n```sh\ncurl\n```'),
+      'The Orders API places orders for snake_case ids.'
+    );
+    assert.equal(plainSummary(undefined), '');
+  });
+
   it('loads a font from Google Fonts unless it has a url', () => {
     const { fonts } = resolveConfig(
       {
@@ -109,22 +118,68 @@ describe('rapidoc.config.yaml (v2)', () => {
     assert.equal(fonts.mono.url, '/fonts/mono.css');
   });
 
+  it('accepts a footer call to action and newsletter, and checks them', () => {
+    const footer = {
+      cta: {
+        title: 'Ready?',
+        links: [
+          { label: 'Start', href: '/docs/intro' },
+          { label: 'Sales', href: '/contact', style: 'button' },
+        ],
+      },
+      newsletter: { action: 'https://example.com/subscribe', field: 'EMAIL' },
+    };
+    assert.deepEqual(resolveConfig({ site: { title: 'Acme' }, footer }, '/tmp').footer.cta, footer.cta);
+    const problems = problemsOf({
+      site: { title: 'Acme' },
+      footer: { cta: { links: [{ label: 'Start', href: '/x', style: 'ghost' }] }, newsletter: { title: 'News' } },
+    });
+    assert.ok(
+      problems.some((p) => p.startsWith('footer.cta.title')),
+      problems.join('\n')
+    );
+    assert.ok(
+      problems.some((p) => p.startsWith('footer.cta.links[0].style')),
+      problems.join('\n')
+    );
+    assert.ok(
+      problems.some((p) => p.startsWith('footer.newsletter.action')),
+      problems.join('\n')
+    );
+  });
+
   it('rejects unknown keys with their path and the v2 name', () => {
     const problems = problemsOf({
-      site: { title: 'Acme', announcement: { text: 'Hi' } },
-      navigation: [{ label: 'Docs', items: [{ label: 'Intro', path: '/docs/intro' }] }],
+      site: { title: 'Acme', tagline: 'Hi' },
+      navigation: [
+        {
+          label: 'Docs',
+          items: [
+            { label: 'Intro', path: '/docs/intro' },
+            { group: 'More', items: ['faq'] },
+          ],
+        },
+      ],
       apis: [{ id: 'orders', root: './orders.yaml' }],
     });
-    assert.ok(problems.includes('site: unknown key "announcement" (use site.banner)'), problems.join('\n'));
+    assert.ok(problems.includes('site: unknown key "tagline"'), problems.join('\n'));
+    assert.ok(problems.includes('navigation[0].items[1]: unknown key "group" (use label)'), problems.join('\n'));
     assert.ok(problems.includes('navigation[0].items[0]: unknown key "path" (use href (links) or slug (doc pages))'), problems.join('\n'));
     assert.ok(problems.includes('apis[0]: unknown key "root" (use spec)'), problems.join('\n'));
   });
 
-  it('suggests rapidoc migrate for a v1 config', () => {
-    assert.throws(
-      () => resolveConfig({ site: { title: 'Acme', headerLinks: [] } }, '/tmp'),
-      (err) => err instanceof ConfigError && err.message.includes('rapidoc migrate --from v1')
+  it('has no apis[].path: every API is at /apis/<id>', () => {
+    const problems = problemsOf({ site: { title: 'Acme' }, apis: [{ id: 'orders', spec: './o.yaml', path: '/catalog/orders' }] });
+    assert.deepEqual(problems, ['apis[0]: unknown key "path" (every API is at /apis/<id>; add a `redirects` entry from the old URL)']);
+    const { redirects } = resolveConfig(
+      {
+        site: { title: 'Acme' },
+        apis: [{ id: 'orders', spec: 'https://example.com/o.yaml' }],
+        redirects: [{ from: '/apis/', to: '/docs/apis' }],
+      },
+      '/tmp'
     );
+    assert.deepEqual(redirects, [{ from: '/apis/', to: '/docs/apis' }], 'a configured /apis redirect wins');
   });
 
   it('tells navigation item kinds apart by their keys', () => {

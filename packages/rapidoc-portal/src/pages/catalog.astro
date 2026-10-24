@@ -99,8 +99,8 @@ for (const api of apis) {
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    background: color-mix(in srgb, var(--portal-primary, #f76b39) 15%, transparent);
-    color: var(--portal-primary, #f76b39);
+    background: var(--portal-primary-tint);
+    color: var(--portal-primary-text);
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
   }
@@ -120,10 +120,15 @@ for (const api of apis) {
     flex: 1;
     line-height: 1.5;
     margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
   }
   .api-card-footer {
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--portal-primary, #f76b39);
+    color: var(--portal-primary-text);
   }
 </style>

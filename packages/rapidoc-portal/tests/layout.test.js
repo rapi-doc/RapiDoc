@@ -7,6 +7,9 @@
  * page, which itself scrolls. A rule for a target not met yet can be tagged `todo`: it is reported
  * but not enforced until the tag is removed.
  *
+ * The same build is also audited for accessibility (axe-core, WCAG 2.1 A/AA, light and dark theme) and
+ * the header menus are driven with the keyboard.
+ *
  * Set RAPIDOC_LAYOUT_OUT=<dir> to also write measurements.json and screenshots to <dir>
  * (`npm run layout:baseline` writes them to tests/layout/).
  */
@@ -17,6 +20,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { buildPortal } from '../src/index.js';
 import { findChromeExecutable, launchTestBrowser } from '../../../tests/helpers/test-harness.js';
@@ -41,6 +45,21 @@ const VIEWPORTS = [
 ];
 
 const KINDS = ['landing', 'docs', 'api'];
+
+// Accessibility audit: viewport and theme pairs, the axe rule sets, and what is left out. <rapi-doc>
+// renders the API reference and is audited with the rapidoc package, not here.
+const AUDITS = [
+  { viewport: VIEWPORTS[0], theme: 'dark' },
+  { viewport: VIEWPORTS[0], theme: 'light' },
+  { viewport: VIEWPORTS[2], theme: 'dark' },
+];
+const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
+const AXE_EXCLUDE = ['rapi-doc', 'rapi-doc-mini'];
+const AXE_FAIL_IMPACTS = ['serious', 'critical'];
+const AXE_SOURCE = fs.readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
+
+// Cumulative layout shift budget for a whole visit (load, then scrolling to the end): Lighthouse's "good".
+const VISIT_LAYOUT_SHIFT_BUDGET = 0.1;
 
 // The first selector that matches wins. `data-portal-region` hooks are the stable contract the
 // app shell should expose; the class names after them match today's markup.
@@ -216,6 +235,13 @@ const RULES = [
     kinds: KINDS,
     check: ({ layoutShift }) => {
       if (layoutShift >= 0.01) return `cumulative layout shift ${layoutShift}`;
+    },
+  },
+  {
+    name: `layout shift over the whole visit stays within the ${VISIT_LAYOUT_SHIFT_BUDGET} budget`,
+    kinds: KINDS,
+    check: ({ visitLayoutShift }) => {
+      if (visitLayoutShift > VISIT_LAYOUT_SHIFT_BUDGET) return `cumulative layout shift ${visitLayoutShift} after scrolling to the end`;
     },
   },
   {
@@ -455,7 +481,51 @@ async function measureCase(context, baseUrl, pageDef, viewport) {
         await page.screenshot({ path: path.join(OUTPUT_DIR, 'screenshots', `${pageDef.id}-${viewport.id}-${name}.png`) });
       }
     }
-    return { page: pageDef, viewport, layoutShift: round(layoutShift), ...states };
+    const visitLayoutShift = await page.evaluate(() => window.__portalLayoutShift);
+    return { page: pageDef, viewport, layoutShift: round(layoutShift), visitLayoutShift: round(visitLayoutShift), ...states };
+  } finally {
+    await page.close();
+  }
+}
+
+/** Loads a page in the given theme and returns its serious and critical axe violations. */
+async function auditCase(context, baseUrl, pageDef, { viewport, theme }) {
+  const page = await context.newPage();
+  try {
+    await page.addInitScript((t) => localStorage.setItem('starlight-theme', t), theme);
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto(`${baseUrl}${pageDef.path}`, { waitUntil: 'load' });
+    await page.evaluate(() => document.fonts.ready);
+    // Expressive Code makes overflowing code blocks focusable from a debounced ResizeObserver; wait for it
+    // (a block it leaves unfocusable is then reported by axe).
+    await page
+      .waitForFunction(
+        () =>
+          [...document.querySelectorAll('.expressive-code pre')].every(
+            (pre) => pre.scrollWidth <= pre.clientWidth || pre.hasAttribute('tabindex')
+          ),
+        null,
+        { timeout: 3000 }
+      )
+      .catch(() => {});
+    await page.addScriptTag({ content: AXE_SOURCE });
+    const violations = await page.evaluate(
+      async ([tags, exclude]) => {
+        const results = await window.axe.run(
+          { exclude: exclude.map((selector) => [selector]) },
+          { runOnly: { type: 'tag', values: tags } }
+        );
+        return results.violations.map((v) => ({
+          id: v.id,
+          impact: v.impact,
+          help: v.help,
+          targets: v.nodes.slice(0, 5).map((n) => n.target.join(' ')),
+          count: v.nodes.length,
+        }));
+      },
+      [AXE_TAGS, AXE_EXCLUDE]
+    );
+    return { page: pageDef, viewport, theme, violations: violations.filter((v) => AXE_FAIL_IMPACTS.includes(v.impact)) };
   } finally {
     await page.close();
   }
@@ -470,9 +540,12 @@ try {
 
 describe('Portal app-shell layout (demo-api-portal)', { skip: chromeAvailable ? false : 'Chrome/Chromium not found' }, () => {
   const cases = [];
+  const audits = [];
   let outDir;
   let server;
   let browser;
+  let context;
+  let baseUrl;
 
   before(async () => {
     outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-portal-layout-'));
@@ -480,8 +553,9 @@ describe('Portal app-shell layout (demo-api-portal)', { skip: chromeAvailable ? 
     const served = await serveStatic(outDir);
     server = served.server;
 
+    baseUrl = served.baseUrl;
     browser = await launchTestBrowser();
-    const context = await browser.newContext();
+    context = await browser.newContext();
     await context.addInitScript(installPageHelpers);
     // Only the built portal is loaded: web fonts and other remote requests are blocked so
     // measurements do not depend on the network.
@@ -490,6 +564,7 @@ describe('Portal app-shell layout (demo-api-portal)', { skip: chromeAvailable ? 
     if (OUTPUT_DIR) fs.mkdirSync(path.join(OUTPUT_DIR, 'screenshots'), { recursive: true });
     for (const pageDef of PAGES) {
       for (const viewport of VIEWPORTS) cases.push(await measureCase(context, served.baseUrl, pageDef, viewport));
+      for (const audit of AUDITS) audits.push(await auditCase(context, served.baseUrl, pageDef, audit));
     }
 
     if (OUTPUT_DIR) {
@@ -519,6 +594,84 @@ describe('Portal app-shell layout (demo-api-portal)', { skip: chromeAvailable ? 
           assert.equal(failures.length, 0, `\n${failures.join('\n')}`);
         });
       }
+      it(`has no ${AXE_FAIL_IMPACTS.join(' or ')} accessibility violations (axe, WCAG 2.1 AA)`, () => {
+        const failures = audits
+          .filter((a) => a.page.kind === kind)
+          .flatMap((a) =>
+            a.violations.map(
+              (v) => `${a.page.id} @ ${a.viewport.id} ${a.theme}: [${v.impact}] ${v.id}: ${v.help} (${v.count}x: ${v.targets.join(' | ')})`
+            )
+          );
+        assert.equal(failures.length, 0, `\n${failures.join('\n')}`);
+      });
     });
   }
+
+  describe('header keyboard', () => {
+    const openPage = async (path, viewport) => {
+      const page = await context.newPage();
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      await page.goto(`${baseUrl}${path}`, { waitUntil: 'load' });
+      return page;
+    };
+    const focused = (page) => page.evaluate(() => document.activeElement?.textContent.trim().replace(/\s+/g, ' '));
+    const expanded = (page) => page.getAttribute('.portal-dropdown-trigger', 'aria-expanded');
+    const panelShown = (page) =>
+      page.evaluate(() => {
+        const trigger = document.querySelector('.portal-dropdown-trigger');
+        return getComputedStyle(document.getElementById(trigger.getAttribute('aria-controls'))).display !== 'none';
+      });
+
+    it('mega-menu: Tab passes the trigger without opening it; arrows, Enter and Escape work', async () => {
+      const page = await openPage('/docs/shipping-process/', VIEWPORTS[0]);
+      try {
+        await page.focus('#portal-search-btn');
+        await page.keyboard.press('Tab');
+        assert.match(await focused(page), /^Solutions/, 'Tab from the search reaches the first menu');
+        assert.equal(await panelShown(page), false, 'focus alone does not open the menu');
+
+        await page.keyboard.press('ArrowDown');
+        assert.equal(await expanded(page), 'true');
+        assert.match(await focused(page), /^Shipment Tracking/, 'ArrowDown opens the menu and focuses its first link');
+        await page.keyboard.press('End');
+        assert.match(await focused(page), /^Fuel Manifests/);
+        await page.keyboard.press('ArrowDown');
+        assert.match(await focused(page), /^Shipment Tracking/, 'ArrowDown wraps around');
+
+        await page.keyboard.press('Escape');
+        assert.equal(await expanded(page), 'false');
+        assert.equal(await panelShown(page), false);
+        assert.match(await focused(page), /^Solutions/, 'Escape returns focus to the trigger');
+
+        await page.keyboard.press('Enter');
+        assert.equal(await expanded(page), 'true', 'Enter opens the menu');
+        await page.keyboard.press('Tab');
+        assert.match(await focused(page), /^Shipment Tracking/, 'Tab moves into the open menu');
+        await page.keyboard.press('Shift+Tab');
+        await page.keyboard.press('Shift+Tab');
+        assert.equal(await expanded(page), 'false', 'tabbing out closes the menu');
+
+        await page.focus('.portal-dropdown-trigger');
+        await page.keyboard.press('ArrowRight');
+        assert.equal(await focused(page), 'Products', 'ArrowRight moves to the next top-level item');
+      } finally {
+        await page.close();
+      }
+    });
+
+    it('menu drawer: marks the current tab, closes on Escape and returns focus', async () => {
+      const page = await openPage('/catalog/', VIEWPORTS[2]);
+      try {
+        await page.click('#portal-mobile-menu-btn');
+        assert.equal(await page.getAttribute('#portal-mobile-menu-btn', 'aria-expanded'), 'true');
+        assert.equal(await page.isVisible('#portal-mobile-drawer'), true);
+        assert.equal((await page.textContent('#portal-mobile-drawer [aria-current="page"]')).trim(), 'API Catalog');
+        await page.keyboard.press('Escape');
+        assert.equal(await page.isVisible('#portal-mobile-drawer'), false);
+        assert.equal(await page.evaluate(() => document.activeElement?.id), 'portal-mobile-menu-btn');
+      } finally {
+        await page.close();
+      }
+    });
+  });
 });

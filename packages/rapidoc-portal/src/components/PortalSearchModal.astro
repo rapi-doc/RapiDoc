@@ -434,7 +434,7 @@ const { portalConfig = {} } = Astro.props;
 
   .portal-search-filter-btn.active {
     background: var(--portal-primary, #f76b39);
-    color: #000000;
+    color: var(--portal-on-primary, #000000);
     font-weight: 700;
     border-color: var(--portal-primary, #f76b39);
   }
@@ -511,8 +511,8 @@ const { portalConfig = {} } = Astro.props;
   }
 
   .portal-search-match {
-    background: rgba(247, 107, 57, 0.25);
-    color: var(--portal-primary, #f76b39);
+    background: var(--portal-primary-tint);
+    color: var(--portal-primary-text, #f76b39);
     border-radius: 2px;
     padding: 0 2px;
   }

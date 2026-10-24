@@ -192,7 +192,34 @@ export const DocsSchema = z.strictObject({
 
 const footerLinkSchema = z.strictObject({ label, href });
 
+const footerCtaLinkSchema = z.strictObject({
+  label,
+  href,
+  style: z
+    .enum(['primary', 'button'])
+    .optional()
+    .describe('primary (filled) or button (outlined). Default: primary for the first link, button after.'),
+});
+
 export const FooterSchema = z.strictObject({
+  cta: z
+    .strictObject({
+      title: z.string().min(1),
+      description: z.string().optional(),
+      links: z.array(footerCtaLinkSchema).min(1).max(3).optional().describe('Up to three buttons.'),
+    })
+    .optional()
+    .describe('Call-to-action band at the top of the footer.'),
+  newsletter: z
+    .strictObject({
+      action: z.string().min(1).describe("URL the sign-up form posts to: your newsletter service's form endpoint."),
+      title: z.string().optional().describe('Default "Newsletter".'),
+      description: z.string().optional(),
+      field: z.string().optional().describe('Name of the email field the service expects (default email).'),
+      button: z.string().optional().describe('Submit button text (default Subscribe).'),
+    })
+    .optional()
+    .describe('Email sign-up form under the footer logo.'),
   columns: z.array(z.strictObject({ title: z.string(), links: z.array(footerLinkSchema) })).optional(),
   social: z.array(z.strictObject({ icon: z.enum(['github', 'x', 'discord', 'linkedin', 'youtube']), href })).optional(),
   copyright: z.string().optional(),

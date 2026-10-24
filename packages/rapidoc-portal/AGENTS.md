@@ -32,7 +32,7 @@ Run these commands from `packages/rapidoc-portal`:
 
 From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-rapidoc` suites together.
 
-**Layout rules** (`tests/layout.test.js`): builds `demo-api-portal`, serves it, and measures the app shell in headless Chrome (skipped if no Chrome is found) for each page kind (landing, docs, API) at 1440, 1024 and 375px wide. Rules tagged `todo: { <kind>: 'Phase N' }` describe the target shell and are reported but not enforced. When a change makes one pass, remove its tag. Re-run `npm run layout:baseline` after layout changes so the `measurements.json` diff shows what moved.
+**Layout rules** (`tests/layout.test.js`): builds `demo-api-portal`, serves it, and measures the app shell in headless Chrome (skipped if no Chrome is found) for each page kind (landing, docs, API) at 1440, 1024 and 375px wide. The same build is audited with axe-core (WCAG 2.1 A/AA; serious and critical violations fail; `<rapi-doc>` is excluded) at desktop in both themes and at 375px in dark, has a whole-visit layout-shift budget of 0.1, and the header menus and drawer are driven with the keyboard. Rules tagged `todo: { <kind>: 'Phase N' }` describe the target shell and are reported but not enforced. When a change makes one pass, remove its tag. Re-run `npm run layout:baseline` after layout changes so the `measurements.json` diff shows what moved.
 
 ---
 
