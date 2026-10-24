@@ -110,3 +110,54 @@ Section titles are now written in normal case ("API Server", "Authentication"). 
 - View-mode operation borders use the `--method-*` colors (same as the method badges).
 - In the `slate` dark theme the active navigation marker is white, like its text.
 - Headings are bolder (`600`) and larger, and paragraphs inside descriptions are `1em` apart.
+- Markdown tables in descriptions are `display: block` and scroll horizontally inside their own box when wider than the space available, instead of widening the page.
+
+---
+
+## 5. Parameter lists replace tables
+
+Request parameters, request-body form fields, response headers, server variables, and the Authentication section were `<table role="presentation">` layouts. They are now lists on a CSS grid:
+
+```html
+<ul class="param-list" part="param-list" role="list">
+  <li class="param" part="param">
+    <div class="param-label" part="param-label">
+      <div class="param-name" part="param-name">limit</div>
+      <div class="param-type" part="param-type">int32</div>
+    </div>
+    <div class="param-input" part="param-input"><input part="textbox textbox-param" /></div>
+    <div class="param-constraint" part="param-constraint">Min 1 | Max 100</div>
+    <div class="param-details" part="param-details">Description and examples</div>
+  </li>
+</ul>
+```
+
+- **Layout.** The list is a three-column grid (`var(--param-label-width) minmax(10rem, 1fr) minmax(0, 1.5fr)`) and each `.param` is a subgrid row, so columns line up and every row's border reaches the edge. Without constraints the input spans both right-hand columns; without an input (`allow-try="false"`, response headers) the constraints do. Below about `36rem` of container width everything stacks in one column, with no horizontal scrolling.
+- **One label width.** The label column was `200px` in read and focused mode and `160px` in view mode. It is now `--param-label-width` (`12rem`) everywhere.
+- **Response headers** show name and type on the left, the schema example (as "Example:") in the constraints column, and the description below. The list is full width.
+- **Constraints** are a definition list, `<dl class="param-constraint">`, with one `<dt>` label and `<dd>` value per constraint (Default, Pattern, Limits, Allowed). The labels share one column, so every value starts at the same place, whether there is one constraint or several. Range, multiple-of, and length limits, which had no label, are now under "Limits:" and wrap like allowed values. New part: `param-constraint-label`. When a parameter has constraints but no description, its short-format examples become the last row of this list ("Examples:"), lined up with the other values; otherwise they stay under the description.
+- **Allowed values and short-format examples** are a `<div class="value-list">` with a label and a `<ul class="value-list-items">` of values. Wrapped lines line up under the first value, and the `┃` separators are drawn in CSS (`li::after`) so a line never starts with one. Long-format examples (with a summary or description) are a `<ul class="param-example-list" part="param-example-list">` with no marker (the v11 disclosure triangle looked clickable); each entry has a thin left rule, which turns `--primary` while the entry is hovered or its example link has focus.
+- **Operation security chips** use the same value-list layout: `.operation-security` holds a `.security-label-group` ("Authorization" and the lock) and a `<ul class="value-list-items security-chips">` with one `<li>` per chip. Wrapped chips line up under the first chip, and `OR` is drawn in CSS at the end of each line, so the `.security-or` element is gone.
+- **Authentication** is `<ul class="auth-list" id="auth-list" part="auth-list">` with one `<li id="security-scheme-{id}" class="auth-scheme {type}" part="auth-scheme">` per scheme; OAuth flows are in `<div class="auth-flows" part="auth-flows">` inside their scheme instead of a separate row.
+
+| Removed | Use instead |
+| :-- | :-- |
+| `.m-table`, `.m-table.padded-12`, `tr` / `td` selectors | `.param-list`, `.param`, `.param-*`, `.auth-list`, `.auth-scheme` |
+| `#auth-table` | `#auth-list`, part `auth-list` |
+| Fixed `200px` / `160px` label column | `--param-label-width` |
+
+New CSS parts: `param-list`, `param`, `param-label`, `param-name`, `param-type`, `param-input`, `param-constraint`, `param-constraint-label`, `param-details`, `value-list`, `value-list-label`, `value-list-items`, `auth-list`, `auth-scheme`, and `auth-flows`. `anchor-param-constraint` is now exported from requests and responses as well.
+
+New CSS variables: `--param-label-width`, `--param-gap`, `--param-row-gap`, `--param-padding`, `--value-list-gap`, `--value-list-row-gap`, `--value-list-label-gap`, and `--auth-scheme-padding`.
+
+```css
+rapi-doc {
+  --param-label-width: 14rem;
+}
+rapi-doc::part(param) {
+  padding-block: 0.75rem;
+}
+rapi-doc::part(param-name) {
+  font-weight: 600;
+}
+```

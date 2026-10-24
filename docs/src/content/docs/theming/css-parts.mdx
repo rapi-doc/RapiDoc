@@ -218,3 +218,33 @@ rapi-doc {
   --table-schema-key-width: 300px;
 }
 ```
+
+---
+
+## 6. Parameter Lists
+
+Request parameters, request-body form fields, response headers, and server variables share one layout: a `<ul part="param-list">` grid with one `<li part="param">` per parameter. Each parameter is a subgrid row with up to four pieces:
+
+| Part | Column | Content |
+| :--- | :--- | :--- |
+| `param-label` | 1 | `param-name` (required marker, deprecated icon) and `param-type` |
+| `param-input` | 2 | Try-it input; spans columns 2–3 when there are no constraints |
+| `param-constraint` | 3 | Default, pattern, range, allowed values; spans columns 2–3 when there is no input |
+| `param-details` | 2–3 | Description and examples, on the next row |
+
+Allowed values and short-format examples are a `value-list`: a `value-list-label` followed by `value-list-items`. Wrapped values line up under the first value, and the `┃` separators are drawn in CSS so they stay at the end of a line. Space them with `--value-list-gap`, `--value-list-row-gap`, and `--value-list-label-gap`.
+
+Below about `36rem` of available width the list stacks into a single column. Size it with `--param-label-width`, `--param-gap`, `--param-row-gap`, and `--param-padding`:
+
+```css
+rapi-doc {
+  --param-label-width: 14rem;
+  --param-padding: 0.75rem;
+}
+rapi-doc::part(param-name) {
+  font-weight: 600;
+}
+rapi-doc::part(param-details) {
+  color: var(--muted-foreground);
+}
+```
