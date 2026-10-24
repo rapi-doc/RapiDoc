@@ -91,11 +91,7 @@ export function resolveConfig(rawConfig, baseDir, fileName = 'rapidoc.config.yam
   const result = RapidocConfigSchema.safeParse(rawConfig);
   if (!result.success) throw new ConfigError(fileName, describeIssues(result.error.issues));
   const problems = checkReferences(result.data);
-  if (problems.length)
-    throw new ConfigError(
-      fileName,
-      problems.map((text) => ({ text, legacy: false }))
-    );
+  if (problems.length) throw new ConfigError(fileName, problems);
   return normalizeConfig(result.data, baseDir);
 }
 

@@ -1,19 +1,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import YAML from 'yaml';
-import { findConfigFile, parseRawFile } from './loader.js';
+import { parseRawFile } from './loader.js';
 import { RapidocConfigSchema } from './schema.js';
 import { checkReferences } from './normalizer.js';
 import { describeIssues, MANAGED_RAPIDOC_ATTRIBUTES } from './errors.js';
 
 /**
- * `rapidoc migrate`: converts a v1 rapidoc.config.yaml, a Redocly project (redocly.yaml + sidebars.yaml)
- * or a Zudoku config into a v2 rapidoc.config.yaml. Only this module knows the older key names; the
- * loader accepts v2 only.
+ * `rapidoc migrate`: converts a Redocly project (redocly.yaml + sidebars.yaml) or a Zudoku config into a
+ * rapidoc.config.yaml. Only this module knows their key names; the loader accepts rapidoc.config.yaml only.
  */
 
 export const MIGRATION_SOURCES = {
-  v1: ['rapidoc.config.yaml', 'rapidoc.config.yml', 'rapidoc.config.json', 'rapidoc.config.js', 'rapidoc.config.mjs'],
   redocly: ['redocly.yaml', 'redocly.yml'],
   zudoku: ['zudoku.config.ts', 'zudoku.config.mjs', 'zudoku.config.js'],
 };
@@ -42,7 +40,7 @@ function idFromSpec(spec) {
     .replace(/^-+|-+$/g, '');
 }
 
-/** v1 / Redocly / Zudoku `apis` (list or map) → v2 list. */
+/** Redocly / Zudoku `apis` (list or map) → v2 list. */
 function convertApis(rawApis) {
   if (!rawApis) return [];
   const entries = Array.isArray(rawApis)
@@ -58,12 +56,11 @@ function convertApis(rawApis) {
       title: api.title,
       description: api.description,
       category: api.category || (Array.isArray(api.categories) ? api.categories[0]?.label : undefined),
-      featured: api.featured || api.highlighted || api.pinned ? true : undefined,
     });
   });
 }
 
-/** A v1/Redocly sidebar item → v2 sidebar item. */
+/** A Redocly sidebar item → v2 sidebar item. */
 function convertSidebarItem(item, apiIds) {
   if (typeof item === 'string') return docSlug(item, { bare: true });
   const label = item.label || item.title || item.name;
@@ -77,7 +74,7 @@ function convertSidebarItem(item, apiIds) {
   return compact({ label, href: target });
 }
 
-/** v1 / Redocly navigation groups → items of one documentation tab. */
+/** Redocly sidebar groups → items of one documentation tab. */
 function convertGroups(groups, apiIds) {
   return groups.map((group) => {
     if (typeof group === 'string' || !(group.items || group.pages)) return convertSidebarItem(group, apiIds);
@@ -88,20 +85,7 @@ function convertGroups(groups, apiIds) {
   });
 }
 
-function convertMenuItem(item) {
-  return compact({
-    label: item.label || item.title,
-    href: item.href || item.path,
-    icon: item.icon,
-    description: item.description,
-    badge: item.badge,
-    items: (item.items || item.features)?.map((f) =>
-      compact({ label: f.label || f.title, href: f.href || f.path || item.href, icon: f.icon })
-    ),
-  });
-}
-
-/** rapidoc: / theme.openapi attributes → kebab-case passthrough + the theme keys they become. */
+/** Redocly `theme.openapi` options → kebab-case <rapi-doc> attributes + the theme keys they become. */
 function convertRapidoc(options = {}, theme) {
   const rapidoc = {};
   for (const [key, value] of Object.entries(options)) {
@@ -112,118 +96,6 @@ function convertRapidoc(options = {}, theme) {
     else if (!(attr in MANAGED_RAPIDOC_ATTRIBUTES)) rapidoc[attr] = value;
   }
   return rapidoc;
-}
-
-function convertFooter(footer) {
-  if (footer === false) return false;
-  if (!footer || typeof footer !== 'object') return undefined;
-  return compact({
-    columns: footer.columns?.map((col) => ({
-      title: col.title,
-      links: (col.links || col.items || []).map((l) => ({ label: l.label || l.title, href: l.href || l.path })),
-    })),
-    social: footer.social?.map((s) => ({ icon: s.icon, href: s.href })),
-    copyright: footer.copyright,
-    branding: footer.branding === false ? false : undefined,
-  });
-}
-
-function convertLogo(logo, title) {
-  if (!logo) return undefined;
-  if (typeof logo === 'string') return { src: logo };
-  const src =
-    logo.src || (logo.light && logo.dark && logo.light !== logo.dark ? { light: logo.light, dark: logo.dark } : logo.light || logo.dark);
-  return compact({
-    src: typeof src === 'object' && src.light === src.dark ? src.light : src,
-    text: logo.text && logo.text !== title ? logo.text : src ? undefined : logo.text,
-    alt: logo.alt && logo.alt !== 'Logo' ? logo.alt : undefined,
-    href: logo.href && logo.href !== '/' ? logo.href : undefined,
-  });
-}
-
-function convertTheme(raw) {
-  const font = raw.theme?.font;
-  const fonts = font
-    ? compact({
-        sans: font.name ? compact({ family: font.name, url: font.url }) : undefined,
-        mono: font.monoName ? compact({ family: font.monoName, url: font.monoUrl }) : undefined,
-      })
-    : undefined;
-  return compact({ fonts: fonts && Object.keys(fonts).length ? fonts : undefined });
-}
-
-/**
- * Tabs from v1 `site.headerLinks`: links to docs, an API, or the catalog become tabs (in their order);
- * everything else stays in the header. Without headerLinks: Documentation, featured APIs, catalog.
- */
-function splitHeaderLinks(headerLinks, docsItems, apis) {
-  const apiByPath = new Map(apis.map((a) => [a.path || `/apis/${a.id}`, a]));
-  const tabs = [];
-  const links = [];
-  const docsTab = docsItems.length ? { label: 'Documentation', icon: 'book', items: docsItems } : null;
-  let addedDocs = false;
-
-  for (const link of headerLinks || []) {
-    const href = (link.href || link.path || '').replace(/\/+$/, '');
-    if (!link.items?.length && docsTab && !addedDocs && docSlug(href) !== null) {
-      tabs.push({ ...docsTab, label: link.label });
-      addedDocs = true;
-    } else if (!link.items?.length && href === '/catalog') {
-      tabs.push({ label: link.label, icon: 'grid', catalog: true });
-    } else if (!link.items?.length && apiByPath.has(href)) {
-      tabs.push({ label: link.label, icon: 'code', api: apiByPath.get(href).id });
-    } else if (link.items?.length) {
-      links.push(compact({ label: link.label, icon: link.icon, items: link.items.map(convertMenuItem) }));
-    } else {
-      links.push(compact({ label: link.label, href: link.href || link.path, icon: link.icon }));
-    }
-  }
-
-  if (!headerLinks?.length) {
-    tabs.push(...apis.filter((a) => a.featured).map((a) => ({ label: a.title || a.id, icon: 'code', api: a.id })));
-    if (apis.length) tabs.push({ label: 'API Catalog', icon: 'grid', catalog: true });
-  }
-  if (docsTab && !addedDocs) tabs.unshift(docsTab);
-  return { tabs, links };
-}
-
-/** v1 rapidoc.config.yaml → v2. */
-function fromV1(raw) {
-  const apis = convertApis(raw.apis);
-  const apiIds = new Set(apis.map((a) => a.id));
-  const site = raw.site || {};
-  const theme = convertTheme(raw);
-  const rapidoc = convertRapidoc({ ...raw.rapidoc, ...raw.theme?.openapi }, theme);
-  const docsItems = convertGroups(raw.navigation || raw.sidebars || [], apiIds);
-  const { tabs, links } = splitHeaderLinks(site.headerLinks || raw.headerLinks, docsItems, apis);
-  const announcement = site.announcement || raw.announcement;
-  const docsDir = raw.docs?.dir || raw.docs?.path || raw.docs?.files || (typeof raw.docs === 'string' ? raw.docs : undefined);
-
-  return assemble({
-    site: compact({
-      title: site.title || 'Developer Portal',
-      description: site.description || site.tagline,
-      logo: convertLogo(site.logo, site.title),
-      favicon: site.favicon,
-      banner: announcement?.text
-        ? compact({
-            message: announcement.text,
-            href: announcement.link,
-            dismissible: announcement.dismissible === false ? false : undefined,
-            background: announcement.bgColor,
-            color: announcement.textColor,
-          })
-        : undefined,
-    }),
-    theme,
-    header: links.length ? { links } : undefined,
-    navigation: tabs,
-    apis,
-    docs: docsDir && docsDir.replace(/\/$/, '') !== './docs' ? { dir: docsDir } : undefined,
-    footer: convertFooter(site.footer ?? raw.footer),
-    rapidoc,
-    search: raw.search === false || raw.search?.enabled === false ? false : undefined,
-  });
 }
 
 /** Zudoku navigation item → v2 sidebar item. */
@@ -277,14 +149,38 @@ function fromZudoku(raw) {
   });
 }
 
-/** redocly.yaml (+ sidebars.yaml, already merged in as `sidebars`) → v2. */
+/**
+ * redocly.yaml (+ sidebars.yaml, already merged in as `sidebars`) → v2: the sidebars become one
+ * Documentation tab, then an API Catalog tab; `theme.openapi` becomes theme keys and `rapidoc:` attributes.
+ */
 function fromRedocly(raw) {
-  return fromV1({ ...raw, site: { title: raw.seo?.title || raw.site?.title, ...raw.site } });
+  const apis = convertApis(raw.apis);
+  const theme = {};
+  const rapidoc = convertRapidoc(raw.theme?.openapi, theme);
+  const docsItems = convertGroups(raw.sidebars || raw.navigation || [], new Set(apis.map((a) => a.id)));
+  const navigation = [
+    ...(docsItems.length ? [{ label: 'Documentation', icon: 'book', items: docsItems }] : []),
+    ...(apis.length ? [{ label: 'API Catalog', icon: 'grid', catalog: true }] : []),
+  ];
+  return assemble({
+    site: compact({ title: raw.seo?.title || raw.site?.title || 'Developer Portal', description: raw.seo?.description }),
+    theme,
+    navigation,
+    apis,
+    rapidoc,
+  });
 }
 
-/** Drops empty sections, `featured` (a v1-only hint) and sets the key order. */
+/**
+ * Drops empty sections and sets the key order. v2 has no `apis[].path` (every API is at /apis/<id>),
+ * so an API that lived elsewhere gets a redirect from its old URL.
+ */
 function assemble(config) {
-  const apis = config.apis?.map(({ featured, ...api }) => api); // eslint-disable-line no-unused-vars
+  const apis = config.apis?.map(({ path, ...api }) => api); // eslint-disable-line no-unused-vars
+  const apiRedirects = (config.apis || [])
+    .filter((api) => api.path)
+    .map((api) => ({ from: api.path.replace(/\/+$/, ''), to: `/apis/${api.id}` }));
+  const redirects = [...(config.redirects || []), ...apiRedirects];
   return compact({
     site: config.site,
     theme:
@@ -306,15 +202,15 @@ function assemble(config) {
  * Converts a parsed config of the given kind into a v2 config object.
  *
  * @param {object} raw - Parsed source config
- * @param {'v1' | 'redocly' | 'zudoku'} from
+ * @param {'redocly' | 'zudoku'} from
  * @returns {{ config: object, problems: string[] }} problems: what still fails v2 validation
  */
 export function convertConfig(raw, from) {
-  const convert = { v1: fromV1, redocly: fromRedocly, zudoku: fromZudoku }[from];
+  const convert = { redocly: fromRedocly, zudoku: fromZudoku }[from];
   if (!convert) throw new Error(`Unknown migration source "${from}". Use one of: ${Object.keys(MIGRATION_SOURCES).join(', ')}`);
   const config = convert(raw || {});
   const result = RapidocConfigSchema.safeParse(config);
-  const problems = result.success ? checkReferences(result.data) : describeIssues(result.error.issues).map((p) => p.text);
+  const problems = result.success ? checkReferences(result.data) : describeIssues(result.error.issues);
   return { config, problems };
 }
 
@@ -334,39 +230,30 @@ async function readSource(sourceDir, from) {
 
 /**
  * @param {string} sourceDir
- * @param {'v1' | 'redocly' | 'zudoku'} [from] - Default: whichever source config is found first
+ * @param {'redocly' | 'zudoku'} [from] - Default: whichever source config is found first
  * @returns {Promise<{ content: string, problems: string[], sourceFile: string }>}
  */
 export async function generateMigratedConfig(sourceDir, from) {
   const kind = from || Object.keys(MIGRATION_SOURCES).find((k) => MIGRATION_SOURCES[k].some((n) => fs.existsSync(path.join(sourceDir, n))));
-  if (!kind) throw new Error(`Nothing to migrate in "${sourceDir}": no rapidoc.config.yaml, redocly.yaml or zudoku.config.*`);
+  if (!kind) throw new Error(`Nothing to migrate in "${sourceDir}": no redocly.yaml or zudoku.config.*`);
   const { file, raw } = await readSource(sourceDir, kind);
   const { config, problems } = convertConfig(raw, kind);
   return { content: SCHEMA_COMMENT + YAML.stringify(config, { indent: 2, lineWidth: 0 }), problems, sourceFile: file };
 }
 
 /**
- * Writes the converted config to <targetDir>/rapidoc.config.yaml. A v1 config being replaced is kept as
- * rapidoc.config.v1.yaml.
+ * Writes the converted config to <targetDir>/rapidoc.config.yaml.
  *
  * @param {string} targetDir
- * @param {{ from?: 'v1' | 'redocly' | 'zudoku', overwrite?: boolean }} [options]
- * @returns {Promise<{ filePath: string, content: string, problems: string[], backupPath: string | null }>}
+ * @param {{ from?: 'redocly' | 'zudoku', overwrite?: boolean }} [options]
+ * @returns {Promise<{ filePath: string, content: string, problems: string[] }>}
  */
 export async function migrateConfig(targetDir = process.cwd(), options = {}) {
   const outputPath = path.join(targetDir, 'rapidoc.config.yaml');
-  const { content, problems, sourceFile } = await generateMigratedConfig(targetDir, options.from);
-  const replacingSource = path.resolve(sourceFile) === path.resolve(findConfigFile(targetDir) || '');
-
-  let backupPath = null;
-  if (replacingSource) {
-    backupPath = path.join(targetDir, `rapidoc.config.v1${path.extname(sourceFile)}`);
-    fs.copyFileSync(sourceFile, backupPath);
-    if (sourceFile !== outputPath) fs.rmSync(sourceFile);
-  } else if (fs.existsSync(outputPath) && !options.overwrite) {
+  const { content, problems } = await generateMigratedConfig(targetDir, options.from);
+  if (fs.existsSync(outputPath) && !options.overwrite) {
     throw new Error(`File already exists: "${outputPath}". Use --overwrite or pass { overwrite: true } to replace it.`);
   }
-
   fs.writeFileSync(outputPath, content, 'utf8');
-  return { filePath: outputPath, content, problems, backupPath };
+  return { filePath: outputPath, content, problems };
 }

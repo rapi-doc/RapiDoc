@@ -98,7 +98,7 @@ apis:
     category: Commerce          # groups APIs on the /catalog page
 ```
 
-Every key is checked: a typo fails the build with its location. Coming from Redocly, Zudoku or an older RapiDoc config? `npx rapidoc migrate --from redocly|zudoku|v1` converts it. The full reference is in [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md#configuration-rapidocconfigyaml).
+Every key is checked: a typo fails the build with its location. Coming from Redocly or Zudoku? `npx rapidoc migrate --from redocly|zudoku` converts its config. The full reference is in [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md#configuration-rapidocconfigyaml).
 
 ### 3. Preview locally
 

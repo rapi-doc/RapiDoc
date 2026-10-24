@@ -207,7 +207,7 @@ Other exports: config helpers (`normalizeConfig`, `migrateConfig`, `RapidocConfi
 
 ```text
 src/
-├── config/        Strict schema (schema.js → schema.json), errors, loader, normalizer (tabs, sidebars), migrator (v1/Redocly/Zudoku)
+├── config/        Strict schema (schema.js → schema.json), errors, loader, normalizer (tabs, sidebars), migrator (Redocly/Zudoku)
 ├── engine/
 │   ├── build-portal.js        buildPortal(): workspace → astro build → cleanup
 │   ├── dev-server.js          startDevServer(): workspace → astro dev → watch → cleanup

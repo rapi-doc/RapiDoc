@@ -154,7 +154,6 @@ async function handleMigrate() {
   try {
     const result = await migrateConfig(targetDir, { from: source, overwrite: true });
     console.log(`\n✅ Successfully generated rapidoc.config.yaml at: ${result.filePath}`);
-    if (result.backupPath) console.log(`   The previous config is kept as ${path.basename(result.backupPath)}.`);
     if (result.problems.length) {
       console.log(`\n⚠️  Fix these before building:\n${result.problems.map((p) => `   - ${p}`).join('\n')}`);
     }

@@ -232,70 +232,27 @@ describe('rapidoc.config.yaml (v2)', () => {
 });
 
 describe('rapidoc migrate', () => {
-  it('converts a v1 config: header links become tabs and header links, old keys get v2 names', () => {
+  it('turns an API path other than /apis/<id> into a redirect', () => {
     const { config, problems } = convertConfig(
       {
-        site: {
-          title: 'Acme',
-          logo: { text: 'ACME', icon: '🚀' },
-          announcement: { text: 'New!', link: '/docs/new', bgColor: '#f00' },
-          headerLinks: [
-            { label: 'Docs', href: '/docs/intro' },
-            { label: 'Orders', href: '/apis/orders' },
-            { label: 'Catalog', href: '/catalog' },
-            { label: 'Products', items: [{ label: 'Boxes', href: '/docs/boxes', features: [{ label: 'Sizes', path: '/docs/sizes' }] }] },
-            { label: 'Login', href: '/login' },
-          ],
-          footer: { copyright: '© Acme', branding: 'powered by RapiDoc' },
-        },
-        docs: { path: './docs', toc: true },
-        apis: [{ id: 'orders', root: './orders.yaml', path: '/apis/orders', featured: true }],
-        navigation: [
-          {
-            title: 'Start',
-            icon: 'rocket',
-            items: [
-              { label: 'Intro', path: '/docs/intro' },
-              { label: 'Orders API', api: 'orders' },
-            ],
-          },
+        site: { title: 'Acme' },
+        apis: [
+          { id: 'orders', root: 'https://example.com/o.yaml', path: '/catalog/api-orders/' },
+          { id: 'labels', root: 'https://example.com/l.yaml', path: '/apis/labels' },
         ],
-        rapidoc: { 'render-style': 'read', 'show-header': 'false', 'color-scheme': 'dark', 'primary-color': '#f76b39' },
-        theme: { font: { name: 'Inter', url: 'https://fonts.example/inter.css' } },
+        redirects: [{ from: '/old', to: '/docs/new' }],
       },
-      'v1'
+      'zudoku'
     );
     assert.deepEqual(problems, []);
-    assert.deepEqual(config, {
-      site: { title: 'Acme', logo: { text: 'ACME' }, banner: { message: 'New!', href: '/docs/new', background: '#f00' } },
-      theme: { primary: '#f76b39', mode: 'dark', fonts: { sans: { family: 'Inter', url: 'https://fonts.example/inter.css' } } },
-      header: {
-        links: [
-          { label: 'Products', items: [{ label: 'Boxes', href: '/docs/boxes', items: [{ label: 'Sizes', href: '/docs/sizes' }] }] },
-          { label: 'Login', href: '/login' },
-        ],
-      },
-      navigation: [
-        {
-          label: 'Docs',
-          icon: 'book',
-          items: [
-            {
-              label: 'Start',
-              items: [
-                { label: 'Intro', slug: 'intro' },
-                { label: 'Orders API', api: 'orders' },
-              ],
-            },
-          ],
-        },
-        { label: 'Orders', icon: 'code', api: 'orders' },
-        { label: 'Catalog', icon: 'grid', catalog: true },
-      ],
-      apis: [{ id: 'orders', spec: './orders.yaml' }],
-      footer: { copyright: '© Acme' },
-      rapidoc: { 'render-style': 'read' },
-    });
+    assert.deepEqual(
+      config.apis.map((a) => a.path),
+      [undefined, undefined]
+    );
+    assert.deepEqual(config.redirects, [
+      { from: '/old', to: '/docs/new' },
+      { from: '/catalog/api-orders', to: '/apis/orders' },
+    ]);
   });
 
   it('converts a Redocly project with sidebars.yaml', async () => {
