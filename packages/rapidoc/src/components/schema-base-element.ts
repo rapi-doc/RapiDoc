@@ -3,6 +3,7 @@ import { property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from 'marked';
 import { sanitizeHTML } from '../utils/sanitize.js';
+import { blockSummary, firstLineHtml } from '../utils/markdown-utils.js';
 
 export default class SchemaBaseElement extends LitElement {
   @property({ type: Object }) config: any;
@@ -49,11 +50,24 @@ export default class SchemaBaseElement extends LitElement {
         return;
       }
       const trEl = e.target.closest('.tr');
-      if (trEl) {
+      if (trEl && (trEl.classList.contains('expanded-descr') || this.descrHasMore(e.target.closest('.descr-body')))) {
         const isExpanded = trEl.classList.toggle('expanded-descr');
         trEl.querySelector('.descr-expand-toggle')?.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
       }
     }
+  }
+
+  /**
+   * Whether a collapsed description has more to show, so a click expands it: CSS shows the arrow for those rows,
+   * and a line cut off for length counts too (browsers without scroll-state queries can't show the arrow for it).
+   * Read at click time only; nothing measures rows as they render or resize.
+   */
+  descrHasMore(bodyEl) {
+    if (!bodyEl) {
+      return false;
+    }
+    const toggleEl = bodyEl.querySelector(':scope > .descr-expand-toggle');
+    return (toggleEl && getComputedStyle(toggleEl).visibility === 'visible') || bodyEl.scrollWidth > bodyEl.clientWidth;
   }
 
   handleKeyDown(e) {
@@ -151,8 +165,13 @@ export default class SchemaBaseElement extends LitElement {
   /**
    * Description cell shared by every schema row.
    * Collapsed rows show only the first markdown block (or the constraint chips, when there is no description) on one line,
-   * and CSS marks a cut-off line with an ellipsis, or a "…" badge where scroll-state container queries are supported.
-   * The arrow is shown only when content is known to be hidden: more markdown blocks, a line break, or chips under the text.
+   * and CSS marks a cut-off line with an ellipsis.
+   * A first block that cannot fit on one line (table, code block, HTML block, blockquote) is replaced there by a summary
+   * line (`.descr-summary`), which CSS shows only in collapsed rows. A title before any block other than a paragraph
+   * (list, heading, table, ...) gets a paragraph of its own, and the summary line is the title plus the block's first line.
+   * CSS shows the arrow when the row has hidden content (the `has-more` class: more markdown blocks, a line break,
+   * a summarized block, or chips under the text) or, where scroll-state container queries work, when the line is cut off.
+   * The arrow sits inside the description box so those queries can reach it.
    *
    * @param {string} desc - Markdown description
    * @param {object} [chipsNode] - Node whose constraints, default, allowed values, etc. are shown as chips
@@ -164,10 +183,17 @@ export default class SchemaBaseElement extends LitElement {
     if (!text && !title && !hasChips) {
       return html`<div class="td key-descr"></div>`;
     }
-    const markdown = title ? (text ? `<b>${title}:</b> ${text}` : `<b>${title}</b>`) : text;
+    const firstBlock: any = text ? marked.lexer(text).find((t: any) => t.type !== 'space') : null;
+    const blockLine = blockSummary(firstBlock);
+    // A title can only be prefixed inline to a paragraph; before a list, heading, table, ... it gets its own paragraph
+    const titleHtml = title ? `<b>${title}${text ? ':' : ''}</b>` : '';
+    const titleOwnBlock = !!titleHtml && !!firstBlock && firstBlock.type !== 'paragraph';
+    const summary = titleOwnBlock ? `${titleHtml} ${blockLine || firstLineHtml(firstBlock)}` : blockLine;
+    const markdown = titleHtml && text ? `${titleHtml}${titleOwnBlock ? '\n\n' : ' '}${text}` : titleHtml || text;
     const tokens = markdown ? marked.lexer(markdown) : [];
     const blocks = tokens.filter((t: any) => t.type !== 'space');
     const hasMore =
+      !!summary ||
       blocks.length > 1 ||
       (blocks[0]?.type === 'list' && blocks[0].items.length > 1) ||
       /<br\s*\/?>(?!\s*$)/i.test(markdown) ||
@@ -175,19 +201,18 @@ export default class SchemaBaseElement extends LitElement {
     const isExpanded = this.schemaDescriptionExpanded === 'true';
     return html`
       <div class="td key-descr">
-        <span
-          class="descr-expand-toggle"
-          role="button"
-          tabindex="0"
-          aria-label="Toggle description"
-          aria-expanded="${isExpanded ? 'true' : 'false'}"
-          ?hidden="${!hasMore}"
-          >➔</span
-        >
         <div class="descr-body m-markdown-small ${hasMore ? 'has-more' : ''}">
+          <span
+            class="descr-expand-toggle"
+            role="button"
+            tabindex="0"
+            aria-label="Toggle description"
+            aria-expanded="${isExpanded ? 'true' : 'false'}"
+            >➔</span
+          >
+          ${summary ? html`<span class="descr-summary">${unsafeHTML(sanitizeHTML(summary))}</span>` : ''}
           ${blocks.length ? unsafeHTML(sanitizeHTML(marked.parser(tokens))) : ''}
           ${hasChips ? html`<div class="item-details">${this.renderDetailChips(chipsNode)}</div>` : ''}
-          <span class="descr-more" aria-hidden="true">…</span>
         </div>
       </div>
     `;

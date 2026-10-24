@@ -49,16 +49,21 @@ export default css`
     overflow: hidden;
     display: none;
 
+    /* in the description box's start padding, so descriptions line up whether or not a row shows its arrow */
     & .descr-expand-toggle {
-      flex: none;
+      position: absolute;
+      top: 0;
+      inset-inline-start: 0;
       width: 1em;
       text-align: center;
       user-select: none;
       color: var(--foreground);
+      font-weight: 400;
       cursor: pointer;
       transform: rotate(45deg);
       transition: transform 0.2s ease;
       border-radius: 2px;
+      visibility: hidden;
 
       &:hover {
         color: var(--primary);
@@ -67,17 +72,18 @@ export default css`
       &:focus-visible {
         outline: 2px solid var(--primary);
       }
-
-      /* keep the slot so descriptions line up whether or not a row has an arrow */
-      &[hidden] {
-        display: inline-block;
-        visibility: hidden;
-      }
     }
 
     & .descr-body {
       flex: 1;
       min-width: 0;
+      position: relative;
+      padding-inline-start: calc(1em + 4px);
+
+      /* the arrow comes first, so the first block is no longer :first-child for the markdown margins */
+      & > .descr-expand-toggle + * {
+        margin-top: 0;
+      }
 
       & .item-details {
         margin-top: 2px;
@@ -89,8 +95,12 @@ export default css`
         margin-right: 8px;
       }
 
-      & .descr-more {
+      /* one-line stand-in for a table, code block, HTML block or blockquote; shown only in collapsed rows */
+      & .descr-summary {
         display: none;
+      }
+      & .descr-placeholder {
+        color: var(--muted-foreground);
       }
     }
 
@@ -113,8 +123,17 @@ export default css`
     transform: rotate(-90deg);
   }
 
+  /*
+   * The arrow shows when the row has hidden content, and on an expanded row so it can be collapsed again.
+   * Rows cut off for length get it from the scroll-state query below.
+   */
+  .key-descr .descr-body.has-more > .descr-expand-toggle,
+  .tr.expanded-descr .key-descr .descr-expand-toggle {
+    visibility: visible;
+  }
+
   /* hidden, not removed, so switching to multiline doesn't shift the descriptions sideways */
-  .expanded-all-descr .key-descr .descr-expand-toggle {
+  .expanded-all-descr .tr .key-descr .descr-body > .descr-expand-toggle {
     visibility: hidden;
   }
 
@@ -123,70 +142,55 @@ export default css`
     cursor: pointer;
   }
 
-  /* Collapsed rows: only the first block (or the chips), on one line, with a colored ellipsis when it is cut off */
+  /* Collapsed rows: only the first block (or the chips), on one line, with a plain ellipsis (in the text color) when it is cut off */
   .collapsed-all-descr .tr:not(.expanded-descr) .descr-body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--primary);
-    font-weight: 700;
-    cursor: pointer;
+    color: var(--foreground);
 
-    & > :first-child {
+    /* only rows that expand on click look clickable; cut-off rows get the pointer from the scroll-state query below */
+    &.has-more {
+      cursor: pointer;
+    }
+
+    /* the first block after the arrow */
+    & > .descr-expand-toggle + * {
       display: inline;
       margin: 0;
       padding: 0;
       white-space: inherit;
-      color: var(--foreground);
-      font-weight: 400;
     }
-    & > :is(ul, ol):first-child > li {
+    & > .descr-expand-toggle + :is(ul, ol) > li {
       display: inline;
+    }
+    /* a heading on the one line reads as the description, not as a section title */
+    & > .descr-expand-toggle + :is(h1, h2, h3, h4, h5, h6) {
+      font-size: var(--font-size-description);
+      line-height: inherit;
+      font-weight: 600;
     }
     /* inline so a long chip is cut mid-text: an inline-block chip is dropped whole, leaving the ellipsis far from the edge */
     & .descr-chip {
       display: inline;
     }
-    & > :is(ul, ol):first-child > li:not(:first-child),
-    & > :not(:first-child):not(.descr-more) {
+    & > .descr-expand-toggle + :is(ul, ol) > li:not(:first-child),
+    & > .descr-expand-toggle + * ~ * {
       display: none;
     }
   }
 
-  /*
-   * Where scroll-state queries work, a button-style "…" badge covers the ellipsis, only on rows that are cut off.
-   * The ellipsis stays underneath, so a row whose scroll state Chrome doesn't update still shows a cue.
-   */
+  /* Where scroll-state queries work (Chromium), a row whose line is cut off shows the arrow too */
   @supports (container-type: scroll-state) {
     .collapsed-all-descr .tr:not(.expanded-descr) .descr-body {
       container-type: scroll-state;
-      position: relative;
-
-      &:not(.has-more) {
-        cursor: auto;
-      }
     }
     @container scroll-state(scrollable: inline-end) {
       .descr-body > * {
         cursor: pointer;
       }
-      .key-descr .descr-body > .descr-more {
-        display: inline-block;
-        position: absolute;
-        top: 1px;
-        right: 0;
-        padding: 0 4px;
-        line-height: calc(var(--font-size-small) + 2px);
-        color: var(--primary);
-        font-weight: 700;
-        background: color-mix(in srgb, var(--primary) 18%, var(--background));
-        border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
-        border-radius: 2px;
-        box-shadow: -10px 0 6px -2px var(--background);
-      }
-      .tr:hover .key-descr .descr-body > .descr-more {
-        background: var(--primary);
-        color: var(--primary-foreground);
+      .descr-body > .descr-expand-toggle {
+        visibility: visible;
       }
     }
   }
