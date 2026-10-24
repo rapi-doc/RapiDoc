@@ -198,6 +198,74 @@ paths:
               - widowed
               - unknown
             default: unknown
+        - name: all-constraints
+          in: query
+          description: Test field with every constraint RapiDoc shows. They contradict each other on purpose; it only checks the layout.
+          schema:
+            type:
+              - integer
+              - string
+            default: 25
+            pattern: '^[0-9]{2,3}$'
+            minimum: 10
+            maximum: 500
+            multipleOf: 5
+            minLength: 2
+            maxLength: 3
+            enum:
+              - 10
+              - 25
+              - 50
+              - 100
+              - 150
+              - 200
+              - 250
+              - 300
+              - 400
+              - 500
+            example: 50
+        - name: all-constraints-pattern
+          in: query
+          description: Same as all-constraints without the enum, because RapiDoc hides the pattern when allowed values are listed.
+          schema:
+            type:
+              - integer
+              - string
+            default: 25
+            pattern: '^[0-9]{2,3}$'
+            minimum: 10
+            maximum: 500
+            multipleOf: 5
+            minLength: 2
+            maxLength: 3
+            example: 50
+        - name: long-examples-no-description
+          in: query
+          schema:
+            type: string
+            default: standard
+            minLength: 3
+            maxLength: 12
+            enum:
+              - standard
+              - express
+              - overnight
+          examples:
+            standard:
+              value: standard
+              summary: Standard shipping
+              description: Delivered in **5–7 business days**. Free on orders over `$50`.
+            express:
+              value: express
+              summary: Express shipping
+              description: |
+                Delivered in **2 business days**.
+                - Tracking included
+                - Signature _not_ required
+            overnight:
+              value: overnight
+              summary: Overnight
+              description: Next business day if ordered before `14:00` local time. See [shipping rules](https://example.com/shipping).
         - name: interests
           in: query
           required: true
