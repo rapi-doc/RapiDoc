@@ -13,26 +13,26 @@ v12 has no compatibility aliases: rename the variables below in your CSS when yo
 
 ## 1. Renamed and removed CSS variables
 
-| v11 | v12 |
-| :-- | :-- |
-| `--font-regular` | `--font-sans` |
-| `--rapidoc-font`, `--portal-font` | `--font-sans` (set on `rapi-doc`) |
-| `--rapidoc-font-mono`, `--portal-font-mono` | `--font-mono` (set on `rapi-doc`) |
-| `--rapidoc-bg`, `--portal-bg` | `--background` (set on `rapi-doc`) |
-| `--rapidoc-fg`, `--portal-fg` | `--foreground` (set on `rapi-doc`) |
-| `--nav-hover-bg` | `--sidebar-accent` |
-| `--nav-hover-fg` | `--sidebar-accent-foreground` |
-| `--nav-accent-fg` | `--sidebar-primary` (also colors the active item's left marker) |
-| `--nav-width` | `--sidebar-width` |
-| `--nav-item-padding` | `--sidebar-item-padding` |
-| `--nav-logo-max-height` | `--sidebar-logo-max-height` |
-| `--input-border` | `--input` (now the shadcn/ui meaning: border color of form fields) |
-| `--input` (as a background) | `--input-background` |
-| `--card-radius`, `--border-radius` | `--radius` (cards and dialogs use `min(var(--radius), 0.5rem)`) |
-| `--code-fg`, `--markdown-fg`, `--inline-code-fg` | `--foreground` |
-| `--inline-code-bg` | `--muted` |
-| `--method-copy`, `--method-purge` | `--method-default` |
-| `--red` for errors and required markers | `--destructive` (`--red` remains for `x-badges` colors) |
+| v11                                              | v12                                                                |
+| :----------------------------------------------- | :----------------------------------------------------------------- |
+| `--font-regular`                                 | `--font-sans`                                                      |
+| `--rapidoc-font`, `--portal-font`                | `--font-sans` (set on `rapi-doc`)                                  |
+| `--rapidoc-font-mono`, `--portal-font-mono`      | `--font-mono` (set on `rapi-doc`)                                  |
+| `--rapidoc-bg`, `--portal-bg`                    | `--background` (set on `rapi-doc`)                                 |
+| `--rapidoc-fg`, `--portal-fg`                    | `--foreground` (set on `rapi-doc`)                                 |
+| `--nav-hover-bg`                                 | `--sidebar-accent`                                                 |
+| `--nav-hover-fg`                                 | `--sidebar-accent-foreground`                                      |
+| `--nav-accent-fg`                                | `--sidebar-primary` (also colors the active item's left marker)    |
+| `--nav-width`                                    | `--sidebar-width`                                                  |
+| `--nav-item-padding`                             | `--sidebar-item-padding`                                           |
+| `--nav-logo-max-height`                          | `--sidebar-logo-max-height`                                        |
+| `--input-border`                                 | `--input` (now the shadcn/ui meaning: border color of form fields) |
+| `--input` (as a background)                      | `--input-background`                                               |
+| `--card-radius`, `--border-radius`               | `--radius` (cards and dialogs use `min(var(--radius), 0.5rem)`)    |
+| `--code-fg`, `--markdown-fg`, `--inline-code-fg` | `--foreground`                                                     |
+| `--inline-code-bg`                               | `--muted`                                                          |
+| `--method-copy`, `--method-purge`                | `--method-default`                                                 |
+| `--red` for errors and required markers          | `--destructive` (`--red` remains for `x-badges` colors)            |
 
 Removed because setting them had no effect: `--code-property-color`, `--code-keyword-color`, `--code-operator-color`, `--ui-base-size`, `--scroll-bar-width`, `--layout`, `--primary-hover`, `--schema-description-threshold`, `--schema-field-name-threshold`.
 
@@ -90,13 +90,13 @@ Variables set on an ancestor (`:root`, `body`) without this rule do not reach Ra
 
 RapiDoc titles are now real headings, so they share sizes and spacing with Markdown/MDX pages around them:
 
-| Level | Content |
-| :-- | :-- |
-| `h1` | API title (the version is a badge, part `label-overview-version`) |
-| `h2` | API Server, Authentication, tag groups, tags |
-| `h3` | Operation summaries |
-| `h4` | Request, Response, Code samples, Callbacks |
-| `h5` | Parameter, request body, and response header labels |
+| Level | Content                                                           |
+| :---- | :---------------------------------------------------------------- |
+| `h1`  | API title (the version is a badge, part `label-overview-version`) |
+| `h2`  | API Server, Authentication, tag groups, tags                      |
+| `h3`  | Operation summaries                                               |
+| `h4`  | Request, Response, Code samples, Callbacks                        |
+| `h5`  | Parameter, request body, and response header labels               |
 
 All existing CSS parts are unchanged. New parts: `heading` and `heading-1` … `heading-6` on every generated heading, plus `section-auth-title`, `section-request-title`, and `section-response-title`.
 
@@ -140,11 +140,11 @@ Request parameters, request-body form fields, response headers, server variables
 - **Operation security chips** use the same value-list layout: `.operation-security` holds a `.security-label-group` ("Authorization" and the lock) and a `<ul class="value-list-items security-chips">` with one `<li>` per chip. Wrapped chips line up under the first chip, and `OR` is drawn in CSS at the end of each line, so the `.security-or` element is gone.
 - **Authentication** is `<ul class="auth-list" id="auth-list" part="auth-list">` with one `<li id="security-scheme-{id}" class="auth-scheme {type}" part="auth-scheme">` per scheme; OAuth flows are in `<div class="auth-flows" part="auth-flows">` inside their scheme instead of a separate row.
 
-| Removed | Use instead |
-| :-- | :-- |
+| Removed                                                 | Use instead                                                       |
+| :------------------------------------------------------ | :---------------------------------------------------------------- |
 | `.m-table`, `.m-table.padded-12`, `tr` / `td` selectors | `.param-list`, `.param`, `.param-*`, `.auth-list`, `.auth-scheme` |
-| `#auth-table` | `#auth-list`, part `auth-list` |
-| Fixed `200px` / `160px` label column | `--param-label-width` |
+| `#auth-table`                                           | `#auth-list`, part `auth-list`                                    |
+| Fixed `200px` / `160px` label column                    | `--param-label-width`                                             |
 
 New CSS parts: `param-list`, `param`, `param-label`, `param-name`, `param-type`, `param-input`, `param-constraint`, `param-constraint-label`, `param-details`, `value-list`, `value-list-label`, `value-list-items`, `auth-list`, `auth-scheme`, and `auth-flows`. `anchor-param-constraint` is now exported from requests and responses as well.
 

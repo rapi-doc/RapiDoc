@@ -178,6 +178,7 @@ In both **Tree mode** and **Table mode**, each schema row shows its description 
 
     - **Field Column**: Has a dynamic minimum column width (`min-width: calc(400px - indent)`).
     - **Long Property Names**: Truncated with an ellipsis, with the full name in a hover tooltip (`title="..."`). Expanding the row also shows the full name.
+
   </TabItem>
   <TabItem label="Table Mode Structure">
     In **Table mode**, the schema is formatted into a strict 3-column CSS subgrid:
@@ -189,19 +190,20 @@ In both **Tree mode** and **Table mode**, each schema row shows its description 
     - **Field Column (`.key`)**: Dedicated column with a width controlled by `--table-schema-key-width` (default: `240px`). Long property names truncate with an ellipsis and show full text via hover tooltips (`title="..."`).
     - **Type Column (`.key-type`)**: Fixed minimum column (~150px) displaying data types and nullability badges.
     - **Description Column (`.key-descr`)**: Flexible `1fr` column spanning the remaining container width.
+
   </TabItem>
 </Tabs>
 
 ### What a collapsed row shows
 
-| Description content | Collapsed row | `➔` arrow |
-| :--- | :--- | :--- |
-| One paragraph that fits | The whole paragraph | No |
-| One paragraph that is too long for the column | The start of the paragraph, cut off with a cue (see below) | No |
-| Several paragraphs, a list with several items, or a `<br>` line break | The first paragraph or list item | Yes |
-| A description plus constraints, default, allowed values or pattern | The description; the constraint chips are hidden | Yes |
-| Constraints only, no description | The constraint chips | No |
-| Nothing | An empty cell | No |
+| Description content                                                   | Collapsed row                                              | `➔` arrow |
+| :-------------------------------------------------------------------- | :--------------------------------------------------------- | :-------- |
+| One paragraph that fits                                               | The whole paragraph                                        | No        |
+| One paragraph that is too long for the column                         | The start of the paragraph, cut off with a cue (see below) | No        |
+| Several paragraphs, a list with several items, or a `<br>` line break | The first paragraph or list item                           | Yes       |
+| A description plus constraints, default, allowed values or pattern    | The description; the constraint chips are hidden           | Yes       |
+| Constraints only, no description                                      | The constraint chips                                       | No        |
+| Nothing                                                               | An empty cell                                              | No        |
 
 Whether a line is too long is decided by the browser at the actual column width and font, not by counting characters, so it adapts to split panes, sidebars and resizing without any JavaScript.
 
@@ -225,12 +227,12 @@ rapi-doc {
 
 Request parameters, request-body form fields, response headers, and server variables share one layout: a `<ul part="param-list">` grid with one `<li part="param">` per parameter. Each parameter is a subgrid row with up to four pieces:
 
-| Part | Column | Content |
-| :--- | :--- | :--- |
-| `param-label` | 1 | `param-name` (required marker, deprecated icon) and `param-type` |
-| `param-input` | 2 | Try-it input; spans columns 2–3 when there are no constraints |
-| `param-constraint` | 3 | Default, pattern, range, allowed values; spans columns 2–3 when there is no input |
-| `param-details` | 2–3 | Description and examples, on the next row |
+| Part               | Column | Content                                                                           |
+| :----------------- | :----- | :-------------------------------------------------------------------------------- |
+| `param-label`      | 1      | `param-name` (required marker, deprecated icon) and `param-type`                  |
+| `param-input`      | 2      | Try-it input; spans columns 2–3 when there are no constraints                     |
+| `param-constraint` | 3      | Default, pattern, range, allowed values; spans columns 2–3 when there is no input |
+| `param-details`    | 2–3    | Description and examples, on the next row                                         |
 
 Allowed values and short-format examples are a `value-list`: a `value-list-label` followed by `value-list-items`. Wrapped values line up under the first value, and the `┃` separators are drawn in CSS so they stay at the end of a line. Space them with `--value-list-gap`, `--value-list-row-gap`, and `--value-list-label-gap`.
 
