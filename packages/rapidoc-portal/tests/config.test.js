@@ -71,7 +71,11 @@ describe('rapidoc.config.yaml (v2)', () => {
     assert.equal(shipments.path, '/apis/shipments');
     assert.equal(shipments.isRemote, false);
     assert.ok(fs.existsSync(shipments.fullPath));
-    assert.equal(config.apis.find((a) => a.id === 'labels').path, '/catalog/api-label');
+    assert.ok(
+      config.apis.every((a) => a.path === `/apis/${a.id}`),
+      'every API is at /apis/<id>'
+    );
+    assert.deepEqual(config.redirects, [{ from: '/apis', to: '/catalog' }], '/apis redirects to the catalog');
 
     assert.ok(fs.existsSync(config.docs.fullPath));
     assert.equal(config.docs.home, true, 'docs/index.markdoc is the home page');
@@ -87,6 +91,7 @@ describe('rapidoc.config.yaml (v2)', () => {
         const [orders] = config.apis;
         assert.equal(orders.title, 'Orders API');
         assert.equal(orders.description, 'Place orders.');
+        assert.equal(orders.summary, 'Place orders.');
         assert.equal(orders.version, '2.1.0');
         assert.equal(orders.path, '/apis/orders');
         assert.equal(orders.category, 'General');
@@ -331,21 +336,31 @@ describe('rapidoc migrate', () => {
       { label: 'Docs', icon: 'book', items: ['introduction', { label: 'Auth', slug: 'guides/auth' }] },
       { label: 'API Reference', api: 'openapi' },
     ]);
-    assert.deepEqual(config.apis, [{ id: 'openapi', spec: './openapi.yaml', path: '/api' }]);
+    assert.deepEqual(config.apis, [{ id: 'openapi', spec: './openapi.yaml' }]);
+    assert.deepEqual(config.redirects, [{ from: '/api', to: '/apis/openapi' }], 'the old API URL redirects to /apis/<id>');
     assert.deepEqual(config.docs, { dir: './pages' });
     assert.deepEqual(config.site.logo, { src: { light: '/light.svg', dark: '/dark.svg' } });
   });
 
-  it('migrates a v1 rapidoc.config.yaml in place and keeps the old file', async () => {
+  it('writes rapidoc.config.yaml next to the source config, and replaces one only with overwrite', async () => {
     await withTempDir(
-      { 'rapidoc.config.yaml': 'site:\n  title: Old\n  headerLinks:\n    - label: Login\n      href: /login\n' },
+      { 'redocly.yaml': 'seo:\n  title: Inventory\napis:\n  inventory: https://example.com/inventory.yaml\n' },
       async (dir) => {
-        const result = await migrateConfig(dir, { from: 'v1' });
-        assert.equal(result.backupPath, path.join(dir, 'rapidoc.config.v1.yaml'));
-        assert.ok(fs.readFileSync(result.backupPath, 'utf8').includes('headerLinks'));
+        const result = await migrateConfig(dir, { from: 'redocly' });
+        assert.equal(result.filePath, path.join(dir, 'rapidoc.config.yaml'));
         const { config } = await loadConfig(dir);
-        assert.deepEqual(config.header.links, [{ label: 'Login', href: '/login' }]);
+        assert.equal(config.site.title, 'Inventory');
+        assert.deepEqual(
+          config.tabs.map((t) => t.kind),
+          ['catalog']
+        );
+        await assert.rejects(migrateConfig(dir, { from: 'redocly' }), /File already exists/);
+        await migrateConfig(dir, { from: 'redocly', overwrite: true });
       }
     );
+  });
+
+  it('migrates only Redocly and Zudoku configs', () => {
+    assert.throws(() => convertConfig({}, 'v1'), /Unknown migration source "v1". Use one of: redocly, zudoku/);
   });
 });

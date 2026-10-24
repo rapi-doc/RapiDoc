@@ -387,18 +387,12 @@
           "id": {
             "type": "string",
             "pattern": "^[a-z0-9][a-z0-9-]*$",
-            "description": "Referenced by navigation (api:) and the api-operation tag."
+            "description": "Referenced by navigation (api:) and the api-operation tag. The reference page is /apis/<id>."
           },
           "spec": {
             "type": "string",
             "minLength": 1,
             "description": "OpenAPI file (relative to this config) or URL."
-          },
-          "path": {
-            "description": "Reference page URL (default /apis/<id>).",
-            "type": "string",
-            "format": "starts_with",
-            "pattern": "^\\/.*"
           },
           "title": {
             "description": "Default: info.title of the spec.",
@@ -464,6 +458,87 @@
         {
           "type": "object",
           "properties": {
+            "cta": {
+              "description": "Call-to-action band at the top of the footer.",
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "description": {
+                  "type": "string"
+                },
+                "links": {
+                  "description": "Up to three buttons.",
+                  "minItems": 1,
+                  "maxItems": 3,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Text shown for the item."
+                      },
+                      "href": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "A path on this site (/docs/intro) or a full URL."
+                      },
+                      "style": {
+                        "description": "primary (filled) or button (outlined). Default: primary for the first link, button after.",
+                        "type": "string",
+                        "enum": [
+                          "primary",
+                          "button"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "href"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "title"
+              ],
+              "additionalProperties": false
+            },
+            "newsletter": {
+              "description": "Email sign-up form under the footer logo.",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "URL the sign-up form posts to: your newsletter service's form endpoint."
+                },
+                "title": {
+                  "description": "Default \"Newsletter\".",
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "field": {
+                  "description": "Name of the email field the service expects (default email).",
+                  "type": "string"
+                },
+                "button": {
+                  "description": "Submit button text (default Subscribe).",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "action"
+              ],
+              "additionalProperties": false
+            },
             "columns": {
               "type": "array",
               "items": {

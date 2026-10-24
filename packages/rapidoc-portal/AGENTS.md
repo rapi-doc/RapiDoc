@@ -51,13 +51,15 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 | `starlight-options.js` / `theme-css.js` | Config → Starlight options (sidebar: one group per documentation tab) / `styles/portal-theme.css` with tokens filled in |
 | `route-middleware.js` | Starlight route middleware: keeps only the current tab's sidebar group, drops prev/next links into other tabs |
 
-**App shell**. Every page has the same frame: sticky header, optional sticky sidebar, full-width footer, page scroll. Pages Starlight does not render (catalog, API reference) use `components/PortalLayout.astro`. The home page is the project's `docs/index.*` rendered by Starlight (usually `template: splash`); without one, `/` redirects to the first tab (`pages/first-tab-redirect.astro`). Docs pages use these Starlight component overrides, set in `starlight-options.js`:
+**App shell**. Every page has the same frame: sticky header, optional sticky sidebar, full-width footer, page scroll. Pages Starlight does not render (catalog, API reference) use `components/PortalLayout.astro`. API reference pages are always `/apis/<id>[/<tag>]` (route `/apis/[...apiRoute]`); `/apis` redirects to `/catalog`. The home page is the project's `docs/index.*` rendered by Starlight (usually `template: splash`); without one, `/` redirects to the first tab (`pages/first-tab-redirect.astro`). Docs pages use these Starlight component overrides, set in `starlight-options.js`:
 - `PortalPageFrame.astro` (`PageFrame`): sticky header, then a grid of [sticky full-height sidebar | content], then the full-width `PortalFooter`. The page scrolls; at the end the footer pushes the sidebar up. Below 50rem the sidebar is Starlight's popover, opened by the header's menu button.
 - `PortalTwoColumnContent.astro` (`TwoColumnContent`): sticky "On this page" column.
 - `PortalThemeProvider.astro` (`ThemeProvider`): applies `theme.mode` for visitors who have not picked a theme (same script as `PortalLayout`, from `components/theme-script.js`).
 - `PortalSidebar.astro` (`Sidebar`): Starlight's sidebar, with the header links above it on narrow screens.
 - `PortalHeader.astro` (`Header`): banner (`site.banner`), row 1 (logo, search, `header.links`, theme switcher), row 2 (`config.tabs`, active tab from `activeTab()` in `components/header-nav.js`). Below 50rem the tabs row is hidden and the menus list the tabs. Starlight's own `Footer` is kept for prev/next, edit link and last-updated.
 - Header height is CSS-only: `--sl-nav-height` = `--portal-banner-height` + `--portal-navbar-height` + `--portal-tabs-height` (`portal-theme.css`). Keep every row fixed-height; never measure the header in JS.
+- Accent colors: `--portal-primary` for fills, borders and icons; `--portal-primary-text` for text; `--portal-on-primary` for text on a primary fill; `--portal-primary-tint` behind accent text. The text variants are computed from `theme.primary` by `engine/accent-colors.js` so they pass 4.5:1; never use `--portal-primary` as a text color.
+- Header menus follow the WAI-ARIA disclosure navigation pattern (trigger `aria-expanded`/`aria-controls`, no `role="menu"`); focus alone never opens a panel.
 - `portal-theme.css` is unlayered, so it already beats Starlight's `@layer starlight.*` rules. Don't use `!important`.
 
 Invariants:

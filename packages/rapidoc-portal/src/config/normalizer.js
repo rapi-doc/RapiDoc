@@ -13,6 +13,8 @@ import { findHomeDoc } from '../engine/sync-docs.js';
  */
 
 export const CATALOG_PATH = '/catalog';
+/** Every API reference page is API_PATH/<id>; API_PATH itself redirects to the catalog. */
+export const API_PATH = '/apis';
 export const DEFAULT_PRIMARY_COLOR = '#f76b39';
 
 const isExternal = (href) => /^[a-z][a-z0-9+.-]*:/i.test(href);
@@ -69,9 +71,10 @@ function normalizeApi(api, baseDir) {
     spec: api.spec,
     fullPath,
     isRemote,
-    path: (api.path || `/apis/${api.id}`).replace(/\/+$/, ''),
+    path: `${API_PATH}/${api.id}`,
     title: api.title || info.title || api.id,
     description: api.description ?? info.description ?? '',
+    summary: plainSummary(api.description ?? info.description),
     version: info.version || '',
     category: api.category || 'General',
   };
@@ -278,7 +281,12 @@ export function normalizeConfig(raw, baseDir = process.cwd()) {
     footer: raw.footer === false ? false : { branding: true, ...raw.footer },
     rapidoc: Object.fromEntries(Object.entries(raw.rapidoc || {}).map(([key, value]) => [key, String(value)])),
     search: raw.search !== false,
-    redirects: raw.redirects || [],
+    redirects: [
+      ...(raw.redirects || []),
+      ...(apis.length && !raw.redirects?.some((r) => r.from.replace(/\/+$/, '') === API_PATH)
+        ? [{ from: API_PATH, to: CATALOG_PATH }]
+        : []),
+    ],
     baseDir,
   };
 }

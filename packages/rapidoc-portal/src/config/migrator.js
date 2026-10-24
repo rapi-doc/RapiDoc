@@ -298,7 +298,7 @@ function assemble(config) {
     footer: config.footer,
     rapidoc: config.rapidoc && Object.keys(config.rapidoc).length ? config.rapidoc : undefined,
     search: config.search,
-    redirects: config.redirects,
+    redirects: redirects.length ? redirects : undefined,
   });
 }
 

@@ -23,7 +23,7 @@ function portalRoutes(portalConfig) {
     ...(portalConfig.docs.home ? [] : [{ pattern: '/', entrypoint: pageUrl('first-tab-redirect.astro') }]),
     { pattern: '/catalog', entrypoint: pageUrl('catalog.astro') },
     { pattern: '/docs', entrypoint: pageUrl('first-tab-redirect.astro') },
-    { pattern: '/[...apiRoute]', entrypoint: pageUrl('api-reference.astro') },
+    { pattern: '/apis/[...apiRoute]', entrypoint: pageUrl('api-reference.astro') },
   ];
 }
 

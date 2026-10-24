@@ -99,10 +99,9 @@ navigation: # row 2: one tab per entry
     href: https://example.com/blog
 
 apis:
-  - id: shipments # used by `api:` and {% api-operation spec="..." %}
+  - id: shipments # reference page /apis/shipments; also used by `api:` and {% api-operation spec="..." %}
     spec: ./specs/shipments.json # file or URL
     category: Core # catalog group (default General)
-    # path: /apis/shipments            # default /apis/<id>
     # title, description               # default: info.title / info.description of the spec
 
 docs:
@@ -135,13 +134,15 @@ redirects:
   - { from: /old-page, to: /docs/new-page }
 ```
 
-Docs pages in no tab's sidebar belong to the first documentation tab; APIs without a tab of their own belong to the catalog tab. The portal sets some `<rapi-doc>` attributes itself (`spec-url`, `show-header`, `show-side-nav`, `auto-height`, `update-route`, `goto-path`, `color-scheme`, `primary-color`); setting them under `rapidoc:` is an error that names the key to use instead.
+Every API reference page is `/apis/<id>` (with one page per tag below it), and `/apis` redirects to the catalog. To keep an older URL working, add a `redirects` entry; `rapidoc migrate` does this for APIs that had a custom `path`. Docs pages in no tab's sidebar belong to the first documentation tab; APIs without a tab of their own belong to the catalog tab. The portal sets some `<rapi-doc>` attributes itself (`spec-url`, `show-header`, `show-side-nav`, `auto-height`, `update-route`, `goto-path`, `color-scheme`, `primary-color`); setting them under `rapidoc:` is an error that names the key to use instead.
+
+Text in the accent color is derived from `theme.primary` at build time so that it keeps WCAG AA contrast (4.5:1) in both themes, and text on accent-filled buttons is black or white, whichever reads better.
 
 The schema lives in [`src/config/schema.js`](src/config/schema.js). After changing it, run `npm run schema` to regenerate `schema.json`.
 
 ### Migrating
 
-`rapidoc migrate --from v1|redocly|zudoku` writes a v2 `rapidoc.config.yaml` from an older RapiDoc config, a Redocly project (`redocly.yaml` + `sidebars.yaml`) or a Zudoku config. A v1 config it replaces is kept as `rapidoc.config.v1.yaml`, and anything the conversion could not resolve is listed. Only the migrator knows the older key names.
+`rapidoc migrate --from redocly|zudoku` writes a `rapidoc.config.yaml` from a Redocly project (`redocly.yaml` + `sidebars.yaml`) or a Zudoku config, and lists anything the conversion could not resolve. Redocly's sidebars become a Documentation tab, its APIs an API Catalog tab, and `theme.openapi` the theme and `rapidoc:` attributes; Zudoku's top-level navigation items are the tabs. Only the migrator knows Redocly's and Zudoku's key names.
 
 ---
 

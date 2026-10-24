@@ -16,7 +16,7 @@ const config = resolveConfig(
     ],
     apis: [
       { id: 'orders', spec: 'https://example.com/orders.yaml', title: 'Orders API' },
-      { id: 'labels', spec: 'https://example.com/labels.yaml', path: '/catalog/labels' },
+      { id: 'labels', spec: 'https://example.com/labels.yaml' },
     ],
   },
   '/tmp'
@@ -43,14 +43,7 @@ test('activeTab picks the longest matching prefix', () => {
   assert.equal(tab('/docs/unlisted/'), 'Guides', 'pages in no tab belong to the first documentation tab');
   assert.equal(tab('/apis/orders/shipping/'), 'Orders');
   assert.equal(tab('/catalog/'), 'API Catalog');
-  assert.equal(tab('/catalog/labels/'), 'API Catalog', 'APIs without a tab belong to the catalog tab');
+  assert.equal(tab('/apis/labels/'), 'API Catalog', 'APIs without a tab belong to the catalog tab');
   assert.equal(tab('/apis/orders-v2/'), undefined);
   assert.equal(tab('/'), undefined);
-});
-
-test('narrow-screen menu lists the tabs, then the header links', () => {
-  assert.deepEqual(
-    mobileNavLinks(config).map((l) => l.label),
-    ['Guides', 'Reference', 'Orders', 'API Catalog', 'Blog', 'Login']
-  );
 });

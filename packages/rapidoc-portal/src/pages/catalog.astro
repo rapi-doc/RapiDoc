@@ -24,13 +24,13 @@ for (const api of apis) {
         <h2 class="category-title">{category}</h2>
         <div class="api-grid">
           {items.map((api) => (
-            <a href={api.path || `/apis/${api.id}`} class="api-card">
+            <a href={api.path} class="api-card">
               <div class="api-card-header">
                 <span class="api-badge">{api.category || 'REST'}</span>
                 {api.version && <span class="api-version">{api.version}</span>}
               </div>
               <h3 class="api-card-title">{api.title || api.id}</h3>
-              <p class="api-card-desc">{api.description || 'Interactive OpenAPI documentation and live request testing.'}</p>
+              <p class="api-card-desc">{api.summary || 'Interactive OpenAPI documentation and live request testing.'}</p>
               <div class="api-card-footer">
                 <span>Explore Reference &rarr;</span>
               </div>

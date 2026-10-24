@@ -167,9 +167,8 @@ export const ApiSchema = z.strictObject({
   id: z
     .string()
     .regex(/^[a-z0-9][a-z0-9-]*$/, 'use lowercase letters, digits and dashes')
-    .describe('Referenced by navigation (api:) and the api-operation tag.'),
+    .describe('Referenced by navigation (api:) and the api-operation tag. The reference page is /apis/<id>.'),
   spec: z.string().min(1).describe('OpenAPI file (relative to this config) or URL.'),
-  path: z.string().startsWith('/').optional().describe('Reference page URL (default /apis/<id>).'),
   title: z.string().optional().describe('Default: info.title of the spec.'),
   description: z.string().optional().describe('Default: info.description of the spec.'),
   category: z.string().optional().describe('Group on the API catalog page (default General).'),

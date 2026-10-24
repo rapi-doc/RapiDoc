@@ -10,12 +10,11 @@ import portalConfig from 'virtual:rapidoc-portal/config';
 export async function getStaticPaths() {
   const paths = [];
 
+  // The route is /apis/[...apiRoute]: every API lives at /apis/<id> (normalizer.js).
   for (const api of portalConfig.apis || []) {
-    const cleanBasePath = (api.path || `/apis/${api.id}`).replace(/^\//, '');
-
     // 1. Root API route (e.g. apis/shipments)
     paths.push({
-      params: { apiRoute: cleanBasePath },
+      params: { apiRoute: api.id },
       props: { api, portalConfig, activeTagSlug: '', currentPath: api.path },
     });
 
