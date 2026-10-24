@@ -152,7 +152,7 @@ export default css`
   .btn-xs,
   .btn.tiny {
     padding: 0.25em 0.5em;
-    font-size: 11px;
+    font-size: var(--font-size-xs);
   }
   .btn-icon,
   .btn.circle {
@@ -191,7 +191,7 @@ export default css`
     justify-content: center;
     border-radius: var(--radius);
     padding: 2px 6px;
-    font-size: 11px;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     line-height: 1;
     white-space: nowrap;
@@ -217,7 +217,7 @@ export default css`
   }
   .badge-sm {
     padding: 1px 4px;
-    font-size: 10px;
+    font-size: var(--font-size-xs);
   }
 
   /* =========================================================================
@@ -396,7 +396,7 @@ export default css`
       height: 14px;
       margin-right: 8px;
       line-height: 1;
-      font-size: 11px;
+      font-size: var(--font-size-xs);
       color: var(--primary);
       flex-shrink: 0;
     }

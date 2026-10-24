@@ -812,7 +812,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                                 >
                                                   ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                                                 </button>`
-                                            : html`<span class="gray-text" style="font-size::var(--font-size-small)">
+                                            : html`<span class="gray-text" style="font-size:var(--font-size-small)">
                                                 cookies cannot be set from here</span
                                               >`
                                         }

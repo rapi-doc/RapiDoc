@@ -54,7 +54,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
         this.renderStyle === 'focused' && tagName
           ? html`
               <div class="tag-container" part="section-operation-tag" style="margin-bottom: 16px;">
-                <h2 class="rapidoc-heading upper" part="heading heading-2" style="font-size:18px; margin:0;">${tagName}</h2>
+                <h2 class="rapidoc-heading upper" part="heading heading-2" style="font-size:var(--h3-font-size); margin:0;">${tagName}</h2>
                 ${
                   isFirst && tagDescription
                     ? html`

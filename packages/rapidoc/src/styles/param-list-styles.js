@@ -85,7 +85,7 @@ export default css`
   .param-type {
     margin: 1px 0;
     text-align: right;
-    line-height: var(--font-size-small);
+    line-height: 1.35;
   }
 
   .param-name {

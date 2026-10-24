@@ -80,7 +80,7 @@ export default class ApiResponse extends LitElement {
           font-size: calc(var(--font-size-small) + 1px);
         }
         .resp-descr {
-          font-size: calc(var(--font-size-small) + 1px);
+          font-size: var(--font-size-description);
           color: var(--muted-foreground);
           text-align: left;
         }

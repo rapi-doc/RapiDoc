@@ -354,7 +354,7 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
                   <h2
                     class="rapidoc-heading sub-title tag-group"
                     part="heading heading-2"
-                    style="color:var(--foreground); font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;"
+                    style="color:var(--foreground); font-size:var(--h4-font-size); font-weight:700; text-transform:uppercase; letter-spacing:0.05em;"
                   >
                     ${group.displayName || group.name}
                   </h2>

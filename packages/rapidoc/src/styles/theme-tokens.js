@@ -147,7 +147,11 @@ export default css`
     --radius: 0.25rem;
 
     /* --- Sizes & Layout --- */
+    /* xs is the floor: badges, chips and tiny buttons never go below it. description is for
+       short prose next to data (parameter and property descriptions). */
+    --font-size-xs: 11px;
     --font-size-small: 12px;
+    --font-size-description: 13px;
     --font-size-mono: 13px;
     --font-size-regular: 14px;
     --resp-area-height: 400px;
@@ -208,20 +212,26 @@ export default css`
 
   /* --- 2B. UI Scale & Typography (scale) --- */
   :host([scale='sm']) {
+    --font-size-xs: 11px;
     --font-size-small: 11px;
+    --font-size-description: 12px;
     --font-size-mono: 12px;
     --font-size-regular: 13px;
     --sidebar-width: 17rem;
   }
   :host([scale='default']),
   :host(:not([scale])) {
+    --font-size-xs: 11px;
     --font-size-small: 12px;
+    --font-size-description: 13px;
     --font-size-mono: 13px;
     --font-size-regular: 14px;
     --sidebar-width: 18.75rem;
   }
   :host([scale='lg']) {
+    --font-size-xs: 12px;
     --font-size-small: 14px;
+    --font-size-description: 15px;
     --font-size-mono: 15px;
     --font-size-regular: 16px;
     --sidebar-width: 21rem;

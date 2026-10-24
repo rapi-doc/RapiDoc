@@ -86,7 +86,7 @@ export default css`
   }
 
   .title.tag-group {
-    font-size: 20px;
+    font-size: var(--h3-font-size);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;

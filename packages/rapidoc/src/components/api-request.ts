@@ -121,6 +121,11 @@ export default class ApiRequest extends LitElement {
         .top-gap {
           margin-top: 24px;
         }
+        /* The first label under the Request heading belongs to it; no section gap */
+        .request-panel > div > .top-gap:first-child,
+        .request-panel > div > .request-body-container:first-child > .top-gap {
+          margin-top: 4px;
+        }
 
         .textarea {
           min-height: 220px;

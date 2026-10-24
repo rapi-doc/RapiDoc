@@ -68,7 +68,7 @@ export default css`
 
   .dialog-box-title {
     flex-grow: 1;
-    font-size: 24px;
+    font-size: var(--h2-font-size);
   }
 
   .search-options-row {

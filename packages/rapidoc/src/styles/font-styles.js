@@ -20,7 +20,7 @@ export default css`
     text-wrap: balance;
   }
   .sub-title {
-    font-size: 1.25rem;
+    font-size: var(--h3-font-size);
     text-wrap: balance;
   }
   .req-res-title {
@@ -238,13 +238,13 @@ export default css`
 
   .m-markdown-small p,
   .m-markdown-small span {
-    font-size: var(--font-size-small);
-    line-height: calc(var(--font-size-small) + 6px);
+    font-size: var(--font-size-description);
+    line-height: calc(var(--font-size-description) + 6px);
     color: inherit;
   }
   .m-markdown-small li {
-    font-size: var(--font-size-small);
-    line-height: calc(var(--font-size-small) + 8px);
+    font-size: var(--font-size-description);
+    line-height: calc(var(--font-size-description) + 8px);
     margin-block: 3px;
     color: inherit;
   }
@@ -419,10 +419,7 @@ export default css`
     vertical-align: middle;
   }
 
-  .m-markdown-small table code {
-    font-size: calc(var(--font-size-mono) - 2px);
-  }
-
+  .m-markdown-small table code,
   .m-markdown table code {
     font-size: calc(var(--font-size-mono) - 1px);
   }

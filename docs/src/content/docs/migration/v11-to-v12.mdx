@@ -44,6 +44,8 @@ New variables:
 - `--destructive`: errors, required-field markers, and DEPRECATED labels.
 - `--scroll-margin-top` (default `120px`): space kept above a section when navigation scrolls to it.
 - Heading scale: `--h1-font-size` … `--h6-font-size`, `--heading-font`, `--heading-weight`, `--heading-line-height`, `--heading-color`, `--heading-letter-spacing`, `--heading-margin-top`, `--heading-margin-bottom`, `--label-heading-font-size`, `--line-height`, `--paragraph-spacing`.
+- `--font-size-xs` (default `11px`, `12px` with `scale="lg"`): the smallest text RapiDoc renders (badges, sidebar method tags, oneOf/anyOf chips, constraint labels, tiny buttons).
+- `--font-size-description` (default `13px`, `12px` with `scale="sm"`, `15px` with `scale="lg"`): parameter, property, and response-header descriptions.
 
 `--ring` now defaults to `var(--primary)` in every theme. In v11 it was missing for the default `amber` theme, so keyboard focus had no visible ring.
 
@@ -110,6 +112,9 @@ Section titles are now written in normal case ("API Server", "Authentication"). 
 - View-mode operation borders use the `--method-*` colors (same as the method badges).
 - In the `slate` dark theme the active navigation marker is white, like its text.
 - Headings are bolder (`600`) and larger, and paragraphs inside descriptions are `1em` apart.
+- No text is smaller than `11px`. Sidebar method tags, oneOf/anyOf chips, and small badges were 9–10px; they now use `--font-size-xs`, which also follows the `scale` attribute.
+- Parameter and property descriptions are `13px` (`--font-size-description`) instead of `12px`.
+- The first label inside the Request panel (Path parameters, Request body, ...) sits right under the Request heading instead of `24px` below it.
 - Markdown tables in descriptions are `display: block` and scroll horizontally inside their own box when wider than the space available, instead of widening the page.
 
 ---

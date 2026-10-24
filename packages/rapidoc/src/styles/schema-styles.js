@@ -98,7 +98,7 @@ export default css`
     & .descr-label,
     & b {
       font-weight: 500;
-      font-size: calc(var(--font-size-small) - 1px);
+      font-size: var(--font-size-xs);
       color: var(--primary);
     }
     & .descr-value {
@@ -192,7 +192,7 @@ export default css`
   }
 
   .xxx-of-key {
-    font-size: calc(var(--font-size-small) - 3px);
+    font-size: var(--font-size-xs);
     line-height: calc(var(--font-size-small) + 1px);
     padding: 1px 6px;
     border-radius: var(--radius);
@@ -208,7 +208,7 @@ export default css`
   .xxx-of-descr {
     font-family: var(--font-sans);
     color: var(--primary);
-    font-size: calc(var(--font-size-small) - 2px);
+    font-size: var(--font-size-xs);
     margin-inline-start: 4px;
     vertical-align: middle;
   }

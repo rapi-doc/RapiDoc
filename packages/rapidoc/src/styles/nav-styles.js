@@ -363,7 +363,7 @@ export default css`
   .nav-bar-webhook {
     font-weight: bold;
     margin-right: 8px;
-    font-size: calc(var(--font-size-small) - 2px);
+    font-size: var(--font-size-xs);
     flex-shrink: 0;
   }
 
@@ -371,7 +371,7 @@ export default css`
     font-weight: bold;
     margin-inline-start: auto;
     flex-shrink: 0;
-    font-size: calc(var(--font-size-small) - 2px);
+    font-size: var(--font-size-xs);
     white-space: nowrap;
 
     &.false {
