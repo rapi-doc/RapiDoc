@@ -149,6 +149,7 @@ function endpointBodyTemplate(path) {
             </div>`
           : ''
       }
+      ${pathSecurityTemplate.call(this, path.security, path.elementId)}
       ${
         path.externalDocs?.url || path.externalDocs?.description
           ? html`<div class="external-docs-box">
@@ -165,7 +166,7 @@ function endpointBodyTemplate(path) {
           : ''
       }
       <slot name="${path.elementId}"></slot>
-      ${pathSecurityTemplate.call(this, path.security)} ${codeSampleTabPanel}
+      ${codeSampleTabPanel}
     </div>
     <div class="req-resp-container ${this.layout}-layout" part="section-req-resp-container">
       <div class="request-panel view-mode-request ${this.layout}-layout" part="section-request-panel">

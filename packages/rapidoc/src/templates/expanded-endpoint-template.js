@@ -113,7 +113,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
         }
         <slot name="${path.elementId}"></slot>`}
       ${path.description ? html`<div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.description)))}</div>` : ''}
-      ${pathSecurityTemplate.call(this, path.security)}
+      ${pathSecurityTemplate.call(this, path.security, path.elementId)}
       ${
         path.externalDocs?.url || path.externalDocs?.description
           ? html`<div class="external-docs-box">

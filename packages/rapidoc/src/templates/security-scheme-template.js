@@ -964,7 +964,80 @@ function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
   </div>`;
 }
 
-export function pathSecurityTemplate(pathSecurity) {
+/*
+ * Operation security chips: each chip shows its scheme details in a popover="hint" panel (a manual popover
+ * where "hint" is unsupported) on hover or keyboard focus. The panel renders in the top layer, so it is never
+ * clipped by scroll containers, and is anchored to its chip with CSS anchor positioning (JS fallback below).
+ */
+const supportsAnchorPositioning = typeof CSS !== 'undefined' && CSS.supports?.('anchor-name: --a');
+const securityHideTimers = new WeakMap();
+let openSecurityPopover = null;
+
+function onSecurityPopoverKeydown(e) {
+  if (e.key === 'Escape' && openSecurityPopover) {
+    hideSecurityPopover(openSecurityPopover);
+  }
+}
+
+function hideSecurityPopover(popover) {
+  if (popover.matches(':popover-open')) {
+    popover.hidePopover();
+  }
+  if (openSecurityPopover === popover) {
+    openSecurityPopover = null;
+    document.removeEventListener('keydown', onSecurityPopoverKeydown);
+  }
+}
+
+// Places the panel below the chip (above when there is no room), left-aligned with it and kept inside the viewport
+function placeSecurityPopover(label, popover) {
+  const gap = 4;
+  const edge = 8;
+  const r = label.getBoundingClientRect();
+  const { offsetWidth: w, offsetHeight: h } = popover;
+  const left = Math.max(edge, Math.min(r.left, window.innerWidth - w - edge));
+  const top = r.bottom + gap + h > window.innerHeight && r.top - gap - h >= 0 ? r.top - gap - h : r.bottom + gap;
+  Object.assign(popover.style, { inset: 'auto', margin: '0', left: `${left}px`, top: `${top}px` });
+}
+
+function showSecurityPopover(e) {
+  const chip = e.currentTarget.closest('.security-chip');
+  const popover = chip?.querySelector('.security-popover');
+  if (!popover || typeof popover.showPopover !== 'function') {
+    return;
+  }
+  clearTimeout(securityHideTimers.get(chip));
+  if (openSecurityPopover && openSecurityPopover !== popover) {
+    hideSecurityPopover(openSecurityPopover);
+  }
+  if (!popover.matches(':popover-open')) {
+    popover.showPopover();
+  }
+  if (!supportsAnchorPositioning) {
+    placeSecurityPopover(chip.querySelector('.security-chip-label'), popover);
+  }
+  if (openSecurityPopover !== popover) {
+    openSecurityPopover = popover;
+    document.addEventListener('keydown', onSecurityPopoverKeydown);
+  }
+}
+
+// Delayed so the pointer can cross the gap into the panel; the panel stays open while the chip is hovered or focused
+function scheduleHideSecurityPopover(e) {
+  const chip = e.currentTarget;
+  clearTimeout(securityHideTimers.get(chip));
+  securityHideTimers.set(
+    chip,
+    setTimeout(() => {
+      const popover = chip.querySelector('.security-popover');
+      if (popover && !chip.matches(':hover, :focus-within')) {
+        hideSecurityPopover(popover);
+      }
+    }, 150)
+  );
+}
+
+export function pathSecurityTemplate(pathSecurity, elementId = '') {
   if (!this.resolvedSpec.securitySchemes || !Array.isArray(pathSecurity) || pathSecurity.length === 0) {
     return '';
   }
@@ -999,47 +1072,83 @@ export function pathSecurityTemplate(pathSecurity) {
     });
   });
 
-  return html`
-    <div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height:1.5;">
-      <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content:flex-end;">
-        <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none" style="stroke:var(--muted-foreground)">
-          <rect x="5" y="11" width="14" height="10" rx="2" />
-          <circle cx="12" cy="16" r="1" />
-          <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
-        </svg>
-        ${orSecurityKeys.map((orItem, i) => {
-          if (!orItem.securityTypes) {
-            return '';
-          }
-          const isMultiple = orItem.securityDefs.length > 1;
-          const labelHtml =
-            this.updateRoute === 'true' && this.allowAuthentication === 'true' && orItem.securityDefs.length > 0
-              ? html`<a part="anchor anchor-operation-security" href="#auth">${orItem.securityTypes}</a>`
-              : html`${orItem.securityTypes}`;
+  const idPrefix = `${elementId || 'operation'}--security`;
+  const anchorPrefix = `--${idPrefix.replace(/[^\w-]/g, '_')}`;
+  const isLink = this.updateRoute === 'true' && this.allowAuthentication === 'true';
 
-          return html`
-            ${i !== 0 ? html`<div style="padding:3px 4px;">OR</div>` : ''}
-            <div class="tooltip" style="${orItem.securityDefs.length === 0 ? 'cursor:default;' : ''}">
-              <div style="padding:2px 4px; white-space:nowrap; text-overflow:ellipsis; max-width:150px; overflow:hidden;">${labelHtml}</div>
-              ${
-                orItem.securityDefs.length > 0
-                  ? html`
-                      <div
-                        class="tooltip-text"
-                        style="position:absolute; color:var(--foreground); top:26px; right:0; border:1px solid var(--border); padding:4px 6px; display:block;"
-                      >
-                        ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ''}
-                        <div style="padding-left:${isMultiple ? '8px' : '0'};">
-                          ${orItem.securityDefs.map((secDef, j) => renderSecuritySchemeDetail(secDef, isMultiple, j))}
-                        </div>
+  return html`
+    <div class="operation-security" part="section-operation-security" role="group" aria-labelledby="${idPrefix}-label">
+      <span id="${idPrefix}-label" class="security-label" part="label-operation-security">Authorization</span>
+      <svg class="security-lock" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none">
+        <rect x="5" y="11" width="14" height="10" rx="2" />
+        <circle cx="12" cy="16" r="1" />
+        <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
+      </svg>
+      ${orSecurityKeys.map((orItem, i) => {
+        if (!orItem.securityTypes) {
+          return '';
+        }
+        const isMultiple = orItem.securityDefs.length > 1;
+        const hasDetails = orItem.securityDefs.length > 0;
+        const popoverId = `${idPrefix}-${i}`;
+        const anchorName = `${anchorPrefix}-${i}`;
+        let labelHtml;
+        if (!hasDetails) {
+          labelHtml = html`<span class="security-chip-label">${orItem.securityTypes}</span>`;
+        } else if (isLink) {
+          labelHtml = html`<a
+            part="anchor anchor-operation-security"
+            class="security-chip-label"
+            href="#auth"
+            aria-describedby="${popoverId}"
+            style="anchor-name:${anchorName}"
+            >${orItem.securityTypes}</a
+          >`;
+        } else {
+          labelHtml = html`<button
+            type="button"
+            class="security-chip-label"
+            aria-describedby="${popoverId}"
+            style="anchor-name:${anchorName}"
+            @click="${showSecurityPopover}"
+          >
+            ${orItem.securityTypes}
+          </button>`;
+        }
+
+        return html`
+          ${i !== 0 ? html`<span class="security-or">OR</span>` : ''}
+          <span
+            class="security-chip ${hasDetails ? 'has-details' : ''}"
+            part="operation-security-chip"
+            @mouseenter="${showSecurityPopover}"
+            @mouseleave="${scheduleHideSecurityPopover}"
+            @focusin="${showSecurityPopover}"
+            @focusout="${scheduleHideSecurityPopover}"
+          >
+            ${labelHtml}
+            ${
+              hasDetails
+                ? html`
+                    <div
+                      id="${popoverId}"
+                      class="security-popover"
+                      part="operation-security-details"
+                      popover="hint"
+                      role="tooltip"
+                      style="position-anchor:${anchorName}"
+                    >
+                      ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ''}
+                      <div style="padding-left:${isMultiple ? '8px' : '0'};">
+                        ${orItem.securityDefs.map((secDef, j) => renderSecuritySchemeDetail(secDef, isMultiple, j))}
                       </div>
-                    `
-                  : ''
-              }
-            </div>
-          `;
-        })}
-      </div>
+                    </div>
+                  `
+                : ''
+            }
+          </span>
+        `;
+      })}
     </div>
   `;
 }

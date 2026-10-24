@@ -75,6 +75,29 @@ describe('Visual: Regression Snapshots & Unclipped Flow Captures', () => {
     assert.ok(tableBuffer.length > 5000, 'Schema table snapshot should be captured');
   });
 
+  it('captures operation security chips and their details popover (Approach A)', async () => {
+    const captures = [
+      { name: 'security-chips-dark.png', width: 1280, 'color-scheme': 'dark' },
+      { name: 'security-chips-narrow-light.png', width: 375, 'color-scheme': 'light' },
+    ];
+    for (const { name, width, ...attrs } of captures) {
+      await page.setViewportSize({ width, height: 800 });
+      await loadHarness(page, baseUrl, { spec: '/specs/05-auth.yaml', 'render-style': 'read', theme: 'amber', ...attrs });
+
+      const op = page.locator('.expanded-endpoint-body', { hasText: 'complex AND / OR' });
+      await op.scrollIntoViewIfNeeded();
+      await op.locator('.security-chip-label').first().hover();
+      const opBox = await op.boundingBox();
+      const popoverBox = await op.locator('.security-popover').first().boundingBox();
+      const top = Math.max(0, opBox.y - 8);
+      const bottom = Math.min(800, Math.max(popoverBox.y + popoverBox.height, opBox.y + 200) + 8);
+
+      const buffer = await page.screenshot({ path: path.join(snapshotsDir, name), clip: { x: 0, y: top, width, height: bottom - top } });
+      assert.ok(buffer.length > 3000, `${name} should be captured`);
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
+  });
+
   it('captures unclipped full-document flow without height clipping (Approach B)', async () => {
     await loadHarness(page, baseUrl, {
       spec: '/specs/01-sections.yaml',
