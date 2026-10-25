@@ -6,6 +6,10 @@ export default css`
   }
   :host {
     all: initial;
+    /* Grayscale smoothing on macOS: thinner, crisper strokes than the system default, which thickens text
+       (light-on-dark most of all). Set after the reset; inherited by nested shadow roots and popovers. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     display: flex;
     flex-direction: column;
     min-width: 360px;
@@ -228,7 +232,7 @@ export default css`
     border: 1px solid var(--border);
     flex: 1;
     padding-right: 24px;
-    border-radius: 3px;
+    border-radius: var(--radius);
   }
   input.header-input::placeholder {
     opacity: 0.4;
@@ -258,7 +262,7 @@ export default css`
     transform: rotate(180deg);
   }
   .divider {
-    border-top: 2px solid var(--border);
+    border-top: 1px solid var(--border);
     margin: 24px 0;
     width: 100%;
   }

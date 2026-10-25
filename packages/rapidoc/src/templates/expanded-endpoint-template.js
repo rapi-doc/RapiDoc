@@ -43,7 +43,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate.call(this, path.xCodeSamples) : '';
   return html`
-    ${this.renderStyle === 'read' ? html`<div class="divider" part="operation-divider"></div>` : ''}
+    ${this.renderStyle === 'read' && !isFirst ? html`<div class="divider" part="operation-divider"></div>` : ''}
     <div
       class="expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} "
       part="section-operation ${path.elementId}"
@@ -111,9 +111,9 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                 </div>
               `
         }
+        ${pathSecurityTemplate.call(this, path.security, path.elementId)}
         <slot name="${path.elementId}"></slot>`}
       ${path.description ? html`<div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.description)))}</div>` : ''}
-      ${pathSecurityTemplate.call(this, path.security, path.elementId)}
       ${
         path.externalDocs?.url || path.externalDocs?.description
           ? html`<div class="external-docs-box">
@@ -185,7 +185,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
           schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status="${Object.keys(path.responses || {})[0] || ''}"
           exportparts="section-response-title:section-response-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
-            btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+            btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-outline:btn-outline, btn-copy:btn-copy,
           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
           schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle, param-list:param-list, param:param, param-label:param-label, param-name:param-name, param-type:param-type, param-constraint:param-constraint, param-constraint-label:param-constraint-label, param-details:param-details, param-example-list:param-example-list, value-list:value-list, value-list-label:value-list-label, value-list-items:value-list-items"
         >
@@ -235,7 +235,7 @@ export default function expandedEndpointTemplate() {
             </h2>
             ${
               group.description
-                ? html`<div class="m-markdown" style="padding: 8px 0;">${unsafeHTML(sanitizeHTML(marked(group.description)))}</div>`
+                ? html`<div class="m-markdown tag-group-description">${unsafeHTML(sanitizeHTML(marked(group.description)))}</div>`
                 : ''
             }
           </section>

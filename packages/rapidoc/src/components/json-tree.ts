@@ -121,7 +121,7 @@ export default class JsonTree extends LitElement {
         }}"
       >
         <div class="toolbar">
-          <button class="toolbar-btn btn-copy" part="btn btn-fill btn-copy">Copy</button>
+          <button class="btn btn-sm btn-outline toolbar-btn btn-copy" part="btn btn-outline btn-copy">Copy</button>
         </div>
         ${this.generateTree(this.data, true)}
       </div>

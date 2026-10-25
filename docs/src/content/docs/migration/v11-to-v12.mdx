@@ -116,6 +116,13 @@ Section titles are now written in normal case ("API Server", "Authentication"). 
 - Parameter and property descriptions are `13px` (`--font-size-description`) instead of `12px`.
 - The first label inside the Request panel (Path parameters, Request body, ...) sits right under the Request heading instead of `24px` below it.
 - Markdown tables in descriptions are `display: block` and scroll horizontally inside their own box when wider than the space available, instead of widening the page.
+- Buttons, inputs, and selects use two shared sizes that follow the `scale` attribute: default (~28px) for panel actions and form fields, small (~24px) for controls inside a panel. Inputs in parameter rows are taller (~35px) to line up with the two-line parameter label. Buttons are flat (no drop shadow).
+- Copy buttons are small outline buttons. Their part changed from `btn btn-fill btn-copy` to `btn btn-outline btn-copy`; target `::part(btn-copy)` to style them.
+- Read mode: tag groups (`x-tagGroups`) are a small muted uppercase label right above their first tag instead of a large `--primary` heading, and tag groups, tags, and operations are separated by one thin `--border` rule each (no `--primary` rules, no divider before a tag's first operation).
+- Allowed values and examples next to a parameter are small value chips (`<button>`) instead of underlined links, and they are keyboard-focusable. Their parts are unchanged (`anchor-param-constraint`, `anchor-param-example`).
+- Response status codes are a segmented control; the selected code is tinted with `--primary` instead of filled.
+- An operation's authentication chips sit right under its method and path, before the description, after a lock icon. The "Authorization" label is kept for screen readers only.
+- The chips no longer link to the Authentication section; they only open their details popover. The lock icon is the link now, and the `anchor-operation-security` part moved from the chip labels to it.
 
 ---
 

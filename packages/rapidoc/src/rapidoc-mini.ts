@@ -147,6 +147,9 @@ export default class RapiDocMini extends LitElement {
       css`
         :host {
           all: initial;
+          /* Same crisp text rendering as <rapi-doc> (see layout-styles.js) */
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
           display: flex;
           flex-direction: column;
           min-width: 360px;

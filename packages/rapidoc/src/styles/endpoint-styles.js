@@ -76,21 +76,47 @@ export default css`
     text-align: left;
   }
 
+  /*
+   * Read mode: tag groups and tags. One thin neutral rule above each section. A tag group is a small muted
+   * uppercase label (like the sidebar's group headers) that sits directly above its first tag, so the two
+   * read as one block under a single rule.
+   */
+  .read-mode-group,
   .read-mode-tag {
-    border-top: 1px solid var(--primary);
+    border-top: 1px solid var(--border);
   }
 
-  .read-mode-group {
-    border-top: 2px solid var(--primary);
-    margin-top: 28px;
+  .section-gap--read-mode:is(.read-mode-group, .read-mode-tag) {
+    padding-top: 24px;
   }
 
-  .title.tag-group {
-    font-size: var(--h3-font-size);
-    font-weight: 700;
+  .section-gap--read-mode.read-mode-group {
+    margin-top: 24px;
+    padding-bottom: 0;
+  }
+
+  .section-gap--read-mode.read-mode-group + .read-mode-tag {
+    border-top: none;
+    padding-top: 0.5em;
+  }
+
+  .rapidoc-heading.title.tag-group {
+    margin: 0;
+    font-size: var(--font-size-regular);
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--primary);
+    color: var(--muted-foreground);
+  }
+
+  /* The first operation of a tag has no divider above it (the tag's rule is enough), only space */
+  .expanded-endpoint-body[data-first-operation-in-tag='true'] {
+    margin-top: 32px;
+  }
+
+  .tag-group-description {
+    margin-top: 0.5em;
+    color: var(--muted-foreground);
   }
 
   .m-endpoint {

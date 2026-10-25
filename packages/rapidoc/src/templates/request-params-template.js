@@ -75,10 +75,11 @@ export function examplesBesideConstraints(description, hasConstraint, exampleLis
 export function renderExample(example, paramType, paramName) {
   return html`
     ${paramType === 'array' ? '[' : ''}
-    <a
+    <button
+      type="button"
       part="anchor anchor-param-example"
-      style="display:inline-block; min-width:24px; text-align:center"
-      class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
+      class="value-chip"
+      ?disabled="${this.allowTry !== 'true'}"
       data-example-type="${paramType === 'array' ? paramType : 'string'}"
       data-example="${
         example.value && Array.isArray(example.value)
@@ -98,7 +99,7 @@ export function renderExample(example, paramType, paramName) {
       }}"
     >
       ${example.printableValue || example.value}
-    </a>
+    </button>
     ${paramType === 'array' ? '] ' : ''}
   `;
 }
@@ -263,7 +264,7 @@ export function inputParametersTemplate(paramType) {
                       >
                       </tag-input>`
                     : paramSchema.type === 'object' || paramSchema.type.split('┃').includes('object')
-                      ? html`<div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+                      ? html`<div part="tab-panel" class="tab-panel col">
                           <div
                             part="tab-btn-row"
                             class="tab-buttons row"
@@ -389,9 +390,11 @@ export function inputParametersTemplate(paramType) {
                     .split('┃')
                     .map(
                       (v) =>
-                        html`<a
+                        html`<button
+                          type="button"
                           part="anchor anchor-param-constraint"
-                          class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                          class="value-chip"
+                          ?disabled="${this.allowTry !== 'true'}"
                           data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                           data-enum="${v.trim()}"
                           @click="${(e) => {
@@ -404,8 +407,9 @@ export function inputParametersTemplate(paramType) {
                               }
                             }
                           }}"
-                          >${v}</a
-                        >`
+                        >
+                          ${v}
+                        </button>`
                     ),
                 inlineExamples && example.exampleList.map((x) => renderExample.call(this, x, paramSchema.type, param.name))
               )

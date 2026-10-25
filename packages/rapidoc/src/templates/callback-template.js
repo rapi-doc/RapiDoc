@@ -67,7 +67,7 @@ export default function callbackTemplate(callbacks) {
                           schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
                           schema-hide-write-only="false"
                           exportparts="section-response-title:section-response-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
-            btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+            btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-outline:btn-outline, btn-copy:btn-copy,
                           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
                           schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle, param-list:param-list, param:param, param-label:param-label, param-name:param-name, param-type:param-type, param-constraint:param-constraint, param-constraint-label:param-constraint-label, param-details:param-details, param-example-list:param-example-list, value-list:value-list, value-list-label:value-list-label, value-list-items:value-list-items"
                         >

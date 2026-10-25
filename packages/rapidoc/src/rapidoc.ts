@@ -1223,7 +1223,8 @@ export default class RapiDoc extends LitElement {
             const isOutOfView = itemRect.top < scrollRect.top + topOffset + 15 || itemRect.bottom > scrollRect.bottom - 40;
             if (isOutOfView) {
               const behavior = this.scrollBehavior === 'auto' ? 'auto' : 'smooth';
-              const targetTop = itemRect.top - scrollRect.top + navScrollEl.scrollTop - 20;
+              // Land the item below the sticky search header (which sits inside the scroll area), not under it
+              const targetTop = itemRect.top - scrollRect.top + navScrollEl.scrollTop - topOffset - 20;
               navScrollEl.scrollTo({ top: targetTop, behavior });
             }
           }

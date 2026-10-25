@@ -34,8 +34,8 @@ export default function codeSamplesTemplate(xCodeSamples) {
         (v, i) =>
           html`<div class="tab-content m-markdown" style="display:${i === 0 ? 'block' : 'none'}" data-tab="${v.lang}${i}">
             <button
-              class="toolbar-btn"
-              part="btn btn-fill btn-copy"
+              class="btn btn-sm btn-outline toolbar-btn"
+              part="btn btn-outline btn-copy"
               @click="${(e) => {
                 copyToClipboard(v.source, e);
               }}"

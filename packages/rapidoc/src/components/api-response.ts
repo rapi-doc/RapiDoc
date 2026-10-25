@@ -91,6 +91,43 @@ export default class ApiResponse extends LitElement {
           font-size: var(--font-size-small);
           margin: 0;
         }
+        /* Response codes: a segmented control (one choice), the selected code tinted with the primary color */
+        .status-group {
+          display: inline-flex;
+          flex-wrap: wrap;
+          margin-top: 8px;
+        }
+        .status-btn {
+          margin: 0 0 0 -1px;
+          border-color: var(--input);
+          border-radius: 0;
+          background: color-mix(in srgb, var(--foreground) 5%, transparent);
+          color: var(--muted-foreground);
+
+          &:first-child {
+            margin-left: 0;
+            border-start-start-radius: var(--radius);
+            border-end-start-radius: var(--radius);
+          }
+          &:last-child {
+            border-start-end-radius: var(--radius);
+            border-end-end-radius: var(--radius);
+          }
+          &:hover {
+            background: var(--muted);
+            color: var(--foreground);
+          }
+          &[aria-pressed='true'] {
+            position: relative;
+            z-index: 1;
+            border-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 14%, transparent);
+            color: var(--primary);
+          }
+          &:focus-visible {
+            z-index: 2;
+          }
+        }
       `,
       CustomStyles,
     ];
@@ -179,7 +216,7 @@ export default class ApiResponse extends LitElement {
     return html`
       ${
         Object.keys(this.responses).length > 1
-          ? html`<div class="row" style="flex-wrap:wrap">
+          ? html`<div class="status-group" role="group" aria-label="Response status">
               ${Object.keys(this.responses).map(
                 (respStatus) =>
                   html` ${
@@ -194,11 +231,11 @@ export default class ApiResponse extends LitElement {
                               this.selectedMimeType = undefined;
                             }
                           }}"
-                          class="btn btn-sm ${this.selectedStatus === respStatus ? 'btn-primary' : 'btn-outline'}"
+                          class="btn btn-sm status-btn"
+                          aria-pressed="${this.selectedStatus === respStatus ? 'true' : 'false'}"
                           part="btn ${
                             this.selectedStatus === respStatus ? 'btn-response-status btn-selected-response-status' : ' btn-response-status'
                           }"
-                          style="margin: 8px 4px 0 0"
                         >
                           ${respStatus}
                         </button>`
@@ -237,21 +274,18 @@ export default class ApiResponse extends LitElement {
                       <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">
                         SCHEMA
                       </button>
-                      <div style="flex:1"></div>
                       ${
                         Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
-                          ? html`<span class="small-font-size gray-text" style="align-self:center; margin-top:8px;">
-                              ${Object.keys(this.mimeResponsesForEachStatus[status])[0]}
-                            </span>`
+                          ? html`<span class="tab-bar-end">${Object.keys(this.mimeResponsesForEachStatus[status])[0]}</span>`
                           : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
                       }
                     </div>
                     ${
                       this.activeSchemaTab === 'example'
-                        ? html`<div part="tab-content" class="tab-content col" style="flex:1;">
+                        ? html`<div part="tab-content" class="tab-content col">
                             ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                           </div>`
-                        : html`<div part="tab-content" class="tab-content col" style="flex:1;">
+                        : html`<div part="tab-content" class="tab-content col">
                             ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                           </div>`
                     }
@@ -293,10 +327,10 @@ export default class ApiResponse extends LitElement {
   mimeTypeDropdownTemplate(mimeTypes) {
     return html`<select
       aria-label="mime types"
+      class="select-sm tab-bar-end"
       @change="${(e) => {
         this.selectedMimeType = e.target.value;
       }}"
-      style="margin-bottom: -1px; z-index:1"
     >
       ${mimeTypes.map(
         (mimeType) => html`<option value="${mimeType}" ?selected="${mimeType === this.selectedMimeType}">${mimeType}</option>`
@@ -315,13 +349,7 @@ export default class ApiResponse extends LitElement {
 
   mimeExampleTemplate(mimeRespDetails) {
     if (!mimeRespDetails || !mimeRespDetails.examples || mimeRespDetails.examples.length === 0) {
-      return html`
-        <pre
-          style="color:var(--destructive)"
-          class="${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel border-top'}"
-        >
- No example provided </pre>
-      `;
+      return html` <pre style="color:var(--destructive)" class="example-panel"> No example provided </pre> `;
     }
     return html`
       ${
@@ -343,8 +371,8 @@ export default class ApiResponse extends LitElement {
                     <json-tree
                       render-style="${this.renderStyle}"
                       .data="${mimeRespDetails.examples[0].exampleValue}"
-                      class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}"
-                      exportparts="btn:btn, btn-fill:btn-fill, btn-copy:btn-copy"
+                      class="example-panel"
+                      exportparts="btn:btn, btn-outline:btn-outline, btn-copy:btn-copy"
                     ></json-tree>`
                 : html`
                     ${
@@ -359,13 +387,12 @@ export default class ApiResponse extends LitElement {
                           </div>`
                         : ''
                     }
-                    <pre class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">
-${mimeRespDetails.examples[0].exampleValue}</pre>
+                    <pre class="example-panel">${mimeRespDetails.examples[0].exampleValue}</pre>
                   `
             }`
           : html`
-              <span class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">
-                <select aria-label="response examples" style="min-width:100px; max-width:100%" @change="${(e) => this.onSelectExample(e)}">
+              <div class="example-panel">
+                <select aria-label="response examples" class="select-sm example-select" @change="${(e) => this.onSelectExample(e)}">
                   ${mimeRespDetails.examples.map(
                     (v) =>
                       html`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample}>
@@ -393,14 +420,14 @@ ${mimeRespDetails.examples[0].exampleValue}</pre>
                           ? html`<json-tree
                               render-style="${this.renderStyle}"
                               .data="${v.exampleValue}"
-                              exportparts="btn:btn, btn-fill:btn-fill, btn-copy:btn-copy"
+                              exportparts="btn:btn, btn-outline:btn-outline, btn-copy:btn-copy"
                             ></json-tree>`
                           : html`<pre>${v.exampleValue}</pre>`
                       }
                     </div>
                   `
                 )}
-              </span>
+              </div>
             `
       }
     `;
@@ -408,10 +435,7 @@ ${mimeRespDetails.examples[0].exampleValue}</pre>
 
   mimeSchemaTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
-      return html`
-        <pre style="color:var(--destructive)" class="${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top'}">
- Schema not found</pre>
-      `;
+      return html` <pre style="color:var(--destructive)" class="example-panel"> Schema not found</pre> `;
     }
     return html` ${
       this.schemaStyle === 'table'

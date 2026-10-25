@@ -180,16 +180,20 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                       data-array="false"
                                       data-file-array="true"
                                     />
-                                    <button class="file-input-remove-btn" @click="${() => this.onRemoveFileInput(fieldName, key)}">
+                                    <button
+                                      class="file-input-remove-btn"
+                                      aria-label="Remove file"
+                                      title="Remove"
+                                      @click="${() => this.onRemoveFileInput(fieldName, key)}"
+                                    >
                                       &#x2715;
                                     </button>
                                   </div>
                                 `
                               )}
                               <button
-                                class="btn btn-primary file-input-add-btn"
+                                class="btn btn-primary btn-sm file-input-add-btn"
                                 part="btn btn-fill"
-                                style="margin:4px 0 0 0; padding:2px 8px; align-self:flex-start;"
                                 @click="${() => this.onAddFileInput(fieldName)}"
                               >
                                 ADD
@@ -247,9 +251,11 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                       .split('┃')
                       .map(
                         (v) =>
-                          html`<a
+                          html`<button
+                            type="button"
                             part="anchor anchor-param-constraint"
-                            class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                            class="value-chip"
+                            ?disabled="${this.allowTry !== 'true'}"
                             data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                             data-enum="${v.trim()}"
                             @click="${(e) => {
@@ -266,7 +272,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                             }}"
                           >
                             ${v}
-                          </a>`
+                          </button>`
                       ),
                   inlineExamples && example.exampleList.map((x) => renderExample.call(this, x, paramSchema.type, fieldName))
                 )
@@ -353,7 +359,7 @@ export default function requestBodyTemplate() {
     requestBodyTypes.length === 1
       ? ''
       : html`
-          <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change="${(e) => this.onMimeTypeChange(e)}">
+          <select class="select-sm" aria-label="request body media type" @change="${(e) => this.onMimeTypeChange(e)}">
             ${requestBodyTypes.map(
               (reqBody) => html`
                 <option value="${reqBody.mimeType}" ?selected="${reqBody.mimeType === this.selectedRequestBodyType}">
@@ -392,12 +398,12 @@ export default function requestBodyTemplate() {
         }
         reqBodyExampleHtml = html`
           ${reqBodyExampleHtml}
-          <div class="example-panel border-top pad-top-8">
+          <div class="example-panel">
             ${
               reqBodyExamples.length === 1
                 ? ''
                 : html`
-                    <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change="${(e) => this.onSelectExample(e)}">
+                    <select class="select-sm example-select" aria-label="request body examples" @change="${(e) => this.onSelectExample(e)}">
                       ${reqBodyExamples.map(
                         (v) =>
                           html`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample}>
@@ -563,7 +569,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
         this.selectedRequestBodyType.includes('xml') ||
         this.selectedRequestBodyType.includes('text') ||
         this.selectedRequestBodyType.includes('jose')
-          ? html` <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+          ? html` <div part="tab-panel" class="tab-panel col">
               <div
                 part="tab-btn-row"
                 class="tab-buttons row"

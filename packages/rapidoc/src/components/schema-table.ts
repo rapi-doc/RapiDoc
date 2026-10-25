@@ -19,6 +19,8 @@ export default class SchemaTable extends SchemaBaseElement {
 
           & .table-container {
             border: 1px solid var(--border);
+            /* Card surface, same as .param-list */
+            background: color-mix(in srgb, var(--card) 80%, transparent);
             overflow-x: auto;
             max-width: 100%;
           }

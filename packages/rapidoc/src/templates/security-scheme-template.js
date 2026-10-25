@@ -535,173 +535,150 @@ function oAuthFlowTemplate(
   } else {
     flowNameDisplay = flowName;
   }
+  const showCredentials = flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password';
+  const isKnownFlow = showCredentials || flowName === 'implicit';
   return html`
-    <div class="oauth-flow ${flowName}" style="padding: 12px 0; margin-bottom:12px;">
+    <div class="oauth-flow ${flowName}">
       <h3 class="rapidoc-heading label-heading tiny-title upper" part="heading heading-3">${flowNameDisplay}</h3>
       ${
-        authorizationUrl
-          ? html`<div style="margin-bottom:5px">
-              <span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span>
-            </div>`
+        authorizationUrl || tokenUrl || refreshUrl
+          ? html`<dl class="oauth-urls">
+              ${
+                authorizationUrl
+                  ? html`<dt>Auth URL</dt>
+                      <dd class="mono-font">${authorizationUrl}</dd>`
+                  : ''
+              }
+              ${
+                tokenUrl
+                  ? html`<dt>Token URL</dt>
+                      <dd class="mono-font">${tokenUrl}</dd>`
+                  : ''
+              }
+              ${
+                refreshUrl
+                  ? html`<dt>Refresh URL</dt>
+                      <dd class="mono-font">${refreshUrl}</dd>`
+                  : ''
+              }
+            </dl>`
           : ''
       }
       ${
-        tokenUrl
-          ? html`<div style="margin-bottom:5px">
-              <span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${tokenUrl}</span>
-            </div>`
+        isKnownFlow && authFlow.scopes
+          ? html`<div class="oauth-scopes-label">Scopes</div>
+              <div class="oauth-scopes" part="section-auth-scopes">
+                ${Object.entries(authFlow.scopes).map(
+                  ([scope, scopeDescr], index) =>
+                    html`<label class="auth-toggle" for="${securitySchemeId}${flowName}${index}">
+                      <input
+                        type="checkbox"
+                        part="checkbox checkbox-auth-scope"
+                        class="scope-checkbox"
+                        id="${securitySchemeId}${flowName}${index}"
+                        ?checked="${defaultScopes.includes(scope)}"
+                        value="${scope}"
+                      />
+                      <span
+                        ><span class="oauth-scope-name mono-font">${scope}</span>${
+                          scope !== scopeDescr && scopeDescr ? html` <span class="oauth-scope-descr">${scopeDescr}</span>` : ''
+                        }</span
+                      >
+                    </label>`
+                )}
+              </div>`
           : ''
       }
       ${
-        refreshUrl
-          ? html`<div style="margin-bottom:5px">
-              <span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${refreshUrl}</span>
-            </div>`
-          : ''
-      }
-      ${
-        flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
-          ? html` ${
-              authFlow.scopes
-                ? html` <span> Scopes </span>
-                    <div
-                      class="oauth-scopes"
-                      part="section-auth-scopes"
-                      style="display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px"
-                    >
-                      ${Object.entries(authFlow.scopes).map(
-                        (scopeAndDescr, index) =>
-                          html`<div class="m-checkbox" style="display:inline-flex; align-items:center">
-                            <input
-                              type="checkbox"
-                              part="checkbox checkbox-auth-scope"
-                              class="scope-checkbox"
-                              id="${securitySchemeId}${flowName}${index}"
-                              ?checked="${defaultScopes.includes(scopeAndDescr[0])}"
-                              value="${scopeAndDescr[0]}"
-                            />
-                            <label for="${securitySchemeId}${flowName}${index}" style="margin-left:5px; cursor:pointer">
-                              <span class="mono-font">${scopeAndDescr[0]}</span>
-                              ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
-                            </label>
-                          </div>`
-                      )}
-                    </div>`
-                : ''
-            }
-            ${
-              flowName === 'password' && allowTry === 'true'
-                ? html` <div style="margin:5px 0">
-                    <input
-                      type="text"
-                      value=""
-                      placeholder="username"
-                      spellcheck="false"
-                      class="oauth2 ${flowName} ${securitySchemeId} api-key-user"
-                      part="textbox textbox-username"
-                      id="input-${securitySchemeId}-${flowName}-api-key-user"
-                    />
-                    <input
-                      type="password"
-                      value=""
-                      placeholder="password"
-                      spellcheck="false"
-                      class="oauth2 ${flowName} ${securitySchemeId} api-key-password"
-                      style="margin:0 5px;"
-                      part="textbox textbox-password"
-                      id="input-${securitySchemeId}-${flowName}-api-key-password"
-                    />
-                  </div>`
-                : ''
-            }
-            ${
-              allowTry === 'true'
-                ? html`<div>
-                      ${
-                        flowName === 'authorizationCode'
-                          ? html`<div style="margin: 16px 0 4px">
-                              <input
-                                type="checkbox"
-                                part="checkbox checkbox-auth-scope"
-                                id="${securitySchemeId}-pkce"
-                                checked
-                                ?disabled=${pkceOnly}
-                              />
-                              <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
-                                Send Proof Key for Code Exchange (PKCE)
-                              </label>
-                            </div>`
-                          : ''
-                      }
+        isKnownFlow && allowTry === 'true'
+          ? html`${
+                flowName === 'authorizationCode'
+                  ? html`<label class="auth-toggle oauth-pkce" for="${securitySchemeId}-pkce">
+                      <input
+                        type="checkbox"
+                        part="checkbox checkbox-auth-scope"
+                        id="${securitySchemeId}-pkce"
+                        checked
+                        ?disabled=${pkceOnly}
+                      />
+                      <span>Send Proof Key for Code Exchange (PKCE)</span>
+                    </label>`
+                  : ''
+              }
+              ${
+                flowName === 'password'
+                  ? html`<div class="auth-controls">
                       <input
                         type="text"
-                        part="textbox textbox-auth-client-id"
-                        value="${clientId || ''}"
-                        placeholder="client-id"
+                        value=""
+                        placeholder="username"
                         spellcheck="false"
-                        class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id"
+                        class="oauth2 ${flowName} ${securitySchemeId} api-key-user"
+                        part="textbox textbox-username"
+                        id="input-${securitySchemeId}-${flowName}-api-key-user"
                       />
-                      ${
-                        flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
-                          ? html` <input
-                                id="${securitySchemeId}-${flowName}-oauth-client-secret"
-                                type="password"
-                                part="textbox textbox-auth-client-secret"
-                                value="${clientSecret || ''}"
-                                placeholder="client-secret"
-                                spellcheck="false"
-                                class="oauth2 ${flowName} ${securitySchemeId}
-                      oauth-client-secret"
-                                style="margin:0 5px;${pkceOnly ? 'display:none;' : ''}"
-                              />
-                              <select
-                                style="margin-right:5px;${pkceOnly ? 'display:none;' : ''}"
-                                class="${flowName} ${securitySchemeId} oauth-send-client-secret-in"
-                              >
-                                ${
-                                  !receiveTokenInOptions || receiveTokenInOptions.includes('request-body')
-                                    ? html`<option value="request-body" .selected=${receiveTokenIn === 'request-body'}>
-                                        Request Body
-                                      </option>`
-                                    : ''
-                                }
-                                ${
-                                  !receiveTokenInOptions || receiveTokenInOptions.includes('header')
-                                    ? html`<option value="header" .selected=${receiveTokenIn === 'header'}>Authorization Header</option>`
-                                    : ''
-                                }
-                              </select>`
-                          : ''
-                      }
-                      ${
-                        flowName === 'authorizationCode' ||
-                        flowName === 'clientCredentials' ||
-                        flowName === 'implicit' ||
-                        flowName === 'password'
-                          ? html` <button
-                              class="btn btn-outline"
-                              part="btn btn-outline"
-                              @click="${(e) => {
-                                onInvokeOAuthFlow.call(
-                                  this,
-                                  securitySchemeId,
-                                  flowName,
-                                  authorizationUrl,
-                                  tokenUrl,
-                                  e,
-                                  authorizeParams,
-                                  tokenParams
-                                );
-                              }}"
-                            >
-                              GET TOKEN
-                            </button>`
-                          : ''
-                      }
-                    </div>
-                    <div class="oauth-resp-display red-text small-font-size"></div>`
-                : ''
-            }`
+                      <input
+                        type="password"
+                        value=""
+                        placeholder="password"
+                        spellcheck="false"
+                        class="oauth2 ${flowName} ${securitySchemeId} api-key-password"
+                        part="textbox textbox-password"
+                        id="input-${securitySchemeId}-${flowName}-api-key-password"
+                      />
+                    </div>`
+                  : ''
+              }
+              <div class="auth-controls">
+                <input
+                  type="text"
+                  part="textbox textbox-auth-client-id"
+                  value="${clientId || ''}"
+                  placeholder="client-id"
+                  spellcheck="false"
+                  class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id"
+                />
+                ${
+                  showCredentials
+                    ? html`<input
+                          id="${securitySchemeId}-${flowName}-oauth-client-secret"
+                          type="password"
+                          part="textbox textbox-auth-client-secret"
+                          value="${clientSecret || ''}"
+                          placeholder="client-secret"
+                          spellcheck="false"
+                          class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret"
+                          ?hidden=${pkceOnly}
+                        />
+                        <select
+                          class="${flowName} ${securitySchemeId} oauth-send-client-secret-in"
+                          aria-label="Send client secret in"
+                          ?hidden=${pkceOnly}
+                        >
+                          ${
+                            !receiveTokenInOptions || receiveTokenInOptions.includes('request-body')
+                              ? html`<option value="request-body" .selected=${receiveTokenIn === 'request-body'}>Request Body</option>`
+                              : ''
+                          }
+                          ${
+                            !receiveTokenInOptions || receiveTokenInOptions.includes('header')
+                              ? html`<option value="header" .selected=${receiveTokenIn === 'header'}>Authorization Header</option>`
+                              : ''
+                          }
+                        </select>`
+                    : ''
+                }
+                <button
+                  class="btn btn-outline"
+                  part="btn btn-outline"
+                  @click="${(e) => {
+                    onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e, authorizeParams, tokenParams);
+                  }}"
+                >
+                  GET TOKEN
+                </button>
+              </div>
+              <div class="oauth-resp-display red-text small-font-size"></div>`
           : ''
       }
     </div>
@@ -741,7 +718,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
       <h2 class="rapidoc-heading sub-title regular-font" part="section-auth-title heading heading-2">Authentication</h2>
       ${
         allowTry === 'true'
-          ? html`<div class="small-font-size" style="display:flex; align-items: center; justify-content: space-between; min-height:30px">
+          ? html`<div class="auth-status small-font-size">
               ${
                 providedApiKeys.length > 0
                   ? html`<div class="blue-text">${providedApiKeys.length} API key applied</div>
@@ -768,11 +745,11 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                   (v) => html`
                     <li id="security-scheme-${v.securitySchemeId}" class="auth-scheme ${v.type.toLowerCase()}" part="auth-scheme">
                       <div class="auth-scheme-body">
-                        <div style="line-height:28px; margin-bottom:5px;">
-                          <span style="font-weight:600; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
+                        <div class="auth-scheme-header">
+                          <span class="auth-scheme-title">${v.typeDisplay}</span>
                           ${
                             v.finalKeyValue
-                              ? html`<span class="blue-text"> ${v.finalKeyValue ? 'Key Applied' : ''} </span>
+                              ? html`<span class="blue-text">Key Applied</span>
                                   <button
                                     class="btn btn-outline btn-sm"
                                     part="btn btn-outline"
@@ -788,55 +765,49 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                         ${v.description ? html`<div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(v.description || '')))}</div>` : ''}
                         ${
                           v.type.toLowerCase() === 'apikey'
-                            ? html` <div style="margin-bottom:5px">Send <code>${v.name}</code> in <code>${v.in}</code></div>
+                            ? html`<div class="auth-hint">Send <code>${v.name}</code> in <code>${v.in}</code></div>
                                 ${
                                   allowTry === 'true'
-                                    ? html` <div style="max-height:28px;">
-                                        ${
-                                          v.in !== 'cookie'
-                                            ? html` <input
-                                                  type="text"
-                                                  value="${v.value}"
-                                                  class="${v.type} ${v.securitySchemeId} api-key-input"
-                                                  placeholder="api-token"
-                                                  spellcheck="false"
-                                                  id="${v.type}-${v.securitySchemeId}-api-key-input"
-                                                />
-                                                <button
-                                                  class="btn btn-outline"
-                                                  style="margin-left:5px;"
-                                                  part="btn btn-outline"
-                                                  @click="${() => {
-                                                    onApiKeyChange.call(this, v.securitySchemeId);
-                                                  }}"
-                                                >
-                                                  ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                                                </button>`
-                                            : html`<span class="gray-text" style="font-size:var(--font-size-small)">
-                                                cookies cannot be set from here</span
-                                              >`
-                                        }
-                                      </div>`
+                                    ? v.in !== 'cookie'
+                                      ? html`<div class="auth-controls">
+                                          <input
+                                            type="text"
+                                            value="${v.value}"
+                                            class="${v.type} ${v.securitySchemeId} api-key-input"
+                                            placeholder="api-token"
+                                            spellcheck="false"
+                                            id="${v.type}-${v.securitySchemeId}-api-key-input"
+                                          />
+                                          <button
+                                            class="btn btn-outline"
+                                            part="btn btn-outline"
+                                            @click="${() => {
+                                              onApiKeyChange.call(this, v.securitySchemeId);
+                                            }}"
+                                          >
+                                            ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                                          </button>
+                                        </div>`
+                                      : html`<div class="auth-hint gray-text">Cookies cannot be set from here</div>`
                                     : ''
                                 }`
                             : ''
                         }
                         ${
                           v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'basic'
-                            ? html` <div style="margin-bottom:5px">
+                            ? html`<div class="auth-hint">
                                   Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by
                                   a space and a base64 encoded string of <code>username:password</code>.
                                 </div>
                                 ${
                                   allowTry === 'true'
-                                    ? html` <div>
+                                    ? html`<div class="auth-controls">
                                         <input
                                           type="text"
                                           value="${v.user}"
                                           placeholder="username"
                                           spellcheck="false"
                                           class="${v.type} ${v.securitySchemeId} api-key-user"
-                                          style="width:100px"
                                           id="input-${v.type}-${v.securitySchemeId}-api-key-user"
                                         />
                                         <input
@@ -845,7 +816,6 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                           placeholder="password"
                                           spellcheck="false"
                                           class="${v.type} ${v.securitySchemeId} api-key-password"
-                                          style="width:100px; margin:0 5px;"
                                           id="input-${v.type}-${v.securitySchemeId}-api-key-password"
                                         />
                                         <button
@@ -864,13 +834,13 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                         }
                         ${
                           v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'bearer'
-                            ? html`<div style="margin-bottom:5px">
+                            ? html`<div class="auth-hint">
                                   Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by
                                   a space and token value
                                 </div>
                                 ${
                                   allowTry === 'true'
-                                    ? html` <div style="max-height:28px;">
+                                    ? html`<div class="auth-controls">
                                         <input
                                           type="text"
                                           value="${v.value}"
@@ -881,7 +851,6 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                         />
                                         <button
                                           class="btn btn-outline"
-                                          style="margin-left:5px;"
                                           part="btn btn-outline"
                                           @click="${() => {
                                             onApiKeyChange.call(this, v.securitySchemeId);
@@ -987,11 +956,12 @@ function hideSecurityPopover(popover) {
   }
 }
 
-// Places the panel below the chip (above when there is no room), left-aligned with it and kept inside the viewport
-function placeSecurityPopover(label, popover) {
-  const gap = 4;
+// Fallback without CSS anchor positioning: places the panel below the chip (above when there is no room),
+// left-aligned with it and kept inside the viewport
+function placeSecurityPopover(chip, popover) {
+  const gap = 6;
   const edge = 8;
-  const r = label.getBoundingClientRect();
+  const r = chip.getBoundingClientRect();
   const { offsetWidth: w, offsetHeight: h } = popover;
   const left = Math.max(edge, Math.min(r.left, window.innerWidth - w - edge));
   const top = r.bottom + gap + h > window.innerHeight && r.top - gap - h >= 0 ? r.top - gap - h : r.bottom + gap;
@@ -1012,7 +982,7 @@ function showSecurityPopover(e) {
     popover.showPopover();
   }
   if (!supportsAnchorPositioning) {
-    placeSecurityPopover(chip.querySelector('.security-chip-label'), popover);
+    placeSecurityPopover(chip, popover);
   }
   if (openSecurityPopover !== popover) {
     openSecurityPopover = popover;
@@ -1034,6 +1004,11 @@ function scheduleHideSecurityPopover(e) {
     }, 150)
   );
 }
+
+const lockIcon = html`<svg class="security-lock" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="1.75">
+  <rect x="5" y="11" width="14" height="10" rx="2" />
+  <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+</svg>`;
 
 export function pathSecurityTemplate(pathSecurity, elementId = '') {
   if (!this.resolvedSpec.securitySchemes || !Array.isArray(pathSecurity) || pathSecurity.length === 0) {
@@ -1075,15 +1050,20 @@ export function pathSecurityTemplate(pathSecurity, elementId = '') {
   const isLink = this.updateRoute === 'true' && this.allowAuthentication === 'true';
 
   return html`
-    <div class="operation-security value-list" part="section-operation-security" role="group" aria-labelledby="${idPrefix}-label">
-      <span class="security-label-group value-list-label">
-        <span id="${idPrefix}-label" class="security-label" part="label-operation-security">Authorization</span>
-        <svg class="security-lock" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none">
-          <rect x="5" y="11" width="14" height="10" rx="2" />
-          <circle cx="12" cy="16" r="1" />
-          <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
-        </svg>
-      </span>
+    <div class="operation-security" part="section-operation-security" role="group" aria-labelledby="${idPrefix}-label">
+      <span id="${idPrefix}-label" class="security-label visually-hidden" part="label-operation-security">Authorization</span>
+      ${
+        isLink
+          ? html`<a
+              class="security-lock-btn"
+              part="anchor anchor-operation-security"
+              href="#auth"
+              title="Go to Authentication"
+              aria-label="Authorization: go to Authentication section"
+              >${lockIcon}</a
+            >`
+          : html`<span class="security-lock-btn">${lockIcon}</span>`
+      }
       <ul class="value-list-items security-chips" role="list">
         ${orSecurityKeys.map((orItem, i) => {
           if (!orItem.securityTypes) {
@@ -1093,35 +1073,19 @@ export function pathSecurityTemplate(pathSecurity, elementId = '') {
           const hasDetails = orItem.securityDefs.length > 0;
           const popoverId = `${idPrefix}-${i}`;
           const anchorName = `${anchorPrefix}-${i}`;
-          let labelHtml;
-          if (!hasDetails) {
-            labelHtml = html`<span class="security-chip-label">${orItem.securityTypes}</span>`;
-          } else if (isLink) {
-            labelHtml = html`<a
-              part="anchor anchor-operation-security"
-              class="security-chip-label"
-              href="#auth"
-              aria-describedby="${popoverId}"
-              style="anchor-name:${anchorName}"
-              >${orItem.securityTypes}</a
-            >`;
-          } else {
-            labelHtml = html`<button
-              type="button"
-              class="security-chip-label"
-              aria-describedby="${popoverId}"
-              style="anchor-name:${anchorName}"
-              @click="${showSecurityPopover}"
-            >
-              ${orItem.securityTypes}
-            </button>`;
-          }
+          // Chips only open their details popover; the lock before them links to the Authentication section
+          const labelHtml = hasDetails
+            ? html`<button type="button" class="security-chip-label" aria-describedby="${popoverId}" @click="${showSecurityPopover}">
+                ${orItem.securityTypes}
+              </button>`
+            : html`<span class="security-chip-label">${orItem.securityTypes}</span>`;
 
           return html`
             <li>
               <span
                 class="security-chip ${hasDetails ? 'has-details' : ''}"
                 part="operation-security-chip"
+                style="anchor-name:${anchorName}"
                 @mouseenter="${showSecurityPopover}"
                 @mouseleave="${scheduleHideSecurityPopover}"
                 @focusin="${showSecurityPopover}"

@@ -121,6 +121,10 @@ export default class TagInput extends LitElement {
         .tags {
           display: flex;
           flex-wrap: wrap;
+          align-items: center;
+          box-sizing: border-box;
+          /* Same height as the text inputs in a parameter row (see param-list-styles.js) */
+          min-height: calc(2.75 * var(--font-size-small) + 2px);
           outline: none;
           padding: 0;
           border-radius: var(--radius);
@@ -128,16 +132,26 @@ export default class TagInput extends LitElement {
           cursor: text;
           overflow: hidden;
           background: var(--input-background);
+          transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+
+          /* Same focus ring as the text inputs */
+          &:focus-within {
+            border-color: var(--primary);
+            box-shadow: var(--focus-shadow);
+          }
         }
         .tag,
         .editor {
           padding: 3px;
           margin: 2px;
         }
+        /* Chips: a muted fill with the form-field border, so each one stands apart on a white or dark field */
         .tag {
-          border: 1px solid var(--border);
+          border: 1px solid var(--input);
           background: var(--muted);
-          color: var(--muted-foreground);
+          color: var(--foreground);
           border-radius: var(--radius);
           word-break: break-all;
           font-size: var(--font-size-small);
@@ -155,9 +169,6 @@ export default class TagInput extends LitElement {
           font-family: inherit;
           background: transparent;
           font-size: calc(var(--font-size-small) + 1px);
-        }
-        .editor:focus-visible {
-          outline: 1px solid;
         }
         .editor::placeholder {
           color: var(--muted-foreground);

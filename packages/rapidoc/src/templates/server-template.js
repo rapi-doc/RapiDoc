@@ -107,7 +107,7 @@ export default function serverTemplate() {
       ${
         this.mockServer === 'true'
           ? html`<span
-              style="font-size:var(--font-size-small); font-weight:bold; color:var(--green); border:1px solid var(--green); border-radius:4px; padding:1px 6px; letter-spacing:0.5px;"
+              style="font-size:var(--font-size-small); font-weight:bold; color:var(--green); border:1px solid var(--green); border-radius:var(--radius); padding:1px 6px; letter-spacing:0.5px;"
               title="In-browser mock server is active"
             >
               MOCK ACTIVE

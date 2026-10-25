@@ -279,11 +279,11 @@ export default css`
     /* Border Vars:
       border: dividing lines for tables, cards, sections, and panels
     */
-    --border: color-mix(in srgb, var(--background) 90%, var(--foreground));
+    --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
 
     --sidebar-accent: color-mix(in srgb, var(--background) 88%, var(--foreground));
 
-    --input: oklch(from var(--border) calc(l - 0.05) c h);
+    --input: oklch(from var(--border) calc(l + 0.05) c h);
     --input-background: color-mix(in srgb, var(--background) 80%, #000000);
 
     /* HTTP Method Badges (Dark Mode: High Vibrancy) */
@@ -341,7 +341,7 @@ export default css`
       card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
       card-foreground : Text & icon color on elevated surfaces
     */
-    --card: color-mix(in srgb, var(--background) 96%, var(--foreground));
+    --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
     --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
 
     /* Muted Vars:
@@ -354,12 +354,13 @@ export default css`
     /* Border Vars:
       border: dividing lines for tables, cards, sections, and panels
     */
-    --border: color-mix(in srgb, var(--background) 88%, var(--foreground));
+    --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
 
     --sidebar-accent: color-mix(in srgb, var(--background) 92%, var(--foreground));
 
     --input: color-mix(in srgb, var(--border) 75%, var(--foreground));
-    --input-background: color-mix(in srgb, var(--background) 96%, var(--foreground));
+    /* Light: fields are white, so they stand out on the tinted card surface */
+    --input-background: var(--background);
 
     /* HTTP Method Badges (Light Mode: High Contrast) */
     --method-get: #099cff;
@@ -403,7 +404,7 @@ export default css`
 
     /* Code Blocks */
 
-    --code-bg: var(--input-background);
+    --code-bg: color-mix(in srgb, var(--background) 96%, var(--foreground));
   }
 
   /* --------- 3C. SYSTEM --------- */
@@ -418,7 +419,7 @@ export default css`
       --border: #e4e4e7;
       --sidebar-accent: oklch(from var(--background) calc(l - 0.04) c h);
       --input: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --input-background: var(--background);
 
       --method-get: #2563eb;
       --method-post: #059669;
@@ -457,7 +458,7 @@ export default css`
       --syntax-inserted: #116329;
       --syntax-deleted: #cf222e;
 
-      --code-bg: var(--input-background);
+      --code-bg: color-mix(in srgb, var(--background) 94%, var(--foreground));
     }
   }
 

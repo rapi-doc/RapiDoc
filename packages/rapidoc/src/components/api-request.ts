@@ -150,24 +150,52 @@ export default class ApiRequest extends LitElement {
           align-items: flex-start;
           width: 100%;
 
+          /* Each file input spans the full width; its remove button sits inside the box, at the right edge */
           & .input-set {
+            position: relative;
             width: 100%;
             display: flex;
             align-items: center;
 
             &:first-child .file-input-remove-btn {
-              visibility: hidden;
+              display: none;
             }
+
+            &:not(:first-child) input[type='file'] {
+              padding-right: 2.25em;
+            }
+          }
+
+          /* Inset by the file input's border + padding, so it lines up with Choose File */
+          & .file-input-add-btn {
+            align-self: flex-start;
+            margin: 4px 0 0 0.45em;
+            font-weight: 400;
           }
         }
 
         .file-input-remove-btn {
-          font-size: 16px;
+          position: absolute;
+          top: 50%;
+          right: 0.45em;
+          transform: translateY(-50%);
+          padding: 0 0.25em;
+          font-size: 1.25em;
+          line-height: 1;
           color: var(--destructive);
-          outline: none;
           border: none;
+          border-radius: var(--radius);
           background: none;
           cursor: pointer;
+
+          &:hover {
+            background: color-mix(in srgb, var(--destructive) 15%, transparent);
+          }
+
+          &:focus-visible {
+            outline: none;
+            box-shadow: var(--focus-shadow);
+          }
         }
 
         .v-tab-btn {
@@ -192,9 +220,70 @@ export default class ApiRequest extends LitElement {
           }
         }
 
-        @container (max-width: 470px) {
-          .hide-in-small-screen {
-            display: none;
+        /*
+         * Try bar: server/auth summary on the left, actions on the right. The summary is a two-row
+         * label/value list sized like a parameter label (name over type). The bar is its own container,
+         * so it reflows by the width it has, not the viewport.
+         */
+        .try-bar {
+          container-type: inline-size;
+          margin: 16px 0;
+          font-size: var(--font-size-small);
+        }
+        /* Narrow: summary on top, actions below it on the right */
+        .try-layout {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75em;
+        }
+        .try-info {
+          display: grid;
+          grid-template-columns: max-content minmax(0, 1fr);
+          gap: 0.25em 0.75em;
+          margin: 0;
+          line-height: 1.35;
+
+          & > dt {
+            font-weight: 600;
+            color: var(--foreground);
+          }
+          & > dd {
+            margin: 0;
+            min-width: 0;
+            color: var(--muted-foreground);
+            overflow-wrap: anywhere;
+          }
+        }
+        .try-actions {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          gap: 0.5em;
+        }
+        /* Wide: one row; the summary takes the free space and the actions keep their size */
+        @container (min-width: 34rem) {
+          .try-layout {
+            flex-direction: row;
+            align-items: center;
+            gap: 1.5em;
+          }
+          .try-info {
+            flex: 1;
+            min-width: 0;
+          }
+          .try-actions {
+            flex: none;
+          }
+        }
+        /* Very narrow: each label above its value */
+        @container (max-width: 20rem) {
+          .try-info {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0;
+
+            & > dd + dt {
+              margin-top: 0.5em;
+            }
           }
         }
       `,

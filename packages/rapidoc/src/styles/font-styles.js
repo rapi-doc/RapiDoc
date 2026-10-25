@@ -202,11 +202,6 @@ export default css`
   a:hover {
     text-decoration: underline;
   }
-  a.inactive-link {
-    color: var(--foreground);
-    text-decoration: none;
-    cursor: text;
-  }
 
   code,
   pre {
@@ -319,7 +314,7 @@ export default css`
 
   .m-markdown pre {
     padding: 12px;
-    background: var(--input-background);
+    background: var(--code-bg);
     color: var(--foreground);
 
     & code {
@@ -333,7 +328,7 @@ export default css`
   .m-markdown-small pre {
     margin-top: 4px;
     padding: 2px 4px;
-    background: var(--input-background);
+    background: var(--code-bg);
     color: var(--card-foreground);
 
     & code {

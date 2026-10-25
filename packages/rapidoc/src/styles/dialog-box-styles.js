@@ -82,7 +82,7 @@ export default css`
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.5em;
     user-select: none;
   }
 

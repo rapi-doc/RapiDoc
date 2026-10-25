@@ -10,12 +10,12 @@ export function curlSyntaxTemplate(display = 'flex') {
   return html`
     <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
       <button
-        class="toolbar-btn"
+        class="btn btn-sm btn-outline toolbar-btn"
         style="position:absolute; top:12px; right:8px"
         @click="${(e) => {
           copyToClipboard(this.curlSyntax.trim().replace(/\\$/, ''), e);
         }}"
-        part="btn btn-fill btn-copy"
+        part="btn btn-outline btn-copy"
       >
         Copy
       </button>
@@ -41,7 +41,7 @@ export function apiResponseTabTemplate() {
       <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
       <button class="btn btn-outline" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
     </div>
-    <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+    <div part="tab-panel" class="tab-panel col">
       <div
         id="tab_buttons"
         part="tab-btn-row"
@@ -110,11 +110,11 @@ export function apiResponseTabTemplate() {
               style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};"
             >
               <button
-                class="toolbar-btn"
+                class="btn btn-sm btn-outline toolbar-btn"
                 @click="${(e) => {
                   copyToClipboard(this.responseText, e);
                 }}"
-                part="btn btn-fill btn-copy"
+                part="btn btn-outline btn-copy"
               >
                 Copy
               </button>
@@ -128,11 +128,11 @@ ${responseContent}</pre>
         style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};"
       >
         <button
-          class="toolbar-btn"
+          class="btn btn-sm btn-outline toolbar-btn"
           @click="${(e) => {
             copyToClipboard(this.responseHeaders, e);
           }}"
-          part="btn btn-fill btn-copy"
+          part="btn btn-outline btn-copy"
         >
           Copy
         </button>
@@ -143,71 +143,65 @@ ${responseContent}</pre>
 }
 
 export function apiCallTemplate() {
-  const selectedServerHtml = this.serverUrl
-    ? html`<div style="display:flex; align-items:baseline; overflow:hidden;">
-        <div style="font-weight:600; padding-right:5px;">API Server</div>
-        <span class="gray-text"> ${this.serverUrl} </span>
-      </div>`
-    : '';
+  let authHtml;
+  if (this.security?.length > 0 && !this.security.every((s) => !s || Object.keys(s).length === 0)) {
+    if (this.api_keys.length > 0) {
+      authHtml = html`<span class="blue-text">
+        ${this.api_keys.length === 1 ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}` : `${this.api_keys.length} API keys applied`}
+      </span>`;
+    } else if (this.security.some((s) => !s || Object.keys(s).length === 0)) {
+      authHtml = html`Optional (None Applied)`;
+    } else {
+      authHtml = html`Required <span class="red-text">(None Applied)</span>`;
+    }
+  } else {
+    authHtml = html`Not Required`;
+  }
 
-  return html`<div
-      style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 8px; margin:16px 0; font-size:var(--font-size-small);"
-      part="wrap-request-btn"
-    >
-      <div class="hide-in-small-screen" style="display:flex; flex-direction:column; margin:0; flex:1 1 180px; min-width:0;">
-        ${selectedServerHtml}
-        <div style="display:flex; flex-wrap:wrap;">
-          <div style="font-weight:600; padding-right:5px;">Authentication</div>
+  return html`<div class="try-bar" part="wrap-request-btn">
+      <div class="try-layout">
+        <dl class="try-info">
           ${
-            this.security?.length > 0 && !this.security.every((s) => !s || Object.keys(s).length === 0)
-              ? html` ${
-                  this.api_keys.length > 0
-                    ? html`<div style="color:var(--blue); overflow:hidden;">
-                        ${
-                          this.api_keys.length === 1
-                            ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
-                            : `${this.api_keys.length} API keys applied`
-                        }
-                      </div>`
-                    : this.security.some((s) => !s || Object.keys(s).length === 0)
-                      ? html`<div class="gray-text">Optional <span class="gray-text">(None Applied)</span></div>`
-                      : html`<div class="gray-text">Required <span style="color:var(--destructive)">(None Applied)</span></div>`
-                }`
-              : html`<span class="gray-text"> Not Required </span>`
+            this.serverUrl
+              ? html`<dt>API Server</dt>
+                  <dd class="try-server-url">${this.serverUrl}</dd>`
+              : ''
           }
+          <dt>Authentication</dt>
+          <dd>${authHtml}</dd>
+        </dl>
+        <div class="try-actions">
+          ${
+            this.parameters.length > 0 || this.request_body
+              ? html` <button
+                    class="btn btn-outline"
+                    part="btn btn-outline btn-fill"
+                    ?disabled="${this.loading}"
+                    @click="${this.onFillRequestData}"
+                    title="Fills with example data (if provided)"
+                  >
+                    FILL EXAMPLE
+                  </button>
+                  <button
+                    class="btn btn-outline"
+                    part="btn btn-outline btn-clear"
+                    ?disabled="${this.loading}"
+                    @click="${this.onClearRequestData}"
+                  >
+                    CLEAR
+                  </button>`
+              : ''
+          }
+          <button
+            class="btn btn-primary"
+            part="btn btn-try"
+            ?disabled="${this.loading}"
+            aria-busy="${this.loading}"
+            @click="${this.onTryClick}"
+          >
+            ${this.loading ? 'TRYING...' : 'TRY'}
+          </button>
         </div>
-      </div>
-      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; flex-shrink:0;">
-        ${
-          this.parameters.length > 0 || this.request_body
-            ? html` <button
-                  class="btn btn-outline"
-                  part="btn btn-outline btn-fill"
-                  ?disabled="${this.loading}"
-                  @click="${this.onFillRequestData}"
-                  title="Fills with example data (if provided)"
-                >
-                  FILL EXAMPLE
-                </button>
-                <button
-                  class="btn btn-outline"
-                  part="btn btn-outline btn-clear"
-                  ?disabled="${this.loading}"
-                  @click="${this.onClearRequestData}"
-                >
-                  CLEAR
-                </button>`
-            : ''
-        }
-        <button
-          class="btn btn-primary"
-          part="btn btn-try"
-          ?disabled="${this.loading}"
-          aria-busy="${this.loading}"
-          @click="${this.onTryClick}"
-        >
-          ${this.loading ? 'TRYING...' : 'TRY'}
-        </button>
       </div>
     </div>
     <div class="row" style="font-size:var(--font-size-small); margin:5px 0">

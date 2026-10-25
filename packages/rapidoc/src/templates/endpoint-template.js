@@ -142,6 +142,7 @@ function endpointBodyTemplate(path) {
             `
           : ''
       }
+      ${pathSecurityTemplate.call(this, path.security, path.elementId)}
       ${
         path.description
           ? html`<div part="section-endpoint-body-description" class="m-markdown">
@@ -149,7 +150,6 @@ function endpointBodyTemplate(path) {
             </div>`
           : ''
       }
-      ${pathSecurityTemplate.call(this, path.security, path.elementId)}
       ${
         path.externalDocs?.url || path.externalDocs?.description
           ? html`<div class="external-docs-box">

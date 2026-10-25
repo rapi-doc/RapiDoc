@@ -18,6 +18,8 @@ export default css`
     list-style: none;
     border: 1px solid var(--border);
     border-radius: min(var(--radius), 0.5rem);
+    /* Card surface: --card, partly transparent so a background gradient shows through */
+    background: color-mix(in srgb, var(--card) 80%, transparent);
     font-size: var(--font-size-small);
     line-height: calc(var(--font-size-small) + 4px);
     word-break: break-word;
@@ -47,6 +49,23 @@ export default css`
   .param-input {
     grid-column: 2;
     min-width: 0;
+  }
+
+  /*
+   * Single-line controls match the two-line label (name over type: 2 x 1.35em + 3px). A fixed line-height
+   * keeps mono and sans controls the same height: 1.25em + 2 x 0.75em + 2px border = 2.75em + 2px.
+   * <tag-input> and file inputs reach the same height in tag-input.ts and input-styles.js.
+   */
+  .param-input :is(input[type='text'], input[type='password'], select) {
+    line-height: 1.25;
+    padding: 0.75em;
+  }
+
+  /* Room for the background-image arrow where the native select is still drawn */
+  @supports not (appearance: base-select) {
+    .param-input select {
+      padding-right: 2.25em;
+    }
   }
 
   /* Constraints: label/value pairs; the labels share one column, so all values start at the same place */
@@ -143,6 +162,54 @@ export default css`
       content: '┃';
       margin-inline: var(--value-list-gap);
       color: var(--muted-foreground);
+    }
+  }
+
+  /*
+   * Clickable values (allowed values, examples): small mono chips that fill the parameter's input.
+   * Buttons, not links: a tinted hover instead of an underline. Read-only (disabled) when try-it is off.
+   */
+  .value-chip {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0;
+    padding: 0 0.4em;
+    font: inherit;
+    font-family: var(--font-mono);
+    line-height: inherit;
+    text-align: start;
+    overflow-wrap: anywhere;
+    color: var(--foreground);
+    background: color-mix(in srgb, var(--foreground) 6%, transparent);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 14%, transparent);
+    }
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-shadow);
+    }
+    &:disabled {
+      color: var(--foreground);
+      background: color-mix(in srgb, var(--foreground) 6%, transparent);
+      cursor: text;
+      user-select: text;
+    }
+  }
+
+  /* A list of chips is spaced apart instead of using the ┃ separators */
+  .value-list-items:has(> li > .value-chip) {
+    column-gap: 0.375em;
+
+    & > li::after {
+      content: none;
     }
   }
 

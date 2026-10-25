@@ -4,14 +4,12 @@ export default css`
   #advanced-search-btn {
     display: none;
     margin-left: 5px;
-    padding: 6px 8px;
     width: 75px;
   }
   .btn-clear-filter {
     margin-left: 5px;
     color: var(--foreground);
     width: 75px;
-    padding: 6px 8px;
   }
   .nav-bar-header {
     position: sticky;
@@ -52,9 +50,11 @@ export default css`
     position: relative;
     line-height: 22px;
   }
-  .nav-bar-search-input {
+  /* Wrapper in the selector so it outranks input-styles' input[type='text'] padding (room for the icon) */
+  .nav-bar-search-input-wrapper .nav-bar-search-input {
     width: 100%;
-    padding: 6px 28px 6px 10px;
+    line-height: 1.25;
+    padding: 0.45em 28px 0.45em 10px;
     color: var(--foreground);
     border: 1px solid var(--input);
     border-radius: var(--radius);
@@ -96,7 +96,7 @@ export default css`
     background: var(--card);
     color: var(--foreground);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius);
     cursor: pointer;
     z-index: 10;
     box-shadow:

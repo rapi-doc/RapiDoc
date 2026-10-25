@@ -23,7 +23,7 @@ export default css`
     margin: 0.5em 0;
     overflow: auto;
     border-radius: min(var(--radius), 0.5rem);
-    background: var(--input-background);
+    background: var(--code-bg);
     border: 1px solid var(--input);
   }
 
