@@ -211,8 +211,9 @@ describe('Schema Modernization & Accessibility (schema-tree & schema-table)', ()
       assert.equal(headingSummary, '<b>Speed:</b> Shipping speed');
       assert.match(headingHtml, /^<p><b>Speed:<\/b><\/p>\s*<h3/);
 
-      const [paragraphHtml] = unsafeStrings(tree.renderDescrCell('Plain text', null, 'Note'));
-      assert.equal(paragraphHtml.trim(), '<p><b>Note:</b> Plain text</p>', 'Before a paragraph the title stays inline, with no summary');
+      const paragraphHtml = renderToString(tree.renderDescrCell('Plain text', null, 'Note'));
+      assert.match(paragraphHtml, /<p><b>Note:<\/b> Plain text<\/p>/, 'Before a paragraph the title stays inline, with no summary');
+      assert.ok(!paragraphHtml.includes('descr-summary'));
     });
 
     it('summarizes a list by its first item, without the items nested under it', () => {

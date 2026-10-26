@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html, css, nothing } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import FontStyles from '../styles/font-styles.js';
 import SchemaStyles from '../styles/schema-styles.js';
@@ -203,10 +203,10 @@ export default class SchemaTable extends SchemaBaseElement {
         return html`
           <div class="tr array ${nullClass}" data-obj="${node.name || ''}">
             <div class="td key" style="padding-left:${leftPadding}px">
-              <span class="key-label" title="${node.name || ''}">${deprecatedIcon}${node.name || ''}</span>
+              <span class="key-label" title="${node.name || nothing}">${deprecatedIcon}${node.name || ''}</span>
               ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
             </div>
-            <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
+            <div class="td key-type" title="${readWriteTip || nothing}">${typeLabel}${readWriteBadge}</div>
             ${this.renderDescrCell(node.description)}
           </div>
         `;
@@ -217,12 +217,12 @@ export default class SchemaTable extends SchemaBaseElement {
         const dataTypeCss = this.getDataTypeCss(itemType);
 
         return html`
-          <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
+          <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : nothing}">
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-              ${deprecatedIcon} ${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
+              ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
               ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
             </div>
-            <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">
+            <div class="td key-type ${dataTypeCss}" title="${readWriteTip || nothing}">
               [${itemType}]${node.nullable ? ' ┃ null' : ''}${readWriteBadge}
             </div>
             ${this.renderDescrCell(node.description || items.description, items)}
@@ -256,7 +256,7 @@ export default class SchemaTable extends SchemaBaseElement {
         <div
           class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}"
           data-obj="${node.name || ''}"
-          title="${node.deprecated ? `Deprecated ${node.name}` : node.name || ''}"
+          title="${node.deprecated ? `Deprecated ${node.name}` : node.name || nothing}"
         >
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
             ${
@@ -270,12 +270,12 @@ export default class SchemaTable extends SchemaBaseElement {
                   ></button>`
                 : ''
             }
-            <span class="key-label" title="${node.name || ''}" style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}">
+            <span class="key-label" title="${node.name || nothing}" style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}">
               ${deprecatedIcon}${node.name || ''}
             </span>
             ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
           </div>
-          <div class="td key-type" title="${readWriteTip}">${arrLabel}${readWriteBadge}</div>
+          <div class="td key-type" title="${readWriteTip || nothing}">${arrLabel}${readWriteBadge}</div>
           ${this.renderDescrCell(node.description || items.description)}
         </div>
         ${
@@ -333,14 +333,14 @@ export default class SchemaTable extends SchemaBaseElement {
                     }
                     <span
                       class="key-label"
-                      title="${node.name || ''}"
+                      title="${node.name || nothing}"
                       style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}"
                     >
                       ${deprecatedIcon}${node.name}
                     </span>
                     ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
                   </div>
-                  <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
+                  <div class="td key-type" title="${readWriteTip || nothing}">${typeLabel}${readWriteBadge}</div>
                   ${this.renderDescrCell(node.description)}
                 </div>
               `
@@ -411,12 +411,12 @@ export default class SchemaTable extends SchemaBaseElement {
       const dataTypeCss = this.getDataTypeCss(node.type);
 
       return html`
-        <div class="tr primitive ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
+        <div class="tr primitive ${nullClass}" title="${node.deprecated ? 'Deprecated' : nothing}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-            ${deprecatedIcon} ${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
+            ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
             ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
           </div>
-          <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">
+          <div class="td key-type ${dataTypeCss}" title="${readWriteTip || nothing}">
             ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}
           </div>
           ${this.renderDescrCell(node.description, node, node.title)}

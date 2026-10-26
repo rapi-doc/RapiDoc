@@ -5,6 +5,51 @@ import { marked } from 'marked';
 import { sanitizeHTML } from '../utils/sanitize.js';
 import { blockSummary, firstLineHtml } from '../utils/markdown-utils.js';
 
+// Markdown or HTML syntax, a bare URL or e-mail (GFM autolinks), or a list, quote, heading or rule marker at the start
+const MARKDOWN_SYNTAX = /[*_`~[\]<>#|\\&\n]|https?:|ftp:|www\.|@|^([-+]|\d+[.)])\s|^-{3,}$/;
+
+function isPlainText(text) {
+  return !MARKDOWN_SYNTAX.test(text);
+}
+
+// Rendered markdown descriptions by source text: large specs repeat the same description thousands of times
+const markdownCache = new Map();
+const MARKDOWN_CACHE_SIZE = 5000;
+
+/**
+ * Markdown description as sanitized HTML, with the one-line summary and whether the row hides content (see renderDescrCell).
+ * @param {string} text - Markdown description, trimmed
+ * @param {string} title - Schema title, shown in bold before the description
+ * @returns {{ summary: string, html: string, hasMore: boolean }}
+ */
+function renderMarkdownDescription(text, title) {
+  const key = `${title}\n\n${text}`;
+  let rendered = markdownCache.get(key);
+  if (rendered) {
+    return rendered;
+  }
+  const firstBlock: any = text ? marked.lexer(text).find((t: any) => t.type !== 'space') : null;
+  const blockLine = blockSummary(firstBlock);
+  // A title can only be prefixed inline to a paragraph; before a list, heading, table, ... it gets its own paragraph
+  const titleHtml = title ? `<b>${title}${text ? ':' : ''}</b>` : '';
+  const titleOwnBlock = !!titleHtml && !!firstBlock && firstBlock.type !== 'paragraph';
+  const summary = titleOwnBlock ? `${titleHtml} ${blockLine || firstLineHtml(firstBlock)}` : blockLine;
+  const markdown = titleHtml && text ? `${titleHtml}${titleOwnBlock ? '\n\n' : ' '}${text}` : titleHtml || text;
+  const tokens = markdown ? marked.lexer(markdown) : [];
+  const blocks = tokens.filter((t: any) => t.type !== 'space');
+  rendered = {
+    summary: summary ? sanitizeHTML(summary) : '',
+    html: blocks.length ? sanitizeHTML(marked.parser(tokens)).trim() : '',
+    hasMore:
+      !!summary || blocks.length > 1 || (blocks[0]?.type === 'list' && blocks[0].items.length > 1) || /<br\s*\/?>(?!\s*$)/i.test(markdown),
+  };
+  if (markdownCache.size >= MARKDOWN_CACHE_SIZE) {
+    markdownCache.clear();
+  }
+  markdownCache.set(key, rendered);
+  return rendered;
+}
+
 export default class SchemaBaseElement extends LitElement {
   @property({ type: Object }) config: any;
   @property({ type: Object }) data: any;
@@ -110,11 +155,12 @@ export default class SchemaBaseElement extends LitElement {
     return false;
   }
 
+  // Ends with the space before the name, so rows without the icon have no whitespace node there
   renderDeprecatedIcon(node) {
     return node?.deprecated
       ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--destructive); margin-right:-6px">
           <path d="M2 2L8 8M2 8L8 2" />
-        </svg>`
+        </svg> `
       : '';
   }
 
@@ -183,22 +229,19 @@ export default class SchemaBaseElement extends LitElement {
     if (!text && !title && !hasChips) {
       return html`<div class="td key-descr"></div>`;
     }
-    const firstBlock: any = text ? marked.lexer(text).find((t: any) => t.type !== 'space') : null;
-    const blockLine = blockSummary(firstBlock);
-    // A title can only be prefixed inline to a paragraph; before a list, heading, table, ... it gets its own paragraph
-    const titleHtml = title ? `<b>${title}${text ? ':' : ''}</b>` : '';
-    const titleOwnBlock = !!titleHtml && !!firstBlock && firstBlock.type !== 'paragraph';
-    const summary = titleOwnBlock ? `${titleHtml} ${blockLine || firstLineHtml(firstBlock)}` : blockLine;
-    const markdown = titleHtml && text ? `${titleHtml}${titleOwnBlock ? '\n\n' : ' '}${text}` : titleHtml || text;
-    const tokens = markdown ? marked.lexer(markdown) : [];
-    const blocks = tokens.filter((t: any) => t.type !== 'space');
-    const hasMore =
-      !!summary ||
-      blocks.length > 1 ||
-      (blocks[0]?.type === 'list' && blocks[0].items.length > 1) ||
-      /<br\s*\/?>(?!\s*$)/i.test(markdown) ||
-      (blocks.length > 0 && hasChips);
+    let body;
+    let hasMore;
+    if (isPlainText(text) && isPlainText(title)) {
+      // Most descriptions are plain sentences: shown as they are, without the markdown parser, the sanitizer and the HTML parse
+      body = title ? html`<p><b>${title}${text ? ':' : ''}</b> ${text}</p>` : text ? html`<p>${text}</p>` : '';
+      hasMore = hasChips && !!body;
+    } else {
+      const rendered = renderMarkdownDescription(text, title);
+      body = html`${rendered.summary ? html`<span class="descr-summary">${unsafeHTML(rendered.summary)}</span>` : ''}${rendered.html ? unsafeHTML(rendered.html) : ''}`;
+      hasMore = rendered.hasMore || (!!rendered.html && hasChips);
+    }
     const isExpanded = this.schemaDescriptionExpanded === 'true';
+    // The arrow, the text and the chips sit next to each other: whitespace between them would be a text node per row
     return html`
       <div class="td key-descr">
         <div class="descr-body m-markdown-small ${hasMore ? 'has-more' : ''}">
@@ -209,10 +252,7 @@ export default class SchemaBaseElement extends LitElement {
             aria-label="Toggle description"
             aria-expanded="${isExpanded ? 'true' : 'false'}"
             >➔</span
-          >
-          ${summary ? html`<span class="descr-summary">${unsafeHTML(sanitizeHTML(summary))}</span>` : ''}
-          ${blocks.length ? unsafeHTML(sanitizeHTML(marked.parser(tokens))) : ''}
-          ${hasChips ? html`<div class="item-details">${this.renderDetailChips(chipsNode)}</div>` : ''}
+          >${body}${hasChips ? html`<div class="item-details">${this.renderDetailChips(chipsNode)}</div>` : ''}
         </div>
       </div>
     `;

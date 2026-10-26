@@ -1,3 +1,6 @@
+// One instance for every call: constructing it per description is measurable on large schemas
+let nativeSanitizer;
+
 export function sanitizeHTML(htmlString) {
   if (typeof htmlString !== 'string') {
     return '';
@@ -7,8 +10,8 @@ export function sanitizeHTML(htmlString) {
   if (typeof window !== 'undefined' && window.Sanitizer && Element.prototype.setHTML) {
     try {
       const el = document.createElement('div');
-      const sanitizer = new window.Sanitizer({ allowAttributes: { '*': ['*'] } });
-      el.setHTML(htmlString, { sanitizer });
+      nativeSanitizer ??= new window.Sanitizer({ allowAttributes: { '*': ['*'] } });
+      el.setHTML(htmlString, { sanitizer: nativeSanitizer });
       return el.innerHTML;
     } catch {
       // If Sanitizer with options throws, fall through to fallback shim

@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html, css, nothing } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import FontStyles from '../styles/font-styles.js';
 import SchemaStyles from '../styles/schema-styles.js';
@@ -155,10 +155,9 @@ export default class SchemaTree extends SchemaBaseElement {
       if (!items) {
         const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
         return html`
-          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
+          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : nothing}">
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
-              ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               <span class="open-bracket array">${nullMarker}[ ]</span>
             </div>
             ${this.renderDescrCell(node.description)}
@@ -173,11 +172,10 @@ export default class SchemaTree extends SchemaBaseElement {
         const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
         return html`
-          <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
+          <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : nothing}">
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
-              ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}:</span>` : ''}
-              <span class="${dataTypeCss}" title="${readWriteTip}">${nullMarker}[${itemType}]${readWriteBadge}</span>
+              ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}:</span>` : ''}
+              <span class="${dataTypeCss}" title="${readWriteTip || nothing}">${nullMarker}[${itemType}]${readWriteBadge}</span>
             </div>
             ${this.renderDescrCell(node.description || items.description, items)}
           </div>
@@ -200,11 +198,10 @@ export default class SchemaTree extends SchemaBaseElement {
         return html`
           <div
             class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}"
-            title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}"
+            title="${node.deprecated || items.deprecated ? 'Deprecated' : nothing}"
           >
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
-              ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               ${openBracket}
             </div>
             ${this.renderDescrCell(node.description || items.description)}
@@ -235,10 +232,9 @@ export default class SchemaTree extends SchemaBaseElement {
         const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
         return html`
-          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
+          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : nothing}">
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
-              ${deprecatedIcon}
-              ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
               ${openBracket}
             </div>
             ${this.renderDescrCell(node.description)}
@@ -253,10 +249,9 @@ export default class SchemaTree extends SchemaBaseElement {
       // If array of unions or others
       const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
       return html`
-        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
+        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : nothing}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
-            ${deprecatedIcon}
-            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+            ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
             <span
               class="open-bracket array"
               role="button"
@@ -289,10 +284,9 @@ export default class SchemaTree extends SchemaBaseElement {
       const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
       return html`
-        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
+        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}" title="${node.deprecated ? 'Deprecated' : nothing}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
-            ${deprecatedIcon}
-            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+            ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
             ${openBracket}
           </div>
           ${this.renderDescrCell(node.description)}
@@ -366,13 +360,12 @@ export default class SchemaTree extends SchemaBaseElement {
       const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ''}` : '';
 
       return html`
-        <div class="tr primitive" title="${node.deprecated ? 'Deprecated' : ''}">
+        <div class="tr primitive" title="${node.deprecated ? 'Deprecated' : nothing}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
-            ${deprecatedIcon}
-            ${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}:</span>` : ''}
-            <span class="${dataTypeCss}" title="${readWriteTip}">
-              ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}
-            </span>
+            ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}:</span>` : ''}
+            <span class="${dataTypeCss}" title="${readWriteTip || nothing}"
+              >${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}</span
+            >
           </div>
           ${this.renderDescrCell(node.description, node, node.title)}
         </div>
