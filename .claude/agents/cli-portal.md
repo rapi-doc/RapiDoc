@@ -1,6 +1,6 @@
 ---
 name: cli-portal
-description: "Use for changes to packages/rapidoc-cli (@rapidoc/cli: dev, build, validate, migrate), packages/rapidoc-portal (@rapidoc/portal engine: config, Markdoc, layout, search), or packages/create-rapidoc scaffolding."
+description: "Use for changes to packages/rapidoc-cli (@rapidoc/cli: init, dev, build, validate, migrate), packages/rapidoc-portal (@rapidoc/portal engine: config, Markdoc, layout, search), or packages/create-rapidoc scaffolding."
 ---
 
 # Agent Role: CLI & Developer Portal Specialist

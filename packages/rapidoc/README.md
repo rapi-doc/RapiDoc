@@ -70,7 +70,7 @@ astro-rapidoc/
 │   │   ├── package.json         # Library package config
 │   │   └── vite.config.mjs      # Dedicated library build config
 │   │
-│   ├── rapidoc-cli/             # Command-line utility (lint, preview, bundle)
+│   ├── rapidoc-cli/             # The `rapidoc` command (init, dev, build, validate, migrate)
 │   │   ├── src/                 # CLI source code
 │   │   └── package.json
 │   │

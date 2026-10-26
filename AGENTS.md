@@ -12,7 +12,7 @@ This repository is managed as an **npm workspaces** monorepo running on **Node.j
 astro-rapidoc/
 ├── packages/
 │   ├── rapidoc/          # Core RapiDoc Web Component library (Lit, Vite)
-│   ├── rapidoc-cli/      # Command-line utility for validation, preview, and migration (@rapidoc/cli)
+│   ├── rapidoc-cli/      # The `rapidoc` command (@rapidoc/cli): init, dev, build, validate, migrate
 │   ├── rapidoc-portal/   # Developer portal framework for OpenAPI & Markdoc (@rapidoc/portal)
 │   └── create-rapidoc/   # Scaffolding CLI for new portals (npm create rapidoc)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
@@ -55,7 +55,10 @@ All agents must strictly adhere to the following system boundaries:
   - Aliases `rapidoc` and `~` to `../packages/rapidoc/src/` in development for instantaneous hot reloading.
   - The Astro dev server and build pipeline automatically compile `packages/rapidoc` into `rapidoc-min.js` if missing.
 - **CLI & Portal (`packages/rapidoc-cli` [@rapidoc/cli], `packages/rapidoc-portal` [@rapidoc/portal])**:
-  - Maintain clean boundaries. `@rapidoc/cli` is a Node CLI utility focusing on OpenAPI validation, local preview, and migration. `@rapidoc/portal` is the docs-as-code developer portal engine.
+  - Maintain clean boundaries. `@rapidoc/cli` (bin `rapidoc`) is the single command users run: `init`, `dev`, `build`, `validate`, `migrate`, and later tools such as linting and mocking. `@rapidoc/portal` is the docs-as-code developer portal engine and library.
+  - `@rapidoc/portal` is an **optional peer** of the CLI, imported lazily: only `dev`, `build`, `migrate` and folder-wide `validate` load it, so `rapidoc init` and `rapidoc validate <spec>` work without Astro installed. Never import it at the top of the CLI.
+  - `rapidoc init` reuses `create-rapidoc`'s `scaffoldProject`/`findOpenApiSpecs` (`create-rapidoc/scaffold`); keep scaffolding logic only there.
+  - Internal dependency ranges are pinned (`rapidoc ^12.0.0` in the portal, `@rapidoc/portal ^0.1.0` as the CLI's peer), never `*`.
 
 ### Build Artifact Hygiene
 

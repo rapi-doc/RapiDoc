@@ -18,6 +18,7 @@ test('@rapidoc/cli Command-Line Tool (Milestone 6)', async (t) => {
     assert.ok(output.includes('build [dir]'));
     assert.ok(output.includes('validate [spec|dir]'));
     assert.ok(output.includes('migrate --from <src>'));
+    assert.ok(output.includes('init [dir]'));
   });
 
   await t.test('--version should print version string', () => {
@@ -54,6 +55,62 @@ test('@rapidoc/cli Command-Line Tool (Milestone 6)', async (t) => {
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
+  });
+
+  await t.test('init scaffolds a portal with the CLI and the portal engine as dev dependencies', () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-cli-init-'));
+    const projectDir = path.join(tempDir, 'acme-portal');
+    try {
+      const result = spawnSync('node', [CLI_PATH, 'init', projectDir, '--title', 'Acme Docs', '--yes', '--no-install'], {
+        encoding: 'utf8',
+      });
+      assert.equal(result.status, 0, result.stderr);
+      const pkg = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf8'));
+      assert.deepEqual(Object.keys(pkg.devDependencies).sort(), ['@rapidoc/cli', '@rapidoc/portal']);
+      assert.equal(pkg.scripts.dev, 'rapidoc dev');
+      const config = fs.readFileSync(path.join(projectDir, 'rapidoc.config.yaml'), 'utf8');
+      assert.ok(config.includes('title: "Acme Docs"'));
+      assert.ok(config.includes('spec: "./specs/api.yaml"'));
+      assert.ok(result.stdout.includes('npm run dev'));
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  await t.test('init in an existing repo uses its OpenAPI files and keeps its package.json', () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-cli-init-existing-'));
+    try {
+      fs.mkdirSync(path.join(tempDir, 'openapi'));
+      fs.writeFileSync(
+        path.join(tempDir, 'openapi/orders-api.yaml'),
+        'openapi: 3.1.0\ninfo: { title: Orders, version: 1.0.0 }\npaths: {}\n'
+      );
+      fs.writeFileSync(path.join(tempDir, 'package.json'), '{ "name": "orders-service" }\n');
+
+      const result = spawnSync('node', [CLI_PATH, 'init', '--yes', '--no-install'], { cwd: tempDir, encoding: 'utf8' });
+      assert.equal(result.status, 0, result.stderr);
+      const config = fs.readFileSync(path.join(tempDir, 'rapidoc.config.yaml'), 'utf8');
+      assert.ok(config.includes('id: orders-api'));
+      assert.ok(config.includes('spec: "./openapi/orders-api.yaml"'));
+      assert.ok(config.includes('label: "Orders API"'));
+      assert.ok(!fs.existsSync(path.join(tempDir, 'specs/api.yaml')), 'no starter spec when the repo has its own');
+      assert.equal(fs.readFileSync(path.join(tempDir, 'package.json'), 'utf8'), '{ "name": "orders-service" }\n');
+      assert.ok(result.stdout.includes('npm install -D @rapidoc/cli @rapidoc/portal'));
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  await t.test('without @rapidoc/portal: build asks for it, single-spec validate still works', () => {
+    const env = { ...process.env, RAPIDOC_PORTAL_MODULE: '@rapidoc/portal-not-installed' };
+    const build = spawnSync('node', [CLI_PATH, 'build', DEMO_PORTAL_DIR], { encoding: 'utf8', env });
+    assert.equal(build.status, 1);
+    assert.ok(build.stderr.includes('npm install -D @rapidoc/portal'), build.stderr);
+
+    const specPath = path.join(DEMO_PORTAL_DIR, 'specs/orders-api.yaml');
+    const validateSpec = spawnSync('node', [CLI_PATH, 'validate', specPath], { encoding: 'utf8', env });
+    assert.equal(validateSpec.status, 0, validateSpec.stderr);
+    assert.ok(validateSpec.stdout.includes('Specification is valid OpenAPI!'));
   });
 
   await t.test('migrate --from redocly should generate rapidoc.config.yaml from redocly.yaml', () => {

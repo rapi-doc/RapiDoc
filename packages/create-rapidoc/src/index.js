@@ -56,7 +56,7 @@ try {
   console.log(`\nNext steps:`);
   console.log(`   1. cd ${path.relative(process.cwd(), result.targetDir) || '.'}`);
   console.log(`   2. npm install`);
-  console.log(`   3. npx rapidoc build\n`);
+  console.log(`   3. npm run dev\n`);
 } catch (err) {
   console.error(`\n❌ Failed to scaffold portal: ${err.message}\n`);
   process.exit(1);

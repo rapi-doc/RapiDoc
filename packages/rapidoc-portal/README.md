@@ -8,7 +8,7 @@ A docs-as-code developer portal engine. Point it at a folder of OpenAPI specs an
 - **Guides** (`/docs/...`) rendered by [Astro Starlight](https://starlight.astro.build/)
 - **Full-text search** across guides and API operations
 
-You normally use it through the `rapidoc` CLI (`@rapidoc/cli`); this package is the engine behind `rapidoc dev` and `rapidoc build`.
+You normally use it through the `rapidoc` CLI (`@rapidoc/cli`); this package is the engine behind `rapidoc dev` and `rapidoc build`. Install both in a portal project (`npm install -D @rapidoc/cli @rapidoc/portal`): the CLI lists this package as an optional peer and loads it only for portal commands.
 
 ---
 
@@ -27,7 +27,7 @@ my-portal/
         └── checkout.mdx
 ```
 
-Start one with `npm create rapidoc@latest my-portal`. The `demo-api-portal` repository (checked out next to this monorepo) is the full reference project and is what this repo's tests build.
+Start one with `npm create rapidoc@latest my-portal`, or `npx rapidoc init` in a repo that already has OpenAPI files. The `demo-api-portal` repository (checked out next to this monorepo) is the full reference project and is what this repo's tests build.
 
 ---
 

@@ -2,12 +2,43 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildPortal, startDevServer, migrateConfig, MIGRATION_SOURCES, loadConfig, checkApiSpec } from '@rapidoc/portal';
+import { spawnSync } from 'node:child_process';
+import { createInterface } from 'node:readline/promises';
 import { load, validate } from '@scalar/openapi-parser';
 import { readFiles } from '@scalar/openapi-parser/plugins/read-files';
 
 const args = process.argv.slice(2);
 const command = args[0] || '--help';
+
+// The portal engine (Astro, Starlight, Markdoc) is an optional peer: only dev, build, migrate and portal-wide
+// validate need it, so `rapidoc validate <spec>` and `rapidoc init` work without it.
+// RAPIDOC_PORTAL_MODULE swaps the module name (tests use it to simulate a missing engine).
+const PORTAL_MODULE = process.env.RAPIDOC_PORTAL_MODULE || '@rapidoc/portal';
+
+async function tryLoadPortal() {
+  try {
+    return await import(PORTAL_MODULE);
+  } catch (err) {
+    if (err.code === 'ERR_MODULE_NOT_FOUND' && err.message.includes(PORTAL_MODULE)) return null;
+    throw err;
+  }
+}
+
+async function loadPortal() {
+  const portal = await tryLoadPortal();
+  if (!portal) {
+    console.error(`\n❌ \`rapidoc ${command}\` needs the portal engine. Install it next to the CLI:`);
+    console.error(`   npm install -D @rapidoc/portal\n`);
+    process.exit(1);
+  }
+  return portal;
+}
+
+const positional = (index) => (args[index] && !args[index].startsWith('-') ? args[index] : undefined);
+const optionValue = (name) => {
+  const idx = args.indexOf(name);
+  return idx !== -1 ? args[idx + 1] : undefined;
+};
 
 function printHelp() {
   console.log(`
@@ -17,6 +48,7 @@ Usage:
   rapidoc <command> [options]
 
 Commands:
+  init [dir]              Scaffolds a developer portal (default: current folder); uses OpenAPI files already there
   dev [dir]               Launches local development server with HMR (Astro + Starlight)
   build [dir]             Pre-renders static developer portal into dist/ (SSG)
   validate [spec|dir]     Validates one OpenAPI 3.0 / 3.1 spec, or every spec in a portal's apis: (default: current folder)
@@ -28,8 +60,15 @@ Options:
   --outDir <path>         Output directory for static assets (default: dist)
   --port <number>         Development server port (default: 4321)
   --debug                 Keep the temporary Astro workspace and print its path (for debugging the engine)
+  --title <title>         init: site title (asked for when omitted in a terminal)
+  --force, -f             init: overwrite existing files
+  --yes, -y               init: accept defaults without asking
+  --no-install            init: skip npm install
+
+dev, build, migrate and folder-wide validate need @rapidoc/portal installed next to the CLI.
 
 Examples:
+  rapidoc init my-portal --title "Acme Developer Portal"
   rapidoc dev
   rapidoc build
   rapidoc build ./my-api-portal
@@ -45,6 +84,7 @@ async function handleDev() {
   console.log(`\n✨ Starting RapiDoc Portal Dev Server in: ${targetDir}`);
   console.log(`   Engine: Astro + Starlight\n`);
 
+  const { startDevServer } = await loadPortal();
   try {
     const portIdx = args.indexOf('--port');
     const port = portIdx !== -1 ? parseInt(args[portIdx + 1], 10) : 4321;
@@ -63,6 +103,7 @@ async function handleBuild() {
   console.log(`\n🚀 Building RapiDoc Portal in: ${targetDir}`);
   console.log(`   Engine: Astro + Starlight`);
 
+  const { buildPortal } = await loadPortal();
   try {
     const outDirIdx = args.indexOf('--outDir');
     const outDir = outDirIdx !== -1 ? args[outDirIdx + 1] : 'dist';
@@ -82,10 +123,10 @@ async function handleBuild() {
 }
 
 /**
- * Validates one spec against the OpenAPI schema and prints link warnings (see checkApiSpec).
- * Returns false when the spec has errors.
+ * Validates one spec against the OpenAPI schema and, when the portal engine is installed, prints its link
+ * warnings (see checkApiSpec). Returns false when the spec has errors.
  */
-async function validateSpec(id, fullPath) {
+async function validateSpec(id, fullPath, portal) {
   console.log(`\n🔍 ${id}: ${fullPath}`);
   // Loading from the file (not its text) lets relative $refs to other files resolve.
   const { filesystem } = await load(fullPath, { plugins: [readFiles()] });
@@ -96,7 +137,7 @@ async function validateSpec(id, fullPath) {
     return false;
   }
   console.log('   ✅ Specification is valid OpenAPI!');
-  for (const warning of checkApiSpec({ id, fullPath })) console.warn(`   ⚠️  ${warning}`);
+  for (const warning of portal?.checkApiSpec({ id, fullPath }) ?? []) console.warn(`   ⚠️  ${warning}`);
   return true;
 }
 
@@ -110,15 +151,16 @@ async function handleValidate() {
 
   if (fs.statSync(target).isFile()) {
     console.log(`\nValidating OpenAPI specification...`);
-    const valid = await validateSpec(path.basename(target), target);
+    const valid = await validateSpec(path.basename(target), target, await tryLoadPortal());
     console.log('');
     if (!valid) process.exit(1);
     return;
   }
 
+  const portal = await loadPortal();
   let config;
   try {
-    ({ config } = await loadConfig(target));
+    ({ config } = await portal.loadConfig(target));
   } catch (err) {
     console.error(`\n❌ ${err.message}\n`);
     process.exit(1);
@@ -129,7 +171,7 @@ async function handleValidate() {
   for (const api of config.apis || []) {
     if (api.isRemote) {
       console.log(`\n⏭️  ${api.id}: ${api.spec} (remote, skipped)`);
-    } else if (!(await validateSpec(api.id, api.fullPath))) {
+    } else if (!(await validateSpec(api.id, api.fullPath, portal))) {
       failed += 1;
     }
   }
@@ -139,6 +181,7 @@ async function handleValidate() {
 }
 
 async function handleMigrate() {
+  const { migrateConfig, MIGRATION_SOURCES } = await loadPortal();
   const fromIdx = args.indexOf('--from');
   const source = fromIdx !== -1 ? args[fromIdx + 1]?.toLowerCase() : null;
   const sources = Object.keys(MIGRATION_SOURCES);
@@ -164,7 +207,58 @@ async function handleMigrate() {
   }
 }
 
+// rapidoc init [dir]: the same scaffold as `npm create rapidoc`, built around any OpenAPI files already in dir.
+async function handleInit() {
+  const { scaffoldProject, findOpenApiSpecs } = await import('create-rapidoc/scaffold');
+  const targetDir = path.resolve(positional(1) || '.');
+  const specs = fs.existsSync(targetDir) ? findOpenApiSpecs(targetDir) : [];
+
+  let title = optionValue('--title');
+  if (!title && !args.includes('--yes') && !args.includes('-y') && process.stdin.isTTY) {
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    title = (await rl.question('Site title (leave empty for a default): ')).trim() || undefined;
+    rl.close();
+  }
+
+  console.log(`\n🚀 Scaffolding a RapiDoc Developer Portal in: ${targetDir}`);
+  if (specs.length) console.log(`   Using ${specs.length} OpenAPI file(s) found there: ${specs.join(', ')}`);
+
+  let result;
+  try {
+    result = scaffoldProject(targetDir, { title, overwrite: args.includes('--force') || args.includes('-f'), specs });
+  } catch (err) {
+    console.error(`\n❌ Failed to scaffold the portal: ${err.message}\n`);
+    process.exit(1);
+  }
+
+  console.log(`\n✨ Created ${result.filesCreated.length} file(s) for "${result.siteTitle}"`);
+  if (result.filesSkipped.length) {
+    console.log(`   Kept ${result.filesSkipped.length} existing file(s) (use --force to overwrite):`);
+    for (const file of result.filesSkipped) console.log(`   • ${path.relative(targetDir, file)}`);
+  }
+
+  const packageJsonPath = path.join(targetDir, 'package.json');
+  const ownPackageJson = result.filesCreated.includes(packageJsonPath);
+  const relDir = path.relative(process.cwd(), targetDir) || '.';
+  if (!ownPackageJson) {
+    console.log(`\nAdd the CLI and the portal engine to your existing package.json:`);
+    console.log(`   npm install -D @rapidoc/cli @rapidoc/portal`);
+  } else if (!args.includes('--no-install')) {
+    console.log(`\n📦 Installing dependencies...`);
+    const install = spawnSync('npm', ['install'], { cwd: targetDir, stdio: 'inherit', shell: process.platform === 'win32' });
+    if (install.status !== 0) console.warn(`\n⚠️  npm install failed; run it yourself in ${relDir}.`);
+  }
+
+  console.log(`\nNext steps:`);
+  if (relDir !== '.') console.log(`   cd ${relDir}`);
+  if (ownPackageJson && args.includes('--no-install')) console.log(`   npm install`);
+  console.log(`   ${ownPackageJson ? 'npm run dev' : 'npx rapidoc dev'}\n`);
+}
+
 switch (command) {
+  case 'init':
+    await handleInit();
+    break;
   case 'dev':
     await handleDev();
     break;

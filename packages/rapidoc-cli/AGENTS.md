@@ -1,7 +1,7 @@
 # AGENTS.md — `packages/rapidoc-cli` (Command Line Utility)
 
 ## 1. Package Scope & Identity
-`packages/rapidoc-cli` provides the `rapidoc` command-line interface for `@rapidoc/portal`: `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc validate` (OpenAPI validation), and `rapidoc migrate --from redocly|zudoku` (config migration).
+`packages/rapidoc-cli` provides the `rapidoc` command, the one tool users run: `rapidoc init` (scaffold a portal, optionally around existing OpenAPI files), `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc validate` (OpenAPI validation), and `rapidoc migrate --from redocly|zudoku` (config migration). Future tools (linting, mock server) belong here too.
 
 - **Package Name**: `@rapidoc/cli`
 - **Binary Name**: `rapidoc`
@@ -14,7 +14,8 @@
 
 - **Runtime**: Node.js >= 22.12.0
 - **Parser**: `@scalar/openapi-parser` for OpenAPI specification loading and validation
-- **Portal Engine**: `@rapidoc/portal` (dev server and build are delegated to it)
+- **Scaffolding**: `create-rapidoc` (`create-rapidoc/scaffold`: `scaffoldProject`, `findOpenApiSpecs`), imported lazily by `init`
+- **Portal Engine**: `@rapidoc/portal`, an **optional peer dependency** (`^0.1.0`). Load it only through `loadPortal()` / `tryLoadPortal()` (dynamic `import()`), never with a top-level import: `dev`, `build`, `migrate` and folder-wide `validate` need it and print `npm install -D @rapidoc/portal` when it is missing; `init` and single-spec `validate` work without it. Tests simulate a missing engine with `RAPIDOC_PORTAL_MODULE`.
 - **Shebang**: `#!/usr/bin/env node`
 
 ---

@@ -4,7 +4,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { scaffoldProject } from '../src/scaffold.js';
+import { scaffoldProject, findOpenApiSpecs } from '../src/scaffold.js';
 import { buildPortal } from '../../rapidoc-portal/src/index.js';
 import { validate } from '@scalar/openapi-parser';
 
@@ -47,6 +47,39 @@ test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
     assert.strictEqual(pkg.name, 'galaxy-docs');
     assert.strictEqual(pkg.scripts.build, 'rapidoc build');
     assert.strictEqual(pkg.scripts.validate, 'rapidoc validate');
+    assert.strictEqual(pkg.scripts.dev, 'rapidoc dev');
+    // The portal engine is a direct dev dependency, so the config's $schema path resolves
+    assert.ok(pkg.devDependencies['@rapidoc/cli']);
+    assert.ok(pkg.devDependencies['@rapidoc/portal']);
+    assert.ok(
+      fs
+        .readFileSync(path.join(projectDir, 'rapidoc.config.yaml'), 'utf8')
+        .startsWith('# yaml-language-server: $schema=./node_modules/@rapidoc/portal/schema.json')
+    );
+  });
+
+  await t.test('findOpenApiSpecs finds specs (not other YAML/JSON) and scaffoldProject builds apis: from them', () => {
+    const repoDir = path.join(tempDir, 'existing-repo');
+    fs.mkdirSync(path.join(repoDir, 'api/v2'), { recursive: true });
+    fs.mkdirSync(path.join(repoDir, 'node_modules/pkg'), { recursive: true });
+    fs.writeFileSync(path.join(repoDir, 'api/payments.yaml'), 'openapi: 3.1.0\ninfo: { title: P, version: 1 }\npaths: {}\n');
+    fs.writeFileSync(path.join(repoDir, 'api/v2/payments.json'), '{\n  "openapi": "3.0.3",\n  "info": {}\n}\n');
+    fs.writeFileSync(path.join(repoDir, 'api/legacy.yml'), 'swagger: "2.0"\ninfo: { title: L, version: 1 }\n');
+    fs.writeFileSync(path.join(repoDir, 'docker-compose.yaml'), 'services: {}\n');
+    fs.writeFileSync(path.join(repoDir, 'node_modules/pkg/spec.yaml'), 'openapi: 3.1.0\n');
+
+    const specs = findOpenApiSpecs(repoDir);
+    assert.deepStrictEqual(specs, ['api/legacy.yml', 'api/payments.yaml', 'api/v2/payments.json']);
+
+    const result = scaffoldProject(repoDir, { specs });
+    assert.deepStrictEqual(
+      result.apis.map((api) => api.id),
+      ['legacy', 'payments', 'payments-2']
+    );
+    assert.ok(!fs.existsSync(path.join(repoDir, 'specs/api.yaml')));
+    const config = fs.readFileSync(path.join(repoDir, 'rapidoc.config.yaml'), 'utf8');
+    assert.ok(config.includes('spec: "./api/v2/payments.json"'));
+    assert.ok(!fs.readFileSync(path.join(repoDir, 'docs/guides/overview.markdoc'), 'utf8').includes('api-operation'));
   });
 
   await t.test('scaffolded OpenAPI specification should be valid OpenAPI 3.1', async () => {

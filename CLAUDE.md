@@ -14,8 +14,8 @@
 | :--- | :--- | :--- |
 | `packages/rapidoc` | `rapidoc` | `src/index.js` → `<rapi-doc>` in `src/rapidoc.ts`; static renderer in `src/static/index.js` (`rapidoc/static`); bundles `dist/rapidoc-min.js`, `dist/rapidoc-static-min.js` |
 | `packages/rapidoc-portal` | `@rapidoc/portal` | `src/index.js` (+ `./config`, `./markdoc`, `./search`, `./components`); build engine in `src/engine/`, portal pages in `src/pages/` |
-| `packages/rapidoc-cli` | `@rapidoc/cli` | `src/index.js` (bin `rapidoc`: `dev`, `build`, `validate`, `migrate`) |
-| `packages/create-rapidoc` | `create-rapidoc` | `src/index.js` (bin `create-rapidoc`) |
+| `packages/rapidoc-cli` | `@rapidoc/cli` | `src/index.js` (bin `rapidoc`: `init`, `dev`, `build`, `validate`, `migrate`; loads `@rapidoc/portal`, an optional peer, only when needed) |
+| `packages/create-rapidoc` | `create-rapidoc` | `src/index.js` (bin `create-rapidoc`); `src/scaffold.js` (`scaffoldProject`, `findOpenApiSpecs`, also used by `rapidoc init`) |
 | `docs` | `docs` (private) | `astro.config.mjs`; content in `src/content/docs/`, pages in `src/pages/` |
 
 ### Most-Used Commands (from repo root)

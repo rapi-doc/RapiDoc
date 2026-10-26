@@ -26,7 +26,7 @@
     "@markdoc/markdoc": "^0.5.10",
     "astro": "^7.4.0",
     "github-slugger": "^2.0.0",
-    "rapidoc": "*",
+    "rapidoc": "^12.0.0",
     "yaml": "^2.9.1",
     "zod": "^4.6.7"
   },

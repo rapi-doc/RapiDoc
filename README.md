@@ -68,6 +68,8 @@ npm create rapidoc@latest my-portal
 cd my-portal && npm install
 ```
 
+Already using the CLI, or adding a portal to a repo that has OpenAPI files? `npx rapidoc init [dir]` scaffolds the same project and builds `apis:` from the specs it finds there. The project depends on `@rapidoc/cli` (the `rapidoc` command) and `@rapidoc/portal` (the engine it runs for `dev` and `build`).
+
 This scaffolds:
 
 ```text
@@ -139,7 +141,7 @@ astro-rapidoc/
 │   │   ├── package.json         # Library package config
 │   │   └── vite.config.mjs      # Dedicated library build config
 │   │
-│   ├── rapidoc-cli/             # Command-line utility (@rapidoc/cli) for validation, preview & migration
+│   ├── rapidoc-cli/             # The `rapidoc` command (@rapidoc/cli): init, dev, build, validate, migrate
 │   │   ├── src/                 # CLI source code
 │   │   └── package.json
 │   │
