@@ -364,14 +364,28 @@ export default class SchemaTable extends SchemaBaseElement {
     // 3. Union kind (oneOf / anyOf)
     if (node.kind === 'union') {
       const opLabel = (node.operator === 'anyOf' ? 'ANY OF' : 'ONE OF') + (node.suffix ? ` ${node.suffix}` : '');
+      // Options are already labelled by their OPT row, so only property names are shown
+      const showName = node.name && parentType !== 'xxx-of-option';
 
       return html`
         ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel, indentLevel))}
-        <div class="tr expanded xxx-of" data-obj="${opLabel}">
-          <div class="td key" style="padding-left:${leftPadding}px">
-            <span class="xxx-of-key" style="margin-left:-6px">${opLabel}</span>
-          </div>
-          <div class="td key-type"></div>
+        <div class="tr expanded xxx-of" data-obj="${showName ? node.name : opLabel}">
+          ${
+            showName
+              ? html`
+                  <div class="td key" style="padding-left:${leftPadding}px">
+                    <span class="key-label" title="${node.name}">${node.name}</span>
+                    ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
+                  </div>
+                  <div class="td key-type"><span class="xxx-of-key">${opLabel}</span></div>
+                `
+              : html`
+                  <div class="td key" style="padding-left:${leftPadding}px">
+                    <span class="xxx-of-key" style="margin-left:-6px">${opLabel}</span>
+                  </div>
+                  <div class="td key-type"></div>
+                `
+          }
           ${this.renderDescrCell(node.description)}
         </div>
         <div class="object-body">

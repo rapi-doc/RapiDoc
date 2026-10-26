@@ -311,21 +311,24 @@ export default class SchemaTree extends SchemaBaseElement {
     if (node.kind === 'union') {
       const opLabel = (node.operator === 'anyOf' ? 'ANY OF' : 'ONE OF') + (node.suffix ? ` ${node.suffix}` : '');
       const newIndent = parentType === 'xxx-of-option' ? indentLevel : indentLevel + 1;
+      // Options are already labelled by their OPT row, so only property names are shown
+      const showName = node.name && parentType !== 'xxx-of-option';
+      // A named union puts its label and options one level inside the property row
+      const bodyFieldColWidth = showName ? minFieldColWidth - leftPadding : minFieldColWidth;
 
-      return html`
-        ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel, indentLevel))}
+      const unionBody = html`
         <div class="tr expanded xxx-of-option">
-          <div class="td key" style="min-width:${minFieldColWidth}px">
+          <div class="td key" style="min-width:${bodyFieldColWidth}px">
             <span class="key-label xxx-of-key">${opLabel}</span>
           </div>
-          ${this.renderDescrCell(node.description)}
+          ${showName ? '' : this.renderDescrCell(node.description)}
         </div>
         <div class="inside-bracket xxx-of-option" style="padding-left:0px;">
           ${node.options?.map(
             (opt, i) => html`
               <div>
                 <div class="tr expanded xxx-of-option">
-                  <div class="td key" style="min-width:${minFieldColWidth}px">
+                  <div class="td key" style="min-width:${bodyFieldColWidth}px">
                     <span class="key-label xxx-of-key">OPT ${opt.optionIndex || i + 1}</span>
                     ${opt.optionTitle ? html`<span class="xxx-of-descr">${opt.optionTitle}</span>` : ''}
                   </div>
@@ -335,6 +338,25 @@ export default class SchemaTree extends SchemaBaseElement {
             `
           )}
         </div>
+      `;
+
+      return html`
+        ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel, indentLevel))}
+        ${
+          showName
+            ? html`
+                <div class="tr expanded xxx-of-prop">
+                  <div class="td key" style="min-width:${minFieldColWidth}px">
+                    <span class="key-label" title="${node.name}"
+                      >${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ''}:</span
+                    >
+                  </div>
+                  ${this.renderDescrCell(node.description)}
+                </div>
+                <div class="inside-bracket xxx-of-option" style="padding-left:${leftPadding}px;">${unionBody}</div>
+              `
+            : unionBody
+        }
       `;
     }
 

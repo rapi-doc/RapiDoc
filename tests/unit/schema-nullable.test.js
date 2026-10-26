@@ -213,4 +213,47 @@ describe('Nullable Schemas Visualization (schema-tree & schema-table)', () => {
       assert.ok(html.includes('nullable'), 'Row should have nullable class');
     });
   });
+
+  // https://github.com/rapi-doc/RapiDoc/issues/1161
+  describe('property name on oneOf/anyOf properties', () => {
+    const schema = {
+      type: 'object',
+      required: ['parent'],
+      properties: {
+        parent_id: { oneOf: [{ type: 'integer' }, { type: 'null' }] },
+        parent: { anyOf: [{ type: 'object', properties: { id: { type: 'integer' } } }, { type: 'null' }] },
+      },
+    };
+
+    it('should render the property name on its own row with the union label indented below it in tree view', () => {
+      // collapse template whitespace so the markup can be matched exactly
+      const html = renderToString(tree.renderAST(schemaToAST(schema)))
+        .replace(/\s+>/g, '>')
+        .replace(/>\s+</g, '><');
+      const nameRowThenIndentedLabel = (name, label) =>
+        new RegExp(
+          `>${name}:</span></div><div class="td key-descr"></div></div>` +
+            '<div class="inside-bracket xxx-of-option" style="padding-left:12px;">' +
+            `<div class="tr expanded xxx-of-option"><div class="td key"[^>]*><span class="key-label xxx-of-key">${label}</span>`
+        );
+      assert.match(html, nameRowThenIndentedLabel('parent_id', 'ONE OF'));
+      assert.match(html, nameRowThenIndentedLabel('parent<span style="color:var\\(--destructive\\)">\\*</span>', 'ANY OF'));
+    });
+
+    it('should render the property name in the key column and the union label as its type in table view', () => {
+      const html = renderToString(table.renderAST(schemaToAST(schema)));
+      assert.match(html, /data-obj="parent_id"/);
+      assert.match(html, /<span class="key-label" title="parent_id">parent_id<\/span>[\s\S]*?<div class="td key-type"><span class="xxx-of-key">ONE OF/);
+      assert.match(html, /<span class="key-label" title="parent">parent<\/span>[\s\S]*?<div class="td key-type"><span class="xxx-of-key">ANY OF/);
+    });
+
+    it('should not repeat option names on a union nested inside another union', () => {
+      const nested = schemaToAST({ oneOf: [{ anyOf: [{ type: 'string' }, { type: 'integer' }] }, { type: 'null' }] }, 0, 'value');
+      const treeHtml = renderToString(tree.renderAST(nested));
+      const tableHtml = renderToString(table.renderAST(nested));
+      assert.ok(treeHtml.includes('value:'), 'Top-level property name is shown');
+      assert.doesNotMatch(treeHtml, /Option 1:<\/span>\s*<span class="key-label xxx-of-key">/, 'Nested union is not labelled with its option name');
+      assert.doesNotMatch(tableHtml, /data-obj="Option 1"/, 'Nested union is not labelled with its option name');
+    });
+  });
 });
