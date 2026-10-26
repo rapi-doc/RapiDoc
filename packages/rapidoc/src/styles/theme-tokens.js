@@ -10,8 +10,8 @@ export const DEFAULT_THEME = 'ember';
  *
  * - 'ember'  (default): orange-red accent over neutral charcoal
  * - 'carbon': monochrome, near-black surfaces and a white accent
- * - 'cobalt': blue accent over navy slate
- * - 'jade':   green accent over green-black
+ * - 'cobalt': matte steel-blue accent over grey-blue slate, with cards darker than the page
+ * - 'jade':   daisyUI-style green accent over slate-navy, with cards darker than the page
  * - 'indigo': indigo accent over indigo-black
  */
 export const THEMES = {
@@ -43,30 +43,38 @@ export const THEMES = {
   },
   cobalt: {
     dark: `
-      --primary: #60a5fa;
-      --primary-foreground: #0b1220;
-      --background: #0b1220;
-      --foreground: #e2e8f0;
+      --primary: #7aa2d6;
+      --primary-foreground: #0f1a2a;
+      --background: #1e2530;
+      --foreground: #b4bcc8;
+      --card: #181e27;
+      --card-foreground: #ced5df;
     `,
     light: `
-      --primary: #2563eb;
+      --primary: #3a6cb0;
       --primary-foreground: #ffffff;
       --background: #ffffff;
-      --foreground: #0f172a;
+      --foreground: #243244;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
     `,
   },
   jade: {
     dark: `
-      --primary: #34d399;
-      --primary-foreground: #052e16;
-      --background: #0c1512;
-      --foreground: #dfe8e3;
+      --primary: #00d390;
+      --primary-foreground: #0b1f17;
+      --background: #1d232a;
+      --foreground: #a6adbb;
+      --card: #181e25;
+      --card-foreground: #c8cfd9;
     `,
     light: `
       --primary: #047857;
       --primary-foreground: #ffffff;
       --background: #ffffff;
       --foreground: #1a2e26;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
     `,
   },
   indigo: {

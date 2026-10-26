@@ -108,8 +108,8 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     options: [
       { label: 'Ember', rawVal: 'ember', isDefault: true, dotColor: '#f76b39' },
       { label: 'Carbon', rawVal: 'carbon', dotColor: '#a1a1aa' },
-      { label: 'Cobalt', rawVal: 'cobalt', dotColor: '#60a5fa' },
-      { label: 'Jade', rawVal: 'jade', dotColor: '#34d399' },
+      { label: 'Cobalt', rawVal: 'cobalt', dotColor: '#7aa2d6' },
+      { label: 'Jade', rawVal: 'jade', dotColor: '#00d390' },
       { label: 'Indigo', rawVal: 'indigo', dotColor: '#818cf8' },
     ],
   },

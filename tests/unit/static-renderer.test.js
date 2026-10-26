@@ -589,7 +589,7 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
     assert.ok(emberTokens.includes('--primary: #f76b39;'));
 
     const cobaltTokens = getThemeTokensCss('cobalt');
-    assert.ok(cobaltTokens.includes('--primary: #60a5fa;'));
-    assert.ok(cobaltTokens.includes('--primary: #2563eb;'));
+    assert.ok(cobaltTokens.includes('--primary: #7aa2d6;'));
+    assert.ok(cobaltTokens.includes('--primary: #3a6cb0;'));
   });
 });
