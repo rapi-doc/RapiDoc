@@ -431,4 +431,106 @@ describe('schemaToAST', () => {
       assert.strictEqual(ast.properties, undefined);
     });
   });
+
+  // https://github.com/rapi-doc/RapiDoc/issues/1160
+  describe('depth limit', () => {
+    // Object nested `depth` levels deep through `child`; every level also has an `id` and a `tags` array
+    const nestedObject = (depth) =>
+      depth === 0
+        ? { type: 'object', properties: { id: { type: 'integer' } } }
+        : { type: 'object', properties: { id: { type: 'integer' }, tags: { type: 'array', items: { type: 'string' } }, child: nestedObject(depth - 1) } };
+    const childAt = (ast, level) => {
+      let node = ast;
+      for (let i = 0; i < level; i++) node = node.properties.find((p) => p.name === 'child');
+      return node;
+    };
+    const prop = (node, name) => node.properties.find((p) => p.name === name);
+
+    it('should not count allOf/anyOf/oneOf as nesting levels (issue example)', () => {
+      const Base = { type: 'object', properties: { id: { type: 'integer' } } };
+      const withBase = (properties) => ({ allOf: [Base, { type: 'object', properties }] });
+      const schema = {
+        allOf: [
+          { type: 'object', properties: { total: { type: 'integer' } } },
+          {
+            type: 'object',
+            properties: {
+              data: {
+                type: 'array',
+                items: {
+                  allOf: [
+                    withBase({ name: { type: 'string' } }),
+                    { type: 'object', properties: { organization: { allOf: [withBase({ name: { type: 'string' } }), { type: 'object', properties: { location: withBase({ city: { type: 'string' } }) } }] } } },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      };
+      const ast = schemaToAST(schema);
+      const location = prop(prop(prop(ast, 'data').items, 'organization'), 'location');
+      assert.deepStrictEqual(
+        location.properties.map((p) => [p.name, p.kind, p.type]),
+        [
+          ['id', 'primitive', 'integer'],
+          ['city', 'primitive', 'string'],
+        ]
+      );
+    });
+
+    it('should expand objects down to JSON depth 8 and keep primitives below it', () => {
+      const ast = schemaToAST(nestedObject(10));
+      const level8 = childAt(ast, 8);
+      assert.strictEqual(level8.kind, 'object');
+      assert.ok(!level8.truncated, 'Object at depth 8 is expanded');
+      const level9 = childAt(ast, 9);
+      assert.strictEqual(level9.truncated, true, 'Object at depth 9 is truncated');
+      assert.strictEqual(level9.properties, undefined);
+      assert.strictEqual(prop(level8, 'id').kind, 'primitive', 'Primitive at depth 9 is shown');
+      assert.strictEqual(prop(level8, 'id').type, 'integer');
+    });
+
+    it('should truncate an array below the limit as an array', () => {
+      const ast = schemaToAST(nestedObject(10));
+      const tags = prop(childAt(ast, 8), 'tags');
+      assert.strictEqual(tags.kind, 'array');
+      assert.strictEqual(tags.truncated, true);
+    });
+
+    it('should not add depth for union options', () => {
+      const wrapped = { oneOf: [{ anyOf: [{ allOf: [nestedObject(8)] }, { type: 'null' }] }, { type: 'string' }] };
+      const ast = schemaToAST(wrapped);
+      const objectOption = ast.options[0].options[0];
+      assert.ok(!childAt(objectOption, 8).truncated, 'Composition wrappers do not use up depth');
+    });
+
+    it('should stop on a cycle that only goes through composition', () => {
+      const looping = { oneOf: [{ type: 'string' }] };
+      looping.oneOf.push(looping);
+      const ast = schemaToAST(looping);
+      assert.strictEqual(ast.kind, 'union');
+      assert.strictEqual(ast.options[1].truncated, true);
+    });
+
+    it('should build a very large schema one level shallower at a time until it fits', () => {
+      // a chain 6 levels deep whose deepest object has more properties than the budget allows
+      const wide = { type: 'object', properties: Object.fromEntries(Array.from({ length: 9000 }, (_, i) => [`p${i}`, { type: 'string' }])) };
+      let schema = wide;
+      for (let i = 0; i < 6; i++) schema = { type: 'object', properties: { id: { type: 'integer' }, child: schema } };
+      const ast = schemaToAST(schema);
+      const level6 = childAt(ast, 6);
+      assert.strictEqual(level6.truncated, true, 'Oversized object is cut off');
+      assert.strictEqual(prop(childAt(ast, 5), 'id').kind, 'primitive', 'Primitives next to it are still shown');
+    });
+
+    it('should keep the full depth for schemas within the budget', () => {
+      const wide = { type: 'object', properties: Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`p${i}`, { type: 'string' }])) };
+      let schema = wide;
+      for (let i = 0; i < 6; i++) schema = { type: 'object', properties: { id: { type: 'integer' }, child: schema } };
+      const level6 = childAt(schemaToAST(schema), 6);
+      assert.ok(!level6.truncated);
+      assert.strictEqual(level6.properties.length, 100);
+    });
+  });
 });

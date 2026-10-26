@@ -1234,11 +1234,41 @@ function createPrimitiveAST(schema, name, isRequired) {
   };
 }
 
+// Deepest JSON nesting level expanded; anything below an object or array at this level is truncated
+const MAX_SCHEMA_DEPTH = 8;
+// Largest tree built for one schema. A bigger tree (e.g. Stripe's expandable fields) is rebuilt one level shallower,
+// down to MIN_SCHEMA_DEPTH, so the page stays responsive
+const SCHEMA_NODE_BUDGET = 8000;
+const MIN_SCHEMA_DEPTH = 4;
+
+/**
+ * Whether a schema opens a new JSON nesting level (an object or array), directly or through allOf.
+ * Primitives and unions are not containers: primitives cost nothing to show, and union options are checked one by one.
+ * @param {object} schema - OpenAPI/JSON Schema object
+ * @returns {boolean}
+ */
+function isContainerSchema(schema) {
+  const types = Array.isArray(schema.type) ? schema.type : [schema.type];
+  return (
+    types.includes('object') ||
+    types.includes('array') ||
+    !!(schema.properties || schema.patternProperties || schema.items) ||
+    (!!schema.additionalProperties && typeof schema.additionalProperties === 'object') ||
+    !!schema.allOf?.some((sub) => sub && isContainerSchema(sub))
+  );
+}
+
+// State of the schemaToAST() call in progress (conversion is synchronous)
+// Schemas on the current path, to stop on cycles that only go through allOf/anyOf/oneOf
+const schemasInProgress = new Set();
+let maxDepth = MAX_SCHEMA_DEPTH;
+let nodeCount = 0;
+
 /**
  * Transforms an OpenAPI Schema into a strongly-typed Abstract Syntax Tree (AST) node.
  *
  * @param {object} schema - OpenAPI/JSON Schema object
- * @param {number} [level=0] - Recursion depth
+ * @param {number} [level=0] - JSON nesting depth: grows through properties, items and additionalProperties, not through allOf/anyOf/oneOf
  * @param {string} [name=''] - Property or field name
  * @param {boolean} [isRequired=false] - Whether this property is required
  * @param {string} [suffix=''] - Suffix used for union composition
@@ -1248,18 +1278,47 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
   if (!schema) {
     return null;
   }
-  if (level > 8) {
+  if (schemasInProgress.size > 0) {
+    return nodeToAST(schema, level, name, isRequired, suffix);
+  }
+  // Top-level call: expand as deep as allowed while the tree fits the budget
+  for (maxDepth = MAX_SCHEMA_DEPTH; ; maxDepth -= 1) {
+    nodeCount = 0;
+    const ast = nodeToAST(schema, level, name, isRequired, suffix);
+    if (nodeCount <= SCHEMA_NODE_BUDGET || maxDepth <= MIN_SCHEMA_DEPTH) {
+      return ast;
+    }
+  }
+}
+
+function nodeToAST(schema, level, name, isRequired, suffix) {
+  if (!schema) {
+    return null;
+  }
+  nodeCount += 1;
+  // Once over budget this attempt is discarded, so stop expanding to get to the next one quickly
+  const overBudget = nodeCount > SCHEMA_NODE_BUDGET && maxDepth > MIN_SCHEMA_DEPTH;
+  if (schemasInProgress.has(schema) || ((level > maxDepth || overBudget) && isContainerSchema(schema))) {
+    const isArray = schema.type === 'array' || (Array.isArray(schema.type) && schema.type.includes('array')) || !!schema.items;
     return {
-      kind: 'object',
+      kind: isArray ? 'array' : 'object',
       name,
-      type: schema.type || 'object',
+      type: isArray ? 'array' : 'object',
       title: schema.title || '',
       description: schema.description || '',
       required: isRequired,
       truncated: true,
     };
   }
+  schemasInProgress.add(schema);
+  try {
+    return composeSchemaAST(schema, level, name, isRequired, suffix);
+  } finally {
+    schemasInProgress.delete(schema);
+  }
+}
 
+function composeSchemaAST(schema, level, name, isRequired, suffix) {
   // 1. allOf
   if (schema.allOf) {
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
@@ -1294,7 +1353,7 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
 
       if (sub.type === 'object' || sub.properties || sub.allOf || sub.anyOf || sub.oneOf) {
         const subSuffix = (sub.anyOf || sub.oneOf) && i > 0 ? `${i}` : '';
-        const subAst = schemaToAST(sub, level + 1, '', false, subSuffix);
+        const subAst = schemaToAST(sub, level, '', false, subSuffix);
         if (subAst) {
           if (subAst.kind === 'object') {
             if (subAst.properties) mergedProps.push(...subAst.properties);
@@ -1305,13 +1364,13 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
           }
         }
       } else if (sub.type === 'array' || sub.items) {
-        const subAst = schemaToAST(sub, level + 1);
+        const subAst = schemaToAST(sub, level);
         if (subAst) {
           mergedProps.push(subAst);
         }
       } else if (sub.type) {
         const propName = `prop${mergedProps.length}`;
-        mergedProps.push(schemaToAST(sub, level + 1, propName, false));
+        mergedProps.push(schemaToAST(sub, level, propName, false));
       }
     });
 
@@ -1340,7 +1399,7 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
     const options = rawOptions
       .map((opt, idx) => {
         const optTitle = opt.title || '';
-        const optAst = schemaToAST(opt, level + 1, optTitle || `Option ${idx + 1}`, false);
+        const optAst = schemaToAST(opt, level, optTitle || `Option ${idx + 1}`, false);
         if (optAst) {
           optAst.readOnly = false;
           optAst.writeOnly = false;
@@ -1418,12 +1477,12 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
       let optionIndex = 1;
       complexTypes.forEach((v) => {
         if (v === 'object') {
-          const objNode = createObjectAST(schema, level + 1, schema.title || `Option ${optionIndex}`, false);
+          const objNode = createObjectAST(schema, level, schema.title || `Option ${optionIndex}`, false);
           objNode.optionIndex = optionIndex++;
           objNode.optionTitle = schema.title || '';
           options.push(objNode);
         } else if (v === 'array') {
-          const arrNode = createArrayAST(schema, level + 1, schema.title || `Option ${optionIndex}`, false);
+          const arrNode = createArrayAST(schema, level, schema.title || `Option ${optionIndex}`, false);
           arrNode.optionIndex = optionIndex++;
           arrNode.optionTitle = schema.title || '';
           options.push(arrNode);
