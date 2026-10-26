@@ -24,6 +24,11 @@ function isUrlLike(value) {
   return true;
 }
 
+// The page URL that relative spec URLs are resolved against; guard for non-browser environments (SSR / test runners)
+function pageUrl() {
+  return typeof window !== 'undefined' && window.location?.href ? window.location.href : 'http://localhost/';
+}
+
 /**
  * Custom browser fetch plugin for `@scalar/openapi-parser`'s `load()` method.
  *
@@ -37,9 +42,7 @@ function isUrlLike(value) {
  *   - `get(value)`: Fetches file content as text using browser `fetch()`.
  */
 function createBrowserFetchPlugin(baseUrl) {
-  // Determine root origin/URL; guard for non-browser environments (SSR / test runners)
-  const windowLocation = typeof window !== 'undefined' && window.location?.href ? window.location.href : 'http://localhost/';
-  const base = baseUrl ? new URL(baseUrl, windowLocation) : new URL(windowLocation);
+  const base = new URL(baseUrl || pageUrl(), pageUrl());
 
   return {
     // Determines if the reference should be fetched by this plugin (ignores inlined JSON/YAML and '#/...' local refs)
@@ -162,7 +165,17 @@ export default async function ProcessSpec(
     this?.requestUpdate?.(); // important to show the initial loader
 
     let inputSpec = specUrl;
-    if (typeof specUrl === 'string' && !isUrlLike(specUrl)) {
+    let specLocation;
+    if (typeof specUrl === 'string' && isUrlLike(specUrl)) {
+      // Resolved against the page once, so the spec and its relative $refs are fetched from the same base
+      // (passing the relative path on made it relative to itself: `a/z.yaml` was fetched as `a/a/z.yaml`)
+      try {
+        specLocation = new URL(specUrl.trim(), pageUrl()).href;
+        inputSpec = specLocation;
+      } catch {
+        specLocation = specUrl;
+      }
+    } else if (typeof specUrl === 'string') {
       try {
         inputSpec = JSON.parse(specUrl);
       } catch {
@@ -174,7 +187,7 @@ export default async function ProcessSpec(
       }
     }
 
-    const fetchPlugin = createBrowserFetchPlugin(typeof specUrl === 'string' && isUrlLike(specUrl) ? specUrl : undefined);
+    const fetchPlugin = createBrowserFetchPlugin(specLocation);
     const loaded = await load(inputSpec, { plugins: [fetchPlugin] });
 
     if (loaded.errors && loaded.errors.length > 0 && !loaded.specification) {
