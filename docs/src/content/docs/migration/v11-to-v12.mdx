@@ -114,6 +114,7 @@ Section titles are now written in normal case ("API Server", "Authentication"). 
 - Headings are bolder (`600`) and larger, and paragraphs inside descriptions are `1em` apart.
 - No text is smaller than `11px`. Sidebar method tags, oneOf/anyOf chips, and small badges were 9–10px; they now use `--font-size-xs`, which also follows the `scale` attribute.
 - Parameter and property descriptions are `13px` (`--font-size-description`) instead of `12px`.
+- Sidebar navigation text uses `--font-size-regular`, the body text size: `14px` instead of `13px` (`13px` with `scale="sm"`, `16px` with `scale="lg"`), with a `20px` line height instead of `16px`. Rows are a few pixels taller; use `nav-item-spacing="compact"` for very long API lists.
 - The first label inside the Request panel (Path parameters, Request body, ...) sits right under the Request heading instead of `24px` below it.
 - Markdown tables in descriptions are `display: block` and scroll horizontally inside their own box when wider than the space available, instead of widening the page.
 - Buttons, inputs, and selects use two shared sizes that follow the `scale` attribute: default (~28px) for panel actions and form fields, small (~24px) for controls inside a panel. Inputs in parameter rows are taller (~35px) to line up with the two-line parameter label. Buttons are flat (no drop shadow).

@@ -115,8 +115,9 @@ export default css`
     background: var(--sidebar);
     background-blend-mode: multiply;
     border-right: 1px solid var(--sidebar-border);
-    line-height: calc(var(--font-size-small) + 4px);
-    font-size: calc(var(--font-size-small) + 1px);
+    /* Same size as body text (14px by default), like most API references; 20px line height at that size. */
+    font-size: var(--font-size-regular);
+    line-height: calc(var(--font-size-regular) + 6px);
     position: relative;
     flex-direction: column;
     flex-wrap: nowrap;
