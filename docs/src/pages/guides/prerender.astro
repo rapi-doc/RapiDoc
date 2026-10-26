@@ -89,7 +89,7 @@ try {
     spec: sampleSpecObj,
     path: '/shipments/{shipmentId}',
     method: 'get',
-    theme: 'amber',
+    theme: 'ember',
     colorScheme: 'dark',
     includeStyles: true,
   });
@@ -105,7 +105,7 @@ import { renderRapiDoc } from 'rapidoc/static';
 const staticHtml = await renderRapiDoc({
   spec: './specs/petstore.yaml', // file path, remote URL, or JSON/YAML string
   renderStyle: 'read',           // 'read' | 'view' | 'focused'
-  theme: 'amber',                // 'amber' | 'blue' | 'emerald' | 'violet' | hex
+  theme: 'ember',                // 'ember' | 'carbon' | 'cobalt' | 'jade' | 'indigo' | hex
   colorScheme: 'dark',           // 'dark' | 'light' | 'system'
   outputMode: 'dsd',             // Declarative Shadow DOM (default)
 });
@@ -138,7 +138,7 @@ import { renderRapiDoc } from 'rapidoc/static';
 const preRenderedDoc = await renderRapiDoc({
   spec: './public/specs/petstore.json',
   renderStyle: 'read',
-  theme: 'amber',
+  theme: 'ember',
   colorScheme: 'dark',
 });
 ---
@@ -169,7 +169,7 @@ export default async function ApiReferencePage() {
   const staticDocHtml = await renderRapiDoc({
     spec: 'https://api.example.com/openapi.json',
     renderStyle: 'read',
-    theme: 'amber',
+    theme: 'ember',
     colorScheme: 'dark',
   });
 
@@ -194,7 +194,7 @@ export const shipmentEndpointHtml = await renderEndpoint({
   spec: './specs/logistics.yaml',
   path: '/v1/shipments/{shipmentId}',
   method: 'get',
-  theme: 'amber',
+  theme: 'ember',
   colorScheme: 'dark',
   allowTry: false, // Static documentation view
 });
@@ -204,11 +204,11 @@ export const schemaHtml = await renderSchema({
   spec: './specs/logistics.yaml',
   schema: 'ShipmentResponse',
   style: 'table', // 'table' or 'tree'
-  theme: 'amber',
+  theme: 'ember',
 });`;
 
 const dsdExplanationSnippet = `<!-- Declarative Shadow DOM output from renderRapiDoc({ outputMode: 'dsd' }) -->
-<rapi-doc theme="amber" color-scheme="dark" render-style="read" layout="column">
+<rapi-doc theme="ember" color-scheme="dark" render-style="read" layout="column">
   <!-- Native browser Declarative Shadow DOM -->
   <template shadowrootmode="open">
     <style>
@@ -242,8 +242,8 @@ const optionsTable = [
   {
     name: 'theme',
     type: 'string',
-    default: "'amber'",
-    desc: 'Design token color preset ("amber", "blue", "emerald", "violet", "rose", etc.) or custom hex code.',
+    default: "'ember'",
+    desc: 'Brand color preset ("ember", "carbon", "cobalt", "jade", "indigo") or custom hex code.',
   },
   {
     name: 'colorScheme',

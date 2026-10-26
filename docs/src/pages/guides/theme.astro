@@ -10,9 +10,9 @@ const coreThemingAttributes = [
   {
     name: 'theme',
     type: 'preset | #hex',
-    default: 'amber',
-    allowed: 'amber, blue, graphite, modern, emerald, violet, rose, slate, default, or #hex',
-    desc: 'Sets the primary brand color palette. Accepts any built-in shadcn/ui-inspired preset or a custom brand color hex code (e.g. #2563eb).',
+    default: 'ember',
+    allowed: 'ember, carbon, cobalt, jade, indigo, or #hex',
+    desc: 'Sets the brand color palette. Accepts one of the five built-in presets or a custom brand color hex code (e.g. #2563eb).',
   },
   {
     name: 'color-scheme',
@@ -60,60 +60,44 @@ const coreThemingAttributes = [
 
 const themePresets = [
   {
-    id: 'amber',
-    name: 'Amber',
-    color: '#f59e0b',
-    surface: '#09090b (dark) / #ffffff (light)',
+    id: 'ember',
+    name: 'Ember',
+    color: '#f76b39',
+    surface: '#1f1f23 (dark) / #ffffff (light)',
     badge: 'DEFAULT',
-    desc: 'Warm amber accents over dark charcoal surfaces. High visibility and modern developer aesthetic.',
+    desc: 'Orange-red accent over neutral charcoal. Warm and high-energy; the RapiDoc house theme.',
   },
   {
-    id: 'blue',
-    name: 'Blue',
-    color: '#3b82f6',
-    surface: '#262626 (dark) / #ffffff (light)',
-    badge: '',
-    desc: 'Classic vivid blue brand accent with balanced neutral dark backgrounds. Highly readable for technical portals.',
-  },
-  {
-    id: 'emerald',
-    name: 'Emerald',
-    color: '#10b981',
-    surface: '#060913 (dark) / #ffffff (light)',
-    badge: '',
-    desc: 'Vibrant emerald green accents over deep navy slate surfaces. Ideal for payments, banking, and crypto APIs.',
-  },
-  {
-    id: 'violet',
-    name: 'Violet',
-    color: '#8b5cf6',
-    surface: '#130e20 (dark) / #ffffff (light)',
-    badge: '',
-    desc: 'Electric purple highlights paired with subtle deep violet surface tints for modern SaaS and developer ecosystems.',
-  },
-  {
-    id: 'graphite',
-    name: 'Graphite',
+    id: 'carbon',
+    name: 'Carbon',
     color: '#fafafa',
-    surface: '#09090b (dark) / #ffffff (light)',
+    surface: '#121214 (dark) / #ffffff (light)',
     badge: 'Monochrome',
-    desc: 'Ultra-clean monochrome palette inspired by high-contrast developer tools and modern terminal UI designs.',
+    desc: 'Monochrome: near-black surfaces with a white accent, like a terminal or IDE. Black on white in light mode.',
   },
   {
-    id: 'rose',
-    name: 'Rose',
-    color: '#f7667e',
-    surface: '#2a2b2c (dark) / #ffffff (light)',
+    id: 'cobalt',
+    name: 'Cobalt',
+    color: '#60a5fa',
+    surface: '#0b1220 (dark) / #ffffff (light)',
     badge: '',
-    desc: 'Vibrant rose pink highlights over neutral slate surfaces. High contrast and contemporary visual polish.',
+    desc: 'Blue accent over navy slate. The classic developer-portal look for cloud and enterprise APIs.',
   },
   {
-    id: 'slate',
-    name: 'Slate',
-    color: '#64748b',
-    surface: '#09090b (dark) / #ffffff (light)',
+    id: 'jade',
+    name: 'Jade',
+    color: '#34d399',
+    surface: '#0c1512 (dark) / #ffffff (light)',
     badge: '',
-    desc: 'Sophisticated cool grey slate accents for understated enterprise corporate documentation portals.',
+    desc: 'Green accent over green-black surfaces. Suits payments, banking and infrastructure APIs.',
+  },
+  {
+    id: 'indigo',
+    name: 'Indigo',
+    color: '#818cf8',
+    surface: '#0f0e1c (dark) / #ffffff (light)',
+    badge: '',
+    desc: 'Indigo accent over indigo-black surfaces, for SaaS and platform products.',
   },
 ];
 
@@ -177,7 +161,7 @@ const doc = document.querySelector('rapi-doc');
 
 // Switch theme preset or brand color
 function setBrandTheme(presetOrHex) {
-  doc.setAttribute('theme', presetOrHex); // e.g. 'emerald', 'violet', or '#ff5722'
+  doc.setAttribute('theme', presetOrHex); // e.g. 'cobalt', 'jade', or '#ff5722'
 }
 
 // Toggle between dark and light modes
@@ -287,55 +271,55 @@ function setScale(size) {
               <style>
                 :root,
                 .rapidoc-illustration {
-                  /* Amber Dark Preset (Default) - RapiDoc Dark Charcoal Slate */
-                  --bg: #22242b;
-                  --nav-bg: #1a1c23;
-                  --header-bg: #14161c;
-                  --card-bg: #2a2d36;
-                  --border: #363636;
-                  --primary: #f59e0b;
-                  --primary-border: #d97706;
+                  /* Ember Dark Preset (Default) - neutral charcoal */
+                  --bg: #1f1f23;
+                  --nav-bg: #1a1a1e;
+                  --header-bg: #161619;
+                  --card-bg: #2a2a2f;
+                  --border: #343439;
+                  --primary: #f76b39;
+                  --primary-border: #ea580c;
 
                   /* Typography: Heading is prominent, Secondary/Body text is one shade darker */
-                  --text-heading: #cccccc;
+                  --text-heading: #d4d4d8;
                   --text-body: #94a3b8;
                   --text-muted: #6b7280;
                   --tag-fill: #94a3b8;
-                  --search-fill: #1a1c23;
-                  --search-stroke: #363636;
+                  --search-fill: #1a1a1e;
+                  --search-stroke: #343439;
                 }
 
-                /* Emerald Dark Preset - RapiDoc Deep Navy Slate */
-                .rapidoc-illustration.preset-emerald {
-                  --bg: #060913;
-                  --nav-bg: #03060c;
-                  --header-bg: #020408;
-                  --card-bg: #0f172a;
-                  --border: #1e293b;
-                  --primary: #10b981;
-                  --primary-border: #059669;
+                /* Jade Dark Preset - green-black */
+                .rapidoc-illustration.preset-jade {
+                  --bg: #0c1512;
+                  --nav-bg: #0a110e;
+                  --header-bg: #080d0b;
+                  --card-bg: #12201b;
+                  --border: #1f3129;
+                  --primary: #34d399;
+                  --primary-border: #10b981;
 
                   /* Typography: Heading is prominent, Secondary/Body text is one shade darker */
-                  --text-heading: #f8fafc;
+                  --text-heading: #dfe8e3;
                   --text-body: #94a3b8;
                   --text-muted: #6ee7b7;
                   --tag-fill: #94a3b8;
-                  --search-fill: #0f172a;
-                  --search-stroke: #1e293b;
+                  --search-fill: #12201b;
+                  --search-stroke: #1f3129;
                 }
 
-                /* Light Color Scheme (Amber) - Crisp White Surface */
+                /* Light Color Scheme (Ember) - Crisp White Surface */
                 .rapidoc-illustration.theme-light {
                   --bg: #eeeeee;
                   --nav-bg: #e1e1e1;
                   --header-bg: #f4f4f5;
                   --card-bg: #ffffff;
                   --border: #e4e4e7;
-                  --primary: #d97706;
-                  --primary-border: #b45309;
+                  --primary: #f76b39;
+                  --primary-border: #ea580c;
 
                   /* Typography: Heading is dark, Secondary/Body text is one shade lighter */
-                  --text-heading: #444444;
+                  --text-heading: #27272a;
                   --text-body: #71717a;
                   --text-muted: #a1a1aa;
                   --tag-fill: #71717a;
@@ -343,18 +327,18 @@ function setScale(size) {
                   --search-stroke: #e4e4e7;
                 }
 
-                /* Light Color Scheme (Emerald) - Crisp White Surface */
-                .rapidoc-illustration.theme-light.preset-emerald {
+                /* Light Color Scheme (Jade) - Crisp White Surface */
+                .rapidoc-illustration.theme-light.preset-jade {
                   --bg: #ffffff;
                   --nav-bg: #f4f4f5;
                   --header-bg: #f4f4f5;
                   --card-bg: #ffffff;
                   --border: #e4e4e7;
-                  --primary: #059669;
-                  --primary-border: #047857;
+                  --primary: #047857;
+                  --primary-border: #065f46;
 
                   /* Typography: Heading is dark, Secondary/Body text is one shade lighter */
-                  --text-heading: #333333;
+                  --text-heading: #1a2e26;
                   --text-body: #71717a;
                   --text-muted: #a1a1aa;
                   --tag-fill: #71717a;
@@ -1263,13 +1247,13 @@ function setScale(size) {
                     <label class="rd-control-label">Theme</label>
                     <div class="rd-presets-row">
                       <div class="rd-segmented-pill" id="demo-preset-control">
-                        <button type="button" class="rd-seg-btn active" data-preset="amber" title="Amber Preset">
-                          <span class="rd-demo-dot" style="background: #f59e0b;"></span>
-                          Amber
+                        <button type="button" class="rd-seg-btn active" data-preset="ember" title="Ember Preset">
+                          <span class="rd-demo-dot" style="background: #f76b39;"></span>
+                          Ember
                         </button>
-                        <button type="button" class="rd-seg-btn" data-preset="emerald" title="Emerald Preset">
-                          <span class="rd-demo-dot" style="background: #10b981;"></span>
-                          Emerald
+                        <button type="button" class="rd-seg-btn" data-preset="jade" title="Jade Preset">
+                          <span class="rd-demo-dot" style="background: #34d399;"></span>
+                          Jade
                         </button>
                       </div>
 
@@ -1570,7 +1554,7 @@ function setScale(size) {
       const schemeBtns = document.querySelectorAll('#demo-scheme-control .rd-seg-btn');
 
       let currentRender = 'focused';
-      let currentPreset = 'amber';
+      let currentPreset = 'ember';
       let currentScheme = 'dark';
       let currentShowHeader = true;
       let currentShowNavLogo = true;
@@ -1608,10 +1592,10 @@ function setScale(size) {
         }
 
         // Preset & Scheme classes
-        if (currentPreset === 'emerald') {
-          svg.classList.add('preset-emerald');
+        if (currentPreset === 'jade') {
+          svg.classList.add('preset-jade');
         } else {
-          svg.classList.remove('preset-emerald');
+          svg.classList.remove('preset-jade');
         }
 
         if (currentScheme === 'light') {
@@ -1714,7 +1698,7 @@ function setScale(size) {
 
       presetBtns.forEach((btn) => {
         btn.addEventListener('click', () => {
-          const p = btn.getAttribute('data-preset') || 'amber';
+          const p = btn.getAttribute('data-preset') || 'ember';
           presetBtns.forEach((b) => b.classList.remove('active'));
           btn.classList.add('active');
           currentPreset = p;

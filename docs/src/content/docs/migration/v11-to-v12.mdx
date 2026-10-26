@@ -183,3 +183,22 @@ v11 downloaded three weights of Open Sans from `fonts.gstatic.com` on every page
 
 - The `load-fonts` attribute is removed. You can delete `load-fonts="false"` from your markup; leaving it in has no effect.
 - To keep a brand font (Open Sans or any other), load it in your page and set `--font-sans` / `--font-mono` on `rapi-doc`. See [Typography & Brand Fonts](/docs/theming/overview/#4-typography--brand-fonts).
+
+---
+
+## 7. Five themes
+
+The `theme` presets are reduced to five, each with a dark and a light palette: `ember` (default), `carbon`, `cobalt`, `jade` and `indigo`. See [Pre-built Themes](/docs/theming/prebuilt-themes/).
+
+| v11 | v12 |
+| :--- | :--- |
+| `amber` (and no attribute) | `ember`: same `#f76b39` accent, neutral charcoal surfaces instead of blue-grey |
+| `graphite` | `carbon`: same accents, near-black surfaces in dark mode |
+| `blue` | `cobalt` |
+| `emerald` | `jade` |
+| `violet` | `indigo` |
+| `rose`, `slate`, `modern`, `default` | removed; pass a hex code (`theme="#e11d48"`) for an accent of your own |
+
+The old names and a bare `#f76b39` are no longer special: an unknown name falls back to `ember`, and any hex code is a custom accent over the default surfaces.
+
+Base surfaces also changed: dark `--background` is `#1f1f23` with `--foreground: #d4d4d8` (was a blue-grey `oklch` surface with `#cccccc`), and light `--foreground` is `#27272a` (was `#444444`). `color-scheme="system"` now derives its light-mode cards, borders and muted colors from the background and foreground exactly like `color-scheme="light"`.

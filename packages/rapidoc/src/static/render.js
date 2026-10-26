@@ -49,6 +49,7 @@ import { schemaToAST } from '../utils/schema-utils.js';
 import SchemaTable from '../components/schema-table.ts';
 import SchemaTree from '../components/schema-tree.ts';
 import { getBundledCss } from '../styles/css-bundle.js';
+import { DEFAULT_THEME } from '../styles/theme-tokens.js';
 import { renderTemplateToString, escapeHtml } from './serializer.js';
 
 function toKebabCase(str) {
@@ -135,7 +136,7 @@ export async function resolveSpecInput(specInput, options = {}) {
  * @param {Object} options
  * @param {string|Object} options.spec - Specification file path, URL, raw string, or parsed object
  * @param {'read'|'view'|'focused'} [options.renderStyle='read'] - Layout style
- * @param {string} [options.theme='amber'] - Theme preset ('amber', 'blue', 'emerald', 'violet', etc.) or hex
+ * @param {string} [options.theme='ember'] - Theme preset ('ember', 'carbon', 'cobalt', 'jade', 'indigo') or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {'row'|'column'} [options.layout] - Layout orientation ('column' default for read/focused, 'row' for view)
  * @param {boolean|string} [options.showHeader=true] - Whether to render top header
@@ -163,7 +164,7 @@ export async function renderRapiDoc(options = {}) {
 
   const spec = options.spec ?? normalized.spec;
   const renderStyle = normalized.renderStyle ?? 'read';
-  const theme = normalized.theme ?? 'amber';
+  const theme = normalized.theme ?? DEFAULT_THEME;
   const colorScheme = normalized.colorScheme ?? 'dark';
   const showHeader = normalized.showHeader ?? true;
   const showSideNav = normalized.showSideNav ?? true;
@@ -302,7 +303,7 @@ ${serializedBody}
  * @param {string} options.method - HTTP method ('get', 'post', 'put', 'delete', etc.)
  * @param {'read'|'view'} [options.renderStyle='read'] - Layout style
  * @param {'row'|'column'} [options.layout='column'] - Layout orientation
- * @param {string} [options.theme='amber'] - Theme preset name or hex
+ * @param {string} [options.theme='ember'] - Theme preset name or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
  * @returns {Promise<string>} Rendered HTML string of the isolated endpoint
@@ -314,7 +315,7 @@ export async function renderEndpoint(options = {}) {
     method: targetMethodStr,
     renderStyle = 'read',
     layout = 'column',
-    theme = 'amber',
+    theme = DEFAULT_THEME,
     colorScheme = 'dark',
     includeStyles = true,
     allowTry = false,
@@ -384,13 +385,21 @@ ${serializedHtml}
  * @param {Object|string} [options.spec] - Optional OpenAPI spec to resolve schema names against
  * @param {'table'|'tree'} [options.style='table'] - Display style ('table' or 'tree')
  * @param {number} [options.schemaExpandLevel=99999] - Level of initial property expansion
- * @param {string} [options.theme='amber'] - Theme preset name or hex
+ * @param {string} [options.theme='ember'] - Theme preset name or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
  * @returns {Promise<string>} Rendered schema HTML string
  */
 export async function renderSchema(options = {}) {
-  const { schema, spec, style = 'table', schemaExpandLevel = 99999, theme = 'amber', colorScheme = 'dark', includeStyles = true } = options;
+  const {
+    schema,
+    spec,
+    style = 'table',
+    schemaExpandLevel = 99999,
+    theme = DEFAULT_THEME,
+    colorScheme = 'dark',
+    includeStyles = true,
+  } = options;
 
   let resolvedSchema = schema;
 

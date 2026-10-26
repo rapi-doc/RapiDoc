@@ -238,7 +238,7 @@ describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
     const htmlOutput = await renderRapiDoc({
       spec: sampleSpec,
       renderStyle: 'read',
-      theme: 'amber',
+      theme: 'ember',
       colorScheme: 'dark',
     });
 
@@ -255,7 +255,7 @@ describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
     const htmlOutput = await renderRapiDoc({
       spec: sampleSpec,
       renderStyle: 'view',
-      theme: 'emerald',
+      theme: 'cobalt',
       colorScheme: 'light',
       outputMode: 'html',
     });
@@ -263,7 +263,7 @@ describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
     assert.ok(!htmlOutput.includes('<rapi-doc'), 'Should not use <rapi-doc> in Light DOM mode');
     assert.ok(!htmlOutput.includes('shadowrootmode'), 'Should not use shadowrootmode in Light DOM mode');
     assert.ok(htmlOutput.includes('class="rapidoc-static-container"'), 'Should wrap in rapidoc-static-container');
-    assert.ok(htmlOutput.includes('data-theme="emerald"'), 'Should preserve theme attribute');
+    assert.ok(htmlOutput.includes('data-theme="cobalt"'), 'Should preserve theme attribute');
     assert.ok(htmlOutput.includes('Cosmo Cargo API'), 'Should render title');
   });
 
@@ -271,7 +271,7 @@ describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
     const htmlOutput = await renderRapiDoc({
       spec: './docs/public/specs/petstore.json',
       renderStyle: 'read',
-      theme: 'blue',
+      theme: 'jade',
     });
 
     assert.ok(htmlOutput.includes('Swagger Petstore'), 'Should load and render local JSON spec');
@@ -303,7 +303,7 @@ describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
     assert.ok(openingTagAttrs.includes('allow-try="true"'), 'Must serialize allow-try="true"');
     assert.ok(openingTagAttrs.includes('render-style="read"'), 'Must serialize render-style="read"');
     assert.ok(openingTagAttrs.includes('layout="column"'), 'Must serialize layout="column"');
-    assert.ok(openingTagAttrs.includes('theme="amber"'), 'Must serialize theme="amber"');
+    assert.ok(openingTagAttrs.includes('theme="ember"'), 'Must serialize theme="ember"');
     assert.ok(openingTagAttrs.includes('color-scheme="dark"'), 'Must serialize color-scheme="dark"');
     assert.ok(openingTagAttrs.includes('page-direction="ltr"'), 'Must serialize page-direction="ltr"');
     assert.ok(openingTagAttrs.includes('default-schema-tab="example"'), 'Must serialize default-schema-tab="example"');
@@ -318,7 +318,7 @@ describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
       showHeader: false,
       showSideNav: false,
       allowSearch: false,
-      theme: 'violet',
+      theme: 'indigo',
       colorScheme: 'light',
     });
 
@@ -331,7 +331,7 @@ describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
     assert.ok(attrs.includes('show-header="false"'), 'Must serialize show-header="false"');
     assert.ok(attrs.includes('show-side-nav="false"'), 'Must serialize show-side-nav="false"');
     assert.ok(attrs.includes('allow-search="false"'), 'Must serialize allow-search="false"');
-    assert.ok(attrs.includes('theme="violet"'), 'Must serialize theme="violet"');
+    assert.ok(attrs.includes('theme="indigo"'), 'Must serialize theme="indigo"');
     assert.ok(attrs.includes('color-scheme="light"'), 'Must serialize color-scheme="light"');
 
     // Also verify that the static shadow DOM reflects these disabled features
@@ -410,7 +410,7 @@ describe('Static Isolated Endpoint Pre-Rendering (renderEndpoint)', () => {
       spec: sampleSpec,
       path: '/v1/shipments',
       method: 'get',
-      theme: 'violet',
+      theme: 'indigo',
     });
 
     assert.ok(htmlOutput.includes('rapidoc-endpoint-container'), 'Should wrap in endpoint container');
@@ -447,7 +447,7 @@ describe('Static Schema Pre-Rendering (renderSchema)', () => {
     const htmlOutput = await renderSchema({
       schema: sampleSpec.components.schemas.Shipment,
       style: 'table',
-      theme: 'rose',
+      theme: 'carbon',
     });
 
     assert.ok(htmlOutput.includes('rapidoc-schema-container'));
@@ -462,7 +462,7 @@ describe('Static Schema Pre-Rendering (renderSchema)', () => {
     const htmlOutput = await renderSchema({
       schema: sampleSpec.components.schemas.Shipment,
       style: 'tree',
-      theme: 'amber',
+      theme: 'ember',
     });
 
     assert.ok(htmlOutput.includes('rapidoc-schema-container'));
@@ -502,11 +502,11 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
   });
 
   it('getBundledCss should return valid CSS and support Light DOM scoping', () => {
-    const shadowCss = getBundledCss({ theme: 'amber' });
+    const shadowCss = getBundledCss({ theme: 'ember' });
     assert.ok(shadowCss.includes(':host'));
     assert.ok(shadowCss.includes('.main-content'));
 
-    const lightCss = getBundledCss({ theme: 'amber', scope: '.my-portal' });
+    const lightCss = getBundledCss({ theme: 'ember', scope: '.my-portal' });
     assert.ok(!lightCss.includes(':host {'));
     assert.ok(lightCss.includes('.my-portal'));
   });
@@ -583,13 +583,13 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
   });
 
   it('getThemeTokensCss should return adapted design system tokens for portal light and dark modes', () => {
-    const amberTokens = getThemeTokensCss('amber');
-    assert.ok(amberTokens.includes("[data-theme='light']"));
-    assert.ok(amberTokens.includes("[data-theme='dark']"));
-    assert.ok(amberTokens.includes('--primary: #f76b39;'));
+    const emberTokens = getThemeTokensCss('ember');
+    assert.ok(emberTokens.includes("[data-theme='light']"));
+    assert.ok(emberTokens.includes("[data-theme='dark']"));
+    assert.ok(emberTokens.includes('--primary: #f76b39;'));
 
-    const blueTokens = getThemeTokensCss('blue');
-    assert.ok(blueTokens.includes('--primary: #488bf8ff;'));
-    assert.ok(blueTokens.includes('--primary: #2563eb;'));
+    const cobaltTokens = getThemeTokensCss('cobalt');
+    assert.ok(cobaltTokens.includes('--primary: #60a5fa;'));
+    assert.ok(cobaltTokens.includes('--primary: #2563eb;'));
   });
 });

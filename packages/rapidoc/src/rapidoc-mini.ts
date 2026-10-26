@@ -14,7 +14,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 
 import EndpointStyles from '~/styles/endpoint-styles';
-import ThemeTokens, { applyCustomTheme, isValidHexColor, normalizeTheme } from '~/styles/theme-tokens';
+import ThemeTokens, { DEFAULT_THEME, applyCustomTheme, isValidHexColor, normalizeTheme } from '~/styles/theme-tokens';
 import { rapidocApiKey } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/mock-interceptor';
@@ -88,7 +88,7 @@ export default class RapiDocMini extends LitElement {
   @property({ type: String, attribute: 'show-curl-before-try' }) showCurlBeforeTry = 'false';
 
   // Main Colors and Font
-  @property({ type: String, reflect: true }) theme = 'amber';
+  @property({ type: String, reflect: true }) theme = DEFAULT_THEME;
   @property({ type: String, attribute: 'primary-color' }) primaryColor = '';
   @property({ type: String, attribute: 'color-scheme', reflect: true }) colorScheme = 'dark';
   // color-scheme="auto": follows the page's theme (see utils/auto-color-scheme.js)

@@ -1,16 +1,119 @@
-import { css } from 'lit';
+import { css, unsafeCSS } from 'lit';
+
+export const DEFAULT_THEME = 'ember';
 
 /**
- * Supported brand theme presets in RapiDoc.
- * - 'amber': Warm minimal developer aesthetic (default)
- * - 'blue': Classic developer portal palette with neutral dark surfaces
- * - 'emerald': Fintech & documentation palette (deep navy slate surfaces)
- * - 'violet': Web3 & SaaS palette (deep purple surfaces)
- * - 'graphite': Ultra-clean monochrome minimal palette
- * - 'rose': Ruby accent palette (warm charcoal surfaces)
- * - 'slate': Understated corporate enterprise palette
+ * Brand theme presets (the `theme` attribute), as CSS declaration lists. Each one sets the accent and, where the theme tints
+ * its surfaces, the background and foreground for the dark and the light color scheme; every other
+ * token (card, muted, border, input, ...) is derived from those two in section 3. A theme rule outranks the
+ * shared color-scheme rules, so a theme that sets a surface for one scheme must set it for the other too.
+ *
+ * - 'ember'  (default): orange-red accent over neutral charcoal
+ * - 'carbon': monochrome, near-black surfaces and a white accent
+ * - 'cobalt': blue accent over navy slate
+ * - 'jade':   green accent over green-black
+ * - 'indigo': indigo accent over indigo-black
  */
-export const THEME_PRESETS = ['amber', 'blue', 'emerald', 'violet', 'graphite', 'rose', 'slate'];
+export const THEMES = {
+  ember: {
+    dark: `
+      --primary: #f76b39;
+      --primary-foreground: #000000;
+    `,
+    light: `
+      --primary: #f76b39;
+      --primary-foreground: #000000;
+    `,
+  },
+  carbon: {
+    dark: `
+      --primary: #fafafa;
+      --primary-foreground: #18181b;
+      --ring: #a1a1aa;
+      --background: #121214;
+      --foreground: #e4e4e7;
+    `,
+    light: `
+      --primary: #18181b;
+      --primary-foreground: #fafafa;
+      --ring: #52525b;
+      --background: #ffffff;
+      --foreground: #18181b;
+    `,
+  },
+  cobalt: {
+    dark: `
+      --primary: #60a5fa;
+      --primary-foreground: #0b1220;
+      --background: #0b1220;
+      --foreground: #e2e8f0;
+    `,
+    light: `
+      --primary: #2563eb;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #0f172a;
+    `,
+  },
+  jade: {
+    dark: `
+      --primary: #34d399;
+      --primary-foreground: #052e16;
+      --background: #0c1512;
+      --foreground: #dfe8e3;
+    `,
+    light: `
+      --primary: #047857;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #1a2e26;
+    `,
+  },
+  indigo: {
+    dark: `
+      --primary: #818cf8;
+      --primary-foreground: #1e1b4b;
+      --background: #0f0e1c;
+      --foreground: #e4e2f5;
+    `,
+    light: `
+      --primary: #4f46e5;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #1e1b3a;
+    `,
+  },
+};
+
+export const THEME_PRESETS = Object.keys(THEMES);
+
+/**
+ * The :host rules for one preset: dark (the default scheme), light, and light again for
+ * color-scheme="system" when the OS prefers light. The default preset also applies without a theme attribute.
+ * The selector shapes are what getThemeTokensCss (css-bundle.js) rewrites for the portal's light DOM.
+ */
+function presetCss(name, { dark, light }) {
+  const selector = (scheme) => {
+    const suffix = scheme ? `[color-scheme='${scheme}']` : '';
+    const hosts = [`:host([theme='${name}']${suffix})`];
+    if (name === DEFAULT_THEME) hosts.push(`:host(:not([theme])${suffix})`);
+    return hosts.join(',\n  ');
+  };
+  return `
+  /* --------- ${name.toUpperCase()}${name === DEFAULT_THEME ? ' (default)' : ''} --------- */
+  ${selector()} {${dark}}
+  ${selector('light')} {${light}}
+  @media (prefers-color-scheme: light) {
+    ${selector('system')} {${light}}
+  }
+`;
+}
+
+const presetsCss = unsafeCSS(
+  Object.entries(THEMES)
+    .map(([name, schemes]) => presetCss(name, schemes))
+    .join('')
+);
 
 /**
  * Checks if a string is a valid CSS hex color code (#rgb, #rrggbb, #rrggbbaa).
@@ -37,27 +140,24 @@ export function isValidTheme(theme) {
  * Normalizes and validates the theme attribute value.
  * - Allowed presets are normalized to lowercase.
  * - Valid hex color codes are preserved as-is.
- * - Any invalid, unrecognized, or missing value defaults to 'amber'.
+ * - Any invalid, unrecognized, or missing value defaults to DEFAULT_THEME.
  *
  * @param {string} theme - The raw theme attribute value.
  * @returns {{ theme: string }}
  */
 export function normalizeTheme(theme) {
   if (!theme || typeof theme !== 'string') {
-    return { theme: 'amber' };
+    return { theme: DEFAULT_THEME };
   }
   const trimmed = theme.trim();
   const lower = trimmed.toLowerCase();
   if (THEME_PRESETS.includes(lower)) {
     return { theme: lower };
   }
-  if (lower === '#f76b39') {
-    return { theme: 'amber' };
-  }
   if (isValidHexColor(trimmed)) {
     return { theme: trimmed };
   }
-  return { theme: 'amber' };
+  return { theme: DEFAULT_THEME };
 }
 
 /**
@@ -258,9 +358,9 @@ export default css`
   :host([color-scheme='dark']),
   :host([color-scheme='system']),
   :host(:not([color-scheme])) {
-    /* Surfaces */
-    --background: oklch(0.2613 0.0134 272.84);
-    --foreground: #cccccc;
+    /* Surfaces: neutral charcoal. Tinted themes override these two; everything below is derived from them. */
+    --background: #1f1f23;
+    --foreground: #d4d4d8;
 
     /* Card Vars:
       card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
@@ -335,7 +435,7 @@ export default css`
   :host([color-scheme='light']) {
     /* Surfaces */
     --background: #ffffff;
-    --foreground: #444444;
+    --foreground: #27272a;
 
     /* Card Vars:
       card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
@@ -411,14 +511,14 @@ export default css`
   @media (prefers-color-scheme: light) {
     :host([color-scheme='system']) {
       --background: #ffffff;
-      --foreground: #333333;
-      --card: #f4f4f5;
-      --card-foreground: #444444;
-      --muted: #f4f4f5;
-      --muted-foreground: #71717a;
-      --border: #e4e4e7;
-      --sidebar-accent: oklch(from var(--background) calc(l - 0.04) c h);
-      --input: color-mix(in srgb, var(--border) 80%, var(--foreground));
+      --foreground: #27272a;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+      --muted: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --muted-foreground: color-mix(in srgb, var(--foreground) 60%, var(--background));
+      --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+      --sidebar-accent: color-mix(in srgb, var(--background) 92%, var(--foreground));
+      --input: color-mix(in srgb, var(--border) 75%, var(--foreground));
       --input-background: var(--background);
 
       --method-get: #2563eb;
@@ -463,206 +563,7 @@ export default css`
   }
 
   /* =========================================================================
-     4. BRAND THEME PRESETS (theme)
+     4. BRAND THEME PRESETS (theme), generated from THEMES above
      ========================================================================= */
-
-  /* --------- 1. AMBER (Default) --------- */
-  :host,
-  :host([theme='amber']),
-  :host(:not([theme])) {
-    --primary: #f76b39;
-    --primary-foreground: #000000;
-  }
-  :host([theme='amber'][color-scheme='light']),
-  :host(:not([theme])[color-scheme='light']) {
-    --primary: #f76b39;
-    --primary-foreground: #000000;
-  }
-
-  /* --------- 2. BLUE --------- */
-  :host([theme='blue']) {
-    --primary: #488bf8ff;
-    --primary-foreground: #ffffff;
-    --background: #1c1b1bff;
-    --foreground: #e5e5e5;
-    --border: #414146ff;
-  }
-  :host([theme='blue'][color-scheme='light']) {
-    --primary: #2563eb;
-    --primary-foreground: #ffffff;
-    --foreground: #333333;
-    --background: #ffffff;
-    --card: #f4f4f5;
-    --card-foreground: #444444;
-    --border: #e4e4e7;
-  }
-
-  /* --------- 3. EMERALD --------- */
-  :host([theme='emerald']) {
-    --primary: #03bf80ff;
-    --primary-foreground: #0f331dff;
-    --background: #060913;
-    --foreground: #e2e8f0;
-    --card: #0f172a;
-    --card-foreground: #f8fafc;
-    --muted: #1e293b;
-    --border: #242c29ff;
-  }
-  :host([theme='emerald'][color-scheme='light']) {
-    --primary: #059669;
-    --primary-foreground: #ffffff;
-    --foreground: #333333;
-    --background: #ffffff;
-    --card: #f4f4f5;
-    --card-foreground: #444444;
-    --muted: #f4f4f5;
-    --border: #e4e4e7;
-  }
-
-  /* --------- 4. VIOLET --------- */
-  :host([theme='violet']) {
-    --primary: #8b5cf6;
-    --primary-foreground: #ffffff;
-    --background: #130e20;
-    --foreground: #f5f3ff;
-    --card: #1e1633;
-    --card-foreground: #f5f3ff;
-    --muted: #2a2045;
-    --border: #342854;
-  }
-  :host([theme='violet'][color-scheme='light']) {
-    --primary: #7c3aed;
-    --primary-foreground: #ffffff;
-    --foreground: #333333;
-    --background: #ffffff;
-    --card: #f4f4f5;
-    --card-foreground: #444444;
-    --muted: #f4f4f5;
-    --border: #e4e4e7;
-  }
-
-  /* --------- 5. GRAPHITE --------- */
-  :host([theme='graphite']) {
-    --primary: #fafafa;
-    --primary-foreground: #18181b;
-    --ring: #d4d4d8;
-  }
-  :host([theme='graphite'][color-scheme='light']) {
-    --primary: #18181b;
-    --primary-foreground: #fafafa;
-    --foreground: #111111;
-    --background: #ffffff;
-    --card: #f4f4f5;
-    --card-foreground: #444444;
-    --border: #e4e4e7;
-    --muted-foreground: #222222;
-    --ring: #27272a;
-  }
-
-  /* --------- 6. ROSE --------- */
-  :host([theme='rose']) {
-    --primary: #ee5d7cff;
-    --background: oklch(0.2613 0.0134 272.84);
-    --card: oklch(0.2613 0.0134 272.84);
-  }
-  :host([theme='rose'][color-scheme='light']) {
-    --primary: #e11d48;
-    --primary-foreground: #ffffff;
-    --foreground: #333333;
-    --background: #ffffff;
-    --card: #f4f4f5;
-    --card-foreground: #444444;
-    --border: #e4e4e7;
-  }
-
-  /* --------- 7. SLATE --------- */
-  :host([theme='slate']) {
-    --primary: #64748b;
-    --primary-foreground: #ffffff;
-    --sidebar-primary: #ffffff;
-  }
-  :host([theme='slate'][color-scheme='light']) {
-    --primary: #475569;
-    --primary-foreground: #ffffff;
-    --foreground: #333333;
-    --background: #ffffff;
-    --card: #f4f4f5;
-    --card-foreground: #444444;
-    --border: #e4e4e7;
-  }
-
-  /* =========================================================================
-     5. SYSTEM COLOR SCHEME PRESET OVERRIDES
-     ========================================================================= */
-  @media (prefers-color-scheme: light) {
-    :host([theme='amber'][color-scheme='system']),
-    :host(:not([theme])[color-scheme='system']) {
-      --primary: #d97706;
-      --primary-foreground: #ffffff;
-    }
-
-    :host([theme='blue'][color-scheme='system']) {
-      --primary: #2563eb;
-      --primary-foreground: #ffffff;
-      --foreground: #333333;
-      --background: #ffffff;
-      --card: #f4f4f5;
-      --card-foreground: #444444;
-      --border: #e4e4e7;
-    }
-
-    :host([theme='emerald'][color-scheme='system']) {
-      --primary: #059669;
-      --primary-foreground: #ffffff;
-      --foreground: #333333;
-      --background: #ffffff;
-      --card: #f4f4f5;
-      --card-foreground: #444444;
-      --muted: #f4f4f5;
-      --border: #e4e4e7;
-    }
-
-    :host([theme='violet'][color-scheme='system']) {
-      --primary: #7c3aed;
-      --primary-foreground: #ffffff;
-      --foreground: #333333;
-      --background: #ffffff;
-      --card: #f4f4f5;
-      --card-foreground: #444444;
-      --muted: #f4f4f5;
-      --border: #e4e4e7;
-    }
-
-    :host([theme='graphite'][color-scheme='system']) {
-      --primary: #18181b;
-      --primary-foreground: #fafafa;
-      --ring: #27272a;
-      --foreground: #111111;
-      --background: #ffffff;
-      --card: #f4f4f5;
-      --card-foreground: #444444;
-      --border: #e4e4e7;
-      --muted-foreground: #222222;
-    }
-
-    :host([theme='rose'][color-scheme='system']) {
-      --primary: #e11d48;
-      --primary-foreground: #ffffff;
-      --foreground: #333333;
-      --background: #ffffff;
-      --card: #f4f4f5;
-      --card-foreground: #444444;
-      --border: #e4e4e7;
-    }
-
-    :host([theme='slate'][color-scheme='system']) {
-      --primary: #475569;
-      --primary-foreground: #ffffff;
-      --foreground: #333333;
-      --background: #ffffff;
-      --card: #f4f4f5;
-      --card-foreground: #444444;
-      --border: #e4e4e7;
-    }
-  }
+  ${presetsCss}
 `;

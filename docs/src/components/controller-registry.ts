@@ -106,13 +106,11 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     tip: 'Color palette preset',
     category: 'theming',
     options: [
-      { label: 'Amber', rawVal: 'amber', isDefault: true, dotColor: '#f59e0b' },
-      { label: 'Blue', rawVal: 'blue', dotColor: '#3b82f6' },
-      { label: 'Emerald', rawVal: 'emerald', dotColor: '#10b981' },
-      { label: 'Violet', rawVal: 'violet', dotColor: '#8b5cf6' },
-      { label: 'Rose', rawVal: 'rose', dotColor: '#f43f5e' },
-      { label: 'Graphite', rawVal: 'graphite', dotColor: '#71717a' },
-      { label: 'Slate', rawVal: 'slate', dotColor: '#64748b' },
+      { label: 'Ember', rawVal: 'ember', isDefault: true, dotColor: '#f76b39' },
+      { label: 'Carbon', rawVal: 'carbon', dotColor: '#a1a1aa' },
+      { label: 'Cobalt', rawVal: 'cobalt', dotColor: '#60a5fa' },
+      { label: 'Jade', rawVal: 'jade', dotColor: '#34d399' },
+      { label: 'Indigo', rawVal: 'indigo', dotColor: '#818cf8' },
     ],
   },
   'color-scheme': {

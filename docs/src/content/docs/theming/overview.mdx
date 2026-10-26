@@ -26,7 +26,7 @@ RapiDoc consolidates visual customization into four primary attributes:
 ```html
 <rapi-doc
   spec-url="https://api.example.com/openapi.json"
-  theme="emerald"
+  theme="cobalt"
   color-scheme="dark"
   radius="md"
   scale="default"
@@ -38,7 +38,7 @@ RapiDoc consolidates visual customization into four primary attributes:
 
 | Attribute          | Allowed Values                                                                                             | Default     | Description                                                                                                            |
 | :----------------- | :--------------------------------------------------------------------------------------------------------- | :---------- | :--------------------------------------------------------------------------------------------------------------------- |
-| `theme`            | `amber`, `blue`, `graphite`, `modern`, `emerald`, `violet`, `rose`, `slate`, `default`, or any `#hex` code | `"amber"`   | Color palette preset matching shadcn/ui color tokens, or a custom brand color hex code.                                |
+| `theme`            | `ember`, `carbon`, `cobalt`, `jade`, `indigo`, or any `#hex` code                                                | `"ember"`   | Brand color preset (dark and light palette), or a custom brand color hex code.                                        |
 | `color-scheme`     | `dark`, `light`, `system`                                                                                  | `"dark"`    | Base surface mode. `"system"` automatically tracks the user's OS `prefers-color-scheme` preference.                    |
 | `radius`           | `none`, `sm`, `md`, `lg`, `full`                                                                           | `"sm"`      | Corner radius scale applied across cards, buttons, badges, inputs, and modal dialogs.                                  |
 | `scale`            | `sm`, `default`, `lg`                                                                                      | `"default"` | Proportional scale factor for UI base dimensions, body typography, code blocks, and sidebar width.                     |
@@ -144,7 +144,7 @@ Put the font files next to your site (for example in `/fonts/`) and declare them
 </head>
 
 <body>
-  <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="emerald"></rapi-doc>
+  <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade"></rapi-doc>
 </body>
 ```
   </TabItem>
@@ -227,7 +227,7 @@ const doc = document.querySelector('rapi-doc');
 
 // Switch brand preset or custom hex color
 function setBrandColor(themeValue) {
-  doc.setAttribute('theme', themeValue); // e.g., 'violet' or '#2563eb'
+  doc.setAttribute('theme', themeValue); // e.g., 'jade' or '#2563eb'
 }
 
 // Toggle between dark and light modes

@@ -1,4 +1,4 @@
-import ThemeTokens from './theme-tokens.js';
+import ThemeTokens, { DEFAULT_THEME } from './theme-tokens.js';
 import FontStyles from './font-styles.js';
 import InputStyles from './input-styles.js';
 import FlexStyles from './flex-styles.js';
@@ -38,7 +38,7 @@ export const allStyles = [
  * Returns aggregated CSS text for Declarative Shadow DOM or Light DOM SSR/SSG pre-rendering.
  *
  * @param {Object} [options]
- * @param {string} [options.theme='amber'] - Theme preset name or valid hex color code
+ * @param {string} [options.theme='ember'] - Theme preset name or valid hex color code
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {string} [options.scope=''] - Optional outer selector (for Light DOM / non-shadow pre-rendering)
  * @returns {string} Fully concatenated CSS string
@@ -83,18 +83,18 @@ export function getNavCss(scope = '') {
  * Returns RapiDoc's design system & theme tokens CSS text for shared usage in @rapidoc/portal.
  * Converts Web Component :host rules into Light DOM portal selectors (:root, [data-theme='dark'], [data-theme='light']).
  *
- * @param {string} [theme='amber'] - Theme preset name ('amber', 'blue', 'emerald', etc.)
+ * @param {string} [theme='ember'] - Theme preset name (see THEME_PRESETS) or hex color
  * @param {string} [scope=':root'] - Scope selector
  * @returns {string} Theme tokens CSS string
  */
-export function getThemeTokensCss(theme = 'amber', scope = ':root') {
+export function getThemeTokensCss(theme = DEFAULT_THEME, scope = ':root') {
   let tokensCss = ThemeTokens && ThemeTokens.cssText ? ThemeTokens.cssText : String(ThemeTokens || '');
   const activeTheme =
     typeof theme === 'string'
       ? theme.trim().toLowerCase()
       : typeof theme === 'object' && theme?.theme
         ? String(theme.theme).trim().toLowerCase()
-        : 'amber';
+        : DEFAULT_THEME;
 
   tokensCss = tokensCss
     .replace(/:host\(\[theme='([^']+)'\]\[color-scheme='light'\]\)/g, (match, t) =>

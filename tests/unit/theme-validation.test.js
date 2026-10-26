@@ -59,8 +59,8 @@ test('theme-validation', async (t) => {
     }
 
     // Case-insensitive preset
-    const resUpper = normalizeTheme('EMERALD');
-    assert.equal(resUpper.theme, 'emerald');
+    const resUpper = normalizeTheme('COBALT');
+    assert.equal(resUpper.theme, 'cobalt');
   });
 
   await t.test('normalizeTheme returns valid hex color as-is', () => {
@@ -69,17 +69,17 @@ test('theme-validation', async (t) => {
     assert.deepEqual(normalizeTheme('#fff'), { theme: '#fff' });
   });
 
-  await t.test('normalizeTheme falls back to "amber" for any invalid or missing theme', () => {
-    assert.deepEqual(normalizeTheme('foobar'), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme('default'), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme('modern'), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme('dark'), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme('light'), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme('rgb(255, 0, 0)'), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme('hsl(200, 50%, 50%)'), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme(''), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme(null), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme(undefined), { theme: 'amber' });
+  await t.test('normalizeTheme falls back to "ember" for any invalid or missing theme', () => {
+    assert.deepEqual(normalizeTheme('foobar'), { theme: 'ember' });
+    assert.deepEqual(normalizeTheme('default'), { theme: 'ember' });
+    assert.deepEqual(normalizeTheme('modern'), { theme: 'ember' });
+    assert.deepEqual(normalizeTheme('dark'), { theme: 'ember' });
+    assert.deepEqual(normalizeTheme('light'), { theme: 'ember' });
+    assert.deepEqual(normalizeTheme('rgb(255, 0, 0)'), { theme: 'ember' });
+    assert.deepEqual(normalizeTheme('hsl(200, 50%, 50%)'), { theme: 'ember' });
+    assert.deepEqual(normalizeTheme(''), { theme: 'ember' });
+    assert.deepEqual(normalizeTheme(null), { theme: 'ember' });
+    assert.deepEqual(normalizeTheme(undefined), { theme: 'ember' });
   });
 
   await t.test('navigation uses the shadcn/ui --sidebar-* tokens', () => {
@@ -108,14 +108,28 @@ test('theme-validation', async (t) => {
     assert.match(navStyles.cssText, /overflow:\s*hidden;/);
   });
 
-  await t.test('normalizeTheme maps #f76b39 to amber preset', () => {
-    assert.deepEqual(normalizeTheme('#f76b39'), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme('#F76B39'), { theme: 'amber' });
-    assert.deepEqual(normalizeTheme('  #f76b39  '), { theme: 'amber' });
+  await t.test('the five presets each define dark, light and system-light rules', () => {
+    assert.deepEqual(THEME_PRESETS, ['ember', 'carbon', 'cobalt', 'jade', 'indigo']);
+    for (const preset of THEME_PRESETS) {
+      assert.match(themeTokens.cssText, new RegExp(`:host\\(\\[theme='${preset}'\\]\\)`), `${preset} dark rule`);
+      assert.match(themeTokens.cssText, new RegExp(`:host\\(\\[theme='${preset}'\\]\\[color-scheme='light'\\]\\)`), `${preset} light rule`);
+      assert.match(
+        themeTokens.cssText,
+        new RegExp(`:host\\(\\[theme='${preset}'\\]\\[color-scheme='system'\\]\\)`),
+        `${preset} system rule`
+      );
+    }
+    // Only the default preset applies without a theme attribute
+    assert.match(themeTokens.cssText, /:host\(\[theme='ember'\]\),\s*:host\(:not\(\[theme\]\)\)/);
+    assert.doesNotMatch(themeTokens.cssText, /:host\(\[theme='carbon'\]\),\s*:host\(:not/);
   });
 
-  await t.test('light theme default surfaces use #333333 foreground and derived card-foreground', () => {
-    assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--foreground:\s*#333333;/);
+  await t.test('a hex color is kept as a custom theme, not mapped to a preset', () => {
+    assert.deepEqual(normalizeTheme('#f76b39'), { theme: '#f76b39' });
+  });
+
+  await t.test('light theme default surfaces use #27272a foreground and derived card-foreground', () => {
+    assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--foreground:\s*#27272a;/);
     assert.match(themeTokens.cssText, /:host\(\[color-scheme='light'\]\)[\s\S]*?--card-foreground:\s*color-mix/);
   });
 

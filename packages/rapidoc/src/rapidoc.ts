@@ -19,7 +19,7 @@ import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
 import DialogBoxStyles from '~/styles/dialog-box-styles';
 import LayoutStyles from '~/styles/layout-styles';
-import ThemeTokens, { applyCustomTheme, isValidHexColor, normalizeTheme } from '~/styles/theme-tokens';
+import ThemeTokens, { DEFAULT_THEME, applyCustomTheme, isValidHexColor, normalizeTheme } from '~/styles/theme-tokens';
 
 import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
@@ -141,7 +141,7 @@ export default class RapiDoc extends LitElement {
   @property({ type: String, attribute: 'scroll-offset' }) scrollOffset = '';
 
   // Main Colors and Font
-  @property({ type: String, reflect: true }) theme = 'amber';
+  @property({ type: String, reflect: true }) theme = DEFAULT_THEME;
   @property({ type: String, attribute: 'primary-color' }) primaryColor = '';
   @property({ type: String, attribute: 'color-scheme', reflect: true }) colorScheme = 'dark';
   // color-scheme="auto": follows the page's theme (see utils/auto-color-scheme.js)
@@ -247,7 +247,7 @@ export default class RapiDoc extends LitElement {
     }
     if (this.theme === 'light' || this.theme === 'dark') {
       this.colorScheme = this.theme;
-      this.theme = 'amber';
+      this.theme = DEFAULT_THEME;
     }
     if (this.primaryColor && isValidHexColor(this.primaryColor)) {
       this.theme = this.primaryColor;
@@ -532,8 +532,8 @@ export default class RapiDoc extends LitElement {
       if (this.theme === 'light' || this.theme === 'dark') {
         this.colorScheme = this.theme;
         this.setAttribute('color-scheme', this.colorScheme);
-        this.theme = 'amber';
-        this.setAttribute('theme', 'amber');
+        this.theme = DEFAULT_THEME;
+        this.setAttribute('theme', DEFAULT_THEME);
       }
       const normalizedTheme = normalizeTheme(this.theme);
       if (this.theme !== normalizedTheme.theme) {

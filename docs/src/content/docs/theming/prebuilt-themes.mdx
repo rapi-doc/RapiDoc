@@ -1,230 +1,144 @@
 ---
-title: Pre-built Themes & Style Recipes
-description: Ready-to-use themes and copy-paste palettes for RapiDoc, including Amber Minimal, Developer Blue, Fintech Emerald, Modern Violet, Graphite, Rose, and Slate.
+title: Pre-built Themes
+description: RapiDoc's five built-in themes (Ember, Carbon, Cobalt, Jade, Indigo), each with a dark and a light palette, plus custom brand colors and automatic OS switching.
 ---
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-Looking for a cohesive aesthetic without designing color tokens from scratch? RapiDoc includes **9 built-in presets** inspired by modern design systems, fully compatible with both dark and light color modes.
+RapiDoc ships **five themes**. Each one defines an accent and, where the theme tints its surfaces, a background and foreground for both color schemes; every other color (cards, muted text, borders, inputs) is derived from those, so a theme looks consistent in `color-scheme="dark"`, `"light"` and `"system"`.
+
+| Theme | Accent (dark / light) | Dark surface | Character |
+| :--- | :--- | :--- | :--- |
+| `ember` (default) | `#f76b39` / `#f76b39` | Neutral charcoal `#1f1f23` | Warm, high-energy |
+| `carbon` | `#fafafa` / `#18181b` | Near-black `#121214` | Monochrome, terminal-like |
+| `cobalt` | `#60a5fa` / `#2563eb` | Navy slate `#0b1220` | Classic developer portal |
+| `jade` | `#34d399` / `#047857` | Green-black `#0c1512` | Payments, banking, infrastructure |
+| `indigo` | `#818cf8` / `#4f46e5` | Indigo-black `#0f0e1c` | SaaS and platform products |
+
+Light mode uses a white background in every theme; the tinted themes carry their hue into the text, cards and borders.
+
+Try them side by side on the [Themes example](/examples/themes).
 
 ---
 
-## 1. Amber Minimal (Default Fallback)
+## Ember (default)
 
-Warm amber highlights over deep charcoal surfaces. Delivers high contrast and warm visual polish.
+Orange-red accent over neutral charcoal. This is what you get without a `theme` attribute.
 
 <Tabs>
-  <TabItem label="Dark Mode">
+  <TabItem label="Dark">
 ```html
-<rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
-  theme="amber"
-  color-scheme="dark"
-  radius="sm"
-  scale="default"
-></rapi-doc>
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="ember" color-scheme="dark"></rapi-doc>
 ```
   </TabItem>
-
-<TabItem label="Light Mode">
-  ```html
-  <rapi-doc
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
-    theme="amber"
-    color-scheme="light"
-    radius="sm"
-    scale="default"
-  ></rapi-doc>
-  ```
-</TabItem>
-
-  <TabItem label="CSS Enhancements">
-```css
-/* Add subtle amber focus ring and border styling */
-rapi-doc::part(section-navbar) {
-  border-right: 1px solid var(--border);
-}
-rapi-doc::part(textbox-nav-filter) {
-  border-radius: var(--radius);
-}
+  <TabItem label="Light">
+```html
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="ember" color-scheme="light"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
 
 ---
 
-## 2. Developer Blue (Default)
+## Carbon
 
-The classic developer portal palette: crisp blue brand accent paired with balanced dark or light surfaces.
+Monochrome. Near-black surfaces with a white accent in dark mode; black on white in light mode. Pairs well with `radius="none"`.
 
 <Tabs>
-  <TabItem label="Dark Mode">
+  <TabItem label="Dark">
 ```html
-<rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
-  theme="blue"
-  color-scheme="dark"
-  radius="md"
-  scale="default"
-></rapi-doc>
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="carbon" color-scheme="dark" radius="none"></rapi-doc>
 ```
   </TabItem>
-
-  <TabItem label="Light Mode">
+  <TabItem label="Light">
 ```html
-<rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
-  theme="blue"
-  color-scheme="light"
-  radius="md"
-  scale="default"
-></rapi-doc>
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="carbon" color-scheme="light" radius="none"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
 
 ---
 
-## 3. Fintech & Security Emerald (`emerald` / `modern`)
+## Cobalt
 
-Polished dark slate surfaces accented with vivid emerald green, ideal for payments, banking, security, and infrastructure APIs.
+Blue accent over navy slate; cool slate text in light mode.
 
 <Tabs>
-  <TabItem label="Dark Mode">
+  <TabItem label="Dark">
 ```html
-<rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
-  theme="emerald"
-  color-scheme="dark"
-  radius="sm"
-  scale="default"
-></rapi-doc>
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="cobalt" color-scheme="dark" radius="md"></rapi-doc>
 ```
   </TabItem>
-
-<TabItem label="Light Mode">
-  ```html
-  <rapi-doc
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
-    theme="emerald"
-    color-scheme="light"
-    radius="sm"
-    scale="default"
-  ></rapi-doc>
-  ```
-</TabItem>
-
-  <TabItem label="CSS Enhancements">
-```css
-/* Style primary actions with emerald glow */
-rapi-doc::part(btn-fill) {
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-  border-radius: var(--radius);
-}
+  <TabItem label="Light">
+```html
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="cobalt" color-scheme="light" radius="md"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
 
 ---
 
-## 4. Modern Violet (`violet`)
+## Jade
 
-Electric purple accents over deep violet-tinted surfaces. Perfect for cloud platforms, SaaS, and Web3 products.
+Green accent over green-black surfaces; deep green text in light mode.
 
 <Tabs>
-  <TabItem label="Dark Mode">
+  <TabItem label="Dark">
 ```html
-<rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
-  theme="violet"
-  color-scheme="dark"
-  radius="lg"
-  scale="default"
-></rapi-doc>
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade" color-scheme="dark"></rapi-doc>
 ```
   </TabItem>
-
-  <TabItem label="Light Mode">
+  <TabItem label="Light">
 ```html
-<rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
-  theme="violet"
-  color-scheme="light"
-  radius="lg"
-  scale="default"
-></rapi-doc>
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade" color-scheme="light"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
 
 ---
 
-## 5. Monochrome Graphite (`graphite`)
+## Indigo
 
-Ultra-clean monochrome palette inspired by modern terminal interfaces and developer IDEs.
+Indigo accent over indigo-black surfaces; navy-violet text in light mode.
 
 <Tabs>
-  <TabItem label="Dark Mode">
+  <TabItem label="Dark">
 ```html
-<rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
-  theme="graphite"
-  color-scheme="dark"
-  radius="none"
-  scale="default"
-></rapi-doc>
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="indigo" color-scheme="dark" radius="lg"></rapi-doc>
 ```
   </TabItem>
-
-  <TabItem label="Light Mode (Stripe Aesthetic)">
+  <TabItem label="Light">
 ```html
-<rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
-  theme="graphite"
-  color-scheme="light"
-  radius="sm"
-  scale="default"
-></rapi-doc>
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="indigo" color-scheme="light" radius="lg"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
 
 ---
 
-## 6. Ruby Rose (`rose`)
+## Custom brand color
 
-Vibrant rose pink highlights over neutral slate surfaces. Contemporary, high-contrast, and energetic.
-
-```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="rose" color-scheme="dark" radius="md"></rapi-doc>
-```
-
----
-
-## 7. Enterprise Slate (`slate`)
-
-Understated cool grey slate tones tailored for enterprise intranets and corporate software documentation.
-
-```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="slate" color-scheme="dark" radius="sm"></rapi-doc>
-```
-
----
-
-## 8. Custom Corporate Brand Hex Color
-
-Supply your exact brand hex code into `theme`. RapiDoc automatically manages focus rings and accessible foreground text contrast.
+Pass a hex code as the `theme`. RapiDoc sets `--primary` and `--ring` to it and picks black or white for `--primary-foreground` by luminance, over the default (Ember) surfaces.
 
 ```html
 <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="#2563eb" color-scheme="dark" radius="md"></rapi-doc>
 ```
 
+To change more than the accent, set the CSS variables on the element; see [Theming Overview](/docs/theming/overview/).
+
+```css
+rapi-doc {
+  --background: #0b1220;
+  --foreground: #e2e8f0;
+}
+```
+
 ---
 
-## 9. Automatic OS Dark / Light Switching (`system`)
+## Follow the operating system
 
-To match the end user's operating system preferences automatically, set `color-scheme="system"`:
+`color-scheme="system"` switches between the theme's dark and light palette with the OS preference. `color-scheme="auto"` follows the host page's `data-theme` instead.
 
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="emerald" color-scheme="system" radius="md"></rapi-doc>
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade" color-scheme="system"></rapi-doc>
 ```

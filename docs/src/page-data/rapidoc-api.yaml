@@ -49,17 +49,15 @@ Attributes:
   - UI Colors and Fonts Attributes:
       - name: theme
         description: >
-          Semantic color theme preset or custom brand color hex/css value. Pre-built presets match modern shadcn/ui color tokens.
+          Brand color preset, or a custom brand color as a hex code. Each preset defines a dark and a light palette.
         allowed:
-          - amber
-          - graphite
-          - slate
-          - emerald
-          - violet
-          - rose
-          - blue
+          - ember
+          - carbon
+          - cobalt
+          - jade
+          - indigo
           - '(or custom hex color e.g. #2563eb)'
-        default: amber
+        default: ember
         example: /examples/themes
       - name: color-scheme
         allowed:
