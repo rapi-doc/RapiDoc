@@ -43,13 +43,6 @@ const coreThemingAttributes = [
     desc: 'Controls vertical density and padding of sidebar navigation links independently of typography scale.',
   },
   {
-    name: 'load-fonts',
-    type: 'boolean',
-    default: 'true',
-    allowed: 'true | false',
-    desc: 'Automatically loads default Open Sans from Google Fonts CDN. Set to "false" in air-gapped, offline, or enterprise intranet environments.',
-  },
-  {
     name: 'render-style',
     type: 'string',
     default: 'focused',
@@ -150,16 +143,25 @@ const customHexSnippet = `<!-- Use your corporate brand hex color directly -->
   - Generates high-contrast --primary-foreground: #ffffff
 -->`;
 
-const typographySnippet = `<!-- Load custom Google Fonts in document head -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+const typographySnippet = `<style>
+  /* Declare fonts in the page: @font-face inside RapiDoc's shadow root is ignored */
+  @font-face {
+    font-family: 'Inter';
+    src: url('/fonts/InterVariable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('/fonts/JetBrainsMono-Variable.woff2') format('woff2');
+    font-weight: 100 800;
+    font-display: swap;
+  }
 
-<style>
-  /* Override typography tokens directly on <rapi-doc> */
+  /* Override typography tokens directly on <rapi-doc>, keeping system fonts as the fallback */
   rapi-doc {
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   }
 </style>
 
@@ -168,7 +170,6 @@ const typographySnippet = `<!-- Load custom Google Fonts in document head -->
   theme="violet"
   color-scheme="dark"
   radius="md"
-  load-fonts="false"
 ></rapi-doc>`;
 
 const dynamicJsSnippet = `// Select the RapiDoc custom element in the DOM
@@ -1489,14 +1490,14 @@ function setScale(size) {
       </div>
     </section>
 
-    <!-- Section 4: Typography & Google Fonts -->
+    <!-- Section 4: Typography & Brand Fonts -->
     <section class="rd-section-block" id="typography">
       <div class="rd-section-header">
         <div class="rd-section-badge">Typography Tokens</div>
-        <h2 class="rd-section-title">Custom Typography & Google Fonts Pairing</h2>
+        <h2 class="rd-section-title">Custom Typography & Brand Fonts</h2>
         <p class="rd-section-desc">
-          RapiDoc natively supports shadcn/ui design tokens. Set <code class="mono-code">--font-sans</code> and <code class="mono-code">--font-mono</code> on <code class="mono-code">&lt;rapi-doc&gt;</code> to seamlessly apply any custom
-          font family.
+          RapiDoc loads no web fonts and uses the operating system's UI font by default. Set <code class="mono-code">--font-sans</code> and <code class="mono-code">--font-mono</code> on <code class="mono-code">&lt;rapi-doc&gt;</code> to apply
+          your brand fonts.
         </p>
       </div>
 
@@ -1506,9 +1507,8 @@ function setScale(size) {
             <div class="rd-recipe-tag">Typography Recipe</div>
             <h3 class="rd-recipe-heading">Pairing Inter & JetBrains Mono</h3>
             <p class="rd-recipe-text">
-              Load your Google Fonts stylesheet in the document head and bind the tokens directly in CSS. Set <code class="mono-code"
-                >load-fonts="false"</code
-              > to prevent RapiDoc from fetching the default Open Sans font.
+              Self-host the font files, declare them with <code class="mono-code">@font-face</code> in the page, and bind the tokens in CSS. A Google Fonts
+              stylesheet or a Fontsource package works the same way; see <a href="/docs/theming/overview/#4-typography--brand-fonts">Typography & Brand Fonts</a>.
             </p>
           </div>
         </div>

@@ -148,7 +148,6 @@ export default class RapiDoc extends LitElement {
   _autoColorScheme = new AutoColorSchemeController(this);
   @property({ type: String, reflect: true }) radius = 'sm';
   @property({ type: String, reflect: true }) scale = 'default';
-  @property({ type: String, attribute: 'load-fonts' }) loadFonts = 'true';
   @property({ type: String, attribute: 'css-file' }) cssFile = '';
   @property({ type: String, attribute: 'css-classes' }) cssClasses = '';
 
@@ -219,42 +218,6 @@ export default class RapiDoc extends LitElement {
       if (!parent.style.marginLeft) {
         parent.style.marginLeft = '0';
       }
-    }
-
-    if (this.loadFonts !== 'false') {
-      const fontDescriptor = {
-        family: 'Open Sans',
-        style: 'normal',
-        weight: '300',
-        unicodeRange:
-          'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
-      };
-      const fontWeight300 = new FontFace(
-        'Open Sans',
-        "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UN_r8OUuhpKKSTjw.woff2) format('woff2')",
-        fontDescriptor
-      );
-      fontDescriptor.weight = '600';
-      const fontWeight600 = new FontFace(
-        'Open Sans',
-        "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UNirkOUuhpKKSTjw.woff2) format('woff2')",
-        fontDescriptor
-      );
-      fontDescriptor.weight = '700';
-      const fontWeight700 = new FontFace(
-        'Open Sans',
-        "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UN7rgOUuhpKKSTjw.woff2) format('woff2')",
-        fontDescriptor
-      );
-      fontWeight300.load().then((font) => {
-        document.fonts.add(font);
-      });
-      fontWeight600.load().then((font) => {
-        document.fonts.add(font);
-      });
-      fontWeight700.load().then((font) => {
-        document.fonts.add(font);
-      });
     }
 
     if (!this.renderStyle || !'read, view, focused,'.includes(`${this.renderStyle},`)) {

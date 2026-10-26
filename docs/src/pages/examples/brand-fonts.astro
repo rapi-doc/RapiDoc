@@ -1,0 +1,17 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<!-- RapiDoc loads no fonts. The tuner's font options add their stylesheet to the page only when picked;
+     in production, self-host the font files and declare them with @font-face. -->
+<ExampleLayout
+  autoRenderRapiDoc={true}
+  controller="pretty"
+  controls={['regular-font', 'mono-font', 'scale', 'color-scheme', 'render-style', 'schema-style']}
+  rapidocProps={{
+    id: 'thedoc',
+    'show-info': 'true',
+    'render-style': 'read',
+    'schema-style': 'table',
+  }}
+/>

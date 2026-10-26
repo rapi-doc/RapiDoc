@@ -6,6 +6,7 @@ const exampleToSpecMap: Record<string, string> = {
   example3: 'some-example.yaml',
   'multi-datatypes-test': 'multi-datatypes.yaml',
   'dry-run': 'dryrun.yaml',
+  'brand-fonts': 'bookstore.yaml',
   font: 'petstore.yaml',
   reqres: 'reqres.yaml',
   search: 'petstore.yaml',

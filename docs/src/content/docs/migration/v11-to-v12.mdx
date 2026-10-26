@@ -173,3 +173,12 @@ rapi-doc::part(param-name) {
   font-weight: 600;
 }
 ```
+
+---
+
+## 6. No web fonts are loaded
+
+v11 downloaded three weights of Open Sans from `fonts.gstatic.com` on every page unless you set `load-fonts="false"`, even though its own font list no longer used Open Sans. v12 makes no font requests: text uses `--font-sans` and `--font-mono`, which default to the operating system's UI and monospace fonts.
+
+- The `load-fonts` attribute is removed. You can delete `load-fonts="false"` from your markup; leaving it in has no effect.
+- To keep a brand font (Open Sans or any other), load it in your page and set `--font-sans` / `--font-mono` on `rapi-doc`. See [Typography & Brand Fonts](/docs/theming/overview/#4-typography--brand-fonts).

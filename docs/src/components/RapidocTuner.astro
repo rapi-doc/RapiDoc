@@ -188,6 +188,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
                           data-attr={ctrl.attr}
                           data-val={opt.rawVal}
                           data-is-default={opt.isDefault ? 'true' : undefined}
+                          data-font-css={opt.fontCss}
                           data-tooltip={`${ctrl.attr}="${opt.rawVal}"`}
                         >
                           {opt.dotColor && (
@@ -435,6 +436,29 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
       const statusDots = hud.querySelectorAll('.rd-hud-status-dot');
 
       const storageKeyTuck = `rd_ctrl_tucked_${window.location.pathname}`;
+
+      // Font controls set --font-sans / --font-mono. An option with data-font-css also loads its stylesheet,
+      // since RapiDoc loads no fonts itself.
+      function applyFont(target, attr, val) {
+        const cssVar = attr === 'regular-font' ? '--font-sans' : attr === 'mono-font' ? '--font-mono' : '';
+        if (!cssVar) return;
+        if (!val) {
+          target.style.removeProperty(cssVar);
+          return;
+        }
+        const optionEl = Array.from(hud.querySelectorAll(`[data-attr="${attr}"][data-font-css]`)).find(
+          (el) => (el.getAttribute('value') ?? el.getAttribute('data-val')) === val
+        );
+        const fontCss = optionEl?.getAttribute('data-font-css');
+        const isLoaded = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).some((link) => link.href === fontCss);
+        if (fontCss && !isLoaded) {
+          const linkEl = document.createElement('link');
+          linkEl.rel = 'stylesheet';
+          linkEl.href = fontCss;
+          document.head.append(linkEl);
+        }
+        target.style.setProperty(cssVar, val);
+      }
       const storageKeyRaw = `rd_ctrl_raw_labels`;
 
       function setCollapsed(collapsed) {
@@ -874,19 +898,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
           const val = linkBtn.getAttribute('data-val') ?? '';
           const target = getTarget();
           if (target && attr) {
-            if (attr === 'regular-font') {
-              if (val === '') {
-                target.style.removeProperty('--font-sans');
-              } else {
-                target.style.setProperty('--font-sans', val);
-              }
-            } else if (attr === 'mono-font') {
-              if (val === '') {
-                target.style.removeProperty('--font-mono');
-              } else {
-                target.style.setProperty('--font-mono', val);
-              }
-            }
+            applyFont(target, attr, val);
             if (val === '') {
               target.removeAttribute(attr);
             } else {
@@ -946,12 +958,8 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
               }
             });
           }
-          if (target.hasAttribute('regular-font')) {
-            target.style.setProperty('--font-sans', target.getAttribute('regular-font'));
-          }
-          if (target.hasAttribute('mono-font')) {
-            target.style.setProperty('--font-mono', target.getAttribute('mono-font'));
-          }
+          applyFont(target, 'regular-font', target.getAttribute('regular-font'));
+          applyFont(target, 'mono-font', target.getAttribute('mono-font'));
         } catch (_) {}
 
         target.addEventListener('spec-loaded', () => {

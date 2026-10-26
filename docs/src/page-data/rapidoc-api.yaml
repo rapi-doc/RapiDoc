@@ -89,10 +89,6 @@ Attributes:
           - lg
         description: Relative scale factor for typography and UI elements across the documentation portal.
         default: default
-      - name: load-fonts
-        allowed: ['true', 'false']
-        description: Automatically loads default Open Sans font from Google Fonts CDN. Set to "false" for air-gapped, offline, or enterprise intranet environments.
-        default: true
       - name: css-file & css-classes
         hidden: true
         description: >

@@ -3,7 +3,13 @@ export interface ControlOption {
   rawVal: string;
   dotColor?: string;
   isDefault?: boolean;
+  /** Stylesheet that loads this font option. Tuners add it to the page the first time the option is picked. */
+  fontCss?: string;
 }
+
+/** Google Fonts stylesheet for the weights RapiDoc uses (400-700). */
+const googleFontCss = (family: string) =>
+  `https://fonts.googleapis.com/css2?family=${family.replace(/ /g, '+')}:wght@400;500;600;700&display=swap`;
 
 export type ControlCategory = 'appearance' | 'theming' | 'navigation' | 'schema' | 'sections' | 'slots';
 
@@ -143,6 +149,9 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     category: 'theming',
     options: [
       { label: 'Default', rawVal: '', isDefault: true },
+      { label: 'Inter', rawVal: 'Inter, sans-serif', fontCss: googleFontCss('Inter') },
+      { label: 'IBM Plex Sans', rawVal: "'IBM Plex Sans', sans-serif", fontCss: googleFontCss('IBM Plex Sans') },
+      { label: 'Source Sans 3', rawVal: "'Source Sans 3', sans-serif", fontCss: googleFontCss('Source Sans 3') },
       { label: 'Nunito', rawVal: 'Nunito' },
       { label: 'Roboto Mono', rawVal: 'Roboto Mono' },
     ],
@@ -155,6 +164,9 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     category: 'theming',
     options: [
       { label: 'Default', rawVal: '', isDefault: true },
+      { label: 'JetBrains Mono', rawVal: "'JetBrains Mono', monospace", fontCss: googleFontCss('JetBrains Mono') },
+      { label: 'IBM Plex Mono', rawVal: "'IBM Plex Mono', monospace", fontCss: googleFontCss('IBM Plex Mono') },
+      { label: 'Source Code Pro', rawVal: "'Source Code Pro', monospace", fontCss: googleFontCss('Source Code Pro') },
       { label: 'Courier', rawVal: 'Courier' },
     ],
   },
