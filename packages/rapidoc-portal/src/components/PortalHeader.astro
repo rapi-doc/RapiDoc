@@ -286,11 +286,34 @@ const currentTab = activeTab(tabs, currentPath);
     line-height: 1.4;
   }
 
+  /* Frosted glass for all three header rows: a translucent tint of the page background over a blur,
+     so content scrolling underneath stays legible but muted. A banner with a configured `background`
+     keeps that colour (its inline style outranks the tint). The rows are positioned with descending
+     z-index because the blur makes each one a stacking context: without it, the tabs row would paint
+     over the menus and user panel that drop down from row 1. */
+  .portal-announcement-bar,
+  .portal-navbar,
+  .portal-tabs {
+    position: relative;
+    background-color: color-mix(in srgb, var(--ph-bg) 72%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+    backdrop-filter: blur(16px) saturate(1.6);
+    border-bottom: 1px solid var(--ph-border-subtle);
+  }
+  .portal-announcement-bar {
+    z-index: 3;
+  }
+  .portal-navbar {
+    z-index: 2;
+  }
+  .portal-tabs {
+    z-index: 1;
+  }
+
   /* Announcement bar: one line of fixed height (--portal-banner-height), so the header height is
      known before paint. Long text is truncated. */
   .portal-announcement-bar {
     box-sizing: border-box;
-    position: relative;
     width: 100%;
     height: var(--portal-banner-height);
     display: flex;
@@ -303,7 +326,6 @@ const currentTab = activeTab(tabs, currentPath);
     font-family: inherit;
     white-space: nowrap;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
   html.portal-announcement-dismissed .portal-announcement-bar {
     display: none;
@@ -345,9 +367,6 @@ const currentTab = activeTab(tabs, currentPath);
     align-items: center;
     gap: 1.5rem;
     padding-inline: var(--portal-shell-pad-x);
-    /* Opaque: the sidebar slides under the header when the footer pushes it up. */
-    background-color: var(--ph-bg);
-    border-bottom: 1px solid var(--ph-border);
     box-sizing: border-box;
   }
 
@@ -845,8 +864,6 @@ const currentTab = activeTab(tabs, currentPath);
     align-items: stretch;
     gap: 2rem;
     padding-inline: var(--portal-shell-pad-x);
-    background-color: var(--ph-bg);
-    border-bottom: 1px solid var(--ph-border);
     box-sizing: border-box;
     overflow-x: auto;
     scrollbar-width: none;

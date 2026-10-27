@@ -16,8 +16,9 @@ export const SESSION_SECRET = 'test-session-secret-0123456789-abcdef';
  *
  * @param {object} [options]
  * @param {string} [options.portalOrigin] - Origin of the portal that signs in with it
+ * @param {Record<string, string[]>} [options.claims] - Extra claims per scope, e.g. { openid: ['https://rapidoc/roles'] }
  */
-export async function startIssuer({ portalOrigin = PORTAL_ORIGIN } = {}) {
+export async function startIssuer({ portalOrigin = PORTAL_ORIGIN, claims: extraClaims = {} } = {}) {
   const users = new Map();
   let current = null;
   const server = http.createServer();
@@ -37,7 +38,11 @@ export async function startIssuer({ portalOrigin = PORTAL_ORIGIN } = {}) {
     ],
     pkce: { required: () => true },
     scopes: ['openid', 'profile', 'email', 'groups'],
-    claims: { openid: ['sub'], profile: ['name', 'picture'], email: ['email', 'email_verified'], groups: ['groups'] },
+    claims: Object.fromEntries(
+      Object.entries({ openid: ['sub'], profile: ['name', 'picture'], email: ['email', 'email_verified'], groups: ['groups'] }).map(
+        ([scope, names]) => [scope, [...names, ...(extraClaims[scope] || [])]]
+      )
+    ),
     findAccount: (ctx, id) => users.has(id) && { accountId: id, claims: () => ({ sub: id, ...users.get(id) }) },
     features: { devInteractions: { enabled: false }, rpInitiatedLogout: { enabled: true } },
     interactions: { url: (ctx, interaction) => `/interaction/${interaction.uid}` },
