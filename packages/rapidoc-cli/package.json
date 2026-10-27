@@ -15,10 +15,14 @@
     "create-rapidoc": "^0.1.0"
   },
   "peerDependencies": {
+    "@rapidoc/mock": "^0.1.0",
     "@rapidoc/portal": "^0.1.0",
     "@rapidoc/server": "^0.1.0"
   },
   "peerDependenciesMeta": {
+    "@rapidoc/mock": {
+      "optional": true
+    },
     "@rapidoc/portal": {
       "optional": true
     },

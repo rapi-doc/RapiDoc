@@ -49,6 +49,21 @@ async function loadServer() {
   }
 }
 
+// The mock server behind `rapidoc mock` is an optional peer as well.
+// RAPIDOC_MOCK_MODULE swaps the module name (tests use it to simulate a missing mock server).
+const MOCK_MODULE = process.env.RAPIDOC_MOCK_MODULE || '@rapidoc/mock';
+
+async function loadMock() {
+  try {
+    return await import(MOCK_MODULE);
+  } catch (err) {
+    if (err.code !== 'ERR_MODULE_NOT_FOUND' || !err.message.includes(MOCK_MODULE)) throw err;
+    console.error(`\n❌ \`rapidoc mock\` needs @rapidoc/mock. Install it next to the CLI:`);
+    console.error(`   npm install -D @rapidoc/mock\n`);
+    process.exit(1);
+  }
+}
+
 const positional = (index) => (args[index] && !args[index].startsWith('-') ? args[index] : undefined);
 const optionValue = (name) => {
   const idx = args.indexOf(name);
@@ -67,6 +82,7 @@ Commands:
   dev [dir]               Launches local development server with HMR (Astro + Starlight)
   build [dir]             Pre-renders static developer portal into dist/ (SSG)
   serve [dist]            Serves a built portal; enforces sign-in and access rules (default: dist)
+  mock [dir|spec...]      Mock server for a portal's APIs, a folder of specs or spec files, each under /<api id>
   validate [spec|dir]     Validates one OpenAPI 3.0 / 3.1 spec, or every spec in a portal's apis: (default: current folder)
   migrate --from <src>    Converts a Redocly or a Zudoku project to rapidoc.config.yaml (redocly, zudoku)
   --help, -h              Show this help message
@@ -74,16 +90,20 @@ Commands:
 
 Options:
   --outDir <path>         Output directory for static assets (default: dist)
-  --port <number>         dev: server port (default 4321); serve: default $PORT or 8080
-  --host <host>           serve: address to listen on (default $HOST or 0.0.0.0)
+  --port <number>         dev: server port (default 4321); serve: default $PORT or 8080; mock: default 4010
+  --host <host>           serve, mock: address to listen on (serve: default $HOST; both default 0.0.0.0)
+  --issuer <url>          mock: OpenID Connect issuer whose tokens are accepted (default $RAPIDOC_MOCK_ISSUER)
+  --audience <id>         mock: audience tokens must be issued for (default $RAPIDOC_MOCK_AUDIENCE)
+  --seed <number>         mock: seed for generated data (default 1)
   --debug                 Keep the temporary Astro workspace and print its path (for debugging the engine)
   --title <title>         init: site title (asked for when omitted in a terminal)
   --force, -f             init: overwrite existing files
   --yes, -y               init: accept defaults without asking
   --no-install            init: skip npm install
 
-dev, build, migrate and folder-wide validate need @rapidoc/portal installed next to the CLI;
-serve needs @rapidoc/server.
+dev, build, migrate, folder-wide validate and mock of a portal folder need @rapidoc/portal installed next to the
+CLI; serve needs @rapidoc/server; mock needs @rapidoc/mock. A folder without rapidoc.config.yaml is mocked file by
+file (orders-api.yaml under /orders-api).
 
 Examples:
   rapidoc init my-portal --title "Acme Developer Portal"
@@ -91,6 +111,9 @@ Examples:
   rapidoc build
   rapidoc build ./my-api-portal
   rapidoc serve dist --port 8080
+  rapidoc mock --issuer https://example.us.auth0.com/ --audience https://api.example.com
+  rapidoc mock ./specs --port 4011
+  rapidoc mock orders-api.yaml billing-api.yaml
   rapidoc validate
   rapidoc validate ./specs/orders-api.yaml
   rapidoc migrate --from redocly
@@ -183,6 +206,157 @@ async function handleServe() {
     }
   }
   console.log('');
+
+  const stop = async () => {
+    await server.close();
+    process.exit(0);
+  };
+  process.once('SIGINT', stop);
+  process.once('SIGTERM', stop);
+}
+
+// Options followed by a value, so `rapidoc mock a.yaml --port 4011 b.yaml` sees two spec files.
+const VALUE_OPTIONS = new Set(['--port', '--host', '--issuer', '--audience', '--seed', '--outDir', '--title', '--from']);
+
+/** The positional arguments after the command. */
+function positionals() {
+  const found = [];
+  for (let i = 1; i < args.length; i++) {
+    if (!args[i].startsWith('-')) found.push(args[i]);
+    else if (VALUE_OPTIONS.has(args[i])) i++;
+  }
+  return found;
+}
+
+// The portal's config file names (CONFIG_CANDIDATES in @rapidoc/portal), checked without loading the portal engine.
+const hasPortalConfig = (dir) => fs.readdirSync(dir).some((name) => /^rapidoc\.config\.(ya?ml|json|m?js|ts)$/.test(name));
+
+const slug = (text) =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'api';
+
+/**
+ * Mock ids for spec files: the file name without its extension (`specs/orders-api.yaml` → `orders-api`). Files that
+ * would share an id get their parent folders in front until they differ (`billing-v2/openapi.yaml` →
+ * `billing-v2-openapi`); the same input always gives the same ids.
+ */
+function mockApisFromFiles(files) {
+  const fullPaths = [...new Set(files.map((file) => path.resolve(file)))];
+  const segments = fullPaths.map((fullPath) => {
+    const parts = fullPath.split(path.sep).filter(Boolean);
+    parts[parts.length - 1] = parts.at(-1).replace(/\.(ya?ml|json)$/i, '');
+    return parts;
+  });
+  const idOf = (parts, depth) => slug(parts.slice(-depth).join('-'));
+  const ids = segments.map((parts) => idOf(parts, 1));
+  const groups = new Map();
+  ids.forEach((id, i) => groups.set(id, [...(groups.get(id) || []), i]));
+  for (const indices of groups.values()) {
+    if (indices.length < 2) continue;
+    const longest = Math.max(...indices.map((i) => segments[i].length));
+    let depth = 2;
+    while (depth < longest && new Set(indices.map((i) => idOf(segments[i], depth))).size < indices.length) depth++;
+    for (const i of indices) ids[i] = idOf(segments[i], depth);
+  }
+  const used = new Set();
+  return fullPaths.map((fullPath, i) => {
+    let id = ids[i];
+    for (let n = 2; used.has(id); n++) id = `${ids[i]}-${n}`;
+    used.add(id);
+    return { id, fullPath };
+  });
+}
+
+// rapidoc mock [dir | spec...]: the local specs in a portal's apis:, every OpenAPI file in a folder without a
+// portal config, or the spec files given; all on one port, each under /<api id>.
+async function handleMock() {
+  const targets = positionals().map((target) => path.resolve(target));
+  if (!targets.length) targets.push(process.cwd());
+  for (const target of targets) {
+    if (!fs.existsSync(target)) {
+      console.error(`\n❌ Not found: ${target}\n`);
+      process.exit(1);
+    }
+  }
+  const numberOption = (name) => {
+    const value = optionValue(name);
+    if (value === undefined) return undefined;
+    const number = Number(value);
+    if (!Number.isInteger(number) || number < 0) {
+      console.error(`\n❌ ${name} needs a whole number, got "${value}"\n`);
+      process.exit(1);
+    }
+    return number;
+  };
+  const port = numberOption('--port');
+  const seed = numberOption('--seed');
+
+  let apis;
+  const folder = targets.length === 1 && fs.statSync(targets[0]).isDirectory() ? targets[0] : null;
+  if (folder && hasPortalConfig(folder)) {
+    const portal = await loadPortal();
+    let config;
+    try {
+      ({ config } = await portal.loadConfig(folder));
+    } catch (err) {
+      console.error(`\n❌ ${err.message}\n`);
+      process.exit(1);
+    }
+    apis = [];
+    for (const api of config.apis || []) {
+      if (api.isRemote) console.log(`⏭️  ${api.id}: ${api.spec} (remote, not mocked)`);
+      else apis.push({ id: api.id, title: api.title, fullPath: api.fullPath });
+    }
+    if (!apis.length) {
+      console.error(`\n❌ ${folder} has no local specs under apis: to mock.\n`);
+      process.exit(1);
+    }
+  } else if (folder) {
+    const { findOpenApiSpecs } = await import('create-rapidoc/scaffold');
+    const files = findOpenApiSpecs(folder).map((file) => path.join(folder, file));
+    if (!files.length) {
+      console.error(`\n❌ ${folder} has no rapidoc.config.yaml and no OpenAPI files to mock.\n`);
+      process.exit(1);
+    }
+    console.log(`\n📂 No rapidoc.config.yaml in ${folder}: mocking the ${files.length} OpenAPI file(s) found there.`);
+    apis = mockApisFromFiles(files);
+  } else {
+    const dirs = targets.filter((target) => fs.statSync(target).isDirectory());
+    if (dirs.length) {
+      console.error(`\n❌ Pass one folder, or one or more spec files (not both): ${dirs.join(', ')}\n`);
+      process.exit(1);
+    }
+    apis = mockApisFromFiles(targets);
+  }
+
+  const issuer = optionValue('--issuer') || process.env.RAPIDOC_MOCK_ISSUER || undefined;
+  const audience = optionValue('--audience') || process.env.RAPIDOC_MOCK_AUDIENCE || undefined;
+  const { startMockServer } = await loadMock();
+  let server;
+  try {
+    server = await startMockServer({ apis, port, host: optionValue('--host'), issuer, audience, seed });
+  } catch (err) {
+    console.error(`\n❌ Mock server failed: ${err.message}\n`);
+    process.exit(1);
+  }
+
+  console.log(`\n🧪 Mock server: ${server.url}`);
+  const fileOf = new Map(apis.map((api) => [api.id, path.relative(process.cwd(), api.fullPath)]));
+  for (const api of server.apis) {
+    console.log(
+      `   • ${server.url}/${api.id}  ${api.title ? `${api.title}, ` : ''}${api.operations} operation(s)  (${fileOf.get(api.id)})`
+    );
+  }
+  for (const api of server.skipped) console.warn(`   ⚠️  ${api.id}: not served (${api.error.split('\n')[0]})`);
+  if (issuer) {
+    console.log(`   • Tokens:   verified against ${issuer}${audience ? ` for ${audience}` : ''}; scopes from scope, scp or permissions`);
+    if (!audience) console.warn('   ⚠️  No audience set (--audience or RAPIDOC_MOCK_AUDIENCE): tokens for any API are accepted.');
+  } else {
+    console.log('   • Tokens:   not verified, any bearer token passes (set --issuer or RAPIDOC_MOCK_ISSUER to check them)');
+  }
+  console.log('   • Try:      Prefer: code=404 picks a documented response; Prefer: example=<name> an example\n');
 
   const stop = async () => {
     await server.close();
@@ -337,6 +511,9 @@ switch (command) {
     break;
   case 'serve':
     await handleServe();
+    break;
+  case 'mock':
+    await handleMock();
     break;
   case 'validate':
     await handleValidate();

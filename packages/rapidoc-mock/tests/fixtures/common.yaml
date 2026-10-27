@@ -1,0 +1,8 @@
+# Shared schemas, referenced from orders.yaml with a relative $ref.
+Problem:
+  type: object
+  required: [title, status]
+  properties:
+    title: { type: string }
+    status: { type: integer, minimum: 400, maximum: 599 }
+    detail: { type: string }

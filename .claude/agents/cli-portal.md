@@ -1,6 +1,6 @@
 ---
 name: cli-portal
-description: "Use for changes to packages/rapidoc-cli (@rapidoc/cli: init, dev, build, serve, validate, migrate), packages/rapidoc-portal (@rapidoc/portal engine: config, Markdoc, layout, search, access rules), packages/rapidoc-server (@rapidoc/server: OIDC sign-in, access enforcement), or packages/create-rapidoc scaffolding."
+description: "Use for changes to packages/rapidoc-cli (@rapidoc/cli: init, dev, build, serve, mock, validate, migrate), packages/rapidoc-portal (@rapidoc/portal engine: config, Markdoc, layout, search, access rules), packages/rapidoc-server (@rapidoc/server: OIDC sign-in, access enforcement), packages/rapidoc-mock (@rapidoc/mock: mock server, token scope checks), or packages/create-rapidoc scaffolding."
 ---
 
 # Agent Role: CLI & Developer Portal Specialist
@@ -20,6 +20,9 @@ You are a specialist agent dedicated to `packages/rapidoc-cli` and `packages/rap
 - **Server Package**: `packages/rapidoc-server` (`@rapidoc/server`, run by `rapidoc serve`)
   - Entry Point: `packages/rapidoc-server/src/index.js`
   - Guidance: `packages/rapidoc-server/AGENTS.md`
+- **Mock Package**: `packages/rapidoc-mock` (`@rapidoc/mock`, run by `rapidoc mock`)
+  - Entry Point: `packages/rapidoc-mock/src/index.js`
+  - Guidance: `packages/rapidoc-mock/AGENTS.md`
 - **Scaffolding Package**: `packages/create-rapidoc`
   - Entry Point: `packages/create-rapidoc/src/index.js`
 

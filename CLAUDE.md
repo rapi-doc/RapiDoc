@@ -14,8 +14,9 @@
 | :--- | :--- | :--- |
 | `packages/rapidoc` | `rapidoc` | `src/index.js` → `<rapi-doc>` in `src/rapidoc.ts`; static renderer in `src/static/index.js` (`rapidoc/static`); bundles `dist/rapidoc-min.js`, `dist/rapidoc-static-min.js` |
 | `packages/rapidoc-portal` | `@rapidoc/portal` | `src/index.js` (+ `./config`, `./markdoc`, `./search`, `./components`); build engine in `src/engine/`, portal pages in `src/pages/` |
-| `packages/rapidoc-cli` | `@rapidoc/cli` | `src/index.js` (bin `rapidoc`: `init`, `dev`, `build`, `serve`, `validate`, `migrate`; loads `@rapidoc/portal` and `@rapidoc/server`, optional peers, only when needed) |
+| `packages/rapidoc-cli` | `@rapidoc/cli` | `src/index.js` (bin `rapidoc`: `init`, `dev`, `build`, `serve`, `mock`, `validate`, `migrate`; loads `@rapidoc/portal`, `@rapidoc/server` and `@rapidoc/mock`, optional peers, only when needed) |
 | `packages/rapidoc-server` | `@rapidoc/server` | `src/index.js` (`createApp`, `startServer`): serves a built portal with OIDC sign-in and the access zones from `dist/rapidoc-server.json` |
+| `packages/rapidoc-mock` | `@rapidoc/mock` | `src/index.js` (`createMockApp`, `startMockServer`): mocks the portal's APIs under `/<api id>` (default port 4010); examples, generated data, request validation, JWT scope checks; libraries behind `src/engine/` |
 | `packages/create-rapidoc` | `create-rapidoc` | `src/index.js` (bin `create-rapidoc`); `src/scaffold.js` (`scaffoldProject`, `findOpenApiSpecs`, also used by `rapidoc init`) |
 | `docs` | `docs` (private) | `astro.config.mjs`; content in `src/content/docs/`, pages in `src/pages/` |
 
@@ -41,6 +42,6 @@ The full command tables are in `AGENTS.md` §3.
 - **Subagents** (`.claude/agents/`):
   - `rapidoc-core` — `packages/rapidoc` (component, parser, schema, bundle)
   - `docs-maintainer` — `docs/` (Astro + Starlight site, examples, redirects)
-  - `cli-portal` — `packages/rapidoc-cli`, `packages/rapidoc-portal`, `packages/rapidoc-server`, `packages/create-rapidoc`
+  - `cli-portal` — `packages/rapidoc-cli`, `packages/rapidoc-portal`, `packages/rapidoc-server`, `packages/rapidoc-mock`, `packages/create-rapidoc`
 - **Skills**:
   - `rapidoc-static-navigation` (`packages/rapidoc-portal/.claude/skills/`) — static `getNavBarHtml` sidebar + headless `<rapi-doc>` with independent scrolling. Loads once Claude touches files under `packages/rapidoc-portal/`.

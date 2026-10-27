@@ -3,13 +3,41 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const CLI_PATH = path.resolve(__dirname, '../src/index.js');
-const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
+const DEMO_PORTAL_DIR =
+  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
+
+/** A one-operation OpenAPI document (GET /ping). */
+const minimalSpec = (title) =>
+  `openapi: 3.1.0\ninfo: { title: ${title}, version: 1.0.0 }\npaths:\n  /ping:\n    get:\n      responses:\n        '200': { description: OK, content: { application/json: { example: { ok: true } } } }\n`;
+
+/** Starts `rapidoc mock <args>` on a free port; resolves once the startup banner is printed. */
+async function startMock(mockArgs, env = {}) {
+  const child = spawn('node', [CLI_PATH, 'mock', ...mockArgs, '--port', '0', '--host', '127.0.0.1'], {
+    env: { ...process.env, RAPIDOC_MOCK_ISSUER: '', RAPIDOC_MOCK_AUDIENCE: '', ...env },
+  });
+  let output = '';
+  const url = await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`no URL in: ${output}`)), 20000);
+    const read = (chunk) => {
+      output += chunk;
+      const match = /Mock server: (http:\/\/\S+)/.exec(output);
+      if (match && output.includes('Try:')) {
+        clearTimeout(timer);
+        resolve(match[1]);
+      }
+    };
+    child.stdout.on('data', read);
+    child.stderr.on('data', read);
+    child.once('exit', (code) => reject(new Error(`exited with ${code}: ${output}`)));
+  });
+  return { url, output, stop: () => child.kill() };
+}
 
 test('@rapidoc/cli Command-Line Tool (Milestone 6)', async (t) => {
   await t.test('--help should print usage and commands', () => {
@@ -20,6 +48,7 @@ test('@rapidoc/cli Command-Line Tool (Milestone 6)', async (t) => {
     assert.ok(output.includes('migrate --from <src>'));
     assert.ok(output.includes('init [dir]'));
     assert.ok(output.includes('serve [dist]'));
+    assert.ok(output.includes('mock [dir|spec...]'));
   });
 
   await t.test('--version should print version string', () => {
@@ -140,6 +169,95 @@ test('@rapidoc/cli Command-Line Tool (Milestone 6)', async (t) => {
       assert.ok(noSecrets.stderr.includes('RAPIDOC_AUTH_ISSUER'), noSecrets.stderr);
     } finally {
       fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  await t.test('mock: asks for @rapidoc/mock when it is missing, and serves one spec under /<file name>', async () => {
+    const specPath = path.resolve(__dirname, '../../rapidoc-mock/tests/fixtures/orders.yaml');
+    const missing = spawnSync('node', [CLI_PATH, 'mock', specPath], {
+      encoding: 'utf8',
+      env: { ...process.env, RAPIDOC_MOCK_MODULE: '@rapidoc/mock-not-installed' },
+    });
+    assert.equal(missing.status, 1);
+    assert.ok(missing.stderr.includes('npm install -D @rapidoc/mock'), missing.stderr);
+
+    const badPort = spawnSync('node', [CLI_PATH, 'mock', specPath, '--port', 'x'], { encoding: 'utf8' });
+    assert.equal(badPort.status, 1);
+    assert.ok(badPort.stderr.includes('--port needs a whole number'), badPort.stderr);
+
+    const mock = await startMock([specPath]);
+    try {
+      assert.ok(mock.output.includes('/orders  Orders API, 9 operation(s)'), mock.output);
+      assert.ok(mock.output.includes('not verified'), mock.output);
+      assert.equal((await fetch(`${mock.url}/orders/health`)).status, 200);
+      assert.equal((await fetch(`${mock.url}/orders/orders`)).status, 401);
+    } finally {
+      mock.stop();
+    }
+  });
+
+  await t.test('mock: a folder without rapidoc.config.yaml is mocked file by file, without the portal engine', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-cli-mock-'));
+    try {
+      const fixtures = path.resolve(__dirname, '../../rapidoc-mock/tests/fixtures');
+      fs.mkdirSync(path.join(dir, 'specs'));
+      fs.copyFileSync(path.join(fixtures, 'orders.yaml'), path.join(dir, 'specs/orders-api.yaml'));
+      fs.copyFileSync(path.join(fixtures, 'common.yaml'), path.join(dir, 'specs/common.yaml'));
+      for (const version of ['v1', 'v2']) {
+        fs.mkdirSync(path.join(dir, `billing-${version}`));
+        fs.writeFileSync(path.join(dir, `billing-${version}/openapi.yaml`), minimalSpec(`Billing ${version}`));
+      }
+      fs.writeFileSync(path.join(dir, 'package.json'), '{ "name": "not-a-spec" }');
+
+      const mock = await startMock([dir], { RAPIDOC_PORTAL_MODULE: '@rapidoc/portal-not-installed' });
+      try {
+        assert.ok(mock.output.includes('No rapidoc.config.yaml'), mock.output);
+        assert.ok(mock.output.includes('/orders-api  Orders API, 9 operation(s)'), mock.output);
+        assert.ok(mock.output.includes('/billing-v1-openapi  Billing v1, 1 operation(s)'), mock.output);
+        assert.ok(mock.output.includes('/billing-v2-openapi  Billing v2, 1 operation(s)'), mock.output);
+        assert.ok(!mock.output.includes('/common'), 'files that are not OpenAPI documents are skipped');
+        assert.equal((await fetch(`${mock.url}/orders-api/health`)).status, 200);
+        assert.equal((await fetch(`${mock.url}/billing-v2-openapi/ping`)).status, 200);
+      } finally {
+        mock.stop();
+      }
+
+      const empty = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-cli-mock-empty-'));
+      try {
+        const result = spawnSync('node', [CLI_PATH, 'mock', empty], { encoding: 'utf8' });
+        assert.equal(result.status, 1);
+        assert.ok(result.stderr.includes('no rapidoc.config.yaml and no OpenAPI files'), result.stderr);
+      } finally {
+        fs.rmSync(empty, { recursive: true, force: true });
+      }
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  await t.test('mock: several spec files, with options between them; same file names get their folder', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-cli-mock-files-'));
+    try {
+      for (const name of ['a/openapi.yaml', 'b/openapi.json', 'payments.yaml']) {
+        fs.mkdirSync(path.dirname(path.join(dir, name)), { recursive: true });
+        fs.writeFileSync(path.join(dir, name), minimalSpec(name));
+      }
+      const files = ['a/openapi.yaml', 'payments.yaml', 'b/openapi.json'].map((name) => path.join(dir, name));
+      const mock = await startMock([files[0], '--seed', '3', files[1], files[2]]);
+      try {
+        assert.ok(mock.output.includes('/a-openapi  a/openapi.yaml'), mock.output);
+        assert.ok(mock.output.includes('/payments  payments.yaml'), mock.output);
+        assert.ok(mock.output.includes('/b-openapi  b/openapi.json'), mock.output);
+        assert.equal((await fetch(`${mock.url}/payments/ping`)).status, 200);
+      } finally {
+        mock.stop();
+      }
+
+      const mixed = spawnSync('node', [CLI_PATH, 'mock', files[0], dir], { encoding: 'utf8' });
+      assert.equal(mixed.status, 1);
+      assert.ok(mixed.stderr.includes('Pass one folder, or one or more spec files'), mixed.stderr);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
