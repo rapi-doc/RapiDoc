@@ -7,7 +7,7 @@ import { compileMarkdoc, compileDocFile, extractHeadings } from '../src/index.js
 
 describe('RapiDoc Portal Markdoc Engine (Milestone 3)', () => {
   const DEMO_GUIDES_DIR = path.join(
-    process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal', import.meta.url)),
+    process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo', import.meta.url)),
     'docs/guides'
   );
 

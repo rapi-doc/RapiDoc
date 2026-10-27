@@ -26,7 +26,7 @@ import { buildPortal } from '../src/index.js';
 import { findChromeExecutable, launchTestBrowser } from '../../../tests/helpers/test-harness.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal');
+const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
 const OUTPUT_DIR = process.env.RAPIDOC_LAYOUT_OUT ? path.resolve(process.env.RAPIDOC_LAYOUT_OUT) : null;
 
 const PAGES = [

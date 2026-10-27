@@ -11,7 +11,7 @@ import { buildPortal } from '../src/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal');
+const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
 
 test('RapiDoc Portal Full-Text Search Engine (Milestone 5)', async (t) => {
   await t.test('stripMarkup should strip frontmatter, markdoc tags, code blocks and formatting', () => {

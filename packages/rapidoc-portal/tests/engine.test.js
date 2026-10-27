@@ -10,7 +10,7 @@ import { renderThemeCss } from '../src/engine/theme-css.js';
 import { createPortalWorkspace, removePortalWorkspace, resolveDependencyRoot, WORKSPACE_DIRNAME } from '../src/engine/temp-workspace.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal');
+const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
 
 /** Relative paths of every entry under dir, skipping .git and never following symlinks. */
 function listTree(dir, base = dir) {
