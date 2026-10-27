@@ -1,7 +1,7 @@
 {
   "name": "@rapidoc/cli",
   "version": "0.1.0",
-  "description": "The rapidoc command: developer portal dev/build/init, OpenAPI validation and config migration",
+  "description": "The rapidoc command: developer portal dev/build/serve/init, OpenAPI validation and config migration",
   "type": "module",
   "bin": {
     "rapidoc": "./src/index.js"
@@ -15,10 +15,14 @@
     "create-rapidoc": "^0.1.0"
   },
   "peerDependencies": {
-    "@rapidoc/portal": "^0.1.0"
+    "@rapidoc/portal": "^0.1.0",
+    "@rapidoc/server": "^0.1.0"
   },
   "peerDependenciesMeta": {
     "@rapidoc/portal": {
+      "optional": true
+    },
+    "@rapidoc/server": {
       "optional": true
     }
   }

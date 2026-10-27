@@ -662,6 +662,166 @@
         ],
         "additionalProperties": false
       }
+    },
+    "auth": {
+      "description": "Sign-in through an OpenID Connect provider (served with `rapidoc serve`).",
+      "type": "object",
+      "properties": {
+        "provider": {
+          "description": "Sign-in protocol: oidc (OpenID Connect, the default).",
+          "type": "string",
+          "const": "oidc"
+        },
+        "issuer": {
+          "description": "OpenID Connect issuer URL. Required when the portal is served; RAPIDOC_AUTH_ISSUER overrides it.",
+          "type": "string",
+          "format": "uri"
+        },
+        "clientId": {
+          "description": "Client ID of the portal at the provider; RAPIDOC_AUTH_CLIENT_ID overrides it.",
+          "type": "string",
+          "minLength": 1
+        },
+        "scopes": {
+          "description": "Scopes to request (default openid, profile, email).",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "claims": {
+          "type": "object",
+          "properties": {
+            "groups": {
+              "description": "Claim with the user groups or roles (default groups). Dotted paths work, e.g. realm_access.roles.",
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "maxAge": {
+              "description": "How long a sign-in lasts (default 8h).",
+              "type": "string",
+              "pattern": "^\\d+[smhd]$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "logout": {
+          "description": "local (default) signs out of the portal; idp also signs out at the provider.",
+          "type": "string",
+          "enum": [
+            "local",
+            "idp"
+          ]
+        },
+        "label": {
+          "description": "Text of the sign-in button (default \"Sign in\").",
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "access": {
+      "description": "Who may read which pages, APIs and files (needs auth unless everything is public).",
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Who may read pages and files that no rule matches (default public).",
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "public",
+                "signed-in"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "groups": {
+                  "description": "Signed-in users in any of these groups.",
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "emails": {
+                  "description": "Signed-in users whose verified email matches any of these, e.g. '*@example.com'.",
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "rules": {
+          "description": "Checked top to bottom; the first rule whose path matches decides.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "format": "starts_with",
+                "pattern": "^\\/.*",
+                "description": "URL path pattern: * is one path segment, ** any number (/docs/internal/**). An API spec follows /apis/<id>."
+              },
+              "allow": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "public",
+                      "signed-in"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "groups": {
+                        "description": "Signed-in users in any of these groups.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "emails": {
+                        "description": "Signed-in users whose verified email matches any of these, e.g. '*@example.com'.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ],
+                "description": "public, signed-in, or { groups, emails }."
+              }
+            },
+            "required": [
+              "path",
+              "allow"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     }
   },
   "required": [

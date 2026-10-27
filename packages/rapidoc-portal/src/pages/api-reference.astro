@@ -3,7 +3,6 @@ import PortalLayout from '../components/PortalLayout.astro';
 import PortalMobileNav from '../components/PortalMobileNav.astro';
 import { getNavBarHtml, getNavCss, getSpecNavigation, getThemeTokensCss, toKebabCase } from 'rapidoc/static';
 import fs from 'node:fs';
-import path from 'node:path';
 import yaml from 'yaml';
 import portalConfig from 'virtual:rapidoc-portal/config';
 
@@ -66,8 +65,7 @@ export async function getStaticPaths() {
 const { api, portalConfig, activeTagSlug = '', currentPath = api.path } = Astro.props;
 
 let specInput = api.spec;
-const specFileName = api.fullPath ? path.basename(api.fullPath) : `${api.id}.json`;
-const specUrl = api.isRemote ? api.spec : `/specs/${specFileName}`;
+const specUrl = api.specUrl;
 
 if (!api.isRemote && api.fullPath && fs.existsSync(api.fullPath)) {
   const raw = fs.readFileSync(api.fullPath, 'utf8');

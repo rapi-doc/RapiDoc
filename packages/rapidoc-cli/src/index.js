@@ -34,6 +34,21 @@ async function loadPortal() {
   return portal;
 }
 
+// The server behind `rapidoc serve` is an optional peer too: only serve needs it.
+// RAPIDOC_SERVER_MODULE swaps the module name (tests use it to simulate a missing server).
+const SERVER_MODULE = process.env.RAPIDOC_SERVER_MODULE || '@rapidoc/server';
+
+async function loadServer() {
+  try {
+    return await import(SERVER_MODULE);
+  } catch (err) {
+    if (err.code !== 'ERR_MODULE_NOT_FOUND' || !err.message.includes(SERVER_MODULE)) throw err;
+    console.error(`\n❌ \`rapidoc serve\` needs @rapidoc/server. Install it next to the CLI:`);
+    console.error(`   npm install @rapidoc/server\n`);
+    process.exit(1);
+  }
+}
+
 const positional = (index) => (args[index] && !args[index].startsWith('-') ? args[index] : undefined);
 const optionValue = (name) => {
   const idx = args.indexOf(name);
@@ -51,6 +66,7 @@ Commands:
   init [dir]              Scaffolds a developer portal (default: current folder); uses OpenAPI files already there
   dev [dir]               Launches local development server with HMR (Astro + Starlight)
   build [dir]             Pre-renders static developer portal into dist/ (SSG)
+  serve [dist]            Serves a built portal; enforces sign-in and access rules (default: dist)
   validate [spec|dir]     Validates one OpenAPI 3.0 / 3.1 spec, or every spec in a portal's apis: (default: current folder)
   migrate --from <src>    Converts a Redocly or a Zudoku project to rapidoc.config.yaml (redocly, zudoku)
   --help, -h              Show this help message
@@ -58,20 +74,23 @@ Commands:
 
 Options:
   --outDir <path>         Output directory for static assets (default: dist)
-  --port <number>         Development server port (default: 4321)
+  --port <number>         dev: server port (default 4321); serve: default $PORT or 8080
+  --host <host>           serve: address to listen on (default $HOST or 0.0.0.0)
   --debug                 Keep the temporary Astro workspace and print its path (for debugging the engine)
   --title <title>         init: site title (asked for when omitted in a terminal)
   --force, -f             init: overwrite existing files
   --yes, -y               init: accept defaults without asking
   --no-install            init: skip npm install
 
-dev, build, migrate and folder-wide validate need @rapidoc/portal installed next to the CLI.
+dev, build, migrate and folder-wide validate need @rapidoc/portal installed next to the CLI;
+serve needs @rapidoc/server.
 
 Examples:
   rapidoc init my-portal --title "Acme Developer Portal"
   rapidoc dev
   rapidoc build
   rapidoc build ./my-api-portal
+  rapidoc serve dist --port 8080
   rapidoc validate
   rapidoc validate ./specs/orders-api.yaml
   rapidoc migrate --from redocly
@@ -115,11 +134,62 @@ async function handleBuild() {
     console.log(`   • APIs compiled:   ${result.apisCount}`);
     console.log(`   • Output folder:   ${result.outDir}`);
     if (result.workspaceDir) console.log(`   • Workspace (kept): ${result.workspaceDir}`);
+    if (result.access) {
+      const { protectedPages, zones, warnings } = result.access;
+      console.log(`   • Protected:       ${protectedPages} page(s) in ${zones.length} zone(s)`);
+      for (const warning of warnings) console.warn(`   ⚠️  ${warning}`);
+      const outRel = path.relative(process.cwd(), result.outDir) || '.';
+      console.log(
+        `\n   Serve it with \`rapidoc serve ${outRel}\`. ${outRel}/public alone is safe to host anywhere but has no protected content.`
+      );
+    }
     console.log('');
   } catch (err) {
     console.error(`\n❌ Build failed: ${err.message}\n`);
     process.exit(1);
   }
+}
+
+// rapidoc serve [dist]: the built portal, with sign-in and access rules when it has `auth`.
+async function handleServe() {
+  const distDir = path.resolve(positional(1) || 'dist');
+  const portValue = optionValue('--port');
+  const port = portValue !== undefined ? parseInt(portValue, 10) : undefined;
+  if (portValue !== undefined && !Number.isInteger(port)) {
+    console.error(`\n❌ --port needs a number, got "${portValue}"\n`);
+    process.exit(1);
+  }
+
+  const { startServer } = await loadServer();
+  let server;
+  try {
+    server = await startServer({ distDir, port, host: optionValue('--host') });
+  } catch (err) {
+    console.error(`\n❌ ${err.name === 'SettingsError' ? err.message : `Server failed: ${err.message}`}\n`);
+    process.exit(1);
+  }
+
+  const { settings } = server;
+  console.log(`\n🌐 Serving ${distDir}`);
+  console.log(`   • URL:      ${server.url}`);
+  if (settings.mode === 'static') {
+    console.log('   • Access:   everything public (no sign-in configured)');
+  } else {
+    if (settings.auth) console.log(`   • Sign-in:  ${settings.auth.issuer}`);
+    const zones = Object.keys(settings.manifest.access.zones).filter((zone) => zone !== 'public');
+    console.log(`   • Access:   ${Object.keys(settings.manifest.files).length} protected file(s) in ${zones.length} zone(s)`);
+    if (settings.auth && !settings.publicUrl) {
+      console.warn('   ⚠️  RAPIDOC_PUBLIC_URL is not set: the sign-in redirect URL is taken from each request.');
+    }
+  }
+  console.log('');
+
+  const stop = async () => {
+    await server.close();
+    process.exit(0);
+  };
+  process.once('SIGINT', stop);
+  process.once('SIGTERM', stop);
 }
 
 /**
@@ -264,6 +334,9 @@ switch (command) {
     break;
   case 'build':
     await handleBuild();
+    break;
+  case 'serve':
+    await handleServe();
     break;
   case 'validate':
     await handleValidate();

@@ -24,7 +24,7 @@ if (!api) {
   console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: no API with id "${spec}" in apis:`);
 }
 
-const specUrl = api && (api.isRemote ? api.spec : `/specs/${api.fullPath.split(/[\\/]/).pop()}`);
+const specUrl = api?.specUrl;
 const matchPaths = operationMatchPattern(method, path);
 const rapidoc = portalConfig.rapidoc || {};
 ---

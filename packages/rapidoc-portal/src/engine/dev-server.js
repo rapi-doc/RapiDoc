@@ -40,6 +40,9 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
   async function startAstro() {
     workspace = await createPortalWorkspace(projectDir, { kind: 'dev' });
     reportSpecWarnings(workspace.config);
+    if (workspace.config.access.enabled) {
+      console.warn('[rapidoc-portal] Access rules are not enforced by rapidoc dev; test them with rapidoc build && rapidoc serve dist');
+    }
     try {
       server = await astroDev(createAstroConfig(workspace, { server: { port, host: true } }));
     } catch (err) {

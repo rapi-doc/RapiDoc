@@ -19,6 +19,7 @@ test('@rapidoc/cli Command-Line Tool (Milestone 6)', async (t) => {
     assert.ok(output.includes('validate [spec|dir]'));
     assert.ok(output.includes('migrate --from <src>'));
     assert.ok(output.includes('init [dir]'));
+    assert.ok(output.includes('serve [dist]'));
   });
 
   await t.test('--version should print version string', () => {
@@ -111,6 +112,35 @@ test('@rapidoc/cli Command-Line Tool (Milestone 6)', async (t) => {
     const validateSpec = spawnSync('node', [CLI_PATH, 'validate', specPath], { encoding: 'utf8', env });
     assert.equal(validateSpec.status, 0, validateSpec.stderr);
     assert.ok(validateSpec.stdout.includes('Specification is valid OpenAPI!'));
+  });
+
+  await t.test('serve: asks for @rapidoc/server when it is missing, and explains what it needs to start', () => {
+    const missing = spawnSync('node', [CLI_PATH, 'serve', DEMO_PORTAL_DIR], {
+      encoding: 'utf8',
+      env: { ...process.env, RAPIDOC_SERVER_MODULE: '@rapidoc/server-not-installed' },
+    });
+    assert.equal(missing.status, 1);
+    assert.ok(missing.stderr.includes('npm install @rapidoc/server'), missing.stderr);
+
+    const noBuild = spawnSync('node', [CLI_PATH, 'serve', path.join(os.tmpdir(), 'rapidoc-no-such-dist')], { encoding: 'utf8' });
+    assert.equal(noBuild.status, 1);
+    assert.ok(noBuild.stderr.includes('run rapidoc build first'), noBuild.stderr);
+
+    const distDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-cli-serve-'));
+    try {
+      fs.mkdirSync(path.join(distDir, 'public'));
+      fs.mkdirSync(path.join(distDir, 'protected'));
+      const auth = { issuer: null, clientId: 'portal-web', scopes: ['openid'], claims: { groups: 'groups' }, session: { maxAge: '8h' } };
+      const access = { defaultZone: 'signed-in', zones: { 'signed-in': { kind: 'signed-in' } }, groups: [] };
+      fs.writeFileSync(path.join(distDir, 'rapidoc-server.json'), JSON.stringify({ version: 1, site: {}, auth, access, files: {} }));
+      const env = { ...process.env, RAPIDOC_SESSION_SECRET: '', RAPIDOC_AUTH_ISSUER: '' };
+      const noSecrets = spawnSync('node', [CLI_PATH, 'serve', distDir, '--port', '0'], { encoding: 'utf8', env });
+      assert.equal(noSecrets.status, 1);
+      assert.ok(noSecrets.stderr.includes('RAPIDOC_SESSION_SECRET'), noSecrets.stderr);
+      assert.ok(noSecrets.stderr.includes('RAPIDOC_AUTH_ISSUER'), noSecrets.stderr);
+    } finally {
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
   });
 
   await t.test('migrate --from redocly should generate rapidoc.config.yaml from redocly.yaml', () => {

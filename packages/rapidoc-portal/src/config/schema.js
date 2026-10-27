@@ -225,6 +225,71 @@ export const FooterSchema = z.strictObject({
   branding: z.boolean().optional().describe('Show "Powered by RapiDoc" (default true).'),
 });
 
+// ---------------------------------------------------------------------------------------------
+// Sign-in and access rules. Enforced by `rapidoc serve` (@rapidoc/server), not by a static host.
+// Secrets (client secret, session key) are environment variables, never config keys.
+// ---------------------------------------------------------------------------------------------
+
+export const AuthSchema = z.strictObject({
+  provider: z.literal('oidc').optional().describe('Sign-in protocol: oidc (OpenID Connect, the default).'),
+  issuer: z.url().optional().describe('OpenID Connect issuer URL. Required when the portal is served; RAPIDOC_AUTH_ISSUER overrides it.'),
+  clientId: z.string().min(1).optional().describe('Client ID of the portal at the provider; RAPIDOC_AUTH_CLIENT_ID overrides it.'),
+  scopes: z.array(z.string().min(1)).optional().describe('Scopes to request (default openid, profile, email).'),
+  claims: z
+    .strictObject({
+      groups: z
+        .string()
+        .min(1)
+        .optional()
+        .describe('Claim with the user groups or roles (default groups). Dotted paths work, e.g. realm_access.roles.'),
+    })
+    .optional(),
+  session: z
+    .strictObject({
+      maxAge: z
+        .string()
+        .regex(/^\d+[smhd]$/, 'use a number and a unit: 30m, 8h, 7d')
+        .optional()
+        .describe('How long a sign-in lasts (default 8h).'),
+    })
+    .optional(),
+  logout: z.enum(['local', 'idp']).optional().describe('local (default) signs out of the portal; idp also signs out at the provider.'),
+  label: z.string().min(1).optional().describe('Text of the sign-in button (default "Sign in").'),
+});
+
+export const AllowSchema = z
+  .union([
+    z.enum(['public', 'signed-in']),
+    z
+      .strictObject({
+        groups: z.array(z.string().min(1)).optional().describe('Signed-in users in any of these groups.'),
+        emails: z
+          .array(z.string().min(1))
+          .optional()
+          .describe("Signed-in users whose verified email matches any of these, e.g. '*@example.com'."),
+      })
+      .superRefine((allow, ctx) => {
+        if (!allow.groups?.length && !allow.emails?.length) ctx.addIssue({ code: 'custom', message: 'needs groups or emails' });
+      }),
+  ])
+  .describe('public, signed-in, or { groups, emails }.');
+
+export const AccessSchema = z.strictObject({
+  default: AllowSchema.optional().describe('Who may read pages and files that no rule matches (default public).'),
+  rules: z
+    .array(
+      z.strictObject({
+        path: z
+          .string()
+          .startsWith('/')
+          .describe('URL path pattern: * is one path segment, ** any number (/docs/internal/**). An API spec follows /apis/<id>.'),
+        allow: AllowSchema,
+      })
+    )
+    .optional()
+    .describe('Checked top to bottom; the first rule whose path matches decides.'),
+});
+
 const rapidocValue = z.union([z.string(), z.number(), z.boolean()]);
 
 export const RapidocConfigSchema = z.strictObject({
@@ -239,4 +304,6 @@ export const RapidocConfigSchema = z.strictObject({
   rapidoc: z.record(z.string(), rapidocValue).optional().describe('<rapi-doc> attributes for the API reference pages.'),
   search: z.boolean().optional().describe('Full-text search (default true).'),
   redirects: z.array(z.strictObject({ from: z.string().startsWith('/'), to: href })).optional(),
+  auth: AuthSchema.optional().describe('Sign-in through an OpenID Connect provider (served with `rapidoc serve`).'),
+  access: AccessSchema.optional().describe('Who may read which pages, APIs and files (needs auth unless everything is public).'),
 });

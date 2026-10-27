@@ -19,14 +19,13 @@ export class StaleRapidocBundleError extends Error {
 }
 
 /**
- * Copies every local spec referenced in `apis:` to public/specs/<file name>.
+ * Copies every local spec referenced in `apis:` to public/specs/<api id><ext> (its `specUrl`).
  */
 export function copySpecs(portalConfig, publicDir) {
-  const specsDir = path.join(publicDir, 'specs');
-  fs.mkdirSync(specsDir, { recursive: true });
+  fs.mkdirSync(path.join(publicDir, 'specs'), { recursive: true });
   for (const api of portalConfig.apis || []) {
     if (!api.isRemote && api.fullPath && fs.existsSync(api.fullPath)) {
-      fs.copyFileSync(api.fullPath, path.join(specsDir, path.basename(api.fullPath)));
+      fs.copyFileSync(api.fullPath, path.join(publicDir, api.specUrl));
     }
   }
 }

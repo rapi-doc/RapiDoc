@@ -12,8 +12,9 @@ This repository is managed as an **npm workspaces** monorepo running on **Node.j
 astro-rapidoc/
 ├── packages/
 │   ├── rapidoc/          # Core RapiDoc Web Component library (Lit, Vite)
-│   ├── rapidoc-cli/      # The `rapidoc` command (@rapidoc/cli): init, dev, build, validate, migrate
+│   ├── rapidoc-cli/      # The `rapidoc` command (@rapidoc/cli): init, dev, build, serve, validate, migrate
 │   ├── rapidoc-portal/   # Developer portal framework for OpenAPI & Markdoc (@rapidoc/portal)
+│   ├── rapidoc-server/   # Serves a built portal with OIDC sign-in and access rules (@rapidoc/server, `rapidoc serve`)
 │   └── create-rapidoc/   # Scaffolding CLI for new portals (npm create rapidoc)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── tests/
@@ -57,8 +58,9 @@ All agents must strictly adhere to the following system boundaries:
 - **CLI & Portal (`packages/rapidoc-cli` [@rapidoc/cli], `packages/rapidoc-portal` [@rapidoc/portal])**:
   - Maintain clean boundaries. `@rapidoc/cli` (bin `rapidoc`) is the single command users run: `init`, `dev`, `build`, `validate`, `migrate`, and later tools such as linting and mocking. `@rapidoc/portal` is the docs-as-code developer portal engine and library.
   - `@rapidoc/portal` is an **optional peer** of the CLI, imported lazily: only `dev`, `build`, `migrate` and folder-wide `validate` load it, so `rapidoc init` and `rapidoc validate <spec>` work without Astro installed. Never import it at the top of the CLI.
+  - `@rapidoc/server` (behind `rapidoc serve`) is the CLI's other optional peer, also imported lazily. It depends only on the build output (`dist/public/`, `dist/protected/`, `dist/rapidoc-server.json`), never on `@rapidoc/portal` or Astro; the portal writes that layout in `src/access/split-output.js`. Secrets (session key, client secret) are environment variables of the server, never config keys.
   - `rapidoc init` reuses `create-rapidoc`'s `scaffoldProject`/`findOpenApiSpecs` (`create-rapidoc/scaffold`); keep scaffolding logic only there.
-  - Internal dependency ranges are pinned (`rapidoc ^12.0.0` in the portal, `@rapidoc/portal ^0.1.0` as the CLI's peer), never `*`.
+  - Internal dependency ranges are pinned (`rapidoc ^12.0.0` in the portal, `@rapidoc/portal ^0.1.0` and `@rapidoc/server ^0.1.0` as the CLI's peers), never `*`.
 
 ### Build Artifact Hygiene
 
@@ -106,7 +108,7 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run test:e2e`    | Monorepo | Runs `tests/e2e/*.test.js`.                                                                                                                                |
 | `npm run test:visual` | Monorepo | Runs visual regression tests in `tests/visual/*.test.js`.                                                                                                  |
 | `npm run test:all`    | Monorepo | Runs `test:unit`, `test:component`, `test:e2e`, and `test:visual` in sequence.                                                                             |
-| `npm run test:portal` | Portal/CLI | Runs `tests/**/*.test.js` in `rapidoc-portal`, `rapidoc-cli`, and `create-rapidoc` (serially, `--test-concurrency=1`).                                   |
+| `npm run test:portal` | Portal/CLI | Runs `tests/**/*.test.js` in `rapidoc-portal`, `rapidoc-cli`, `rapidoc-server`, and `create-rapidoc` (serially, `--test-concurrency=1`).                |
 | `npm run test:parser` | Monorepo | Runs `tests/perf/benchmark.js` to measure OpenAPI spec parsing, circular ref handling, and dereferencing times across Bookstore, Stripe, and GitHub specs. |
 | `npm run test:perf`   | Monorepo | Runs `tests/perf/render-benchmark.js` measuring headless browser rendering performance across Focused, View, and Read modes.                               |
 
@@ -164,9 +166,10 @@ When executing tasks in this repository, follow these rules:
      - [`packages/rapidoc/AGENTS.md`](packages/rapidoc/AGENTS.md)
      - [`docs/AGENTS.md`](docs/AGENTS.md)
      - [`packages/rapidoc-cli/AGENTS.md`](packages/rapidoc-cli/AGENTS.md)
+     - [`packages/rapidoc-server/AGENTS.md`](packages/rapidoc-server/AGENTS.md)
      - [`packages/rapidoc-portal/AGENTS.md`](packages/rapidoc-portal/AGENTS.md)
      - [`packages/create-rapidoc/AGENTS.md`](packages/create-rapidoc/AGENTS.md)
-   - After changing portal or CLI code, run `npm run test:portal`.
+   - After changing portal, CLI or server code, run `npm run test:portal`.
 3. **No Unsolicited File Deletions**:
    - Preserve existing public specs (`docs/public/specs/`)
 4. **Commits and Git State**:

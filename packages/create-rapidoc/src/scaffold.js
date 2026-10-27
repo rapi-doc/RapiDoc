@@ -290,6 +290,18 @@ ${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join('')}
 rapidoc:
   render-style: "focused"
   schema-style: "tree"
+
+# Optional: sign-in through your OpenID Connect provider and access rules, enforced by
+# \`rapidoc serve\` (npm install @rapidoc/server). Secrets are environment variables of the server:
+# RAPIDOC_SESSION_SECRET and RAPIDOC_AUTH_CLIENT_SECRET.
+# auth:
+#   issuer: "https://your-tenant.okta.com/oauth2/default"
+#   clientId: "portal-web"
+# access:
+#   default: public
+#   rules:
+#     - path: /docs/internal/**
+#       allow: signed-in
 `;
 
 const STARTER_PACKAGE_JSON = (projectName) =>

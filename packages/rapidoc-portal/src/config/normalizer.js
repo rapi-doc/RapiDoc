@@ -3,6 +3,7 @@ import path from 'node:path';
 import YAML from 'yaml';
 import { MANAGED_RAPIDOC_ATTRIBUTES } from './errors.js';
 import { findHomeDoc } from '../engine/sync-docs.js';
+import { normalizeAccess, RESERVED_PREFIXES } from '../access/rules.js';
 
 /**
  * Turns a valid rapidoc.config.yaml (schema.js) into the config the portal pages read:
@@ -15,6 +16,8 @@ import { findHomeDoc } from '../engine/sync-docs.js';
 export const CATALOG_PATH = '/catalog';
 /** Every API reference page is API_PATH/<id>; API_PATH itself redirects to the catalog. */
 export const API_PATH = '/apis';
+/** Local specs are published at SPECS_PATH/<api id><ext>. */
+export const SPECS_PATH = '/specs';
 export const DEFAULT_PRIMARY_COLOR = '#f76b39';
 
 const isExternal = (href) => /^[a-z][a-z0-9+.-]*:/i.test(href);
@@ -71,6 +74,8 @@ function normalizeApi(api, baseDir) {
     spec: api.spec,
     fullPath,
     isRemote,
+    // Local specs are published as /specs/<id><ext>, so an access rule for /apis/<id> also covers its spec.
+    specUrl: isRemote ? api.spec : `${SPECS_PATH}/${api.id}${path.extname(fullPath) || '.json'}`,
     path: `${API_PATH}/${api.id}`,
     title: api.title || info.title || api.id,
     description: api.description ?? info.description ?? '',
@@ -224,7 +229,46 @@ export function checkReferences(raw) {
       problems.push(`rapidoc.${key}: set by the portal${instead ? `; use ${instead}` : ''}`);
     }
   }
+
+  problems.push(...checkAccess(raw));
+  (raw.redirects || []).forEach((redirect, i) => {
+    if (redirect.from.startsWith('/_rapidoc/')) problems.push(`redirects[${i}].from: /_rapidoc/ is reserved for the portal`);
+  });
   return problems;
+}
+
+/** `access` rules: reserved paths, and protection without sign-in. */
+function checkAccess(raw) {
+  const problems = [];
+  const needsAuth = (allow, where) => {
+    if (allow !== undefined && allow !== 'public' && !raw.auth) {
+      problems.push(`${where}: needs "auth"; who is signed in is only known when sign-in is configured`);
+    }
+  };
+  needsAuth(raw.access?.default, 'access.default');
+  (raw.access?.rules || []).forEach((rule, i) => {
+    const reserved = RESERVED_PREFIXES.find((prefix) => `${rule.path.replace(/\/+$/, '')}/`.startsWith(prefix));
+    if (reserved) problems.push(`access.rules[${i}].path: ${reserved} holds no page content and is always public`);
+    needsAuth(rule.allow, `access.rules[${i}].allow`);
+  });
+  return problems;
+}
+
+const DEFAULT_SCOPES = ['openid', 'profile', 'email'];
+
+/** `auth` with defaults filled in. Holds no secrets: those are environment variables of `rapidoc serve`. */
+function normalizeAuth(auth) {
+  if (!auth) return null;
+  return {
+    provider: auth.provider || 'oidc',
+    issuer: auth.issuer || null,
+    clientId: auth.clientId || null,
+    scopes: auth.scopes?.length ? auth.scopes : DEFAULT_SCOPES,
+    claims: { groups: auth.claims?.groups || 'groups' },
+    session: { maxAge: auth.session?.maxAge || '8h' },
+    logout: auth.logout || 'local',
+    label: auth.label || 'Sign in',
+  };
 }
 
 /**
@@ -287,6 +331,8 @@ export function normalizeConfig(raw, baseDir = process.cwd()) {
         ? [{ from: API_PATH, to: CATALOG_PATH }]
         : []),
     ],
+    auth: normalizeAuth(raw.auth),
+    access: normalizeAccess(raw.access),
     baseDir,
   };
 }

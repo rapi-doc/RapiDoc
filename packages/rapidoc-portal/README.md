@@ -144,6 +144,39 @@ The schema lives in [`src/config/schema.js`](src/config/schema.js). After changi
 
 `rapidoc migrate --from redocly|zudoku` writes a `rapidoc.config.yaml` from a Redocly project (`redocly.yaml` + `sidebars.yaml`) or a Zudoku config, and lists anything the conversion could not resolve. Redocly's sidebars become a Documentation tab, its APIs an API Catalog tab, and `theme.openapi` the theme and `rapidoc:` attributes; Zudoku's top-level navigation items are the tabs. Only the migrator knows Redocly's and Zudoku's key names.
 
+### Sign-in and access rules
+
+`auth` signs readers in through any OpenID Connect provider (Okta, Microsoft Entra ID, Google Workspace, Keycloak, Authentik, Zitadel, Auth0, Ping, Cognito). `access` decides who may read which pages, APIs and files. Both are optional; they need `rapidoc serve` (`@rapidoc/server`), because a static host can't check who is asking.
+
+```yaml
+auth:
+  issuer: https://acme.okta.com/oauth2/default # or RAPIDOC_AUTH_ISSUER
+  clientId: portal-web # or RAPIDOC_AUTH_CLIENT_ID
+  scopes: [openid, profile, email, groups] # default: openid, profile, email
+  claims: { groups: groups } # claim with groups or roles; dotted paths work (realm_access.roles)
+  session: { maxAge: 8h } # 30m, 8h, 7d
+  logout: local # idp: also sign out at the provider
+  label: Sign in with Okta
+
+access:
+  default: public # public | signed-in | { groups, emails } for anything no rule matches
+  rules: # top to bottom; the first rule whose path matches decides
+    - path: /docs/partners/** # * = one path segment, ** = any number
+      allow: signed-in
+    - path: /apis/billing/** # an API's spec and embedded operations follow /apis/<id>
+      allow: { groups: [billing-team] }
+    - path: /docs/internal/**
+      allow: { emails: ['*@acme.com'] } # verified emails only
+```
+
+- **Secrets are environment variables of `rapidoc serve`, never config keys:** `RAPIDOC_SESSION_SECRET` (32+ characters, encrypts the session cookie; the same value on every instance) and `RAPIDOC_AUTH_CLIENT_SECRET` (leave unset for a public client). `RAPIDOC_PUBLIC_URL` is the portal's external URL (default `site.url`). Register `<that URL>/_rapidoc/auth/callback` as the redirect URL at the provider.
+- **Build output:** with `auth`, `rapidoc build` writes `dist/public/` (safe to host anywhere, holds no protected content), `dist/protected/` and `dist/rapidoc-server.json`. Run `rapidoc serve dist`. Without `auth` the output is the usual static site.
+- **What is protected:** pages, specs and files from `public/`, search results (both search indexes are split per zone), and the sitemap. Locked links stay visible in menus and the catalog with a lock icon. Build assets (`/_astro/`), the RapiDoc bundle, the logo and the favicon are always public; `/_rapidoc/` is reserved for the portal.
+- **Build checks:** a rule that matches no page or file fails the build (a typo would otherwise leave content public). Warnings: a protected API whose spec is a URL (protect it at that origin), and a public page that embeds an operation of a protected API.
+- `rapidoc dev` does not enforce the rules; test them with `rapidoc build && rapidoc serve dist`.
+- **Groups:** some providers only send groups when asked for a scope (Okta: `groups`). With Microsoft Entra ID, prefer app roles (`claims: { groups: roles }`): the `groups` claim holds IDs and is dropped for users in many groups. `rapidoc serve` logs a hint when rules use groups but a sign-in carries none.
+- **SAML-only providers:** put an OIDC broker in front (Keycloak, Authentik, Zitadel, Ory Polis).
+
 ---
 
 ## Writing guides
@@ -166,7 +199,7 @@ The schema lives in [`src/config/schema.js`](src/config/schema.js). After changi
 1. **Load and validate** `rapidoc.config.yaml` ([`src/config/`](src/config/)).
 2. **Create a temporary workspace** at `<project>/.rapidoc-temp/<dev|build>-<pid>-<n>/`, one per run, so a build never disturbs a running `rapidoc dev`. It holds only what Astro needs on disk: a normalized copy of `docs/` (`docs/index.*` becomes the home page), the project's `public/` folder, the specs, the `rapidoc-min.js` bundle and the search index ([`src/engine/temp-workspace.js`](src/engine/temp-workspace.js), [`sync-docs.js`](src/engine/sync-docs.js), [`sync-assets.js`](src/engine/sync-assets.js)).
 3. **Run Astro + Starlight** with an inline config. The portal pages ([`src/pages/`](src/pages/)) and components ([`src/components/`](src/components/)) come straight from this package; they read the config and theme through the virtual modules `virtual:rapidoc-portal/config` and `virtual:rapidoc-portal/theme.css` ([`src/engine/astro-integration.js`](src/engine/astro-integration.js)).
-4. **Write the static site** to `<project>/dist/` (or `--outDir`).
+4. **Write the static site** to `<project>/dist/` (or `--outDir`). With `auth`, the output is then split by the access rules into `public/`, `protected/` and `rapidoc-server.json` for `rapidoc serve` ([`src/access/split-output.js`](src/access/split-output.js)); if that fails, the output folder is removed rather than left unsplit.
 5. **Delete the workspace** (and `.rapidoc-temp/` once no other run uses it), even when the build fails. Your project folder ends up exactly as it was, plus `dist/`.
 
 `rapidoc dev` does steps 1–3 and serves the site on `http://localhost:4321`. It watches the project: guide edits appear immediately; changes to `rapidoc.config.yaml` or a spec restart the server. Its workspace is removed when the server stops, however it stops (`stop()`, Ctrl+C, SIGTERM).
@@ -189,7 +222,7 @@ A run killed before it can clean up (`kill -9`, a crash) leaves its folder behin
 import { buildPortal, startDevServer, loadConfig } from '@rapidoc/portal';
 
 const result = await buildPortal('./my-portal', { outDir: 'dist' });
-// { success, apisCount, outDir, durationMs }
+// { success, apisCount, outDir, durationMs, access? }  access (with auth): { protectedPages, protectedFiles, zones, warnings }
 
 const server = await startDevServer('./my-portal', { port: 4321 });
 await server.stop(); // stops Astro and removes its workspace
@@ -218,8 +251,11 @@ src/
 │   ├── starlight-options.js   Config → Starlight options and sidebar (one group per documentation tab)
 │   ├── route-middleware.js    Shows the current tab's sidebar group; prev/next stay inside the tab
 │   └── theme-css.js           Renders styles/portal-theme.css for the config
-├── pages/         catalog, api-reference, first-tab-redirect (.astro)
-├── components/    Portal header/footer/sidebar/search and MDX components
+├── access/
+│   ├── rules.js               Rule patterns, allows → zones, first-match zone matcher
+│   └── split-output.js        public/ + protected/ + rapidoc-server.json, search and sitemap per zone
+├── pages/         catalog, api-reference, first-tab-redirect, rapidoc-notice (access denied, sign-in error) (.astro)
+├── components/    Portal header/footer/sidebar/search/user menu and MDX components
 ├── styles/        portal-theme.css
 ├── markdoc/       Markdoc tags, nodes, compiler
 └── search/        Search index builder

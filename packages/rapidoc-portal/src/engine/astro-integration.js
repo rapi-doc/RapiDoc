@@ -24,6 +24,7 @@ function portalRoutes(portalConfig) {
     { pattern: '/catalog', entrypoint: pageUrl('catalog.astro') },
     { pattern: '/docs', entrypoint: pageUrl('first-tab-redirect.astro') },
     { pattern: '/apis/[...apiRoute]', entrypoint: pageUrl('api-reference.astro') },
+    ...(portalConfig.auth ? [{ pattern: '/_rapidoc/[notice]', entrypoint: pageUrl('rapidoc-notice.astro') }] : []),
   ];
 }
 

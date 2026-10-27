@@ -3,6 +3,7 @@ import portalConfig from 'virtual:rapidoc-portal/config';
 import DualToneIcon from './DualToneIcon.astro';
 import PortalMobileNav from './PortalMobileNav.astro';
 import PortalSearchModal from './PortalSearchModal.astro';
+import PortalUserMenu from './PortalUserMenu.astro';
 import { TAB_ICONS, activeTab } from './header-nav.js';
 
 interface Props {
@@ -204,6 +205,8 @@ const currentTab = activeTab(tabs, currentPath);
       </button>
         )
       }
+
+      {config.auth && <PortalUserMenu />}
 
       <button type="button" class="portal-mobile-toggle" id="portal-mobile-menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="portal-mobile-drawer">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -3,6 +3,7 @@
  */
 
 import { fileURLToPath } from 'node:url';
+import { pagefindMergeIndex } from '../access/split-output.js';
 
 const componentPath = (name) => fileURLToPath(new URL(`../components/${name}`, import.meta.url));
 
@@ -34,6 +35,13 @@ export function fontHeadEntries(fonts = {}) {
   ];
 }
 
+/** Pagefind search: off, on, or on with one merged bundle per protected zone (split-output.js). */
+function pagefindOptions(portalConfig) {
+  if (!portalConfig.search) return false;
+  const mergeIndex = pagefindMergeIndex(portalConfig);
+  return mergeIndex.length ? { mergeIndex } : true;
+}
+
 /**
  * Builds the options passed to starlight() for a portal.
  *
@@ -51,7 +59,7 @@ export function createStarlightOptions(portalConfig) {
     sidebar: buildStarlightSidebar(portalConfig.tabs),
     routeMiddleware: [ROUTE_MIDDLEWARE_PATH],
     tableOfContents: docs.toc === false ? false : { minHeadingLevel: 2, maxHeadingLevel: 3, ...docs.toc },
-    pagefind: portalConfig.search,
+    pagefind: pagefindOptions(portalConfig),
     // Starlight's own Footer stays: it renders prev/next links, the edit link and the last-updated
     // date. The site footer is rendered by PortalPageFrame below the whole shell.
     components: {
