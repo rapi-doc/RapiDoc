@@ -1,4 +1,6 @@
 ---
+import Icon from './Icon.astro';
+
 interface Props {
   portalConfig?: any;
 }
@@ -11,10 +13,7 @@ const { portalConfig = {} } = Astro.props;
   <div class="portal-search-modal-dialog">
     <div class="portal-search-modal-header">
       <span class="portal-search-modal-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
+        <Icon name="magnifying-glass" />
       </span>
       <input
         type="search"
@@ -24,7 +23,7 @@ const { portalConfig = {} } = Astro.props;
         autocomplete="off"
         spellcheck="false"
       />
-      <button class="portal-search-modal-close" aria-label="Close search">&times;</button>
+      <button class="portal-search-modal-close" aria-label="Close search"><Icon name="x" size={16} /></button>
     </div>
 
     <div class="portal-search-modal-filters">
@@ -395,10 +394,9 @@ const { portalConfig = {} } = Astro.props;
     background: transparent;
     border: none;
     color: var(--portal-muted, #8b949e);
-    font-size: 1.5rem;
+    display: flex;
     cursor: pointer;
-    line-height: 1;
-    padding: 0 4px;
+    padding: 4px;
     border-radius: 4px;
     transition: color 0.15s;
   }

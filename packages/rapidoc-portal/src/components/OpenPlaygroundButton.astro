@@ -1,4 +1,6 @@
 ---
+import Icon from './Icon.astro';
+
 interface Props {
   server?: string;
   url?: string;
@@ -12,7 +14,7 @@ const target = url || server || '/catalog';
 
 <a href={target} class="portal-playground-btn" {...rest}>
   <span class="method-tag">{method}</span>
-  <slot>Try in API Playground &rarr;</slot>
+  <slot>Try in API Playground <Icon name="arrow-right" size={16} /></slot>
 </a>
 
 <style>

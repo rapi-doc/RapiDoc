@@ -24,6 +24,7 @@
     "@astrojs/starlight": "^0.42.6",
     "@astrojs/starlight-markdoc": "^0.7.0",
     "@markdoc/markdoc": "^0.5.10",
+    "@phosphor-icons/core": "^2.1.1",
     "astro": "^7.4.0",
     "github-slugger": "^2.0.0",
     "pagefind": "^1.5.2",

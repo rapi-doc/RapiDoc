@@ -185,7 +185,7 @@
               },
               "icon": {
                 "type": "string",
-                "description": "Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon)."
+                "description": "Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning."
               },
               "style": {
                 "description": "link (default), button (outlined) or primary (filled).",
@@ -215,7 +215,7 @@
                     },
                     "icon": {
                       "type": "string",
-                      "description": "Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon)."
+                      "description": "Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning."
                     },
                     "description": {
                       "type": "string"
@@ -269,7 +269,7 @@
                           },
                           "icon": {
                             "type": "string",
-                            "description": "Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon)."
+                            "description": "Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning."
                           }
                         },
                         "required": [
@@ -314,7 +314,7 @@
           },
           "icon": {
             "type": "string",
-            "description": "Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon)."
+            "description": "Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning."
           },
           "badge": {
             "anyOf": [

@@ -4,8 +4,8 @@
  * the header links and dropdown menus. Shown in the header's drawer and at the top of the sidebar menu.
  */
 import portalConfig from 'virtual:rapidoc-portal/config';
-import DualToneIcon from './DualToneIcon.astro';
-import { TAB_ICONS, activeTab } from './header-nav.js';
+import Icon from './Icon.astro';
+import { activeTab } from './header-nav.js';
 
 interface Props {
   portalConfig?: any;
@@ -25,9 +25,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
       <nav class="portal-mobile-tabs" aria-label="Sections">
         {tabs.map((tab: any) => (
           <a href={tab.href} class="portal-mobile-tab" aria-current={tab === currentTab ? 'page' : undefined} {...external(tab.href)}>
-            {tab.icon && (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={TAB_ICONS[tab.icon] || TAB_ICONS.compass} />
-            )}
+            {tab.icon && <Icon name={tab.icon} size={16} />}
             <span>{tab.label}</span>
           </a>
         ))}
@@ -44,7 +42,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
               <div class="portal-mobile-links">
                 {link.items.map((item: any) => (
                   <a href={item.href} class="portal-mobile-item" {...external(item.href)}>
-                    <DualToneIcon name={item.icon || 'zap'} size={18} class="portal-mobile-icon" />
+                    <Icon name={item.icon || 'lightning'} size={16} class="portal-mobile-icon" />
                     <span>{item.label}</span>
                   </a>
                 ))}

@@ -1,0 +1,30 @@
+---
+/**
+ * A Phosphor icon (https://phosphoricons.com), inlined at build time. Every icon keeps a 1.5px line:
+ * 24px uses the regular (or duotone) weight, 16px the bold one. Use duotone at 24px only.
+ */
+import { iconsDir } from 'virtual:rapidoc-portal/icons';
+import { readIconSvg } from './icon-files.js';
+
+interface Props {
+  name: string;
+  size?: 16 | 24;
+  duotone?: boolean;
+  class?: string;
+  [key: string]: any;
+}
+
+const { name, size = 24, duotone = false, ...rest } = Astro.props;
+const weight = duotone ? 'duotone' : size === 16 ? 'bold' : 'regular';
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 256 256"
+  width={size}
+  height={size}
+  fill="currentColor"
+  aria-hidden="true"
+  {...rest}
+  set:html={readIconSvg(iconsDir, name, weight)}
+/>

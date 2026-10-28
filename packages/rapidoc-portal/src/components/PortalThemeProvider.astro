@@ -3,34 +3,13 @@
  * Starlight ThemeProvider override: same API (window.StarlightThemeProvider), but a visitor who has not
  * picked a theme gets `theme.mode` from rapidoc.config.yaml instead of always following the OS.
  */
-import { Icon } from '@astrojs/starlight/components';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import { themeBootstrapScript } from './theme-script.js';
 
-const script = `window.StarlightThemeProvider = (() => {
-  const { stored } = ${themeBootstrapScript(portalConfig.theme.mode)};
-  return {
-    updatePickers(theme = stored || 'auto') {
-      document.querySelectorAll('starlight-theme-select').forEach((picker) => {
-        const select = picker.querySelector('select');
-        if (select) select.value = theme;
-        const tmpl = document.querySelector('#theme-icons');
-        const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
-        if (newIcon) {
-          const oldIcon = picker.querySelector('svg.label-icon');
-          if (oldIcon) oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
-        }
-      });
-    },
-  };
-})();`;
+// No <starlight-theme-select> to update (PortalThemeSelect renders none): the header's switcher is the theme control.
+const script = `${themeBootstrapScript(portalConfig.theme.mode)};
+window.StarlightThemeProvider = { updatePickers() {} };`;
 ---
 
 {/* Inlined to avoid a flash of the wrong theme. */}
 <script is:inline set:html={script} />
-
-<template id="theme-icons">
-  <Icon name="sun" class="light" />
-  <Icon name="moon" class="dark" />
-  <Icon name="laptop" class="auto" />
-</template>

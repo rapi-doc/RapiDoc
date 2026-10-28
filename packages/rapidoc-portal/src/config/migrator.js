@@ -98,6 +98,21 @@ function convertRapidoc(options = {}, theme) {
   return rapidoc;
 }
 
+/** Zudoku's Lucide icon names whose Phosphor name differs (most, e.g. book-open or code, are the same). */
+const LUCIDE_TO_PHOSPHOR = {
+  home: 'house',
+  settings: 'gear',
+  zap: 'lightning',
+  layers: 'stack',
+  mail: 'envelope',
+  search: 'magnifying-glass',
+  'layout-grid': 'squares-four',
+  'message-circle': 'chat-circle',
+  'help-circle': 'question',
+  'circle-help': 'question',
+};
+const phosphorIcon = (icon) => (icon ? LUCIDE_TO_PHOSPHOR[icon] || icon : undefined);
+
 /** Zudoku navigation item → v2 sidebar item. */
 function fromZudokuItem(item, apiPaths) {
   if (typeof item === 'string') return docSlug(item, { bare: true });
@@ -125,10 +140,11 @@ function fromZudoku(raw) {
     .map((item) => {
       const converted = fromZudokuItem(item, apiPaths);
       if (!converted || typeof converted === 'string') return converted && { label: converted, items: [converted] };
-      if (converted.api) return compact({ label: converted.label, icon: item.icon, api: converted.api });
-      if (converted.href) return compact({ label: converted.label, icon: item.icon, href: converted.href });
-      if (converted.slug) return compact({ label: converted.label, icon: item.icon, items: [converted.slug] });
-      return compact({ label: converted.label, icon: item.icon, items: converted.items });
+      const icon = phosphorIcon(item.icon);
+      if (converted.api) return compact({ label: converted.label, icon, api: converted.api });
+      if (converted.href) return compact({ label: converted.label, icon, href: converted.href });
+      if (converted.slug) return compact({ label: converted.label, icon, items: [converted.slug] });
+      return compact({ label: converted.label, icon, items: converted.items });
     })
     .filter(Boolean);
   const files = Array.isArray(raw.docs?.files) ? raw.docs.files[0] : raw.docs?.files;
@@ -160,7 +176,7 @@ function fromRedocly(raw) {
   const docsItems = convertGroups(raw.sidebars || raw.navigation || [], new Set(apis.map((a) => a.id)));
   const navigation = [
     ...(docsItems.length ? [{ label: 'Documentation', icon: 'book', items: docsItems }] : []),
-    ...(apis.length ? [{ label: 'API Catalog', icon: 'grid', catalog: true }] : []),
+    ...(apis.length ? [{ label: 'API Catalog', icon: 'squares-four', catalog: true }] : []),
   ];
   return assemble({
     site: compact({ title: raw.seo?.title || raw.site?.title || 'Developer Portal', description: raw.seo?.description }),

@@ -237,7 +237,7 @@ hero:
 {% card title="Getting Started" icon="rocket" href="/docs/getting-started/" %}
 Authenticate and make your first request.
 {% /card %}
-{% card title="Architecture Overview" icon="open-book" href="/docs/guides/overview/" %}
+{% card title="Architecture Overview" icon="book-open" href="/docs/guides/overview/" %}
 How the platform handles caching, rate limits and failover.
 {% /card %}
 {% /card-grid %}
@@ -265,7 +265,7 @@ header:
           description: "Quickstart guide and developer tutorials"
           href: "/docs/getting-started"
         - label: "${apis[0].label}"
-          icon: "zap"
+          icon: "lightning"
           description: "Interactive OpenAPI documentation"
           href: "/apis/${apis[0].id}"
     - label: "Login"
@@ -282,7 +282,7 @@ navigation:
           - getting-started
           - guides/overview
 ${apis.map((api) => `  - label: "${api.label}"\n    icon: "code"\n    api: ${api.id}\n`).join('')}  - label: "API Catalog"
-    icon: "grid"
+    icon: "squares-four"
     catalog: true
 
 apis:

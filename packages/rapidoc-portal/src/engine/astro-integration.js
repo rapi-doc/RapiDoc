@@ -6,6 +6,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import markdoc from '@astrojs/markdoc';
 import starlight from '@astrojs/starlight';
 import { createStarlightOptions, THEME_CSS_MODULE } from './starlight-options.js';
@@ -13,6 +14,10 @@ import { renderThemeCss } from './theme-css.js';
 import { resolveDependencyRoot } from './temp-workspace.js';
 
 export const CONFIG_MODULE = 'virtual:rapidoc-portal/config';
+export const ICONS_MODULE = 'virtual:rapidoc-portal/icons';
+
+/** Phosphor's SVG folders (assets/<weight>/), read by components/Icon.astro at build time. */
+const iconsDir = fileURLToPath(new URL('../assets/', import.meta.resolve('@phosphor-icons/core')));
 
 // File URLs, not path strings: Astro reads a string entrypoint as relative to the project root.
 const pageUrl = (name) => new URL(`../pages/${name}`, import.meta.url);
@@ -32,6 +37,7 @@ function virtualModulesPlugin(portalConfig) {
   const modules = {
     [CONFIG_MODULE]: `export default ${JSON.stringify(portalConfig)};`,
     [THEME_CSS_MODULE]: renderThemeCss(portalConfig),
+    [ICONS_MODULE]: `export const iconsDir = ${JSON.stringify(iconsDir)};`,
   };
   return {
     name: 'rapidoc-portal:virtual-modules',

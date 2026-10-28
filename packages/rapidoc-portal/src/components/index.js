@@ -1,4 +1,4 @@
-export { Aside, Tabs, TabItem, CardGrid, Steps, Icon, LinkCard, LinkButton, FileTree } from '@astrojs/starlight/components';
+export { Aside, Tabs, TabItem, CardGrid, Steps, LinkCard, LinkButton, FileTree } from '@astrojs/starlight/components';
 
 export { default as Callout } from './Callout.astro';
 export { default as Badge } from './Badge.astro';
@@ -19,4 +19,5 @@ export { default as SpaceWarning } from './SpaceWarning.astro';
 export { default as OpenPlaygroundButton } from './OpenPlaygroundButton.astro';
 export { default as PortalHeader } from './PortalHeader.astro';
 export { default as PortalFooter } from './PortalFooter.astro';
-export { default as DualToneIcon } from './DualToneIcon.astro';
+// Phosphor icons (https://phosphoricons.com), the portal's one icon set
+export { default as Icon } from './Icon.astro';

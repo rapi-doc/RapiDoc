@@ -13,7 +13,9 @@ const label = z.string().min(1).describe('Text shown for the item.');
 const href = z.string().min(1).describe('A path on this site (/docs/intro) or a full URL.');
 const icon = z
   .string()
-  .describe('Icon name, e.g. book, code, grid, rocket, satellite, zap, box, shield (an unknown name falls back to a generic icon).');
+  .describe(
+    'Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning.'
+  );
 const badge = z
   .union([
     z.string(),

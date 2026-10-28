@@ -63,6 +63,7 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 - Header height is CSS-only: `--sl-nav-height` = `--portal-banner-height` + `--portal-navbar-height` + `--portal-tabs-height` (`portal-theme.css`). Keep every row fixed-height; never measure the header in JS.
 - Accent colors: `--portal-primary` for fills, borders and icons; `--portal-primary-text` for text; `--portal-on-primary` for text on a primary fill; `--portal-primary-tint` behind accent text. The text variants are computed from `theme.primary` by `engine/accent-colors.js` so they pass 4.5:1; never use `--portal-primary` as a text color.
 - Header menus follow the WAI-ARIA disclosure navigation pattern (trigger `aria-expanded`/`aria-controls`, no `role="menu"`); focus alone never opens a panel.
+- Icons: [Phosphor](https://phosphoricons.com) only, through `components/Icon.astro` (24px regular or duotone, 16px bold: a 1.5px line either way). Config and `{% card %}` icon names are Phosphor names. Never inline other SVG icons.
 - `portal-theme.css` is unlayered, so it already beats Starlight's `@layer starlight.*` rules. Don't use `!important`.
 
 Invariants:

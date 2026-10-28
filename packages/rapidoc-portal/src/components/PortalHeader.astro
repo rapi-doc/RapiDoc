@@ -1,10 +1,10 @@
 ---
 import portalConfig from 'virtual:rapidoc-portal/config';
-import DualToneIcon from './DualToneIcon.astro';
+import Icon from './Icon.astro';
 import PortalMobileNav from './PortalMobileNav.astro';
 import PortalSearchModal from './PortalSearchModal.astro';
 import PortalUserMenu from './PortalUserMenu.astro';
-import { TAB_ICONS, activeTab } from './header-nav.js';
+import { activeTab } from './header-nav.js';
 
 interface Props {
   portalConfig?: any;
@@ -59,13 +59,13 @@ const currentTab = activeTab(tabs, currentPath);
           <span class="portal-announcement-msg">{banner.message}</span>
           {banner.href && (
             <a href={banner.href} class="portal-announcement-cta">
-              Explore &rarr;
+              Explore <Icon name="arrow-right" size={16} />
             </a>
           )}
         </div>
         {banner.dismissible && (
           <button type="button" class="portal-announcement-close" id="portal-announcement-close" aria-label="Dismiss announcement">
-            &times;
+            <Icon name="x" size={16} />
           </button>
         )}
       </aside>
@@ -83,10 +83,7 @@ const currentTab = activeTab(tabs, currentPath);
     {
       config.search ? (
         <button type="button" class="portal-search-trigger" id="portal-search-btn" aria-label="Search documentation (⌘K)">
-          <svg class="portal-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+          <Icon name="magnifying-glass" size={16} class="portal-search-icon" />
           <span class="portal-search-text">Search</span>
           <kbd class="portal-search-kbd">⌘K</kbd>
         </button>
@@ -107,9 +104,7 @@ const currentTab = activeTab(tabs, currentPath);
                 <div class="portal-dropdown-wrapper">
                   <button type="button" class="portal-nav-button portal-dropdown-trigger" aria-expanded="false" aria-controls={`portal-menu-${linkIndex}`}>
                     <span>{link.label}</span>
-                    <svg class="portal-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
+                    <Icon name="caret-down" size={16} class="portal-chevron" />
                   </button>
 
                   <div class="portal-megamenu-panel" id={`portal-menu-${linkIndex}`}>
@@ -121,14 +116,14 @@ const currentTab = activeTab(tabs, currentPath);
                           return (
                             <div class:list={['portal-megamenu-section', { 'with-divider': idx < link.items.length - 1 }]}>
                               <a href={item.href} class="portal-megamenu-hero-card">
-                                <div class="portal-card-icon-box" data-icon-type={item.icon || 'zap'}>
-                                  <DualToneIcon name={item.icon || 'zap'} size={22} />
+                                <div class="portal-card-icon-box">
+                                  <Icon name={item.icon || 'lightning'} duotone />
                                 </div>
                                 <div class="portal-card-body">
                                   <div class="portal-card-title-row">
                                     <span class="portal-card-title">{item.label}</span>
                                     {item.badge && <span class="portal-card-badge">{item.badge}</span>}
-                                    <span class="portal-card-arrow">&rarr;</span>
+                                    <span class="portal-card-arrow"><Icon name="arrow-right" size={16} /></span>
                                   </div>
                                   {item.description && <p class="portal-card-desc">{item.description}</p>}
                                 </div>
@@ -138,7 +133,7 @@ const currentTab = activeTab(tabs, currentPath);
                                 <div class="portal-features-grid">
                                   {item.items.map((feat) => (
                                     <a href={feat.href} class="portal-feature-item">
-                                      <DualToneIcon name={feat.icon || 'check'} size={15} class="portal-feature-icon" />
+                                      <Icon name={feat.icon || 'check-circle'} size={16} class="portal-feature-icon" />
                                       <span class="portal-feature-label">{feat.label}</span>
                                     </a>
                                   ))}
@@ -153,14 +148,14 @@ const currentTab = activeTab(tabs, currentPath);
                       <div class="portal-megamenu-grid">
                         {link.items.map((item) => (
                           <a href={item.href} class="portal-megamenu-card">
-                            <div class="portal-card-icon-box" data-icon-type={item.icon || 'zap'}>
-                              <DualToneIcon name={item.icon || 'zap'} size={22} />
+                            <div class="portal-card-icon-box">
+                              <Icon name={item.icon || 'lightning'} duotone />
                             </div>
                             <div class="portal-card-body">
                               <div class="portal-card-title-row">
                                 <span class="portal-card-title">{item.label}</span>
                                 {item.badge && <span class="portal-card-badge">{item.badge}</span>}
-                                <span class="portal-card-arrow">&rarr;</span>
+                                <span class="portal-card-arrow"><Icon name="arrow-right" size={16} /></span>
                               </div>
                               {item.description && <p class="portal-card-desc">{item.description}</p>}
                             </div>
@@ -193,14 +188,10 @@ const currentTab = activeTab(tabs, currentPath);
         config.header.themeSwitcher && (
       <button type="button" class="portal-theme-btn" id="portal-theme-toggle" aria-label="Dark mode" aria-pressed="false">
         <span class="portal-theme-option portal-theme-light" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-          </svg>
+          <Icon name="sun" size={16} />
         </span>
         <span class="portal-theme-option portal-theme-dark" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-          </svg>
+          <Icon name="moon" size={16} />
         </span>
       </button>
         )
@@ -209,20 +200,12 @@ const currentTab = activeTab(tabs, currentPath);
       {config.auth && <PortalUserMenu />}
 
       <button type="button" class="portal-mobile-toggle" id="portal-mobile-menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="portal-mobile-drawer">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
+        <Icon name="list" />
       </button>
       {
         hasSidebar && (
           <button type="button" class="portal-mobile-toggle portal-sidebar-toggle" popovertarget={sidebarId} aria-label="Menu">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
+            <Icon name="list" />
           </button>
         )
       }
@@ -241,9 +224,7 @@ const currentTab = activeTab(tabs, currentPath);
             target={isExternal(tab.href) ? '_blank' : undefined}
             rel={isExternal(tab.href) ? 'noopener noreferrer' : undefined}
           >
-            {tab.icon && (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={TAB_ICONS[tab.icon] || TAB_ICONS.compass} />
-            )}
+            {tab.icon && <Icon name={tab.icon} size={16} />}
             <span>{tab.label}</span>
             {tab.badge && <span class="portal-tab-badge">{typeof tab.badge === 'string' ? tab.badge : tab.badge.text}</span>}
           </a>
@@ -341,6 +322,9 @@ const currentTab = activeTab(tabs, currentPath);
     text-overflow: ellipsis;
   }
   .portal-announcement-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     flex-shrink: 0;
     color: inherit;
     text-decoration: underline;
@@ -352,8 +336,8 @@ const currentTab = activeTab(tabs, currentPath);
     background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 1.25rem;
-    line-height: 1;
+    display: flex;
+    color: inherit;
     opacity: 0.75;
   }
   .portal-announcement-close:hover {
@@ -625,8 +609,9 @@ const currentTab = activeTab(tabs, currentPath);
     border-color: rgba(255, 255, 255, 0.06);
   }
 
-  /* Dual-Tone Icon Box */
+  /* Icon box: the accent for the first item, then four more tones in turn */
   .portal-card-icon-box {
+    --icon-tone: var(--ph-primary);
     width: 42px;
     height: 42px;
     border-radius: 10px;
@@ -634,46 +619,21 @@ const currentTab = activeTab(tabs, currentPath);
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    background: color-mix(in srgb, var(--ph-primary) 14%, transparent);
-    color: var(--ph-primary);
-    border: 1px solid color-mix(in srgb, var(--ph-primary) 24%, transparent);
+    background: color-mix(in srgb, var(--icon-tone) 14%, transparent);
+    color: var(--icon-tone);
+    border: 1px solid color-mix(in srgb, var(--icon-tone) 26%, transparent);
   }
-  .portal-card-icon-box[data-icon-type*="satellit"],
-  .portal-card-icon-box[data-icon-type*="track"],
-  .portal-card-icon-box[data-icon-type*="radar"] {
-    background: rgba(56, 189, 248, 0.14);
-    color: #38bdf8;
-    border-color: rgba(56, 189, 248, 0.28);
+  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 2) .portal-card-icon-box {
+    --icon-tone: #f59e0b;
   }
-  .portal-card-icon-box[data-icon-type*="zap"],
-  .portal-card-icon-box[data-icon-type*="warp"] {
-    background: rgba(245, 158, 11, 0.14);
-    color: #f59e0b;
-    border-color: rgba(245, 158, 11, 0.28);
+  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 3) .portal-card-icon-box {
+    --icon-tone: #34d399;
   }
-  .portal-card-icon-box[data-icon-type*="box"],
-  .portal-card-icon-box[data-icon-type*="contain"] {
-    background: rgba(52, 211, 153, 0.14);
-    color: #34d399;
-    border-color: rgba(52, 211, 153, 0.28);
+  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 4) .portal-card-icon-box {
+    --icon-tone: #38bdf8;
   }
-  .portal-card-icon-box[data-icon-type*="rock"],
-  .portal-card-icon-box[data-icon-type*="fleet"] {
-    background: rgba(167, 139, 250, 0.14);
-    color: #a78bfa;
-    border-color: rgba(167, 139, 250, 0.28);
-  }
-  .portal-card-icon-box[data-icon-type*="grid"],
-  .portal-card-icon-box[data-icon-type*="catalog"] {
-    background: rgba(251, 113, 133, 0.14);
-    color: #fb7185;
-    border-color: rgba(251, 113, 133, 0.28);
-  }
-  .portal-card-icon-box[data-icon-type*="shield"],
-  .portal-card-icon-box[data-icon-type*="custom"] {
-    background: rgba(45, 212, 191, 0.14);
-    color: #2dd4bf;
-    border-color: rgba(45, 212, 191, 0.28);
+  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 5) .portal-card-icon-box {
+    --icon-tone: #a78bfa;
   }
 
   .portal-card-body {
@@ -693,10 +653,10 @@ const currentTab = activeTab(tabs, currentPath);
     letter-spacing: -0.01em;
   }
   .portal-card-arrow {
+    display: flex;
     color: var(--ph-muted);
     transition: transform 0.15s ease, color 0.15s ease;
     margin-left: 0.35rem;
-    font-size: 1.05rem;
   }
   .portal-megamenu-hero-card:hover .portal-card-arrow,
   .portal-megamenu-card:hover .portal-card-arrow {

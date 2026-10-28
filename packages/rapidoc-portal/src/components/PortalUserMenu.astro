@@ -119,18 +119,18 @@ const tryIt = portalConfig.auth?.tryIt === true;
     outline-offset: 2px;
   }
 
-  /* Links to pages the reader can't open (POST /_rapidoc/access/check) */
+  /* Links to pages the reader can't open (POST /_rapidoc/access/check): Phosphor's lock-simple, bold at 16px */
   [data-portal-locked]::after {
     content: '';
     display: inline-block;
     flex-shrink: 0;
-    width: 0.8em;
-    height: 0.8em;
+    width: 16px;
+    height: 16px;
     margin-inline-start: 0.35em;
-    vertical-align: -0.05em;
+    vertical-align: -0.15em;
     background: currentColor;
     opacity: 0.7;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2zm2 0h6V7a3 3 0 0 0-6 0z'/%3E%3C/svg%3E")
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M208,76H180V56A52,52,0,0,0,76,56V76H48A20,20,0,0,0,28,96V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V96A20,20,0,0,0,208,76ZM100,56a28,28,0,0,1,56,0V76H100ZM204,204H52V100H204Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
   }
 </style>

@@ -69,10 +69,10 @@ header: # row 1, right of the search
     - label: Solutions
       items: # dropdown; an icon or description makes it a mega-menu
         - label: Tracking
-          icon: satellite
+          icon: globe # any Phosphor icon name: https://phosphoricons.com
           description: Real-time tracking
           href: /docs/tracking
-          items: [{ label: Webhooks, icon: server, href: /docs/webhooks }]
+          items: [{ label: Webhooks, icon: webhooks-logo, href: /docs/webhooks }]
     - label: Login
       href: /login
       style: button # link (default) | button | primary
@@ -93,7 +93,7 @@ navigation: # row 2: one tab per entry
     icon: code
     api: shipments # the API's reference page
   - label: API Catalog
-    icon: grid
+    icon: squares-four
     catalog: true # /catalog, APIs grouped by category
   - label: Blog
     href: https://example.com/blog
@@ -186,7 +186,7 @@ access:
 ## Writing guides
 
 - **Markdown (`.md`)**: a first `# Heading` becomes the page title when there's no frontmatter `title`.
-- **MDX (`.mdx`)**: portal components can be used without importing them: `Callout`, `Card` (+ `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`), `Badge`, `Button`, `Link`, `Steps`, `Tabs`, `TabItem`, `OpenPlaygroundButton`. Starlight components (`Aside`, `CardGrid`, `LinkCard`, `FileTree`, ...) are exported from `@rapidoc/portal/components`.
+- **MDX (`.mdx`)**: portal components can be used without importing them: `Callout`, `Card` (+ `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`), `Badge`, `Button`, `Link`, `Steps`, `Tabs`, `TabItem`, `OpenPlaygroundButton`. Starlight components (`Aside`, `CardGrid`, `LinkCard`, `FileTree`, ...) and `Icon` (`<Icon name="rocket" />`, a [Phosphor](https://phosphoricons.com) icon at 24px, or `size={16}`) are exported from `@rapidoc/portal/components`.
 - **Markdoc (`.markdoc`)**: rendered by Astro's Markdoc integration with Starlight's components, so headings, the table of contents and code blocks work as in Markdown. Tags:
   - `{% callout type="info|tip|warning|danger" title="..." %}`, `{% tabs %}{% tab name="..." %}`, `{% steps %}{% step title="..." %}`, `{% card-grid %}{% card title="..." icon="..." href="..." %}`, `{% badge text="..." variant="..." /%}`. Card icons are [Starlight icon names](https://starlight.astro.build/reference/icons/).
   - `{% api-operation spec="<api id>" path="/shipments" method="post" title="..." /%}` embeds one live, interactive operation (`<rapi-doc-mini>`). `spec` is the `id` of an entry in `apis:`; an unknown id shows a notice on the page and a build warning. Pages with an embed load the RapiDoc bundle; other docs pages don't.

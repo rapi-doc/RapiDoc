@@ -68,6 +68,7 @@ export function createStarlightOptions(portalConfig) {
       TwoColumnContent: componentPath('PortalTwoColumnContent.astro'),
       Sidebar: componentPath('PortalSidebar.astro'),
       ThemeProvider: componentPath('PortalThemeProvider.astro'),
+      ThemeSelect: componentPath('PortalThemeSelect.astro'),
     },
     customCss: [THEME_CSS_MODULE],
     expressiveCode: {
