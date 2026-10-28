@@ -142,6 +142,23 @@ export function buildQueryString(queryParams = []) {
 }
 
 /**
+ * The OAuth redirect URL for the `oauth-receiver` attribute. A relative value (the default
+ * `oauth-receiver.html`) is resolved against the current page's folder, as it always was; a value starting
+ * with `/` is a path from the site root, and a full URL is used as is, so a whole site can register one
+ * redirect URL with its OAuth provider.
+ *
+ * @param {{origin: string, pathname: string}} location - e.g. window.location
+ * @param {string} receiver - the oauth-receiver attribute
+ * @returns {URL}
+ */
+export function oauthReceiverUrl(location, receiver = 'oauth-receiver.html') {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(receiver)) return new URL(receiver);
+  if (receiver.startsWith('/')) return new URL(receiver, location.origin);
+  const folder = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+  return new URL(`${location.origin}${folder}/${receiver}`);
+}
+
+/**
  * Safely joins server URL and path template, preventing duplicate or missing slashes.
  */
 export function joinServerAndPath(serverUrl = '', path = '') {

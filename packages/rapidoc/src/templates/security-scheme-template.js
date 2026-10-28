@@ -4,10 +4,9 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
+import { oauthReceiverUrl } from '../utils/url-utils.js';
+import { OAUTH_CHANNEL, isExpectedOAuthReply, pkceChallenge, randomUrlSafe } from '../utils/oauth-utils.js';
 import { marked } from 'marked';
-
-const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
-const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
 
 const localStorageKey = 'rapidoc';
 
@@ -140,6 +139,17 @@ function onApiKeyChange(securitySchemeId) {
   }
 }
 
+/** Shows a status line under an OAuth flow. Always as text: provider error messages are never HTML. */
+function showOAuthStatus(el, text, colorVar) {
+  if (!el) {
+    return;
+  }
+  const span = document.createElement('span');
+  span.style.color = `var(${colorVar})`;
+  span.textContent = text;
+  el.replaceChildren(span);
+}
+
 // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
 function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === securitySchemeId);
@@ -161,7 +171,8 @@ async function fetchAccessToken(
   scopes = null,
   username = null,
   password = null,
-  tokenParamsSpec = null
+  tokenParamsSpec = null,
+  codeVerifier = null
 ) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
@@ -185,7 +196,9 @@ async function fetchAccessToken(
   }
   if (authCode) {
     urlFormParams.set('code', authCode);
-    urlFormParams.set('code_verifier', codeVerifier); // for PKCE
+    if (codeVerifier) {
+      urlFormParams.set('code_verifier', codeVerifier); // PKCE: proves this page started the sign-in
+    }
   }
   if (sendClientSecretIn === 'header' && clientSecret) {
     headers.set('Authorization', `Basic ${toBase64(`${clientId}:${clientSecret}`)}`);
@@ -238,89 +251,100 @@ async function fetchAccessToken(
     if (resp.ok) {
       if (tokenResp.token_type && tokenResp.access_token) {
         updateOAuthKey.call(this, securitySchemeId, tokenResp.access_token, tokenResp.token_type);
-        if (respDisplayEl) {
-          respDisplayEl.innerHTML = '<span style="color:var(--green)">Access Token Received</span>';
-        }
+        showOAuthStatus(respDisplayEl, 'Access Token Received', '--green');
         return true;
       }
     } else {
-      if (respDisplayEl) {
-        respDisplayEl.innerHTML = `<span style="color:var(--destructive)">${tokenResp.error_description || tokenResp.error || 'Unable to get access token'}</span>`;
-      }
+      showOAuthStatus(respDisplayEl, tokenResp.error_description || tokenResp.error || 'Unable to get access token', '--destructive');
       return false;
     }
   } catch {
-    if (respDisplayEl) {
-      respDisplayEl.innerHTML = '<span style="color:var(--destructive)">Failed to get access token</span>';
-    }
+    showOAuthStatus(respDisplayEl, 'Failed to get access token', '--destructive');
     return false;
   }
 }
 
-// Gets invoked when it receives the Authorization Code from the other window via message-event
-async function onWindowMessageEvent(
-  msgEvent,
-  winObj,
-  tokenUrl,
-  clientId,
-  clientSecret,
-  redirectUrl,
-  grantType,
-  sendClientSecretIn,
-  securitySchemeId,
-  authFlowDivEl,
-  tokenParamsSpec = null
-) {
-  sessionStorage.removeItem('winMessageEventActive');
-  winObj.close();
-  if (msgEvent.data.fake) {
+/**
+ * Handles the provider's reply to this sign-in (already checked by waitForOAuthReply): exchanges a code for a
+ * token, or applies a token (implicit flow). Accepts the older receiver's key names too.
+ */
+function onOAuthReply(reply, flow) {
+  const respDisplayEl = flow.authFlowDivEl ? flow.authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
+  if (reply.error) {
+    showOAuthStatus(respDisplayEl, reply.errorDescription || reply.error, '--destructive');
     return;
   }
-  if (!msgEvent.data) {
-    console.warn('RapiDoc: Received no data with authorization message');
-  }
-  if (msgEvent.data.error) {
-    console.warn('RapiDoc: Error while receiving data');
-  }
-  if (msgEvent.data) {
-    if (msgEvent.data.responseType === 'code') {
-      // Authorization Code flow
-      fetchAccessToken.call(
-        this,
-        tokenUrl,
-        clientId,
-        clientSecret,
-        redirectUrl,
-        grantType,
-        msgEvent.data.code,
-        securitySchemeId,
-        authFlowDivEl,
-        sendClientSecretIn,
-        null,
-        null,
-        null,
-        tokenParamsSpec
-      );
-    } else if (msgEvent.data.responseType === 'token') {
-      // Implicit flow
-      updateOAuthKey.call(this, securitySchemeId, msgEvent.data.access_token, msgEvent.data.token_type);
+  if (reply.responseType === 'code') {
+    fetchAccessToken.call(
+      this,
+      flow.tokenUrl,
+      flow.clientId,
+      flow.clientSecret,
+      flow.redirectUrl,
+      flow.grantType,
+      reply.code,
+      flow.securitySchemeId,
+      flow.authFlowDivEl,
+      flow.sendClientSecretIn,
+      null,
+      null,
+      null,
+      flow.tokenParamsSpec,
+      flow.codeVerifier
+    );
+  } else {
+    const accessToken = reply.accessToken || reply.access_token;
+    if (accessToken) {
+      updateOAuthKey.call(this, flow.securitySchemeId, accessToken, reply.tokenType || reply.token_type || 'Bearer');
     }
   }
 }
 
-// code_challenge generator for PKCE flow
-// TODO: Implement dynamic generation of code-challenge based on code-verifier
-/*
-async function generateCodeChallenge() {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(codeVerifier);
-  const sha256Hash = await window.crypto.subtle.digest('SHA-256', data); // returns Unit8Array
-  // const utf8Decoder = new TextDecoder();
-  // const b64EncodedSha256 = btoa(utf8Decoder.decode(sha256Hash));
-  const b64EncodedSha256 = base64encode(sha256Hash);
-  return b64EncodedSha256;
+/**
+ * Waits for the return page's reply to this sign-in: a window message from the popup, or a BroadcastChannel
+ * message when the provider's page cut the popup's link to this window (Cross-Origin-Opener-Policy). Anything
+ * that isn't the reply to this sign-in (other origin, other window, other state) is ignored, so it can neither
+ * inject a code or token nor end the wait. Starting another sign-in stops the previous wait.
+ */
+function waitForOAuthReply(popup, state, onReply) {
+  if (typeof this.stopOAuthWait === 'function') {
+    this.stopOAuthWait();
+  }
+  const channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(OAUTH_CHANNEL) : null;
+  let onMessage;
+  const stop = () => {
+    window.removeEventListener('message', onMessage);
+    if (channel) {
+      channel.close();
+    }
+    if (this.stopOAuthWait === stop) {
+      this.stopOAuthWait = null;
+    }
+  };
+  const finish = (reply) => {
+    stop();
+    try {
+      popup.close();
+    } catch {
+      // already closed
+    }
+    onReply(reply);
+  };
+  onMessage = (msgEvent) => {
+    if (isExpectedOAuthReply(msgEvent.data, { state, origin: window.location.origin }, msgEvent.origin, msgEvent.source, popup)) {
+      finish(msgEvent.data);
+    }
+  };
+  window.addEventListener('message', onMessage);
+  if (channel) {
+    channel.onmessage = (msgEvent) => {
+      if (isExpectedOAuthReply(msgEvent.data, { state })) {
+        finish(msgEvent.data);
+      }
+    };
+  }
+  this.stopOAuthWait = stop;
 }
-*/
 
 async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e, authorizeParamsSpec = null, tokenParamsSpec = null) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
@@ -335,12 +359,12 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
     : 'request-body';
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
   const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
-  const state = `${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`;
-  const nonce = `${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`;
-  // const codeChallenge = await generateCodeChallenge(codeVerifier);
-  const redirectUrlObj = new URL(
-    `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`
-  );
+  // Unguessable per sign-in: state ties the reply to this sign-in, the PKCE verifier proves it at the token endpoint.
+  const state = randomUrlSafe(16);
+  const nonce = randomUrlSafe(16);
+  const usePkce = Boolean(pkceCheckboxEl && pkceCheckboxEl.checked);
+  const codeVerifier = usePkce ? randomUrlSafe(32) : null;
+  const redirectUrlObj = oauthReceiverUrl(window.location, this.oauthReceiver);
   let grantType = '';
   let responseType = '';
   let newWindow;
@@ -348,7 +372,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
   // clear previous error messages
   const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-resp-display')];
   errEls.forEach((v) => {
-    v.innerHTML = '';
+    v.replaceChildren();
   });
 
   if (flowType === 'authorizationCode' || flowType === 'implicit') {
@@ -382,11 +406,10 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
     authCodeParams.set('response_type', responseType);
     authCodeParams.set('state', state);
     authCodeParams.set('nonce', nonce);
-    if (pkceCheckboxEl && pkceCheckboxEl.checked) {
-      authCodeParams.set('code_challenge', codeChallenge);
+    if (codeVerifier) {
+      authCodeParams.set('code_challenge', await pkceChallenge(codeVerifier));
       authCodeParams.set('code_challenge_method', 'S256');
     }
-    authCodeParams.set('show_dialog', true);
 
     const beforeAuthorizeEvent = new CustomEvent('before-authorize', {
       bubbles: true,
@@ -405,38 +428,26 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
     }
 
     authUrlObj.search = authCodeParams.toString();
-    // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
-    if (sessionStorage.getItem('winMessageEventActive') === 'true') {
-      // the message targets this very window and carries no data, so any target origin is safe
-      window.postMessage({ fake: true }, '*');
+    newWindow = window.open(authUrlObj.toString());
+    if (!newWindow) {
+      console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
+      showOAuthStatus(authFlowDivEl.querySelector('.oauth-resp-display'), 'The sign-in window was blocked', '--destructive');
+      return;
     }
-    setTimeout(() => {
-      newWindow = window.open(authUrlObj.toString());
-      if (!newWindow) {
-        console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
-      } else {
-        sessionStorage.setItem('winMessageEventActive', 'true');
-        window.addEventListener(
-          'message',
-          (msgEvent) =>
-            onWindowMessageEvent.call(
-              this,
-              msgEvent,
-              newWindow,
-              tokenUrl,
-              clientId,
-              clientSecret,
-              redirectUrlObj.toString(),
-              grantType,
-              sendClientSecretIn,
-              securitySchemeId,
-              authFlowDivEl,
-              tokenParamsSpec
-            ),
-          { once: true }
-        );
-      }
-    }, 10);
+    waitForOAuthReply.call(this, newWindow, state, (reply) =>
+      onOAuthReply.call(this, reply, {
+        tokenUrl,
+        clientId,
+        clientSecret,
+        redirectUrl: redirectUrlObj.toString(),
+        grantType,
+        sendClientSecretIn,
+        securitySchemeId,
+        authFlowDivEl,
+        tokenParamsSpec,
+        codeVerifier,
+      })
+    );
   } else if (flowType === 'clientCredentials') {
     grantType = 'client_credentials';
     const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
