@@ -28,11 +28,13 @@ const cta = footer.cta;
 const newsletter = footer.newsletter;
 ---
 
+<!-- Each divided band spans the full width, so its rule runs edge to edge like the header's;
+     the content inside lines up with the header content. -->
 <footer class="portal-footer-root print:hidden" data-portal-region="footer">
-  <div class="portal-footer-container" data-portal-region="footer-inner">
-    {
-      cta && (
-        <section class="portal-footer-cta" aria-labelledby="portal-footer-cta-title">
+  {
+    cta && (
+      <section class="portal-footer-band portal-footer-cta-band" aria-labelledby="portal-footer-cta-title">
+        <div class="portal-footer-container portal-footer-cta">
           <div class="portal-footer-cta-text">
             <h2 class="portal-footer-cta-title" id="portal-footer-cta-title">
               {cta.title}
@@ -48,11 +50,13 @@ const newsletter = footer.newsletter;
               ))}
             </div>
           )}
-        </section>
-      )
-    }
+        </div>
+      </section>
+    )
+  }
 
-    <div class="portal-footer-top">
+  <div class="portal-footer-band">
+    <div class="portal-footer-container portal-footer-top" data-portal-region="footer-inner">
       <div class="portal-footer-brand-col">
         <a href={logo.href} class="portal-footer-brand">
           {logo.light && <img src={logo.light} alt={logo.text ? '' : logo.alt} class:list={['portal-brand-img', { 'portal-brand-img-light': logo.dark !== logo.light }]} />}
@@ -100,8 +104,9 @@ const newsletter = footer.newsletter;
         }
       </div>
     </div>
+  </div>
 
-    <div class="portal-footer-bottom">
+  <div class="portal-footer-container portal-footer-bottom">
       <div class="portal-footer-copy">
         <span>{copyright}</span>
         {
@@ -124,7 +129,6 @@ const newsletter = footer.newsletter;
           </div>
         )
       }
-    </div>
   </div>
 </footer>
 
@@ -139,9 +143,20 @@ const newsletter = footer.newsletter;
     width: 100%;
   }
 
-  /* Same content edges as the header bar (see --portal-shell-pad-x in portal-theme.css). */
+  /* Same content edges as the header bar (see --portal-shell-pad-x in portal-theme.css). Containers sit
+     directly in full-width elements, so the percentage in the padding resolves the same everywhere. */
   .portal-footer-container {
     padding-inline: var(--portal-shell-pad-x);
+  }
+
+  /* A full-width band with a rule below it */
+  .portal-footer-band {
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--portal-border);
+  }
+
+  .portal-footer-cta-band {
+    margin-bottom: 2.5rem;
   }
 
   .portal-sr-only {
@@ -168,9 +183,6 @@ const newsletter = footer.newsletter;
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem 2rem;
-    padding-bottom: 2.5rem;
-    margin-bottom: 2.5rem;
-    border-bottom: 1px solid var(--portal-border);
   }
 
   .portal-footer-cta-title {
@@ -276,14 +288,19 @@ const newsletter = footer.newsletter;
     display: grid;
     grid-template-columns: 1fr;
     gap: 2.5rem;
-    padding-bottom: 2.5rem;
-    border-bottom: 1px solid var(--portal-border);
   }
 
+  /* From 768px: brand | link columns | empty track. The two outer tracks share the free space, so the
+     columns sit in the middle of the page; when that would cover the brand, the brand track keeps its
+     280px and the columns move right (and wrap when even that is too narrow). */
   @media (min-width: 768px) {
     .portal-footer-top {
-      grid-template-columns: 280px 1fr;
-      gap: 4rem;
+      grid-template-columns: minmax(280px, 1fr) auto minmax(0, 1fr);
+      column-gap: 2.5rem;
+    }
+
+    .portal-footer-brand-col {
+      max-width: 280px;
     }
   }
 
@@ -314,17 +331,20 @@ const newsletter = footer.newsletter;
     max-width: 320px;
   }
 
-  /* Link columns: under the brand on phones, centered in the space beside it from 768px, whatever
-     their number (four still fit on one row at 1024px). */
+  /* Link columns: a wrapping row, so its widest size (max-content) is all columns on one line, which
+     is what the auto grid track above gives it when there is room. */
   .portal-footer-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(7.5rem, max-content));
-    justify-content: start;
+    display: flex;
+    flex-wrap: wrap;
     gap: 2rem 1.5rem;
   }
+
+  .portal-footer-col {
+    min-width: 7.5rem;
+  }
+
   @media (min-width: 768px) {
     .portal-footer-columns {
-      justify-content: center;
       column-gap: 2.5rem;
     }
   }
