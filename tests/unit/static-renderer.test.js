@@ -666,6 +666,8 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
     assert.ok(html.includes('Shipments'));
 
     assert.ok(html.includes('class="nav-bar-search-input portal-filter-input"'));
+    assert.ok(html.includes('<svg class="nav-bar-search-icon"'), 'the filter icon is a single-colour SVG');
+    assert.ok(!html.includes('🔍'), 'not the colour emoji');
     assert.ok(!html.includes('id="advanced-search-btn"'), 'Must not render redundant advanced-search-btn');
 
     // Multi-page Tag Mode: routingMode: 'tag-pages'

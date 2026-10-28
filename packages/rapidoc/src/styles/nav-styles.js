@@ -81,6 +81,11 @@ export default css`
     opacity: 0.6;
     user-select: none;
   }
+  /* The static nav's filter icon is a single-colour SVG (magnifying glass), not a glyph. */
+  svg.nav-bar-search-icon {
+    cursor: default;
+    pointer-events: none;
+  }
   .nav-bar-search-icon:hover {
     opacity: 1;
     color: var(--foreground);
