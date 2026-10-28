@@ -9,7 +9,8 @@ import { compilePattern, createZoneMatcher, normalizeAccess } from '../src/acces
 import { AccessRuleError, splitOutput, urlOfFile } from '../src/access/split-output.js';
 import { createStarlightOptions } from '../src/engine/starlight-options.js';
 
-const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo', import.meta.url));
+const DEMO_PORTAL_DIR =
+  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo', import.meta.url));
 // Projects that are built must share a parent folder with this package (Astro compiles .astro files only
 // there), so the copy goes into tests/.test-tmp/ (git-ignored), not the OS temp folder.
 const TEST_TMP = fileURLToPath(new URL('./.test-tmp/', import.meta.url));
@@ -103,6 +104,8 @@ describe('auth and access in rapidoc.config.yaml', () => {
         session: { maxAge: '8h' },
         logout: 'local',
         label: 'Sign in',
+        audience: null,
+        tryIt: false,
       });
       assert.equal(config.apis[0].specUrl, '/specs/orders.yaml');
       assert.equal(config.apis[1].specUrl, 'https://example.com/openapi.json');
@@ -320,6 +323,7 @@ describe('building a portal with sign-in', () => {
     assert.ok(fs.existsSync(path.join(outDir, 'public/specs/shipments.json')));
     assert.ok(fs.existsSync(path.join(outDir, 'public/_rapidoc/access-denied/index.html')));
     assert.ok(fs.existsSync(path.join(outDir, 'public/_rapidoc/sign-in-error/index.html')));
+    assert.ok(fs.existsSync(path.join(outDir, 'public/oauth-receiver.html')), "RapiDoc's OAuth return page stays public");
     assert.ok(fs.existsSync(path.join(outDir, 'protected/_rapidoc/search/_empty/pagefind/pagefind-entry.json')));
   });
 
@@ -338,5 +342,19 @@ describe('building a portal with sign-in', () => {
     const home = fs.readFileSync(path.join(outDir, 'public/index.html'), 'utf8');
     assert.ok(home.includes('class="portal-user"'));
     assert.ok(home.includes('/_rapidoc/auth/me'));
+  });
+});
+
+describe('Try-it with the sign-in token (auth.tryIt)', () => {
+  it('accepts audience and tryIt, and rejects oauth-receiver under rapidoc:', () => {
+    const config = resolveConfig({ site: { title: 'A' }, auth: { ...AUTH, audience: 'https://api.example.com', tryIt: true } }, '/tmp');
+    assert.equal(config.auth.audience, 'https://api.example.com');
+    assert.equal(config.auth.tryIt, true);
+    assert.deepEqual(problemsOf({ site: { title: 'A' }, auth: { ...AUTH, tryIt: 'yes' } }), [
+      'auth.tryIt: Invalid input: expected boolean, received string',
+    ]);
+    assert.deepEqual(problemsOf({ site: { title: 'A' }, rapidoc: { 'oauth-receiver': '/x.html' } }), [
+      'rapidoc.oauth-receiver: set by the portal',
+    ]);
   });
 });

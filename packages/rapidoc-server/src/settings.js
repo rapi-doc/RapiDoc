@@ -7,7 +7,7 @@ import path from 'node:path';
  *
  *   RAPIDOC_SESSION_SECRET      key of the session cookie, 32+ characters (required with auth)
  *   RAPIDOC_AUTH_CLIENT_SECRET  for a confidential client; unset for a public client (PKCE only)
- *   RAPIDOC_AUTH_ISSUER, RAPIDOC_AUTH_CLIENT_ID   override auth.issuer / auth.clientId
+ *   RAPIDOC_AUTH_ISSUER, RAPIDOC_AUTH_CLIENT_ID, RAPIDOC_AUTH_AUDIENCE   override auth.issuer / clientId / audience
  *   RAPIDOC_PUBLIC_URL          external origin (redirect URL, Secure cookies); default site.url
  *
  * A build without rapidoc-server.json is served as plain static files.
@@ -83,6 +83,8 @@ export function loadSettings(distDir, env = process.env) {
       issuer,
       clientId,
       clientSecret: env.RAPIDOC_AUTH_CLIENT_SECRET || null,
+      audience: env.RAPIDOC_AUTH_AUDIENCE || manifest.auth.audience || null,
+      tryIt: manifest.auth.tryIt === true,
       sessionSecret,
       sessionMaxAge: parseDuration(manifest.auth.session?.maxAge) || 8 * 3600,
     };

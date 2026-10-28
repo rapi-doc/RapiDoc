@@ -22,6 +22,7 @@ const KEY_HINTS = {
 /** <rapi-doc> attributes the portal sets itself, with the config key to use instead (if any). */
 export const MANAGED_RAPIDOC_ATTRIBUTES = {
   'spec-url': 'apis[].spec',
+  'oauth-receiver': null,
   'show-header': null,
   'show-side-nav': null,
   'update-route': null,

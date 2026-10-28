@@ -5,15 +5,17 @@
  *
  *   GET  /_rapidoc/auth/me        200 { user } → user menu; 401 → sign-in button; 404 (no server) → hidden
  *   POST /_rapidoc/access/check   { paths } → { locked }: links to pages the reader can't open get a lock
+ *   GET  /_rapidoc/auth/token     with auth.tryIt: the reader's access token, filled into RapiDoc's Try
  *
  * The slot has a fixed size, so filling it in moves nothing (the header height is CSS-only).
  */
 import portalConfig from 'virtual:rapidoc-portal/config';
 
 const label = portalConfig.auth?.label || 'Sign in';
+const tryIt = portalConfig.auth?.tryIt === true;
 ---
 
-<div class="portal-user" data-state="pending">
+<div class="portal-user" data-state="pending" data-try-it={tryIt ? '' : undefined}>
   <a class="portal-user-signin portal-nav-link portal-nav-button" href="/_rapidoc/auth/login">{label}</a>
   <button type="button" class="portal-user-trigger" aria-expanded="false" aria-controls="portal-user-panel">
     <span class="portal-user-avatar" aria-hidden="true"></span>
@@ -199,11 +201,37 @@ const label = portalConfig.auth?.label || 'Sign in';
       }
     };
 
+    // Sign-in token (auth.tryIt): give every RapiDoc element on the page the reader's access token. Only one scheme per
+    // spec gets it, because they all send the Authorization header and RapiDoc sends every filled scheme an
+    // operation lists: the first oauth2 / openIdConnect scheme (as "Bearer <token>", since setApiKey() sends
+    // those values as given), else the first http bearer scheme (setApiKey() adds "Bearer " itself).
+    const applySignInToken = async () => {
+      const elements = [...document.querySelectorAll('rapi-doc, rapi-doc-mini')];
+      if (!elements.length) return;
+      const res = await fetch('/_rapidoc/auth/token', { headers: { accept: 'application/json' } });
+      if (!res.ok) return;
+      const { access_token: token } = await res.json();
+      if (!token) return;
+      const apply = (el) => {
+        const schemes = el.resolvedSpec?.securitySchemes || [];
+        const typeOf = (s) => String(s.type || '').toLowerCase();
+        const oauth = schemes.find((s) => typeOf(s) === 'oauth2' || typeOf(s) === 'openidconnect');
+        const bearer = schemes.find((s) => typeOf(s) === 'http' && String(s.scheme || '').toLowerCase() === 'bearer');
+        if (oauth) el.setApiKey(oauth.securitySchemeId, `Bearer ${token}`);
+        else if (bearer) el.setApiKey(bearer.securitySchemeId, token);
+      };
+      for (const el of elements) {
+        if (el.resolvedSpec) apply(el);
+        el.addEventListener('spec-loaded', () => apply(el));
+      }
+    };
+
     fetch('/_rapidoc/auth/me', { headers: { accept: 'application/json' } })
       .then(async (res) => {
         if (res.ok) {
           showUser((await res.json()).user || {});
           root.dataset.state = 'signed-in';
+          if (root.hasAttribute('data-try-it')) applySignInToken().catch(() => {});
         } else {
           root.dataset.state = res.status === 401 ? 'signed-out' : 'none';
         }

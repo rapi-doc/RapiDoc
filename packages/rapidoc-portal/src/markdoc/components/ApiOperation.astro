@@ -8,6 +8,7 @@
 import { Aside } from '@astrojs/starlight/components';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import { operationMatchPattern } from '../operation.js';
+import { OAUTH_RECEIVER_PATH } from '../../engine/sync-assets.js';
 
 interface Props {
   spec: string;
@@ -43,6 +44,7 @@ const rapidoc = portalConfig.rapidoc || {};
         theme={rapidoc.theme}
         primary-color={portalConfig.theme.primary}
         schema-style={rapidoc['schema-style']}
+        oauth-receiver={OAUTH_RECEIVER_PATH}
       />
       <script is:inline type="module" src="/assets/rapidoc-min.js" />
     </figure>

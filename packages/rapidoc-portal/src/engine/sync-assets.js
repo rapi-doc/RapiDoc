@@ -59,13 +59,33 @@ export function resolveRapidocBundle() {
   return bundlePath;
 }
 
+/** Where RapiDoc's OAuth popup returns to (the `oauth-receiver` attribute of every RapiDoc element). */
+export const OAUTH_RECEIVER_PATH = '/oauth-receiver.html';
+
+const OAUTH_RECEIVER_HTML = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>Signing in…</title>
+    <script type="module" src="/assets/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <oauth-receiver></oauth-receiver>
+  </body>
+</html>
+`;
+
 /**
- * Copies the RapiDoc bundle to public/assets/rapidoc-min.js.
+ * Copies the RapiDoc bundle to public/assets/rapidoc-min.js, and writes public/oauth-receiver.html, the page
+ * RapiDoc's OAuth popup (Authorize button) returns to. One page at the site root, so an OAuth provider needs one
+ * redirect URL for the whole portal.
  */
 export function copyRapidocBundle(publicDir) {
   const assetsDir = path.join(publicDir, 'assets');
   fs.mkdirSync(assetsDir, { recursive: true });
   fs.copyFileSync(resolveRapidocBundle(), path.join(assetsDir, 'rapidoc-min.js'));
+  fs.writeFileSync(path.join(publicDir, OAUTH_RECEIVER_PATH), OAUTH_RECEIVER_HTML, 'utf8');
 }
 
 /**

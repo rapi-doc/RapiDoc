@@ -157,6 +157,8 @@ auth:
   session: { maxAge: 8h } # 30m, 8h, 7d
   logout: local # idp: also sign out at the provider
   label: Sign in with Okta
+  audience: https://api.acme.com # API the access token is for; sent as `audience` at sign-in (Auth0)
+  tryIt: true # Try in the API reference sends the signed-in reader's access token
 
 access:
   default: public # public | signed-in | { groups, emails } for anything no rule matches
@@ -173,6 +175,8 @@ access:
 - **Build output:** with `auth`, `rapidoc build` writes `dist/public/` (safe to host anywhere, holds no protected content), `dist/protected/` and `dist/rapidoc-server.json`. Run `rapidoc serve dist`. Without `auth` the output is the usual static site.
 - **What is protected:** pages, specs and files from `public/`, search results (both search indexes are split per zone), and the sitemap. Locked links stay visible in menus and the catalog with a lock icon. Build assets (`/_astro/`), the RapiDoc bundle, the logo and the favicon are always public; `/_rapidoc/` is reserved for the portal.
 - **Build checks:** a rule that matches no page or file fails the build (a typo would otherwise leave content public). Warnings: a protected API whose spec is a URL (protect it at that origin), and a public page that embeds an operation of a protected API.
+- **Try with the reader's token (`tryIt`):** `rapidoc serve` keeps the access token from the sign-in (never the ID or refresh token) and hands it to the page, which fills it into each API reference's and embedded operation's Authentication section: the spec's first `oauth2` / `openIdConnect` scheme, else its first http `bearer` scheme. Try then calls the API with `Authorization: Bearer …`, and the API's own permission check answers 200 or 403. The token lives in page memory only. Without a provider-side audience (Okta's per-API authorization servers, Entra ID's API scopes in `scopes`), leave `audience` out.
+- **OAuth return page:** every portal build has `/oauth-receiver.html`, the page RapiDoc's **Authorize** button returns to, so a provider needs one redirect URL for the whole portal (`<portal>/oauth-receiver.html`).
 - `rapidoc dev` does not enforce the rules; test them with `rapidoc build && rapidoc serve dist`.
 - **Groups:** some providers only send groups when asked for a scope (Okta: `groups`). With Microsoft Entra ID, prefer app roles (`claims: { groups: roles }`): the `groups` claim holds IDs and is dropped for users in many groups. `rapidoc serve` logs a hint when rules use groups but a sign-in carries none.
 - **SAML-only providers:** put an OIDC broker in front (Keycloak, Authentik, Zitadel, Ory Polis).

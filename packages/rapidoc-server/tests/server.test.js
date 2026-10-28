@@ -249,3 +249,85 @@ describe('rapidoc serve: startup', () => {
     }
   });
 });
+
+describe('rapidoc serve: Try-it tokens (auth.tryIt)', () => {
+  let issuer;
+  let distDir;
+  let app;
+
+  before(async () => {
+    issuer = await startIssuer();
+    issuer.addUser('ann', { name: 'Ann Reader', email: 'ann@example.com', email_verified: true, groups: [] });
+    distDir = writeFixtureBuild({ tryIt: true });
+    ({ app } = await createApp({ distDir, env: testEnv(issuer.issuer), log: quiet }));
+  });
+
+  after(async () => {
+    await issuer.close();
+    fs.rmSync(distDir, { recursive: true, force: true });
+  });
+
+  async function signIn() {
+    const browser = createBrowser(app);
+    issuer.signInAs('ann');
+    await browser.visit('/_rapidoc/auth/login?returnTo=/');
+    return browser;
+  }
+
+  it("gives the signed-in reader's access token to same-origin requests only", async () => {
+    const browser = await signIn();
+    assert.ok(browser.cookies().get('rapidoc-api-token'), 'kept in its own cookie');
+    assert.ok(!browser.cookies().get('rapidoc-session').includes(browser.cookies().get('rapidoc-api-token')));
+
+    const res = await browser.send('/_rapidoc/auth/token', { headers: { 'sec-fetch-site': 'same-origin' } });
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('cache-control'), 'private, no-store');
+    const body = await res.json();
+    assert.equal(typeof body.access_token, 'string');
+    assert.ok(body.access_token.length > 10);
+    assert.ok(body.expires_at > Date.now() / 1000);
+
+    assert.equal((await browser.send('/_rapidoc/auth/token', { headers: { 'sec-fetch-site': 'cross-site' } })).status, 403);
+    assert.equal((await browser.send('/_rapidoc/auth/token', { headers: { 'sec-fetch-site': 'same-site' } })).status, 403);
+  });
+
+  it('answers 401 when signed out, and sign-out drops the token', async () => {
+    assert.equal((await createBrowser(app).send('/_rapidoc/auth/token')).status, 401);
+    const browser = await signIn();
+    await browser.send('/_rapidoc/auth/logout', { method: 'POST', headers: { 'sec-fetch-site': 'same-origin' } });
+    assert.equal(browser.cookies().get('rapidoc-api-token'), undefined);
+    assert.equal((await browser.send('/_rapidoc/auth/token')).status, 401);
+  });
+
+  it('asks the provider for the configured audience', async () => {
+    const { app: withAudience } = await createApp({
+      distDir,
+      env: testEnv(issuer.issuer, { RAPIDOC_AUTH_AUDIENCE: 'https://api.example.com' }),
+      log: quiet,
+    });
+    const res = await createBrowser(withAudience).send('/_rapidoc/auth/login');
+    assert.equal(new URL(res.headers.get('location')).searchParams.get('audience'), 'https://api.example.com');
+    const plain = await createBrowser(app).send('/_rapidoc/auth/login');
+    assert.equal(new URL(plain.headers.get('location')).searchParams.get('audience'), null);
+  });
+});
+
+describe('rapidoc serve: without auth.tryIt', () => {
+  it('keeps no access token and has no token route', async () => {
+    const issuer = await startIssuer();
+    issuer.addUser('ann', { name: 'Ann', email: 'ann@example.com', email_verified: true, groups: [] });
+    const distDir = writeFixtureBuild();
+    try {
+      const { app } = await createApp({ distDir, env: testEnv(issuer.issuer), log: quiet });
+      const browser = createBrowser(app);
+      issuer.signInAs('ann');
+      await browser.visit('/_rapidoc/auth/login?returnTo=/');
+      assert.ok(browser.cookies().get('rapidoc-session'));
+      assert.equal(browser.cookies().get('rapidoc-api-token'), undefined);
+      assert.equal((await browser.send('/_rapidoc/auth/token')).status, 404);
+    } finally {
+      await issuer.close();
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+});

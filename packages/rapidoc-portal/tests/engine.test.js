@@ -10,7 +10,8 @@ import { renderThemeCss } from '../src/engine/theme-css.js';
 import { createPortalWorkspace, removePortalWorkspace, resolveDependencyRoot, WORKSPACE_DIRNAME } from '../src/engine/temp-workspace.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
+const DEMO_PORTAL_DIR =
+  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
 
 /** Relative paths of every entry under dir, skipping .git and never following symlinks. */
 function listTree(dir, base = dir) {
@@ -150,6 +151,8 @@ describe('RapiDoc Portal build engine', () => {
       assert.ok(fs.existsSync(path.join(outDir, 'docs/documentation/index.html')), 'Starlight Docs index.html should exist');
       assert.ok(fs.existsSync(path.join(outDir, 'search-index.json')), 'Search index should exist');
       assert.ok(fs.existsSync(path.join(outDir, 'logo.svg')), "the project's public/ folder is copied");
+      // One OAuth return page for the whole portal, which every RapiDoc element uses
+      assert.match(fs.readFileSync(path.join(outDir, 'oauth-receiver.html'), 'utf8'), /<oauth-receiver>/);
 
       // Markdoc guides render with Starlight components
       const read = (page) => fs.readFileSync(path.join(outDir, page, 'index.html'), 'utf8');
@@ -181,6 +184,8 @@ describe('RapiDoc Portal build engine', () => {
       const firstShipment = read('docs/guides/first-shipment');
       assert.equal(firstShipment.match(/<rapi-doc-mini/g)?.length, 2);
       assert.ok(firstShipment.includes('spec-url="/specs/shipments.json"'));
+      assert.ok(firstShipment.includes('oauth-receiver="/oauth-receiver.html"'), 'embeds return to the one OAuth page');
+      assert.ok(read('apis/shipments').includes('oauth-receiver="/oauth-receiver.html"'), 'API pages too');
       assert.ok(firstShipment.includes('match-paths="^post /shipments$"'));
       assert.ok(firstShipment.includes('/assets/rapidoc-min.js'), 'pages with an embed load RapiDoc');
       assert.ok(fulfillment.includes('API operation not found'), 'an unknown spec id shows a notice');

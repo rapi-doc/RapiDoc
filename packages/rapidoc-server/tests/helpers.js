@@ -17,8 +17,10 @@ export const SESSION_SECRET = 'test-session-secret-0123456789-abcdef';
  * @param {object} [options]
  * @param {string} [options.portalOrigin] - Origin of the portal that signs in with it
  * @param {Record<string, string[]>} [options.claims] - Extra claims per scope, e.g. { openid: ['https://rapidoc/roles'] }
+ * @param {string[]} [options.redirectUris] - Extra redirect URIs, e.g. a RapiDoc OAuth return page
+ * @param {boolean} [options.cors] - Let browsers call the token endpoint from any origin (RapiDoc's Authorize flow)
  */
-export async function startIssuer({ portalOrigin = PORTAL_ORIGIN, claims: extraClaims = {} } = {}) {
+export async function startIssuer({ portalOrigin = PORTAL_ORIGIN, claims: extraClaims = {}, redirectUris = [], cors = false } = {}) {
   const users = new Map();
   let current = null;
   const server = http.createServer();
@@ -30,13 +32,14 @@ export async function startIssuer({ portalOrigin = PORTAL_ORIGIN, claims: extraC
       {
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
-        redirect_uris: [`${portalOrigin}/_rapidoc/auth/callback`],
+        redirect_uris: [`${portalOrigin}/_rapidoc/auth/callback`, ...redirectUris],
         post_logout_redirect_uris: [`${portalOrigin}/`],
         response_types: ['code'],
         grant_types: ['authorization_code'],
       },
     ],
     pkce: { required: () => true },
+    ...(cors && { clientBasedCORS: () => true }),
     scopes: ['openid', 'profile', 'email', 'groups'],
     claims: Object.fromEntries(
       Object.entries({ openid: ['sub'], profile: ['name', 'picture'], email: ['email', 'email_verified'], groups: ['groups'] }).map(
@@ -140,7 +143,7 @@ export function createBrowser(app) {
  * A built portal as `rapidoc build` lays it out with sign-in (no Astro needed):
  * public pages, a signed-in page, a billing-team page and spec, search indexes per zone.
  */
-export function writeFixtureBuild({ defaultZone = 'public' } = {}) {
+export function writeFixtureBuild({ defaultZone = 'public', tryIt = false } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-server-fixture-'));
   const write = (rel, content) => {
     fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
@@ -185,6 +188,8 @@ export function writeFixtureBuild({ defaultZone = 'public' } = {}) {
         session: { maxAge: '1h' },
         logout: 'local',
         label: 'Sign in',
+        audience: null,
+        tryIt,
       },
       access: {
         defaultZone,

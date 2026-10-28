@@ -21,7 +21,7 @@ export class CookieTooLargeError extends Error {
 /** Cookie names. `__Host-` needs Secure, so plain-http development uses unprefixed names. */
 export function cookieNames(secure) {
   const prefix = secure ? '__Host-' : '';
-  return { session: `${prefix}rapidoc-session`, signIn: `${prefix}rapidoc-signin` };
+  return { session: `${prefix}rapidoc-session`, signIn: `${prefix}rapidoc-signin`, apiToken: `${prefix}rapidoc-api-token` };
 }
 
 /**

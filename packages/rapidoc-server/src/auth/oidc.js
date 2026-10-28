@@ -24,7 +24,7 @@ export async function discoverProvider(auth) {
 /**
  * Starts a sign-in: the provider URL to redirect to, and the checks to keep in the sign-in cookie.
  */
-export async function startSignIn(config, { redirectUri, scopes }) {
+export async function startSignIn(config, { redirectUri, scopes, audience }) {
   const codeVerifier = client.randomPKCECodeVerifier();
   const state = client.randomState();
   const nonce = client.randomNonce();
@@ -35,13 +35,16 @@ export async function startSignIn(config, { redirectUri, scopes }) {
     code_challenge_method: 'S256',
     state,
     nonce,
+    // Which API the access token is for (Auth0 and some others; standard OIDC has no such parameter).
+    ...(audience && { audience }),
   });
   return { url, checks: { codeVerifier, state, nonce } };
 }
 
 /**
  * Finishes a sign-in: exchanges the code, validates the ID token, and returns its claims merged with
- * the userinfo claims (some providers put groups only in one of them).
+ * the userinfo claims (some providers put groups only in one of them), plus the access token and its
+ * lifetime for Try-it (`auth.tryIt`). The ID and refresh tokens are not returned.
  *
  * @param {URL} callbackUrl - The callback URL as the provider called it (with code and state)
  */
@@ -61,7 +64,11 @@ export async function finishSignIn(config, callbackUrl, checks) {
       // The ID token alone is enough to sign in.
     }
   }
-  return { ...userinfo, ...claims };
+  return {
+    claims: { ...userinfo, ...claims },
+    accessToken: tokens.access_token || null,
+    expiresIn: typeof tokens.expires_in === 'number' ? tokens.expires_in : null,
+  };
 }
 
 /** Provider sign-out URL (RP-initiated logout), or null when the provider has none. */

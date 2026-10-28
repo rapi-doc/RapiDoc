@@ -724,6 +724,15 @@
           "description": "Text of the sign-in button (default \"Sign in\").",
           "type": "string",
           "minLength": 1
+        },
+        "audience": {
+          "description": "API the access token is for; sent as `audience` at sign-in (Auth0). RAPIDOC_AUTH_AUDIENCE overrides it.",
+          "type": "string",
+          "minLength": 1
+        },
+        "tryIt": {
+          "description": "Give Try the signed-in reader's access token, for every oauth2, openIdConnect and http bearer scheme (default false).",
+          "type": "boolean"
         }
       },
       "additionalProperties": false

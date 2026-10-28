@@ -255,6 +255,15 @@ export const AuthSchema = z.strictObject({
     .optional(),
   logout: z.enum(['local', 'idp']).optional().describe('local (default) signs out of the portal; idp also signs out at the provider.'),
   label: z.string().min(1).optional().describe('Text of the sign-in button (default "Sign in").'),
+  audience: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('API the access token is for; sent as `audience` at sign-in (Auth0). RAPIDOC_AUTH_AUDIENCE overrides it.'),
+  tryIt: z
+    .boolean()
+    .optional()
+    .describe("Give Try the signed-in reader's access token, for every oauth2, openIdConnect and http bearer scheme (default false)."),
 });
 
 export const AllowSchema = z

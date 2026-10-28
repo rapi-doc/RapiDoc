@@ -11,6 +11,7 @@ import { NO_STORE } from '../static.js';
  *   GET  callback               verify, set the session cookie, go back to returnTo
  *   POST logout                 same-origin only; clear the session (and end it at the provider with logout: idp)
  *   GET  me                     { user, zones } or 401
+ *   GET  token                  { access_token, expires_at } for Try-it (auth.tryIt only), same-origin only
  */
 
 export const AUTH_PREFIX = '/_rapidoc/auth';
@@ -62,7 +63,7 @@ export function registerAuthRoutes(app, { settings, provider, sealer, userOf, or
 
   app.get(`${AUTH_PREFIX}/login`, async (c) => {
     const returnTo = safeReturnTo(c.req.query('returnTo'));
-    const { url, checks } = await startSignIn(provider, { redirectUri: redirectUri(c), scopes: auth.scopes });
+    const { url, checks } = await startSignIn(provider, { redirectUri: redirectUri(c), scopes: auth.scopes, audience: auth.audience });
     setCookie(c, names(c).signIn, await sealer.seal({ ...checks, returnTo }, SIGN_IN_MAX_AGE), cookieOptions(c, SIGN_IN_MAX_AGE));
     c.header('cache-control', NO_STORE);
     return c.redirect(url.href, 302);
@@ -80,10 +81,12 @@ export function registerAuthRoutes(app, { settings, provider, sealer, userOf, or
     if (!checks) return signInError(c, 'expired');
 
     let claims;
+    let accessToken;
+    let expiresIn;
     try {
       const callbackUrl = new URL(redirectUri(c));
       callbackUrl.search = new URL(c.req.url).search;
-      claims = await finishSignIn(provider, callbackUrl, checks);
+      ({ claims, accessToken, expiresIn } = await finishSignIn(provider, callbackUrl, checks));
     } catch (err) {
       log(`sign-in failed: ${err.message}`);
       return signInError(c, 'provider');
@@ -104,6 +107,17 @@ export function registerAuthRoutes(app, { settings, provider, sealer, userOf, or
       log(`sign-in failed for ${user.sub}: ${err.message}`);
       return signInError(c, 'provider');
     }
+    // Try-it: the access token in its own cookie (a token with many permissions can be over 1 KB), for no
+    // longer than both the token and the session last. Never the ID or refresh token.
+    if (auth.tryIt && accessToken) {
+      const maxAge = Math.min(expiresIn || auth.sessionMaxAge, auth.sessionMaxAge);
+      const expiresAt = Math.floor(Date.now() / 1000) + maxAge;
+      try {
+        setCookie(c, names(c).apiToken, await sealer.seal({ token: accessToken, exp: expiresAt }, maxAge), cookieOptions(c, maxAge));
+      } catch (err) {
+        log(`no Try-it token for ${user.sub}: ${err.message}`);
+      }
+    }
     log(`signed in: ${user.sub}${user.email ? ` <${user.email}>` : ''}`);
     if (ruleGroups.size && !claimList(claims, auth.claims.groups).length) {
       log(
@@ -118,6 +132,7 @@ export function registerAuthRoutes(app, { settings, provider, sealer, userOf, or
     if (!isSameOrigin(c, originOf(c))) return c.text('Sign-out must come from this portal', 403);
     const user = await userOf(c);
     deleteCookie(c, names(c).session, cookieOptions(c));
+    deleteCookie(c, names(c).apiToken, cookieOptions(c));
     if (user) log(`signed out: ${user.sub}`);
     const providerLogout =
       auth.logout === 'idp' && endSessionUrl(provider, { postLogoutRedirectUri: `${originOf(c)}/`, clientId: auth.clientId });
@@ -134,5 +149,19 @@ export function registerAuthRoutes(app, { settings, provider, sealer, userOf, or
       user: { name: user.name, email: user.email, picture: user.picture },
       zones: visibleZones(manifest.access.zones, user),
     });
+  });
+
+  // Try-it: the signed-in reader's access token, for the page script that fills RapiDoc's Authentication
+  // section. A cross-site page can't read the answer anyway (no CORS headers); Sec-Fetch-Site refuses even asking.
+  app.get(`${AUTH_PREFIX}/token`, async (c) => {
+    c.header('cache-control', NO_STORE);
+    c.header('vary', 'Cookie');
+    if (!auth.tryIt) return c.json({ error: 'Try-it tokens are off (auth.tryIt)' }, 404);
+    const site = c.req.header('sec-fetch-site');
+    if (site && site !== 'same-origin' && site !== 'none') return c.json({ error: 'same-origin only' }, 403);
+    const user = await userOf(c);
+    const saved = user && (await sealer.open(getCookie(c, names(c).apiToken)));
+    if (!saved?.token || saved.exp <= Math.floor(Date.now() / 1000)) return c.json({ access_token: null }, 401);
+    return c.json({ access_token: saved.token, expires_at: saved.exp });
   });
 }

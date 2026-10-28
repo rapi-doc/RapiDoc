@@ -22,7 +22,7 @@ Configure `auth` and `access` in `rapidoc.config.yaml` (see the `@rapidoc/portal
 | :--- | :--- | :--- |
 | `RAPIDOC_SESSION_SECRET` | with `auth` | Encrypts the session cookie; 32+ characters; the same on every instance. Changing it signs everyone out. |
 | `RAPIDOC_AUTH_CLIENT_SECRET` | confidential clients | Leave unset for a public client (PKCE only). |
-| `RAPIDOC_AUTH_ISSUER`, `RAPIDOC_AUTH_CLIENT_ID` | no | Override `auth.issuer` / `auth.clientId`, so one build can run against different providers. |
+| `RAPIDOC_AUTH_ISSUER`, `RAPIDOC_AUTH_CLIENT_ID`, `RAPIDOC_AUTH_AUDIENCE` | no | Override `auth.issuer` / `auth.clientId` / `auth.audience`, so one build can run against different providers. |
 | `RAPIDOC_PUBLIC_URL` | recommended | External URL: the redirect URL and whether cookies are `Secure`. Default `site.url`, else the request's host. |
 | `PORT`, `HOST` | no | Default `8080`, `0.0.0.0` (`--port`, `--host` win). |
 
@@ -69,10 +69,11 @@ Responses that depend on the session are `Cache-Control: private, no-store` with
 | `GET /_rapidoc/auth/callback` | Verifies the ID token, sets the session cookie, returns to `returnTo` (same site only) |
 | `POST /_rapidoc/auth/logout` | Same-origin only; with `logout: idp` also ends the session at the provider |
 | `GET /_rapidoc/auth/me` | `{ user, zones }` or 401 |
+| `GET /_rapidoc/auth/token` | With `auth.tryIt`: `{ access_token, expires_at }` for Try, same-origin only; 401 signed out or expired, 404 without `tryIt` |
 | `POST /_rapidoc/access/check` | `{ paths }` → `{ locked }`, for lock icons on links |
 | `GET /_rapidoc/health` | `{ ok: true }` |
 
-Tokens stay on the server; the session cookie holds the user's id, name, email, picture and only the groups some access rule names.
+The session cookie holds the user's id, name, email, picture and only the groups some access rule names. The ID and refresh tokens never leave the server. With `auth.tryIt`, the access token is kept in its own encrypted cookie (no longer than the token and the session last) and handed to same-origin page scripts through `/_rapidoc/auth/token`, so Try can call the API with it.
 
 ## Programmatic use
 

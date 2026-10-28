@@ -222,7 +222,8 @@ export const cardGrid = {
 /**
  * Interactive RapiDoc Endpoint Tag ({% api-operation spec="..." path="..." method="..." %})
  * Embeds one operation as <rapi-doc-mini>. `spec` is an API id; pass `variables: { specUrls: { [id]: url } }`
- * to compileMarkdoc() to fill in its spec-url. (Portal pages use components/ApiOperation.astro instead.)
+ * to compileMarkdoc() to fill in its spec-url, and `variables: { oauthReceiver: '/oauth-receiver.html' }` for
+ * its OAuth popup's return page. (Portal pages use components/ApiOperation.astro instead.)
  */
 export const apiOperation = {
   render: 'PortalApiOperation',
@@ -237,6 +238,7 @@ export const apiOperation = {
     const methodUpper = (attributes.method || 'GET').toUpperCase();
     const methodLower = methodUpper.toLowerCase();
     const specUrl = config.variables?.specUrls?.[attributes.spec];
+    const oauthReceiver = config.variables?.oauthReceiver;
 
     return new Markdoc.Tag(
       'div',
@@ -261,6 +263,7 @@ export const apiOperation = {
           [
             new Markdoc.Tag('rapi-doc-mini', {
               ...(specUrl ? { 'spec-url': specUrl } : {}),
+              ...(oauthReceiver ? { 'oauth-receiver': oauthReceiver } : {}),
               'match-paths': operationMatchPattern(methodLower, attributes.path),
               'match-type': 'regex',
               'paths-expanded': 'true',

@@ -297,6 +297,7 @@ rapidoc:
 # auth:
 #   issuer: "https://your-tenant.okta.com/oauth2/default"
 #   clientId: "portal-web"
+#   tryIt: true   # Try in the API reference sends the signed-in reader's access token
 # access:
 #   default: public
 #   rules:

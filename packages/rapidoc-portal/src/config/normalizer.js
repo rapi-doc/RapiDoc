@@ -268,6 +268,8 @@ function normalizeAuth(auth) {
     session: { maxAge: auth.session?.maxAge || '8h' },
     logout: auth.logout || 'local',
     label: auth.label || 'Sign in',
+    audience: auth.audience || null,
+    tryIt: auth.tryIt === true,
   };
 }
 

@@ -5,6 +5,7 @@ import { getNavBarHtml, getNavCss, getSpecNavigation, getThemeTokensCss, toKebab
 import fs from 'node:fs';
 import yaml from 'yaml';
 import portalConfig from 'virtual:rapidoc-portal/config';
+import { OAUTH_RECEIVER_PATH } from '../engine/sync-assets.js';
 
 export async function getStaticPaths() {
   const paths = [];
@@ -120,6 +121,7 @@ const rapidocAttributes = {
   'auto-height': 'true',
   'color-scheme': 'auto',
   'goto-path': activeTagSlug || undefined,
+  'oauth-receiver': OAUTH_RECEIVER_PATH,
 };
 ---
 

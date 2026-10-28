@@ -26,7 +26,7 @@
 - Signed-out readers can't tell a missing page from a protected one when the default zone isn't public.
 - Responses that depend on the session: `Cache-Control: private, no-store` and `Vary: Cookie`.
 - `returnTo` stays on this site (`safeReturnTo`); sign-out is same-origin only (`isSameOrigin`).
-- Tokens never reach the browser or the session cookie. Only groups named by some rule go into the session.
+- The ID and refresh tokens never reach the browser or a cookie. The access token does only with `auth.tryIt`: in its own encrypted cookie (`rapidoc-api-token`), and to the page only through `GET /_rapidoc/auth/token` (same-origin, no-store). Only groups named by some rule go into the session.
 
 ---
 
