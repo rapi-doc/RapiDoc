@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { html, css } from 'lit';
+import { html, css, nothing } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { guard } from 'lit/directives/guard.js';
@@ -213,7 +213,14 @@ describe('Isomorphic Template Serializer (renderTemplateToString)', () => {
     `;
     const output = renderTemplateToString(t);
     assert.ok(output.includes('class="active"'));
+    assert.ok(output.includes('<span>Undefined</span>'), 'ifDefined(undefined) should omit the attribute');
     assert.ok(output.includes('<p>Guarded Content</p>'));
+  });
+
+  it('should omit attributes whose whole value is nothing, as Lit does', () => {
+    // prettier-ignore
+    const t = html`<img src="${ifDefined(undefined)}" alt='${nothing}' title=${nothing} class="c">`;
+    assert.equal(renderTemplateToString(t), '<img class="c">');
   });
 
   it('should resolve CSSResult objects to cssText', () => {
@@ -230,6 +237,64 @@ describe('Isomorphic Template Serializer (renderTemplateToString)', () => {
 
   it('escapeHtml should properly escape HTML special characters', () => {
     assert.equal(escapeHtml('<script>alert("xss")&\'</script>'), '&lt;script&gt;alert(&quot;xss&quot;)&amp;&#39;&lt;/script&gt;');
+  });
+
+  it('should escape strings bound in text nodes, like Lit does in the browser', () => {
+    const t = html`<p>${'<img src=x onerror=alert(1)> & "quoted" \'single\''}</p>`;
+    assert.equal(renderTemplateToString(t), '<p>&lt;img src=x onerror=alert(1)&gt; &amp; "quoted" \'single\'</p>');
+  });
+
+  it('should escape top-level strings and strings inside arrays', () => {
+    assert.equal(renderTemplateToString('<b>bold</b>'), '&lt;b&gt;bold&lt;/b&gt;');
+    // prettier-ignore
+    const t = html`<ul>${['<li>a</li>', html`<li>${'b & c'}</li>`]}</ul>`;
+    assert.equal(renderTemplateToString(t), '<ul>&lt;li&gt;a&lt;/li&gt;<li>b &amp; c</li></ul>');
+  });
+
+  it('should escape quotes and markup in quoted attribute values', () => {
+    // prettier-ignore
+    const t = html`<span title="${'a" onmouseover="alert(1)'}" data-x='${"b' onclick='alert(1)"}' class="tag ${'<x> & y'}">ok</span>`;
+    assert.equal(
+      renderTemplateToString(t),
+      '<span title="a&quot; onmouseover=&quot;alert(1)" data-x=\'b&#39; onclick=&#39;alert(1)\' class="tag &lt;x&gt; &amp; y">ok</span>'
+    );
+  });
+
+  it('should quote unquoted attribute bindings so values cannot add attributes', () => {
+    const value = 'x onmouseover=alert(1)';
+    const t = html`<option label=${value} value=${value}></option>`;
+    assert.equal(renderTemplateToString(t), '<option label="x onmouseover=alert(1)" value="x onmouseover=alert(1)"></option>');
+  });
+
+  it('should leave unsafeHTML markup unescaped', () => {
+    const t = html`<div title="${'<t>'}">${unsafeHTML('<a href="#x">link & more</a>')}${'<b>'}</div>`;
+    assert.equal(renderTemplateToString(t), '<div title="&lt;t&gt;"><a href="#x">link & more</a>&lt;b&gt;</div>');
+  });
+
+  it('should leave nested templates unescaped while escaping their own bindings', () => {
+    const inner = html`<em class="${'"q"'}">${'1 < 2'}</em>`;
+    const t = html`<p>${inner}<span>${html`<strong>${'&'}</strong>`}</span></p>`;
+    assert.equal(renderTemplateToString(t), '<p><em class="&quot;q&quot;">1 &lt; 2</em><span><strong>&amp;</strong></span></p>');
+  });
+
+  it('should escape values returned from guard directives', () => {
+    const t = html`<div>${guard([1], () => '<script>x</script>')}</div>`;
+    assert.equal(renderTemplateToString(t), '<div>&lt;script&gt;x&lt;/script&gt;</div>');
+  });
+
+  it('should not escape CSSResult text', () => {
+    const styles = css`
+      .a > .b::after {
+        content: '&';
+      }
+    `;
+    const output = renderTemplateToString(
+      html`<style>
+        ${styles}
+      </style>`
+    );
+    assert.ok(output.includes('.a > .b::after'));
+    assert.ok(output.includes("content: '&';"));
   });
 });
 
@@ -401,6 +466,66 @@ describe('Static Document Pre-Rendering (renderRapiDoc)', () => {
     assert.ok(attrs.includes('sort-endpoints-by="method"'), 'Must serialize sort-endpoints-by');
     assert.ok(attrs.includes('server-url="https://staging.cosmocargo.dev"'), 'Must serialize server-url');
     assert.ok(attrs.includes('match-paths="/v1/shipments"'), 'Must serialize match-paths');
+  });
+});
+
+describe('Static rendering of untrusted spec text', () => {
+  const payload = '<img src=x onerror=alert(1)>';
+  const xssSpec = {
+    openapi: '3.1.0',
+    info: { title: `Title ${payload}`, version: '1.0.0' },
+    servers: [
+      {
+        url: 'https://{env}.example.com',
+        variables: { env: { default: 'api', enum: ['api', 'x onmouseover=alert(1)'] } },
+      },
+    ],
+    paths: {
+      '/items': {
+        get: {
+          summary: payload,
+          operationId: 'listItems',
+          tags: ['Items'],
+          parameters: [{ name: `q${payload}`, in: 'query', schema: { type: 'string', enum: [payload] } }],
+          responses: { 200: { description: 'OK' } },
+        },
+      },
+    },
+  };
+
+  for (const outputMode of ['dsd', 'html']) {
+    for (const renderStyle of ['read', 'view', 'focused']) {
+      it(`should escape an HTML summary in ${renderStyle} mode (${outputMode})`, async () => {
+        const rendered = await renderRapiDoc({ spec: xssSpec, renderStyle, outputMode, includeStyles: false });
+        // The DSD output inlines the raw spec as JSON in a non-executable <script type="application/json">; check only the markup
+        const htmlOutput = rendered.replace(/<script type="application\/json"[^>]*>[\s\S]*?<\/script>/g, '');
+        assert.ok(!htmlOutput.includes('<img src=x'), 'Raw <img> from the spec must not reach the output');
+        assert.ok(htmlOutput.includes('&lt;img src=x onerror=alert(1)&gt;'), 'Summary text should be HTML-escaped');
+        for (const option of htmlOutput.match(/<option[^>]*>/g) || []) {
+          assert.match(
+            option,
+            /^<option( selected)? label="[^"]*" value="[^"]*">$/,
+            'Server variable enum must stay inside quoted attributes'
+          );
+        }
+      });
+    }
+  }
+
+  it('should inline the DSD spec JSON with every < escaped, so it cannot end or alter the script block', async () => {
+    const tricky = '</script><!--<script>alert(1)</script>-->';
+    const spec = { ...xssSpec, info: { ...xssSpec.info, description: tricky } };
+    const rendered = await renderRapiDoc({ spec, includeStyles: false });
+    const match = rendered.match(/<script type="application\/json" slot="rapidoc-spec">([\s\S]*?)<\/script>/);
+    assert.ok(match, 'Inline spec script should be present');
+    assert.ok(!match[1].includes('<'), 'Inline JSON must not contain a raw <');
+    assert.deepEqual(JSON.parse(match[1]), spec, 'Inline JSON should parse back to the original spec');
+  });
+
+  it('should escape an HTML summary in renderEndpoint output', async () => {
+    const htmlOutput = await renderEndpoint({ spec: xssSpec, method: 'get', path: '/items', includeStyles: false });
+    assert.ok(!htmlOutput.includes('<img src=x'));
+    assert.ok(htmlOutput.includes('&lt;img src=x onerror=alert(1)&gt;'));
   });
 });
 

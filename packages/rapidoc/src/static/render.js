@@ -246,7 +246,7 @@ ${serializedBody}
   const cssText = includeStyles ? `<style>${getBundledCss({ theme, colorScheme })}</style>` : '';
   const specScript =
     options.inlineSpec !== false && typeof spec === 'object' && spec !== null
-      ? `  <script type="application/json" slot="rapidoc-spec">${JSON.stringify(spec).replace(/<\/script/gi, '<\\/script')}</script>\n`
+      ? `  <script type="application/json" slot="rapidoc-spec">${JSON.stringify(spec).replace(/</g, '\\u003c')}</script>\n`
       : '';
 
   // Construct complete attributes map to ensure exact client hydration parity

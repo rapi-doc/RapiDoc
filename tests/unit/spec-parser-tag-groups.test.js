@@ -672,9 +672,9 @@ describe('OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)', () => {
 
     // Tag groups rendered
     assert.ok(html.includes('Shipment'), 'Should render Shipment group');
-    assert.ok(html.includes('Billing & International'), 'Should render Billing & International group');
+    assert.ok(html.includes('Billing &amp; International'), 'Should render Billing & International group (HTML-escaped)');
     assert.ok(html.includes('Shipment Management'), 'Should render Shipment Management in group');
-    assert.ok(html.includes('Rates & Billing'), 'Should render Rates & Billing in group');
+    assert.ok(html.includes('Rates &amp; Billing'), 'Should render Rates & Billing in group (HTML-escaped)');
 
     // Left-out tags rendered
     assert.ok(html.includes('Documentation'), 'Should render left-out Documentation tag');
