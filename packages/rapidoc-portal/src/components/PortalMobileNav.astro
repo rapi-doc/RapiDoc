@@ -70,7 +70,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
     align-items: center;
     gap: 0.625rem;
     padding: 0.5rem 0.75rem;
-    border-radius: 6px;
+    border-radius: var(--portal-radius);
     font-size: 0.9375rem;
     font-weight: 500;
     color: var(--portal-fg);
@@ -113,7 +113,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
     padding: 0.5rem 0.75rem;
     color: var(--portal-fg);
     text-decoration: none;
-    border-radius: 6px;
+    border-radius: var(--portal-radius);
     font-size: 0.9375rem;
   }
   .portal-mobile-item:hover,
@@ -123,7 +123,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
   .portal-mobile-direct-link {
     display: block;
     padding: 0.5rem 0.75rem;
-    border-radius: 6px;
+    border-radius: var(--portal-radius);
     font-size: 0.9375rem;
     color: var(--portal-fg);
     text-decoration: none;

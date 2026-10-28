@@ -121,7 +121,8 @@
   --portal-tabs-height: 48px;
   --sl-nav-height: calc(var(--portal-banner-height) + var(--portal-navbar-height) + var(--portal-tabs-height));
 
-  /* Corner radius of content boxes, starting with callouts. */
+  /* One corner radius for boxes, menus, dialogs and controls: callouts, code blocks, cards, buttons,
+     the header menus and the search dialog. Small badges stay 4px and pills stay round. */
   --portal-radius: 6px;
 
   /* Sidebar width on pages Starlight does not render (Starlight's own --sl-sidebar-width is 18.75rem). */
@@ -401,7 +402,7 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
 
 .portal-rapidoc-embed {
   width: 100%;
-  border-radius: 8px;
+  border-radius: var(--portal-radius);
   overflow: hidden;
   margin: 1.5rem 0;
 }
@@ -409,7 +410,7 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
 /* Documentation sidebar links */
 .sidebar-pane a {
   color: var(--portal-muted);
-  border-radius: 6px;
+  border-radius: var(--portal-radius);
   transition:
     color 0.15s ease,
     background-color 0.15s ease;
