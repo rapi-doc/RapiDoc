@@ -162,8 +162,11 @@ const rapidocAttributes = {
     --foreground: var(--portal-fg);
     --font-sans: inherit;
     --font-mono: inherit;
-    /* Same type scale as the guide pages (--sl-text-h* in styles/portal-theme.css) */
+    /* Same type scale as the guide pages (--sl-text-h* and the heading letter-spacing in
+       styles/portal-theme.css), and their body size (--sl-text-body) instead of scale="lg"'s 16px. */
+    --font-size-regular: 0.9375rem;
     --heading-weight: 600;
+    --heading-letter-spacing: -0.02em;
     --heading-line-height: 1.2;
     --line-height: 1.7;
     --h1-font-size: 2rem;
@@ -189,6 +192,12 @@ const rapidocAttributes = {
   /* Accent text in the sidebar keeps WCAG AA contrast. Method colors are RapiDoc's own. */
   .portal-api-nav {
     --sidebar-primary: var(--portal-primary-text);
+  }
+
+  /* One weight for every sidebar level, as in the guides' sidebar (PortalSidebarSublist); RapiDoc's
+     nav CSS makes the overview and tag titles bold. */
+  .portal-api-nav.portal-sidebar :is(.nav-bar-info, .nav-bar-tag, .nav-bar-tag-group-header, .nav-bar-section) {
+    font-weight: 400;
   }
 
   /* Fill the sidebar below the (mobile) header links; the nav CSS sizes its root for RapiDoc's own layout. */
