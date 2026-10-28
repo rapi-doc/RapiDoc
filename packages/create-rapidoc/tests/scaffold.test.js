@@ -58,6 +58,17 @@ test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
     );
   });
 
+  await t.test('the package name is a valid npm name, whatever the folder is called', () => {
+    const result = scaffoldProject(path.join(tempDir, 'Acme Portal'), {});
+    assert.strictEqual(result.projectName, 'acme-portal');
+    assert.strictEqual(result.siteTitle, 'Acme Portal');
+    assert.strictEqual(scaffoldProject(path.join(tempDir, 'RapiDocPortal'), {}).projectName, 'rapidocportal');
+
+    // Every header link of the starter goes to a page the starter has
+    const config = fs.readFileSync(path.join(tempDir, 'Acme Portal/rapidoc.config.yaml'), 'utf8');
+    assert.ok(!config.includes('/login'));
+  });
+
   await t.test('findOpenApiSpecs finds specs (not other YAML/JSON) and scaffoldProject builds apis: from them', () => {
     const repoDir = path.join(tempDir, 'existing-repo');
     fs.mkdirSync(path.join(repoDir, 'api/v2'), { recursive: true });

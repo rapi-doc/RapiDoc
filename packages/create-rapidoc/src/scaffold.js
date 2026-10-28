@@ -268,9 +268,9 @@ header:
           icon: "lightning"
           description: "Interactive OpenAPI documentation"
           href: "/apis/${apis[0].id}"
-    - label: "Login"
-      href: "/login"
-      style: button
+    - label: "Get started"
+      href: "/docs/getting-started"
+      style: primary
 
 # Row 2 of the header: one tab per entry; a documentation tab has its own sidebar
 navigation:
@@ -414,6 +414,17 @@ function isOpenApiDocument(filePath) {
   }
 }
 
+// A valid npm package name from a folder name: lowercase, URL-safe, not starting with . or _
+// ("RapiDocPortal" -> "rapidocportal", "My Portal" -> "my-portal").
+function toPackageName(name) {
+  const cleaned = name
+    .toLowerCase()
+    .replace(/[^a-z0-9._~-]+/g, '-')
+    .replace(/^[._-]+|-+$/g, '')
+    .slice(0, 214);
+  return cleaned || 'my-dev-portal';
+}
+
 // API ids and tab labels from spec file names: "specs/orders-api.yaml" -> { id: 'orders-api', label: 'Orders API' }
 function apisFromSpecs(specs) {
   const used = new Set();
@@ -447,8 +458,9 @@ function apisFromSpecs(specs) {
  */
 export function scaffoldProject(targetDir, options = {}) {
   const resolvedDir = path.resolve(targetDir);
-  const projectName = options.name || path.basename(resolvedDir) || 'my-dev-portal';
-  const siteTitle = options.title || `${projectName.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}`;
+  const folderName = options.name || path.basename(resolvedDir) || 'my-dev-portal';
+  const projectName = toPackageName(folderName);
+  const siteTitle = options.title || `${folderName.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}`;
   const withStarterSpec = !options.specs?.length;
   const apis = withStarterSpec ? [{ id: 'core', label: 'Core API', spec: './specs/api.yaml' }] : apisFromSpecs(options.specs);
 
