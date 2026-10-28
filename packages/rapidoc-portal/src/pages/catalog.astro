@@ -27,7 +27,7 @@ for (const api of apis) {
           {items.map((api) => (
             <a href={api.path} class="portal-doc-card api-card">
               <div class="api-card-header">
-                <Icon name="brackets-curly" duotone class="portal-doc-card-icon" />
+                <Icon name="notebook" duotone class="portal-doc-card-icon" />
                 {api.version && <span class="api-version">v{String(api.version).replace(/^v/i, '')}</span>}
               </div>
               <h3 class="portal-doc-card-title">
