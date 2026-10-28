@@ -60,6 +60,7 @@ export const SidebarItemSchema = z.union([
       },
       autogenerate: z.string().optional().describe('Every page in this folder of docs/, as a group.'),
       api: z.string().optional().describe('Link to the reference page of the API with this id.'),
+      icon: icon.optional(),
       badge: badge.optional(),
       collapsed: z.boolean().optional().describe('Start a group collapsed.'),
     })

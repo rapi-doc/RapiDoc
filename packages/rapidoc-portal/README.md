@@ -83,6 +83,7 @@ navigation: # row 2: one tab per entry
     items: # this tab's sidebar
       - getting-started # doc page (path in docs/, no extension); label = page title
       - label: Shipping
+        icon: truck # any sidebar item can have an icon
         items:
           - guides/first-shipment
           - { label: Ship States, href: /docs/ship-states }

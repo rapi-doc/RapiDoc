@@ -56,6 +56,33 @@ describe('RapiDoc Portal build engine', () => {
     assert.deepEqual(buildStarlightSidebar([]), [{ label: 'Documentation', autogenerate: { directory: 'docs' } }], 'no tabs: every doc');
   });
 
+  it('should keep sidebar icons in the portal config and out of Starlight (its schema is strict)', () => {
+    const config = resolveConfig(
+      {
+        site: { title: 'Acme' },
+        navigation: [
+          {
+            label: 'Guides',
+            items: [
+              { label: 'Start', icon: 'rocket', items: [{ slug: 'intro', icon: 'book-open' }, 'setup'] },
+              { label: 'Help', icon: 'lifebuoy', autogenerate: 'support' },
+            ],
+          },
+        ],
+      },
+      '/tmp'
+    );
+    const [start, help] = config.tabs[0].sidebar;
+    assert.equal(start.icon, 'rocket');
+    assert.equal(start.items[0].icon, 'book-open');
+    assert.equal(start.items[1].icon, undefined);
+    assert.equal(help.icon, 'lifebuoy');
+    assert.deepEqual(buildStarlightSidebar(config.tabs)[0].items, [
+      { label: 'Start', items: [{ slug: 'docs/intro' }, { slug: 'docs/setup' }] },
+      { label: 'Help', items: [{ autogenerate: { directory: 'docs/support' } }] },
+    ]);
+  });
+
   it('should create Starlight options and theme CSS from the portal config', async () => {
     const { config } = await loadConfig(DEMO_PORTAL_DIR);
     const options = createStarlightOptions(config);

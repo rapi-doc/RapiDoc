@@ -19,7 +19,14 @@ export const ROUTE_MIDDLEWARE_PATH = fileURLToPath(new URL('./route-middleware.j
 export function buildStarlightSidebar(tabs = []) {
   const docsTabs = tabs.filter((tab) => tab.kind === 'docs');
   if (docsTabs.length === 0) return [{ label: 'Documentation', autogenerate: { directory: 'docs' } }];
-  return docsTabs.map((tab) => ({ label: tab.label, items: tab.sidebar }));
+  return docsTabs.map((tab) => ({ label: tab.label, items: tab.sidebar.map(withoutIcons) }));
+}
+
+// Starlight's sidebar schema is strict, so the portal's `icon` (drawn by PortalSidebarSublist) stays out.
+function withoutIcons(item) {
+  const entry = { ...item };
+  delete entry.icon;
+  return entry.items ? { ...entry, items: entry.items.map(withoutIcons) } : entry;
 }
 
 /**

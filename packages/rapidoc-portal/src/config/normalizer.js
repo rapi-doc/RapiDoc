@@ -108,12 +108,18 @@ function firstDocIn(docsDir, dir) {
 
 /**
  * Sidebar items → Starlight sidebar entries, plus every URL prefix they cover and the first page.
+ * An entry may carry `icon`, which Starlight doesn't know: buildStarlightSidebar() strips it for Starlight,
+ * and route-middleware.js puts it on the page's sidebar entries.
  */
 function buildSidebar(items, ctx) {
   const covered = [];
   let firstHref;
   const visit = (item) => {
     if (typeof item === 'string') item = { slug: item };
+    const entry = convert(item);
+    return item.icon ? { ...entry, icon: item.icon } : entry;
+  };
+  const convert = (item) => {
     if (item.slug !== undefined) {
       const slug = cleanSlug(item.slug);
       covered.push(docUrl(slug));

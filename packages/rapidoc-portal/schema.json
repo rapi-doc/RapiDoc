@@ -878,6 +878,10 @@
               "description": "Link to the reference page of the API with this id.",
               "type": "string"
             },
+            "icon": {
+              "type": "string",
+              "description": "Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning."
+            },
             "badge": {
               "anyOf": [
                 {

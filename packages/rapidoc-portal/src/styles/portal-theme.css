@@ -421,10 +421,10 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
   background-color: var(--portal-hover-bg);
 }
 
+/* The current page: accent text on a tint, in the same weight as the other links. */
 .sidebar-pane a[aria-current='page'],
 .sidebar-pane a[aria-current='page'] span {
   color: var(--portal-primary-text);
-  font-weight: 600;
 }
 
 .sidebar-pane a[aria-current='page'] {

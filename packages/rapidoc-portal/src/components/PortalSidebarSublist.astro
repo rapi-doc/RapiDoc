@@ -1,0 +1,152 @@
+---
+/**
+ * Starlight's SidebarSublist with two portal changes: an entry's configured `icon` (set by
+ * route-middleware.js) is drawn before its label, and every level uses one text size and weight, so
+ * groups and pages read as one list. Same markup and class names as Starlight's, so its sidebar styles and
+ * the restore point (SidebarPersister) keep working.
+ */
+import { Badge, Icon as StarlightIcon } from '@astrojs/starlight/components';
+import SidebarRestorePoint from '@astrojs/starlight/components/SidebarRestorePoint.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  sublist: any[];
+  nested?: boolean;
+}
+
+const { sublist, nested } = Astro.props;
+
+const hasCurrent = (entries: any[]): boolean =>
+  entries.some((entry) => (entry.type === 'link' ? entry.isCurrent : hasCurrent(entry.entries)));
+---
+
+<ul class:list={{ 'top-level': !nested }}>
+  {
+    sublist.map((entry) => (
+      <li>
+        {entry.type === 'link' ? (
+          <a href={entry.href} aria-current={entry.isCurrent ? 'page' : undefined} class:list={[{ large: !nested }, entry.attrs.class]} {...entry.attrs}>
+            {entry.icon && <Icon name={entry.icon} size={16} class="portal-sidebar-icon" />}
+            <span>{entry.label}</span>
+            {entry.badge && <Badge variant={entry.badge.variant} class={entry.badge.class} text={entry.badge.text} />}
+          </a>
+        ) : (
+          <details open={hasCurrent(entry.entries) || !entry.collapsed}>
+            <summary>
+              <span class="group-label">
+                {entry.icon && <Icon name={entry.icon} size={16} class="portal-sidebar-icon" />}
+                <span class="large">{entry.label}</span>
+                {entry.badge && <Badge variant={entry.badge.variant} class={entry.badge.class} text={entry.badge.text} />}
+              </span>
+              <StarlightIcon name="right-caret" class="caret" size="1.25rem" />
+            </summary>
+            <SidebarRestorePoint />
+            <Astro.self sublist={entry.entries} nested />
+          </details>
+        )}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  @layer starlight.core {
+    ul {
+      --sl-sidebar-item-padding-inline: 0.5rem;
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      overflow-wrap: anywhere;
+    }
+
+    ul ul li {
+      margin-inline-start: var(--sl-sidebar-item-padding-inline);
+      border-inline-start: 1px solid var(--sl-color-hairline-light);
+      padding-inline-start: var(--sl-sidebar-item-padding-inline);
+    }
+
+    /* One text size (14px, below the body text) and weight for groups and pages at every width
+       (Starlight: larger, bold groups and smaller pages); groups stand out by their color, the current
+       page by its accent background. */
+    .large,
+    a {
+      font-size: 0.875rem;
+      font-weight: 400;
+    }
+
+    .large {
+      color: var(--sl-color-white);
+    }
+
+    .top-level > li + li {
+      margin-top: 0.75rem;
+    }
+
+    summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.2em var(--sl-sidebar-item-padding-inline);
+      line-height: 1.4;
+      cursor: pointer;
+      user-select: none;
+    }
+    summary::marker,
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .caret {
+      transition: transform 0.2s ease-in-out;
+      flex-shrink: 0;
+    }
+    :global([dir='rtl']) .caret {
+      transform: rotateZ(180deg);
+    }
+    [open] > summary .caret {
+      transform: rotateZ(90deg);
+    }
+
+    a {
+      display: block;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      color: var(--sl-color-gray-2);
+      padding: 0.3em var(--sl-sidebar-item-padding-inline);
+      line-height: 1.4;
+    }
+
+    a:hover,
+    a:focus {
+      color: var(--sl-color-white);
+    }
+
+    [aria-current='page'],
+    [aria-current='page']:hover,
+    [aria-current='page']:focus {
+      color: var(--sl-color-text-invert);
+      background-color: var(--sl-color-text-accent);
+    }
+
+    a > *:not(:last-child),
+    .group-label > *:not(:last-child) {
+      margin-inline-end: 0.25em;
+    }
+
+    /* The icon sits on the text's first line, in the text color (the accent on the current page). */
+    a > .portal-sidebar-icon,
+    .group-label > .portal-sidebar-icon {
+      flex-shrink: 0;
+      vertical-align: -0.15em;
+      margin-inline-end: 0.5em;
+    }
+
+    @media (min-width: 50rem) {
+      .top-level > li + li {
+        margin-top: 0.5rem;
+      }
+    }
+  }
+</style>
