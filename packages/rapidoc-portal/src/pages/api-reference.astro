@@ -186,22 +186,9 @@ const rapidocAttributes = {
       padding: 16px;
     }
   }
-  /* Accent text and method badges in the sidebar keep WCAG AA contrast. RapiDoc's light-theme badge
-     colors are too light for white text, so the sidebar uses darker shades of them. */
+  /* Accent text in the sidebar keeps WCAG AA contrast. Method colors are RapiDoc's own. */
   .portal-api-nav {
     --sidebar-primary: var(--portal-primary-text);
-  }
-  [data-theme='light'] .portal-api-nav {
-    --method-get: #0369a1;
-    --method-post: #047857;
-    --method-put: #c2410c;
-    --method-delete: #b91c1c;
-    --method-patch: #7c3aed;
-    --method-head: #b45309;
-    --method-options: #0e7490;
-    --method-trace: #be185d;
-    --method-query: #4f46e5;
-    --method-default: #475569;
   }
 
   /* Fill the sidebar below the (mobile) header links; the nav CSS sizes its root for RapiDoc's own layout. */

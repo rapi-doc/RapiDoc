@@ -470,15 +470,16 @@ export default css`
     /* Light: fields are white, so they stand out on the tinted card surface */
     --input-background: var(--background);
 
-    /* HTTP Method Badges (Light Mode: High Contrast) */
-    --method-get: #099cff;
-    --method-post: #2da963;
+    /* HTTP Method Badges (Light Mode: High Contrast). White badge text, and the colors used as text on
+       the tinted card surface, keep WCAG AA contrast (4.5:1). */
+    --method-get: #2563eb;
+    --method-post: #047857;
     --method-put: #c2410c;
-    --method-delete: #fd2c4fff;
+    --method-delete: #b91c1c;
     --method-patch: #7c3aed;
     --method-head: #b45309;
     --method-options: #0e7490;
-    --method-trace: #db2777;
+    --method-trace: #be185d;
     --method-query: #4f46e5;
     --method-default: #475569;
     --method-badge-fg: #ffffff;
@@ -530,13 +531,13 @@ export default css`
       --input-background: var(--background);
 
       --method-get: #2563eb;
-      --method-post: #059669;
+      --method-post: #047857;
       --method-put: #c2410c;
-      --method-delete: #dc2626;
+      --method-delete: #b91c1c;
       --method-patch: #7c3aed;
       --method-head: #b45309;
       --method-options: #0e7490;
-      --method-trace: #db2777;
+      --method-trace: #be185d;
       --method-query: #4f46e5;
       --method-default: #475569;
       --method-badge-fg: #ffffff;
