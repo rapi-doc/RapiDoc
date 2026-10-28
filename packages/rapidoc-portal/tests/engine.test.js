@@ -174,7 +174,11 @@ describe('RapiDoc Portal build engine', () => {
       assert.ok(shippingProcess.includes('Space Operations'));
       assert.ok(shippingProcess.includes('href="/docs/support/faq/"'), 'autogenerate: support lists the folder');
       const fulfillment = read('docs/guides/order-fulfillment');
-      assert.ok(fulfillment.includes('starlight-aside'), '{% callout %} renders as a Starlight aside');
+      assert.ok(fulfillment.includes('class="portal-callout" role="note" data-type="info"'), '{% callout %} renders as a portal callout');
+      assert.ok(!fulfillment.includes('<aside class="starlight-aside'), 'no Starlight asides');
+      assert.ok(read('docs/global').includes('data-type="tip"'), 'a :::tip block in MDX renders as a portal callout');
+      const auth = read('docs/authentication');
+      assert.ok(auth.includes('data-type="lock"') && auth.includes('Keep live keys secret'), "Zudoku's :::lock{title} in Markdown too");
       assert.ok(fulfillment.includes('<starlight-tabs'), '{% tabs %} renders as Starlight tabs');
       assert.ok(fulfillment.includes('sl-steps'), '{% steps %} renders as Starlight steps');
       assert.ok(!fulfillment.includes('{%'), 'no unrendered Markdoc tags');

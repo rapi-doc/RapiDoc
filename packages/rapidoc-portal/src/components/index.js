@@ -1,6 +1,8 @@
-export { Aside, Tabs, TabItem, CardGrid, Steps, LinkCard, LinkButton, FileTree } from '@astrojs/starlight/components';
+export { Tabs, TabItem, CardGrid, Steps, LinkCard, LinkButton, FileTree } from '@astrojs/starlight/components';
 
 export { default as Callout } from './Callout.astro';
+// Starlight's Aside API (type, title, icon), drawn as a portal callout
+export { default as Aside } from './Callout.astro';
 export { default as Badge } from './Badge.astro';
 
 // Custom universal Card primitives

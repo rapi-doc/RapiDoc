@@ -64,6 +64,7 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 - Accent colors: `--portal-primary` for fills, borders and icons; `--portal-primary-text` for text; `--portal-on-primary` for text on a primary fill; `--portal-primary-tint` behind accent text. The text variants are computed from `theme.primary` by `engine/accent-colors.js` so they pass 4.5:1; never use `--portal-primary` as a text color.
 - Header menus follow the WAI-ARIA disclosure navigation pattern (trigger `aria-expanded`/`aria-controls`, no `role="menu"`); focus alone never opens a panel.
 - Icons: [Phosphor](https://phosphoricons.com) only, through `components/Icon.astro` (24px regular or duotone, 16px bold: a 1.5px line either way). Config and `{% card %}` icon names are Phosphor names. Never inline other SVG icons.
+- Callouts have one markup however they are written: `components/Callout.astro` (`<Callout>`, `<Aside>`, `{% callout %}`, `{% aside %}`), `engine/callout-directives.js` (`:::type` blocks, a Sätteri plugin that runs before Starlight's asides) and `markdoc/tags.js` (no icon). Types and icons: `components/callout-types.js`; styles: `.portal-callout` in `portal-theme.css`. Callouts, code blocks (`expressiveCode` in `starlight-options.js`) and cards share `--portal-radius`.
 - `portal-theme.css` is unlayered, so it already beats Starlight's `@layer starlight.*` rules. Don't use `!important`.
 
 Invariants:

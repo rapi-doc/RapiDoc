@@ -106,6 +106,9 @@
   --portal-tabs-height: 48px;
   --sl-nav-height: calc(var(--portal-banner-height) + var(--portal-navbar-height) + var(--portal-tabs-height));
 
+  /* Corner radius of content boxes, starting with callouts. */
+  --portal-radius: 6px;
+
   /* Sidebar width on pages Starlight does not render (Starlight's own --sl-sidebar-width is 18.75rem). */
   --portal-sidebar-width: 18.75rem;
 
@@ -146,6 +149,73 @@ body {
 /* Starlight leaves guide text at the browser default (16px); the portal's type scale applies here. */
 .sl-markdown-content {
   font-size: var(--sl-text-body);
+}
+
+/* Callouts: components/Callout.astro, {% callout %} / {% aside %} and `:::type` blocks
+   (engine/callout-directives.js). A light tint of the type's color behind, a stronger one as the border.
+   Type colors are Tailwind's 400 shades in the dark theme (Starlight's accent colors are too dark on the
+   portal's dark background) and 600 or 700 in the light one, so every icon keeps at least 4.5:1 against the box. */
+.portal-callout {
+  --callout-color: var(--portal-muted);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in oklab, var(--callout-color) 25%, transparent);
+  border-radius: var(--portal-radius);
+  background-color: color-mix(in oklab, var(--callout-color) 6%, var(--portal-bg));
+  font-size: var(--sl-text-sm);
+  line-height: 1.6;
+}
+.portal-callout-icon {
+  flex-shrink: 0;
+  margin-top: 0.1875rem;
+  color: var(--callout-color);
+}
+.portal-callout-body {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+.portal-callout-body > :first-child {
+  margin-top: 0;
+}
+.portal-callout-body > * + * {
+  margin-top: 0.5rem;
+}
+.portal-callout-title {
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+.portal-callout-title + * {
+  margin-top: 0.125rem;
+}
+.portal-callout[data-type='info'] {
+  --callout-color: light-dark(#2563eb, #60a5fa);
+}
+.portal-callout:is([data-type='tip'], [data-type='success']) {
+  --callout-color: light-dark(#15803d, #4ade80);
+}
+.portal-callout:is([data-type='caution'], [data-type='warning']) {
+  --callout-color: light-dark(#b45309, #fbbf24);
+}
+.portal-callout[data-type='danger'] {
+  --callout-color: light-dark(#b91c1c, #f87171);
+}
+.portal-callout[data-type='sparkles'] {
+  --callout-color: light-dark(#9333ea, #c084fc);
+}
+.portal-callout[data-type='rocket'] {
+  --callout-color: light-dark(#4f46e5, #818cf8);
+}
+.portal-callout[data-type='zap'] {
+  --callout-color: light-dark(#a16207, #facc15);
+}
+.portal-callout[data-type='lock'] {
+  --callout-color: light-dark(#475569, #94a3b8);
+}
+.portal-callout[data-type='megaphone'] {
+  --callout-color: light-dark(#0e7490, #22d3ee);
 }
 
 /* Inline code */

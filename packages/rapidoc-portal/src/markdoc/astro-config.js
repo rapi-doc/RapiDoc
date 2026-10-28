@@ -9,6 +9,7 @@
 
 import { component } from '@astrojs/markdoc/config';
 import starlightMarkdoc from '@astrojs/starlight-markdoc';
+import { CALLOUT_TYPES } from '../components/callout-types.js';
 
 const portal = (name) => component('@rapidoc/portal/markdoc/components', name);
 const starlight = (name) => component('@astrojs/starlight/components', name);
@@ -20,8 +21,18 @@ export function portalMarkdocConfig() {
       callout: {
         render: portal('Callout'),
         attributes: {
-          type: { type: String, default: 'info', matches: ['info', 'tip', 'warning', 'danger', 'caution', 'note'] },
+          type: { type: String, default: 'info', matches: CALLOUT_TYPES },
           title: { type: String },
+          icon: { type: String },
+        },
+      },
+      // Starlight's Markdoc aside, drawn like {% callout %}
+      aside: {
+        render: portal('Callout'),
+        attributes: {
+          type: { type: String, default: 'note', matches: CALLOUT_TYPES },
+          title: { type: String },
+          icon: { type: String },
         },
       },
       tabs: {

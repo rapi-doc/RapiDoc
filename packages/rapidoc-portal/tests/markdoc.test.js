@@ -21,9 +21,9 @@ describe('RapiDoc Portal Markdoc Engine (Milestone 3)', () => {
     assert.ok(result.html.length > 0);
 
     // Callout verification
-    assert.ok(result.html.includes('portal-callout portal-callout-info'));
+    assert.ok(result.html.includes('class="portal-callout" role="note" data-type="info"'));
     assert.ok(result.html.includes('Real-time Webhook Updates'));
-    assert.ok(result.html.includes('portal-callout portal-callout-warning'));
+    assert.ok(result.html.includes('data-type="warning"'));
     assert.ok(result.html.includes('Inventory Locks'));
 
     // Steps verification
@@ -72,7 +72,7 @@ describe('RapiDoc Portal Markdoc Engine (Milestone 3)', () => {
     assert.ok(result.html.includes('Bloom Tier'));
 
     // Callout tip
-    assert.ok(result.html.includes('portal-callout portal-callout-tip'));
+    assert.ok(result.html.includes('data-type="tip"'));
     assert.ok(result.html.includes('Double Points Tuesdays'));
 
     // RapiDoc operation embed for loyalty redeem

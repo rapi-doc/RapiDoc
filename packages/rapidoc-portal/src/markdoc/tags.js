@@ -1,9 +1,11 @@
 import Markdoc from '@markdoc/markdoc';
 import GithubSlugger from 'github-slugger';
 import { operationMatchPattern } from './operation.js';
+import { CALLOUT_TYPES } from '../components/callout-types.js';
 
 /**
- * Callout Banner Tag ({% callout type="info|tip|warning|danger" title="..." %})
+ * Callout Tag ({% callout type="info|tip|warning|danger|..." title="..." %}): the markup of
+ * components/Callout.astro without the icon, styled by `.portal-callout` in portal-theme.css.
  */
 export const callout = {
   render: 'PortalCallout',
@@ -11,33 +13,19 @@ export const callout = {
     type: {
       type: String,
       default: 'info',
-      matches: ['info', 'tip', 'warning', 'danger', 'caution', 'note'],
+      matches: CALLOUT_TYPES,
     },
     title: { type: String },
+    icon: { type: String },
   },
   transform(node, config) {
     const attributes = node.transformAttributes(config);
     const children = node.transformChildren(config);
-    const calloutType = attributes.type || 'info';
+    const title = attributes.title ? [new Markdoc.Tag('p', { class: 'portal-callout-title' }, [attributes.title])] : [];
 
-    const headerTags = [];
-    if (attributes.title) {
-      headerTags.push(
-        new Markdoc.Tag('div', { class: 'portal-callout-header' }, [
-          new Markdoc.Tag('span', { class: 'portal-callout-title' }, [attributes.title]),
-        ])
-      );
-    }
-
-    return new Markdoc.Tag(
-      'aside',
-      {
-        class: `portal-callout portal-callout-${calloutType}`,
-        role: 'note',
-        'data-type': calloutType,
-      },
-      [...headerTags, new Markdoc.Tag('div', { class: 'portal-callout-body' }, children)]
-    );
+    return new Markdoc.Tag('div', { class: 'portal-callout', role: 'note', 'data-type': attributes.type || 'info' }, [
+      new Markdoc.Tag('div', { class: 'portal-callout-body' }, [...title, ...children]),
+    ]);
   },
 };
 

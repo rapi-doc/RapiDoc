@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import markdoc from '@astrojs/markdoc';
 import starlight from '@astrojs/starlight';
+import { calloutDirectives } from './callout-directives.js';
 import { createStarlightOptions, THEME_CSS_MODULE } from './starlight-options.js';
 import { renderThemeCss } from './theme-css.js';
 import { resolveDependencyRoot } from './temp-workspace.js';
@@ -73,9 +74,11 @@ export function rapidocPortal({ portalConfig }) {
   return {
     name: '@rapidoc/portal',
     hooks: {
-      'astro:config:setup': ({ injectRoute, updateConfig }) => {
+      'astro:config:setup': ({ config, injectRoute, updateConfig }) => {
         for (const route of portalRoutes(portalConfig)) injectRoute(route);
         updateConfig({ vite: { plugins: [virtualModulesPlugin(portalConfig)] } });
+        // First, so `:::type` blocks become portal callouts before Starlight's asides plugin sees them.
+        config.markdown.processor.options.mdastPlugins.unshift(calloutDirectives(iconsDir));
       },
     },
   };
