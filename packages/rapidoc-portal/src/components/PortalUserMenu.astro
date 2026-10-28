@@ -204,21 +204,23 @@ const tryIt = portalConfig.auth?.tryIt === true;
     // Sign-in token (auth.tryIt): give every RapiDoc element on the page the reader's access token. Only one scheme per
     // spec gets it, because they all send the Authorization header and RapiDoc sends every filled scheme an
     // operation lists: the first oauth2 / openIdConnect scheme (as "Bearer <token>", since setApiKey() sends
-    // those values as given), else the first http bearer scheme (setApiKey() adds "Bearer " itself).
-    const applySignInToken = async () => {
+    // those values as given), else the first http bearer scheme (setApiKey() adds "Bearer " itself). The note tells
+    // the reader the key is their sign-in's; RapiDoc shows it in place of that scheme's form.
+    const applySignInToken = async (user) => {
       const elements = [...document.querySelectorAll('rapi-doc, rapi-doc-mini')];
       if (!elements.length) return;
       const res = await fetch('/_rapidoc/auth/token', { headers: { accept: 'application/json' } });
       if (!res.ok) return;
       const { access_token: token } = await res.json();
       if (!token) return;
+      const note = `Using your sign-in${user.email ? ` (${user.email})` : ''}. Try sends your access token.`;
       const apply = (el) => {
         const schemes = el.resolvedSpec?.securitySchemes || [];
         const typeOf = (s) => String(s.type || '').toLowerCase();
         const oauth = schemes.find((s) => typeOf(s) === 'oauth2' || typeOf(s) === 'openidconnect');
         const bearer = schemes.find((s) => typeOf(s) === 'http' && String(s.scheme || '').toLowerCase() === 'bearer');
-        if (oauth) el.setApiKey(oauth.securitySchemeId, `Bearer ${token}`);
-        else if (bearer) el.setApiKey(bearer.securitySchemeId, token);
+        if (oauth) el.setApiKey(oauth.securitySchemeId, `Bearer ${token}`, { note });
+        else if (bearer) el.setApiKey(bearer.securitySchemeId, token, { note });
       };
       for (const el of elements) {
         if (el.resolvedSpec) apply(el);
@@ -229,9 +231,10 @@ const tryIt = portalConfig.auth?.tryIt === true;
     fetch('/_rapidoc/auth/me', { headers: { accept: 'application/json' } })
       .then(async (res) => {
         if (res.ok) {
-          showUser((await res.json()).user || {});
+          const user = (await res.json()).user || {};
+          showUser(user);
           root.dataset.state = 'signed-in';
-          if (root.hasAttribute('data-try-it')) applySignInToken().catch(() => {});
+          if (root.hasAttribute('data-try-it')) applySignInToken(user).catch(() => {});
         } else {
           root.dataset.state = res.status === 401 ? 'signed-out' : 'none';
         }

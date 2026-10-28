@@ -55,8 +55,9 @@ callback: code → tokens
 - Signed out or no token: nothing happens; the Authentication section stays as today.
 - Expired token: Try gets 401 from the API; the user menu's sign-in again fixes it (no refresh tokens in this step).
 
-**RapiDoc core: no change**
+**RapiDoc core: `setApiKey()` keeps its value handling; it gains an optional note**
 - `setApiKey()` sends the value as given for `oauth2` / `openIdConnect` schemes and adds `Bearer ` only for `http bearer`. The docs show `setApiKey('ms-oauth', 'newToken')` on an oauth2 scheme, so existing pages may already pass `'Bearer <token>'` themselves; adding the prefix inside `setApiKey()` would send `Bearer Bearer <token>` for them. So the portal script adapts instead: `setApiKey(id, 'Bearer ' + token)` for oauth2 / openIdConnect schemes, `setApiKey(id, token)` for http bearer. (A clearer, non-breaking core API, e.g. `setAccessToken(schemeId, token)` that prefixes correctly per scheme type, can come separately.)
+- The portal passes `setApiKey(id, value, { note })` with "Using your sign-in (<email>). Try sends your access token." RapiDoc (added after T1–T4, opt-in, older callers unaffected) shows the note in place of that scheme's form, with a **Use a different token** link that opens it; changing or removing the key drops the note. Without sign-in the Authentication section is unchanged.
 
 **Also in this step: OAuth return page**
 - RapiDoc's own **Authorize** button (OAuth popup from the spec) returns to `oauth-receiver.html`, which portal builds didn't include, and RapiDoc always resolved that name against the *page's folder* (`/apis/oauth-receiver.html`, `/apis/shipments/oauth-receiver.html`, …): one redirect URL per page to register with the provider.

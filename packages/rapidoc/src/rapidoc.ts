@@ -1538,9 +1538,10 @@ export default class RapiDoc extends LitElement {
     return applyApiKey.call(this, securitySchemeId, username, password);
   }
 
-  // Public Method - to update security-scheme of type apiKey or OAuth
-  setApiKey(securitySchemeId, apiKeyValue) {
-    return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+  // Public Method - to update security-scheme of type apiKey or OAuth.
+  // options.note: where the key came from (e.g. "Using your sign-in"), shown in place of the scheme's form
+  setApiKey(securitySchemeId, apiKeyValue, options: { note?: string } = {}) {
+    return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue, options?.note || '');
   }
 
   // Public Method

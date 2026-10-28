@@ -442,9 +442,19 @@ Methods:
     - name: setHttpUserNameAndPassword(securitySchemeId, username, password)
       description: >
         Programmatically supplies username and password credentials for an HTTP Basic security scheme declared in the spec.
-    - name: setApiKey(securitySchemeId, token)
+    - name: setApiKey(securitySchemeId, token, options)
       description: >
-        Programmatically provides the token or key for a declared API Key or Bearer Token security scheme.
+        Programmatically provides the token or key for a declared API Key, Bearer Token or OAuth security scheme.
+        Optional <span class="mono fg-color">options.note</span> says where the key came from (for example the reader's sign-in);
+        the Authentication section shows it in place of that scheme's form, with a link to open the form.
+        Changing or removing the key drops the note.
+      code: |
+        <script>
+          const rapidocEl = document.getElementById('the-doc');
+          rapidocEl.addEventListener('spec-loaded', () => {
+            rapidocEl.setApiKey('oauth2', 'Bearer ' + token, { note: 'Using your sign-in (ann@example.com).' });
+          });
+        </script>
     - name: setApiServer(apiServerUrl)
       description: >
         Programmatically switches the active target API server URL.

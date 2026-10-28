@@ -69,7 +69,12 @@ function normalizeParams(params) {
   return result;
 }
 
-export function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
+/**
+ * Applies a key to a security scheme so Try sends it. `note` (from the page hosting RapiDoc, through setApiKey) says
+ * where the key came from, e.g. the reader's sign-in: the scheme then shows the note instead of its own form until
+ * the reader asks for the form. Any later change of the key (form, GET TOKEN, REMOVE, CLEAR ALL) drops the note.
+ */
+export function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '', note = '') {
   const securityObj = this.resolvedSpec.securitySchemes?.find((v) => v.securitySchemeId === securitySchemeId);
   if (!securityObj) {
     return false;
@@ -85,6 +90,8 @@ export function applyApiKey(securitySchemeId, username = '', password = '', prov
   }
   if (finalApiKeyValue) {
     securityObj.finalKeyValue = finalApiKeyValue;
+    securityObj.hostNote = note ? String(note) : '';
+    securityObj.hostFormOpen = false;
     this.requestUpdate();
     return true;
   }
@@ -97,6 +104,7 @@ export function onClearAllApiKeys() {
     v.password = '';
     v.value = '';
     v.finalKeyValue = '';
+    v.hostNote = '';
   });
   this.requestUpdate();
 }
@@ -154,6 +162,7 @@ function showOAuthStatus(el, text, colorVar) {
 function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === securitySchemeId);
   securityObj.finalKeyValue = `${tokenType.toLowerCase() === 'bearer' ? 'Bearer' : tokenType.toLowerCase() === 'mac' ? 'MAC' : tokenType} ${accessToken}`;
+  securityObj.hostNote = '';
   this.requestUpdate();
 }
 
@@ -702,6 +711,7 @@ function removeApiKey(securitySchemeId) {
   securityObj.password = '';
   securityObj.value = '';
   securityObj.finalKeyValue = '';
+  securityObj.hostNote = '';
   if (this.persistAuth === 'true') {
     const rapidocLs = getPersistedApiKeys.call(this);
     delete rapidocLs[securityObj.securitySchemeId];
@@ -752,8 +762,12 @@ export default function securitySchemeTemplate(allowTry = 'true') {
           ? html` <ul class="auth-list" id="auth-list" part="auth-list" role="list">
               ${this.resolvedSpec.securitySchemes
                 .filter((v) => v.type)
-                .map(
-                  (v) => html`
+                .map((v) => {
+                  // A key the host page applied with a note (e.g. the reader's sign-in): the note replaces the
+                  // scheme's form, which stays one click away
+                  const hostNote = allowTry === 'true' && v.finalKeyValue ? v.hostNote : '';
+                  const folded = hostNote && !v.hostFormOpen;
+                  return html`
                     <li id="security-scheme-${v.securitySchemeId}" class="auth-scheme ${v.type.toLowerCase()}" part="auth-scheme">
                       <div class="auth-scheme-body">
                         <div class="auth-scheme-header">
@@ -775,7 +789,23 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                         </div>
                         ${v.description ? html`<div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(v.description || '')))}</div>` : ''}
                         ${
-                          v.type.toLowerCase() === 'apikey'
+                          hostNote
+                            ? html`<div class="auth-host-note" part="auth-host-note">${hostNote}</div>
+                                <button
+                                  class="btn btn-link auth-host-toggle"
+                                  part="btn btn-link"
+                                  aria-expanded="${folded ? 'false' : 'true'}"
+                                  @click=${() => {
+                                    v.hostFormOpen = !v.hostFormOpen;
+                                    this.requestUpdate();
+                                  }}
+                                >
+                                  ${folded ? 'Use a different token' : 'Hide token form'}
+                                </button>`
+                            : ''
+                        }
+                        ${
+                          !folded && v.type.toLowerCase() === 'apikey'
                             ? html`<div class="auth-hint">Send <code>${v.name}</code> in <code>${v.in}</code></div>
                                 ${
                                   allowTry === 'true'
@@ -805,7 +835,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                             : ''
                         }
                         ${
-                          v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'basic'
+                          !folded && v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'basic'
                             ? html`<div class="auth-hint">
                                   Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by
                                   a space and a base64 encoded string of <code>username:password</code>.
@@ -844,7 +874,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                             : ''
                         }
                         ${
-                          v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'bearer'
+                          !folded && v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'bearer'
                             ? html`<div class="auth-hint">
                                   Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by
                                   a space and token value
@@ -876,7 +906,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                         }
                       </div>
                       ${
-                        v.type.toLowerCase() === 'oauth2'
+                        !folded && v.type.toLowerCase() === 'oauth2'
                           ? html`<div class="auth-flows" part="auth-flows">
                               ${Object.keys(v.flows).map((f) =>
                                 oAuthFlowTemplate.call(
@@ -898,8 +928,8 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                           : ''
                       }
                     </li>
-                  `
-                )}
+                  `;
+                })}
             </ul>`
           : ''
       }

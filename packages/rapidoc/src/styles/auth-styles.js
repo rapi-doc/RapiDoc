@@ -67,8 +67,14 @@ export default css`
 
   /* Prose (description, "Send X in header") keeps a readable line length */
   .auth-scheme-body > .m-markdown,
-  .auth-hint {
+  .auth-hint,
+  .auth-host-note {
     max-width: 70ch;
+  }
+
+  /* "Use a different token" under a host note: a text link, not a full-size button */
+  .auth-host-toggle {
+    font-size: var(--font-size-small);
   }
 
   /*
