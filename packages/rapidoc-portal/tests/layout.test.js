@@ -26,7 +26,8 @@ import { buildPortal } from '../src/index.js';
 import { findChromeExecutable, launchTestBrowser } from '../../../tests/helpers/test-harness.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
+const DEMO_PORTAL_DIR =
+  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
 const OUTPUT_DIR = process.env.RAPIDOC_LAYOUT_OUT ? path.resolve(process.env.RAPIDOC_LAYOUT_OUT) : null;
 
 const PAGES = [
@@ -669,6 +670,96 @@ describe('Portal app-shell layout (demo-api-portal)', { skip: chromeAvailable ? 
         await page.keyboard.press('Escape');
         assert.equal(await page.isVisible('#portal-mobile-drawer'), false);
         assert.equal(await page.evaluate(() => document.activeElement?.id), 'portal-mobile-menu-btn');
+      } finally {
+        await page.close();
+      }
+    });
+  });
+
+  // A tag page (/apis/<id>/<tag>) renders the whole API and scrolls <rapi-doc> to the tag, or to the
+  // operation in the hash. A tab that renders no frames (opened in the background) must land there too:
+  // a smooth scroll would not run, and scroll-spy would then rewrite the URL to the overview.
+  describe('API tag pages', () => {
+    const TAG_PATH = '/apis/shipments/tracking-notifications';
+
+    /** Runs in the page: for each nav-active-change, how far its section is from the top of the reading area. */
+    function recordNavigation() {
+      window.__navEvents = [];
+      document.addEventListener('nav-active-change', (e) => {
+        const target = e.target.getTargetElement?.(e.detail.id);
+        const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+        window.__navEvents.push({ id: e.detail.id, distance: target ? target.getBoundingClientRect().top - offset : null });
+      });
+    }
+
+    const openTagPage = async (url) => {
+      const page = await context.newPage();
+      await page.setViewportSize({ width: VIEWPORTS[0].width, height: VIEWPORTS[0].height });
+      await page.addInitScript(recordNavigation);
+      await page.goto(`${baseUrl}${url}`, { waitUntil: 'load' });
+      await page.waitForFunction(() => window.__navEvents.length > 0, null, { timeout: 10000 });
+      await page.waitForTimeout(1000);
+      return page;
+    };
+
+    /** The observer's first report arrives on the page's first rendered frame: give it a fresh one. */
+    const reobserve = async (page) => {
+      await page.evaluate(() => {
+        const doc = document.querySelector('rapi-doc');
+        doc.intersectionObserver.disconnect();
+        doc.observeExpandedContent();
+      });
+      await page.waitForTimeout(500);
+    };
+
+    const currentUrl = (page) => page.evaluate(() => location.pathname.replace(/\/$/, '') + location.hash);
+
+    const checkLanding = async (url) => {
+      const page = await openTagPage(url);
+      try {
+        const [first] = await page.evaluate(() => window.__navEvents);
+        assert.ok(
+          first.distance !== null && Math.abs(first.distance) < 2,
+          `scrolled to ${first.id} before frames run: ${JSON.stringify(first)}`
+        );
+        await reobserve(page);
+        assert.equal(await currentUrl(page), url, 'the URL stays on the tag page');
+        const target = await page.evaluate((id) => {
+          const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+          return document.querySelector('rapi-doc').getTargetElement(id).getBoundingClientRect().top - offset;
+        }, first.id);
+        assert.ok(Math.abs(target) < 2, `${first.id} is at the top of the reading area (${target}px)`);
+      } finally {
+        await page.close();
+      }
+    };
+
+    it('lands on the tag and keeps its URL', () => checkLanding(TAG_PATH));
+
+    it('lands on the operation in the hash and keeps its URL', async () => {
+      const page = await openTagPage(TAG_PATH);
+      const opHref = await page.evaluate(
+        (tagPath) => document.querySelector(`.portal-api-nav a.nav-bar-path[href^="${tagPath}#"]`)?.getAttribute('href'),
+        TAG_PATH
+      );
+      await page.close();
+      assert.ok(opHref, `the sidebar links an operation of ${TAG_PATH}`);
+      await checkLanding(opHref);
+    });
+
+    it('the overview link scrolls to the overview and shows its URL', async () => {
+      const page = await openTagPage(TAG_PATH);
+      try {
+        await page.click('.portal-api-nav a[href$="#overview"]');
+        await page.waitForTimeout(1500);
+        assert.equal(await currentUrl(page), '/apis/shipments#overview');
+        // The overview is at the top of the reading area, or as close as the page can scroll
+        const { y, distance } = await page.evaluate(() => {
+          const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+          const overview = document.querySelector('rapi-doc').getTargetElement('overview');
+          return { y: window.scrollY, distance: overview.getBoundingClientRect().top - offset };
+        });
+        assert.ok(y === 0 || Math.abs(distance) < 2, `the overview is ${distance}px from the top of the reading area (scrollY ${y})`);
       } finally {
         await page.close();
       }

@@ -56,6 +56,9 @@ const paramsConverter = {
   },
 };
 
+// Input that marks the reader's first interaction with the page (see getContentScrollBehavior)
+const INTERACTION_EVENTS = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+
 @customElement('rapi-doc')
 export default class RapiDoc extends LitElement {
   constructor() {
@@ -69,6 +72,9 @@ export default class RapiDoc extends LitElement {
     this._isDefaultingLayout = false;
     this._observerLockTimeout = null;
     this._observerLockCleanup = null;
+    // Set on the reader's first pointer, key, wheel or touch input (see getContentScrollBehavior)
+    this._readerHasInteracted = false;
+    this._onFirstInteraction = null;
     this.initIntersectionObserver();
   }
 
@@ -417,6 +423,14 @@ export default class RapiDoc extends LitElement {
       true
     );
 
+    if (!this._readerHasInteracted && !this._onFirstInteraction) {
+      this._onFirstInteraction = () => {
+        this._readerHasInteracted = true;
+        this.removeFirstInteractionListeners();
+      };
+      INTERACTION_EVENTS.forEach((type) => window.addEventListener(type, this._onFirstInteraction, { capture: true, passive: true }));
+    }
+
     // Auto-hydrate from inlined spec or spec-url attribute if not already loaded
     if (!this.resolvedSpec) {
       const inlinedSpecEl = this.querySelector('script[type="application/json"][slot="rapidoc-spec"]');
@@ -449,10 +463,28 @@ export default class RapiDoc extends LitElement {
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
+    this.removeFirstInteractionListeners();
     if (this.mockServer === 'true') {
       disableMockServer();
     }
     super.disconnectedCallback();
+  }
+
+  removeFirstInteractionListeners() {
+    if (!this._onFirstInteraction) return;
+    INTERACTION_EVENTS.forEach((type) => window.removeEventListener(type, this._onFirstInteraction, { capture: true }));
+    this._onFirstInteraction = null;
+  }
+
+  /**
+   * Behavior of scrolls that move the content to a section. Scrolls before the reader's first input are
+   * load-time navigation (location hash, goto-path, back/forward) and jump, like the browser's own
+   * fragment navigation. A smooth scroll advances only while the page renders frames, and a background
+   * tab renders none: the scroll would not happen, and the active-section tracking would then report the
+   * section at the top of the page (and rewrite the URL to it).
+   */
+  getContentScrollBehavior() {
+    return this._readerHasInteracted ? this.scrollBehavior : 'instant';
   }
 
   infoDescriptionHeadingRenderer() {
@@ -958,19 +990,19 @@ export default class RapiDoc extends LitElement {
               targetTop = 0;
               this.lockObserverDuringScroll(gotoEl, tmpElementId, targetTop);
               if (mainContentEl) {
-                mainContentEl.scrollTo({ top: 0, behavior: this.scrollBehavior });
+                mainContentEl.scrollTo({ top: 0, behavior: this.getContentScrollBehavior() });
               } else {
-                gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+                gotoEl.scrollIntoView({ behavior: this.getContentScrollBehavior(), block: 'start' });
               }
             } else if (mainContentEl) {
               const containerRect = mainContentEl.getBoundingClientRect();
               const targetRect = gotoEl.getBoundingClientRect();
               targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
               this.lockObserverDuringScroll(gotoEl, tmpElementId, targetTop);
-              mainContentEl.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
+              mainContentEl.scrollTo({ top: targetTop, behavior: this.getContentScrollBehavior() });
             } else {
               this.lockObserverDuringScroll(gotoEl, tmpElementId);
-              gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+              gotoEl.scrollIntoView({ behavior: this.getContentScrollBehavior(), block: 'start' });
             }
             this._activeElementId = tmpElementId;
             this.dispatchEvent(
@@ -1098,7 +1130,9 @@ export default class RapiDoc extends LitElement {
 
     for (const el of activeCandidates) {
       const top = el.getBoundingClientRect().top - containerTop;
-      if (top >= 0) {
+      // A section scrolled to (scrollToPath) can end up a fraction of a pixel above the top: the
+      // browser rounds the scroll position to device pixels. It still counts as visible.
+      if (top > -1) {
         visibleHeadings.push({ el, top });
       } else {
         scrolledPast.push({ el, top });
@@ -1251,11 +1285,11 @@ export default class RapiDoc extends LitElement {
     if (container) {
       const targetTop = top - container.getBoundingClientRect().top + container.scrollTop;
       this.lockObserverDuringScroll(targetEl, targetId, targetTop);
-      container.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
+      container.scrollTo({ top: targetTop, behavior: this.getContentScrollBehavior() });
     } else {
       const targetTop = top + window.scrollY;
       this.lockObserverDuringScroll(targetEl, targetId, targetTop);
-      window.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
+      window.scrollTo({ top: targetTop, behavior: this.getContentScrollBehavior() });
     }
   }
 
@@ -1356,7 +1390,7 @@ export default class RapiDoc extends LitElement {
 
     const currentScrollTop = scrollContainer === window ? window.scrollY : scrollContainer.scrollTop || 0;
     const isZeroDistance = typeof targetTop === 'number' && Math.abs(targetTop - currentScrollTop) < 3;
-    const maxSafetyDelay = isZeroDistance ? 60 : this.scrollBehavior === 'auto' ? 100 : 1200;
+    const maxSafetyDelay = isZeroDistance ? 60 : this.getContentScrollBehavior() === 'smooth' ? 1200 : 100;
     this._observerLockTimeout = setTimeout(unlock, maxSafetyDelay);
   }
 
@@ -1454,19 +1488,19 @@ export default class RapiDoc extends LitElement {
           targetTop = 0;
           this.lockObserverDuringScroll(contentEl, elementId, targetTop);
           if (mainContentEl) {
-            mainContentEl.scrollTo({ top: 0, behavior: this.scrollBehavior });
+            mainContentEl.scrollTo({ top: 0, behavior: this.getContentScrollBehavior() });
           } else {
-            contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+            contentEl.scrollIntoView({ behavior: this.getContentScrollBehavior(), block: 'start' });
           }
         } else if (mainContentEl) {
           const containerRect = mainContentEl.getBoundingClientRect();
           const targetRect = contentEl.getBoundingClientRect();
           targetTop = targetRect.top - containerRect.top + mainContentEl.scrollTop;
           this.lockObserverDuringScroll(contentEl, elementId, targetTop);
-          mainContentEl.scrollTo({ top: targetTop, behavior: this.scrollBehavior });
+          mainContentEl.scrollTo({ top: targetTop, behavior: this.getContentScrollBehavior() });
         } else {
           this.lockObserverDuringScroll(contentEl, elementId);
-          contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+          contentEl.scrollIntoView({ behavior: this.getContentScrollBehavior(), block: 'start' });
         }
       }
       if (isValidElementId) {
