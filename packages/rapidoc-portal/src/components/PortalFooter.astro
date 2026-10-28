@@ -314,16 +314,25 @@ const newsletter = footer.newsletter;
     max-width: 320px;
   }
 
+  /* Link columns: under the brand on phones, centered in the space beside it from 768px, whatever
+     their number (four still fit on one row at 1024px). */
   .portal-footer-columns {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, max-content));
+    justify-content: start;
     gap: 2rem 1.5rem;
   }
-
-  @media (min-width: 640px) {
+  @media (min-width: 768px) {
     .portal-footer-columns {
-      grid-template-columns: repeat(4, 1fr);
+      justify-content: center;
+      column-gap: 2.5rem;
     }
+  }
+
+  .portal-footer-copy {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35em;
   }
 
   .portal-footer-col-title {
