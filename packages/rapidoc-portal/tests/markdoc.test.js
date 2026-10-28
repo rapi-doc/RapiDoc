@@ -3,11 +3,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import Markdoc from '@markdoc/markdoc';
 import { compileMarkdoc, compileDocFile, extractHeadings } from '../src/index.js';
+import { portalMarkdocConfig } from '../src/markdoc/astro-config.js';
 
 describe('RapiDoc Portal Markdoc Engine (Milestone 3)', () => {
   const DEMO_GUIDES_DIR = path.join(
-    process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo', import.meta.url)),
+    process.env.RAPIDOC_DEMO_PORTAL_DIR ??
+      fileURLToPath(new URL('../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo', import.meta.url)),
     'docs/guides'
   );
 
@@ -147,5 +150,15 @@ console.log(greeting);
     assert.ok(result.html.includes('language-javascript'));
     assert.ok(result.html.includes('data-language="javascript"'));
     assert.ok(result.html.includes('const greeting = &quot;Hello RapiDoc!&quot;;'));
+  });
+
+  it('should accept the process=false fence annotation in the docs pages config (shows tags without checking them)', () => {
+    const { nodes, tags } = portalMarkdocConfig();
+    const ast = Markdoc.parse('```md {% process=false %}\n{% not-a-tag x=1 %}\n```\n');
+    assert.deepEqual(
+      Markdoc.validate(ast, { nodes, tags }).map((e) => e.error.message),
+      []
+    );
+    assert.ok(compileMarkdoc('```md {% process=false %}\n{% callout %}x{% /callout %}\n```\n').html.includes('{% callout %}'));
   });
 });

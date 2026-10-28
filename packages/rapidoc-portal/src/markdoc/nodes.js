@@ -52,6 +52,7 @@ export const fence = {
     content: { type: String, render: false, required: true },
     language: { type: String },
     title: { type: String },
+    process: { type: Boolean, render: false, default: true },
   },
   transform(node) {
     const language = node.attributes.language || 'text';

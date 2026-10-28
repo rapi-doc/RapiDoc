@@ -76,6 +76,8 @@ export function createStarlightOptions(portalConfig) {
       // Same corners and border as the callouts. Shell code too gets the code frame, so a header (lightly
       // tinted) shows only for a block with a title, never as an empty terminal title bar.
       defaultProps: { frame: 'code' },
+      // Shiki has no Markdoc grammar; Markdown highlighting fits ```markdoc examples best.
+      shiki: { langAlias: { markdoc: 'md', mdoc: 'md' } },
       styleOverrides: {
         borderRadius: 'var(--portal-radius)',
         borderColor: 'var(--portal-border)',

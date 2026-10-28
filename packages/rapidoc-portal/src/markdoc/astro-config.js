@@ -21,7 +21,16 @@ export function portalMarkdocConfig() {
     extends: [preset],
     nodes: {
       // The code frame by default, as in Markdown (starlight-options.js): no empty terminal title bar.
-      fence: { ...fence, attributes: { ...fence.attributes, frame: { ...fence.attributes.frame, default: 'code' } } },
+      // `process` is Markdoc's own fence attribute (```md {% process=false %} shows tags without checking
+      // them); Starlight's preset leaves it out, so the build would reject it as unknown.
+      fence: {
+        ...fence,
+        attributes: {
+          ...fence.attributes,
+          frame: { ...fence.attributes.frame, default: 'code' },
+          process: { type: Boolean, render: false, default: true },
+        },
+      },
     },
     tags: {
       callout: {

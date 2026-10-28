@@ -191,6 +191,7 @@ access:
   - `{% callout type="info|tip|warning|danger" title="..." icon="..." %}`, `{% tabs %}{% tab name="..." %}`, `{% steps %}{% step title="..." %}`, `{% card-grid %}{% card title="..." icon="..." href="..." %}`, `{% badge text="..." variant="..." /%}`. Card icons are [Phosphor](https://phosphoricons.com) names, like every icon name in the config.
   - `{% api-operation spec="<api id>" path="/shipments" method="post" title="..." /%}` embeds one live, interactive operation (`<rapi-doc-mini>`). `spec` is the `id` of an entry in `apis:`; an unknown id shows a notice on the page and a build warning. Pages with an embed load the RapiDoc bundle; other docs pages don't.
   - Starlight's own Markdoc tags (`aside`, `tabitem`, `cardgrid`, `linkcard`, `filetree`, ...) work too.
+  - Tags inside a code fence show as text but are still checked; ` ```markdoc {% process=false %} ` skips the check (for tags from elsewhere). `markdoc` fences are highlighted as Markdown.
 - **Callouts** look the same however they are written: `{% callout %}` or `{% aside %}` in Markdoc, `<Callout>` or `<Aside>` in MDX, and `:::tip` blocks in Markdown and MDX (title as `:::tip[Title]` or `:::tip{title="Title"}`). Types: `note`, `info`, `tip`, `success`, `caution`, `warning`, `danger`, and Zudoku's `sparkles`, `rocket`, `settings`, `zap`, `lock`, `megaphone`; `icon` picks any other Phosphor icon.
 - If both `page.md` and `page.mdx` exist, the `.mdx` one is used.
 - Zudoku imports (`zudoku/ui/...`) and `<Stepper>` are rewritten automatically, so migrated docs work as-is.
