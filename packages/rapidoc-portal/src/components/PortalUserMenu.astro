@@ -190,7 +190,7 @@ const tryIt = portalConfig.auth?.tryIt === true;
       if (!res.ok) return;
       const locked = new Set((await res.json()).locked || []);
       // On cards (catalog, mega-menu) the lock goes after the title, not after the whole card.
-      const titleSelector = 'h1, h2, h3, h4, h5, h6, .portal-card-title, .portal-feature-label';
+      const titleSelector = 'h1, h2, h3, h4, h5, h6, .portal-card-title, .portal-doc-card-title, .portal-feature-label';
       for (const a of links) {
         if (!locked.has(pathOf(a))) continue;
         (a.querySelector(titleSelector) || a).setAttribute('data-portal-locked', '');

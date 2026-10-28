@@ -1,40 +1,26 @@
 ---
 /**
- * {% card title="..." icon="..." href="..." %}: a Starlight card, linked when `href` is set.
- * `icon` is a Starlight icon name: https://starlight.astro.build/reference/icons/
+ * {% card title="..." icon="..." href="..." %}: a card, linked when `href` is set. `icon` is a Phosphor
+ * icon name (https://phosphoricons.com), shown in the duotone weight. Styles: `.portal-doc-card` in
+ * portal-theme.css, shared with the MDX <Card> and the API catalog.
  */
-import { Card } from '@astrojs/starlight/components';
+import Icon from '../../components/Icon.astro';
 
 interface Props {
   title: string;
-  icon?: any;
+  icon?: string;
   href?: string;
 }
 
 const { title, icon, href } = Astro.props;
+const Element = href ? 'a' : 'article';
 ---
 
-{
-  href ? (
-    <a href={href} class="portal-card-link">
-      <Card title={title} icon={icon}>
-        <slot />
-      </Card>
-    </a>
-  ) : (
-    <Card title={title} icon={icon}>
-      <slot />
-    </Card>
-  )
-}
-
-<style>
-  .portal-card-link {
-    display: block;
-    color: inherit;
-    text-decoration: none;
-  }
-  .portal-card-link:hover :global(.card) {
-    border-color: var(--sl-color-accent);
-  }
-</style>
+<Element href={href} class="portal-doc-card">
+  {icon && <Icon name={icon} duotone class="portal-doc-card-icon" />}
+  <p class="portal-doc-card-title">
+    <span>{title}</span>
+    {href && <Icon name="caret-right" size={16} class="portal-doc-card-arrow" />}
+  </p>
+  <div class="portal-doc-card-body"><slot /></div>
+</Element>

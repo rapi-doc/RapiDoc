@@ -73,6 +73,25 @@ export function createStarlightOptions(portalConfig) {
     customCss: [THEME_CSS_MODULE],
     expressiveCode: {
       themes: ['github-dark', 'github-light'],
+      // Same corners and border as the callouts. Shell code too gets the code frame, so a header (lightly
+      // tinted) shows only for a block with a title, never as an empty terminal title bar.
+      defaultProps: { frame: 'code' },
+      styleOverrides: {
+        borderRadius: 'var(--portal-radius)',
+        borderColor: 'var(--portal-border)',
+        frames: {
+          frameBoxShadowCssValue: 'none',
+          editorTabBarBackground: 'color-mix(in oklab, var(--portal-fg) 5%, var(--portal-bg))',
+          editorTabBarBorderBottomColor: 'var(--portal-border)',
+          editorActiveTabBackground: 'transparent',
+          editorActiveTabBorderColor: 'transparent',
+          editorActiveTabIndicatorTopColor: 'transparent',
+          editorActiveTabIndicatorBottomColor: 'transparent',
+          terminalTitlebarBackground: 'color-mix(in oklab, var(--portal-fg) 5%, var(--portal-bg))',
+          terminalTitlebarBorderBottomColor: 'var(--portal-border)',
+          terminalTitlebarDotsOpacity: '0',
+        },
+      },
     },
     // No <rapi-doc> on documentation pages: the RapiDoc bundle is loaded by the API reference pages only.
     head: fontHeadEntries(portalConfig.theme.fonts),

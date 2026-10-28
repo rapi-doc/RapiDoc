@@ -15,8 +15,14 @@ const portal = (name) => component('@rapidoc/portal/markdoc/components', name);
 const starlight = (name) => component('@astrojs/starlight/components', name);
 
 export function portalMarkdocConfig() {
+  const preset = starlightMarkdoc();
+  const { fence } = preset.nodes;
   return {
-    extends: [starlightMarkdoc()],
+    extends: [preset],
+    nodes: {
+      // The code frame by default, as in Markdown (starlight-options.js): no empty terminal title bar.
+      fence: { ...fence, attributes: { ...fence.attributes, frame: { ...fence.attributes.frame, default: 'code' } } },
+    },
     tags: {
       callout: {
         render: portal('Callout'),
