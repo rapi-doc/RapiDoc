@@ -17,12 +17,20 @@ import { NO_STORE } from '../static.js';
 export const AUTH_PREFIX = '/_rapidoc/auth';
 const SIGN_IN_ERROR_PAGE = '/_rapidoc/sign-in-error/';
 
-/** A same-site path to return to after sign-in; anything else (other origins, `//host`, auth routes) becomes `/`. */
-export function safeReturnTo(value) {
-  if (typeof value !== 'string' || value.length > 2048) return '/';
-  if (!value.startsWith('/') || value.startsWith('//') || value.includes('\\')) return '/';
-  if ([...value].some((char) => char.charCodeAt(0) < 0x20)) return '/'; // control characters (header injection)
-  if (value.startsWith(`${AUTH_PREFIX}/`)) return '/';
+/**
+ * A same-site path to return to after sign-in; anything else (other origins, `//host`, auth routes, paths outside
+ * the portal's base path) becomes the portal's home.
+ *
+ * @param {string} value
+ * @param {string} [base] - The portal's base path ('' at the root)
+ */
+export function safeReturnTo(value, base = '') {
+  const home = `${base}/`;
+  if (typeof value !== 'string' || value.length > 2048) return home;
+  if (!value.startsWith('/') || value.startsWith('//') || value.includes('\\')) return home;
+  if ([...value].some((char) => char.charCodeAt(0) < 0x20)) return home; // control characters (header injection)
+  if (base && value !== base && !value.startsWith(`${base}/`)) return home;
+  if (value.startsWith(`${base}${AUTH_PREFIX}/`)) return home;
   return value;
 }
 
@@ -42,9 +50,10 @@ export function isSameOrigin(c, origin) {
  * @param {object} ctx.sealer - From createSealer()
  * @param {(c) => Promise<object | null>} ctx.userOf - The request's session user
  * @param {(c) => string} ctx.originOf - External origin of the portal
+ * @param {string} [ctx.base] - The portal's base path: the routes get requests without it, URLs sent back need it
  * @param {(line: string) => void} ctx.log
  */
-export function registerAuthRoutes(app, { settings, provider, sealer, userOf, originOf, log }) {
+export function registerAuthRoutes(app, { settings, provider, sealer, userOf, originOf, base = '', log }) {
   const { auth, manifest } = settings;
   const ruleGroups = new Set(manifest.access.groups || []);
   const cookieOptions = (c, maxAge) => ({
@@ -55,14 +64,14 @@ export function registerAuthRoutes(app, { settings, provider, sealer, userOf, or
     ...(maxAge !== undefined && { maxAge }),
   });
   const names = (c) => cookieNames(originOf(c).startsWith('https:'));
-  const redirectUri = (c) => `${originOf(c)}${AUTH_PREFIX}/callback`;
+  const redirectUri = (c) => `${originOf(c)}${base}${AUTH_PREFIX}/callback`;
   const signInError = (c, reason) => {
     c.header('cache-control', NO_STORE);
-    return c.redirect(`${SIGN_IN_ERROR_PAGE}?reason=${reason}`, 302);
+    return c.redirect(`${base}${SIGN_IN_ERROR_PAGE}?reason=${reason}`, 302);
   };
 
   app.get(`${AUTH_PREFIX}/login`, async (c) => {
-    const returnTo = safeReturnTo(c.req.query('returnTo'));
+    const returnTo = safeReturnTo(c.req.query('returnTo'), base);
     const { url, checks } = await startSignIn(provider, { redirectUri: redirectUri(c), scopes: auth.scopes, audience: auth.audience });
     setCookie(c, names(c).signIn, await sealer.seal({ ...checks, returnTo }, SIGN_IN_MAX_AGE), cookieOptions(c, SIGN_IN_MAX_AGE));
     c.header('cache-control', NO_STORE);
@@ -125,7 +134,7 @@ export function registerAuthRoutes(app, { settings, provider, sealer, userOf, or
       );
     }
     c.header('cache-control', NO_STORE);
-    return c.redirect(safeReturnTo(checks.returnTo), 302);
+    return c.redirect(safeReturnTo(checks.returnTo, base), 302);
   });
 
   app.post(`${AUTH_PREFIX}/logout`, async (c) => {
@@ -135,9 +144,9 @@ export function registerAuthRoutes(app, { settings, provider, sealer, userOf, or
     deleteCookie(c, names(c).apiToken, cookieOptions(c));
     if (user) log(`signed out: ${user.sub}`);
     const providerLogout =
-      auth.logout === 'idp' && endSessionUrl(provider, { postLogoutRedirectUri: `${originOf(c)}/`, clientId: auth.clientId });
+      auth.logout === 'idp' && endSessionUrl(provider, { postLogoutRedirectUri: `${originOf(c)}${base}/`, clientId: auth.clientId });
     c.header('cache-control', NO_STORE);
-    return c.redirect(providerLogout ? providerLogout.href : '/', 303);
+    return c.redirect(providerLogout ? providerLogout.href : `${base}/`, 303);
   });
 
   app.get(`${AUTH_PREFIX}/me`, async (c) => {

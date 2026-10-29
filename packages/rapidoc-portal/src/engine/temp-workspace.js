@@ -28,7 +28,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadConfig } from '../config/loader.js';
 import { listDocFiles, syncDocs } from './sync-docs.js';
-import { copyRapidocBundle, copySpecs, writeSearchIndex } from './sync-assets.js';
+import { copyRapidocBundle, copySpecs, writeRobotsTxt, writeSearchIndex } from './sync-assets.js';
+import { writeLlmsFiles } from './llms.js';
 
 export const WORKSPACE_DIRNAME = '.rapidoc-temp';
 
@@ -71,10 +72,10 @@ const WORKSPACE_PACKAGE_JSON = {
 };
 
 // Read by @astrojs/markdoc from the project root: renders .mdoc docs (synced from .markdoc).
-const MARKDOC_CONFIG_MJS = `import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+const markdocConfigMjs = (base) => `import { defineMarkdocConfig } from '@astrojs/markdoc/config';
 import { portalMarkdocConfig } from '@rapidoc/portal/markdoc/astro';
 
-export default defineMarkdocConfig(portalMarkdocConfig());
+export default defineMarkdocConfig(portalMarkdocConfig(${JSON.stringify({ base })}));
 `;
 
 const CONTENT_CONFIG_TS = `import { defineCollection } from 'astro:content';
@@ -102,11 +103,13 @@ export function resolveDependencyRoot() {
  */
 export function refreshDocs(workspace) {
   syncDocs(workspace.projectDocsDir, workspace.contentDir, { editUrl: workspace.config.docs.editUrl });
+  const docFiles = listDocFiles(workspace.projectDocsDir);
   try {
-    writeSearchIndex(workspace.config, workspace.projectDir, listDocFiles(workspace.projectDocsDir), workspace.publicDir);
+    writeSearchIndex(workspace.config, workspace.projectDir, docFiles, workspace.publicDir);
   } catch (err) {
     console.warn(`[rapidoc-portal] Search index not built: ${err.message}`);
   }
+  writeLlmsFiles(workspace.config, docFiles, workspace.publicDir);
 }
 
 /**
@@ -149,9 +152,10 @@ export async function createPortalWorkspace(projectDir = process.cwd(), { kind =
     fs.symlinkSync(resolveDependencyRoot(), path.join(root, 'node_modules'), 'junction');
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(WORKSPACE_PACKAGE_JSON, null, 2), 'utf8');
     fs.writeFileSync(path.join(root, 'src', 'content.config.ts'), CONTENT_CONFIG_TS, 'utf8');
-    fs.writeFileSync(path.join(root, 'markdoc.config.mjs'), MARKDOC_CONFIG_MJS, 'utf8');
+    fs.writeFileSync(path.join(root, 'markdoc.config.mjs'), markdocConfigMjs(config.site.basePath), 'utf8');
 
     copyProjectPublic(resolvedProjectDir, workspace.publicDir);
+    writeRobotsTxt(config, workspace.publicDir);
     copySpecs(config, workspace.publicDir);
     copyRapidocBundle(workspace.publicDir);
     refreshDocs(workspace);

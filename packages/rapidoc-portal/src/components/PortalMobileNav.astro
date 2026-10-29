@@ -6,6 +6,7 @@
 import portalConfig from 'virtual:rapidoc-portal/config';
 import Icon from './Icon.astro';
 import { activeTab } from './header-nav.js';
+import { withBase, withoutBase } from './base-path.js';
 
 interface Props {
   portalConfig?: any;
@@ -14,7 +15,7 @@ interface Props {
 const config = Astro.props.portalConfig ?? portalConfig;
 const { tabs } = config;
 const links = config.header.links;
-const currentTab = activeTab(tabs, Astro.url?.pathname || '/');
+const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
 const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
 const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {});
 ---
@@ -24,7 +25,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
     tabs.length > 0 && (
       <nav class="portal-mobile-tabs" aria-label="Sections">
         {tabs.map((tab: any) => (
-          <a href={tab.href} class="portal-mobile-tab" aria-current={tab === currentTab ? 'page' : undefined} {...external(tab.href)}>
+          <a href={withBase(tab.href)} class="portal-mobile-tab" aria-current={tab === currentTab ? 'page' : undefined} {...external(tab.href)}>
             {tab.icon && <Icon name={tab.icon} size={16} />}
             <span>{tab.label}</span>
           </a>
@@ -41,7 +42,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
               <div class="portal-mobile-section-title">{link.label}</div>
               <div class="portal-mobile-links">
                 {link.items.map((item: any) => (
-                  <a href={item.href} class="portal-mobile-item" {...external(item.href)}>
+                  <a href={withBase(item.href)} class="portal-mobile-item" {...external(item.href)}>
                     <Icon name={item.icon || 'lightning'} size={16} class="portal-mobile-icon" />
                     <span>{item.label}</span>
                   </a>
@@ -49,7 +50,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
               </div>
             </div>
           ) : (
-            <a href={link.href} class:list={['portal-mobile-direct-link', link.style && link.style !== 'link' && `portal-mobile-${link.style}`]} {...external(link.href)}>
+            <a href={withBase(link.href)} class:list={['portal-mobile-direct-link', link.style && link.style !== 'link' && `portal-mobile-${link.style}`]} {...external(link.href)}>
               {link.label}
             </a>
           )

@@ -7,19 +7,50 @@
  * the docs. The HTML versions of the same tags in tags.js back compileMarkdoc().
  */
 
+import Markdoc from '@markdoc/markdoc';
 import { component } from '@astrojs/markdoc/config';
 import starlightMarkdoc from '@astrojs/starlight-markdoc';
 import { CALLOUT_TYPES } from '../components/callout-types.js';
+import { withBase } from '../components/base-path.js';
 
 const portal = (name) => component('@rapidoc/portal/markdoc/components', name);
 const starlight = (name) => component('@astrojs/starlight/components', name);
 
-export function portalMarkdocConfig() {
+/**
+ * Links and images with paths relative to the portal get the base path the portal is served under
+ * (engine/base-links.js does the same for Markdown and MDX).
+ */
+function baseNodes(base) {
+  if (!base) return {};
+  const { link, image } = Markdoc.nodes;
+  return {
+    link: {
+      ...link,
+      transform(node, config) {
+        const attributes = node.transformAttributes(config);
+        return new Markdoc.Tag('a', { ...attributes, href: withBase(attributes.href, base) }, node.transformChildren(config));
+      },
+    },
+    image: {
+      ...image,
+      transform(node, config) {
+        const attributes = node.transformAttributes(config);
+        return new Markdoc.Tag('img', { ...attributes, src: withBase(attributes.src, base) }, []);
+      },
+    },
+  };
+}
+
+/**
+ * @param {{ base?: string }} [options] - base: the path the portal is served under ('' at the root)
+ */
+export function portalMarkdocConfig({ base = '' } = {}) {
   const preset = starlightMarkdoc();
   const { fence } = preset.nodes;
   return {
     extends: [preset],
     nodes: {
+      ...baseNodes(base),
       // The code frame by default, as in Markdown (starlight-options.js): no empty terminal title bar.
       // `process` is Markdoc's own fence attribute (```md {% process=false %} shows tags without checking
       // them); Starlight's preset leaves it out, so the build would reject it as unknown.

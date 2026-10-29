@@ -143,7 +143,7 @@ export function createBrowser(app) {
  * A built portal as `rapidoc build` lays it out with sign-in (no Astro needed):
  * public pages, a signed-in page, a billing-team page and spec, search indexes per zone.
  */
-export function writeFixtureBuild({ defaultZone = 'public', tryIt = false } = {}) {
+export function writeFixtureBuild({ defaultZone = 'public', tryIt = false, basePath = '' } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-server-fixture-'));
   const write = (rel, content) => {
     fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
@@ -178,7 +178,7 @@ export function writeFixtureBuild({ defaultZone = 'public', tryIt = false } = {}
     'rapidoc-server.json',
     JSON.stringify({
       version: 1,
-      site: { url: null },
+      site: { url: null, basePath },
       auth: {
         provider: 'oidc',
         issuer: null,

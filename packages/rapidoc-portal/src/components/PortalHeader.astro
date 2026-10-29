@@ -5,6 +5,7 @@ import PortalMobileNav from './PortalMobileNav.astro';
 import PortalSearchModal from './PortalSearchModal.astro';
 import PortalUserMenu from './PortalUserMenu.astro';
 import { activeTab } from './header-nav.js';
+import { withBase, withoutBase } from './base-path.js';
 
 interface Props {
   portalConfig?: any;
@@ -31,7 +32,7 @@ if (!sidebarId) {
 }
 const hasSidebar = Boolean(sidebarId);
 
-const currentPath = Astro.url?.pathname || '/';
+const currentPath = withoutBase(Astro.url?.pathname || '/');
 const currentTab = activeTab(tabs, currentPath);
 ---
 
@@ -58,7 +59,7 @@ const currentTab = activeTab(tabs, currentPath);
         <div class="portal-announcement-inner">
           <span class="portal-announcement-msg">{banner.message}</span>
           {banner.href && (
-            <a href={banner.href} class="portal-announcement-cta">
+            <a href={withBase(banner.href)} class="portal-announcement-cta">
               Explore <Icon name="arrow-right" size={16} />
             </a>
           )}
@@ -74,9 +75,9 @@ const currentTab = activeTab(tabs, currentPath);
 
   <!-- Row 1: brand, search, links and menus, theme switcher -->
   <div class="portal-navbar" data-portal-region="header-inner">
-    <a href={logo.href} class="portal-brand" aria-label={`${site.title} home`}>
-      {logo.light && <img src={logo.light} alt={logo.text ? '' : logo.alt} class:list={['portal-brand-img', { 'portal-brand-img-light': logo.dark !== logo.light }]} />}
-      {logo.dark && logo.dark !== logo.light && <img src={logo.dark} alt={logo.text ? '' : logo.alt} class="portal-brand-img portal-brand-img-dark" />}
+    <a href={withBase(logo.href)} class="portal-brand" aria-label={`${site.title} home`}>
+      {logo.light && <img src={withBase(logo.light)} alt={logo.text ? '' : logo.alt} class:list={['portal-brand-img', { 'portal-brand-img-light': logo.dark !== logo.light }]} />}
+      {logo.dark && logo.dark !== logo.light && <img src={withBase(logo.dark)} alt={logo.text ? '' : logo.alt} class="portal-brand-img portal-brand-img-dark" />}
       {logo.text && <span class="portal-brand-text">{logo.text}</span>}
     </a>
 
@@ -115,7 +116,7 @@ const currentTab = activeTab(tabs, currentPath);
                           const hasFeats = item.items?.length > 0;
                           return (
                             <div class:list={['portal-megamenu-section', { 'with-divider': idx < link.items.length - 1 }]}>
-                              <a href={item.href} class="portal-megamenu-hero-card">
+                              <a href={withBase(item.href)} class="portal-megamenu-hero-card">
                                 <div class="portal-card-icon-box">
                                   <Icon name={item.icon || 'lightning'} duotone />
                                 </div>
@@ -132,7 +133,7 @@ const currentTab = activeTab(tabs, currentPath);
                               {hasFeats && (
                                 <div class="portal-features-grid">
                                   {item.items.map((feat) => (
-                                    <a href={feat.href} class="portal-feature-item">
+                                    <a href={withBase(feat.href)} class="portal-feature-item">
                                       <Icon name={feat.icon || 'check-circle'} size={16} class="portal-feature-icon" />
                                       <span class="portal-feature-label">{feat.label}</span>
                                     </a>
@@ -147,7 +148,7 @@ const currentTab = activeTab(tabs, currentPath);
                       /* Cypress.io 2-Column Grid Mode: Wide cards side by side */
                       <div class="portal-megamenu-grid">
                         {link.items.map((item) => (
-                          <a href={item.href} class="portal-megamenu-card">
+                          <a href={withBase(item.href)} class="portal-megamenu-card">
                             <div class="portal-card-icon-box">
                               <Icon name={item.icon || 'lightning'} duotone />
                             </div>
@@ -172,7 +173,7 @@ const currentTab = activeTab(tabs, currentPath);
             const isActive = !external && link.href !== '/' && (currentPath === link.href || currentPath.startsWith(`${link.href.replace(/\/$/, '')}/`));
             return (
               <a
-                href={link.href}
+                href={withBase(link.href)}
                 class:list={['portal-nav-link', link.style && link.style !== 'link' && `portal-nav-${link.style}`, { active: isActive }]}
                 target={external ? '_blank' : undefined}
                 rel={external ? 'noopener noreferrer' : undefined}
@@ -218,7 +219,7 @@ const currentTab = activeTab(tabs, currentPath);
       <nav class="portal-tabs" data-portal-region="header-tabs" aria-label="Sections">
         {tabs.map((tab) => (
           <a
-            href={tab.href}
+            href={withBase(tab.href)}
             class="portal-tab"
             aria-current={tab === currentTab ? 'page' : undefined}
             target={isExternal(tab.href) ? '_blank' : undefined}
@@ -377,6 +378,12 @@ const currentTab = activeTab(tabs, currentPath);
   .portal-brand-img {
     height: 28px;
     width: auto;
+    /* On narrow screens a wide logo shrinks (keeping its proportions) instead of running under the search button. */
+    min-width: 0;
+    max-width: 100%;
+    flex-shrink: 1;
+    object-fit: contain;
+    object-position: left center;
   }
   :root[data-theme='light'] .portal-brand-img-dark,
   :root:not([data-theme='light']) .portal-brand-img-light {

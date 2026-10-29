@@ -1,4 +1,6 @@
 ---
+import { withBase } from './base-path.js';
+
 interface Props {
   variant?: 'default' | 'outline' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
@@ -9,7 +11,7 @@ interface Props {
 }
 
 const { variant = 'default', size = 'md', href, to, class: className = '', ...rest } = Astro.props;
-const targetHref = href || to;
+const targetHref = withBase(href || to);
 const Tag = targetHref ? 'a' : 'button';
 ---
 

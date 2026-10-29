@@ -1,4 +1,6 @@
 ---
+import { withBase } from './base-path.js';
+
 interface Props {
   to?: string;
   href?: string;
@@ -7,7 +9,7 @@ interface Props {
 }
 
 const { to, href, class: className = '', ...rest } = Astro.props;
-const targetHref = to || href || '#';
+const targetHref = withBase(to || href || '#');
 ---
 
 <a href={targetHref} class={`portal-link ${className}`} {...rest}>

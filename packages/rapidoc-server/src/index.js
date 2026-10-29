@@ -20,6 +20,10 @@ export { loadSettings, SettingsError } from './settings.js';
  *   dist/protected/   served when the reader's session may see the file's zone (rapidoc-server.json)
  *
  * A build without rapidoc-server.json is served as plain static files.
+ *
+ * Under a base path (the path of site.url), requests arrive under the mount path (the base path, unless a proxy
+ * strips part of it). mount() takes the mount path off before the routes below see a request, so they work with
+ * paths relative to the portal; URLs the server sends back (redirects, the sign-in callback) get the base path.
  */
 
 const ACCESS_DENIED_PAGE = '_rapidoc/access-denied/index.html';
@@ -33,10 +37,12 @@ const MAX_CHECK_BODY = 64 * 1024;
  * @param {string} options.distDir - Output of `rapidoc build`
  * @param {Record<string, string | undefined>} [options.env] - Default process.env
  * @param {(line: string) => void} [options.log] - Default console.log with a [rapidoc serve] prefix
+ * @param {string} [options.mountPath] - Path requests arrive under (default $RAPIDOC_MOUNT_PATH, else the base path)
  * @returns {Promise<{app: Hono, settings: object}>}
  */
-export async function createApp({ distDir, env = process.env, log = (line) => console.log(`[rapidoc serve] ${line}`) }) {
-  const settings = loadSettings(distDir, env);
+export async function createApp({ distDir, env = process.env, log = (line) => console.log(`[rapidoc serve] ${line}`), mountPath }) {
+  const settings = loadSettings(distDir, env, { mountPath });
+  const base = settings.basePath;
   const app = new Hono();
   app.get('/_rapidoc/health', (c) => c.json({ ok: true }));
 
@@ -47,7 +53,7 @@ export async function createApp({ distDir, env = process.env, log = (line) => co
       const file = findFile(settings.publicDir, candidates);
       return file ? fileResponse(c.req.raw, file.full, { cacheControl: publicCacheControl(file.rel) }) : textResponse(404, 'Not found');
     });
-    return { app, settings };
+    return { app: mount(app, settings.mountPath), settings };
   }
 
   const { manifest } = settings;
@@ -75,7 +81,7 @@ export async function createApp({ distDir, env = process.env, log = (line) => co
     return c.get('user');
   };
 
-  if (settings.auth) registerAuthRoutes(app, { settings, provider, sealer, userOf, originOf, log });
+  if (settings.auth) registerAuthRoutes(app, { settings, provider, sealer, userOf, originOf, base, log });
 
   // Which of these paths would the reader be refused? (lock icons on links; PortalUserMenu.astro)
   app.post('/_rapidoc/access/check', async (c) => {
@@ -93,7 +99,9 @@ export async function createApp({ distDir, env = process.env, log = (line) => co
       .slice(0, MAX_CHECK_PATHS)
       .filter((p) => typeof p === 'string' && p.startsWith('/'))
       .filter((p) => {
-        const zone = zoneOfPath(p);
+        // Links in the page carry the base path; zones are for paths relative to the portal.
+        const relative = withoutBase(p);
+        const zone = relative === null ? null : zoneOfPath(relative);
         return zone !== null && !allows(zones[zone], user);
       });
     c.header('cache-control', NO_STORE);
@@ -140,7 +148,7 @@ export async function createApp({ distDir, env = process.env, log = (line) => co
       return new Response(null, {
         status: 302,
         headers: {
-          location: `${AUTH_PREFIX}/login?returnTo=${encodeURIComponent(url.pathname + url.search)}`,
+          location: `${base}${AUTH_PREFIX}/login?returnTo=${encodeURIComponent(base + url.pathname + url.search)}`,
           'cache-control': NO_STORE,
           vary: 'Cookie',
         },
@@ -175,7 +183,32 @@ export async function createApp({ distDir, env = process.env, log = (line) => co
   });
 
   app.all('*', () => textResponse(405, 'Method not allowed', { allow: 'GET, HEAD' }));
-  return { app, settings };
+  return { app: mount(app, settings.mountPath), settings };
+
+  /** `/developers/docs/a/` → `/docs/a/`; null for a path outside the portal. */
+  function withoutBase(urlPath) {
+    if (!base) return urlPath;
+    if (urlPath === base) return '/';
+    return urlPath.startsWith(`${base}/`) ? urlPath.slice(base.length) : null;
+  }
+}
+
+/**
+ * The portal's routes under `mountPath`: the mount path comes off each request's URL before `portal` sees it.
+ * `/developers` redirects to `/developers/`; anything outside the mount path is a 404.
+ */
+function mount(portal, mountPath) {
+  if (!mountPath) return portal;
+  const app = new Hono();
+  app.get('/_rapidoc/health', (c) => c.json({ ok: true }));
+  app.all('*', (c) => {
+    const url = new URL(c.req.url);
+    if (url.pathname === mountPath) return c.redirect(`${mountPath}/${url.search}`, 301);
+    if (!url.pathname.startsWith(`${mountPath}/`)) return textResponse(404, 'Not found');
+    url.pathname = url.pathname.slice(mountPath.length);
+    return portal.fetch(new Request(url, c.req.raw));
+  });
+  return app;
 }
 
 /**
@@ -187,16 +220,17 @@ export async function createApp({ distDir, env = process.env, log = (line) => co
  * @param {string} [options.host] - Default $HOST or 0.0.0.0
  * @param {Record<string, string | undefined>} [options.env]
  * @param {(line: string) => void} [options.log]
+ * @param {string} [options.mountPath] - See createApp()
  * @returns {Promise<{url: string, port: number, settings: object, close: () => Promise<void>}>}
  */
-export async function startServer({ distDir, port, host, env = process.env, log } = {}) {
-  const { app, settings } = await createApp({ distDir: path.resolve(distDir || 'dist'), env, log });
+export async function startServer({ distDir, port, host, env = process.env, log, mountPath } = {}) {
+  const { app, settings } = await createApp({ distDir: path.resolve(distDir || 'dist'), env, log, mountPath });
   const listenPort = Number(port ?? env.PORT ?? 8080);
   const hostname = host || env.HOST || '0.0.0.0';
   return new Promise((resolve, reject) => {
     const server = serve({ fetch: app.fetch, port: listenPort, hostname }, (info) => {
       resolve({
-        url: `http://${hostname === '0.0.0.0' ? 'localhost' : hostname}:${info.port}`,
+        url: `http://${hostname === '0.0.0.0' ? 'localhost' : hostname}:${info.port}${settings.mountPath ? `${settings.mountPath}/` : ''}`,
         port: info.port,
         settings,
         close: () => new Promise((done) => server.close(() => done())),

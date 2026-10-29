@@ -184,14 +184,24 @@ function fromZudoku(raw, warnings) {
       return compact({ label: converted.label, icon, items: converted.items });
     })
     .filter(Boolean);
+  // Zudoku serves under `basePath`; v2 takes it from the path of site.url, so it needs the origin too.
+  const origin = raw.canonicalUrlOrigin || raw.sitemap?.siteUrl;
+  const basePath = raw.basePath && raw.basePath !== '/' ? `/${raw.basePath.replace(/^\/+|\/+$/g, '')}` : '';
+  const url = origin ? `${new URL(origin).origin}${basePath}` : undefined;
+  if (basePath && !origin) {
+    warnings.push(`basePath: "${raw.basePath}" needs the portal's full URL in v2: set site.url (e.g. https://example.com${basePath})`);
+  }
+  const titleTemplate = typeof raw.metadata?.title === 'string' && raw.metadata.title.includes('%s') ? raw.metadata.title : undefined;
   const files = Array.isArray(raw.docs?.files) ? raw.docs.files[0] : raw.docs?.files;
   const docsDir = files ? `./${files.replace(/^\/+/, '').split(/[*{]/)[0].replace(/\/+$/, '')}` : undefined;
   const logoSrc = raw.site?.logo?.src;
 
   return assemble({
     site: compact({
-      title: raw.site?.title || raw.metadata?.title || 'Developer Portal',
+      title: raw.site?.title || (titleTemplate ? raw.metadata?.defaultTitle : raw.metadata?.title) || 'Developer Portal',
       description: raw.metadata?.description,
+      url,
+      titleTemplate,
       logo: logoSrc ? { src: typeof logoSrc === 'object' && logoSrc.light === logoSrc.dark ? logoSrc.light : logoSrc } : undefined,
       favicon: raw.metadata?.favicon,
     }),
@@ -199,14 +209,26 @@ function fromZudoku(raw, warnings) {
     apis,
     docs: docsDir && docsDir !== './docs' ? { dir: docsDir } : undefined,
     redirects: raw.redirects?.length ? raw.redirects : undefined,
+    // Zudoku publishes Markdown pages unless told not to; so does v2 (with llms.txt).
+    llms: raw.docs?.publishMarkdown === false ? false : undefined,
   });
+}
+
+/** Redocly `scripts.head[]` and `links[]` → v2 `head` entries (attributes that are strings or true). */
+function redoclyHead(raw) {
+  const attrs = (item) =>
+    Object.fromEntries(Object.entries(item).filter(([key, value]) => key !== 'consent' && (typeof value === 'string' || value === true)));
+  return [
+    ...(raw.scripts?.head || []).filter((s) => s?.src).map((s) => ({ script: attrs(s) })),
+    ...(raw.links || []).filter((l) => l?.href).map((l) => ({ link: attrs(l) })),
+  ];
 }
 
 /**
  * redocly.yaml (+ sidebars.yaml, already merged in as `sidebars`) → v2: the sidebars become one
  * Documentation tab, then an API Catalog tab; `theme.openapi` becomes theme keys and `rapidoc:` attributes.
  */
-function fromRedocly(raw) {
+function fromRedocly(raw, warnings = []) {
   const apis = convertApis(raw.apis);
   const theme = {};
   const rapidoc = convertRapidoc(raw.theme?.openapi, theme);
@@ -215,9 +237,22 @@ function fromRedocly(raw) {
     ...(docsItems.length ? [{ label: 'Documentation', icon: 'book', items: docsItems }] : []),
     ...(apis.length ? [{ label: 'API Catalog', icon: 'squares-four', catalog: true }] : []),
   ];
+  const url = raw.seo?.siteUrl;
+  const image = raw.seo?.image;
+  const imageIsUrl = /^[a-z][a-z0-9+.-]*:/i.test(image || '');
+  if (image && !url && !imageIsUrl)
+    warnings.push(`seo.image: "${image}" needs site.url in v2 (link previews need a full URL); set site.url and site.image`);
+  const head = redoclyHead(raw);
   return assemble({
-    site: compact({ title: raw.seo?.title || raw.site?.title || 'Developer Portal', description: raw.seo?.description }),
+    site: compact({
+      title: raw.seo?.title || raw.site?.title || 'Developer Portal',
+      description: raw.seo?.description,
+      url,
+      image: image && (url || imageIsUrl) ? image : undefined,
+      titleTemplate: raw.seo?.projectTitle ? `%s | ${raw.seo.projectTitle}` : undefined,
+    }),
     theme,
+    head: head.length ? head : undefined,
     navigation,
     apis,
     rapidoc,
@@ -251,6 +286,7 @@ function assemble(config) {
       config.theme && Object.keys(config.theme).length
         ? compact({ primary: config.theme.primary, mode: config.theme.mode, fonts: config.theme.fonts })
         : undefined,
+    head: config.head,
     header: config.header,
     navigation: config.navigation?.length ? config.navigation : undefined,
     apis: apis?.length ? apis : undefined,
@@ -258,6 +294,7 @@ function assemble(config) {
     footer: config.footer,
     rapidoc: config.rapidoc && Object.keys(config.rapidoc).length ? config.rapidoc : undefined,
     search: config.search,
+    llms: config.llms,
     redirects: redirects.length ? redirects : undefined,
   });
 }

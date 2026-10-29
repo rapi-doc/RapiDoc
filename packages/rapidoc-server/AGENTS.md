@@ -34,7 +34,7 @@
 
 | File | Role |
 | :--- | :--- |
-| `src/index.js` | `createApp()`: routes and the per-request decision; `startServer()` |
+| `src/index.js` | `createApp()`: routes and the per-request decision; `startServer()`. `mount()` takes the mount path off each request, so routes see paths relative to the portal; URLs sent back (redirects, OIDC callback, `returnTo`) get `settings.basePath` (the path of `site.url`, from the manifest) |
 | `src/settings.js` | Manifest + environment variables → settings; fails fast with every problem listed |
 | `src/access.js` | `allows`, `decide`, `visibleZones`, email patterns |
 | `src/static.js` | URL path → file (no traversal), streamed responses, cache headers |

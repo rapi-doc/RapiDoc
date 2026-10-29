@@ -1,6 +1,7 @@
 ---
 import Icon from '../components/Icon.astro';
 import PortalLayout from '../components/PortalLayout.astro';
+import { withBase } from '../components/base-path.js';
 import portalConfig from 'virtual:rapidoc-portal/config';
 
 const apis = portalConfig.apis || [];
@@ -13,7 +14,7 @@ for (const api of apis) {
 }
 ---
 
-<PortalLayout title={`${portalConfig.catalog.label} — ${portalConfig.site.title}`}>
+<PortalLayout title={portalConfig.catalog.label}>
   <div class="catalog-container">
     <div class="catalog-hero">
       <h1>{portalConfig.catalog.label}</h1>
@@ -25,7 +26,7 @@ for (const api of apis) {
         <h2 class="category-title">{category}</h2>
         <div class="api-grid">
           {items.map((api) => (
-            <a href={api.path} class="portal-doc-card api-card">
+            <a href={withBase(api.path)} class="portal-doc-card api-card">
               <div class="api-card-header">
                 <Icon name="notebook" duotone class="portal-doc-card-icon" />
                 {api.versioned ? (

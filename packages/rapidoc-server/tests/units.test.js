@@ -4,7 +4,7 @@ import { allows, decide, emailMatches } from '../src/access.js';
 import { claimList } from '../src/auth/oidc.js';
 import { safeReturnTo } from '../src/auth/routes.js';
 import { createSealer } from '../src/auth/session.js';
-import { parseDuration } from '../src/settings.js';
+import { normalizePath, parseDuration } from '../src/settings.js';
 import { candidateFiles } from '../src/static.js';
 
 describe('rapidoc serve helpers', () => {
@@ -43,6 +43,19 @@ describe('rapidoc serve helpers', () => {
     for (const bad of [undefined, '', 'https://evil.example', '//evil.example', '/\\evil.example', '/a\nb', '/_rapidoc/auth/login']) {
       assert.equal(safeReturnTo(bad), '/', String(bad));
     }
+  });
+
+  it('keeps sign-in return paths inside the base path', () => {
+    assert.equal(safeReturnTo('/dev/docs/a', '/dev'), '/dev/docs/a');
+    for (const bad of ['/docs/a', '/developers/x', '/dev/_rapidoc/auth/login', '//evil.example']) {
+      assert.equal(safeReturnTo(bad, '/dev'), '/dev/', bad);
+    }
+  });
+
+  it('normalizes base and mount paths', () => {
+    assert.equal(normalizePath('/developers/'), '/developers');
+    assert.equal(normalizePath('sales/developers'), '/sales/developers');
+    for (const root of [undefined, '', '/', '//']) assert.equal(normalizePath(root), '', String(root));
   });
 
   it('maps URL paths to built files and refuses traversal', () => {

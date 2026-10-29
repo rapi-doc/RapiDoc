@@ -66,6 +66,21 @@
           "description": "Icon in public/, e.g. /favicon.svg.",
           "type": "string"
         },
+        "image": {
+          "description": "Preview image for shared links (og:image): a file in public/ or a URL; a file needs url. 1200 x 630 works best.",
+          "type": "string",
+          "minLength": 1
+        },
+        "titleTemplate": {
+          "description": "Page titles; %s is the page's own title (default '%s | <title>'). The home page shows title alone.",
+          "type": "string",
+          "format": "includes",
+          "pattern": "%s"
+        },
+        "noindex": {
+          "description": "Keep search engines out: a robots noindex tag on every page and no sitemap (default false).",
+          "type": "boolean"
+        },
         "banner": {
           "description": "Announcement bar above the header.",
           "type": "object",
@@ -160,9 +175,124 @@
             }
           },
           "additionalProperties": false
+        },
+        "css": {
+          "description": "Your stylesheets (relative to this config), loaded on every page after the portal's own.",
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          ]
         }
       },
       "additionalProperties": false
+    },
+    "head": {
+      "description": "Tags added to the <head> of every page: { script }, { link } or { meta }.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "script": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Inline script."
+                  },
+                  {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "boolean",
+                          "const": true
+                        }
+                      ]
+                    },
+                    "description": "Attributes; true for one without a value."
+                  }
+                ]
+              }
+            },
+            "required": [
+              "script"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "link": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  ]
+                },
+                "description": "Attributes; true for one without a value."
+              }
+            },
+            "required": [
+              "link"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "meta": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  ]
+                },
+                "description": "Attributes; true for one without a value."
+              }
+            },
+            "required": [
+              "meta"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
     },
     "header": {
       "type": "object",
@@ -681,6 +811,47 @@
     "search": {
       "description": "Full-text search (default true).",
       "type": "boolean"
+    },
+    "llms": {
+      "description": "Docs as Markdown (/docs/<page>.md), /llms.txt and /llms-full.txt, and page actions. On by default; false turns them off.",
+      "anyOf": [
+        {
+          "type": "boolean",
+          "const": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "description": {
+              "description": "Introduction at the top of /llms.txt (default: site.description).",
+              "type": "string"
+            },
+            "pageActions": {
+              "description": "Buttons next to each docs page title (default all four); false hides them.",
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "const": false
+                },
+                {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "copy",
+                      "markdown",
+                      "chatgpt",
+                      "claude"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "redirects": {
       "type": "array",

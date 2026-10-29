@@ -10,13 +10,14 @@
  * The slot has a fixed size, so filling it in moves nothing (the header height is CSS-only).
  */
 import portalConfig from 'virtual:rapidoc-portal/config';
+import { withBase } from './base-path.js';
 
 const label = portalConfig.auth?.label || 'Sign in';
 const tryIt = portalConfig.auth?.tryIt === true;
 ---
 
-<div class="portal-user" data-state="pending" data-try-it={tryIt ? '' : undefined}>
-  <a class="portal-user-signin portal-nav-link portal-nav-button" href="/_rapidoc/auth/login">{label}</a>
+<div class="portal-user" data-base={import.meta.env.BASE_URL} data-state="pending" data-try-it={tryIt ? '' : undefined}>
+  <a class="portal-user-signin portal-nav-link portal-nav-button" href={withBase('/_rapidoc/auth/login')}>{label}</a>
   <button type="button" class="portal-user-trigger" aria-expanded="false" aria-controls="portal-user-panel">
     <span class="portal-user-avatar" aria-hidden="true"></span>
     <span class="portal-user-sr">Account</span>
@@ -24,7 +25,7 @@ const tryIt = portalConfig.auth?.tryIt === true;
   <div class="portal-user-panel" id="portal-user-panel" hidden>
     <p class="portal-user-name"></p>
     <p class="portal-user-email"></p>
-    <form method="post" action="/_rapidoc/auth/logout">
+    <form method="post" action={withBase('/_rapidoc/auth/logout')}>
       <button type="submit" class="portal-user-signout">Sign out</button>
     </form>
   </div>
@@ -142,8 +143,10 @@ const tryIt = portalConfig.auth?.tryIt === true;
     const trigger = root.querySelector('.portal-user-trigger');
     const panel = root.querySelector('.portal-user-panel');
     const signin = root.querySelector('.portal-user-signin');
+    // The server's endpoints are under the base path the portal is served under.
+    const endpoint = (path) => `${(root.dataset.base || '/').replace(/\/+$/, '')}${path}`;
     const here = () => location.pathname + location.search + location.hash;
-    signin.href = `/_rapidoc/auth/login?returnTo=${encodeURIComponent(here())}`;
+    signin.href = `${endpoint('/_rapidoc/auth/login')}?returnTo=${encodeURIComponent(here())}`;
 
     const setOpen = (open) => {
       panel.hidden = !open;
@@ -182,7 +185,7 @@ const tryIt = portalConfig.auth?.tryIt === true;
       const pathOf = (a) => new URL(a.href).pathname;
       const paths = [...new Set(links.map(pathOf))].slice(0, 500);
       if (!paths.length) return;
-      const res = await fetch('/_rapidoc/access/check', {
+      const res = await fetch(endpoint('/_rapidoc/access/check'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ paths }),
@@ -209,7 +212,7 @@ const tryIt = portalConfig.auth?.tryIt === true;
     const applySignInToken = async (user) => {
       const elements = [...document.querySelectorAll('rapi-doc, rapi-doc-mini')];
       if (!elements.length) return;
-      const res = await fetch('/_rapidoc/auth/token', { headers: { accept: 'application/json' } });
+      const res = await fetch(endpoint('/_rapidoc/auth/token'), { headers: { accept: 'application/json' } });
       if (!res.ok) return;
       const { access_token: token } = await res.json();
       if (!token) return;
@@ -228,7 +231,7 @@ const tryIt = portalConfig.auth?.tryIt === true;
       }
     };
 
-    fetch('/_rapidoc/auth/me', { headers: { accept: 'application/json' } })
+    fetch(endpoint('/_rapidoc/auth/me'), { headers: { accept: 'application/json' } })
       .then(async (res) => {
         if (res.ok) {
           const user = (await res.json()).user || {};

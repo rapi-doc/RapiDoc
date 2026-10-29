@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { withBase } from './base-path.js';
 
 interface Props {
   server?: string;
@@ -9,7 +10,7 @@ interface Props {
 }
 
 const { server, url, method = 'GET', ...rest } = Astro.props;
-const target = url || server || '/catalog';
+const target = withBase(url || server || '/catalog');
 ---
 
 <a href={target} class="portal-playground-btn" {...rest}>

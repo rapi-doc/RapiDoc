@@ -12,20 +12,27 @@
  * it is a sticky column (see `.portal-layout-sidebar` below).
  */
 import 'virtual:rapidoc-portal/theme.css';
+import 'virtual:rapidoc-portal/user-css';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import PortalFooter from './PortalFooter.astro';
 import PortalHeader from './PortalHeader.astro';
-import { fontHeadEntries } from '../engine/starlight-options.js';
+import { openGraphEntries, pageTitle, portalHeadEntries, renderHeadHtml } from '../engine/page-head.js';
 import { themeBootstrapScript } from './theme-script.js';
+import { withBase } from './base-path.js';
 
 interface Props {
+  /** The page's own title; site.titleTemplate makes the full one. */
   title: string;
   description?: string;
   sidebarId?: string;
 }
 
 const { title, description = portalConfig.site.description, sidebarId } = Astro.props;
-const fontLinks = fontHeadEntries(portalConfig.theme.fonts);
+const fullTitle = pageTitle(portalConfig, title);
+const headHtml = renderHeadHtml([
+  ...openGraphEntries(portalConfig, { title, description, pathname: Astro.url.pathname }),
+  ...portalHeadEntries(portalConfig),
+]);
 const hasSidebar = Astro.slots.has('sidebar');
 ---
 
@@ -34,11 +41,11 @@ const hasSidebar = Astro.slots.has('sidebar');
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
+    <title>{fullTitle}</title>
     {description && <meta name="description" content={description} />}
-    {portalConfig.site.favicon && <link rel="icon" href={portalConfig.site.favicon} />}
-    {fontLinks.map((entry) => <link {...entry.attrs} />)}
+    {portalConfig.site.favicon && <link rel="icon" href={withBase(portalConfig.site.favicon)} />}
     <script is:inline set:html={`${themeBootstrapScript(portalConfig.theme.mode)};`} />
+    <Fragment set:html={headHtml} />
     <slot name="head" />
   </head>
   <body>

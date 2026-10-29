@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createZoneMatcher, PUBLIC_ZONE } from './rules.js';
+import { pageUrlOfMarkdown } from '../engine/llms.js';
 
 export const SERVER_MANIFEST = 'rapidoc-server.json';
 export const SEARCH_URL_PREFIX = '/_rapidoc/search';
@@ -20,7 +21,8 @@ export const EMPTY_SEARCH_ZONE = '_empty';
 const SEARCH_INDEX_FILE = 'search-index.json';
 
 /** Build files that carry no page content: always public. `_rapidoc/` holds the build assets too. */
-const ALWAYS_PUBLIC = [/^_rapidoc\//, /^assets\/rapidoc-min\.js$/, /^oauth-receiver\.html$/];
+// llms.txt and llms-full.txt list public pages only (engine/llms.js).
+const ALWAYS_PUBLIC = [/^_rapidoc\//, /^assets\/rapidoc-min\.js$/, /^oauth-receiver\.html$/, /^robots\.txt$/, /^llms(-full)?\.txt$/];
 
 /** The logo and favicon stay public too: the sign-in error and access-denied pages show them. */
 function brandingFiles(site) {
@@ -55,7 +57,8 @@ function protectedZones(portalConfig) {
  */
 export function pagefindMergeIndex(portalConfig) {
   if (!usesServerLayout(portalConfig)) return [];
-  return protectedZones(portalConfig).map((zone) => ({ bundlePath: `${SEARCH_URL_PREFIX}/${zone}/pagefind/`, baseUrl: '/' }));
+  const base = portalConfig.site.basePath;
+  return protectedZones(portalConfig).map((zone) => ({ bundlePath: `${base}${SEARCH_URL_PREFIX}/${zone}/pagefind/`, baseUrl: `${base}/` }));
 }
 
 /** `docs/a/index.html` → `/docs/a/`, `index.html` → `/`, `specs/x.json` → `/specs/x.json` */
@@ -146,6 +149,10 @@ export async function splitOutput(outDir, portalConfig) {
   const zoneOfFile = (relPath) => {
     if (branding.has(relPath) || ALWAYS_PUBLIC.some((pattern) => pattern.test(relPath))) return PUBLIC_ZONE;
     if (specZones.has(relPath)) return specZones.get(relPath);
+    // A page's Markdown (/docs/a.md) follows the page (/docs/a/), so an exact rule for /docs/a covers it.
+    if (portalConfig.llms && (relPath === 'index.md' || (relPath.startsWith('docs/') && relPath.endsWith('.md')))) {
+      return matcher.zoneOf(pageUrlOfMarkdown(relPath));
+    }
     return matcher.zoneOf(urlOfFile(relPath));
   };
 
@@ -231,7 +238,7 @@ export async function splitOutput(outDir, portalConfig) {
 
   writeJson(path.join(outDir, SERVER_MANIFEST), {
     version: 1,
-    site: { url: portalConfig.site.url },
+    site: { url: portalConfig.site.url, basePath: portalConfig.site.basePath },
     auth: portalConfig.auth,
     access: {
       defaultZone: access.default.zone,

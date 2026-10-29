@@ -7,6 +7,7 @@
  *   /_rapidoc/sign-in-error   the provider sign-in failed; ?reason= picks the explanation
  */
 import PortalLayout from '../components/PortalLayout.astro';
+import { withBase } from '../components/base-path.js';
 import portalConfig from 'virtual:rapidoc-portal/config';
 
 export function getStaticPaths() {
@@ -30,7 +31,7 @@ const reasonScript = `(() => {
 })();`;
 ---
 
-<PortalLayout title={`${title} — ${portalConfig.site.title}`}>
+<PortalLayout title={title}>
   <meta name="robots" content="noindex" slot="head" />
   <section class="portal-notice">
     <h1>{title}</h1>
@@ -42,14 +43,14 @@ const reasonScript = `(() => {
       )
     }
     <div class="portal-notice-actions">
-      <a class="portal-notice-primary" href="/">Go to the home page</a>
+      <a class="portal-notice-primary" href={withBase('/')}>Go to the home page</a>
       {
         denied ? (
-          <form method="post" action="/_rapidoc/auth/logout">
+          <form method="post" action={withBase('/_rapidoc/auth/logout')}>
             <button type="submit">Sign in with another account</button>
           </form>
         ) : (
-          <a href="/_rapidoc/auth/login">Try again</a>
+          <a href={withBase('/_rapidoc/auth/login')}>Try again</a>
         )
       }
     </div>

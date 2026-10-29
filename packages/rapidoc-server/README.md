@@ -16,7 +16,7 @@ RAPIDOC_SESSION_SECRET=… RAPIDOC_AUTH_CLIENT_SECRET=… RAPIDOC_PUBLIC_URL=htt
   npx rapidoc serve dist --port 8080
 ```
 
-Configure `auth` and `access` in `rapidoc.config.yaml` (see the `@rapidoc/portal` README, "Sign-in and access rules"). At the provider, create a web application with the redirect URL `<RAPIDOC_PUBLIC_URL>/_rapidoc/auth/callback`.
+Configure `auth` and `access` in `rapidoc.config.yaml` (see the `@rapidoc/portal` README, "Sign-in and access rules"). At the provider, create a web application with the redirect URL `<RAPIDOC_PUBLIC_URL>/_rapidoc/auth/callback` (for a portal served under a path, `<site.url>/_rapidoc/auth/callback`, e.g. `https://acme.com/developers/_rapidoc/auth/callback`).
 
 | Variable | Required | Meaning |
 | :--- | :--- | :--- |
@@ -24,6 +24,7 @@ Configure `auth` and `access` in `rapidoc.config.yaml` (see the `@rapidoc/portal
 | `RAPIDOC_AUTH_CLIENT_SECRET` | confidential clients | Leave unset for a public client (PKCE only). |
 | `RAPIDOC_AUTH_ISSUER`, `RAPIDOC_AUTH_CLIENT_ID`, `RAPIDOC_AUTH_AUDIENCE` | no | Override `auth.issuer` / `auth.clientId` / `auth.audience`, so one build can run against different providers. |
 | `RAPIDOC_PUBLIC_URL` | recommended | External URL: the redirect URL and whether cookies are `Secure`. Default `site.url`, else the request's host. |
+| `RAPIDOC_MOUNT_PATH` | no | Path requests arrive under, when a proxy strips part of the portal's path (`--mount-path` wins). Default: the path of `site.url`. Links and redirects keep the full path. |
 | `PORT`, `HOST` | no | Default `8080`, `0.0.0.0` (`--port`, `--host` win). |
 
 The server refuses to start, with the reason, when a required value is missing or the provider can't be discovered. A build without sign-in is served as plain static files.

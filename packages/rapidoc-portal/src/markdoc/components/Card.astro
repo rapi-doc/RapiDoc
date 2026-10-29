@@ -5,6 +5,7 @@
  * portal-theme.css, shared with the MDX <Card> and the API catalog.
  */
 import Icon from '../../components/Icon.astro';
+import { withBase } from '../../components/base-path.js';
 
 interface Props {
   title: string;
@@ -16,7 +17,7 @@ const { title, icon, href } = Astro.props;
 const Element = href ? 'a' : 'article';
 ---
 
-<Element href={href} class="portal-doc-card">
+<Element href={withBase(href)} class="portal-doc-card">
   {icon && <Icon name={icon} duotone class="portal-doc-card-icon" />}
   <p class="portal-doc-card-title">
     <span>{title}</span>

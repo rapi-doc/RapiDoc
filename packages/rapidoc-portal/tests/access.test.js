@@ -347,6 +347,23 @@ describe('building a portal with sign-in', () => {
     assert.ok(fs.readFileSync(path.join(outDir, 'protected/docs/billing/refunds/index.html'), 'utf8').includes(secret));
   });
 
+  it('protects a page as Markdown with the page, and lists only public pages and APIs for LLMs', () => {
+    assert.ok(fs.existsSync(path.join(outDir, 'protected/docs/billing/refunds.md')), 'protected .md next to the protected page');
+    assert.ok(!fs.existsSync(path.join(outDir, 'public/docs/billing/refunds.md')));
+    assert.ok(fs.existsSync(path.join(outDir, 'public/docs/getting-started.md')));
+    const llms = fs.readFileSync(path.join(outDir, 'public/llms.txt'), 'utf8');
+    assert.ok(!llms.includes('/docs/billing/'), 'no protected pages in llms.txt');
+    assert.ok(!llms.includes('/specs/labels'), 'no protected API in llms.txt');
+    assert.ok(llms.includes('/docs/getting-started.md'));
+    assert.ok(fs.existsSync(path.join(outDir, 'public/llms-full.txt')));
+
+    // The assistants can't sign in, so protected pages don't offer them.
+    const isProtected = fs.readFileSync(path.join(outDir, 'protected/docs/billing/refunds/index.html'), 'utf8');
+    const isPublic = fs.readFileSync(path.join(outDir, 'public/docs/getting-started/index.html'), 'utf8');
+    assert.ok(isPublic.includes('Open in Claude'));
+    assert.ok(!isProtected.includes('Open in Claude') && isProtected.includes('data-portal-copy-page'));
+  });
+
   it('adds the sign-in slot to the header', () => {
     const home = fs.readFileSync(path.join(outDir, 'public/index.html'), 'utf8');
     assert.ok(home.includes('class="portal-user"'));

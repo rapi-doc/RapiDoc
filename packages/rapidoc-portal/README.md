@@ -44,11 +44,14 @@ The schema is strict: an unknown key fails the build with its path, e.g. `naviga
 site:
   title: Cosmo Cargo Inc.
   description: Interstellar shipping APIs.
-  url: https://cosmocargo.dev # canonical URLs and sitemap
+  url: https://cosmocargo.dev # canonical URLs and sitemap; a path (https://acme.com/developers) is where the portal is served
   logo:
     src: /logo.svg # in public/; or { light: ..., dark: ... }
     text: COSMO CARGO # wordmark next to the image
   favicon: /favicon.svg
+  image: /social-card.png # preview image for shared links (og:image); needs url; 1200 x 630
+  titleTemplate: '%s · Cosmo Cargo' # %s is the page title (default '%s | <title>')
+  noindex: false # true: a robots noindex tag on every page, a robots.txt that disallows all, no sitemap
   banner: # announcement bar above the header
     message: Inter-galactic shipping is live!
     href: /docs/shipping-process
@@ -62,6 +65,13 @@ theme:
   fonts: # a family alone loads from Google Fonts (weights 400-700)
     sans: { family: Inter }
     mono: { family: JetBrains Mono, url: /fonts/mono.css } # url: another CDN or a CSS file in public/
+  css: ./styles/portal.css # or a list; loaded after the portal's own styles
+
+head: # tags added to the <head> of every page
+  - script: { src: https://plausible.io/js/script.js, defer: true, data-domain: cosmocargo.dev }
+  - script: window.dataLayer = window.dataLayer || []; # a string is an inline script
+  - meta: { name: google-site-verification, content: abc123 }
+  - link: { rel: preconnect, href: https://api.cosmocargo.dev }
 
 header: # row 1, right of the search
   themeSwitcher: true
@@ -131,11 +141,18 @@ rapidoc: # <rapi-doc> attributes for the API reference pages
   schema-style: tree
 
 search: true
+llms: # on by default; false turns it off
+  description: Interstellar shipping APIs. # top of /llms.txt (default site.description)
+  pageActions: [copy, markdown, chatgpt, claude] # buttons by each docs page title; false hides them
 redirects:
   - { from: /old-page, to: /docs/new-page }
 ```
 
 Every API reference page is `/apis/<id>` (with one page per tag below it), and `/apis` redirects to the catalog. An API with `versions:` instead of `spec:` has one spec per version: the first at `/apis/<id>`, the others at `/apis/<id>/<version>`, with a version picker in the API sidebar (`design/api-versioning.md`). To keep an older URL working, add a `redirects` entry; `rapidoc migrate` does this for APIs that had a custom `path`. Docs pages in no tab's sidebar belong to the first documentation tab; APIs without a tab of their own belong to the catalog tab. The portal sets some `<rapi-doc>` attributes itself (`spec-url`, `show-header`, `show-side-nav`, `auto-height`, `update-route`, `goto-path`, `color-scheme`, `primary-color`); setting them under `rapidoc:` is an error that names the key to use instead.
+
+**Served under a path.** When `site.url` has a path (`https://acme.com/developers`), every page is under it. Paths in the config and in docs pages stay relative to the portal (`/docs/intro`); links get the path when they are rendered: Markdown, MDX and Markdoc links and images, `href`/`src` in raw HTML and MDX JSX (`<img src="/a.png">`), the portal's components, and Starlight's hero buttons. Paths built in a JSX expression (`src={...}`) are left as written. `rapidoc serve` serves the build under the same path, and the OIDC callback becomes `<site.url>/_rapidoc/auth/callback`. Behind a proxy that strips part of the path, tell the server where requests arrive: `rapidoc serve dist --mount-path /developers` (or `RAPIDOC_MOUNT_PATH`); links keep the full path (`design/config-batch-1.md`).
+
+**LLM output.** Each docs page is also published as Markdown at `/docs/<page>.md` (`/index.md` for the home page): frontmatter removed, Markdoc tags and the portal's MDX components turned into plain Markdown (callouts into quotes, `{% api-operation %}` into the method, path and a link to the API page). `/llms.txt` lists the pages by tab and the APIs with their spec URLs; `/llms-full.txt` holds every page's Markdown. With access rules, both list public pages only, and a protected page's `.md` is protected like the page. The page actions next to a docs page title copy the Markdown, open it, or open ChatGPT or Claude with a prompt to read it (not on protected pages).
 
 Text in the accent color is derived from `theme.primary` at build time so that it keeps WCAG AA contrast (4.5:1) in both themes, and text on accent-filled buttons is black or white, whichever reads better.
 
@@ -143,7 +160,7 @@ The schema lives in [`src/config/schema.js`](src/config/schema.js). After changi
 
 ### Migrating
 
-`rapidoc migrate --from redocly|zudoku` writes a `rapidoc.config.yaml` from a Redocly project (`redocly.yaml` + `sidebars.yaml`) or a Zudoku config, and lists anything the conversion could not resolve. Redocly's sidebars become a Documentation tab, its APIs an API Catalog tab, and `theme.openapi` the theme and `rapidoc:` attributes; Zudoku's top-level navigation items are the tabs. Only the migrator knows Redocly's and Zudoku's key names.
+`rapidoc migrate --from redocly|zudoku` writes a `rapidoc.config.yaml` from a Redocly project (`redocly.yaml` + `sidebars.yaml`) or a Zudoku config, and lists anything the conversion could not resolve. Redocly's sidebars become a Documentation tab, its APIs an API Catalog tab, and `theme.openapi` the theme and `rapidoc:` attributes; Zudoku's top-level navigation items are the tabs. Zudoku's `basePath` (with `canonicalUrlOrigin`) becomes the path of `site.url` and `metadata.title` a `titleTemplate`; Redocly's `seo.siteUrl`, `seo.image` and `seo.projectTitle` become `site.url`, `site.image` and `titleTemplate`, and `scripts.head` and `links` become `head` entries. Only the migrator knows Redocly's and Zudoku's key names.
 
 ### Sign-in and access rules
 
@@ -253,7 +270,10 @@ src/
 │   ├── dev-server.js          startDevServer(): workspace → astro dev → watch → cleanup
 │   ├── temp-workspace.js      Create / remove <project>/.rapidoc-temp/<run>/
 │   ├── sync-docs.js           Copy + normalize docs into the workspace
-│   ├── sync-assets.js         Specs, rapidoc-min.js (fails if stale), search index
+│   ├── sync-assets.js         Specs, rapidoc-min.js (fails if stale), search index, robots.txt (noindex)
+│   ├── llms.js                /docs/<page>.md, /llms.txt, /llms-full.txt (`llms`)
+│   ├── page-head.js           Head entries (fonts, og:image, robots, `head`), Open Graph, titles from titleTemplate
+│   ├── base-links.js          Base path for links and images in Markdown and MDX
 │   ├── astro-integration.js   Inline Astro config, injected routes, virtual modules
 │   ├── starlight-options.js   Config → Starlight options and sidebar (one group per documentation tab)
 │   ├── route-middleware.js    Shows the current tab's sidebar group; prev/next stay inside the tab

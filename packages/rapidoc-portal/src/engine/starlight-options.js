@@ -4,6 +4,7 @@
 
 import { fileURLToPath } from 'node:url';
 import { pagefindMergeIndex } from '../access/split-output.js';
+import { portalHeadEntries } from './page-head.js';
 
 const componentPath = (name) => fileURLToPath(new URL(`../components/${name}`, import.meta.url));
 
@@ -27,19 +28,6 @@ function withoutIcons(item) {
   const entry = { ...item };
   delete entry.icon;
   return entry.items ? { ...entry, items: entry.items.map(withoutIcons) } : entry;
-}
-
-/**
- * <link> head entries for the configured web fonts.
- */
-export function fontHeadEntries(fonts = {}) {
-  const urls = [fonts.sans?.url, fonts.mono?.url].filter(Boolean);
-  if (urls.length === 0) return [];
-  return [
-    { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.googleapis.com' } },
-    { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' } },
-    ...urls.map((href) => ({ tag: 'link', attrs: { rel: 'stylesheet', href } })),
-  ];
 }
 
 /** Pagefind search: off, on, or on with one merged bundle per protected zone (split-output.js). */
@@ -76,8 +64,10 @@ export function createStarlightOptions(portalConfig) {
       Sidebar: componentPath('PortalSidebar.astro'),
       ThemeProvider: componentPath('PortalThemeProvider.astro'),
       ThemeSelect: componentPath('PortalThemeSelect.astro'),
+      PageTitle: componentPath('PortalPageTitle.astro'),
     },
-    customCss: [THEME_CSS_MODULE],
+    // theme.css files come after the portal theme, so their plain selectors win.
+    customCss: [THEME_CSS_MODULE, ...portalConfig.theme.css],
     expressiveCode: {
       themes: ['github-dark', 'github-light'],
       // Same corners and border as the callouts. Shell code too gets the code frame, so a header (lightly
@@ -103,6 +93,6 @@ export function createStarlightOptions(portalConfig) {
       },
     },
     // No <rapi-doc> on documentation pages: the RapiDoc bundle is loaded by the API reference pages only.
-    head: fontHeadEntries(portalConfig.theme.fonts),
+    head: portalHeadEntries(portalConfig),
   };
 }

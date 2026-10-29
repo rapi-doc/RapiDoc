@@ -247,6 +247,8 @@ const STARTER_CONFIG = (title, apis) => `# yaml-language-server: $schema=./node_
 site:
   title: "${title}"
   description: "Official developer portal and interactive API reference."
+  # url: "https://developers.example.com"   # canonical links and sitemap; a path (https://example.com/developers) is where the portal is served
+  # image: "/social-card.png"               # preview image for shared links (needs url)
   banner:
     message: "🎉 Welcome to our brand new developer portal!"
     href: "/docs/getting-started"
@@ -254,6 +256,11 @@ site:
 theme:
   primary: "#f59e0b"
   mode: auto
+  # css: "./styles/portal.css"   # your stylesheet, loaded after the portal's own
+
+# Tags added to every page, e.g. analytics:
+# head:
+#   - script: { src: "https://plausible.io/js/script.js", defer: true, data-domain: "example.com" }
 
 # Row 1 of the header: links and menus right of the search
 header:
@@ -295,6 +302,9 @@ ${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join('')}# S
 rapidoc:
   render-style: "focused"
   schema-style: "tree"
+
+# Each docs page is also published as Markdown, with /llms.txt for AI tools and "Copy page" buttons.
+# llms: false   # turns that off
 
 # Optional: sign-in through your OpenID Connect provider and access rules, enforced by
 # \`rapidoc serve\` (npm install @rapidoc/server). Secrets are environment variables of the server:

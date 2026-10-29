@@ -9,7 +9,7 @@ const { portalConfig = {} } = Astro.props;
 ---
 
 <!-- Full-Text Search Modal (⌘K / Ctrl+K) -->
-<div id="portal-search-modal" class="portal-search-modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="Search Documentation">
+<div id="portal-search-modal" data-base={import.meta.env.BASE_URL} class="portal-search-modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="Search Documentation">
   <div class="portal-search-modal-dialog">
     <div class="portal-search-modal-header">
       <span class="portal-search-modal-icon">
@@ -59,6 +59,10 @@ const { portalConfig = {} } = Astro.props;
     const hintState = modal.querySelector('.portal-search-modal-hint');
     const filterBtns = modal.querySelectorAll('.portal-search-filter-btn');
 
+    // Paths in the search index are relative to the portal; the portal may be served under a base path.
+    const base = (modal.dataset.base || '/').replace(/\/+$/, '');
+    const withBase = (url) => (url && url.startsWith('/') && !url.startsWith('//') ? base + url : url);
+
     let searchRecords = null;
     let isLoading = false;
     let activeFilter = 'all';
@@ -69,7 +73,7 @@ const { portalConfig = {} } = Astro.props;
       if (searchRecords || isLoading) return;
       isLoading = true;
       try {
-        const candidateUrls = ['/search-index.json'];
+        const candidateUrls = [withBase('/search-index.json')];
         for (const url of candidateUrls) {
           try {
             const res = await fetch(url);
@@ -260,7 +264,7 @@ const { portalConfig = {} } = Astro.props;
 
       results.forEach((item, idx) => {
         const link = document.createElement('a');
-        link.href = item.url;
+        link.href = withBase(item.url);
         link.className = 'portal-search-result-item ' + (idx === selectedIndex ? 'selected' : '');
         link.setAttribute('role', 'option');
         link.setAttribute('data-index', idx);
@@ -323,7 +327,7 @@ const { portalConfig = {} } = Astro.props;
           if (currentResults[selectedIndex]) {
             const url = currentResults[selectedIndex].url;
             closeModal();
-            window.location.href = url;
+            window.location.href = withBase(url);
           }
         }
       });

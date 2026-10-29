@@ -295,6 +295,10 @@ export function checkReferences(raw) {
     }
   }
 
+  if (raw.site.image && !isExternal(raw.site.image) && !raw.site.url) {
+    problems.push('site.image: needs site.url; link previews need a full URL to the image');
+  }
+
   problems.push(...checkAccess(raw));
   (raw.redirects || []).forEach((redirect, i) => {
     if (redirect.from.startsWith('/_rapidoc/')) problems.push(`redirects[${i}].from: /_rapidoc/ is reserved for the portal`);
@@ -339,6 +343,34 @@ function normalizeAuth(auth) {
 }
 
 /**
+ * The path the portal is served under, from the path of `site.url`: `https://acme.com/developers/` →
+ * `/developers`; '' when the portal is at the root of its host (or has no url).
+ */
+export function basePathOf(url) {
+  if (!url) return '';
+  return new URL(url).pathname.replace(/\/+$/, '');
+}
+
+/** `head` entries → Starlight's head entry shape: { tag, attrs, content }. */
+function normalizeHead(entries = []) {
+  return entries.map((entry) => {
+    const [tag, value] = Object.entries(entry)[0];
+    // Starlight rejects `content` on a meta tag, so only an inline script has it.
+    return typeof value === 'string' ? { tag, attrs: {}, content: value } : { tag, attrs: value };
+  });
+}
+
+/** `llms` with defaults: false, or what to publish and which page actions to show. */
+function normalizeLlms(llms, site) {
+  if (llms === false) return false;
+  const actions = llms?.pageActions;
+  return {
+    description: llms?.description ?? site.description ?? '',
+    pageActions: actions === false ? [] : actions || ['copy', 'markdown', 'chatgpt', 'claude'],
+  };
+}
+
+/**
  * @param {object} raw - Config that passed RapidocConfigSchema and checkReferences()
  * @param {string} baseDir - Folder of the config file
  * @returns {object} The portal config (exposed to pages as `virtual:rapidoc-portal/config`)
@@ -368,6 +400,10 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = 'rapido
   docs.home = Boolean(findHomeDoc(docs.fullPath));
 
   const tabs = buildTabs(raw.navigation || [], { apis, apiLink, docsDir: docs.fullPath });
+  const css = [raw.theme?.css || []].flat().map((file) => path.resolve(baseDir, file));
+  css.forEach((file, i) => {
+    if (!fs.existsSync(file)) problems.push(`theme.css${Array.isArray(raw.theme.css) ? `[${i}]` : ''}: ${file} not found`);
+  });
   if (problems.length) throw new ConfigError(fileName, problems);
   const catalogTab = tabs.find((t) => t.kind === 'catalog');
 
@@ -386,15 +422,26 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = 'rapido
       title: site.title,
       description: site.description || '',
       url: site.url || null,
+      basePath: basePathOf(site.url),
       logo,
       favicon: site.favicon || null,
+      // A file in public/ becomes a full URL: link previews don't resolve relative ones.
+      image: site.image
+        ? isExternal(site.image)
+          ? site.image
+          : new URL(site.image.replace(/^\/+/, ''), `${site.url.replace(/\/+$/, '')}/`).href
+        : null,
+      titleTemplate: site.titleTemplate || `%s | ${site.title}`,
+      noindex: site.noindex === true,
       banner: site.banner ? { dismissible: true, ...site.banner } : null,
     },
     theme: {
       primary: raw.theme?.primary || DEFAULT_PRIMARY_COLOR,
       mode: raw.theme?.mode || 'auto',
       fonts: { sans: normalizeFont(raw.theme?.fonts?.sans), mono: normalizeFont(raw.theme?.fonts?.mono) },
+      css,
     },
+    head: normalizeHead(raw.head),
     header: {
       links: raw.header?.links || [],
       themeSwitcher: raw.header?.themeSwitcher !== false,
@@ -406,6 +453,7 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = 'rapido
     footer: raw.footer === false ? false : { branding: true, ...raw.footer },
     rapidoc: Object.fromEntries(Object.entries(raw.rapidoc || {}).map(([key, value]) => [key, String(value)])),
     search: raw.search !== false,
+    llms: normalizeLlms(raw.llms, raw.site),
     redirects: [
       ...(raw.redirects || []),
       ...(apis.length && !raw.redirects?.some((r) => r.from.replace(/\/+$/, '') === API_PATH)

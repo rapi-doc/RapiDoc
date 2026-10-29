@@ -10,6 +10,7 @@ import { Aside } from '@astrojs/starlight/components';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import { operationMatchPattern } from '../operation.js';
 import { OAUTH_RECEIVER_PATH } from '../../engine/sync-assets.js';
+import { withBase } from '../../components/base-path.js';
 
 interface Props {
   spec: string;
@@ -30,7 +31,7 @@ if (!api) {
   console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: API "${spec}" has no version "${version}"`);
 }
 
-const specUrl = apiVersion?.specUrl;
+const specUrl = withBase(apiVersion?.specUrl);
 const matchPaths = operationMatchPattern(method, path);
 const rapidoc = portalConfig.rapidoc || {};
 ---
@@ -49,9 +50,9 @@ const rapidoc = portalConfig.rapidoc || {};
         theme={rapidoc.theme}
         primary-color={portalConfig.theme.primary}
         schema-style={rapidoc['schema-style']}
-        oauth-receiver={OAUTH_RECEIVER_PATH}
+        oauth-receiver={withBase(OAUTH_RECEIVER_PATH)}
       />
-      <script is:inline type="module" src="/assets/rapidoc-min.js" />
+      <script is:inline type="module" src={withBase('/assets/rapidoc-min.js')} />
     </figure>
   ) : (
     <Aside type="caution" title="API operation not found">

@@ -84,7 +84,7 @@ const OAUTH_RECEIVER_HTML = `<!doctype html>
     <meta charset="utf-8" />
     <meta name="robots" content="noindex" />
     <title>Signing in…</title>
-    <script type="module" src="/assets/rapidoc-min.js"></script>
+    <script type="module" src="assets/rapidoc-min.js"></script>
   </head>
   <body>
     <oauth-receiver></oauth-receiver>
@@ -102,6 +102,15 @@ export function copyRapidocBundle(publicDir) {
   fs.mkdirSync(assetsDir, { recursive: true });
   fs.copyFileSync(resolveRapidocBundle(), path.join(assetsDir, 'rapidoc-min.js'));
   fs.writeFileSync(path.join(publicDir, OAUTH_RECEIVER_PATH), OAUTH_RECEIVER_HTML, 'utf8');
+}
+
+/**
+ * With `site.noindex`, writes a public/robots.txt that keeps every crawler out, unless the project has its
+ * own robots.txt.
+ */
+export function writeRobotsTxt(portalConfig, publicDir) {
+  const file = path.join(publicDir, 'robots.txt');
+  if (portalConfig.site.noindex && !fs.existsSync(file)) fs.writeFileSync(file, 'User-agent: *\nDisallow: /\n', 'utf8');
 }
 
 /**

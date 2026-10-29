@@ -211,6 +211,75 @@ describe('rapidoc serve: a portal for signed-in readers only', () => {
   });
 });
 
+describe('rapidoc serve: a portal under a base path', () => {
+  const BASE = '/sales/developers';
+  let issuer;
+  let distDir;
+
+  before(async () => {
+    issuer = await startIssuer({ redirectUris: [`${PORTAL_ORIGIN}${BASE}/_rapidoc/auth/callback`] });
+    issuer.addUser('ann', { name: 'Ann Reader', email: 'ann@example.com', email_verified: true, groups: [] });
+    distDir = writeFixtureBuild({ basePath: BASE });
+  });
+
+  after(async () => {
+    await issuer.close();
+    fs.rmSync(distDir, { recursive: true, force: true });
+  });
+
+  it('serves the portal under its base path, and nothing outside it', async () => {
+    const { app } = await createApp({ distDir, env: testEnv(issuer.issuer), log: quiet });
+    const browser = createBrowser(app);
+    assert.equal((await browser.send(`${BASE}/docs/intro/`)).status, 200);
+    assert.equal((await browser.send(`${BASE}/_rapidoc/health`)).status, 200);
+    assert.equal((await browser.send('/docs/intro/')).status, 404);
+    const bare = await browser.send(BASE);
+    assert.equal(bare.status, 301);
+    assert.equal(bare.headers.get('location'), `${BASE}/`);
+  });
+
+  it('signs in with the callback and return page under the base path', async () => {
+    const { app } = await createApp({ distDir, env: testEnv(issuer.issuer), log: quiet });
+    const browser = createBrowser(app);
+    const refused = await browser.send(`${BASE}/docs/partners/`, { headers: { accept: 'text/html' } });
+    assert.equal(refused.headers.get('location'), `${BASE}/_rapidoc/auth/login?returnTo=${encodeURIComponent(`${BASE}/docs/partners/`)}`);
+
+    issuer.signInAs('ann');
+    const { response, url } = await browser.visit(`${BASE}/docs/partners/`, { headers: { accept: 'text/html' } });
+    assert.equal(url.href, `${PORTAL_ORIGIN}${BASE}/docs/partners/`, 'back on the page that asked');
+    assert.equal(response.status, 200);
+  });
+
+  it('reports locked links by their full paths', async () => {
+    const { app } = await createApp({ distDir, env: testEnv(issuer.issuer), log: quiet });
+    const res = await createBrowser(app).send(`${BASE}/_rapidoc/access/check`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ paths: [`${BASE}/docs/partners/`, `${BASE}/docs/intro/`, '/docs/partners/'] }),
+    });
+    assert.deepEqual((await res.json()).locked, [`${BASE}/docs/partners/`]);
+  });
+
+  it('behind a proxy that strips part of the path, answers under the mount path and links with the base path', async () => {
+    const { app, settings } = await createApp({ distDir, env: testEnv(issuer.issuer), log: quiet, mountPath: '/developers' });
+    assert.equal(settings.basePath, BASE);
+    const browser = createBrowser(app);
+    assert.equal((await browser.send('/developers/docs/intro/')).status, 200);
+    assert.equal((await browser.send(`${BASE}/docs/intro/`)).status, 404, 'the proxy already took /sales off');
+
+    const refused = await browser.send('/developers/docs/partners/', { headers: { accept: 'text/html' } });
+    assert.ok(refused.headers.get('location').startsWith(`${BASE}/_rapidoc/auth/login?`), refused.headers.get('location'));
+    const login = await browser.send('/developers/_rapidoc/auth/login');
+    const redirectUri = new URL(login.headers.get('location')).searchParams.get('redirect_uri');
+    assert.equal(redirectUri, `${PORTAL_ORIGIN}${BASE}/_rapidoc/auth/callback`);
+  });
+
+  it('takes the mount path from RAPIDOC_MOUNT_PATH', async () => {
+    const { settings } = await createApp({ distDir, env: testEnv(issuer.issuer, { RAPIDOC_MOUNT_PATH: 'developers/' }), log: quiet });
+    assert.equal(settings.mountPath, '/developers');
+  });
+});
+
 describe('rapidoc serve: startup', () => {
   it('refuses to start without the secrets it needs', async () => {
     const distDir = writeFixtureBuild();

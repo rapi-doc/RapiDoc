@@ -92,6 +92,8 @@ Options:
   --outDir <path>         Output directory for static assets (default: dist)
   --port <number>         dev: server port (default 4321); serve: default $PORT or 8080; mock: default 4010
   --host <host>           serve, mock: address to listen on (serve: default $HOST; both default 0.0.0.0)
+  --mount-path <path>     serve: path requests arrive under, when a proxy strips part of the portal's path
+                          (default $RAPIDOC_MOUNT_PATH, else the path of site.url)
   --issuer <url>          mock: OpenID Connect issuer whose tokens are accepted (default $RAPIDOC_MOCK_ISSUER)
   --audience <id>         mock: audience tokens must be issued for (default $RAPIDOC_MOCK_AUDIENCE)
   --seed <number>         mock: seed for generated data (default 1)
@@ -186,7 +188,7 @@ async function handleServe() {
   const { startServer } = await loadServer();
   let server;
   try {
-    server = await startServer({ distDir, port, host: optionValue('--host') });
+    server = await startServer({ distDir, port, host: optionValue('--host'), mountPath: optionValue('--mount-path') });
   } catch (err) {
     console.error(`\n❌ ${err.name === 'SettingsError' ? err.message : `Server failed: ${err.message}`}\n`);
     process.exit(1);
@@ -195,6 +197,9 @@ async function handleServe() {
   const { settings } = server;
   console.log(`\n🌐 Serving ${distDir}`);
   console.log(`   • URL:      ${server.url}`);
+  if (settings.mountPath !== settings.basePath) {
+    console.log(`   • Paths:    requests arrive under ${settings.mountPath || '/'}; links use ${settings.basePath || '/'}`);
+  }
   if (settings.mode === 'static') {
     console.log('   • Access:   everything public (no sign-in configured)');
   } else {
@@ -216,7 +221,7 @@ async function handleServe() {
 }
 
 // Options followed by a value, so `rapidoc mock a.yaml --port 4011 b.yaml` sees two spec files.
-const VALUE_OPTIONS = new Set(['--port', '--host', '--issuer', '--audience', '--seed', '--outDir', '--title', '--from']);
+const VALUE_OPTIONS = new Set(['--port', '--host', '--mount-path', '--issuer', '--audience', '--seed', '--outDir', '--title', '--from']);
 
 /** The positional arguments after the command. */
 function positionals() {

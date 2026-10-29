@@ -153,6 +153,17 @@ export const SiteSchema = z.strictObject({
     })
     .optional(),
   favicon: z.string().optional().describe('Icon in public/, e.g. /favicon.svg.'),
+  image: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('Preview image for shared links (og:image): a file in public/ or a URL; a file needs url. 1200 x 630 works best.'),
+  titleTemplate: z
+    .string()
+    .includes('%s', { message: 'needs %s where the page title goes' })
+    .optional()
+    .describe("Page titles; %s is the page's own title (default '%s | <title>'). The home page shows title alone."),
+  noindex: z.boolean().optional().describe('Keep search engines out: a robots noindex tag on every page and no sitemap (default false).'),
   banner: z
     .strictObject({
       message: z.string().min(1),
@@ -177,7 +188,23 @@ export const ThemeSchema = z.strictObject({
   primary: z.string().optional().describe('Accent color (default #f76b39).'),
   mode: z.enum(['auto', 'dark', 'light']).optional().describe('Theme until the visitor picks one; auto follows the OS (default).'),
   fonts: z.strictObject({ sans: fontSchema.optional(), mono: fontSchema.optional() }).optional(),
+  css: z
+    .union([z.string().min(1), z.array(z.string().min(1)).min(1)])
+    .optional()
+    .describe("Your stylesheets (relative to this config), loaded on every page after the portal's own."),
 });
+
+// ---------------------------------------------------------------------------------------------
+// Head entries: tags added to every page (analytics, site verification, preconnects)
+// ---------------------------------------------------------------------------------------------
+
+const headAttrs = z.record(z.string(), z.union([z.string(), z.literal(true)])).describe('Attributes; true for one without a value.');
+
+export const HeadEntrySchema = z.union([
+  z.strictObject({ script: z.union([z.string().min(1).describe('Inline script.'), headAttrs]) }),
+  z.strictObject({ link: headAttrs }),
+  z.strictObject({ meta: headAttrs }),
+]);
 
 const specSource = z.string().min(1).describe('OpenAPI file (relative to this config) or URL.');
 const isUrl = (value) => /^[a-z][a-z0-9+.-]*:/i.test(value);
@@ -350,6 +377,7 @@ export const RapidocConfigSchema = z.strictObject({
   $schema: z.string().optional(),
   site: SiteSchema,
   theme: ThemeSchema.optional(),
+  head: z.array(HeadEntrySchema).optional().describe('Tags added to the <head> of every page: { script }, { link } or { meta }.'),
   header: HeaderSchema.optional(),
   navigation: z.array(TabSchema).optional().describe('The header tabs; each documentation tab has its own sidebar.'),
   apis: z.array(ApiSchema).optional(),
@@ -357,6 +385,19 @@ export const RapidocConfigSchema = z.strictObject({
   footer: z.union([FooterSchema, z.literal(false)]).optional(),
   rapidoc: z.record(z.string(), rapidocValue).optional().describe('<rapi-doc> attributes for the API reference pages.'),
   search: z.boolean().optional().describe('Full-text search (default true).'),
+  llms: z
+    .union([
+      z.literal(false),
+      z.strictObject({
+        description: z.string().optional().describe('Introduction at the top of /llms.txt (default: site.description).'),
+        pageActions: z
+          .union([z.literal(false), z.array(z.enum(['copy', 'markdown', 'chatgpt', 'claude'])).min(1)])
+          .optional()
+          .describe('Buttons next to each docs page title (default all four); false hides them.'),
+      }),
+    ])
+    .optional()
+    .describe('Docs as Markdown (/docs/<page>.md), /llms.txt and /llms-full.txt, and page actions. On by default; false turns them off.'),
   redirects: z.array(z.strictObject({ from: z.string().startsWith('/'), to: href })).optional(),
   auth: AuthSchema.optional().describe('Sign-in through an OpenID Connect provider (served with `rapidoc serve`).'),
   access: AccessSchema.optional().describe('Who may read which pages, APIs and files (needs auth unless everything is public).'),

@@ -51,6 +51,7 @@ describe('rapidoc.config.yaml (v2)', () => {
         sans: { family: 'Inter', url: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' },
         mono: null,
       },
+      css: [],
     });
 
     assert.deepEqual(

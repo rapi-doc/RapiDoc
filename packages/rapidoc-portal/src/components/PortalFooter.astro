@@ -6,6 +6,7 @@
  */
 import portalConfig from 'virtual:rapidoc-portal/config';
 import Icon from './Icon.astro';
+import { withBase } from './base-path.js';
 
 interface Props {
   portalConfig?: any;
@@ -44,7 +45,7 @@ const newsletter = footer.newsletter;
           {cta.links?.length > 0 && (
             <div class="portal-footer-cta-actions">
               {cta.links.map((link: any, i: number) => (
-                <a href={link.href} class:list={['portal-footer-cta-link', `portal-footer-cta-${link.style || (i === 0 ? 'primary' : 'button')}`]} {...external(link.href)}>
+                <a href={withBase(link.href)} class:list={['portal-footer-cta-link', `portal-footer-cta-${link.style || (i === 0 ? 'primary' : 'button')}`]} {...external(link.href)}>
                   {link.label}
                 </a>
               ))}
@@ -58,9 +59,9 @@ const newsletter = footer.newsletter;
   <div class="portal-footer-band">
     <div class="portal-footer-container portal-footer-top" data-portal-region="footer-inner">
       <div class="portal-footer-brand-col">
-        <a href={logo.href} class="portal-footer-brand">
-          {logo.light && <img src={logo.light} alt={logo.text ? '' : logo.alt} class:list={['portal-brand-img', { 'portal-brand-img-light': logo.dark !== logo.light }]} />}
-          {logo.dark && logo.dark !== logo.light && <img src={logo.dark} alt={logo.text ? '' : logo.alt} class="portal-brand-img portal-brand-img-dark" />}
+        <a href={withBase(logo.href)} class="portal-footer-brand">
+          {logo.light && <img src={withBase(logo.light)} alt={logo.text ? '' : logo.alt} class:list={['portal-brand-img', { 'portal-brand-img-light': logo.dark !== logo.light }]} />}
+          {logo.dark && logo.dark !== logo.light && <img src={withBase(logo.dark)} alt={logo.text ? '' : logo.alt} class="portal-brand-img portal-brand-img-dark" />}
           {logo.text && <span class="portal-footer-brand-title">{logo.text}</span>}
         </a>
         {site.description && <p class="portal-footer-desc">{site.description}</p>}
@@ -93,7 +94,7 @@ const newsletter = footer.newsletter;
               <ul class="portal-footer-links">
                 {col.links.map((link: any) => (
                   <li>
-                    <a href={link.href} class="portal-footer-link" {...external(link.href)}>
+                    <a href={withBase(link.href)} class="portal-footer-link" {...external(link.href)}>
                       {link.label}
                     </a>
                   </li>
@@ -122,7 +123,7 @@ const newsletter = footer.newsletter;
         social.length > 0 && (
           <div class="portal-footer-social">
             {social.map((item: any) => (
-              <a href={item.href} class="portal-footer-social-link" aria-label={item.icon} target="_blank" rel="noopener noreferrer">
+              <a href={withBase(item.href)} class="portal-footer-social-link" aria-label={item.icon} target="_blank" rel="noopener noreferrer">
                 <Icon name={`${item.icon}-logo`} />
               </a>
             ))}
