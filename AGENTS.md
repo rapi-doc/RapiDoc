@@ -24,6 +24,7 @@ rapidoc/
 │   ├── e2e/              # End-to-end browser tests
 │   ├── perf/             # Spec loading, parsing, and rendering benchmarks (playwright-core)
 │   └── visual/           # Visual regression test suites
+├── brand/                # RapiDoc logo SVGs for every product (light, dark, favicon) and how to use them
 ├── docker/               # Dockerfile and Nginx deployment assets
 ├── scripts/              # Monorepo build and metric utilities (e.g., capture-build-info.js, test-loader.mjs)
 ├── .github/              # GitHub Actions workflows (CI / GitHub Pages deployment)
