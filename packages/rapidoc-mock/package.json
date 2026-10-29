@@ -26,8 +26,8 @@
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "hono": "^4.13.13",
-    "jose": "^6.2.12",
+    "jose": "^6.2.14",
     "json-schema-faker": "^0.6.3",
-    "openapi-backend": "^5.22.0"
+    "openapi-backend": "^5.23.0"
   }
 }

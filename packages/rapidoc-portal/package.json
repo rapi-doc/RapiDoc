@@ -20,12 +20,12 @@
     "schema": "node scripts/generate-schema.js"
   },
   "dependencies": {
-    "@astrojs/markdoc": "^2.1.1",
-    "@astrojs/starlight": "^0.42.6",
+    "@astrojs/markdoc": "^2.1.2",
+    "@astrojs/starlight": "^0.42.7",
     "@astrojs/starlight-markdoc": "^0.7.0",
-    "@markdoc/markdoc": "^0.5.10",
+    "@markdoc/markdoc": "^0.5.11",
     "@phosphor-icons/core": "^2.1.1",
-    "astro": "^7.4.0",
+    "astro": "^7.4.4",
     "github-slugger": "^2.0.0",
     "pagefind": "^1.5.2",
     "rapidoc": "^12.0.0",
@@ -33,6 +33,6 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "axe-core": "^4.10.3"
+    "axe-core": "^4.14.0"
   }
 }

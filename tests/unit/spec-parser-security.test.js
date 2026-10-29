@@ -39,3 +39,31 @@ describe('operation security inheritance', () => {
     });
   }
 });
+
+describe('Swagger 2.0 security definitions', () => {
+  it('keeps the description and x- extensions of oauth2 and basic schemes', async () => {
+    const spec = {
+      swagger: '2.0',
+      info: { title: 'Repro', version: '1.0' },
+      paths: {},
+      securityDefinitions: {
+        oauth2: {
+          type: 'oauth2',
+          description: 'OAuth2 description',
+          'x-internal-id': 'oauth',
+          flow: 'accessCode',
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          tokenUrl: 'https://example.com/oauth/token',
+          scopes: {},
+        },
+        basicAuth: { type: 'basic', description: 'Basic description' },
+      },
+    };
+
+    const result = await ProcessSpec.call({ requestUpdate() {}, dispatchEvent() {} }, spec);
+    const scheme = (key) => result.securitySchemes.find((s) => s.securitySchemeId === key);
+    assert.strictEqual(scheme('oauth2').description, 'OAuth2 description');
+    assert.strictEqual(scheme('oauth2')['x-internal-id'], 'oauth');
+    assert.strictEqual(scheme('basicAuth').description, 'Basic description');
+  });
+});

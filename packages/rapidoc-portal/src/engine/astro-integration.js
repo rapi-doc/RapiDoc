@@ -119,6 +119,8 @@ export function createAstroConfig(workspace, overrides = {}) {
     integrations: [markdoc(), starlight(createStarlightOptions(workspace.config)), rapidocPortal({ portalConfig: workspace.config })],
     vite: {
       server: { fs: { allow: allowedServeDirs(workspace.root, workspace.config.theme.css) } },
+      // Starlight default-imports js-yaml 4; bundled, it resolves to Starlight's copy, not a hoisted js-yaml 5 (no default export).
+      resolve: { noExternal: ['js-yaml'] },
       environments: {
         client: { build: { rolldownOptions: { output: { entryFileNames: hashedScriptName, chunkFileNames: hashedScriptName } } } },
       },

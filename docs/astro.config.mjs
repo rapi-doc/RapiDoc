@@ -151,6 +151,8 @@ export default defineConfig({
         'rapidoc/static': resolve(rapidocSrcPath, 'static/index.js'),
         rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },
+      // Starlight default-imports js-yaml 4; bundled, it resolves to Starlight's copy, not a hoisted js-yaml 5 (no default export).
+      noExternal: ['js-yaml'],
     },
     server: {
       fs: {
