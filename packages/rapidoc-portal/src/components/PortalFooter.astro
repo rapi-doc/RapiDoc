@@ -139,7 +139,8 @@ const newsletter = footer.newsletter;
     border-top: 1px solid var(--portal-border);
     color: var(--portal-muted);
     font-family: var(--font-sans);
-    padding-block: 3.5rem 2.5rem;
+    /* No bottom padding: the bottom bar's own padding ends the footer. */
+    padding-top: 3.5rem;
     box-sizing: border-box;
     width: 100%;
   }
@@ -389,7 +390,7 @@ const newsletter = footer.newsletter;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding-top: 1.75rem;
+    padding-block: 0.5rem;
     align-items: center;
     justify-content: space-between;
     font-size: 0.8125rem;
