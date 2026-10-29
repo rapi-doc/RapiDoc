@@ -9,7 +9,7 @@ Welcome to the RapiDoc monorepo. This document establishes the foundational arch
 This repository is managed as an **npm workspaces** monorepo running on **Node.js >= 22.12.0** with native **ECMAScript Modules (ESM)** (`"type": "module"`).
 
 ```text
-astro-rapidoc/
+rapidoc/
 ├── packages/
 │   ├── rapidoc/          # Core RapiDoc Web Component library (Lit, Vite)
 │   ├── rapidoc-cli/      # The `rapidoc` command (@rapidoc/cli): init, dev, build, serve, mock, validate, migrate
@@ -98,7 +98,7 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run build:rapidoc:dev` | `packages/rapidoc` | Builds an unminified bundle with sourcemaps and console logs intact.               |
 | `npm run build:size`    | `packages/rapidoc` | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`. |
 | `npm run build:docs`    | `docs`             | Builds the Astro Starlight documentation site to `docs/dist/`.                         |
-| `npm run build:demo`    | `../demo-api-portal` | Builds `rapidoc`, then the sibling `demo-api-portal` checkout with the `rapidoc` CLI into `../demo-api-portal/dist/`. |
+| `npm run build:demo`    | `../rapi-portal-demo` | Builds `rapidoc`, then the sibling `rapi-portal-demo` checkout with the `rapidoc` CLI into `../rapi-portal-demo/dist/`. |
 | `npm run prerender:demo` | Monorepo          | Runs `scripts/prerender-demo.mjs`.                                                     |
 
 ### Testing & Benchmarking

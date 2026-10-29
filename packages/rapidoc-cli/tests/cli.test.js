@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const CLI_PATH = path.resolve(__dirname, '../src/index.js');
 const DEMO_PORTAL_DIR =
-  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
+  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo');
 
 /** A one-operation OpenAPI document (GET /ping). */
 const minimalSpec = (title) =>

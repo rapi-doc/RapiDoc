@@ -1,5 +1,5 @@
 /**
- * App-shell layout rules for a built portal, measured in headless Chrome against demo-api-portal.
+ * App-shell layout rules for a built portal, measured in headless Chrome against rapi-portal-demo.
  *
  * Each rule is checked on every page kind it applies to, at three viewport sizes and four
  * scroll positions (top, middle, footer half revealed, end). The shell they describe: a sticky
@@ -27,7 +27,7 @@ import { findChromeExecutable, launchTestBrowser } from '../../../tests/helpers/
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEMO_PORTAL_DIR =
-  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
+  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo');
 const OUTPUT_DIR = process.env.RAPIDOC_LAYOUT_OUT ? path.resolve(process.env.RAPIDOC_LAYOUT_OUT) : null;
 
 const PAGES = [
@@ -539,7 +539,7 @@ try {
   chromeAvailable = false;
 }
 
-describe('Portal app-shell layout (demo-api-portal)', { skip: chromeAvailable ? false : 'Chrome/Chromium not found' }, () => {
+describe('Portal app-shell layout (rapi-portal-demo)', { skip: chromeAvailable ? false : 'Chrome/Chromium not found' }, () => {
   const cases = [];
   const audits = [];
   let outDir;

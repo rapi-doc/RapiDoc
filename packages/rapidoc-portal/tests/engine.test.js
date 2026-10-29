@@ -11,7 +11,7 @@ import { createPortalWorkspace, removePortalWorkspace, resolveDependencyRoot, WO
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEMO_PORTAL_DIR =
-  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo');
+  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? path.resolve(__dirname, '../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo');
 
 /** Relative paths of every entry under dir, skipping .git and never following symlinks. */
 function listTree(dir, base = dir) {
@@ -98,7 +98,7 @@ describe('RapiDoc Portal build engine', () => {
     assert.ok(!themeCss.includes('__PORTAL_PRIMARY_COLOR__'), 'all theme tokens should be replaced');
   });
 
-  it('should create and remove the temp workspace for demo-api-portal', async () => {
+  it('should create and remove the temp workspace for rapi-portal-demo', async () => {
     const workspace = await createPortalWorkspace(DEMO_PORTAL_DIR);
     try {
       assert.equal(path.dirname(workspace.root), path.join(DEMO_PORTAL_DIR, WORKSPACE_DIRNAME));
@@ -164,7 +164,7 @@ describe('RapiDoc Portal build engine', () => {
     }
   });
 
-  it('should build demo-api-portal into static HTML and leave no files behind', async () => {
+  it('should build rapi-portal-demo into static HTML and leave no files behind', async () => {
     const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-portal-build-'));
     const projectBefore = listTree(DEMO_PORTAL_DIR);
     try {

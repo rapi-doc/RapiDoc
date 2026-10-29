@@ -10,7 +10,7 @@ import { AccessRuleError, splitOutput, urlOfFile } from '../src/access/split-out
 import { createStarlightOptions } from '../src/engine/starlight-options.js';
 
 const DEMO_PORTAL_DIR =
-  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo', import.meta.url));
+  process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo', import.meta.url));
 // Projects that are built must share a parent folder with this package (Astro compiles .astro files only
 // there), so the copy goes into tests/.test-tmp/ (git-ignored), not the OS temp folder.
 const TEST_TMP = fileURLToPath(new URL('./.test-tmp/', import.meta.url));

@@ -10,11 +10,11 @@ import { portalMarkdocConfig } from '../src/markdoc/astro-config.js';
 describe('RapiDoc Portal Markdoc Engine (Milestone 3)', () => {
   const DEMO_GUIDES_DIR = path.join(
     process.env.RAPIDOC_DEMO_PORTAL_DIR ??
-      fileURLToPath(new URL('../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo', import.meta.url)),
+      fileURLToPath(new URL('../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo', import.meta.url)),
     'docs/guides'
   );
 
-  it('should compile order-fulfillment.markdoc from demo-api-portal', () => {
+  it('should compile order-fulfillment.markdoc from rapi-portal-demo', () => {
     const filePath = `${DEMO_GUIDES_DIR}/order-fulfillment.markdoc`;
     assert.ok(fs.existsSync(filePath), `File exists: ${filePath}`);
 
@@ -61,7 +61,7 @@ describe('RapiDoc Portal Markdoc Engine (Milestone 3)', () => {
     assert.equal(result.toc[1].level, 2);
   });
 
-  it('should compile loyalty-and-rewards.markdoc from demo-api-portal', () => {
+  it('should compile loyalty-and-rewards.markdoc from rapi-portal-demo', () => {
     const filePath = `${DEMO_GUIDES_DIR}/loyalty-and-rewards.markdoc`;
     assert.ok(fs.existsSync(filePath));
 

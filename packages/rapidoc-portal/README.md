@@ -27,7 +27,7 @@ my-portal/
         └── checkout.mdx
 ```
 
-Start one with `npm create rapidoc@latest my-portal`, or `npx rapidoc init` in a repo that already has OpenAPI files. The `demo-api-portal` repository (checked out next to this monorepo) is the full reference project and is what this repo's tests build.
+Start one with `npm create rapidoc@latest my-portal`, or `npx rapidoc init` in a repo that already has OpenAPI files. The `rapi-portal-demo` repository (checked out next to this monorepo) is the full reference project and is what this repo's tests build.
 
 ---
 
@@ -275,4 +275,4 @@ npm run build:rapidoc   # the engine refuses a missing or stale rapidoc-min.js
 npm run test:portal     # portal, CLI and create-rapidoc tests (builds rapidoc first)
 ```
 
-The tests build the sibling `../demo-api-portal` checkout; set `RAPIDOC_DEMO_PORTAL_DIR` to use another location.
+The tests build the sibling `../rapi-portal-demo` checkout; set `RAPIDOC_DEMO_PORTAL_DIR` to use another location.

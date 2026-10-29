@@ -43,4 +43,4 @@ You are a specialist agent dedicated to `packages/rapidoc-cli` and `packages/rap
 4. **Test Verification**:
    - Run `npm run test:portal` from the monorepo root after changing CLI, portal, or scaffolding code.
 5. **Dogfood Sync**:
-   - When config structure, Markdoc tags, or CLI commands change, update `/Users/mrin/work/demo-api-portal` to match (see `packages/rapidoc-portal/AGENTS.md` §7). Leave its changes uncommitted.
+   - When config structure, Markdoc tags, or CLI commands change, update `/Users/mrin/work/rapi-portal-demo` to match (see `packages/rapidoc-portal/AGENTS.md` §7). Leave its changes uncommitted.

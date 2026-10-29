@@ -288,7 +288,7 @@ Access rules are **not** enforced in dev. The dev server prints `access rules ar
 
 ## 9. Deployment
 
-- Docker example (multi-stage: build with the CLI and portal, run with only the CLI and server) in the server README, in `demo-api-portal`, and as an optional file in the `create-rapidoc` template.
+- Docker example (multi-stage: build with the CLI and portal, run with only the CLI and server) in the server README, in `rapi-portal-demo`, and as an optional file in the `create-rapidoc` template.
 - Guides: Entra ID, Okta, Google Workspace, Keycloak. Each is "create an app, set the redirect URL, copy two values". Plus "SAML-only? Put Keycloak, Authentik, Zitadel or Ory Polis in front; they turn SAML into OIDC".
 - Kubernetes and load balancers: stateless, any number of instances with the same `RAPIDOC_SESSION_SECRET`.
 

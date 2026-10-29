@@ -1,6 +1,6 @@
 # Demo scenario and permission model
 
-Status: **decided** (S1–S6 accepted 2026-10-27). Step 2 is done: the specs, docs and config live in `demo-api-portal` (Auth0 checklist: `demo-api-portal/auth0-setup.md`). It drives the sample specs (step 2), the Auth0 setup (step 4), the portal access rules (step 5) and the end-to-end test matrix (step 6). Change names here first; everything else copies them.
+Status: **decided** (S1–S6 accepted 2026-10-27). Step 2 is done: the specs, docs and config live in `rapi-portal-demo` (Auth0 checklist: `rapi-portal-demo/auth0-setup.md`). It drives the sample specs (step 2), the Auth0 setup (step 4), the portal access rules (step 5) and the end-to-end test matrix (step 6). Change names here first; everything else copies them.
 
 ## 1. The company
 

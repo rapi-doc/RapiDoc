@@ -295,8 +295,8 @@ export function presetThemesPlugin(options = {}) {
 
 ## 📅 Phased Execution Order
 
-1. **Step 1 (Milestone 1)**: Implement `PluginManager` class and hook into [packages/rapidoc/src/rapidoc.js](file:///Users/mrin/work/astro-rapidoc/packages/rapidoc/src/rapidoc.js).
-2. **Step 2 (Milestone 2)**: Add request/response interception hooks in [packages/rapidoc/src/components/api-request.js](file:///Users/mrin/work/astro-rapidoc/packages/rapidoc/src/components/api-request.js).
+1. **Step 1 (Milestone 1)**: Implement `PluginManager` class and hook into [packages/rapidoc/src/rapidoc.js](file:///Users/mrin/work/rapidoc/packages/rapidoc/src/rapidoc.js).
+2. **Step 2 (Milestone 2)**: Add request/response interception hooks in [packages/rapidoc/src/components/api-request.js](file:///Users/mrin/work/rapidoc/packages/rapidoc/src/components/api-request.js).
 3. **Step 3 (Milestone 3)**: Release **Preset Themes** plugin and **Multi-Language Snippets** plugin.
 4. **Step 4 (Milestone 4)**: Release **Postman-Grade API Client** (chained auth, environments, mock fallback).
 5. **Step 5 (Milestone 5)**: Release **Cmd+K Command Palette** and **Spec Diff** plugins.

@@ -62,7 +62,7 @@ Include the script in your HTML page and use the `<rapi-doc>` custom element:
 This repository is structured as a **Monorepo** using workspaces, compatible with **Node/npm**, **pnpm**, and **Bun**:
 
 ```text
-astro-rapidoc/
+rapidoc/
 ├── packages/
 │   ├── rapidoc/                 # Core Web Component library (published as "rapidoc")
 │   │   ├── src/                 # Web component source code (Lit + modern ESM)
@@ -217,7 +217,7 @@ All primary commands can be run from the root of the repository:
 The documentation site is built with modern **Astro** using clean, extensionless URLs (`/api`, `/examples`, `/list`, `/quickstart`).
 
 ### Deployment via GitHub Actions
-When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/mrin/work/astro-rapidoc/.github/workflows/deploy-docs.yml) GitHub Action automatically:
+When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/mrin/work/rapidoc/.github/workflows/deploy-docs.yml) GitHub Action automatically:
 1. Compiles the `rapidoc` library bundle (`packages/rapidoc/dist/rapidoc-min.js`).
 2. Builds the Astro documentation site into `docs/dist/` (`npm run build`).
 3. Deploys the static output directory (`docs/dist/`) directly to **GitHub Pages** using `@actions/deploy-pages`.
@@ -231,7 +231,7 @@ When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/m
 
 OpenAPI specs are organized inside `docs/public/` based on their visibility and purpose:
 
-* **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](file:///Users/mrin/work/astro-rapidoc/docs/src/data/example-list.yaml) and displayed on `rapidocui.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
+* **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](file:///Users/mrin/work/rapidoc/docs/src/data/example-list.yaml) and displayed on `rapidocui.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
 * **`docs/public/specs-test/`**: Internal edge-case and boundary specs used for UI verification and regression tests (e.g., `circular-refs.yaml`, `xxx-of-combinations.yaml`).
 * **`docs/public/specs-test/parser/`**: Malformed or invalid specs used to test CLI validation and error reporting (e.g., `invalid-syntax.yaml`, `missing-info.yaml`, `broken-ref.yaml`).
 

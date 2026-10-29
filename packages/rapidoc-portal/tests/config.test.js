@@ -9,7 +9,7 @@ import { ConfigError, convertConfig, generateMigratedConfig, loadConfig, migrate
 import { configJsonSchema } from '../src/config/json-schema.js';
 import { plainSummary } from '../src/config/normalizer.js';
 
-const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../demo-api-portal/fixtures/zudoku-cosmo-cargo', import.meta.url));
+const DEMO_PORTAL_DIR = process.env.RAPIDOC_DEMO_PORTAL_DIR ?? fileURLToPath(new URL('../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo', import.meta.url));
 
 async function withTempDir(files, fn) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapidoc-config-test-'));
@@ -36,7 +36,7 @@ function problemsOf(raw) {
 }
 
 describe('rapidoc.config.yaml (v2)', () => {
-  it('loads demo-api-portal', async () => {
+  it('loads rapi-portal-demo', async () => {
     const { config, format, configPath } = await loadConfig(DEMO_PORTAL_DIR);
     assert.equal(format, 'yaml');
     assert.ok(configPath.endsWith('rapidoc.config.yaml'));

@@ -33,7 +33,7 @@ Run these commands from `packages/rapidoc-portal`:
 
 From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-rapidoc` suites together.
 
-**Layout rules** (`tests/layout.test.js`): builds `demo-api-portal`, serves it, and measures the app shell in headless Chrome (skipped if no Chrome is found) for each page kind (landing, docs, API) at 1440, 1024 and 375px wide. The same build is audited with axe-core (WCAG 2.1 A/AA; serious and critical violations fail; `<rapi-doc>` is excluded) at desktop in both themes and at 375px in dark, has a whole-visit layout-shift budget of 0.1, and the header menus and drawer are driven with the keyboard. Rules tagged `todo: { <kind>: 'Phase N' }` describe the target shell and are reported but not enforced. When a change makes one pass, remove its tag. Re-run `npm run layout:baseline` after layout changes so the `measurements.json` diff shows what moved.
+**Layout rules** (`tests/layout.test.js`): builds `rapi-portal-demo`, serves it, and measures the app shell in headless Chrome (skipped if no Chrome is found) for each page kind (landing, docs, API) at 1440, 1024 and 375px wide. The same build is audited with axe-core (WCAG 2.1 A/AA; serious and critical violations fail; `<rapi-doc>` is excluded) at desktop in both themes and at 375px in dark, has a whole-visit layout-shift budget of 0.1, and the header menus and drawer are driven with the keyboard. Rules tagged `todo: { <kind>: 'Phase N' }` describe the target shell and are reported but not enforced. When a change makes one pass, remove its tag. Re-run `npm run layout:baseline` after layout changes so the `measurements.json` diff shows what moved.
 
 ---
 
@@ -98,14 +98,14 @@ API pages use the same app shell as the docs (`PortalLayout.astro`; full pattern
 
 ---
 
-## 7. Dogfood Repo Sync (`demo-api-portal`)
+## 7. Dogfood Repo Sync (`rapi-portal-demo`)
 
-`demo-api-portal` is a separate git repo (sibling checkout at `../demo-api-portal`, i.e. `/Users/mrin/work/demo-api-portal`) that consumes `@rapidoc/portal` as a real user would. It must always build against the current portal code. It holds two portals:
+`rapi-portal-demo` is a separate git repo (sibling checkout at `../rapi-portal-demo`, i.e. `/Users/mrin/work/rapi-portal-demo`) that consumes `@rapidoc/portal` as a real user would. It must always build against the current portal code. It holds two portals:
 
 - **Rapid Parcels** (repo root): the main demo, with sign-in and access rules (scenario: `design/demo-scenario.md`). Not used by tests yet.
 - **Cosmo Cargo** (`fixtures/zudoku-cosmo-cargo/`): Zudoku's demo (© Zuplo, MIT), the **test fixture** the monorepo tests load and build, and the input for comparisons with Zudoku. It stays a plain static portal (no `auth`).
 
 1. **When to sync** (both portals): any change to the user-facing contract — `rapidoc.config.yaml` structure or keys (`src/config/schema.js`, `normalizer.js`, `loader.js`, `migrator.js`), Markdoc tags or their attributes (`src/markdoc/`), docs/spec folder conventions, or `rapidoc` CLI commands and flags.
-2. **What to update**: `demo-api-portal/rapidoc.config.yaml`, affected files in `demo-api-portal/docs/` and `specs/`, and its `README.md` if it documents the changed behaviour. Also update the scaffold templates in `packages/create-rapidoc` so new projects match.
-3. **Verify**: run `npm run test:portal` from this monorepo — `tests/config.test.js`, `tests/engine.test.js`, `tests/markdoc.test.js`, `tests/search.test.js`, `tests/access.test.js`, `tests/layout.test.js` and `rapidoc-cli/tests/cli.test.js` load and build `demo-api-portal/fixtures/zudoku-cosmo-cargo` (override with `RAPIDOC_DEMO_PORTAL_DIR`). `engine.test.js` also asserts a build leaves the fixture folder unchanged. For Rapid Parcels, run `npm run validate` and `npm run build` in the demo repo.
+2. **What to update**: `rapi-portal-demo/rapidoc.config.yaml`, affected files in `rapi-portal-demo/docs/` and `specs/`, and its `README.md` if it documents the changed behaviour. Also update the scaffold templates in `packages/create-rapidoc` so new projects match.
+3. **Verify**: run `npm run test:portal` from this monorepo — `tests/config.test.js`, `tests/engine.test.js`, `tests/markdoc.test.js`, `tests/search.test.js`, `tests/access.test.js`, `tests/layout.test.js` and `rapidoc-cli/tests/cli.test.js` load and build `rapi-portal-demo/fixtures/zudoku-cosmo-cargo` (override with `RAPIDOC_DEMO_PORTAL_DIR`). `engine.test.js` also asserts a build leaves the fixture folder unchanged. For Rapid Parcels, run `npm run validate` and `npm run build` in the demo repo.
 4. **Git**: the demo repo has its own history. Never commit there unless asked; leave its changes uncommitted for review, and do not touch its generated `dist/` or a leftover `.rapidoc-temp/` by hand.

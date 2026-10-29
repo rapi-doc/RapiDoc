@@ -124,7 +124,7 @@ Upload `dist/` to any static host (GitHub Pages, Netlify, S3, Nginx). Check spec
 4. The static site is written to `dist/`.
 5. The temporary project is deleted, so your project is left exactly as it was apart from `dist/`.
 
-See [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md) for the full configuration reference, the guide syntax (Markdoc tags, MDX components) and the programmatic API. The `demo-api-portal` repository is the reference portal used to dog-food these packages.
+See [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md) for the full configuration reference, the guide syntax (Markdoc tags, MDX components) and the programmatic API. The `rapi-portal-demo` repository is the reference portal used to dog-food these packages.
 
 ---
 
@@ -133,7 +133,7 @@ See [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md) for
 This repository is structured as a **Monorepo** using workspaces, compatible with **Node/npm**, **pnpm**, and **Bun**:
 
 ```text
-astro-rapidoc/
+rapidoc/
 ├── packages/
 │   ├── rapidoc/                 # Core Web Component library (published as "rapidoc")
 │   │   ├── src/                 # Web component source code (Lit + modern ESM)
