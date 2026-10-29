@@ -139,6 +139,8 @@ footer: # or false
 rapidoc: # <rapi-doc> attributes for the API reference pages
   render-style: read
   schema-style: tree
+  show-method-in-nav-bar: as-colored-text # also in the API sidebar: as-colored-block (default) | as-colored-text | as-plain-text | false
+  use-path-in-nav-bar: true # the API sidebar shows paths instead of summaries
 
 search: true
 llms: # on by default; false turns it off

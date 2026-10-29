@@ -373,6 +373,11 @@ export default css`
     flex-shrink: 0;
   }
 
+  /* A path in place of the summary (use-path-in-nav-bar); also in the static navigation, which has no font styles */
+  .nav-bar-path-label .mono-font {
+    font-family: var(--font-mono);
+  }
+
   .nav-method {
     font-weight: bold;
     margin-inline-start: auto;

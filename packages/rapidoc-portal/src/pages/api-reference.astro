@@ -24,6 +24,13 @@ const versionChoices = api.versions.map((v, i) => ({ ...v, tags: versionTags[i] 
 
 const themePreset = portalConfig.rapidoc.theme || 'ember';
 
+// RapiDoc's own navigation is hidden (show-side-nav=false); the sidebar is rapidoc/static's, so the navigation
+// attributes of `rapidoc:` are passed to it.
+const navAttributes = {
+  'show-method-in-nav-bar': portalConfig.rapidoc['show-method-in-nav-bar'] || 'as-colored-block',
+  'use-path-in-nav-bar': portalConfig.rapidoc['use-path-in-nav-bar'] || 'false',
+};
+
 let sidebarNavHtml = '';
 try {
   if (!redirectTo) sidebarNavHtml = await getNavBarHtml(specInput, {
@@ -33,6 +40,7 @@ try {
     includeSearch: true,
     searchPlaceholder: 'Filter endpoints...',
     itemClassName: 'portal-sidebar-op-item',
+    ...navAttributes,
   });
 } catch (err) {
   sidebarNavHtml = `<div style="padding: 1.5rem; color: #ef4444;">Failed to render navigation: ${err.message}</div>`;
@@ -50,10 +58,9 @@ const rapidocAttributes = {
   'allow-try': 'true',
   'allow-authentication': 'true',
   'allow-server-selection': 'false',
-  'use-path-in-nav-bar': 'true',
-  'nav-item-spacing': 'compact',
   theme: themePreset,
   ...portalConfig.rapidoc,
+  ...navAttributes,
   'primary-color': portalConfig.theme.primary,
   'spec-url': specUrl,
   'show-side-nav': 'false',

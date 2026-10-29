@@ -48,6 +48,7 @@ describe('a portal served under a path, with head entries, theme.css, SEO keys a
       noindex: true,
     });
     config.theme = { ...config.theme, css: './styles/portal.css' };
+    config.rapidoc = { ...config.rapidoc, 'show-method-in-nav-bar': 'as-colored-text', 'use-path-in-nav-bar': true };
     config.head = [
       { script: { src: 'https://analytics.example/a.js', defer: true } },
       { meta: { name: 'google-site-verification', content: 'abc123' } },
@@ -119,6 +120,15 @@ describe('a portal served under a path, with head entries, theme.css, SEO keys a
       fs.readdirSync(outDir).filter((name) => name.startsWith('sitemap')),
       []
     );
+  });
+
+  it('draws the API sidebar with the navigation attributes of rapidoc:', () => {
+    const html = fs.readFileSync(path.join(outDir, 'apis', 'labels', 'index.html'), 'utf8');
+    const sidebar = html.slice(html.indexOf('id="portal-api-sidebar"'), html.indexOf('<rapi-doc'));
+    assert.match(sidebar, /<span class="nav-method as-colored-text (get|post|put|patch|delete)">(GET|POST|PUT|PATCH|DELETE)<\/span>/);
+    assert.ok(!sidebar.includes('as-colored-block'));
+    assert.match(sidebar, /<span class="nav-bar-path-label"><span class="mono-font">\/[^<]*<\/span><\/span>/, 'paths, not summaries');
+    assert.match(html, /<rapi-doc[^>]* show-method-in-nav-bar="as-colored-text"/);
   });
 
   it('publishes docs pages as Markdown, llms.txt and llms-full.txt, with page actions', () => {

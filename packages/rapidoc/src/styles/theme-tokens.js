@@ -399,7 +399,7 @@ export default css`
     --method-post: #68cc97;
     --method-put: #f59e0b;
     --method-delete: #f75252ff;
-    --method-patch: #8b5cf6;
+    --method-patch: #a78bfa; /* violet-400: 4.5:1 or more as text on the dark background */
     --method-head: #eab308;
     --method-options: #06b6d4;
     --method-trace: #ec4899;

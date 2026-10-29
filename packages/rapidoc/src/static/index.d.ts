@@ -97,7 +97,12 @@ export interface RenderNavBarHtmlOptions {
   itemClassName?: string;
   includeOverview?: boolean;
   methodBadgeFormat?: '3-char' | 'full';
-  usePathInNav?: boolean;
+  /** How each operation shows its HTTP method, as `show-method-in-nav-bar` of `<rapi-doc>` (default `as-colored-block`). */
+  showMethodInNavBar?: 'false' | 'as-plain-text' | 'as-colored-text' | 'as-colored-block';
+  'show-method-in-nav-bar'?: 'false' | 'as-plain-text' | 'as-colored-text' | 'as-colored-block';
+  /** Show each operation's path instead of its summary, as `use-path-in-nav-bar` of `<rapi-doc>`. */
+  usePathInNav?: boolean | 'true' | 'false';
+  'use-path-in-nav-bar'?: boolean | 'true' | 'false';
   routingMode?: 'tag-pages' | 'single-page';
 }
 

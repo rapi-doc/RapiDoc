@@ -678,6 +678,26 @@ describe('Navigation & Styling Helpers (getSpecNavigation, getBundledCss)', () =
     assert.ok(tagPagesHtml.includes('href="/apis/shipments/shipments#list-shipments"'));
   });
 
+  it('renderNavBarHtml should show methods and paths as <rapi-doc> does (show-method-in-nav-bar, use-path-in-nav-bar)', async () => {
+    const nav = (options) => getNavBarHtml(sampleSpec, { basePath: '/apis/shipments', ...options });
+
+    const block = await nav({});
+    assert.ok(block.includes('<span class="nav-method as-colored-block get">GET</span>'), 'default: a three-letter colored block');
+
+    const text = await nav({ 'show-method-in-nav-bar': 'as-colored-text' });
+    assert.ok(text.includes('<span class="nav-method as-colored-text get">GET</span>'));
+    const plain = await nav({ showMethodInNavBar: 'as-plain-text' });
+    assert.ok(plain.includes('<span class="nav-method as-plain-text get">GET</span>'));
+    const hidden = await nav({ showMethodInNavBar: 'false' });
+    assert.ok(!hidden.includes('class="nav-method'), 'false: no method at all');
+    const unknown = await nav({ showMethodInNavBar: 'as-rainbow' });
+    assert.ok(unknown.includes('class="nav-method as-colored-block get"'), 'an unknown value falls back to the default');
+
+    const paths = await nav({ 'use-path-in-nav-bar': 'true' });
+    assert.ok(paths.includes('<span class="nav-bar-path-label"><span class="mono-font">/v1/shipments</span></span>'));
+    assert.ok(!(await nav({ usePathInNav: 'false' })).includes('class="mono-font"'));
+  });
+
   it('getNavFilterHtml should generate clean dedicated filter header without search modal button', () => {
     const filterHtml = getNavFilterHtml({ searchPlaceholder: 'Search APIs...' });
     assert.ok(filterHtml.includes('class="nav-bar-header"'));

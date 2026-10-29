@@ -18,6 +18,9 @@ import { isInternalOrHidden } from '../utils/common-utils.js';
 
 export { isInternalOrHidden };
 
+/** Values of show-method-in-nav-bar (rapidoc.ts accepts the same). */
+const METHOD_STYLES = ['false', 'as-plain-text', 'as-colored-text', 'as-colored-block'];
+
 /**
  * Normalizes HTTP method badge string (3-character format matching core RapiDoc).
  * e.g., 'delete' -> 'DEL', 'post' -> 'POS', 'get' -> 'GET', 'put' -> 'PUT'
@@ -195,8 +198,13 @@ function renderOperation(op, tagSlug, ctx) {
     contentId = hierarchicalId;
   }
 
-  const title = ctx.usePathInNav ? path : op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`;
-  const methodBadge = getMethodBadge(method, ctx.methodBadgeFormat);
+  const label = ctx.usePathInNav
+    ? `<span class="mono-font">${escapeHtml(path)}</span>`
+    : escapeHtml(op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`);
+  // As in <rapi-doc>: a three-letter badge for as-colored-block, the full method otherwise, nothing for false.
+  const methodStyle = ctx.showMethodInNavBar;
+  const methodBadge = getMethodBadge(method, methodStyle === 'as-colored-block' ? ctx.methodBadgeFormat : 'full');
+  const methodHtml = methodStyle === 'false' ? '' : `\n      <span class="nav-method ${methodStyle} ${method}">${methodBadge}</span>`;
   const isActive = Boolean(
     ctx.activeHref &&
     (ctx.activeHref === href || ctx.activeHref.endsWith(`#${contentId}`) || (opSlug && ctx.activeHref.endsWith(`#${opSlug}`)))
@@ -216,8 +224,7 @@ function renderOperation(op, tagSlug, ctx) {
       id="link-${contentId}"
       tabindex="0"
     >
-      <span class="nav-bar-path-label">${escapeHtml(title)}</span>
-      <span class="nav-method as-colored-block ${method}">${methodBadge}</span>
+      <span class="nav-bar-path-label">${label}</span>${methodHtml}
     </a>`;
 }
 
@@ -346,8 +353,11 @@ export async function getNavBarHtml(specInput, options = {}) {
  * @param {string} [options.backToDocsLabel='Documentation'] - Label for back-link
  * @param {string} [options.itemClassName=''] - Additional CSS class for endpoint link items
  * @param {boolean} [options.includeOverview=true] - Include overview/info link
- * @param {'3-char'|'full'} [options.methodBadgeFormat='3-char'] - Badge format
- * @param {boolean} [options.usePathInNav=false] - Display endpoint path instead of summary
+ * @param {'3-char'|'full'} [options.methodBadgeFormat='3-char'] - Badge format (with `as-colored-block`)
+ * @param {'false'|'as-plain-text'|'as-colored-text'|'as-colored-block'} [options.showMethodInNavBar='as-colored-block'] -
+ *   How each operation shows its HTTP method, as `show-method-in-nav-bar` of <rapi-doc> (also accepted under that name)
+ * @param {boolean|string} [options.usePathInNav=false] - Display endpoint path instead of summary (also accepted as
+ *   `use-path-in-nav-bar`, `'true'` or `true`)
  * @returns {string} Standard RapiDoc navigation HTML
  */
 export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
@@ -361,9 +371,13 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
     itemClassName = '',
     includeOverview = true,
     methodBadgeFormat = '3-char',
-    usePathInNav = false,
     routingMode = options.routingMode ?? options['routing-mode'] ?? 'single-page',
   } = options;
+  // The same values as <rapi-doc>'s show-method-in-nav-bar and use-path-in-nav-bar; anything else is the default.
+  const methodStyle = options.showMethodInNavBar ?? options['show-method-in-nav-bar'];
+  const showMethodInNavBar = METHOD_STYLES.includes(String(methodStyle)) ? String(methodStyle) : 'as-colored-block';
+  const pathOption = options.usePathInNav ?? options['use-path-in-nav-bar'];
+  const usePathInNav = pathOption === true || pathOption === 'true';
 
   const slugger = new OperationSlugger();
   const cleanBase = basePath.replace(/\/$/, '');
@@ -376,6 +390,7 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
     itemClassName,
     includeOverview,
     methodBadgeFormat,
+    showMethodInNavBar,
     usePathInNav,
     resolvedSpec,
     slugger,

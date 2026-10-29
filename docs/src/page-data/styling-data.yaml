@@ -618,7 +618,7 @@ variables:
         default: '#f75252 (dark) / #b91c1c (light)'
         description: 'DELETE.'
       - name: '--method-patch'
-        default: '#8b5cf6 (dark) / #7c3aed (light)'
+        default: '#a78bfa (dark) / #7c3aed (light)'
         description: 'PATCH.'
       - name: '--method-head'
         default: '#eab308 (dark) / #b45309 (light)'
