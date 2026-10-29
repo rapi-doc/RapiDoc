@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import YAML from 'yaml';
-import { MANAGED_RAPIDOC_ATTRIBUTES } from './errors.js';
+import { ConfigError, MANAGED_RAPIDOC_ATTRIBUTES } from './errors.js';
 import { findHomeDoc } from '../engine/sync-docs.js';
 import { normalizeAccess, RESERVED_PREFIXES } from '../access/rules.js';
 
@@ -65,24 +65,80 @@ export function plainSummary(markdown = '') {
     .trim();
 }
 
-function normalizeApi(api, baseDir) {
-  const isRemote = isExternal(api.spec);
-  const fullPath = isRemote ? api.spec : path.resolve(baseDir, api.spec);
+/** A URL segment for a version: what `version` in the config allows. */
+const VERSION_SEGMENT = /^[a-z0-9][a-z0-9.-]*$/;
+
+/**
+ * One version of an API: where its spec is, its URL segment and label, and where it is published.
+ * The default version's pages are at /apis/<id>, the others' at /apis/<id>/<version>.
+ */
+function normalizeVersion(entry, api, index, { baseDir, versioned, problems, where }) {
+  const source = typeof entry === 'string' ? { spec: entry } : entry;
+  const isRemote = isExternal(source.spec);
+  const fullPath = isRemote ? source.spec : path.resolve(baseDir, source.spec);
   const info = isRemote ? {} : readSpecInfo(fullPath);
+  const infoVersion = info.version === undefined ? '' : String(info.version);
+  const version = source.version ?? infoVersion.toLowerCase();
+  const isDefault = index === 0;
+  if (versioned && !source.version && !VERSION_SEGMENT.test(version)) {
+    problems.push(
+      infoVersion
+        ? `${where}.version: info.version "${infoVersion}" of ${source.spec} is not a URL segment; set version (lowercase letters, digits, dots, dashes)`
+        : `${where}.version: ${source.spec} has no info.version; set version`
+    );
+  }
+  const ext = path.extname(isRemote ? '' : fullPath) || '.json';
+  const apiPath = `${API_PATH}/${api.id}`;
   return {
-    id: api.id,
-    spec: api.spec,
+    version,
+    label: source.label || infoVersion || version,
+    infoVersion,
+    info,
+    spec: source.spec,
     fullPath,
     isRemote,
-    // Local specs are published as /specs/<id><ext>, so an access rule for /apis/<id> also covers its spec.
-    specUrl: isRemote ? api.spec : `${SPECS_PATH}/${api.id}${path.extname(fullPath) || '.json'}`,
-    path: `${API_PATH}/${api.id}`,
+    isDefault,
+    path: isDefault ? apiPath : `${apiPath}/${version}`,
+    // Local specs are published as /specs/<id><ext> (the default version), so an access rule for /apis/<id>
+    // also covers its spec; every version of a versioned API is also at /specs/<id>/<version><ext>.
+    specUrl: isRemote ? source.spec : isDefault ? `${SPECS_PATH}/${api.id}${ext}` : `${SPECS_PATH}/${api.id}/${version}${ext}`,
+    pinnedSpecUrl: isRemote || !versioned ? null : `${SPECS_PATH}/${api.id}/${version}${ext}`,
+  };
+}
+
+function normalizeApi(api, index, baseDir, problems) {
+  const versioned = Boolean(api.versions);
+  const where = `apis[${index}]`;
+  const versions = (api.versions || [api.spec]).map((entry, i) =>
+    normalizeVersion(entry, api, i, { baseDir, versioned, problems, where: `${where}.versions[${i}]` })
+  );
+  const seen = new Set();
+  versions.forEach((v, i) => {
+    if (versioned && seen.has(v.version)) problems.push(`${where}.versions[${i}].version: "${v.version}" is used by another version`);
+    seen.add(v.version);
+  });
+  const [first] = versions;
+  const info = first.info;
+  return {
+    id: api.id,
+    spec: first.spec,
+    fullPath: first.fullPath,
+    isRemote: first.isRemote,
+    specUrl: first.specUrl,
+    path: first.path,
     title: api.title || info.title || api.id,
     description: api.description ?? info.description ?? '',
     summary: plainSummary(api.description ?? info.description),
-    version: info.version || '',
+    version: first.infoVersion,
     category: api.category || 'General',
+    versioned,
+    versions: versions.map(({ info, ...v }) => v), // eslint-disable-line no-unused-vars
   };
+}
+
+/** The version of an API that a navigation item or tag names, or its default version. */
+export function findApiVersion(api, version) {
+  return version === undefined ? api.versions[0] : api.versions.find((v) => v.version === version);
 }
 
 /** Google Fonts stylesheet for a family name, in the weights the portal uses. */
@@ -139,9 +195,9 @@ function buildSidebar(items, ctx) {
       };
     }
     if (item.api !== undefined) {
-      const api = ctx.apiById.get(item.api);
-      firstHref ??= api.path;
-      return { label: item.label || api.title, link: api.path, ...(item.badge && { badge: item.badge }) };
+      const { api, href } = ctx.apiLink(item);
+      firstHref ??= href;
+      return { label: item.label || api.title, link: href, ...(item.badge && { badge: item.badge }) };
     }
     if (item.items !== undefined) {
       return {
@@ -178,8 +234,9 @@ function buildTabs(navigation, ctx) {
       return { ...base, kind: 'docs', href: firstHref || '/docs/', match: covered, sidebar: flat };
     }
     if (tab.api) {
-      const api = ctx.apiById.get(tab.api);
-      return { ...base, kind: 'api', api: api.id, href: api.path, match: [api.path] };
+      // A tab for one version is the active tab on that version's pages (its path is the longer match).
+      const { api, href } = ctx.apiLink(tab);
+      return { ...base, kind: 'api', api: api.id, href, match: [href] };
     }
     if (tab.catalog) {
       return { ...base, kind: 'catalog', href: CATALOG_PATH, match: [CATALOG_PATH] };
@@ -193,7 +250,9 @@ function buildTabs(navigation, ctx) {
   if (firstDocs) firstDocs.match.push('/docs/');
   const catalogTab = tabs.find((t) => t.kind === 'catalog');
   if (catalogTab) {
-    const tabbed = new Set(tabs.filter((t) => t.kind === 'api').map((t) => t.api));
+    // A tab for a non-default version doesn't count: the API's other pages still belong to the catalog tab.
+    const pathOf = new Map(ctx.apis.map((a) => [a.id, a.path]));
+    const tabbed = new Set(tabs.filter((t) => t.kind === 'api' && t.href === pathOf.get(t.api)).map((t) => t.api));
     catalogTab.match.push(...ctx.apis.filter((a) => !tabbed.has(a.id)).map((a) => a.path));
   }
   return tabs;
@@ -284,8 +343,21 @@ function normalizeAuth(auth) {
  * @param {string} baseDir - Folder of the config file
  * @returns {object} The portal config (exposed to pages as `virtual:rapidoc-portal/config`)
  */
-export function normalizeConfig(raw, baseDir = process.cwd()) {
-  const apis = (raw.apis || []).map((api) => normalizeApi(api, baseDir));
+export function normalizeConfig(raw, baseDir = process.cwd(), fileName = 'rapidoc.config.yaml') {
+  const problems = [];
+  const apis = (raw.apis || []).map((api, i) => normalizeApi(api, i, baseDir, problems));
+  const apiById = new Map(apis.map((a) => [a.id, a]));
+  // `api:` (+ `version:`) of a navigation item → the API and the URL it links to.
+  const apiLink = (item) => {
+    const api = apiById.get(item.api);
+    const version = findApiVersion(api, item.version);
+    if (!version) {
+      problems.push(
+        `navigation: API "${api.id}" has no version "${item.version}" (versions: ${api.versions.map((v) => v.version).join(', ')})`
+      );
+    }
+    return { api, href: (version || api).path };
+  };
   const docsDir = raw.docs?.dir || './docs';
   const docs = {
     dir: docsDir,
@@ -295,7 +367,8 @@ export function normalizeConfig(raw, baseDir = process.cwd()) {
   };
   docs.home = Boolean(findHomeDoc(docs.fullPath));
 
-  const tabs = buildTabs(raw.navigation || [], { apis, apiById: new Map(apis.map((a) => [a.id, a])), docsDir: docs.fullPath });
+  const tabs = buildTabs(raw.navigation || [], { apis, apiLink, docsDir: docs.fullPath });
+  if (problems.length) throw new ConfigError(fileName, problems);
   const catalogTab = tabs.find((t) => t.kind === 'catalog');
 
   const site = raw.site;

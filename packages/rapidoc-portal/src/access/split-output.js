@@ -135,7 +135,13 @@ async function writePagefindBundles(pagesByZone, publicDir, protectedDir, zones)
 export async function splitOutput(outDir, portalConfig) {
   const { access, apis = [] } = portalConfig;
   const matcher = createZoneMatcher(access);
-  const specZones = new Map(apis.filter((api) => !api.isRemote).map((api) => [api.specUrl.slice(1), matcher.zoneOf(api.path)]));
+  // A spec follows the pages of its version: /specs/<id><ext> follows /apis/<id>, /specs/<id>/<v><ext> follows /apis/<id>/<v>
+  // (the default version's pages are at /apis/<id>).
+  const versions = apis.flatMap((api) => (api.versions || [api]).map((version) => ({ ...version, id: api.id })));
+  const specFiles = versions
+    .filter((version) => !version.isRemote)
+    .flatMap((version) => [version.specUrl, version.pinnedSpecUrl].filter(Boolean).map((url) => ({ url, version })));
+  const specZones = new Map(specFiles.map(({ url, version }) => [url.slice(1), matcher.zoneOf(version.path)]));
   const branding = brandingFiles(portalConfig.site);
   const zoneOfFile = (relPath) => {
     if (branding.has(relPath) || ALWAYS_PUBLIC.some((pattern) => pattern.test(relPath))) return PUBLIC_ZONE;
@@ -192,14 +198,14 @@ export async function splitOutput(outDir, portalConfig) {
   if (portalConfig.search) await writePagefindBundles(pagesByZone, stagingPublic, stagingProtected, zones);
 
   const warnings = [];
-  for (const api of apis) {
-    if (api.isRemote && matcher.zoneOf(api.path) !== PUBLIC_ZONE) {
+  for (const version of versions) {
+    if (version.isRemote && matcher.zoneOf(version.path) !== PUBLIC_ZONE) {
       warnings.push(
-        `API "${api.id}" is protected but its spec is a URL (${api.spec}); the browser fetches it from there, so protect it there.`
+        `API "${version.id}" is protected but its spec is a URL (${version.spec}); the browser fetches it from there, so protect it there.`
       );
     }
   }
-  const protectedSpecs = new Map(apis.filter((api) => manifestFiles[api.specUrl?.slice(1)]).map((api) => [api.specUrl, api.id]));
+  const protectedSpecs = new Map(specFiles.filter(({ url }) => manifestFiles[url.slice(1)]).map(({ url, version }) => [url, version.id]));
   for (const page of pagesByZone.get(PUBLIC_ZONE) || []) {
     const html = fs.readFileSync(page.file, 'utf8');
     for (const [specUrl, id] of protectedSpecs) {

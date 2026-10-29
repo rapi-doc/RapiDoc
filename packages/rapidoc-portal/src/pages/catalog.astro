@@ -28,7 +28,14 @@ for (const api of apis) {
             <a href={api.path} class="portal-doc-card api-card">
               <div class="api-card-header">
                 <Icon name="notebook" duotone class="portal-doc-card-icon" />
-                {api.version && <span class="api-version">v{String(api.version).replace(/^v/i, '')}</span>}
+                {api.versioned ? (
+                  <span class="api-version">
+                    {api.versions[0].label}
+                    {api.versions.length > 1 && <span class="api-version-count"> · {api.versions.length} versions</span>}
+                  </span>
+                ) : (
+                  api.version && <span class="api-version">v{String(api.version).replace(/^v/i, '')}</span>
+                )}
               </div>
               <h3 class="portal-doc-card-title">
                 <span>{api.title || api.id}</span>

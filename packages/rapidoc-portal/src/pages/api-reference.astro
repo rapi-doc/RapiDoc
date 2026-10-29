@@ -1,92 +1,30 @@
 ---
 import PortalLayout from '../components/PortalLayout.astro';
 import PortalMobileNav from '../components/PortalMobileNav.astro';
-import { getNavBarHtml, getNavCss, getSpecNavigation, getThemeTokensCss, toKebabCase } from 'rapidoc/static';
-import fs from 'node:fs';
-import yaml from 'yaml';
+import Callout from '../components/Callout.astro';
+import { getNavBarHtml, getNavCss, getThemeTokensCss } from 'rapidoc/static';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import { OAUTH_RECEIVER_PATH } from '../engine/sync-assets.js';
+import { apiReferencePaths, readVersionSpec } from '../engine/api-routes.js';
 
 export async function getStaticPaths() {
-  const paths = [];
-
-  // The route is /apis/[...apiRoute]: every API lives at /apis/<id> (normalizer.js).
-  for (const api of portalConfig.apis || []) {
-    // 1. Root API route (e.g. apis/shipments)
-    paths.push({
-      params: { apiRoute: api.id },
-      props: { api, portalConfig, activeTagSlug: '', currentPath: api.path },
-    });
-
-    // 2. Parse spec tags to generate tag sub-pages (e.g. apis/shipments/shipment-management)
-    let specData = null;
-    if (!api.isRemote && api.fullPath && fs.existsSync(api.fullPath)) {
-      try {
-        const raw = fs.readFileSync(api.fullPath, 'utf8');
-        try {
-          specData = JSON.parse(raw);
-        } catch {
-          specData = yaml.parse(raw);
-        }
-      } catch {
-        // Fall through
-      }
-    }
-
-    if (specData) {
-      // The same tags the sidebar links to (getNavBarHtml), including tags that operations use
-      // without declaring them in the spec's top-level `tags`.
-      let navTags = [];
-      try {
-        navTags = (await getSpecNavigation(specData)).tags;
-      } catch {
-        // Fall through: the API keeps its root page
-      }
-
-      const tagSlugs = new Set(navTags.map((t) => toKebabCase(t.name)));
-      for (const tagSlug of tagSlugs) {
-        if (!tagSlug || tagSlug === 'general') continue;
-        const tagRoute = `${api.id}/${tagSlug}`;
-        paths.push({
-          params: { apiRoute: tagRoute },
-          props: {
-            api,
-            portalConfig,
-            activeTagSlug: tagSlug,
-            currentPath: `${api.path}/${tagSlug}`,
-          },
-        });
-      }
-    }
-  }
-
-  return paths;
+  const paths = await apiReferencePaths(portalConfig.apis);
+  return paths.map((page) => ({ ...page, props: { ...page.props, portalConfig } }));
 }
 
-const { api, portalConfig, activeTagSlug = '', currentPath = api.path } = Astro.props;
+const { api, version, versionTags = [], portalConfig, activeTagSlug = '', currentPath = version.path, redirectTo } = Astro.props;
 
-let specInput = api.spec;
-const specUrl = api.specUrl;
-
-if (!api.isRemote && api.fullPath && fs.existsSync(api.fullPath)) {
-  const raw = fs.readFileSync(api.fullPath, 'utf8');
-  try {
-    specInput = JSON.parse(raw);
-  } catch {
-    try {
-      specInput = yaml.parse(raw);
-    } catch {
-      specInput = raw;
-    }
-  }
-}
+const specUrl = version.specUrl;
+const specInput = redirectTo ? null : readVersionSpec(version) || version.spec;
+const defaultVersion = api.versions[0];
+const versionChoices = api.versions.map((v, i) => ({ ...v, tags: versionTags[i] || [] }));
 
 const themePreset = portalConfig.rapidoc.theme || 'ember';
 
 let sidebarNavHtml = '';
 try {
-  sidebarNavHtml = await getNavBarHtml(specInput, {
-    basePath: api.path,
+  if (!redirectTo) sidebarNavHtml = await getNavBarHtml(specInput, {
+    basePath: version.path,
     activeHref: currentPath,
     routingMode: 'tag-pages',
     includeSearch: true,
@@ -125,7 +63,21 @@ const rapidocAttributes = {
 };
 ---
 
-<PortalLayout title={`${api.title} — ${portalConfig.site.title}`} sidebarId="portal-api-sidebar">
+{redirectTo ? (
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{api.title} {version.label} — {portalConfig.site.title}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={redirectTo} />
+    {/* Keeps the #operation, which a refresh would drop. */}
+    <script is:inline define:vars={{ redirectTo }}>location.replace(redirectTo + location.hash);</script>
+    <meta http-equiv="refresh" content={`0;url=${redirectTo}`} />
+  </head>
+  <body><a href={redirectTo}>{api.title} {version.label}</a></body>
+</html>
+) : (
+<PortalLayout title={`${api.title}${version.isDefault ? '' : ` ${version.label}`} — ${portalConfig.site.title}`} sidebarId="portal-api-sidebar">
   <Fragment slot="head">
     <style set:html={themeTokensCss}></style>
     <style set:html={navCss}></style>
@@ -136,6 +88,16 @@ const rapidocAttributes = {
     <div class="portal-api-header-links">
       <PortalMobileNav />
     </div>
+    {versionChoices.length > 1 && (
+      <div class="portal-api-version">
+        <label for="portal-api-version-select">Version</label>
+        <select id="portal-api-version-select" data-active-tag={activeTagSlug}>
+          {versionChoices.map((v) => (
+            <option value={v.path} selected={v.version === version.version} data-tags={v.tags.join(' ')}>{v.label}</option>
+          ))}
+        </select>
+      </div>
+    )}
     <!-- The nav CSS from rapidoc/static styles its scope element, so it gets an element of its own. -->
     <div class="portal-api-nav portal-sidebar nav-bar">
       <Fragment set:html={sidebarNavHtml} />
@@ -143,9 +105,18 @@ const rapidocAttributes = {
   </aside>
 
   <main class="portal-api-main">
+    {!version.isDefault && (
+      <div class="portal-api-version-note">
+        <Callout type="note">
+          You're viewing {version.label}. The current version is{' '}
+          <a href={versionChoices[0].tags.includes(activeTagSlug) ? `${defaultVersion.path}/${activeTagSlug}` : defaultVersion.path}>{defaultVersion.label}</a>.
+        </Callout>
+      </div>
+    )}
     <rapi-doc {...rapidocAttributes}></rapi-doc>
   </main>
 </PortalLayout>
+)}
 
 <style is:global>
   rapi-doc {
@@ -222,6 +193,40 @@ const rapidocAttributes = {
     scrollbar-width: thin;
   }
 
+  /* Version picker, above the endpoint filter. */
+  .portal-api-version {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem var(--portal-shell-pad-x) 0;
+    font-size: 0.875rem;
+  }
+  .portal-api-version label {
+    color: var(--portal-muted, inherit);
+  }
+  .portal-api-version select {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 2rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    background: var(--portal-bg);
+    color: var(--portal-fg);
+    font: inherit;
+  }
+  .portal-api-version-note {
+    padding: 24px 32px 0;
+  }
+  .portal-api-version-note .portal-callout {
+    margin: 0;
+  }
+  @media (width < 50rem) {
+    .portal-api-version-note {
+      padding: 16px 16px 0;
+    }
+  }
+
   .portal-api-header-links {
     padding: 1rem var(--portal-shell-pad-x);
     border-bottom: 1px solid var(--portal-border);
@@ -239,6 +244,15 @@ const rapidocAttributes = {
     const nav = sidebar?.querySelector('.portal-api-nav');
     const rapiDocEl = document.querySelector('rapi-doc');
     if (!sidebar || !nav || !rapiDocEl) return;
+
+    // Another version: the same tag page (and operation) when that version has the tag, else its overview.
+    const versionSelect = document.getElementById('portal-api-version-select');
+    versionSelect?.addEventListener('change', () => {
+      const option = versionSelect.selectedOptions[0];
+      const tag = versionSelect.dataset.activeTag;
+      const hasTag = tag && option.dataset.tags.split(' ').includes(tag);
+      location.href = hasTag ? `${option.value}/${tag}${location.hash}` : tag ? option.value : option.value + location.hash;
+    });
 
     // On narrow screens the sidebar is a popover menu: close it once a link is chosen.
     sidebar.addEventListener('click', (event) => {

@@ -209,8 +209,8 @@ export const cardGrid = {
 
 /**
  * Interactive RapiDoc Endpoint Tag ({% api-operation spec="..." path="..." method="..." %})
- * Embeds one operation as <rapi-doc-mini>. `spec` is an API id; pass `variables: { specUrls: { [id]: url } }`
- * to compileMarkdoc() to fill in its spec-url, and `variables: { oauthReceiver: '/oauth-receiver.html' }` for
+ * Embeds one operation as <rapi-doc-mini>. `spec` is an API id and `version` one of its versions; pass
+ * `variables: { specUrls: { [id]: url, ['<id>@<version>']: url } }` to compileMarkdoc() to fill in its spec-url, and `variables: { oauthReceiver: '/oauth-receiver.html' }` for
  * its OAuth popup's return page. (Portal pages use components/ApiOperation.astro instead.)
  */
 export const apiOperation = {
@@ -220,12 +220,14 @@ export const apiOperation = {
     path: { type: String, required: true },
     method: { type: String, default: 'get' },
     title: { type: String },
+    version: { type: String },
   },
   transform(node, config) {
     const attributes = node.transformAttributes(config);
+    const specKey = attributes.version ? `${attributes.spec}@${attributes.version}` : attributes.spec;
     const methodUpper = (attributes.method || 'GET').toUpperCase();
     const methodLower = methodUpper.toLowerCase();
-    const specUrl = config.variables?.specUrls?.[attributes.spec];
+    const specUrl = config.variables?.specUrls?.[specKey];
     const oauthReceiver = config.variables?.oauthReceiver;
 
     return new Markdoc.Tag(
@@ -233,6 +235,7 @@ export const apiOperation = {
       {
         class: `portal-api-operation-embed method-${methodLower}`,
         'data-spec': attributes.spec,
+        ...(attributes.version && { 'data-version': attributes.version }),
         'data-path': attributes.path,
         'data-method': methodUpper,
       },

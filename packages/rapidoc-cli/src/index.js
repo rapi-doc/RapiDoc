@@ -306,8 +306,13 @@ async function handleMock() {
     }
     apis = [];
     for (const api of config.apis || []) {
-      if (api.isRemote) console.log(`⏭️  ${api.id}: ${api.spec} (remote, not mocked)`);
-      else apis.push({ id: api.id, title: api.title, fullPath: api.fullPath });
+      // The default version at /<id>, the others at /<id>/<version>. Those go first: the mock server tries
+      // the APIs in order, and /<id>/* would also take /<id>/<version>/... requests.
+      for (const version of [...api.versions.slice(1), api.versions[0]]) {
+        const id = version.isDefault ? api.id : `${api.id}/${version.version}`;
+        if (version.isRemote) console.log(`⏭️  ${id}: ${version.spec} (remote, not mocked)`);
+        else apis.push({ id, title: api.title, fullPath: version.fullPath });
+      }
     }
     if (!apis.length) {
       console.error(`\n❌ ${folder} has no local specs under apis: to mock.\n`);
@@ -412,14 +417,17 @@ async function handleValidate() {
 
   console.log(`\nValidating the specs in ${target}...`);
   let failed = 0;
-  for (const api of config.apis || []) {
-    if (api.isRemote) {
-      console.log(`\n⏭️  ${api.id}: ${api.spec} (remote, skipped)`);
-    } else if (!(await validateSpec(api.id, api.fullPath, portal))) {
+  const versions = (config.apis || []).flatMap((api) =>
+    api.versions.map((version) => ({ ...version, id: api.versioned ? `${api.id} ${version.version}` : api.id }))
+  );
+  for (const version of versions) {
+    if (version.isRemote) {
+      console.log(`\n⏭️  ${version.id}: ${version.spec} (remote, skipped)`);
+    } else if (!(await validateSpec(version.id, version.fullPath, portal))) {
       failed += 1;
     }
   }
-  const total = (config.apis || []).length;
+  const total = versions.length;
   console.log(failed ? `\n❌ ${failed} of ${total} specs have errors.\n` : `\n✅ ${total} specs checked, no errors.\n`);
   if (failed) process.exit(1);
 }
@@ -441,6 +449,9 @@ async function handleMigrate() {
   try {
     const result = await migrateConfig(targetDir, { from: source, overwrite: true });
     console.log(`\n✅ Successfully generated rapidoc.config.yaml at: ${result.filePath}`);
+    if (result.warnings.length) {
+      console.log(`\n⚠️  Not migrated:\n${result.warnings.map((w) => `   - ${w}`).join('\n')}`);
+    }
     if (result.problems.length) {
       console.log(`\n⚠️  Fix these before building:\n${result.problems.map((p) => `   - ${p}`).join('\n')}`);
     }

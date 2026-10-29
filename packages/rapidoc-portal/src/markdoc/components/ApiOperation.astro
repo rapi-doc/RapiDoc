@@ -1,7 +1,8 @@
 ---
 /**
  * {% api-operation spec="<api id>" path="/orders" method="post" title="..." /%}: one operation of a
- * portal API, interactive, rendered by <rapi-doc-mini>. `spec` is the `id` of an entry in `apis:`.
+ * portal API, interactive, rendered by <rapi-doc-mini>. `spec` is the `id` of an entry in `apis:`;
+ * `version` picks one of its versions (default: the first).
  *
  * The RapiDoc bundle is loaded only on pages that contain an embed.
  */
@@ -15,24 +16,28 @@ interface Props {
   path: string;
   method?: string;
   title?: string;
+  version?: string;
 }
 
-const { spec, path, method = 'get', title } = Astro.props;
+const { spec, path, method = 'get', title, version } = Astro.props;
 const apis = portalConfig.apis || [];
 const api = apis.find((a: any) => a.id === spec);
+const apiVersion = version === undefined ? api?.versions[0] : api?.versions.find((v: any) => v.version === version);
 
 if (!api) {
   console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: no API with id "${spec}" in apis:`);
+} else if (!apiVersion) {
+  console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: API "${spec}" has no version "${version}"`);
 }
 
-const specUrl = api?.specUrl;
+const specUrl = apiVersion?.specUrl;
 const matchPaths = operationMatchPattern(method, path);
 const rapidoc = portalConfig.rapidoc || {};
 ---
 
 {
-  api ? (
-    <figure class="portal-api-operation not-content" data-api={spec} data-method={method.toUpperCase()} data-path={path}>
+  apiVersion ? (
+    <figure class="portal-api-operation not-content" data-api={spec} data-version={version} data-method={method.toUpperCase()} data-path={path}>
       {title && <figcaption>{title}</figcaption>}
       <rapi-doc-mini
         spec-url={specUrl}
@@ -50,8 +55,16 @@ const rapidoc = portalConfig.rapidoc || {};
     </figure>
   ) : (
     <Aside type="caution" title="API operation not found">
-      No API with id <code>{spec}</code> in <code>apis:</code> of <code>rapidoc.config.yaml</code>
-      {apis.length > 0 && <>. Available ids: {apis.map((a: any) => a.id).join(', ')}</>}.
+      {api ? (
+        <>
+          API <code>{spec}</code> has no version <code>{version}</code>. Its versions: {api.versions.map((v: any) => v.version).join(', ')}.
+        </>
+      ) : (
+        <>
+          No API with id <code>{spec}</code> in <code>apis:</code> of <code>rapidoc.config.yaml</code>
+          {apis.length > 0 && <>. Available ids: {apis.map((a: any) => a.id).join(', ')}</>}.
+        </>
+      )}
     </Aside>
   )
 }

@@ -286,7 +286,12 @@ ${apis.map((api) => `  - label: "${api.label}"\n    icon: "code"\n    api: ${api
     catalog: true
 
 apis:
-${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join('')}
+${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join('')}# Several versions of one API: \`versions\` instead of \`spec\`. The first is the default, at /apis/<id>;
+# the others are at /apis/<id>/<version>, with a version picker on the reference page.
+#   versions:
+#     - "./specs/api-v2.yaml"
+#     - "./specs/api-v1.yaml"
+
 rapidoc:
   render-style: "focused"
   schema-style: "tree"

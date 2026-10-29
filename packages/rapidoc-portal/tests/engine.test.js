@@ -193,6 +193,32 @@ describe('RapiDoc Portal build engine', () => {
       assert.equal(activeTab(read('docs/shipping-process')), 'Documentation');
       assert.equal(activeTab(read('apis/shipments')), 'Shipments');
       assert.equal(activeTab(read('apis/labels')), 'API Catalog', 'an API without a tab belongs to the catalog tab');
+
+      // A versioned API: the default version at /apis/labels, the others under /apis/labels/<version>, a picker
+      const labels = read('apis/labels');
+      assert.ok(labels.includes('spec-url="/specs/labels.json"'));
+      assert.match(labels, /<select id="portal-api-version-select" data-active-tag>/, 'the overview has no active tag');
+      assert.deepEqual(
+        [...labels.matchAll(/<option value="([^"]+)"[^>]*>([^<]+)<\/option>/g)].map((m) => [m[1], m[2]]),
+        [
+          ['/apis/labels', '3.0.0'],
+          ['/apis/labels/v2', '2.0.0'],
+          ['/apis/labels/v1', '1.0.0'],
+        ],
+        'one option per version, labelled with info.version'
+      );
+      assert.ok(!labels.includes('class="portal-api-version-note"'), 'no note on the default version');
+      const labelsV2 = read('apis/labels/v2/analytics');
+      assert.ok(labelsV2.includes('spec-url="/specs/labels/v2.json"'));
+      assert.ok(labelsV2.includes('href="/apis/labels/v2/stamps"'), 'sidebar links stay in the version');
+      assert.match(labelsV2, /portal-api-version-note[\s\S]*You.re viewing 2\.0\.0[\s\S]*href="\/apis\/labels"/);
+      assert.equal(activeTab(labelsV2), 'API Catalog');
+      assert.match(read('apis/labels/v3/stamps'), /location\.replace\(redirectTo \+ location\.hash\)/);
+      assert.ok(read('apis/labels/v3/stamps').includes('"/apis/labels/stamps"'), 'the pinned default version redirects');
+      for (const spec of ['labels.json', 'labels/v3.json', 'labels/v2.json', 'labels/v1.json']) {
+        assert.ok(fs.existsSync(path.join(outDir, 'specs', spec)), `specs/${spec} is published`);
+      }
+      assert.ok(read('catalog').includes('3 versions'));
       assert.ok(read('apis').includes('/catalog'), '/apis redirects to the catalog');
       assert.equal(activeTab(home), undefined);
 

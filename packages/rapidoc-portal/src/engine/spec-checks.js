@@ -80,7 +80,9 @@ export function checkApiSpec(api) {
  * @returns {string[]}
  */
 export function checkPortalSpecs(config) {
-  return (config.apis || []).flatMap(checkApiSpec);
+  return (config.apis || []).flatMap((api) =>
+    api.versions.flatMap((version) => checkApiSpec({ ...version, id: api.versioned ? `${api.id} ${version.version}` : api.id }))
+  );
 }
 
 /** Prints checkPortalSpecs() warnings (used by `rapidoc dev` and `rapidoc build`). */

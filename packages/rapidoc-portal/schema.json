@@ -362,6 +362,11 @@
             "description": "API tab: the reference page of the API with this id.",
             "type": "string"
           },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "description": "With api: link to this version of the API (default: its first version)."
+          },
           "catalog": {
             "description": "Catalog tab: every API on /catalog, grouped by category.",
             "type": "boolean",
@@ -394,12 +399,50 @@
             "minLength": 1,
             "description": "OpenAPI file (relative to this config) or URL."
           },
+          "versions": {
+            "description": "One spec per version, instead of spec. The first is the default, at /apis/<id>; the others are at /apis/<id>/<version>.",
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "OpenAPI file of this version; its version and label are the spec's info.version."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "spec": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "OpenAPI file (relative to this config) or URL."
+                    },
+                    "version": {
+                      "description": "URL segment of this version: /apis/<id>/<version> (default: info.version of the spec; needed when spec is a URL).",
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9.-]*$"
+                    },
+                    "label": {
+                      "description": "Text in the version picker (default: info.version of the spec).",
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "spec"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
           "title": {
-            "description": "Default: info.title of the spec.",
+            "description": "Default: info.title of the spec (of the first version).",
             "type": "string"
           },
           "description": {
-            "description": "Default: info.description of the spec.",
+            "description": "Default: info.description of the spec (of the first version).",
             "type": "string"
           },
           "category": {
@@ -408,8 +451,7 @@
           }
         },
         "required": [
-          "id",
-          "spec"
+          "id"
         ],
         "additionalProperties": false
       }
@@ -877,6 +919,11 @@
             "api": {
               "description": "Link to the reference page of the API with this id.",
               "type": "string"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "description": "With api: link to this version of the API (default: its first version)."
             },
             "icon": {
               "type": "string",

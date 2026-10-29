@@ -207,10 +207,13 @@ export function buildSearchIndex(config, projectDir, docFiles = []) {
     records.push(...sectionRecords);
   }
 
-  // 2. Index OpenAPI specifications
+  // 2. Index OpenAPI specifications: every version; versions other than the default at their own URLs.
   for (const api of config.apis || []) {
-    const apiRecords = indexOpenApiSpec(api);
-    records.push(...apiRecords);
+    for (const version of api.versions || [api]) {
+      const target =
+        version.isDefault === false ? { ...version, id: `${api.id}@${version.version}`, title: `${api.title} · ${version.label}` } : api;
+      records.push(...indexOpenApiSpec(target));
+    }
   }
 
   return {

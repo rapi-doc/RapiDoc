@@ -317,9 +317,16 @@ describe('building a portal with sign-in', () => {
 
   it('splits the output into public and protected folders with a server manifest', () => {
     assert.deepEqual(fs.readdirSync(outDir).sort(), ['protected', 'public', 'rapidoc-server.json']);
-    assert.equal(result.access.protectedPages, 6, '3 billing docs + the labels API and its 2 tag pages');
+    assert.equal(
+      result.access.protectedPages,
+      16,
+      '3 billing docs + every version of the labels API: v3 (3 pages and 3 redirects from /apis/labels/v3), v2 (4) and v1 (3)'
+    );
     assert.ok(fs.existsSync(path.join(outDir, 'protected/docs/billing/refunds/index.html')));
-    assert.ok(fs.existsSync(path.join(outDir, 'protected/specs/labels.json')), 'the spec follows /apis/labels');
+    assert.ok(fs.existsSync(path.join(outDir, 'protected/apis/labels/v1/index.html')), 'a rule on /apis/<id>/** covers every version');
+    for (const spec of ['labels.json', 'labels/v3.json', 'labels/v2.json', 'labels/v1.json']) {
+      assert.ok(fs.existsSync(path.join(outDir, 'protected/specs', spec)), `the spec ${spec} follows its version's pages`);
+    }
     assert.ok(fs.existsSync(path.join(outDir, 'public/specs/shipments.json')));
     assert.ok(fs.existsSync(path.join(outDir, 'public/_rapidoc/access-denied/index.html')));
     assert.ok(fs.existsSync(path.join(outDir, 'public/_rapidoc/sign-in-error/index.html')));

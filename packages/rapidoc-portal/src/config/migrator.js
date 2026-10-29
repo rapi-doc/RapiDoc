@@ -40,18 +40,55 @@ function idFromSpec(spec) {
     .replace(/^-+|-+$/g, '');
 }
 
-/** Redocly / Zudoku `apis` (list or map) → v2 list. */
-function convertApis(rawApis) {
+/** Id of a versioned API: the last segment of its Zudoku path (/labels), else its first file without the version (label-v3). */
+function versionedApiId(apiPath, firstSpec) {
+  const segment = apiPath?.replace(/\/+$/, '').split('/').pop();
+  if (segment) return idFromSpec(segment);
+  const id = idFromSpec(firstSpec);
+  return id.replace(/[-_.]?v?\d+(?:[.-]\d+)*$/, '') || id;
+}
+
+/** A Zudoku version path (`v2`, `Version 2`) → a v2 `version` URL segment. */
+const versionSegment = (value) =>
+  String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9.-]+/g, '-')
+    .replace(/^[^a-z0-9]+|-+$/g, '');
+
+/** A Zudoku file input without its query (`openapi.json?prefix=/v2` splits one file into versions, which v2 doesn't do). */
+function specInput(input, where, warnings) {
+  if (isExternal(input)) return input;
+  const [file, query] = String(input).split('?');
+  if (query !== undefined) {
+    warnings.push(`${where}: "${input}" selects part of a spec (?${query}), which RapiDoc Portal doesn't do; it now shows all of ${file}`);
+  }
+  return file;
+}
+
+/** One entry of a Zudoku `input` list (a path, or `{ path, label, input }`) → a v2 `versions` entry. */
+function convertVersion(entry, where, warnings) {
+  if (typeof entry === 'string') return specInput(entry, where, warnings);
+  const spec = specInput(entry.input, where, warnings);
+  const version = entry.path === undefined ? undefined : versionSegment(entry.path);
+  return version === undefined && !entry.label ? spec : compact({ spec, version, label: entry.label });
+}
+
+/** Redocly / Zudoku `apis` (list or map) → v2 list. A Zudoku `input` list (one spec per version) becomes `versions`. */
+function convertApis(rawApis, warnings = []) {
   if (!rawApis) return [];
   const entries = Array.isArray(rawApis)
     ? rawApis.map((api) => [api.id || api.name, api])
     : Object.entries(rawApis).map(([id, api]) => [id, typeof api === 'string' ? { root: api } : api]);
-  return entries.map(([id, api]) => {
-    const spec = api.spec || api.root || api.input;
-    const apiId = idFromSpec(id || spec);
+  return entries.map(([id, api], i) => {
+    const source = api.spec || api.root || api.input;
+    const versions = Array.isArray(source) ? source.map((entry, j) => convertVersion(entry, `apis[${i}].input[${j}]`, warnings)) : null;
+    const single = versions?.length === 1 && typeof versions[0] === 'string';
+    const spec = versions ? (single ? versions[0] : undefined) : source && specInput(source, `apis[${i}].input`, warnings);
+    const apiId = id || spec || !versions ? idFromSpec(id || spec) : versionedApiId(api.path, versions[0].spec ?? versions[0]);
     return compact({
       id: apiId,
       spec,
+      versions: versions && !single ? versions : undefined,
       path: api.path && api.path.replace(/\/+$/, '') !== `/apis/${apiId}` ? api.path : undefined,
       title: api.title,
       description: api.description,
@@ -133,8 +170,8 @@ function fromZudokuItem(item, apiPaths) {
 }
 
 /** zudoku.config.* → v2. Zudoku's top-level navigation items are tabs already. */
-function fromZudoku(raw) {
-  const apis = convertApis(Array.isArray(raw.apis) ? raw.apis : raw.apis ? [raw.apis] : []);
+function fromZudoku(raw, warnings) {
+  const apis = convertApis(Array.isArray(raw.apis) ? raw.apis : raw.apis ? [raw.apis] : [], warnings);
   const apiPaths = new Map(apis.map((a) => [(a.path || `/apis/${a.id}`).replace(/\/+$/, ''), a.id]));
   const tabs = (raw.navigation || [])
     .map((item) => {
@@ -189,13 +226,24 @@ function fromRedocly(raw) {
 
 /**
  * Drops empty sections and sets the key order. v2 has no `apis[].path` (every API is at /apis/<id>),
- * so an API that lived elsewhere gets a redirect from its old URL.
+ * so an API that lived elsewhere gets a redirect from its old URL, and so does each version with a path
+ * of its own (<old URL>/<version>).
  */
 function assemble(config) {
   const apis = config.apis?.map(({ path, ...api }) => api); // eslint-disable-line no-unused-vars
   const apiRedirects = (config.apis || [])
     .filter((api) => api.path)
-    .map((api) => ({ from: api.path.replace(/\/+$/, ''), to: `/apis/${api.id}` }));
+    .flatMap((api) => {
+      const from = api.path.replace(/\/+$/, '');
+      const versions = (api.versions || []).filter((v) => v.version);
+      return [
+        { from, to: `/apis/${api.id}` },
+        ...versions.map((v) => ({
+          from: `${from}/${v.version}`,
+          to: v === api.versions[0] ? `/apis/${api.id}` : `/apis/${api.id}/${v.version}`,
+        })),
+      ];
+    });
   const redirects = [...(config.redirects || []), ...apiRedirects];
   return compact({
     site: config.site,
@@ -219,15 +267,17 @@ function assemble(config) {
  *
  * @param {object} raw - Parsed source config
  * @param {'redocly' | 'zudoku'} from
- * @returns {{ config: object, problems: string[] }} problems: what still fails v2 validation
+ * @returns {{ config: object, problems: string[], warnings: string[] }} problems: what still fails v2 validation;
+ *   warnings: what the conversion left out
  */
 export function convertConfig(raw, from) {
   const convert = { redocly: fromRedocly, zudoku: fromZudoku }[from];
   if (!convert) throw new Error(`Unknown migration source "${from}". Use one of: ${Object.keys(MIGRATION_SOURCES).join(', ')}`);
-  const config = convert(raw || {});
+  const warnings = [];
+  const config = convert(raw || {}, warnings);
   const result = RapidocConfigSchema.safeParse(config);
   const problems = result.success ? checkReferences(result.data) : describeIssues(result.error.issues);
-  return { config, problems };
+  return { config, problems, warnings };
 }
 
 /** Finds and parses the source config (with Redocly's sidebars.yaml). */
@@ -247,14 +297,14 @@ async function readSource(sourceDir, from) {
 /**
  * @param {string} sourceDir
  * @param {'redocly' | 'zudoku'} [from] - Default: whichever source config is found first
- * @returns {Promise<{ content: string, problems: string[], sourceFile: string }>}
+ * @returns {Promise<{ content: string, problems: string[], warnings: string[], sourceFile: string }>}
  */
 export async function generateMigratedConfig(sourceDir, from) {
   const kind = from || Object.keys(MIGRATION_SOURCES).find((k) => MIGRATION_SOURCES[k].some((n) => fs.existsSync(path.join(sourceDir, n))));
   if (!kind) throw new Error(`Nothing to migrate in "${sourceDir}": no redocly.yaml or zudoku.config.*`);
   const { file, raw } = await readSource(sourceDir, kind);
-  const { config, problems } = convertConfig(raw, kind);
-  return { content: SCHEMA_COMMENT + YAML.stringify(config, { indent: 2, lineWidth: 0 }), problems, sourceFile: file };
+  const { config, problems, warnings } = convertConfig(raw, kind);
+  return { content: SCHEMA_COMMENT + YAML.stringify(config, { indent: 2, lineWidth: 0 }), problems, warnings, sourceFile: file };
 }
 
 /**
@@ -262,14 +312,14 @@ export async function generateMigratedConfig(sourceDir, from) {
  *
  * @param {string} targetDir
  * @param {{ from?: 'redocly' | 'zudoku', overwrite?: boolean }} [options]
- * @returns {Promise<{ filePath: string, content: string, problems: string[] }>}
+ * @returns {Promise<{ filePath: string, content: string, problems: string[], warnings: string[] }>}
  */
 export async function migrateConfig(targetDir = process.cwd(), options = {}) {
   const outputPath = path.join(targetDir, 'rapidoc.config.yaml');
-  const { content, problems } = await generateMigratedConfig(targetDir, options.from);
+  const { content, problems, warnings } = await generateMigratedConfig(targetDir, options.from);
   if (fs.existsSync(outputPath) && !options.overwrite) {
     throw new Error(`File already exists: "${outputPath}". Use --overwrite or pass { overwrite: true } to replace it.`);
   }
   fs.writeFileSync(outputPath, content, 'utf8');
-  return { filePath: outputPath, content, problems };
+  return { filePath: outputPath, content, problems, warnings };
 }

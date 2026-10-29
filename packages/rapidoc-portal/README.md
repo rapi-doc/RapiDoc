@@ -135,7 +135,7 @@ redirects:
   - { from: /old-page, to: /docs/new-page }
 ```
 
-Every API reference page is `/apis/<id>` (with one page per tag below it), and `/apis` redirects to the catalog. To keep an older URL working, add a `redirects` entry; `rapidoc migrate` does this for APIs that had a custom `path`. Docs pages in no tab's sidebar belong to the first documentation tab; APIs without a tab of their own belong to the catalog tab. The portal sets some `<rapi-doc>` attributes itself (`spec-url`, `show-header`, `show-side-nav`, `auto-height`, `update-route`, `goto-path`, `color-scheme`, `primary-color`); setting them under `rapidoc:` is an error that names the key to use instead.
+Every API reference page is `/apis/<id>` (with one page per tag below it), and `/apis` redirects to the catalog. An API with `versions:` instead of `spec:` has one spec per version: the first at `/apis/<id>`, the others at `/apis/<id>/<version>`, with a version picker in the API sidebar (`design/api-versioning.md`). To keep an older URL working, add a `redirects` entry; `rapidoc migrate` does this for APIs that had a custom `path`. Docs pages in no tab's sidebar belong to the first documentation tab; APIs without a tab of their own belong to the catalog tab. The portal sets some `<rapi-doc>` attributes itself (`spec-url`, `show-header`, `show-side-nav`, `auto-height`, `update-route`, `goto-path`, `color-scheme`, `primary-color`); setting them under `rapidoc:` is an error that names the key to use instead.
 
 Text in the accent color is derived from `theme.primary` at build time so that it keeps WCAG AA contrast (4.5:1) in both themes, and text on accent-filled buttons is black or white, whichever reads better.
 

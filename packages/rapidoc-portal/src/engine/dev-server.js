@@ -81,7 +81,10 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
   }
 
   function watchedFiles() {
-    const specs = (workspace.config.apis || []).filter((api) => !api.isRemote && api.fullPath).map((api) => api.fullPath);
+    const specs = (workspace.config.apis || [])
+      .flatMap((api) => api.versions)
+      .filter((version) => !version.isRemote && version.fullPath)
+      .map((version) => version.fullPath);
     return new Set([workspace.configPath, ...specs]);
   }
 

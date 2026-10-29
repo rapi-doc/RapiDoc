@@ -88,6 +88,7 @@ export function portalMarkdocConfig() {
           path: { type: String, required: true },
           method: { type: String, default: 'get' },
           title: { type: String },
+          version: { type: String },
         },
       },
     },
