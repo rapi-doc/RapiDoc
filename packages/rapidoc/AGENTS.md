@@ -1,6 +1,7 @@
 # AGENTS.md — `packages/rapidoc` (Core Library)
 
 ## 1. Package Scope & Identity
+
 `packages/rapidoc` contains the core RapiDoc custom elements library. It produces the zero-runtime-dependency web component `<rapi-doc>` as well as companion components `<rapi-doc-mini>` and `<oauth-receiver>`.
 
 - **Package Name**: `rapidoc`
@@ -33,18 +34,17 @@
 
 Run these commands from `packages/rapidoc` (or from the monorepo root using `--workspace=rapidoc`):
 
-| Command | Purpose |
-| :--- | :--- |
-| `npm run build` | Builds `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js` |
-| `npm run build:client` | Builds only `dist/rapidoc-min.js` |
-| `npm run build:static` | Builds only `dist/rapidoc-static-min.js` |
-| `npm run build:dev` | Builds the unminified bundle with sourcemaps & console logs intact |
-| `npm run build:size` | Builds with `ANALYZE=true` and generates `dist/stats.html` treemap |
-| `npm run lint` | Runs ESLint against `src/**/*.{js,ts}` |
-| `npm run format` | Checks Prettier formatting for `src/**/*.{js,ts,html,css}` |
-| `npm run format-fix` | Formats `src/**/*.{js,ts,html,css}` according to `.prettierrc` |
-| `npm run analyze` | Runs `lit-analyzer src` for type/template safety |
-| `npm test` | Runs Node.js native unit tests (`node --import ../../scripts/test-loader.mjs --test ../../tests/unit/*.test.js`) |
+| Command                | Purpose                                                                                                          |
+| :--------------------- | :--------------------------------------------------------------------------------------------------------------- |
+| `npm run build`        | Builds `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js`                                                    |
+| `npm run build:client` | Builds only `dist/rapidoc-min.js`                                                                                |
+| `npm run build:static` | Builds only `dist/rapidoc-static-min.js`                                                                         |
+| `npm run build:dev`    | Builds the unminified bundle with sourcemaps & console logs intact                                               |
+| `npm run build:size`   | Builds with `ANALYZE=true` and generates `dist/stats.html` treemap                                               |
+| `npm run lint`         | Runs oxlint on `src/` (default rules; any warning fails)                                                         |
+| `npm run format`       | Checks oxfmt formatting of `src/`                                                                                |
+| `npm run format-fix`   | Formats `src/` with oxfmt                                                                                        |
+| `npm test`             | Runs Node.js native unit tests (`node --import ../../scripts/test-loader.mjs --test ../../tests/unit/*.test.js`) |
 
 ---
 
@@ -104,4 +104,3 @@ packages/rapidoc/src/
    - `packages/rapidoc/dist/rapidoc-min.js` is tracked in git at an older commit (`4ff07e3f`).
    - **DO NOT** run `git checkout packages/rapidoc/dist/rapidoc-min.js` or `git restore` to clean up `git status`. Doing so restores the obsolete pre-slugger bundle and breaks navigation/scrolling across all portal pages.
    - Always keep `dist/rapidoc-min.js` compiled via `npm run build:rapidoc`.
-

@@ -1,6 +1,7 @@
 # AGENTS.md — `packages/rapidoc-portal` (`@rapidoc/portal`)
 
 ## 1. Package Scope & Identity
+
 `packages/rapidoc-portal` is the core engine for **`@rapidoc/portal`**, a modern, docs-as-code developer portal framework that turns OpenAPI specifications, Markdoc, Markdown, and MDX into high-performance developer portals using the RapiDoc Web Component.
 
 - **Package Name**: `@rapidoc/portal`
@@ -11,6 +12,7 @@
 ---
 
 ## 2. Core Functional Responsibilities (Milestones 1–6)
+
 1. **Strict Configuration (v2)**: Reads `rapidoc.config.yaml` (also `.yml/.json/.js/.mjs/.ts`) against the strict zod schema in `src/config/schema.js`; unknown keys fail with their path and a hint (`errors.js`). `normalizer.js` resolves `navigation` into header tabs (each documentation tab with its Starlight sidebar and the URL prefixes it covers). Redocly and Zudoku key names live only in `migrator.js` (`rapidoc migrate --from redocly|zudoku`). Get user approval before changing the config contract, then run `npm run schema` to regenerate `schema.json` (a test checks it).
 2. **First-Class Markdoc**: `.markdoc` docs are synced as `.mdoc` and rendered by `@astrojs/markdoc` with `src/markdoc/astro-config.js` (Starlight's Markdoc preset + the portal tags as Starlight components in `src/markdoc/components/`; `api-operation` → `<rapi-doc-mini>`). `src/markdoc/tags.js` holds the same tags as plain HTML for the `compileMarkdoc()` API; keep both in step.
 3. **Portal Layout Shell**: Delivers top navigation, collapsible sidebar navigation, breadcrumbs, and Table of Contents with scroll-spy.
@@ -25,10 +27,10 @@
 
 Run these commands from `packages/rapidoc-portal`:
 
-| Command | Purpose |
-| :--- | :--- |
-| `npm test` | Runs `tests/**/*.test.js` serially (`--test-concurrency=1`) |
-| `npm run schema` | Regenerates `schema.json` (JSON Schema of `rapidoc.config.yaml`) from `src/config/schema.js` |
+| Command                   | Purpose                                                                                                                   |
+| :------------------------ | :------------------------------------------------------------------------------------------------------------------------ |
+| `npm test`                | Runs `tests/**/*.test.js` serially (`--test-concurrency=1`)                                                               |
+| `npm run schema`          | Regenerates `schema.json` (JSON Schema of `rapidoc.config.yaml`) from `src/config/schema.js`                              |
 | `npm run layout:baseline` | Runs `tests/layout.test.js` and writes `tests/layout/measurements.json` plus screenshots (git-ignored) to `tests/layout/` |
 
 From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-rapidoc` suites together.
@@ -41,20 +43,21 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 
 `buildPortal()` and `startDevServer()` (used by `rapidoc build` / `rapidoc dev`) share one pipeline. Full description: `README.md` → "How a build works".
 
-| File | Role |
-| :--- | :--- |
-| `build-portal.js` | `buildPortal(projectDir, { outDir, keepWorkspace })`: workspace → `astro build` → always remove workspace |
-| `dev-server.js` | `startDevServer(projectDir, { port, keepWorkspace })`: workspace → `astro dev`, watches docs/config/specs, cleans up on stop/SIGINT/SIGTERM |
-| `temp-workspace.js` | Creates/removes the run's workspace `<project>/.rapidoc-temp/<dev\|build>-<pid>-<n>/` (node_modules symlink, `package.json`, content config, docs copy, public assets); removes folders of runs whose process has exited |
-| `sync-docs.js` | Idempotent docs mirror + normalization (frontmatter title, `.md`/`.mdx` dedupe, Zudoku rewrites, component auto-imports) |
-| `sync-assets.js` | Specs, `rapidoc-min.js` (throws if missing or stale — never rebuilds), `search-index.json` |
-| `astro-integration.js` | Inline Astro config: Markdoc + Starlight + injected routes for `src/pages/*.astro` + virtual modules |
-| `starlight-options.js` / `theme-css.js` | Config → Starlight options (sidebar: one group per documentation tab) / `styles/portal-theme.css` with tokens filled in |
-| `route-middleware.js` | Starlight route middleware: keeps only the current tab's sidebar group, drops prev/next links into other tabs, drops Starlight's `generator` meta tags |
-| `../access/rules.js` | Rule patterns (`*` one segment, `**` any), allow → zone id, first-match zone matcher |
-| `../access/split-output.js` | After `astro build` (only with `auth`): moves non-public files to `protected/`, splits `search-index.json` and Pagefind per zone, filters the sitemap, writes `rapidoc-server.json`; fails on a rule that matches nothing and then removes the output |
+| File                                    | Role                                                                                                                                                                                                                                                  |
+| :-------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `build-portal.js`                       | `buildPortal(projectDir, { outDir, keepWorkspace })`: workspace → `astro build` → always remove workspace                                                                                                                                             |
+| `dev-server.js`                         | `startDevServer(projectDir, { port, keepWorkspace })`: workspace → `astro dev`, watches docs/config/specs, cleans up on stop/SIGINT/SIGTERM                                                                                                           |
+| `temp-workspace.js`                     | Creates/removes the run's workspace `<project>/.rapidoc-temp/<dev\|build>-<pid>-<n>/` (node_modules symlink, `package.json`, content config, docs copy, public assets); removes folders of runs whose process has exited                              |
+| `sync-docs.js`                          | Idempotent docs mirror + normalization (frontmatter title, `.md`/`.mdx` dedupe, Zudoku rewrites, component auto-imports)                                                                                                                              |
+| `sync-assets.js`                        | Specs, `rapidoc-min.js` (throws if missing or stale — never rebuilds), `search-index.json`                                                                                                                                                            |
+| `astro-integration.js`                  | Inline Astro config: Markdoc + Starlight + injected routes for `src/pages/*.astro` + virtual modules                                                                                                                                                  |
+| `starlight-options.js` / `theme-css.js` | Config → Starlight options (sidebar: one group per documentation tab) / `styles/portal-theme.css` with tokens filled in                                                                                                                               |
+| `route-middleware.js`                   | Starlight route middleware: keeps only the current tab's sidebar group, drops prev/next links into other tabs, drops Starlight's `generator` meta tags                                                                                                |
+| `../access/rules.js`                    | Rule patterns (`*` one segment, `**` any), allow → zone id, first-match zone matcher                                                                                                                                                                  |
+| `../access/split-output.js`             | After `astro build` (only with `auth`): moves non-public files to `protected/`, splits `search-index.json` and Pagefind per zone, filters the sitemap, writes `rapidoc-server.json`; fails on a rule that matches nothing and then removes the output |
 
 **App shell**. Every page has the same frame: sticky header, optional sticky sidebar, full-width footer, page scroll. Pages Starlight does not render (catalog, API reference) use `components/PortalLayout.astro`. API reference pages are always `/apis/<id>[/<tag>]` (route `/apis/[...apiRoute]`, pages from `engine/api-routes.js`); `/apis` redirects to `/catalog`. An API with `versions:` (design: `design/api-versioning.md`) has its first version there and the others at `/apis/<id>/<version>[/<tag>]`; `/apis/<id>/<default version>[/<tag>]` are redirect pages that keep the `#hash`. The version picker is a `<select>` at the top of the API sidebar. The home page is the project's `docs/index.*` rendered by Starlight (usually `template: splash`); without one, `/` redirects to the first tab (`pages/first-tab-redirect.astro`). Docs pages use these Starlight component overrides, set in `starlight-options.js`:
+
 - `PortalPageFrame.astro` (`PageFrame`): sticky header, then a grid of [sticky full-height sidebar | content], then the full-width `PortalFooter`. The page scrolls; at the end the footer pushes the sidebar up. Below 50rem the sidebar is Starlight's popover, opened by the header's menu button.
 - `PortalTwoColumnContent.astro` (`TwoColumnContent`): sticky "On this page" column.
 - `PortalThemeProvider.astro` (`ThemeProvider`): applies `theme.mode` for visitors who have not picked a theme (same script as `PortalLayout`, from `components/theme-script.js`).
@@ -68,6 +71,7 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 - `portal-theme.css` is unlayered, so it already beats Starlight's `@layer starlight.*` rules. Don't use `!important`.
 
 Invariants:
+
 - **No leftovers**: the only thing a run may leave in the project is the output folder. Never write elsewhere in the user's project or into this package.
 - **No cwd coupling**: pages and components read config via `import portalConfig from 'virtual:rapidoc-portal/config'`, never from `process.cwd()`. The only `process.chdir` is in `build-portal.js`: into the workspace for the duration of `astro build` (restored in `finally`), because Astro places its prerender chunks relative to the cwd and they must resolve dependencies through the workspace's `node_modules`.
 - **One workspace per run**: a run never deletes another live run's folder (dev servers and builds run side by side); dev servers also remove theirs in a process `exit` handler, because Astro's own SIGTERM handler exits before an async stop finishes.
@@ -82,6 +86,7 @@ Invariants:
 ---
 
 ## 5. Architectural Guidelines
+
 - Maintain strict modularity and zero runtime coupling to external databases.
 - Adhere to the monorepo-wide code style rules defined in the root `AGENTS.md` (Node.js >= 22.12.0, ESM, 2 spaces, Prettier).
 - Provide clean programmatic APIs exported from this package for CLI and integration use.

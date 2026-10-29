@@ -1,11 +1,11 @@
 /**
  * Renders path, query, header, and cookie parameter inputs, schema tree previews, constraints, and clickable example badges for <api-request>.
  */
-import { html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { live } from 'lit/directives/live.js';
-import { sanitizeHTML } from '../utils/sanitize.js';
-import { marked } from 'marked';
+import { html } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { live } from "lit/directives/live.js";
+import { sanitizeHTML } from "../utils/sanitize.js";
+import { marked } from "marked";
 import {
   schemaToAST,
   getTypeInfo,
@@ -15,9 +15,9 @@ import {
   standardizeExample,
   anyExampleWithSummaryOrDescription,
   EMPTY_ARRAY,
-} from '~/utils/schema-utils';
-import '~/components/schema-tree';
-import '~/components/tag-input';
+} from "~/utils/schema-utils";
+import "~/components/schema-tree";
+import "~/components/tag-input";
 
 /**
  * A label followed by a wrapping list of values (Allowed values, Examples).
@@ -46,21 +46,21 @@ export function constraintListTemplate(paramSchema, allowedItems, exampleItems) 
     html`<dt class="param-constraint-label" part="param-constraint-label">${label}</dt>
       <dd>${value}</dd>`;
   return html`<dl class="param-constraint" part="param-constraint">
-    ${paramSchema.default ? row('Default:', paramSchema.default) : ''} ${paramSchema.pattern ? row('Pattern:', paramSchema.pattern) : ''}
+    ${paramSchema.default ? row("Default:", paramSchema.default) : ""} ${paramSchema.pattern ? row("Pattern:", paramSchema.pattern) : ""}
     ${
       paramSchema.constrain
         ? row(
-            'Limits:',
+            "Limits:",
             valueItems(
               paramSchema.constrain
-                .split('┃')
+                .split("┃")
                 .map((v) => v.trim())
-                .filter(Boolean)
-            )
+                .filter(Boolean),
+            ),
           )
-        : ''
+        : ""
     }
-    ${allowedItems ? row('Allowed:', valueItems(allowedItems)) : ''} ${exampleItems ? row('Examples:', valueItems(exampleItems)) : ''}
+    ${allowedItems ? row("Allowed:", valueItems(allowedItems)) : ""} ${exampleItems ? row("Examples:", valueItems(exampleItems)) : ""}
   </dl>`;
 }
 
@@ -69,45 +69,59 @@ export function constraintListTemplate(paramSchema, allowedItems, exampleItems) 
  * Long-format examples, with a summary or description, always stay in the details.
  */
 export function examplesBesideConstraints(description, hasConstraint, exampleList = []) {
-  return !description?.trim() && Boolean(hasConstraint) && exampleList.length > 0 && !anyExampleWithSummaryOrDescription(exampleList);
+  return (
+    !description?.trim() &&
+    Boolean(hasConstraint) &&
+    exampleList.length > 0 &&
+    !anyExampleWithSummaryOrDescription(exampleList)
+  );
 }
 
 export function renderExample(example, paramType, paramName) {
   return html`
-    ${paramType === 'array' ? '[' : ''}
+    ${paramType === "array" ? "[" : ""}
     <button
       type="button"
       part="anchor anchor-param-example"
       class="value-chip"
-      ?disabled="${this.allowTry !== 'true'}"
-      data-example-type="${paramType === 'array' ? paramType : 'string'}"
+      ?disabled="${this.allowTry !== "true"}"
+      data-example-type="${paramType === "array" ? paramType : "string"}"
       data-example="${
         example.value && Array.isArray(example.value)
-          ? example.value?.join('~|~')
-          : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''
+          ? example.value?.join("~|~")
+          : (typeof example.value === "object"
+              ? JSON.stringify(example.value, null, 2)
+              : example.value) || ""
       }"
       title="${
         example.value && Array.isArray(example.value)
-          ? example.value?.join('~|~')
-          : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''
+          ? example.value?.join("~|~")
+          : (typeof example.value === "object"
+              ? JSON.stringify(example.value, null, 2)
+              : example.value) || ""
       }"
       @click="${(e) => {
-        const inputEl = e.target.closest('.param-list').querySelector(`[data-pname="${paramName}"]`);
+        const inputEl = e.target
+          .closest(".param-list")
+          .querySelector(`[data-pname="${paramName}"]`);
         if (inputEl) {
-          inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
+          inputEl.value =
+            e.target.dataset.exampleType === "array"
+              ? e.target.dataset.example.split("~|~")
+              : e.target.dataset.example;
         }
       }}"
     >
       ${example.printableValue || example.value}
     </button>
-    ${paramType === 'array' ? '] ' : ''}
+    ${paramType === "array" ? "] " : ""}
   `;
 }
 
 export function renderShortFormatExamples(examples, paramType, paramName) {
   return valueListTemplate(
-    'Examples:',
-    examples.map((x) => renderExample.call(this, x, paramType, paramName))
+    "Examples:",
+    examples.map((x) => renderExample.call(this, x, paramType, paramName)),
   );
 }
 
@@ -116,9 +130,9 @@ export function renderLongFormatExamples(exampleList, paramType, paramName) {
     ${exampleList.map(
       (v) =>
         html`<li>
-          ${renderExample.call(this, v, paramType, paramName)} ${v.summary?.length > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ''}
-          ${v.description?.length > 0 ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(v.description)))}</div>` : ''}
-        </li>`
+          ${renderExample.call(this, v, paramType, paramName)} ${v.summary?.length > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ""}
+          ${v.description?.length > 0 ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(v.description)))}</div>` : ""}
+        </li>`,
     )}
   </ul>`;
 }
@@ -130,24 +144,26 @@ export function exampleListTemplate(paramName, paramType, exampleList = []) {
         ? html`<span class="param-constraint-label">Examples: </span>
             ${renderLongFormatExamples.call(this, exampleList, paramType, paramName)}`
         : renderShortFormatExamples.call(this, exampleList, paramType, paramName)
-      : ''
+      : ""
   }`;
 }
 
 export function inputParametersTemplate(paramType) {
-  const filteredParams = this.parameters ? this.parameters.filter((param) => param.in === paramType) : [];
+  const filteredParams = this.parameters
+    ? this.parameters.filter((param) => param.in === paramType)
+    : [];
   if (filteredParams.length === 0) {
-    return '';
+    return "";
   }
-  let title = '';
-  if (paramType === 'path') {
-    title = 'Path parameters';
-  } else if (paramType === 'query') {
-    title = 'Query-string parameters';
-  } else if (paramType === 'header') {
-    title = 'Request headers';
-  } else if (paramType === 'cookie') {
-    title = 'Cookies';
+  let title = "";
+  if (paramType === "path") {
+    title = "Path parameters";
+  } else if (paramType === "query") {
+    title = "Query-string parameters";
+  } else if (paramType === "header") {
+    title = "Request headers";
+  } else if (paramType === "cookie") {
+    title = "Cookies";
   }
 
   const paramItems = [];
@@ -161,19 +177,19 @@ export function inputParametersTemplate(paramType) {
       continue;
     }
     const schemaAsObj = schemaToAST(declaredParamSchema);
-    let paramStyle = 'form';
+    let paramStyle = "form";
     let paramExplode = true;
     let paramAllowReserved = false;
-    if (paramType === 'query' || paramType === 'header' || paramType === 'path') {
-      if (param.style && 'form spaceDelimited pipeDelimited'.includes(param.style)) {
+    if (paramType === "query" || paramType === "header" || paramType === "path") {
+      if (param.style && "form spaceDelimited pipeDelimited".includes(param.style)) {
         paramStyle = param.style;
       } else if (serializeStyle) {
         paramStyle = serializeStyle;
       }
-      if (typeof param.explode === 'boolean') {
+      if (typeof param.explode === "boolean") {
         paramExplode = param.explode;
       }
-      if (typeof param.allowReserved === 'boolean') {
+      if (typeof param.allowReserved === "boolean") {
         paramAllowReserved = param.allowReserved;
       }
     }
@@ -185,72 +201,84 @@ export function inputParametersTemplate(paramType) {
         standardizeExample(mimeTypeElem?.examples) ||
         standardizeExample(paramSchema.examples) ||
         standardizeExample(paramSchema.example),
-      paramSchema.type
+      paramSchema.type,
     );
-    if (!example.exampleVal && (paramSchema.type === 'object' || paramSchema.type.split('┃').includes('object'))) {
+    if (
+      !example.exampleVal &&
+      (paramSchema.type === "object" || paramSchema.type.split("┃").includes("object"))
+    ) {
       example.exampleVal =
         generateExample(
           declaredParamSchema,
-          serializeStyle || 'json',
+          serializeStyle || "json",
           {},
           {},
-          this.callback === 'true' || this.webhook === 'true' ? true : false,
-          this.callback === 'true' || this.webhook === 'true' ? false : true,
-          'text',
-          false
-        )[0]?.exampleValue || '';
+          this.callback === "true" || this.webhook === "true" ? true : false,
+          this.callback === "true" || this.webhook === "true" ? false : true,
+          "text",
+          false,
+        )[0]?.exampleValue || "";
     }
-    const hasConstraint = paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern;
-    const inlineExamples = examplesBesideConstraints(param.description, hasConstraint, example.exampleList);
+    const hasConstraint =
+      paramSchema.default ||
+      paramSchema.constrain ||
+      paramSchema.allowedValues ||
+      paramSchema.pattern;
+    const inlineExamples = examplesBesideConstraints(
+      param.description,
+      hasConstraint,
+      example.exampleList,
+    );
     paramItems.push(html`
-      <li class="param ${param.deprecated ? 'deprecated' : ''}" part="param" title="${param.deprecated ? 'Deprecated' : ''}">
+      <li class="param ${param.deprecated ? "deprecated" : ""}" part="param" title="${param.deprecated ? "Deprecated" : ""}">
         <div class="param-label" part="param-label">
-          <div class="param-name ${param.deprecated ? 'deprecated' : ''}" part="param-name">
+          <div class="param-name ${param.deprecated ? "deprecated" : ""}" part="param-name">
             ${
               param.deprecated
                 ? html`<svg class="param-deprecated-icon" viewBox="0 0 10 10" width="10" height="10" aria-hidden="true">
                     <path d="M2 2L8 8M2 8L8 2" />
                   </svg>`
-                : ''
+                : ""
             }
-            ${param.required ? html`<span class="param-required" title="Required">*</span>` : ''} ${param.name}
+            ${param.required ? html`<span class="param-required" title="Required">*</span>` : ""} ${param.name}
           </div>
           <div class="param-type" part="param-type">
             ${
-              paramSchema.type === 'array' || paramSchema.type.split('┃').includes('array')
+              paramSchema.type === "array" || paramSchema.type.split("┃").includes("array")
                 ? `${paramSchema.arrayType || paramSchema.type}`
-                : `${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes('┃') ? paramSchema.contentMediaType : paramSchema.type}`
+                : `${paramSchema.format && !paramSchema.type.includes("┃") ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes("┃") ? paramSchema.contentMediaType : paramSchema.type}`
             }
           </div>
         </div>
         ${
-          this.allowTry === 'true'
+          this.allowTry === "true"
             ? html` <div class="param-input" part="param-input">
                 ${
-                  paramSchema.type === 'array' ||
-                  (paramSchema.type.split('┃').includes('array') && !paramSchema.type.split('┃').includes('object'))
+                  paramSchema.type === "array" ||
+                  (paramSchema.type.split("┃").includes("array") &&
+                    !paramSchema.type.split("┃").includes("object"))
                     ? html`<tag-input
                         class="request-param"
                         id="tag-input-request-param-${param.name}"
                         style="width:100%"
                         data-ptype="${paramType}"
                         data-pname="${param.name}"
-                        data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
+                        data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join("~|~") : example.exampleVal}"
                         data-param-serialize-style="${paramStyle}"
                         data-param-serialize-explode="${paramExplode}"
                         data-param-allow-reserved="${paramAllowReserved}"
-                        data-x-fill-example="${param['x-fill-example'] || 'yes'}"
+                        data-x-fill-example="${param["x-fill-example"] || "yes"}"
                         data-array="true"
                         placeholder="add-multiple &#x21a9;"
                         .value="${
-                          param['x-fill-example'] === 'no'
+                          param["x-fill-example"] === "no"
                             ? EMPTY_ARRAY
                             : live(
-                                this.fillRequestFieldsWithExample === 'true'
+                                this.fillRequestFieldsWithExample === "true"
                                   ? Array.isArray(example.exampleVal)
                                     ? example.exampleVal
                                     : [example.exampleVal]
-                                  : EMPTY_ARRAY
+                                  : EMPTY_ARRAY,
                               )
                         }"
                         @input="${(e) => {
@@ -263,13 +291,14 @@ export function inputParametersTemplate(paramType) {
                         }}"
                       >
                       </tag-input>`
-                    : paramSchema.type === 'object' || paramSchema.type.split('┃').includes('object')
+                    : paramSchema.type === "object" ||
+                        paramSchema.type.split("┃").includes("object")
                       ? html`<div part="tab-panel" class="tab-panel col">
                           <div
                             part="tab-btn-row"
                             class="tab-buttons row"
                             @click="${(e) => {
-                              if (e.target.tagName.toLowerCase() === 'button') {
+                              if (e.target.tagName.toLowerCase() === "button") {
                                 const newState = { ...this.activeParameterSchemaTabs };
                                 newState[param.name] = e.target.dataset.tab;
                                 this.activeParameterSchemaTabs = newState;
@@ -278,14 +307,14 @@ export function inputParametersTemplate(paramType) {
                           >
                             <button
                               part="tab-btn"
-                              class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}"
+                              class="tab-btn ${this.activeParameterSchemaTabs[param.name] === "example" ? "active" : ""}"
                               data-tab="example"
                             >
                               EXAMPLE
                             </button>
                             <button
                               part="tab-btn"
-                              class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}"
+                              class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== "example" ? "active" : ""}"
                               data-tab="schema"
                             >
                               SCHEMA
@@ -297,7 +326,9 @@ export function inputParametersTemplate(paramType) {
                             class="tab-content col"
                             data-tab="example"
                             style="display:${
-                              this.activeParameterSchemaTabs[param.name] === 'example' ? 'block' : 'none'
+                              this.activeParameterSchemaTabs[param.name] === "example"
+                                ? "block"
+                                : "none"
                             }; padding-left:5px; width:100%"
                           >
                             <textarea
@@ -310,20 +341,20 @@ export function inputParametersTemplate(paramType) {
                               data-param-serialize-style="${paramStyle}"
                               data-param-serialize-explode="${paramExplode}"
                               data-param-allow-reserved="${paramAllowReserved}"
-                              data-x-fill-example="${param['x-fill-example'] || 'yes'}"
+                              data-x-fill-example="${param["x-fill-example"] || "yes"}"
                               spellcheck="false"
                               .value="${
-                                param['x-fill-example'] === 'no'
-                                  ? ''
+                                param["x-fill-example"] === "no"
+                                  ? ""
                                   : live(
-                                      this.fillRequestFieldsWithExample === 'true'
-                                        ? typeof example.exampleVal === 'object'
+                                      this.fillRequestFieldsWithExample === "true"
+                                        ? typeof example.exampleVal === "object"
                                           ? JSON.stringify(example.exampleVal, null, 2)
                                           : example.exampleVal
-                                        : ''
+                                        : "",
                                     )
                               }"
-                              style="resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
+                              style="resize:vertical; width:100%; height: ${"read focused".includes(this.renderStyle) ? "180px" : "120px"};"
                               @input=${(e) => {
                                 const requestPanelEl = this.getRequestPanel(e);
                                 this.liveCURLSyntaxUpdate(requestPanelEl);
@@ -335,7 +366,9 @@ export function inputParametersTemplate(paramType) {
                             class="tab-content col"
                             data-tab="schema"
                             style="display:${
-                              this.activeParameterSchemaTabs[param.name] !== 'example' ? 'block' : 'none'
+                              this.activeParameterSchemaTabs[param.name] !== "example"
+                                ? "block"
+                                : "none"
                             }; padding-left:5px; width:100%;"
                           >
                             <schema-tree
@@ -355,7 +388,7 @@ export function inputParametersTemplate(paramType) {
                           </div>`}
                         </div>`
                       : html` <input
-                          type="${paramSchema.format === 'password' ? 'password' : 'text'}"
+                          type="${paramSchema.format === "password" ? "password" : "text"}"
                           spellcheck="false"
                           style="width:100%"
                           id="input-request-param-${param.name}"
@@ -363,14 +396,18 @@ export function inputParametersTemplate(paramType) {
                           part="textbox textbox-param"
                           data-ptype="${paramType}"
                           data-pname="${param.name}"
-                          data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
+                          data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join("~|~") : example.exampleVal}"
                           data-param-allow-reserved="${paramAllowReserved}"
-                          data-x-fill-example="${param['x-fill-example'] || 'yes'}"
+                          data-x-fill-example="${param["x-fill-example"] || "yes"}"
                           data-array="false"
                           .value="${
-                            param['x-fill-example'] === 'no'
-                              ? ''
-                              : live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')
+                            param["x-fill-example"] === "no"
+                              ? ""
+                              : live(
+                                  this.fillRequestFieldsWithExample === "true"
+                                    ? example.exampleVal
+                                    : "",
+                                )
                           }"
                           @input=${(e) => {
                             const requestPanelEl = this.getRequestPanel(e);
@@ -379,7 +416,7 @@ export function inputParametersTemplate(paramType) {
                         />`
                 }
               </div>`
-            : ''
+            : ""
         }
         ${
           hasConstraint
@@ -387,20 +424,22 @@ export function inputParametersTemplate(paramType) {
                 paramSchema,
                 paramSchema.allowedValues &&
                   String(paramSchema.allowedValues)
-                    .split('┃')
+                    .split("┃")
                     .map(
                       (v) =>
                         html`<button
                           type="button"
                           part="anchor anchor-param-constraint"
                           class="value-chip"
-                          ?disabled="${this.allowTry !== 'true'}"
-                          data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
+                          ?disabled="${this.allowTry !== "true"}"
+                          data-type="${paramSchema.type === "array" ? paramSchema.type : "string"}"
                           data-enum="${v.trim()}"
                           @click="${(e) => {
-                            const inputEl = e.target.closest('.param-list').querySelector(`[data-pname="${param.name}"]`);
+                            const inputEl = e.target
+                              .closest(".param-list")
+                              .querySelector(`[data-pname="${param.name}"]`);
                             if (inputEl) {
-                              if (e.target.dataset.type === 'array') {
+                              if (e.target.dataset.type === "array") {
                                 inputEl.value = [e.target.dataset.enum];
                               } else {
                                 inputEl.value = e.target.dataset.enum;
@@ -409,15 +448,18 @@ export function inputParametersTemplate(paramType) {
                           }}"
                         >
                           ${v}
-                        </button>`
+                        </button>`,
                     ),
-                inlineExamples && example.exampleList.map((x) => renderExample.call(this, x, paramSchema.type, param.name))
+                inlineExamples &&
+                  example.exampleList.map((x) =>
+                    renderExample.call(this, x, paramSchema.type, param.name),
+                  ),
               )
-            : ''
+            : ""
         }
         <div class="param-details" part="param-details">
-          ${param.description ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(param.description)))}</div>` : ''}
-          ${inlineExamples ? '' : exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
+          ${param.description ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(param.description)))}</div>` : ""}
+          ${inlineExamples ? "" : exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
         </div>
       </li>
     `);

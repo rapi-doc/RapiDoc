@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import path from 'node:path';
-import { scaffoldProject } from './scaffold.js';
+import path from "node:path";
+import { scaffoldProject } from "./scaffold.js";
 
 const args = process.argv.slice(2);
 
@@ -25,20 +25,20 @@ Examples:
 `);
 }
 
-if (args.includes('--help') || args.includes('-h')) {
+if (args.includes("--help") || args.includes("-h")) {
   printHelp();
   process.exit(0);
 }
 
-if (args.includes('--version') || args.includes('-v')) {
-  console.log('0.1.0');
+if (args.includes("--version") || args.includes("-v")) {
+  console.log("0.1.0");
   process.exit(0);
 }
 
-let targetDir = args.find((a) => !a.startsWith('-')) || 'my-developer-portal';
-const titleIdx = args.indexOf('--title');
+let targetDir = args.find((a) => !a.startsWith("-")) || "my-developer-portal";
+const titleIdx = args.indexOf("--title");
 const customTitle = titleIdx !== -1 && args[titleIdx + 1] ? args[titleIdx + 1] : undefined;
-const force = args.includes('--force') || args.includes('-f');
+const force = args.includes("--force") || args.includes("-f");
 
 console.log(`\n🚀 Scaffolding new RapiDoc Developer Portal into: ${targetDir}`);
 
@@ -54,7 +54,7 @@ try {
   console.log(`   • Files:        ${result.filesCreated.length} starter files generated`);
 
   console.log(`\nNext steps:`);
-  console.log(`   1. cd ${path.relative(process.cwd(), result.targetDir) || '.'}`);
+  console.log(`   1. cd ${path.relative(process.cwd(), result.targetDir) || "."}`);
   console.log(`   2. npm install`);
   console.log(`   3. npm run dev\n`);
 } catch (err) {

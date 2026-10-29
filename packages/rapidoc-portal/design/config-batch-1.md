@@ -3,6 +3,7 @@
 Status: approved and implemented (2026-10-29), uncommitted.
 
 Where the build differs from the text below:
+
 - `site.image` as a file without `site.url` is a config error, not a warning (the config has no warning channel).
 - Base links also cover `href`/`src` in raw HTML (Markdown) and MDX JSX string attributes (`<img src="/a.png">`),
   since migrated Zudoku pages use them; only paths in JSX expressions (`src={...}`) are left as written.
@@ -56,16 +57,17 @@ llms:                                   # 5. on by default; llms: false turns al
 **What you keep writing as root paths.** Every path in the config and in the docs stays relative to the
 portal, not the host. You write `/docs/intro`, the page links to `/developers/docs/intro`:
 
-| Where | Written as | Becomes |
-| :-- | :-- | :-- |
-| `navigation`, `header.links`, `footer`, `site.logo.href`, `site.banner.href` | `/docs/intro` | `/developers/docs/intro` |
-| Links and images in `.md`, `.mdx`, `.markdoc` pages | `[Intro](/docs/intro)` | `/developers/docs/intro` |
-| `redirects[].from` / `to` | `/old` → `/docs/new` | both under `/developers` |
-| `access.rules[].path` | `/docs/internal/**` | matches `/developers/docs/internal/**` |
-| `head`, `site.image`, `site.favicon`, `site.logo.src` | `/logo.svg` | `/developers/logo.svg` |
-| Full URLs (`https://…`) | unchanged | unchanged |
+| Where                                                                        | Written as             | Becomes                                |
+| :--------------------------------------------------------------------------- | :--------------------- | :------------------------------------- |
+| `navigation`, `header.links`, `footer`, `site.logo.href`, `site.banner.href` | `/docs/intro`          | `/developers/docs/intro`               |
+| Links and images in `.md`, `.mdx`, `.markdoc` pages                          | `[Intro](/docs/intro)` | `/developers/docs/intro`               |
+| `redirects[].from` / `to`                                                    | `/old` → `/docs/new`   | both under `/developers`               |
+| `access.rules[].path`                                                        | `/docs/internal/**`    | matches `/developers/docs/internal/**` |
+| `head`, `site.image`, `site.favicon`, `site.logo.src`                        | `/logo.svg`            | `/developers/logo.svg`                 |
+| Full URLs (`https://…`)                                                      | unchanged              | unchanged                              |
 
 **Build changes.**
+
 - Astro `base` set from the path; `site` from the origin.
 - The portal's own links (catalog, API pages, specs at `/specs/<id>`, `/_rapidoc/assets/`, the RapiDoc bundle,
   the OAuth receiver, search index, Pagefind) go through one `withBase()` helper. About 15 files build such
@@ -157,24 +159,27 @@ llms:
 
 **What the build publishes.**
 
-| URL | Content |
-| :-- | :-- |
-| `/docs/<page>.md` | Each docs page as Markdown, frontmatter removed |
-| `/llms.txt` | Title, `llms.description`, then one section per navigation tab listing its pages (`.md` links), then the APIs with their spec URLs (`/specs/<id>.yaml`) |
-| `/llms-full.txt` | Every page's Markdown in navigation order |
+| URL               | Content                                                                                                                                                 |
+| :---------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/docs/<page>.md` | Each docs page as Markdown, frontmatter removed                                                                                                         |
+| `/llms.txt`       | Title, `llms.description`, then one section per navigation tab listing its pages (`.md` links), then the APIs with their spec URLs (`/specs/<id>.yaml`) |
+| `/llms-full.txt`  | Every page's Markdown in navigation order                                                                                                               |
 
 **Markdoc and MDX to Markdown.** Page sources are converted, not rendered:
+
 - `{% api-operation %}` → `` `POST /shipments` Create a shipment `` linking to the API page.
 - Callouts (`{% callout %}`, `:::note`, `<Aside>`, `<Callout>`) → `> **Note:** …`.
 - Cards → a list of links. Other portal tags keep their inner text.
 - MDX `import`/`export` lines are dropped; unknown components are left as written.
 
 **Page actions.** A small button group next to each docs page title:
+
 - `copy`: copy the page's Markdown.
 - `markdown`: open the `.md` file.
 - `chatgpt`, `claude`: open the assistant with a prompt to read the page's `.md` URL.
 
 **With sign-in.**
+
 - `/llms.txt` and `/llms-full.txt` list **public pages only**. Zudoku does the same by default
   (`includeProtected: false`).
 - A protected page's `.md` goes to `dist/protected/` with the page, through the same access rule: a rule

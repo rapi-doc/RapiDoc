@@ -1,26 +1,26 @@
-import { generateExample } from './schema-utils.js';
+import { generateExample } from "./schema-utils.js";
 
 const STATUS_TEXTS = {
-  200: 'OK',
-  201: 'Created',
-  202: 'Accepted',
-  204: 'No Content',
-  301: 'Moved Permanently',
-  302: 'Found',
-  304: 'Not Modified',
-  400: 'Bad Request',
-  401: 'Unauthorized',
-  403: 'Forbidden',
-  404: 'Not Found',
-  405: 'Method Not Allowed',
-  409: 'Conflict',
-  422: 'Unprocessable Entity',
-  429: 'Too Many Requests',
-  500: 'Internal Server Error',
-  501: 'Not Implemented',
-  502: 'Bad Gateway',
-  503: 'Service Unavailable',
-  504: 'Gateway Timeout',
+  200: "OK",
+  201: "Created",
+  202: "Accepted",
+  204: "No Content",
+  301: "Moved Permanently",
+  302: "Found",
+  304: "Not Modified",
+  400: "Bad Request",
+  401: "Unauthorized",
+  403: "Forbidden",
+  404: "Not Found",
+  405: "Method Not Allowed",
+  409: "Conflict",
+  422: "Unprocessable Entity",
+  429: "Too Many Requests",
+  500: "Internal Server Error",
+  501: "Not Implemented",
+  502: "Bad Gateway",
+  503: "Service Unavailable",
+  504: "Gateway Timeout",
 };
 
 let isMockActive = false;
@@ -31,10 +31,10 @@ let originalXhrSetRequestHeader = null;
 
 let compiledRoutes = [];
 let mockConfig = {
-  statusCode: '',
-  statusStrategy: 'first',
+  statusCode: "",
+  statusStrategy: "first",
   delay: 0,
-  log: 'true',
+  log: "true",
 };
 
 const routeCycleIndices = new Map();
@@ -45,20 +45,20 @@ const routeCycleIndices = new Map();
 function extractServerBases(servers = []) {
   const bases = new Set();
   // Always include empty root base path
-  bases.add('');
+  bases.add("");
 
   servers.forEach((s) => {
-    const rawUrl = s.computedUrl || s.url || '';
+    const rawUrl = s.computedUrl || s.url || "";
     if (!rawUrl) return;
 
     try {
-      if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+      if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
         const u = new URL(rawUrl);
-        const p = u.pathname.replace(/\/+$/, '');
+        const p = u.pathname.replace(/\/+$/, "");
         if (p) bases.add(p);
       } else {
-        const p = rawUrl.replace(/\/+$/, '');
-        if (p) bases.add(p.startsWith('/') ? p : `/${p}`);
+        const p = rawUrl.replace(/\/+$/, "");
+        if (p) bases.add(p.startsWith("/") ? p : `/${p}`);
       }
     } catch {
       // Ignore invalid URL formats
@@ -71,18 +71,18 @@ function extractServerBases(servers = []) {
 /**
  * Converts an OpenAPI path template (e.g. /pets/{id}) into a matching RegExp.
  */
-function compileRoutePattern(pathTemplate, basePath = '') {
-  const cleanBase = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
-  const fullPath = cleanBase + (pathTemplate.startsWith('/') ? pathTemplate : `/${pathTemplate}`);
+function compileRoutePattern(pathTemplate, basePath = "") {
+  const cleanBase = basePath.endsWith("/") ? basePath.slice(0, -1) : basePath;
+  const fullPath = cleanBase + (pathTemplate.startsWith("/") ? pathTemplate : `/${pathTemplate}`);
 
   // Replace {param} with a placeholder token to avoid escaping issues
-  const tokenized = fullPath.replace(/\{([a-zA-Z0-9_-]+)\}/g, '__PARAM_$1__');
+  const tokenized = fullPath.replace(/\{([a-zA-Z0-9_-]+)\}/g, "__PARAM_$1__");
 
   // Escape special regex characters
-  const escaped = tokenized.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+  const escaped = tokenized.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
   // Replace placeholder token with regex capture group
-  const pattern = escaped.replace(/__PARAM_([a-zA-Z0-9_-]+)__/g, '(?<$1>[^/?#]+)');
+  const pattern = escaped.replace(/__PARAM_([a-zA-Z0-9_-]+)__/g, "(?<$1>[^/?#]+)");
 
   return new RegExp(`^${pattern}(?:\\/)?$`);
 }
@@ -102,8 +102,8 @@ export function compileRoutes(spec) {
 
   spec.tags.forEach((tag) => {
     (tag.paths || []).forEach((pathItem) => {
-      const method = (pathItem.method || 'GET').toUpperCase();
-      const pathTemplate = pathItem.path || '';
+      const method = (pathItem.method || "GET").toUpperCase();
+      const pathTemplate = pathItem.path || "";
       const routeKey = `${method} ${pathTemplate}`;
 
       if (seenRoutes.has(routeKey)) {
@@ -111,7 +111,8 @@ export function compileRoutes(spec) {
       }
       seenRoutes.add(routeKey);
 
-      const endpointBases = pathItem.servers?.length > 0 ? extractServerBases(pathItem.servers) : rootBases;
+      const endpointBases =
+        pathItem.servers?.length > 0 ? extractServerBases(pathItem.servers) : rootBases;
 
       const patterns = endpointBases.map((base) => compileRoutePattern(pathTemplate, base));
 
@@ -139,13 +140,16 @@ function matchRoute(method, urlStr) {
 
   let reqUrl;
   try {
-    const origin = typeof window !== 'undefined' && window.location?.href ? window.location.href : 'http://localhost';
+    const origin =
+      typeof window !== "undefined" && window.location?.href
+        ? window.location.href
+        : "http://localhost";
     reqUrl = new URL(urlStr, origin);
   } catch {
     return null;
   }
 
-  const upperMethod = (method || 'GET').toUpperCase();
+  const upperMethod = (method || "GET").toUpperCase();
   const pathname = decodeURI(reqUrl.pathname);
 
   for (const route of compiledRoutes) {
@@ -172,25 +176,25 @@ function matchRoute(method, urlStr) {
  * Chooses the status code based on config and strategy (first, cycle, random).
  */
 function selectStatusCode(configuredCodesStr, strategy, endpointKey, responses = {}) {
-  const codes = (configuredCodesStr || '')
-    .split(',')
+  const codes = (configuredCodesStr || "")
+    .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
 
   if (codes.length === 0) {
     // Look for 2xx response defined in spec
-    const twoXx = Object.keys(responses).find((k) => k.startsWith('2'));
+    const twoXx = Object.keys(responses).find((k) => k.startsWith("2"));
     if (twoXx) return twoXx;
-    if ('default' in responses) return 'default';
+    if ("default" in responses) return "default";
     const firstCode = Object.keys(responses)[0];
-    return firstCode || '200';
+    return firstCode || "200";
   }
 
-  if (strategy === 'random') {
+  if (strategy === "random") {
     return codes[Math.floor(Math.random() * codes.length)];
   }
 
-  if (strategy === 'cycle') {
+  if (strategy === "cycle") {
     const currentIndex = routeCycleIndices.get(endpointKey) || 0;
     const selected = codes[currentIndex % codes.length];
     routeCycleIndices.set(endpointKey, (currentIndex + 1) % codes.length);
@@ -205,43 +209,58 @@ function selectStatusCode(configuredCodesStr, strategy, endpointKey, responses =
  * Generates the mock response body and headers for a matched route.
  */
 function buildMockResponsePayload(route, statusCode) {
-  const responseDef = route.responses?.[statusCode] || route.responses?.[String(statusCode)] || route.responses?.['default'];
+  const responseDef =
+    route.responses?.[statusCode] ||
+    route.responses?.[String(statusCode)] ||
+    route.responses?.["default"];
 
   const headers = {
-    'X-Mock-Server': 'RapiDoc',
-    'Access-Control-Allow-Origin': '*',
+    "X-Mock-Server": "RapiDoc",
+    "Access-Control-Allow-Origin": "*",
   };
 
-  let body = '';
-  let contentType = 'application/json';
+  let body = "";
+  let contentType = "application/json";
 
   if (responseDef?.content) {
     const availableTypes = Object.keys(responseDef.content);
     // Prefer json, then xml, then text, then first available
     contentType =
-      availableTypes.find((t) => t.includes('json')) ||
-      availableTypes.find((t) => t.includes('xml')) ||
-      availableTypes.find((t) => t.includes('text')) ||
+      availableTypes.find((t) => t.includes("json")) ||
+      availableTypes.find((t) => t.includes("xml")) ||
+      availableTypes.find((t) => t.includes("text")) ||
       availableTypes[0] ||
-      'application/json';
+      "application/json";
 
     const mediaObj = responseDef.content[contentType];
     if (mediaObj) {
       if (mediaObj.example !== undefined) {
-        body = typeof mediaObj.example === 'object' ? JSON.stringify(mediaObj.example, null, 2) : String(mediaObj.example);
+        body =
+          typeof mediaObj.example === "object"
+            ? JSON.stringify(mediaObj.example, null, 2)
+            : String(mediaObj.example);
       } else if (mediaObj.examples && Object.keys(mediaObj.examples).length > 0) {
         const firstEg = Object.values(mediaObj.examples)[0]?.value;
         if (firstEg !== undefined) {
-          body = typeof firstEg === 'object' ? JSON.stringify(firstEg, null, 2) : String(firstEg);
+          body = typeof firstEg === "object" ? JSON.stringify(firstEg, null, 2) : String(firstEg);
         }
       }
 
       if (!body && mediaObj.schema) {
-        const generated = generateExample(mediaObj.schema, contentType, null, null, true, false, 'text', true);
+        const generated = generateExample(
+          mediaObj.schema,
+          contentType,
+          null,
+          null,
+          true,
+          false,
+          "text",
+          true,
+        );
 
         if (generated && generated.length > 0) {
           const val = generated[0].exampleValue;
-          body = typeof val === 'object' ? JSON.stringify(val, null, 2) : String(val);
+          body = typeof val === "object" ? JSON.stringify(val, null, 2) : String(val);
         }
       }
     }
@@ -249,20 +268,20 @@ function buildMockResponsePayload(route, statusCode) {
 
   // Handle empty or default body when spec has no content defined
   if (!body) {
-    if (String(statusCode) === '204') {
-      body = '';
-    } else if (contentType.includes('json')) {
+    if (String(statusCode) === "204") {
+      body = "";
+    } else if (contentType.includes("json")) {
       const statusNum = Number(statusCode) || 200;
       body = JSON.stringify(
         {
           status: statusNum,
-          message: STATUS_TEXTS[statusNum] || 'Mock Response',
+          message: STATUS_TEXTS[statusNum] || "Mock Response",
         },
         null,
-        2
+        2,
       );
     } else {
-      body = STATUS_TEXTS[Number(statusCode)] || 'OK';
+      body = STATUS_TEXTS[Number(statusCode)] || "OK";
     }
   }
 
@@ -277,13 +296,14 @@ function buildMockResponsePayload(route, statusCode) {
     });
   }
 
-  if (String(statusCode) !== '204') {
-    headers['Content-Type'] = contentType;
+  if (String(statusCode) !== "204") {
+    headers["Content-Type"] = contentType;
   }
 
   return {
     statusCode: Number(statusCode) || 200,
-    statusText: STATUS_TEXTS[Number(statusCode)] || (statusCode === 'default' ? 'OK' : 'Mock Response'),
+    statusText:
+      STATUS_TEXTS[Number(statusCode)] || (statusCode === "default" ? "OK" : "Mock Response"),
     headers,
     body,
   };
@@ -294,10 +314,10 @@ function buildMockResponsePayload(route, statusCode) {
  */
 export function enableMockServer(spec, options = {}) {
   mockConfig = {
-    statusCode: options.statusCode || '',
-    statusStrategy: options.statusStrategy || 'first',
+    statusCode: options.statusCode || "",
+    statusStrategy: options.statusStrategy || "first",
     delay: Number(options.delay) || 0,
-    log: options.log !== 'false',
+    log: options.log !== "false",
   };
 
   compiledRoutes = compileRoutes(spec);
@@ -307,7 +327,7 @@ export function enableMockServer(spec, options = {}) {
     return;
   }
 
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return;
   }
 
@@ -320,18 +340,18 @@ export function enableMockServer(spec, options = {}) {
         return originalFetch.apply(this, arguments);
       }
 
-      let url = '';
-      let method = 'GET';
+      let url = "";
+      let method = "GET";
 
-      if (typeof input === 'string') {
+      if (typeof input === "string") {
         url = input;
-        method = init?.method || 'GET';
+        method = init?.method || "GET";
       } else if (input instanceof URL) {
         url = input.href;
-        method = init?.method || 'GET';
-      } else if (input && typeof input === 'object' && 'url' in input) {
+        method = init?.method || "GET";
+      } else if (input && typeof input === "object" && "url" in input) {
         url = input.url;
-        method = init?.method || input.method || 'GET';
+        method = init?.method || input.method || "GET";
       }
 
       const match = matchRoute(method, url);
@@ -339,7 +359,12 @@ export function enableMockServer(spec, options = {}) {
         return originalFetch.apply(this, arguments);
       }
 
-      const statusCode = selectStatusCode(mockConfig.statusCode, mockConfig.statusStrategy, match.route.routeKey, match.route.responses);
+      const statusCode = selectStatusCode(
+        mockConfig.statusCode,
+        mockConfig.statusStrategy,
+        match.route.routeKey,
+        match.route.responses,
+      );
       const payload = buildMockResponsePayload(match.route, statusCode);
 
       if (mockConfig.delay > 0) {
@@ -349,8 +374,8 @@ export function enableMockServer(spec, options = {}) {
       if (mockConfig.log) {
         console.info(
           `%c[RapiDoc Mock]%c ${method.toUpperCase()} ${match.url.pathname} ➔ ${payload.statusCode} ${payload.statusText}`,
-          'color:#10b981; font-weight:bold;',
-          'color:inherit;'
+          "color:#10b981; font-weight:bold;",
+          "color:inherit;",
         );
       }
 
@@ -392,7 +417,12 @@ export function enableMockServer(spec, options = {}) {
         return originalXhrSend.apply(this, arguments);
       }
 
-      const statusCode = selectStatusCode(mockConfig.statusCode, mockConfig.statusStrategy, match.route.routeKey, match.route.responses);
+      const statusCode = selectStatusCode(
+        mockConfig.statusCode,
+        mockConfig.statusStrategy,
+        match.route.routeKey,
+        match.route.responses,
+      );
       const payload = buildMockResponsePayload(match.route, statusCode);
 
       const delayMs = mockConfig.delay > 0 ? mockConfig.delay : 10;
@@ -401,20 +431,20 @@ export function enableMockServer(spec, options = {}) {
         if (mockConfig.log) {
           console.info(
             `%c[RapiDoc Mock (XHR)]%c ${this._mockMethod.toUpperCase()} ${match.url.pathname} ➔ ${payload.statusCode} ${payload.statusText}`,
-            'color:#10b981; font-weight:bold;',
-            'color:inherit;'
+            "color:#10b981; font-weight:bold;",
+            "color:inherit;",
           );
         }
 
-        Object.defineProperty(this, 'readyState', { value: 4, writable: true });
-        Object.defineProperty(this, 'status', { value: payload.statusCode, writable: true });
-        Object.defineProperty(this, 'statusText', { value: payload.statusText, writable: true });
-        Object.defineProperty(this, 'responseText', { value: payload.body, writable: true });
-        Object.defineProperty(this, 'response', { value: payload.body, writable: true });
+        Object.defineProperty(this, "readyState", { value: 4, writable: true });
+        Object.defineProperty(this, "status", { value: payload.statusCode, writable: true });
+        Object.defineProperty(this, "statusText", { value: payload.statusText, writable: true });
+        Object.defineProperty(this, "responseText", { value: payload.body, writable: true });
+        Object.defineProperty(this, "response", { value: payload.body, writable: true });
 
         const headerStr = Object.entries(payload.headers)
           .map(([k, v]) => `${k}: ${v}\r\n`)
-          .join('');
+          .join("");
 
         this.getAllResponseHeaders = () => headerStr;
         this.getResponseHeader = (name) => {
@@ -423,13 +453,13 @@ export function enableMockServer(spec, options = {}) {
           return found ? payload.headers[found] : null;
         };
 
-        this.dispatchEvent(new Event('readystatechange'));
-        this.dispatchEvent(new Event('load'));
-        this.dispatchEvent(new Event('loadend'));
-        if (typeof this.onreadystatechange === 'function') {
+        this.dispatchEvent(new Event("readystatechange"));
+        this.dispatchEvent(new Event("load"));
+        this.dispatchEvent(new Event("loadend"));
+        if (typeof this.onreadystatechange === "function") {
           this.onreadystatechange();
         }
-        if (typeof this.onload === 'function') {
+        if (typeof this.onload === "function") {
           this.onload();
         }
       }, delayMs);
@@ -447,7 +477,7 @@ export function disableMockServer() {
   compiledRoutes = [];
   routeCycleIndices.clear();
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     if (originalFetch) {
       window.fetch = originalFetch;
       originalFetch = null;
@@ -470,7 +500,7 @@ export function updateMockConfig(options = {}) {
   if (options.statusCode !== undefined) mockConfig.statusCode = options.statusCode;
   if (options.statusStrategy !== undefined) mockConfig.statusStrategy = options.statusStrategy;
   if (options.delay !== undefined) mockConfig.delay = Number(options.delay) || 0;
-  if (options.log !== undefined) mockConfig.log = options.log !== 'false';
+  if (options.log !== undefined) mockConfig.log = options.log !== "false";
 }
 
 export function isMockServerActive() {

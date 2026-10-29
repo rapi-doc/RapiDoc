@@ -4,12 +4,12 @@
  */
 
 /** BroadcastChannel the return page also replies on: still works when the provider's page cuts `window.opener`. */
-export const OAUTH_CHANNEL = 'rapidoc-oauth';
+export const OAUTH_CHANNEL = "rapidoc-oauth";
 
 function base64Url(bytes) {
-  let binary = '';
+  let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 /**
@@ -29,7 +29,7 @@ export function randomUrlSafe(bytes = 32) {
  * @returns {Promise<string>}
  */
 export async function pkceChallenge(verifier) {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
   return base64Url(new Uint8Array(digest));
 }
 
@@ -43,22 +43,22 @@ export function readOAuthReply(location) {
   if (location.search && location.search.length > 1) {
     const params = new URLSearchParams(location.search);
     return {
-      responseType: 'code',
-      code: params.get('code'),
-      state: params.get('state'),
-      error: params.get('error'),
-      errorDescription: params.get('error_description'),
+      responseType: "code",
+      code: params.get("code"),
+      state: params.get("state"),
+      error: params.get("error"),
+      errorDescription: params.get("error_description"),
     };
   }
   if (location.hash && location.hash.length > 1) {
     const params = new URLSearchParams(location.hash.slice(1));
     return {
-      responseType: 'token',
-      accessToken: params.get('access_token'),
-      tokenType: params.get('token_type'),
-      state: params.get('state'),
-      error: params.get('error'),
-      errorDescription: params.get('error_description'),
+      responseType: "token",
+      accessToken: params.get("access_token"),
+      tokenType: params.get("token_type"),
+      state: params.get("state"),
+      error: params.get("error"),
+      errorDescription: params.get("error_description"),
     };
   }
   return null;
@@ -78,8 +78,8 @@ export function readOAuthReply(location) {
  * @param {*} [expectedSource] - the popup window
  */
 export function isExpectedOAuthReply(reply, expected, origin, source, expectedSource) {
-  if (!reply || typeof reply !== 'object') return false;
-  if (reply.responseType !== 'code' && reply.responseType !== 'token') return false;
+  if (!reply || typeof reply !== "object") return false;
+  if (reply.responseType !== "code" && reply.responseType !== "token") return false;
   if (!expected.state || reply.state !== expected.state) return false;
   if (expected.origin !== undefined && origin !== expected.origin) return false;
   if (expectedSource !== undefined && source !== expectedSource) return false;

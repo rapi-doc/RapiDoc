@@ -10,16 +10,16 @@
  * Supports 3-tier navigation (x-tagGroups / x-tag-groups) with fallback to 2-tier tags.
  */
 
-import { resolveSpecInput } from './render.js';
-import { escapeHtml } from './serializer.js';
-import { OperationSlugger, toKebabCase } from '../utils/slugger.js';
-import { bindNavBar } from '../utils/bind-navbar.js';
-import { isInternalOrHidden } from '../utils/common-utils.js';
+import { resolveSpecInput } from "./render.js";
+import { escapeHtml } from "./serializer.js";
+import { OperationSlugger, toKebabCase } from "../utils/slugger.js";
+import { bindNavBar } from "../utils/bind-navbar.js";
+import { isInternalOrHidden } from "../utils/common-utils.js";
 
 export { isInternalOrHidden };
 
 /** Values of show-method-in-nav-bar (rapidoc.ts accepts the same). */
-const METHOD_STYLES = ['false', 'as-plain-text', 'as-colored-text', 'as-colored-block'];
+const METHOD_STYLES = ["false", "as-plain-text", "as-colored-text", "as-colored-block"];
 
 /**
  * Normalizes HTTP method badge string (3-character format matching core RapiDoc).
@@ -29,10 +29,10 @@ const METHOD_STYLES = ['false', 'as-plain-text', 'as-colored-text', 'as-colored-
  * @param {'3-char'|'full'} [format='3-char']
  * @returns {string}
  */
-export function getMethodBadge(method, format = '3-char') {
-  if (!method) return '';
+export function getMethodBadge(method, format = "3-char") {
+  if (!method) return "";
   const m = String(method).toLowerCase();
-  if (format === '3-char') {
+  if (format === "3-char") {
     return m.substring(0, 3).toUpperCase();
   }
   return m.toUpperCase();
@@ -49,28 +49,28 @@ function getTagOperations(tag, spec, sharedSlugger) {
   if (Array.isArray(tag.paths) && tag.paths.length > 0) {
     return tag.paths.filter((p) => !isInternalOrHidden(p));
   }
-  if (!spec?.paths || typeof spec.paths !== 'object') return [];
+  if (!spec?.paths || typeof spec.paths !== "object") return [];
 
-  const tagName = (tag.name || '').toLowerCase();
+  const tagName = (tag.name || "").toLowerCase();
   const operations = [];
-  const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'];
+  const httpMethods = ["get", "post", "put", "delete", "patch", "options", "head", "trace"];
   const slugger = sharedSlugger || new OperationSlugger();
   const tagSlug = toKebabCase(tag.name);
 
   for (const [pathKey, pathObj] of Object.entries(spec.paths)) {
-    if (!pathObj || typeof pathObj !== 'object') continue;
+    if (!pathObj || typeof pathObj !== "object") continue;
     for (const method of httpMethods) {
       const op = pathObj[method];
-      if (op && typeof op === 'object' && !isInternalOrHidden(op)) {
+      if (op && typeof op === "object" && !isInternalOrHidden(op)) {
         const opTags = Array.isArray(op.tags) ? op.tags.map((t) => String(t).toLowerCase()) : [];
         if (opTags.includes(tagName)) {
           operations.push({
             method,
             path: pathKey,
-            summary: op.summary || '',
-            description: op.description || '',
+            summary: op.summary || "",
+            description: op.description || "",
             deprecated: Boolean(op.deprecated),
-            operationId: op.operationId || '',
+            operationId: op.operationId || "",
             elementId: slugger.slug(
               {
                 method,
@@ -78,7 +78,7 @@ function getTagOperations(tag, spec, sharedSlugger) {
                 operationId: op.operationId,
                 summary: op.summary || op.description,
               },
-              tagSlug
+              tagSlug,
             ),
           });
         }
@@ -104,9 +104,9 @@ export async function getSpecNavigation(specInput, options = {}) {
     .map((t) => {
       const paths = getTagOperations(t, resolvedSpec, slugger);
       return {
-        name: t.name || t.displayName || '',
-        displayName: t.displayName || t.name || '',
-        description: t.description || '',
+        name: t.name || t.displayName || "",
+        displayName: t.displayName || t.name || "",
+        description: t.description || "",
         elementId: t.elementId || slugger.slugTag(t.name),
         expanded: t.expanded !== false,
         paths,
@@ -121,12 +121,12 @@ export async function getSpecNavigation(specInput, options = {}) {
       const groupTags = (group.tags || [])
         .filter((t) => !isInternalOrHidden(t))
         .map((t) => {
-          assignedTagNames.add((t.name || '').toLowerCase());
+          assignedTagNames.add((t.name || "").toLowerCase());
           const paths = getTagOperations(t, resolvedSpec, slugger);
           return {
-            name: t.name || t.displayName || '',
-            displayName: t.displayName || t.name || '',
-            description: t.description || '',
+            name: t.name || t.displayName || "",
+            displayName: t.displayName || t.name || "",
+            description: t.description || "",
             elementId: t.elementId || slugger.slugTag(t.name),
             expanded: t.expanded !== false,
             paths,
@@ -136,9 +136,9 @@ export async function getSpecNavigation(specInput, options = {}) {
 
       if (groupTags.length === 0) return null;
       return {
-        name: group.name || group.displayName || '',
-        displayName: group.displayName || group.name || '',
-        description: group.description || '',
+        name: group.name || group.displayName || "",
+        displayName: group.displayName || group.name || "",
+        description: group.description || "",
         elementId: group.elementId || slugger.slugTagGroup(group.name),
         expanded: group.expanded !== false,
         tags: groupTags,
@@ -146,12 +146,13 @@ export async function getSpecNavigation(specInput, options = {}) {
     })
     .filter(Boolean);
 
-  const remainingTags = tagGroups.length > 0 ? allTags.filter((t) => !assignedTagNames.has(t.name.toLowerCase())) : [];
+  const remainingTags =
+    tagGroups.length > 0 ? allTags.filter((t) => !assignedTagNames.has(t.name.toLowerCase())) : [];
 
   return {
-    title: resolvedSpec.info?.title || '',
-    version: resolvedSpec.info?.version || '',
-    description: resolvedSpec.info?.description || '',
+    title: resolvedSpec.info?.title || "",
+    version: resolvedSpec.info?.version || "",
+    description: resolvedSpec.info?.description || "",
     tagGroups,
     tags: allTags,
     remainingTags,
@@ -162,9 +163,9 @@ export async function getSpecNavigation(specInput, options = {}) {
  * Renders a single operation item link.
  */
 function renderOperation(op, tagSlug, ctx) {
-  if (!op || isInternalOrHidden(op)) return '';
-  const method = op.method ? op.method.toLowerCase() : 'get';
-  const path = op.path || '';
+  if (!op || isInternalOrHidden(op)) return "";
+  const method = op.method ? op.method.toLowerCase() : "get";
+  const path = op.path || "";
 
   // Extract clean operation slug without tag prefix
   const rawElementId = op.elementId || ctx.slugger.slug(op, tagSlug);
@@ -173,7 +174,7 @@ function renderOperation(op, tagSlug, ctx) {
 
   if (op.elementId) {
     hierarchicalId = op.elementId;
-    if (tagSlug && tagSlug !== 'general') {
+    if (tagSlug && tagSlug !== "general") {
       const prefix = `${tagSlug}--`;
       opSlug = hierarchicalId.startsWith(prefix)
         ? hierarchicalId.slice(prefix.length)
@@ -184,13 +185,15 @@ function renderOperation(op, tagSlug, ctx) {
       opSlug = hierarchicalId;
     }
   } else {
-    opSlug = ctx.slugger.slugOp ? ctx.slugger.slugOp(op) : rawElementId.replace(/^[a-z0-9_-]+--/, '');
-    hierarchicalId = tagSlug && tagSlug !== 'general' ? `${tagSlug}--${opSlug}` : opSlug;
+    opSlug = ctx.slugger.slugOp
+      ? ctx.slugger.slugOp(op)
+      : rawElementId.replace(/^[a-z0-9_-]+--/, "");
+    hierarchicalId = tagSlug && tagSlug !== "general" ? `${tagSlug}--${opSlug}` : opSlug;
   }
 
   let href;
   let contentId;
-  if (ctx.routingMode === 'tag-pages' && tagSlug && tagSlug !== 'general') {
+  if (ctx.routingMode === "tag-pages" && tagSlug && tagSlug !== "general") {
     href = `${ctx.cleanBase}/${tagSlug}#${opSlug}`;
     contentId = opSlug;
   } else {
@@ -203,19 +206,27 @@ function renderOperation(op, tagSlug, ctx) {
     : escapeHtml(op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`);
   // As in <rapi-doc>: a three-letter badge for as-colored-block, the full method otherwise, nothing for false.
   const methodStyle = ctx.showMethodInNavBar;
-  const methodBadge = getMethodBadge(method, methodStyle === 'as-colored-block' ? ctx.methodBadgeFormat : 'full');
-  const methodHtml = methodStyle === 'false' ? '' : `\n      <span class="nav-method ${methodStyle} ${method}">${methodBadge}</span>`;
+  const methodBadge = getMethodBadge(
+    method,
+    methodStyle === "as-colored-block" ? ctx.methodBadgeFormat : "full",
+  );
+  const methodHtml =
+    methodStyle === "false"
+      ? ""
+      : `\n      <span class="nav-method ${methodStyle} ${method}">${methodBadge}</span>`;
   const isActive = Boolean(
     ctx.activeHref &&
-    (ctx.activeHref === href || ctx.activeHref.endsWith(`#${contentId}`) || (opSlug && ctx.activeHref.endsWith(`#${opSlug}`)))
+    (ctx.activeHref === href ||
+      ctx.activeHref.endsWith(`#${contentId}`) ||
+      (opSlug && ctx.activeHref.endsWith(`#${opSlug}`))),
   );
-  const deprecatedClass = op.deprecated ? ' deprecated' : '';
-  const extraClass = ctx.itemClassName ? ` ${ctx.itemClassName}` : '';
+  const deprecatedClass = op.deprecated ? " deprecated" : "";
+  const extraClass = ctx.itemClassName ? ` ${ctx.itemClassName}` : "";
 
   return `
     <a
       href="${escapeHtml(href)}"
-      class="nav-bar-path${extraClass} ${isActive ? 'active' : ''}${deprecatedClass}"
+      class="nav-bar-path${extraClass} ${isActive ? "active" : ""}${deprecatedClass}"
       part="section-navbar-item section-navbar-path"
       data-action="navigate"
       data-content-id="${contentId}"
@@ -232,19 +243,21 @@ function renderOperation(op, tagSlug, ctx) {
  * Renders a tag accordion section and its underlying operations.
  */
 function renderTag(tag, ctx) {
-  if (!tag || isInternalOrHidden(tag)) return '';
+  if (!tag || isInternalOrHidden(tag)) return "";
   const visiblePaths = getTagOperations(tag, ctx.resolvedSpec, ctx.slugger);
-  if (visiblePaths.length === 0) return '';
+  if (visiblePaths.length === 0) return "";
   const tagSlug = toKebabCase(tag.name);
   const elementId = tag.elementId || ctx.slugger.slugTag(tag.name);
-  const title = tag.displayName || tag.name || '';
+  const title = tag.displayName || tag.name || "";
   const isExpanded = tag.expanded !== false;
-  const pathsHtml = visiblePaths.map((op) => renderOperation(op, tagSlug, ctx)).join('');
+  const pathsHtml = visiblePaths.map((op) => renderOperation(op, tagSlug, ctx)).join("");
   const tagHref =
-    ctx.routingMode === 'tag-pages' && tagSlug && tagSlug !== 'general' ? `${ctx.cleanBase}/${tagSlug}` : `${ctx.basePath}#${elementId}`;
+    ctx.routingMode === "tag-pages" && tagSlug && tagSlug !== "general"
+      ? `${ctx.cleanBase}/${tagSlug}`
+      : `${ctx.basePath}#${elementId}`;
 
   return `
-    <div class="nav-bar-tag-and-paths ${isExpanded ? 'expanded' : 'collapsed'}" id="link-${elementId}">
+    <div class="nav-bar-tag-and-paths ${isExpanded ? "expanded" : "collapsed"}" id="link-${elementId}">
       <div
         class="nav-bar-tag"
         part="section-navbar-item section-navbar-tag"
@@ -253,7 +266,7 @@ function renderTag(tag, ctx) {
         data-tag-href="${escapeHtml(tagHref)}"
         tabindex="0"
         role="button"
-        aria-expanded="${isExpanded ? 'true' : 'false'}"
+        aria-expanded="${isExpanded ? "true" : "false"}"
       >
         <div class="nav-bar-tag-title" data-tag-href="${escapeHtml(tagHref)}">${escapeHtml(title)}</div>
         <div class="nav-bar-tag-icon" tabindex="0" data-action="expand-collapse-tag"></div>
@@ -268,25 +281,25 @@ function renderTag(tag, ctx) {
  * Renders a 3-tier tag group accordion.
  */
 function renderGroup(group, ctx) {
-  if (!group || isInternalOrHidden(group)) return '';
+  if (!group || isInternalOrHidden(group)) return "";
   const groupTagsHtml = (group.tags || [])
     .map((t) => renderTag(t, ctx))
     .filter(Boolean)
-    .join('');
-  if (!groupTagsHtml) return '';
+    .join("");
+  if (!groupTagsHtml) return "";
   const groupId = group.elementId || ctx.slugger.slugTagGroup(group.name);
-  const title = group.displayName || group.name || '';
+  const title = group.displayName || group.name || "";
   const isExpanded = group.expanded !== false;
 
   return `
-    <div class="nav-bar-tag-group ${isExpanded ? 'expanded' : 'collapsed'}" id="link-${groupId}">
+    <div class="nav-bar-tag-group ${isExpanded ? "expanded" : "collapsed"}" id="link-${groupId}">
       <div
         class="nav-bar-tag-group-header"
         part="section-navbar-item section-navbar-tag-group"
         data-action="expand-collapse-tag-group"
         tabindex="0"
         role="button"
-        aria-expanded="${isExpanded ? 'true' : 'false'}"
+        aria-expanded="${isExpanded ? "true" : "false"}"
       >
         <div class="nav-bar-tag-group-title">${escapeHtml(title)}</div>
         <div class="nav-bar-tag-group-icon" tabindex="0" data-action="expand-collapse-tag-group"></div>
@@ -306,8 +319,8 @@ function renderGroup(group, ctx) {
  * @returns {string}
  */
 export function getNavFilterHtml(options = {}) {
-  const placeholder = options.searchPlaceholder || options.placeholder || 'Filter...';
-  const extraClass = options.inputClassName ? ` ${options.inputClassName}` : '';
+  const placeholder = options.searchPlaceholder || options.placeholder || "Filter...";
+  const extraClass = options.inputClassName ? ` ${options.inputClassName}` : "";
   return `
       <div class="nav-bar-header" part="section-navbar-header">
         <div class="nav-bar-search-container" part="section-navbar-search">
@@ -362,25 +375,27 @@ export async function getNavBarHtml(specInput, options = {}) {
  */
 export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
   const {
-    basePath = '',
-    activeHref = '',
+    basePath = "",
+    activeHref = "",
     includeSearch = true,
-    searchPlaceholder = 'Filter...',
-    backToDocsHref = '',
-    backToDocsLabel = 'Documentation',
-    itemClassName = '',
+    searchPlaceholder = "Filter...",
+    backToDocsHref = "",
+    backToDocsLabel = "Documentation",
+    itemClassName = "",
     includeOverview = true,
-    methodBadgeFormat = '3-char',
-    routingMode = options.routingMode ?? options['routing-mode'] ?? 'single-page',
+    methodBadgeFormat = "3-char",
+    routingMode = options.routingMode ?? options["routing-mode"] ?? "single-page",
   } = options;
   // The same values as <rapi-doc>'s show-method-in-nav-bar and use-path-in-nav-bar; anything else is the default.
-  const methodStyle = options.showMethodInNavBar ?? options['show-method-in-nav-bar'];
-  const showMethodInNavBar = METHOD_STYLES.includes(String(methodStyle)) ? String(methodStyle) : 'as-colored-block';
-  const pathOption = options.usePathInNav ?? options['use-path-in-nav-bar'];
-  const usePathInNav = pathOption === true || pathOption === 'true';
+  const methodStyle = options.showMethodInNavBar ?? options["show-method-in-nav-bar"];
+  const showMethodInNavBar = METHOD_STYLES.includes(String(methodStyle))
+    ? String(methodStyle)
+    : "as-colored-block";
+  const pathOption = options.usePathInNav ?? options["use-path-in-nav-bar"];
+  const usePathInNav = pathOption === true || pathOption === "true";
 
   const slugger = new OperationSlugger();
-  const cleanBase = basePath.replace(/\/$/, '');
+  const cleanBase = basePath.replace(/\/$/, "");
 
   const ctx = {
     basePath,
@@ -396,17 +411,21 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
     slugger,
   };
 
-  let overviewHtml = '';
+  let overviewHtml = "";
   if (includeOverview && resolvedSpec.info) {
-    const overviewTitle = resolvedSpec.info.title || 'Overview';
+    const overviewTitle = resolvedSpec.info.title || "Overview";
     const href = `${basePath}#overview`;
     const isActive = Boolean(
-      activeHref && (activeHref === href || activeHref === basePath || activeHref === `${basePath}/` || activeHref.endsWith('#overview'))
+      activeHref &&
+      (activeHref === href ||
+        activeHref === basePath ||
+        activeHref === `${basePath}/` ||
+        activeHref.endsWith("#overview")),
     );
     overviewHtml = `
       <a
         href="${escapeHtml(href)}"
-        class="nav-bar-info ${isActive ? 'active' : ''}"
+        class="nav-bar-info ${isActive ? "active" : ""}"
         id="link-overview"
         data-action="navigate"
         data-content-id="overview"
@@ -423,17 +442,17 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
     const groupsHtml = resolvedSpec.tagGroups
       .filter((g) => !isInternalOrHidden(g))
       .map((group) => {
-        (group.tags || []).forEach((t) => assignedTagNames.add((t.name || '').toLowerCase()));
+        (group.tags || []).forEach((t) => assignedTagNames.add((t.name || "").toLowerCase()));
         return renderGroup(group, ctx);
       })
       .filter(Boolean)
-      .join('');
+      .join("");
 
     const remainingTagsHtml = (resolvedSpec.tags || [])
-      .filter((t) => !assignedTagNames.has((t.name || '').toLowerCase()) && !isInternalOrHidden(t))
+      .filter((t) => !assignedTagNames.has((t.name || "").toLowerCase()) && !isInternalOrHidden(t))
       .map((t) => renderTag(t, ctx))
       .filter(Boolean)
-      .join('');
+      .join("");
 
     bodyHtml = groupsHtml + remainingTagsHtml;
   } else {
@@ -441,11 +460,11 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
       .filter((t) => !isInternalOrHidden(t))
       .map((t) => renderTag(t, ctx))
       .filter(Boolean)
-      .join('');
+      .join("");
   }
 
   // Dedicated in-place filter input header (without redundant SEARCH modal button)
-  const searchHeaderHtml = includeSearch ? getNavFilterHtml({ searchPlaceholder }) : '';
+  const searchHeaderHtml = includeSearch ? getNavFilterHtml({ searchPlaceholder }) : "";
 
   const backLinkHtml = backToDocsHref
     ? `
@@ -454,7 +473,7 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
           <span class="nav-bar-path-label">&larr; ${escapeHtml(backToDocsLabel)}</span>
         </a>
       </div>`
-    : '';
+    : "";
 
   return `
     ${searchHeaderHtml}

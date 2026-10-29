@@ -7,6 +7,6 @@
  * @param {string} path - OpenAPI path, e.g. /shipments/{trackingNumber}
  */
 export function operationMatchPattern(method, path) {
-  const escaped = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return `^${method.toLowerCase()} ${escaped}$`;
 }

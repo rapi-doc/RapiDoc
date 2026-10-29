@@ -1,25 +1,25 @@
 #!/usr/bin/env node
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { createInterface } from 'node:readline/promises';
-import { load, validate } from '@scalar/openapi-parser';
-import { readFiles } from '@scalar/openapi-parser/plugins/read-files';
+import fs from "node:fs";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { createInterface } from "node:readline/promises";
+import { load, validate } from "@scalar/openapi-parser";
+import { readFiles } from "@scalar/openapi-parser/plugins/read-files";
 
 const args = process.argv.slice(2);
-const command = args[0] || '--help';
+const command = args[0] || "--help";
 
 // The portal engine (Astro, Starlight, Markdoc) is an optional peer: only dev, build, migrate and portal-wide
 // validate need it, so `rapidoc validate <spec>` and `rapidoc init` work without it.
 // RAPIDOC_PORTAL_MODULE swaps the module name (tests use it to simulate a missing engine).
-const PORTAL_MODULE = process.env.RAPIDOC_PORTAL_MODULE || '@rapidoc/portal';
+const PORTAL_MODULE = process.env.RAPIDOC_PORTAL_MODULE || "@rapidoc/portal";
 
 async function tryLoadPortal() {
   try {
     return await import(PORTAL_MODULE);
   } catch (err) {
-    if (err.code === 'ERR_MODULE_NOT_FOUND' && err.message.includes(PORTAL_MODULE)) return null;
+    if (err.code === "ERR_MODULE_NOT_FOUND" && err.message.includes(PORTAL_MODULE)) return null;
     throw err;
   }
 }
@@ -27,7 +27,9 @@ async function tryLoadPortal() {
 async function loadPortal() {
   const portal = await tryLoadPortal();
   if (!portal) {
-    console.error(`\n❌ \`rapidoc ${command}\` needs the portal engine. Install it next to the CLI:`);
+    console.error(
+      `\n❌ \`rapidoc ${command}\` needs the portal engine. Install it next to the CLI:`,
+    );
     console.error(`   npm install -D @rapidoc/portal\n`);
     process.exit(1);
   }
@@ -36,13 +38,13 @@ async function loadPortal() {
 
 // The server behind `rapidoc serve` is an optional peer too: only serve needs it.
 // RAPIDOC_SERVER_MODULE swaps the module name (tests use it to simulate a missing server).
-const SERVER_MODULE = process.env.RAPIDOC_SERVER_MODULE || '@rapidoc/server';
+const SERVER_MODULE = process.env.RAPIDOC_SERVER_MODULE || "@rapidoc/server";
 
 async function loadServer() {
   try {
     return await import(SERVER_MODULE);
   } catch (err) {
-    if (err.code !== 'ERR_MODULE_NOT_FOUND' || !err.message.includes(SERVER_MODULE)) throw err;
+    if (err.code !== "ERR_MODULE_NOT_FOUND" || !err.message.includes(SERVER_MODULE)) throw err;
     console.error(`\n❌ \`rapidoc serve\` needs @rapidoc/server. Install it next to the CLI:`);
     console.error(`   npm install @rapidoc/server\n`);
     process.exit(1);
@@ -51,20 +53,21 @@ async function loadServer() {
 
 // The mock server behind `rapidoc mock` is an optional peer as well.
 // RAPIDOC_MOCK_MODULE swaps the module name (tests use it to simulate a missing mock server).
-const MOCK_MODULE = process.env.RAPIDOC_MOCK_MODULE || '@rapidoc/mock';
+const MOCK_MODULE = process.env.RAPIDOC_MOCK_MODULE || "@rapidoc/mock";
 
 async function loadMock() {
   try {
     return await import(MOCK_MODULE);
   } catch (err) {
-    if (err.code !== 'ERR_MODULE_NOT_FOUND' || !err.message.includes(MOCK_MODULE)) throw err;
+    if (err.code !== "ERR_MODULE_NOT_FOUND" || !err.message.includes(MOCK_MODULE)) throw err;
     console.error(`\n❌ \`rapidoc mock\` needs @rapidoc/mock. Install it next to the CLI:`);
     console.error(`   npm install -D @rapidoc/mock\n`);
     process.exit(1);
   }
 }
 
-const positional = (index) => (args[index] && !args[index].startsWith('-') ? args[index] : undefined);
+const positional = (index) =>
+  args[index] && !args[index].startsWith("-") ? args[index] : undefined;
 const optionValue = (name) => {
   const idx = args.indexOf(name);
   return idx !== -1 ? args[idx + 1] : undefined;
@@ -124,15 +127,15 @@ Examples:
 }
 
 async function handleDev() {
-  const targetDir = args[1] && !args[1].startsWith('--') ? args[1] : process.cwd();
+  const targetDir = args[1] && !args[1].startsWith("--") ? args[1] : process.cwd();
   console.log(`\n✨ Starting RapiDoc Portal Dev Server in: ${targetDir}`);
   console.log(`   Engine: Astro + Starlight\n`);
 
   const { startDevServer } = await loadPortal();
   try {
-    const portIdx = args.indexOf('--port');
+    const portIdx = args.indexOf("--port");
     const port = portIdx !== -1 ? parseInt(args[portIdx + 1], 10) : 4321;
-    const keepWorkspace = args.includes('--debug');
+    const keepWorkspace = args.includes("--debug");
     const devServer = await startDevServer(targetDir, { port, keepWorkspace });
     if (keepWorkspace) console.log(`   • Workspace (kept): ${devServer.workspaceDir}\n`);
   } catch (err) {
@@ -142,17 +145,17 @@ async function handleDev() {
 }
 
 async function handleBuild() {
-  const targetDir = args[1] && !args[1].startsWith('--') ? args[1] : process.cwd();
+  const targetDir = args[1] && !args[1].startsWith("--") ? args[1] : process.cwd();
 
   console.log(`\n🚀 Building RapiDoc Portal in: ${targetDir}`);
   console.log(`   Engine: Astro + Starlight`);
 
   const { buildPortal } = await loadPortal();
   try {
-    const outDirIdx = args.indexOf('--outDir');
-    const outDir = outDirIdx !== -1 ? args[outDirIdx + 1] : 'dist';
+    const outDirIdx = args.indexOf("--outDir");
+    const outDir = outDirIdx !== -1 ? args[outDirIdx + 1] : "dist";
 
-    const keepWorkspace = args.includes('--debug');
+    const keepWorkspace = args.includes("--debug");
 
     const result = await buildPortal(targetDir, { outDir, keepWorkspace });
     console.log(`\n✨ Astro build completed successfully in ${result.durationMs}ms!`);
@@ -163,12 +166,12 @@ async function handleBuild() {
       const { protectedPages, zones, warnings } = result.access;
       console.log(`   • Protected:       ${protectedPages} page(s) in ${zones.length} zone(s)`);
       for (const warning of warnings) console.warn(`   ⚠️  ${warning}`);
-      const outRel = path.relative(process.cwd(), result.outDir) || '.';
+      const outRel = path.relative(process.cwd(), result.outDir) || ".";
       console.log(
-        `\n   Serve it with \`rapidoc serve ${outRel}\`. ${outRel}/public alone is safe to host anywhere but has no protected content.`
+        `\n   Serve it with \`rapidoc serve ${outRel}\`. ${outRel}/public alone is safe to host anywhere but has no protected content.`,
       );
     }
-    console.log('');
+    console.log("");
   } catch (err) {
     console.error(`\n❌ Build failed: ${err.message}\n`);
     process.exit(1);
@@ -177,8 +180,8 @@ async function handleBuild() {
 
 // rapidoc serve [dist]: the built portal, with sign-in and access rules when it has `auth`.
 async function handleServe() {
-  const distDir = path.resolve(positional(1) || 'dist');
-  const portValue = optionValue('--port');
+  const distDir = path.resolve(positional(1) || "dist");
+  const portValue = optionValue("--port");
   const port = portValue !== undefined ? parseInt(portValue, 10) : undefined;
   if (portValue !== undefined && !Number.isInteger(port)) {
     console.error(`\n❌ --port needs a number, got "${portValue}"\n`);
@@ -188,9 +191,16 @@ async function handleServe() {
   const { startServer } = await loadServer();
   let server;
   try {
-    server = await startServer({ distDir, port, host: optionValue('--host'), mountPath: optionValue('--mount-path') });
+    server = await startServer({
+      distDir,
+      port,
+      host: optionValue("--host"),
+      mountPath: optionValue("--mount-path"),
+    });
   } catch (err) {
-    console.error(`\n❌ ${err.name === 'SettingsError' ? err.message : `Server failed: ${err.message}`}\n`);
+    console.error(
+      `\n❌ ${err.name === "SettingsError" ? err.message : `Server failed: ${err.message}`}\n`,
+    );
     process.exit(1);
   }
 
@@ -198,49 +208,66 @@ async function handleServe() {
   console.log(`\n🌐 Serving ${distDir}`);
   console.log(`   • URL:      ${server.url}`);
   if (settings.mountPath !== settings.basePath) {
-    console.log(`   • Paths:    requests arrive under ${settings.mountPath || '/'}; links use ${settings.basePath || '/'}`);
+    console.log(
+      `   • Paths:    requests arrive under ${settings.mountPath || "/"}; links use ${settings.basePath || "/"}`,
+    );
   }
-  if (settings.mode === 'static') {
-    console.log('   • Access:   everything public (no sign-in configured)');
+  if (settings.mode === "static") {
+    console.log("   • Access:   everything public (no sign-in configured)");
   } else {
     if (settings.auth) console.log(`   • Sign-in:  ${settings.auth.issuer}`);
-    const zones = Object.keys(settings.manifest.access.zones).filter((zone) => zone !== 'public');
-    console.log(`   • Access:   ${Object.keys(settings.manifest.files).length} protected file(s) in ${zones.length} zone(s)`);
+    const zones = Object.keys(settings.manifest.access.zones).filter((zone) => zone !== "public");
+    console.log(
+      `   • Access:   ${Object.keys(settings.manifest.files).length} protected file(s) in ${zones.length} zone(s)`,
+    );
     if (settings.auth && !settings.publicUrl) {
-      console.warn('   ⚠️  RAPIDOC_PUBLIC_URL is not set: the sign-in redirect URL is taken from each request.');
+      console.warn(
+        "   ⚠️  RAPIDOC_PUBLIC_URL is not set: the sign-in redirect URL is taken from each request.",
+      );
     }
   }
-  console.log('');
+  console.log("");
 
   const stop = async () => {
     await server.close();
     process.exit(0);
   };
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
+  process.once("SIGINT", stop);
+  process.once("SIGTERM", stop);
 }
 
 // Options followed by a value, so `rapidoc mock a.yaml --port 4011 b.yaml` sees two spec files.
-const VALUE_OPTIONS = new Set(['--port', '--host', '--mount-path', '--issuer', '--audience', '--seed', '--outDir', '--title', '--from']);
+const VALUE_OPTIONS = new Set([
+  "--port",
+  "--host",
+  "--mount-path",
+  "--issuer",
+  "--audience",
+  "--seed",
+  "--outDir",
+  "--title",
+  "--from",
+]);
 
 /** The positional arguments after the command. */
 function positionals() {
   const found = [];
   for (let i = 1; i < args.length; i++) {
-    if (!args[i].startsWith('-')) found.push(args[i]);
+    if (!args[i].startsWith("-")) found.push(args[i]);
     else if (VALUE_OPTIONS.has(args[i])) i++;
   }
   return found;
 }
 
 // The portal's config file names (CONFIG_CANDIDATES in @rapidoc/portal), checked without loading the portal engine.
-const hasPortalConfig = (dir) => fs.readdirSync(dir).some((name) => /^rapidoc\.config\.(ya?ml|json|m?js|ts)$/.test(name));
+const hasPortalConfig = (dir) =>
+  fs.readdirSync(dir).some((name) => /^rapidoc\.config\.(ya?ml|json|m?js|ts)$/.test(name));
 
 const slug = (text) =>
   text
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '') || 'api';
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "api";
 
 /**
  * Mock ids for spec files: the file name without its extension (`specs/orders-api.yaml` → `orders-api`). Files that
@@ -251,10 +278,10 @@ function mockApisFromFiles(files) {
   const fullPaths = [...new Set(files.map((file) => path.resolve(file)))];
   const segments = fullPaths.map((fullPath) => {
     const parts = fullPath.split(path.sep).filter(Boolean);
-    parts[parts.length - 1] = parts.at(-1).replace(/\.(ya?ml|json)$/i, '');
+    parts[parts.length - 1] = parts.at(-1).replace(/\.(ya?ml|json)$/i, "");
     return parts;
   });
-  const idOf = (parts, depth) => slug(parts.slice(-depth).join('-'));
+  const idOf = (parts, depth) => slug(parts.slice(-depth).join("-"));
   const ids = segments.map((parts) => idOf(parts, 1));
   const groups = new Map();
   ids.forEach((id, i) => groups.set(id, [...(groups.get(id) || []), i]));
@@ -262,7 +289,11 @@ function mockApisFromFiles(files) {
     if (indices.length < 2) continue;
     const longest = Math.max(...indices.map((i) => segments[i].length));
     let depth = 2;
-    while (depth < longest && new Set(indices.map((i) => idOf(segments[i], depth))).size < indices.length) depth++;
+    while (
+      depth < longest &&
+      new Set(indices.map((i) => idOf(segments[i], depth))).size < indices.length
+    )
+      depth++;
     for (const i of indices) ids[i] = idOf(segments[i], depth);
   }
   const used = new Set();
@@ -295,8 +326,8 @@ async function handleMock() {
     }
     return number;
   };
-  const port = numberOption('--port');
-  const seed = numberOption('--seed');
+  const port = numberOption("--port");
+  const seed = numberOption("--seed");
 
   let apis;
   const folder = targets.length === 1 && fs.statSync(targets[0]).isDirectory() ? targets[0] : null;
@@ -324,29 +355,40 @@ async function handleMock() {
       process.exit(1);
     }
   } else if (folder) {
-    const { findOpenApiSpecs } = await import('create-rapidoc/scaffold');
+    const { findOpenApiSpecs } = await import("create-rapidoc/scaffold");
     const files = findOpenApiSpecs(folder).map((file) => path.join(folder, file));
     if (!files.length) {
       console.error(`\n❌ ${folder} has no rapidoc.config.yaml and no OpenAPI files to mock.\n`);
       process.exit(1);
     }
-    console.log(`\n📂 No rapidoc.config.yaml in ${folder}: mocking the ${files.length} OpenAPI file(s) found there.`);
+    console.log(
+      `\n📂 No rapidoc.config.yaml in ${folder}: mocking the ${files.length} OpenAPI file(s) found there.`,
+    );
     apis = mockApisFromFiles(files);
   } else {
     const dirs = targets.filter((target) => fs.statSync(target).isDirectory());
     if (dirs.length) {
-      console.error(`\n❌ Pass one folder, or one or more spec files (not both): ${dirs.join(', ')}\n`);
+      console.error(
+        `\n❌ Pass one folder, or one or more spec files (not both): ${dirs.join(", ")}\n`,
+      );
       process.exit(1);
     }
     apis = mockApisFromFiles(targets);
   }
 
-  const issuer = optionValue('--issuer') || process.env.RAPIDOC_MOCK_ISSUER || undefined;
-  const audience = optionValue('--audience') || process.env.RAPIDOC_MOCK_AUDIENCE || undefined;
+  const issuer = optionValue("--issuer") || process.env.RAPIDOC_MOCK_ISSUER || undefined;
+  const audience = optionValue("--audience") || process.env.RAPIDOC_MOCK_AUDIENCE || undefined;
   const { startMockServer } = await loadMock();
   let server;
   try {
-    server = await startMockServer({ apis, port, host: optionValue('--host'), issuer, audience, seed });
+    server = await startMockServer({
+      apis,
+      port,
+      host: optionValue("--host"),
+      issuer,
+      audience,
+      seed,
+    });
   } catch (err) {
     console.error(`\n❌ Mock server failed: ${err.message}\n`);
     process.exit(1);
@@ -356,24 +398,34 @@ async function handleMock() {
   const fileOf = new Map(apis.map((api) => [api.id, path.relative(process.cwd(), api.fullPath)]));
   for (const api of server.apis) {
     console.log(
-      `   • ${server.url}/${api.id}  ${api.title ? `${api.title}, ` : ''}${api.operations} operation(s)  (${fileOf.get(api.id)})`
+      `   • ${server.url}/${api.id}  ${api.title ? `${api.title}, ` : ""}${api.operations} operation(s)  (${fileOf.get(api.id)})`,
     );
   }
-  for (const api of server.skipped) console.warn(`   ⚠️  ${api.id}: not served (${api.error.split('\n')[0]})`);
+  for (const api of server.skipped)
+    console.warn(`   ⚠️  ${api.id}: not served (${api.error.split("\n")[0]})`);
   if (issuer) {
-    console.log(`   • Tokens:   verified against ${issuer}${audience ? ` for ${audience}` : ''}; scopes from scope, scp or permissions`);
-    if (!audience) console.warn('   ⚠️  No audience set (--audience or RAPIDOC_MOCK_AUDIENCE): tokens for any API are accepted.');
+    console.log(
+      `   • Tokens:   verified against ${issuer}${audience ? ` for ${audience}` : ""}; scopes from scope, scp or permissions`,
+    );
+    if (!audience)
+      console.warn(
+        "   ⚠️  No audience set (--audience or RAPIDOC_MOCK_AUDIENCE): tokens for any API are accepted.",
+      );
   } else {
-    console.log('   • Tokens:   not verified, any bearer token passes (set --issuer or RAPIDOC_MOCK_ISSUER to check them)');
+    console.log(
+      "   • Tokens:   not verified, any bearer token passes (set --issuer or RAPIDOC_MOCK_ISSUER to check them)",
+    );
   }
-  console.log('   • Try:      Prefer: code=404 picks a documented response; Prefer: example=<name> an example\n');
+  console.log(
+    "   • Try:      Prefer: code=404 picks a documented response; Prefer: example=<name> an example\n",
+  );
 
   const stop = async () => {
     await server.close();
     process.exit(0);
   };
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
+  process.once("SIGINT", stop);
+  process.once("SIGTERM", stop);
 }
 
 /**
@@ -390,14 +442,15 @@ async function validateSpec(id, fullPath, portal) {
     console.error(result.errors);
     return false;
   }
-  console.log('   ✅ Specification is valid OpenAPI!');
-  for (const warning of portal?.checkApiSpec({ id, fullPath }) ?? []) console.warn(`   ⚠️  ${warning}`);
+  console.log("   ✅ Specification is valid OpenAPI!");
+  for (const warning of portal?.checkApiSpec({ id, fullPath }) ?? [])
+    console.warn(`   ⚠️  ${warning}`);
   return true;
 }
 
 // rapidoc validate <spec>: one spec file. rapidoc validate [dir]: every local spec in the portal's apis:.
 async function handleValidate() {
-  const target = path.resolve(args[1] && !args[1].startsWith('--') ? args[1] : process.cwd());
+  const target = path.resolve(args[1] && !args[1].startsWith("--") ? args[1] : process.cwd());
   if (!fs.existsSync(target)) {
     console.error(`Error: File not found: ${target}`);
     process.exit(1);
@@ -406,7 +459,7 @@ async function handleValidate() {
   if (fs.statSync(target).isFile()) {
     console.log(`\nValidating OpenAPI specification...`);
     const valid = await validateSpec(path.basename(target), target, await tryLoadPortal());
-    console.log('');
+    console.log("");
     if (!valid) process.exit(1);
     return;
   }
@@ -423,7 +476,10 @@ async function handleValidate() {
   console.log(`\nValidating the specs in ${target}...`);
   let failed = 0;
   const versions = (config.apis || []).flatMap((api) =>
-    api.versions.map((version) => ({ ...version, id: api.versioned ? `${api.id} ${version.version}` : api.id }))
+    api.versions.map((version) => ({
+      ...version,
+      id: api.versioned ? `${api.id} ${version.version}` : api.id,
+    })),
   );
   for (const version of versions) {
     if (version.isRemote) {
@@ -433,18 +489,22 @@ async function handleValidate() {
     }
   }
   const total = versions.length;
-  console.log(failed ? `\n❌ ${failed} of ${total} specs have errors.\n` : `\n✅ ${total} specs checked, no errors.\n`);
+  console.log(
+    failed
+      ? `\n❌ ${failed} of ${total} specs have errors.\n`
+      : `\n✅ ${total} specs checked, no errors.\n`,
+  );
   if (failed) process.exit(1);
 }
 
 async function handleMigrate() {
   const { migrateConfig, MIGRATION_SOURCES } = await loadPortal();
-  const fromIdx = args.indexOf('--from');
+  const fromIdx = args.indexOf("--from");
   const source = fromIdx !== -1 ? args[fromIdx + 1]?.toLowerCase() : null;
   const sources = Object.keys(MIGRATION_SOURCES);
 
   if (!source || !sources.includes(source)) {
-    console.error(`Error: Please specify the source with --from ${sources.join(' | ')}.`);
+    console.error(`Error: Please specify the source with --from ${sources.join(" | ")}.`);
     process.exit(1);
   }
 
@@ -455,12 +515,14 @@ async function handleMigrate() {
     const result = await migrateConfig(targetDir, { from: source, overwrite: true });
     console.log(`\n✅ Successfully generated rapidoc.config.yaml at: ${result.filePath}`);
     if (result.warnings.length) {
-      console.log(`\n⚠️  Not migrated:\n${result.warnings.map((w) => `   - ${w}`).join('\n')}`);
+      console.log(`\n⚠️  Not migrated:\n${result.warnings.map((w) => `   - ${w}`).join("\n")}`);
     }
     if (result.problems.length) {
-      console.log(`\n⚠️  Fix these before building:\n${result.problems.map((p) => `   - ${p}`).join('\n')}`);
+      console.log(
+        `\n⚠️  Fix these before building:\n${result.problems.map((p) => `   - ${p}`).join("\n")}`,
+      );
     }
-    console.log('');
+    console.log("");
   } catch (err) {
     console.error(`\n❌ Migration failed: ${err.message}\n`);
     process.exit(1);
@@ -469,23 +531,28 @@ async function handleMigrate() {
 
 // rapidoc init [dir]: the same scaffold as `npm create rapidoc`, built around any OpenAPI files already in dir.
 async function handleInit() {
-  const { scaffoldProject, findOpenApiSpecs } = await import('create-rapidoc/scaffold');
-  const targetDir = path.resolve(positional(1) || '.');
+  const { scaffoldProject, findOpenApiSpecs } = await import("create-rapidoc/scaffold");
+  const targetDir = path.resolve(positional(1) || ".");
   const specs = fs.existsSync(targetDir) ? findOpenApiSpecs(targetDir) : [];
 
-  let title = optionValue('--title');
-  if (!title && !args.includes('--yes') && !args.includes('-y') && process.stdin.isTTY) {
+  let title = optionValue("--title");
+  if (!title && !args.includes("--yes") && !args.includes("-y") && process.stdin.isTTY) {
     const rl = createInterface({ input: process.stdin, output: process.stdout });
-    title = (await rl.question('Site title (leave empty for a default): ')).trim() || undefined;
+    title = (await rl.question("Site title (leave empty for a default): ")).trim() || undefined;
     rl.close();
   }
 
   console.log(`\n🚀 Scaffolding a RapiDoc Developer Portal in: ${targetDir}`);
-  if (specs.length) console.log(`   Using ${specs.length} OpenAPI file(s) found there: ${specs.join(', ')}`);
+  if (specs.length)
+    console.log(`   Using ${specs.length} OpenAPI file(s) found there: ${specs.join(", ")}`);
 
   let result;
   try {
-    result = scaffoldProject(targetDir, { title, overwrite: args.includes('--force') || args.includes('-f'), specs });
+    result = scaffoldProject(targetDir, {
+      title,
+      overwrite: args.includes("--force") || args.includes("-f"),
+      specs,
+    });
   } catch (err) {
     console.error(`\n❌ Failed to scaffold the portal: ${err.message}\n`);
     process.exit(1);
@@ -493,56 +560,63 @@ async function handleInit() {
 
   console.log(`\n✨ Created ${result.filesCreated.length} file(s) for "${result.siteTitle}"`);
   if (result.filesSkipped.length) {
-    console.log(`   Kept ${result.filesSkipped.length} existing file(s) (use --force to overwrite):`);
+    console.log(
+      `   Kept ${result.filesSkipped.length} existing file(s) (use --force to overwrite):`,
+    );
     for (const file of result.filesSkipped) console.log(`   • ${path.relative(targetDir, file)}`);
   }
 
-  const packageJsonPath = path.join(targetDir, 'package.json');
+  const packageJsonPath = path.join(targetDir, "package.json");
   const ownPackageJson = result.filesCreated.includes(packageJsonPath);
-  const relDir = path.relative(process.cwd(), targetDir) || '.';
+  const relDir = path.relative(process.cwd(), targetDir) || ".";
   if (!ownPackageJson) {
     console.log(`\nAdd the CLI and the portal engine to your existing package.json:`);
     console.log(`   npm install -D @rapidoc/cli @rapidoc/portal`);
-  } else if (!args.includes('--no-install')) {
+  } else if (!args.includes("--no-install")) {
     console.log(`\n📦 Installing dependencies...`);
-    const install = spawnSync('npm', ['install'], { cwd: targetDir, stdio: 'inherit', shell: process.platform === 'win32' });
-    if (install.status !== 0) console.warn(`\n⚠️  npm install failed; run it yourself in ${relDir}.`);
+    const install = spawnSync("npm", ["install"], {
+      cwd: targetDir,
+      stdio: "inherit",
+      shell: process.platform === "win32",
+    });
+    if (install.status !== 0)
+      console.warn(`\n⚠️  npm install failed; run it yourself in ${relDir}.`);
   }
 
   console.log(`\nNext steps:`);
-  if (relDir !== '.') console.log(`   cd ${relDir}`);
-  if (ownPackageJson && args.includes('--no-install')) console.log(`   npm install`);
-  console.log(`   ${ownPackageJson ? 'npm run dev' : 'npx rapidoc dev'}\n`);
+  if (relDir !== ".") console.log(`   cd ${relDir}`);
+  if (ownPackageJson && args.includes("--no-install")) console.log(`   npm install`);
+  console.log(`   ${ownPackageJson ? "npm run dev" : "npx rapidoc dev"}\n`);
 }
 
 switch (command) {
-  case 'init':
+  case "init":
     await handleInit();
     break;
-  case 'dev':
+  case "dev":
     await handleDev();
     break;
-  case 'build':
+  case "build":
     await handleBuild();
     break;
-  case 'serve':
+  case "serve":
     await handleServe();
     break;
-  case 'mock':
+  case "mock":
     await handleMock();
     break;
-  case 'validate':
+  case "validate":
     await handleValidate();
     break;
-  case 'migrate':
+  case "migrate":
     await handleMigrate();
     break;
-  case '--version':
-  case '-v':
-    console.log('0.1.0');
+  case "--version":
+  case "-v":
+    console.log("0.1.0");
     break;
-  case '--help':
-  case '-h':
+  case "--help":
+  case "-h":
   default:
     printHelp();
     break;

@@ -79,10 +79,10 @@ interface RapidocApi {
   Extensions: RapidocExtensionSection;
 }
 
-import * as yaml from 'js-yaml';
-import { readDataYaml } from '../utils/readDataYaml';
+import * as yaml from "js-yaml";
+import { readDataYaml } from "../utils/readDataYaml";
 
-const rapidocApiData = yaml.load(readDataYaml('rapidoc-api.yaml')) as RapidocApi;
+const rapidocApiData = yaml.load(readDataYaml("rapidoc-api.yaml")) as RapidocApi;
 
 export { rapidocApiData };
 export type { RapidocAttribute, AttributesGroup, RapidocMethod, RapidocEvent, RapidocApi };

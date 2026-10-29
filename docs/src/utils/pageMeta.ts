@@ -1,5 +1,5 @@
-import { testListData } from '../page-data/tests.ts';
-import { exampleListData } from '../page-data/example-list.ts';
+import { testListData } from "../page-data/tests.ts";
+import { exampleListData } from "../page-data/example-list.ts";
 
 export interface ResolvedPageMeta {
   title: string;
@@ -9,9 +9,9 @@ export interface ResolvedPageMeta {
 
 function formatSlug(slug: string): string {
   return slug
-    .split('-')
+    .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+    .join(" ");
 }
 
 /**
@@ -19,7 +19,7 @@ function formatSlug(slug: string): string {
  */
 export function findTestBySlug(slug: string, data = testListData): ResolvedPageMeta {
   if (!slug) {
-    return { title: '', description: '' };
+    return { title: "", description: "" };
   }
 
   const allTests = [...(data?.basic || []), ...(data?.advanced || [])];
@@ -27,10 +27,10 @@ export function findTestBySlug(slug: string, data = testListData): ResolvedPageM
     if (item[slug]) {
       const test = item[slug];
       const title = test.title || formatSlug(slug);
-      let description = (test as any).description || '';
+      let description = (test as any).description || "";
       if (!description) {
         if (test.validates && test.validates.length > 0) {
-          description = `Validates ${test.validates.join('; ')} in RapiDoc.`;
+          description = `Validates ${test.validates.join("; ")} in RapiDoc.`;
         } else {
           description = `OpenAPI schema edge case and rendering validation test for ${title} in RapiDoc.`;
         }
@@ -53,9 +53,13 @@ export function findTestBySlug(slug: string, data = testListData): ResolvedPageM
 /**
  * Automatically looks up title and description for an example page from example-list.yaml (exampleListData).
  */
-export function findExampleBySlug(slug: string, pathname?: string, data = exampleListData): ResolvedPageMeta {
+export function findExampleBySlug(
+  slug: string,
+  pathname?: string,
+  data = exampleListData,
+): ResolvedPageMeta {
   if (!slug) {
-    return { title: '', description: '' };
+    return { title: "", description: "" };
   }
 
   const targetHref = `/examples/${slug}`;
@@ -67,11 +71,16 @@ export function findExampleBySlug(slug: string, pathname?: string, data = exampl
     if (!item) continue;
 
     // 1. Direct top-level match
-    if (item.href === targetHref || (pathname && item.href === pathname) || item.href?.replace(/\/+$/, '').endsWith(`/${slug}`)) {
+    if (
+      item.href === targetHref ||
+      (pathname && item.href === pathname) ||
+      item.href?.replace(/\/+$/, "").endsWith(`/${slug}`)
+    ) {
       return {
         title: mainKey,
         description:
-          item.description || `Interactive live example demonstrating ${mainKey} configuration and features in RapiDoc OpenAPI viewer.`,
+          item.description ||
+          `Interactive live example demonstrating ${mainKey} configuration and features in RapiDoc OpenAPI viewer.`,
       };
     }
 
@@ -84,9 +93,11 @@ export function findExampleBySlug(slug: string, pathname?: string, data = exampl
         if (
           subItem?.href === targetHref ||
           (pathname && subItem?.href === pathname) ||
-          subItem?.href?.replace(/\/+$/, '').endsWith(`/${slug}`)
+          subItem?.href?.replace(/\/+$/, "").endsWith(`/${slug}`)
         ) {
-          const combinedTitle = subKey.toLowerCase().includes(mainKey.toLowerCase()) ? subKey : `${mainKey} - ${subKey}`;
+          const combinedTitle = subKey.toLowerCase().includes(mainKey.toLowerCase())
+            ? subKey
+            : `${mainKey} - ${subKey}`;
           return {
             title: combinedTitle,
             description:

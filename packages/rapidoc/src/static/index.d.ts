@@ -1,14 +1,13 @@
-/* eslint-disable no-unused-vars */
 /**
  * TypeScript Type Definitions for 'rapidoc/static'
  */
 
 export interface RenderRapiDocOptions {
   spec: string | object;
-  renderStyle?: 'read' | 'view' | 'focused';
+  renderStyle?: "read" | "view" | "focused";
   theme?: string;
-  colorScheme?: 'dark' | 'light' | 'system';
-  layout?: 'row' | 'column';
+  colorScheme?: "dark" | "light" | "system";
+  layout?: "row" | "column";
   showHeader?: boolean | string;
   showSideNav?: boolean | string;
   showInfo?: boolean | string;
@@ -17,13 +16,13 @@ export interface RenderRapiDocOptions {
   allowServerSelection?: boolean | string;
   allowAuthentication?: boolean | string;
   allowTry?: boolean | string;
-  schemaStyle?: 'table' | 'tree';
+  schemaStyle?: "table" | "tree";
   schemaExpandLevel?: number;
-  defaultSchemaTab?: 'example' | 'schema';
-  outputMode?: 'dsd' | 'html' | 'light';
+  defaultSchemaTab?: "example" | "schema";
+  outputMode?: "dsd" | "html" | "light";
   includeStyles?: boolean;
   matchPaths?: string;
-  pageDirection?: 'ltr' | 'rtl';
+  pageDirection?: "ltr" | "rtl";
   [key: string]: any;
 }
 
@@ -33,22 +32,22 @@ export interface RenderEndpointOptions {
   spec: string | object;
   path: string;
   method: string;
-  renderStyle?: 'read' | 'view';
-  layout?: 'row' | 'column';
+  renderStyle?: "read" | "view";
+  layout?: "row" | "column";
   theme?: string;
-  colorScheme?: 'dark' | 'light' | 'system';
+  colorScheme?: "dark" | "light" | "system";
   includeStyles?: boolean;
   allowTry?: boolean | string;
-  schemaStyle?: 'table' | 'tree';
+  schemaStyle?: "table" | "tree";
 }
 
 export interface RenderSchemaOptions {
   schema: object | string;
   spec?: string | object;
-  style?: 'table' | 'tree';
+  style?: "table" | "tree";
   schemaExpandLevel?: number;
   theme?: string;
-  colorScheme?: 'dark' | 'light' | 'system';
+  colorScheme?: "dark" | "light" | "system";
   includeStyles?: boolean;
 }
 
@@ -96,14 +95,14 @@ export interface RenderNavBarHtmlOptions {
   backToDocsLabel?: string;
   itemClassName?: string;
   includeOverview?: boolean;
-  methodBadgeFormat?: '3-char' | 'full';
+  methodBadgeFormat?: "3-char" | "full";
   /** How each operation shows its HTTP method, as `show-method-in-nav-bar` of `<rapi-doc>` (default `as-colored-block`). */
-  showMethodInNavBar?: 'false' | 'as-plain-text' | 'as-colored-text' | 'as-colored-block';
-  'show-method-in-nav-bar'?: 'false' | 'as-plain-text' | 'as-colored-text' | 'as-colored-block';
+  showMethodInNavBar?: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block";
+  "show-method-in-nav-bar"?: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block";
   /** Show each operation's path instead of its summary, as `use-path-in-nav-bar` of `<rapi-doc>`. */
-  usePathInNav?: boolean | 'true' | 'false';
-  'use-path-in-nav-bar'?: boolean | 'true' | 'false';
-  routingMode?: 'tag-pages' | 'single-page';
+  usePathInNav?: boolean | "true" | "false";
+  "use-path-in-nav-bar"?: boolean | "true" | "false";
+  routingMode?: "tag-pages" | "single-page";
 }
 
 export function renderRapiDoc(options: RenderRapiDocOptions): Promise<string>;
@@ -112,17 +111,30 @@ export function renderSchema(options: RenderSchemaOptions): Promise<string>;
 export function resolveSpecInput(specInput: string | object, options?: any): Promise<any>;
 export function renderTemplateToString(result: any, options?: { stripComments?: boolean }): string;
 export function escapeHtml(str: string): string;
-export function getSpecNavigation(specInput: string | object, options?: any): Promise<SpecNavigation>;
-export function getNavBarHtml(specInput: string | object, options?: RenderNavBarHtmlOptions): Promise<string>;
+export function getSpecNavigation(
+  specInput: string | object,
+  options?: any,
+): Promise<SpecNavigation>;
+export function getNavBarHtml(
+  specInput: string | object,
+  options?: RenderNavBarHtmlOptions,
+): Promise<string>;
 export function renderNavBarHtml(resolvedSpec: any, options?: RenderNavBarHtmlOptions): string;
-export function getNavFilterHtml(options?: { searchPlaceholder?: string; inputClassName?: string }): string;
+export function getNavFilterHtml(options?: {
+  searchPlaceholder?: string;
+  inputClassName?: string;
+}): string;
 export function bindNavBar(
   sidebar: HTMLElement | string,
   rapiDoc?: HTMLElement | string,
-  options?: { activeClass?: string; updateHistory?: boolean }
+  options?: { activeClass?: string; updateHistory?: boolean },
 ): () => void;
-export function getMethodBadge(method: string, format?: '3-char' | 'full'): string;
-export function getBundledCss(options?: { theme?: string; colorScheme?: string; scope?: string }): string;
+export function getMethodBadge(method: string, format?: "3-char" | "full"): string;
+export function getBundledCss(options?: {
+  theme?: string;
+  colorScheme?: string;
+  scope?: string;
+}): string;
 export function getNavCss(scope?: string): string;
 export function getThemeTokensCss(theme?: string, scope?: string): string;
 export function toKebabCase(str: string): string;
@@ -131,4 +143,7 @@ export function toKebabCase(str: string): string;
 export function methodPathSlug(method: string, path: string): string;
 
 /** Which field an operation's anchor is built from: 'operationId' (stable), 'summary' or 'path' (method + path). */
-export function operationAnchorSource(op: { operationId?: string; summary?: string }): 'operationId' | 'summary' | 'path';
+export function operationAnchorSource(op: {
+  operationId?: string;
+  summary?: string;
+}): "operationId" | "summary" | "path";

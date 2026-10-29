@@ -3,13 +3,13 @@
  * workspace is always deleted afterwards unless `keepWorkspace` is set for debugging.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { build as astroBuild } from 'astro';
-import { splitOutput, usesServerLayout } from '../access/split-output.js';
-import { createAstroConfig } from './astro-integration.js';
-import { createPortalWorkspace, removePortalWorkspace } from './temp-workspace.js';
-import { reportSpecWarnings } from './spec-checks.js';
+import fs from "node:fs";
+import path from "node:path";
+import { build as astroBuild } from "astro";
+import { splitOutput, usesServerLayout } from "../access/split-output.js";
+import { createAstroConfig } from "./astro-integration.js";
+import { createPortalWorkspace, removePortalWorkspace } from "./temp-workspace.js";
+import { reportSpecWarnings } from "./spec-checks.js";
 
 /**
  * @param {string} [projectDir] - Folder containing rapidoc.config.yaml
@@ -21,9 +21,9 @@ import { reportSpecWarnings } from './spec-checks.js';
  */
 export async function buildPortal(projectDir = process.cwd(), options = {}) {
   const startTime = Date.now();
-  const workspace = await createPortalWorkspace(projectDir, { kind: 'build' });
+  const workspace = await createPortalWorkspace(projectDir, { kind: "build" });
   reportSpecWarnings(workspace.config);
-  const outDir = path.resolve(workspace.projectDir, options.outDir || 'dist');
+  const outDir = path.resolve(workspace.projectDir, options.outDir || "dist");
 
   // Astro writes its prerender chunks to <outDir>/.prerender when outDir is under the cwd, and to
   // <cwd>/.astro/ otherwise. Running from the workspace puts them in <workspace>/.astro/, where

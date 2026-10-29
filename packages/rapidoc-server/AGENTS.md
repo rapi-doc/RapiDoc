@@ -1,6 +1,7 @@
 # AGENTS.md — `packages/rapidoc-server` (`@rapidoc/server`)
 
 ## 1. Package Scope & Identity
+
 `packages/rapidoc-server` serves a portal built by `@rapidoc/portal` and enforces sign-in and access rules. `rapidoc serve` (in `@rapidoc/cli`) runs it.
 
 - **Package Name**: `@rapidoc/server`
@@ -32,16 +33,16 @@
 
 ## 4. Files
 
-| File | Role |
-| :--- | :--- |
-| `src/index.js` | `createApp()`: routes and the per-request decision; `startServer()`. `mount()` takes the mount path off each request, so routes see paths relative to the portal; URLs sent back (redirects, OIDC callback, `returnTo`) get `settings.basePath` (the path of `site.url`, from the manifest) |
-| `src/settings.js` | Manifest + environment variables → settings; fails fast with every problem listed |
-| `src/access.js` | `allows`, `decide`, `visibleZones`, email patterns |
-| `src/static.js` | URL path → file (no traversal), streamed responses, cache headers |
-| `src/search.js` | Merged `search-index.json`; per-zone Pagefind bundles with the empty-bundle fallback |
-| `src/auth/oidc.js` | Discovery, PKCE sign-in, code exchange + userinfo, end-session URL, claim paths |
-| `src/auth/session.js` | Encrypted cookies (JWE dir + A256GCM), cookie names (`__Host-` on https) |
-| `src/auth/routes.js` | `/_rapidoc/auth/{login,callback,logout,me}` |
+| File                  | Role                                                                                                                                                                                                                                                                                        |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/index.js`        | `createApp()`: routes and the per-request decision; `startServer()`. `mount()` takes the mount path off each request, so routes see paths relative to the portal; URLs sent back (redirects, OIDC callback, `returnTo`) get `settings.basePath` (the path of `site.url`, from the manifest) |
+| `src/settings.js`     | Manifest + environment variables → settings; fails fast with every problem listed                                                                                                                                                                                                           |
+| `src/access.js`       | `allows`, `decide`, `visibleZones`, email patterns                                                                                                                                                                                                                                          |
+| `src/static.js`       | URL path → file (no traversal), streamed responses, cache headers                                                                                                                                                                                                                           |
+| `src/search.js`       | Merged `search-index.json`; per-zone Pagefind bundles with the empty-bundle fallback                                                                                                                                                                                                        |
+| `src/auth/oidc.js`    | Discovery, PKCE sign-in, code exchange + userinfo, end-session URL, claim paths                                                                                                                                                                                                             |
+| `src/auth/session.js` | Encrypted cookies (JWE dir + A256GCM), cookie names (`__Host-` on https)                                                                                                                                                                                                                    |
+| `src/auth/routes.js`  | `/_rapidoc/auth/{login,callback,logout,me}`                                                                                                                                                                                                                                                 |
 
 ---
 

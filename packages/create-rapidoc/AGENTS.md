@@ -1,6 +1,7 @@
 # AGENTS.md — `packages/create-rapidoc` (Scaffolding CLI)
 
 ## 1. Package Scope & Identity
+
 `packages/create-rapidoc` is the official scaffolding CLI for creating new RapiDoc Developer Portals. Its `src/scaffold.js` (exported as `create-rapidoc/scaffold`) is also what `rapidoc init` in `@rapidoc/cli` runs, so scaffolding logic lives only here.
 
 - **Package Name**: `create-rapidoc`
@@ -11,6 +12,7 @@
 ---
 
 ## 2. Capabilities
+
 1. Scaffolds new portals with a single command:
    - `rapidoc.config.yaml` (v2: site, theme, header links, navigation tabs, apis)
    - `package.json` with `@rapidoc/cli` and `@rapidoc/portal` as dev dependencies (the portal is listed directly so the config's `$schema` path `node_modules/@rapidoc/portal/schema.json` resolves) and `dev`/`build`/`validate`/`preview` scripts
@@ -30,13 +32,14 @@
 
 Run these commands from `packages/create-rapidoc`:
 
-| Command | Purpose |
-| :--- | :--- |
-| `npm test` | Runs Node.js test runner across `tests/**/*.test.js` |
-| `node src/index.js <targetDir>` | Tests scaffolding locally |
+| Command                         | Purpose                                              |
+| :------------------------------ | :--------------------------------------------------- |
+| `npm test`                      | Runs Node.js test runner across `tests/**/*.test.js` |
+| `node src/index.js <targetDir>` | Tests scaffolding locally                            |
 
 ---
 
 ## 4. Coding & Architecture Guidelines
+
 - Keep zero runtime native compilation dependencies.
 - Follow root repository standards: Node.js >= 22.12.0, ESM, 2-space indentation, Prettier.

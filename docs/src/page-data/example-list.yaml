@@ -53,7 +53,7 @@ examples:
   - Schema Styles:
       img: /assets/images/schema-style.png
       href: /examples/schema-styles
-      description: 'Inspect data models using Tree or Tabular representations, and toggle between Schema and Example views.'
+      description: "Inspect data models using Tree or Tabular representations, and toggle between Schema and Example views."
       category: Layouts & Views
 
   - Navigation Styles:

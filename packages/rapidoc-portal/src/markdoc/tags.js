@@ -1,18 +1,18 @@
-import Markdoc from '@markdoc/markdoc';
-import GithubSlugger from 'github-slugger';
-import { operationMatchPattern } from './operation.js';
-import { CALLOUT_TYPES } from '../components/callout-types.js';
+import Markdoc from "@markdoc/markdoc";
+import GithubSlugger from "github-slugger";
+import { operationMatchPattern } from "./operation.js";
+import { CALLOUT_TYPES } from "../components/callout-types.js";
 
 /**
  * Callout Tag ({% callout type="info|tip|warning|danger|..." title="..." %}): the markup of
  * components/Callout.astro without the icon, styled by `.portal-callout` in portal-theme.css.
  */
 export const callout = {
-  render: 'PortalCallout',
+  render: "PortalCallout",
   attributes: {
     type: {
       type: String,
-      default: 'info',
+      default: "info",
       matches: CALLOUT_TYPES,
     },
     title: { type: String },
@@ -21,11 +21,15 @@ export const callout = {
   transform(node, config) {
     const attributes = node.transformAttributes(config);
     const children = node.transformChildren(config);
-    const title = attributes.title ? [new Markdoc.Tag('p', { class: 'portal-callout-title' }, [attributes.title])] : [];
+    const title = attributes.title
+      ? [new Markdoc.Tag("p", { class: "portal-callout-title" }, [attributes.title])]
+      : [];
 
-    return new Markdoc.Tag('div', { class: 'portal-callout', role: 'note', 'data-type': attributes.type || 'info' }, [
-      new Markdoc.Tag('div', { class: 'portal-callout-body' }, [...title, ...children]),
-    ]);
+    return new Markdoc.Tag(
+      "div",
+      { class: "portal-callout", role: "note", "data-type": attributes.type || "info" },
+      [new Markdoc.Tag("div", { class: "portal-callout-body" }, [...title, ...children])],
+    );
   },
 };
 
@@ -33,7 +37,7 @@ export const callout = {
  * Single Tab Panel Tag ({% tab name="cURL" %})
  */
 export const tab = {
-  render: 'PortalTab',
+  render: "PortalTab",
   attributes: {
     name: { type: String, required: true },
     label: { type: String },
@@ -41,16 +45,16 @@ export const tab = {
   transform(node, config) {
     const attributes = node.transformAttributes(config);
     const children = node.transformChildren(config);
-    const name = attributes.name || attributes.label || 'Tab';
+    const name = attributes.name || attributes.label || "Tab";
 
     return new Markdoc.Tag(
-      'div',
+      "div",
       {
-        class: 'portal-tab-panel',
-        role: 'tabpanel',
-        'data-tab-name': name,
+        class: "portal-tab-panel",
+        role: "tabpanel",
+        "data-tab-name": name,
       },
-      children
+      children,
     );
   },
 };
@@ -59,10 +63,10 @@ export const tab = {
  * Tabs Container Tag ({% tabs %} ... {% tab %} ... {% /tabs %})
  */
 export const tabs = {
-  render: 'PortalTabs',
+  render: "PortalTabs",
   attributes: {},
   transform(node, config) {
-    const tabChildren = node.children.filter((child) => child.tag === 'tab');
+    const tabChildren = node.children.filter((child) => child.tag === "tab");
     const tabHeaders = [];
     const tabPanels = [];
 
@@ -76,42 +80,42 @@ export const tabs = {
       // Tab Header Button
       tabHeaders.push(
         new Markdoc.Tag(
-          'button',
+          "button",
           {
-            type: 'button',
-            role: 'tab',
-            class: `portal-tab-btn ${isFirst ? 'active' : ''}`,
-            'aria-selected': isFirst ? 'true' : 'false',
-            'data-tab-id': tabId,
+            type: "button",
+            role: "tab",
+            class: `portal-tab-btn ${isFirst ? "active" : ""}`,
+            "aria-selected": isFirst ? "true" : "false",
+            "data-tab-id": tabId,
           },
-          [tabName]
-        )
+          [tabName],
+        ),
       );
 
       // Tab Content Panel
       const panelContent = child.transformChildren(config);
       tabPanels.push(
         new Markdoc.Tag(
-          'div',
+          "div",
           {
-            role: 'tabpanel',
-            class: `portal-tab-panel ${isFirst ? 'active' : 'hidden'}`,
-            'data-tab-id': tabId,
+            role: "tabpanel",
+            class: `portal-tab-panel ${isFirst ? "active" : "hidden"}`,
+            "data-tab-id": tabId,
           },
-          panelContent
-        )
+          panelContent,
+        ),
       );
     });
 
     return new Markdoc.Tag(
-      'div',
+      "div",
       {
-        class: 'portal-tabs-container',
+        class: "portal-tabs-container",
       },
       [
-        new Markdoc.Tag('div', { class: 'portal-tab-bar', role: 'tablist' }, tabHeaders),
-        new Markdoc.Tag('div', { class: 'portal-tab-panels' }, tabPanels),
-      ]
+        new Markdoc.Tag("div", { class: "portal-tab-bar", role: "tablist" }, tabHeaders),
+        new Markdoc.Tag("div", { class: "portal-tab-panels" }, tabPanels),
+      ],
     );
   },
 };
@@ -120,7 +124,7 @@ export const tabs = {
  * Single Step Tag ({% step title="..." %})
  */
 export const step = {
-  render: 'PortalStep',
+  render: "PortalStep",
   attributes: {
     title: { type: String, required: true },
   },
@@ -129,17 +133,17 @@ export const step = {
     const children = node.transformChildren(config);
 
     return new Markdoc.Tag(
-      'li',
+      "li",
       {
-        class: 'portal-step',
+        class: "portal-step",
       },
       [
-        new Markdoc.Tag('div', { class: 'portal-step-marker' }),
-        new Markdoc.Tag('div', { class: 'portal-step-content' }, [
-          new Markdoc.Tag('h4', { class: 'portal-step-title' }, [attributes.title]),
-          new Markdoc.Tag('div', { class: 'portal-step-body' }, children),
+        new Markdoc.Tag("div", { class: "portal-step-marker" }),
+        new Markdoc.Tag("div", { class: "portal-step-content" }, [
+          new Markdoc.Tag("h4", { class: "portal-step-title" }, [attributes.title]),
+          new Markdoc.Tag("div", { class: "portal-step-body" }, children),
         ]),
-      ]
+      ],
     );
   },
 };
@@ -148,11 +152,11 @@ export const step = {
  * Steps Sequence Tag ({% steps %} ... {% /steps %})
  */
 export const steps = {
-  render: 'PortalSteps',
+  render: "PortalSteps",
   attributes: {},
   transform(node, config) {
     const children = node.transformChildren(config);
-    return new Markdoc.Tag('ol', { class: 'portal-steps-list' }, children);
+    return new Markdoc.Tag("ol", { class: "portal-steps-list" }, children);
   },
 };
 
@@ -160,7 +164,7 @@ export const steps = {
  * Single Card Tag ({% card title="..." icon="..." href="..." %})
  */
 export const card = {
-  render: 'PortalCard',
+  render: "PortalCard",
   attributes: {
     title: { type: String, required: true },
     icon: { type: String },
@@ -169,17 +173,20 @@ export const card = {
   transform(node, config) {
     const attributes = node.transformAttributes(config);
     const children = node.transformChildren(config);
-    const tag = attributes.href ? 'a' : 'div';
+    const tag = attributes.href ? "a" : "div";
 
-    const header = [new Markdoc.Tag('h4', { class: 'portal-card-title' }, [attributes.title])];
+    const header = [new Markdoc.Tag("h4", { class: "portal-card-title" }, [attributes.title])];
 
     return new Markdoc.Tag(
       tag,
       {
-        class: 'portal-card',
+        class: "portal-card",
         ...(attributes.href ? { href: attributes.href } : {}),
       },
-      [new Markdoc.Tag('div', { class: 'portal-card-header' }, header), new Markdoc.Tag('div', { class: 'portal-card-body' }, children)]
+      [
+        new Markdoc.Tag("div", { class: "portal-card-header" }, header),
+        new Markdoc.Tag("div", { class: "portal-card-body" }, children),
+      ],
     );
   },
 };
@@ -188,7 +195,7 @@ export const card = {
  * Card Grid Tag ({% card-grid columns="3" %})
  */
 export const cardGrid = {
-  render: 'PortalCardGrid',
+  render: "PortalCardGrid",
   attributes: {
     columns: { type: Number, default: 3 },
   },
@@ -197,12 +204,12 @@ export const cardGrid = {
     const children = node.transformChildren(config);
 
     return new Markdoc.Tag(
-      'div',
+      "div",
       {
-        class: 'portal-card-grid',
+        class: "portal-card-grid",
         style: `--portal-grid-columns: ${attributes.columns || 3}`,
       },
-      children
+      children,
     );
   },
 };
@@ -214,56 +221,60 @@ export const cardGrid = {
  * its OAuth popup's return page. (Portal pages use components/ApiOperation.astro instead.)
  */
 export const apiOperation = {
-  render: 'PortalApiOperation',
+  render: "PortalApiOperation",
   attributes: {
     spec: { type: String, required: true },
     path: { type: String, required: true },
-    method: { type: String, default: 'get' },
+    method: { type: String, default: "get" },
     title: { type: String },
     version: { type: String },
   },
   transform(node, config) {
     const attributes = node.transformAttributes(config);
-    const specKey = attributes.version ? `${attributes.spec}@${attributes.version}` : attributes.spec;
-    const methodUpper = (attributes.method || 'GET').toUpperCase();
+    const specKey = attributes.version
+      ? `${attributes.spec}@${attributes.version}`
+      : attributes.spec;
+    const methodUpper = (attributes.method || "GET").toUpperCase();
     const methodLower = methodUpper.toLowerCase();
     const specUrl = config.variables?.specUrls?.[specKey];
     const oauthReceiver = config.variables?.oauthReceiver;
 
     return new Markdoc.Tag(
-      'div',
+      "div",
       {
         class: `portal-api-operation-embed method-${methodLower}`,
-        'data-spec': attributes.spec,
-        ...(attributes.version && { 'data-version': attributes.version }),
-        'data-path': attributes.path,
-        'data-method': methodUpper,
+        "data-spec": attributes.spec,
+        ...(attributes.version && { "data-version": attributes.version }),
+        "data-path": attributes.path,
+        "data-method": methodUpper,
       },
       [
-        new Markdoc.Tag('div', { class: 'portal-api-op-header' }, [
-          new Markdoc.Tag('span', { class: `portal-method-badge badge-${methodLower}` }, [methodUpper]),
-          new Markdoc.Tag('code', { class: 'portal-op-path' }, [attributes.path]),
-          new Markdoc.Tag('span', { class: 'portal-op-spec-pill' }, [attributes.spec]),
+        new Markdoc.Tag("div", { class: "portal-api-op-header" }, [
+          new Markdoc.Tag("span", { class: `portal-method-badge badge-${methodLower}` }, [
+            methodUpper,
+          ]),
+          new Markdoc.Tag("code", { class: "portal-op-path" }, [attributes.path]),
+          new Markdoc.Tag("span", { class: "portal-op-spec-pill" }, [attributes.spec]),
         ]),
         new Markdoc.Tag(
-          'div',
+          "div",
           {
-            class: 'portal-api-op-frame',
-            'data-embed-endpoint': `${attributes.spec}:${methodUpper}:${attributes.path}`,
+            class: "portal-api-op-frame",
+            "data-embed-endpoint": `${attributes.spec}:${methodUpper}:${attributes.path}`,
           },
           [
-            new Markdoc.Tag('rapi-doc-mini', {
-              ...(specUrl ? { 'spec-url': specUrl } : {}),
-              ...(oauthReceiver ? { 'oauth-receiver': oauthReceiver } : {}),
-              'match-paths': operationMatchPattern(methodLower, attributes.path),
-              'match-type': 'regex',
-              'paths-expanded': 'true',
-              layout: 'column',
-              'color-scheme': 'auto',
+            new Markdoc.Tag("rapi-doc-mini", {
+              ...(specUrl ? { "spec-url": specUrl } : {}),
+              ...(oauthReceiver ? { "oauth-receiver": oauthReceiver } : {}),
+              "match-paths": operationMatchPattern(methodLower, attributes.path),
+              "match-type": "regex",
+              "paths-expanded": "true",
+              layout: "column",
+              "color-scheme": "auto",
             }),
-          ]
+          ],
         ),
-      ]
+      ],
     );
   },
 };
@@ -272,19 +283,19 @@ export const apiOperation = {
  * Status or Method Badge Tag ({% badge variant="warning" text="..." %})
  */
 export const badge = {
-  render: 'PortalBadge',
+  render: "PortalBadge",
   attributes: {
     text: { type: String, required: true },
-    variant: { type: String, default: 'info' },
+    variant: { type: String, default: "info" },
   },
   transform(node, config) {
     const attributes = node.transformAttributes(config);
     return new Markdoc.Tag(
-      'span',
+      "span",
       {
-        class: `portal-badge portal-badge-${attributes.variant || 'info'}`,
+        class: `portal-badge portal-badge-${attributes.variant || "info"}`,
       },
-      [attributes.text]
+      [attributes.text],
     );
   },
 };
@@ -296,7 +307,7 @@ export const tags = {
   step,
   steps,
   card,
-  'card-grid': cardGrid,
-  'api-operation': apiOperation,
+  "card-grid": cardGrid,
+  "api-operation": apiOperation,
   badge,
 };

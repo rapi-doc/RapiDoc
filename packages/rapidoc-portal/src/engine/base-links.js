@@ -7,9 +7,9 @@
  * The portal's components (Link, Button, Card, OpenPlaygroundButton, {% card %}) add the base themselves.
  */
 
-import { withBase } from '../components/base-path.js';
+import { withBase } from "../components/base-path.js";
 
-const URL_ATTRIBUTES = new Set(['href', 'src', 'poster']);
+const URL_ATTRIBUTES = new Set(["href", "src", "poster"]);
 
 /**
  * @param {string} base - e.g. /developers ('' when the portal is at the root)
@@ -29,7 +29,12 @@ export function baseLinks(base) {
   const jsx = (node) => {
     let changed = false;
     const attributes = (node.attributes || []).map((attr) => {
-      if (attr.type !== 'mdxJsxAttribute' || !URL_ATTRIBUTES.has(attr.name) || typeof attr.value !== 'string') return attr;
+      if (
+        attr.type !== "mdxJsxAttribute" ||
+        !URL_ATTRIBUTES.has(attr.name) ||
+        typeof attr.value !== "string"
+      )
+        return attr;
       const value = withBase(attr.value, base);
       if (value === attr.value) return attr;
       changed = true;
@@ -38,7 +43,7 @@ export function baseLinks(base) {
     return changed ? { ...node, attributes } : undefined;
   };
   return () => ({
-    name: 'rapidoc-base-links',
+    name: "rapidoc-base-links",
     link: withUrl,
     image: withUrl,
     definition: withUrl,

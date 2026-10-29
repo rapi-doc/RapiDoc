@@ -16,10 +16,9 @@
     "build:docs": "npm run build --workspace=docs",
     "build:demo": "npm run build --workspace=rapidoc && node packages/rapidoc-cli/src/index.js build ../rapi-portal-demo",
     "preview": "npm run preview --workspace=docs",
-    "lint": "npm run lint --workspace=rapidoc",
-    "format": "prettier --config .prettierrc --check './packages/**/*.{js,ts,html,css}' './docs/src/**/*.{js,ts,html,css}'",
-    "format-fix": "prettier --config .prettierrc --write './packages/**/*.{js,ts,html,css}' './docs/src/**/*.{js,ts,html,css}'",
-    "analyze": "npm run analyze --workspace=rapidoc",
+    "lint": "oxlint --deny-warnings packages docs/src tests scripts docs/astro.config.mjs",
+    "format": "oxfmt --check packages docs/src tests scripts '!**/fixtures/**' '!**/*.mdx' '!packages/rapidoc-portal/schema.json' '!packages/rapidoc-portal/tests/layout/measurements.json'",
+    "format-fix": "oxfmt packages docs/src tests scripts '!**/fixtures/**' '!**/*.mdx' '!packages/rapidoc-portal/schema.json' '!packages/rapidoc-portal/tests/layout/measurements.json'",
     "publish:rapidoc": "npm publish --workspace=rapidoc",
     "prerender:demo": "node scripts/prerender-demo.mjs",
     "test:parser": "node tests/perf/benchmark.js",
@@ -33,16 +32,9 @@
     "test:all": "npm run test:unit && npm run test:component && npm run test:e2e && npm run test:visual"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@typescript-eslint/parser": "^8.71.2",
-    "eslint": "^10.12.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-lit": "^2.3.1",
-    "eslint-plugin-prettier": "^5.5.7",
-    "globals": "^17.13.0",
-    "lit-analyzer": "^2.0.3",
-    "playwright-core": "^1.64.1",
-    "prettier": "^3.9.10"
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
+    "playwright-core": "^1.64.1"
   },
   "engines": {
     "node": ">=22.12.0"

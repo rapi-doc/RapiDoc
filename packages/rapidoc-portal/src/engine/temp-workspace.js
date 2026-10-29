@@ -23,15 +23,15 @@
  * Pages, components and Astro config come from this package (see astro-integration.js).
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { loadConfig } from '../config/loader.js';
-import { listDocFiles, syncDocs } from './sync-docs.js';
-import { copyRapidocBundle, copySpecs, writeRobotsTxt, writeSearchIndex } from './sync-assets.js';
-import { writeLlmsFiles } from './llms.js';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { loadConfig } from "../config/loader.js";
+import { listDocFiles, syncDocs } from "./sync-docs.js";
+import { copyRapidocBundle, copySpecs, writeRobotsTxt, writeSearchIndex } from "./sync-assets.js";
+import { writeLlmsFiles } from "./llms.js";
 
-export const WORKSPACE_DIRNAME = '.rapidoc-temp';
+export const WORKSPACE_DIRNAME = ".rapidoc-temp";
 
 const RUN_DIR_PATTERN = /^(?:dev|build)-(\d+)-\d+$/;
 let runCounter = 0;
@@ -41,7 +41,7 @@ function isProcessAlive(pid) {
     process.kill(pid, 0);
     return true;
   } catch (err) {
-    return err.code === 'EPERM'; // alive, owned by another user
+    return err.code === "EPERM"; // alive, owned by another user
   }
 }
 
@@ -58,16 +58,16 @@ function removeStaleWorkspaces(parentDir) {
 // Astro reads the root package.json to find packages with .astro files that must be bundled
 // for server rendering; without it Starlight is loaded unbundled and its astro:* imports fail.
 const WORKSPACE_PACKAGE_JSON = {
-  name: 'rapidoc-portal-workspace',
+  name: "rapidoc-portal-workspace",
   private: true,
-  type: 'module',
+  type: "module",
   dependencies: {
-    '@astrojs/markdoc': '*',
-    '@astrojs/starlight': '*',
-    '@astrojs/starlight-markdoc': '*',
-    '@rapidoc/portal': '*',
-    astro: '*',
-    rapidoc: '*',
+    "@astrojs/markdoc": "*",
+    "@astrojs/starlight": "*",
+    "@astrojs/starlight-markdoc": "*",
+    "@rapidoc/portal": "*",
+    astro: "*",
+    rapidoc: "*",
   },
 };
 
@@ -94,7 +94,7 @@ export const collections = {
  * The node_modules folder that contains Astro, Starlight and @rapidoc/portal.
  */
 export function resolveDependencyRoot() {
-  const astroPackageJson = fileURLToPath(import.meta.resolve('astro/package.json'));
+  const astroPackageJson = fileURLToPath(import.meta.resolve("astro/package.json"));
   return path.dirname(path.dirname(astroPackageJson));
 }
 
@@ -102,7 +102,9 @@ export function resolveDependencyRoot() {
  * Re-syncs the docs copy and the search index from the project. Used on start and on docs changes.
  */
 export function refreshDocs(workspace) {
-  syncDocs(workspace.projectDocsDir, workspace.contentDir, { editUrl: workspace.config.docs.editUrl });
+  syncDocs(workspace.projectDocsDir, workspace.contentDir, {
+    editUrl: workspace.config.docs.editUrl,
+  });
   const docFiles = listDocFiles(workspace.projectDocsDir);
   try {
     writeSearchIndex(workspace.config, workspace.projectDir, docFiles, workspace.publicDir);
@@ -116,7 +118,7 @@ export function refreshDocs(workspace) {
  * Copies the project's public/ folder (logo, favicon, images) into the workspace's public/.
  */
 function copyProjectPublic(projectDir, publicDir) {
-  const source = path.join(projectDir, 'public');
+  const source = path.join(projectDir, "public");
   if (fs.existsSync(source)) fs.cpSync(source, publicDir, { recursive: true });
 }
 
@@ -128,7 +130,7 @@ function copyProjectPublic(projectDir, publicDir) {
  * @param {'dev' | 'build'} [options.kind='build'] - Prefix of the run folder
  * @returns {Promise<object>} workspace descriptor; pass it to removePortalWorkspace() when done
  */
-export async function createPortalWorkspace(projectDir = process.cwd(), { kind = 'build' } = {}) {
+export async function createPortalWorkspace(projectDir = process.cwd(), { kind = "build" } = {}) {
   const { config, configPath } = await loadConfig(projectDir);
   const resolvedProjectDir = path.dirname(configPath);
   const parentDir = path.join(resolvedProjectDir, WORKSPACE_DIRNAME);
@@ -141,18 +143,26 @@ export async function createPortalWorkspace(projectDir = process.cwd(), { kind =
     configPath,
     projectDir: resolvedProjectDir,
     projectDocsDir: config.docs.fullPath,
-    contentDir: path.join(root, 'src', 'content', 'docs'),
-    docsContentDir: path.join(root, 'src', 'content', 'docs', 'docs'),
-    publicDir: path.join(root, 'public'),
+    contentDir: path.join(root, "src", "content", "docs"),
+    docsContentDir: path.join(root, "src", "content", "docs", "docs"),
+    publicDir: path.join(root, "public"),
   };
 
   fs.mkdirSync(workspace.docsContentDir, { recursive: true });
 
   try {
-    fs.symlinkSync(resolveDependencyRoot(), path.join(root, 'node_modules'), 'junction');
-    fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(WORKSPACE_PACKAGE_JSON, null, 2), 'utf8');
-    fs.writeFileSync(path.join(root, 'src', 'content.config.ts'), CONTENT_CONFIG_TS, 'utf8');
-    fs.writeFileSync(path.join(root, 'markdoc.config.mjs'), markdocConfigMjs(config.site.basePath), 'utf8');
+    fs.symlinkSync(resolveDependencyRoot(), path.join(root, "node_modules"), "junction");
+    fs.writeFileSync(
+      path.join(root, "package.json"),
+      JSON.stringify(WORKSPACE_PACKAGE_JSON, null, 2),
+      "utf8",
+    );
+    fs.writeFileSync(path.join(root, "src", "content.config.ts"), CONTENT_CONFIG_TS, "utf8");
+    fs.writeFileSync(
+      path.join(root, "markdoc.config.mjs"),
+      markdocConfigMjs(config.site.basePath),
+      "utf8",
+    );
 
     copyProjectPublic(resolvedProjectDir, workspace.publicDir);
     writeRobotsTxt(config, workspace.publicDir);
@@ -172,9 +182,10 @@ export async function createPortalWorkspace(projectDir = process.cwd(), { kind =
  * can run in a process 'exit' handler. The node_modules symlink is removed, never followed.
  */
 export function removePortalWorkspace(workspace) {
-  const root = workspace?.root || '';
+  const root = workspace?.root || "";
   const parentDir = path.dirname(root);
-  if (path.basename(parentDir) !== WORKSPACE_DIRNAME || !RUN_DIR_PATTERN.test(path.basename(root))) return;
+  if (path.basename(parentDir) !== WORKSPACE_DIRNAME || !RUN_DIR_PATTERN.test(path.basename(root)))
+    return;
   fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   try {
     fs.rmdirSync(parentDir);

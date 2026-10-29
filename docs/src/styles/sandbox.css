@@ -7,7 +7,8 @@ body {
   height: 100vh !important;
   overflow: hidden !important;
   background: #1a1a1a !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
@@ -207,7 +208,7 @@ rapi-doc {
 }
 
 .dr-format-tag {
-  font-family: 'Roboto Mono', monospace !important;
+  font-family: "Roboto Mono", monospace !important;
   font-size: 11px !important;
   padding: 2px 7px !important;
   border-radius: 4px !important;
@@ -249,7 +250,7 @@ rapi-doc {
   border-radius: 8px !important;
   padding: 14px !important;
   color: #f1f5f9 !important;
-  font-family: 'Roboto Mono', 'Consolas', 'Courier New', monospace !important;
+  font-family: "Roboto Mono", "Consolas", "Courier New", monospace !important;
   font-size: 12.5px !important;
   line-height: 1.6 !important;
   resize: none !important;
@@ -271,7 +272,7 @@ rapi-doc {
   border: 1px solid rgba(239, 68, 68, 0.4) !important;
   color: #f87171 !important;
   font-size: 12px !important;
-  font-family: 'Roboto Mono', monospace !important;
+  font-family: "Roboto Mono", monospace !important;
 }
 
 .dr-drawer-footer {

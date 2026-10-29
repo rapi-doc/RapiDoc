@@ -34,11 +34,11 @@ apis:
 
 ## 2. URLs
 
-| URL | Shows |
-| :-- | :-- |
-| `/apis/<id>`, `/apis/<id>/<tag>` | the **default** (first) version, as today |
-| `/apis/<id>/<version>`, `/apis/<id>/<version>/<tag>` | every other version |
-| `/apis/<id>/<default version>[/<tag>]` | redirects to the unversioned URL (keeps the `#operation`) |
+| URL                                                  | Shows                                                     |
+| :--------------------------------------------------- | :-------------------------------------------------------- |
+| `/apis/<id>`, `/apis/<id>/<tag>`                     | the **default** (first) version, as today                 |
+| `/apis/<id>/<version>`, `/apis/<id>/<version>/<tag>` | every other version                                       |
+| `/apis/<id>/<default version>[/<tag>]`               | redirects to the unversioned URL (keeps the `#operation`) |
 
 So `/apis/<id>` always means "current", existing links keep working when you add versions, and a link
 pinned to a version (`/apis/payments/v2/...`) never breaks: it is a real page once v2 stops being the default.

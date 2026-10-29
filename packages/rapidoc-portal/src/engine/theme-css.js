@@ -2,14 +2,14 @@
  * Renders the portal theme stylesheet (styles/portal-theme.css) for a portal config.
  */
 
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { DEFAULT_PRIMARY_COLOR } from '../config/normalizer.js';
-import { accentColors } from './accent-colors.js';
+import fs from "node:fs";
+import { fileURLToPath } from "node:url";
+import { DEFAULT_PRIMARY_COLOR } from "../config/normalizer.js";
+import { accentColors } from "./accent-colors.js";
 
 export { DEFAULT_PRIMARY_COLOR };
 
-const THEME_CSS_PATH = fileURLToPath(new URL('../styles/portal-theme.css', import.meta.url));
+const THEME_CSS_PATH = fileURLToPath(new URL("../styles/portal-theme.css", import.meta.url));
 
 const SYSTEM_SANS_STACK = `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`;
 const SYSTEM_MONO_STACK = `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
@@ -27,11 +27,11 @@ export function renderThemeCss(portalConfig = {}) {
   const fontMono = fonts.mono ? `'${fonts.mono.family}', ${SYSTEM_MONO_STACK}` : DEFAULT_MONO_STACK;
 
   return fs
-    .readFileSync(THEME_CSS_PATH, 'utf8')
-    .replaceAll('__PORTAL_PRIMARY_COLOR__', primaryColor)
-    .replaceAll('__PORTAL_ON_PRIMARY__', accent.onPrimary)
-    .replaceAll('__PORTAL_PRIMARY_TEXT_LIGHT__', accent.textLight)
-    .replaceAll('__PORTAL_PRIMARY_TEXT_DARK__', accent.textDark)
-    .replaceAll('__FONT_SANS_STACK__', fontSans)
-    .replaceAll('__FONT_MONO_STACK__', fontMono);
+    .readFileSync(THEME_CSS_PATH, "utf8")
+    .replaceAll("__PORTAL_PRIMARY_COLOR__", primaryColor)
+    .replaceAll("__PORTAL_ON_PRIMARY__", accent.onPrimary)
+    .replaceAll("__PORTAL_PRIMARY_TEXT_LIGHT__", accent.textLight)
+    .replaceAll("__PORTAL_PRIMARY_TEXT_DARK__", accent.textDark)
+    .replaceAll("__FONT_SANS_STACK__", fontSans)
+    .replaceAll("__FONT_MONO_STACK__", fontMono);
 }

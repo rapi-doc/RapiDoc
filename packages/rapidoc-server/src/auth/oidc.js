@@ -1,4 +1,4 @@
-import * as client from 'openid-client';
+import * as client from "openid-client";
 
 /**
  * OpenID Connect against the configured provider, server side: authorization code flow with PKCE,
@@ -6,7 +6,7 @@ import * as client from 'openid-client';
  */
 
 const CLOCK_TOLERANCE_SECONDS = 60;
-const isLocalhost = (url) => ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+const isLocalhost = (url) => ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
 
 /**
  * Discovers the provider (/.well-known/openid-configuration). Throws when it can't be reached.
@@ -15,10 +15,22 @@ const isLocalhost = (url) => ['localhost', '127.0.0.1', '[::1]'].includes(url.ho
  */
 export async function discoverProvider(auth) {
   const issuer = new URL(auth.issuer);
-  const metadata = { [client.clockTolerance]: CLOCK_TOLERANCE_SECONDS, ...(auth.clientSecret && { client_secret: auth.clientSecret }) };
+  const metadata = {
+    [client.clockTolerance]: CLOCK_TOLERANCE_SECONDS,
+    ...(auth.clientSecret && { client_secret: auth.clientSecret }),
+  };
   // Plain http is only allowed for a provider on this machine (development, tests).
-  const options = issuer.protocol === 'http:' && isLocalhost(issuer) ? { execute: [client.allowInsecureRequests] } : undefined;
-  return client.discovery(issuer, auth.clientId, metadata, auth.clientSecret ? undefined : client.None(), options);
+  const options =
+    issuer.protocol === "http:" && isLocalhost(issuer)
+      ? { execute: [client.allowInsecureRequests] }
+      : undefined;
+  return client.discovery(
+    issuer,
+    auth.clientId,
+    metadata,
+    auth.clientSecret ? undefined : client.None(),
+    options,
+  );
 }
 
 /**
@@ -30,9 +42,9 @@ export async function startSignIn(config, { redirectUri, scopes, audience }) {
   const nonce = client.randomNonce();
   const url = client.buildAuthorizationUrl(config, {
     redirect_uri: redirectUri,
-    scope: scopes.join(' '),
+    scope: scopes.join(" "),
     code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
-    code_challenge_method: 'S256',
+    code_challenge_method: "S256",
     state,
     nonce,
     // Which API the access token is for (Auth0 and some others; standard OIDC has no such parameter).
@@ -67,20 +79,25 @@ export async function finishSignIn(config, callbackUrl, checks) {
   return {
     claims: { ...userinfo, ...claims },
     accessToken: tokens.access_token || null,
-    expiresIn: typeof tokens.expires_in === 'number' ? tokens.expires_in : null,
+    expiresIn: typeof tokens.expires_in === "number" ? tokens.expires_in : null,
   };
 }
 
 /** Provider sign-out URL (RP-initiated logout), or null when the provider has none. */
 export function endSessionUrl(config, { postLogoutRedirectUri, clientId }) {
   if (!config.serverMetadata().end_session_endpoint) return null;
-  return client.buildEndSessionUrl(config, { post_logout_redirect_uri: postLogoutRedirectUri, client_id: clientId });
+  return client.buildEndSessionUrl(config, {
+    post_logout_redirect_uri: postLogoutRedirectUri,
+    client_id: clientId,
+  });
 }
 
 /** Value at a dotted claim path (`realm_access.roles`), as a list of strings. */
 export function claimList(claims, claimPath) {
-  const value = claimPath.split('.').reduce((node, key) => (node == null ? undefined : node[key]), claims);
-  if (Array.isArray(value)) return value.filter((item) => typeof item === 'string');
-  if (typeof value === 'string') return value.split(/[\s,]+/).filter(Boolean);
+  const value = claimPath
+    .split(".")
+    .reduce((node, key) => (node == null ? undefined : node[key]), claims);
+  if (Array.isArray(value)) return value.filter((item) => typeof item === "string");
+  if (typeof value === "string") return value.split(/[\s,]+/).filter(Boolean);
   return [];
 }

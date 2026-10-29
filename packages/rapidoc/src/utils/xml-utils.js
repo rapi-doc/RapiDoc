@@ -7,9 +7,9 @@
  * @param {boolean} [options.textNodesOnSameLine=true] - Keep simple text nodes on the same line as their opening and closing tags.
  * @returns {string} Formatted XML string.
  */
-export function formatXml(xml, { indentor = '  ', textNodesOnSameLine = true } = {}) {
-  if (!xml || typeof xml !== 'string') {
-    return '';
+export function formatXml(xml, { indentor = "  ", textNodesOnSameLine = true } = {}) {
+  if (!xml || typeof xml !== "string") {
+    return "";
   }
 
   // Tokenize by XML tags (including declarations, comments, and CDATA) while preserving text
@@ -23,8 +23,8 @@ export function formatXml(xml, { indentor = '  ', textNodesOnSameLine = true } =
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    const isClosing = /^<\//.test(token);
-    const isSelfClosing = /\/>$/.test(token);
+    const isClosing = token.startsWith("</");
+    const isSelfClosing = token.endsWith("/>");
     const isOpening = /^<[^/!?]/.test(token) && !isSelfClosing;
 
     if (isClosing) {
@@ -34,7 +34,13 @@ export function formatXml(xml, { indentor = '  ', textNodesOnSameLine = true } =
     const indent = indentor.repeat(depth);
 
     // Lookahead for OpeningTag -> Text -> ClosingTag to collapse into one line
-    if (textNodesOnSameLine && isOpening && i + 2 < tokens.length && !tokens[i + 1].startsWith('<') && tokens[i + 2].startsWith('</')) {
+    if (
+      textNodesOnSameLine &&
+      isOpening &&
+      i + 2 < tokens.length &&
+      !tokens[i + 1].startsWith("<") &&
+      tokens[i + 2].startsWith("</")
+    ) {
       const openTag = token.match(/^<([a-zA-Z0-9_\-:]+)/)?.[1];
       const closeTag = tokens[i + 2].match(/^<\/([a-zA-Z0-9_\-:]+)/)?.[1];
       if (openTag && closeTag && openTag === closeTag) {
@@ -51,5 +57,5 @@ export function formatXml(xml, { indentor = '  ', textNodesOnSameLine = true } =
     }
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 }

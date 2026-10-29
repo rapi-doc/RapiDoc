@@ -1,9 +1,13 @@
-import { marked } from 'marked';
+import { marked } from "marked";
 
 let configured = false;
 
 function escapeAttribute(value) {
-  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 /**
@@ -17,11 +21,11 @@ function escapeAttribute(value) {
  * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base#in-page_anchors
  */
 function renderAnchorLink(renderer, { href, title, tokens }) {
-  if (!href?.startsWith('#') || typeof location === 'undefined') {
+  if (!href?.startsWith("#") || typeof location === "undefined") {
     return false;
   }
-  const absoluteHref = `${location.href.replace(/#.*/, '')}${href}`;
-  const titleAttribute = title ? ` title="${escapeAttribute(title)}"` : '';
+  const absoluteHref = `${location.href.replace(/#.*/, "")}${href}`;
+  const titleAttribute = title ? ` title="${escapeAttribute(title)}"` : "";
   return `<a class="anchor-link" href="${escapeAttribute(absoluteHref)}"${titleAttribute}>${renderer.parser.parseInline(tokens)}</a>`;
 }
 
@@ -42,8 +46,11 @@ export function fixRenderedAnchorLinks(renderer) {
 /** Inline HTML for the first line of a paragraph-like token (paragraph, heading, list), with line breaks as spaces. */
 export function firstLineHtml(token) {
   // a list item's own text, without any nested list under it
-  const text = token.type === 'list' ? token.items[0]?.tokens?.find((t) => t.type === 'text' || t.type === 'paragraph')?.text : token.text;
-  return marked.parseInline((text || '').replace(/\s*\n\s*/g, ' ').trim());
+  const text =
+    token.type === "list"
+      ? token.items[0]?.tokens?.find((t) => t.type === "text" || t.type === "paragraph")?.text
+      : token.text;
+  return marked.parseInline((text || "").replace(/\s*\n\s*/g, " ").trim());
 }
 
 /**
@@ -55,28 +62,30 @@ export function firstLineHtml(token) {
  */
 export function blockSummary(token) {
   switch (token?.type) {
-    case 'table': {
+    case "table": {
       const rows = token.rows.length;
-      return `<span class="descr-placeholder">Table · ${rows} ${rows === 1 ? 'row' : 'rows'}</span>`;
+      return `<span class="descr-placeholder">Table · ${rows} ${rows === 1 ? "row" : "rows"}</span>`;
     }
-    case 'code':
-      return `<span class="descr-placeholder">Code block${token.lang ? ` · ${escapeAttribute(token.lang)}` : ''}</span>`;
-    case 'html': {
+    case "code":
+      return `<span class="descr-placeholder">Code block${token.lang ? ` · ${escapeAttribute(token.lang)}` : ""}</span>`;
+    case "html": {
       const text = token.text
-        .replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, '')
-        .replace(/<[^>]*>/g, ' ')
-        .replace(/[<>]/g, '')
-        .replace(/\s+/g, ' ')
+        .replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, "")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/[<>]/g, "")
+        .replace(/\s+/g, " ")
         .trim();
       return text || '<span class="descr-placeholder">HTML content</span>';
     }
-    case 'blockquote': {
-      const first = token.tokens.find((t) => t.type !== 'space');
-      if (!first) return '';
-      return ['paragraph', 'heading', 'list', 'text'].includes(first.type) ? firstLineHtml(first) : blockSummary(first);
+    case "blockquote": {
+      const first = token.tokens.find((t) => t.type !== "space");
+      if (!first) return "";
+      return ["paragraph", "heading", "list", "text"].includes(first.type)
+        ? firstLineHtml(first)
+        : blockSummary(first);
     }
     default:
-      return '';
+      return "";
   }
 }
 

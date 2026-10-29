@@ -10,7 +10,7 @@ a {
   width: 100px;
   padding: 8px 12px;
   font-size: 12px;
-  font-family: 'Roboto Mono';
+  font-family: "Roboto Mono";
   background-color: #333333aa;
   border: 1px solid var(--rd-accent);
   color: #fff;

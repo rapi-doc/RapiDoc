@@ -12,7 +12,7 @@
  * without `!important`.
  */
 :root,
-:root[data-theme='dark'] {
+:root[data-theme="dark"] {
   --portal-bg: oklch(0.2613 0.0134 272.84);
   --portal-surface: oklch(0.2613 0.0134 272.84);
   --portal-card: oklch(0.2613 0.0134 272.84);
@@ -30,9 +30,11 @@
   /* Cards (.portal-doc-card): raised a step above the page, a hairline ring and a soft shadow. */
   --portal-card-bg: oklch(0.29 0.014 272.84);
   --portal-card-shadow:
-    0 -1px rgba(255, 255, 255, 0.06), 0 4px 8px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.1), 0 1px 6px -4px #000;
+    0 -1px rgba(255, 255, 255, 0.06), 0 4px 8px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(255, 255, 255, 0.1), 0 1px 6px -4px #000;
   --portal-card-shadow-hover:
-    0 -1px rgba(255, 255, 255, 0.08), 0 4px 11px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.16), 0 1px 7px -4px #000;
+    0 -1px rgba(255, 255, 255, 0.08), 0 4px 11px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.16), 0 1px 7px -4px #000;
   --portal-card-inner: rgba(255, 255, 255, 0.05);
 
   /* Starlight colors */
@@ -59,7 +61,7 @@
   --sl-color-text-accent: var(--portal-primary-text);
 }
 
-[data-theme='light'] {
+[data-theme="light"] {
   --portal-bg: #ffffff;
   --portal-surface: #f4f4f5;
   --portal-card: #f4f4f5;
@@ -71,8 +73,12 @@
   --portal-hover-bg: rgba(0, 0, 0, 0.05);
   --portal-primary-text: __PORTAL_PRIMARY_TEXT_LIGHT__;
   --portal-card-bg: #ffffff;
-  --portal-card-shadow: 0 0 0 1px rgba(19, 19, 22, 0.075), 0 1px 5px -4px rgba(19, 19, 22, 0.7), 0 4px 8px rgba(32, 42, 54, 0.05);
-  --portal-card-shadow-hover: 0 0 0 1px rgba(19, 19, 22, 0.125), 0 1px 7px -4px rgba(19, 19, 22, 0.8), 0 4px 11px rgba(32, 42, 54, 0.05);
+  --portal-card-shadow:
+    0 0 0 1px rgba(19, 19, 22, 0.075), 0 1px 5px -4px rgba(19, 19, 22, 0.7),
+    0 4px 8px rgba(32, 42, 54, 0.05);
+  --portal-card-shadow-hover:
+    0 0 0 1px rgba(19, 19, 22, 0.125), 0 1px 7px -4px rgba(19, 19, 22, 0.8),
+    0 4px 11px rgba(32, 42, 54, 0.05);
   --portal-card-inner: rgba(19, 19, 22, 0.05);
 
   --sl-color-bg: #ffffff;
@@ -119,7 +125,9 @@
   --portal-banner-height: 0px;
   --portal-navbar-height: 64px;
   --portal-tabs-height: 48px;
-  --sl-nav-height: calc(var(--portal-banner-height) + var(--portal-navbar-height) + var(--portal-tabs-height));
+  --sl-nav-height: calc(
+    var(--portal-banner-height) + var(--portal-navbar-height) + var(--portal-tabs-height)
+  );
 
   /* One corner radius for boxes, menus, dialogs and controls: callouts, code blocks, cards, buttons,
      the header menus and the search dialog. Small badges stay 4px and pills stay round. */
@@ -200,12 +208,12 @@ starlight-toc a {
 starlight-toc a:hover {
   color: var(--sl-color-white);
 }
-starlight-toc a[aria-current='true'] {
+starlight-toc a[aria-current="true"] {
   --toc-rail: var(--sl-color-white);
   color: var(--sl-color-white);
 }
 starlight-toc a::before {
-  content: '';
+  content: "";
   position: absolute;
   inset-block: 0;
   left: calc(var(--toc-step) * var(--depth));
@@ -218,7 +226,7 @@ starlight-toc li:has(> ul) + li > a::before {
 }
 starlight-toc li > ul > li:first-child > a::after,
 starlight-toc li:has(> ul) + li > a::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   width: var(--toc-step);
@@ -227,12 +235,22 @@ starlight-toc li:has(> ul) + li > a::after {
 /* Into a nested list: from the parent's rail down-right to this one. */
 starlight-toc li > ul > li:first-child > a::after {
   left: calc(var(--toc-step) * (var(--depth) - 1));
-  background: linear-gradient(to top right, transparent calc(50% - 0.5px), var(--toc-rail) 0 calc(50% + 0.5px), transparent 0);
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.5px),
+    var(--toc-rail) 0 calc(50% + 0.5px),
+    transparent 0
+  );
 }
 /* Out of it: from the nested rail down-left to this one. */
 starlight-toc li:has(> ul) + li > a::after {
   left: calc(var(--toc-step) * var(--depth));
-  background: linear-gradient(to bottom right, transparent calc(50% - 0.5px), var(--toc-rail) 0 calc(50% + 0.5px), transparent 0);
+  background: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 0.5px),
+    var(--toc-rail) 0 calc(50% + 0.5px),
+    transparent 0
+  );
 }
 
 /* Cards: Markdoc {% card %}, MDX <Card> and the API catalog. A hairline ring and a soft shadow, a grey
@@ -250,7 +268,7 @@ starlight-toc li:has(> ul) + li > a::after {
   transition: box-shadow 0.2s ease;
 }
 .portal-doc-card::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 6px;
   border: 1px solid var(--portal-card-inner);
@@ -348,31 +366,31 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
 .portal-callout-title + * {
   margin-top: 0.125rem;
 }
-.portal-callout[data-type='info'] {
+.portal-callout[data-type="info"] {
   --callout-color: light-dark(#2563eb, #60a5fa);
 }
-.portal-callout:is([data-type='tip'], [data-type='success']) {
+.portal-callout:is([data-type="tip"], [data-type="success"]) {
   --callout-color: light-dark(#15803d, #4ade80);
 }
-.portal-callout:is([data-type='caution'], [data-type='warning']) {
+.portal-callout:is([data-type="caution"], [data-type="warning"]) {
   --callout-color: light-dark(#b45309, #fbbf24);
 }
-.portal-callout[data-type='danger'] {
+.portal-callout[data-type="danger"] {
   --callout-color: light-dark(#b91c1c, #f87171);
 }
-.portal-callout[data-type='sparkles'] {
+.portal-callout[data-type="sparkles"] {
   --callout-color: light-dark(#9333ea, #c084fc);
 }
-.portal-callout[data-type='rocket'] {
+.portal-callout[data-type="rocket"] {
   --callout-color: light-dark(#4f46e5, #818cf8);
 }
-.portal-callout[data-type='zap'] {
+.portal-callout[data-type="zap"] {
   --callout-color: light-dark(#a16207, #facc15);
 }
-.portal-callout[data-type='lock'] {
+.portal-callout[data-type="lock"] {
   --callout-color: light-dark(#475569, #94a3b8);
 }
-.portal-callout[data-type='megaphone'] {
+.portal-callout[data-type="megaphone"] {
   --callout-color: light-dark(#0e7490, #22d3ee);
 }
 
@@ -393,7 +411,7 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
   overflow-wrap: normal;
 }
 
-[data-theme='light'] :not(pre) > code {
+[data-theme="light"] :not(pre) > code {
   color: #334155;
   border-color: #cbd5e1;
 }
@@ -428,12 +446,12 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
 }
 
 /* The current page: accent text on a tint, in the same weight as the other links. */
-.sidebar-pane a[aria-current='page'],
-.sidebar-pane a[aria-current='page'] span {
+.sidebar-pane a[aria-current="page"],
+.sidebar-pane a[aria-current="page"] span {
   color: var(--portal-primary-text);
 }
 
-.sidebar-pane a[aria-current='page'] {
+.sidebar-pane a[aria-current="page"] {
   background-color: var(--portal-primary-tint);
 }
 
@@ -453,9 +471,21 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
    an accent glow top-left and a violet and an amber one further down. */
 :root[data-has-hero] body {
   background-image:
-    radial-gradient(55% 45% at 12% 8%, color-mix(in srgb, var(--portal-primary) 22%, transparent), transparent 70%),
-    radial-gradient(45% 40% at 92% 42%, light-dark(rgba(139, 92, 246, 0.12), rgba(139, 92, 246, 0.14)), transparent 70%),
-    radial-gradient(50% 35% at 50% 100%, light-dark(rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.08)), transparent 70%);
+    radial-gradient(
+      55% 45% at 12% 8%,
+      color-mix(in srgb, var(--portal-primary) 22%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 40% at 92% 42%,
+      light-dark(rgba(139, 92, 246, 0.12), rgba(139, 92, 246, 0.14)),
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 35% at 50% 100%,
+      light-dark(rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.08)),
+      transparent 70%
+    );
   background-attachment: fixed;
 }
 

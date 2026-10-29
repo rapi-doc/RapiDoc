@@ -1,6 +1,7 @@
 # AGENTS.md — `packages/rapidoc-mock` (`@rapidoc/mock`)
 
 ## 1. Package Scope & Identity
+
 `packages/rapidoc-mock` is a mock server for the APIs of a portal: examples first, then generated data, request validation, and each operation's `security` enforced with real token checks. `rapidoc mock` (in `@rapidoc/cli`) runs it.
 
 - **Package Name**: `@rapidoc/mock`
@@ -32,15 +33,15 @@
 
 ## 4. Files
 
-| File | Role |
-| :--- | :--- |
-| `src/index.js` | `createMockApp()`: loads specs, mounts each under `/<id>`, CORS, the per-request flow (route → auth → validate → respond); `startMockServer()` |
-| `src/spec.js` | `loadSpec` (bundle relative `$ref` files, 3.0/3.1 only), JSON pointers, `resolve`, `listOperations`, `securityOf` |
-| `src/schema.js` | OpenAPI schema → self-contained JSON Schema 2020-12 for generation: inlines refs, cuts recursion, 3.0 `nullable`/`exclusive*`, drops `writeOnly`, folds `allOf` + `oneOf` |
-| `src/responses.js` | Picks the response (`Prefer: code/example/dynamic`, Accept), examples first, generated data checked with ajv and repaired per value |
-| `src/auth.js` | `createVerifier` (discovery + JWKS), `createAuth().check()`, `tokenScopes`, `problem()` |
-| `src/engine/router.js` | openapi-backend adapter (lazy validators: an operation whose schema it can't compile is served unvalidated, with a warning) |
-| `src/engine/faker.js` | json-schema-faker adapter and generation options |
+| File                   | Role                                                                                                                                                                      |
+| :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/index.js`         | `createMockApp()`: loads specs, mounts each under `/<id>`, CORS, the per-request flow (route → auth → validate → respond); `startMockServer()`                            |
+| `src/spec.js`          | `loadSpec` (bundle relative `$ref` files, 3.0/3.1 only), JSON pointers, `resolve`, `listOperations`, `securityOf`                                                         |
+| `src/schema.js`        | OpenAPI schema → self-contained JSON Schema 2020-12 for generation: inlines refs, cuts recursion, 3.0 `nullable`/`exclusive*`, drops `writeOnly`, folds `allOf` + `oneOf` |
+| `src/responses.js`     | Picks the response (`Prefer: code/example/dynamic`, Accept), examples first, generated data checked with ajv and repaired per value                                       |
+| `src/auth.js`          | `createVerifier` (discovery + JWKS), `createAuth().check()`, `tokenScopes`, `problem()`                                                                                   |
+| `src/engine/router.js` | openapi-backend adapter (lazy validators: an operation whose schema it can't compile is served unvalidated, with a warning)                                               |
+| `src/engine/faker.js`  | json-schema-faker adapter and generation options                                                                                                                          |
 
 ---
 

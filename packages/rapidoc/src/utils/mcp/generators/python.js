@@ -2,42 +2,45 @@
  * Single-file Python FastMCP Server Generator
  * Uses fastmcp with zero external networking dependencies (urllib.request).
  */
-import { toSnakeCase, estimateTokenCost } from '../common.js';
+import { toSnakeCase, estimateTokenCost } from "../common.js";
 
 export function generatePythonFastMcpServer(metadata, tools, resources, workflows, options = {}) {
-  const serverName = toSnakeCase(options.serverName || metadata.title || 'rapidoc_mcp_server');
+  const serverName = toSnakeCase(options.serverName || metadata.title || "rapidoc_mcp_server");
   const budget = estimateTokenCost(tools, resources, workflows);
-  const defaultBaseUrl = metadata.servers?.[0]?.url || 'http://localhost:3000';
+  const defaultBaseUrl = metadata.servers?.[0]?.url || "http://localhost:3000";
 
   const toolFunctions = tools
     .map((t) => {
       const pyArgs = t.parameters
         .map((p) => {
-          let pyType = 'str';
-          if (p.type === 'integer') pyType = 'int';
-          else if (p.type === 'number') pyType = 'float';
-          else if (p.type === 'boolean') pyType = 'bool';
-          else if (p.type === 'array') {
+          let pyType = "str";
+          if (p.type === "integer") pyType = "int";
+          else if (p.type === "number") pyType = "float";
+          else if (p.type === "boolean") pyType = "bool";
+          else if (p.type === "array") {
             const itemType = p.items?.type;
-            if (itemType === 'integer') pyType = 'List[int]';
-            else if (itemType === 'number') pyType = 'List[float]';
-            else if (itemType === 'boolean') pyType = 'List[bool]';
-            else if (itemType === 'object') pyType = 'List[Dict[str, Any]]';
-            else pyType = 'List[str]';
-          } else if (p.type === 'object') pyType = 'Dict[str, Any]';
+            if (itemType === "integer") pyType = "List[int]";
+            else if (itemType === "number") pyType = "List[float]";
+            else if (itemType === "boolean") pyType = "List[bool]";
+            else if (itemType === "object") pyType = "List[Dict[str, Any]]";
+            else pyType = "List[str]";
+          } else if (p.type === "object") pyType = "Dict[str, Any]";
 
           if (!p.required) {
             return `${toSnakeCase(p.name)}: Optional[${pyType}] = None`;
           }
           return `${toSnakeCase(p.name)}: ${pyType}`;
         })
-        .join(', ');
+        .join(", ");
 
-      const allPyArgs = [pyArgs, 'api_key: Optional[str] = None'].filter(Boolean).join(', ');
-      const pathParams = t.parameters.filter((p) => p.in === 'path');
+      const allPyArgs = [pyArgs, "api_key: Optional[str] = None"].filter(Boolean).join(", ");
+      const pathParams = t.parameters.filter((p) => p.in === "path");
       const safePathCode = pathParams
-        .map((p) => `    safe_${toSnakeCase(p.name)} = urllib.parse.quote(str(${toSnakeCase(p.name)}))`)
-        .join('\n');
+        .map(
+          (p) =>
+            `    safe_${toSnakeCase(p.name)} = urllib.parse.quote(str(${toSnakeCase(p.name)}))`,
+        )
+        .join("\n");
       const pathSub = t.path.replace(/\{([^}]+)\}/g, (match, p1) => `{safe_${toSnakeCase(p1)}}`);
 
       return `
@@ -46,37 +49,46 @@ export function generatePythonFastMcpServer(metadata, tools, resources, workflow
     description="${t.description.replace(/"/g, '\\"')}"
 )
 def ${t.name}(${allPyArgs}) -> str:
-    """${t.description}${t.isConsequential ? ' (⚠️ Consequential action - requires confirmation)' : ''}"""
-${safePathCode ? safePathCode + '\n' : ''}    url = f"{BASE_URL.rstrip('/')}${pathSub}"
+    """${t.description}${t.isConsequential ? " (⚠️ Consequential action - requires confirmation)" : ""}"""
+${safePathCode ? safePathCode + "\n" : ""}    url = f"{BASE_URL.rstrip('/')}${pathSub}"
     headers = {"Accept": "application/json"}
 ${t.parameters
-  .filter((p) => p.in === 'header')
-  .map((p) => `    if ${toSnakeCase(p.name)} is not None:\n        headers["${p.name}"] = str(${toSnakeCase(p.name)})`)
-  .join('\n')}
+  .filter((p) => p.in === "header")
+  .map(
+    (p) =>
+      `    if ${toSnakeCase(p.name)} is not None:\n        headers["${p.name}"] = str(${toSnakeCase(p.name)})`,
+  )
+  .join("\n")}
     resolved_key = api_key or API_KEY
     if resolved_key:
         headers["Authorization"] = f"Bearer {resolved_key}"
 
     params = {}
 ${t.parameters
-  .filter((p) => p.in === 'query')
-  .map((p) => `    if ${toSnakeCase(p.name)} is not None:\n        params["${p.name}"] = ${toSnakeCase(p.name)}`)
-  .join('\n')}
+  .filter((p) => p.in === "query")
+  .map(
+    (p) =>
+      `    if ${toSnakeCase(p.name)} is not None:\n        params["${p.name}"] = ${toSnakeCase(p.name)}`,
+  )
+  .join("\n")}
     if params:
         url += ("&" if "?" in url else "?") + urllib.parse.urlencode(params)
 
     body_bytes = None
 ${
-  ['POST', 'PUT', 'PATCH'].includes(t.method)
+  ["POST", "PUT", "PATCH"].includes(t.method)
     ? `    body_payload = {}
 ${t.parameters
-  .filter((p) => p.in === 'body')
-  .map((p) => `    if ${toSnakeCase(p.name)} is not None:\n        body_payload["${p.name}"] = ${toSnakeCase(p.name)}`)
-  .join('\n')}
+  .filter((p) => p.in === "body")
+  .map(
+    (p) =>
+      `    if ${toSnakeCase(p.name)} is not None:\n        body_payload["${p.name}"] = ${toSnakeCase(p.name)}`,
+  )
+  .join("\n")}
     if body_payload:
         headers["Content-Type"] = "application/json"
         body_bytes = json.dumps(body_payload).encode("utf-8")`
-    : ''
+    : ""
 }
 
     req = urllib.request.Request(url, data=body_bytes, headers=headers, method="${t.method}")
@@ -89,7 +101,7 @@ ${t.parameters
         return f"Error invoking ${t.name}: {str(e)}"
 `;
     })
-    .join('\n');
+    .join("\n");
 
   const resourceFunctions = resources
     .map((r) => {
@@ -98,7 +110,7 @@ ${t.parameters
 def ${toSnakeCase(r.name)}(uri: str = "") -> str:
     """${r.description}"""
     url = f"{BASE_URL.rstrip('/')}${r.path}"
-    headers = {"Accept": "${r.mimeType || 'application/json'}"}
+    headers = {"Accept": "${r.mimeType || "application/json"}"}
 
     resolved_key = API_KEY
     if uri and "?" in uri:
@@ -126,23 +138,23 @@ def ${toSnakeCase(r.name)}(uri: str = "") -> str:
         return f"Error loading resource: {str(e)}"
 `;
     })
-    .join('\n');
+    .join("\n");
 
   const workflowFunctions = workflows
     .map((w) => {
       const paramKeys = w.parameters ? Object.keys(w.parameters) : [];
       const pyArgs = paramKeys
         .map((k) => `${toSnakeCase(k)}: str`)
-        .concat(['api_key: Optional[str] = None'])
-        .join(', ');
+        .concat(["api_key: Optional[str] = None"])
+        .join(", ");
 
       return `
 @mcp.tool(
     name="${w.name}",
-    description="${(w.description || 'Composite workflow').replace(/"/g, '\\"')}"
+    description="${(w.description || "Composite workflow").replace(/"/g, '\\"')}"
 )
 def ${toSnakeCase(w.name)}(${pyArgs}) -> str:
-    """Composite workflow: ${(w.description || '').replace(/"/g, '\\"')}"""
+    """Composite workflow: ${(w.description || "").replace(/"/g, '\\"')}"""
     results = {}
     headers = {"Accept": "application/json"}
     resolved_key = api_key or API_KEY
@@ -152,20 +164,20 @@ def ${toSnakeCase(w.name)}(${pyArgs}) -> str:
     try:
 ${(w.steps || [])
   .map((s, idx) => {
-    const argKey = paramKeys[0] || 'id';
+    const argKey = paramKeys[0] || "id";
     return `        # Step ${idx + 1}: ${s.call}
         step_url_${idx} = f"{BASE_URL.rstrip('/')}/api/{urllib.parse.quote(str(${toSnakeCase(argKey)}))}"
         req_${idx} = urllib.request.Request(step_url_${idx}, headers=headers, method="GET")
         with urllib.request.urlopen(req_${idx}, timeout=30.0) as resp_${idx}:
             results["${s.call}"] = json.loads(resp_${idx}.read().decode("utf-8"))`;
   })
-  .join('\n')}
+  .join("\n")}
         return json.dumps(results, indent=2)
     except Exception as e:
         return f"Workflow ${w.name} failed: {str(e)}"
 `;
     })
-    .join('\n');
+    .join("\n");
 
   return `"""
 Auto-generated by RapiDoc Curated MCP Generator
@@ -181,7 +193,7 @@ Spec: ${metadata.title} (v${metadata.version})
 - Total Resources: ${budget.totalResources}
 - Total Workflows: ${budget.totalWorkflows}
 - Estimated Prompt Context Overhead: ~${budget.estimatedTokens.toLocaleString()} tokens/turn
-${budget.warnings.map((w) => `- ${w}`).join('\n')}
+${budget.warnings.map((w) => `- ${w}`).join("\n")}
 
 [HOW TO RUN]
 1. pip install fastmcp
@@ -229,8 +241,8 @@ fastmcp run server.py
 `;
 
   return {
-    'server.py': serverCode,
-    'requirements.txt': 'fastmcp>=0.4.0\n',
-    'README.md': readme,
+    "server.py": serverCode,
+    "requirements.txt": "fastmcp>=0.4.0\n",
+    "README.md": readme,
   };
 }

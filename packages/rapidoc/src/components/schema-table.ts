@@ -1,11 +1,11 @@
-import { html, css, nothing } from 'lit';
-import { customElement } from 'lit/decorators.js';
-import FontStyles from '../styles/font-styles.js';
-import SchemaStyles from '../styles/schema-styles.js';
-import CustomStyles from '../styles/custom-styles.js';
-import SchemaBaseElement from './schema-base-element';
+import { html, css, nothing } from "lit";
+import { customElement } from "lit/decorators.js";
+import FontStyles from "../styles/font-styles.js";
+import SchemaStyles from "../styles/schema-styles.js";
+import CustomStyles from "../styles/custom-styles.js";
+import SchemaBaseElement from "./schema-base-element";
 
-@customElement('schema-table')
+@customElement("schema-table")
 export default class SchemaTable extends SchemaBaseElement {
   static get styles() {
     return [
@@ -157,15 +157,15 @@ export default class SchemaTable extends SchemaBaseElement {
 
   render() {
     if (!this.data) {
-      return '';
+      return "";
     }
 
-    const rootType = this.data.kind === 'primitive' ? this.data.type : this.data.kind || '';
-    const rootDescription = this.data.description || '';
+    const rootType = this.data.kind === "primitive" ? this.data.type : this.data.kind || "";
+    const rootDescription = this.data.description || "";
 
     return html`
       <div
-        class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}"
+        class="table ${this.schemaDescriptionExpanded === "true" ? "expanded-all-descr" : "collapsed-all-descr"}"
         @click="${(e) => this.handleAllEvents(e)}"
         @keydown="${(e) => this.handleKeyDown(e)}"
       >
@@ -183,28 +183,28 @@ export default class SchemaTable extends SchemaBaseElement {
     `;
   }
 
-  renderAST(node, parentType = '', schemaLevel = 0, indentLevel = 0) {
+  renderAST(node, parentType = "", schemaLevel = 0, indentLevel = 0) {
     if (this.isFieldHidden(node)) {
-      return '';
+      return "";
     }
 
     const leftPadding = 16 * (indentLevel + 1);
     const isExpanded = schemaLevel < this.schemaExpandLevel;
-    const nullClass = node.nullable ? 'nullable' : '';
+    const nullClass = node.nullable ? "nullable" : "";
     const deprecatedIcon = this.renderDeprecatedIcon(node);
     const readWriteBadge = this.getReadWriteBadge(node);
     const readWriteTip = this.getReadWriteTip(node);
 
     // 1. Array kind
-    if (node.kind === 'array') {
+    if (node.kind === "array") {
       const items = node.items;
       if (!items) {
-        const typeLabel = node.dataTypeLabel || (node.nullable ? 'array ┃ null' : 'array');
+        const typeLabel = node.dataTypeLabel || (node.nullable ? "array ┃ null" : "array");
         return html`
-          <div class="tr array ${nullClass}" data-obj="${node.name || ''}">
+          <div class="tr array ${nullClass}" data-obj="${node.name || ""}">
             <div class="td key" style="padding-left:${leftPadding}px">
-              <span class="key-label" title="${node.name || nothing}">${deprecatedIcon}${node.name || ''}</span>
-              ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
+              <span class="key-label" title="${node.name || nothing}">${deprecatedIcon}${node.name || ""}</span>
+              ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ""}
             </div>
             <div class="td key-type" title="${readWriteTip || nothing}">${typeLabel}${readWriteBadge}</div>
             ${this.renderDescrCell(node.description)}
@@ -212,38 +212,38 @@ export default class SchemaTable extends SchemaBaseElement {
         `;
       }
 
-      if (items.kind === 'primitive') {
-        const itemType = items.format || items.contentMediaType || items.type || 'string';
+      if (items.kind === "primitive") {
+        const itemType = items.format || items.contentMediaType || items.type || "string";
         const dataTypeCss = this.getDataTypeCss(itemType);
 
         return html`
-          <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : nothing}">
-            <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-              ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
-              ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
+          <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? "Deprecated" : nothing}">
+            <div class="td key ${node.deprecated || items.deprecated ? "deprecated" : ""}" style="padding-left:${leftPadding}px">
+              ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ""}
+              ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ""}
             </div>
             <div class="td key-type ${dataTypeCss}" title="${readWriteTip || nothing}">
-              [${itemType}]${node.nullable ? ' ┃ null' : ''}${readWriteBadge}
+              [${itemType}]${node.nullable ? " ┃ null" : ""}${readWriteBadge}
             </div>
             ${this.renderDescrCell(node.description || items.description, items)}
           </div>
         `;
       }
 
-      let arrLabel = 'array';
-      if (items.kind === 'object') {
-        arrLabel = 'array of object';
-      } else if (items.kind === 'array') {
-        arrLabel = `array of array ${node.arrayType ? `of ${node.arrayType}` : ''}`.trim();
-      } else if (items.kind === 'union') {
-        arrLabel = 'array of union';
+      let arrLabel = "array";
+      if (items.kind === "object") {
+        arrLabel = "array of object";
+      } else if (items.kind === "array") {
+        arrLabel = `array of array ${node.arrayType ? `of ${node.arrayType}` : ""}`.trim();
+      } else if (items.kind === "union") {
+        arrLabel = "array of union";
       }
       if (node.nullable) {
-        arrLabel += ' ┃ null';
+        arrLabel += " ┃ null";
       }
 
       const hasChildren =
-        items.kind === 'object'
+        items.kind === "object"
           ? !!(
               (items.properties && items.properties.length > 0) ||
               (items.patternProperties && items.patternProperties.length > 0) ||
@@ -254,11 +254,11 @@ export default class SchemaTable extends SchemaBaseElement {
 
       return html`
         <div
-          class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}"
-          data-obj="${node.name || ''}"
+          class="tr ${isExpanded ? "expanded" : "collapsed"} array ${nullClass}"
+          data-obj="${node.name || ""}"
           title="${node.deprecated ? `Deprecated ${node.name}` : node.name || nothing}"
         >
-          <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
+          <div class="td key ${node.deprecated ? "deprecated" : ""}" style="padding-left:${leftPadding}px">
             ${
               node.name && hasChildren
                 ? html`<button
@@ -266,14 +266,14 @@ export default class SchemaTable extends SchemaBaseElement {
                     class="obj-toggle"
                     data-obj="${node.name}"
                     aria-label="Toggle ${node.name}"
-                    aria-expanded="${isExpanded ? 'true' : 'false'}"
+                    aria-expanded="${isExpanded ? "true" : "false"}"
                   ></button>`
-                : ''
+                : ""
             }
-            <span class="key-label" title="${node.name || nothing}" style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}">
-              ${deprecatedIcon}${node.name || ''}
+            <span class="key-label" title="${node.name || nothing}" style="display:inline-block; ${hasChildren ? "margin-left:-6px;" : ""}">
+              ${deprecatedIcon}${node.name || ""}
             </span>
-            ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
+            ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ""}
           </div>
           <div class="td key-type" title="${readWriteTip || nothing}">${arrLabel}${readWriteBadge}</div>
           ${this.renderDescrCell(node.description || items.description)}
@@ -283,25 +283,25 @@ export default class SchemaTable extends SchemaBaseElement {
             ? html`
                 <div class="object-body">
                   ${
-                    items.kind === 'object'
+                    items.kind === "object"
                       ? html`
-                          ${items.properties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
-                          ${items.patternProperties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
-                          ${items.additionalProperties ? this.renderAST(items.additionalProperties, 'object', schemaLevel + 1, indentLevel + 1) : ''}
-                          ${items.unions?.map((u) => this.renderAST(u, 'object', schemaLevel + 1, indentLevel + 1))}
+                          ${items.properties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
+                          ${items.patternProperties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
+                          ${items.additionalProperties ? this.renderAST(items.additionalProperties, "object", schemaLevel + 1, indentLevel + 1) : ""}
+                          ${items.unions?.map((u) => this.renderAST(u, "object", schemaLevel + 1, indentLevel + 1))}
                         `
-                      : this.renderAST(items, 'array', schemaLevel + 1, indentLevel + 1)
+                      : this.renderAST(items, "array", schemaLevel + 1, indentLevel + 1)
                   }
                 </div>
               `
-            : ''
+            : ""
         }
       `;
     }
 
     // 2. Object kind
-    if (node.kind === 'object') {
-      const typeLabel = node.dataTypeLabel || (node.nullable ? 'object ┃ null' : 'object');
+    if (node.kind === "object") {
+      const typeLabel = node.dataTypeLabel || (node.nullable ? "object ┃ null" : "object");
 
       const hasChildren = !!(
         (node.properties && node.properties.length > 0) ||
@@ -315,11 +315,11 @@ export default class SchemaTable extends SchemaBaseElement {
           node.name
             ? html`
                 <div
-                  class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}"
+                  class="tr ${isExpanded ? "expanded" : "collapsed"} object ${nullClass}"
                   data-obj="${node.name}"
                   title="${node.deprecated ? `Deprecated ${node.name}` : node.name}"
                 >
-                  <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
+                  <div class="td key ${node.deprecated ? "deprecated" : ""}" style="padding-left:${leftPadding}px">
                     ${
                       hasChildren
                         ? html`<button
@@ -327,55 +327,56 @@ export default class SchemaTable extends SchemaBaseElement {
                             class="obj-toggle"
                             data-obj="${node.name}"
                             aria-label="Toggle ${node.name}"
-                            aria-expanded="${isExpanded ? 'true' : 'false'}"
+                            aria-expanded="${isExpanded ? "true" : "false"}"
                           ></button>`
-                        : ''
+                        : ""
                     }
                     <span
                       class="key-label"
                       title="${node.name || nothing}"
-                      style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}"
+                      style="display:inline-block; ${hasChildren ? "margin-left:-6px;" : ""}"
                     >
                       ${deprecatedIcon}${node.name}
                     </span>
-                    ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
+                    ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ""}
                   </div>
                   <div class="td key-type" title="${readWriteTip || nothing}">${typeLabel}${readWriteBadge}</div>
                   ${this.renderDescrCell(node.description)}
                 </div>
               `
-            : ''
+            : ""
         }
         ${
           hasChildren
             ? html`
                 <div class="object-body">
-                  ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
-                  ${node.patternProperties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
-                  ${node.additionalProperties ? this.renderAST(node.additionalProperties, 'object', schemaLevel + 1, indentLevel + (node.name ? 1 : 0)) : ''}
-                  ${node.unions?.map((u) => this.renderAST(u, 'object', schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
+                  ${node.properties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
+                  ${node.patternProperties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
+                  ${node.additionalProperties ? this.renderAST(node.additionalProperties, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)) : ""}
+                  ${node.unions?.map((u) => this.renderAST(u, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
                 </div>
               `
-            : ''
+            : ""
         }
       `;
     }
 
     // 3. Union kind (oneOf / anyOf)
-    if (node.kind === 'union') {
-      const opLabel = (node.operator === 'anyOf' ? 'ANY OF' : 'ONE OF') + (node.suffix ? ` ${node.suffix}` : '');
+    if (node.kind === "union") {
+      const opLabel =
+        (node.operator === "anyOf" ? "ANY OF" : "ONE OF") + (node.suffix ? ` ${node.suffix}` : "");
       // Options are already labelled by their OPT row, so only property names are shown
-      const showName = node.name && parentType !== 'xxx-of-option';
+      const showName = node.name && parentType !== "xxx-of-option";
 
       return html`
-        ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel, indentLevel))}
+        ${node.properties?.map((p) => this.renderAST(p, "object", schemaLevel, indentLevel))}
         <div class="tr expanded xxx-of" data-obj="${showName ? node.name : opLabel}">
           ${
             showName
               ? html`
                   <div class="td key" style="padding-left:${leftPadding}px">
                     <span class="key-label" title="${node.name}">${node.name}</span>
-                    ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
+                    ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ""}
                   </div>
                   <div class="td key-type"><span class="xxx-of-key">${opLabel}</span></div>
                 `
@@ -394,36 +395,36 @@ export default class SchemaTable extends SchemaBaseElement {
               <div class="tr expanded xxx-of-option" data-obj="OPTION ${opt.optionIndex || i + 1}">
                 <div class="td key" style="padding-left:${leftPadding + 16}px">
                   <span class="xxx-of-key">OPT ${opt.optionIndex || i + 1}</span>
-                  ${opt.optionTitle ? html`<span class="xxx-of-descr">${opt.optionTitle}</span>` : ''}
+                  ${opt.optionTitle ? html`<span class="xxx-of-descr">${opt.optionTitle}</span>` : ""}
                 </div>
                 <div class="td key-type"></div>
                 <div class="td key-descr"></div>
               </div>
-              <div class="object-body">${this.renderAST(opt, 'xxx-of-option', schemaLevel + 1, indentLevel + 1)}</div>
-            `
+              <div class="object-body">${this.renderAST(opt, "xxx-of-option", schemaLevel + 1, indentLevel + 1)}</div>
+            `,
           )}
         </div>
       `;
     }
 
     // 4. Primitive kind
-    if (node.kind === 'primitive') {
+    if (node.kind === "primitive") {
       const dataTypeCss = this.getDataTypeCss(node.type);
 
       return html`
-        <div class="tr primitive ${nullClass}" title="${node.deprecated ? 'Deprecated' : nothing}">
-          <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-            ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ''}
-            ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ''}
+        <div class="tr primitive ${nullClass}" title="${node.deprecated ? "Deprecated" : nothing}">
+          <div class="td key ${node.deprecated ? "deprecated" : ""}" style="padding-left:${leftPadding}px">
+            ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ""}
+            ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ""}
           </div>
           <div class="td key-type ${dataTypeCss}" title="${readWriteTip || nothing}">
-            ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}
+            ${parentType === "array" ? `[${node.type}]` : node.type}${readWriteBadge}
           </div>
           ${this.renderDescrCell(node.description, node, node.title)}
         </div>
       `;
     }
 
-    return '';
+    return "";
   }
 }

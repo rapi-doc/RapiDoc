@@ -276,10 +276,9 @@ All primary commands can be run from the root of the repository:
 #### Code Quality & Formatting
 | Command | Workspace | Description |
 |---|---|---|
-| `npm run lint` | `rapidoc` | Runs ESLint on `packages/rapidoc/src/**/*.js` with Lit rules. |
-| `npm run analyze` | `rapidoc` | Runs Lit Analyzer to validate custom element templates and bindings. |
-| `npm run format` | Monorepo | Checks code formatting against `.prettierrc` across packages and docs. |
-| `npm run format-fix` | Monorepo | Automatically formats code using Prettier across packages and docs. |
+| `npm run lint` | Monorepo | Runs oxlint (default rules, no config) across packages, docs, tests and scripts. |
+| `npm run format` | Monorepo | Checks formatting with oxfmt (default style, no config) across packages, docs, tests and scripts. |
+| `npm run format-fix` | Monorepo | Formats the same files with oxfmt. |
 
 #### Publishing
 | Command | Workspace | Description |

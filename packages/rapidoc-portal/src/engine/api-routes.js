@@ -1,7 +1,7 @@
-import fs from 'node:fs';
-import yaml from 'yaml';
-import { getSpecNavigation, toKebabCase } from 'rapidoc/static';
-import { API_PATH } from '../config/normalizer.js';
+import fs from "node:fs";
+import yaml from "yaml";
+import { getSpecNavigation, toKebabCase } from "rapidoc/static";
+import { API_PATH } from "../config/normalizer.js";
 
 /**
  * The pages of the API reference route (/apis/[...apiRoute], pages/api-reference.astro). Each version of an
@@ -13,7 +13,7 @@ import { API_PATH } from '../config/normalizer.js';
 /** A version's local spec as an object, or null when it is remote or cannot be read. */
 export function readVersionSpec(version) {
   if (version.isRemote || !version.fullPath || !fs.existsSync(version.fullPath)) return null;
-  const raw = fs.readFileSync(version.fullPath, 'utf8');
+  const raw = fs.readFileSync(version.fullPath, "utf8");
   try {
     return JSON.parse(raw);
   } catch {
@@ -33,7 +33,9 @@ export async function tagSlugsOf(specData) {
   if (!specData) return [];
   try {
     const { tags } = await getSpecNavigation(specData);
-    return [...new Set(tags.map((t) => toKebabCase(t.name)))].filter((slug) => slug && slug !== 'general');
+    return [...new Set(tags.map((t) => toKebabCase(t.name)))].filter(
+      (slug) => slug && slug !== "general",
+    );
   } catch {
     return []; // the API keeps its overview page
   }
@@ -50,25 +52,35 @@ export async function apiReferencePaths(apis = []) {
 
   for (const api of apis) {
     const versionTags = [];
-    for (const version of api.versions) versionTags.push(await tagSlugsOf(readVersionSpec(version)));
+    for (const version of api.versions)
+      versionTags.push(await tagSlugsOf(readVersionSpec(version)));
     const [defaultTags] = versionTags;
 
     api.versions.forEach((version, i) => {
       if (!version.isDefault && defaultTags.includes(version.version)) {
         throw new Error(
-          `API "${api.id}": version "${version.version}" has the URL of a tag page of the default version (${version.path}); give it another version in apis.`
+          `API "${api.id}": version "${version.version}" has the URL of a tag page of the default version (${version.path}); give it another version in apis.`,
         );
       }
       const page = { api, version, versionTags };
-      paths.push({ params: { apiRoute: route(version.path) }, props: { ...page, activeTagSlug: '', currentPath: version.path } });
+      paths.push({
+        params: { apiRoute: route(version.path) },
+        props: { ...page, activeTagSlug: "", currentPath: version.path },
+      });
       for (const tagSlug of versionTags[i]) {
         const currentPath = `${version.path}/${tagSlug}`;
-        paths.push({ params: { apiRoute: route(currentPath) }, props: { ...page, activeTagSlug: tagSlug, currentPath } });
+        paths.push({
+          params: { apiRoute: route(currentPath) },
+          props: { ...page, activeTagSlug: tagSlug, currentPath },
+        });
       }
       if (api.versioned && version.isDefault) {
         const pinned = `${api.path}/${version.version}`;
-        for (const suffix of ['', ...versionTags[i].map((tag) => `/${tag}`)]) {
-          paths.push({ params: { apiRoute: route(pinned + suffix) }, props: { ...page, redirectTo: version.path + suffix } });
+        for (const suffix of ["", ...versionTags[i].map((tag) => `/${tag}`)]) {
+          paths.push({
+            params: { apiRoute: route(pinned + suffix) },
+            props: { ...page, redirectTo: version.path + suffix },
+          });
         }
       }
     });

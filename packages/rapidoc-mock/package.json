@@ -2,6 +2,13 @@
   "name": "@rapidoc/mock",
   "version": "0.1.0",
   "description": "Mock server for the APIs of a RapiDoc portal: examples and generated data, request validation, OAuth scope checks (rapidoc mock)",
+  "keywords": [
+    "developer-portal",
+    "mock-server",
+    "oauth2",
+    "openapi",
+    "rapidoc"
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {
@@ -9,16 +16,6 @@
   },
   "scripts": {
     "test": "node --test --test-concurrency=1 tests/**/*.test.js"
-  },
-  "keywords": [
-    "rapidoc",
-    "openapi",
-    "mock-server",
-    "oauth2",
-    "developer-portal"
-  ],
-  "engines": {
-    "node": ">=22.12.0"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^16.0.2",
@@ -29,5 +26,8 @@
     "jose": "^6.2.14",
     "json-schema-faker": "^0.6.3",
     "openapi-backend": "^5.23.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

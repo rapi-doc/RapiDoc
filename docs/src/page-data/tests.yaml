@@ -89,7 +89,7 @@ advanced:
         - Primitive and nested object types
         - Parameters with constraints and deprecations
   - data-types-multiple:
-      title: 'Multi-Type Fields (type: [string, number])'
+      title: "Multi-Type Fields (type: [string, number])"
       validates:
         - Schema properties supporting multiple simultaneous data types
   - example-filling:

@@ -130,6 +130,7 @@ const htmlPage = \`<!DOCTYPE html>
 fs.writeFileSync('./dist/api.html', htmlPage, 'utf-8');
 console.log('API Reference pre-rendered successfully to dist/api.html');`;
 
+// The closing fence is ${'---'}: a bare --- line would end this page's frontmatter for oxlint.
 const astroSnippet = `---
 // src/pages/api.astro - Astro SSG Page
 import { renderRapiDoc } from 'rapidoc/static';
@@ -141,7 +142,7 @@ const preRenderedDoc = await renderRapiDoc({
   theme: 'ember',
   colorScheme: 'dark',
 });
----
+${'---'}
 
 <!doctype html>
 <html lang="en">

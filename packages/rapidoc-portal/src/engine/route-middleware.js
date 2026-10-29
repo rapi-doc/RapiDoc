@@ -7,12 +7,12 @@
  * and titles the page with `site.titleTemplate`.
  */
 
-import portalConfig from 'virtual:rapidoc-portal/config';
-import { activeTab } from '../components/header-nav.js';
-import { withBase, withoutBase } from '../components/base-path.js';
-import { pageTitle } from './page-head.js';
+import portalConfig from "virtual:rapidoc-portal/config";
+import { activeTab } from "../components/header-nav.js";
+import { withBase, withoutBase } from "../components/base-path.js";
+import { pageTitle } from "./page-head.js";
 
-const docsTabs = portalConfig.tabs.filter((tab) => tab.kind === 'docs');
+const docsTabs = portalConfig.tabs.filter((tab) => tab.kind === "docs");
 
 /**
  * Copies the configured sidebar icons onto Starlight's sidebar entries for this page (PortalSidebarSublist
@@ -25,25 +25,29 @@ function addIcons(items, entries) {
     const entry = entries[i];
     if (!entry) return;
     if (item.icon) entry.icon = item.icon;
-    if (item.items && entry.type === 'group') addIcons(item.items, entry.entries);
+    if (item.items && entry.type === "group") addIcons(item.items, entry.entries);
   });
 }
 
 function collectHrefs(entries, hrefs = new Set()) {
   for (const entry of entries) {
-    if (entry.type === 'link') hrefs.add(entry.href);
+    if (entry.type === "link") hrefs.add(entry.href);
     else if (entry.entries) collectHrefs(entry.entries, hrefs);
   }
   return hrefs;
 }
 
-const isGeneratorTag = ({ tag, attrs }) => tag === 'meta' && attrs?.name === 'generator';
+const isGeneratorTag = ({ tag, attrs }) => tag === "meta" && attrs?.name === "generator";
 
 export async function onRequest(context, next) {
   const route = context.locals.starlightRoute;
   route.head = route.head
     .filter((entry) => !isGeneratorTag(entry))
-    .map((entry) => (entry.tag === 'title' ? { ...entry, content: pageTitle(portalConfig, route.entry.data.title) } : entry));
+    .map((entry) =>
+      entry.tag === "title"
+        ? { ...entry, content: pageTitle(portalConfig, route.entry.data.title) }
+        : entry,
+    );
   // Starlight uses a splash page's hero links as written; they are relative to the portal like every other link.
   // A copy, not a change in place: the entry's data is cached across requests.
   const hero = route.entry.data.hero;
@@ -54,7 +58,7 @@ export async function onRequest(context, next) {
   if (docsTabs.length > 0 && route.hasSidebar) {
     const tab = activeTab(docsTabs, withoutBase(context.url.pathname)) || docsTabs[0];
     const group = route.sidebar[docsTabs.indexOf(tab)];
-    if (group?.type === 'group') {
+    if (group?.type === "group") {
       addIcons(tab.sidebar, group.entries);
       route.sidebar = group.entries;
       const hrefs = collectHrefs(group.entries);

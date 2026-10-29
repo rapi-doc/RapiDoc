@@ -13,7 +13,7 @@ export class AutoColorSchemeController {
   constructor(host) {
     this.host = host;
     this.active = false;
-    this.resolved = '';
+    this.resolved = "";
     this.observer = null;
     this.media = null;
     this.onPageChange = () => this.apply();
@@ -21,7 +21,7 @@ export class AutoColorSchemeController {
   }
 
   hostConnected() {
-    if (this.host.colorScheme === 'auto') {
+    if (this.host.colorScheme === "auto") {
       this.enable();
     } else if (this.active) {
       this.watch(true);
@@ -35,7 +35,7 @@ export class AutoColorSchemeController {
 
   hostUpdate() {
     const value = this.host.colorScheme;
-    if (value === 'auto') {
+    if (value === "auto") {
       this.enable();
     } else if (this.active && value !== this.resolved) {
       // An explicit value from the page or a script
@@ -51,7 +51,7 @@ export class AutoColorSchemeController {
   }
 
   apply() {
-    if (!this.active || typeof window === 'undefined') {
+    if (!this.active || typeof window === "undefined") {
       return;
     }
     const scheme = resolvePageColorScheme(this.host);
@@ -60,17 +60,17 @@ export class AutoColorSchemeController {
       this.host.colorScheme = scheme;
     }
     // Set the attribute now (property reflection is async) so the styles switch immediately.
-    if (this.host.getAttribute('color-scheme') !== scheme) {
-      this.host.setAttribute('color-scheme', scheme);
+    if (this.host.getAttribute("color-scheme") !== scheme) {
+      this.host.setAttribute("color-scheme", scheme);
     }
   }
 
   watch(enable) {
     this.observer?.disconnect();
     this.observer = null;
-    this.media?.removeEventListener('change', this.onPageChange);
+    this.media?.removeEventListener("change", this.onPageChange);
     this.media = null;
-    if (!enable || typeof window === 'undefined') {
+    if (!enable || typeof window === "undefined") {
       return;
     }
     this.observer = new MutationObserver(this.onPageChange);
@@ -78,8 +78,8 @@ export class AutoColorSchemeController {
     if (document.body) {
       this.observer.observe(document.body, { attributes: true });
     }
-    this.media = window.matchMedia('(prefers-color-scheme: light)');
-    this.media.addEventListener('change', this.onPageChange);
+    this.media = window.matchMedia("(prefers-color-scheme: light)");
+    this.media.addEventListener("change", this.onPageChange);
   }
 }
 
@@ -89,11 +89,11 @@ export class AutoColorSchemeController {
  */
 export function resolvePageColorScheme(el) {
   const pageEl = el.parentElement || el.getRootNode().host || document.documentElement;
-  const pageScheme = getComputedStyle(pageEl).colorScheme || '';
+  const pageScheme = getComputedStyle(pageEl).colorScheme || "";
   const hasDark = /\bdark\b/.test(pageScheme);
   const hasLight = /\blight\b/.test(pageScheme);
   if (hasDark !== hasLight) {
-    return hasDark ? 'dark' : 'light';
+    return hasDark ? "dark" : "light";
   }
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }

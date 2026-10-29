@@ -1,118 +1,144 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import path from 'node:path';
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import test from "node:test";
+import assert from "node:assert/strict";
+import path from "node:path";
+import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 
-import { scaffoldProject, findOpenApiSpecs } from '../src/scaffold.js';
-import { buildPortal } from '../../rapidoc-portal/src/index.js';
-import { validate } from '@scalar/openapi-parser';
+import { scaffoldProject, findOpenApiSpecs } from "../src/scaffold.js";
+import { buildPortal } from "../../rapidoc-portal/src/index.js";
+import { validate } from "@scalar/openapi-parser";
 
 // The scaffolded project must share a parent folder with the monorepo's node_modules (Astro only
 // compiles .astro files that do), so it is created in <repo>/.test-tmp/ rather than the OS temp folder.
-const TEST_TMP_ROOT = fileURLToPath(new URL('../../../.test-tmp', import.meta.url));
+const TEST_TMP_ROOT = fileURLToPath(new URL("../../../.test-tmp", import.meta.url));
 
-test('create-rapidoc Scaffolding CLI (Milestone 6)', async (t) => {
+test("create-rapidoc Scaffolding CLI (Milestone 6)", async (t) => {
   fs.mkdirSync(TEST_TMP_ROOT, { recursive: true });
-  const tempDir = fs.mkdtempSync(path.join(TEST_TMP_ROOT, 'create-rapidoc-test-'));
+  const tempDir = fs.mkdtempSync(path.join(TEST_TMP_ROOT, "create-rapidoc-test-"));
 
   t.after(() => {
     fs.rmSync(tempDir, { recursive: true, force: true, maxRetries: 3 });
     if (fs.readdirSync(TEST_TMP_ROOT).length === 0) fs.rmdirSync(TEST_TMP_ROOT);
   });
 
-  await t.test('scaffoldProject should generate a complete starter portal repository', () => {
-    const projectDir = path.join(tempDir, 'sample-portal');
+  await t.test("scaffoldProject should generate a complete starter portal repository", () => {
+    const projectDir = path.join(tempDir, "sample-portal");
     const result = scaffoldProject(projectDir, {
-      title: 'Galaxy Logistics Docs',
-      name: 'galaxy-docs',
+      title: "Galaxy Logistics Docs",
+      name: "galaxy-docs",
     });
 
-    assert.strictEqual(result.projectName, 'galaxy-docs');
-    assert.strictEqual(result.siteTitle, 'Galaxy Logistics Docs');
+    assert.strictEqual(result.projectName, "galaxy-docs");
+    assert.strictEqual(result.siteTitle, "Galaxy Logistics Docs");
     assert.ok(result.filesCreated.length >= 7);
 
     // Verify key files exist
-    assert.ok(fs.existsSync(path.join(projectDir, 'rapidoc.config.yaml')));
-    assert.ok(fs.existsSync(path.join(projectDir, 'package.json')));
-    assert.ok(fs.existsSync(path.join(projectDir, '.gitignore')));
-    assert.ok(fs.existsSync(path.join(projectDir, 'README.md')));
-    assert.ok(fs.existsSync(path.join(projectDir, 'specs/api.yaml')));
-    assert.ok(fs.existsSync(path.join(projectDir, 'docs/index.markdoc')));
-    assert.ok(fs.existsSync(path.join(projectDir, 'docs/getting-started.md')));
-    assert.ok(fs.existsSync(path.join(projectDir, 'docs/guides/overview.markdoc')));
+    assert.ok(fs.existsSync(path.join(projectDir, "rapidoc.config.yaml")));
+    assert.ok(fs.existsSync(path.join(projectDir, "package.json")));
+    assert.ok(fs.existsSync(path.join(projectDir, ".gitignore")));
+    assert.ok(fs.existsSync(path.join(projectDir, "README.md")));
+    assert.ok(fs.existsSync(path.join(projectDir, "specs/api.yaml")));
+    assert.ok(fs.existsSync(path.join(projectDir, "docs/index.markdoc")));
+    assert.ok(fs.existsSync(path.join(projectDir, "docs/getting-started.md")));
+    assert.ok(fs.existsSync(path.join(projectDir, "docs/guides/overview.markdoc")));
 
     // Verify package.json structure
-    const pkg = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf8'));
-    assert.strictEqual(pkg.name, 'galaxy-docs');
-    assert.strictEqual(pkg.scripts.build, 'rapidoc build');
-    assert.strictEqual(pkg.scripts.validate, 'rapidoc validate');
-    assert.strictEqual(pkg.scripts.dev, 'rapidoc dev');
+    const pkg = JSON.parse(fs.readFileSync(path.join(projectDir, "package.json"), "utf8"));
+    assert.strictEqual(pkg.name, "galaxy-docs");
+    assert.strictEqual(pkg.scripts.build, "rapidoc build");
+    assert.strictEqual(pkg.scripts.validate, "rapidoc validate");
+    assert.strictEqual(pkg.scripts.dev, "rapidoc dev");
     // The portal engine is a direct dev dependency, so the config's $schema path resolves
-    assert.ok(pkg.devDependencies['@rapidoc/cli']);
-    assert.ok(pkg.devDependencies['@rapidoc/portal']);
+    assert.ok(pkg.devDependencies["@rapidoc/cli"]);
+    assert.ok(pkg.devDependencies["@rapidoc/portal"]);
     assert.ok(
       fs
-        .readFileSync(path.join(projectDir, 'rapidoc.config.yaml'), 'utf8')
-        .startsWith('# yaml-language-server: $schema=./node_modules/@rapidoc/portal/schema.json')
+        .readFileSync(path.join(projectDir, "rapidoc.config.yaml"), "utf8")
+        .startsWith("# yaml-language-server: $schema=./node_modules/@rapidoc/portal/schema.json"),
     );
   });
 
-  await t.test('the package name is a valid npm name, whatever the folder is called', () => {
-    const result = scaffoldProject(path.join(tempDir, 'Acme Portal'), {});
-    assert.strictEqual(result.projectName, 'acme-portal');
-    assert.strictEqual(result.siteTitle, 'Acme Portal');
-    assert.strictEqual(scaffoldProject(path.join(tempDir, 'RapiDocPortal'), {}).projectName, 'rapidocportal');
+  await t.test("the package name is a valid npm name, whatever the folder is called", () => {
+    const result = scaffoldProject(path.join(tempDir, "Acme Portal"), {});
+    assert.strictEqual(result.projectName, "acme-portal");
+    assert.strictEqual(result.siteTitle, "Acme Portal");
+    assert.strictEqual(
+      scaffoldProject(path.join(tempDir, "RapiDocPortal"), {}).projectName,
+      "rapidocportal",
+    );
 
     // Every header link of the starter goes to a page the starter has
-    const config = fs.readFileSync(path.join(tempDir, 'Acme Portal/rapidoc.config.yaml'), 'utf8');
-    assert.ok(!config.includes('/login'));
+    const config = fs.readFileSync(path.join(tempDir, "Acme Portal/rapidoc.config.yaml"), "utf8");
+    assert.ok(!config.includes("/login"));
   });
 
-  await t.test('findOpenApiSpecs finds specs (not other YAML/JSON) and scaffoldProject builds apis: from them', () => {
-    const repoDir = path.join(tempDir, 'existing-repo');
-    fs.mkdirSync(path.join(repoDir, 'api/v2'), { recursive: true });
-    fs.mkdirSync(path.join(repoDir, 'node_modules/pkg'), { recursive: true });
-    fs.writeFileSync(path.join(repoDir, 'api/payments.yaml'), 'openapi: 3.1.0\ninfo: { title: P, version: 1 }\npaths: {}\n');
-    fs.writeFileSync(path.join(repoDir, 'api/v2/payments.json'), '{\n  "openapi": "3.0.3",\n  "info": {}\n}\n');
-    fs.writeFileSync(path.join(repoDir, 'api/legacy.yml'), 'swagger: "2.0"\ninfo: { title: L, version: 1 }\n');
-    fs.writeFileSync(path.join(repoDir, 'docker-compose.yaml'), 'services: {}\n');
-    fs.writeFileSync(path.join(repoDir, 'node_modules/pkg/spec.yaml'), 'openapi: 3.1.0\n');
+  await t.test(
+    "findOpenApiSpecs finds specs (not other YAML/JSON) and scaffoldProject builds apis: from them",
+    () => {
+      const repoDir = path.join(tempDir, "existing-repo");
+      fs.mkdirSync(path.join(repoDir, "api/v2"), { recursive: true });
+      fs.mkdirSync(path.join(repoDir, "node_modules/pkg"), { recursive: true });
+      fs.writeFileSync(
+        path.join(repoDir, "api/payments.yaml"),
+        "openapi: 3.1.0\ninfo: { title: P, version: 1 }\npaths: {}\n",
+      );
+      fs.writeFileSync(
+        path.join(repoDir, "api/v2/payments.json"),
+        '{\n  "openapi": "3.0.3",\n  "info": {}\n}\n',
+      );
+      fs.writeFileSync(
+        path.join(repoDir, "api/legacy.yml"),
+        'swagger: "2.0"\ninfo: { title: L, version: 1 }\n',
+      );
+      fs.writeFileSync(path.join(repoDir, "docker-compose.yaml"), "services: {}\n");
+      fs.writeFileSync(path.join(repoDir, "node_modules/pkg/spec.yaml"), "openapi: 3.1.0\n");
 
-    const specs = findOpenApiSpecs(repoDir);
-    assert.deepStrictEqual(specs, ['api/legacy.yml', 'api/payments.yaml', 'api/v2/payments.json']);
+      const specs = findOpenApiSpecs(repoDir);
+      assert.deepStrictEqual(specs, [
+        "api/legacy.yml",
+        "api/payments.yaml",
+        "api/v2/payments.json",
+      ]);
 
-    const result = scaffoldProject(repoDir, { specs });
-    assert.deepStrictEqual(
-      result.apis.map((api) => api.id),
-      ['legacy', 'payments', 'payments-2']
-    );
-    assert.ok(!fs.existsSync(path.join(repoDir, 'specs/api.yaml')));
-    const config = fs.readFileSync(path.join(repoDir, 'rapidoc.config.yaml'), 'utf8');
-    assert.ok(config.includes('spec: "./api/v2/payments.json"'));
-    assert.ok(!fs.readFileSync(path.join(repoDir, 'docs/guides/overview.markdoc'), 'utf8').includes('api-operation'));
-  });
+      const result = scaffoldProject(repoDir, { specs });
+      assert.deepStrictEqual(
+        result.apis.map((api) => api.id),
+        ["legacy", "payments", "payments-2"],
+      );
+      assert.ok(!fs.existsSync(path.join(repoDir, "specs/api.yaml")));
+      const config = fs.readFileSync(path.join(repoDir, "rapidoc.config.yaml"), "utf8");
+      assert.ok(config.includes('spec: "./api/v2/payments.json"'));
+      assert.ok(
+        !fs
+          .readFileSync(path.join(repoDir, "docs/guides/overview.markdoc"), "utf8")
+          .includes("api-operation"),
+      );
+    },
+  );
 
-  await t.test('scaffolded OpenAPI specification should be valid OpenAPI 3.1', async () => {
-    const specPath = path.join(tempDir, 'sample-portal/specs/api.yaml');
-    const specContent = fs.readFileSync(specPath, 'utf8');
+  await t.test("scaffolded OpenAPI specification should be valid OpenAPI 3.1", async () => {
+    const specPath = path.join(tempDir, "sample-portal/specs/api.yaml");
+    const specContent = fs.readFileSync(specPath, "utf8");
 
     const result = await validate(specContent);
-    assert.strictEqual(result.valid, true, 'Scaffolded OpenAPI specification must be 100% valid');
+    assert.strictEqual(result.valid, true, "Scaffolded OpenAPI specification must be 100% valid");
   });
 
-  await t.test('scaffolded project should compile cleanly with buildPortal (end-to-end SSG)', async () => {
-    const projectDir = path.join(tempDir, 'sample-portal');
-    const buildResult = await buildPortal(projectDir);
+  await t.test(
+    "scaffolded project should compile cleanly with buildPortal (end-to-end SSG)",
+    async () => {
+      const projectDir = path.join(tempDir, "sample-portal");
+      const buildResult = await buildPortal(projectDir);
 
-    assert.strictEqual(buildResult.success, true);
-    assert.strictEqual(buildResult.apisCount, 1);
+      assert.strictEqual(buildResult.success, true);
+      assert.strictEqual(buildResult.apisCount, 1);
 
-    // Verify dist artifacts
-    const distDir = path.join(projectDir, 'dist');
-    assert.ok(fs.existsSync(path.join(distDir, 'index.html')));
-    assert.ok(fs.existsSync(path.join(distDir, 'search-index.json')));
-    assert.ok(fs.existsSync(path.join(distDir, 'apis/core/index.html')));
-    assert.ok(fs.existsSync(path.join(distDir, 'docs/getting-started/index.html')));
-  });
+      // Verify dist artifacts
+      const distDir = path.join(projectDir, "dist");
+      assert.ok(fs.existsSync(path.join(distDir, "index.html")));
+      assert.ok(fs.existsSync(path.join(distDir, "search-index.json")));
+      assert.ok(fs.existsSync(path.join(distDir, "apis/core/index.html")));
+      assert.ok(fs.existsSync(path.join(distDir, "docs/getting-started/index.html")));
+    },
+  );
 });

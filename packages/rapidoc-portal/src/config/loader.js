@@ -1,27 +1,27 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import YAML from 'yaml';
-import { RapidocConfigSchema } from './schema.js';
-import { checkReferences, normalizeConfig } from './normalizer.js';
-import { ConfigError, describeIssues } from './errors.js';
+import fs from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import YAML from "yaml";
+import { RapidocConfigSchema } from "./schema.js";
+import { checkReferences, normalizeConfig } from "./normalizer.js";
+import { ConfigError, describeIssues } from "./errors.js";
 
 export const CONFIG_CANDIDATES = [
-  'rapidoc.config.yaml',
-  'rapidoc.config.yml',
-  'rapidoc.config.json',
-  'rapidoc.config.js',
-  'rapidoc.config.mjs',
-  'rapidoc.config.ts',
+  "rapidoc.config.yaml",
+  "rapidoc.config.yml",
+  "rapidoc.config.json",
+  "rapidoc.config.js",
+  "rapidoc.config.mjs",
+  "rapidoc.config.ts",
 ];
 
 /** Configs of other portals, which `rapidoc migrate` converts. */
 const FOREIGN_CONFIGS = {
-  'redocly.yaml': 'redocly',
-  'redocly.yml': 'redocly',
-  'zudoku.config.ts': 'zudoku',
-  'zudoku.config.js': 'zudoku',
-  'zudoku.config.mjs': 'zudoku',
+  "redocly.yaml": "redocly",
+  "redocly.yml": "redocly",
+  "zudoku.config.ts": "zudoku",
+  "zudoku.config.js": "zudoku",
+  "zudoku.config.mjs": "zudoku",
 };
 
 /**
@@ -45,23 +45,23 @@ export function findConfigFile(dir = process.cwd()) {
  */
 export async function parseRawFile(filePath) {
   const ext = path.extname(filePath).toLowerCase();
-  const rawText = fs.readFileSync(filePath, 'utf8');
+  const rawText = fs.readFileSync(filePath, "utf8");
 
-  if (ext === '.yaml' || ext === '.yml') {
+  if (ext === ".yaml" || ext === ".yml") {
     return YAML.parse(rawText) || {};
   }
 
-  if (ext === '.json') {
+  if (ext === ".json") {
     return JSON.parse(rawText);
   }
 
-  if (ext === '.js' || ext === '.mjs') {
+  if (ext === ".js" || ext === ".mjs") {
     const fileUrl = pathToFileURL(filePath).href;
     const mod = await import(fileUrl);
     return mod.default || mod;
   }
 
-  if (ext === '.ts') {
+  if (ext === ".ts") {
     // Attempt dynamic import (Node 22+ supports strip-types with flag, or ESM)
     try {
       const fileUrl = pathToFileURL(filePath).href;
@@ -70,7 +70,7 @@ export async function parseRawFile(filePath) {
     } catch {
       // Fallback: simple regex/json extraction for config values if TS runner isn't active
       throw new Error(
-        `Direct loading of TypeScript config "${filePath}" requires ts-node, tsx, or node --experimental-strip-types. Convert to rapidoc.config.yaml or use a JS/MJS config.`
+        `Direct loading of TypeScript config "${filePath}" requires ts-node, tsx, or node --experimental-strip-types. Convert to rapidoc.config.yaml or use a JS/MJS config.`,
       );
     }
   }
@@ -87,7 +87,7 @@ export async function parseRawFile(filePath) {
  * @returns {object} Normalized portal config
  * @throws {ConfigError}
  */
-export function resolveConfig(rawConfig, baseDir, fileName = 'rapidoc.config.yaml') {
+export function resolveConfig(rawConfig, baseDir, fileName = "rapidoc.config.yaml") {
   const result = RapidocConfigSchema.safeParse(rawConfig);
   if (!result.success) throw new ConfigError(fileName, describeIssues(result.error.issues));
   const problems = checkReferences(result.data);
@@ -108,11 +108,13 @@ export async function loadConfig(dirOrFilePath = process.cwd()) {
   if (fs.existsSync(targetPath) && fs.statSync(targetPath).isDirectory()) {
     const detected = findConfigFile(targetPath);
     if (!detected) {
-      const foreign = Object.keys(FOREIGN_CONFIGS).find((name) => fs.existsSync(path.join(targetPath, name)));
+      const foreign = Object.keys(FOREIGN_CONFIGS).find((name) =>
+        fs.existsSync(path.join(targetPath, name)),
+      );
       throw new Error(
         foreign
           ? `Found ${foreign} but no rapidoc.config.yaml in "${targetPath}". Run \`rapidoc migrate --from ${FOREIGN_CONFIGS[foreign]}\` to create one.`
-          : `No RapiDoc configuration file found in "${targetPath}". Expected one of: ${CONFIG_CANDIDATES.join(', ')}`
+          : `No RapiDoc configuration file found in "${targetPath}". Expected one of: ${CONFIG_CANDIDATES.join(", ")}`,
       );
     }
     targetPath = detected;
@@ -127,6 +129,6 @@ export async function loadConfig(dirOrFilePath = process.cwd()) {
     config,
     rawConfig,
     configPath: targetPath,
-    format: path.extname(targetPath).replace('.', ''),
+    format: path.extname(targetPath).replace(".", ""),
   };
 }

@@ -1,7 +1,7 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import GithubSlugger from 'github-slugger';
-import yaml from 'yaml';
+import fs from "node:fs";
+import path from "node:path";
+import GithubSlugger from "github-slugger";
+import yaml from "yaml";
 
 /**
  * Strips Markdown, Markdoc, and HTML syntax into clean plain text for indexing.
@@ -9,35 +9,35 @@ import yaml from 'yaml';
  * @param {string} rawContent
  * @returns {string} Plain text content
  */
-export function stripMarkup(rawContent = '') {
+export function stripMarkup(rawContent = "") {
   let text = rawContent;
 
   // 1. Remove YAML frontmatter
-  text = text.replace(/^---[\s\S]*?---\s*/, '');
+  text = text.replace(/^---[\s\S]*?---\s*/, "");
 
   // 2. Remove Markdoc tags ({% ... %})
-  text = text.replace(/{%[\s\S]*?%}/g, ' ');
+  text = text.replace(/{%[\s\S]*?%}/g, " ");
 
   // 3. Remove fenced code blocks
-  text = text.replace(/```[\s\S]*?```/g, ' ');
+  text = text.replace(/```[\s\S]*?```/g, " ");
 
   // 4. Remove inline code
-  text = text.replace(/`([^`]+)`/g, '$1');
+  text = text.replace(/`([^`]+)`/g, "$1");
 
   // 5. Remove HTML tags
-  text = text.replace(/<[^>]+>/g, ' ');
+  text = text.replace(/<[^>]+>/g, " ");
 
   // 6. Convert markdown links [text](url) -> text
-  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 
   // 7. Remove image tags ![alt](url) -> alt
-  text = text.replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1');
+  text = text.replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1");
 
   // 8. Remove markdown styling (*, _, ~, #)
-  text = text.replace(/[*_~#]/g, ' ');
+  text = text.replace(/[*_~#]/g, " ");
 
   // 9. Normalize whitespace
-  return text.replace(/\s+/g, ' ').trim();
+  return text.replace(/\s+/g, " ").trim();
 }
 
 /**
@@ -48,28 +48,28 @@ export function stripMarkup(rawContent = '') {
  * @param {string} docTitle
  * @returns {Array<object>} List of search records
  */
-export function extractDocSections(rawContent = '', basePath = '', docTitle = '') {
+export function extractDocSections(rawContent = "", basePath = "", docTitle = "") {
   const records = [];
   const slugger = new GithubSlugger();
 
   // Strip frontmatter first
-  const contentWithoutFm = rawContent.replace(/^---[\s\S]*?---\s*/, '');
-  const lines = contentWithoutFm.split('\n');
+  const contentWithoutFm = rawContent.replace(/^---[\s\S]*?---\s*/, "");
+  const lines = contentWithoutFm.split("\n");
 
   let currentHeading = null;
   let currentLines = [];
 
   function flushSection() {
     if (currentHeading) {
-      const sectionText = stripMarkup(currentLines.join('\n'));
+      const sectionText = stripMarkup(currentLines.join("\n"));
       if (sectionText.length > 0 || currentHeading.title) {
         records.push({
           id: `doc-${basePath}#${currentHeading.slug}`,
-          type: 'doc',
+          type: "doc",
           title: currentHeading.title,
           pageTitle: docTitle,
           subtitle: docTitle,
-          category: 'Documentation',
+          category: "Documentation",
           url: `${basePath}#${currentHeading.slug}`,
           content: sectionText.slice(0, 500),
         });
@@ -108,11 +108,11 @@ export function indexOpenApiSpec(api) {
   }
 
   try {
-    const content = fs.readFileSync(api.fullPath, 'utf8');
+    const content = fs.readFileSync(api.fullPath, "utf8");
     const parsed = yaml.parse(content);
     if (!parsed || !parsed.paths) return records;
 
-    const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
+    const httpMethods = ["get", "post", "put", "delete", "patch", "options", "head"];
 
     for (const [endpoint, pathItem] of Object.entries(parsed.paths)) {
       if (!pathItem) continue;
@@ -123,18 +123,30 @@ export function indexOpenApiSpec(api) {
 
         const methodUpper = method.toUpperCase();
         const title = operation.summary || operation.operationId || `${methodUpper} ${endpoint}`;
-        const tag = Array.isArray(operation.tags) && operation.tags.length > 0 ? operation.tags[0] : '';
-        const operationId = operation.operationId || '';
-        const slugId = operationId || `${method}-${endpoint.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        const tag =
+          Array.isArray(operation.tags) && operation.tags.length > 0 ? operation.tags[0] : "";
+        const operationId = operation.operationId || "";
+        const slugId = operationId || `${method}-${endpoint.replace(/[^a-zA-Z0-9]/g, "-")}`;
         const url = `${api.path}#${slugId}`;
 
-        const paramNames = Array.isArray(operation.parameters) ? operation.parameters.map((p) => p.name).join(' ') : '';
+        const paramNames = Array.isArray(operation.parameters)
+          ? operation.parameters.map((p) => p.name).join(" ")
+          : "";
 
-        const searchContent = [title, operation.description || '', operationId, endpoint, tag, paramNames].filter(Boolean).join(' ');
+        const searchContent = [
+          title,
+          operation.description || "",
+          operationId,
+          endpoint,
+          tag,
+          paramNames,
+        ]
+          .filter(Boolean)
+          .join(" ");
 
         records.push({
           id: `api-${api.id}-${method}-${endpoint}`,
-          type: 'api',
+          type: "api",
           title,
           subtitle: `${methodUpper} ${endpoint}`,
           method: methodUpper,
@@ -167,11 +179,11 @@ export function buildSearchIndex(config, projectDir, docFiles = []) {
   // 1. Index documentation pages and heading sections
   for (const docFile of docFiles) {
     if (!fs.existsSync(docFile)) continue;
-    const rawContent = fs.readFileSync(docFile, 'utf8');
+    const rawContent = fs.readFileSync(docFile, "utf8");
 
     // Extract frontmatter title and description
-    let docTitle = path.basename(docFile, path.extname(docFile)).replace(/-/g, ' ');
-    let docDesc = '';
+    let docTitle = path.basename(docFile, path.extname(docFile)).replace(/-/g, " ");
+    let docDesc = "";
 
     const fmMatch = rawContent.match(/^---\s*\n([\s\S]*?)\n---/);
     if (fmMatch) {
@@ -188,16 +200,16 @@ export function buildSearchIndex(config, projectDir, docFiles = []) {
 
     const relToDocs = path.relative(config.docs.fullPath, docFile);
     const parsedPath = path.parse(relToDocs);
-    const routeDirName = path.join(parsedPath.dir, parsedPath.name).replace(/\\/g, '/');
+    const routeDirName = path.join(parsedPath.dir, parsedPath.name).replace(/\\/g, "/");
     const routePath = `/docs/${routeDirName}`;
 
     // Index main page record
     records.push({
       id: `doc-${routePath}`,
-      type: 'doc',
+      type: "doc",
       title: docTitle,
-      subtitle: docDesc || 'Documentation Page',
-      category: 'Documentation',
+      subtitle: docDesc || "Documentation Page",
+      category: "Documentation",
       url: routePath,
       content: stripMarkup(rawContent).slice(0, 600),
     });
@@ -211,7 +223,13 @@ export function buildSearchIndex(config, projectDir, docFiles = []) {
   for (const api of config.apis || []) {
     for (const version of api.versions || [api]) {
       const target =
-        version.isDefault === false ? { ...version, id: `${api.id}@${version.version}`, title: `${api.title} · ${version.label}` } : api;
+        version.isDefault === false
+          ? {
+              ...version,
+              id: `${api.id}@${version.version}`,
+              title: `${api.title} · ${version.label}`,
+            }
+          : api;
       records.push(...indexOpenApiSpec(target));
     }
   }
@@ -234,8 +252,8 @@ export function buildSearchIndex(config, projectDir, docFiles = []) {
  * @param {number} [options.limit=15]
  * @returns {Array<object>}
  */
-export function searchRecords(records = [], query = '', options = {}) {
-  const filter = options.filter || 'all';
+export function searchRecords(records = [], query = "", options = {}) {
+  const filter = options.filter || "all";
   const limit = options.limit || 15;
   const q = query.toLowerCase().trim();
 
@@ -246,16 +264,16 @@ export function searchRecords(records = [], query = '', options = {}) {
   const scored = [];
 
   for (const record of records) {
-    if (filter !== 'all' && record.type !== filter) {
+    if (filter !== "all" && record.type !== filter) {
       continue;
     }
 
-    const titleLower = (record.title || '').toLowerCase();
-    const subtitleLower = (record.subtitle || '').toLowerCase();
-    const endpointLower = (record.endpoint || '').toLowerCase();
-    const methodLower = (record.method || '').toLowerCase();
-    const categoryLower = (record.category || '').toLowerCase();
-    const contentLower = (record.content || '').toLowerCase();
+    const titleLower = (record.title || "").toLowerCase();
+    const subtitleLower = (record.subtitle || "").toLowerCase();
+    const endpointLower = (record.endpoint || "").toLowerCase();
+    const methodLower = (record.method || "").toLowerCase();
+    const categoryLower = (record.category || "").toLowerCase();
+    const contentLower = (record.content || "").toLowerCase();
 
     let score = 0;
     let matchesAllTokens = true;

@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 
 /**
  * Search for readers who see only some zones. The build writes (see @rapidoc/portal split-output.js):
@@ -13,15 +13,16 @@ import path from 'node:path';
  * and the empty one for the rest, so search works for everyone and finds only what they may open.
  */
 
-export const SEARCH_PREFIX = '/_rapidoc/search/';
-export const EMPTY_ZONE = '_empty';
-const INDEX_FILE = 'search-index.json';
+export const SEARCH_PREFIX = "/_rapidoc/search/";
+export const EMPTY_ZONE = "_empty";
+const INDEX_FILE = "search-index.json";
 
 /** search-index.json files are read once; the build never changes under a running server. */
 function createJsonCache() {
   const cache = new Map();
   return (file) => {
-    if (!cache.has(file)) cache.set(file, fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null);
+    if (!cache.has(file))
+      cache.set(file, fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : null);
     return cache.get(file);
   };
 }
@@ -31,7 +32,7 @@ function createJsonCache() {
  */
 export function createSearch(settings) {
   const readJson = createJsonCache();
-  const zoneDir = (zone) => path.join(settings.protectedDir, '_rapidoc/search', zone);
+  const zoneDir = (zone) => path.join(settings.protectedDir, "_rapidoc/search", zone);
 
   return {
     /** The portal's search index with the records of every zone in `zones`, or null when the build has none. */
@@ -39,7 +40,8 @@ export function createSearch(settings) {
       const base = readJson(path.join(settings.publicDir, INDEX_FILE));
       if (!base) return null;
       const records = [...(base.records || [])];
-      for (const zone of zones) records.push(...(readJson(path.join(zoneDir(zone), INDEX_FILE))?.records || []));
+      for (const zone of zones)
+        records.push(...(readJson(path.join(zoneDir(zone), INDEX_FILE))?.records || []));
       return { ...base, totalRecords: records.length, records };
     },
 
@@ -48,9 +50,9 @@ export function createSearch(settings) {
      * it and it exists, else the empty bundle.
      */
     pagefindDir(zone, mayRead) {
-      const real = path.join(zoneDir(zone), 'pagefind');
+      const real = path.join(zoneDir(zone), "pagefind");
       if (mayRead && fs.existsSync(real)) return real;
-      return path.join(zoneDir(EMPTY_ZONE), 'pagefind');
+      return path.join(zoneDir(EMPTY_ZONE), "pagefind");
     },
   };
 }

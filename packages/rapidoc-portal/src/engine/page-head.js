@@ -11,9 +11,12 @@ export function fontHeadEntries(fonts = {}) {
   const urls = [fonts.sans?.url, fonts.mono?.url].filter(Boolean);
   if (urls.length === 0) return [];
   return [
-    { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.googleapis.com' } },
-    { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' } },
-    ...urls.map((href) => ({ tag: 'link', attrs: { rel: 'stylesheet', href } })),
+    { tag: "link", attrs: { rel: "preconnect", href: "https://fonts.googleapis.com" } },
+    {
+      tag: "link",
+      attrs: { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
+    },
+    ...urls.map((href) => ({ tag: "link", attrs: { rel: "stylesheet", href } })),
   ];
 }
 
@@ -25,11 +28,16 @@ export function fontHeadEntries(fonts = {}) {
  */
 export function portalHeadEntries(portalConfig) {
   const { site } = portalConfig;
-  const meta = (attrs) => ({ tag: 'meta', attrs });
+  const meta = (attrs) => ({ tag: "meta", attrs });
   return [
     ...fontHeadEntries(portalConfig.theme.fonts),
-    ...(site.image ? [meta({ property: 'og:image', content: site.image }), meta({ name: 'twitter:image', content: site.image })] : []),
-    ...(site.noindex ? [meta({ name: 'robots', content: 'noindex, nofollow' })] : []),
+    ...(site.image
+      ? [
+          meta({ property: "og:image", content: site.image }),
+          meta({ name: "twitter:image", content: site.image }),
+        ]
+      : []),
+    ...(site.noindex ? [meta({ name: "robots", content: "noindex, nofollow" })] : []),
     ...portalConfig.head,
   ];
 }
@@ -43,15 +51,15 @@ export function portalHeadEntries(portalConfig) {
  */
 export function openGraphEntries(portalConfig, { title, description, pathname }) {
   const { site } = portalConfig;
-  const meta = (property, content) => ({ tag: 'meta', attrs: { property, content } });
+  const meta = (property, content) => ({ tag: "meta", attrs: { property, content } });
   const origin = site.url ? new URL(site.url).origin : null;
   return [
-    meta('og:title', title),
-    meta('og:type', 'website'),
-    meta('og:site_name', site.title),
-    ...(description ? [meta('og:description', description)] : []),
-    ...(origin ? [meta('og:url', `${origin}${pathname}`)] : []),
-    { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
+    meta("og:title", title),
+    meta("og:type", "website"),
+    meta("og:site_name", site.title),
+    ...(description ? [meta("og:description", description)] : []),
+    ...(origin ? [meta("og:url", `${origin}${pathname}`)] : []),
+    { tag: "meta", attrs: { name: "twitter:card", content: "summary_large_image" } },
   ];
 }
 
@@ -62,19 +70,24 @@ export function openGraphEntries(portalConfig, { title, description, pathname })
 export function pageTitle(portalConfig, title) {
   const { site } = portalConfig;
   if (!title || title === site.title) return site.title;
-  return site.titleTemplate.replaceAll('%s', title);
+  return site.titleTemplate.replaceAll("%s", title);
 }
 
-const escapeAttr = (value) => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const escapeAttr = (value) =>
+  String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
 /** Head entries → HTML, for pages that don't go through Starlight's <Head>. */
 export function renderHeadHtml(entries) {
   return entries
-    .map(({ tag, attrs = {}, content = '' }) => {
+    .map(({ tag, attrs = {}, content = "" }) => {
       const attributes = Object.entries(attrs)
-        .map(([name, value]) => (value === true || value === '' ? ` ${name}` : ` ${name}="${escapeAttr(value)}"`))
-        .join('');
-      return tag === 'meta' || tag === 'link' ? `<${tag}${attributes}>` : `<${tag}${attributes}>${content}</${tag}>`;
+        .map(([name, value]) =>
+          value === true || value === "" ? ` ${name}` : ` ${name}="${escapeAttr(value)}"`,
+        )
+        .join("");
+      return tag === "meta" || tag === "link"
+        ? `<${tag}${attributes}>`
+        : `<${tag}${attributes}>${content}</${tag}>`;
     })
-    .join('\n');
+    .join("\n");
 }

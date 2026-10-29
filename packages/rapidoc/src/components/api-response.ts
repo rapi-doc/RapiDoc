@@ -1,51 +1,53 @@
-import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { sanitizeHTML } from '../utils/sanitize.js';
-import { marked } from 'marked';
-import { prepareResponseDefinitions } from '../utils/response-utils.js';
-import FontStyles from '~/styles/font-styles';
-import FlexStyles from '~/styles/flex-styles';
-import ParamListStyles from '~/styles/param-list-styles';
-import InputStyles from '~/styles/input-styles';
-import TabStyles from '~/styles/tab-styles';
-import BorderStyles from '~/styles/border-styles';
-import CustomStyles from '~/styles/custom-styles';
-import '~/components/json-tree';
-import '~/components/schema-tree';
-import '~/components/schema-table';
+import { LitElement, html, css } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHTML } from "../utils/sanitize.js";
+import { marked } from "marked";
+import { prepareResponseDefinitions } from "../utils/response-utils.js";
+import FontStyles from "~/styles/font-styles";
+import FlexStyles from "~/styles/flex-styles";
+import ParamListStyles from "~/styles/param-list-styles";
+import InputStyles from "~/styles/input-styles";
+import TabStyles from "~/styles/tab-styles";
+import BorderStyles from "~/styles/border-styles";
+import CustomStyles from "~/styles/custom-styles";
+import "~/components/json-tree";
+import "~/components/schema-tree";
+import "~/components/schema-table";
 
-@customElement('api-response')
+@customElement("api-response")
 export default class ApiResponse extends LitElement {
   @property({ type: Object }) config: any;
-  @property({ type: String }) callback = '';
-  @property({ type: String }) webhook = '';
+  @property({ type: String }) callback = "";
+  @property({ type: String }) webhook = "";
   @property({ type: Object }) responses: any;
   @property({ type: Object }) parser: any;
-  @property({ type: String, attribute: 'schema-style' }) schemaStyle = '';
-  @property({ type: String, attribute: 'render-style' }) renderStyle = '';
-  @property({ type: String, attribute: 'selected-status' }) selectedStatus = '';
-  @property({ type: String, attribute: 'selected-mime-type' }) selectedMimeType = '';
-  @property({ type: String, attribute: 'active-schema-tab' }) activeSchemaTab = 'schema';
-  @property({ type: Number, attribute: 'schema-expand-level' }) schemaExpandLevel = 99999;
-  @property({ type: String, attribute: 'schema-description-expanded' }) schemaDescriptionExpanded = 'false';
-  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' }) allowSchemaDescriptionExpandToggle = 'false';
-  @property({ type: String, attribute: 'schema-hide-read-only' }) schemaHideReadOnly = 'false';
-  @property({ type: String, attribute: 'schema-hide-write-only' }) schemaHideWriteOnly = 'true';
+  @property({ type: String, attribute: "schema-style" }) schemaStyle = "";
+  @property({ type: String, attribute: "render-style" }) renderStyle = "";
+  @property({ type: String, attribute: "selected-status" }) selectedStatus = "";
+  @property({ type: String, attribute: "selected-mime-type" }) selectedMimeType = "";
+  @property({ type: String, attribute: "active-schema-tab" }) activeSchemaTab = "schema";
+  @property({ type: Number, attribute: "schema-expand-level" }) schemaExpandLevel = 99999;
+  @property({ type: String, attribute: "schema-description-expanded" }) schemaDescriptionExpanded =
+    "false";
+  @property({ type: String, attribute: "allow-schema-description-expand-toggle" })
+  allowSchemaDescriptionExpandToggle = "false";
+  @property({ type: String, attribute: "schema-hide-read-only" }) schemaHideReadOnly = "false";
+  @property({ type: String, attribute: "schema-hide-write-only" }) schemaHideWriteOnly = "true";
 
-  defaultStatus = '';
-  defaultMimeType = '';
+  defaultStatus = "";
+  defaultMimeType = "";
   headersForEachRespStatus: any = {};
   mimeResponsesForEachStatus: any = {};
 
   constructor() {
     super();
-    this.selectedStatus = '';
-    this.defaultStatus = '';
-    this.defaultMimeType = '';
+    this.selectedStatus = "";
+    this.defaultStatus = "";
+    this.defaultMimeType = "";
     this.headersForEachRespStatus = {};
     this.mimeResponsesForEachStatus = {};
-    this.activeSchemaTab = 'schema';
+    this.activeSchemaTab = "schema";
   }
 
   static get styles() {
@@ -136,24 +138,40 @@ export default class ApiResponse extends LitElement {
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
     // Sync configuration options passed down from parent <rapi-doc>
-    if (this.config && changedProperties.has('config')) {
+    if (this.config && changedProperties.has("config")) {
       if (this.config.renderStyle) this.renderStyle = this.config.renderStyle;
       if (this.config.schemaStyle) this.schemaStyle = this.config.schemaStyle;
-      if (this.config.schemaExpandLevel !== undefined) this.schemaExpandLevel = this.config.schemaExpandLevel;
-      if (this.config.schemaDescriptionExpanded !== undefined) this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
+      if (this.config.schemaExpandLevel !== undefined)
+        this.schemaExpandLevel = this.config.schemaExpandLevel;
+      if (this.config.schemaDescriptionExpanded !== undefined)
+        this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
       if (this.config.allowSchemaDescriptionExpandToggle !== undefined)
         this.allowSchemaDescriptionExpandToggle = this.config.allowSchemaDescriptionExpandToggle;
       // In responses, readOnly fields are shown by default ('false') while writeOnly fields are hidden ('true').
       // For webhooks, this behavior is inverted unless configured to 'never'.
       if (this.config.schemaHideReadOnly !== undefined)
-        this.schemaHideReadOnly = this.config.schemaHideReadOnly === 'never' ? 'false' : this.webhook === 'true' ? 'true' : 'false';
+        this.schemaHideReadOnly =
+          this.config.schemaHideReadOnly === "never"
+            ? "false"
+            : this.webhook === "true"
+              ? "true"
+              : "false";
       if (this.config.schemaHideWriteOnly !== undefined)
-        this.schemaHideWriteOnly = this.config.schemaHideWriteOnly === 'never' ? 'false' : this.webhook === 'true' ? 'false' : 'true';
+        this.schemaHideWriteOnly =
+          this.config.schemaHideWriteOnly === "never"
+            ? "false"
+            : this.webhook === "true"
+              ? "false"
+              : "true";
       if (this.config.defaultSchemaTab) this.activeSchemaTab = this.config.defaultSchemaTab;
     }
     // Parse response definitions, headers, examples, and AST schemas when responses change
-    if (changedProperties.has('responses') || changedProperties.has('callback') || changedProperties.has('webhook')) {
-      if (!this.responses || typeof this.responses !== 'object') {
+    if (
+      changedProperties.has("responses") ||
+      changedProperties.has("callback") ||
+      changedProperties.has("webhook")
+    ) {
+      if (!this.responses || typeof this.responses !== "object") {
         return;
       }
       const defs = prepareResponseDefinitions(this.responses, {
@@ -177,7 +195,7 @@ export default class ApiResponse extends LitElement {
   render() {
     return html`<div class="col regular-font response-panel ${this.renderStyle}-mode">
       ${
-        this.callback === 'true'
+        this.callback === "true"
           ? html`<h6 class="rapidoc-heading label-heading tiny-title" part="section-response-title heading heading-6">
               Callback response
             </h6>`
@@ -192,26 +210,39 @@ export default class ApiResponse extends LitElement {
   // We reset selections back to the default status code and MIME type of the active endpoint,
   // preventing user selections from a prior endpoint (e.g., status 400) from carrying over or hiding panels.
   resetSelection() {
-    this.selectedStatus = this.defaultStatus || (this.responses ? Object.keys(this.responses).find((k) => k !== '$$ref') || '' : '');
+    this.selectedStatus =
+      this.defaultStatus ||
+      (this.responses ? Object.keys(this.responses).find((k) => k !== "$$ref") || "" : "");
     if (this.selectedStatus && this.mimeResponsesForEachStatus?.[this.selectedStatus]) {
-      this.selectedMimeType = Object.keys(this.mimeResponsesForEachStatus[this.selectedStatus])[0] || '';
+      this.selectedMimeType =
+        Object.keys(this.mimeResponsesForEachStatus[this.selectedStatus])[0] || "";
     } else {
-      this.selectedMimeType = this.defaultMimeType || '';
+      this.selectedMimeType = this.defaultMimeType || "";
     }
   }
 
   responseTemplate() {
     if (!this.responses) {
-      return '';
+      return "";
     }
     // Fallback guard: Ensure selectedStatus and selectedMimeType always point to valid options
     // for this endpoint, even if resetSelection was called or responses have not re-rendered yet.
     if (!this.selectedStatus || !this.responses[this.selectedStatus]) {
       this.selectedStatus =
-        this.defaultStatus || Object.keys(this.responses).find((k) => k !== '$$ref') || Object.keys(this.responses)[0] || '';
+        this.defaultStatus ||
+        Object.keys(this.responses).find((k) => k !== "$$ref") ||
+        Object.keys(this.responses)[0] ||
+        "";
     }
-    if (!this.selectedMimeType && this.selectedStatus && this.mimeResponsesForEachStatus?.[this.selectedStatus]) {
-      this.selectedMimeType = Object.keys(this.mimeResponsesForEachStatus[this.selectedStatus])[0] || this.defaultMimeType || '';
+    if (
+      !this.selectedMimeType &&
+      this.selectedStatus &&
+      this.mimeResponsesForEachStatus?.[this.selectedStatus]
+    ) {
+      this.selectedMimeType =
+        Object.keys(this.mimeResponsesForEachStatus[this.selectedStatus])[0] ||
+        this.defaultMimeType ||
+        "";
     }
     return html`
       ${
@@ -220,58 +251,67 @@ export default class ApiResponse extends LitElement {
               ${Object.keys(this.responses).map(
                 (respStatus) =>
                   html` ${
-                    respStatus === '$$ref' // Ignore '$$ref' if present from legacy reference parsing
-                      ? ''
+                    respStatus === "$$ref" // Ignore '$$ref' if present from legacy reference parsing
+                      ? ""
                       : html`<button
                           @click="${() => {
                             this.selectedStatus = respStatus;
-                            if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
-                              this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0];
+                            if (
+                              this.responses[respStatus].content &&
+                              Object.keys(this.responses[respStatus].content)[0]
+                            ) {
+                              this.selectedMimeType = Object.keys(
+                                this.responses[respStatus].content,
+                              )[0];
                             } else {
                               this.selectedMimeType = undefined;
                             }
                           }}"
                           class="btn btn-sm status-btn"
-                          aria-pressed="${this.selectedStatus === respStatus ? 'true' : 'false'}"
+                          aria-pressed="${this.selectedStatus === respStatus ? "true" : "false"}"
                           part="btn ${
-                            this.selectedStatus === respStatus ? 'btn-response-status btn-selected-response-status' : ' btn-response-status'
+                            this.selectedStatus === respStatus
+                              ? "btn-response-status btn-selected-response-status"
+                              : " btn-response-status"
                           }"
                         >
                           ${respStatus}
                         </button>`
-                  }`
+                  }`,
               )}
             </div>`
           : html`<span>${Object.keys(this.responses)[0]}</span>`
       }
       ${Object.keys(this.responses).map(
         (status) =>
-          html`<div style="display: ${status === this.selectedStatus ? 'block' : 'none'}">
+          html`<div style="display: ${status === this.selectedStatus ? "block" : "none"}">
             <div class="top-gap">
-              <span class="resp-descr m-markdown">${unsafeHTML(sanitizeHTML(marked(this.responses[status]?.description || '')))}</span>
+              <span class="resp-descr m-markdown">${unsafeHTML(sanitizeHTML(marked(this.responses[status]?.description || "")))}</span>
               ${
-                this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0
+                this.headersForEachRespStatus[status] &&
+                this.headersForEachRespStatus[status]?.length > 0
                   ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
-                  : ''
+                  : ""
               }
             </div>
             ${
-              !this.mimeResponsesForEachStatus[status] || Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
-                ? ''
+              !this.mimeResponsesForEachStatus[status] ||
+              Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
+                ? ""
                 : html`<div part="tab-panel" class="tab-panel col">
                     <div
                       part="tab-btn-row"
                       class="tab-buttons row"
                       @click="${(e) => {
-                        if (e.target.tagName.toLowerCase() === 'button') {
+                        if (e.target.tagName.toLowerCase() === "button") {
                           this.activeSchemaTab = e.target.dataset.tab;
                         }
                       }}"
                     >
-                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">
+                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === "example" ? "active" : ""}" data-tab="example">
                         EXAMPLE
                       </button>
-                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">
+                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== "example" ? "active" : ""}" data-tab="schema">
                         SCHEMA
                       </button>
                       ${
@@ -281,7 +321,7 @@ export default class ApiResponse extends LitElement {
                       }
                     </div>
                     ${
-                      this.activeSchemaTab === 'example'
+                      this.activeSchemaTab === "example"
                         ? html`<div part="tab-content" class="tab-content col">
                             ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                           </div>`
@@ -291,7 +331,7 @@ export default class ApiResponse extends LitElement {
                     }
                   </div> `
             }
-          </div>`
+          </div>`,
       )}
     `;
   }
@@ -304,8 +344,8 @@ export default class ApiResponse extends LitElement {
             (v) =>
               html`<li class="param" part="param">
                 <div class="param-label" part="param-label">
-                  <div class="param-name" part="param-name">${v.name || ''}</div>
-                  ${v.schema?.type ? html`<div class="param-type" part="param-type">${v.schema.type}</div>` : ''}
+                  <div class="param-name" part="param-name">${v.name || ""}</div>
+                  ${v.schema?.type ? html`<div class="param-type" part="param-type">${v.schema.type}</div>` : ""}
                 </div>
                 ${
                   v.schema?.example
@@ -313,12 +353,12 @@ export default class ApiResponse extends LitElement {
                         <dt class="param-constraint-label" part="param-constraint-label">Example:</dt>
                         <dd>${v.schema.example}</dd>
                       </dl>`
-                    : ''
+                    : ""
                 }
                 <div class="param-details" part="param-details">
-                  ${v.description ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(v.description)))}</div>` : ''}
+                  ${v.description ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(v.description)))}</div>` : ""}
                 </div>
-              </li>`
+              </li>`,
           )}
         </ul>
       </div>`;
@@ -333,17 +373,18 @@ export default class ApiResponse extends LitElement {
       }}"
     >
       ${mimeTypes.map(
-        (mimeType) => html`<option value="${mimeType}" ?selected="${mimeType === this.selectedMimeType}">${mimeType}</option>`
+        (mimeType) =>
+          html`<option value="${mimeType}" ?selected="${mimeType === this.selectedMimeType}">${mimeType}</option>`,
       )}
     </select>`;
   }
 
   onSelectExample(e) {
-    const exampleContainerEl = e.target.closest('.example-panel');
-    const exampleEls = [...exampleContainerEl.querySelectorAll('.example')];
+    const exampleContainerEl = e.target.closest(".example-panel");
+    const exampleEls = [...exampleContainerEl.querySelectorAll(".example")];
 
     exampleEls.forEach((v) => {
-      v.style.display = v.dataset.example === e.target.value ? 'block' : 'none';
+      v.style.display = v.dataset.example === e.target.value ? "block" : "none";
     });
   }
 
@@ -355,18 +396,19 @@ export default class ApiResponse extends LitElement {
       ${
         mimeRespDetails.examples.length === 1
           ? html` ${
-              mimeRespDetails.examples[0].exampleFormat === 'json'
+              mimeRespDetails.examples[0].exampleFormat === "json"
                 ? html` ${
-                      mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80
-                        ? html`<div style="padding: 4px 0">${mimeRespDetails.examples[0].exampleSummary}</div>`
-                        : ''
-                    }
+                    mimeRespDetails.examples[0].exampleSummary &&
+                    mimeRespDetails.examples[0].exampleSummary.length > 80
+                      ? html`<div style="padding: 4px 0">${mimeRespDetails.examples[0].exampleSummary}</div>`
+                      : ""
+                  }
                     ${
                       mimeRespDetails.examples[0].exampleDescription
                         ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                            ${unsafeHTML(sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || '')))}
+                            ${unsafeHTML(sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || "")))}
                           </div>`
-                        : ''
+                        : ""
                     }
                     <json-tree
                       render-style="${this.renderStyle}"
@@ -376,16 +418,17 @@ export default class ApiResponse extends LitElement {
                     ></json-tree>`
                 : html`
                     ${
-                      mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80
+                      mimeRespDetails.examples[0].exampleSummary &&
+                      mimeRespDetails.examples[0].exampleSummary.length > 80
                         ? html`<div style="padding: 4px 0">${mimeRespDetails.examples[0].exampleSummary}</div>`
-                        : ''
+                        : ""
                     }
                     ${
                       mimeRespDetails.examples[0].exampleDescription
                         ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                            ${unsafeHTML(sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || '')))}
+                            ${unsafeHTML(sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || "")))}
                           </div>`
-                        : ''
+                        : ""
                     }
                     <pre class="example-panel">${mimeRespDetails.examples[0].exampleValue}</pre>
                   `
@@ -397,7 +440,7 @@ export default class ApiResponse extends LitElement {
                     (v) =>
                       html`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample}>
                         ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
-                      </option>`
+                      </option>`,
                   )}
                 </select>
                 ${mimeRespDetails.examples.map(
@@ -405,18 +448,18 @@ export default class ApiResponse extends LitElement {
                     <div
                       class="example"
                       data-example="${v.exampleId}"
-                      style="display: ${v.exampleId === mimeRespDetails.selectedExample ? 'block' : 'none'}"
+                      style="display: ${v.exampleId === mimeRespDetails.selectedExample ? "block" : "none"}"
                     >
-                      ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ''}
+                      ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ""}
                       ${
                         v.exampleDescription
                           ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                              ${unsafeHTML(sanitizeHTML(marked(v.exampleDescription || '')))}
+                              ${unsafeHTML(sanitizeHTML(marked(v.exampleDescription || "")))}
                             </div>`
-                          : ''
+                          : ""
                       }
                       ${
-                        v.exampleFormat === 'json'
+                        v.exampleFormat === "json"
                           ? html`<json-tree
                               render-style="${this.renderStyle}"
                               .data="${v.exampleValue}"
@@ -425,7 +468,7 @@ export default class ApiResponse extends LitElement {
                           : html`<pre>${v.exampleValue}</pre>`
                       }
                     </div>
-                  `
+                  `,
                 )}
               </div>
             `
@@ -438,7 +481,7 @@ export default class ApiResponse extends LitElement {
       return html` <pre style="color:var(--destructive)" class="example-panel"> Schema not found</pre> `;
     }
     return html` ${
-      this.schemaStyle === 'table'
+      this.schemaStyle === "table"
         ? html`
             <schema-table
               .data="${mimeRespDetails.schemaTree}"

@@ -2,38 +2,41 @@
  * Renders the interactive API response panel (status, headers, body, blob actions),
  * live cURL preview/copy, and the execute/Try action controls for <api-request>.
  */
-import { html } from 'lit';
-import { ifDefined } from 'lit/directives/if-defined.js';
-import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-utils';
+import { html } from "lit";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { copyToClipboard, downloadResource, viewResource } from "~/utils/common-utils";
 
-export function curlSyntaxTemplate(display = 'flex') {
+export function curlSyntaxTemplate(display = "flex") {
   return html`
     <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
       <button
         class="btn btn-sm btn-outline toolbar-btn"
         style="position:absolute; top:12px; right:8px"
         @click="${(e) => {
-          copyToClipboard(this.curlSyntax.trim().replace(/\\$/, ''), e);
+          copyToClipboard(this.curlSyntax.trim().replace(/\\$/, ""), e);
         }}"
         part="btn btn-outline btn-copy"
       >
         Copy
       </button>
-      <pre style="white-space:pre"><code class="language-shell">${this.curlSyntax.trim().replace(/\\$/, '')}</code></pre>
+      <pre style="white-space:pre"><code class="language-shell">${this.curlSyntax.trim().replace(/\\$/, "")}</code></pre>
     </div>
   `;
 }
 
 export function apiResponseTabTemplate() {
-  let responseFormat = '';
-  let responseContent = '';
+  let responseFormat = "";
+  let responseContent = "";
   if (!this.responseIsBlob) {
-    if (this.responseHeaders.includes('application/x-ndjson') || this.responseHeaders.includes('json')) {
-      responseFormat = 'json';
-    } else if (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) {
-      responseFormat = 'html';
+    if (
+      this.responseHeaders.includes("application/x-ndjson") ||
+      this.responseHeaders.includes("json")
+    ) {
+      responseFormat = "json";
+    } else if (this.responseHeaders.includes("html") || this.responseHeaders.includes("xml")) {
+      responseFormat = "html";
     } else {
-      responseFormat = 'text';
+      responseFormat = "text";
     }
     responseContent = html`<code class="language-${responseFormat}">${this.responseText}</code>`;
   }
@@ -47,22 +50,25 @@ export function apiResponseTabTemplate() {
         part="tab-btn-row"
         class="tab-buttons row"
         @click="${(e) => {
-          if (e.target.classList.contains('tab-btn') === false && e.target.classList.contains('tab') === false) {
+          if (
+            e.target.classList.contains("tab-btn") === false &&
+            e.target.classList.contains("tab") === false
+          ) {
             return;
           }
           this.activeResponseTab = e.target.dataset.tab;
         }}"
       >
-        <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab="response">
+        <button part="tab-btn" class="tab-btn ${this.activeResponseTab === "response" ? "active" : ""}" data-tab="response">
           RESPONSE
         </button>
-        <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}" data-tab="headers">
+        <button part="tab-btn" class="tab-btn ${this.activeResponseTab === "headers" ? "active" : ""}" data-tab="headers">
           RESPONSE HEADERS
         </button>
         ${
-          this.showCurlBeforeTry === 'true'
-            ? ''
-            : html`<button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab="curl">
+          this.showCurlBeforeTry === "true"
+            ? ""
+            : html`<button part="tab-btn" class="tab-btn ${this.activeResponseTab === "curl" ? "active" : ""}" data-tab="curl">
                 CURL
               </button>`
         }
@@ -72,12 +78,12 @@ export function apiResponseTabTemplate() {
           ? html`<div
               part="tab-content"
               class="tab-content col"
-              style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};"
+              style="flex:1; display:${this.activeResponseTab === "response" ? "flex" : "none"};"
             >
               ${
-                this.responseBlobType === 'image'
+                this.responseBlobType === "image"
                   ? html`<img style="max-height:var(--resp-area-height); object-fit:contain;" class="mar-top-8" src="${ifDefined(this.responseBlobUrl)}"></img>`
-                  : ''
+                  : ""
               }
               <button
                 class="btn btn-outline mar-top-8"
@@ -90,7 +96,7 @@ export function apiResponseTabTemplate() {
                 DOWNLOAD
               </button>
               ${
-                this.responseBlobType === 'view' || this.responseBlobType === 'image'
+                this.responseBlobType === "view" || this.responseBlobType === "image"
                   ? html`<button
                       class="btn btn-outline mar-top-8"
                       style="width:135px"
@@ -101,13 +107,13 @@ export function apiResponseTabTemplate() {
                     >
                       VIEW (NEW TAB)
                     </button>`
-                  : ''
+                  : ""
               }
             </div>`
           : html`<div
               part="tab-content"
               class="tab-content col m-markdown"
-              style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};"
+              style="flex:1; display:${this.activeResponseTab === "response" ? "flex" : "none"};"
             >
               <button
                 class="btn btn-sm btn-outline toolbar-btn"
@@ -125,7 +131,7 @@ ${responseContent}</pre>
       <div
         part="tab-content"
         class="tab-content col m-markdown"
-        style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};"
+        style="flex:1; display:${this.activeResponseTab === "headers" ? "flex" : "none"};"
       >
         <button
           class="btn btn-sm btn-outline toolbar-btn"
@@ -138,7 +144,7 @@ ${responseContent}</pre>
         </button>
         <pre style="white-space:pre"><code class="language-css">${this.responseHeaders}</code></pre>
       </div>
-      ${this.showCurlBeforeTry === 'true' ? '' : curlSyntaxTemplate.call(this, this.activeResponseTab === 'curl' ? 'flex' : 'none')}
+      ${this.showCurlBeforeTry === "true" ? "" : curlSyntaxTemplate.call(this, this.activeResponseTab === "curl" ? "flex" : "none")}
     </div>`;
 }
 
@@ -165,7 +171,7 @@ export function apiCallTemplate() {
             this.serverUrl
               ? html`<dt>API Server</dt>
                   <dd class="try-server-url">${this.serverUrl}</dd>`
-              : ''
+              : ""
           }
           <dt>Authentication</dt>
           <dd>${authHtml}</dd>
@@ -190,7 +196,7 @@ export function apiCallTemplate() {
                   >
                     CLEAR
                   </button>`
-              : ''
+              : ""
           }
           <button
             class="btn btn-primary"
@@ -199,15 +205,15 @@ export function apiCallTemplate() {
             aria-busy="${this.loading}"
             @click="${this.onTryClick}"
           >
-            ${this.loading ? 'TRYING...' : 'TRY'}
+            ${this.loading ? "TRYING..." : "TRY"}
           </button>
         </div>
       </div>
     </div>
     <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-      ${this.showCurlBeforeTry === 'true' ? curlSyntaxTemplate.call(this) : ''}
+      ${this.showCurlBeforeTry === "true" ? curlSyntaxTemplate.call(this) : ""}
     </div>
-    ${this.responseMessage === '' ? '' : apiResponseTabTemplate.call(this)} `;
+    ${this.responseMessage === "" ? "" : apiResponseTabTemplate.call(this)} `;
 }
 
 export default apiCallTemplate;

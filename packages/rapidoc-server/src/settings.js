@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 
 /**
  * Runtime settings of `rapidoc serve`: the build's rapidoc-server.json (written by @rapidoc/portal when
@@ -15,38 +15,41 @@ import path from 'node:path';
  * A build without rapidoc-server.json is served as plain static files.
  */
 
-export const SERVER_MANIFEST = 'rapidoc-server.json';
+export const SERVER_MANIFEST = "rapidoc-server.json";
 const MIN_SECRET_LENGTH = 32;
 const UNIT_SECONDS = { s: 1, m: 60, h: 3600, d: 86400 };
 
 export class SettingsError extends Error {
   constructor(problems) {
-    super(['rapidoc serve cannot start:', ...problems.map((p) => `  - ${p}`)].join('\n'));
-    this.name = 'SettingsError';
+    super(["rapidoc serve cannot start:", ...problems.map((p) => `  - ${p}`)].join("\n"));
+    this.name = "SettingsError";
     this.problems = problems;
   }
 }
 
 /** `8h` → 28800 */
 export function parseDuration(text) {
-  const match = /^(\d+)([smhd])$/.exec(text || '');
+  const match = /^(\d+)([smhd])$/.exec(text || "");
   return match ? Number(match[1]) * UNIT_SECONDS[match[2]] : null;
 }
 
 function readManifest(distDir) {
   const file = path.join(distDir, SERVER_MANIFEST);
   if (!fs.existsSync(file)) return null;
-  const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
-  if (manifest.version !== 1) throw new SettingsError([`${file}: unsupported version ${manifest.version}; rebuild with rapidoc build`]);
+  const manifest = JSON.parse(fs.readFileSync(file, "utf8"));
+  if (manifest.version !== 1)
+    throw new SettingsError([
+      `${file}: unsupported version ${manifest.version}; rebuild with rapidoc build`,
+    ]);
   return manifest;
 }
 
 /** `/developers/` or `developers` → `/developers`; `/` or nothing → '' (the root). */
 export function normalizePath(value) {
-  const trimmed = String(value || '')
+  const trimmed = String(value || "")
     .trim()
-    .replace(/^\/+|\/+$/g, '');
-  return trimmed ? `/${trimmed}` : '';
+    .replace(/^\/+|\/+$/g, "");
+  return trimmed ? `/${trimmed}` : "";
 }
 
 function publicUrlOf(value, problems) {
@@ -76,7 +79,7 @@ export function loadSettings(distDir, env = process.env, options = {}) {
   if (!manifest) {
     const mountPath = normalizePath(mountOption);
     return {
-      mode: 'static',
+      mode: "static",
       distDir: root,
       publicDir: root,
       protectedDir: null,
@@ -90,8 +93,8 @@ export function loadSettings(distDir, env = process.env, options = {}) {
   const mountPath = mountOption === undefined ? basePath : normalizePath(mountOption);
 
   const problems = [];
-  const publicDir = path.join(root, 'public');
-  const protectedDir = path.join(root, 'protected');
+  const publicDir = path.join(root, "public");
+  const protectedDir = path.join(root, "protected");
   for (const dir of [publicDir, protectedDir]) {
     if (!fs.existsSync(dir)) problems.push(`${dir} is missing; rebuild with rapidoc build`);
   }
@@ -100,11 +103,19 @@ export function loadSettings(distDir, env = process.env, options = {}) {
   if (manifest.auth) {
     const issuer = env.RAPIDOC_AUTH_ISSUER || manifest.auth.issuer;
     const clientId = env.RAPIDOC_AUTH_CLIENT_ID || manifest.auth.clientId;
-    const sessionSecret = env.RAPIDOC_SESSION_SECRET || '';
-    if (!issuer) problems.push('No sign-in issuer: set auth.issuer in rapidoc.config.yaml or RAPIDOC_AUTH_ISSUER');
-    if (!clientId) problems.push('No client ID: set auth.clientId in rapidoc.config.yaml or RAPIDOC_AUTH_CLIENT_ID');
+    const sessionSecret = env.RAPIDOC_SESSION_SECRET || "";
+    if (!issuer)
+      problems.push(
+        "No sign-in issuer: set auth.issuer in rapidoc.config.yaml or RAPIDOC_AUTH_ISSUER",
+      );
+    if (!clientId)
+      problems.push(
+        "No client ID: set auth.clientId in rapidoc.config.yaml or RAPIDOC_AUTH_CLIENT_ID",
+      );
     if (sessionSecret.length < MIN_SECRET_LENGTH) {
-      problems.push(`RAPIDOC_SESSION_SECRET must be at least ${MIN_SECRET_LENGTH} characters (it encrypts the session cookie)`);
+      problems.push(
+        `RAPIDOC_SESSION_SECRET must be at least ${MIN_SECRET_LENGTH} characters (it encrypts the session cookie)`,
+      );
     }
     auth = {
       ...manifest.auth,
@@ -121,5 +132,15 @@ export function loadSettings(distDir, env = process.env, options = {}) {
   const publicUrl = publicUrlOf(env.RAPIDOC_PUBLIC_URL || manifest.site?.url, problems);
   if (problems.length) throw new SettingsError(problems);
 
-  return { mode: 'portal', distDir: root, publicDir, protectedDir, manifest, auth, publicUrl, basePath, mountPath };
+  return {
+    mode: "portal",
+    distDir: root,
+    publicDir,
+    protectedDir,
+    manifest,
+    auth,
+    publicUrl,
+    basePath,
+    mountPath,
+  };
 }

@@ -1,7 +1,7 @@
 /**
  * Renders default RapiDoc SVG branding logo.
  */
-import { html } from 'lit';
+import { html } from "lit";
 
 export default function logoTemplate(style) {
   return html`<svg style=${style} viewBox="1 0 511 512">

@@ -29,8 +29,6 @@ rapidoc/
 ├── scripts/              # Monorepo build and metric utilities (e.g., capture-build-info.js, test-loader.mjs)
 ├── .github/              # GitHub Actions workflows (CI / GitHub Pages deployment)
 ├── .claude/              # Claude Code subagents (.claude/agents/) and skills (.claude/skills/)
-├── eslint.config.js      # Monorepo flat ESLint configuration
-├── .prettierrc           # Monorepo Prettier configuration
 ├── package.json          # Root workspace definition and monorepo scripts
 ├── CLAUDE.md             # Claude Code entry point (imports this file)
 └── AGENTS.md             # This file (Root Agent Guidelines)
@@ -92,53 +90,50 @@ All primary scripts are runnable from the repository root via npm:
 
 ### Build Commands
 
-| Command                 | Scope              | Description                                                                            |
-| :---------------------- | :----------------- | :------------------------------------------------------------------------------------- |
-| `npm run build`         | Monorepo           | Sequentially builds `rapidoc` (via Vite) and `docs` (via Astro).                       |
-| `npm run build:rapidoc` | `packages/rapidoc` | Builds `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js` (`rapidoc/static`) with Vite. |
-| `npm run build:rapidoc:dev` | `packages/rapidoc` | Builds an unminified bundle with sourcemaps and console logs intact.               |
-| `npm run build:size`    | `packages/rapidoc` | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`. |
-| `npm run build:docs`    | `docs`             | Builds the Astro Starlight documentation site to `docs/dist/`.                         |
-| `npm run build:demo`    | `../rapi-portal-demo` | Builds `rapidoc`, then the sibling `rapi-portal-demo` checkout with the `rapidoc` CLI into `../rapi-portal-demo/dist/`. |
-| `npm run prerender:demo` | Monorepo          | Runs `scripts/prerender-demo.mjs`.                                                     |
+| Command                     | Scope                 | Description                                                                                                             |
+| :-------------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------------------- |
+| `npm run build`             | Monorepo              | Sequentially builds `rapidoc` (via Vite) and `docs` (via Astro).                                                        |
+| `npm run build:rapidoc`     | `packages/rapidoc`    | Builds `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js` (`rapidoc/static`) with Vite.                             |
+| `npm run build:rapidoc:dev` | `packages/rapidoc`    | Builds an unminified bundle with sourcemaps and console logs intact.                                                    |
+| `npm run build:size`        | `packages/rapidoc`    | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`.                                  |
+| `npm run build:docs`        | `docs`                | Builds the Astro Starlight documentation site to `docs/dist/`.                                                          |
+| `npm run build:demo`        | `../rapi-portal-demo` | Builds `rapidoc`, then the sibling `rapi-portal-demo` checkout with the `rapidoc` CLI into `../rapi-portal-demo/dist/`. |
+| `npm run prerender:demo`    | Monorepo              | Runs `scripts/prerender-demo.mjs`.                                                                                      |
 
 ### Testing & Benchmarking
 
-| Command               | Target   | Runner / Details                                                                                                                                           |
-| :-------------------- | :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run test:unit`   | Monorepo | Executes all unit tests in `tests/unit/*.test.js` using Node.js native test runner (`node:test` + `node:assert`), loaded via `scripts/test-loader.mjs`.    |
-| `npm run test:component` | Monorepo | Runs `tests/component/*.test.js`.                                                                                                                       |
-| `npm run test:e2e`    | Monorepo | Runs `tests/e2e/*.test.js`.                                                                                                                                |
-| `npm run test:visual` | Monorepo | Runs visual regression tests in `tests/visual/*.test.js`.                                                                                                  |
-| `npm run test:all`    | Monorepo | Runs `test:unit`, `test:component`, `test:e2e`, and `test:visual` in sequence.                                                                             |
-| `npm run test:portal` | Portal/CLI | Runs `tests/**/*.test.js` in `rapidoc-portal`, `rapidoc-cli`, `rapidoc-server`, `rapidoc-mock`, and `create-rapidoc` (serially, `--test-concurrency=1`). |
-| `npm run test:parser` | Monorepo | Runs `tests/perf/benchmark.js` to measure OpenAPI spec parsing, circular ref handling, and dereferencing times across Bookstore, Stripe, and GitHub specs. |
-| `npm run test:perf`   | Monorepo | Runs `tests/perf/render-benchmark.js` measuring headless browser rendering performance across Focused, View, and Read modes.                               |
+| Command                  | Target     | Runner / Details                                                                                                                                           |
+| :----------------------- | :--------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test:unit`      | Monorepo   | Executes all unit tests in `tests/unit/*.test.js` using Node.js native test runner (`node:test` + `node:assert`), loaded via `scripts/test-loader.mjs`.    |
+| `npm run test:component` | Monorepo   | Runs `tests/component/*.test.js`.                                                                                                                          |
+| `npm run test:e2e`       | Monorepo   | Runs `tests/e2e/*.test.js`.                                                                                                                                |
+| `npm run test:visual`    | Monorepo   | Runs visual regression tests in `tests/visual/*.test.js`.                                                                                                  |
+| `npm run test:all`       | Monorepo   | Runs `test:unit`, `test:component`, `test:e2e`, and `test:visual` in sequence.                                                                             |
+| `npm run test:portal`    | Portal/CLI | Runs `tests/**/*.test.js` in `rapidoc-portal`, `rapidoc-cli`, `rapidoc-server`, `rapidoc-mock`, and `create-rapidoc` (serially, `--test-concurrency=1`).   |
+| `npm run test:parser`    | Monorepo   | Runs `tests/perf/benchmark.js` to measure OpenAPI spec parsing, circular ref handling, and dereferencing times across Bookstore, Stripe, and GitHub specs. |
+| `npm run test:perf`      | Monorepo   | Runs `tests/perf/render-benchmark.js` measuring headless browser rendering performance across Focused, View, and Read modes.                               |
 
 ### Quality & Formatting
 
-| Command              | Scope              | Description                                                                       |
-| :------------------- | :----------------- | :-------------------------------------------------------------------------------- |
-| `npm run lint`       | `packages/rapidoc` | Runs ESLint (`eslint './src/**/*.{js,ts}'`) with Lit and Prettier plugins.        |
-| `npm run format`     | Monorepo           | Checks code formatting against `.prettierrc` for `packages/` and `docs/src/`.     |
-| `npm run format-fix` | Monorepo           | Automatically formats code using Prettier across `packages/` and `docs/src/`.     |
-| `npm run analyze`    | `packages/rapidoc` | Runs `lit-analyzer src` to validate Lit component templates, bindings, and types. |
+| Command              | Scope    | Description                                                                          |
+| :------------------- | :------- | :----------------------------------------------------------------------------------- |
+| `npm run lint`       | Monorepo | Runs oxlint on `packages/`, `docs/src/`, `tests/` and `scripts/`; any warning fails. |
+| `npm run format`     | Monorepo | Checks oxfmt formatting of the same folders (fixtures and generated JSON excluded).  |
+| `npm run format-fix` | Monorepo | Formats the same folders with oxfmt.                                                 |
 
 ---
 
 ## 4. Coding Styles & Conventions
 
-### Prettier & ESLint Configuration
+### Linting & Formatting (oxlint, oxfmt)
 
-The project adheres strictly to `.prettierrc` and `eslint.config.js`:
+Both tools run with their defaults. oxlint has no config file; oxfmt's `.oxfmtrc.json` sets only `embeddedLanguageFormatting: "off"`. Don't add other options. The style is whatever `npm run format-fix` produces (2 spaces, double quotes, semicolons, trailing commas, 100-character lines).
 
-- **Indentation**: 2 spaces (no tabs).
-- **Quotes**: Single quotes (`'`) for JS/TS; standard HTML/JSX attribute quotes.
-- **Semicolons**: Always required (`semi: true`).
-- **Trailing Commas**: ES5 style (`trailingComma: 'es5'`).
-- **Print Width**: 140 characters.
-- **ESLint Plugins**: Flat config using `@eslint/js`, `eslint-plugin-lit`, and `eslint-plugin-prettier`.
-- **Console / Debugger**: `no-console` and `no-debugger` are enforced as warnings in production, and automatically stripped from the final bundle by the custom Vite esbuild transform.
+- **Templates kept as-is**: with embedded formatting on, oxfmt rewrites the HTML and CSS inside Lit `html`/`css` templates, which changes what `<rapi-doc>` renders (whitespace between inline elements, CSS quotes).
+- **Suppressions**: only when a finding is intentional, as `// oxlint-disable-next-line <rule> -- <reason>` (or `oxlint-disable-line`). `// prettier-ignore` keeps oxfmt off one statement.
+- **Not formatted**: `.mdx` (oxfmt 0.x moves content out of JSX blocks such as `<Steps>`), `fixtures/` folders, and generated JSON (`packages/rapidoc-portal/schema.json`, `tests/layout/measurements.json`); the excludes are in the `format` scripts.
+- **Lit templates**: no static checker (the linter has no Lit rules); the unit, component and visual tests render them.
+- **Console / Debugger**: stripped from the production bundle by the custom Vite transform.
 
 ### Component Design & Lit Guidelines (`packages/rapidoc`)
 
@@ -163,7 +158,7 @@ When executing tasks in this repository, follow these rules:
 
 1. **Verify Before and After**:
    - Before modifying core parser or schema logic, run `npm run test:unit`.
-   - After completing edits, run `npm run test:unit` and `npm run format-fix` to maintain code health.
+   - After completing edits, run `npm run test:unit`, `npm run lint` and `npm run format-fix` to maintain code health.
 2. **Respect Package Boundaries**:
    - Refer to nested `AGENTS.md` files in subdirectories for package-specific context:
      - [`packages/rapidoc/AGENTS.md`](packages/rapidoc/AGENTS.md)

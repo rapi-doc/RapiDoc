@@ -544,7 +544,8 @@
             <div class="code-dim">&lt;html&gt;</div>
             <div style="padding-left: 12px">
               <span class="code-cyan">&lt;rapi-doc</span>
-              <span class="code-amber">spec-url</span>=<span class="code-green">"..."</span><span class="code-cyan">&gt;</span>
+              <span class="code-amber">spec-url</span>=<span class="code-green">"..."</span
+              ><span class="code-cyan">&gt;</span>
             </div>
             <div class="code-dim">&lt;/html&gt;</div>
 
@@ -563,7 +564,9 @@
           </div>
           <div class="v-label-left">
             opens popup window<br />
-            <span style="font-size: 9.5px; color: #94a3b8; font-weight: 400">in new browser window</span>
+            <span style="font-size: 9.5px; color: #94a3b8; font-weight: 400"
+              >in new browser window</span
+            >
           </div>
 
           <!-- Upward arrow: passes Auth Code (Step 3) -->
@@ -573,7 +576,9 @@
           <span class="step-pill pill-green v-pill-step3">3</span>
           <div class="v-label-right">
             passes Auth Code<br />
-            <span style="font-size: 9.5px; color: #94a3b8; font-weight: 400">via window.postMessage()</span>
+            <span style="font-size: 9.5px; color: #94a3b8; font-weight: 400"
+              >via window.postMessage()</span
+            >
           </div>
         </div>
 
@@ -593,7 +598,9 @@
             </div>
             <div class="code-dim">&lt;/html&gt;</div>
 
-            <div style="margin-top: 14px; font-size: 11px; color: #94a3b8; font-family: sans-serif; line-height: 1.45">
+            <div
+              style="margin-top: 14px; font-size: 11px; color: #94a3b8; font-family: sans-serif; line-height: 1.45"
+            >
               Built-in RapiDoc callback receiver.<br />
               Extracts auth code &amp; automatically self-closes.
             </div>
@@ -677,7 +684,9 @@
             <span class="endpoint-name">/token (Token Endpoint)</span>
           </div>
           <div class="server-card-body">
-            <div style="font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px">Validates Token Request:</div>
+            <div style="font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px">
+              Validates Token Request:
+            </div>
             <ul class="server-checklist">
               <li>Authorization code &amp; redirect_uri</li>
               <li>client_id &amp; client_secret (or PKCE verifier)</li>
@@ -693,7 +702,9 @@
             <span class="endpoint-name">/authorize (Authorize Endpoint)</span>
           </div>
           <div class="server-card-body">
-            <div style="font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px">Authenticates User &amp; Validates:</div>
+            <div style="font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px">
+              Authenticates User &amp; Validates:
+            </div>
             <ul class="server-checklist">
               <li>User credentials &amp; MFA challenge</li>
               <li>Requested scopes &amp; redirect_uri</li>

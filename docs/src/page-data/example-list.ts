@@ -20,9 +20,9 @@ interface SubExample {
   href: string;
 }
 
-import * as yaml from 'js-yaml';
-import { readDataYaml } from '../utils/readDataYaml.ts';
+import * as yaml from "js-yaml";
+import { readDataYaml } from "../utils/readDataYaml.ts";
 
-const exampleListData = yaml.load(readDataYaml('example-list.yaml')) as ExampleList;
+const exampleListData = yaml.load(readDataYaml("example-list.yaml")) as ExampleList;
 export { exampleListData };
 export type { ExampleList, ExampleItem, SubExampleList, SubExample };

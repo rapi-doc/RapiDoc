@@ -5,7 +5,7 @@
  * @param {'auto' | 'dark' | 'light'} mode
  * @returns {string}
  */
-export function themeBootstrapScript(mode = 'auto') {
+export function themeBootstrapScript(mode = "auto") {
   return `(() => {
   let stored = null;
   try { stored = localStorage.getItem('starlight-theme'); } catch {}

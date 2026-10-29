@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 
 /**
  * Starter template contents for scaffolding a new RapiDoc Developer Portal.
@@ -185,7 +185,7 @@ Any operation from your specs can be embedded live in a guide (\`spec\` is the A
 
 {% api-operation spec="core" path="/items" method="get" /%}
 `
-    : ''
+    : ""
 }
 ## Code Examples
 
@@ -243,7 +243,10 @@ How the platform handles caching, rate limits and failover.
 {% /card-grid %}
 `;
 
-const STARTER_CONFIG = (title, apis) => `# yaml-language-server: $schema=./node_modules/@rapidoc/portal/schema.json
+const STARTER_CONFIG = (
+  title,
+  apis,
+) => `# yaml-language-server: $schema=./node_modules/@rapidoc/portal/schema.json
 site:
   title: "${title}"
   description: "Official developer portal and interactive API reference."
@@ -288,12 +291,12 @@ navigation:
         items:
           - getting-started
           - guides/overview
-${apis.map((api) => `  - label: "${api.label}"\n    icon: "code"\n    api: ${api.id}\n`).join('')}  - label: "API Catalog"
+${apis.map((api) => `  - label: "${api.label}"\n    icon: "code"\n    api: ${api.id}\n`).join("")}  - label: "API Catalog"
     icon: "squares-four"
     catalog: true
 
 apis:
-${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join('')}# Several versions of one API: \`versions\` instead of \`spec\`. The first is the default, at /apis/<id>;
+${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join("")}# Several versions of one API: \`versions\` instead of \`spec\`. The first is the default, at /apis/<id>;
 # the others are at /apis/<id>/<version>, with a version picker on the reference page.
 #   versions:
 #     - "./specs/api-v2.yaml"
@@ -324,24 +327,24 @@ const STARTER_PACKAGE_JSON = (projectName) =>
   JSON.stringify(
     {
       name: projectName,
-      version: '0.1.0',
+      version: "0.1.0",
       private: true,
-      type: 'module',
+      type: "module",
       scripts: {
-        dev: 'rapidoc dev',
-        build: 'rapidoc build',
-        validate: 'rapidoc validate',
-        preview: 'npx serve dist',
+        dev: "rapidoc dev",
+        build: "rapidoc build",
+        validate: "rapidoc validate",
+        preview: "npx serve dist",
       },
       // The CLI loads the portal engine for dev/build; listing it here also makes the config's
       // $schema path (node_modules/@rapidoc/portal/schema.json) resolve.
       devDependencies: {
-        '@rapidoc/cli': '^0.1.0',
-        '@rapidoc/portal': '^0.1.0',
+        "@rapidoc/cli": "^0.1.0",
+        "@rapidoc/portal": "^0.1.0",
       },
     },
     null,
-    2
+    2,
   );
 
 const STARTER_GITIGNORE = `node_modules/
@@ -382,8 +385,8 @@ Run \`npm run validate\` (for example in CI) to check every spec in \`apis:\` ag
 \`\`\`
 `;
 
-const SPEC_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
-const SKIPPED_DIRS = new Set(['node_modules', 'dist', 'build', 'coverage', '.rapidoc-temp']);
+const SPEC_EXTENSIONS = new Set([".yaml", ".yml", ".json"]);
+const SKIPPED_DIRS = new Set(["node_modules", "dist", "build", "coverage", ".rapidoc-temp"]);
 
 /**
  * Finds OpenAPI / Swagger documents in a folder (and up to `maxDepth` levels below it), so a portal can be
@@ -405,12 +408,15 @@ export function findOpenApiSpecs(dir, { maxDepth = 3 } = {}) {
       return;
     }
     for (const entry of entries) {
-      if (entry.name.startsWith('.')) continue;
+      if (entry.name.startsWith(".")) continue;
       const fullPath = path.join(current, entry.name);
       if (entry.isDirectory()) {
         if (depth < maxDepth && !SKIPPED_DIRS.has(entry.name)) walk(fullPath, depth + 1);
-      } else if (SPEC_EXTENSIONS.has(path.extname(entry.name).toLowerCase()) && isOpenApiDocument(fullPath)) {
-        found.push(path.relative(root, fullPath).split(path.sep).join('/'));
+      } else if (
+        SPEC_EXTENSIONS.has(path.extname(entry.name).toLowerCase()) &&
+        isOpenApiDocument(fullPath)
+      ) {
+        found.push(path.relative(root, fullPath).split(path.sep).join("/"));
       }
     }
   };
@@ -419,11 +425,11 @@ export function findOpenApiSpecs(dir, { maxDepth = 3 } = {}) {
 }
 
 function isOpenApiDocument(filePath) {
-  const fd = fs.openSync(filePath, 'r');
+  const fd = fs.openSync(filePath, "r");
   try {
     const buffer = Buffer.alloc(4096);
     const bytesRead = fs.readSync(fd, buffer, 0, buffer.length, 0);
-    return /^\s*["']?(openapi|swagger)["']?\s*:/m.test(buffer.toString('utf8', 0, bytesRead));
+    return /^\s*["']?(openapi|swagger)["']?\s*:/m.test(buffer.toString("utf8", 0, bytesRead));
   } finally {
     fs.closeSync(fd);
   }
@@ -434,10 +440,10 @@ function isOpenApiDocument(filePath) {
 function toPackageName(name) {
   const cleaned = name
     .toLowerCase()
-    .replace(/[^a-z0-9._~-]+/g, '-')
-    .replace(/^[._-]+|-+$/g, '')
+    .replace(/[^a-z0-9._~-]+/g, "-")
+    .replace(/^[._-]+|-+$/g, "")
     .slice(0, 214);
-  return cleaned || 'my-dev-portal';
+  return cleaned || "my-dev-portal";
 }
 
 // API ids and tab labels from spec file names: "specs/orders-api.yaml" -> { id: 'orders-api', label: 'Orders API' }
@@ -448,15 +454,15 @@ function apisFromSpecs(specs) {
       path
         .basename(spec, path.extname(spec))
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '') || 'api';
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "api";
     let id = base;
     for (let n = 2; used.has(id); n += 1) id = `${base}-${n}`;
     used.add(id);
     const label = base
-      .replace(/-/g, ' ')
+      .replace(/-/g, " ")
       .replace(/\b\w/g, (c) => c.toUpperCase())
-      .replace(/\bApi\b/g, 'API');
+      .replace(/\bApi\b/g, "API");
     return { id, label, spec: `./${spec}` };
   });
 }
@@ -473,39 +479,45 @@ function apisFromSpecs(specs) {
  */
 export function scaffoldProject(targetDir, options = {}) {
   const resolvedDir = path.resolve(targetDir);
-  const folderName = options.name || path.basename(resolvedDir) || 'my-dev-portal';
+  const folderName = options.name || path.basename(resolvedDir) || "my-dev-portal";
   const projectName = toPackageName(folderName);
-  const siteTitle = options.title || `${folderName.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}`;
+  const siteTitle =
+    options.title || `${folderName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}`;
   const withStarterSpec = !options.specs?.length;
-  const apis = withStarterSpec ? [{ id: 'core', label: 'Core API', spec: './specs/api.yaml' }] : apisFromSpecs(options.specs);
+  const apis = withStarterSpec
+    ? [{ id: "core", label: "Core API", spec: "./specs/api.yaml" }]
+    : apisFromSpecs(options.specs);
 
   if (!fs.existsSync(resolvedDir)) {
     fs.mkdirSync(resolvedDir, { recursive: true });
   }
 
-  const docsDir = path.join(resolvedDir, 'docs');
-  const guidesDir = path.join(docsDir, 'guides');
-  const specsDir = path.join(resolvedDir, 'specs');
+  const docsDir = path.join(resolvedDir, "docs");
+  const guidesDir = path.join(docsDir, "guides");
+  const specsDir = path.join(resolvedDir, "specs");
 
   fs.mkdirSync(guidesDir, { recursive: true });
   if (withStarterSpec) fs.mkdirSync(specsDir, { recursive: true });
 
   const files = [
-    { path: path.join(resolvedDir, 'rapidoc.config.yaml'), content: STARTER_CONFIG(siteTitle, apis) },
-    { path: path.join(resolvedDir, 'package.json'), content: STARTER_PACKAGE_JSON(projectName) },
-    { path: path.join(resolvedDir, '.gitignore'), content: STARTER_GITIGNORE },
-    { path: path.join(resolvedDir, 'README.md'), content: STARTER_README(siteTitle) },
-    ...(withStarterSpec ? [{ path: path.join(specsDir, 'api.yaml'), content: STARTER_SPEC }] : []),
-    { path: path.join(docsDir, 'index.markdoc'), content: STARTER_HOME(siteTitle, apis[0].id) },
-    { path: path.join(docsDir, 'getting-started.md'), content: STARTER_GETTING_STARTED },
-    { path: path.join(guidesDir, 'overview.markdoc'), content: STARTER_OVERVIEW(withStarterSpec) },
+    {
+      path: path.join(resolvedDir, "rapidoc.config.yaml"),
+      content: STARTER_CONFIG(siteTitle, apis),
+    },
+    { path: path.join(resolvedDir, "package.json"), content: STARTER_PACKAGE_JSON(projectName) },
+    { path: path.join(resolvedDir, ".gitignore"), content: STARTER_GITIGNORE },
+    { path: path.join(resolvedDir, "README.md"), content: STARTER_README(siteTitle) },
+    ...(withStarterSpec ? [{ path: path.join(specsDir, "api.yaml"), content: STARTER_SPEC }] : []),
+    { path: path.join(docsDir, "index.markdoc"), content: STARTER_HOME(siteTitle, apis[0].id) },
+    { path: path.join(docsDir, "getting-started.md"), content: STARTER_GETTING_STARTED },
+    { path: path.join(guidesDir, "overview.markdoc"), content: STARTER_OVERVIEW(withStarterSpec) },
   ];
 
   const filesCreated = [];
   const filesSkipped = [];
   for (const file of files) {
     if (!fs.existsSync(file.path) || options.overwrite) {
-      fs.writeFileSync(file.path, file.content, 'utf8');
+      fs.writeFileSync(file.path, file.content, "utf8");
       filesCreated.push(file.path);
     } else {
       filesSkipped.push(file.path);

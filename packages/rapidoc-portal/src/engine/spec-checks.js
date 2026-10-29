@@ -7,16 +7,16 @@
  * (Every operation is also reachable by its method + path anchor, which only changes with the endpoint.)
  */
 
-import fs from 'node:fs';
-import yaml from 'yaml';
-import { methodPathSlug, operationAnchorSource } from 'rapidoc/static';
+import fs from "node:fs";
+import yaml from "yaml";
+import { methodPathSlug, operationAnchorSource } from "rapidoc/static";
 
-const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query'];
+const HTTP_METHODS = ["get", "put", "post", "delete", "options", "head", "patch", "trace", "query"];
 const LISTED_OPERATIONS = 3;
 
 /** Reads a local spec (JSON or YAML). Throws when it cannot be read or parsed. */
 export function readSpecFile(fullPath) {
-  const raw = fs.readFileSync(fullPath, 'utf8');
+  const raw = fs.readFileSync(fullPath, "utf8");
   try {
     return JSON.parse(raw);
   } catch {
@@ -34,12 +34,12 @@ export function summaryAnchoredOperations(spec) {
   const found = [];
   for (const group of [spec?.paths, spec?.webhooks]) {
     for (const [pathName, pathItem] of Object.entries(group || {})) {
-      if (!pathItem || typeof pathItem !== 'object') continue;
+      if (!pathItem || typeof pathItem !== "object") continue;
       for (const method of HTTP_METHODS) {
         const op = pathItem[method];
-        if (!op || typeof op !== 'object') continue;
+        if (!op || typeof op !== "object") continue;
         const summary = op.summary || op.description;
-        if (operationAnchorSource({ operationId: op.operationId, summary }) === 'summary') {
+        if (operationAnchorSource({ operationId: op.operationId, summary }) === "summary") {
           found.push({ method, path: pathName, alias: methodPathSlug(method, pathName) });
         }
       }
@@ -64,12 +64,14 @@ export function checkApiSpec(api) {
   }
   const ops = summaryAnchoredOperations(spec);
   if (ops.length === 0) return [];
-  const listed = ops.slice(0, LISTED_OPERATIONS).map((op) => `${op.method.toUpperCase()} ${op.path}`);
-  const more = ops.length > LISTED_OPERATIONS ? `, and ${ops.length - LISTED_OPERATIONS} more` : '';
-  const count = ops.length === 1 ? '1 operation has' : `${ops.length} operations have`;
+  const listed = ops
+    .slice(0, LISTED_OPERATIONS)
+    .map((op) => `${op.method.toUpperCase()} ${op.path}`);
+  const more = ops.length > LISTED_OPERATIONS ? `, and ${ops.length - LISTED_OPERATIONS} more` : "";
+  const count = ops.length === 1 ? "1 operation has" : `${ops.length} operations have`;
   return [
-    `${api.id}: ${count} no operationId, so links to them change when their summary changes (${listed.join(', ')}${more}). ` +
-      'Add an operationId to keep these links stable.',
+    `${api.id}: ${count} no operationId, so links to them change when their summary changes (${listed.join(", ")}${more}). ` +
+      "Add an operationId to keep these links stable.",
   ];
 }
 
@@ -81,11 +83,14 @@ export function checkApiSpec(api) {
  */
 export function checkPortalSpecs(config) {
   return (config.apis || []).flatMap((api) =>
-    api.versions.flatMap((version) => checkApiSpec({ ...version, id: api.versioned ? `${api.id} ${version.version}` : api.id }))
+    api.versions.flatMap((version) =>
+      checkApiSpec({ ...version, id: api.versioned ? `${api.id} ${version.version}` : api.id }),
+    ),
   );
 }
 
 /** Prints checkPortalSpecs() warnings (used by `rapidoc dev` and `rapidoc build`). */
 export function reportSpecWarnings(config) {
-  for (const warning of checkPortalSpecs(config)) console.warn(`[rapidoc-portal] Warning: ${warning}`);
+  for (const warning of checkPortalSpecs(config))
+    console.warn(`[rapidoc-portal] Warning: ${warning}`);
 }

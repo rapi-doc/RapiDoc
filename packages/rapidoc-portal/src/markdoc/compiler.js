@@ -1,10 +1,10 @@
-import fs from 'node:fs';
-import Markdoc from '@markdoc/markdoc';
-import YAML from 'yaml';
-import GithubSlugger from 'github-slugger';
-import { tags } from './tags.js';
-import { heading, fence } from './nodes.js';
-import { extractHeadings } from './toc.js';
+import fs from "node:fs";
+import Markdoc from "@markdoc/markdoc";
+import YAML from "yaml";
+import GithubSlugger from "github-slugger";
+import { tags } from "./tags.js";
+import { heading, fence } from "./nodes.js";
+import { extractHeadings } from "./toc.js";
 
 /**
  * Creates default Markdoc configuration merged with custom tags and nodes.
@@ -15,15 +15,15 @@ export function createMarkdocConfig(customConfig = {}) {
   return {
     tags: {
       ...tags,
-      ...(customConfig.tags || {}),
+      ...customConfig.tags,
     },
     nodes: {
       heading,
       fence,
-      ...(customConfig.nodes || {}),
+      ...customConfig.nodes,
     },
     variables: {
-      ...(customConfig.variables || {}),
+      ...customConfig.variables,
     },
     slugger,
   };
@@ -76,7 +76,7 @@ export function compileMarkdoc(content, options = {}) {
  * @returns {{ html: string, toc: Array<{ id: string, title: string, level: number }>, frontmatter: object, filePath: string }}
  */
 export function compileDocFile(filePath, options = {}) {
-  const content = fs.readFileSync(filePath, 'utf8');
+  const content = fs.readFileSync(filePath, "utf8");
   const compiled = compileMarkdoc(content, options);
 
   return {

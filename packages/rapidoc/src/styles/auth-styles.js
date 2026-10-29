@@ -1,4 +1,4 @@
-import { css } from 'lit';
+import { css } from "lit";
 
 /**
  * Authentication: the security-scheme list in the Authentication section and the

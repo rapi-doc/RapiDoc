@@ -7,18 +7,18 @@
  * The temp workspace is deleted on stop(), Ctrl+C (SIGINT), SIGTERM and any other process exit.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { dev as astroDev } from 'astro';
-import { createAstroConfig } from './astro-integration.js';
-import { createPortalWorkspace, refreshDocs, removePortalWorkspace } from './temp-workspace.js';
-import { reportSpecWarnings } from './spec-checks.js';
+import fs from "node:fs";
+import path from "node:path";
+import { dev as astroDev } from "astro";
+import { createAstroConfig } from "./astro-integration.js";
+import { createPortalWorkspace, refreshDocs, removePortalWorkspace } from "./temp-workspace.js";
+import { reportSpecWarnings } from "./spec-checks.js";
 
 const WATCH_DEBOUNCE_MS = 150;
 
 function isInside(filePath, dir) {
   const rel = path.relative(dir, filePath);
-  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
+  return rel !== "" && !rel.startsWith("..") && !path.isAbsolute(rel);
 }
 
 /**
@@ -38,10 +38,12 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
   let stopped = false;
 
   async function startAstro() {
-    workspace = await createPortalWorkspace(projectDir, { kind: 'dev' });
+    workspace = await createPortalWorkspace(projectDir, { kind: "dev" });
     reportSpecWarnings(workspace.config);
     if (workspace.config.access.enabled) {
-      console.warn('[rapidoc-portal] Access rules are not enforced by rapidoc dev; test them with rapidoc build && rapidoc serve dist');
+      console.warn(
+        "[rapidoc-portal] Access rules are not enforced by rapidoc dev; test them with rapidoc build && rapidoc serve dist",
+      );
     }
     try {
       server = await astroDev(createAstroConfig(workspace, { server: { port, host: true } }));
@@ -68,7 +70,7 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
       try {
         if (restartNeeded) {
           restartNeeded = false;
-          console.log('[rapidoc-portal] Config or spec changed, restarting dev server...');
+          console.log("[rapidoc-portal] Config or spec changed, restarting dev server...");
           await stopAstro();
           await startAstro();
         } else {
@@ -105,25 +107,25 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
     stopped = true;
     clearTimeout(pending);
     watcher?.close();
-    process.off('SIGINT', onSignal);
-    process.off('SIGTERM', onSignal);
+    process.off("SIGINT", onSignal);
+    process.off("SIGTERM", onSignal);
     await stopAstro();
     // Only now: Astro's own signal handler may exit the process while stopAstro() is awaited.
-    process.off('exit', onExit);
+    process.off("exit", onExit);
   }
 
   async function onSignal(signal) {
     await stop();
-    process.exit(signal === 'SIGINT' ? 130 : 143);
+    process.exit(signal === "SIGINT" ? 130 : 143);
   }
   // Vite exits the process on SIGTERM before an async stop() can finish, so the workspace is also
   // removed synchronously when the process exits, whatever ends it.
   function onExit() {
     if (!options.keepWorkspace) removePortalWorkspace(workspace);
   }
-  process.on('SIGINT', onSignal);
-  process.on('SIGTERM', onSignal);
-  process.on('exit', onExit);
+  process.on("SIGINT", onSignal);
+  process.on("SIGTERM", onSignal);
+  process.on("exit", onExit);
 
   return {
     port,

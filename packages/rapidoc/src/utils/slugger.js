@@ -1,4 +1,4 @@
-import Slugger from 'github-slugger';
+import Slugger from "github-slugger";
 
 /**
  * Converts any string (camelCase, PascalCase, snake_case, spaces, slashes) to clean kebab-case.
@@ -7,14 +7,14 @@ import Slugger from 'github-slugger';
  * @returns {string}
  */
 export function toKebabCase(str) {
-  return String(str || '')
+  return String(str || "")
     .trim()
-    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-    .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
-    .replace(/[_\s/\\.]+/g, '-')
-    .replace(/[^a-zA-Z0-9-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
+    .replace(/[_\s/\\.]+/g, "-")
+    .replace(/[^a-zA-Z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "")
     .toLowerCase();
 }
 
@@ -28,7 +28,7 @@ export function toKebabCase(str) {
 export function clampWordBoundary(slug, maxLen = 40) {
   if (!slug || slug.length <= maxLen) return slug;
   const cut = slug.slice(0, maxLen);
-  const lastHyphen = cut.lastIndexOf('-');
+  const lastHyphen = cut.lastIndexOf("-");
   return lastHyphen > 8 ? cut.slice(0, lastHyphen) : cut;
 }
 
@@ -41,11 +41,11 @@ export function clampWordBoundary(slug, maxLen = 40) {
  * @returns {string}
  */
 export function methodPathSlug(method, path) {
-  const cleanMethod = (method || 'get').toLowerCase();
-  const cleanPath = (path || '')
-    .replace(/[{}]/g, '')
-    .replace(/[^a-zA-Z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  const cleanMethod = (method || "get").toLowerCase();
+  const cleanPath = (path || "")
+    .replace(/[{}]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
   return cleanPath ? `${cleanMethod}-${cleanPath}` : cleanMethod;
 }
 
@@ -57,16 +57,21 @@ export function methodPathSlug(method, path) {
  * @returns {'operationId' | 'summary' | 'path'}
  */
 export function operationAnchorSource(op = {}) {
-  if (typeof op.operationId === 'string') {
+  if (typeof op.operationId === "string") {
     const trimmed = op.operationId.trim();
-    if (trimmed.length > 0 && trimmed.length <= 45 && !/^(endpoint|operation|method|api)[-_]?\d+$/i.test(trimmed) && toKebabCase(trimmed)) {
-      return 'operationId';
+    if (
+      trimmed.length > 0 &&
+      trimmed.length <= 45 &&
+      !/^(endpoint|operation|method|api)[-_]?\d+$/i.test(trimmed) &&
+      toKebabCase(trimmed)
+    ) {
+      return "operationId";
     }
   }
-  if (typeof op.summary === 'string' && toKebabCase(op.summary.trim().slice(0, 100))) {
-    return 'summary';
+  if (typeof op.summary === "string" && toKebabCase(op.summary.trim().slice(0, 100))) {
+    return "summary";
   }
-  return 'path';
+  return "path";
 }
 
 /**
@@ -95,12 +100,12 @@ export class OperationSlugger {
     const source = operationAnchorSource(op);
 
     // Candidate 1: operationId (if concise: <= 45 chars and not a generic placeholder)
-    if (source === 'operationId') {
+    if (source === "operationId") {
       return toKebabCase(op.operationId.trim());
     }
 
     // Candidate 2: summary (with early 100-char pre-slice and 40-char word-boundary clamp)
-    if (source === 'summary') {
+    if (source === "summary") {
       return clampWordBoundary(toKebabCase(op.summary.trim().slice(0, 100)), 40);
     }
 
@@ -115,10 +120,10 @@ export class OperationSlugger {
    * @param {string} [tagSlug=''] - Optional tag slug for hierarchical routing
    * @returns {string} Unique elementId
    */
-  slug(op = {}, tagSlug = '') {
+  slug(op = {}, tagSlug = "") {
     const opKey = tagSlug
-      ? `${tagSlug}:${(op.method || 'get').toLowerCase()} ${op.path || ''}`
-      : `${(op.method || 'get').toLowerCase()} ${op.path || ''}`;
+      ? `${tagSlug}:${(op.method || "get").toLowerCase()} ${op.path || ""}`
+      : `${(op.method || "get").toLowerCase()} ${op.path || ""}`;
 
     if (this.opMap.has(opKey)) {
       return this.opMap.get(opKey);
@@ -129,7 +134,7 @@ export class OperationSlugger {
     // Smart semantic collision differentiator:
     // If the base candidate has already been seen in this spec, attempt method-prefix first (e.g. post-webhooks)
     if (this.used.has(candidate)) {
-      const method = (op.method || 'get').toLowerCase();
+      const method = (op.method || "get").toLowerCase();
       const methodCandidate = `${method}-${candidate}`;
       if (!this.used.has(methodCandidate)) {
         candidate = methodCandidate;
@@ -137,7 +142,7 @@ export class OperationSlugger {
     }
 
     // Hierarchical style prefixes with tag if provided
-    if (tagSlug && tagSlug !== 'general') {
+    if (tagSlug && tagSlug !== "general") {
       candidate = `${tagSlug}--${candidate}`;
     }
 

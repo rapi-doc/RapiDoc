@@ -6,7 +6,7 @@
  */
 
 // Minimal polyfill for customElements registry in pure Node/Bun environments
-if (typeof globalThis.customElements === 'undefined') {
+if (typeof globalThis.customElements === "undefined") {
   globalThis.customElements = {
     define: () => {},
     get: () => undefined,
@@ -20,8 +20,13 @@ if (typeof globalThis.customElements === 'undefined') {
  * @returns {string}
  */
 export function escapeHtml(str) {
-  if (typeof str !== 'string') return String(str ?? '');
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  if (typeof str !== "string") return String(str ?? "");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 /**
@@ -30,14 +35,14 @@ export function escapeHtml(str) {
  * @returns {string}
  */
 function escapeText(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /**
  * Directives whose value is inserted as markup, matching Lit's behavior in the browser.
  * Matched by the static `directiveName` (survives minification, unlike class names).
  */
-const RAW_MARKUP_DIRECTIVES = new Set(['unsafeHTML', 'unsafeSVG']);
+const RAW_MARKUP_DIRECTIVES = new Set(["unsafeHTML", "unsafeSVG"]);
 
 /**
  * Recursively serializes a Lit TemplateResult, directive, CSSResult, primitive, or array
@@ -70,59 +75,59 @@ export function renderTemplateToString(result, options = {}) {
  */
 function serializeValue(result, options, inAttribute) {
   if (result == null || result === false) {
-    return '';
+    return "";
   }
 
-  if (typeof result === 'string') {
+  if (typeof result === "string") {
     return inAttribute ? escapeHtml(result) : escapeText(result);
   }
 
-  if (typeof result === 'number' || typeof result === 'bigint') {
+  if (typeof result === "number" || typeof result === "bigint") {
     return String(result);
   }
 
-  if (typeof result === 'symbol') {
-    return '';
+  if (typeof result === "symbol") {
+    return "";
   }
 
   if (Array.isArray(result)) {
-    return result.map((item) => serializeValue(item, options, inAttribute)).join('');
+    return result.map((item) => serializeValue(item, options, inAttribute)).join("");
   }
 
   // Handle Lit CSSResult
-  if (typeof result === 'object' && result.cssText) {
+  if (typeof result === "object" && result.cssText) {
     return result.cssText;
   }
 
   // Handle Lit directives (unsafeHTML, guard, live)
-  if (typeof result === 'object' && result._$litDirective$) {
+  if (typeof result === "object" && result._$litDirective$) {
     // unsafeHTML(str) / unsafeSVG(str): inserted as markup, never escaped
     if (RAW_MARKUP_DIRECTIVES.has(result._$litDirective$.directiveName)) {
       const markup = result.values?.[0];
-      return typeof markup === 'string' ? markup : serializeValue(markup, options, inAttribute);
+      return typeof markup === "string" ? markup : serializeValue(markup, options, inAttribute);
     }
     // guard([deps], () => fn)
-    if (result.values && typeof result.values[1] === 'function') {
+    if (result.values && typeof result.values[1] === "function") {
       return serializeValue(result.values[1](), options, inAttribute);
     }
     // live(value) and other value-passing directives
     if (result.values && result.values.length > 0) {
       return serializeValue(result.values[0], options, inAttribute);
     }
-    return '';
+    return "";
   }
 
   // Handle Lit TemplateResult
-  if (typeof result === 'object' && 'strings' in result && 'values' in result) {
-    let out = '';
+  if (typeof result === "object" && "strings" in result && "values" in result) {
+    let out = "";
     let skipNextLeadingQuote = false;
     // Whether the parser position is inside a start tag (between `<` and `>`), so a binding is an attribute value
     let inTag = false;
 
     for (let i = 0; i < result.strings.length; i++) {
       let str = result.strings[i];
-      const lastOpen = str.lastIndexOf('<');
-      const lastClose = str.lastIndexOf('>');
+      const lastOpen = str.lastIndexOf("<");
+      const lastClose = str.lastIndexOf(">");
       if (lastOpen !== lastClose) {
         inTag = lastOpen > lastClose;
       }
@@ -169,14 +174,18 @@ function serializeValue(result, options, inAttribute) {
           if (hasQuote) {
             skipNextLeadingQuote = true;
           }
-          const isTruthy = Boolean(val && val !== 'false');
-          out += str + (isTruthy ? ` ${attrName}` : '');
+          const isTruthy = Boolean(val && val !== "false");
+          out += str + (isTruthy ? ` ${attrName}` : "");
           continue;
         }
 
         // 4. Regular attribute or text node
         const attrMatch = inTag ? str.match(/\s[^\s"'>/=]+=(["']?)$/) : null;
-        if (attrMatch && typeof val === 'symbol' && (!attrMatch[1] || result.strings[i + 1]?.startsWith(attrMatch[1]))) {
+        if (
+          attrMatch &&
+          typeof val === "symbol" &&
+          (!attrMatch[1] || result.strings[i + 1]?.startsWith(attrMatch[1]))
+        ) {
           // `nothing` (e.g. ifDefined(undefined)) as the whole attribute value removes the attribute, as Lit does
           out += str.slice(0, attrMatch.index);
           skipNextLeadingQuote = Boolean(attrMatch[1]);
@@ -195,13 +204,13 @@ function serializeValue(result, options, inAttribute) {
     }
 
     if (options.stripComments) {
-      out = out.replace(/<!--[\s\S]*?-->/g, '');
+      out = out.replace(/<!--[\s\S]*?-->/g, "");
     }
 
     return out;
   }
 
-  return '';
+  return "";
 }
 
 export default renderTemplateToString;

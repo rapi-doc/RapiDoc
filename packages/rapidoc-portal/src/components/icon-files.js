@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fs from "node:fs";
 
 const warned = new Set();
 
@@ -11,16 +11,17 @@ const warned = new Set();
  * @param {'regular' | 'bold' | 'duotone'} weight
  */
 export function readIconSvg(iconsDir, name, weight) {
-  const file = (icon) => `${iconsDir}${weight}/${icon}${weight === 'regular' ? '' : `-${weight}`}.svg`;
+  const file = (icon) =>
+    `${iconsDir}${weight}/${icon}${weight === "regular" ? "" : `-${weight}`}.svg`;
   let svg;
   try {
-    svg = fs.readFileSync(file(name), 'utf8');
+    svg = fs.readFileSync(file(name), "utf8");
   } catch {
     if (!warned.has(name)) {
       warned.add(name);
       console.warn(`[rapidoc] Unknown icon "${name}": use a name from https://phosphoricons.com`);
     }
-    svg = fs.readFileSync(file('question'), 'utf8');
+    svg = fs.readFileSync(file("question"), "utf8");
   }
-  return svg.slice(svg.indexOf('>') + 1, svg.lastIndexOf('</svg>'));
+  return svg.slice(svg.indexOf(">") + 1, svg.lastIndexOf("</svg>"));
 }

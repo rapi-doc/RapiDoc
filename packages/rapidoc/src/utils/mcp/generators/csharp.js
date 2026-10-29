@@ -2,62 +2,67 @@
  * Single-file C# (.NET) MCP Server Generator
  * Uses ModelContextProtocol.NET and Semantic Kernel conventions.
  */
-import { toPascalCase, toCamelCase, toSnakeCase, estimateTokenCost } from '../common.js';
+import { toPascalCase, toCamelCase, toSnakeCase, estimateTokenCost } from "../common.js";
 
 export function generateCSharpMcpServer(metadata, tools, resources, workflows, options = {}) {
-  const serverName = toPascalCase(options.serverName || metadata.title || 'RapiDocMcpServer');
+  const serverName = toPascalCase(options.serverName || metadata.title || "RapiDocMcpServer");
   const budget = estimateTokenCost(tools, resources, workflows);
-  const defaultBaseUrl = metadata.servers?.[0]?.url || 'http://localhost:3000';
+  const defaultBaseUrl = metadata.servers?.[0]?.url || "http://localhost:3000";
 
   const toolMethods = tools
     .map((t) => {
       const csharpArgs = t.parameters.map((p) => {
-        let csharpType = 'string';
-        if (p.type === 'integer') csharpType = 'int';
-        else if (p.type === 'number') csharpType = 'double';
-        else if (p.type === 'boolean') csharpType = 'bool';
-        else if (p.type === 'array') csharpType = 'IEnumerable<string>';
-        else if (p.type === 'object') csharpType = 'Dictionary<string, object>';
-        const defaultVal = p.required ? '' : ' = default';
-        return `[Description(${JSON.stringify(p.description || '')})] ${csharpType} ${toCamelCase(p.name)}${defaultVal}`;
+        let csharpType = "string";
+        if (p.type === "integer") csharpType = "int";
+        else if (p.type === "number") csharpType = "double";
+        else if (p.type === "boolean") csharpType = "bool";
+        else if (p.type === "array") csharpType = "IEnumerable<string>";
+        else if (p.type === "object") csharpType = "Dictionary<string, object>";
+        const defaultVal = p.required ? "" : " = default";
+        return `[Description(${JSON.stringify(p.description || "")})] ${csharpType} ${toCamelCase(p.name)}${defaultVal}`;
       });
 
-      csharpArgs.push('[Description("Optional Bearer API key override for multi-tenant sessions")] string apiKey = default');
+      csharpArgs.push(
+        '[Description("Optional Bearer API key override for multi-tenant sessions")] string apiKey = default',
+      );
 
-      const pathParams = t.parameters.filter((p) => p.in === 'path');
+      const pathParams = t.parameters.filter((p) => p.in === "path");
       const safePathCode =
         pathParams.length > 0
           ? pathParams
-              .map((p) => `        var safe${toPascalCase(p.name)} = Uri.EscapeDataString(${toCamelCase(p.name)}?.ToString() ?? "");`)
-              .join('\n') + '\n'
-          : '';
+              .map(
+                (p) =>
+                  `        var safe${toPascalCase(p.name)} = Uri.EscapeDataString(${toCamelCase(p.name)}?.ToString() ?? "");`,
+              )
+              .join("\n") + "\n"
+          : "";
 
       const pathSub = t.path.replace(/\{([^}]+)\}/g, (match, p1) => `{safe${toPascalCase(p1)}}`);
-      const queryParams = t.parameters.filter((p) => p.in === 'query');
-      const bodyParams = t.parameters.filter((p) => p.in === 'body');
-      const hasBody = ['POST', 'PUT', 'PATCH'].includes(t.method) && bodyParams.length > 0;
+      const queryParams = t.parameters.filter((p) => p.in === "query");
+      const bodyParams = t.parameters.filter((p) => p.in === "body");
+      const hasBody = ["POST", "PUT", "PATCH"].includes(t.method) && bodyParams.length > 0;
 
       const queryCode =
         queryParams.length > 0
           ? `        var queryParams = new List<string>();
-${queryParams.map((p) => `        if (${toCamelCase(p.name)} != default) queryParams.Add("${p.name}=" + Uri.EscapeDataString(${toCamelCase(p.name)}.ToString()));`).join('\n')}
+${queryParams.map((p) => `        if (${toCamelCase(p.name)} != default) queryParams.Add("${p.name}=" + Uri.EscapeDataString(${toCamelCase(p.name)}.ToString()));`).join("\n")}
         var queryString = queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : "";\n`
-          : '';
+          : "";
 
       const urlExpr = queryParams.length > 0 ? `$"${pathSub}" + queryString` : `$"${pathSub}"`;
 
       const bodyCode = hasBody
         ? `        var bodyPayload = new Dictionary<string, object>();
-${bodyParams.map((p) => `        if (${toCamelCase(p.name)} != default) bodyPayload["${p.name}"] = ${toCamelCase(p.name)};`).join('\n')}
+${bodyParams.map((p) => `        if (${toCamelCase(p.name)} != default) bodyPayload["${p.name}"] = ${toCamelCase(p.name)};`).join("\n")}
         if (bodyPayload.Count > 0)
         {
             request.Content = new StringContent(JsonSerializer.Serialize(bodyPayload), System.Text.Encoding.UTF8, "application/json");
         }\n`
-        : '';
+        : "";
 
       return `
     [McpTool("${t.name}", ${JSON.stringify(t.description)})]
-    public static async Task<string> ${toPascalCase(t.name)}(${csharpArgs.join(', ')})
+    public static async Task<string> ${toPascalCase(t.name)}(${csharpArgs.join(", ")})
     {
         using var client = new HttpClient { BaseAddress = new Uri(BaseUrl.TrimEnd('/') + "/") };
         var resolvedKey = !string.IsNullOrEmpty(apiKey) ? apiKey : ApiKey;
@@ -68,17 +73,17 @@ ${bodyParams.map((p) => `        if (${toCamelCase(p.name)} != default) bodyPayl
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 ${safePathCode}${queryCode}        var request = new HttpRequestMessage(HttpMethod.${toPascalCase(t.method)}, ${urlExpr});
 ${t.parameters
-  .filter((p) => p.in === 'header')
+  .filter((p) => p.in === "header")
   .map(
     (p) =>
-      `        if (!string.IsNullOrEmpty(${toCamelCase(p.name)})) request.Headers.TryAddWithoutValidation("${p.name}", ${toCamelCase(p.name)});`
+      `        if (!string.IsNullOrEmpty(${toCamelCase(p.name)})) request.Headers.TryAddWithoutValidation("${p.name}", ${toCamelCase(p.name)});`,
   )
-  .join('\n')}
+  .join("\n")}
 ${bodyCode}        var response = await client.SendAsync(request);
         return await response.Content.ReadAsStringAsync();
     }`;
     })
-    .join('\n');
+    .join("\n");
 
   const resourceMethods = resources
     .map((r) => {
@@ -108,25 +113,30 @@ ${bodyCode}        var response = await client.SendAsync(request);
         }
 
         if (!string.IsNullOrEmpty(resolvedKey)) client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", resolvedKey);
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("${r.mimeType || 'application/json'}"));
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("${r.mimeType || "application/json"}"));
 
         var targetPath = "${r.path}" + (outboundQuery.Count > 0 ? "?" + outboundQuery.ToString() : "");
         return await client.GetStringAsync(targetPath.TrimStart('/'));
     }`;
     })
-    .join('\n');
+    .join("\n");
 
   const workflowMethods = workflows
     .map((w) => {
       const paramKeys = w.parameters ? Object.keys(w.parameters) : [];
       const args = paramKeys
-        .map((k) => `[Description(${JSON.stringify(w.parameters[k].description || '')})] string ${toCamelCase(k)}`)
-        .concat(['[Description("Optional Bearer API key override for multi-tenant sessions")] string apiKey = default'])
-        .join(', ');
-      const argKey = paramKeys[0] || 'id';
+        .map(
+          (k) =>
+            `[Description(${JSON.stringify(w.parameters[k].description || "")})] string ${toCamelCase(k)}`,
+        )
+        .concat([
+          '[Description("Optional Bearer API key override for multi-tenant sessions")] string apiKey = default',
+        ])
+        .join(", ");
+      const argKey = paramKeys[0] || "id";
 
       return `
-    [McpTool("${w.name}", ${JSON.stringify(w.description || 'Composite workflow')})]
+    [McpTool("${w.name}", ${JSON.stringify(w.description || "Composite workflow")})]
     public static async Task<string> ${toPascalCase(w.name)}(${args})
     {
         using var client = new HttpClient { BaseAddress = new Uri(BaseUrl.TrimEnd('/') + "/") };
@@ -139,14 +149,14 @@ ${(w.steps || [])
   .map(
     (s, idx) => `        // Step ${idx + 1}: ${s.call}
         var resp_${idx} = await client.GetStringAsync($"api/{Uri.EscapeDataString(${toCamelCase(argKey)} ?? "")}");
-        results["${s.call}"] = JsonSerializer.Deserialize<object>(resp_${idx});`
+        results["${s.call}"] = JsonSerializer.Deserialize<object>(resp_${idx});`,
   )
-  .join('\n')}
+  .join("\n")}
 
         return JsonSerializer.Serialize(results, new JsonSerializerOptions { WriteIndented = true });
     }`;
     })
-    .join('\n');
+    .join("\n");
 
   return `/*
 Auto-generated by RapiDoc Curated MCP Generator
@@ -162,7 +172,7 @@ Spec: ${metadata.title} (v${metadata.version})
 - Total Resources: ${budget.totalResources}
 - Total Workflows: ${budget.totalWorkflows}
 - Estimated Prompt Context Overhead: ~${budget.estimatedTokens.toLocaleString()} tokens/turn
-${budget.warnings.map((w) => `- ${w}`).join('\n')}
+${budget.warnings.map((w) => `- ${w}`).join("\n")}
 
 [HOW TO RUN]
 1. dotnet restore
@@ -191,7 +201,7 @@ public class Program
     {
         var server = new McpServer(new McpServerOptions
         {
-            ServerInfo = new() { Name = "${toSnakeCase(serverName)}", Version = "${metadata.version || '1.0.0'}" }
+            ServerInfo = new() { Name = "${toSnakeCase(serverName)}", Version = "${metadata.version || "1.0.0"}" }
         });
 
         server.RegisterTools<Program>();
@@ -225,8 +235,8 @@ dotnet run
 `;
 
   return {
-    'Program.cs': serverCode,
-    'Server.csproj': csproj,
-    'README.md': readme,
+    "Program.cs": serverCode,
+    "Server.csproj": csproj,
+    "README.md": readme,
   };
 }

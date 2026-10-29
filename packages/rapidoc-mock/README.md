@@ -19,31 +19,31 @@ npm install -D @rapidoc/cli @rapidoc/portal @rapidoc/mock
 npx rapidoc mock --issuer https://example.us.auth0.com/ --audience https://api.example.com
 ```
 
-| Command | Mocks | Ids |
-| :--- | :--- | :--- |
-| `rapidoc mock [dir]` with a `rapidoc.config.yaml` | The local specs under `apis:` (remote ones are skipped) | Each API's `id` |
-| `rapidoc mock [dir]` without one | Every OpenAPI file in the folder (up to 3 levels deep; `node_modules`, `dist` skipped) | File name without extension: `specs/orders-api.yaml` → `/orders-api` |
-| `rapidoc mock a.yaml b.json …` | Those files | Same as above |
+| Command                                           | Mocks                                                                                  | Ids                                                                  |
+| :------------------------------------------------ | :------------------------------------------------------------------------------------- | :------------------------------------------------------------------- |
+| `rapidoc mock [dir]` with a `rapidoc.config.yaml` | The local specs under `apis:` (remote ones are skipped)                                | Each API's `id`                                                      |
+| `rapidoc mock [dir]` without one                  | Every OpenAPI file in the folder (up to 3 levels deep; `node_modules`, `dist` skipped) | File name without extension: `specs/orders-api.yaml` → `/orders-api` |
+| `rapidoc mock a.yaml b.json …`                    | Those files                                                                            | Same as above                                                        |
 
 Ids are lower-case letters, digits and dashes. Files that would share an id get their parent folders in front until they differ: `billing-v1/openapi.yaml` and `billing-v2/openapi.yaml` → `/billing-v1-openapi`, `/billing-v2-openapi`. The mapping is printed at start. Only a portal folder needs `@rapidoc/portal` (Astro); folders of specs and spec files need just the CLI and this package.
 
-| Option | Variable | Meaning |
-| :--- | :--- | :--- |
-| `--issuer <url>` | `RAPIDOC_MOCK_ISSUER` | OpenID Connect issuer whose access tokens are accepted. Without it, any bearer token passes and scopes aren't checked. |
-| `--audience <id>` | `RAPIDOC_MOCK_AUDIENCE` | `aud` the tokens must have (the API identifier at your provider). |
-| `--port <number>` | | Default `4010`. |
-| `--host <host>` | | Default `0.0.0.0`. |
-| `--seed <number>` | | Seed for generated data; default `1`. |
+| Option            | Variable                | Meaning                                                                                                                |
+| :---------------- | :---------------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `--issuer <url>`  | `RAPIDOC_MOCK_ISSUER`   | OpenID Connect issuer whose access tokens are accepted. Without it, any bearer token passes and scopes aren't checked. |
+| `--audience <id>` | `RAPIDOC_MOCK_AUDIENCE` | `aud` the tokens must have (the API identifier at your provider).                                                      |
+| `--port <number>` |                         | Default `4010`.                                                                                                        |
+| `--host <host>`   |                         | Default `0.0.0.0`.                                                                                                     |
+| `--seed <number>` |                         | Seed for generated data; default `1`.                                                                                  |
 
 The mock refuses to start when the issuer can't be discovered. A spec it can't load is skipped with the reason; the others are served.
 
 ### Choosing a response
 
-| Request header | Effect |
-| :--- | :--- |
-| `Prefer: code=404` | The documented `404` response (else `4XX`, else `default`). An undocumented code is ignored. |
-| `Prefer: example=empty` | The media type's example named `empty`. |
-| `Prefer: dynamic=true` | Data generated from the schema even when there is an example. |
+| Request header          | Effect                                                                                       |
+| :---------------------- | :------------------------------------------------------------------------------------------- |
+| `Prefer: code=404`      | The documented `404` response (else `4XX`, else `default`). An undocumented code is ignored. |
+| `Prefer: example=empty` | The media type's example named `empty`.                                                      |
+| `Prefer: dynamic=true`  | Data generated from the schema even when there is an example.                                |
 
 Applied preferences come back in `Preference-Applied`. `GET /` lists the APIs served.
 

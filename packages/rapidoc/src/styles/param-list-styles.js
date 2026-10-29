@@ -1,4 +1,4 @@
-import { css } from 'lit';
+import { css } from "lit";
 
 /**
  * Parameter lists: one `<li class="param">` per parameter on a shared three-column grid

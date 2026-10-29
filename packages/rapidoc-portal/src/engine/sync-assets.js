@@ -3,18 +3,20 @@
  * OpenAPI specs, the RapiDoc web component bundle, and the full-text search index.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { buildSearchIndex } from '../search/indexer.js';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { buildSearchIndex } from "../search/indexer.js";
 
 /** Markers that only exist in RapiDoc bundles new enough for portal navigation sync. */
-const REQUIRED_BUNDLE_MARKERS = ['nav-active-change', 'slugger'];
+const REQUIRED_BUNDLE_MARKERS = ["nav-active-change", "slugger"];
 
 export class StaleRapidocBundleError extends Error {
   constructor(bundlePath, reason) {
-    super(`RapiDoc bundle is ${reason}: ${bundlePath}\nRun \`npm run build:rapidoc\` from the RapiDoc monorepo root and try again.`);
-    this.name = 'StaleRapidocBundleError';
+    super(
+      `RapiDoc bundle is ${reason}: ${bundlePath}\nRun \`npm run build:rapidoc\` from the RapiDoc monorepo root and try again.`,
+    );
+    this.name = "StaleRapidocBundleError";
   }
 }
 
@@ -24,7 +26,7 @@ export class StaleRapidocBundleError extends Error {
  * `pinnedSpecUrl` of each version.
  */
 export function copySpecs(portalConfig, publicDir) {
-  fs.mkdirSync(path.join(publicDir, 'specs'), { recursive: true });
+  fs.mkdirSync(path.join(publicDir, "specs"), { recursive: true });
   for (const api of portalConfig.apis || []) {
     for (const version of api.versions) {
       if (version.isRemote || !version.fullPath || !fs.existsSync(version.fullPath)) continue;
@@ -37,7 +39,8 @@ export function copySpecs(portalConfig, publicDir) {
   }
 }
 
-const isHidden = (relativePath) => relativePath.split(path.sep).some((part) => part.startsWith('.'));
+const isHidden = (relativePath) =>
+  relativePath.split(path.sep).some((part) => part.startsWith("."));
 
 /**
  * Newest modification time of the files under `dir`. Dotfiles and dot-folders (Finder's .DS_Store, editor
@@ -59,24 +62,24 @@ export function newestSourceMtimeMs(dir) {
  * "Stale" means it lacks portal navigation support, or (in a source checkout) is older than src/.
  */
 export function resolveRapidocBundle() {
-  const bundlePath = fileURLToPath(import.meta.resolve('rapidoc'));
-  if (!fs.existsSync(bundlePath)) throw new StaleRapidocBundleError(bundlePath, 'missing');
+  const bundlePath = fileURLToPath(import.meta.resolve("rapidoc"));
+  if (!fs.existsSync(bundlePath)) throw new StaleRapidocBundleError(bundlePath, "missing");
 
-  const content = fs.readFileSync(bundlePath, 'utf8');
+  const content = fs.readFileSync(bundlePath, "utf8");
   if (!REQUIRED_BUNDLE_MARKERS.every((marker) => content.includes(marker))) {
-    throw new StaleRapidocBundleError(bundlePath, 'outdated (no portal navigation support)');
+    throw new StaleRapidocBundleError(bundlePath, "outdated (no portal navigation support)");
   }
 
-  const srcDir = path.resolve(path.dirname(bundlePath), '../src');
+  const srcDir = path.resolve(path.dirname(bundlePath), "../src");
   if (fs.existsSync(srcDir) && newestSourceMtimeMs(srcDir) > fs.statSync(bundlePath).mtimeMs) {
-    throw new StaleRapidocBundleError(bundlePath, 'older than its source');
+    throw new StaleRapidocBundleError(bundlePath, "older than its source");
   }
 
   return bundlePath;
 }
 
 /** Where RapiDoc's OAuth popup returns to (the `oauth-receiver` attribute of every RapiDoc element). */
-export const OAUTH_RECEIVER_PATH = '/oauth-receiver.html';
+export const OAUTH_RECEIVER_PATH = "/oauth-receiver.html";
 
 const OAUTH_RECEIVER_HTML = `<!doctype html>
 <html lang="en">
@@ -98,10 +101,10 @@ const OAUTH_RECEIVER_HTML = `<!doctype html>
  * redirect URL for the whole portal.
  */
 export function copyRapidocBundle(publicDir) {
-  const assetsDir = path.join(publicDir, 'assets');
+  const assetsDir = path.join(publicDir, "assets");
   fs.mkdirSync(assetsDir, { recursive: true });
-  fs.copyFileSync(resolveRapidocBundle(), path.join(assetsDir, 'rapidoc-min.js'));
-  fs.writeFileSync(path.join(publicDir, OAUTH_RECEIVER_PATH), OAUTH_RECEIVER_HTML, 'utf8');
+  fs.copyFileSync(resolveRapidocBundle(), path.join(assetsDir, "rapidoc-min.js"));
+  fs.writeFileSync(path.join(publicDir, OAUTH_RECEIVER_PATH), OAUTH_RECEIVER_HTML, "utf8");
 }
 
 /**
@@ -109,8 +112,9 @@ export function copyRapidocBundle(publicDir) {
  * own robots.txt.
  */
 export function writeRobotsTxt(portalConfig, publicDir) {
-  const file = path.join(publicDir, 'robots.txt');
-  if (portalConfig.site.noindex && !fs.existsSync(file)) fs.writeFileSync(file, 'User-agent: *\nDisallow: /\n', 'utf8');
+  const file = path.join(publicDir, "robots.txt");
+  if (portalConfig.site.noindex && !fs.existsSync(file))
+    fs.writeFileSync(file, "User-agent: *\nDisallow: /\n", "utf8");
 }
 
 /**
@@ -118,5 +122,5 @@ export function writeRobotsTxt(portalConfig, publicDir) {
  */
 export function writeSearchIndex(portalConfig, projectDir, docFiles, publicDir) {
   const searchIndex = buildSearchIndex(portalConfig, projectDir, docFiles);
-  fs.writeFileSync(path.join(publicDir, 'search-index.json'), JSON.stringify(searchIndex), 'utf8');
+  fs.writeFileSync(path.join(publicDir, "search-index.json"), JSON.stringify(searchIndex), "utf8");
 }

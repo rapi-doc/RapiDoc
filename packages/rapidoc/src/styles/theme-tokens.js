@@ -1,6 +1,6 @@
-import { css, unsafeCSS } from 'lit';
+import { css, unsafeCSS } from "lit";
 
-export const DEFAULT_THEME = 'ember';
+export const DEFAULT_THEME = "ember";
 
 /**
  * Brand theme presets (the `theme` attribute), as CSS declaration lists. Each one sets the accent and, where the theme tints
@@ -102,17 +102,17 @@ export const THEME_PRESETS = Object.keys(THEMES);
  */
 function presetCss(name, { dark, light }) {
   const selector = (scheme) => {
-    const suffix = scheme ? `[color-scheme='${scheme}']` : '';
+    const suffix = scheme ? `[color-scheme='${scheme}']` : "";
     const hosts = [`:host([theme='${name}']${suffix})`];
     if (name === DEFAULT_THEME) hosts.push(`:host(:not([theme])${suffix})`);
-    return hosts.join(',\n  ');
+    return hosts.join(",\n  ");
   };
   return `
-  /* --------- ${name.toUpperCase()}${name === DEFAULT_THEME ? ' (default)' : ''} --------- */
+  /* --------- ${name.toUpperCase()}${name === DEFAULT_THEME ? " (default)" : ""} --------- */
   ${selector()} {${dark}}
-  ${selector('light')} {${light}}
+  ${selector("light")} {${light}}
   @media (prefers-color-scheme: light) {
-    ${selector('system')} {${light}}
+    ${selector("system")} {${light}}
   }
 `;
 }
@@ -120,7 +120,7 @@ function presetCss(name, { dark, light }) {
 const presetsCss = unsafeCSS(
   Object.entries(THEMES)
     .map(([name, schemes]) => presetCss(name, schemes))
-    .join('')
+    .join(""),
 );
 
 /**
@@ -129,7 +129,7 @@ const presetsCss = unsafeCSS(
  * @returns {boolean} True if the string is a valid hex color code.
  */
 export function isValidHexColor(color) {
-  if (!color || typeof color !== 'string') return false;
+  if (!color || typeof color !== "string") return false;
   return /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(color.trim());
 }
 
@@ -139,7 +139,7 @@ export function isValidHexColor(color) {
  * @returns {boolean} True if theme is supported.
  */
 export function isValidTheme(theme) {
-  if (!theme || typeof theme !== 'string') return false;
+  if (!theme || typeof theme !== "string") return false;
   const trimmed = theme.trim().toLowerCase();
   return THEME_PRESETS.includes(trimmed) || isValidHexColor(theme);
 }
@@ -154,7 +154,7 @@ export function isValidTheme(theme) {
  * @returns {{ theme: string }}
  */
 export function normalizeTheme(theme) {
-  if (!theme || typeof theme !== 'string') {
+  if (!theme || typeof theme !== "string") {
     return { theme: DEFAULT_THEME };
   }
   const trimmed = theme.trim();
@@ -174,7 +174,7 @@ export function normalizeTheme(theme) {
  * @returns {boolean}
  */
 export function isCustomColor(color) {
-  if (!color || typeof color !== 'string') return false;
+  if (!color || typeof color !== "string") return false;
   const trimmed = color.trim().toLowerCase();
   if (THEME_PRESETS.includes(trimmed)) return false;
   return isValidHexColor(color);
@@ -187,13 +187,13 @@ export function isCustomColor(color) {
  * @returns {boolean} True if color luminance >= 128 (light).
  */
 export function isLightColor(color) {
-  if (!color || typeof color !== 'string') return false;
-  let hex = color.trim().replace(/^#/, '');
+  if (!color || typeof color !== "string") return false;
+  let hex = color.trim().replace(/^#/, "");
   if (hex.length === 3) {
     hex = hex
-      .split('')
+      .split("")
       .map((c) => c + c)
-      .join('');
+      .join("");
   }
   if (hex.length === 6 || hex.length === 8) {
     const r = parseInt(hex.slice(0, 2), 16);
@@ -213,15 +213,19 @@ export function isLightColor(color) {
  */
 export function applyCustomTheme(element, themeVal) {
   if (!element || !element.style) return;
-  if (!themeVal || THEME_PRESETS.includes(themeVal.trim().toLowerCase()) || !isValidHexColor(themeVal)) {
-    element.style.removeProperty('--primary');
-    element.style.removeProperty('--primary-foreground');
+  if (
+    !themeVal ||
+    THEME_PRESETS.includes(themeVal.trim().toLowerCase()) ||
+    !isValidHexColor(themeVal)
+  ) {
+    element.style.removeProperty("--primary");
+    element.style.removeProperty("--primary-foreground");
     return;
   }
   const hex = themeVal.trim();
-  element.style.setProperty('--primary', hex);
-  const fg = isLightColor(hex) ? '#000000' : '#ffffff';
-  element.style.setProperty('--primary-foreground', fg);
+  element.style.setProperty("--primary", hex);
+  const fg = isLightColor(hex) ? "#000000" : "#ffffff";
+  element.style.setProperty("--primary-foreground", fg);
 }
 
 export default css`

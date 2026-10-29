@@ -8,18 +8,18 @@
  */
 
 const MIN_CONTRAST = 4.5;
-const LIGHT_BACKGROUNDS = ['#ffffff', '#f4f4f5']; // --portal-bg, --portal-surface (light)
-const DARK_BACKGROUNDS = ['#22242b']; // --portal-bg (dark)
+const LIGHT_BACKGROUNDS = ["#ffffff", "#f4f4f5"]; // --portal-bg, --portal-surface (light)
+const DARK_BACKGROUNDS = ["#22242b"]; // --portal-bg (dark)
 const TINT = 0.12; // --portal-primary-tint: the primary tint behind text (current sidebar item, badges)
 
 function parseHex(color) {
   const m = /^#([0-9a-f]{3}|[0-9a-f]{6})([0-9a-f]{2})?$/i.exec(String(color).trim());
   if (!m) return null;
-  const hex = m[1].length === 3 ? [...m[1]].map((c) => c + c).join('') : m[1];
+  const hex = m[1].length === 3 ? [...m[1]].map((c) => c + c).join("") : m[1];
   return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
 }
 
-const toHex = (rgb) => `#${rgb.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('')}`;
+const toHex = (rgb) => `#${rgb.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")}`;
 const mix = (a, b, amountOfB) => a.map((v, i) => v + (b[i] - v) * amountOfB);
 
 function luminance(rgb) {
@@ -53,7 +53,7 @@ export function accentColors(primary) {
   const rgb = parseHex(primary);
   if (!rgb) {
     return {
-      onPrimary: '#000000',
+      onPrimary: "#000000",
       textLight: `color-mix(in oklch, ${primary} 65%, #000000)`,
       textDark: `color-mix(in oklch, ${primary} 75%, #ffffff)`,
     };
@@ -61,7 +61,7 @@ export function accentColors(primary) {
   const black = [0, 0, 0];
   const white = [255, 255, 255];
   return {
-    onPrimary: contrast(rgb, black) >= contrast(rgb, white) ? '#000000' : '#ffffff',
+    onPrimary: contrast(rgb, black) >= contrast(rgb, white) ? "#000000" : "#ffffff",
     textLight: readableShade(rgb, black, LIGHT_BACKGROUNDS.map(parseHex)),
     textDark: readableShade(rgb, white, DARK_BACKGROUNDS.map(parseHex)),
   };

@@ -168,7 +168,7 @@ const tryIt = portalConfig.auth?.tryIt === true;
       root.querySelector('.portal-user-name').textContent = name;
       root.querySelector('.portal-user-email').textContent = user.email && user.email !== name ? user.email : '';
       const avatar = root.querySelector('.portal-user-avatar');
-      if (user.picture && /^https:\/\//.test(user.picture)) {
+      if (user.picture && user.picture.startsWith('https://')) {
         const img = document.createElement('img');
         img.src = user.picture;
         img.alt = '';

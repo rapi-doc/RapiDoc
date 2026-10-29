@@ -2,33 +2,33 @@
  * Single-file Java / Spring AI MCP Server Generator
  * Uses Spring AI MCP annotations, strongly typed records, and RestClient.
  */
-import { toPascalCase, toCamelCase, estimateTokenCost } from '../common.js';
+import { toPascalCase, toCamelCase, estimateTokenCost } from "../common.js";
 
 /**
  * Helper to map OpenAPI / JSON schema parameter type to idiomatic Java type.
  */
 function toJavaType(p) {
-  if (p.type === 'integer') return 'Integer';
-  if (p.type === 'number') return 'Double';
-  if (p.type === 'boolean') return 'Boolean';
-  if (p.type === 'array') return 'java.util.List<String>';
-  if (p.type === 'object') return 'java.util.Map<String, Object>';
-  return 'String';
+  if (p.type === "integer") return "Integer";
+  if (p.type === "number") return "Double";
+  if (p.type === "boolean") return "Boolean";
+  if (p.type === "array") return "java.util.List<String>";
+  if (p.type === "object") return "java.util.Map<String, Object>";
+  return "String";
 }
 
 export function generateJavaMcpServer(metadata, tools, resources, workflows, options = {}) {
-  const className = toPascalCase(options.serverName || 'RapiDocMcpServer');
+  const className = toPascalCase(options.serverName || "RapiDocMcpServer");
   const budget = estimateTokenCost(tools, resources, workflows);
-  const defaultBaseUrl = metadata.servers?.[0]?.url || 'http://localhost:3000';
+  const defaultBaseUrl = metadata.servers?.[0]?.url || "http://localhost:3000";
 
   const toolRecords = [];
   const toolBeans = tools
     .map((t) => {
       const recordName = `${toPascalCase(t.name)}Request`;
-      const pathParams = t.parameters.filter((p) => p.in === 'path');
-      const queryParams = t.parameters.filter((p) => p.in === 'query');
-      const headerParams = t.parameters.filter((p) => p.in === 'header');
-      const bodyParams = t.parameters.filter((p) => p.in === 'body');
+      const pathParams = t.parameters.filter((p) => p.in === "path");
+      const queryParams = t.parameters.filter((p) => p.in === "query");
+      const headerParams = t.parameters.filter((p) => p.in === "header");
+      const bodyParams = t.parameters.filter((p) => p.in === "body");
 
       // 1. Build typed request record
       const recordFields = t.parameters.map((p) => {
@@ -40,68 +40,71 @@ export function generateJavaMcpServer(metadata, tools, resources, workflows, opt
       });
       // Always provide per-session dynamic auth override field for multi-tenancy
       recordFields.push(
-        '        @JsonPropertyDescription("Optional Bearer API key override for multi-tenant sessions")\n        @JsonProperty("apiKey")\n        String apiKey'
+        '        @JsonPropertyDescription("Optional Bearer API key override for multi-tenant sessions")\n        @JsonProperty("apiKey")\n        String apiKey',
       );
 
       toolRecords.push(`    @JsonClassDescription(${JSON.stringify(t.description || t.name)})
     public record ${recordName}(
-${recordFields.join(',\n')}
+${recordFields.join(",\n")}
     ) {}`);
 
       // 2. Build Bean function
       const pathReplacements = pathParams
         .map(
           (p) =>
-            `                .replace("{${p.name}}", request.${toCamelCase(p.name)}() != null ? UriUtils.encodePath(String.valueOf(request.${toCamelCase(p.name)}()), StandardCharsets.UTF_8) : "")`
+            `                .replace("{${p.name}}", request.${toCamelCase(p.name)}() != null ? UriUtils.encodePath(String.valueOf(request.${toCamelCase(p.name)}()), StandardCharsets.UTF_8) : "")`,
         )
-        .join('\n');
+        .join("\n");
 
       const queryAppends = queryParams
         .map(
           (p) =>
-            `            if (request.${toCamelCase(p.name)}() != null) uriBuilder.queryParam("${p.name}", request.${toCamelCase(p.name)}());`
+            `            if (request.${toCamelCase(p.name)}() != null) uriBuilder.queryParam("${p.name}", request.${toCamelCase(p.name)}());`,
         )
-        .join('\n');
+        .join("\n");
 
       const headerAppends = headerParams
         .map(
           (p) =>
-            `                if (request.${toCamelCase(p.name)}() != null && !String.valueOf(request.${toCamelCase(p.name)}()).isBlank()) {\n                    spec.header("${p.name}", String.valueOf(request.${toCamelCase(p.name)}()));\n                }`
+            `                if (request.${toCamelCase(p.name)}() != null && !String.valueOf(request.${toCamelCase(p.name)}()).isBlank()) {\n                    spec.header("${p.name}", String.valueOf(request.${toCamelCase(p.name)}()));\n                }`,
         )
-        .join('\n');
+        .join("\n");
 
-      const hasBody = ['POST', 'PUT', 'PATCH'].includes(t.method) && bodyParams.length > 0;
+      const hasBody = ["POST", "PUT", "PATCH"].includes(t.method) && bodyParams.length > 0;
       const bodyAppends = hasBody
         ? `            Map<String, Object> bodyPayload = new java.util.LinkedHashMap<>();
 ${bodyParams
-  .map((p) => `            if (request.${toCamelCase(p.name)}() != null) bodyPayload.put("${p.name}", request.${toCamelCase(p.name)}());`)
-  .join('\n')}`
-        : '';
+  .map(
+    (p) =>
+      `            if (request.${toCamelCase(p.name)}() != null) bodyPayload.put("${p.name}", request.${toCamelCase(p.name)}());`,
+  )
+  .join("\n")}`
+        : "";
 
       return `    // Tool: ${t.name} (${t.method} ${t.path})
-    // ${t.isConsequential ? '⚠️ Consequential/Destructive action' : 'Safe/Read-only action'}
+    // ${t.isConsequential ? "⚠️ Consequential/Destructive action" : "Safe/Read-only action"}
     @Bean
-    @Description(${JSON.stringify(t.description + (t.isConsequential ? ' (Requires confirmation)' : ''))})
+    @Description(${JSON.stringify(t.description + (t.isConsequential ? " (Requires confirmation)" : ""))})
     public Function<${recordName}, String> ${toCamelCase(t.name)}() {
         return request -> {
             String resolvedKey = request.apiKey() != null && !request.apiKey().isBlank() ? request.apiKey() : this.apiKey;
-            String resolvedPath = "${t.path}"${pathReplacements ? '\n' + pathReplacements : ''};
+            String resolvedPath = "${t.path}"${pathReplacements ? "\n" + pathReplacements : ""};
             // Spring's builder automatically normalizes matching slashes between baseUrl and paths
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.baseUrl);
             uriBuilder.path(resolvedPath);
-${queryAppends ? queryAppends + '\n' : ''}${bodyAppends ? bodyAppends + '\n' : ''}            try {
+${queryAppends ? queryAppends + "\n" : ""}${bodyAppends ? bodyAppends + "\n" : ""}            try {
                 RestClient.RequestBodySpec spec = restClient.method(HttpMethod.${t.method})
                     .uri(uriBuilder.build().toUri())
                     .accept(MediaType.APPLICATION_JSON);
                 if (resolvedKey != null && !resolvedKey.isBlank()) {
                     spec.header("Authorization", "Bearer " + resolvedKey);
                 }
-${headerAppends ? headerAppends + '\n' : ''}${
+${headerAppends ? headerAppends + "\n" : ""}${
         hasBody
           ? `                if (!bodyPayload.isEmpty()) {
                     spec.contentType(MediaType.APPLICATION_JSON).body(bodyPayload);
                 }\n`
-          : ''
+          : ""
       }                return spec.retrieve().body(String.class);
             } catch (Exception e) {
                 return "Error invoking ${t.name}: " + e.getMessage();
@@ -109,7 +112,7 @@ ${headerAppends ? headerAppends + '\n' : ''}${
         };
     }`;
     })
-    .join('\n\n');
+    .join("\n\n");
 
   const hasWorkflows = workflows.length > 0;
 
@@ -147,7 +150,7 @@ ${headerAppends ? headerAppends + '\n' : ''}${
             try {
                 RestClient.RequestHeadersSpec<?> spec = restClient.get()
                     .uri(uriBuilder.build().toUri())
-                    .accept(MediaType.parseMediaType("${r.mimeType || 'application/json'}"));
+                    .accept(MediaType.parseMediaType("${r.mimeType || "application/json"}"));
                 if (resolvedKey != null && !resolvedKey.isBlank()) {
                     spec.header("Authorization", "Bearer " + resolvedKey);
                 }
@@ -158,7 +161,7 @@ ${headerAppends ? headerAppends + '\n' : ''}${
         };
     }`;
     })
-    .join('\n\n');
+    .join("\n\n");
 
   const workflowBeans = workflows
     .map((w) => {
@@ -166,22 +169,22 @@ ${headerAppends ? headerAppends + '\n' : ''}${
       const paramKeys = w.parameters ? Object.keys(w.parameters) : [];
       const recordFields = paramKeys.map(
         (k) =>
-          `        @JsonPropertyDescription(${JSON.stringify(w.parameters[k].description || '')})\n        @JsonProperty(required = true)\n        String ${toCamelCase(k)}`
+          `        @JsonPropertyDescription(${JSON.stringify(w.parameters[k].description || "")})\n        @JsonProperty(required = true)\n        String ${toCamelCase(k)}`,
       );
       recordFields.push(
-        '        @JsonPropertyDescription("Optional Bearer API key override for multi-tenant sessions")\n        String apiKey'
+        '        @JsonPropertyDescription("Optional Bearer API key override for multi-tenant sessions")\n        String apiKey',
       );
 
-      toolRecords.push(`    @JsonClassDescription(${JSON.stringify(w.description || 'Composite workflow')})
+      toolRecords.push(`    @JsonClassDescription(${JSON.stringify(w.description || "Composite workflow")})
     public record ${recordName}(
-${recordFields.join(',\n')}
+${recordFields.join(",\n")}
     ) {}`);
 
-      const firstParam = paramKeys[0] || 'id';
+      const firstParam = paramKeys[0] || "id";
 
       return `    // Composite Workflow: ${w.name}
     @Bean
-    @Description(${JSON.stringify(w.description || 'Composite workflow')})
+    @Description(${JSON.stringify(w.description || "Composite workflow")})
     public Function<${recordName}, String> ${toCamelCase(w.name)}() {
         return request -> {
             String resolvedKey = request.apiKey() != null && !request.apiKey().isBlank() ? request.apiKey() : this.apiKey;
@@ -202,7 +205,7 @@ ${(w.steps || [])
                     results.put("${s.call}", stepBody_${idx});
                 }`;
   })
-  .join('\n')}
+  .join("\n")}
                 return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(results);
             } catch (Exception e) {
                 return "Workflow ${w.name} failed: " + e.getMessage();
@@ -210,7 +213,7 @@ ${(w.steps || [])
         };
     }`;
     })
-    .join('\n\n');
+    .join("\n\n");
 
   return `/*
 Auto-generated by RapiDoc Curated MCP Generator
@@ -226,7 +229,7 @@ Spec: ${metadata.title} (v${metadata.version})
 - Total Resources: ${budget.totalResources}
 - Total Workflows: ${budget.totalWorkflows}
 - Estimated Prompt Context Overhead: ~${budget.estimatedTokens.toLocaleString()} tokens/turn
-${budget.warnings.map((w) => `- ${w}`).join('\n')}
+${budget.warnings.map((w) => `- ${w}`).join("\n")}
 
 [HOW TO RUN]
 1. export API_KEY="your-api-key"
@@ -247,7 +250,7 @@ import org.springframework.web.util.UriUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
-${hasWorkflows ? 'import com.fasterxml.jackson.databind.ObjectMapper;\n' : ''}
+${hasWorkflows ? "import com.fasterxml.jackson.databind.ObjectMapper;\n" : ""}
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Function;
@@ -266,14 +269,14 @@ public class ${className} {
     // ==========================================
     // TOOL REQUEST RECORDS (Strongly Typed for Spring AI MCP)
     // ==========================================
-${toolRecords.join('\n\n')}
+${toolRecords.join("\n\n")}
 
     // ==========================================
     // MCP TOOLS (@Bean Function Callbacks)
     // ==========================================
 ${toolBeans}
-${resourceBeans ? '\n    // ==========================================\n    // MCP RESOURCES\n    // ==========================================\n' + resourceBeans : ''}
-${workflowBeans ? '\n    // ==========================================\n    // COMPOSITE WORKFLOWS\n    // ==========================================\n' + workflowBeans : ''}
+${resourceBeans ? "\n    // ==========================================\n    // MCP RESOURCES\n    // ==========================================\n" + resourceBeans : ""}
+${workflowBeans ? "\n    // ==========================================\n    // COMPOSITE WORKFLOWS\n    // ==========================================\n" + workflowBeans : ""}
 }
 `;
 }
@@ -320,8 +323,8 @@ export API_KEY="your-api-key"
 `;
 
   return {
-    'src/main/java/com/rapidoc/mcp/RapiDocMcpServer.java': serverCode,
-    'pom.xml': pomXml,
-    'README.md': readme,
+    "src/main/java/com/rapidoc/mcp/RapiDocMcpServer.java": serverCode,
+    "pom.xml": pomXml,
+    "README.md": readme,
   };
 }

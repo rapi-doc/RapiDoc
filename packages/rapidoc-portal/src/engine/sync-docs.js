@@ -9,10 +9,10 @@
  * whose source is gone, so the dev server can call it again on every docs change.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 
-export const DOC_EXTENSIONS = ['.md', '.mdx', '.markdoc'];
+export const DOC_EXTENSIONS = [".md", ".mdx", ".markdoc"];
 
 const HOME_DOC = /^index\.(md|mdx|markdoc)$/i;
 
@@ -25,49 +25,49 @@ export function findHomeDoc(docsDir) {
 
 /** Adds `key: value` to the frontmatter unless the page sets the key itself. */
 function addFrontmatterField(content, key, value) {
-  if (!content.startsWith('---')) return content;
-  const end = content.indexOf('\n---', 3);
+  if (!content.startsWith("---")) return content;
+  const end = content.indexOf("\n---", 3);
   if (end === -1 || new RegExp(`(^|\\n)${key}:`).test(content.slice(3, end))) return content;
   return `---\n${key}: ${JSON.stringify(value)}${content.slice(3)}`;
 }
 
 /** Components that may be used in MDX without an explicit import; imports are injected. */
 const AUTO_IMPORTED_COMPONENTS = [
-  'Button',
-  'Link',
-  'Trademark',
-  'SpaceWarning',
-  'OpenPlaygroundButton',
-  'Callout',
-  'Card',
-  'CardHeader',
-  'CardTitle',
-  'CardDescription',
-  'CardContent',
-  'CardFooter',
-  'Steps',
-  'Tabs',
-  'TabItem',
-  'Badge',
+  "Button",
+  "Link",
+  "Trademark",
+  "SpaceWarning",
+  "OpenPlaygroundButton",
+  "Callout",
+  "Card",
+  "CardHeader",
+  "CardTitle",
+  "CardDescription",
+  "CardContent",
+  "CardFooter",
+  "Steps",
+  "Tabs",
+  "TabItem",
+  "Badge",
 ];
 
 /**
  * Ensures markdown/mdx content has a valid frontmatter title for Starlight's schema.
  */
-function normalizeDocFrontmatter(rawContent, fileName = '') {
+function normalizeDocFrontmatter(rawContent, fileName = "") {
   let content = rawContent;
-  const hasFrontmatter = content.startsWith('---');
+  const hasFrontmatter = content.startsWith("---");
 
-  let sidebarLabel = '';
+  let sidebarLabel = "";
 
   if (hasFrontmatter) {
-    const endMatch = content.indexOf('---', 3);
+    const endMatch = content.indexOf("---", 3);
     if (endMatch !== -1) {
       const frontmatterEndIndex = endMatch + 3;
       const frontmatterText = content.slice(3, endMatch);
       const titleMatch = frontmatterText.match(/(?:^|\n)title:\s*["']?([^"'\n]+)["']?/);
       if (titleMatch) {
-        const cleanTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
+        const cleanTitle = titleMatch[1].replace(/<[^>]+>/g, "").trim();
         if (cleanTitle !== titleMatch[1]) {
           content = content.replace(titleMatch[0], `\ntitle: "${cleanTitle.replace(/"/g, '\\"')}"`);
         }
@@ -75,10 +75,12 @@ function normalizeDocFrontmatter(rawContent, fileName = '') {
         const bodyContent = content.slice(frontmatterEndIndex);
         const dupHeadingMatch = bodyContent.match(/(?:^|\n)#\s+([^\n#]+)/);
         if (dupHeadingMatch) {
-          const bodyHeadingText = dupHeadingMatch[1].trim().replace(/<[^>]+>/g, '');
+          const bodyHeadingText = dupHeadingMatch[1].trim().replace(/<[^>]+>/g, "");
           if (bodyHeadingText.toLowerCase() === cleanTitle.toLowerCase()) {
             const bodyHeadingIdx = bodyContent.indexOf(dupHeadingMatch[0]);
-            const newBody = bodyContent.slice(0, bodyHeadingIdx) + bodyContent.slice(bodyHeadingIdx + dupHeadingMatch[0].length);
+            const newBody =
+              bodyContent.slice(0, bodyHeadingIdx) +
+              bodyContent.slice(bodyHeadingIdx + dupHeadingMatch[0].length);
             content = content.slice(0, frontmatterEndIndex) + newBody;
           }
         }
@@ -99,17 +101,18 @@ function normalizeDocFrontmatter(rawContent, fileName = '') {
     // Strip the # Heading line from the body so Starlight's page title doesn't duplicate it
     const headingIndex = content.indexOf(headingMatch[0]);
     if (headingIndex !== -1) {
-      content = content.slice(0, headingIndex) + content.slice(headingIndex + headingMatch[0].length);
+      content =
+        content.slice(0, headingIndex) + content.slice(headingIndex + headingMatch[0].length);
     }
   } else if (sidebarLabel) {
     title = sidebarLabel;
   } else {
-    title = path.basename(fileName, path.extname(fileName)).replace(/[-_]/g, ' ');
+    title = path.basename(fileName, path.extname(fileName)).replace(/[-_]/g, " ");
     title = title.charAt(0).toUpperCase() + title.slice(1);
   }
 
   // Strip HTML / JSX tags from title
-  title = title.replace(/<[^>]+>/g, '').trim();
+  title = title.replace(/<[^>]+>/g, "").trim();
   // Escape quotes in title
   const safeTitle = title.replace(/"/g, '\\"');
 
@@ -128,8 +131,8 @@ function normalizeDocFrontmatter(rawContent, fileName = '') {
 function rewriteZudokuSyntax(content) {
   return content
     .replace(/from\s+["']zudoku\/ui\/[^"']+["']/g, 'from "@rapidoc/portal/components"')
-    .replace(/<Stepper\b[^>]*>/g, '<Steps>')
-    .replace(/<\/Stepper>/g, '</Steps>');
+    .replace(/<Stepper\b[^>]*>/g, "<Steps>")
+    .replace(/<\/Stepper>/g, "</Steps>");
 }
 
 /**
@@ -138,7 +141,7 @@ function rewriteZudokuSyntax(content) {
 function injectComponentImports(content) {
   const importedNames = new Set();
   for (const match of content.matchAll(/import\s*\{([^}]+)\}\s*from/g)) {
-    match[1].split(',').forEach((item) => {
+    match[1].split(",").forEach((item) => {
       const name = item
         .trim()
         .split(/\s+as\s+/)[0]
@@ -147,14 +150,18 @@ function injectComponentImports(content) {
     });
   }
 
-  const neededImports = AUTO_IMPORTED_COMPONENTS.filter((comp) => new RegExp(`<${comp}\\b`).test(content) && !importedNames.has(comp));
+  const neededImports = AUTO_IMPORTED_COMPONENTS.filter(
+    (comp) => new RegExp(`<${comp}\\b`).test(content) && !importedNames.has(comp),
+  );
   if (neededImports.length === 0) return content;
 
-  const importStmt = `import { ${neededImports.join(', ')} } from "@rapidoc/portal/components";\n\n`;
-  if (content.startsWith('---')) {
-    const endFm = content.indexOf('---', 3);
+  const importStmt = `import { ${neededImports.join(", ")} } from "@rapidoc/portal/components";\n\n`;
+  if (content.startsWith("---")) {
+    const endFm = content.indexOf("---", 3);
     if (endFm !== -1) {
-      return content.slice(0, endFm + 3) + '\n\n' + importStmt + content.slice(endFm + 3).trimStart();
+      return (
+        content.slice(0, endFm + 3) + "\n\n" + importStmt + content.slice(endFm + 3).trimStart()
+      );
     }
   }
   return importStmt + content;
@@ -164,20 +171,20 @@ function injectComponentImports(content) {
  * Turns a raw doc file into content Starlight accepts. Markdoc has no imports, so only MDX and
  * Markdown get component imports.
  */
-export function normalizeDocContent(rawContent, fileName = '') {
+export function normalizeDocContent(rawContent, fileName = "") {
   const content = rewriteZudokuSyntax(normalizeDocFrontmatter(rawContent, fileName));
   return isMarkdocFile(fileName) ? content : injectComponentImports(content);
 }
 
 function isMarkdocFile(fileName) {
-  return path.extname(fileName).toLowerCase() === '.markdoc';
+  return path.extname(fileName).toLowerCase() === ".markdoc";
 }
 
 /**
  * Path of a doc in the workspace: `.markdoc` becomes `.mdoc`, the extension @astrojs/markdoc loads.
  */
 function workspaceDocPath(relPath) {
-  return isMarkdocFile(relPath) ? relPath.replace(/\.markdoc$/i, '.mdoc') : relPath;
+  return isMarkdocFile(relPath) ? relPath.replace(/\.markdoc$/i, ".mdoc") : relPath;
 }
 
 function isDocFile(fileName) {
@@ -191,7 +198,8 @@ export function listDocFiles(dir) {
   const files = [];
   if (!fs.existsSync(dir)) return files;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true, recursive: true })) {
-    if (entry.isFile() && isDocFile(entry.name)) files.push(path.join(entry.parentPath, entry.name));
+    if (entry.isFile() && isDocFile(entry.name))
+      files.push(path.join(entry.parentPath, entry.name));
   }
   return files;
 }
@@ -209,14 +217,23 @@ function collectDesiredDocs(srcDir, { editUrl } = {}) {
     const relPath = path.relative(srcDir, srcPath);
     const ext = path.extname(entry.name).toLowerCase();
 
-    if (ext === '.md' && fs.existsSync(path.join(entry.parentPath, `${path.parse(entry.name).name}.mdx`))) continue;
+    if (
+      ext === ".md" &&
+      fs.existsSync(path.join(entry.parentPath, `${path.parse(entry.name).name}.mdx`))
+    )
+      continue;
 
-    const destRel = HOME_DOC.test(relPath) ? relPath : path.join('docs', relPath);
+    const destRel = HOME_DOC.test(relPath) ? relPath : path.join("docs", relPath);
     if (isDocFile(entry.name)) {
-      let content = normalizeDocContent(fs.readFileSync(srcPath, 'utf8'), entry.name);
-      if (editUrl) content = addFrontmatterField(content, 'editUrl', `${editUrl.replace(/\/?$/, '/')}${relPath.split(path.sep).join('/')}`);
+      let content = normalizeDocContent(fs.readFileSync(srcPath, "utf8"), entry.name);
+      if (editUrl)
+        content = addFrontmatterField(
+          content,
+          "editUrl",
+          `${editUrl.replace(/\/?$/, "/")}${relPath.split(path.sep).join("/")}`,
+        );
       desired.set(workspaceDocPath(destRel), content);
-    } else if (entry.name !== '.DS_Store') {
+    } else if (entry.name !== ".DS_Store") {
       desired.set(destRel, fs.readFileSync(srcPath));
     }
   }
@@ -226,7 +243,7 @@ function collectDesiredDocs(srcDir, { editUrl } = {}) {
 function sameContent(destPath, content) {
   if (!fs.existsSync(destPath)) return false;
   const current = fs.readFileSync(destPath);
-  return Buffer.isBuffer(content) ? current.equals(content) : current.toString('utf8') === content;
+  return Buffer.isBuffer(content) ? current.equals(content) : current.toString("utf8") === content;
 }
 
 /**

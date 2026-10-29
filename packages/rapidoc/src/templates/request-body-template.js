@@ -1,13 +1,13 @@
 /**
  * Renders request body form inputs, JSON/XML textareas, MIME type dropdown, and schema preview panels for <api-request>.
  */
-import { html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { live } from 'lit/directives/live.js';
-import { repeat } from 'lit/directives/repeat.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
-import { sanitizeHTML } from '../utils/sanitize.js';
-import { marked } from 'marked';
+import { html } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { live } from "lit/directives/live.js";
+import { repeat } from "lit/directives/repeat.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { sanitizeHTML } from "../utils/sanitize.js";
+import { marked } from "marked";
 import {
   schemaToAST,
   getTypeInfo,
@@ -18,24 +18,29 @@ import {
   EMPTY_ARRAY,
   getMergedProperties,
   getMergedRequired,
-} from '~/utils/schema-utils';
-import '~/components/schema-tree';
-import '~/components/schema-table';
-import '~/components/tag-input';
-import { exampleListTemplate, constraintListTemplate, examplesBesideConstraints, renderExample } from '~/templates/request-params-template';
+} from "~/utils/schema-utils";
+import "~/components/schema-tree";
+import "~/components/schema-table";
+import "~/components/tag-input";
+import {
+  exampleListTemplate,
+  constraintListTemplate,
+  examplesBesideConstraints,
+  renderExample,
+} from "~/templates/request-params-template";
 
 export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) {
   // This template is used when form-data param should be send as a object (application/json, application/xml)
   const formdataPartSchema = schemaToAST(fieldSchema);
   const formdataPartExample = generateExample(
     fieldSchema,
-    'json',
+    "json",
     standardizeExample(fieldSchema.examples),
     standardizeExample(fieldSchema.example),
-    this.callback === 'true' || this.webhook === 'true' ? true : false,
-    this.callback === 'true' || this.webhook === 'true' ? false : true,
-    'text',
-    false
+    this.callback === "true" || this.webhook === "true" ? true : false,
+    this.callback === "true" || this.webhook === "true" ? false : true,
+    "text",
+    false,
   );
 
   return html`
@@ -45,57 +50,63 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
           class="row"
           style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;"
           @click="${(e) => {
-            if (e.target.classList.contains('v-tab-btn')) {
+            if (e.target.classList.contains("v-tab-btn")) {
               const { tab } = e.target.dataset;
               if (tab) {
-                const tabPanelEl = e.target.closest('.tab-panel');
+                const tabPanelEl = e.target.closest(".tab-panel");
                 const selectedTabBtnEl = tabPanelEl.querySelector(`.v-tab-btn[data-tab="${tab}"]`);
-                const otherTabBtnEl = [...tabPanelEl.querySelectorAll(`.v-tab-btn:not([data-tab="${tab}"])`)];
-                const selectedTabContentEl = tabPanelEl.querySelector(`.tab-content[data-tab="${tab}"]`);
-                const otherTabContentEl = [...tabPanelEl.querySelectorAll(`.tab-content:not([data-tab="${tab}"])`)];
-                selectedTabBtnEl.classList.add('active');
-                selectedTabContentEl.style.display = 'block';
+                const otherTabBtnEl = [
+                  ...tabPanelEl.querySelectorAll(`.v-tab-btn:not([data-tab="${tab}"])`),
+                ];
+                const selectedTabContentEl = tabPanelEl.querySelector(
+                  `.tab-content[data-tab="${tab}"]`,
+                );
+                const otherTabContentEl = [
+                  ...tabPanelEl.querySelectorAll(`.tab-content:not([data-tab="${tab}"])`),
+                ];
+                selectedTabBtnEl.classList.add("active");
+                selectedTabContentEl.style.display = "block";
                 otherTabBtnEl.forEach((el) => {
-                  el.classList.remove('active');
+                  el.classList.remove("active");
                 });
                 otherTabContentEl.forEach((el) => {
-                  el.style.display = 'none';
+                  el.style.display = "none";
                 });
               }
             }
-            if (e.target.tagName.toLowerCase() === 'button') {
+            if (e.target.tagName.toLowerCase() === "button") {
               this.activeSchemaTab = e.target.dataset.tab;
             }
           }}"
         >
-          <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">EXAMPLE</button>
-          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">SCHEMA</button>
+          <button class="v-tab-btn ${this.activeSchemaTab === "example" ? "active" : ""}" data-tab="example">EXAMPLE</button>
+          <button class="v-tab-btn ${this.activeSchemaTab !== "example" ? "active" : ""}" data-tab="schema">SCHEMA</button>
         </div>
       </div>
       ${html` <div
         class="tab-content col"
         data-tab="example"
-        style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"
+        style="display:${this.activeSchemaTab === "example" ? "block" : "none"}; padding-left:5px; width:100%"
       >
         <textarea
           class="textarea"
           part="textarea textarea-param"
           style="width:100%; border:none; resize:vertical;"
           data-array="false"
-          data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+          data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
           data-pname="${fieldName}"
-          data-example="${formdataPartExample[0]?.exampleValue || ''}"
-          .value="${live(this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0]?.exampleValue || '' : '')}"
+          data-example="${formdataPartExample[0]?.exampleValue || ""}"
+          .value="${live(this.fillRequestFieldsWithExample === "true" ? formdataPartExample[0]?.exampleValue || "" : "")}"
           spellcheck="false"
         ></textarea>
       </div>`}
       ${html` <div
         class="tab-content col"
         data-tab="schema"
-        style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"
+        style="display:${this.activeSchemaTab !== "example" ? "block" : "none"}; padding-left:5px; width:100%;"
       >
         ${
-          this.schemaStyle === 'table'
+          this.schemaStyle === "table"
             ? html`
                 <schema-table
                   .data="${formdataPartSchema}"
@@ -122,7 +133,7 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
   `;
 }
 
-export function formDataTemplate(schema, mimeType, exampleValue = '') {
+export function formDataTemplate(schema, mimeType, exampleValue = "") {
   const formFieldItems = [];
   const properties = getMergedProperties(schema);
   const required = getMergedRequired(schema);
@@ -132,37 +143,48 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
       if (fieldSchema.readOnly) {
         continue;
       }
-      const fieldExamples = fieldSchema.examples || fieldSchema.example || '';
+      const fieldExamples = fieldSchema.examples || fieldSchema.example || "";
       const fieldType = fieldSchema.type;
       const paramSchema = getTypeInfo(fieldSchema);
-      const example = normalizeExamples(paramSchema.examples || paramSchema.example, paramSchema.type);
+      const example = normalizeExamples(
+        paramSchema.examples || paramSchema.example,
+        paramSchema.type,
+      );
       const hasConstraint =
-        fieldType !== 'object' && (paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern);
-      const inlineExamples = examplesBesideConstraints(fieldSchema.description, hasConstraint, example.exampleList);
+        fieldType !== "object" &&
+        (paramSchema.default ||
+          paramSchema.constrain ||
+          paramSchema.allowedValues ||
+          paramSchema.pattern);
+      const inlineExamples = examplesBesideConstraints(
+        fieldSchema.description,
+        hasConstraint,
+        example.exampleList,
+      );
       formFieldItems.push(
         html` <li
-          class="param ${fieldSchema.deprecated ? 'deprecated' : ''}"
+          class="param ${fieldSchema.deprecated ? "deprecated" : ""}"
           part="param"
-          title="${fieldSchema.deprecated ? 'Deprecated' : ''}"
+          title="${fieldSchema.deprecated ? "Deprecated" : ""}"
         >
           <div class="param-label" part="param-label">
-            <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}" part="param-name">
-              ${fieldName}${required.includes(fieldName) || fieldSchema.required ? html`<span class="param-required" title="Required">*</span>` : ''}
+            <div class="param-name ${fieldSchema.deprecated ? "deprecated" : ""}" part="param-name">
+              ${fieldName}${required.includes(fieldName) || fieldSchema.required ? html`<span class="param-required" title="Required">*</span>` : ""}
             </div>
             <div class="param-type" part="param-type">
               ${
-                paramSchema.type === 'array' || paramSchema.type.split('┃').includes('array')
+                paramSchema.type === "array" || paramSchema.type.split("┃").includes("array")
                   ? `${paramSchema.arrayType || paramSchema.type}`
-                  : `${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes('┃') ? paramSchema.contentMediaType : paramSchema.type}`
+                  : `${paramSchema.format && !paramSchema.type.includes("┃") ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes("┃") ? paramSchema.contentMediaType : paramSchema.type}`
               }
             </div>
           </div>
           ${
-            fieldType !== 'object' && this.allowTry !== 'true'
-              ? ''
+            fieldType !== "object" && this.allowTry !== "true"
+              ? ""
               : html`<div class="param-input" part="param-input">
                   ${
-                    fieldType === 'array'
+                    fieldType === "array"
                       ? isBinaryFileField(fieldSchema.items)
                         ? html`
                             <div class="file-input-container col" style="align-items:flex-start; width:100%;">
@@ -170,13 +192,13 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                 this.fileInputKeys[fieldName] ?? [0],
                                 (key) => key,
                                 (key, index) => html`
-                                  <div class="input-set row" style="width:100%; margin-top: ${index > 0 ? '4px' : '0'};">
+                                  <div class="input-set row" style="width:100%; margin-top: ${index > 0 ? "4px" : "0"};">
                                     <input
                                       type="file"
                                       part="file-input"
                                       style="width:100%"
                                       data-pname="${fieldName}"
-                                      data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                                      data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
                                       data-array="false"
                                       data-file-array="true"
                                     />
@@ -189,7 +211,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                                       &#x2715;
                                     </button>
                                   </div>
-                                `
+                                `,
                               )}
                               <button
                                 class="btn btn-primary btn-sm file-input-add-btn"
@@ -203,9 +225,9 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                         : html`
                             <tag-input
                               style="width:100%"
-                              data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                              data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
                               data-pname="${fieldName}"
-                              data-example="${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}"
+                              data-example="${Array.isArray(fieldExamples) ? fieldExamples.join("~|~") : fieldExamples}"
                               data-array="true"
                               placeholder="add-multiple &#x21a9;"
                               .value="${
@@ -219,23 +241,28 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                             </tag-input>
                           `
                       : html` ${
-                          fieldType === 'object'
-                            ? formDataParamAsObjectTemplate.call(this, fieldName, fieldSchema, mimeType)
+                          fieldType === "object"
+                            ? formDataParamAsObjectTemplate.call(
+                                this,
+                                fieldName,
+                                fieldSchema,
+                                mimeType,
+                              )
                             : html`
                                 ${
-                                  this.allowTry === 'true'
+                                  this.allowTry === "true"
                                     ? html`<input
-                                        .value="${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                                        .value="${this.fillRequestFieldsWithExample === "true" ? example.exampleVal : ""}"
                                         spellcheck="false"
-                                        type="${isBinaryFileField(fieldSchema) ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
+                                        type="${isBinaryFileField(fieldSchema) ? "file" : fieldSchema.format === "password" ? "password" : "text"}"
                                         part="textbox textbox-param"
                                         style="width:100%"
-                                        data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                                        data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
                                         data-pname="${fieldName}"
                                         data-example="${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
                                         data-array="false"
                                       />`
-                                    : ''
+                                    : ""
                                 }
                               `
                         }`
@@ -248,20 +275,22 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                   paramSchema,
                   paramSchema.allowedValues &&
                     String(paramSchema.allowedValues)
-                      .split('┃')
+                      .split("┃")
                       .map(
                         (v) =>
                           html`<button
                             type="button"
                             part="anchor anchor-param-constraint"
                             class="value-chip"
-                            ?disabled="${this.allowTry !== 'true'}"
-                            data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
+                            ?disabled="${this.allowTry !== "true"}"
+                            data-type="${paramSchema.type === "array" ? paramSchema.type : "string"}"
                             data-enum="${v.trim()}"
                             @click="${(e) => {
-                              const inputEl = e.target.closest('.param-list').querySelector(`[data-pname="${fieldName}"]`);
+                              const inputEl = e.target
+                                .closest(".param-list")
+                                .querySelector(`[data-pname="${fieldName}"]`);
                               if (inputEl) {
-                                if (e.target.dataset.type === 'array') {
+                                if (e.target.dataset.type === "array") {
                                   inputEl.value = [e.target.dataset.enum];
                                 } else {
                                   inputEl.value = e.target.dataset.enum;
@@ -272,21 +301,24 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
                             }}"
                           >
                             ${v}
-                          </button>`
+                          </button>`,
                       ),
-                  inlineExamples && example.exampleList.map((x) => renderExample.call(this, x, paramSchema.type, fieldName))
+                  inlineExamples &&
+                    example.exampleList.map((x) =>
+                      renderExample.call(this, x, paramSchema.type, fieldName),
+                    ),
                 )
-              : ''
+              : ""
           }
           ${
-            fieldType === 'object'
-              ? ''
+            fieldType === "object"
+              ? ""
               : html`<div class="param-details" part="param-details">
-                  ${fieldSchema.description ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(fieldSchema.description)))}</div>` : ''}
-                  ${inlineExamples ? '' : exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
+                  ${fieldSchema.description ? html`<div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(fieldSchema.description)))}</div>` : ""}
+                  ${inlineExamples ? "" : exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
                 </div>`
           }
-        </li>`
+        </li>`,
       );
     }
     return html`
@@ -320,24 +352,24 @@ export function formDataTemplate(schema, mimeType, exampleValue = '') {
       .value="${live(exampleValue)}"
       style="width:100%"
     ></textarea>
-    ${schema.description ? html`<span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(schema.description)))} </span>` : ''}
+    ${schema.description ? html`<span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(schema.description)))} </span>` : ""}
   `;
 }
 
 export default function requestBodyTemplate() {
   if (!this.request_body) {
-    return '';
+    return "";
   }
   if (Object.keys(this.request_body).length === 0) {
-    return '';
+    return "";
   }
 
   // Variable to store partial HTMLs
-  let reqBodyTypeSelectorHtml = '';
-  let reqBodyFileInputHtml = '';
-  let reqBodyFormHtml = '';
-  let reqBodySchemaHtml = '';
-  let reqBodyExampleHtml = '';
+  let reqBodyTypeSelectorHtml = "";
+  let reqBodyFileInputHtml = "";
+  let reqBodyFormHtml = "";
+  let reqBodySchemaHtml = "";
+  let reqBodyExampleHtml = "";
 
   const requestBodyTypes = [];
   const { content } = this.request_body;
@@ -357,7 +389,7 @@ export default function requestBodyTemplate() {
   // MIME Type selector
   reqBodyTypeSelectorHtml =
     requestBodyTypes.length === 1
-      ? ''
+      ? ""
       : html`
           <select class="select-sm" aria-label="request body media type" @change="${(e) => this.onMimeTypeChange(e)}">
             ${requestBodyTypes.map(
@@ -365,7 +397,7 @@ export default function requestBodyTemplate() {
                 <option value="${reqBody.mimeType}" ?selected="${reqBody.mimeType === this.selectedRequestBodyType}">
                   ${reqBody.mimeType}
                 </option>
-              `
+              `,
             )}
           </select>
         `;
@@ -376,10 +408,10 @@ export default function requestBodyTemplate() {
     let reqBodyExamples = [];
 
     if (
-      this.selectedRequestBodyType.includes('json') ||
-      this.selectedRequestBodyType.includes('xml') ||
-      this.selectedRequestBodyType.includes('text') ||
-      this.selectedRequestBodyType.includes('jose')
+      this.selectedRequestBodyType.includes("json") ||
+      this.selectedRequestBodyType.includes("xml") ||
+      this.selectedRequestBodyType.includes("text") ||
+      this.selectedRequestBodyType.includes("jose")
     ) {
       // Generate Example
       if (reqBody.mimeType === this.selectedRequestBodyType) {
@@ -388,27 +420,28 @@ export default function requestBodyTemplate() {
           reqBody.mimeType,
           standardizeExample(reqBody.examples),
           standardizeExample(reqBody.example),
-          this.callback === 'true' || this.webhook === 'true' ? true : false,
-          this.callback === 'true' || this.webhook === 'true' ? false : true,
-          'text',
-          false
+          this.callback === "true" || this.webhook === "true" ? true : false,
+          this.callback === "true" || this.webhook === "true" ? false : true,
+          "text",
+          false,
         );
         if (!this.selectedRequestBodyExample) {
-          this.selectedRequestBodyExample = reqBodyExamples.length > 0 ? reqBodyExamples[0].exampleId : '';
+          this.selectedRequestBodyExample =
+            reqBodyExamples.length > 0 ? reqBodyExamples[0].exampleId : "";
         }
         reqBodyExampleHtml = html`
           ${reqBodyExampleHtml}
           <div class="example-panel">
             ${
               reqBodyExamples.length === 1
-                ? ''
+                ? ""
                 : html`
                     <select class="select-sm example-select" aria-label="request body examples" @change="${(e) => this.onSelectExample(e)}">
                       ${reqBodyExamples.map(
                         (v) =>
                           html`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample}>
                             ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary ? v.exampleSummary : v.exampleId}
-                          </option>`
+                          </option>`,
                       )}
                     </select>
                   `
@@ -418,25 +451,25 @@ export default function requestBodyTemplate() {
               .map(
                 (v) => html`
                   <div
-                    class="example ${v.exampleId === this.selectedRequestBodyExample ? 'example-selected' : ''}"
+                    class="example ${v.exampleId === this.selectedRequestBodyExample ? "example-selected" : ""}"
                     data-example="${v.exampleId}"
                   >
-                    ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ''}
+                    ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ""}
                     ${
                       v.exampleDescription
                         ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                            ${unsafeHTML(sanitizeHTML(marked(v.exampleDescription || '')))}
+                            ${unsafeHTML(sanitizeHTML(marked(v.exampleDescription || "")))}
                           </div>`
-                        : ''
+                        : ""
                     }
                     <!-- This pre(hidden) is to store the original example value, this will remain unchanged when users switches from one example to another, its is used to populate the editable textarea -->
                     <pre
-                      class="textarea is-hidden request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}"
+                      class="textarea is-hidden request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf("/") + 1)}"
                       spellcheck="false"
                       data-ptype="${reqBody.mimeType}"
                       style="width:100%; resize:vertical; display:none"
                     >
-${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}</pre>
+${v.exampleFormat === "text" ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}</pre>
 
                     <!-- this textarea is for user to edit the example -->
                     <textarea
@@ -444,15 +477,15 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                       part="textarea textarea-param"
                       spellcheck="false"
                       data-ptype="${reqBody.mimeType}"
-                      data-example="${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}"
+                      data-example="${v.exampleFormat === "text" ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}"
                       data-example-format="${v.exampleFormat}"
                       style="width:100%; resize:vertical;"
                       .value="${
-                        this.fillRequestFieldsWithExample === 'true'
-                          ? v.exampleFormat === 'text'
+                        this.fillRequestFieldsWithExample === "true"
+                          ? v.exampleFormat === "text"
                             ? v.exampleValue
                             : JSON.stringify(v.exampleValue, null, 2)
-                          : ''
+                          : ""
                       }"
                       @input=${(e) => {
                         const requestPanelEl = this.getRequestPanel(e);
@@ -465,29 +498,39 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                       }}
                     ></textarea>
                   </div>
-                `
+                `,
               )}
           </div>
         `;
       }
-    } else if (this.selectedRequestBodyType.includes('form-urlencoded') || this.selectedRequestBodyType.includes('form-data')) {
+    } else if (
+      this.selectedRequestBodyType.includes("form-urlencoded") ||
+      this.selectedRequestBodyType.includes("form-data")
+    ) {
       if (reqBody.mimeType === this.selectedRequestBodyType) {
         const ex = generateExample(
           reqBody.schema,
           reqBody.mimeType,
           reqBody.examples,
           reqBody.example,
-          this.callback === 'true' || this.webhook === 'true' ? true : false,
-          this.callback === 'true' || this.webhook === 'true' ? false : true,
-          'text',
-          false
+          this.callback === "true" || this.webhook === "true" ? true : false,
+          this.callback === "true" || this.webhook === "true" ? false : true,
+          "text",
+          false,
         );
         if (reqBody.schema) {
-          reqBodyFormHtml = formDataTemplate.call(this, reqBody.schema, reqBody.mimeType, ex[0] ? ex[0].exampleValue : '');
+          reqBodyFormHtml = formDataTemplate.call(
+            this,
+            reqBody.schema,
+            reqBody.mimeType,
+            ex[0] ? ex[0].exampleValue : "",
+          );
         }
       }
     } else if (
-      /^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(this.selectedRequestBodyType)
+      /^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(
+        this.selectedRequestBodyType,
+      )
     ) {
       if (reqBody.mimeType === this.selectedRequestBodyType) {
         reqBodyFileInputHtml = html`
@@ -506,18 +549,18 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
 
     // Generate Schema
     if (
-      reqBody.mimeType.includes('json') ||
-      reqBody.mimeType.includes('xml') ||
-      reqBody.mimeType.includes('text') ||
-      this.selectedRequestBodyType.includes('jose')
+      reqBody.mimeType.includes("json") ||
+      reqBody.mimeType.includes("xml") ||
+      reqBody.mimeType.includes("text") ||
+      this.selectedRequestBodyType.includes("jose")
     ) {
       schemaAsObj = schemaToAST(reqBody.schema);
-      if (this.schemaStyle === 'table') {
+      if (this.schemaStyle === "table") {
         reqBodySchemaHtml = html`
           ${reqBodySchemaHtml}
           <schema-table
-            class="${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}"
-            style="display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};"
+            class="${reqBody.mimeType.substring(reqBody.mimeType.indexOf("/") + 1)}"
+            style="display: ${this.selectedRequestBodyType === reqBody.mimeType ? "block" : "none"};"
             .data="${schemaAsObj}"
             schema-expand-level="${this.schemaExpandLevel}"
             schema-description-expanded="${this.schemaDescriptionExpanded}"
@@ -528,12 +571,12 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
           >
           </schema-table>
         `;
-      } else if (this.schemaStyle === 'tree') {
+      } else if (this.schemaStyle === "tree") {
         reqBodySchemaHtml = html`
           ${reqBodySchemaHtml}
           <schema-tree
-            class="${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}"
-            style="display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};"
+            class="${reqBody.mimeType.substring(reqBody.mimeType.indexOf("/") + 1)}"
+            style="display: ${this.selectedRequestBodyType === reqBody.mimeType ? "block" : "none"};"
             .data="${schemaAsObj}"
             schema-expand-level="${this.schemaExpandLevel}"
             schema-description-expanded="${this.schemaDescriptionExpanded}"
@@ -552,7 +595,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
     <div class="request-body-container" data-selected-request-body-type="${ifDefined(this.selectedRequestBodyType)}">
       <div class="table-title top-gap row" style="justify-content:space-between; align-items:center;">
         <h5 class="rapidoc-heading label-heading" part="heading heading-5">
-          Request body ${this.request_body.required ? html`<span class="mono-font" style="color:var(--destructive)">*</span>` : ''}
+          Request body ${this.request_body.required ? html`<span class="mono-font" style="color:var(--destructive)">*</span>` : ""}
           <span style="font-weight:normal; margin-left:5px; text-transform:none"> ${this.selectedRequestBodyType}</span>
         </h5>
         ${reqBodyTypeSelectorHtml}
@@ -562,41 +605,41 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
           ? html`<div class="m-markdown" style="margin-bottom:12px">
               ${unsafeHTML(sanitizeHTML(marked(this.request_body.description)))}
             </div>`
-          : ''
+          : ""
       }
       ${
-        this.selectedRequestBodyType.includes('json') ||
-        this.selectedRequestBodyType.includes('xml') ||
-        this.selectedRequestBodyType.includes('text') ||
-        this.selectedRequestBodyType.includes('jose')
+        this.selectedRequestBodyType.includes("json") ||
+        this.selectedRequestBodyType.includes("xml") ||
+        this.selectedRequestBodyType.includes("text") ||
+        this.selectedRequestBodyType.includes("jose")
           ? html` <div part="tab-panel" class="tab-panel col">
               <div
                 part="tab-btn-row"
                 class="tab-buttons row"
                 @click="${(e) => {
-                  if (e.target.tagName.toLowerCase() === 'button') {
+                  if (e.target.tagName.toLowerCase() === "button") {
                     this.activeSchemaTab = e.target.dataset.tab;
                   }
                 }}"
               >
-                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">
+                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === "example" ? "active" : ""}" data-tab="example">
                   EXAMPLE
                 </button>
-                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">
+                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== "example" ? "active" : ""}" data-tab="schema">
                   SCHEMA
                 </button>
               </div>
               ${html`<div
                 part="tab-content"
                 class="tab-content col"
-                style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"
+                style="display:${this.activeSchemaTab === "example" ? "block" : "none"};"
               >
                 ${reqBodyExampleHtml}
               </div>`}
               ${html`<div
                 part="tab-content"
                 class="tab-content col"
-                style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"
+                style="display:${this.activeSchemaTab === "example" ? "none" : "block"};"
               >
                 ${reqBodySchemaHtml}
               </div>`}

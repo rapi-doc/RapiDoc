@@ -25,6 +25,6 @@ export function activeTab(tabs, pathname) {
   return best;
 }
 
-function stripSlash(href = '') {
-  return href.length > 1 ? href.replace(/\/+$/, '') : href;
+function stripSlash(href = "") {
+  return href.length > 1 ? href.replace(/\/+$/, "") : href;
 }

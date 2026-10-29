@@ -1,7 +1,7 @@
 /**
  * Renders OpenAPI callback requests and nested response definitions within an endpoint.
  */
-import { html } from 'lit';
+import { html } from "lit";
 
 export default function callbackTemplate(callbacks) {
   return html`
@@ -29,10 +29,10 @@ export default function callbackTemplate(callbacks) {
                           class="${this.renderStyle}-mode callback"
                           style="width:100%;"
                           callback="true"
-                          method="${method[0] || ''}"
-                          path="${pathObj[0] || ''}"
-                          .parameters="${method[1]?.parameters || ''}"
-                          .request_body="${method[1]?.requestBody || ''}"
+                          method="${method[0] || ""}"
+                          path="${pathObj[0] || ""}"
+                          .parameters="${method[1]?.parameters || ""}"
+                          .request_body="${method[1]?.requestBody || ""}"
                           fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
                           allow-try="false"
                           render-style="${this.renderStyle}"
@@ -42,7 +42,7 @@ export default function callbackTemplate(callbacks) {
                           schema-description-expanded="${this.schemaDescriptionExpanded}"
                           allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
                           schema-hide-read-only="false"
-                          schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
+                          schema-hide-write-only="${this.schemaHideWriteOnly === "never" ? "false" : "true"}"
                           fetch-credentials="${this.fetchCredentials}"
                           exportparts="section-request-title:section-request-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
             wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
@@ -64,7 +64,7 @@ export default function callbackTemplate(callbacks) {
                           schema-expand-level="${this.schemaExpandLevel}"
                           schema-description-expanded="${this.schemaDescriptionExpanded}"
                           allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-                          schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
+                          schema-hide-read-only="${this.schemaHideReadOnly === "never" ? "false" : "true"}"
                           schema-hide-write-only="false"
                           exportparts="section-response-title:section-response-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
             btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-outline:btn-outline, btn-copy:btn-copy,
@@ -74,13 +74,13 @@ export default function callbackTemplate(callbacks) {
                         </api-response>
                       </div>
                     </div>
-                  `
+                  `,
                 )}
               </div>
-            `
+            `,
           )}
         </div>
-      `
+      `,
     )}
   `;
 }

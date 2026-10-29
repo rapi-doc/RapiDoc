@@ -76,16 +76,16 @@ access:
 
 ### 2.2 `auth`
 
-| Key | Type | Default | Meaning |
-| :--- | :--- | :--- | :--- |
-| `provider` | `oidc` | `oidc` | Only `oidc` in Phase 1. The key exists so `github` can be added without a breaking change. |
-| `issuer` | URL | — | OIDC issuer; endpoints come from its `/.well-known/openid-configuration`. Required at serve time, from here or `RAPIDOC_AUTH_ISSUER`. |
-| `clientId` | string | — | Required at serve time, from here or `RAPIDOC_AUTH_CLIENT_ID`. |
-| `scopes` | string[] | `[openid, profile, email]` | Add `groups` (Okta) or similar when the provider needs a scope for group claims. |
-| `claims.groups` | string | `groups` | Claim holding the user's groups or roles. Dotted paths work: `realm_access.roles` (Keycloak), `roles` (Entra app roles). An array or a space/comma-separated string. |
-| `session.maxAge` | duration | `8h` | How long a sign-in lasts: `30m`, `8h`, `7d`. After that the reader is sent through the provider again (usually silent if their provider session is still alive). |
-| `logout` | `local` \| `idp` | `local` | `idp` also ends the session at the provider (RP-initiated logout) when it supports it. |
-| `label` | string | `Sign in` | Text of the header button. |
+| Key              | Type             | Default                    | Meaning                                                                                                                                                              |
+| :--------------- | :--------------- | :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `provider`       | `oidc`           | `oidc`                     | Only `oidc` in Phase 1. The key exists so `github` can be added without a breaking change.                                                                           |
+| `issuer`         | URL              | —                          | OIDC issuer; endpoints come from its `/.well-known/openid-configuration`. Required at serve time, from here or `RAPIDOC_AUTH_ISSUER`.                                |
+| `clientId`       | string           | —                          | Required at serve time, from here or `RAPIDOC_AUTH_CLIENT_ID`.                                                                                                       |
+| `scopes`         | string[]         | `[openid, profile, email]` | Add `groups` (Okta) or similar when the provider needs a scope for group claims.                                                                                     |
+| `claims.groups`  | string           | `groups`                   | Claim holding the user's groups or roles. Dotted paths work: `realm_access.roles` (Keycloak), `roles` (Entra app roles). An array or a space/comma-separated string. |
+| `session.maxAge` | duration         | `8h`                       | How long a sign-in lasts: `30m`, `8h`, `7d`. After that the reader is sent through the provider again (usually silent if their provider session is still alive).     |
+| `logout`         | `local` \| `idp` | `local`                    | `idp` also ends the session at the provider (RP-initiated logout) when it supports it.                                                                               |
+| `label`          | string           | `Sign in`                  | Text of the header button.                                                                                                                                           |
 
 **No secrets in the config file.** The client secret and the session key come only from environment variables (§3). The YAML file, the build output and the browser never contain them. There is no `${VAR}` interpolation in YAML: fixed variable names are simpler and keep secrets out of build artifacts.
 
@@ -93,12 +93,12 @@ access:
 
 ### 2.3 `access`
 
-| Key | Type | Default | Meaning |
-| :--- | :--- | :--- | :--- |
-| `default` | allow | `public` | Applies to every page and file that no rule matches. |
-| `rules` | `{ path, allow }[]` | `[]` | Checked top to bottom; the **first matching rule wins**. |
-| `rules[].path` | pattern | — | URL path pattern (§2.4). |
-| `rules[].allow` | allow | — | Who may read what the pattern matches. |
+| Key             | Type                | Default  | Meaning                                                  |
+| :-------------- | :------------------ | :------- | :------------------------------------------------------- |
+| `default`       | allow               | `public` | Applies to every page and file that no rule matches.     |
+| `rules`         | `{ path, allow }[]` | `[]`     | Checked top to bottom; the **first matching rule wins**. |
+| `rules[].path`  | pattern             | —        | URL path pattern (§2.4).                                 |
+| `rules[].allow` | allow               | —        | Who may read what the pattern matches.                   |
 
 An **allow** is one of:
 
@@ -172,13 +172,13 @@ export const AccessSchema = z.strictObject({
 
 ## 3. Runtime settings (environment variables, read by `rapidoc serve`)
 
-| Variable | Required | Meaning |
-| :--- | :--- | :--- |
-| `RAPIDOC_SESSION_SECRET` | when `auth` is set | Key that encrypts the session cookie, at least 32 characters. Every instance behind a load balancer uses the same value. Changing it signs everyone out. |
-| `RAPIDOC_AUTH_CLIENT_SECRET` | for a confidential client | Leave unset for a public client (PKCE only). |
-| `RAPIDOC_AUTH_ISSUER`, `RAPIDOC_AUTH_CLIENT_ID` | no | Override `auth.issuer` / `auth.clientId`. |
-| `RAPIDOC_PUBLIC_URL` | recommended | External URL, e.g. `https://developers.example.com`. Used for the redirect URL and to decide the cookie's `Secure` flag behind a TLS-terminating proxy. Default: `site.url`. |
-| `PORT`, `HOST` | no | Default `8080`, `0.0.0.0`. Flags `--port` / `--host` win. |
+| Variable                                        | Required                  | Meaning                                                                                                                                                                      |
+| :---------------------------------------------- | :------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RAPIDOC_SESSION_SECRET`                        | when `auth` is set        | Key that encrypts the session cookie, at least 32 characters. Every instance behind a load balancer uses the same value. Changing it signs everyone out.                     |
+| `RAPIDOC_AUTH_CLIENT_SECRET`                    | for a confidential client | Leave unset for a public client (PKCE only).                                                                                                                                 |
+| `RAPIDOC_AUTH_ISSUER`, `RAPIDOC_AUTH_CLIENT_ID` | no                        | Override `auth.issuer` / `auth.clientId`.                                                                                                                                    |
+| `RAPIDOC_PUBLIC_URL`                            | recommended               | External URL, e.g. `https://developers.example.com`. Used for the redirect URL and to decide the cookie's `Secure` flag behind a TLS-terminating proxy. Default: `site.url`. |
+| `PORT`, `HOST`                                  | no                        | Default `8080`, `0.0.0.0`. Flags `--port` / `--host` win.                                                                                                                    |
 
 Redirect URL to register at the provider: `<public URL>/_rapidoc/auth/callback`.
 
@@ -190,13 +190,13 @@ The server refuses to start, with a one-line reason, when a required value is mi
 
 The build turns each distinct allow into a **zone** and assigns every page and file exactly one zone. The server only reads that map; it never evaluates patterns.
 
-| Request | Reader may see the zone | Signed out, zone not public | Signed in, no access |
-| :--- | :--- | :--- | :--- |
-| HTML page | 200 | 302 to `/_rapidoc/auth/login?returnTo=<path>` | 403, portal-styled "Access denied" page |
-| Spec, file from `public/` | 200 | 401 | 403 |
-| `/search-index.json` | public entries + allowed zones merged | public entries | public + allowed zones |
-| Pagefind bundle of a zone | real bundle | empty bundle | empty bundle |
-| Unknown path | 404 if the reader may see `default`, else as the column says | | |
+| Request                   | Reader may see the zone                                      | Signed out, zone not public                   | Signed in, no access                    |
+| :------------------------ | :----------------------------------------------------------- | :-------------------------------------------- | :-------------------------------------- |
+| HTML page                 | 200                                                          | 302 to `/_rapidoc/auth/login?returnTo=<path>` | 403, portal-styled "Access denied" page |
+| Spec, file from `public/` | 200                                                          | 401                                           | 403                                     |
+| `/search-index.json`      | public entries + allowed zones merged                        | public entries                                | public + allowed zones                  |
+| Pagefind bundle of a zone | real bundle                                                  | empty bundle                                  | empty bundle                            |
+| Unknown path              | 404 if the reader may see `default`, else as the column says |                                               |                                         |
 
 The last row means a signed-out reader can't tell whether a protected URL exists.
 
@@ -252,13 +252,13 @@ packages/rapidoc-server/
 
 ### 6.1 Endpoints
 
-| Route | Method | Does |
-| :--- | :--- | :--- |
-| `/_rapidoc/auth/login?returnTo=/path` | GET | Starts the authorization code flow with PKCE, `state` and `nonce`; keeps them in a 10-minute encrypted cookie. |
-| `/_rapidoc/auth/callback` | GET | Checks `state`, exchanges the code, validates the ID token (signature, issuer, audience, expiry, nonce), merges userinfo claims, sets the session cookie, redirects to `returnTo`. |
-| `/_rapidoc/auth/logout` | POST | Same-origin only (`Sec-Fetch-Site: same-origin`, `Origin` fallback). Clears the cookie; with `logout: idp`, redirects to the provider's end-session endpoint. |
-| `/_rapidoc/auth/me` | GET | `{ user: { name, email, picture }, zones: [...] }` or 401. |
-| `/_rapidoc/health` | GET | 200 when the manifest is loaded and the issuer was discovered; for load-balancer and Kubernetes probes. |
+| Route                                 | Method | Does                                                                                                                                                                               |
+| :------------------------------------ | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/_rapidoc/auth/login?returnTo=/path` | GET    | Starts the authorization code flow with PKCE, `state` and `nonce`; keeps them in a 10-minute encrypted cookie.                                                                     |
+| `/_rapidoc/auth/callback`             | GET    | Checks `state`, exchanges the code, validates the ID token (signature, issuer, audience, expiry, nonce), merges userinfo claims, sets the session cookie, redirects to `returnTo`. |
+| `/_rapidoc/auth/logout`               | POST   | Same-origin only (`Sec-Fetch-Site: same-origin`, `Origin` fallback). Clears the cookie; with `logout: idp`, redirects to the provider's end-session endpoint.                      |
+| `/_rapidoc/auth/me`                   | GET    | `{ user: { name, email, picture }, zones: [...] }` or 401.                                                                                                                         |
+| `/_rapidoc/health`                    | GET    | 200 when the manifest is loaded and the issuer was discovered; for load-balancer and Kubernetes probes.                                                                            |
 
 ### 6.2 Security details
 
@@ -303,26 +303,26 @@ Dependencies added: `hono`, `@hono/node-server`, `openid-client` (OpenID-certifi
 
 ## 11. Later phases
 
-| Phase | Adds |
-| :--- | :--- |
-| 2 | Try-it as the signed-in user (`<rapi-doc>.setApiKey()` with a short-lived token from the server); GitHub sign-in with org/team as groups; hide locked items' names from HTML for readers without access. |
-| 3 | Specs pulled from other Git repos at build time; CI templates (GitHub Actions, GitLab CI, Azure DevOps). |
-| 4 | API key UI and backend contract; PocketBase reference backend. |
+| Phase | Adds                                                                                                                                                                                                     |
+| :---- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2     | Try-it as the signed-in user (`<rapi-doc>.setApiKey()` with a short-lived token from the server); GitHub sign-in with org/team as groups; hide locked items' names from HTML for readers without access. |
+| 3     | Specs pulled from other Git repos at build time; CI templates (GitHub Actions, GitLab CI, Azure DevOps).                                                                                                 |
+| 4     | API key UI and backend contract; PocketBase reference backend.                                                                                                                                           |
 
 ---
 
 ## 12. Decisions for you
 
-| # | Question | Recommendation |
-| :--- | :--- | :--- |
-| D1 | Locked items in nav and catalog: visible with a lock, or removed from the HTML? | **Visible with a lock** in Phase 1. Removing them per reader means rewriting HTML per request; Phase 2. Page content, specs and search are protected either way. |
-| D2 | Output layout `dist/public/` + `dist/protected/` when something is protected (unchanged otherwise)? | **Yes.** `dist/public/` is always safe to publish; serving `dist/` by mistake shows no `index.html` at the root instead of leaking pages. |
-| D3 | Rule order: first match wins? | **Yes**, like most firewalls and nginx `location` ordering; easy to read top to bottom. |
-| D4 | Allow names `public` / `signed-in` / `{ groups, emails }`? | **Yes.** Plain words, like the rest of the config. |
-| D5 | Separate `@rapidoc/server` package, optional peer of the CLI? | **Yes.** Production images don't need Astro, and the portal keeps "no runtime server" as its own rule. |
-| D6 | Spec URLs become `/specs/<api id><ext>` for every portal? | **Yes.** It fixes name collisions too. Anyone linking to the old URL breaks; add redirects only if you know of such links. |
-| D7 | Secrets only from environment variables, no `${VAR}` in YAML? | **Yes.** |
-| D8 | `emails` patterns in Phase 1 (verified email required)? | **Yes.** "Everyone at our company" is the most common rule and many providers have no groups set up. |
+| #   | Question                                                                                            | Recommendation                                                                                                                                                   |
+| :-- | :-------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Locked items in nav and catalog: visible with a lock, or removed from the HTML?                     | **Visible with a lock** in Phase 1. Removing them per reader means rewriting HTML per request; Phase 2. Page content, specs and search are protected either way. |
+| D2  | Output layout `dist/public/` + `dist/protected/` when something is protected (unchanged otherwise)? | **Yes.** `dist/public/` is always safe to publish; serving `dist/` by mistake shows no `index.html` at the root instead of leaking pages.                        |
+| D3  | Rule order: first match wins?                                                                       | **Yes**, like most firewalls and nginx `location` ordering; easy to read top to bottom.                                                                          |
+| D4  | Allow names `public` / `signed-in` / `{ groups, emails }`?                                          | **Yes.** Plain words, like the rest of the config.                                                                                                               |
+| D5  | Separate `@rapidoc/server` package, optional peer of the CLI?                                       | **Yes.** Production images don't need Astro, and the portal keeps "no runtime server" as its own rule.                                                           |
+| D6  | Spec URLs become `/specs/<api id><ext>` for every portal?                                           | **Yes.** It fixes name collisions too. Anyone linking to the old URL breaks; add redirects only if you know of such links.                                       |
+| D7  | Secrets only from environment variables, no `${VAR}` in YAML?                                       | **Yes.**                                                                                                                                                         |
+| D8  | `emails` patterns in Phase 1 (verified email required)?                                             | **Yes.** "Everyone at our company" is the most common rule and many providers have no groups set up.                                                             |
 
 ---
 
@@ -335,4 +335,3 @@ Dependencies added: `hono`, `@hono/node-server`, `openid-client` (OpenID-certifi
 - **Groups hint.** `rapidoc serve` logs a hint when rules use groups but a sign-in carries no groups claim (a missing `groups` scope, for example).
 - **Not done in Phase 1:** a Docker file in the `create-rapidoc` template (the server README has an example), provider-specific setup guides (the portal README has short notes), and a layout test for the header's sign-in slot. `rapidoc dev` doesn't enforce rules, as planned.
 - **Known gap (existing before this work):** spec files that a spec references through a relative `$ref` (e.g. `label-v3.json` → `label-base.json` in the demo) are not published at all. When that is fixed, they must take the zone of the API that references them.
-

@@ -1,19 +1,24 @@
 /**
  * Renders the authentication modal dialog supporting API Keys, HTTP Basic/Bearer, OAuth2 flows, and OpenID Connect.
  */
-import { html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { sanitizeHTML } from '../utils/sanitize.js';
-import { oauthReceiverUrl } from '../utils/url-utils.js';
-import { OAUTH_CHANNEL, isExpectedOAuthReply, pkceChallenge, randomUrlSafe } from '../utils/oauth-utils.js';
-import { marked } from 'marked';
+import { html } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHTML } from "../utils/sanitize.js";
+import { oauthReceiverUrl } from "../utils/url-utils.js";
+import {
+  OAUTH_CHANNEL,
+  isExpectedOAuthReply,
+  pkceChallenge,
+  randomUrlSafe,
+} from "../utils/oauth-utils.js";
+import { marked } from "marked";
 
-const localStorageKey = 'rapidoc';
+const localStorageKey = "rapidoc";
 
 function toBase64(str) {
   try {
     const bytes = new TextEncoder().encode(str);
-    let binary = '';
+    let binary = "";
     for (let i = 0; i < bytes.byteLength; i++) {
       binary += String.fromCharCode(bytes[i]);
     }
@@ -34,7 +39,7 @@ function normalizeParams(params) {
     }
     return result;
   }
-  if (typeof params === 'object') {
+  if (typeof params === "object") {
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined && v !== null) {
         result.set(k, String(v));
@@ -42,12 +47,12 @@ function normalizeParams(params) {
     });
     return result;
   }
-  if (typeof params === 'string') {
+  if (typeof params === "string") {
     const trimmed = params.trim();
-    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
       try {
         const obj = JSON.parse(trimmed);
-        if (typeof obj === 'object' && obj !== null) {
+        if (typeof obj === "object" && obj !== null) {
           Object.entries(obj).forEach(([k, v]) => {
             if (v !== undefined && v !== null) {
               result.set(k, String(v));
@@ -59,7 +64,7 @@ function normalizeParams(params) {
         // Not valid JSON, fall back to URLSearchParams
       }
     }
-    const cleanStr = trimmed.startsWith('?') ? trimmed.slice(1) : trimmed;
+    const cleanStr = trimmed.startsWith("?") ? trimmed.slice(1) : trimmed;
     const parsed = new URLSearchParams(cleanStr);
     for (const [k, v] of parsed.entries()) {
       result.set(k, v);
@@ -74,23 +79,31 @@ function normalizeParams(params) {
  * where the key came from, e.g. the reader's sign-in: the scheme then shows the note instead of its own form until
  * the reader asks for the form. Any later change of the key (form, GET TOKEN, REMOVE, CLEAR ALL) drops the note.
  */
-export function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '', note = '') {
-  const securityObj = this.resolvedSpec.securitySchemes?.find((v) => v.securitySchemeId === securitySchemeId);
+export function applyApiKey(
+  securitySchemeId,
+  username = "",
+  password = "",
+  providedApikeyVal = "",
+  note = "",
+) {
+  const securityObj = this.resolvedSpec.securitySchemes?.find(
+    (v) => v.securitySchemeId === securitySchemeId,
+  );
   if (!securityObj) {
     return false;
   }
-  let finalApiKeyValue = '';
-  if (securityObj.scheme?.toLowerCase() === 'basic') {
+  let finalApiKeyValue = "";
+  if (securityObj.scheme?.toLowerCase() === "basic") {
     if (username) {
       finalApiKeyValue = `Basic ${toBase64(`${username}:${password}`)}`;
     }
   } else if (providedApikeyVal) {
     securityObj.value = providedApikeyVal;
-    finalApiKeyValue = `${securityObj.scheme?.toLowerCase() === 'bearer' ? 'Bearer ' : ''}${providedApikeyVal}`;
+    finalApiKeyValue = `${securityObj.scheme?.toLowerCase() === "bearer" ? "Bearer " : ""}${providedApikeyVal}`;
   }
   if (finalApiKeyValue) {
     securityObj.finalKeyValue = finalApiKeyValue;
-    securityObj.hostNote = note ? String(note) : '';
+    securityObj.hostNote = note ? String(note) : "";
     securityObj.hostFormOpen = false;
     this.requestUpdate();
     return true;
@@ -100,11 +113,11 @@ export function applyApiKey(securitySchemeId, username = '', password = '', prov
 
 export function onClearAllApiKeys() {
   this.resolvedSpec.securitySchemes?.forEach((v) => {
-    v.user = '';
-    v.password = '';
-    v.value = '';
-    v.finalKeyValue = '';
-    v.hostNote = '';
+    v.user = "";
+    v.password = "";
+    v.value = "";
+    v.finalKeyValue = "";
+    v.hostNote = "";
   });
   this.requestUpdate();
 }
@@ -125,20 +138,27 @@ export function recoverPersistedApiKeys() {
 }
 
 function onApiKeyChange(securitySchemeId) {
-  let apiKeyValue = '';
-  const securityObj = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === securitySchemeId);
+  let apiKeyValue = "";
+  const securityObj = this.resolvedSpec.securitySchemes.find(
+    (v) => v.securitySchemeId === securitySchemeId,
+  );
   if (securityObj) {
     const schemeEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`);
     if (schemeEl) {
-      if (securityObj.type && securityObj.scheme && securityObj.type === 'http' && securityObj.scheme.toLowerCase() === 'basic') {
-        const userVal = schemeEl.querySelector('.api-key-user').value.trim();
-        const passwordVal = schemeEl.querySelector('.api-key-password').value.trim();
+      if (
+        securityObj.type &&
+        securityObj.scheme &&
+        securityObj.type === "http" &&
+        securityObj.scheme.toLowerCase() === "basic"
+      ) {
+        const userVal = schemeEl.querySelector(".api-key-user").value.trim();
+        const passwordVal = schemeEl.querySelector(".api-key-password").value.trim();
         applyApiKey.call(this, securitySchemeId, userVal, passwordVal);
       } else {
-        apiKeyValue = schemeEl.querySelector('.api-key-input').value.trim();
-        applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+        apiKeyValue = schemeEl.querySelector(".api-key-input").value.trim();
+        applyApiKey.call(this, securitySchemeId, "", "", apiKeyValue);
       }
-      if (this.persistAuth === 'true') {
+      if (this.persistAuth === "true") {
         const rapidocLs = getPersistedApiKeys.call(this);
         rapidocLs[securitySchemeId] = securityObj;
         setPersistedApiKeys.call(this, rapidocLs);
@@ -152,17 +172,19 @@ function showOAuthStatus(el, text, colorVar) {
   if (!el) {
     return;
   }
-  const span = document.createElement('span');
+  const span = document.createElement("span");
   span.style.color = `var(${colorVar})`;
   span.textContent = text;
   el.replaceChildren(span);
 }
 
 // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
-function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
-  const securityObj = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === securitySchemeId);
-  securityObj.finalKeyValue = `${tokenType.toLowerCase() === 'bearer' ? 'Bearer' : tokenType.toLowerCase() === 'mac' ? 'MAC' : tokenType} ${accessToken}`;
-  securityObj.hostNote = '';
+function updateOAuthKey(securitySchemeId, accessToken, tokenType = "Bearer") {
+  const securityObj = this.resolvedSpec.securitySchemes.find(
+    (v) => v.securitySchemeId === securitySchemeId,
+  );
+  securityObj.finalKeyValue = `${tokenType.toLowerCase() === "bearer" ? "Bearer" : tokenType.toLowerCase() === "mac" ? "MAC" : tokenType} ${accessToken}`;
+  securityObj.hostNote = "";
   this.requestUpdate();
 }
 
@@ -176,14 +198,16 @@ async function fetchAccessToken(
   authCode,
   securitySchemeId,
   authFlowDivEl,
-  sendClientSecretIn = 'request-body',
+  sendClientSecretIn = "request-body",
   scopes = null,
   username = null,
   password = null,
   tokenParamsSpec = null,
-  codeVerifier = null
+  codeVerifier = null,
 ) {
-  const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
+  const respDisplayEl = authFlowDivEl
+    ? authFlowDivEl.querySelector(".oauth-resp-display")
+    : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
 
@@ -199,40 +223,40 @@ async function fetchAccessToken(
     urlFormParams.set(k, v);
   }
 
-  urlFormParams.set('grant_type', grantType);
-  if (grantType !== 'client_credentials' && grantType !== 'password') {
-    urlFormParams.set('redirect_uri', redirectUrl);
+  urlFormParams.set("grant_type", grantType);
+  if (grantType !== "client_credentials" && grantType !== "password") {
+    urlFormParams.set("redirect_uri", redirectUrl);
   }
   if (authCode) {
-    urlFormParams.set('code', authCode);
+    urlFormParams.set("code", authCode);
     if (codeVerifier) {
-      urlFormParams.set('code_verifier', codeVerifier); // PKCE: proves this page started the sign-in
+      urlFormParams.set("code_verifier", codeVerifier); // PKCE: proves this page started the sign-in
     }
   }
-  if (sendClientSecretIn === 'header' && clientSecret) {
-    headers.set('Authorization', `Basic ${toBase64(`${clientId}:${clientSecret}`)}`);
+  if (sendClientSecretIn === "header" && clientSecret) {
+    headers.set("Authorization", `Basic ${toBase64(`${clientId}:${clientSecret}`)}`);
   } else {
     if (clientId) {
-      urlFormParams.set('client_id', clientId);
+      urlFormParams.set("client_id", clientId);
     }
     if (clientSecret) {
-      urlFormParams.set('client_secret', clientSecret);
+      urlFormParams.set("client_secret", clientSecret);
     }
   }
-  if (grantType === 'password') {
-    urlFormParams.set('username', username);
-    urlFormParams.set('password', password);
+  if (grantType === "password") {
+    urlFormParams.set("username", username);
+    urlFormParams.set("password", password);
   }
   if (scopes) {
-    urlFormParams.set('scope', scopes);
+    urlFormParams.set("scope", scopes);
   }
 
   const requestDetail = {
-    method: 'POST',
+    method: "POST",
     headers,
     body: urlFormParams,
   };
-  const beforeTokenEvent = new CustomEvent('before-token-request', {
+  const beforeTokenEvent = new CustomEvent("before-token-request", {
     bubbles: true,
     composed: true,
     cancelable: true,
@@ -252,7 +276,7 @@ async function fetchAccessToken(
 
   try {
     const resp = await fetch(tokenUrl, {
-      method: requestDetail.method || 'POST',
+      method: requestDetail.method || "POST",
       headers: requestDetail.headers || headers,
       body: requestDetail.body || urlFormParams,
     });
@@ -260,15 +284,19 @@ async function fetchAccessToken(
     if (resp.ok) {
       if (tokenResp.token_type && tokenResp.access_token) {
         updateOAuthKey.call(this, securitySchemeId, tokenResp.access_token, tokenResp.token_type);
-        showOAuthStatus(respDisplayEl, 'Access Token Received', '--green');
+        showOAuthStatus(respDisplayEl, "Access Token Received", "--green");
         return true;
       }
     } else {
-      showOAuthStatus(respDisplayEl, tokenResp.error_description || tokenResp.error || 'Unable to get access token', '--destructive');
+      showOAuthStatus(
+        respDisplayEl,
+        tokenResp.error_description || tokenResp.error || "Unable to get access token",
+        "--destructive",
+      );
       return false;
     }
   } catch {
-    showOAuthStatus(respDisplayEl, 'Failed to get access token', '--destructive');
+    showOAuthStatus(respDisplayEl, "Failed to get access token", "--destructive");
     return false;
   }
 }
@@ -278,12 +306,14 @@ async function fetchAccessToken(
  * token, or applies a token (implicit flow). Accepts the older receiver's key names too.
  */
 function onOAuthReply(reply, flow) {
-  const respDisplayEl = flow.authFlowDivEl ? flow.authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
+  const respDisplayEl = flow.authFlowDivEl
+    ? flow.authFlowDivEl.querySelector(".oauth-resp-display")
+    : undefined;
   if (reply.error) {
-    showOAuthStatus(respDisplayEl, reply.errorDescription || reply.error, '--destructive');
+    showOAuthStatus(respDisplayEl, reply.errorDescription || reply.error, "--destructive");
     return;
   }
-  if (reply.responseType === 'code') {
+  if (reply.responseType === "code") {
     fetchAccessToken.call(
       this,
       flow.tokenUrl,
@@ -299,12 +329,17 @@ function onOAuthReply(reply, flow) {
       null,
       null,
       flow.tokenParamsSpec,
-      flow.codeVerifier
+      flow.codeVerifier,
     );
   } else {
     const accessToken = reply.accessToken || reply.access_token;
     if (accessToken) {
-      updateOAuthKey.call(this, flow.securitySchemeId, accessToken, reply.tokenType || reply.token_type || 'Bearer');
+      updateOAuthKey.call(
+        this,
+        flow.securitySchemeId,
+        accessToken,
+        reply.tokenType || reply.token_type || "Bearer",
+      );
     }
   }
 }
@@ -316,13 +351,14 @@ function onOAuthReply(reply, flow) {
  * inject a code or token nor end the wait. Starting another sign-in stops the previous wait.
  */
 function waitForOAuthReply(popup, state, onReply) {
-  if (typeof this.stopOAuthWait === 'function') {
+  if (typeof this.stopOAuthWait === "function") {
     this.stopOAuthWait();
   }
-  const channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(OAUTH_CHANNEL) : null;
+  const channel =
+    typeof BroadcastChannel === "function" ? new BroadcastChannel(OAUTH_CHANNEL) : null;
   let onMessage;
   const stop = () => {
-    window.removeEventListener('message', onMessage);
+    window.removeEventListener("message", onMessage);
     if (channel) {
       channel.close();
     }
@@ -340,11 +376,19 @@ function waitForOAuthReply(popup, state, onReply) {
     onReply(reply);
   };
   onMessage = (msgEvent) => {
-    if (isExpectedOAuthReply(msgEvent.data, { state, origin: window.location.origin }, msgEvent.origin, msgEvent.source, popup)) {
+    if (
+      isExpectedOAuthReply(
+        msgEvent.data,
+        { state, origin: window.location.origin },
+        msgEvent.origin,
+        msgEvent.source,
+        popup,
+      )
+    ) {
       finish(msgEvent.data);
     }
   };
-  window.addEventListener('message', onMessage);
+  window.addEventListener("message", onMessage);
   if (channel) {
     channel.onmessage = (msgEvent) => {
       if (isExpectedOAuthReply(msgEvent.data, { state })) {
@@ -355,18 +399,32 @@ function waitForOAuthReply(popup, state, onReply) {
   this.stopOAuthWait = stop;
 }
 
-async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e, authorizeParamsSpec = null, tokenParamsSpec = null) {
-  const authFlowDivEl = e.target.closest('.oauth-flow');
-  const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
-  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret')
-    ? authFlowDivEl.querySelector('.oauth-client-secret').value.trim()
-    : '';
-  const username = authFlowDivEl.querySelector('.api-key-user') ? authFlowDivEl.querySelector('.api-key-user').value.trim() : '';
-  const password = authFlowDivEl.querySelector('.api-key-password') ? authFlowDivEl.querySelector('.api-key-password').value.trim() : '';
-  const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in')
-    ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim()
-    : 'request-body';
-  const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
+async function onInvokeOAuthFlow(
+  securitySchemeId,
+  flowType,
+  authUrl,
+  tokenUrl,
+  e,
+  authorizeParamsSpec = null,
+  tokenParamsSpec = null,
+) {
+  const authFlowDivEl = e.target.closest(".oauth-flow");
+  const clientId = authFlowDivEl.querySelector(".oauth-client-id")
+    ? authFlowDivEl.querySelector(".oauth-client-id").value.trim()
+    : "";
+  const clientSecret = authFlowDivEl.querySelector(".oauth-client-secret")
+    ? authFlowDivEl.querySelector(".oauth-client-secret").value.trim()
+    : "";
+  const username = authFlowDivEl.querySelector(".api-key-user")
+    ? authFlowDivEl.querySelector(".api-key-user").value.trim()
+    : "";
+  const password = authFlowDivEl.querySelector(".api-key-password")
+    ? authFlowDivEl.querySelector(".api-key-password").value.trim()
+    : "";
+  const sendClientSecretIn = authFlowDivEl.querySelector(".oauth-send-client-secret-in")
+    ? authFlowDivEl.querySelector(".oauth-send-client-secret-in").value.trim()
+    : "request-body";
+  const checkedScopeEls = [...authFlowDivEl.querySelectorAll(".scope-checkbox:checked")];
   const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
   // Unguessable per sign-in: state ties the reply to this sign-in, the PKCE verifier proves it at the token endpoint.
   const state = randomUrlSafe(16);
@@ -374,23 +432,23 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
   const usePkce = Boolean(pkceCheckboxEl && pkceCheckboxEl.checked);
   const codeVerifier = usePkce ? randomUrlSafe(32) : null;
   const redirectUrlObj = oauthReceiverUrl(window.location, this.oauthReceiver);
-  let grantType = '';
-  let responseType = '';
+  let grantType = "";
+  let responseType = "";
   let newWindow;
 
   // clear previous error messages
-  const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-resp-display')];
+  const errEls = [...authFlowDivEl.parentNode.querySelectorAll(".oauth-resp-display")];
   errEls.forEach((v) => {
     v.replaceChildren();
   });
 
-  if (flowType === 'authorizationCode' || flowType === 'implicit') {
+  if (flowType === "authorizationCode" || flowType === "implicit") {
     const authUrlObj = new URL(authUrl);
-    if (flowType === 'authorizationCode') {
-      grantType = 'authorization_code';
-      responseType = 'code';
-    } else if (flowType === 'implicit') {
-      responseType = 'token';
+    if (flowType === "authorizationCode") {
+      grantType = "authorization_code";
+      responseType = "code";
+    } else if (flowType === "implicit") {
+      responseType = "token";
     }
     const authCodeParams = new URLSearchParams(authUrlObj.search);
 
@@ -406,21 +464,21 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
       authCodeParams.set(k, v);
     }
 
-    const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
+    const selectedScopes = checkedScopeEls.map((v) => v.value).join(" ");
     if (selectedScopes) {
-      authCodeParams.set('scope', selectedScopes);
+      authCodeParams.set("scope", selectedScopes);
     }
-    authCodeParams.set('client_id', clientId);
-    authCodeParams.set('redirect_uri', redirectUrlObj.toString());
-    authCodeParams.set('response_type', responseType);
-    authCodeParams.set('state', state);
-    authCodeParams.set('nonce', nonce);
+    authCodeParams.set("client_id", clientId);
+    authCodeParams.set("redirect_uri", redirectUrlObj.toString());
+    authCodeParams.set("response_type", responseType);
+    authCodeParams.set("state", state);
+    authCodeParams.set("nonce", nonce);
     if (codeVerifier) {
-      authCodeParams.set('code_challenge', await pkceChallenge(codeVerifier));
-      authCodeParams.set('code_challenge_method', 'S256');
+      authCodeParams.set("code_challenge", await pkceChallenge(codeVerifier));
+      authCodeParams.set("code_challenge_method", "S256");
     }
 
-    const beforeAuthorizeEvent = new CustomEvent('before-authorize', {
+    const beforeAuthorizeEvent = new CustomEvent("before-authorize", {
       bubbles: true,
       composed: true,
       cancelable: true,
@@ -440,7 +498,11 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
     newWindow = window.open(authUrlObj.toString());
     if (!newWindow) {
       console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
-      showOAuthStatus(authFlowDivEl.querySelector('.oauth-resp-display'), 'The sign-in window was blocked', '--destructive');
+      showOAuthStatus(
+        authFlowDivEl.querySelector(".oauth-resp-display"),
+        "The sign-in window was blocked",
+        "--destructive",
+      );
       return;
     }
     waitForOAuthReply.call(this, newWindow, state, (reply) =>
@@ -455,11 +517,11 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
         authFlowDivEl,
         tokenParamsSpec,
         codeVerifier,
-      })
+      }),
     );
-  } else if (flowType === 'clientCredentials') {
-    grantType = 'client_credentials';
-    const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
+  } else if (flowType === "clientCredentials") {
+    grantType = "client_credentials";
+    const selectedScopes = checkedScopeEls.map((v) => v.value).join(" ");
     fetchAccessToken.call(
       this,
       tokenUrl,
@@ -467,18 +529,18 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
       clientSecret,
       redirectUrlObj.toString(),
       grantType,
-      '',
+      "",
       securitySchemeId,
       authFlowDivEl,
       sendClientSecretIn,
       selectedScopes,
       null,
       null,
-      tokenParamsSpec
+      tokenParamsSpec,
     );
-  } else if (flowType === 'password') {
-    grantType = 'password';
-    const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
+  } else if (flowType === "password") {
+    grantType = "password";
+    const selectedScopes = checkedScopeEls.map((v) => v.value).join(" ");
     fetchAccessToken.call(
       this,
       tokenUrl,
@@ -486,14 +548,14 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
       clientSecret,
       redirectUrlObj.toString(),
       grantType,
-      '',
+      "",
       securitySchemeId,
       authFlowDivEl,
       sendClientSecretIn,
       selectedScopes,
       username,
       password,
-      tokenParamsSpec
+      tokenParamsSpec,
     );
   }
 }
@@ -505,15 +567,15 @@ function oAuthFlowTemplate(
   securitySchemeId,
   authFlow,
   defaultScopes = [],
-  receiveTokenIn = 'request-body',
+  receiveTokenIn = "request-body",
   receiveTokenInOptions = undefined,
-  allowTry = 'true',
+  allowTry = "true",
   authorizeParams = null,
-  tokenParams = null
+  tokenParams = null,
 ) {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
-  const pkceOnly = authFlow['x-pkce-only'] || false;
-  const isUrlAbsolute = (url) => url.indexOf('://') > 0 || url.indexOf('//') === 0;
+  const pkceOnly = authFlow["x-pkce-only"] || false;
+  const isUrlAbsolute = (url) => url.indexOf("://") > 0 || url.indexOf("//") === 0;
   /*
   Calculcate Relative URL based on the following logic
   IF this.selectedServer?.computedUrl ends with slash and the refreshUrl / tokenUrl / authorizationUrl do not start with slash
@@ -523,40 +585,47 @@ function oAuthFlowTemplate(
   const url = new URL(this.selectedServer?.computedUrl);
   const originUrl = url.origin;
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    if (this.selectedServer?.computedUrl.trim().endsWith('/') && !refreshUrl.trim().startsWith('/')) {
+    if (
+      this.selectedServer?.computedUrl.trim().endsWith("/") &&
+      !refreshUrl.trim().startsWith("/")
+    ) {
       refreshUrl = `${this.selectedServer?.computedUrl.trim()}${refreshUrl.trim()}`;
     } else {
-      refreshUrl = `${originUrl}/${refreshUrl.replace(/^\//, '')}`;
+      refreshUrl = `${originUrl}/${refreshUrl.replace(/^\//, "")}`;
     }
   }
   if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    if (this.selectedServer?.computedUrl.trim().endsWith('/') && !tokenUrl.trim().startsWith('/')) {
+    if (this.selectedServer?.computedUrl.trim().endsWith("/") && !tokenUrl.trim().startsWith("/")) {
       tokenUrl = `${this.selectedServer?.computedUrl.trim()}${tokenUrl.trim()}`;
     } else {
-      tokenUrl = `${originUrl}/${tokenUrl.replace(/^\//, '')}`;
+      tokenUrl = `${originUrl}/${tokenUrl.replace(/^\//, "")}`;
     }
   }
   if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    if (this.selectedServer?.computedUrl.trim().endsWith('/') && !authorizationUrl.trim().startsWith('/')) {
+    if (
+      this.selectedServer?.computedUrl.trim().endsWith("/") &&
+      !authorizationUrl.trim().startsWith("/")
+    ) {
       authorizationUrl = `${this.selectedServer?.computedUrl.trim()}${authorizationUrl.trim()}`;
     } else {
-      authorizationUrl = `${originUrl}/${authorizationUrl.replace(/^\//, '')}`;
+      authorizationUrl = `${originUrl}/${authorizationUrl.replace(/^\//, "")}`;
     }
   }
   let flowNameDisplay;
-  if (flowName === 'authorizationCode') {
-    flowNameDisplay = 'Authorization Code Flow';
-  } else if (flowName === 'clientCredentials') {
-    flowNameDisplay = 'Client Credentials Flow';
-  } else if (flowName === 'implicit') {
-    flowNameDisplay = 'Implicit Flow';
-  } else if (flowName === 'password') {
-    flowNameDisplay = 'Password Flow';
+  if (flowName === "authorizationCode") {
+    flowNameDisplay = "Authorization Code Flow";
+  } else if (flowName === "clientCredentials") {
+    flowNameDisplay = "Client Credentials Flow";
+  } else if (flowName === "implicit") {
+    flowNameDisplay = "Implicit Flow";
+  } else if (flowName === "password") {
+    flowNameDisplay = "Password Flow";
   } else {
     flowNameDisplay = flowName;
   }
-  const showCredentials = flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password';
-  const isKnownFlow = showCredentials || flowName === 'implicit';
+  const showCredentials =
+    flowName === "authorizationCode" || flowName === "clientCredentials" || flowName === "password";
+  const isKnownFlow = showCredentials || flowName === "implicit";
   return html`
     <div class="oauth-flow ${flowName}">
       <h3 class="rapidoc-heading label-heading tiny-title upper" part="heading heading-3">${flowNameDisplay}</h3>
@@ -567,22 +636,22 @@ function oAuthFlowTemplate(
                 authorizationUrl
                   ? html`<dt>Auth URL</dt>
                       <dd class="mono-font">${authorizationUrl}</dd>`
-                  : ''
+                  : ""
               }
               ${
                 tokenUrl
                   ? html`<dt>Token URL</dt>
                       <dd class="mono-font">${tokenUrl}</dd>`
-                  : ''
+                  : ""
               }
               ${
                 refreshUrl
                   ? html`<dt>Refresh URL</dt>
                       <dd class="mono-font">${refreshUrl}</dd>`
-                  : ''
+                  : ""
               }
             </dl>`
-          : ''
+          : ""
       }
       ${
         isKnownFlow && authFlow.scopes
@@ -601,19 +670,21 @@ function oAuthFlowTemplate(
                       />
                       <span
                         ><span class="oauth-scope-name mono-font">${scope}</span>${
-                          scope !== scopeDescr && scopeDescr ? html` <span class="oauth-scope-descr">${scopeDescr}</span>` : ''
+                          scope !== scopeDescr && scopeDescr
+                            ? html` <span class="oauth-scope-descr">${scopeDescr}</span>`
+                            : ""
                         }</span
                       >
-                    </label>`
+                    </label>`,
                 )}
               </div>`
-          : ''
+          : ""
       }
       ${
-        isKnownFlow && allowTry === 'true'
+        isKnownFlow && allowTry === "true"
           ? html`${
-                flowName === 'authorizationCode'
-                  ? html`<label class="auth-toggle oauth-pkce" for="${securitySchemeId}-pkce">
+              flowName === "authorizationCode"
+                ? html`<label class="auth-toggle oauth-pkce" for="${securitySchemeId}-pkce">
                       <input
                         type="checkbox"
                         part="checkbox checkbox-auth-scope"
@@ -623,10 +694,10 @@ function oAuthFlowTemplate(
                       />
                       <span>Send Proof Key for Code Exchange (PKCE)</span>
                     </label>`
-                  : ''
-              }
+                : ""
+            }
               ${
-                flowName === 'password'
+                flowName === "password"
                   ? html`<div class="auth-controls">
                       <input
                         type="text"
@@ -647,13 +718,13 @@ function oAuthFlowTemplate(
                         id="input-${securitySchemeId}-${flowName}-api-key-password"
                       />
                     </div>`
-                  : ''
+                  : ""
               }
               <div class="auth-controls">
                 <input
                   type="text"
                   part="textbox textbox-auth-client-id"
-                  value="${clientId || ''}"
+                  value="${clientId || ""}"
                   placeholder="client-id"
                   spellcheck="false"
                   class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id"
@@ -664,7 +735,7 @@ function oAuthFlowTemplate(
                           id="${securitySchemeId}-${flowName}-oauth-client-secret"
                           type="password"
                           part="textbox textbox-auth-client-secret"
-                          value="${clientSecret || ''}"
+                          value="${clientSecret || ""}"
                           placeholder="client-secret"
                           spellcheck="false"
                           class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret"
@@ -676,43 +747,54 @@ function oAuthFlowTemplate(
                           ?hidden=${pkceOnly}
                         >
                           ${
-                            !receiveTokenInOptions || receiveTokenInOptions.includes('request-body')
-                              ? html`<option value="request-body" .selected=${receiveTokenIn === 'request-body'}>Request Body</option>`
-                              : ''
+                            !receiveTokenInOptions || receiveTokenInOptions.includes("request-body")
+                              ? html`<option value="request-body" .selected=${receiveTokenIn === "request-body"}>Request Body</option>`
+                              : ""
                           }
                           ${
-                            !receiveTokenInOptions || receiveTokenInOptions.includes('header')
-                              ? html`<option value="header" .selected=${receiveTokenIn === 'header'}>Authorization Header</option>`
-                              : ''
+                            !receiveTokenInOptions || receiveTokenInOptions.includes("header")
+                              ? html`<option value="header" .selected=${receiveTokenIn === "header"}>Authorization Header</option>`
+                              : ""
                           }
                         </select>`
-                    : ''
+                    : ""
                 }
                 <button
                   class="btn btn-outline"
                   part="btn btn-outline"
                   @click="${(e) => {
-                    onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e, authorizeParams, tokenParams);
+                    onInvokeOAuthFlow.call(
+                      this,
+                      securitySchemeId,
+                      flowName,
+                      authorizationUrl,
+                      tokenUrl,
+                      e,
+                      authorizeParams,
+                      tokenParams,
+                    );
                   }}"
                 >
                   GET TOKEN
                 </button>
               </div>
               <div class="oauth-resp-display red-text small-font-size"></div>`
-          : ''
+          : ""
       }
     </div>
   `;
 }
 
 function removeApiKey(securitySchemeId) {
-  const securityObj = this.resolvedSpec.securitySchemes?.find((v) => v.securitySchemeId === securitySchemeId);
-  securityObj.user = '';
-  securityObj.password = '';
-  securityObj.value = '';
-  securityObj.finalKeyValue = '';
-  securityObj.hostNote = '';
-  if (this.persistAuth === 'true') {
+  const securityObj = this.resolvedSpec.securitySchemes?.find(
+    (v) => v.securitySchemeId === securitySchemeId,
+  );
+  securityObj.user = "";
+  securityObj.password = "";
+  securityObj.value = "";
+  securityObj.finalKeyValue = "";
+  securityObj.hostNote = "";
+  if (this.persistAuth === "true") {
     const rapidocLs = getPersistedApiKeys.call(this);
     delete rapidocLs[securityObj.securitySchemeId];
     setPersistedApiKeys.call(this, rapidocLs);
@@ -720,9 +802,9 @@ function removeApiKey(securitySchemeId) {
   this.requestUpdate();
 }
 
-export default function securitySchemeTemplate(allowTry = 'true') {
+export default function securitySchemeTemplate(allowTry = "true") {
   if (!this.resolvedSpec) {
-    return '';
+    return "";
   }
 
   const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => v.finalKeyValue);
@@ -734,11 +816,11 @@ export default function securitySchemeTemplate(allowTry = 'true') {
       id="auth"
       part="section-auth"
       style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;"
-      class="observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}"
+      class="observe-me ${"read focused".includes(this.renderStyle) ? "section-gap--read-mode" : "section-gap "}"
     >
       <h2 class="rapidoc-heading sub-title regular-font" part="section-auth-title heading heading-2">Authentication</h2>
       ${
-        allowTry === 'true'
+        allowTry === "true"
           ? html`<div class="auth-status small-font-size">
               ${
                 providedApiKeys.length > 0
@@ -755,7 +837,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                   : html`<div class="red-text">No API key applied</div>`
               }
             </div>`
-          : ''
+          : ""
       }
       ${
         this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
@@ -765,7 +847,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                 .map((v) => {
                   // A key the host page applied with a note (e.g. the reader's sign-in): the note replaces the
                   // scheme's form, which stays one click away
-                  const hostNote = allowTry === 'true' && v.finalKeyValue ? v.hostNote : '';
+                  const hostNote = allowTry === "true" && v.finalKeyValue ? v.hostNote : "";
                   const folded = hostNote && !v.hostFormOpen;
                   return html`
                     <li id="security-scheme-${v.securitySchemeId}" class="auth-scheme ${v.type.toLowerCase()}" part="auth-scheme">
@@ -784,32 +866,32 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                   >
                                     REMOVE
                                   </button>`
-                              : ''
+                              : ""
                           }
                         </div>
-                        ${v.description ? html`<div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(v.description || '')))}</div>` : ''}
+                        ${v.description ? html`<div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(v.description || "")))}</div>` : ""}
                         ${
                           hostNote
                             ? html`<div class="auth-host-note" part="auth-host-note">${hostNote}</div>
                                 <button
                                   class="btn btn-link auth-host-toggle"
                                   part="btn btn-link"
-                                  aria-expanded="${folded ? 'false' : 'true'}"
+                                  aria-expanded="${folded ? "false" : "true"}"
                                   @click=${() => {
                                     v.hostFormOpen = !v.hostFormOpen;
                                     this.requestUpdate();
                                   }}
                                 >
-                                  ${folded ? 'Use a different token' : 'Hide token form'}
+                                  ${folded ? "Use a different token" : "Hide token form"}
                                 </button>`
-                            : ''
+                            : ""
                         }
                         ${
-                          !folded && v.type.toLowerCase() === 'apikey'
+                          !folded && v.type.toLowerCase() === "apikey"
                             ? html`<div class="auth-hint">Send <code>${v.name}</code> in <code>${v.in}</code></div>
                                 ${
-                                  allowTry === 'true'
-                                    ? v.in !== 'cookie'
+                                  allowTry === "true"
+                                    ? v.in !== "cookie"
                                       ? html`<div class="auth-controls">
                                           <input
                                             type="text"
@@ -826,22 +908,24 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                               onApiKeyChange.call(this, v.securitySchemeId);
                                             }}"
                                           >
-                                            ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                                            ${v.finalKeyValue ? "UPDATE" : "SET"}
                                           </button>
                                         </div>`
                                       : html`<div class="auth-hint gray-text">Cookies cannot be set from here</div>`
-                                    : ''
+                                    : ""
                                 }`
-                            : ''
+                            : ""
                         }
                         ${
-                          !folded && v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'basic'
+                          !folded &&
+                          v.type.toLowerCase() === "http" &&
+                          v.scheme?.toLowerCase() === "basic"
                             ? html`<div class="auth-hint">
                                   Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by
                                   a space and a base64 encoded string of <code>username:password</code>.
                                 </div>
                                 ${
-                                  allowTry === 'true'
+                                  allowTry === "true"
                                     ? html`<div class="auth-controls">
                                         <input
                                           type="text"
@@ -866,21 +950,23 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                           }}"
                                           part="btn btn-outline"
                                         >
-                                          ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                                          ${v.finalKeyValue ? "UPDATE" : "SET"}
                                         </button>
                                       </div>`
-                                    : ''
+                                    : ""
                                 }`
-                            : ''
+                            : ""
                         }
                         ${
-                          !folded && v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'bearer'
+                          !folded &&
+                          v.type.toLowerCase() === "http" &&
+                          v.scheme?.toLowerCase() === "bearer"
                             ? html`<div class="auth-hint">
                                   Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by
                                   a space and token value
                                 </div>
                                 ${
-                                  allowTry === 'true'
+                                  allowTry === "true"
                                     ? html`<div class="auth-controls">
                                         <input
                                           type="text"
@@ -897,41 +983,44 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                             onApiKeyChange.call(this, v.securitySchemeId);
                                           }}"
                                         >
-                                          ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                                          ${v.finalKeyValue ? "UPDATE" : "SET"}
                                         </button>
                                       </div>`
-                                    : ''
+                                    : ""
                                 }`
-                            : ''
+                            : ""
                         }
                       </div>
                       ${
-                        !folded && v.type.toLowerCase() === 'oauth2'
+                        !folded && v.type.toLowerCase() === "oauth2"
                           ? html`<div class="auth-flows" part="auth-flows">
                               ${Object.keys(v.flows).map((f) =>
                                 oAuthFlowTemplate.call(
                                   this,
                                   f,
-                                  v.flows[f]['x-client-id'] || v['x-client-id'] || '',
-                                  v.flows[f]['x-client-secret'] || v['x-client-secret'] || '',
+                                  v.flows[f]["x-client-id"] || v["x-client-id"] || "",
+                                  v.flows[f]["x-client-secret"] || v["x-client-secret"] || "",
                                   v.securitySchemeId,
                                   v.flows[f],
-                                  v.flows[f]['x-default-scopes'] || v['x-default-scopes'],
-                                  v.flows[f]['x-receive-token-in'] || v['x-receive-token-in'],
-                                  v.flows[f]['x-receive-token-in-options'] || v['x-receive-token-in-options'],
+                                  v.flows[f]["x-default-scopes"] || v["x-default-scopes"],
+                                  v.flows[f]["x-receive-token-in"] || v["x-receive-token-in"],
+                                  v.flows[f]["x-receive-token-in-options"] ||
+                                    v["x-receive-token-in-options"],
                                   allowTry,
-                                  v.flows[f]['x-authorize-params'] || v['x-authorize-params'] || null,
-                                  v.flows[f]['x-token-params'] || v['x-token-params'] || null
-                                )
+                                  v.flows[f]["x-authorize-params"] ||
+                                    v["x-authorize-params"] ||
+                                    null,
+                                  v.flows[f]["x-token-params"] || v["x-token-params"] || null,
+                                ),
                               )}
                             </div>`
-                          : ''
+                          : ""
                       }
                     </li>
                   `;
                 })}
             </ul>`
-          : ''
+          : ""
       }
       <slot name="auth"></slot>
     </section>
@@ -943,31 +1032,31 @@ function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
     ? html` <div>
         <b>Required scopes:</b><br />
         <div style="margin-left:8px">
-          ${andSecurityItem.scopes.split(',').map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope.trim()}</span>`)}
+          ${andSecurityItem.scopes.split(",").map((scope, cnt) => html`${cnt === 0 ? "" : "┃"}<span>${scope.trim()}</span>`)}
         </div>
       </div>`
-    : '';
+    : "";
 
-  if (andSecurityItem.type === 'oauth2') {
+  if (andSecurityItem.type === "oauth2") {
     return html` <div>
-      ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Needs '}OAuth Token
+      ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : "Needs "}OAuth Token
       <span style="font-family:var(--font-mono); color:var(--primary);">${andSecurityItem.securitySchemeId}</span>
       in <b>Authorization header</b>
       ${scopeHtml}
     </div>`;
   }
 
-  if (andSecurityItem.type === 'http') {
+  if (andSecurityItem.type === "http") {
     return html` <div>
-      ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Requires '}
-      ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : html`Bearer Token <b>${andSecurityItem.nameId}</b>`} in
+      ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : "Requires "}
+      ${andSecurityItem.scheme === "basic" ? "Base 64 encoded username:password" : html`Bearer Token <b>${andSecurityItem.nameId}</b>`} in
       <b>Authorization header</b>
       ${scopeHtml}
     </div>`;
   }
 
   return html` <div>
-    ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Requires '} Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+    ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : "Requires "} Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
     ${scopeHtml}
   </div>`;
 }
@@ -977,23 +1066,23 @@ function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
  * where "hint" is unsupported) on hover or keyboard focus. The panel renders in the top layer, so it is never
  * clipped by scroll containers, and is anchored to its chip with CSS anchor positioning (JS fallback below).
  */
-const supportsAnchorPositioning = typeof CSS !== 'undefined' && CSS.supports?.('anchor-name: --a');
+const supportsAnchorPositioning = typeof CSS !== "undefined" && CSS.supports?.("anchor-name: --a");
 const securityHideTimers = new WeakMap();
 let openSecurityPopover = null;
 
 function onSecurityPopoverKeydown(e) {
-  if (e.key === 'Escape' && openSecurityPopover) {
+  if (e.key === "Escape" && openSecurityPopover) {
     hideSecurityPopover(openSecurityPopover);
   }
 }
 
 function hideSecurityPopover(popover) {
-  if (popover.matches(':popover-open')) {
+  if (popover.matches(":popover-open")) {
     popover.hidePopover();
   }
   if (openSecurityPopover === popover) {
     openSecurityPopover = null;
-    document.removeEventListener('keydown', onSecurityPopoverKeydown);
+    document.removeEventListener("keydown", onSecurityPopoverKeydown);
   }
 }
 
@@ -1005,21 +1094,24 @@ function placeSecurityPopover(chip, popover) {
   const r = chip.getBoundingClientRect();
   const { offsetWidth: w, offsetHeight: h } = popover;
   const left = Math.max(edge, Math.min(r.left, window.innerWidth - w - edge));
-  const top = r.bottom + gap + h > window.innerHeight && r.top - gap - h >= 0 ? r.top - gap - h : r.bottom + gap;
-  Object.assign(popover.style, { inset: 'auto', margin: '0', left: `${left}px`, top: `${top}px` });
+  const top =
+    r.bottom + gap + h > window.innerHeight && r.top - gap - h >= 0
+      ? r.top - gap - h
+      : r.bottom + gap;
+  Object.assign(popover.style, { inset: "auto", margin: "0", left: `${left}px`, top: `${top}px` });
 }
 
 function showSecurityPopover(e) {
-  const chip = e.currentTarget.closest('.security-chip');
-  const popover = chip?.querySelector('.security-popover');
-  if (!popover || typeof popover.showPopover !== 'function') {
+  const chip = e.currentTarget.closest(".security-chip");
+  const popover = chip?.querySelector(".security-popover");
+  if (!popover || typeof popover.showPopover !== "function") {
     return;
   }
   clearTimeout(securityHideTimers.get(chip));
   if (openSecurityPopover && openSecurityPopover !== popover) {
     hideSecurityPopover(openSecurityPopover);
   }
-  if (!popover.matches(':popover-open')) {
+  if (!popover.matches(":popover-open")) {
     popover.showPopover();
   }
   if (!supportsAnchorPositioning) {
@@ -1027,7 +1119,7 @@ function showSecurityPopover(e) {
   }
   if (openSecurityPopover !== popover) {
     openSecurityPopover = popover;
-    document.addEventListener('keydown', onSecurityPopoverKeydown);
+    document.addEventListener("keydown", onSecurityPopoverKeydown);
   }
 }
 
@@ -1038,11 +1130,11 @@ function scheduleHideSecurityPopover(e) {
   securityHideTimers.set(
     chip,
     setTimeout(() => {
-      const popover = chip.querySelector('.security-popover');
-      if (popover && !chip.matches(':hover, :focus-within')) {
+      const popover = chip.querySelector(".security-popover");
+      if (popover && !chip.matches(":hover, :focus-within")) {
         hideSecurityPopover(popover);
       }
-    }, 150)
+    }, 150),
   );
 }
 
@@ -1051,16 +1143,20 @@ const lockIcon = html`<svg class="security-lock" aria-hidden="true" viewBox="0 0
   <path d="M8 11V7a4 4 0 0 1 8 0v4" />
 </svg>`;
 
-export function pathSecurityTemplate(pathSecurity, elementId = '') {
-  if (!this.resolvedSpec.securitySchemes || !Array.isArray(pathSecurity) || pathSecurity.length === 0) {
-    return '';
+export function pathSecurityTemplate(pathSecurity, elementId = "") {
+  if (
+    !this.resolvedSpec.securitySchemes ||
+    !Array.isArray(pathSecurity) ||
+    pathSecurity.length === 0
+  ) {
+    return "";
   }
 
   const isOptional = pathSecurity.some((p) => !p || Object.keys(p).length === 0);
   const activeSecurity = pathSecurity.filter((p) => p && Object.keys(p).length > 0);
 
   if (activeSecurity.length === 0) {
-    return '';
+    return "";
   }
 
   const orSecurityKeys = [];
@@ -1068,10 +1164,12 @@ export function pathSecurityTemplate(pathSecurity, elementId = '') {
     const andSecurityKeys = [];
     const andKeyTypes = [];
     Object.keys(pSecurity).forEach((pathSecurityKey) => {
-      let pathScopes = '';
-      const s = this.resolvedSpec.securitySchemes.find((ss) => ss.securitySchemeId === pathSecurityKey);
+      let pathScopes = "";
+      const s = this.resolvedSpec.securitySchemes.find(
+        (ss) => ss.securitySchemeId === pathSecurityKey,
+      );
       if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
-        pathScopes = pSecurity[pathSecurityKey].join(', ');
+        pathScopes = pSecurity[pathSecurityKey].join(", ");
       }
       if (s) {
         andKeyTypes.push(s.typeDisplay);
@@ -1079,16 +1177,19 @@ export function pathSecurityTemplate(pathSecurity, elementId = '') {
       }
     });
 
-    const displayType = andKeyTypes.length > 1 ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more` : andKeyTypes[0];
+    const displayType =
+      andKeyTypes.length > 1
+        ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more`
+        : andKeyTypes[0];
     orSecurityKeys.push({
       securityTypes: isOptional ? `${displayType} (Optional)` : displayType,
       securityDefs: andSecurityKeys,
     });
   });
 
-  const idPrefix = `${elementId || 'operation'}--security`;
-  const anchorPrefix = `--${idPrefix.replace(/[^\w-]/g, '_')}`;
-  const isLink = this.updateRoute === 'true' && this.allowAuthentication === 'true';
+  const idPrefix = `${elementId || "operation"}--security`;
+  const anchorPrefix = `--${idPrefix.replace(/[^\w-]/g, "_")}`;
+  const isLink = this.updateRoute === "true" && this.allowAuthentication === "true";
 
   return html`
     <div class="operation-security" part="section-operation-security" role="group" aria-labelledby="${idPrefix}-label">
@@ -1108,7 +1209,7 @@ export function pathSecurityTemplate(pathSecurity, elementId = '') {
       <ul class="value-list-items security-chips" role="list">
         ${orSecurityKeys.map((orItem, i) => {
           if (!orItem.securityTypes) {
-            return '';
+            return "";
           }
           const isMultiple = orItem.securityDefs.length > 1;
           const hasDetails = orItem.securityDefs.length > 0;
@@ -1124,7 +1225,7 @@ export function pathSecurityTemplate(pathSecurity, elementId = '') {
           return html`
             <li>
               <span
-                class="security-chip ${hasDetails ? 'has-details' : ''}"
+                class="security-chip ${hasDetails ? "has-details" : ""}"
                 part="operation-security-chip"
                 style="anchor-name:${anchorName}"
                 @mouseenter="${showSecurityPopover}"
@@ -1144,13 +1245,13 @@ export function pathSecurityTemplate(pathSecurity, elementId = '') {
                           role="tooltip"
                           style="position-anchor:${anchorName}"
                         >
-                          ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ''}
-                          <div style="padding-left:${isMultiple ? '8px' : '0'};">
+                          ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ""}
+                          <div style="padding-left:${isMultiple ? "8px" : "0"};">
                             ${orItem.securityDefs.map((secDef, j) => renderSecuritySchemeDetail(secDef, isMultiple, j))}
                           </div>
                         </div>
                       `
-                    : ''
+                    : ""
                 }
               </span>
             </li>

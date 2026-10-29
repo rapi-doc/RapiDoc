@@ -1,755 +1,755 @@
 parts:
-  - category: 'Navigation Sidebar'
-    description: 'Parts for customizing the sidebar navigation panel, filter inputs, and route links.'
+  - category: "Navigation Sidebar"
+    description: "Parts for customizing the sidebar navigation panel, filter inputs, and route links."
     items:
-      - name: 'section-navbar'
-        target: '<nav>'
-        description: 'Outer navigation sidebar container.'
-      - name: 'section-navbar-header'
-        target: '<div>'
-        description: 'Header wrapper container inside the sidebar encapsulating the nav logo slot and filter search container.'
-      - name: 'section-navbar-logo'
-        target: '<slot>'
-        description: 'Slot container for the brand logo or custom header inside the navigation bar.'
-      - name: 'btn-navbar'
-        target: '<button>'
-        description: 'Mobile hamburger toggle button to open or collapse the navigation sidebar.'
-      - name: 'section-navbar-search'
-        target: '<div>'
-        description: 'Container wrapping the filter search input inside the navigation sidebar.'
-      - name: 'textbox-nav-filter'
-        target: '<input>'
-        description: 'Text input element used for real-time search filtering in the sidebar.'
-      - name: 'btn-clear-filter'
-        target: '<button>'
-        description: 'Clear button inside the sidebar search input.'
-      - name: 'section-navbar-scroll'
-        target: '<div>'
-        description: 'Scrollable inner container holding all tags, endpoints, and markdown headings.'
-      - name: 'section-navbar-item'
-        target: '<div>'
-        description: 'Base part applied to every clickable item in the navigation sidebar.'
-      - name: 'section-navbar-overview'
-        target: '<div>'
-        description: 'Sidebar item pointing to the API Overview section.'
-      - name: 'section-navbar-servers'
-        target: '<div>'
-        description: 'Sidebar item pointing to the API Servers section.'
-      - name: 'section-navbar-auth'
-        target: '<div>'
-        description: 'Sidebar item pointing to the Authentication section.'
-      - name: 'section-navbar-operations-top'
-        target: '<div>'
-        description: 'Sidebar item pointing to the top of the operations list.'
-      - name: 'section-navbar-tag'
-        target: '<div>'
-        description: 'Sidebar item representing an OpenAPI tag heading.'
-      - name: 'section-navbar-path'
-        target: '<div>'
-        description: 'Sidebar item representing an individual endpoint operation (e.g., GET /users).'
+      - name: "section-navbar"
+        target: "<nav>"
+        description: "Outer navigation sidebar container."
+      - name: "section-navbar-header"
+        target: "<div>"
+        description: "Header wrapper container inside the sidebar encapsulating the nav logo slot and filter search container."
+      - name: "section-navbar-logo"
+        target: "<slot>"
+        description: "Slot container for the brand logo or custom header inside the navigation bar."
+      - name: "btn-navbar"
+        target: "<button>"
+        description: "Mobile hamburger toggle button to open or collapse the navigation sidebar."
+      - name: "section-navbar-search"
+        target: "<div>"
+        description: "Container wrapping the filter search input inside the navigation sidebar."
+      - name: "textbox-nav-filter"
+        target: "<input>"
+        description: "Text input element used for real-time search filtering in the sidebar."
+      - name: "btn-clear-filter"
+        target: "<button>"
+        description: "Clear button inside the sidebar search input."
+      - name: "section-navbar-scroll"
+        target: "<div>"
+        description: "Scrollable inner container holding all tags, endpoints, and markdown headings."
+      - name: "section-navbar-item"
+        target: "<div>"
+        description: "Base part applied to every clickable item in the navigation sidebar."
+      - name: "section-navbar-overview"
+        target: "<div>"
+        description: "Sidebar item pointing to the API Overview section."
+      - name: "section-navbar-servers"
+        target: "<div>"
+        description: "Sidebar item pointing to the API Servers section."
+      - name: "section-navbar-auth"
+        target: "<div>"
+        description: "Sidebar item pointing to the Authentication section."
+      - name: "section-navbar-operations-top"
+        target: "<div>"
+        description: "Sidebar item pointing to the top of the operations list."
+      - name: "section-navbar-tag"
+        target: "<div>"
+        description: "Sidebar item representing an OpenAPI tag heading."
+      - name: "section-navbar-path"
+        target: "<div>"
+        description: "Sidebar item representing an individual endpoint operation (e.g., GET /users)."
 
-  - category: 'Header & Branding'
-    description: 'Parts for the top utility header, logo slot, and dynamic spec loader.'
+  - category: "Header & Branding"
+    description: "Parts for the top utility header, logo slot, and dynamic spec loader."
     items:
-      - name: 'section-header'
-        target: '<header>'
-        description: 'Top utility header bar container.'
-      - name: 'section-logo'
-        target: '<slot>'
-        description: 'Slot container for the brand logo or icon.'
-      - name: 'label-header-title'
-        target: '<div>'
-        description: 'Title text displayed in the header bar.'
-      - name: 'textbox-spec-url'
-        target: '<input>'
-        description: 'Input field for entering an OpenAPI specification URL dynamically.'
-      - name: 'textbox-header-filter'
-        target: '<input>'
-        description: 'Search filter input in the header bar.'
+      - name: "section-header"
+        target: "<header>"
+        description: "Top utility header bar container."
+      - name: "section-logo"
+        target: "<slot>"
+        description: "Slot container for the brand logo or icon."
+      - name: "label-header-title"
+        target: "<div>"
+        description: "Title text displayed in the header bar."
+      - name: "textbox-spec-url"
+        target: "<input>"
+        description: "Input field for entering an OpenAPI specification URL dynamically."
+      - name: "textbox-header-filter"
+        target: "<input>"
+        description: "Search filter input in the header bar."
 
-  - category: 'Main Canvas & Overview'
-    description: 'Parts for the primary document canvas, spec title, and info anchors.'
+  - category: "Main Canvas & Overview"
+    description: "Parts for the primary document canvas, spec title, and info anchors."
     items:
-      - name: 'section-main-content'
-        target: '<main>'
-        description: 'The primary scrollable document canvas wrapper.'
-      - name: 'section-overview'
-        target: '<div>'
-        description: 'Top introductory overview section containing API metadata, description, and contact info.'
-      - name: 'section-overview-title'
-        target: '<h1>'
-        description: 'The main API title heading inside the overview section.'
-      - name: 'label-overview-version'
-        target: '<span>'
-        description: 'API version badge inside the overview title.'
-      - name: 'anchor-overview'
-        target: '<a>'
-        description: 'Contact email, license, and terms of service links in the overview.'
+      - name: "section-main-content"
+        target: "<main>"
+        description: "The primary scrollable document canvas wrapper."
+      - name: "section-overview"
+        target: "<div>"
+        description: "Top introductory overview section containing API metadata, description, and contact info."
+      - name: "section-overview-title"
+        target: "<h1>"
+        description: "The main API title heading inside the overview section."
+      - name: "label-overview-version"
+        target: "<span>"
+        description: "API version badge inside the overview title."
+      - name: "anchor-overview"
+        target: "<a>"
+        description: "Contact email, license, and terms of service links in the overview."
 
-  - category: 'Servers & Environments'
-    description: 'Parts for server environment controls, selection, and URL variable templates.'
+  - category: "Servers & Environments"
+    description: "Parts for server environment controls, selection, and URL variable templates."
     items:
-      - name: 'section-servers'
-        target: '<div>'
-        description: 'Container for server selection and environment controls.'
-      - name: 'section-servers-title'
-        target: '<h2>'
-        description: 'Title heading for the API Servers section.'
-      - name: 'label-selected-server'
-        target: '<div>'
-        description: 'Label displaying the currently selected base server URL.'
-      - name: 'textbox-server-var'
-        target: '<input>'
-        description: 'Input fields for server URL template variables.'
+      - name: "section-servers"
+        target: "<div>"
+        description: "Container for server selection and environment controls."
+      - name: "section-servers-title"
+        target: "<h2>"
+        description: "Title heading for the API Servers section."
+      - name: "label-selected-server"
+        target: "<div>"
+        description: "Label displaying the currently selected base server URL."
+      - name: "textbox-server-var"
+        target: "<input>"
+        description: "Input fields for server URL template variables."
 
-  - category: 'Authentication & Security'
-    description: 'Parts for authentication credentials, OAuth2 scopes, and security modals.'
+  - category: "Authentication & Security"
+    description: "Parts for authentication credentials, OAuth2 scopes, and security modals."
     items:
-      - name: 'section-auth'
-        target: '<div>'
-        description: 'Container for authentication credentials and security scheme panels.'
-      - name: 'section-auth-title'
-        target: '<h2>'
-        description: 'Title heading for the Authentication section.'
-      - name: 'auth-list'
-        target: '<ul>'
-        description: 'List of security schemes (replaces the v11 `#auth-table` table).'
-      - name: 'auth-scheme'
-        target: '<li>'
-        description: 'One security scheme; also has the class of its type (`apikey`, `http`, `oauth2`, …).'
-      - name: 'auth-flows'
-        target: '<div>'
-        description: 'OAuth2 flows inside their security scheme.'
-      - name: 'section-auth-scopes'
-        target: '<div>'
-        description: 'Wrapper for OAuth2 authorization scope options.'
-      - name: 'checkbox-auth-scope'
+      - name: "section-auth"
+        target: "<div>"
+        description: "Container for authentication credentials and security scheme panels."
+      - name: "section-auth-title"
+        target: "<h2>"
+        description: "Title heading for the Authentication section."
+      - name: "auth-list"
+        target: "<ul>"
+        description: "List of security schemes (replaces the v11 `#auth-table` table)."
+      - name: "auth-scheme"
+        target: "<li>"
+        description: "One security scheme; also has the class of its type (`apikey`, `http`, `oauth2`, …)."
+      - name: "auth-flows"
+        target: "<div>"
+        description: "OAuth2 flows inside their security scheme."
+      - name: "section-auth-scopes"
+        target: "<div>"
+        description: "Wrapper for OAuth2 authorization scope options."
+      - name: "checkbox-auth-scope"
         target: "<input type='checkbox'>"
-        description: 'Checkbox for selecting individual OAuth2 permission scopes.'
-      - name: 'textbox-auth-client-id'
-        target: '<input>'
-        description: 'Input field for the OAuth2 client ID.'
-      - name: 'textbox-auth-client-secret'
-        target: '<input>'
-        description: 'Input field for the OAuth2 client secret.'
-      - name: 'textbox-username'
-        target: '<input>'
-        description: 'Username input field for HTTP Basic or password authentication.'
-      - name: 'textbox-password'
-        target: '<input>'
-        description: 'Password input field for HTTP Basic or password authentication.'
+        description: "Checkbox for selecting individual OAuth2 permission scopes."
+      - name: "textbox-auth-client-id"
+        target: "<input>"
+        description: "Input field for the OAuth2 client ID."
+      - name: "textbox-auth-client-secret"
+        target: "<input>"
+        description: "Input field for the OAuth2 client secret."
+      - name: "textbox-username"
+        target: "<input>"
+        description: "Username input field for HTTP Basic or password authentication."
+      - name: "textbox-password"
+        target: "<input>"
+        description: "Password input field for HTTP Basic or password authentication."
 
-  - category: 'Operations & Endpoints'
-    description: 'Parts for endpoint headers, method badges, paths, summaries, and dividers.'
+  - category: "Operations & Endpoints"
+    description: "Parts for endpoint headers, method badges, paths, summaries, and dividers."
     items:
-      - name: 'section-tag'
-        target: '<section>'
-        description: 'Tag group container grouping multiple related operations.'
-      - name: 'section-tag-title'
-        target: '<h2>'
-        description: 'Header title displayed for an OpenAPI tag.'
-      - name: 'label-tag-title'
-        target: '<h2>'
-        description: 'Text label for the tag title.'
-      - name: 'section-operations-in-tag'
-        target: '<section>'
-        description: 'Container wrapping all operations belonging to a tag.'
-      - name: 'section-operation'
-        target: '<article>'
-        description: 'Single endpoint operation container.'
-      - name: 'section-operation-tag'
-        target: '<div>'
-        description: 'Tag badge/indicator rendered within the operation header.'
-      - name: 'section-req-resp-container'
-        target: '<div>'
-        description: 'Container holding both the request configuration and response viewing panels.'
-      - name: 'section-request-panel'
-        target: '<div>'
-        description: 'Panel containing request parameters, headers, and payload inputs.'
-      - name: 'section-request-title'
-        target: '<h4>'
-        description: 'The Request label heading of an operation (<h6> inside callbacks).'
-      - name: 'section-response-title'
-        target: '<h4>'
-        description: 'The Response label heading of an operation (<h6> inside callbacks).'
-      - name: 'section-operation-summary'
-        target: '<h3>'
-        description: 'Summary heading for the operation.'
-      - name: 'label-operation-method'
-        target: '<span>'
-        description: 'HTTP method label badge (e.g., GET, POST, PUT, DELETE).'
-      - name: 'label-operation-path'
-        target: '<span>'
-        description: 'Endpoint URI route path.'
-      - name: 'endpoint-badge'
-        target: '<span>'
-        description: 'Status badge on endpoint (e.g., deprecated, webhook).'
-      - name: 'operation-divider'
-        target: '<div>'
-        description: 'Horizontal divider separating operations in read mode.'
-      - name: 'section-endpoint-head-expanded'
-        target: '<div>'
-        description: 'Header row of an expanded endpoint in view or focused mode.'
-      - name: 'section-endpoint-head-collapsed'
-        target: '<div>'
-        description: 'Header row of a collapsed endpoint in view mode.'
-      - name: 'section-endpoint-head-method'
-        target: '<div>'
-        description: 'HTTP method badge in the endpoint header row.'
-      - name: 'section-endpoint-head-path'
-        target: '<div>'
-        description: 'Path text in the endpoint header row.'
-      - name: 'section-endpoint-head-description'
-        target: '<div>'
-        description: 'Short summary description in the endpoint header row.'
-      - name: 'section-endpoint-body-expanded'
-        target: '<div>'
-        description: 'Full body container of an expanded endpoint.'
-      - name: 'section-endpoint-body-collapsed'
-        target: '<div>'
-        description: 'Body container when an endpoint is collapsed.'
-      - name: 'section-endpoint-body-title'
-        target: '<h3>'
-        description: 'Summary title inside the expanded endpoint body.'
-      - name: 'section-endpoint-body-description'
-        target: '<div>'
-        description: 'Full markdown description inside the expanded endpoint body.'
-      - name: 'section-operation-security'
-        target: '<div>'
-        description: 'Row of authentication chips right under the method and path (above the description); wraps onto more lines when narrow.'
-      - name: 'label-operation-security'
-        target: '<span>'
+      - name: "section-tag"
+        target: "<section>"
+        description: "Tag group container grouping multiple related operations."
+      - name: "section-tag-title"
+        target: "<h2>"
+        description: "Header title displayed for an OpenAPI tag."
+      - name: "label-tag-title"
+        target: "<h2>"
+        description: "Text label for the tag title."
+      - name: "section-operations-in-tag"
+        target: "<section>"
+        description: "Container wrapping all operations belonging to a tag."
+      - name: "section-operation"
+        target: "<article>"
+        description: "Single endpoint operation container."
+      - name: "section-operation-tag"
+        target: "<div>"
+        description: "Tag badge/indicator rendered within the operation header."
+      - name: "section-req-resp-container"
+        target: "<div>"
+        description: "Container holding both the request configuration and response viewing panels."
+      - name: "section-request-panel"
+        target: "<div>"
+        description: "Panel containing request parameters, headers, and payload inputs."
+      - name: "section-request-title"
+        target: "<h4>"
+        description: "The Request label heading of an operation (<h6> inside callbacks)."
+      - name: "section-response-title"
+        target: "<h4>"
+        description: "The Response label heading of an operation (<h6> inside callbacks)."
+      - name: "section-operation-summary"
+        target: "<h3>"
+        description: "Summary heading for the operation."
+      - name: "label-operation-method"
+        target: "<span>"
+        description: "HTTP method label badge (e.g., GET, POST, PUT, DELETE)."
+      - name: "label-operation-path"
+        target: "<span>"
+        description: "Endpoint URI route path."
+      - name: "endpoint-badge"
+        target: "<span>"
+        description: "Status badge on endpoint (e.g., deprecated, webhook)."
+      - name: "operation-divider"
+        target: "<div>"
+        description: "Horizontal divider separating operations in read mode."
+      - name: "section-endpoint-head-expanded"
+        target: "<div>"
+        description: "Header row of an expanded endpoint in view or focused mode."
+      - name: "section-endpoint-head-collapsed"
+        target: "<div>"
+        description: "Header row of a collapsed endpoint in view mode."
+      - name: "section-endpoint-head-method"
+        target: "<div>"
+        description: "HTTP method badge in the endpoint header row."
+      - name: "section-endpoint-head-path"
+        target: "<div>"
+        description: "Path text in the endpoint header row."
+      - name: "section-endpoint-head-description"
+        target: "<div>"
+        description: "Short summary description in the endpoint header row."
+      - name: "section-endpoint-body-expanded"
+        target: "<div>"
+        description: "Full body container of an expanded endpoint."
+      - name: "section-endpoint-body-collapsed"
+        target: "<div>"
+        description: "Body container when an endpoint is collapsed."
+      - name: "section-endpoint-body-title"
+        target: "<h3>"
+        description: "Summary title inside the expanded endpoint body."
+      - name: "section-endpoint-body-description"
+        target: "<div>"
+        description: "Full markdown description inside the expanded endpoint body."
+      - name: "section-operation-security"
+        target: "<div>"
+        description: "Row of authentication chips right under the method and path (above the description); wraps onto more lines when narrow."
+      - name: "label-operation-security"
+        target: "<span>"
         description: 'The "Authorization" label of the operation security row. Visually hidden (it names the group for screen readers); a lock icon starts the row instead.'
-      - name: 'anchor-operation-security'
-        target: '<a>'
-        description: 'Lock icon at the start of the operation security row; links to the Authentication section. Shown as a plain icon when authentication is not allowed.'
-      - name: 'operation-security-chip'
-        target: '<span>'
+      - name: "anchor-operation-security"
+        target: "<a>"
+        description: "Lock icon at the start of the operation security row; links to the Authentication section. Shown as a plain icon when authentication is not allowed."
+      - name: "operation-security-chip"
+        target: "<span>"
         description: 'One authentication chip (e.g. "OAuth (Oauth2) + 1 more"). Hover or keyboard focus opens its details popover; it does not navigate.'
-      - name: 'operation-security-details'
-        target: '<div popover>'
-        description: 'Details popover for a chip, shown on hover or keyboard focus and closed with Escape.'
+      - name: "operation-security-details"
+        target: "<div popover>"
+        description: "Details popover for a chip, shown on hover or keyboard focus and closed with Escape."
 
-  - category: 'Headings'
-    description: 'Every heading RapiDoc generates (not headings inside markdown descriptions) carries these parts, so one rule can style a whole level. Outline: API title h1; servers, authentication, tag groups and tags h2; operations h3; Request/Response h4; parameter and request-body labels h5.'
+  - category: "Headings"
+    description: "Every heading RapiDoc generates (not headings inside markdown descriptions) carries these parts, so one rule can style a whole level. Outline: API title h1; servers, authentication, tag groups and tags h2; operations h3; Request/Response h4; parameter and request-body labels h5."
     items:
-      - name: 'heading'
-        target: '<h1>-<h6>'
-        description: 'Any heading generated by RapiDoc.'
-      - name: 'heading-1'
-        target: '<h1>'
-        description: 'Level 1: the API title.'
-      - name: 'heading-2'
-        target: '<h2>'
-        description: 'Level 2: servers, authentication, tag groups, tags, component groups, and the tag label above an operation in focused mode.'
-      - name: 'heading-3'
-        target: '<h3>'
-        description: 'Level 3: operation summaries, server variables, OAuth flows, and component names.'
-      - name: 'heading-4'
-        target: '<h4>'
-        description: 'Level 4: Request, Response, Code samples, and Callbacks labels.'
-      - name: 'heading-5'
-        target: '<h5>'
-        description: 'Level 5: parameter, request body, and response header labels; callback names.'
-      - name: 'heading-6'
-        target: '<h6>'
-        description: 'Level 6: Callback request and Callback response labels.'
+      - name: "heading"
+        target: "<h1>-<h6>"
+        description: "Any heading generated by RapiDoc."
+      - name: "heading-1"
+        target: "<h1>"
+        description: "Level 1: the API title."
+      - name: "heading-2"
+        target: "<h2>"
+        description: "Level 2: servers, authentication, tag groups, tags, component groups, and the tag label above an operation in focused mode."
+      - name: "heading-3"
+        target: "<h3>"
+        description: "Level 3: operation summaries, server variables, OAuth flows, and component names."
+      - name: "heading-4"
+        target: "<h4>"
+        description: "Level 4: Request, Response, Code samples, and Callbacks labels."
+      - name: "heading-5"
+        target: "<h5>"
+        description: "Level 5: parameter, request body, and response header labels; callback names."
+      - name: "heading-6"
+        target: "<h6>"
+        description: "Level 6: Callback request and Callback response labels."
 
-  - category: 'Interactive Console & Buttons'
-    description: 'Parts for the Try console, buttons, response panels, and action triggers.'
+  - category: "Interactive Console & Buttons"
+    description: "Parts for the Try console, buttons, response panels, and action triggers."
     items:
-      - name: 'wrap-request-btn'
-        target: '<div>'
-        description: 'Container wrapping the Try, Clear, and Execute action buttons.'
-      - name: 'btn'
-        target: '<button>'
-        description: 'Base part applied to all buttons across RapiDoc.'
-      - name: 'btn-try'
-        target: '<button>'
+      - name: "wrap-request-btn"
+        target: "<div>"
+        description: "Container wrapping the Try, Clear, and Execute action buttons."
+      - name: "btn"
+        target: "<button>"
+        description: "Base part applied to all buttons across RapiDoc."
+      - name: "btn-try"
+        target: "<button>"
         description: "The primary 'TRY' execution button."
-      - name: 'btn-fill'
-        target: '<button>'
-        description: 'Solid filled buttons (e.g., primary actions, search). Also on FILL EXAMPLE.'
-      - name: 'btn-outline'
-        target: '<button>'
-        description: 'Outlined secondary buttons.'
-      - name: 'btn-clear'
-        target: '<button>'
-        description: 'Button to clear request parameter fields.'
-      - name: 'btn-clear-response'
-        target: '<button>'
-        description: 'Button to clear returned response data.'
-      - name: 'btn-copy'
-        target: '<button>'
-        description: 'Copy-to-clipboard button on code blocks and responses.'
-      - name: 'btn-search'
-        target: '<button>'
-        description: 'Search submit button in filter dialogues and headers.'
-      - name: 'btn-response-status'
-        target: '<button>'
-        description: 'HTTP response status code selector buttons (e.g., 200, 400, 404).'
-      - name: 'btn-selected-response-status'
-        target: '<button>'
-        description: 'The currently active HTTP response status button.'
+      - name: "btn-fill"
+        target: "<button>"
+        description: "Solid filled buttons (e.g., primary actions, search). Also on FILL EXAMPLE."
+      - name: "btn-outline"
+        target: "<button>"
+        description: "Outlined secondary buttons."
+      - name: "btn-clear"
+        target: "<button>"
+        description: "Button to clear request parameter fields."
+      - name: "btn-clear-response"
+        target: "<button>"
+        description: "Button to clear returned response data."
+      - name: "btn-copy"
+        target: "<button>"
+        description: "Copy-to-clipboard button on code blocks and responses."
+      - name: "btn-search"
+        target: "<button>"
+        description: "Search submit button in filter dialogues and headers."
+      - name: "btn-response-status"
+        target: "<button>"
+        description: "HTTP response status code selector buttons (e.g., 200, 400, 404)."
+      - name: "btn-selected-response-status"
+        target: "<button>"
+        description: "The currently active HTTP response status button."
 
-  - category: 'Tabs & Code Panels'
-    description: 'Parts for switching between Request/Response tabs, Example/Schema, and languages.'
+  - category: "Tabs & Code Panels"
+    description: "Parts for switching between Request/Response tabs, Example/Schema, and languages."
     items:
-      - name: 'tab-panel'
-        target: '<div>'
-        description: 'Container panel wrapping tab controls and content.'
-      - name: 'tab-btn-row'
-        target: '<div>'
-        description: 'Row of tab selector buttons.'
-      - name: 'tab-btn'
-        target: '<button>'
-        description: 'Individual tab button.'
-      - name: 'tab-content'
-        target: '<div>'
-        description: 'Body container of the active tab.'
+      - name: "tab-panel"
+        target: "<div>"
+        description: "Container panel wrapping tab controls and content."
+      - name: "tab-btn-row"
+        target: "<div>"
+        description: "Row of tab selector buttons."
+      - name: "tab-btn"
+        target: "<button>"
+        description: "Individual tab button."
+      - name: "tab-content"
+        target: "<div>"
+        description: "Body container of the active tab."
 
-  - category: 'Parameter Lists'
-    description: 'Request parameters, request-body form fields, response headers, and server variables. Each list is a grid; every parameter is a subgrid row, so columns line up across rows.'
+  - category: "Parameter Lists"
+    description: "Request parameters, request-body form fields, response headers, and server variables. Each list is a grid; every parameter is a subgrid row, so columns line up across rows."
     items:
-      - name: 'param-list'
-        target: '<ul>'
-        description: 'The list; a three-column grid (label, input, constraints). Stacks into one column on narrow widths.'
-      - name: 'param'
-        target: '<li>'
-        description: 'One parameter; draws its own full-width border. Has the `deprecated` class when deprecated.'
-      - name: 'param-label'
-        target: '<div>'
-        description: 'First column: name and type.'
-      - name: 'param-name'
-        target: '<div>'
-        description: 'Parameter name, with the required marker and deprecated icon.'
-      - name: 'param-type'
-        target: '<div>'
-        description: 'Parameter type or format.'
-      - name: 'param-input'
-        target: '<div>'
+      - name: "param-list"
+        target: "<ul>"
+        description: "The list; a three-column grid (label, input, constraints). Stacks into one column on narrow widths."
+      - name: "param"
+        target: "<li>"
+        description: "One parameter; draws its own full-width border. Has the `deprecated` class when deprecated."
+      - name: "param-label"
+        target: "<div>"
+        description: "First column: name and type."
+      - name: "param-name"
+        target: "<div>"
+        description: "Parameter name, with the required marker and deprecated icon."
+      - name: "param-type"
+        target: "<div>"
+        description: "Parameter type or format."
+      - name: "param-input"
+        target: "<div>"
         description: 'Try-it input (only with `allow-try="true"`, plus object form fields and server variables). Spans both right-hand columns when there are no constraints.'
-      - name: 'param-constraint'
-        target: '<dl>'
-        description: 'Constraints as label/value pairs (Default, Pattern, Limits, Allowed, or a response header Example). The labels share one column, so all values start at the same place.'
-      - name: 'param-constraint-label'
-        target: '<dt>'
+      - name: "param-constraint"
+        target: "<dl>"
+        description: "Constraints as label/value pairs (Default, Pattern, Limits, Allowed, or a response header Example). The labels share one column, so all values start at the same place."
+      - name: "param-constraint-label"
+        target: "<dt>"
         description: 'A constraint label ("Default:", "Pattern:", "Limits:", "Allowed:").'
-      - name: 'param-details'
-        target: '<div>'
-        description: 'Description and examples, under the input and constraints.'
-      - name: 'param-example-list'
-        target: '<ul>'
-        description: 'Long-format examples (with a summary or description); one entry per example, each with a thin left rule.'
-      - name: 'value-list'
-        target: '<div>'
-        description: 'A label with a wrapping list of values (Allowed values, short-format Examples). Wrapped lines line up under the first value.'
-      - name: 'value-list-label'
-        target: '<span>'
+      - name: "param-details"
+        target: "<div>"
+        description: "Description and examples, under the input and constraints."
+      - name: "param-example-list"
+        target: "<ul>"
+        description: "Long-format examples (with a summary or description); one entry per example, each with a thin left rule."
+      - name: "value-list"
+        target: "<div>"
+        description: "A label with a wrapping list of values (Allowed values, short-format Examples). Wrapped lines line up under the first value."
+      - name: "value-list-label"
+        target: "<span>"
         description: 'The label of a value list ("Allowed:", "Examples:").'
-      - name: 'value-list-items'
-        target: '<ul>'
-        description: 'The values; separators between them are drawn in CSS and stay at the end of a line.'
+      - name: "value-list-items"
+        target: "<ul>"
+        description: "The values; separators between them are drawn in CSS and stay at the end of a line."
 
-  - category: 'Inputs & Form Fields'
-    description: 'Parts for parameter inputs, textareas, file pickers, and checkboxes.'
+  - category: "Inputs & Form Fields"
+    description: "Parts for parameter inputs, textareas, file pickers, and checkboxes."
     items:
-      - name: 'textbox'
-        target: '<input>'
-        description: 'Standard text input field.'
-      - name: 'textbox-param'
-        target: '<input>'
-        description: 'Input field for query, path, and header parameters.'
-      - name: 'textarea'
-        target: '<textarea>'
-        description: 'Standard multi-line text input field.'
-      - name: 'textarea-param'
-        target: '<textarea>'
-        description: 'Multi-line text input for request bodies and payload parameters.'
-      - name: 'file-input'
+      - name: "textbox"
+        target: "<input>"
+        description: "Standard text input field."
+      - name: "textbox-param"
+        target: "<input>"
+        description: "Input field for query, path, and header parameters."
+      - name: "textarea"
+        target: "<textarea>"
+        description: "Standard multi-line text input field."
+      - name: "textarea-param"
+        target: "<textarea>"
+        description: "Multi-line text input for request bodies and payload parameters."
+      - name: "file-input"
         target: "<input type='file'>"
-        description: 'File upload input element for multipart forms.'
-      - name: 'checkbox'
+        description: "File upload input element for multipart forms."
+      - name: "checkbox"
         target: "<input type='checkbox'>"
-        description: 'Standard checkbox input.'
-      - name: 'anchor'
-        target: '<a>'
-        description: 'General links throughout the documentation.'
-      - name: 'anchor-param-example'
-        target: '<button>'
-        description: 'Example value chip; clicking it fills the parameter input.'
-      - name: 'anchor-param-constraint'
-        target: '<button>'
-        description: 'Allowed (enum) value chip; clicking it fills the parameter input.'
+        description: "Standard checkbox input."
+      - name: "anchor"
+        target: "<a>"
+        description: "General links throughout the documentation."
+      - name: "anchor-param-example"
+        target: "<button>"
+        description: "Example value chip; clicking it fills the parameter input."
+      - name: "anchor-param-constraint"
+        target: "<button>"
+        description: "Allowed (enum) value chip; clicking it fills the parameter input."
 
-  - category: 'Schema & Data Types'
-    description: 'Parts for schema descriptions, tree toolbars, and badges.'
+  - category: "Schema & Data Types"
+    description: "Parts for schema descriptions, tree toolbars, and badges."
     items:
-      - name: 'schema-description'
-        target: '<span>'
-        description: 'Markdown description text inside schema definitions.'
-      - name: 'schema-toolbar-item'
-        target: '<div>'
-        description: 'Controls on schema cards (expand, collapse, view options).'
-      - name: 'schema-multiline-toggle'
-        target: '<div>'
-        description: 'Toggle button to expand or collapse multi-line descriptions.'
+      - name: "schema-description"
+        target: "<span>"
+        description: "Markdown description text inside schema definitions."
+      - name: "schema-toolbar-item"
+        target: "<div>"
+        description: "Controls on schema cards (expand, collapse, view options)."
+      - name: "schema-multiline-toggle"
+        target: "<div>"
+        description: "Toggle button to expand or collapse multi-line descriptions."
 
 variables:
-  - category: 'Surface Colors (shadcn/ui)'
+  - category: "Surface Colors (shadcn/ui)"
     description: "shadcn/ui color tokens. Set them on rapi-doc, or use `inherit` to take a shadcn/ui page's :root values."
     items:
-      - name: '--background'
-        default: 'oklch(0.2613 0.0134 272.84) (dark) / #ffffff (light)'
-        description: 'Page background of the component.'
-      - name: '--foreground'
-        default: '#cccccc (dark) / #444444 (light)'
-        description: 'Default text color, including markdown descriptions.'
-      - name: '--card'
-        default: 'mix of --background and --foreground'
-        description: 'Elevated surfaces: dialogs, table headers, tooltips.'
-      - name: '--card-foreground'
-        default: 'derived from --foreground'
-        description: 'Text on elevated surfaces.'
-      - name: '--muted'
-        default: 'mix of --background and --foreground'
-        description: 'Subtle surfaces: inline code, tags, secondary buttons, scrollbar thumbs.'
-      - name: '--muted-foreground'
-        default: 'derived from --foreground'
-        description: 'Secondary text: parameter descriptions, constraints, inactive tabs.'
-      - name: '--border'
-        default: 'mix of --background and --foreground'
-        description: 'Dividers and outlines of tables, cards, panels.'
-      - name: '--input'
-        default: 'slightly stronger than --border'
-        description: 'Border color of form fields (shadcn/ui meaning).'
-      - name: '--destructive'
-        default: '#ef4444 (dark) / #dc2626 (light)'
-        description: 'Errors, required-field markers, and DEPRECATED labels.'
+      - name: "--background"
+        default: "oklch(0.2613 0.0134 272.84) (dark) / #ffffff (light)"
+        description: "Page background of the component."
+      - name: "--foreground"
+        default: "#cccccc (dark) / #444444 (light)"
+        description: "Default text color, including markdown descriptions."
+      - name: "--card"
+        default: "mix of --background and --foreground"
+        description: "Elevated surfaces: dialogs, table headers, tooltips."
+      - name: "--card-foreground"
+        default: "derived from --foreground"
+        description: "Text on elevated surfaces."
+      - name: "--muted"
+        default: "mix of --background and --foreground"
+        description: "Subtle surfaces: inline code, tags, secondary buttons, scrollbar thumbs."
+      - name: "--muted-foreground"
+        default: "derived from --foreground"
+        description: "Secondary text: parameter descriptions, constraints, inactive tabs."
+      - name: "--border"
+        default: "mix of --background and --foreground"
+        description: "Dividers and outlines of tables, cards, panels."
+      - name: "--input"
+        default: "slightly stronger than --border"
+        description: "Border color of form fields (shadcn/ui meaning)."
+      - name: "--destructive"
+        default: "#ef4444 (dark) / #dc2626 (light)"
+        description: "Errors, required-field markers, and DEPRECATED labels."
 
-  - category: 'Brand & Focus (shadcn/ui)'
-    description: 'Accent colors. The theme attribute (preset name or hex color) sets --primary and --primary-foreground.'
+  - category: "Brand & Focus (shadcn/ui)"
+    description: "Accent colors. The theme attribute (preset name or hex color) sets --primary and --primary-foreground."
     items:
-      - name: '--primary'
-        default: 'theme preset (#f76b39 for amber)'
-        description: 'Brand accent: buttons, links in navigation, active states.'
-      - name: '--primary-foreground'
-        default: 'theme preset (#000000 for amber)'
-        description: 'Text on --primary backgrounds.'
-      - name: '--ring'
-        default: 'var(--primary)'
-        description: 'Focus ring color.'
-      - name: '--focus-shadow'
-        default: '0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent)'
-        description: 'Box shadow used for keyboard focus.'
-      - name: '--selection-bg'
-        default: 'color-mix(in srgb, var(--primary) 25%, transparent)'
-        description: 'Background of selected text.'
-      - name: '--selection-fg'
-        default: 'var(--foreground)'
-        description: 'Color of selected text.'
+      - name: "--primary"
+        default: "theme preset (#f76b39 for amber)"
+        description: "Brand accent: buttons, links in navigation, active states."
+      - name: "--primary-foreground"
+        default: "theme preset (#000000 for amber)"
+        description: "Text on --primary backgrounds."
+      - name: "--ring"
+        default: "var(--primary)"
+        description: "Focus ring color."
+      - name: "--focus-shadow"
+        default: "0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent)"
+        description: "Box shadow used for keyboard focus."
+      - name: "--selection-bg"
+        default: "color-mix(in srgb, var(--primary) 25%, transparent)"
+        description: "Background of selected text."
+      - name: "--selection-fg"
+        default: "var(--foreground)"
+        description: "Color of selected text."
 
-  - category: 'Navigation Sidebar (shadcn/ui)'
-    description: 'shadcn/ui sidebar tokens for the navigation bar, plus its sizing.'
+  - category: "Navigation Sidebar (shadcn/ui)"
+    description: "shadcn/ui sidebar tokens for the navigation bar, plus its sizing."
     items:
-      - name: '--sidebar'
-        default: 'var(--background)'
-        description: 'Navigation bar background.'
-      - name: '--sidebar-foreground'
-        default: 'var(--foreground)'
-        description: 'Navigation item text.'
-      - name: '--sidebar-primary'
-        default: 'var(--primary)'
-        description: 'Active item text and its left marker.'
-      - name: '--sidebar-accent'
-        default: 'slightly darker/lighter than --background'
-        description: 'Hovered item background.'
-      - name: '--sidebar-accent-foreground'
-        default: 'var(--foreground)'
-        description: 'Hovered item text.'
-      - name: '--sidebar-border'
-        default: 'var(--border)'
-        description: 'Border between the navigation bar and the content.'
-      - name: '--sidebar-ring'
-        default: 'var(--ring)'
-        description: 'Focus color of the navigation filter input.'
-      - name: '--sidebar-width'
-        default: '18.75rem (default) / 17rem (scale=sm) / 21rem (scale=lg)'
-        description: 'Width of the navigation bar.'
-      - name: '--sidebar-item-padding'
-        default: '0.4375rem 1rem 0.4375rem 0.625rem (nav-item-spacing sets compact/relaxed)'
-        description: 'Padding of navigation items.'
-      - name: '--sidebar-logo-max-height'
-        default: '60px'
-        description: 'Maximum height of the nav-logo slot.'
+      - name: "--sidebar"
+        default: "var(--background)"
+        description: "Navigation bar background."
+      - name: "--sidebar-foreground"
+        default: "var(--foreground)"
+        description: "Navigation item text."
+      - name: "--sidebar-primary"
+        default: "var(--primary)"
+        description: "Active item text and its left marker."
+      - name: "--sidebar-accent"
+        default: "slightly darker/lighter than --background"
+        description: "Hovered item background."
+      - name: "--sidebar-accent-foreground"
+        default: "var(--foreground)"
+        description: "Hovered item text."
+      - name: "--sidebar-border"
+        default: "var(--border)"
+        description: "Border between the navigation bar and the content."
+      - name: "--sidebar-ring"
+        default: "var(--ring)"
+        description: "Focus color of the navigation filter input."
+      - name: "--sidebar-width"
+        default: "18.75rem (default) / 17rem (scale=sm) / 21rem (scale=lg)"
+        description: "Width of the navigation bar."
+      - name: "--sidebar-item-padding"
+        default: "0.4375rem 1rem 0.4375rem 0.625rem (nav-item-spacing sets compact/relaxed)"
+        description: "Padding of navigation items."
+      - name: "--sidebar-logo-max-height"
+        default: "60px"
+        description: "Maximum height of the nav-logo slot."
 
-  - category: 'Typography'
-    description: 'Font families, sizes, and the heading scale shared by RapiDoc headings and markdown descriptions.'
+  - category: "Typography"
+    description: "Font families, sizes, and the heading scale shared by RapiDoc headings and markdown descriptions."
     items:
-      - name: '--font-sans'
+      - name: "--font-sans"
         default: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-        description: 'Font for text, headings, and navigation (shadcn/ui token).'
-      - name: '--font-mono'
+        description: "Font for text, headings, and navigation (shadcn/ui token)."
+      - name: "--font-mono"
         default: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace"
-        description: 'Font for code, HTTP methods, paths, and schemas (shadcn/ui token).'
-      - name: '--font-size-xs'
-        default: '11px (default) / 11px (scale=sm) / 12px (scale=lg)'
-        description: 'Smallest text and the size floor: badges, method tags in the sidebar, oneOf/anyOf chips, constraint labels, tiny buttons.'
-      - name: '--font-size-small'
-        default: '12px (default) / 11px (scale=sm) / 14px (scale=lg)'
-        description: 'Small text: parameter names and types, schema trees, tabs, labels.'
-      - name: '--font-size-description'
-        default: '13px (default) / 12px (scale=sm) / 15px (scale=lg)'
-        description: 'Short prose next to data: parameter, property, and response-header descriptions.'
-      - name: '--font-size-mono'
-        default: '13px (default) / 12px (scale=sm) / 15px (scale=lg)'
-        description: 'Code blocks and monospace text.'
-      - name: '--font-size-regular'
-        default: '14px (default) / 13px (scale=sm) / 16px (scale=lg)'
-        description: 'Body text and descriptions.'
-      - name: '--line-height'
-        default: '1.6'
-        description: 'Line height of paragraphs and list items in descriptions.'
-      - name: '--paragraph-spacing'
-        default: '1em'
-        description: 'Space between consecutive paragraphs in descriptions.'
-      - name: '--heading-font'
-        default: 'var(--font-sans)'
-        description: 'Font of headings.'
-      - name: '--heading-weight'
-        default: '600'
-        description: 'Font weight of headings.'
-      - name: '--heading-line-height'
-        default: '1.25'
-        description: 'Line height of headings.'
-      - name: '--heading-letter-spacing'
-        default: 'normal'
-        description: 'Letter spacing of headings.'
-      - name: '--heading-color'
-        default: 'var(--foreground)'
-        description: 'Text color of headings.'
-      - name: '--heading-margin-top'
-        default: '1.5em'
-        description: 'Space above a heading (0 for the first element in a section).'
-      - name: '--heading-margin-bottom'
-        default: '0.5em'
-        description: 'Space below a heading.'
-      - name: '--h1-font-size'
-        default: '2rem'
-        description: 'h1: the API title.'
-      - name: '--h2-font-size'
-        default: '1.5rem'
-        description: 'h2: tags and top-level sections.'
-      - name: '--h3-font-size'
-        default: '1.25rem'
-        description: 'h3: operation summaries.'
-      - name: '--h4-font-size'
-        default: '1rem'
-        description: 'h4.'
-      - name: '--h5-font-size'
-        default: '0.875rem'
-        description: 'h5.'
-      - name: '--h6-font-size'
-        default: '0.8125rem'
-        description: 'h6.'
-      - name: '--label-heading-font-size'
-        default: 'var(--font-size-small)'
-        description: 'Small upper-case label headings (Path parameters, Request body, ...).'
+        description: "Font for code, HTTP methods, paths, and schemas (shadcn/ui token)."
+      - name: "--font-size-xs"
+        default: "11px (default) / 11px (scale=sm) / 12px (scale=lg)"
+        description: "Smallest text and the size floor: badges, method tags in the sidebar, oneOf/anyOf chips, constraint labels, tiny buttons."
+      - name: "--font-size-small"
+        default: "12px (default) / 11px (scale=sm) / 14px (scale=lg)"
+        description: "Small text: parameter names and types, schema trees, tabs, labels."
+      - name: "--font-size-description"
+        default: "13px (default) / 12px (scale=sm) / 15px (scale=lg)"
+        description: "Short prose next to data: parameter, property, and response-header descriptions."
+      - name: "--font-size-mono"
+        default: "13px (default) / 12px (scale=sm) / 15px (scale=lg)"
+        description: "Code blocks and monospace text."
+      - name: "--font-size-regular"
+        default: "14px (default) / 13px (scale=sm) / 16px (scale=lg)"
+        description: "Body text and descriptions."
+      - name: "--line-height"
+        default: "1.6"
+        description: "Line height of paragraphs and list items in descriptions."
+      - name: "--paragraph-spacing"
+        default: "1em"
+        description: "Space between consecutive paragraphs in descriptions."
+      - name: "--heading-font"
+        default: "var(--font-sans)"
+        description: "Font of headings."
+      - name: "--heading-weight"
+        default: "600"
+        description: "Font weight of headings."
+      - name: "--heading-line-height"
+        default: "1.25"
+        description: "Line height of headings."
+      - name: "--heading-letter-spacing"
+        default: "normal"
+        description: "Letter spacing of headings."
+      - name: "--heading-color"
+        default: "var(--foreground)"
+        description: "Text color of headings."
+      - name: "--heading-margin-top"
+        default: "1.5em"
+        description: "Space above a heading (0 for the first element in a section)."
+      - name: "--heading-margin-bottom"
+        default: "0.5em"
+        description: "Space below a heading."
+      - name: "--h1-font-size"
+        default: "2rem"
+        description: "h1: the API title."
+      - name: "--h2-font-size"
+        default: "1.5rem"
+        description: "h2: tags and top-level sections."
+      - name: "--h3-font-size"
+        default: "1.25rem"
+        description: "h3: operation summaries."
+      - name: "--h4-font-size"
+        default: "1rem"
+        description: "h4."
+      - name: "--h5-font-size"
+        default: "0.875rem"
+        description: "h5."
+      - name: "--h6-font-size"
+        default: "0.8125rem"
+        description: "h6."
+      - name: "--label-heading-font-size"
+        default: "var(--font-size-small)"
+        description: "Small upper-case label headings (Path parameters, Request body, ...)."
 
-  - category: 'Layout & Geometry'
-    description: 'Corner radius and sizing.'
+  - category: "Layout & Geometry"
+    description: "Corner radius and sizing."
     items:
-      - name: '--radius'
-        default: '0.25rem (radius attribute: none, sm, md, lg, full)'
-        description: 'Corner radius of buttons, inputs, badges; cards and dialogs use min(var(--radius), 0.5rem) (shadcn/ui token).'
-      - name: '--resp-area-height'
-        default: '400px'
-        description: 'Maximum height of response and multi-line text areas.'
-      - name: '--table-schema-key-width'
-        default: '240px'
-        description: 'Width of the property-name column in table schema style.'
-      - name: '--table-schema-key-text-overflow'
-        default: 'ellipsis'
-        description: 'text-overflow of long property names in table schema style.'
-      - name: '--table-schema-key-whitespace'
-        default: 'nowrap'
-        description: 'white-space of property names in table schema style.'
-      - name: '--param-label-width'
-        default: '12rem'
-        description: 'Width of the label column (name and type) in parameter lists.'
-      - name: '--param-gap'
-        default: '0.5rem'
-        description: 'Space between the columns of a parameter list.'
-      - name: '--param-row-gap'
-        default: '0.25rem'
-        description: 'Space between the rows inside one parameter (input or constraints, then details).'
-      - name: '--param-padding'
-        default: '0.5rem'
-        description: 'Padding inside each parameter of a parameter list.'
-      - name: '--value-list-gap'
-        default: '0.375rem'
-        description: 'Space on each side of the separator between values (Allowed values, Examples).'
-      - name: '--value-list-row-gap'
-        default: '0.125rem'
-        description: 'Space between wrapped lines of a value list.'
-      - name: '--value-list-label-gap'
-        default: '0.25rem'
-        description: 'Space between a value list label and its first value.'
-      - name: '--auth-scheme-padding'
-        default: '0.75rem'
-        description: 'Padding inside each security scheme; OAuth flows are indented four times this.'
-      - name: '--scroll-margin-top'
-        default: '120px'
-        description: 'Space kept above a section when navigation scrolls to it; set it to your sticky header height.'
+      - name: "--radius"
+        default: "0.25rem (radius attribute: none, sm, md, lg, full)"
+        description: "Corner radius of buttons, inputs, badges; cards and dialogs use min(var(--radius), 0.5rem) (shadcn/ui token)."
+      - name: "--resp-area-height"
+        default: "400px"
+        description: "Maximum height of response and multi-line text areas."
+      - name: "--table-schema-key-width"
+        default: "240px"
+        description: "Width of the property-name column in table schema style."
+      - name: "--table-schema-key-text-overflow"
+        default: "ellipsis"
+        description: "text-overflow of long property names in table schema style."
+      - name: "--table-schema-key-whitespace"
+        default: "nowrap"
+        description: "white-space of property names in table schema style."
+      - name: "--param-label-width"
+        default: "12rem"
+        description: "Width of the label column (name and type) in parameter lists."
+      - name: "--param-gap"
+        default: "0.5rem"
+        description: "Space between the columns of a parameter list."
+      - name: "--param-row-gap"
+        default: "0.25rem"
+        description: "Space between the rows inside one parameter (input or constraints, then details)."
+      - name: "--param-padding"
+        default: "0.5rem"
+        description: "Padding inside each parameter of a parameter list."
+      - name: "--value-list-gap"
+        default: "0.375rem"
+        description: "Space on each side of the separator between values (Allowed values, Examples)."
+      - name: "--value-list-row-gap"
+        default: "0.125rem"
+        description: "Space between wrapped lines of a value list."
+      - name: "--value-list-label-gap"
+        default: "0.25rem"
+        description: "Space between a value list label and its first value."
+      - name: "--auth-scheme-padding"
+        default: "0.75rem"
+        description: "Padding inside each security scheme; OAuth flows are indented four times this."
+      - name: "--scroll-margin-top"
+        default: "120px"
+        description: "Space kept above a section when navigation scrolls to it; set it to your sticky header height."
 
-  - category: 'HTTP Methods'
-    description: 'Colors of method badges, operation borders, and navigation method labels.'
+  - category: "HTTP Methods"
+    description: "Colors of method badges, operation borders, and navigation method labels."
     items:
-      - name: '--method-get'
-        default: '#5c98f9 (dark) / #2563eb (light)'
-        description: 'GET.'
-      - name: '--method-post'
-        default: '#68cc97 (dark) / #047857 (light)'
-        description: 'POST.'
-      - name: '--method-put'
-        default: '#f59e0b (dark) / #c2410c (light)'
-        description: 'PUT.'
-      - name: '--method-delete'
-        default: '#f75252 (dark) / #b91c1c (light)'
-        description: 'DELETE.'
-      - name: '--method-patch'
-        default: '#a78bfa (dark) / #7c3aed (light)'
-        description: 'PATCH.'
-      - name: '--method-head'
-        default: '#eab308 (dark) / #b45309 (light)'
-        description: 'HEAD.'
-      - name: '--method-options'
-        default: '#06b6d4 (dark) / #0e7490 (light)'
-        description: 'OPTIONS.'
-      - name: '--method-trace'
-        default: '#ec4899 (dark) / #be185d (light)'
-        description: 'TRACE.'
-      - name: '--method-query'
-        default: '#818cf8 (dark) / #4f46e5 (light)'
-        description: 'QUERY.'
-      - name: '--method-default'
-        default: '#64748b (dark) / #475569 (light)'
-        description: 'Any other method (COPY, PURGE, ...).'
-      - name: '--method-badge-fg'
-        default: '#000000 (dark) / #ffffff (light)'
-        description: 'Text on filled method badges in the navigation.'
+      - name: "--method-get"
+        default: "#5c98f9 (dark) / #2563eb (light)"
+        description: "GET."
+      - name: "--method-post"
+        default: "#68cc97 (dark) / #047857 (light)"
+        description: "POST."
+      - name: "--method-put"
+        default: "#f59e0b (dark) / #c2410c (light)"
+        description: "PUT."
+      - name: "--method-delete"
+        default: "#f75252 (dark) / #b91c1c (light)"
+        description: "DELETE."
+      - name: "--method-patch"
+        default: "#a78bfa (dark) / #7c3aed (light)"
+        description: "PATCH."
+      - name: "--method-head"
+        default: "#eab308 (dark) / #b45309 (light)"
+        description: "HEAD."
+      - name: "--method-options"
+        default: "#06b6d4 (dark) / #0e7490 (light)"
+        description: "OPTIONS."
+      - name: "--method-trace"
+        default: "#ec4899 (dark) / #be185d (light)"
+        description: "TRACE."
+      - name: "--method-query"
+        default: "#818cf8 (dark) / #4f46e5 (light)"
+        description: "QUERY."
+      - name: "--method-default"
+        default: "#64748b (dark) / #475569 (light)"
+        description: "Any other method (COPY, PURGE, ...)."
+      - name: "--method-badge-fg"
+        default: "#000000 (dark) / #ffffff (light)"
+        description: "Text on filled method badges in the navigation."
 
-  - category: 'Named Colors'
-    description: 'Palette referenced by name from x-badges (color: blue, green, ...) and used for links and status text.'
+  - category: "Named Colors"
+    description: "Palette referenced by name from x-badges (color: blue, green, ...) and used for links and status text."
     items:
-      - name: '--blue'
-        default: '#3b82f6 (dark) / #2768f4 (light)'
-        description: 'Blue; also link color.'
-      - name: '--green'
-        default: '#10b981 (dark) / #059669 (light)'
-        description: 'Green.'
-      - name: '--orange'
-        default: '#f59e0b (dark) / #d97706 (light)'
-        description: 'Orange.'
-      - name: '--red'
-        default: '#ef4444 (dark) / #dc2626 (light)'
-        description: 'Red (badges only; errors use --destructive).'
-      - name: '--purple'
-        default: '#8b5cf6 (dark) / #7c3aed (light)'
-        description: 'Purple.'
-      - name: '--yellow'
-        default: '#eab308 (dark) / #b45309 (light)'
-        description: 'Yellow.'
-      - name: '--pink'
-        default: '#ec4899 (dark) / #db2777 (light)'
-        description: 'Pink.'
-      - name: '--brown'
-        default: '#d97706 (dark) / #92400e (light)'
-        description: 'Brown.'
+      - name: "--blue"
+        default: "#3b82f6 (dark) / #2768f4 (light)"
+        description: "Blue; also link color."
+      - name: "--green"
+        default: "#10b981 (dark) / #059669 (light)"
+        description: "Green."
+      - name: "--orange"
+        default: "#f59e0b (dark) / #d97706 (light)"
+        description: "Orange."
+      - name: "--red"
+        default: "#ef4444 (dark) / #dc2626 (light)"
+        description: "Red (badges only; errors use --destructive)."
+      - name: "--purple"
+        default: "#8b5cf6 (dark) / #7c3aed (light)"
+        description: "Purple."
+      - name: "--yellow"
+        default: "#eab308 (dark) / #b45309 (light)"
+        description: "Yellow."
+      - name: "--pink"
+        default: "#ec4899 (dark) / #db2777 (light)"
+        description: "Pink."
+      - name: "--brown"
+        default: "#d97706 (dark) / #92400e (light)"
+        description: "Brown."
 
-  - category: 'Code & Syntax Highlighting'
-    description: 'Code block background and syntax token colors.'
+  - category: "Code & Syntax Highlighting"
+    description: "Code block background and syntax token colors."
     items:
-      - name: '--code-bg'
-        default: 'var(--input-background) (dark) / --background with 4% --foreground (light)'
-        description: 'Background of code blocks and examples.'
-      - name: '--input-background'
-        default: 'slightly darker than --background (dark) / var(--background) (light)'
-        description: 'Background of form fields.'
-      - name: '--syntax-comment'
-        default: '#8b949e (dark) / #6e7781 (light)'
-        description: 'Comments.'
-      - name: '--syntax-keyword'
-        default: '#ff7b72 (dark) / #cf222e (light)'
-        description: 'Keywords.'
-      - name: '--syntax-operator'
-        default: '#c9d1d9 (dark) / #24292f (light)'
-        description: 'Operators and punctuation.'
-      - name: '--syntax-string'
-        default: '#a5d6ff (dark) / #0a3069 (light)'
-        description: 'String literals.'
-      - name: '--syntax-constant'
-        default: '#79c0ff (dark) / #0550ae (light)'
-        description: 'Numbers, booleans, constants.'
-      - name: '--syntax-function'
-        default: '#d2a8ff (dark) / #8250df (light)'
-        description: 'Function names.'
-      - name: '--syntax-type'
-        default: '#d2a8ff (dark) / #8250df (light)'
-        description: 'Type names.'
-      - name: '--syntax-variable'
-        default: '#ffa657 (dark) / #953800 (light)'
-        description: 'Variables.'
-      - name: '--syntax-property'
-        default: '#79c0ff (dark) / #0550ae (light)'
-        description: 'Object keys and properties.'
-      - name: '--syntax-tag'
-        default: '#7ee787 (dark) / #116329 (light)'
-        description: 'Markup tags.'
-      - name: '--syntax-selector'
-        default: '#d2a8ff (dark) / #8250df (light)'
-        description: 'CSS selectors.'
-      - name: '--syntax-inserted'
-        default: '#7ee787 (dark) / #116329 (light)'
-        description: 'Inserted lines in diffs.'
-      - name: '--syntax-deleted'
-        default: '#ff7b72 (dark) / #cf222e (light)'
-        description: 'Deleted lines in diffs.'
+      - name: "--code-bg"
+        default: "var(--input-background) (dark) / --background with 4% --foreground (light)"
+        description: "Background of code blocks and examples."
+      - name: "--input-background"
+        default: "slightly darker than --background (dark) / var(--background) (light)"
+        description: "Background of form fields."
+      - name: "--syntax-comment"
+        default: "#8b949e (dark) / #6e7781 (light)"
+        description: "Comments."
+      - name: "--syntax-keyword"
+        default: "#ff7b72 (dark) / #cf222e (light)"
+        description: "Keywords."
+      - name: "--syntax-operator"
+        default: "#c9d1d9 (dark) / #24292f (light)"
+        description: "Operators and punctuation."
+      - name: "--syntax-string"
+        default: "#a5d6ff (dark) / #0a3069 (light)"
+        description: "String literals."
+      - name: "--syntax-constant"
+        default: "#79c0ff (dark) / #0550ae (light)"
+        description: "Numbers, booleans, constants."
+      - name: "--syntax-function"
+        default: "#d2a8ff (dark) / #8250df (light)"
+        description: "Function names."
+      - name: "--syntax-type"
+        default: "#d2a8ff (dark) / #8250df (light)"
+        description: "Type names."
+      - name: "--syntax-variable"
+        default: "#ffa657 (dark) / #953800 (light)"
+        description: "Variables."
+      - name: "--syntax-property"
+        default: "#79c0ff (dark) / #0550ae (light)"
+        description: "Object keys and properties."
+      - name: "--syntax-tag"
+        default: "#7ee787 (dark) / #116329 (light)"
+        description: "Markup tags."
+      - name: "--syntax-selector"
+        default: "#d2a8ff (dark) / #8250df (light)"
+        description: "CSS selectors."
+      - name: "--syntax-inserted"
+        default: "#7ee787 (dark) / #116329 (light)"
+        description: "Inserted lines in diffs."
+      - name: "--syntax-deleted"
+        default: "#ff7b72 (dark) / #cf222e (light)"
+        description: "Deleted lines in diffs."
 
 slots:
-  - name: '(default)'
-    placement: 'Below header, above Overview section'
-    description: 'Un-slotted child elements placed directly inside <rapi-doc>. Renders at the top of the main canvas. Ideal for system status alerts, migration warnings, or welcome banners.'
-  - name: 'fixed-header'
-    placement: 'Fixed at the very top of document viewport'
-    description: 'Contents that remain permanently pinned at the top and do not scroll out of view.'
-  - name: 'logo'
-    placement: 'Top utility header (left)'
-    description: 'Replaces the default RapiDoc brand logo with your custom company logo image, SVG, or interactive home link.'
-  - name: 'header'
-    placement: 'Top utility header (right)'
-    description: 'Renders custom HTML or buttons after the spec URL input bar. Ideal for GitHub links, external documentation, or environment selectors.'
-  - name: 'footer'
-    placement: 'Bottom of document canvas'
-    description: 'Appends custom markup at the very end of the documentation. Ideal for corporate copyright notices, terms of service, and support contacts.'
-  - name: 'nav-logo'
-    placement: 'Top of sidebar navigation'
-    description: 'Custom branding image or wordmark placed at the top of the sticky sidebar (available in read render-style).'
-  - name: 'auth'
-    placement: 'Inside Authentication / Security modal'
-    description: 'Displays custom guidance, API key generation instructions, or company SSO login buttons inside the auth dialog.'
-  - name: 'overview'
-    placement: 'Inside Overview summary panel'
-    description: 'Custom HTML injected inside the API overview card directly underneath the document title and description.'
-  - name: 'servers'
-    placement: 'Inside Server configuration card'
-    description: 'Custom HTML injected inside the server selector panel. Ideal for environment advisories or uptime links.'
-  - name: 'operations-top'
-    placement: 'Directly above operations list'
-    description: 'Global notices, common request headers, or standard query parameter rules applicable across all API calls.'
-  - name: 'tag--{tag-name}'
-    placement: 'Underneath specific tag section'
+  - name: "(default)"
+    placement: "Below header, above Overview section"
+    description: "Un-slotted child elements placed directly inside <rapi-doc>. Renders at the top of the main canvas. Ideal for system status alerts, migration warnings, or welcome banners."
+  - name: "fixed-header"
+    placement: "Fixed at the very top of document viewport"
+    description: "Contents that remain permanently pinned at the top and do not scroll out of view."
+  - name: "logo"
+    placement: "Top utility header (left)"
+    description: "Replaces the default RapiDoc brand logo with your custom company logo image, SVG, or interactive home link."
+  - name: "header"
+    placement: "Top utility header (right)"
+    description: "Renders custom HTML or buttons after the spec URL input bar. Ideal for GitHub links, external documentation, or environment selectors."
+  - name: "footer"
+    placement: "Bottom of document canvas"
+    description: "Appends custom markup at the very end of the documentation. Ideal for corporate copyright notices, terms of service, and support contacts."
+  - name: "nav-logo"
+    placement: "Top of sidebar navigation"
+    description: "Custom branding image or wordmark placed at the top of the sticky sidebar (available in read render-style)."
+  - name: "auth"
+    placement: "Inside Authentication / Security modal"
+    description: "Displays custom guidance, API key generation instructions, or company SSO login buttons inside the auth dialog."
+  - name: "overview"
+    placement: "Inside Overview summary panel"
+    description: "Custom HTML injected inside the API overview card directly underneath the document title and description."
+  - name: "servers"
+    placement: "Inside Server configuration card"
+    description: "Custom HTML injected inside the server selector panel. Ideal for environment advisories or uptime links."
+  - name: "operations-top"
+    placement: "Directly above operations list"
+    description: "Global notices, common request headers, or standard query parameter rules applicable across all API calls."
+  - name: "tag--{tag-name}"
+    placement: "Underneath specific tag section"
     description: 'Custom HTML injected below a tag group header. Format as tag--{name} (e.g. slot="tag--Pet").'
-  - name: '{method}-{path}'
-    placement: 'Inside specific operation card'
+  - name: "{method}-{path}"
+    placement: "Inside specific operation card"
     description: 'Custom HTML injected into a single endpoint section. Format as {method}-{path} with hyphens (e.g. slot="get-/pet/-petId-").'

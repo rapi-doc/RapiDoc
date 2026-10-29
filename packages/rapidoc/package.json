@@ -2,35 +2,39 @@
   "name": "rapidoc",
   "version": "12.0.0",
   "description": "RapiDoc - Open API spec viewer with built in console",
-  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
-  "homepage": "https://rapidocui.com",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rapi-doc/RapiDoc.git"
-  },
-  "license": "MIT",
   "keywords": [
+    "API",
+    "Custom Element",
+    "JSON-Schema",
+    "Mock Server",
     "OpenAPI",
     "OpenAPI Specification",
-    "JSON-Schema",
-    "API",
     "REST",
-    "documentation",
-    "Custom Element",
     "Web Component",
+    "documentation",
+    "openapi explorer",
+    "openapi parser",
+    "openapi preview",
+    "openapi renderer",
+    "openapi themes",
+    "openapi ui",
+    "openapi viewer",
     "rapidoc",
     "redoc",
     "scalar",
     "swagger",
-    "swagger ui",
-    "openapi ui",
-    "openapi themes",
-    "openapi viewer",
-    "openapi renderer",
-    "openapi explorer",
-    "openapi parser",
-    "openapi preview",
-    "Mock Server"
+    "swagger ui"
+  ],
+  "homepage": "https://rapidocui.com",
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git"
+  },
+  "files": [
+    "dist",
+    "src"
   ],
   "type": "module",
   "main": "dist/rapidoc-min.js",
@@ -45,20 +49,15 @@
       "types": "./src/static/index.d.ts"
     }
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "build": "vite build && vite build --config vite.config.static.mjs",
     "build:client": "vite build",
     "build:static": "vite build --config vite.config.static.mjs",
     "build:dev": "vite build --mode development",
     "build:size": "ANALYZE=true vite build",
-    "lint": "eslint './src/**/*.{js,ts}'",
-    "format": "prettier --check './src/**/*.{js,ts,html,css}'",
-    "format-fix": "prettier --write './src/**/*.{js,ts,html,css}'",
-    "analyze": "lit-analyzer src",
+    "lint": "oxlint --deny-warnings src",
+    "format": "oxfmt --check src",
+    "format-fix": "oxfmt src",
     "test": "node --import ../../scripts/test-loader.mjs --test ../../tests/unit/*.test.js"
   },
   "dependencies": {

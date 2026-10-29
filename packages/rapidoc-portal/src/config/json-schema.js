@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { RapidocConfigSchema } from './schema.js';
+import { z } from "zod";
+import { RapidocConfigSchema } from "./schema.js";
 
 /**
  * JSON Schema of rapidoc.config.yaml, for editors. Cross-field rules (one kind per navigation item)
@@ -7,8 +7,8 @@ import { RapidocConfigSchema } from './schema.js';
  */
 export function configJsonSchema() {
   return {
-    ...z.toJSONSchema(RapidocConfigSchema, { io: 'input', unrepresentable: 'any' }),
-    $id: 'https://rapidocweb.com/schema/rapidoc-config.json',
-    title: 'RapiDoc Portal configuration (rapidoc.config.yaml)',
+    ...z.toJSONSchema(RapidocConfigSchema, { io: "input", unrepresentable: "any" }),
+    $id: "https://rapidocweb.com/schema/rapidoc-config.json",
+    title: "RapiDoc Portal configuration (rapidoc.config.yaml)",
   };
 }

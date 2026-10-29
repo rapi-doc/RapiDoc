@@ -2,14 +2,16 @@
  * Maps a normalized rapidoc.config.yaml onto Starlight integration options.
  */
 
-import { fileURLToPath } from 'node:url';
-import { pagefindMergeIndex } from '../access/split-output.js';
-import { portalHeadEntries } from './page-head.js';
+import { fileURLToPath } from "node:url";
+import { pagefindMergeIndex } from "../access/split-output.js";
+import { portalHeadEntries } from "./page-head.js";
 
 const componentPath = (name) => fileURLToPath(new URL(`../components/${name}`, import.meta.url));
 
-export const THEME_CSS_MODULE = 'virtual:rapidoc-portal/theme.css';
-export const ROUTE_MIDDLEWARE_PATH = fileURLToPath(new URL('./route-middleware.js', import.meta.url));
+export const THEME_CSS_MODULE = "virtual:rapidoc-portal/theme.css";
+export const ROUTE_MIDDLEWARE_PATH = fileURLToPath(
+  new URL("./route-middleware.js", import.meta.url),
+);
 
 /**
  * Starlight's sidebar: one group per documentation tab, in tab order. route-middleware.js shows only
@@ -18,8 +20,9 @@ export const ROUTE_MIDDLEWARE_PATH = fileURLToPath(new URL('./route-middleware.j
  * @param {Array} tabs - Normalized `tabs`
  */
 export function buildStarlightSidebar(tabs = []) {
-  const docsTabs = tabs.filter((tab) => tab.kind === 'docs');
-  if (docsTabs.length === 0) return [{ label: 'Documentation', autogenerate: { directory: 'docs' } }];
+  const docsTabs = tabs.filter((tab) => tab.kind === "docs");
+  if (docsTabs.length === 0)
+    return [{ label: "Documentation", autogenerate: { directory: "docs" } }];
   return docsTabs.map((tab) => ({ label: tab.label, items: tab.sidebar.map(withoutIcons) }));
 }
 
@@ -53,42 +56,43 @@ export function createStarlightOptions(portalConfig) {
     disable404Route: true,
     sidebar: buildStarlightSidebar(portalConfig.tabs),
     routeMiddleware: [ROUTE_MIDDLEWARE_PATH],
-    tableOfContents: docs.toc === false ? false : { minHeadingLevel: 2, maxHeadingLevel: 3, ...docs.toc },
+    tableOfContents:
+      docs.toc === false ? false : { minHeadingLevel: 2, maxHeadingLevel: 3, ...docs.toc },
     pagefind: pagefindOptions(portalConfig),
     // Starlight's own Footer stays: it renders prev/next links, the edit link and the last-updated
     // date. The site footer is rendered by PortalPageFrame below the whole shell.
     components: {
-      Header: componentPath('PortalHeader.astro'),
-      PageFrame: componentPath('PortalPageFrame.astro'),
-      TwoColumnContent: componentPath('PortalTwoColumnContent.astro'),
-      Sidebar: componentPath('PortalSidebar.astro'),
-      ThemeProvider: componentPath('PortalThemeProvider.astro'),
-      ThemeSelect: componentPath('PortalThemeSelect.astro'),
-      PageTitle: componentPath('PortalPageTitle.astro'),
+      Header: componentPath("PortalHeader.astro"),
+      PageFrame: componentPath("PortalPageFrame.astro"),
+      TwoColumnContent: componentPath("PortalTwoColumnContent.astro"),
+      Sidebar: componentPath("PortalSidebar.astro"),
+      ThemeProvider: componentPath("PortalThemeProvider.astro"),
+      ThemeSelect: componentPath("PortalThemeSelect.astro"),
+      PageTitle: componentPath("PortalPageTitle.astro"),
     },
     // theme.css files come after the portal theme, so their plain selectors win.
     customCss: [THEME_CSS_MODULE, ...portalConfig.theme.css],
     expressiveCode: {
-      themes: ['github-dark', 'github-light'],
+      themes: ["github-dark", "github-light"],
       // Same corners and border as the callouts. Shell code too gets the code frame, so a header (lightly
       // tinted) shows only for a block with a title, never as an empty terminal title bar.
-      defaultProps: { frame: 'code' },
+      defaultProps: { frame: "code" },
       // Shiki has no Markdoc grammar; Markdown highlighting fits ```markdoc examples best.
-      shiki: { langAlias: { markdoc: 'md', mdoc: 'md' } },
+      shiki: { langAlias: { markdoc: "md", mdoc: "md" } },
       styleOverrides: {
-        borderRadius: 'var(--portal-radius)',
-        borderColor: 'var(--portal-border)',
+        borderRadius: "var(--portal-radius)",
+        borderColor: "var(--portal-border)",
         frames: {
-          frameBoxShadowCssValue: 'none',
-          editorTabBarBackground: 'color-mix(in oklab, var(--portal-fg) 5%, var(--portal-bg))',
-          editorTabBarBorderBottomColor: 'var(--portal-border)',
-          editorActiveTabBackground: 'transparent',
-          editorActiveTabBorderColor: 'transparent',
-          editorActiveTabIndicatorTopColor: 'transparent',
-          editorActiveTabIndicatorBottomColor: 'transparent',
-          terminalTitlebarBackground: 'color-mix(in oklab, var(--portal-fg) 5%, var(--portal-bg))',
-          terminalTitlebarBorderBottomColor: 'var(--portal-border)',
-          terminalTitlebarDotsOpacity: '0',
+          frameBoxShadowCssValue: "none",
+          editorTabBarBackground: "color-mix(in oklab, var(--portal-fg) 5%, var(--portal-bg))",
+          editorTabBarBorderBottomColor: "var(--portal-border)",
+          editorActiveTabBackground: "transparent",
+          editorActiveTabBorderColor: "transparent",
+          editorActiveTabIndicatorTopColor: "transparent",
+          editorActiveTabIndicatorBottomColor: "transparent",
+          terminalTitlebarBackground: "color-mix(in oklab, var(--portal-fg) 5%, var(--portal-bg))",
+          terminalTitlebarBorderBottomColor: "var(--portal-border)",
+          terminalTitlebarDotsOpacity: "0",
         },
       },
     },

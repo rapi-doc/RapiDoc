@@ -1,16 +1,16 @@
-import Markdoc from '@markdoc/markdoc';
-import GithubSlugger from 'github-slugger';
+import Markdoc from "@markdoc/markdoc";
+import GithubSlugger from "github-slugger";
 
 /**
  * Extracts plain text content from Markdoc node children.
  */
 export function getNodeText(node) {
-  let text = '';
+  let text = "";
   for (const child of node.children || []) {
-    if (typeof child === 'string') {
+    if (typeof child === "string") {
       text += child;
-    } else if (child.type === 'text') {
-      text += child.attributes?.content || '';
+    } else if (child.type === "text") {
+      text += child.attributes?.content || "";
     } else if (child.children) {
       text += getNodeText(child);
     }
@@ -22,7 +22,7 @@ export function getNodeText(node) {
  * Custom heading node that generates unique, URL-safe anchor IDs.
  */
 export const heading = {
-  children: ['inline'],
+  children: ["inline"],
   attributes: {
     id: { type: String },
     level: { type: Number, required: true, default: 1 },
@@ -39,7 +39,7 @@ export const heading = {
         id,
         class: `portal-heading portal-heading-${node.attributes.level}`,
       },
-      node.transformChildren(config)
+      node.transformChildren(config),
     );
   },
 };
@@ -55,30 +55,30 @@ export const fence = {
     process: { type: Boolean, render: false, default: true },
   },
   transform(node) {
-    const language = node.attributes.language || 'text';
-    const content = node.attributes.content || '';
-    const title = node.attributes.title || '';
+    const language = node.attributes.language || "text";
+    const content = node.attributes.content || "";
+    const title = node.attributes.title || "";
 
-    const titleTag = title ? [new Markdoc.Tag('div', { class: 'portal-code-title' }, [title])] : [];
+    const titleTag = title ? [new Markdoc.Tag("div", { class: "portal-code-title" }, [title])] : [];
 
-    return new Markdoc.Tag('div', { class: 'portal-code-block' }, [
+    return new Markdoc.Tag("div", { class: "portal-code-block" }, [
       ...titleTag,
-      new Markdoc.Tag('div', { class: 'portal-code-wrapper' }, [
+      new Markdoc.Tag("div", { class: "portal-code-wrapper" }, [
         new Markdoc.Tag(
-          'pre',
+          "pre",
           {
             class: `portal-pre language-${language}`,
-            'data-language': language,
+            "data-language": language,
           },
           [
             new Markdoc.Tag(
-              'code',
+              "code",
               {
                 class: `portal-code language-${language}`,
               },
-              [content]
+              [content],
             ),
-          ]
+          ],
         ),
       ]),
     ]);

@@ -1,28 +1,33 @@
-import { css, LitElement } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { scheduleHighlight } from '~/utils/highlighter';
+import { css, LitElement } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { scheduleHighlight } from "~/utils/highlighter";
 
 // Styles
-import FontStyles from '~/styles/font-styles';
-import InputStyles from '~/styles/input-styles';
-import FlexStyles from '~/styles/flex-styles';
-import AuthStyles from '~/styles/auth-styles';
-import ParamListStyles from '~/styles/param-list-styles';
-import MicrolighterStyles from '~/styles/microlighter-styles';
-import TabStyles from '~/styles/tab-styles';
-import NavStyles from '~/styles/nav-styles';
-import InfoStyles from '~/styles/info-styles';
+import FontStyles from "~/styles/font-styles";
+import InputStyles from "~/styles/input-styles";
+import FlexStyles from "~/styles/flex-styles";
+import AuthStyles from "~/styles/auth-styles";
+import ParamListStyles from "~/styles/param-list-styles";
+import MicrolighterStyles from "~/styles/microlighter-styles";
+import TabStyles from "~/styles/tab-styles";
+import NavStyles from "~/styles/nav-styles";
+import InfoStyles from "~/styles/info-styles";
 
-import EndpointStyles from '~/styles/endpoint-styles';
-import ThemeTokens, { DEFAULT_THEME, applyCustomTheme, isValidHexColor, normalizeTheme } from '~/styles/theme-tokens';
-import { rapidocApiKey } from '~/utils/common-utils';
-import ProcessSpec from '~/utils/spec-parser';
-import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/mock-interceptor';
-import mainBodyTemplate from '~/templates/main-body-template';
-import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
-import { setApiServer } from '~/templates/server-template';
-import '~/utils/markdown-utils';
-import { AutoColorSchemeController } from '~/utils/auto-color-scheme';
+import EndpointStyles from "~/styles/endpoint-styles";
+import ThemeTokens, {
+  DEFAULT_THEME,
+  applyCustomTheme,
+  isValidHexColor,
+  normalizeTheme,
+} from "~/styles/theme-tokens";
+import { rapidocApiKey } from "~/utils/common-utils";
+import ProcessSpec from "~/utils/spec-parser";
+import { enableMockServer, disableMockServer, updateMockConfig } from "~/utils/mock-interceptor";
+import mainBodyTemplate from "~/templates/main-body-template";
+import { applyApiKey, onClearAllApiKeys } from "~/templates/security-scheme-template";
+import { setApiServer } from "~/templates/server-template";
+import "~/utils/markdown-utils";
+import { AutoColorSchemeController } from "~/utils/auto-color-scheme";
 
 const paramsConverter = {
   fromAttribute: (attr: string | null) => {
@@ -30,7 +35,7 @@ const paramsConverter = {
       return null;
     }
     const trimmed = attr.trim();
-    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
       try {
         return JSON.parse(trimmed);
       } catch {
@@ -40,69 +45,76 @@ const paramsConverter = {
     return trimmed;
   },
   toAttribute: (prop: any) => {
-    if (typeof prop === 'object' && prop !== null) {
+    if (typeof prop === "object" && prop !== null) {
       return JSON.stringify(prop);
     }
     return prop;
   },
 };
 
-@customElement('rapi-doc-mini')
+@customElement("rapi-doc-mini")
 export default class RapiDocMini extends LitElement {
   // Spec
-  @property({ type: String, attribute: 'spec-url' }) specUrl = '';
-  @property({ type: String, attribute: 'sort-endpoints-by' }) sortEndpointsBy = 'path';
+  @property({ type: String, attribute: "spec-url" }) specUrl = "";
+  @property({ type: String, attribute: "sort-endpoints-by" }) sortEndpointsBy = "path";
 
   // UI Layouts
-  @property({ type: String }) layout = 'row';
-  @property({ type: String, attribute: 'paths-expanded' }) pathsExpanded: any = 'false';
-  @property({ type: String, attribute: 'default-schema-tab' }) defaultSchemaTab = 'example';
-  @property({ type: String, attribute: 'response-area-height' }) responseAreaHeight = '300px';
-  @property({ type: String, attribute: 'show-summary-when-collapsed' }) showSummaryWhenCollapsed = 'true';
-  @property({ type: String, attribute: 'fill-request-fields-with-example' }) fillRequestFieldsWithExample = 'true';
-  @property({ type: String, attribute: 'persist-auth' }) persistAuth = 'false';
+  @property({ type: String }) layout = "row";
+  @property({ type: String, attribute: "paths-expanded" }) pathsExpanded: any = "false";
+  @property({ type: String, attribute: "default-schema-tab" }) defaultSchemaTab = "example";
+  @property({ type: String, attribute: "response-area-height" }) responseAreaHeight = "300px";
+  @property({ type: String, attribute: "show-summary-when-collapsed" }) showSummaryWhenCollapsed =
+    "true";
+  @property({ type: String, attribute: "fill-request-fields-with-example" })
+  fillRequestFieldsWithExample = "true";
+  @property({ type: String, attribute: "persist-auth" }) persistAuth = "false";
 
   // Schema Styles
-  @property({ type: String, attribute: 'schema-style' }) schemaStyle = 'tree';
-  @property({ type: Number, attribute: 'schema-expand-level' }) schemaExpandLevel = 99999;
-  @property({ type: String, attribute: 'schema-description-expanded' }) schemaDescriptionExpanded = 'false';
+  @property({ type: String, attribute: "schema-style" }) schemaStyle = "tree";
+  @property({ type: Number, attribute: "schema-expand-level" }) schemaExpandLevel = 99999;
+  @property({ type: String, attribute: "schema-description-expanded" }) schemaDescriptionExpanded =
+    "false";
 
   // API Server
-  @property({ type: String, attribute: 'api-key-name' }) apiKeyName = '';
-  @property({ type: String, attribute: 'api-key-location' }) apiKeyLocation = 'header';
-  @property({ type: String, attribute: 'api-key-value' }) apiKeyValue = '-';
-  @property({ type: String, attribute: 'default-api-server' }) defaultApiServerUrl = '';
-  @property({ type: String, attribute: 'server-url' }) serverUrl = '';
-  @property({ type: String, attribute: 'oauth-receiver' }) oauthReceiver = 'oauth-receiver.html';
-  @property({ type: Object, attribute: 'additional-authorize-params', converter: paramsConverter }) additionalAuthorizeParams: any;
-  @property({ type: Object, attribute: 'additional-token-params', converter: paramsConverter }) additionalTokenParams: any;
+  @property({ type: String, attribute: "api-key-name" }) apiKeyName = "";
+  @property({ type: String, attribute: "api-key-location" }) apiKeyLocation = "header";
+  @property({ type: String, attribute: "api-key-value" }) apiKeyValue = "-";
+  @property({ type: String, attribute: "default-api-server" }) defaultApiServerUrl = "";
+  @property({ type: String, attribute: "server-url" }) serverUrl = "";
+  @property({ type: String, attribute: "oauth-receiver" }) oauthReceiver = "oauth-receiver.html";
+  @property({ type: Object, attribute: "additional-authorize-params", converter: paramsConverter })
+  additionalAuthorizeParams: any;
+  @property({ type: Object, attribute: "additional-token-params", converter: paramsConverter })
+  additionalTokenParams: any;
 
   // Mock Server
-  @property({ type: String, attribute: 'mock-server' }) mockServer = 'false';
-  @property({ type: String, attribute: 'mock-server-status-code' }) mockServerStatusCode = '200';
-  @property({ type: String, attribute: 'mock-server-status-strategy' }) mockServerStatusStrategy = 'example';
-  @property({ type: Number, attribute: 'mock-server-delay' }) mockServerDelay = 0;
-  @property({ type: String, attribute: 'mock-server-log' }) mockServerLog = 'false';
+  @property({ type: String, attribute: "mock-server" }) mockServer = "false";
+  @property({ type: String, attribute: "mock-server-status-code" }) mockServerStatusCode = "200";
+  @property({ type: String, attribute: "mock-server-status-strategy" }) mockServerStatusStrategy =
+    "example";
+  @property({ type: Number, attribute: "mock-server-delay" }) mockServerDelay = 0;
+  @property({ type: String, attribute: "mock-server-log" }) mockServerLog = "false";
 
-  @property({ type: String, attribute: 'allow-try' }) allowTry = 'true';
-  @property({ type: String, attribute: 'show-curl-before-try' }) showCurlBeforeTry = 'false';
+  @property({ type: String, attribute: "allow-try" }) allowTry = "true";
+  @property({ type: String, attribute: "show-curl-before-try" }) showCurlBeforeTry = "false";
 
   // Main Colors and Font
   @property({ type: String, reflect: true }) theme = DEFAULT_THEME;
-  @property({ type: String, attribute: 'primary-color' }) primaryColor = '';
-  @property({ type: String, attribute: 'color-scheme', reflect: true }) colorScheme = 'dark';
+  @property({ type: String, attribute: "primary-color" }) primaryColor = "";
+  @property({ type: String, attribute: "color-scheme", reflect: true }) colorScheme = "dark";
   // color-scheme="auto": follows the page's theme (see utils/auto-color-scheme.js)
   _autoColorScheme = new AutoColorSchemeController(this);
-  @property({ type: String, reflect: true }) radius = 'sm';
-  @property({ type: String, reflect: true }) scale = 'default';
+  @property({ type: String, reflect: true }) radius = "sm";
+  @property({ type: String, reflect: true }) scale = "default";
 
   // Fetch Options
-  @property({ type: String, attribute: 'fetch-credentials' }) fetchCredentials = '';
+  @property({ type: String, attribute: "fetch-credentials" }) fetchCredentials = "";
 
   // Filters
-  @property({ type: String, attribute: 'match-paths' }) matchPaths = '';
-  @property({ type: String, attribute: 'match-type' }) matchType = 'includes';
-  @property({ type: String, attribute: 'remove-endpoints-with-badge-label-as' }) removeEndpointsWithBadgeLabelAs = '';
+  @property({ type: String, attribute: "match-paths" }) matchPaths = "";
+  @property({ type: String, attribute: "match-type" }) matchType = "includes";
+  @property({ type: String, attribute: "remove-endpoints-with-badge-label-as" })
+  removeEndpointsWithBadgeLabelAs = "";
 
   // Internal Properties
   @property({ type: Boolean }) loading = false;
@@ -123,10 +135,10 @@ export default class RapiDocMini extends LitElement {
   constructor() {
     super();
     this.isMini = true;
-    this.updateRoute = 'false';
-    this.renderStyle = 'view';
-    this.showHeader = 'false';
-    this.allowAdvancedSearch = 'false';
+    this.updateRoute = "false";
+    this.renderStyle = "view";
+    this.showHeader = "false";
+    this.allowAdvancedSearch = "false";
     this.loadFailed = false;
   }
 
@@ -180,108 +192,126 @@ export default class RapiDocMini extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    if (!this.showSummaryWhenCollapsed || !'true, false,'.includes(`${this.showSummaryWhenCollapsed},`)) {
-      this.showSummaryWhenCollapsed = 'true';
+    if (
+      !this.showSummaryWhenCollapsed ||
+      !"true, false,".includes(`${this.showSummaryWhenCollapsed},`)
+    ) {
+      this.showSummaryWhenCollapsed = "true";
     }
-    if (!this.layout || !'row, column,'.includes(`${this.layout},`)) {
-      this.layout = 'row';
+    if (!this.layout || !"row, column,".includes(`${this.layout},`)) {
+      this.layout = "row";
     }
-    if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
-      this.schemaStyle = 'tree';
+    if (!this.schemaStyle || !"tree, table,".includes(`${this.schemaStyle},`)) {
+      this.schemaStyle = "tree";
     }
     if (this.primaryColor && isValidHexColor(this.primaryColor)) {
       this.theme = this.primaryColor;
     }
     const normalizedTheme = normalizeTheme(this.theme);
     this.theme = normalizedTheme.theme;
-    this.setAttribute('theme', this.theme);
-    if (!this.colorScheme || !'dark, light, system,'.includes(`${this.colorScheme},`)) {
-      this.colorScheme = 'dark';
+    this.setAttribute("theme", this.theme);
+    if (!this.colorScheme || !"dark, light, system,".includes(`${this.colorScheme},`)) {
+      this.colorScheme = "dark";
     }
-    if (!this.radius || !'none, sm, md, lg, full,'.includes(`${this.radius},`)) {
-      this.radius = 'sm';
+    if (!this.radius || !"none, sm, md, lg, full,".includes(`${this.radius},`)) {
+      this.radius = "sm";
     }
-    if (!this.scale || !'sm, default, lg,'.includes(`${this.scale},`)) {
-      this.scale = 'default';
+    if (!this.scale || !"sm, default, lg,".includes(`${this.scale},`)) {
+      this.scale = "default";
     }
-    if (!this.getAttribute('theme')) {
-      this.setAttribute('theme', this.theme);
+    if (!this.getAttribute("theme")) {
+      this.setAttribute("theme", this.theme);
     }
-    if (!this.getAttribute('color-scheme')) {
-      this.setAttribute('color-scheme', this.colorScheme);
+    if (!this.getAttribute("color-scheme")) {
+      this.setAttribute("color-scheme", this.colorScheme);
     }
-    if (!this.getAttribute('radius')) {
-      this.setAttribute('radius', this.radius);
+    if (!this.getAttribute("radius")) {
+      this.setAttribute("radius", this.radius);
     }
-    if (!this.getAttribute('scale')) {
-      this.setAttribute('scale', this.scale);
+    if (!this.getAttribute("scale")) {
+      this.setAttribute("scale", this.scale);
     }
     applyCustomTheme(this, this.theme);
-    if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) {
-      this.defaultSchemaTab = 'example';
-    } else if (this.defaultSchemaTab === 'model') {
-      this.defaultSchemaTab = 'schema';
+    if (
+      !this.defaultSchemaTab ||
+      !"example, schema, model,".includes(`${this.defaultSchemaTab},`)
+    ) {
+      this.defaultSchemaTab = "example";
+    } else if (this.defaultSchemaTab === "model") {
+      this.defaultSchemaTab = "schema";
     }
-    this.pathsExpanded = this.pathsExpanded === 'true';
+    this.pathsExpanded = this.pathsExpanded === "true";
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;
     }
-    if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) {
-      this.schemaDescriptionExpanded = 'false';
+    if (
+      !this.schemaDescriptionExpanded ||
+      !"true, false,".includes(`${this.schemaDescriptionExpanded},`)
+    ) {
+      this.schemaDescriptionExpanded = "false";
     }
-    if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) {
-      this.fillRequestFieldsWithExample = 'true';
+    if (
+      !this.fillRequestFieldsWithExample ||
+      !"true, false,".includes(`${this.fillRequestFieldsWithExample},`)
+    ) {
+      this.fillRequestFieldsWithExample = "true";
     }
-    if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) {
-      this.persistAuth = 'false';
+    if (!this.persistAuth || !"true, false,".includes(`${this.persistAuth},`)) {
+      this.persistAuth = "false";
     }
     if (!this.responseAreaHeight) {
-      this.responseAreaHeight = '300px';
+      this.responseAreaHeight = "300px";
     }
 
-    if (!this.allowTry || !'true, false,'.includes(`${this.allowTry},`)) {
-      this.allowTry = 'true';
+    if (!this.allowTry || !"true, false,".includes(`${this.allowTry},`)) {
+      this.allowTry = "true";
     }
     if (!this.apiKeyValue) {
-      this.apiKeyValue = '-';
+      this.apiKeyValue = "-";
     }
     if (!this.apiKeyLocation) {
-      this.apiKeyLocation = 'header';
+      this.apiKeyLocation = "header";
     }
     if (!this.apiKeyName) {
-      this.apiKeyName = '';
+      this.apiKeyName = "";
     }
 
     if (!this.oauthReceiver) {
-      this.oauthReceiver = 'oauth-receiver.html';
+      this.oauthReceiver = "oauth-receiver.html";
     }
-    if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) {
-      this.sortTags = 'false';
+    if (!this.sortTags || !"true, false,".includes(`${this.sortTags},`)) {
+      this.sortTags = "false";
     }
-    if (!this.sortEndpointsBy || !'method, path, summary,'.includes(`${this.sortEndpointsBy},`)) {
-      this.sortEndpointsBy = 'path';
+    if (!this.sortEndpointsBy || !"method, path, summary,".includes(`${this.sortEndpointsBy},`)) {
+      this.sortEndpointsBy = "path";
     }
 
-    if (!this.matchType || !'includes regex'.includes(this.matchType)) {
-      this.matchType = 'includes';
+    if (!this.matchType || !"includes regex".includes(this.matchType)) {
+      this.matchType = "includes";
     }
     if (!this.matchPaths) {
-      this.matchPaths = '';
+      this.matchPaths = "";
     }
     if (!this.removeEndpointsWithBadgeLabelAs) {
-      this.removeEndpointsWithBadgeLabelAs = '';
+      this.removeEndpointsWithBadgeLabelAs = "";
     }
 
-    if (!this.allowSchemaDescriptionExpandToggle || !'true, false,'.includes(`${this.allowSchemaDescriptionExpandToggle},`)) {
-      this.allowSchemaDescriptionExpandToggle = 'true';
+    if (
+      !this.allowSchemaDescriptionExpandToggle ||
+      !"true, false,".includes(`${this.allowSchemaDescriptionExpandToggle},`)
+    ) {
+      this.allowSchemaDescriptionExpandToggle = "true";
     }
-    if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) {
-      this.fetchCredentials = '';
+    if (
+      !this.fetchCredentials ||
+      !"omit, same-origin, include,".includes(`${this.fetchCredentials},`)
+    ) {
+      this.fetchCredentials = "";
     }
   }
 
   disconnectedCallback() {
-    if (this.mockServer === 'true') {
+    if (this.mockServer === "true") {
       disableMockServer();
     }
     super.disconnectedCallback();
@@ -312,38 +342,42 @@ export default class RapiDocMini extends LitElement {
     super.updated?.(changedProperties);
     scheduleHighlight(this.shadowRoot);
 
-    if (changedProperties.has('theme')) {
+    if (changedProperties.has("theme")) {
       const normalizedTheme = normalizeTheme(this.theme);
       if (this.theme !== normalizedTheme.theme) {
         this.theme = normalizedTheme.theme;
-        this.setAttribute('theme', this.theme);
+        this.setAttribute("theme", this.theme);
       }
       applyCustomTheme(this, this.theme);
     }
 
-    if (changedProperties.has('primaryColor') && this.primaryColor && isValidHexColor(this.primaryColor)) {
+    if (
+      changedProperties.has("primaryColor") &&
+      this.primaryColor &&
+      isValidHexColor(this.primaryColor)
+    ) {
       this.theme = normalizeTheme(this.primaryColor).theme;
-      this.setAttribute('theme', this.theme);
+      this.setAttribute("theme", this.theme);
       applyCustomTheme(this, this.theme);
     }
 
-    if (changedProperties.has('mockServer')) {
-      if (this.mockServer === 'true' && this.resolvedSpec) {
+    if (changedProperties.has("mockServer")) {
+      if (this.mockServer === "true" && this.resolvedSpec) {
         enableMockServer(this.resolvedSpec, {
           statusCode: this.mockServerStatusCode,
           statusStrategy: this.mockServerStatusStrategy,
           delay: this.mockServerDelay,
           log: this.mockServerLog,
         });
-      } else if (this.mockServer !== 'true') {
+      } else if (this.mockServer !== "true") {
         disableMockServer();
       }
     }
     if (
-      changedProperties.has('mockServerStatusCode') ||
-      changedProperties.has('mockServerStatusStrategy') ||
-      changedProperties.has('mockServerDelay') ||
-      changedProperties.has('mockServerLog')
+      changedProperties.has("mockServerStatusCode") ||
+      changedProperties.has("mockServerStatusStrategy") ||
+      changedProperties.has("mockServerDelay") ||
+      changedProperties.has("mockServerLog")
     ) {
       updateMockConfig({
         statusCode: this.mockServerStatusCode,
@@ -355,7 +389,7 @@ export default class RapiDocMini extends LitElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    if (name === 'spec-url') {
+    if (name === "spec-url") {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
         window.setTimeout(async () => {
@@ -363,50 +397,56 @@ export default class RapiDocMini extends LitElement {
         }, 0);
       }
     }
-    if (name === 'match-paths' || name === 'match-type' || name === 'remove-endpoints-with-badge-label-as') {
+    if (
+      name === "match-paths" ||
+      name === "match-type" ||
+      name === "remove-endpoints-with-badge-label-as"
+    ) {
       if (oldVal !== newVal) {
         window.setTimeout(async () => {
           await this.loadSpec(this.specUrl);
         }, 0);
       }
     }
-    if (name === 'api-key-name' || name === 'api-key-location' || name === 'api-key-value') {
+    if (name === "api-key-name" || name === "api-key-location" || name === "api-key-value") {
       let updateSelectedApiKey = false;
-      let apiKeyName = '';
-      let apiKeyLocation = '';
-      let apiKeyValue = '';
+      let apiKeyName = "";
+      let apiKeyLocation = "";
+      let apiKeyValue = "";
 
-      if (name === 'api-key-name') {
-        if (this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
+      if (name === "api-key-name") {
+        if (this.getAttribute("api-key-location") && this.getAttribute("api-key-value")) {
           apiKeyName = newVal;
-          apiKeyLocation = this.getAttribute('api-key-location');
-          apiKeyValue = this.getAttribute('api-key-value');
+          apiKeyLocation = this.getAttribute("api-key-location");
+          apiKeyValue = this.getAttribute("api-key-value");
           updateSelectedApiKey = true;
         }
-      } else if (name === 'api-key-location') {
-        if (this.getAttribute('api-key-name') && this.getAttribute('api-key-value')) {
+      } else if (name === "api-key-location") {
+        if (this.getAttribute("api-key-name") && this.getAttribute("api-key-value")) {
           apiKeyLocation = newVal;
-          apiKeyName = this.getAttribute('api-key-name');
-          apiKeyValue = this.getAttribute('api-key-value');
+          apiKeyName = this.getAttribute("api-key-name");
+          apiKeyValue = this.getAttribute("api-key-value");
           updateSelectedApiKey = true;
         }
-      } else if (name === 'api-key-value') {
-        if (this.getAttribute('api-key-name') && this.getAttribute('api-key-location')) {
+      } else if (name === "api-key-value") {
+        if (this.getAttribute("api-key-name") && this.getAttribute("api-key-location")) {
           apiKeyValue = newVal;
-          apiKeyLocation = this.getAttribute('api-key-location');
-          apiKeyName = this.getAttribute('api-key-name');
+          apiKeyLocation = this.getAttribute("api-key-location");
+          apiKeyName = this.getAttribute("api-key-name");
           updateSelectedApiKey = true;
         }
       }
 
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v: any) => v.securitySchemeId === rapidocApiKey);
+          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find(
+            (v: any) => v.securitySchemeId === rapidocApiKey,
+          );
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
               securitySchemeId: rapidocApiKey,
-              description: 'api-key provided in rapidoc element attributes',
-              type: 'apiKey',
+              description: "api-key provided in rapidoc element attributes",
+              type: "apiKey",
               name: apiKeyName,
               in: apiKeyLocation,
               value: apiKeyValue,
@@ -426,7 +466,7 @@ export default class RapiDocMini extends LitElement {
   }
 
   onSpecUrlChange() {
-    this.setAttribute('spec-url', (this.shadowRoot.getElementById('spec-url') as any).value);
+    this.setAttribute("spec-url", (this.shadowRoot.getElementById("spec-url") as any).value);
   }
 
   // Public Method
@@ -446,17 +486,17 @@ export default class RapiDocMini extends LitElement {
       const spec = await ProcessSpec.call(
         this,
         specUrl,
-        this.generateMissingTags === 'true',
-        this.sortTags === 'true',
-        this.sortSchemas === 'true',
-        this.getAttribute('sort-endpoints-by'),
-        this.getAttribute('api-key-name'),
-        this.getAttribute('api-key-location'),
-        this.getAttribute('api-key-value'),
-        this.getAttribute('server-url'),
+        this.generateMissingTags === "true",
+        this.sortTags === "true",
+        this.sortSchemas === "true",
+        this.getAttribute("sort-endpoints-by"),
+        this.getAttribute("api-key-name"),
+        this.getAttribute("api-key-location"),
+        this.getAttribute("api-key-value"),
+        this.getAttribute("server-url"),
         this.matchPaths,
         this.matchType,
-        this.removeEndpointsWithBadgeLabelAs
+        this.removeEndpointsWithBadgeLabelAs,
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
@@ -476,7 +516,7 @@ export default class RapiDocMini extends LitElement {
   // Public Method - to update security-scheme of type apiKey or OAuth.
   // options.note: where the key came from (e.g. "Using your sign-in"), shown in place of the scheme's form
   setApiKey(securitySchemeId, apiKeyValue, options: { note?: string } = {}) {
-    return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue, options?.note || '');
+    return applyApiKey.call(this, securitySchemeId, "", "", apiKeyValue, options?.note || "");
   }
 
   // Public Method
@@ -500,7 +540,9 @@ export default class RapiDocMini extends LitElement {
           computedUrl: this.serverUrl,
         };
       } else if (this.resolvedSpec.servers) {
-        this.selectedServer = this.resolvedSpec.servers.find((v: any) => v.url === this.defaultApiServerUrl);
+        this.selectedServer = this.resolvedSpec.servers.find(
+          (v: any) => v.url === this.defaultApiServerUrl,
+        );
       }
     }
     if (!this.selectedServer) {
@@ -511,10 +553,10 @@ export default class RapiDocMini extends LitElement {
     this.requestUpdate();
 
     while (!(await this.updateComplete));
-    const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
+    const specLoadedEvent = new CustomEvent("spec-loaded", { detail: spec });
     this.dispatchEvent(specLoadedEvent);
 
-    if (this.mockServer === 'true') {
+    if (this.mockServer === "true") {
       enableMockServer(this.resolvedSpec, {
         statusCode: this.mockServerStatusCode,
         statusStrategy: this.mockServerStatusStrategy,
@@ -526,11 +568,13 @@ export default class RapiDocMini extends LitElement {
 
   // Called by anchor tags created using markdown
   handleHref(e) {
-    if (e.target.tagName.toLowerCase() === 'a') {
-      if (e.target.getAttribute('href').startsWith('#')) {
-        const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
+    if (e.target.tagName.toLowerCase() === "a") {
+      if (e.target.getAttribute("href").startsWith("#")) {
+        const gotoEl = this.shadowRoot.getElementById(
+          e.target.getAttribute("href").replace("#", ""),
+        );
         if (gotoEl) {
-          gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+          gotoEl.scrollIntoView({ behavior: "auto", block: "start" });
         }
       }
     }

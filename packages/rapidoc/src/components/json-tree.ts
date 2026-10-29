@@ -1,15 +1,15 @@
-import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { copyToClipboard } from '~/utils/common-utils';
-import FontStyles from '~/styles/font-styles';
-import BorderStyles from '~/styles/border-styles';
-import InputStyles from '~/styles/input-styles';
-import CustomStyles from '~/styles/custom-styles';
+import { LitElement, html, css } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { copyToClipboard } from "~/utils/common-utils";
+import FontStyles from "~/styles/font-styles";
+import BorderStyles from "~/styles/border-styles";
+import InputStyles from "~/styles/input-styles";
+import CustomStyles from "~/styles/custom-styles";
 
-@customElement('json-tree')
+@customElement("json-tree")
 export default class JsonTree extends LitElement {
   @property({ type: Object }) data = null;
-  @property({ type: String, attribute: 'render-style' }) renderStyle = '';
+  @property({ type: String, attribute: "render-style" }) renderStyle = "";
 
   static get styles() {
     return [
@@ -113,7 +113,7 @@ export default class JsonTree extends LitElement {
       <div
         class="json-tree"
         @click="${(e) => {
-          if (e.target.classList.contains('btn-copy')) {
+          if (e.target.classList.contains("btn-copy")) {
             copyToClipboard(JSON.stringify(this.data, null, 2), e);
           } else {
             this.toggleExpand(e);
@@ -130,41 +130,41 @@ export default class JsonTree extends LitElement {
 
   generateTree(data, isLast = false) {
     if (data === null) {
-      return html`<span class="null">null</span>${isLast ? '' : ','}`;
+      return html`<span class="null">null</span>${isLast ? "" : ","}`;
     }
-    if (typeof data === 'object' && data instanceof Date === false) {
-      const detailType = Array.isArray(data) ? 'array' : 'pure_object';
+    if (typeof data === "object" && data instanceof Date === false) {
+      const detailType = Array.isArray(data) ? "array" : "pure_object";
       if (Object.keys(data).length === 0) {
-        return html`${Array.isArray(data) ? '[ ],' : '{ },'}`;
+        return html`${Array.isArray(data) ? "[ ]," : "{ },"}`;
       }
       return html`
-        <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'}">
-          <span class="open-bracket-expanded">${detailType === 'array' ? '[' : '{'}</span>
-          <span class="open-bracket-collapsed">${detailType === 'array' ? '[...]' : '{...}'}</span>
+        <div class="open-bracket expanded ${detailType === "array" ? "array" : "object"}">
+          <span class="open-bracket-expanded">${detailType === "array" ? "[" : "{"}</span>
+          <span class="open-bracket-collapsed">${detailType === "array" ? "[...]" : "{...}"}</span>
         </div>
         <div class="inside-bracket">
           ${Object.keys(data).map(
             (key, i, a) =>
               html`<div class="item">
-                ${detailType === 'pure_object' ? html`"${key}":` : ''} ${this.generateTree(data[key], i === a.length - 1)}
-              </div>`
+                ${detailType === "pure_object" ? html`"${key}":` : ""} ${this.generateTree(data[key], i === a.length - 1)}
+              </div>`,
           )}
         </div>
-        <div class="close-bracket">${detailType === 'array' ? ']' : '}'}${isLast ? '' : ','}</div>
+        <div class="close-bracket">${detailType === "array" ? "]" : "}"}${isLast ? "" : ","}</div>
       `;
     }
-    return typeof data === 'string' || data instanceof Date
-      ? html`<span class="${typeof data}">"${data}"</span>${isLast ? '' : ','}`
-      : html`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
+    return typeof data === "string" || data instanceof Date
+      ? html`<span class="${typeof data}">"${data}"</span>${isLast ? "" : ","}`
+      : html`<span class="${typeof data}">${data}</span>${isLast ? "" : ","}`;
   }
 
   toggleExpand(e) {
-    const openBracketEl = e.target.closest('.open-bracket');
+    const openBracketEl = e.target.closest(".open-bracket");
     if (openBracketEl) {
-      if (openBracketEl.classList.contains('expanded')) {
-        openBracketEl.classList.replace('expanded', 'collapsed');
+      if (openBracketEl.classList.contains("expanded")) {
+        openBracketEl.classList.replace("expanded", "collapsed");
       } else {
-        openBracketEl.classList.replace('collapsed', 'expanded');
+        openBracketEl.classList.replace("collapsed", "expanded");
       }
     }
   }

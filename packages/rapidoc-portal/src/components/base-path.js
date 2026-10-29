@@ -7,17 +7,18 @@
  * In Astro pages and client scripts the base comes from `import.meta.env.BASE_URL`; Node code passes it.
  */
 
-const envBase = () => (import.meta.env?.BASE_URL || '/').replace(/\/+$/, '');
+const envBase = () => (import.meta.env?.BASE_URL || "/").replace(/\/+$/, "");
 
 /** `/docs/intro` → `/developers/docs/intro`. Full URLs, `#anchors`, `?queries` and relative paths are unchanged. */
 export function withBase(href, base = envBase()) {
-  if (typeof href !== 'string' || !base || !href.startsWith('/') || href.startsWith('//')) return href;
-  return href === '/' ? `${base}/` : `${base}${href}`;
+  if (typeof href !== "string" || !base || !href.startsWith("/") || href.startsWith("//"))
+    return href;
+  return href === "/" ? `${base}/` : `${base}${href}`;
 }
 
 /** `/developers/docs/intro/` → `/docs/intro/`: the current page's path as the config writes paths. */
 export function withoutBase(pathname, base = envBase()) {
-  if (!base || typeof pathname !== 'string') return pathname;
-  if (pathname === base) return '/';
+  if (!base || typeof pathname !== "string") return pathname;
+  if (pathname === base) return "/";
   return pathname.startsWith(`${base}/`) ? pathname.slice(base.length) : pathname;
 }

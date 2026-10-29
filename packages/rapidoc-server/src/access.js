@@ -8,9 +8,9 @@ export function emailMatches(pattern, email) {
   if (!email) return false;
   const source = pattern
     .toLowerCase()
-    .split('*')
-    .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&'))
-    .join('.*');
+    .split("*")
+    .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
+    .join(".*");
   return new RegExp(`^${source}$`).test(email.toLowerCase());
 }
 
@@ -20,12 +20,15 @@ export function emailMatches(pattern, email) {
  */
 export function allows(allow, user) {
   if (!allow) return false; // a zone the build does not know: never served
-  if (allow.kind === 'public') return true;
+  if (allow.kind === "public") return true;
   if (!user) return false;
-  if (allow.kind === 'signed-in') return true;
+  if (allow.kind === "signed-in") return true;
   const groups = new Set(user.groups || []);
   if ((allow.groups || []).some((group) => groups.has(group))) return true;
-  return Boolean(user.emailVerified) && (allow.emails || []).some((pattern) => emailMatches(pattern, user.email));
+  return (
+    Boolean(user.emailVerified) &&
+    (allow.emails || []).some((pattern) => emailMatches(pattern, user.email))
+  );
 }
 
 /** Zone ids the user may see. */
@@ -40,6 +43,6 @@ export function visibleZones(zones, user) {
  * `allow`, `sign-in` (signed out, zone needs a user) or `forbidden` (signed in, not allowed).
  */
 export function decide(zones, zone, user) {
-  if (allows(zones?.[zone], user)) return 'allow';
-  return user ? 'forbidden' : 'sign-in';
+  if (allows(zones?.[zone], user)) return "allow";
+  return user ? "forbidden" : "sign-in";
 }

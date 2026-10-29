@@ -1,4 +1,4 @@
-import { css } from 'lit';
+import { css } from "lit";
 
 /**
  * Tabs: a row of text tabs over a 1px rule. The active tab's 2px underline sits on that rule.

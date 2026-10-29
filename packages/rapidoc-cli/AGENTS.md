@@ -1,6 +1,7 @@
 # AGENTS.md — `packages/rapidoc-cli` (Command Line Utility)
 
 ## 1. Package Scope & Identity
+
 `packages/rapidoc-cli` provides the `rapidoc` command, the one tool users run: `rapidoc init` (scaffold a portal, optionally around existing OpenAPI files), `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc serve` (serve a build with sign-in and access rules), `rapidoc mock` (mock server for the portal's APIs), `rapidoc validate` (OpenAPI validation), and `rapidoc migrate --from redocly|zudoku` (config migration). Future tools (linting) belong here too.
 
 - **Package Name**: `@rapidoc/cli`
@@ -26,11 +27,11 @@
 
 Run these commands from `packages/rapidoc-cli`:
 
-| Command | Purpose |
-| :--- | :--- |
-| `npm start` | Executes `node src/index.js` |
+| Command                    | Purpose                                        |
+| :------------------------- | :--------------------------------------------- |
+| `npm start`                | Executes `node src/index.js`                   |
 | `node src/index.js <args>` | Directly test CLI arguments during development |
-| `npm test` | Runs `tests/**/*.test.js` |
+| `npm test`                 | Runs `tests/**/*.test.js`                      |
 
 ---
 

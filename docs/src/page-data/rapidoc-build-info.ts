@@ -17,8 +17,8 @@ export interface RapiDocBuildInfo {
   };
 }
 
-import * as yaml from 'js-yaml';
-import { readDataYaml } from '../utils/readDataYaml';
+import * as yaml from "js-yaml";
+import { readDataYaml } from "../utils/readDataYaml";
 
-const rapidocBuildInfo = yaml.load(readDataYaml('rapidoc-build-info.yaml')) as RapiDocBuildInfo;
+const rapidocBuildInfo = yaml.load(readDataYaml("rapidoc-build-info.yaml")) as RapiDocBuildInfo;
 export { rapidocBuildInfo };

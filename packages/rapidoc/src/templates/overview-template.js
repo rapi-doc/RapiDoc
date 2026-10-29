@@ -1,18 +1,19 @@
 /**
  * Renders the API specification overview header with metadata, description markdown, contact, license, and download links.
  */
-import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
-import { html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { sanitizeHTML } from '../utils/sanitize.js';
-import Slugger from 'github-slugger';
-import { marked } from 'marked';
+import { fixRenderedAnchorLinks } from "~/utils/markdown-utils";
+import { html } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHTML } from "../utils/sanitize.js";
+import Slugger from "github-slugger";
+import { marked } from "marked";
 
 function headingRenderer() {
   const slugger = new Slugger();
   const renderer = new marked.Renderer();
   // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`;
-  renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="overview--${slugger.slug(text)}">${text}</h${depth}>`;
+  renderer.heading = ({ text, depth }) =>
+    `<h${depth} class="observe-me" id="overview--${slugger.slug(text)}">${text}</h${depth}>`;
   fixRenderedAnchorLinks(renderer);
   return renderer;
 }
@@ -22,7 +23,7 @@ export default function overviewTemplate() {
     <section
       id="overview"
       part="section-overview"
-      class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}"
+      class="observe-me ${this.renderStyle === "view" ? "section-gap" : "section-gap--read-mode"}"
     >
       ${
         this.resolvedSpec?.info
@@ -31,7 +32,7 @@ export default function overviewTemplate() {
                 ${this.resolvedSpec.info.title}
                 ${
                   !this.resolvedSpec.info.version
-                    ? ''
+                    ? ""
                     : html`<span class="version" part="label-overview-version">${this.resolvedSpec.info.version}</span>`
                 }
               </h1>
@@ -39,12 +40,12 @@ export default function overviewTemplate() {
                 ${
                   this.resolvedSpec.info.contact?.email
                     ? html`<span
-                        >${this.resolvedSpec.info.contact.name || 'Email'}:
+                        >${this.resolvedSpec.info.contact.name || "Email"}:
                         <a href="mailto:${this.resolvedSpec.info.contact.email}" part="anchor anchor-overview"
                           >${this.resolvedSpec.info.contact.email}</a
                         >
                       </span>`
-                    : ''
+                    : ""
                 }
                 ${
                   this.resolvedSpec.info.contact?.url
@@ -54,7 +55,7 @@ export default function overviewTemplate() {
                           >${this.resolvedSpec.info.contact.url}</a
                         ></span
                       >`
-                    : ''
+                    : ""
                 }
                 ${
                   this.resolvedSpec.info.license
@@ -68,14 +69,14 @@ export default function overviewTemplate() {
                             : this.resolvedSpec.info.license.name
                         }
                       </span>`
-                    : ''
+                    : ""
                 }
                 ${
                   this.resolvedSpec.info.termsOfService
                     ? html`<span
                         ><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span
                       >`
-                    : ''
+                    : ""
                 }
               </div>
               <slot name="overview"></slot>
@@ -86,15 +87,17 @@ export default function overviewTemplate() {
                         sanitizeHTML(
                           marked(
                             this.resolvedSpec.info.description,
-                            this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined
-                          )
-                        )
+                            this.infoDescriptionHeadingsInNavBar === "true"
+                              ? { renderer: headingRenderer() }
+                              : undefined,
+                          ),
+                        ),
                       )}
                     </div>`
-                  : ''
+                  : ""
               }
             `
-          : ''
+          : ""
       }
     </section>
   `;

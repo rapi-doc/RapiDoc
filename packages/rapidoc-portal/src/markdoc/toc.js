@@ -1,5 +1,5 @@
-import GithubSlugger from 'github-slugger';
-import { getNodeText } from './nodes.js';
+import GithubSlugger from "github-slugger";
+import { getNodeText } from "./nodes.js";
 
 /**
  * Traverses a Markdoc AST to collect all headings between minLevel and maxLevel.
@@ -17,7 +17,7 @@ export function extractHeadings(ast, options = {}) {
   function walk(node) {
     if (!node) return;
 
-    if (node.type === 'heading') {
+    if (node.type === "heading") {
       const level = node.attributes?.level || 1;
       if (level >= minLevel && level <= maxLevel) {
         const title = getNodeText(node);

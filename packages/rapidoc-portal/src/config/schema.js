@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * rapidoc.config.yaml schema (v2). Strict: an unknown key is an error, so a typo never disappears silently.
@@ -9,22 +9,22 @@ import { z } from 'zod';
  * Navigation items are told apart by their keys (`slug`, `href`, `items`, `autogenerate`, `api`, `catalog`).
  */
 
-const label = z.string().min(1).describe('Text shown for the item.');
-const href = z.string().min(1).describe('A path on this site (/docs/intro) or a full URL.');
+const label = z.string().min(1).describe("Text shown for the item.");
+const href = z.string().min(1).describe("A path on this site (/docs/intro) or a full URL.");
 const icon = z
   .string()
   .describe(
-    'Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning.'
+    "Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning.",
   );
 const badge = z
   .union([
     z.string(),
     z.strictObject({
       text: z.string(),
-      variant: z.enum(['note', 'tip', 'caution', 'danger', 'success', 'default']).optional(),
+      variant: z.enum(["note", "tip", "caution", "danger", "success", "default"]).optional(),
     }),
   ])
-  .describe('Small label shown next to the item.');
+  .describe("Small label shown next to the item.");
 
 /** Exactly one of `keys` must be set; used to tell navigation item kinds apart. */
 function exactlyOne(keys, where) {
@@ -32,22 +32,25 @@ function exactlyOne(keys, where) {
     const present = keys.filter((key) => item[key] !== undefined);
     if (present.length !== 1) {
       ctx.addIssue({
-        code: 'custom',
+        code: "custom",
         message:
           present.length === 0
-            ? `${where} needs one of: ${keys.join(', ')}`
-            : `${where} can have only one of: ${keys.join(', ')} (found ${present.join(', ')})`,
+            ? `${where} needs one of: ${keys.join(", ")}`
+            : `${where} can have only one of: ${keys.join(", ")} (found ${present.join(", ")})`,
       });
     }
   };
 }
 
-const apiVersion = z.string().min(1).describe('With api: link to this version of the API (default: its first version).');
+const apiVersion = z
+  .string()
+  .min(1)
+  .describe("With api: link to this version of the API (default: its first version).");
 
 /** `version` only goes with `api`. */
 function versionNeedsApi(item, ctx) {
   if (item.version !== undefined && item.api === undefined) {
-    ctx.addIssue({ code: 'custom', message: '`version` needs `api`', path: ['version'] });
+    ctx.addIssue({ code: "custom", message: "`version` needs `api`", path: ["version"] });
   }
 }
 
@@ -55,30 +58,46 @@ function versionNeedsApi(item, ctx) {
 // Sidebar (the items of a documentation tab)
 // ---------------------------------------------------------------------------------------------
 
-const SIDEBAR_KINDS = ['slug', 'href', 'items', 'autogenerate', 'api'];
+const SIDEBAR_KINDS = ["slug", "href", "items", "autogenerate", "api"];
 
 export const SidebarItemSchema = z.union([
-  z.string().min(1).describe('A doc page by its path in docs/, without extension (guides/first-shipment). The label is the page title.'),
+  z
+    .string()
+    .min(1)
+    .describe(
+      "A doc page by its path in docs/, without extension (guides/first-shipment). The label is the page title.",
+    ),
   z
     .strictObject({
       label: label.optional(),
-      slug: z.string().min(1).optional().describe('A doc page by its path in docs/, without extension.'),
+      slug: z
+        .string()
+        .min(1)
+        .optional()
+        .describe("A doc page by its path in docs/, without extension."),
       href: href.optional(),
       get items() {
-        return z.array(SidebarItemSchema).optional().describe('A group of items.');
+        return z.array(SidebarItemSchema).optional().describe("A group of items.");
       },
-      autogenerate: z.string().optional().describe('Every page in this folder of docs/, as a group.'),
-      api: z.string().optional().describe('Link to the reference page of the API with this id.'),
+      autogenerate: z
+        .string()
+        .optional()
+        .describe("Every page in this folder of docs/, as a group."),
+      api: z.string().optional().describe("Link to the reference page of the API with this id."),
       version: apiVersion.optional(),
       icon: icon.optional(),
       badge: badge.optional(),
-      collapsed: z.boolean().optional().describe('Start a group collapsed.'),
+      collapsed: z.boolean().optional().describe("Start a group collapsed."),
     })
-    .superRefine(exactlyOne(SIDEBAR_KINDS, 'A sidebar item'))
+    .superRefine(exactlyOne(SIDEBAR_KINDS, "A sidebar item"))
     .superRefine(versionNeedsApi)
     .superRefine((item, ctx) => {
       if (!item.label && (item.href || item.items || item.autogenerate)) {
-        ctx.addIssue({ code: 'custom', message: 'A link, group or autogenerated group needs a label', path: ['label'] });
+        ctx.addIssue({
+          code: "custom",
+          message: "A link, group or autogenerated group needs a label",
+          path: ["label"],
+        });
       }
     }),
 ]);
@@ -87,7 +106,7 @@ export const SidebarItemSchema = z.union([
 // Navigation: the tabs of the header's second row
 // ---------------------------------------------------------------------------------------------
 
-const TAB_KINDS = ['items', 'autogenerate', 'api', 'catalog', 'href'];
+const TAB_KINDS = ["items", "autogenerate", "api", "catalog", "href"];
 
 export const TabSchema = z
   .strictObject({
@@ -95,13 +114,19 @@ export const TabSchema = z
     icon: icon.optional(),
     badge: badge.optional(),
     items: z.array(SidebarItemSchema).optional().describe("Documentation tab: this tab's sidebar."),
-    autogenerate: z.string().optional().describe('Documentation tab whose sidebar is every page in this folder of docs/.'),
-    api: z.string().optional().describe('API tab: the reference page of the API with this id.'),
+    autogenerate: z
+      .string()
+      .optional()
+      .describe("Documentation tab whose sidebar is every page in this folder of docs/."),
+    api: z.string().optional().describe("API tab: the reference page of the API with this id."),
     version: apiVersion.optional(),
-    catalog: z.literal(true).optional().describe('Catalog tab: every API on /catalog, grouped by category.'),
-    href: href.optional().describe('Link tab.'),
+    catalog: z
+      .literal(true)
+      .optional()
+      .describe("Catalog tab: every API on /catalog, grouped by category."),
+    href: href.optional().describe("Link tab."),
   })
-  .superRefine(exactlyOne(TAB_KINDS, 'A navigation tab'))
+  .superRefine(exactlyOne(TAB_KINDS, "A navigation tab"))
   .superRefine(versionNeedsApi);
 
 // ---------------------------------------------------------------------------------------------
@@ -116,7 +141,10 @@ const MenuItemSchema = z.strictObject({
   icon: icon.optional(),
   description: z.string().optional(),
   badge: badge.optional(),
-  items: z.array(MenuLinkSchema).optional().describe('Shortcut links shown under the item in the mega-menu.'),
+  items: z
+    .array(MenuLinkSchema)
+    .optional()
+    .describe("Shortcut links shown under the item in the mega-menu."),
 });
 
 export const HeaderLinkSchema = z
@@ -124,14 +152,24 @@ export const HeaderLinkSchema = z
     label,
     href: href.optional(),
     icon: icon.optional(),
-    style: z.enum(['link', 'button', 'primary']).optional().describe('link (default), button (outlined) or primary (filled).'),
-    items: z.array(MenuItemSchema).min(1).optional().describe('Dropdown items; an icon or description makes it a mega-menu.'),
+    style: z
+      .enum(["link", "button", "primary"])
+      .optional()
+      .describe("link (default), button (outlined) or primary (filled)."),
+    items: z
+      .array(MenuItemSchema)
+      .min(1)
+      .optional()
+      .describe("Dropdown items; an icon or description makes it a mega-menu."),
   })
-  .superRefine(exactlyOne(['href', 'items'], 'A header link'));
+  .superRefine(exactlyOne(["href", "items"], "A header link"));
 
 export const HeaderSchema = z.strictObject({
-  links: z.array(HeaderLinkSchema).optional().describe('Links and dropdown menus right of the search.'),
-  themeSwitcher: z.boolean().optional().describe('Show the light/dark switcher (default true).'),
+  links: z
+    .array(HeaderLinkSchema)
+    .optional()
+    .describe("Links and dropdown menus right of the search."),
+  themeSwitcher: z.boolean().optional().describe("Show the light/dark switcher (default true)."),
 });
 
 // ---------------------------------------------------------------------------------------------
@@ -143,87 +181,128 @@ const imageSrc = z.union([z.string(), z.strictObject({ light: z.string(), dark: 
 export const SiteSchema = z.strictObject({
   title: z.string().min(1),
   description: z.string().optional(),
-  url: z.url().optional().describe('Public URL of the portal, for canonical links and the sitemap.'),
+  url: z
+    .url()
+    .optional()
+    .describe("Public URL of the portal, for canonical links and the sitemap."),
   logo: z
     .strictObject({
-      src: imageSrc.optional().describe('Image in public/, or { light, dark }.'),
-      text: z.string().optional().describe('Wordmark shown next to the image (default: no text with an image, the title without).'),
+      src: imageSrc.optional().describe("Image in public/, or { light, dark }."),
+      text: z
+        .string()
+        .optional()
+        .describe(
+          "Wordmark shown next to the image (default: no text with an image, the title without).",
+        ),
       alt: z.string().optional(),
-      href: href.optional().describe('Where the logo links to (default /).'),
+      href: href.optional().describe("Where the logo links to (default /)."),
     })
     .optional(),
-  favicon: z.string().optional().describe('Icon in public/, e.g. /favicon.svg.'),
+  favicon: z.string().optional().describe("Icon in public/, e.g. /favicon.svg."),
   image: z
     .string()
     .min(1)
     .optional()
-    .describe('Preview image for shared links (og:image): a file in public/ or a URL; a file needs url. 1200 x 630 works best.'),
+    .describe(
+      "Preview image for shared links (og:image): a file in public/ or a URL; a file needs url. 1200 x 630 works best.",
+    ),
   titleTemplate: z
     .string()
-    .includes('%s', { message: 'needs %s where the page title goes' })
+    .includes("%s", { message: "needs %s where the page title goes" })
     .optional()
-    .describe("Page titles; %s is the page's own title (default '%s | <title>'). The home page shows title alone."),
-  noindex: z.boolean().optional().describe('Keep search engines out: a robots noindex tag on every page and no sitemap (default false).'),
+    .describe(
+      "Page titles; %s is the page's own title (default '%s | <title>'). The home page shows title alone.",
+    ),
+  noindex: z
+    .boolean()
+    .optional()
+    .describe(
+      "Keep search engines out: a robots noindex tag on every page and no sitemap (default false).",
+    ),
   banner: z
     .strictObject({
       message: z.string().min(1),
       href: href.optional(),
-      dismissible: z.boolean().optional().describe('Default true.'),
-      background: z.string().optional().describe('CSS color.'),
-      color: z.string().optional().describe('CSS text color.'),
+      dismissible: z.boolean().optional().describe("Default true."),
+      background: z.string().optional().describe("CSS color."),
+      color: z.string().optional().describe("CSS text color."),
     })
     .optional()
-    .describe('Announcement bar above the header.'),
+    .describe("Announcement bar above the header."),
 });
 
 const fontSchema = z.strictObject({
-  family: z.string().min(1).describe('Font family name; with no url it is loaded from Google Fonts.'),
+  family: z
+    .string()
+    .min(1)
+    .describe("Font family name; with no url it is loaded from Google Fonts."),
   url: z
     .string()
     .optional()
-    .describe('Stylesheet that loads the font (another CDN or a CSS file in public/). Default: the family from Google Fonts.'),
+    .describe(
+      "Stylesheet that loads the font (another CDN or a CSS file in public/). Default: the family from Google Fonts.",
+    ),
 });
 
 export const ThemeSchema = z.strictObject({
-  primary: z.string().optional().describe('Accent color (default #f76b39).'),
-  mode: z.enum(['auto', 'dark', 'light']).optional().describe('Theme until the visitor picks one; auto follows the OS (default).'),
+  primary: z.string().optional().describe("Accent color (default #f76b39)."),
+  mode: z
+    .enum(["auto", "dark", "light"])
+    .optional()
+    .describe("Theme until the visitor picks one; auto follows the OS (default)."),
   fonts: z.strictObject({ sans: fontSchema.optional(), mono: fontSchema.optional() }).optional(),
   css: z
     .union([z.string().min(1), z.array(z.string().min(1)).min(1)])
     .optional()
-    .describe("Your stylesheets (relative to this config), loaded on every page after the portal's own."),
+    .describe(
+      "Your stylesheets (relative to this config), loaded on every page after the portal's own.",
+    ),
 });
 
 // ---------------------------------------------------------------------------------------------
 // Head entries: tags added to every page (analytics, site verification, preconnects)
 // ---------------------------------------------------------------------------------------------
 
-const headAttrs = z.record(z.string(), z.union([z.string(), z.literal(true)])).describe('Attributes; true for one without a value.');
+const headAttrs = z
+  .record(z.string(), z.union([z.string(), z.literal(true)]))
+  .describe("Attributes; true for one without a value.");
 
 export const HeadEntrySchema = z.union([
-  z.strictObject({ script: z.union([z.string().min(1).describe('Inline script.'), headAttrs]) }),
+  z.strictObject({ script: z.union([z.string().min(1).describe("Inline script."), headAttrs]) }),
   z.strictObject({ link: headAttrs }),
   z.strictObject({ meta: headAttrs }),
 ]);
 
-const specSource = z.string().min(1).describe('OpenAPI file (relative to this config) or URL.');
+const specSource = z.string().min(1).describe("OpenAPI file (relative to this config) or URL.");
 const isUrl = (value) => /^[a-z][a-z0-9+.-]*:/i.test(value);
 
 export const ApiVersionSchema = z.union([
-  specSource.describe("OpenAPI file of this version; its version and label are the spec's info.version."),
+  specSource.describe(
+    "OpenAPI file of this version; its version and label are the spec's info.version.",
+  ),
   z
     .strictObject({
       spec: specSource,
       version: z
         .string()
-        .regex(/^[a-z0-9][a-z0-9.-]*$/, 'use lowercase letters, digits, dots and dashes')
+        .regex(/^[a-z0-9][a-z0-9.-]*$/, "use lowercase letters, digits, dots and dashes")
         .optional()
-        .describe('URL segment of this version: /apis/<id>/<version> (default: info.version of the spec; needed when spec is a URL).'),
-      label: z.string().min(1).optional().describe('Text in the version picker (default: info.version of the spec).'),
+        .describe(
+          "URL segment of this version: /apis/<id>/<version> (default: info.version of the spec; needed when spec is a URL).",
+        ),
+      label: z
+        .string()
+        .min(1)
+        .optional()
+        .describe("Text in the version picker (default: info.version of the spec)."),
     })
     .superRefine((entry, ctx) => {
       if (isUrl(entry.spec) && entry.version === undefined) {
-        ctx.addIssue({ code: 'custom', message: 'a version whose spec is a URL needs `version`', path: ['version'] });
+        ctx.addIssue({
+          code: "custom",
+          message: "a version whose spec is a URL needs `version`",
+          path: ["version"],
+        });
       }
     }),
 ]);
@@ -232,22 +311,32 @@ export const ApiSchema = z
   .strictObject({
     id: z
       .string()
-      .regex(/^[a-z0-9][a-z0-9-]*$/, 'use lowercase letters, digits and dashes')
-      .describe('Referenced by navigation (api:) and the api-operation tag. The reference page is /apis/<id>.'),
+      .regex(/^[a-z0-9][a-z0-9-]*$/, "use lowercase letters, digits and dashes")
+      .describe(
+        "Referenced by navigation (api:) and the api-operation tag. The reference page is /apis/<id>.",
+      ),
     spec: specSource.optional(),
     versions: z
       .array(ApiVersionSchema)
       .min(1)
       .optional()
-      .describe('One spec per version, instead of spec. The first is the default, at /apis/<id>; the others are at /apis/<id>/<version>.'),
-    title: z.string().optional().describe('Default: info.title of the spec (of the first version).'),
-    description: z.string().optional().describe('Default: info.description of the spec (of the first version).'),
-    category: z.string().optional().describe('Group on the API catalog page (default General).'),
+      .describe(
+        "One spec per version, instead of spec. The first is the default, at /apis/<id>; the others are at /apis/<id>/<version>.",
+      ),
+    title: z
+      .string()
+      .optional()
+      .describe("Default: info.title of the spec (of the first version)."),
+    description: z
+      .string()
+      .optional()
+      .describe("Default: info.description of the spec (of the first version)."),
+    category: z.string().optional().describe("Group on the API catalog page (default General)."),
   })
-  .superRefine(exactlyOne(['spec', 'versions'], 'An API'));
+  .superRefine(exactlyOne(["spec", "versions"], "An API"));
 
 export const DocsSchema = z.strictObject({
-  dir: z.string().optional().describe('Folder with .md, .mdx and .markdoc pages (default ./docs).'),
+  dir: z.string().optional().describe("Folder with .md, .mdx and .markdoc pages (default ./docs)."),
   toc: z
     .union([
       z.literal(false),
@@ -258,7 +347,10 @@ export const DocsSchema = z.strictObject({
     ])
     .optional()
     .describe('"On this page" headings (default levels 2 to 3), or false.'),
-  editUrl: z.string().optional().describe('Base URL of the docs folder in your repository; adds an "Edit page" link.'),
+  editUrl: z
+    .string()
+    .optional()
+    .describe('Base URL of the docs folder in your repository; adds an "Edit page" link.'),
 });
 
 const footerLinkSchema = z.strictObject({ label, href });
@@ -267,9 +359,11 @@ const footerCtaLinkSchema = z.strictObject({
   label,
   href,
   style: z
-    .enum(['primary', 'button'])
+    .enum(["primary", "button"])
     .optional()
-    .describe('primary (filled) or button (outlined). Default: primary for the first link, button after.'),
+    .describe(
+      "primary (filled) or button (outlined). Default: primary for the first link, button after.",
+    ),
 });
 
 export const FooterSchema = z.strictObject({
@@ -277,22 +371,34 @@ export const FooterSchema = z.strictObject({
     .strictObject({
       title: z.string().min(1),
       description: z.string().optional(),
-      links: z.array(footerCtaLinkSchema).min(1).max(3).optional().describe('Up to three buttons.'),
+      links: z.array(footerCtaLinkSchema).min(1).max(3).optional().describe("Up to three buttons."),
     })
     .optional()
-    .describe('Call-to-action band at the top of the footer.'),
+    .describe("Call-to-action band at the top of the footer."),
   newsletter: z
     .strictObject({
-      action: z.string().min(1).describe("URL the sign-up form posts to: your newsletter service's form endpoint."),
+      action: z
+        .string()
+        .min(1)
+        .describe("URL the sign-up form posts to: your newsletter service's form endpoint."),
       title: z.string().optional().describe('Default "Newsletter".'),
       description: z.string().optional(),
-      field: z.string().optional().describe('Name of the email field the service expects (default email).'),
-      button: z.string().optional().describe('Submit button text (default Subscribe).'),
+      field: z
+        .string()
+        .optional()
+        .describe("Name of the email field the service expects (default email)."),
+      button: z.string().optional().describe("Submit button text (default Subscribe)."),
     })
     .optional()
-    .describe('Email sign-up form under the footer logo.'),
-  columns: z.array(z.strictObject({ title: z.string(), links: z.array(footerLinkSchema) })).optional(),
-  social: z.array(z.strictObject({ icon: z.enum(['github', 'x', 'discord', 'linkedin', 'youtube']), href })).optional(),
+    .describe("Email sign-up form under the footer logo."),
+  columns: z
+    .array(z.strictObject({ title: z.string(), links: z.array(footerLinkSchema) }))
+    .optional(),
+  social: z
+    .array(
+      z.strictObject({ icon: z.enum(["github", "x", "discord", "linkedin", "youtube"]), href }),
+    )
+    .optional(),
   copyright: z.string().optional(),
   branding: z.boolean().optional().describe('Show "Powered by RapiDoc" (default true).'),
 });
@@ -303,72 +409,106 @@ export const FooterSchema = z.strictObject({
 // ---------------------------------------------------------------------------------------------
 
 export const AuthSchema = z.strictObject({
-  provider: z.literal('oidc').optional().describe('Sign-in protocol: oidc (OpenID Connect, the default).'),
-  issuer: z.url().optional().describe('OpenID Connect issuer URL. Required when the portal is served; RAPIDOC_AUTH_ISSUER overrides it.'),
-  clientId: z.string().min(1).optional().describe('Client ID of the portal at the provider; RAPIDOC_AUTH_CLIENT_ID overrides it.'),
-  scopes: z.array(z.string().min(1)).optional().describe('Scopes to request (default openid, profile, email).'),
+  provider: z
+    .literal("oidc")
+    .optional()
+    .describe("Sign-in protocol: oidc (OpenID Connect, the default)."),
+  issuer: z
+    .url()
+    .optional()
+    .describe(
+      "OpenID Connect issuer URL. Required when the portal is served; RAPIDOC_AUTH_ISSUER overrides it.",
+    ),
+  clientId: z
+    .string()
+    .min(1)
+    .optional()
+    .describe("Client ID of the portal at the provider; RAPIDOC_AUTH_CLIENT_ID overrides it."),
+  scopes: z
+    .array(z.string().min(1))
+    .optional()
+    .describe("Scopes to request (default openid, profile, email)."),
   claims: z
     .strictObject({
       groups: z
         .string()
         .min(1)
         .optional()
-        .describe('Claim with the user groups or roles (default groups). Dotted paths work, e.g. realm_access.roles.'),
+        .describe(
+          "Claim with the user groups or roles (default groups). Dotted paths work, e.g. realm_access.roles.",
+        ),
     })
     .optional(),
   session: z
     .strictObject({
       maxAge: z
         .string()
-        .regex(/^\d+[smhd]$/, 'use a number and a unit: 30m, 8h, 7d')
+        .regex(/^\d+[smhd]$/, "use a number and a unit: 30m, 8h, 7d")
         .optional()
-        .describe('How long a sign-in lasts (default 8h).'),
+        .describe("How long a sign-in lasts (default 8h)."),
     })
     .optional(),
-  logout: z.enum(['local', 'idp']).optional().describe('local (default) signs out of the portal; idp also signs out at the provider.'),
+  logout: z
+    .enum(["local", "idp"])
+    .optional()
+    .describe("local (default) signs out of the portal; idp also signs out at the provider."),
   label: z.string().min(1).optional().describe('Text of the sign-in button (default "Sign in").'),
   audience: z
     .string()
     .min(1)
     .optional()
-    .describe('API the access token is for; sent as `audience` at sign-in (Auth0). RAPIDOC_AUTH_AUDIENCE overrides it.'),
+    .describe(
+      "API the access token is for; sent as `audience` at sign-in (Auth0). RAPIDOC_AUTH_AUDIENCE overrides it.",
+    ),
   tryIt: z
     .boolean()
     .optional()
-    .describe("Give Try the signed-in reader's access token, for every oauth2, openIdConnect and http bearer scheme (default false)."),
+    .describe(
+      "Give Try the signed-in reader's access token, for every oauth2, openIdConnect and http bearer scheme (default false).",
+    ),
 });
 
 export const AllowSchema = z
   .union([
-    z.enum(['public', 'signed-in']),
+    z.enum(["public", "signed-in"]),
     z
       .strictObject({
-        groups: z.array(z.string().min(1)).optional().describe('Signed-in users in any of these groups.'),
+        groups: z
+          .array(z.string().min(1))
+          .optional()
+          .describe("Signed-in users in any of these groups."),
         emails: z
           .array(z.string().min(1))
           .optional()
-          .describe("Signed-in users whose verified email matches any of these, e.g. '*@example.com'."),
+          .describe(
+            "Signed-in users whose verified email matches any of these, e.g. '*@example.com'.",
+          ),
       })
       .superRefine((allow, ctx) => {
-        if (!allow.groups?.length && !allow.emails?.length) ctx.addIssue({ code: 'custom', message: 'needs groups or emails' });
+        if (!allow.groups?.length && !allow.emails?.length)
+          ctx.addIssue({ code: "custom", message: "needs groups or emails" });
       }),
   ])
-  .describe('public, signed-in, or { groups, emails }.');
+  .describe("public, signed-in, or { groups, emails }.");
 
 export const AccessSchema = z.strictObject({
-  default: AllowSchema.optional().describe('Who may read pages and files that no rule matches (default public).'),
+  default: AllowSchema.optional().describe(
+    "Who may read pages and files that no rule matches (default public).",
+  ),
   rules: z
     .array(
       z.strictObject({
         path: z
           .string()
-          .startsWith('/')
-          .describe('URL path pattern: * is one path segment, ** any number (/docs/internal/**). An API spec follows /apis/<id>.'),
+          .startsWith("/")
+          .describe(
+            "URL path pattern: * is one path segment, ** any number (/docs/internal/**). An API spec follows /apis/<id>.",
+          ),
         allow: AllowSchema,
-      })
+      }),
     )
     .optional()
-    .describe('Checked top to bottom; the first rule whose path matches decides.'),
+    .describe("Checked top to bottom; the first rule whose path matches decides."),
 });
 
 const rapidocValue = z.union([z.string(), z.number(), z.boolean()]);
@@ -377,28 +517,49 @@ export const RapidocConfigSchema = z.strictObject({
   $schema: z.string().optional(),
   site: SiteSchema,
   theme: ThemeSchema.optional(),
-  head: z.array(HeadEntrySchema).optional().describe('Tags added to the <head> of every page: { script }, { link } or { meta }.'),
+  head: z
+    .array(HeadEntrySchema)
+    .optional()
+    .describe("Tags added to the <head> of every page: { script }, { link } or { meta }."),
   header: HeaderSchema.optional(),
-  navigation: z.array(TabSchema).optional().describe('The header tabs; each documentation tab has its own sidebar.'),
+  navigation: z
+    .array(TabSchema)
+    .optional()
+    .describe("The header tabs; each documentation tab has its own sidebar."),
   apis: z.array(ApiSchema).optional(),
   docs: DocsSchema.optional(),
   footer: z.union([FooterSchema, z.literal(false)]).optional(),
-  rapidoc: z.record(z.string(), rapidocValue).optional().describe('<rapi-doc> attributes for the API reference pages.'),
-  search: z.boolean().optional().describe('Full-text search (default true).'),
+  rapidoc: z
+    .record(z.string(), rapidocValue)
+    .optional()
+    .describe("<rapi-doc> attributes for the API reference pages."),
+  search: z.boolean().optional().describe("Full-text search (default true)."),
   llms: z
     .union([
       z.literal(false),
       z.strictObject({
-        description: z.string().optional().describe('Introduction at the top of /llms.txt (default: site.description).'),
-        pageActions: z
-          .union([z.literal(false), z.array(z.enum(['copy', 'markdown', 'chatgpt', 'claude'])).min(1)])
+        description: z
+          .string()
           .optional()
-          .describe('Buttons next to each docs page title (default all four); false hides them.'),
+          .describe("Introduction at the top of /llms.txt (default: site.description)."),
+        pageActions: z
+          .union([
+            z.literal(false),
+            z.array(z.enum(["copy", "markdown", "chatgpt", "claude"])).min(1),
+          ])
+          .optional()
+          .describe("Buttons next to each docs page title (default all four); false hides them."),
       }),
     ])
     .optional()
-    .describe('Docs as Markdown (/docs/<page>.md), /llms.txt and /llms-full.txt, and page actions. On by default; false turns them off.'),
-  redirects: z.array(z.strictObject({ from: z.string().startsWith('/'), to: href })).optional(),
-  auth: AuthSchema.optional().describe('Sign-in through an OpenID Connect provider (served with `rapidoc serve`).'),
-  access: AccessSchema.optional().describe('Who may read which pages, APIs and files (needs auth unless everything is public).'),
+    .describe(
+      "Docs as Markdown (/docs/<page>.md), /llms.txt and /llms-full.txt, and page actions. On by default; false turns them off.",
+    ),
+  redirects: z.array(z.strictObject({ from: z.string().startsWith("/"), to: href })).optional(),
+  auth: AuthSchema.optional().describe(
+    "Sign-in through an OpenID Connect provider (served with `rapidoc serve`).",
+  ),
+  access: AccessSchema.optional().describe(
+    "Who may read which pages, APIs and files (needs auth unless everything is public).",
+  ),
 });
