@@ -12,7 +12,7 @@
   --rd-text-primary: #f8fafc;
   --rd-text-secondary: #94a3b8;
   --rd-text-muted: #64748b;
-  --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
+  --rd-font-mono: "Roboto Mono", Monaco, "Andale Mono", monospace;
 }
 
 /* Ambient Radial Glows */
@@ -1204,7 +1204,7 @@
 }
 
 .rd-neon-frame::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -1283,7 +1283,7 @@
 }
 
 .rd-callout-dot::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: -3px;
   border-radius: 50%;
@@ -1454,7 +1454,7 @@
 }
 
 .rd-highlight-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -1464,16 +1464,16 @@
   transition: background 0.2s ease;
 }
 
-.rd-highlight-item[data-target='theme']::before {
+.rd-highlight-item[data-target="theme"]::before {
   background: linear-gradient(90deg, #10b981, transparent);
 }
-.rd-highlight-item[data-target='color-scheme']::before {
+.rd-highlight-item[data-target="color-scheme"]::before {
   background: linear-gradient(90deg, #94a3b8, transparent);
 }
-.rd-highlight-item[data-target='radius']::before {
+.rd-highlight-item[data-target="radius"]::before {
   background: linear-gradient(90deg, #38bdf8, transparent);
 }
-.rd-highlight-item[data-target='render-style']::before {
+.rd-highlight-item[data-target="render-style"]::before {
   background: linear-gradient(90deg, #a855f7, transparent);
 }
 

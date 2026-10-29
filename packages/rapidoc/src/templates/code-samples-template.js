@@ -1,41 +1,43 @@
 /**
  * Renders multi-language code snippets and custom x-codeSamples / x-code-samples tab panels.
  */
-import { html } from 'lit';
+import { html } from "lit";
 
-import { copyToClipboard } from '~/utils/common-utils';
-import { scheduleHighlight } from '~/utils/highlighter';
+import { copyToClipboard } from "~/utils/common-utils";
+import { scheduleHighlight } from "~/utils/highlighter";
 
 export default function codeSamplesTemplate(xCodeSamples) {
   return html` <div class="code-samples-container">
-    <div class="table-title top-gap">CODE SAMPLES</div>
+    <h4 class="rapidoc-heading label-heading table-title top-gap" part="heading heading-4">Code samples</h4>
     <div
       part="tab-panel"
       class="tab-panel col"
       @click="${(e) => {
-        if (!e.target.classList.contains('tab-btn')) {
+        if (!e.target.classList.contains("tab-btn")) {
           return;
         }
         const clickedTab = e.target.dataset.tab;
 
-        const tabButtons = [...e.currentTarget.querySelectorAll('.tab-btn')];
-        const tabContents = [...e.currentTarget.querySelectorAll('.tab-content')];
-        tabButtons.forEach((tabBtnEl) => tabBtnEl.classList[tabBtnEl.dataset.tab === clickedTab ? 'add' : 'remove']('active'));
+        const tabButtons = [...e.currentTarget.querySelectorAll(".tab-btn")];
+        const tabContents = [...e.currentTarget.querySelectorAll(".tab-content")];
+        tabButtons.forEach((tabBtnEl) =>
+          tabBtnEl.classList[tabBtnEl.dataset.tab === clickedTab ? "add" : "remove"]("active"),
+        );
         tabContents.forEach((tabBodyEl) => {
-          tabBodyEl.style.display = tabBodyEl.dataset.tab === clickedTab ? 'block' : 'none';
+          tabBodyEl.style.display = tabBodyEl.dataset.tab === clickedTab ? "block" : "none";
         });
         scheduleHighlight(e.currentTarget.getRootNode()?.host?.shadowRoot || e.currentTarget);
       }}"
     >
       <div part="tab-btn-row" class="tab-buttons row" style="width:100%; overflow:auto;">
-        ${xCodeSamples.map((v, i) => html`<button part="tab-btn" class="tab-btn ${i === 0 ? 'active' : ''}" data-tab="${v.lang}${i}">${v.label || v.lang}</button>`)}
+        ${xCodeSamples.map((v, i) => html`<button part="tab-btn" class="tab-btn ${i === 0 ? "active" : ""}" data-tab="${v.lang}${i}">${v.label || v.lang}</button>`)}
       </div>
       ${xCodeSamples.map(
         (v, i) =>
-          html`<div class="tab-content m-markdown" style="display:${i === 0 ? 'block' : 'none'}" data-tab="${v.lang}${i}">
+          html`<div class="tab-content m-markdown" style="display:${i === 0 ? "block" : "none"}" data-tab="${v.lang}${i}">
             <button
-              class="toolbar-btn"
-              part="btn btn-fill btn-copy"
+              class="btn btn-sm btn-outline toolbar-btn"
+              part="btn btn-outline btn-copy"
               @click="${(e) => {
                 copyToClipboard(v.source, e);
               }}"
@@ -43,7 +45,7 @@ export default function codeSamplesTemplate(xCodeSamples) {
               Copy
             </button>
             <pre><code class="language-${v.lang?.toLowerCase()}">${v.source}</code></pre>
-          </div>`
+          </div>`,
       )}
     </div>
   </div>`;

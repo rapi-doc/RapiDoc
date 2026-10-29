@@ -1,0 +1,29 @@
+{
+  "name": "@rapidoc/server",
+  "version": "0.1.0",
+  "description": "Serves a built RapiDoc portal with OpenID Connect sign-in and access rules (rapidoc serve)",
+  "keywords": [
+    "access-control",
+    "developer-portal",
+    "openid-connect",
+    "rapidoc",
+    "sso"
+  ],
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 tests/**/*.test.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.3",
+    "hono": "^4.13.13",
+    "jose": "^6.2.14",
+    "openid-client": "^6.8.0"
+  },
+  "devDependencies": {
+    "oidc-provider": "^9.13.3"
+  }
+}

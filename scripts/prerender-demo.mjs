@@ -1,39 +1,39 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { renderRapiDoc } from 'rapidoc/static';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { renderRapiDoc } from "rapidoc/static";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '..');
+const rootDir = path.resolve(__dirname, "..");
 
 // 1. Define sample OpenAPI spec
 const sampleSpec = {
-  openapi: '3.1.0',
+  openapi: "3.1.0",
   info: {
-    title: 'Pre-rendered Petstore API',
-    version: '1.0.0',
-    description: 'This page was pre-rendered using Node.js without publishing to npm.',
+    title: "Pre-rendered Petstore API",
+    version: "1.0.0",
+    description: "This page was pre-rendered using Node.js without publishing to npm.",
   },
-  servers: [{ url: 'https://petstore.example.com/api/v1' }],
+  servers: [{ url: "https://petstore.example.com/api/v1" }],
   paths: {
-    '/pets': {
+    "/pets": {
       get: {
-        summary: 'List all pets',
-        description: 'Returns all pets from the system that the user has access to.',
+        summary: "List all pets",
+        description: "Returns all pets from the system that the user has access to.",
         responses: {
-          '200': {
-            description: 'A paged array of pets',
+          200: {
+            description: "A paged array of pets",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  type: 'array',
+                  type: "array",
                   items: {
-                    type: 'object',
+                    type: "object",
                     properties: {
-                      id: { type: 'integer', format: 'int64' },
-                      name: { type: 'string' },
-                      tag: { type: 'string' },
+                      id: { type: "integer", format: "int64" },
+                      name: { type: "string" },
+                      tag: { type: "string" },
                     },
                   },
                 },
@@ -43,49 +43,49 @@ const sampleSpec = {
         },
       },
       post: {
-        summary: 'Create a pet',
-        description: 'Creates a new pet in the store.',
+        summary: "Create a pet",
+        description: "Creates a new pet in the store.",
         requestBody: {
           required: true,
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                type: 'object',
-                required: ['name'],
+                type: "object",
+                required: ["name"],
                 properties: {
-                  name: { type: 'string', example: 'Fido' },
-                  tag: { type: 'string', example: 'dog' },
+                  name: { type: "string", example: "Fido" },
+                  tag: { type: "string", example: "dog" },
                 },
               },
             },
           },
         },
         responses: {
-          '201': { description: 'Pet created successfully' },
+          201: { description: "Pet created successfully" },
         },
       },
     },
   },
 };
 
-console.log('Rendering OpenAPI spec to Declarative Shadow DOM (DSD)...');
+console.log("Rendering OpenAPI spec to Declarative Shadow DOM (DSD)...");
 
 // 2. Pre-render the document on the server using renderRapiDoc
 const dsdHtml = await renderRapiDoc({
   spec: sampleSpec,
-  renderStyle: 'read',
-  theme: 'dark',
-  primaryColor: '#0ea5e9',
-  schemaStyle: 'table',
+  renderStyle: "read",
+  theme: "dark",
+  primaryColor: "#0ea5e9",
+  schemaStyle: "table",
   showHeader: true,
   allowTry: true,
 });
 
 // 3. Read the built client bundle to inline it for 100% offline file:// compatibility
-const bundlePath = path.resolve(rootDir, 'packages/rapidoc/dist/rapidoc-min.js');
-let bundleCode = '';
+const bundlePath = path.resolve(rootDir, "packages/rapidoc/dist/rapidoc-min.js");
+let bundleCode = "";
 if (fs.existsSync(bundlePath)) {
-  bundleCode = fs.readFileSync(bundlePath, 'utf-8');
+  bundleCode = fs.readFileSync(bundlePath, "utf-8");
 }
 
 // 4. Wrap in a complete, responsive HTML shell with fonts and full viewport layout
@@ -132,8 +132,8 @@ ${bundleCode}
   </body>
 </html>`;
 
-const outPath = path.resolve(rootDir, 'prerender-demo.html');
-fs.writeFileSync(outPath, outputHtml, 'utf-8');
+const outPath = path.resolve(rootDir, "prerender-demo.html");
+fs.writeFileSync(outPath, outputHtml, "utf-8");
 
 console.log(`\n Pre-render complete! (${(outputHtml.length / 1024).toFixed(1)} KB)`);
 console.log(` Output saved to: ${outPath}`);

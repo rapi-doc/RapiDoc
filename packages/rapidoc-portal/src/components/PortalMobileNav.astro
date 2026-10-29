@@ -1,0 +1,144 @@
+---
+/**
+ * The header as a vertical menu, for narrow screens: the section tabs (the current one marked), then
+ * the header links and dropdown menus. Shown in the header's drawer and at the top of the sidebar menu.
+ */
+import portalConfig from 'virtual:rapidoc-portal/config';
+import Icon from './Icon.astro';
+import { activeTab } from './header-nav.js';
+import { withBase, withoutBase } from './base-path.js';
+
+interface Props {
+  portalConfig?: any;
+}
+
+const config = Astro.props.portalConfig ?? portalConfig;
+const { tabs } = config;
+const links = config.header.links;
+const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
+const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
+const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {});
+---
+
+<div class="portal-mobile-nav">
+  {
+    tabs.length > 0 && (
+      <nav class="portal-mobile-tabs" aria-label="Sections">
+        {tabs.map((tab: any) => (
+          <a href={withBase(tab.href)} class="portal-mobile-tab" aria-current={tab === currentTab ? 'page' : undefined} {...external(tab.href)}>
+            {tab.icon && <Icon name={tab.icon} size={16} />}
+            <span>{tab.label}</span>
+          </a>
+        ))}
+      </nav>
+    )
+  }
+  {
+    links.length > 0 && (
+      <div class="portal-mobile-links-group">
+        {links.map((link: any) =>
+          link.items?.length ? (
+            <div class="portal-mobile-section">
+              <div class="portal-mobile-section-title">{link.label}</div>
+              <div class="portal-mobile-links">
+                {link.items.map((item: any) => (
+                  <a href={withBase(item.href)} class="portal-mobile-item" {...external(item.href)}>
+                    <Icon name={item.icon || 'lightning'} size={16} class="portal-mobile-icon" />
+                    <span>{item.label}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <a href={withBase(link.href)} class:list={['portal-mobile-direct-link', link.style && link.style !== 'link' && `portal-mobile-${link.style}`]} {...external(link.href)}>
+              {link.label}
+            </a>
+          )
+        )}
+      </div>
+    )
+  }
+</div>
+
+<style is:global>
+  .portal-mobile-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+  .portal-mobile-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--portal-radius);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--portal-fg);
+    text-decoration: none;
+  }
+  .portal-mobile-tab:hover {
+    background-color: var(--portal-hover-bg);
+  }
+  .portal-mobile-tab[aria-current='page'] {
+    color: var(--portal-primary-text);
+    background-color: var(--portal-primary-tint);
+    font-weight: 600;
+  }
+  .portal-mobile-links-group {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--portal-border);
+  }
+  .portal-mobile-section {
+    margin-bottom: 1rem;
+  }
+  .portal-mobile-section-title {
+    padding-inline: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--portal-primary-text);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  .portal-mobile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .portal-mobile-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--portal-fg);
+    text-decoration: none;
+    border-radius: var(--portal-radius);
+    font-size: 0.9375rem;
+  }
+  .portal-mobile-item:hover,
+  .portal-mobile-direct-link:hover {
+    background-color: var(--portal-hover-bg);
+  }
+  .portal-mobile-direct-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--portal-radius);
+    font-size: 0.9375rem;
+    color: var(--portal-fg);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  /* `style: button | primary` header links stay buttons in the menu. */
+  .portal-mobile-direct-link:is(.portal-mobile-button, .portal-mobile-primary) {
+    margin-top: 0.5rem;
+    text-align: center;
+    border: 1px solid var(--portal-border);
+  }
+  .portal-mobile-direct-link.portal-mobile-primary {
+    border-color: var(--portal-primary);
+    background-color: var(--portal-primary);
+    color: var(--portal-on-primary);
+  }
+</style>

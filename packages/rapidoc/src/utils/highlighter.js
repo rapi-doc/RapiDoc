@@ -1,57 +1,58 @@
 // CSS Custom Highlight API-based Syntax Highlighter using bundled TextMate grammars
 
-import astro from 'microlighter/grammars/astro.js';
-import bash from 'microlighter/grammars/bash.js';
-import c from 'microlighter/grammars/c.js';
-import cpp from 'microlighter/grammars/cpp.js';
-import csharp from 'microlighter/grammars/csharp.js';
-import cssGrammar from 'microlighter/grammars/css.js';
-import go from 'microlighter/grammars/go.js';
-import html from 'microlighter/grammars/html.js';
-import java from 'microlighter/grammars/java.js';
-import javascript from 'microlighter/grammars/javascript.js';
-import json from 'microlighter/grammars/json.js';
-import kotlin from 'microlighter/grammars/kotlin.js';
-import markdown from 'microlighter/grammars/markdown.js';
-import objectiveC from 'microlighter/grammars/objective-c.js';
-import perl from 'microlighter/grammars/perl.js';
-import php from 'microlighter/grammars/php.js';
-import powershell from 'microlighter/grammars/powershell.js';
-import python from 'microlighter/grammars/python.js';
-import r from 'microlighter/grammars/r.js';
-import ruby from 'microlighter/grammars/ruby.js';
-import rust from 'microlighter/grammars/rust.js';
-import svelte from 'microlighter/grammars/svelte.js';
-import toml from 'microlighter/grammars/toml.js';
-import tsx from 'microlighter/grammars/tsx.js';
-import typescript from 'microlighter/grammars/typescript.js';
-import vue from 'microlighter/grammars/vue.js';
-import yaml from 'microlighter/grammars/yaml.js';
+import astro from "microlighter/grammars/astro.js";
+import bash from "microlighter/grammars/bash.js";
+import c from "microlighter/grammars/c.js";
+import cpp from "microlighter/grammars/cpp.js";
+import csharp from "microlighter/grammars/csharp.js";
+import cssGrammar from "microlighter/grammars/css.js";
+import go from "microlighter/grammars/go.js";
+import html from "microlighter/grammars/html.js";
+import java from "microlighter/grammars/java.js";
+import javascript from "microlighter/grammars/javascript.js";
+import json from "microlighter/grammars/json.js";
+import kotlin from "microlighter/grammars/kotlin.js";
+import markdown from "microlighter/grammars/markdown.js";
+import objectiveC from "microlighter/grammars/objective-c.js";
+import perl from "microlighter/grammars/perl.js";
+import php from "microlighter/grammars/php.js";
+import powershell from "microlighter/grammars/powershell.js";
+import python from "microlighter/grammars/python.js";
+import r from "microlighter/grammars/r.js";
+import ruby from "microlighter/grammars/ruby.js";
+import rust from "microlighter/grammars/rust.js";
+import svelte from "microlighter/grammars/svelte.js";
+import toml from "microlighter/grammars/toml.js";
+import tsx from "microlighter/grammars/tsx.js";
+import typescript from "microlighter/grammars/typescript.js";
+import vue from "microlighter/grammars/vue.js";
+import yaml from "microlighter/grammars/yaml.js";
 
 const httpGrammar = {
-  scopeName: 'source.http',
+  scopeName: "source.http",
   patterns: [
     {
-      match: '^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|TRACE|CONNECT)\\s+([^\\s]+)\\s+(HTTP\\/[0-9.]+)',
+      match:
+        "^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|TRACE|CONNECT)\\s+([^\\s]+)\\s+(HTTP\\/[0-9.]+)",
       captures: {
-        1: { name: 'keyword.control.http' },
-        2: { name: 'string.unquoted.http' },
-        3: { name: 'keyword.other.http' },
+        1: { name: "keyword.control.http" },
+        2: { name: "string.unquoted.http" },
+        3: { name: "keyword.other.http" },
       },
     },
     {
-      match: '^(HTTP\\/[0-9.]+)\\s+([0-9]{3})(?:\\s+(.*))?',
+      match: "^(HTTP\\/[0-9.]+)\\s+([0-9]{3})(?:\\s+(.*))?",
       captures: {
-        1: { name: 'keyword.other.http' },
-        2: { name: 'constant.numeric.http' },
-        3: { name: 'string.unquoted.http' },
+        1: { name: "keyword.other.http" },
+        2: { name: "constant.numeric.http" },
+        3: { name: "string.unquoted.http" },
       },
     },
     {
-      match: '^([a-zA-Z0-9_-]+):\\s*(.*)',
+      match: "^([a-zA-Z0-9_-]+):\\s*(.*)",
       captures: {
-        1: { name: 'support.type.property-name.http' },
-        2: { name: 'string.unquoted.http' },
+        1: { name: "support.type.property-name.http" },
+        2: { name: "string.unquoted.http" },
       },
     },
   ],
@@ -72,7 +73,7 @@ const grammars = {
   json,
   kotlin,
   markdown,
-  'objective-c': objectiveC,
+  "objective-c": objectiveC,
   perl,
   php,
   powershell,
@@ -96,45 +97,70 @@ Object.values(grammars).forEach((grammar) => {
 });
 
 const languageAliases = {
-  'c++': 'cpp',
-  cs: 'csharp',
-  curl: 'bash',
-  js: 'javascript',
-  jsx: 'javascript',
-  markup: 'html',
-  md: 'markdown',
-  objc: 'objective-c',
-  ps1: 'powershell',
-  py: 'python',
-  rb: 'ruby',
-  sh: 'bash',
-  shell: 'bash',
-  svg: 'html',
-  ts: 'typescript',
-  xml: 'html',
-  yml: 'yaml',
-  zsh: 'bash',
+  "c++": "cpp",
+  cs: "csharp",
+  curl: "bash",
+  js: "javascript",
+  jsx: "javascript",
+  markup: "html",
+  md: "markdown",
+  objc: "objective-c",
+  ps1: "powershell",
+  py: "python",
+  rb: "ruby",
+  sh: "bash",
+  shell: "bash",
+  svg: "html",
+  ts: "typescript",
+  xml: "html",
+  yml: "yaml",
+  zsh: "bash",
 };
 
 const noMatch = { indices: [[Infinity, Infinity]] };
 const highlights = new Map();
 
 const getCategory = (scope) => {
-  const parts = scope.split('.');
+  const parts = scope.split(".");
   const [first, second, third] = parts;
   const last = parts.at(-1);
 
-  if (first === 'markup' && ['quote', 'inserted', 'deleted', 'raw'].includes(second)) return second;
-  if (first === 'entity' && second === 'name') return third;
-  if (scope.startsWith('constant.character.entity')) return 'character-entity';
-  if (parts.includes('numeric')) return 'numeric';
-  if (scope.startsWith('support.type.property-name')) return 'property';
-  if (parts.includes('attribute-value')) return 'attribute-value';
-  if (scope.startsWith('string.other.link')) return 'link';
+  if (first === "markup" && ["quote", "inserted", "deleted", "raw"].includes(second)) return second;
+  if (first === "entity" && second === "name") return third;
+  if (scope.startsWith("constant.character.entity")) return "character-entity";
+  if (parts.includes("numeric")) return "numeric";
+  if (scope.startsWith("support.type.property-name")) return "property";
+  if (parts.includes("attribute-value")) return "attribute-value";
+  if (scope.startsWith("string.other.link")) return "link";
 
-  if (['doctype', 'at-rule', 'important', 'regexp', 'boolean', 'symbol', 'operator', 'attribute-name'].includes(last)) return last;
+  if (
+    [
+      "doctype",
+      "at-rule",
+      "important",
+      "regexp",
+      "boolean",
+      "symbol",
+      "operator",
+      "attribute-name",
+    ].includes(last)
+  )
+    return last;
 
-  if (['comment', 'string', 'constant', 'storage', 'keyword', 'variable', 'punctuation', 'entity', 'support'].includes(first)) return first;
+  if (
+    [
+      "comment",
+      "string",
+      "constant",
+      "storage",
+      "keyword",
+      "variable",
+      "punctuation",
+      "entity",
+      "support",
+    ].includes(first)
+  )
+    return first;
 };
 
 const addRange = (node, start, end, scope) => {
@@ -158,10 +184,12 @@ const addCaptures = (node, match, captures = {}) => {
   });
 };
 
-const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const expandEnd = (pattern, beginMatch) =>
-  pattern.replace(/\\(\d+)/g, (reference, index) => (beginMatch[index] === undefined ? reference : escapeRegex(beginMatch[index])));
+  pattern.replace(/\\(\d+)/g, (reference, index) =>
+    beginMatch[index] === undefined ? reference : escapeRegex(beginMatch[index]),
+  );
 
 const getRules = (rule) => {
   if (!rule) return [];
@@ -171,20 +199,22 @@ const getRules = (rule) => {
 };
 
 const resolveInclude = (include, grammar, baseGrammar) => {
-  if (include === '$self') return { grammar, rules: grammar.patterns };
-  if (include === '$base') return { grammar: baseGrammar, rules: baseGrammar.patterns };
+  if (include === "$self") return { grammar, rules: grammar.patterns };
+  if (include === "$base") return { grammar: baseGrammar, rules: baseGrammar.patterns };
 
-  if (include[0] === '#') {
+  if (include[0] === "#") {
     return { grammar, rules: getRules(grammar.repository?.[include.slice(1)]) };
   }
 
-  const [scopeName, repositoryName] = include.split('#');
+  const [scopeName, repositoryName] = include.split("#");
   const includedGrammar = scopes.get(scopeName);
   if (!includedGrammar) return null;
 
   return {
     grammar: includedGrammar,
-    rules: repositoryName ? getRules(includedGrammar.repository?.[repositoryName]) : includedGrammar.patterns,
+    rules: repositoryName
+      ? getRules(includedGrammar.repository?.[repositoryName])
+      : includedGrammar.patterns,
   };
 };
 
@@ -216,7 +246,7 @@ let matches = new Map();
 const exec = (pattern, node, start, end) => {
   let match = matches.get(pattern);
   if (!match || match.indices[0][0] < start) {
-    if (!regexes.has(pattern)) regexes.set(pattern, new RegExp(pattern, 'dgm'));
+    if (!regexes.has(pattern)) regexes.set(pattern, new RegExp(pattern, "dgm"));
     const regex = regexes.get(pattern);
     regex.lastIndex = start;
     match = regex.exec(node.data) || noMatch;
@@ -251,7 +281,10 @@ const scanRegion = (node, rules, start, end, grammar, baseGrammar = grammar, clo
     const candidateStart = candidate?.match.indices[0][0] ?? Infinity;
     const endStart = endMatch?.indices[0][0] ?? Infinity;
 
-    if (endMatch && (endStart < candidateStart || (endStart === candidateStart && !closing?.applyEndPatternLast))) {
+    if (
+      endMatch &&
+      (endStart < candidateStart || (endStart === candidateStart && !closing?.applyEndPatternLast))
+    ) {
       return { contentEnd: endStart, end: endMatch.indices[0][1], match: endMatch };
     }
 
@@ -265,10 +298,18 @@ const scanRegion = (node, rules, start, end, grammar, baseGrammar = grammar, clo
       continue;
     }
 
-    const nested = scanRegion(node, rule.patterns || [], match.indices[0][1], end, ruleGrammar, baseGrammar, {
-      pattern: expandEnd(rule.end, match),
-      applyEndPatternLast: rule.applyEndPatternLast,
-    });
+    const nested = scanRegion(
+      node,
+      rule.patterns || [],
+      match.indices[0][1],
+      end,
+      ruleGrammar,
+      baseGrammar,
+      {
+        pattern: expandEnd(rule.end, match),
+        applyEndPatternLast: rule.applyEndPatternLast,
+      },
+    );
 
     if (rule.name) addRange(node, match.indices[0][0], nested.end, rule.name);
     if (rule.contentName) addRange(node, match.indices[0][1], nested.contentEnd, rule.contentName);
@@ -285,15 +326,15 @@ export const getLanguage = (codeBlock) => {
   const pre = codeBlock.parentElement;
   const getLangClass = (el) => {
     if (!el || !el.classList) return null;
-    return [...el.classList].find((c) => c.startsWith('language-'))?.slice('language-'.length);
+    return [...el.classList].find((c) => c.startsWith("language-"))?.slice("language-".length);
   };
   const lang =
     getLangClass(codeBlock) ||
     codeBlock.dataset?.language ||
     getLangClass(pre) ||
     pre?.dataset?.language ||
-    pre?.getAttribute?.('lang') ||
-    '';
+    pre?.getAttribute?.("lang") ||
+    "";
   return lang.toLowerCase();
 };
 
@@ -308,10 +349,10 @@ export const getAllCodeBlocks = (rootNode = document) => {
     visitedRoots.add(node);
 
     if (node.querySelectorAll) {
-      const codeEls = node.querySelectorAll('pre > code');
+      const codeEls = node.querySelectorAll("pre > code");
       blocks.push(...codeEls);
 
-      const allChildren = node.querySelectorAll('*');
+      const allChildren = node.querySelectorAll("*");
       for (let i = 0; i < allChildren.length; i++) {
         const child = allChildren[i];
         if (child.shadowRoot) {
@@ -328,7 +369,7 @@ export const getAllCodeBlocks = (rootNode = document) => {
 let highlightScheduled = false;
 
 export const highlightAllCode = (rootNode = document) => {
-  if (typeof window === 'undefined' || typeof CSS === 'undefined' || !CSS.highlights) {
+  if (typeof window === "undefined" || typeof CSS === "undefined" || !CSS.highlights) {
     return;
   }
 
@@ -349,7 +390,9 @@ export const highlightAllCode = (rootNode = document) => {
     if (!grammar) return;
 
     // Scan all text nodes without mutating or removing Lit marker comment nodes
-    const textNodes = Array.from(codeBlock.childNodes).filter((child) => child.nodeType === Node.TEXT_NODE && child.data?.length > 0);
+    const textNodes = Array.from(codeBlock.childNodes).filter(
+      (child) => child.nodeType === Node.TEXT_NODE && child.data?.length > 0,
+    );
     if (textNodes.length === 0) return;
 
     matches = new Map();

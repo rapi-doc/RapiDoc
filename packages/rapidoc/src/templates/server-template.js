@@ -1,10 +1,10 @@
 /**
  * Renders the API server selector dropdown and server variable configuration form.
  */
-import { html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { sanitizeHTML } from '../utils/sanitize.js';
-import { marked } from 'marked';
+import { html } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHTML } from "../utils/sanitize.js";
+import { marked } from "marked";
 
 export function setApiServer(serverUrl) {
   const serverObj = this.resolvedSpec?.servers.find((s) => s.url === serverUrl);
@@ -14,22 +14,22 @@ export function setApiServer(serverUrl) {
   this.selectedServer = serverObj;
   this.requestUpdate();
   this.dispatchEvent(
-    new CustomEvent('api-server-change', {
+    new CustomEvent("api-server-change", {
       bubbles: true,
       composed: true,
       detail: {
         selectedServer: serverObj,
       },
-    })
+    }),
   );
   return true;
 }
 
 function onApiServerVarChange(e, serverObj) {
-  const inputEls = [...e.currentTarget.closest('table').querySelectorAll('input, select')];
+  const inputEls = [...e.currentTarget.closest("table").querySelectorAll("input, select")];
   let tempUrl = serverObj.url;
   inputEls.forEach((v) => {
-    const regex = new RegExp(`{${v.dataset.var}}`, 'g');
+    const regex = new RegExp(`{${v.dataset.var}}`, "g");
     tempUrl = tempUrl.replace(regex, v.value);
   });
   serverObj.computedUrl = tempUrl;
@@ -40,83 +40,85 @@ function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
-        <div class="table-title">SERVER VARIABLES</div>
-        <table class="m-table" role="presentation">
-          ${Object.entries(this.selectedServer.variables).map(
-            (kv) => html`
-              <tr>
-                <td style="vertical-align: middle;">${kv[0]}</td>
-                <td>
+        <h3 class="rapidoc-heading label-heading table-title" part="heading heading-3">Server variables</h3>
+        <div class="param-list-container">
+          <ul class="param-list server-vars" part="param-list" role="list">
+            ${Object.entries(this.selectedServer.variables).map(
+              (kv) => html`
+                <li class="param" part="param">
+                  <div class="param-label" part="param-label">
+                    <div class="param-name" part="param-name">${kv[0]}</div>
+                  </div>
+                  <div class="param-input" part="param-input">
+                    ${
+                      kv[1].enum
+                        ? html` <select
+                            data-var="${kv[0]}"
+                            @input=${(e) => {
+                              onApiServerVarChange.call(this, e, this.selectedServer);
+                            }}
+                          >
+                            ${Object.entries(kv[1].enum).map((e) =>
+                              kv[1].default === e[1]
+                                ? html`<option selected label=${e[1]} value=${e[1]}></option>`
+                                : html`<option label=${e[1]} value=${e[1]}></option>`,
+                            )}
+                          </select>`
+                        : html` <input
+                            type="text"
+                            part="textbox textbox-server-var"
+                            spellcheck="false"
+                            data-var="${kv[0]}"
+                            value="${kv[1].default}"
+                            @input=${(e) => {
+                              onApiServerVarChange.call(this, e, this.selectedServer);
+                            }}
+                          />`
+                    }
+                  </div>
                   ${
-                    kv[1].enum
-                      ? html` <select
-                          data-var="${kv[0]}"
-                          @input=${(e) => {
-                            onApiServerVarChange.call(this, e, this.selectedServer);
-                          }}
-                        >
-                          ${Object.entries(kv[1].enum).map((e) =>
-                            kv[1].default === e[1]
-                              ? html`<option selected label=${e[1]} value=${e[1]}></option>`
-                              : html`<option label=${e[1]} value=${e[1]}></option>`
-                          )}
-                        </select>`
-                      : html` <input
-                          type="text"
-                          part="textbox textbox-server-var"
-                          spellcheck="false"
-                          data-var="${kv[0]}"
-                          value="${kv[1].default}"
-                          @input=${(e) => {
-                            onApiServerVarChange.call(this, e, this.selectedServer);
-                          }}
-                        />`
+                    kv[1].description
+                      ? html`<div class="param-details" part="param-details">
+                          <div class="m-markdown-small">${unsafeHTML(sanitizeHTML(marked(kv[1].description)))}</div>
+                        </div>`
+                      : ""
                   }
-                </td>
-              </tr>
-              ${
-                kv[1].description
-                  ? html`<tr>
-                      <td colspan="2" style="border:none">
-                        <span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(kv[1].description)))} </span>
-                      </td>
-                    </tr>`
-                  : ''
-              }
-            `
-          )}
-        </table>
+                </li>
+              `,
+            )}
+          </ul>
+        </div>
       `
-    : '';
+    : "";
 }
 
 export default function serverTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
-    return '';
+    return "";
   }
   return html`<section
     id="servers"
     part="section-servers"
     style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;"
-    class="regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}"
+    class="regular-font observe-me ${"read focused".includes(this.renderStyle) ? "section-gap--read-mode" : "section-gap"}"
   >
-    <div part="section-servers-title" class="sub-title" style="display:flex; align-items:center; gap:8px;">
-      API SERVER
+    <h2 part="section-servers-title heading heading-2" class="rapidoc-heading sub-title" style="display:flex; align-items:center; gap:8px;">
+      API Server
       ${
-        this.mockServer === 'true'
+        this.mockServer === "true"
           ? html`<span
-              style="font-size:var(--font-size-small); font-weight:bold; color:var(--green, #10b981); border:1px solid var(--green, #10b981); border-radius:4px; padding:1px 6px; letter-spacing:0.5px;"
+              style="font-size:var(--font-size-small); font-weight:bold; color:var(--green); border:1px solid var(--green); border-radius:var(--radius); padding:1px 6px; letter-spacing:0.5px;"
               title="In-browser mock server is active"
             >
               MOCK ACTIVE
             </span>`
-          : ''
+          : ""
       }
-    </div>
+    </h2>
     <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);">
       ${
         !this.resolvedSpec.servers || this.resolvedSpec.servers?.length === 0
-          ? ''
+          ? ""
           : html`
               ${this.resolvedSpec?.servers.map(
                 (server, i) => html`
@@ -132,16 +134,16 @@ export default function serverTemplate() {
                       .checked="${this.selectedServer.url === server.url}"
                     />
                     <label for="srvr-opt-${i}">
-                      ${server.url} ${server.description ? html`- <span class="regular-font">${server.description} </span>` : ''}
+                      ${server.url} ${server.description ? html`- <span class="regular-font">${server.description} </span>` : ""}
                     </label>
                   </div>
-                `
+                `,
               )}
             `
       }
       <div class="table-title primary-text" part="label-selected-server">
-        SELECTED: ${this.selectedServer?.computedUrl || 'none'}
-        ${this.mockServer === 'true' ? html`<span style="color:var(--green, #10b981); margin-left:6px;">(Mocked)</span>` : ''}
+        SELECTED: ${this.selectedServer?.computedUrl || "none"}
+        ${this.mockServer === "true" ? html`<span style="color:var(--green); margin-left:6px;">(Mocked)</span>` : ""}
       </div>
     </div>
     <slot name="servers"></slot>

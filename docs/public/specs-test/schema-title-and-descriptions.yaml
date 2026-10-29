@@ -241,3 +241,102 @@ paths:
                   status:
                     type: string
                     example: success
+
+  /markdown-text:
+    get:
+      summary: Markdown Lists, Paragraphs and Headings in Schema
+      description: Property descriptions written with bulleted lists, paragraphs, and headings followed by body text
+      responses:
+        '200':
+          description: Response Schema fields contain markdown lists, paragraphs and headings
+          content:
+            application/json:
+              schema:
+                type: object
+                description: An `Order` with markdown in its property descriptions
+                properties:
+                  status:
+                    type: string
+                    enum: [pending, paid, shipped, cancelled]
+                    description: |
+                      * `pending`: created, waiting for payment
+                      * `paid`: payment captured
+                      * `shipped`: handed to the carrier
+                      * `cancelled`: cancelled by the customer or by support
+                  channel:
+                    type: string
+                    description: |
+                      * Only one channel is supported today: `web`
+                  tags:
+                    type: array
+                    description: |
+                      Free-form labels used for search and reporting:
+
+                      * at most **10** tags per order
+                      * each tag is lowercase, `a-z`, `0-9` and `-`
+                        * nested: tags starting with `x-` are reserved
+                      * duplicates are removed
+                    items:
+                      type: string
+                  notes:
+                    type: string
+                    maxLength: 500
+                    description: Free text the customer adds at checkout. It is shown to the warehouse team on the packing slip and printed on the invoice, so it must not contain personal data beyond what is needed to deliver the order.
+                  deliveryInstructions:
+                    type: string
+                    description: Where the carrier should leave the parcel when nobody answers the door, for example with a neighbour, in the garage, or behind the side gate next to the recycling bins.
+                  giftMessage:
+                    type: string
+                    description: |
+                      Message printed on the gift card. **Plain text only**; markdown and HTML are removed.
+
+                      Line breaks are kept. See [gift options](https://example.com/gift-options) for the card sizes.
+
+                      Leave empty for no gift card.
+                  shippingSpeed:
+                    type: string
+                    enum: [standard, express, overnight]
+                    description: |
+                      ### Shipping speed
+                      How fast the order is delivered once it is paid.
+                  refundPolicy:
+                    type: string
+                    description: |
+                      #### Eligibility
+                      Orders can be refunded within **30 days** of delivery.
+
+                      #### Partial refunds
+                      Single items can be refunded on their own:
+
+                      * the item must be unused
+                      * shipping is not refunded
+
+                      ##### Exceptions
+                      Gift cards and downloads are never refunded.
+                  priority:
+                    type: integer
+                    title: Priority
+                    minimum: 1
+                    maximum: 5
+                    description: |
+                      * `1`: highest, handled the same day
+                      * `5`: lowest
+                  customer:
+                    type: object
+                    description: |
+                      #### Customer
+                      The account that placed the order.
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                        description: |
+                          Used for order updates.
+
+                          * receipts
+                          * shipping notifications
+                      locale:
+                        type: string
+                        description: |
+                          ##### Locale
+                          BCP 47 language tag, for example `en-US`. Sets the language of emails.

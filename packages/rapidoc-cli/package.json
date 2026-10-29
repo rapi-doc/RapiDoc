@@ -1,15 +1,33 @@
 {
-  "name": "rapidoc-cli",
+  "name": "@rapidoc/cli",
   "version": "0.1.0",
-  "description": "Command line utility for RapiDoc (validation, preview, bundling)",
-  "type": "module",
+  "description": "The rapidoc command: developer portal dev/build/serve/init, OpenAPI validation and config migration",
   "bin": {
     "rapidoc": "./src/index.js"
   },
+  "type": "module",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "@scalar/openapi-parser": "^0.29.13"
+    "@scalar/openapi-parser": "^0.29.18",
+    "create-rapidoc": "^0.1.0"
+  },
+  "peerDependencies": {
+    "@rapidoc/mock": "^0.1.0",
+    "@rapidoc/portal": "^0.1.0",
+    "@rapidoc/server": "^0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@rapidoc/mock": {
+      "optional": true
+    },
+    "@rapidoc/portal": {
+      "optional": true
+    },
+    "@rapidoc/server": {
+      "optional": true
+    }
   }
 }

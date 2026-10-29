@@ -1,0 +1,280 @@
+---
+import PortalLayout from '../components/PortalLayout.astro';
+import PortalMobileNav from '../components/PortalMobileNav.astro';
+import Callout from '../components/Callout.astro';
+import { getNavBarHtml, getNavCss, getThemeTokensCss } from 'rapidoc/static';
+import portalConfig from 'virtual:rapidoc-portal/config';
+import { OAUTH_RECEIVER_PATH } from '../engine/sync-assets.js';
+import { apiReferencePaths, readVersionSpec } from '../engine/api-routes.js';
+import { withBase } from '../components/base-path.js';
+
+export async function getStaticPaths() {
+  const paths = await apiReferencePaths(portalConfig.apis);
+  return paths.map((page) => ({ ...page, props: { ...page.props, portalConfig } }));
+}
+
+const { api, version, versionTags = [], portalConfig, activeTagSlug = '', currentPath = version.path, redirectTo: redirectPath } = Astro.props;
+
+// Paths below are relative to the portal; links get the base path the portal is served under.
+const redirectTo = redirectPath && withBase(redirectPath);
+const specUrl = withBase(version.specUrl);
+const specInput = redirectTo ? null : readVersionSpec(version) || version.spec;
+const defaultVersion = api.versions[0];
+const versionChoices = api.versions.map((v, i) => ({ ...v, tags: versionTags[i] || [] }));
+
+const themePreset = portalConfig.rapidoc.theme || 'ember';
+
+// RapiDoc's own navigation is hidden (show-side-nav=false); the sidebar is rapidoc/static's, so the navigation
+// attributes of `rapidoc:` are passed to it.
+const navAttributes = {
+  'show-method-in-nav-bar': portalConfig.rapidoc['show-method-in-nav-bar'] || 'as-colored-block',
+  'use-path-in-nav-bar': portalConfig.rapidoc['use-path-in-nav-bar'] || 'false',
+};
+
+let sidebarNavHtml = '';
+try {
+  if (!redirectTo) sidebarNavHtml = await getNavBarHtml(specInput, {
+    basePath: withBase(version.path),
+    activeHref: withBase(currentPath),
+    routingMode: 'tag-pages',
+    includeSearch: true,
+    searchPlaceholder: 'Filter endpoints...',
+    itemClassName: 'portal-sidebar-op-item',
+    ...navAttributes,
+  });
+} catch (err) {
+  sidebarNavHtml = `<div style="padding: 1.5rem; color: #ef4444;">Failed to render navigation: ${err.message}</div>`;
+}
+
+const navCss = getNavCss('.portal-sidebar');
+const themeTokensCss = getThemeTokensCss(themePreset);
+
+// <rapi-doc> attributes: portal defaults, then the `rapidoc:` config, then what this layout requires
+// (navigation lives in the portal sidebar, the page scrolls, colors follow the portal theme).
+const rapidocAttributes = {
+  'render-style': 'read',
+  'schema-style': 'table',
+  scale: 'lg',
+  'allow-try': 'true',
+  'allow-authentication': 'true',
+  'allow-server-selection': 'false',
+  theme: themePreset,
+  ...portalConfig.rapidoc,
+  ...navAttributes,
+  'primary-color': portalConfig.theme.primary,
+  'spec-url': specUrl,
+  'show-side-nav': 'false',
+  'show-header': 'false',
+  'update-route': 'false',
+  'auto-height': 'true',
+  'color-scheme': 'auto',
+  'goto-path': activeTagSlug || undefined,
+  'oauth-receiver': withBase(OAUTH_RECEIVER_PATH),
+};
+---
+
+{redirectTo ? (
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{api.title} {version.label} — {portalConfig.site.title}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={redirectTo} />
+    {/* Keeps the #operation, which a refresh would drop. */}
+    <script is:inline define:vars={{ redirectTo }}>location.replace(redirectTo + location.hash);</script>
+    <meta http-equiv="refresh" content={`0;url=${redirectTo}`} />
+  </head>
+  <body><a href={redirectTo}>{api.title} {version.label}</a></body>
+</html>
+) : (
+<PortalLayout title={`${api.title}${version.isDefault ? '' : ` ${version.label}`}`} sidebarId="portal-api-sidebar">
+  <Fragment slot="head">
+    <style set:html={themeTokensCss}></style>
+    <style set:html={navCss}></style>
+    <script type="module" src={withBase('/assets/rapidoc-min.js')}></script>
+  </Fragment>
+
+  <aside slot="sidebar" id="portal-api-sidebar" class="portal-layout-sidebar" popover="auto" data-portal-region="sidebar" aria-label="API navigation">
+    <div class="portal-api-header-links">
+      <PortalMobileNav />
+    </div>
+    {versionChoices.length > 1 && (
+      <div class="portal-api-version">
+        <label for="portal-api-version-select">Version</label>
+        <select id="portal-api-version-select" data-active-tag={activeTagSlug}>
+          {versionChoices.map((v) => (
+            <option value={withBase(v.path)} selected={v.version === version.version} data-tags={v.tags.join(' ')}>{v.label}</option>
+          ))}
+        </select>
+      </div>
+    )}
+    <!-- The nav CSS from rapidoc/static styles its scope element, so it gets an element of its own. -->
+    <div class="portal-api-nav portal-sidebar nav-bar">
+      <Fragment set:html={sidebarNavHtml} />
+    </div>
+  </aside>
+
+  <main class="portal-api-main">
+    {!version.isDefault && (
+      <div class="portal-api-version-note">
+        <Callout type="note">
+          You're viewing {version.label}. The current version is{' '}
+          <a href={withBase(versionChoices[0].tags.includes(activeTagSlug) ? `${defaultVersion.path}/${activeTagSlug}` : defaultVersion.path)}>{defaultVersion.label}</a>.
+        </Callout>
+      </div>
+    )}
+    <rapi-doc {...rapidocAttributes}></rapi-doc>
+  </main>
+</PortalLayout>
+)}
+
+<style is:global>
+  rapi-doc {
+    display: block;
+    width: 100%;
+    padding: 24px 32px;
+    box-sizing: border-box;
+    /* Keeps the footer below the fold while the spec loads, so it does not jump down after. */
+    min-height: calc(100dvh - var(--sl-nav-height));
+
+    /* Portal colours and fonts. A rule on the element overrides RapiDoc's own :host defaults;
+       `inherit` takes the page's :root value (writing var(--font-sans) here would reference itself). */
+    --background: var(--portal-bg);
+    --foreground: var(--portal-fg);
+    --font-sans: inherit;
+    --font-mono: inherit;
+    /* Same type scale as the guide pages (--sl-text-h* and the heading letter-spacing in
+       styles/portal-theme.css), and their body size (--sl-text-body) instead of scale="lg"'s 16px. */
+    --font-size-regular: 0.9375rem;
+    --heading-weight: 600;
+    --heading-letter-spacing: -0.02em;
+    --heading-line-height: 1.2;
+    --line-height: 1.7;
+    --h1-font-size: 2rem;
+    --h2-font-size: 1.5rem;
+    --h3-font-size: 1.25rem;
+    --h4-font-size: 1.125rem;
+    --h5-font-size: 1rem;
+    --h6-font-size: 0.9375rem;
+  }
+  @media (min-width: 50em) {
+    rapi-doc {
+      --h1-font-size: 2.25rem;
+      --h2-font-size: 1.75rem;
+      --h3-font-size: 1.375rem;
+      --h4-font-size: 1.25rem;
+    }
+  }
+  @media (width < 50rem) {
+    rapi-doc {
+      padding: 16px;
+    }
+  }
+  /* Accent text in the sidebar keeps WCAG AA contrast. Method colors are RapiDoc's own. */
+  .portal-api-nav {
+    --sidebar-primary: var(--portal-primary-text);
+  }
+
+  /* One weight for every sidebar level, as in the guides' sidebar (PortalSidebarSublist); RapiDoc's
+     nav CSS makes the overview and tag titles bold. */
+  .portal-api-nav.portal-sidebar :is(.nav-bar-info, .nav-bar-tag, .nav-bar-tag-group-header, .nav-bar-section) {
+    font-weight: 400;
+  }
+
+  /* Fill the sidebar below the (mobile) header links; the nav CSS sizes its root for RapiDoc's own layout. */
+  .portal-api-nav.portal-sidebar.nav-bar {
+    display: flex;
+    flex: 1 1 0%;
+    min-height: 0;
+    width: auto;
+    height: auto;
+    border-right: 0;
+  }
+
+  .portal-sidebar .nav-scroll {
+    flex: 1 1 0%;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    padding: 8px 0;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+  }
+
+  /* Version picker, above the endpoint filter. */
+  .portal-api-version {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem var(--portal-shell-pad-x) 0;
+    font-size: 0.875rem;
+  }
+  .portal-api-version label {
+    color: var(--portal-muted, inherit);
+  }
+  .portal-api-version select {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 2rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    background: var(--portal-bg);
+    color: var(--portal-fg);
+    font: inherit;
+  }
+  .portal-api-version-note {
+    padding: 24px 32px 0;
+  }
+  .portal-api-version-note .portal-callout {
+    margin: 0;
+  }
+  @media (width < 50rem) {
+    .portal-api-version-note {
+      padding: 16px 16px 0;
+    }
+  }
+
+  .portal-api-header-links {
+    padding: 1rem var(--portal-shell-pad-x);
+    border-bottom: 1px solid var(--portal-border);
+  }
+  @media (min-width: 50rem) {
+    .portal-api-header-links {
+      display: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.getElementById('portal-api-sidebar');
+    const nav = sidebar?.querySelector('.portal-api-nav');
+    const rapiDocEl = document.querySelector('rapi-doc');
+    if (!sidebar || !nav || !rapiDocEl) return;
+
+    // Another version: the same tag page (and operation) when that version has the tag, else its overview.
+    const versionSelect = document.getElementById('portal-api-version-select');
+    versionSelect?.addEventListener('change', () => {
+      const option = versionSelect.selectedOptions[0];
+      const tag = versionSelect.dataset.activeTag;
+      const hasTag = tag && option.dataset.tags.split(' ').includes(tag);
+      location.href = hasTag ? `${option.value}/${tag}${location.hash}` : tag ? option.value : option.value + location.hash;
+    });
+
+    // On narrow screens the sidebar is a popover menu: close it once a link is chosen.
+    sidebar.addEventListener('click', (event) => {
+      if (event.target.closest('a') && sidebar.matches(':popover-open')) sidebar.hidePopover();
+    });
+
+    // Sidebar links scroll <rapi-doc>, and scrolling <rapi-doc> highlights the current link.
+    const bindNav = () => rapiDocEl.bindNavBar(nav);
+    if (typeof rapiDocEl.bindNavBar === 'function') {
+      bindNav();
+    } else {
+      customElements.whenDefined('rapi-doc').then(bindNav);
+    }
+  });
+</script>

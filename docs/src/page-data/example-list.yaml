@@ -24,6 +24,8 @@ examples:
             href: /examples/css-dark
         - Light Mode:
             href: /examples/css-light
+        - Brand Fonts:
+            href: /examples/brand-fonts
 
   - Rendering Modes:
       description: Choose between 3 distinct presentation styles to best fit your audience.
@@ -51,7 +53,7 @@ examples:
   - Schema Styles:
       img: /assets/images/schema-style.png
       href: /examples/schema-styles
-      description: 'Inspect data models using Tree or Tabular representations, and toggle between Schema and Example views.'
+      description: "Inspect data models using Tree or Tabular representations, and toggle between Schema and Example views."
       category: Layouts & Views
 
   - Navigation Styles:

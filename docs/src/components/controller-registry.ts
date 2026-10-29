@@ -3,12 +3,24 @@ export interface ControlOption {
   rawVal: string;
   dotColor?: string;
   isDefault?: boolean;
+  /** Stylesheet that loads this font option. Tuners add it to the page the first time the option is picked. */
+  fontCss?: string;
 }
 
-export type ControlCategory = 'appearance' | 'theming' | 'navigation' | 'schema' | 'sections' | 'slots';
+/** Google Fonts stylesheet for the weights RapiDoc uses (400-700). */
+const googleFontCss = (family: string) =>
+  `https://fonts.googleapis.com/css2?family=${family.replace(/ /g, "+")}:wght@400;500;600;700&display=swap`;
+
+export type ControlCategory =
+  | "appearance"
+  | "theming"
+  | "navigation"
+  | "schema"
+  | "sections"
+  | "slots";
 
 export interface SegmentedControl {
-  type: 'segmented';
+  type: "segmented";
   attr: string;
   label: string;
   tip?: string;
@@ -18,7 +30,7 @@ export interface SegmentedControl {
 }
 
 export interface ToggleControl {
-  type: 'toggle';
+  type: "toggle";
   attr: string;
   label: string;
   tip?: string;
@@ -30,543 +42,576 @@ export interface ToggleControl {
 export type ControlDef = SegmentedControl | ToggleControl;
 
 export type ControllerPreset =
-  'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'color' | 'slots' | 'slot' | 'demo' | 'mcp' | 'none' | 'auto';
+  | "all"
+  | "minimal"
+  | "schema"
+  | "nav"
+  | "sections"
+  | "colors"
+  | "color"
+  | "slots"
+  | "slot"
+  | "demo"
+  | "mcp"
+  | "none"
+  | "auto";
 
 export const CONTROL_REGISTRY: Record<string, ControlDef> = {
   // Appearance & Layout
-  'render-style': {
-    type: 'segmented',
-    attr: 'render-style',
-    label: 'Render Style',
-    tip: 'Display mode: Read for docs, View with tabs, Focused for single endpoint',
-    category: 'appearance',
+  "render-style": {
+    type: "segmented",
+    attr: "render-style",
+    label: "Render Style",
+    tip: "Display mode: Read for docs, View with tabs, Focused for single endpoint",
+    category: "appearance",
     options: [
-      { label: 'Read', rawVal: 'read' },
-      { label: 'View', rawVal: 'view', isDefault: true },
-      { label: 'Focused', rawVal: 'focused' },
+      { label: "Read", rawVal: "read" },
+      { label: "View", rawVal: "view", isDefault: true },
+      { label: "Focused", rawVal: "focused" },
     ],
   },
-  'schema-style': {
-    type: 'segmented',
-    attr: 'schema-style',
-    label: 'Schema Style',
-    tip: 'Display schemas as visual table or tree hierarchy',
-    category: 'appearance',
+  "schema-style": {
+    type: "segmented",
+    attr: "schema-style",
+    label: "Schema Style",
+    tip: "Display schemas as visual table or tree hierarchy",
+    category: "appearance",
     options: [
-      { label: 'Table', rawVal: 'table', isDefault: true },
-      { label: 'Tree', rawVal: 'tree' },
+      { label: "Table", rawVal: "table", isDefault: true },
+      { label: "Tree", rawVal: "tree" },
     ],
   },
   scale: {
-    type: 'segmented',
-    attr: 'scale',
-    label: 'UI Scale',
-    tip: 'Global scale for typography and spacing',
-    category: 'theming',
+    type: "segmented",
+    attr: "scale",
+    label: "UI Scale",
+    tip: "Global scale for typography and spacing",
+    category: "theming",
     options: [
-      { label: 'Compact', rawVal: 'sm' },
-      { label: 'Default', rawVal: 'default', isDefault: true },
-      { label: 'Large', rawVal: 'lg' },
+      { label: "Compact", rawVal: "sm" },
+      { label: "Default", rawVal: "default", isDefault: true },
+      { label: "Large", rawVal: "lg" },
     ],
   },
   layout: {
-    type: 'segmented',
-    attr: 'layout',
-    label: 'Req/Res Layout',
-    tip: 'Request and response layout: row (side-by-side) or column (stacked)',
-    category: 'appearance',
+    type: "segmented",
+    attr: "layout",
+    label: "Req/Res Layout",
+    tip: "Request and response layout: row (side-by-side) or column (stacked)",
+    category: "appearance",
     options: [
-      { label: 'Row', rawVal: 'row', isDefault: true },
-      { label: 'Column', rawVal: 'column' },
+      { label: "Row", rawVal: "row", isDefault: true },
+      { label: "Column", rawVal: "column" },
     ],
   },
-  'heading-text': {
-    type: 'segmented',
-    attr: 'heading-text',
-    label: 'Heading Text',
-    tip: 'Top header title text',
-    category: 'appearance',
+  "heading-text": {
+    type: "segmented",
+    attr: "heading-text",
+    label: "Heading Text",
+    tip: "Top header title text",
+    category: "appearance",
     options: [
-      { label: 'Default', rawVal: '', isDefault: true },
-      { label: 'API Explorer', rawVal: 'API Explorer' },
+      { label: "Default", rawVal: "", isDefault: true },
+      { label: "API Explorer", rawVal: "API Explorer" },
     ],
   },
 
   // Colors & Fonts
   theme: {
-    type: 'segmented',
-    attr: 'theme',
-    label: 'Theme',
-    tip: 'Color palette preset',
-    category: 'theming',
+    type: "segmented",
+    attr: "theme",
+    label: "Theme",
+    tip: "Color palette preset",
+    category: "theming",
     options: [
-      { label: 'Amber', rawVal: 'amber', isDefault: true, dotColor: '#f59e0b' },
-      { label: 'Blue', rawVal: 'blue', dotColor: '#3b82f6' },
-      { label: 'Emerald', rawVal: 'emerald', dotColor: '#10b981' },
-      { label: 'Violet', rawVal: 'violet', dotColor: '#8b5cf6' },
-      { label: 'Rose', rawVal: 'rose', dotColor: '#f43f5e' },
-      { label: 'Graphite', rawVal: 'graphite', dotColor: '#71717a' },
-      { label: 'Slate', rawVal: 'slate', dotColor: '#64748b' },
+      { label: "Ember", rawVal: "ember", isDefault: true, dotColor: "#f76b39" },
+      { label: "Carbon", rawVal: "carbon", dotColor: "#a1a1aa" },
+      { label: "Cobalt", rawVal: "cobalt", dotColor: "#7aa2d6" },
+      { label: "Jade", rawVal: "jade", dotColor: "#00d390" },
+      { label: "Indigo", rawVal: "indigo", dotColor: "#818cf8" },
     ],
   },
-  'color-scheme': {
-    type: 'segmented',
-    attr: 'color-scheme',
-    label: 'Color Scheme',
-    tip: 'Light or dark luminance scheme',
-    category: 'theming',
+  "color-scheme": {
+    type: "segmented",
+    attr: "color-scheme",
+    label: "Color Scheme",
+    tip: "Light or dark luminance scheme",
+    category: "theming",
     options: [
-      { label: 'Dark', rawVal: 'dark', isDefault: true },
-      { label: 'Light', rawVal: 'light' },
-      { label: 'System', rawVal: 'system' },
+      { label: "Dark", rawVal: "dark", isDefault: true },
+      { label: "Light", rawVal: "light" },
+      { label: "System", rawVal: "system" },
     ],
   },
   radius: {
-    type: 'segmented',
-    attr: 'radius',
-    label: 'Radius',
-    tip: 'Border radius for cards, inputs, and buttons',
-    category: 'theming',
+    type: "segmented",
+    attr: "radius",
+    label: "Radius",
+    tip: "Border radius for cards, inputs, and buttons",
+    category: "theming",
     options: [
-      { label: 'None', rawVal: 'none' },
-      { label: 'Small', rawVal: 'sm', isDefault: true },
-      { label: 'Medium', rawVal: 'md' },
-      { label: 'Large', rawVal: 'lg' },
-      { label: 'Full', rawVal: 'full' },
+      { label: "None", rawVal: "none" },
+      { label: "Small", rawVal: "sm", isDefault: true },
+      { label: "Medium", rawVal: "md" },
+      { label: "Large", rawVal: "lg" },
+      { label: "Full", rawVal: "full" },
     ],
   },
-  'regular-font': {
-    type: 'segmented',
-    attr: 'regular-font',
-    label: 'Regular Font',
-    tip: 'Main document body and heading font family',
-    category: 'theming',
+  "regular-font": {
+    type: "segmented",
+    attr: "regular-font",
+    label: "Regular Font",
+    tip: "Main document body and heading font family",
+    category: "theming",
     options: [
-      { label: 'Default', rawVal: '', isDefault: true },
-      { label: 'Nunito', rawVal: 'Nunito' },
-      { label: 'Roboto Mono', rawVal: 'Roboto Mono' },
+      { label: "Default", rawVal: "", isDefault: true },
+      { label: "Inter", rawVal: "Inter, sans-serif", fontCss: googleFontCss("Inter") },
+      {
+        label: "IBM Plex Sans",
+        rawVal: "'IBM Plex Sans', sans-serif",
+        fontCss: googleFontCss("IBM Plex Sans"),
+      },
+      {
+        label: "Source Sans 3",
+        rawVal: "'Source Sans 3', sans-serif",
+        fontCss: googleFontCss("Source Sans 3"),
+      },
+      { label: "Nunito", rawVal: "Nunito" },
+      { label: "Roboto Mono", rawVal: "Roboto Mono" },
     ],
   },
-  'mono-font': {
-    type: 'segmented',
-    attr: 'mono-font',
-    label: 'Mono Font',
-    tip: 'Monospace font family for code blocks and schema types',
-    category: 'theming',
+  "mono-font": {
+    type: "segmented",
+    attr: "mono-font",
+    label: "Mono Font",
+    tip: "Monospace font family for code blocks and schema types",
+    category: "theming",
     options: [
-      { label: 'Default', rawVal: '', isDefault: true },
-      { label: 'Courier', rawVal: 'Courier' },
+      { label: "Default", rawVal: "", isDefault: true },
+      {
+        label: "JetBrains Mono",
+        rawVal: "'JetBrains Mono', monospace",
+        fontCss: googleFontCss("JetBrains Mono"),
+      },
+      {
+        label: "IBM Plex Mono",
+        rawVal: "'IBM Plex Mono', monospace",
+        fontCss: googleFontCss("IBM Plex Mono"),
+      },
+      {
+        label: "Source Code Pro",
+        rawVal: "'Source Code Pro', monospace",
+        fontCss: googleFontCss("Source Code Pro"),
+      },
+      { label: "Courier", rawVal: "Courier" },
     ],
   },
 
   // Navigation & Methods
-  'use-path-in-nav-bar': {
-    type: 'segmented',
-    attr: 'use-path-in-nav-bar',
-    label: 'Nav Text',
-    tip: 'Display endpoint URL path or summary in sidebar',
-    category: 'navigation',
+  "use-path-in-nav-bar": {
+    type: "segmented",
+    attr: "use-path-in-nav-bar",
+    label: "Nav Text",
+    tip: "Display endpoint URL path or summary in sidebar",
+    category: "navigation",
     options: [
-      { label: 'Path', rawVal: 'true' },
-      { label: 'Summary', rawVal: 'false', isDefault: true },
+      { label: "Path", rawVal: "true" },
+      { label: "Summary", rawVal: "false", isDefault: true },
     ],
   },
-  'show-method-in-nav-bar': {
-    type: 'segmented',
-    attr: 'show-method-in-nav-bar',
-    label: 'Method Display',
-    tip: 'Sidebar HTTP method badge presentation style',
-    category: 'navigation',
+  "show-method-in-nav-bar": {
+    type: "segmented",
+    attr: "show-method-in-nav-bar",
+    label: "Method Display",
+    tip: "Sidebar HTTP method badge presentation style",
+    category: "navigation",
     options: [
-      { label: 'None', rawVal: 'false', isDefault: true },
-      { label: 'Plain', rawVal: 'as-plain-text' },
-      { label: 'Colored', rawVal: 'as-colored-text' },
-      { label: 'Block', rawVal: 'as-colored-block' },
+      { label: "None", rawVal: "false", isDefault: true },
+      { label: "Plain", rawVal: "as-plain-text" },
+      { label: "Colored", rawVal: "as-colored-text" },
+      { label: "Block", rawVal: "as-colored-block" },
     ],
   },
-  'nav-active-item-marker': {
-    type: 'segmented',
-    attr: 'nav-active-item-marker',
-    label: 'Nav Marker',
-    tip: 'Visual marker indicating active endpoint in sidebar',
-    category: 'navigation',
+  "nav-active-item-marker": {
+    type: "segmented",
+    attr: "nav-active-item-marker",
+    label: "Nav Marker",
+    tip: "Visual marker indicating active endpoint in sidebar",
+    category: "navigation",
     options: [
-      { label: 'Left Bar', rawVal: 'left-bar', isDefault: true },
-      { label: 'Block', rawVal: 'colored-block' },
+      { label: "Left Bar", rawVal: "left-bar", isDefault: true },
+      { label: "Block", rawVal: "colored-block" },
     ],
   },
-  'nav-item-spacing': {
-    type: 'segmented',
-    attr: 'nav-item-spacing',
-    label: 'Nav Spacing',
-    tip: 'Vertical spacing between sidebar navigation items',
-    category: 'navigation',
+  "nav-item-spacing": {
+    type: "segmented",
+    attr: "nav-item-spacing",
+    label: "Nav Spacing",
+    tip: "Vertical spacing between sidebar navigation items",
+    category: "navigation",
     options: [
-      { label: 'Compact', rawVal: 'compact' },
-      { label: 'Default', rawVal: 'default', isDefault: true },
-      { label: 'Relaxed', rawVal: 'relaxed' },
+      { label: "Compact", rawVal: "compact" },
+      { label: "Default", rawVal: "default", isDefault: true },
+      { label: "Relaxed", rawVal: "relaxed" },
     ],
   },
 
-  'sort-tags': {
-    type: 'segmented',
-    attr: 'sort-tags',
-    label: 'Sort Tags',
-    tip: 'Alphabetically sort tag sections in sidebar',
-    category: 'navigation',
+  "sort-tags": {
+    type: "segmented",
+    attr: "sort-tags",
+    label: "Sort Tags",
+    tip: "Alphabetically sort tag sections in sidebar",
+    category: "navigation",
     options: [
-      { label: 'False', rawVal: 'false', isDefault: true },
-      { label: 'True', rawVal: 'true' },
+      { label: "False", rawVal: "false", isDefault: true },
+      { label: "True", rawVal: "true" },
     ],
   },
-  'info-description-headings-in-navbar': {
-    type: 'segmented',
-    attr: 'info-description-headings-in-navbar',
-    label: 'Nav Headings',
-    tip: 'Extract H1 and H2 markdown headings into sidebar navigation',
-    category: 'navigation',
+  "info-description-headings-in-navbar": {
+    type: "segmented",
+    attr: "info-description-headings-in-navbar",
+    label: "Nav Headings",
+    tip: "Extract H1 and H2 markdown headings into sidebar navigation",
+    category: "navigation",
     options: [
-      { label: 'True', rawVal: 'true' },
-      { label: 'False', rawVal: 'false', isDefault: true },
+      { label: "True", rawVal: "true" },
+      { label: "False", rawVal: "false", isDefault: true },
     ],
   },
-  'update-route': {
-    type: 'segmented',
-    attr: 'update-route',
-    label: 'Update Route',
-    tip: 'Update browser URL hash when navigating endpoints',
-    category: 'navigation',
+  "update-route": {
+    type: "segmented",
+    attr: "update-route",
+    label: "Update Route",
+    tip: "Update browser URL hash when navigating endpoints",
+    category: "navigation",
     options: [
-      { label: 'True', rawVal: 'true', isDefault: true },
-      { label: 'False', rawVal: 'false' },
+      { label: "True", rawVal: "true", isDefault: true },
+      { label: "False", rawVal: "false" },
     ],
   },
-  'route-prefix': {
-    type: 'segmented',
-    attr: 'route-prefix',
-    label: 'Route Prefix',
-    tip: 'URL hash prefix for endpoint routing',
-    category: 'navigation',
+  "on-nav-tag-click": {
+    type: "segmented",
+    attr: "on-nav-tag-click",
+    label: "Tag Click",
+    tip: "Behavior when clicking a tag header in the sidebar",
+    info: "Works only when render-style = focused",
+    category: "navigation",
     options: [
-      { label: '#', rawVal: '#', isDefault: true },
-      { label: '#/', rawVal: '#/' },
-      { label: '#!', rawVal: '#!' },
-    ],
-  },
-  'on-nav-tag-click': {
-    type: 'segmented',
-    attr: 'on-nav-tag-click',
-    label: 'Tag Click',
-    tip: 'Behavior when clicking a tag header in the sidebar',
-    info: 'Works only when render-style = focused',
-    category: 'navigation',
-    options: [
-      { label: 'Expand', rawVal: 'expand-collapse', isDefault: true },
-      { label: 'Description', rawVal: 'show-description' },
+      { label: "Expand", rawVal: "expand-collapse", isDefault: true },
+      { label: "Description", rawVal: "show-description" },
     ],
   },
 
   // Schema & Models
-  'default-schema-tab': {
-    type: 'segmented',
-    attr: 'default-schema-tab',
-    label: 'Schema Tab',
-    tip: 'Default active tab in request and response bodies',
-    category: 'schema',
+  "default-schema-tab": {
+    type: "segmented",
+    attr: "default-schema-tab",
+    label: "Schema Tab",
+    tip: "Default active tab in request and response bodies",
+    category: "schema",
     options: [
-      { label: 'Schema', rawVal: 'schema' },
-      { label: 'Example', rawVal: 'example', isDefault: true },
+      { label: "Schema", rawVal: "schema" },
+      { label: "Example", rawVal: "example", isDefault: true },
     ],
   },
-  'schema-expand-level': {
-    type: 'segmented',
-    attr: 'schema-expand-level',
-    label: 'Expand Level',
-    tip: 'Initial expansion depth for nested schemas (max 999)',
-    category: 'schema',
+  "schema-expand-level": {
+    type: "segmented",
+    attr: "schema-expand-level",
+    label: "Expand Level",
+    tip: "Initial expansion depth for nested schemas (max 999)",
+    category: "schema",
     options: [
-      { label: '1', rawVal: '1' },
-      { label: '2', rawVal: '2' },
-      { label: '3', rawVal: '3' },
-      { label: '9', rawVal: '9', isDefault: true },
+      { label: "1", rawVal: "1" },
+      { label: "2", rawVal: "2" },
+      { label: "3", rawVal: "3" },
+      { label: "9", rawVal: "9", isDefault: true },
     ],
   },
-  'schema-hide-read-only': {
-    type: 'segmented',
-    attr: 'schema-hide-read-only',
-    label: 'Hide Read-Only',
-    tip: 'Hide read-only fields from request body schemas',
-    category: 'schema',
+  "schema-hide-read-only": {
+    type: "segmented",
+    attr: "schema-hide-read-only",
+    label: "Hide Read-Only",
+    tip: "Hide read-only fields from request body schemas",
+    category: "schema",
     options: [
-      { label: 'Default', rawVal: 'default', isDefault: true },
-      { label: 'Never', rawVal: 'never' },
+      { label: "Default", rawVal: "default", isDefault: true },
+      { label: "Never", rawVal: "never" },
     ],
   },
-  'schema-hide-write-only': {
-    type: 'segmented',
-    attr: 'schema-hide-write-only',
-    label: 'Hide Write-Only',
-    tip: 'Hide write-only fields from response body schemas',
-    category: 'schema',
+  "schema-hide-write-only": {
+    type: "segmented",
+    attr: "schema-hide-write-only",
+    label: "Hide Write-Only",
+    tip: "Hide write-only fields from response body schemas",
+    category: "schema",
     options: [
-      { label: 'Default', rawVal: 'default', isDefault: true },
-      { label: 'Never', rawVal: 'never' },
+      { label: "Default", rawVal: "default", isDefault: true },
+      { label: "Never", rawVal: "never" },
     ],
   },
-  'schema-description-expanded': {
-    type: 'toggle',
-    attr: 'schema-description-expanded',
-    label: 'Desc Expanded',
-    tip: 'Display full multiline schema property descriptions by default',
-    category: 'schema',
+  "schema-description-expanded": {
+    type: "toggle",
+    attr: "schema-description-expanded",
+    label: "Desc Expanded",
+    tip: "Display full multiline schema property descriptions by default",
+    category: "schema",
   },
-  'allow-schema-description-expand-toggle': {
-    type: 'toggle',
-    attr: 'allow-schema-description-expand-toggle',
-    label: 'Desc Toggle',
-    tip: 'Show toggle button for multiline schema descriptions',
-    category: 'schema',
+  "allow-schema-description-expand-toggle": {
+    type: "toggle",
+    attr: "allow-schema-description-expand-toggle",
+    label: "Desc Toggle",
+    tip: "Show toggle button for multiline schema descriptions",
+    category: "schema",
     defaultOn: true,
   },
-  'fill-request-fields-with-example': {
-    type: 'toggle',
-    attr: 'fill-request-fields-with-example',
-    label: 'Fill Examples',
+  "fill-request-fields-with-example": {
+    type: "toggle",
+    attr: "fill-request-fields-with-example",
+    label: "Fill Examples",
     tip: 'Pre-populate "Try" console parameters with sample values',
-    category: 'schema',
+    category: "schema",
     defaultOn: true,
   },
 
   // Sections & Toggles
-  'show-header': {
-    type: 'toggle',
-    attr: 'show-header',
-    label: 'Header',
-    tip: 'Display the top navbar header',
-    category: 'sections',
+  "show-header": {
+    type: "toggle",
+    attr: "show-header",
+    label: "Header",
+    tip: "Display the top navbar header",
+    category: "sections",
     defaultOn: true,
   },
-  'show-info': {
-    type: 'toggle',
-    attr: 'show-info',
-    label: 'Info Section',
-    tip: 'Display OpenAPI document title and overview info',
-    category: 'sections',
+  "show-info": {
+    type: "toggle",
+    attr: "show-info",
+    label: "Info Section",
+    tip: "Display OpenAPI document title and overview info",
+    category: "sections",
     defaultOn: true,
   },
-  'allow-try': {
-    type: 'toggle',
-    attr: 'allow-try',
-    label: 'Try Console',
-    tip: 'Live interactive endpoint testing console',
-    category: 'sections',
+  "allow-try": {
+    type: "toggle",
+    attr: "allow-try",
+    label: "Try Console",
+    tip: "Live interactive endpoint testing console",
+    category: "sections",
     defaultOn: true,
   },
-  'show-curl-before-try': {
-    type: 'toggle',
-    attr: 'show-curl-before-try',
-    label: 'Show cURL',
-    tip: 'Display cURL command before invoking API',
-    category: 'sections',
+  "show-curl-before-try": {
+    type: "toggle",
+    attr: "show-curl-before-try",
+    label: "Show cURL",
+    tip: "Display cURL command before invoking API",
+    category: "sections",
   },
-  'allow-server-selection': {
-    type: 'toggle',
-    attr: 'allow-server-selection',
-    label: 'Servers',
-    tip: 'Allow switching between configured API server URLs',
-    category: 'sections',
+  "allow-server-selection": {
+    type: "toggle",
+    attr: "allow-server-selection",
+    label: "Servers",
+    tip: "Allow switching between configured API server URLs",
+    category: "sections",
     defaultOn: true,
   },
-  'allow-authentication': {
-    type: 'toggle',
-    attr: 'allow-authentication',
-    label: 'Auth Section',
-    tip: 'Display authentication button and credential modal',
-    category: 'sections',
+  "allow-authentication": {
+    type: "toggle",
+    attr: "allow-authentication",
+    label: "Auth Section",
+    tip: "Display authentication button and credential modal",
+    category: "sections",
     defaultOn: true,
   },
-  'persist-auth': {
-    type: 'toggle',
-    attr: 'persist-auth',
-    label: 'Persist Auth',
-    tip: 'Persist API keys and tokens in browser localStorage',
-    category: 'sections',
+  "persist-auth": {
+    type: "toggle",
+    attr: "persist-auth",
+    label: "Persist Auth",
+    tip: "Persist API keys and tokens in browser localStorage",
+    category: "sections",
   },
-  'allow-search': {
-    type: 'toggle',
-    attr: 'allow-search',
-    label: 'Search',
-    tip: 'Enable quick endpoint search bar',
-    category: 'sections',
+  "allow-search": {
+    type: "toggle",
+    attr: "allow-search",
+    label: "Search",
+    tip: "Enable quick endpoint search bar",
+    category: "sections",
     defaultOn: true,
   },
-  'allow-advanced-search': {
-    type: 'toggle',
-    attr: 'allow-advanced-search',
-    label: 'Adv Search',
-    tip: 'Enable advanced full-text schema and parameter search',
-    category: 'sections',
+  "allow-advanced-search": {
+    type: "toggle",
+    attr: "allow-advanced-search",
+    label: "Adv Search",
+    tip: "Enable advanced full-text schema and parameter search",
+    category: "sections",
     defaultOn: true,
   },
-  'show-components': {
-    type: 'toggle',
-    attr: 'show-components',
-    label: 'Components',
-    tip: 'Display Schemas and Models in navigation',
-    category: 'sections',
+  "show-components": {
+    type: "toggle",
+    attr: "show-components",
+    label: "Components",
+    tip: "Display Schemas and Models in navigation",
+    category: "sections",
   },
-  'allow-spec-url-load': {
-    type: 'toggle',
-    attr: 'allow-spec-url-load',
-    label: 'Spec URL Load',
-    tip: 'Allow loading arbitrary OpenAPI spec by URL',
-    category: 'sections',
+  "allow-spec-url-load": {
+    type: "toggle",
+    attr: "allow-spec-url-load",
+    label: "Spec URL Load",
+    tip: "Allow loading arbitrary OpenAPI spec by URL",
+    category: "sections",
     defaultOn: true,
   },
-  'allow-spec-file-load': {
-    type: 'toggle',
-    attr: 'allow-spec-file-load',
-    label: 'Spec File Load',
-    tip: 'Allow uploading and viewing local OpenAPI spec file',
-    category: 'sections',
+  "allow-spec-file-load": {
+    type: "toggle",
+    attr: "allow-spec-file-load",
+    label: "Spec File Load",
+    tip: "Allow uploading and viewing local OpenAPI spec file",
+    category: "sections",
     defaultOn: true,
   },
-  'allow-spec-file-download': {
-    type: 'toggle',
-    attr: 'allow-spec-file-download',
-    label: 'Spec Download',
-    tip: 'Show download button for the active OpenAPI spec',
-    category: 'sections',
+  "allow-spec-file-download": {
+    type: "toggle",
+    attr: "allow-spec-file-download",
+    label: "Spec Download",
+    tip: "Show download button for the active OpenAPI spec",
+    category: "sections",
   },
   mcp: {
-    type: 'segmented',
-    attr: 'mcp',
-    label: 'MCP Export',
-    tip: 'Configure supported MCP server export languages or disable with None',
-    category: 'sections',
+    type: "segmented",
+    attr: "mcp",
+    label: "MCP Export",
+    tip: "Configure supported MCP server export languages or disable with None",
+    category: "sections",
     options: [
-      { label: 'None', rawVal: 'none', isDefault: true },
-      { label: 'TypeScript', rawVal: 'typescript' },
-      { label: 'Python', rawVal: 'python' },
-      { label: 'Go', rawVal: 'go' },
-      { label: 'All 6 Targets', rawVal: 'typescript, python, go, csharp, rust, java' },
+      { label: "None", rawVal: "none", isDefault: true },
+      { label: "TypeScript", rawVal: "typescript" },
+      { label: "Python", rawVal: "python" },
+      { label: "Go", rawVal: "go" },
+      { label: "All 6 Targets", rawVal: "typescript, python, go, csharp, rust, java" },
     ],
   },
-  'mock-server': {
-    type: 'toggle',
-    attr: 'mock-server',
-    label: 'Mock Server',
-    tip: 'Route requests through local or hosted mock server',
-    category: 'sections',
+  "mock-server": {
+    type: "toggle",
+    attr: "mock-server",
+    label: "Mock Server",
+    tip: "Route requests through local or hosted mock server",
+    category: "sections",
   },
 
   // Slots
-  'slot-nav-logo': {
-    type: 'toggle',
-    attr: 'slot-nav-logo',
-    label: 'Nav Logo Slot',
-    tip: 'Inject custom logo & text HTML into sidebar navigation',
-    category: 'slots',
+  "slot-nav-logo": {
+    type: "toggle",
+    attr: "slot-nav-logo",
+    label: "Nav Logo Slot",
+    tip: "Inject custom logo & text HTML into sidebar navigation",
+    category: "slots",
   },
-  'slot-fixed-header': {
-    type: 'toggle',
-    attr: 'slot-fixed-header',
-    label: 'Fixed Header Slot',
-    tip: 'Inject custom sticky top banner HTML above documentation',
-    category: 'slots',
+  "slot-fixed-header": {
+    type: "toggle",
+    attr: "slot-fixed-header",
+    label: "Fixed Header Slot",
+    tip: "Inject custom sticky top banner HTML above documentation",
+    category: "slots",
   },
-  'slot-default': {
-    type: 'toggle',
-    attr: 'slot-default',
-    label: 'Default Slot',
-    tip: 'Inject custom content and disclaimer cards into main body',
-    category: 'slots',
+  "slot-default": {
+    type: "toggle",
+    attr: "slot-default",
+    label: "Default Slot",
+    tip: "Inject custom content and disclaimer cards into main body",
+    category: "slots",
   },
 };
 
 export const CATEGORY_TITLES: Record<ControlCategory, string> = {
-  appearance: 'Display & Layout',
-  theming: 'Colors & Fonts',
-  navigation: 'Sidebar & Navigation',
-  schema: 'Schema',
-  sections: 'Interactive Sections',
-  slots: 'Slots',
+  appearance: "Display & Layout",
+  theming: "Colors & Fonts",
+  navigation: "Sidebar & Navigation",
+  schema: "Schema",
+  sections: "Interactive Sections",
+  slots: "Slots",
 };
 
 export const PRESET_ALIASES: Record<string, string> = {
-  color: 'colors',
-  slot: 'slots',
-  navigation: 'nav',
+  color: "colors",
+  slot: "slots",
+  navigation: "nav",
 };
 
 export const PRESETS: Record<string, string[]> = {
   all: Object.keys(CONTROL_REGISTRY),
   demo: Object.keys(CONTROL_REGISTRY),
-  minimal: ['render-style', 'schema-style', 'theme', 'color-scheme', 'radius', 'scale'],
-  colors: ['theme', 'color-scheme', 'radius', 'scale', 'regular-font', 'mono-font'],
-  color: ['theme', 'color-scheme', 'radius', 'scale', 'regular-font', 'mono-font'],
-  slots: ['slot-nav-logo', 'slot-fixed-header', 'slot-default'],
-  slot: ['slot-nav-logo', 'slot-fixed-header', 'slot-default'],
+  minimal: ["render-style", "schema-style", "theme", "color-scheme", "radius", "scale"],
+  colors: ["theme", "color-scheme", "radius", "scale", "regular-font", "mono-font"],
+  color: ["theme", "color-scheme", "radius", "scale", "regular-font", "mono-font"],
+  slots: ["slot-nav-logo", "slot-fixed-header", "slot-default"],
+  slot: ["slot-nav-logo", "slot-fixed-header", "slot-default"],
   schema: [
-    'schema-style',
-    'default-schema-tab',
-    'schema-expand-level',
-    'schema-description-expanded',
-    'allow-schema-description-expand-toggle',
-    'schema-hide-read-only',
-    'schema-hide-write-only',
-    'fill-request-fields-with-example',
+    "schema-style",
+    "default-schema-tab",
+    "schema-expand-level",
+    "schema-description-expanded",
+    "allow-schema-description-expand-toggle",
+    "schema-hide-read-only",
+    "schema-hide-write-only",
+    "fill-request-fields-with-example",
   ],
   nav: [
-    'use-path-in-nav-bar',
-    'show-method-in-nav-bar',
-    'on-nav-tag-click',
-    'nav-active-item-marker',
-    'nav-item-spacing',
-    'sort-tags',
-    'update-route',
-    'route-prefix',
+    "use-path-in-nav-bar",
+    "show-method-in-nav-bar",
+    "on-nav-tag-click",
+    "nav-active-item-marker",
+    "nav-item-spacing",
+    "sort-tags",
+    "update-route",
   ],
   sections: [
-    'show-header',
-    'show-info',
-    'allow-server-selection',
-    'allow-authentication',
-    'allow-try',
-    'show-curl-before-try',
-    'show-components',
-    'allow-search',
-    'allow-spec-file-download',
-    'mcp',
-    'mock-server',
+    "show-header",
+    "show-info",
+    "allow-server-selection",
+    "allow-authentication",
+    "allow-try",
+    "show-curl-before-try",
+    "show-components",
+    "allow-search",
+    "allow-spec-file-download",
+    "mcp",
+    "mock-server",
   ],
-  mcp: ['mcp', 'render-style', 'theme', 'show-info', 'allow-server-selection', 'allow-authentication', 'allow-spec-file-download'],
+  mcp: [
+    "mcp",
+    "render-style",
+    "theme",
+    "show-info",
+    "allow-server-selection",
+    "allow-authentication",
+    "allow-spec-file-download",
+  ],
   none: [],
 };
 
 const ATTRIBUTE_ALIASES: Record<string, string> = {
-  'font-size': 'scale',
-  'primary-color': 'theme',
-  'bg-color': 'color-scheme',
-  'nav-accent-color': 'theme',
-  'nav-logo': 'slot-nav-logo',
-  'fixed-header': 'slot-fixed-header',
-  default: 'slot-default',
-  'default-slot': 'slot-default',
-  'slot:nav-logo': 'slot-nav-logo',
-  'slot:fixed-header': 'slot-fixed-header',
-  'slot:default': 'slot-default',
+  "font-size": "scale",
+  "primary-color": "theme",
+  "bg-color": "color-scheme",
+  "nav-accent-color": "theme",
+  "nav-logo": "slot-nav-logo",
+  "fixed-header": "slot-fixed-header",
+  default: "slot-default",
+  "default-slot": "slot-default",
+  "slot:nav-logo": "slot-nav-logo",
+  "slot:fixed-header": "slot-fixed-header",
+  "slot:default": "slot-default",
 };
 
-export function normalizePresets(preset?: ControllerPreset[] | ControllerPreset | string[] | string): string[] {
-  if (!preset) return ['minimal'];
+export function normalizePresets(
+  preset?: ControllerPreset[] | ControllerPreset | string[] | string,
+): string[] {
+  if (!preset) return ["minimal"];
   const list = Array.isArray(preset) ? preset : [preset];
   return list.map((p) => PRESET_ALIASES[p] || p);
 }
 
 export function resolveControlKeys(
   propControls?: string[],
-  preset: ControllerPreset[] | ControllerPreset | string[] | string = 'minimal'
+  preset: ControllerPreset[] | ControllerPreset | string[] | string = "minimal",
 ): string[] {
   if (propControls && propControls.length > 0) {
     return Array.from(new Set(propControls.map((k) => ATTRIBUTE_ALIASES[k] || k)));
@@ -579,7 +624,7 @@ export function resolveControlKeys(
       combined.push(...list);
     }
   }
-  const isNone = presetNames.length === 1 && presetNames[0] === 'none';
+  const isNone = presetNames.length === 1 && presetNames[0] === "none";
   if (combined.length === 0 && !isNone) {
     combined.push(...(PRESETS.minimal || []));
   }
@@ -588,7 +633,7 @@ export function resolveControlKeys(
 
 export function resolveActiveControls(
   propControls?: string[],
-  preset: ControllerPreset[] | ControllerPreset | string[] | string = 'minimal'
+  preset: ControllerPreset[] | ControllerPreset | string[] | string = "minimal",
 ): ControlDef[] {
   const activeKeys = resolveControlKeys(propControls, preset);
   return activeKeys.map((k) => CONTROL_REGISTRY[k]).filter((c): c is ControlDef => Boolean(c));
@@ -596,23 +641,23 @@ export function resolveActiveControls(
 
 export function resolveActiveSlots(
   propControls?: string[],
-  preset: ControllerPreset[] | ControllerPreset | string[] | string = 'minimal'
+  preset: ControllerPreset[] | ControllerPreset | string[] | string = "minimal",
 ): string[] {
   const activeKeys = resolveControlKeys(propControls, preset);
   const slots: string[] = [];
-  if (activeKeys.includes('slot-nav-logo')) slots.push('nav-logo');
-  if (activeKeys.includes('slot-fixed-header')) slots.push('fixed-header');
-  if (activeKeys.includes('slot-default')) slots.push('default');
+  if (activeKeys.includes("slot-nav-logo")) slots.push("nav-logo");
+  if (activeKeys.includes("slot-fixed-header")) slots.push("fixed-header");
+  if (activeKeys.includes("slot-default")) slots.push("default");
   return slots;
 }
 
 export function groupControlsByCategory(
   controls: ControlDef[],
-  includeSlots: boolean = false
+  includeSlots: boolean = false,
 ): { id: ControlCategory; title: string; controls: ControlDef[] }[] {
   const categories: ControlCategory[] = includeSlots
-    ? ['appearance', 'theming', 'navigation', 'schema', 'sections', 'slots']
-    : ['appearance', 'theming', 'navigation', 'schema', 'sections'];
+    ? ["appearance", "theming", "navigation", "schema", "sections", "slots"]
+    : ["appearance", "theming", "navigation", "schema", "sections"];
   return categories
     .map((cat) => ({
       id: cat,

@@ -1,0 +1,252 @@
+openapi: 3.1.0
+info:
+  title: Orders API
+  version: 1.0.0
+servers:
+  - url: http://localhost:4010/orders
+security:
+  - oauth2: ['orders:read']
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      operationId: health
+      security: []
+      responses:
+        '200':
+          description: Up
+          content:
+            application/json:
+              example: { ok: true }
+  /orders:
+    get:
+      operationId: listOrders
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        '200':
+          description: Orders
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderList' }
+              examples:
+                two:
+                  value: { data: [{ id: ord_1, status: open }, { id: ord_2, status: shipped }] }
+                empty:
+                  value: { data: [] }
+        '401': { $ref: '#/components/responses/Problem' }
+        '503':
+          description: Down for maintenance
+          content:
+            application/problem+json:
+              schema: { $ref: './common.yaml#/Problem' }
+    post:
+      operationId: createOrder
+      security:
+        - oauth2: ['orders:write']
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NewOrder' }
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              schema: { type: string }
+              example: /orders/ord_9
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+        '400': { $ref: '#/components/responses/Problem' }
+  /orders/{orderId}:
+    parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema: { type: string, pattern: '^ord_[a-z0-9]+$' }
+    get:
+      operationId: getOrder
+      responses:
+        '200':
+          description: The order (no example, so generated)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+    patch:
+      operationId: updateOrder
+      security:
+        - oauth2: ['orders:write']
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                status: { $ref: '#/components/schemas/Status' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+  /orders/{orderId}/attachments:
+    post:
+      operationId: addAttachment
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, kind]
+              properties:
+                file: { type: string, format: binary }
+                kind: { type: string, enum: [invoice, photo] }
+      responses:
+        '201':
+          description: Stored
+          content:
+            application/json:
+              example: { id: att_1 }
+  /categories:
+    get:
+      operationId: listCategories
+      responses:
+        '200':
+          description: A recursive tree
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Category' }
+  /payments/{paymentId}:
+    get:
+      operationId: getPayment
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: allOf next to oneOf
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Payment' }
+  /lookup:
+    get:
+      operationId: lookup
+      security:
+        - apiKey: []
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Found
+          content:
+            application/json:
+              example: { code: ABC, found: true }
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://issuer.example/oauth/token
+          scopes:
+            orders:read: Read orders
+            orders:write: Create and change orders
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  responses:
+    Problem:
+      description: Problem
+      content:
+        application/problem+json:
+          schema: { $ref: './common.yaml#/Problem' }
+  schemas:
+    Status:
+      type: string
+      enum: [open, shipped, cancelled]
+    Money:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount: { type: string, pattern: '^\d{1,7}\.\d{2}$' }
+        currency: { type: string, enum: [EUR, USD] }
+    Order:
+      type: object
+      required: [id, status, total, created_at]
+      properties:
+        id: { type: string, pattern: '^ord_[a-z0-9]{6}$' }
+        status: { $ref: '#/components/schemas/Status' }
+        total: { $ref: '#/components/schemas/Money' }
+        lines:
+          type: array
+          items:
+            type: object
+            required: [sku, price]
+            properties:
+              sku: { type: string, pattern: '^[A-Z]{3}-\d{3}$' }
+              price: { $ref: '#/components/schemas/Money' }
+        created_at: { type: string, format: date-time }
+        note: { type: [string, 'null'] }
+        secret: { type: string, writeOnly: true }
+    OrderList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Order' }
+    NewOrder:
+      type: object
+      required: [sku, quantity]
+      properties:
+        sku: { type: string }
+        quantity: { type: integer, minimum: 1 }
+    Category:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1 }
+        children:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+    Payment:
+      allOf:
+        - type: object
+          required: [amount]
+          properties:
+            amount: { type: number, minimum: 0 }
+      oneOf:
+        - type: object
+          required: [method, iban]
+          properties:
+            method: { const: sepa }
+            iban: { type: string, pattern: '^[A-Z]{2}\d{20}$' }
+        - type: object
+          required: [method, wallet]
+          properties:
+            method: { const: wallet }
+            wallet: { type: string }

@@ -1,0 +1,18 @@
+---
+/** <Card title="..." icon="...">: a card in MDX, styled like {% card %} (`.portal-doc-card` in portal-theme.css). */
+import Icon from './Icon.astro';
+
+interface Props {
+  title?: string;
+  icon?: string;
+  class?: string;
+}
+
+const { title, icon, class: className = '', ...props } = Astro.props;
+---
+
+<div class:list={['portal-doc-card', className]} {...props}>
+  {icon && <Icon name={icon} duotone class="portal-doc-card-icon" />}
+  {title && <p class="portal-doc-card-title">{title}</p>}
+  <div class="portal-doc-card-body"><slot /></div>
+</div>

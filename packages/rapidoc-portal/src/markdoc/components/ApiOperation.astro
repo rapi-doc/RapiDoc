@@ -1,0 +1,94 @@
+---
+/**
+ * {% api-operation spec="<api id>" path="/orders" method="post" title="..." /%}: one operation of a
+ * portal API, interactive, rendered by <rapi-doc-mini>. `spec` is the `id` of an entry in `apis:`;
+ * `version` picks one of its versions (default: the first).
+ *
+ * The RapiDoc bundle is loaded only on pages that contain an embed.
+ */
+import { Aside } from '@astrojs/starlight/components';
+import portalConfig from 'virtual:rapidoc-portal/config';
+import { operationMatchPattern } from '../operation.js';
+import { OAUTH_RECEIVER_PATH } from '../../engine/sync-assets.js';
+import { withBase } from '../../components/base-path.js';
+
+interface Props {
+  spec: string;
+  path: string;
+  method?: string;
+  title?: string;
+  version?: string;
+}
+
+const { spec, path, method = 'get', title, version } = Astro.props;
+const apis = portalConfig.apis || [];
+const api = apis.find((a: any) => a.id === spec);
+const apiVersion = version === undefined ? api?.versions[0] : api?.versions.find((v: any) => v.version === version);
+
+if (!api) {
+  console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: no API with id "${spec}" in apis:`);
+} else if (!apiVersion) {
+  console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: API "${spec}" has no version "${version}"`);
+}
+
+const specUrl = withBase(apiVersion?.specUrl);
+const matchPaths = operationMatchPattern(method, path);
+const rapidoc = portalConfig.rapidoc || {};
+---
+
+{
+  apiVersion ? (
+    <figure class="portal-api-operation not-content" data-api={spec} data-version={version} data-method={method.toUpperCase()} data-path={path}>
+      {title && <figcaption>{title}</figcaption>}
+      <rapi-doc-mini
+        spec-url={specUrl}
+        match-paths={matchPaths}
+        match-type="regex"
+        paths-expanded="true"
+        layout="column"
+        color-scheme="auto"
+        theme={rapidoc.theme}
+        primary-color={portalConfig.theme.primary}
+        schema-style={rapidoc['schema-style']}
+        oauth-receiver={withBase(OAUTH_RECEIVER_PATH)}
+      />
+      <script is:inline type="module" src={withBase('/assets/rapidoc-min.js')} />
+    </figure>
+  ) : (
+    <Aside type="caution" title="API operation not found">
+      {api ? (
+        <>
+          API <code>{spec}</code> has no version <code>{version}</code>. Its versions: {api.versions.map((v: any) => v.version).join(', ')}.
+        </>
+      ) : (
+        <>
+          No API with id <code>{spec}</code> in <code>apis:</code> of <code>rapidoc.config.yaml</code>
+          {apis.length > 0 && <>. Available ids: {apis.map((a: any) => a.id).join(', ')}</>}.
+        </>
+      )}
+    </Aside>
+  )
+}
+
+<style>
+  .portal-api-operation {
+    margin: 1.5rem 0;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--portal-radius);
+    overflow: hidden;
+  }
+  figcaption {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    font-weight: 600;
+  }
+  /* The page's fonts, body size and heading letter-spacing, as on the API reference pages. */
+  rapi-doc-mini {
+    display: block;
+    padding: 0.5rem 1rem 1rem;
+    --font-sans: inherit;
+    --font-mono: inherit;
+    --font-size-regular: 0.9375rem;
+    --heading-letter-spacing: -0.02em;
+  }
+</style>

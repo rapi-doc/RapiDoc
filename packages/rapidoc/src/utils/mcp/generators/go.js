@@ -2,54 +2,54 @@
  * Single-file Go MCP Server Generator
  * Uses mark3labs/mcp-go framework.
  */
-import { toSnakeCase, estimateTokenCost } from '../common.js';
+import { toSnakeCase, estimateTokenCost } from "../common.js";
 
 export function generateGoMcpServer(metadata, tools, resources, workflows, options = {}) {
-  const serverName = toSnakeCase(options.serverName || metadata.title || 'rapidoc_mcp_server');
+  const serverName = toSnakeCase(options.serverName || metadata.title || "rapidoc_mcp_server");
   const budget = estimateTokenCost(tools, resources, workflows);
-  const defaultBaseUrl = metadata.servers?.[0]?.url || 'http://localhost:3000';
+  const defaultBaseUrl = metadata.servers?.[0]?.url || "http://localhost:3000";
 
   const toolRegistrations = tools
     .map((t) => {
       const paramModifiers = t.parameters
         .map((p) => {
-          const isReq = p.required ? 'mcp.Required()' : '';
-          const desc = p.description ? `mcp.Description(${JSON.stringify(p.description)})` : '';
-          const mods = [isReq, desc].filter(Boolean).join(', ');
-          if (p.type === 'integer' || p.type === 'number') {
-            return `\t\tmcp.WithNumber("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ''}),`;
+          const isReq = p.required ? "mcp.Required()" : "";
+          const desc = p.description ? `mcp.Description(${JSON.stringify(p.description)})` : "";
+          const mods = [isReq, desc].filter(Boolean).join(", ");
+          if (p.type === "integer" || p.type === "number") {
+            return `\t\tmcp.WithNumber("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ""}),`;
           }
-          if (p.type === 'boolean') {
-            return `\t\tmcp.WithBoolean("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ''}),`;
+          if (p.type === "boolean") {
+            return `\t\tmcp.WithBoolean("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ""}),`;
           }
-          if (p.type === 'array') {
-            return `\t\tmcp.WithList("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ''}),`;
+          if (p.type === "array") {
+            return `\t\tmcp.WithList("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ""}),`;
           }
-          if (p.type === 'object') {
-            return `\t\tmcp.WithObject("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ''}),`;
+          if (p.type === "object") {
+            return `\t\tmcp.WithObject("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ""}),`;
           }
-          return `\t\tmcp.WithString("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ''}),`;
+          return `\t\tmcp.WithString("${toSnakeCase(p.name)}"${mods ? `, ${mods}` : ""}),`;
         })
-        .join('\n');
+        .join("\n");
 
-      const queryParams = t.parameters.filter((p) => p.in === 'query');
-      const bodyParams = t.parameters.filter((p) => p.in === 'body');
-      const hasBody = ['POST', 'PUT', 'PATCH'].includes(t.method) && bodyParams.length > 0;
+      const queryParams = t.parameters.filter((p) => p.in === "query");
+      const bodyParams = t.parameters.filter((p) => p.in === "body");
+      const hasBody = ["POST", "PUT", "PATCH"].includes(t.method) && bodyParams.length > 0;
 
       const allParamModifiers = paramModifiers
         ? `${paramModifiers}\n\t\tmcp.WithString("api_key", mcp.Description("Optional Bearer API key override for multi-tenant sessions")),`
         : `\t\tmcp.WithString("api_key", mcp.Description("Optional Bearer API key override for multi-tenant sessions")),`;
 
-      const pathSub = t.path.replace(/\{[^}]+\}/g, '%s');
+      const pathSub = t.path.replace(/\{[^}]+\}/g, "%s");
       const pathParams = t.parameters
-        .filter((p) => p.in === 'path')
+        .filter((p) => p.in === "path")
         .map((p) => `url.PathEscape(fmt.Sprintf("%v", args["${toSnakeCase(p.name)}"]))`)
-        .join(', ');
+        .join(", ");
 
       const queryCode =
         queryParams.length > 0
           ? `\t\tqueryParams := url.Values{}
-${queryParams.map((p) => `\t\tif v, ok := args["${toSnakeCase(p.name)}"]; ok && v != nil {\n\t\t\tqueryParams.Set("${p.name}", fmt.Sprintf("%v", v))\n\t\t}`).join('\n')}
+${queryParams.map((p) => `\t\tif v, ok := args["${toSnakeCase(p.name)}"]; ok && v != nil {\n\t\t\tqueryParams.Set("${p.name}", fmt.Sprintf("%v", v))\n\t\t}`).join("\n")}
 \t\tif len(queryParams) > 0 {
 \t\t\tif strings.Contains(urlStr, "?") {
 \t\t\t\turlStr += "&" + queryParams.Encode()
@@ -57,12 +57,12 @@ ${queryParams.map((p) => `\t\tif v, ok := args["${toSnakeCase(p.name)}"]; ok && 
 \t\t\t\turlStr += "?" + queryParams.Encode()
 \t\t\t}
 \t\t}\n`
-          : '';
+          : "";
 
       const bodyCode = hasBody
         ? `\t\tvar bodyReader io.Reader
 \t\tbodyPayload := make(map[string]any)
-${bodyParams.map((p) => `\t\tif v, ok := args["${toSnakeCase(p.name)}"]; ok && v != nil {\n\t\t\tbodyPayload["${p.name}"] = v\n\t\t}`).join('\n')}
+${bodyParams.map((p) => `\t\tif v, ok := args["${toSnakeCase(p.name)}"]; ok && v != nil {\n\t\t\tbodyPayload["${p.name}"] = v\n\t\t}`).join("\n")}
 \t\tif len(bodyPayload) > 0 {
 \t\t\tb, _ := json.Marshal(bodyPayload)
 \t\t\tbodyReader = bytes.NewBuffer(b)
@@ -86,15 +86,15 @@ ${bodyParams.map((p) => `\t\tif v, ok := args["${toSnakeCase(p.name)}"]; ok && v
 ${allParamModifiers}
 \t), func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 \t\targs := request.Params.Arguments
-\t\turlStr := fmt.Sprintf("%s${pathSub}", strings.TrimRight(baseURL, "/")${pathParams ? `, ${pathParams}` : ''})
+\t\turlStr := fmt.Sprintf("%s${pathSub}", strings.TrimRight(baseURL, "/")${pathParams ? `, ${pathParams}` : ""})
 ${queryCode}${bodyCode}\t\treq.Header.Set("Accept", "application/json")
 ${t.parameters
-  .filter((p) => p.in === 'header')
+  .filter((p) => p.in === "header")
   .map(
     (p) =>
-      `\t\tif v, ok := args["${toSnakeCase(p.name)}"]; ok && v != nil {\n\t\t\treq.Header.Set("${p.name}", fmt.Sprintf("%v", v))\n\t\t}`
+      `\t\tif v, ok := args["${toSnakeCase(p.name)}"]; ok && v != nil {\n\t\t\treq.Header.Set("${p.name}", fmt.Sprintf("%v", v))\n\t\t}`,
   )
-  .join('\n')}
+  .join("\n")}
 \t\tresolvedKey := apiKey
 \t\tif keyVal, ok := args["api_key"].(string); ok && keyVal != "" {
 \t\t\tresolvedKey = keyVal
@@ -112,7 +112,7 @@ ${t.parameters
 \t})
 `;
     })
-    .join('\n');
+    .join("\n");
 
   const resourceRegistrations = resources
     .map((r) => {
@@ -147,7 +147,7 @@ ${t.parameters
 \t\t\tif err != nil {
 \t\t\t\treturn nil, err
 \t\t\t}
-\t\t\treq.Header.Set("Accept", "${r.mimeType || 'application/json'}")
+\t\t\treq.Header.Set("Accept", "${r.mimeType || "application/json"}")
 \t\t\tif resolvedKey != "" {
 \t\t\t\treq.Header.Set("Authorization", "Bearer "+resolvedKey)
 \t\t\t}
@@ -157,10 +157,10 @@ ${t.parameters
 \t\t\t}
 \t\t\tdefer resp.Body.Close()
 \t\tbody, _ := io.ReadAll(resp.Body)
-\t\treturn []mcp.ResourceContents{mcp.TextResourceContents{URI: request.Params.URI, MIMEType: "${r.mimeType || 'application/json'}", Text: string(body)}}, nil
+\t\treturn []mcp.ResourceContents{mcp.TextResourceContents{URI: request.Params.URI, MIMEType: "${r.mimeType || "application/json"}", Text: string(body)}}, nil
 \t\t})`;
     })
-    .join('\n');
+    .join("\n");
 
   const workflowRegistrations = workflows
     .map((w) => {
@@ -168,19 +168,21 @@ ${t.parameters
       const paramMods = paramKeys
         .map(
           (k) =>
-            `\t\tmcp.WithString("${toSnakeCase(k)}", mcp.Required(), mcp.Description(${JSON.stringify(w.parameters[k].description || '')})),`
+            `\t\tmcp.WithString("${toSnakeCase(k)}", mcp.Required(), mcp.Description(${JSON.stringify(w.parameters[k].description || "")})),`,
         )
-        .concat([`\t\tmcp.WithString("api_key", mcp.Description("Optional Bearer API key override for multi-tenant sessions")),`])
-        .join('\n');
+        .concat([
+          `\t\tmcp.WithString("api_key", mcp.Description("Optional Bearer API key override for multi-tenant sessions")),`,
+        ])
+        .join("\n");
 
       return `
 \t// Composite Workflow: ${w.name}
 \ts.AddTool(mcp.NewTool("${w.name}",
-\t\tmcp.WithDescription(${JSON.stringify(w.description || 'Composite workflow')}),
+\t\tmcp.WithDescription(${JSON.stringify(w.description || "Composite workflow")}),
 ${paramMods}
 \t), func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 \t\tresults := make(map[string]any)
-\t\tparamVal, _ := request.Params.Arguments["${toSnakeCase(paramKeys[0] || 'id')}"].(string)
+\t\tparamVal, _ := request.Params.Arguments["${toSnakeCase(paramKeys[0] || "id")}"].(string)
 \t\tresolvedKey := apiKey
 \t\tif keyVal, ok := request.Params.Arguments["api_key"].(string); ok && keyVal != "" {
 \t\t\tresolvedKey = keyVal
@@ -198,12 +200,12 @@ ${(w.steps || [])
 \t\t\tresp_${idx}.Body.Close()
 \t\t}`;
   })
-  .join('\n')}
+  .join("\n")}
 \t\toutBytes, _ := json.MarshalIndent(results, "", "  ")
 \t\treturn mcp.NewToolResultText(string(outBytes)), nil
 \t})`;
     })
-    .join('\n');
+    .join("\n");
 
   return `/*
 Auto-generated by RapiDoc Curated MCP Generator
@@ -219,7 +221,7 @@ Spec: ${metadata.title} (v${metadata.version})
 - Total Resources: ${budget.totalResources}
 - Total Workflows: ${budget.totalWorkflows}
 - Estimated Prompt Context Overhead: ~${budget.estimatedTokens.toLocaleString()} tokens/turn
-${budget.warnings.map((w) => `- ${w}`).join('\n')}
+${budget.warnings.map((w) => `- ${w}`).join("\n")}
 
 [HOW TO RUN]
 1. go mod tidy
@@ -256,7 +258,7 @@ func main() {
 \t}
 \tbaseURL = strings.TrimRight(baseURL, "/")
 
-\ts := server.NewMCPServer("${serverName}", "${metadata.version || '1.0.0'}", server.WithResourceCapabilities(true, true))
+\ts := server.NewMCPServer("${serverName}", "${metadata.version || "1.0.0"}", server.WithResourceCapabilities(true, true))
 
 ${resourceRegistrations}
 ${toolRegistrations}
@@ -271,7 +273,7 @@ ${workflowRegistrations}
 }
 
 export function generateGoFiles(serverCode, metadata, options = {}) {
-  const modFile = `module ${toSnakeCase(options.serverName || metadata.title || 'rapidoc_mcp')}\n\ngo 1.22\n\nrequire github.com/mark3labs/mcp-go v0.8.4\n`;
+  const modFile = `module ${toSnakeCase(options.serverName || metadata.title || "rapidoc_mcp")}\n\ngo 1.22\n\nrequire github.com/mark3labs/mcp-go v0.8.4\n`;
   const readme = `# ${metadata.title} - MCP Server (Go)
 
 Auto-generated by RapiDoc Curated MCP Generator using mark3labs/mcp-go.
@@ -289,8 +291,8 @@ export API_KEY="your-api-key"
 `;
 
   return {
-    'main.go': serverCode,
-    'go.mod': modFile,
-    'README.md': readme,
+    "main.go": serverCode,
+    "go.mod": modFile,
+    "README.md": readme,
   };
 }

@@ -1,74 +1,81 @@
-import { LitElement, html, css } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import { guard } from 'lit/directives/guard.js';
-import { scheduleHighlight } from '~/utils/highlighter';
-import TableStyles from '~/styles/table-styles';
-import FlexStyles from '~/styles/flex-styles';
-import InputStyles from '~/styles/input-styles';
-import FontStyles from '~/styles/font-styles';
-import BorderStyles from '~/styles/border-styles';
-import TabStyles from '~/styles/tab-styles';
-import MicrolighterStyles from '~/styles/microlighter-styles';
-import CustomStyles from '~/styles/custom-styles';
-import { constructFetchURL } from '~/utils/url-utils';
-import { generateCurlCommand } from '~/utils/curl-utils';
-import { constructFetchHeaders, buildUrlEncodedBody, buildMultipartFormData } from '~/utils/request-utils';
-import { processFetchResponse } from '../utils/response-utils.js';
-import { inputParametersTemplate } from '~/templates/request-params-template';
-import requestBodyTemplate from '~/templates/request-body-template';
-import apiCallTemplate from '~/templates/api-response-template';
+import { LitElement, html, css } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { guard } from "lit/directives/guard.js";
+import { scheduleHighlight } from "~/utils/highlighter";
+import ParamListStyles from "~/styles/param-list-styles";
+import FlexStyles from "~/styles/flex-styles";
+import InputStyles from "~/styles/input-styles";
+import FontStyles from "~/styles/font-styles";
+import BorderStyles from "~/styles/border-styles";
+import TabStyles from "~/styles/tab-styles";
+import MicrolighterStyles from "~/styles/microlighter-styles";
+import CustomStyles from "~/styles/custom-styles";
+import { constructFetchURL } from "~/utils/url-utils";
+import { generateCurlCommand } from "~/utils/curl-utils";
+import {
+  constructFetchHeaders,
+  buildUrlEncodedBody,
+  buildMultipartFormData,
+} from "~/utils/request-utils";
+import { processFetchResponse } from "../utils/response-utils.js";
+import { inputParametersTemplate } from "~/templates/request-params-template";
+import requestBodyTemplate from "~/templates/request-body-template";
+import apiCallTemplate from "~/templates/api-response-template";
 
-@customElement('api-request')
+@customElement("api-request")
 export default class ApiRequest extends LitElement {
   @property({ type: Object }) config: any;
-  @property({ type: String, attribute: 'server-url' }) serverUrl = '';
+  @property({ type: String, attribute: "server-url" }) serverUrl = "";
   @property({ type: Array }) servers: any = [];
-  @property({ type: String }) method = '';
-  @property({ type: String }) path = '';
+  @property({ type: String }) method = "";
+  @property({ type: String }) path = "";
   @property({ type: Array }) security: any = [];
   @property({ type: Array }) parameters: any = [];
   @property({ type: Object }) request_body: any;
   @property({ type: Array }) api_keys: any = [];
   @property({ type: Object }) parser: any;
-  @property({ type: String }) accept = '';
-  @property({ type: String }) callback = '';
-  @property({ type: String }) webhook = '';
-  @property({ type: String, attribute: 'fill-request-fields-with-example' }) fillRequestFieldsWithExample = '';
-  @property({ type: String, attribute: 'allow-try' }) allowTry = 'true';
-  @property({ type: String, attribute: 'show-curl-before-try' }) showCurlBeforeTry = 'false';
-  @property({ type: String, attribute: 'render-style' }) renderStyle = 'view';
-  @property({ type: String, attribute: 'schema-style' }) schemaStyle = 'tree';
-  @property({ type: String, attribute: 'active-schema-tab' }) activeSchemaTab = 'schema';
+  @property({ type: String }) accept = "";
+  @property({ type: String }) callback = "";
+  @property({ type: String }) webhook = "";
+  @property({ type: String, attribute: "fill-request-fields-with-example" })
+  fillRequestFieldsWithExample = "";
+  @property({ type: String, attribute: "allow-try" }) allowTry = "true";
+  @property({ type: String, attribute: "show-curl-before-try" }) showCurlBeforeTry = "false";
+  @property({ type: String, attribute: "render-style" }) renderStyle = "view";
+  @property({ type: String, attribute: "schema-style" }) schemaStyle = "tree";
+  @property({ type: String, attribute: "active-schema-tab" }) activeSchemaTab = "schema";
   @property({
     type: Object,
     converter: {
       fromAttribute: (attr: string) => JSON.parse(attr),
       toAttribute: (prop: any) => JSON.stringify(prop),
     },
-    attribute: 'active-parameter-schema-tabs',
+    attribute: "active-parameter-schema-tabs",
   })
   activeParameterSchemaTabs: any = {};
-  @property({ type: Number, attribute: 'schema-expand-level' }) schemaExpandLevel = 99999;
-  @property({ type: String, attribute: 'schema-description-expanded' }) schemaDescriptionExpanded = 'false';
-  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' }) allowSchemaDescriptionExpandToggle = 'false';
-  @property({ type: String, attribute: 'schema-hide-read-only' }) schemaHideReadOnly = 'true';
-  @property({ type: String, attribute: 'schema-hide-write-only' }) schemaHideWriteOnly = 'false';
-  @property({ type: String, attribute: 'fetch-credentials' }) fetchCredentials = '';
+  @property({ type: Number, attribute: "schema-expand-level" }) schemaExpandLevel = 99999;
+  @property({ type: String, attribute: "schema-description-expanded" }) schemaDescriptionExpanded =
+    "false";
+  @property({ type: String, attribute: "allow-schema-description-expand-toggle" })
+  allowSchemaDescriptionExpandToggle = "false";
+  @property({ type: String, attribute: "schema-hide-read-only" }) schemaHideReadOnly = "true";
+  @property({ type: String, attribute: "schema-hide-write-only" }) schemaHideWriteOnly = "false";
+  @property({ type: String, attribute: "fetch-credentials" }) fetchCredentials = "";
 
   // Internal reactive state
-  @state() responseMessage: any = '';
-  @state() responseText = '';
-  @state() responseHeaders: any = '';
-  @state() responseStatus = 'success';
-  @state() responseUrl = '';
-  @state() curlSyntax = '';
+  @state() responseMessage: any = "";
+  @state() responseText = "";
+  @state() responseHeaders: any = "";
+  @state() responseStatus = "success";
+  @state() responseUrl = "";
+  @state() curlSyntax = "";
   @state() responseIsBlob = false;
-  @state() responseBlobType = '';
-  @state() responseBlobUrl = '';
-  @state() respContentDisposition = '';
-  @state() activeResponseTab = 'response'; // allowed values: response, headers, curl
-  @state() selectedRequestBodyType = '';
-  @state() selectedRequestBodyExample = '';
+  @state() responseBlobType = "";
+  @state() responseBlobUrl = "";
+  @state() respContentDisposition = "";
+  @state() activeResponseTab = "response"; // allowed values: response, headers, curl
+  @state() selectedRequestBodyType = "";
+  @state() selectedRequestBodyExample = "";
   @state() fileInputKeys: any = {};
   @state() loading = false;
 
@@ -76,19 +83,19 @@ export default class ApiRequest extends LitElement {
 
   constructor() {
     super();
-    this.responseMessage = '';
-    this.responseStatus = 'success';
-    this.responseHeaders = '';
-    this.responseText = '';
-    this.responseUrl = '';
-    this.curlSyntax = '';
+    this.responseMessage = "";
+    this.responseStatus = "success";
+    this.responseHeaders = "";
+    this.responseText = "";
+    this.responseUrl = "";
+    this.curlSyntax = "";
     this.responseIsBlob = false;
-    this.responseBlobType = '';
-    this.responseBlobUrl = '';
-    this.respContentDisposition = '';
-    this.activeResponseTab = 'response';
-    this.selectedRequestBodyType = '';
-    this.selectedRequestBodyExample = '';
+    this.responseBlobType = "";
+    this.responseBlobUrl = "";
+    this.respContentDisposition = "";
+    this.activeResponseTab = "response";
+    this.selectedRequestBodyType = "";
+    this.selectedRequestBodyExample = "";
     this.activeParameterSchemaTabs = {};
     this.fileInputKeys = {};
     this.loading = false;
@@ -96,7 +103,7 @@ export default class ApiRequest extends LitElement {
 
   static get styles() {
     return [
-      TableStyles,
+      ParamListStyles,
       InputStyles,
       FontStyles,
       FlexStyles,
@@ -118,31 +125,13 @@ export default class ApiRequest extends LitElement {
         tag-input:focus-within {
           outline: 1px solid;
         }
-        .param-name,
-        .param-type {
-          margin: 1px 0;
-          text-align: right;
-          line-height: var(--font-size-small);
-        }
-        .param-name {
-          color: var(--foreground);
-          font-family: var(--font-mono);
-        }
-        .param-name.deprecated {
-          color: var(--red);
-        }
-        .param-type {
-          color: var(--muted-foreground);
-          font-family: var(--font-regular);
-        }
-        .param-constraint {
-          min-width: 100px;
-        }
-        .param-constraint:empty {
-          display: none;
-        }
         .top-gap {
           margin-top: 24px;
+        }
+        /* The first label under the Request heading belongs to it; no section gap */
+        .request-panel > div > .top-gap:first-child,
+        .request-panel > div > .request-body-container:first-child > .top-gap {
+          margin-top: 4px;
         }
 
         .textarea {
@@ -151,41 +140,69 @@ export default class ApiRequest extends LitElement {
           resize: vertical;
           direction: ltr;
         }
-        .example:first-child {
-          margin-top: -9px;
-        }
 
         .response-message {
           font-weight: bold;
           text-overflow: ellipsis;
-        }
-        .response-message.error {
-          color: var(--red);
-        }
-        .response-message.success {
-          color: var(--blue);
+
+          &.error {
+            color: var(--destructive);
+          }
+          &.success {
+            color: var(--blue);
+          }
         }
 
         .file-input-container {
           align-items: flex-start;
           width: 100%;
-        }
-        .file-input-container .input-set {
-          width: 100%;
-          display: flex;
-          align-items: center;
-        }
-        .file-input-container .input-set:first-child .file-input-remove-btn {
-          visibility: hidden;
+
+          /* Each file input spans the full width; its remove button sits inside the box, at the right edge */
+          & .input-set {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+
+            &:first-child .file-input-remove-btn {
+              display: none;
+            }
+
+            &:not(:first-child) input[type='file'] {
+              padding-right: 2.25em;
+            }
+          }
+
+          /* Inset by the file input's border + padding, so it lines up with Choose File */
+          & .file-input-add-btn {
+            align-self: flex-start;
+            margin: 4px 0 0 0.45em;
+            font-weight: 400;
+          }
         }
 
         .file-input-remove-btn {
-          font-size: 16px;
-          color: var(--red);
-          outline: none;
+          position: absolute;
+          top: 50%;
+          right: 0.45em;
+          transform: translateY(-50%);
+          padding: 0 0.25em;
+          font-size: 1.25em;
+          line-height: 1;
+          color: var(--destructive);
           border: none;
+          border-radius: var(--radius);
           background: none;
           cursor: pointer;
+
+          &:hover {
+            background: color-mix(in srgb, var(--destructive) 15%, transparent);
+          }
+
+          &:focus-visible {
+            outline: none;
+            box-shadow: var(--focus-shadow);
+          }
         }
 
         .v-tab-btn {
@@ -196,11 +213,12 @@ export default class ApiRequest extends LitElement {
           opacity: 0.3;
           cursor: pointer;
           padding: 4px 8px;
-        }
-        .v-tab-btn.active {
-          font-weight: bold;
-          background: var(--background);
-          opacity: 1;
+
+          &.active {
+            font-weight: bold;
+            background: var(--background);
+            opacity: 1;
+          }
         }
 
         @container (min-width: 768px) {
@@ -209,9 +227,70 @@ export default class ApiRequest extends LitElement {
           }
         }
 
-        @container (max-width: 470px) {
-          .hide-in-small-screen {
-            display: none;
+        /*
+         * Try bar: server/auth summary on the left, actions on the right. The summary is a two-row
+         * label/value list sized like a parameter label (name over type). The bar is its own container,
+         * so it reflows by the width it has, not the viewport.
+         */
+        .try-bar {
+          container-type: inline-size;
+          margin: 16px 0;
+          font-size: var(--font-size-small);
+        }
+        /* Narrow: summary on top, actions below it on the right */
+        .try-layout {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75em;
+        }
+        .try-info {
+          display: grid;
+          grid-template-columns: max-content minmax(0, 1fr);
+          gap: 0.25em 0.75em;
+          margin: 0;
+          line-height: 1.35;
+
+          & > dt {
+            font-weight: 600;
+            color: var(--foreground);
+          }
+          & > dd {
+            margin: 0;
+            min-width: 0;
+            color: var(--muted-foreground);
+            overflow-wrap: anywhere;
+          }
+        }
+        .try-actions {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          gap: 0.5em;
+        }
+        /* Wide: one row; the summary takes the free space and the actions keep their size */
+        @container (min-width: 34rem) {
+          .try-layout {
+            flex-direction: row;
+            align-items: center;
+            gap: 1.5em;
+          }
+          .try-info {
+            flex: 1;
+            min-width: 0;
+          }
+          .try-actions {
+            flex: none;
+          }
+        }
+        /* Very narrow: each label above its value */
+        @container (max-width: 20rem) {
+          .try-info {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0;
+
+            & > dd + dt {
+              margin-top: 0.5em;
+            }
           }
         }
       `,
@@ -238,7 +317,13 @@ export default class ApiRequest extends LitElement {
 
   /** Dependencies for query/path/header/cookie parameters */
   get parameterGuardDeps() {
-    return [this.method, this.path, this.parameters, this.activeParameterSchemaTabs, ...this.commonConfigDeps];
+    return [
+      this.method,
+      this.path,
+      this.parameters,
+      this.activeParameterSchemaTabs,
+      ...this.commonConfigDeps,
+    ];
   }
 
   /** Dependencies for the request body template */
@@ -258,33 +343,41 @@ export default class ApiRequest extends LitElement {
   render() {
     return html`<div
       class="col regular-font request-panel ${
-        'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'
+        "read focused".includes(this.renderStyle) || this.callback === "true"
+          ? "read-mode"
+          : "view-mode"
       }"
     >
-      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} ">
-        ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
-      </div>
+      ${
+        this.callback === "true"
+          ? html`<h6 class="rapidoc-heading label-heading tiny-title" part="section-request-title heading heading-6">Callback request</h6>`
+          : html`<h4 class="rapidoc-heading label-heading req-res-title" part="section-request-title heading heading-4">Request</h4>`
+      }
       <div>
-        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'path'))}
-        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'query'))}
+        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, "path"))}
+        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, "query"))}
         ${guard(this.requestBodyGuardDeps, () => requestBodyTemplate.call(this))}
-        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'header'))}
-        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, 'cookie'))}
-        ${this.allowTry === 'false' ? '' : html`${apiCallTemplate.call(this)}`}
+        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, "header"))}
+        ${guard(this.parameterGuardDeps, () => inputParametersTemplate.call(this, "cookie"))}
+        ${this.allowTry === "false" ? "" : html`${apiCallTemplate.call(this)}`}
       </div>
     </div>`;
   }
 
   async updated(changedProperties) {
-    if (this.showCurlBeforeTry === 'true') {
-      if (!changedProperties || !changedProperties.has('curlSyntax') || changedProperties.size > 1) {
+    if (this.showCurlBeforeTry === "true") {
+      if (
+        !changedProperties ||
+        !changedProperties.has("curlSyntax") ||
+        changedProperties.size > 1
+      ) {
         this.applyCURLSyntax(this.shadowRoot);
       }
     }
     scheduleHighlight(this.getRootNode()?.host?.shadowRoot || this.shadowRoot);
 
-    if (this.webhook === 'true') {
-      this.allowTry = 'false';
+    if (this.webhook === "true") {
+      this.allowTry = "false";
     }
   }
 
@@ -297,8 +390,8 @@ export default class ApiRequest extends LitElement {
   // from a previous endpoint don't carry over to an endpoint that may not support them.
   // The first valid MIME type will be automatically selected by request-body-template during render.
   async afterNavigationFocusedMode() {
-    this.selectedRequestBodyType = '';
-    this.selectedRequestBodyExample = '';
+    this.selectedRequestBodyType = "";
+    this.selectedRequestBodyExample = "";
     this.clearResponseData();
   }
 
@@ -308,42 +401,52 @@ export default class ApiRequest extends LitElement {
     const exampleDropdownEl = e.target;
     window.setTimeout(
       (selectEl) => {
-        const readOnlyExampleEl = selectEl.closest('.example-panel').querySelector('.request-body-param');
-        const userInputExampleTextareaEl = selectEl.closest('.example-panel').querySelector('.request-body-param-user-input');
+        const readOnlyExampleEl = selectEl
+          .closest(".example-panel")
+          .querySelector(".request-body-param");
+        const userInputExampleTextareaEl = selectEl
+          .closest(".example-panel")
+          .querySelector(".request-body-param-user-input");
         userInputExampleTextareaEl.value = readOnlyExampleEl.innerText;
 
         const requestPanelEl = this.getRequestPanel({ target: selectEl });
         this.liveCURLSyntaxUpdate(requestPanelEl);
       },
       0,
-      exampleDropdownEl
+      exampleDropdownEl,
     );
   }
 
   onMimeTypeChange(e) {
     this.selectedRequestBodyType = e.target.value;
     const mimeDropdownEl = e.target;
-    this.selectedRequestBodyExample = '';
+    this.selectedRequestBodyExample = "";
     window.setTimeout(
       (selectEl) => {
-        const readOnlyExampleEl = selectEl.closest('.request-body-container').querySelector('.request-body-param');
+        const readOnlyExampleEl = selectEl
+          .closest(".request-body-container")
+          .querySelector(".request-body-param");
         if (readOnlyExampleEl) {
-          const userInputExampleTextareaEl = selectEl.closest('.request-body-container').querySelector('.request-body-param-user-input');
+          const userInputExampleTextareaEl = selectEl
+            .closest(".request-body-container")
+            .querySelector(".request-body-param-user-input");
           userInputExampleTextareaEl.value = readOnlyExampleEl.innerText;
         }
       },
       0,
-      mimeDropdownEl
+      mimeDropdownEl,
     );
   }
 
   async onFillRequestData(e) {
-    const requestPanelEl = e.target.closest('.request-panel');
-    const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, tag-input, textarea:not(.is-hidden)')];
+    const requestPanelEl = e.target.closest(".request-panel");
+    const requestPanelInputEls = [
+      ...requestPanelEl.querySelectorAll("input, tag-input, textarea:not(.is-hidden)"),
+    ];
     requestPanelInputEls.forEach((el) => {
       if (el.dataset.example) {
-        if (el.tagName.toUpperCase() === 'TAG-INPUT') {
-          el.value = el.dataset.example.split('~|~');
+        if (el.tagName.toUpperCase() === "TAG-INPUT") {
+          el.value = el.dataset.example.split("~|~");
         } else {
           el.value = el.dataset.example;
         }
@@ -352,17 +455,21 @@ export default class ApiRequest extends LitElement {
   }
 
   async onClearRequestData(e) {
-    const requestPanelEl = e.target.closest('.request-panel');
-    const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, tag-input, textarea:not(.is-hidden)')];
+    const requestPanelEl = e.target.closest(".request-panel");
+    const requestPanelInputEls = [
+      ...requestPanelEl.querySelectorAll("input, tag-input, textarea:not(.is-hidden)"),
+    ];
     requestPanelInputEls.forEach((el) => {
-      el.value = '';
+      el.value = "";
     });
   }
 
   buildFetchURL(requestPanelEl) {
     const pathParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='path']")];
     const queryParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='query']")];
-    const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
+    const queryParamObjTypeEls = [
+      ...requestPanelEl.querySelectorAll("[data-ptype='query-object']"),
+    ];
 
     const pathParams = {};
     pathParamEls.forEach((el) => {
@@ -371,10 +478,13 @@ export default class ApiRequest extends LitElement {
 
     const queryParams = [];
     queryParamEls.forEach((el) => {
-      const isArray = el.dataset.array !== 'false';
-      const style = el.dataset.paramSerializeStyle || 'form';
-      const explode = el.dataset.paramSerializeExplode !== undefined ? el.dataset.paramSerializeExplode === 'true' : style === 'form';
-      const allowReserved = el.dataset.paramAllowReserved === 'true';
+      const isArray = el.dataset.array !== "false";
+      const style = el.dataset.paramSerializeStyle || "form";
+      const explode =
+        el.dataset.paramSerializeExplode !== undefined
+          ? el.dataset.paramSerializeExplode === "true"
+          : style === "form";
+      const allowReserved = el.dataset.paramAllowReserved === "true";
 
       queryParams.push({
         name: el.dataset.pname,
@@ -387,9 +497,12 @@ export default class ApiRequest extends LitElement {
     });
 
     queryParamObjTypeEls.forEach((el) => {
-      const style = el.dataset.paramSerializeStyle || 'form';
-      const explode = el.dataset.paramSerializeExplode !== undefined ? el.dataset.paramSerializeExplode === 'true' : style === 'form';
-      const allowReserved = el.dataset.paramAllowReserved === 'true';
+      const style = el.dataset.paramSerializeStyle || "form";
+      const explode =
+        el.dataset.paramSerializeExplode !== undefined
+          ? el.dataset.paramSerializeExplode === "true"
+          : style === "form";
+      const allowReserved = el.dataset.paramAllowReserved === "true";
 
       queryParams.push({
         name: el.dataset.pname,
@@ -411,17 +524,21 @@ export default class ApiRequest extends LitElement {
   }
 
   buildFetchHeaders(requestPanelEl) {
-    const respEl = this.closest('.expanded-req-resp-container, .req-resp-container')?.getElementsByTagName('api-response')[0];
-    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header'], [data-ptype='header-object']")];
-    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-    const accept = respEl?.selectedMimeType || this.accept || '';
-    const contentType = requestBodyContainerEl?.dataset?.selectedRequestBodyType || '';
+    const respEl = this.closest(
+      ".expanded-req-resp-container, .req-resp-container",
+    )?.getElementsByTagName("api-response")[0];
+    const headerParamEls = [
+      ...requestPanelEl.querySelectorAll("[data-ptype='header'], [data-ptype='header-object']"),
+    ];
+    const requestBodyContainerEl = requestPanelEl.querySelector(".request-body-container");
+    const accept = respEl?.selectedMimeType || this.accept || "";
+    const contentType = requestBodyContainerEl?.dataset?.selectedRequestBodyType || "";
 
     const headerParams = headerParamEls.map((el) => ({
       name: el.dataset.pname,
       value: el.value,
-      explode: el.dataset.paramSerializeExplode === 'true',
-      isObject: el.dataset.ptype === 'header-object',
+      explode: el.dataset.paramSerializeExplode === "true",
+      isObject: el.dataset.ptype === "header-object",
     }));
 
     return constructFetchHeaders({
@@ -433,43 +550,55 @@ export default class ApiRequest extends LitElement {
   }
 
   buildFetchBodyOptions(requestPanelEl) {
-    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
+    const requestBodyContainerEl = requestPanelEl.querySelector(".request-body-container");
     const fetchOptions: any = {
       method: this.method.toUpperCase(),
     };
     if (requestBodyContainerEl) {
-      const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType || '';
-      if (requestBodyType.includes('form-urlencoded')) {
-        const formUrlDynamicTextAreaEl = requestPanelEl.querySelector("[data-ptype='dynamic-form']");
+      const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType || "";
+      if (requestBodyType.includes("form-urlencoded")) {
+        const formUrlDynamicTextAreaEl = requestPanelEl.querySelector(
+          "[data-ptype='dynamic-form']",
+        );
         if (formUrlDynamicTextAreaEl) {
           fetchOptions.body = buildUrlEncodedBody([], formUrlDynamicTextAreaEl.value);
         } else {
           const formUrlEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-urlencode']")];
           const fields = formUrlEls
-            .filter((v: any) => v.type !== 'file')
+            .filter((v: any) => v.type !== "file")
             .map((el: any) => ({
               name: el.dataset.pname,
               value: el.value,
-              isArray: el.dataset.array !== 'false',
+              isArray: el.dataset.array !== "false",
             }));
           fetchOptions.body = buildUrlEncodedBody(fields);
         }
-      } else if (requestBodyType.includes('form-data')) {
+      } else if (requestBodyType.includes("form-data")) {
         const formDataEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-data']")];
         const fields = formDataEls.map((el: any) => ({
           name: el.dataset.pname,
           value: el.value,
-          file: el.type === 'file' ? el.files?.[0] : undefined,
-          isArray: el.dataset.array !== 'false',
+          file: el.type === "file" ? el.files?.[0] : undefined,
+          isArray: el.dataset.array !== "false",
         }));
         fetchOptions.body = buildMultipartFormData(fields);
-      } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(requestBodyType)) {
-        const bodyParamFileEl: any = requestPanelEl.querySelector('.request-body-param-file');
+      } else if (
+        /^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(
+          requestBodyType,
+        )
+      ) {
+        const bodyParamFileEl: any = requestPanelEl.querySelector(".request-body-param-file");
         if (bodyParamFileEl?.files[0]) {
           fetchOptions.body = bodyParamFileEl.files[0];
         }
-      } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
-        const exampleTextAreaEl: any = requestPanelEl.querySelector('.request-body-param-user-input');
+      } else if (
+        requestBodyType.includes("json") ||
+        requestBodyType.includes("xml") ||
+        requestBodyType.includes("text")
+      ) {
+        const exampleTextAreaEl: any = requestPanelEl.querySelector(
+          ".request-body-param-user-input",
+        );
         if (exampleTextAreaEl?.value) {
           fetchOptions.body = exampleTextAreaEl.value;
         }
@@ -481,20 +610,22 @@ export default class ApiRequest extends LitElement {
 
   async onTryClick(e) {
     const tryBtnEl = e?.target;
-    const requestPanelEl = tryBtnEl ? this.getRequestPanel(e) : this.shadowRoot.querySelector('.request-panel');
+    const requestPanelEl = tryBtnEl
+      ? this.getRequestPanel(e)
+      : this.shadowRoot.querySelector(".request-panel");
     const fetchUrl = this.buildFetchURL(requestPanelEl);
     const fetchOptions = this.buildFetchBodyOptions(requestPanelEl);
     const reqHeaders = this.buildFetchHeaders(requestPanelEl);
-    this.responseUrl = '';
+    this.responseUrl = "";
     this.responseHeaders = [];
     this.curlSyntax = this.generateCURLSyntax(fetchUrl, reqHeaders, fetchOptions, requestPanelEl);
-    this.responseStatus = 'success';
+    this.responseStatus = "success";
     this.responseIsBlob = false;
 
-    this.respContentDisposition = '';
+    this.respContentDisposition = "";
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
-      this.responseBlobUrl = '';
+      this.responseBlobUrl = "";
     }
     if (this.fetchCredentials) {
       fetchOptions.credentials = this.fetchCredentials;
@@ -505,14 +636,14 @@ export default class ApiRequest extends LitElement {
     fetchOptions.headers = reqHeaders;
     const tempRequest = { url: fetchUrl, ...fetchOptions };
     this.dispatchEvent(
-      new CustomEvent('before-try', {
+      new CustomEvent("before-try", {
         bubbles: true,
         composed: true,
         detail: {
           request: tempRequest,
           controller,
         },
-      })
+      }),
     );
     const updatedFetchOptions = {
       method: tempRequest.method,
@@ -525,8 +656,8 @@ export default class ApiRequest extends LitElement {
     let responseClone;
     try {
       this.loading = true;
-      this.responseText = '⌛';
-      this.responseMessage = '';
+      this.responseText = "⌛";
+      this.responseMessage = "";
       fetchRequest = new Request(tempRequest.url, updatedFetchOptions);
       const startTime = performance.now();
       fetchResponse = await fetch(fetchRequest, { signal });
@@ -549,7 +680,7 @@ export default class ApiRequest extends LitElement {
       this.respContentDisposition = processed.respContentDisposition;
 
       this.dispatchEvent(
-        new CustomEvent('after-try', {
+        new CustomEvent("after-try", {
           bubbles: true,
           composed: true,
           detail: {
@@ -559,34 +690,34 @@ export default class ApiRequest extends LitElement {
             responseBody: processed.respJson || processed.respText || processed.respBlob,
             responseStatus: responseClone.ok,
           },
-        })
+        }),
       );
     } catch (err) {
-      if (err.name === 'AbortError') {
+      if (err.name === "AbortError") {
         this.dispatchEvent(
-          new CustomEvent('request-aborted', {
+          new CustomEvent("request-aborted", {
             bubbles: true,
             composed: true,
             detail: {
               err,
               request: fetchRequest,
             },
-          })
+          }),
         );
-        this.responseMessage = 'Request Aborted';
-        this.responseText = 'Request Aborted';
+        this.responseMessage = "Request Aborted";
+        this.responseText = "Request Aborted";
       } else {
         this.dispatchEvent(
-          new CustomEvent('after-try', {
+          new CustomEvent("after-try", {
             bubbles: true,
             composed: true,
             detail: {
               err,
               request: fetchRequest,
             },
-          })
+          }),
         );
-        if (tempRequest.method?.toUpperCase() === 'TRACE') {
+        if (tempRequest.method?.toUpperCase() === "TRACE") {
           this.responseMessage = `${err.message} (Browser security restricts TRACE requests in fetch. Use the cURL snippet below.)`;
         } else {
           this.responseMessage = `${err.message} (CORS or Network Issue)`;
@@ -608,7 +739,7 @@ export default class ApiRequest extends LitElement {
   }
 
   getRequestPanel(e) {
-    return e.target.closest('.request-panel');
+    return e.target.closest(".request-panel");
   }
 
   applyCURLSyntax(requestPanelEl) {
@@ -616,19 +747,24 @@ export default class ApiRequest extends LitElement {
     const fetchOptions = this.buildFetchBodyOptions(requestPanelEl);
     const fetchHeaders = this.buildFetchHeaders(requestPanelEl);
 
-    const newCurlSyntax = this.generateCURLSyntax(fetchUrl, fetchHeaders, fetchOptions, requestPanelEl);
+    const newCurlSyntax = this.generateCURLSyntax(
+      fetchUrl,
+      fetchHeaders,
+      fetchOptions,
+      requestPanelEl,
+    );
     if (this.curlSyntax !== newCurlSyntax) {
       this.curlSyntax = newCurlSyntax;
     }
   }
 
   generateCURLSyntax(fetchUrl, fetchHeaders, fetchOptions, requestPanelEl) {
-    const requestBodyContainerEl = requestPanelEl?.querySelector('.request-body-container');
-    const requestBodyType = requestBodyContainerEl?.dataset?.selectedRequestBodyType || '';
+    const requestBodyContainerEl = requestPanelEl?.querySelector(".request-body-container");
+    const requestBodyType = requestBodyContainerEl?.dataset?.selectedRequestBodyType || "";
     let body = fetchOptions?.body;
 
     if (!body && requestBodyContainerEl) {
-      const exampleTextAreaEl: any = requestPanelEl.querySelector('.request-body-param-user-input');
+      const exampleTextAreaEl: any = requestPanelEl.querySelector(".request-body-param-user-input");
       if (exampleTextAreaEl?.value) {
         body = exampleTextAreaEl.value;
       }
@@ -661,50 +797,64 @@ export default class ApiRequest extends LitElement {
   }
 
   clearResponseData() {
-    this.responseUrl = '';
-    this.responseHeaders = '';
-    this.responseText = '';
-    this.responseStatus = 'success';
-    this.responseMessage = '';
+    this.responseUrl = "";
+    this.responseHeaders = "";
+    this.responseText = "";
+    this.responseStatus = "success";
+    this.responseMessage = "";
     this.responseIsBlob = false;
-    this.responseBlobType = '';
-    this.respContentDisposition = '';
+    this.responseBlobType = "";
+    this.respContentDisposition = "";
     this.fileInputKeys = {};
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
-      this.responseBlobUrl = '';
+      this.responseBlobUrl = "";
     }
   }
 
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
     // Sync configuration options passed down from parent <rapi-doc>
-    if (this.config && changedProperties.has('config')) {
+    if (this.config && changedProperties.has("config")) {
       if (this.config.renderStyle) this.renderStyle = this.config.renderStyle;
       if (this.config.schemaStyle) this.schemaStyle = this.config.schemaStyle;
-      if (this.config.schemaExpandLevel !== undefined) this.schemaExpandLevel = this.config.schemaExpandLevel;
-      if (this.config.schemaDescriptionExpanded !== undefined) this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
+      if (this.config.schemaExpandLevel !== undefined)
+        this.schemaExpandLevel = this.config.schemaExpandLevel;
+      if (this.config.schemaDescriptionExpanded !== undefined)
+        this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
       if (this.config.allowSchemaDescriptionExpandToggle !== undefined)
         this.allowSchemaDescriptionExpandToggle = this.config.allowSchemaDescriptionExpandToggle;
       // In incoming requests, readOnly fields are hidden by default ('true') unless configured to 'never'.
       // For incoming webhooks, the direction is inverted (the external caller sends the payload), so readOnly fields are shown ('false').
       if (this.config.schemaHideReadOnly !== undefined)
-        this.schemaHideReadOnly = this.config.schemaHideReadOnly === 'never' ? 'false' : this.webhook === 'true' ? 'false' : 'true';
+        this.schemaHideReadOnly =
+          this.config.schemaHideReadOnly === "never"
+            ? "false"
+            : this.webhook === "true"
+              ? "false"
+              : "true";
       // In incoming requests, writeOnly fields are shown by default ('false').
       // For webhooks, writeOnly fields are hidden ('true') unless configured to 'never'.
       if (this.config.schemaHideWriteOnly !== undefined)
-        this.schemaHideWriteOnly = this.config.schemaHideWriteOnly === 'never' ? 'false' : this.webhook === 'true' ? 'true' : 'false';
+        this.schemaHideWriteOnly =
+          this.config.schemaHideWriteOnly === "never"
+            ? "false"
+            : this.webhook === "true"
+              ? "true"
+              : "false";
       if (this.config.fillRequestFieldsWithExample !== undefined)
         this.fillRequestFieldsWithExample = this.config.fillRequestFieldsWithExample;
       if (this.config.allowTry !== undefined) this.allowTry = this.config.allowTry;
-      if (this.config.showCurlBeforeTry !== undefined) this.showCurlBeforeTry = this.config.showCurlBeforeTry;
-      if (this.config.fetchCredentials !== undefined) this.fetchCredentials = this.config.fetchCredentials;
+      if (this.config.showCurlBeforeTry !== undefined)
+        this.showCurlBeforeTry = this.config.showCurlBeforeTry;
+      if (this.config.fetchCredentials !== undefined)
+        this.fetchCredentials = this.config.fetchCredentials;
       if (this.config.defaultSchemaTab) this.activeSchemaTab = this.config.defaultSchemaTab;
     }
   }
 
   disconnectedCallback() {
-    this.curlSyntax = '';
+    this.curlSyntax = "";
     if (this.activeAbortController) {
       this.activeAbortController.abort();
       this.activeAbortController = null;
@@ -712,7 +862,7 @@ export default class ApiRequest extends LitElement {
     // Cleanup ObjectURL for the blob data if this component created one
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
-      this.responseBlobUrl = '';
+      this.responseBlobUrl = "";
     }
     super.disconnectedCallback();
   }

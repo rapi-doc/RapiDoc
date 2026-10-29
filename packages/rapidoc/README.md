@@ -62,7 +62,7 @@ Include the script in your HTML page and use the `<rapi-doc>` custom element:
 This repository is structured as a **Monorepo** using workspaces, compatible with **Node/npm**, **pnpm**, and **Bun**:
 
 ```text
-astro-rapidoc/
+rapidoc/
 ├── packages/
 │   ├── rapidoc/                 # Core Web Component library (published as "rapidoc")
 │   │   ├── src/                 # Web component source code (Lit + modern ESM)
@@ -70,7 +70,7 @@ astro-rapidoc/
 │   │   ├── package.json         # Library package config
 │   │   └── vite.config.mjs      # Dedicated library build config
 │   │
-│   ├── rapidoc-cli/             # Command-line utility (lint, preview, bundle)
+│   ├── rapidoc-cli/             # The `rapidoc` command (init, dev, build, validate, migrate)
 │   │   ├── src/                 # CLI source code
 │   │   └── package.json
 │   │
@@ -100,11 +100,14 @@ astro-rapidoc/
 ## Development & Build Instructions
 
 ### Prerequisites
+
 - **Node.js**: `>= 22.12.0` (or [Bun](https://bun.sh/))
 - **npm** (or `bun`)
 
 ### 1. Installation
+
 Clone the repository and install dependencies across all workspaces:
+
 ```bash
 git clone https://github.com/rapi-doc/RapiDoc.git
 cd RapiDoc
@@ -112,7 +115,9 @@ npm install
 ```
 
 ### 2. Development Server & Live Debugging
+
 Start the local documentation and interactive examples showcase:
+
 ```bash
 # Start dev server (http://localhost:4321)
 npm run dev
@@ -120,6 +125,7 @@ npm run dev
 # Stop background dev server
 npm run stop
 ```
+
 - Open `http://localhost:4321` in your browser.
 - **Live Unminified ES Modules:** In development mode (`npm run dev`), the Astro dev server bypasses pre-compiled production bundles and serves live ES modules directly from `packages/rapidoc/src/index.js`.
 - **Full DevTools & Console Visibility:** All `console.log`, `console.warn`, `console.error`, and `debugger` breakpoints remain completely intact with original file names and exact line numbers (e.g., `rapidoc.js:516`).
@@ -132,6 +138,7 @@ npm run stop
 This monorepo contains multiple packages: the core Web Component library (**`packages/rapidoc`**) and the documentation showcase site (**`docs`**). The build system coordinates them as follows:
 
 #### Core Library Production Build (`npm run build:rapidoc`)
+
 - **Workspace:** `packages/rapidoc`
 - **Output:** `packages/rapidoc/dist/rapidoc-min.js`
 - Compiles the RapiDoc custom element in library mode using [Vite 6](https://vitejs.dev/).
@@ -141,6 +148,7 @@ This monorepo contains multiple packages: the core Web Component library (**`pac
 - Injects the license and version header banner.
 
 #### Core Library Development Build (`npm run build:rapidoc:dev`)
+
 - **Workspace:** `packages/rapidoc`
 - **Output:** `packages/rapidoc/dist/rapidoc-min.js` + `packages/rapidoc/dist/rapidoc-min.js.map`
 - Compiles the standalone library bundle with `mode: 'development'`.
@@ -148,6 +156,7 @@ This monorepo contains multiple packages: the core Web Component library (**`pac
 - Useful when you need to test the bundled `<rapi-doc>` script tag artifact in external standalone HTML pages or apps with full DevTools logging.
 
 #### Full Monorepo Build (`npm run build`)
+
 - **Scope:** Root monorepo
 - Sequentially executes `npm run build:rapidoc` followed by `npm run build:docs`.
 
@@ -175,39 +184,43 @@ Astro documentation and example pages include the component via `<script type="m
 All primary commands can be run from the root of the repository:
 
 #### Development & Live Preview
-| Command | Workspace | Description |
-|---|---|---|
-| `npm run dev` | `docs` | Launches Astro documentation & showcase dev server (`http://localhost:4321`) with live unminified RapiDoc ESM directly from source. |
-| `npm run stop` | `docs` | Terminates background Astro dev server processes. |
-| `npm run preview` | `docs` | Previews the production build of the documentation site (`docs/dist`) locally. |
+
+| Command           | Workspace | Description                                                                                                                         |
+| ----------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`     | `docs`    | Launches Astro documentation & showcase dev server (`http://localhost:4321`) with live unminified RapiDoc ESM directly from source. |
+| `npm run stop`    | `docs`    | Terminates background Astro dev server processes.                                                                                   |
+| `npm run preview` | `docs`    | Previews the production build of the documentation site (`docs/dist`) locally.                                                      |
 
 #### Building
-| Command | Workspace | Description |
-|---|---|---|
-| `npm run build` | Monorepo | Sequentially builds production RapiDoc library bundle and the Astro documentation site. |
-| `npm run build:rapidoc` | `rapidoc` | Compiles production, minified Web Component bundle to `packages/rapidoc/dist/rapidoc-min.js`. |
-| `npm run build:rapidoc:dev` | `rapidoc` | Compiles unminified Web Component bundle with source maps & console logs to `packages/rapidoc/dist/`. |
-| `npm run build:docs` | `docs` | Builds the production Astro documentation site into `docs/dist/` (and syncs bundle to `generated-docs/`). |
-| `npm run build:size` | `rapidoc` | Builds RapiDoc with `ANALYZE=true` and opens an interactive bundle visualizer (`dist/stats.html`). |
+
+| Command                     | Workspace | Description                                                                                               |
+| --------------------------- | --------- | --------------------------------------------------------------------------------------------------------- |
+| `npm run build`             | Monorepo  | Sequentially builds production RapiDoc library bundle and the Astro documentation site.                   |
+| `npm run build:rapidoc`     | `rapidoc` | Compiles production, minified Web Component bundle to `packages/rapidoc/dist/rapidoc-min.js`.             |
+| `npm run build:rapidoc:dev` | `rapidoc` | Compiles unminified Web Component bundle with source maps & console logs to `packages/rapidoc/dist/`.     |
+| `npm run build:docs`        | `docs`    | Builds the production Astro documentation site into `docs/dist/` (and syncs bundle to `generated-docs/`). |
+| `npm run build:size`        | `rapidoc` | Builds RapiDoc with `ANALYZE=true` and opens an interactive bundle visualizer (`dist/stats.html`).        |
 
 #### Testing & Benchmarks
-| Command | Workspace | Description |
-|---|---|---|
-| `npm run test:unit` | Monorepo | Runs Node.js native unit tests (`tests/unit/*.test.js`) for schema parsers and AST converters. |
-| `npm run test:perf` | Monorepo | Runs spec parsing, circular ref, and dereferencing benchmarks (`tests/perf/benchmark.js`). |
-| `npm run test:render` | Monorepo | Measures headless browser rendering performance across render styles using Puppeteer (`tests/perf/render-benchmark.js`). |
+
+| Command               | Workspace | Description                                                                                                              |
+| --------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `npm run test:unit`   | Monorepo  | Runs Node.js native unit tests (`tests/unit/*.test.js`) for schema parsers and AST converters.                           |
+| `npm run test:perf`   | Monorepo  | Runs spec parsing, circular ref, and dereferencing benchmarks (`tests/perf/benchmark.js`).                               |
+| `npm run test:render` | Monorepo  | Measures headless browser rendering performance across render styles using Puppeteer (`tests/perf/render-benchmark.js`). |
 
 #### Code Quality & Formatting
-| Command | Workspace | Description |
-|---|---|---|
-| `npm run lint` | `rapidoc` | Runs ESLint on `packages/rapidoc/src/**/*.js` with Lit rules. |
-| `npm run analyze` | `rapidoc` | Runs Lit Analyzer to validate custom element templates and bindings. |
-| `npm run format` | Monorepo | Checks code formatting against `.prettierrc` across packages and docs. |
-| `npm run format-fix` | Monorepo | Automatically formats code using Prettier across packages and docs. |
+
+| Command              | Workspace | Description                                                                            |
+| -------------------- | --------- | -------------------------------------------------------------------------------------- |
+| `npm run lint`       | Monorepo  | Runs oxlint (default rules, no config) across packages, docs, tests and scripts.       |
+| `npm run format`     | Monorepo  | Checks formatting with oxfmt (default style) across packages, docs, tests and scripts. |
+| `npm run format-fix` | Monorepo  | Formats the same files with oxfmt.                                                     |
 
 #### Publishing
-| Command | Workspace | Description |
-|---|---|---|
+
+| Command                   | Workspace | Description                                          |
+| ------------------------- | --------- | ---------------------------------------------------- |
 | `npm run publish:rapidoc` | `rapidoc` | Publishes the `rapidoc` package to the npm registry. |
 
 ---
@@ -217,7 +230,9 @@ All primary commands can be run from the root of the repository:
 The documentation site is built with modern **Astro** using clean, extensionless URLs (`/api`, `/examples`, `/list`, `/quickstart`).
 
 ### Deployment via GitHub Actions
-When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/mrin/work/astro-rapidoc/.github/workflows/deploy-docs.yml) GitHub Action automatically:
+
+When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/mrin/work/rapidoc/.github/workflows/deploy-docs.yml) GitHub Action automatically:
+
 1. Compiles the `rapidoc` library bundle (`packages/rapidoc/dist/rapidoc-min.js`).
 2. Builds the Astro documentation site into `docs/dist/` (`npm run build`).
 3. Deploys the static output directory (`docs/dist/`) directly to **GitHub Pages** using `@actions/deploy-pages`.
@@ -231,9 +246,9 @@ When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/m
 
 OpenAPI specs are organized inside `docs/public/` based on their visibility and purpose:
 
-* **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](file:///Users/mrin/work/astro-rapidoc/docs/src/data/example-list.yaml) and displayed on `rapidocui.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
-* **`docs/public/specs-test/`**: Internal edge-case and boundary specs used for UI verification and regression tests (e.g., `circular-refs.yaml`, `xxx-of-combinations.yaml`).
-* **`docs/public/specs-test/parser/`**: Malformed or invalid specs used to test CLI validation and error reporting (e.g., `invalid-syntax.yaml`, `missing-info.yaml`, `broken-ref.yaml`).
+- **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](file:///Users/mrin/work/rapidoc/docs/src/data/example-list.yaml) and displayed on `rapidocui.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
+- **`docs/public/specs-test/`**: Internal edge-case and boundary specs used for UI verification and regression tests (e.g., `circular-refs.yaml`, `xxx-of-combinations.yaml`).
+- **`docs/public/specs-test/parser/`**: Malformed or invalid specs used to test CLI validation and error reporting (e.g., `invalid-syntax.yaml`, `missing-info.yaml`, `broken-ref.yaml`).
 
 ---
 

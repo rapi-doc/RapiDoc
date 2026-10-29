@@ -1,27 +1,28 @@
 /**
  * Renders the single active API operation, overview, or component in focused (3-column) rendering mode.
  */
-import { fixRenderedAnchorLinks } from '~/utils/markdown-utils';
-import { html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { sanitizeHTML } from '../utils/sanitize.js';
-import { marked } from 'marked';
-import Slugger from 'github-slugger';
-import { expandedEndpointBodyTemplate } from '~/templates/expanded-endpoint-template';
-import '~/components/api-request';
-import '~/components/api-response';
-import componentsTemplate from '~/templates/components-template';
-import overviewTemplate from '~/templates/overview-template';
-import downloadsTemplate from '~/templates/downloads-template';
-import serverTemplate from '~/templates/server-template';
-import securitySchemeTemplate from '~/templates/security-scheme-template';
-import { expandCollapseNavBarTag } from '~/templates/navbar-template';
+import { fixRenderedAnchorLinks } from "~/utils/markdown-utils";
+import { html } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHTML } from "../utils/sanitize.js";
+import { marked } from "marked";
+import Slugger from "github-slugger";
+import { expandedEndpointBodyTemplate } from "~/templates/expanded-endpoint-template";
+import "~/components/api-request";
+import "~/components/api-response";
+import componentsTemplate from "~/templates/components-template";
+import overviewTemplate from "~/templates/overview-template";
+import downloadsTemplate from "~/templates/downloads-template";
+import serverTemplate from "~/templates/server-template";
+import securitySchemeTemplate from "~/templates/security-scheme-template";
+import { expandCollapseNavBarTag } from "~/templates/navbar-template";
 
 function headingRenderer(tagElementId) {
   const renderer = new marked.Renderer();
   const slugger = new Slugger();
   // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
-  renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${tagElementId}--${slugger.slug(text)}">${text}</h${depth}>`;
+  renderer.heading = ({ text, depth }) =>
+    `<h${depth} class="observe-me" id="${tagElementId}--${slugger.slug(text)}">${text}</h${depth}>`;
   fixRenderedAnchorLinks(renderer);
   return renderer;
 }
@@ -32,34 +33,44 @@ function wrapFocusedTemplate(templateToWrap) {
 
 function defaultContentTemplate() {
   // In focused mode default content is overview or first path
-  if (this.showInfo === 'true') {
+  if (this.showInfo === "true") {
     return wrapFocusedTemplate(html`${overviewTemplate.call(this)}${downloadsTemplate.call(this)}`);
   }
   const selectedTagObj = this.resolvedSpec.tags[0];
   const selectedPathObj = this.resolvedSpec.tags[0]?.paths[0];
   return selectedTagObj && selectedPathObj
     ? wrapFocusedTemplate(
-        expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name || '', selectedTagObj.description || '', true)
+        expandedEndpointBodyTemplate.call(
+          this,
+          selectedPathObj,
+          selectedTagObj.name || "",
+          selectedTagObj.description || "",
+          true,
+        ),
       )
-    : wrapFocusedTemplate('');
+    : wrapFocusedTemplate("");
 }
 
 function focusedTagBodyTemplate(tag) {
   return html`
-    <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
+    <h2 id="${tag.elementId}" class="rapidoc-heading title tag" part="section-tag-title label-tag-title heading heading-2">
+      ${tag.displayName || tag.name}
+    </h2>
     ${
       tag.description
         ? html`<div class="m-markdown regular-font">
             ${unsafeHTML(
               sanitizeHTML(
                 marked(
-                  tag.description || '',
-                  this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
-                )
-              )
+                  tag.description || "",
+                  this.infoDescriptionHeadingsInNavBar === "true"
+                    ? { renderer: headingRenderer(tag.elementId) }
+                    : undefined,
+                ),
+              ),
             )}
           </div>`
-        : ''
+        : ""
     }
   `;
 }
@@ -67,7 +78,9 @@ function focusedTagBodyTemplate(tag) {
 export default function focusedEndpointTemplate() {
   if (!this.focusedElementId && this.resolvedSpec) {
     this.focusedElementId =
-      this.showInfo === 'false' || this.showInfo === false ? this.resolvedSpec.tags?.[0]?.paths?.[0]?.elementId || '' : 'overview';
+      this.showInfo === "false" || this.showInfo === false
+        ? this.resolvedSpec.tags?.[0]?.paths?.[0]?.elementId || ""
+        : "overview";
   }
   if (!this.focusedElementId || !this.resolvedSpec) {
     return;
@@ -76,21 +89,27 @@ export default function focusedEndpointTemplate() {
   let selectedPathObj = null;
   let selectedTagObj = null;
   let focusedTemplate;
-  if (focusElId.startsWith('overview') && this.showInfo === 'true') {
+  if (focusElId.startsWith("overview") && this.showInfo === "true") {
     focusedTemplate = html`${overviewTemplate.call(this)}${downloadsTemplate.call(this)}`;
-  } else if (focusElId === 'auth' && this.allowAuthentication === 'true') {
+  } else if (focusElId === "auth" && this.allowAuthentication === "true") {
     focusedTemplate = securitySchemeTemplate.call(this, this.allowTry);
-  } else if (focusElId === 'servers' && this.allowServerSelection === 'true') {
+  } else if (focusElId === "servers" && this.allowServerSelection === "true") {
     focusedTemplate = serverTemplate.call(this);
-  } else if (focusElId === 'operations-top') {
+  } else if (focusElId === "operations-top") {
     focusedTemplate = html`<div id="operations-top" class="observe-me"><slot name="operations-top"></slot></div>`;
-  } else if (focusElId.startsWith('cmp--') && this.showComponents === 'true') {
+  } else if (focusElId.startsWith("cmp--") && this.showComponents === "true") {
     focusedTemplate = componentsTemplate.call(this);
-  } else if (focusElId.startsWith('tag--')) {
-    const idToFocus = focusElId.indexOf('--', 4) > 0 ? focusElId.substring(0, focusElId.indexOf('--', 5)) : focusElId;
+  } else if (focusElId.startsWith("tag--")) {
+    const idToFocus =
+      focusElId.indexOf("--", 4) > 0
+        ? focusElId.substring(0, focusElId.indexOf("--", 5))
+        : focusElId;
     selectedTagObj = this.resolvedSpec.tags.find((v) => v.elementId === idToFocus);
     if (selectedTagObj) {
-      focusedTemplate = wrapFocusedTemplate.call(this, focusedTagBodyTemplate.call(this, selectedTagObj));
+      focusedTemplate = wrapFocusedTemplate.call(
+        this,
+        focusedTagBodyTemplate.call(this, selectedTagObj),
+      );
     } else {
       focusedTemplate = defaultContentTemplate.call(this);
     }
@@ -104,12 +123,18 @@ export default function focusedEndpointTemplate() {
     }
     if (selectedPathObj) {
       // In focused mode we must expand the nav-bar tag element if it is collapsed
-      const newNavEl = this.shadowRoot.getElementById(`link-${focusElId}`);
-      expandCollapseNavBarTag(newNavEl, 'expand');
+      const newNavEl = this.shadowRoot?.getElementById(`link-${focusElId}`); // no shadowRoot when pre-rendering
+      expandCollapseNavBarTag(newNavEl, "expand");
       const isFirst = selectedTagObj?.paths?.[0]?.elementId === selectedPathObj.elementId;
       focusedTemplate = wrapFocusedTemplate.call(
         this,
-        expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name || '', selectedTagObj.description || '', isFirst)
+        expandedEndpointBodyTemplate.call(
+          this,
+          selectedPathObj,
+          selectedTagObj.name || "",
+          selectedTagObj.description || "",
+          isFirst,
+        ),
       );
     } else {
       // if focusedElementId is not found then show the default content (overview or first-path)

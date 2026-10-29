@@ -3,22 +3,23 @@
  * Falls back to the pattern string if an unexpected error occurs.
  */
 export function patternSampleGenerator(pattern) {
-  if (!pattern || typeof pattern !== 'string') {
-    return '';
+  if (!pattern || typeof pattern !== "string") {
+    return "";
   }
 
   try {
     let p = pattern.trim();
-    if (p.startsWith('^')) p = p.slice(1);
-    if (p.endsWith('$') && !p.endsWith('\\$')) p = p.slice(0, -1);
+    if (p.startsWith("^")) p = p.slice(1);
+    if (p.endsWith("$") && !p.endsWith("\\$")) p = p.slice(0, -1);
 
     // Resolve simple group alternations: (opt1|opt2|opt3) -> opt1
-    p = p.replace(/\((?:\?:)?([^()|]+)(?:\|[^()]+)*\)/g, '$1');
+    p = p.replace(/\((?:\?:)?([^()|]+)(?:\|[^()]+)*\)/g, "$1");
 
     // Tokenizer matching
-    const tokenRegex = /(\[[^\]]+\]|\\[dwsDWS]|\\[^]|\.|[^\\[\]{}()+*?|])(?:\{(\d+)(?:,\d*)?\}|([+*?]))?/g;
+    const tokenRegex =
+      /(\[[^\]]+\]|\\[dwsDWS]|\\[^]|\.|[^\\[\]{}()+*?|])(?:\{(\d+)(?:,\d*)?\}|([+*?]))?/g;
 
-    let result = '';
+    let result = "";
     let match;
 
     while ((match = tokenRegex.exec(p)) !== null) {
@@ -29,45 +30,45 @@ export function patternSampleGenerator(pattern) {
       let rep = 1;
       if (count !== undefined) {
         rep = parseInt(count, 10);
-      } else if (quantifier === '+') {
+      } else if (quantifier === "+") {
         rep = 1;
-      } else if (quantifier === '*' || quantifier === '?') {
+      } else if (quantifier === "*" || quantifier === "?") {
         rep = 0;
       }
 
       rep = Math.min(Math.max(0, rep), 50);
 
-      let sampleChar = 'a';
-      if (token === '\\d') {
-        sampleChar = '0';
-      } else if (token === '\\D') {
-        sampleChar = 'a';
-      } else if (token === '\\w') {
-        sampleChar = 'a';
-      } else if (token === '\\W') {
-        sampleChar = '_';
-      } else if (token === '\\s') {
-        sampleChar = ' ';
-      } else if (token === '\\S') {
-        sampleChar = 'a';
-      } else if (token === '.') {
-        sampleChar = 'a';
-      } else if (token.startsWith('\\')) {
+      let sampleChar = "a";
+      if (token === "\\d") {
+        sampleChar = "0";
+      } else if (token === "\\D") {
+        sampleChar = "a";
+      } else if (token === "\\w") {
+        sampleChar = "a";
+      } else if (token === "\\W") {
+        sampleChar = "_";
+      } else if (token === "\\s") {
+        sampleChar = " ";
+      } else if (token === "\\S") {
+        sampleChar = "a";
+      } else if (token === ".") {
+        sampleChar = "a";
+      } else if (token.startsWith("\\")) {
         sampleChar = token.slice(1);
-      } else if (token.startsWith('[')) {
+      } else if (token.startsWith("[")) {
         const inner = token.slice(1, -1);
-        if (inner.startsWith('^')) {
-          sampleChar = inner.includes('a') ? '0' : 'a';
-        } else if (/[1-9]/.test(inner) && !inner.includes('0')) {
-          sampleChar = '1';
+        if (inner.startsWith("^")) {
+          sampleChar = inner.includes("a") ? "0" : "a";
+        } else if (/[1-9]/.test(inner) && !inner.includes("0")) {
+          sampleChar = "1";
         } else if (/[0-9]/.test(inner) && !/[a-zA-Z]/.test(inner)) {
-          sampleChar = '0';
+          sampleChar = "0";
         } else if (/[0-9]/.test(inner) && /[a-fA-F]/.test(inner) && !/[g-zG-Z]/.test(inner)) {
-          sampleChar = '0';
+          sampleChar = "0";
         } else if (/[A-Z]/.test(inner) && !/[a-z]/.test(inner)) {
-          sampleChar = 'A';
+          sampleChar = "A";
         } else if (/[a-z]/.test(inner)) {
-          sampleChar = 'a';
+          sampleChar = "a";
         } else if (inner.length > 0) {
           sampleChar = inner[0];
         }
@@ -87,27 +88,33 @@ export function patternSampleGenerator(pattern) {
 // Takes a value as input and provides a printable string to replresent null values, spaces, blankstring etc
 export function getPrintableVal(val) {
   if (val === undefined) {
-    return '';
+    return "";
   }
   if (val === null) {
-    return 'null';
+    return "null";
   }
-  if (val === '') {
-    return '∅';
+  if (val === "") {
+    return "∅";
   }
-  if (typeof val === 'boolean' || typeof val === 'number') {
+  if (typeof val === "boolean" || typeof val === "number") {
     return `${val}`;
   }
   if (Array.isArray(val)) {
     return val
-      .map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || ''))
-      .join(', ');
+      .map((v) =>
+        v === null
+          ? "null"
+          : v === ""
+            ? "∅"
+            : v.toString().replace(/^ +| +$/g, (m) => "●".repeat(m.length)) || "",
+      )
+      .join(", ");
   }
-  if (typeof val === 'object') {
+  if (typeof val === "object") {
     const keys = Object.keys(val);
-    return `{ ${keys[0]}:${val[keys[0]]}${keys.length > 1 ? ',' : ''} ... }`;
+    return `{ ${keys[0]}:${val[keys[0]]}${keys.length > 1 ? "," : ""} ... }`;
   }
-  return val.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '';
+  return val.toString().replace(/^ +| +$/g, (m) => "●".repeat(m.length)) || "";
 }
 
 /* Helper to detect binary file fields across OpenAPI 3.0 and 3.1 */
@@ -116,9 +123,9 @@ export function isBinaryFileField(schema) {
     return false;
   }
   return (
-    schema.format === 'binary' ||
-    schema.contentEncoding === 'binary' ||
-    (Boolean(schema.contentMediaType) && schema.contentEncoding !== 'base64')
+    schema.format === "binary" ||
+    schema.contentEncoding === "binary" ||
+    (Boolean(schema.contentMediaType) && schema.contentEncoding !== "base64")
   );
 }
 
@@ -127,31 +134,34 @@ export function getTypeInfo(schema) {
   if (!schema) {
     return;
   }
-  let dataType = '';
-  let constrain = '';
+  let dataType = "";
+  let constrain = "";
   // let examples;
 
   if (schema.$ref) {
-    const n = schema.$ref.lastIndexOf('/');
+    const n = schema.$ref.lastIndexOf("/");
     const schemaNode = schema.$ref.substring(n + 1);
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
-    dataType = Array.isArray(schema.type) ? schema.type.join('┃') : schema.type;
+    dataType = Array.isArray(schema.type) ? schema.type.join("┃") : schema.type;
     if (schema.format || schema.enum || schema.const !== undefined) {
-      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const !== undefined ? 'const' : schema.format);
+      dataType = dataType.replace(
+        "string",
+        schema.enum ? "enum" : schema.const !== undefined ? "const" : schema.format,
+      );
     }
     if (schema.nullable) {
-      dataType += '┃null';
+      dataType += "┃null";
     }
   } else if (schema.const !== undefined) {
-    dataType = 'const';
+    dataType = "const";
   } else if (schema.anyOf || schema.oneOf) {
     const subSchemas = (schema.anyOf || schema.oneOf).filter(Boolean);
     const subTypes = [];
     subSchemas.forEach((s) => {
       const sInfo = getTypeInfo(s);
-      if (sInfo?.type && sInfo.type !== '{missing-type-info}') {
-        sInfo.type.split('┃').forEach((t) => {
+      if (sInfo?.type && sInfo.type !== "{missing-type-info}") {
+        sInfo.type.split("┃").forEach((t) => {
           const trimmed = t.trim();
           if (trimmed && !subTypes.includes(trimmed)) {
             subTypes.push(trimmed);
@@ -159,81 +169,99 @@ export function getTypeInfo(schema) {
         });
       }
     });
-    dataType = subTypes.length > 0 ? subTypes.join('┃') : '{missing-type-info}';
+    dataType = subTypes.length > 0 ? subTypes.join("┃") : "{missing-type-info}";
   } else if (Object.keys(schema).length === 0) {
-    dataType = 'any';
+    dataType = "any";
   } else {
-    dataType = '{missing-type-info}';
+    dataType = "{missing-type-info}";
   }
 
   const effectiveSchema =
     schema.anyOf || schema.oneOf
       ? {
-          ...((schema.anyOf || schema.oneOf).find((s) => s && s.type && s.type !== 'null') || (schema.anyOf || schema.oneOf)[0] || {}),
+          ...((schema.anyOf || schema.oneOf).find((s) => s && s.type && s.type !== "null") ||
+            (schema.anyOf || schema.oneOf)[0]),
           ...schema,
         }
       : schema;
 
   const info = {
     type: dataType,
-    format: schema.format || effectiveSchema.format || '',
-    contentMediaType: schema.contentMediaType || effectiveSchema.contentMediaType || '',
-    contentEncoding: schema.contentEncoding || effectiveSchema.contentEncoding || '',
+    format: schema.format || effectiveSchema.format || "",
+    contentMediaType: schema.contentMediaType || effectiveSchema.contentMediaType || "",
+    contentEncoding: schema.contentEncoding || effectiveSchema.contentEncoding || "",
     contentSchema: schema.contentSchema || effectiveSchema.contentSchema || null,
     pattern:
-      (schema.pattern || effectiveSchema.pattern) && !schema.enum && !effectiveSchema.enum ? schema.pattern || effectiveSchema.pattern : '',
-    readOrWriteOnly: schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : effectiveSchema.readOnly ? '🆁' : effectiveSchema.writeOnly ? '🆆' : '',
-    deprecated: schema.deprecated || effectiveSchema.deprecated ? '❌' : '',
-    examples: schema.examples || schema.example || effectiveSchema.examples || effectiveSchema.example,
-    default: getPrintableVal(schema.default !== undefined ? schema.default : effectiveSchema.default),
-    description: schema.description || effectiveSchema.description || '',
-    constrain: '',
-    allowedValues: '',
-    arrayType: '',
-    html: '',
+      (schema.pattern || effectiveSchema.pattern) && !schema.enum && !effectiveSchema.enum
+        ? schema.pattern || effectiveSchema.pattern
+        : "",
+    readOrWriteOnly: schema.readOnly
+      ? "🆁"
+      : schema.writeOnly
+        ? "🆆"
+        : effectiveSchema.readOnly
+          ? "🆁"
+          : effectiveSchema.writeOnly
+            ? "🆆"
+            : "",
+    deprecated: schema.deprecated || effectiveSchema.deprecated ? "❌" : "",
+    examples:
+      schema.examples || schema.example || effectiveSchema.examples || effectiveSchema.example,
+    default: getPrintableVal(
+      schema.default !== undefined ? schema.default : effectiveSchema.default,
+    ),
+    description: schema.description || effectiveSchema.description || "",
+    constrain: "",
+    allowedValues: "",
+    arrayType: "",
+    html: "",
   };
 
-  if (info.type === '{recursive}') {
-    info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
-  } else if (info.type === '{missing-type-info}' || info.type === 'any') {
-    info.description = info.description || '';
+  if (info.type === "{recursive}") {
+    info.description = schema.$ref.substring(schema.$ref.lastIndexOf("/") + 1);
+  } else if (info.type === "{missing-type-info}" || info.type === "any") {
+    info.description = info.description || "";
   }
   // Set Allowed Values
   info.allowedValues =
     schema.const !== undefined
       ? getPrintableVal(schema.const)
       : Array.isArray(schema.enum)
-        ? schema.enum.map((v) => getPrintableVal(v)).join('┃')
+        ? schema.enum.map((v) => getPrintableVal(v)).join("┃")
         : effectiveSchema.const !== undefined
           ? getPrintableVal(effectiveSchema.const)
           : Array.isArray(effectiveSchema.enum)
-            ? effectiveSchema.enum.map((v) => getPrintableVal(v)).join('┃')
-            : '';
+            ? effectiveSchema.enum.map((v) => getPrintableVal(v)).join("┃")
+            : "";
 
   if (!info.allowedValues && (schema.anyOf || schema.oneOf)) {
     const subValues = [];
     (schema.anyOf || schema.oneOf).forEach((s) => {
       const sVal =
-        s.const !== undefined ? getPrintableVal(s.const) : Array.isArray(s.enum) ? s.enum.map((v) => getPrintableVal(v)).join('┃') : '';
+        s.const !== undefined
+          ? getPrintableVal(s.const)
+          : Array.isArray(s.enum)
+            ? s.enum.map((v) => getPrintableVal(v)).join("┃")
+            : "";
       if (sVal && !subValues.includes(sVal)) {
         subValues.push(sVal);
       }
     });
     if (subValues.length > 0) {
-      info.allowedValues = subValues.join('┃');
+      info.allowedValues = subValues.join("┃");
     }
   }
 
   const itemsSchema = schema.items || effectiveSchema.items;
-  if ((dataType === 'array' || dataType.split('┃').includes('array')) && itemsSchema) {
+  if ((dataType === "array" || dataType.split("┃").includes("array")) && itemsSchema) {
     const arrayItemType =
       itemsSchema.format ||
       itemsSchema.contentMediaType ||
-      (Array.isArray(itemsSchema?.type) ? itemsSchema.type.join('┃') : itemsSchema?.type) ||
-      '';
+      (Array.isArray(itemsSchema?.type) ? itemsSchema.type.join("┃") : itemsSchema?.type) ||
+      "";
     const arrayItemDefault = getPrintableVal(itemsSchema.default);
 
-    info.arrayType = arrayItemType ? `array of ${arrayItemType}` : `${schema.type || 'array'}`;
+    info.arrayType = arrayItemType ? `array of ${arrayItemType}` : `${schema.type || "array"}`;
     if (!info.default) {
       info.default = arrayItemDefault;
     }
@@ -242,39 +270,51 @@ export function getTypeInfo(schema) {
         itemsSchema.const !== undefined
           ? getPrintableVal(itemsSchema.const)
           : Array.isArray(itemsSchema?.enum)
-            ? itemsSchema.enum.map((v) => getPrintableVal(v)).join('┃')
-            : '';
+            ? itemsSchema.enum.map((v) => getPrintableVal(v)).join("┃")
+            : "";
     }
   }
   if (dataType.match(/integer|number/g)) {
     const minVal = schema.minimum !== undefined ? schema.minimum : effectiveSchema.minimum;
-    const excMinVal = schema.exclusiveMinimum !== undefined ? schema.exclusiveMinimum : effectiveSchema.exclusiveMinimum;
+    const excMinVal =
+      schema.exclusiveMinimum !== undefined
+        ? schema.exclusiveMinimum
+        : effectiveSchema.exclusiveMinimum;
     if (minVal !== undefined || excMinVal !== undefined) {
       constrain += minVal !== undefined ? `Min ${minVal}` : `More than ${excMinVal}`;
     }
     const maxVal = schema.maximum !== undefined ? schema.maximum : effectiveSchema.maximum;
-    const excMaxVal = schema.exclusiveMaximum !== undefined ? schema.exclusiveMaximum : effectiveSchema.exclusiveMaximum;
+    const excMaxVal =
+      schema.exclusiveMaximum !== undefined
+        ? schema.exclusiveMaximum
+        : effectiveSchema.exclusiveMaximum;
     if (maxVal !== undefined || excMaxVal !== undefined) {
-      constrain += maxVal !== undefined ? `${constrain ? '┃' : ''}Max ${maxVal}` : `${constrain ? '┃' : ''}Less than ${excMaxVal}`;
+      constrain +=
+        maxVal !== undefined
+          ? `${constrain ? "┃" : ""}Max ${maxVal}`
+          : `${constrain ? "┃" : ""}Less than ${excMaxVal}`;
     }
-    const multVal = schema.multipleOf !== undefined ? schema.multipleOf : effectiveSchema.multipleOf;
+    const multVal =
+      schema.multipleOf !== undefined ? schema.multipleOf : effectiveSchema.multipleOf;
     if (multVal !== undefined) {
-      constrain += `${constrain ? '┃' : ''} multiple of ${multVal}`;
+      constrain += `${constrain ? "┃" : ""} multiple of ${multVal}`;
     }
   }
-  if (dataType.match(/string/g)) {
+  // dataType shows the format or enum in place of 'string' (e.g. 'email', 'uri'), so check the declared type too
+  const declaredTypes = [].concat(effectiveSchema.type || []);
+  if (declaredTypes.includes("string") || dataType.match(/string/g)) {
     const minLen = schema.minLength !== undefined ? schema.minLength : effectiveSchema.minLength;
     const maxLen = schema.maxLength !== undefined ? schema.maxLength : effectiveSchema.maxLength;
     if (minLen !== undefined && maxLen !== undefined) {
-      constrain += `${constrain ? '┃' : ''}${minLen} to ${maxLen} chars`;
+      constrain += `${constrain ? "┃" : ""}${minLen} to ${maxLen} chars`;
     } else if (minLen !== undefined) {
-      constrain += `${constrain ? '┃' : ''}Min ${minLen} chars`;
+      constrain += `${constrain ? "┃" : ""}Min ${minLen} chars`;
     } else if (maxLen !== undefined) {
-      constrain += `Max ${constrain ? '┃' : ''}${maxLen} chars`;
+      constrain += `${constrain ? "┃" : ""}Max ${maxLen} chars`;
     }
   }
   info.constrain = constrain;
-  info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
+  info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ""}~|~${info.deprecated ? "deprecated" : ""}`;
   return info;
 }
 
@@ -318,13 +358,13 @@ export function getTypeInfo(schema) {
  */
 
 export function standardizeExample(ex) {
-  if (typeof ex === 'object' && ex !== null && !Array.isArray(ex)) {
+  if (typeof ex === "object" && ex !== null && !Array.isArray(ex)) {
     if (ex.value !== undefined) {
       // Case 1: Single object with 'value' property
       return { Example: { ...ex } };
     }
     // Case 2: Object where each key is an object with a 'value' property
-    const filteredEntries = Object.entries(ex).filter(([_, obj]) => obj?.value !== undefined); // eslint-disable-line
+    const filteredEntries = Object.entries(ex).filter(([_, obj]) => obj?.value !== undefined); // oxlint-disable-line no-unused-vars
     // If no valid entries found, return JSON.stringify of the input
     if (filteredEntries.length === 0) {
       return undefined;
@@ -354,23 +394,26 @@ export function standardizeExample(ex) {
  *     ]
  *  }]
  * */
-export function normalizeExamples(examples, dataType = 'string') {
+export function normalizeExamples(examples, dataType = "string") {
   if (!examples) {
     return {
-      exampleVal: '',
+      exampleVal: "",
       exampleList: [],
     };
   }
   if (examples.constructor === Object) {
     const exampleList = Object.values(examples)
-      .filter((v) => v['x-example-show-value'] !== false)
+      .filter((v) => v["x-example-show-value"] !== false)
       .map((v) => ({
-        value: typeof v.value === 'boolean' || typeof v.value === 'number' ? `${v.value}` : v.value || '',
+        value:
+          typeof v.value === "boolean" || typeof v.value === "number"
+            ? `${v.value}`
+            : v.value || "",
         printableValue: getPrintableVal(v.value),
-        summary: v.summary || '',
-        description: v.description || '',
+        summary: v.summary || "",
+        description: v.description || "",
       }));
-    const exampleVal = exampleList.length > 0 ? exampleList[0].value : '';
+    const exampleVal = exampleList.length > 0 ? exampleList[0].value : "";
     return { exampleVal, exampleList };
   }
 
@@ -381,12 +424,12 @@ export function normalizeExamples(examples, dataType = 'string') {
 
   if (examples.length === 0) {
     return {
-      exampleVal: '',
+      exampleVal: "",
       exampleList: [],
     };
   }
 
-  if (dataType === 'array') {
+  if (dataType === "array") {
     const [exampleVal] = examples;
     const exampleList = examples.map((v) => ({
       value: v,
@@ -429,8 +472,8 @@ function getFirstExample(schema) {
 
 export function getSampleValueByType(schemaObj) {
   const example = getFirstExample(schemaObj);
-  if (example === '') {
-    return '';
+  if (example === "") {
+    return "";
   }
   if (example === null) {
     return null;
@@ -443,10 +486,10 @@ export function getSampleValueByType(schemaObj) {
   }
   if (example instanceof Date) {
     switch (schemaObj.format.toLowerCase()) {
-      case 'date':
-        return example.toISOString().split('T')[0];
-      case 'time':
-        return example.toISOString().split('T')[1];
+      case "date":
+        return example.toISOString().split("T")[0];
+      case "time":
+        return example.toISOString().split("T")[1];
       default:
         return example.toISOString();
     }
@@ -462,7 +505,12 @@ export function getSampleValueByType(schemaObj) {
     // Indicates a Circular ref
     return {};
   }
-  if (schemaObj.const === false || schemaObj.const === 0 || schemaObj.const === null || schemaObj.const === '') {
+  if (
+    schemaObj.const === false ||
+    schemaObj.const === 0 ||
+    schemaObj.const === null ||
+    schemaObj.const === ""
+  ) {
     return schemaObj.const;
   }
   if (schemaObj.const) {
@@ -476,12 +524,14 @@ export function getSampleValueByType(schemaObj) {
     return null;
   }
   if (typeValue.match(/^integer|^number/g)) {
-    const multipleOf = Number.isNaN(Number(schemaObj.multipleOf)) ? undefined : Number(schemaObj.multipleOf);
+    const multipleOf = Number.isNaN(Number(schemaObj.multipleOf))
+      ? undefined
+      : Number(schemaObj.multipleOf);
     const maximum = Number.isNaN(Number(schemaObj.maximum)) ? undefined : Number(schemaObj.maximum);
     const minimumPossibleVal = Number.isNaN(Number(schemaObj.minimum))
       ? Number.isNaN(Number(schemaObj.exclusiveMinimum))
         ? maximum || 0
-        : Number(schemaObj.exclusiveMinimum) + (typeValue.startsWith('integer') ? 1 : 0.001)
+        : Number(schemaObj.exclusiveMinimum) + (typeValue.startsWith("integer") ? 1 : 0.001)
       : Number(schemaObj.minimum);
     const finalVal = multipleOf
       ? multipleOf >= minimumPossibleVal
@@ -514,66 +564,66 @@ export function getSampleValueByType(schemaObj) {
     }
     if (schemaObj.contentEncoding) {
       switch (schemaObj.contentEncoding.toLowerCase()) {
-        case 'base64':
-          return 'ZXhhbXBsZQ=='; // 'example' base64 encoded
-        case 'binary':
-        case '7bit':
-        case '8bit':
-        case 'quoted-printable':
-          return 'string';
+        case "base64":
+          return "ZXhhbXBsZQ=="; // 'example' base64 encoded
+        case "binary":
+        case "7bit":
+        case "8bit":
+        case "quoted-printable":
+          return "string";
       }
     }
     if (schemaObj.contentMediaType) {
-      if (schemaObj.contentMediaType.toLowerCase() === 'application/json') {
+      if (schemaObj.contentMediaType.toLowerCase() === "application/json") {
         if (schemaObj.contentSchema) {
           const sample = schemaToSampleObj(schemaObj.contentSchema);
-          const sampleVal = sample?.['example-0'] ?? sample;
+          const sampleVal = sample?.["example-0"] ?? sample;
           return JSON.stringify(sampleVal);
         }
-        return '{}';
+        return "{}";
       }
-      if (schemaObj.contentMediaType.startsWith('text/')) {
-        return 'text content';
+      if (schemaObj.contentMediaType.startsWith("text/")) {
+        return "text content";
       }
     }
     if (schemaObj.format) {
       switch (schemaObj.format.toLowerCase()) {
-        case 'url':
-        case 'uri':
-          return 'http://example.com';
-        case 'date':
-          return new Date(0).toISOString().split('T')[0];
-        case 'time':
-          return new Date(0).toISOString().split('T')[1];
-        case 'date-time':
+        case "url":
+        case "uri":
+          return "http://example.com";
+        case "date":
+          return new Date(0).toISOString().split("T")[0];
+        case "time":
+          return new Date(0).toISOString().split("T")[1];
+        case "date-time":
           return new Date(0).toISOString();
-        case 'duration':
-          return 'P3Y6M4DT12H30M5S'; // P=Period 3-Years 6-Months 4-Days 12-Hours 30-Minutes 5-Seconds
-        case 'email':
-        case 'idn-email':
-          return 'user@example.com';
-        case 'hostname':
-        case 'idn-hostname':
-          return 'www.example.com';
-        case 'ipv4':
-          return '198.51.100.42';
-        case 'ipv6':
-          return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
-        case 'uuid':
-          return '3fa85f64-5717-4562-b3fc-2c963f66afa6';
-        case 'byte':
-        case 'base64':
-          return 'ZXhhbXBsZQ=='; // 'example' base64 encoded. See https://spec.openapis.org/oas/v3.0.0#data-types
-        case 'binary':
-          return 'binary';
+        case "duration":
+          return "P3Y6M4DT12H30M5S"; // P=Period 3-Years 6-Months 4-Days 12-Hours 30-Minutes 5-Seconds
+        case "email":
+        case "idn-email":
+          return "user@example.com";
+        case "hostname":
+        case "idn-hostname":
+          return "www.example.com";
+        case "ipv4":
+          return "198.51.100.42";
+        case "ipv6":
+          return "2001:0db8:5b96:0000:0000:426f:8e17:642a";
+        case "uuid":
+          return "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+        case "byte":
+        case "base64":
+          return "ZXhhbXBsZQ=="; // 'example' base64 encoded. See https://spec.openapis.org/oas/v3.0.0#data-types
+        case "binary":
+          return "binary";
         default:
-          return '';
+          return "";
       }
     } else {
       const minLength = Number.isNaN(schemaObj.minLength) ? undefined : Number(schemaObj.minLength);
       const maxLength = Number.isNaN(schemaObj.maxLength) ? undefined : Number(schemaObj.maxLength);
       const finalLength = minLength || (maxLength > 6 ? 6 : maxLength || undefined);
-      return finalLength ? 'A'.repeat(finalLength) : 'string';
+      return finalLength ? "A".repeat(finalLength) : "string";
     }
   }
   // If type cannot be determined
@@ -606,32 +656,32 @@ json2xml- TestCase
 */
 export function json2xml(obj, level = 1) {
   if (obj === null || obj === undefined) {
-    return '';
+    return "";
   }
-  const indent = '  '.repeat(level);
-  let xmlText = '';
-  if (typeof obj !== 'object') {
+  const indent = "  ".repeat(level);
+  let xmlText = "";
+  if (typeof obj !== "object") {
     return `\n${indent}${obj.toString()}`;
   }
   for (const prop in obj) {
-    if (prop.startsWith('::')) {
+    if (prop.startsWith("::")) {
       continue;
     }
     const val = obj[prop];
     let tagName = prop;
     if (Array.isArray(val)) {
-      tagName = val['::XML_TAG'] || val[0]?.['::XML_TAG'] || prop;
-    } else if (val && typeof val === 'object') {
-      tagName = val['::XML_TAG'] || prop;
-    } else if (Array.isArray(obj) && obj['::XML_TAG']) {
-      tagName = obj['::XML_TAG'];
+      tagName = val["::XML_TAG"] || val[0]?.["::XML_TAG"] || prop;
+    } else if (val && typeof val === "object") {
+      tagName = val["::XML_TAG"] || prop;
+    } else if (Array.isArray(obj) && obj["::XML_TAG"]) {
+      tagName = obj["::XML_TAG"];
     }
 
     if (val === null || val === undefined) {
       xmlText = `${xmlText}\n${indent}<${tagName}></${tagName}>`;
     } else if (Array.isArray(val)) {
       xmlText = `${xmlText}\n${indent}<${tagName}>${json2xml(val, level + 1)}\n${indent}</${tagName}>`;
-    } else if (typeof val === 'object') {
+    } else if (typeof val === "object") {
       xmlText = `${xmlText}\n${indent}<${tagName}>${json2xml(val, level + 1)}\n${indent}</${tagName}>`;
     } else {
       xmlText = `${xmlText}\n${indent}<${tagName}>${val.toString()}</${tagName}>`;
@@ -641,49 +691,52 @@ export function json2xml(obj, level = 1) {
 }
 
 function addSchemaInfoToExample(schema, obj) {
-  if (typeof obj !== 'object' || obj === null) {
+  if (typeof obj !== "object" || obj === null) {
     return;
   }
   if (schema.title) {
-    obj['::TITLE'] = schema.title;
+    obj["::TITLE"] = schema.title;
   }
   if (schema.description) {
-    obj['::DESCRIPTION'] = schema.description;
+    obj["::DESCRIPTION"] = schema.description;
   }
   if (schema.xml?.name) {
-    obj['::XML_TAG'] = schema.xml?.name;
+    obj["::XML_TAG"] = schema.xml?.name;
   }
   if (schema.xml?.wrapped) {
-    obj['::XML_WRAP'] = schema.xml?.wrapped.toString();
+    obj["::XML_WRAP"] = schema.xml?.wrapped.toString();
   }
 }
 
 function removeTitlesAndDescriptions(obj) {
-  if (typeof obj !== 'object' || obj === null) {
+  if (typeof obj !== "object" || obj === null) {
     return;
   }
-  delete obj['::TITLE'];
-  delete obj['::DESCRIPTION'];
-  delete obj['::XML_TAG'];
-  delete obj['::XML_WRAP'];
+  delete obj["::TITLE"];
+  delete obj["::DESCRIPTION"];
+  delete obj["::XML_TAG"];
+  delete obj["::XML_WRAP"];
   for (const k in obj) {
     removeTitlesAndDescriptions(obj[k]);
   }
 }
 
 function mergePropertyExamples(obj, propertyName, propExamples) {
-  if (!obj || typeof obj !== 'object') {
+  if (!obj || typeof obj !== "object") {
     return obj;
   }
   const propVal =
-    propExamples && typeof propExamples === 'object' && 'example-0' in propExamples
-      ? propExamples['example-0']
-      : propExamples && typeof propExamples === 'object' && Object.keys(propExamples).length > 0 && !Array.isArray(propExamples)
+    propExamples && typeof propExamples === "object" && "example-0" in propExamples
+      ? propExamples["example-0"]
+      : propExamples &&
+          typeof propExamples === "object" &&
+          Object.keys(propExamples).length > 0 &&
+          !Array.isArray(propExamples)
         ? Object.values(propExamples)[0]
         : propExamples;
 
   for (const exampleKey in obj) {
-    if (obj[exampleKey] && typeof obj[exampleKey] === 'object') {
+    if (obj[exampleKey] && typeof obj[exampleKey] === "object") {
       obj[exampleKey][propertyName] = propVal;
     }
   }
@@ -702,26 +755,26 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
     if (schema.allOf.length === 1 && !schema.allOf[0]?.properties && !schema.allOf[0]?.items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
       if (schema.allOf[0].$ref) {
-        return { 'example-0': {} };
+        return { "example-0": {} };
       }
       if (schema.allOf[0].readOnly && config.includeReadOnly) {
         const tempSchema = schema.allOf[0];
-        return { 'example-0': getSampleValueByType(tempSchema) };
+        return { "example-0": getSampleValueByType(tempSchema) };
       }
       return;
     }
 
     schema.allOf.forEach((v) => {
       if (!v) return;
-      if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
+      if (v.type === "object" || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialSamples = schemaToSampleObj(v, config, level + 1);
-        const partialVal = partialSamples?.['example-0'] ?? partialSamples;
-        if (partialVal && typeof partialVal === 'object' && !Array.isArray(partialVal)) {
+        const partialVal = partialSamples?.["example-0"] ?? partialSamples;
+        if (partialVal && typeof partialVal === "object" && !Array.isArray(partialVal)) {
           Object.assign(mergedObj, partialVal);
         }
-      } else if (v.type === 'array' || v.items) {
+      } else if (v.type === "array" || v.items) {
         const partialSamples = schemaToSampleObj(v, config, level + 1);
-        const partialVal = partialSamples?.['example-0'] ?? partialSamples;
+        const partialVal = partialSamples?.["example-0"] ?? partialSamples;
         if (Array.isArray(partialVal)) {
           mergedObj[Object.keys(mergedObj).length] = partialVal;
         }
@@ -731,8 +784,8 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
       }
     });
 
-    obj = { 'example-0': mergedObj };
-    addSchemaInfoToExample(schema, obj['example-0']);
+    obj = { "example-0": mergedObj };
+    addSchemaInfoToExample(schema, obj["example-0"]);
   } else if (schema.oneOf) {
     // 1. First create example with schema.properties
     const objWithSchemaProps = {};
@@ -741,7 +794,7 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
         const propSchema = schema.properties[propertyName];
         if (propSchema?.properties || propSchema?.items) {
           const propSamples = schemaToSampleObj(propSchema, config, level + 1);
-          objWithSchemaProps[propertyName] = propSamples?.['example-0'] ?? propSamples;
+          objWithSchemaProps[propertyName] = propSamples?.["example-0"] ?? propSamples;
         } else {
           objWithSchemaProps[propertyName] = getSampleValueByType(propSchema);
         }
@@ -761,7 +814,7 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
           if (
             Object.keys(objWithSchemaProps).length > 0 &&
             finalExample &&
-            typeof finalExample === 'object' &&
+            typeof finalExample === "object" &&
             !Array.isArray(finalExample)
           ) {
             finalExample = { ...objWithSchemaProps, ...finalExample };
@@ -777,8 +830,8 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
     }
   } else if (schema.anyOf) {
     // First generate values for regular properties
-    let commonObj = { 'example-0': {} };
-    if (schema.type === 'object' || schema.properties) {
+    let commonObj = { "example-0": {} };
+    if (schema.type === "object" || schema.properties) {
       for (const propertyName in schema.properties) {
         const propSchema = schema.properties[propertyName];
         if (propSchema?.deprecated && !config.includeDeprecated) continue;
@@ -786,9 +839,13 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
         if (propSchema?.writeOnly && !config.includeWriteOnly) continue;
         const propExample = getFirstExample(propSchema);
         if (propExample !== undefined) {
-          commonObj['example-0'][propertyName] = propExample;
+          commonObj["example-0"][propertyName] = propExample;
         } else {
-          mergePropertyExamples(commonObj, propertyName, schemaToSampleObj(propSchema, config, level + 1));
+          mergePropertyExamples(
+            commonObj,
+            propertyName,
+            schemaToSampleObj(propSchema, config, level + 1),
+          );
         }
       }
     }
@@ -801,8 +858,11 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
         const anyOfSamples = schemaToSampleObj(variantSchema, config, level + 1);
         for (const sampleKey in anyOfSamples) {
           const sampleVal = anyOfSamples[sampleKey];
-          if (commonObj?.['example-0'] && Object.keys(commonObj['example-0']).length > 0) {
-            obj[`example-${i}`] = { ...commonObj['example-0'], ...(typeof sampleVal === 'object' ? sampleVal : {}) };
+          if (commonObj?.["example-0"] && Object.keys(commonObj["example-0"]).length > 0) {
+            obj[`example-${i}`] = {
+              ...commonObj["example-0"],
+              ...(typeof sampleVal === "object" ? sampleVal : {}),
+            };
           } else {
             obj[`example-${i}`] = sampleVal;
           }
@@ -814,12 +874,12 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
         }
       }
     }
-  } else if (schema.type === 'object' || schema.properties) {
-    obj['example-0'] = {};
-    addSchemaInfoToExample(schema, obj['example-0']);
+  } else if (schema.type === "object" || schema.properties) {
+    obj["example-0"] = {};
+    addSchemaInfoToExample(schema, obj["example-0"]);
     const firstExample = getFirstExample(schema);
     if (firstExample !== undefined) {
-      obj['example-0'] = firstExample;
+      obj["example-0"] = firstExample;
     } else {
       for (const propertyName in schema.properties) {
         const propSchema = schema.properties[propertyName];
@@ -828,24 +888,24 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
         if (propSchema.readOnly && !config.includeReadOnly) continue;
         if (propSchema.writeOnly && !config.includeWriteOnly) continue;
 
-        if (propSchema.type === 'array' || propSchema.items) {
+        if (propSchema.type === "array" || propSchema.items) {
           const propExample = getFirstExample(propSchema);
           if (propExample !== undefined) {
-            obj['example-0'][propertyName] = propExample;
+            obj["example-0"][propertyName] = propExample;
           } else if (getFirstExample(propSchema.items) !== undefined) {
-            obj['example-0'][propertyName] = [getFirstExample(propSchema.items)];
+            obj["example-0"][propertyName] = [getFirstExample(propSchema.items)];
           } else {
             const itemSamples = schemaToSampleObj(propSchema.items, config, level + 1);
-            const itemSampleVal = itemSamples?.['example-0'] ?? itemSamples;
+            const itemSampleVal = itemSamples?.["example-0"] ?? itemSamples;
             if (config.useXmlTagForProp) {
               const xmlTagName = propSchema.xml?.name || propertyName;
               if (propSchema.xml?.wrapped) {
-                obj['example-0'][xmlTagName] = { [xmlTagName]: itemSampleVal };
+                obj["example-0"][xmlTagName] = { [xmlTagName]: itemSampleVal };
               } else {
-                obj['example-0'][xmlTagName] = [itemSampleVal];
+                obj["example-0"][xmlTagName] = [itemSampleVal];
               }
             } else {
-              obj['example-0'][propertyName] = [itemSampleVal];
+              obj["example-0"][propertyName] = [itemSampleVal];
             }
           }
           continue;
@@ -854,37 +914,45 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
         mergePropertyExamples(obj, propertyName, schemaToSampleObj(propSchema, config, level + 1));
       }
 
-      if (typeof schema.additionalProperties === 'object' && schema.additionalProperties !== null) {
-        const propName = schema.additionalProperties['x-additionalPropertiesName'] || 'property';
-        mergePropertyExamples(obj, `${propName}1`, schemaToSampleObj(schema.additionalProperties, config, level + 1));
-        mergePropertyExamples(obj, `${propName}2`, schemaToSampleObj(schema.additionalProperties, config, level + 1));
+      if (typeof schema.additionalProperties === "object" && schema.additionalProperties !== null) {
+        const propName = schema.additionalProperties["x-additionalPropertiesName"] || "property";
+        mergePropertyExamples(
+          obj,
+          `${propName}1`,
+          schemaToSampleObj(schema.additionalProperties, config, level + 1),
+        );
+        mergePropertyExamples(
+          obj,
+          `${propName}2`,
+          schemaToSampleObj(schema.additionalProperties, config, level + 1),
+        );
       }
     }
-  } else if (schema.type === 'array' || schema.items) {
+  } else if (schema.type === "array" || schema.items) {
     const firstExample = getFirstExample(schema);
     if (firstExample !== undefined) {
-      obj['example-0'] = firstExample;
+      obj["example-0"] = firstExample;
     } else if (schema.items) {
       const itemsExample = getFirstExample(schema.items);
       if (itemsExample !== undefined) {
-        obj['example-0'] = [itemsExample];
+        obj["example-0"] = [itemsExample];
       } else {
         const samples = schemaToSampleObj(schema.items, config, level + 1);
-        const itemVal = samples?.['example-0'] ?? samples;
-        obj['example-0'] = [itemVal];
-        addSchemaInfoToExample(schema.items, obj['example-0']);
+        const itemVal = samples?.["example-0"] ?? samples;
+        obj["example-0"] = [itemVal];
+        addSchemaInfoToExample(schema.items, obj["example-0"]);
       }
     } else {
-      obj['example-0'] = [];
+      obj["example-0"] = [];
     }
   } else {
-    return { 'example-0': getSampleValueByType(schema) };
+    return { "example-0": getSampleValueByType(schema) };
   }
   return obj;
 }
 
 function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
-  let mainText = '';
+  let mainText = "";
   if (schema.title) {
     if (schema.description) {
       mainText = `<b>${schema.title}:</b> ${schema.description}`;
@@ -895,34 +963,38 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
     mainText = schema.description;
   }
 
-  const extraParts = [];
+  const limits = [];
   if (schema.minItems) {
-    extraParts.push(`<b>Min Items:</b> ${schema.minItems}`);
+    limits.push(
+      `<span class="descr-label">Min Items:</span> <span class="descr-value">${schema.minItems}</span>`,
+    );
   }
   if (schema.maxItems) {
-    extraParts.push(`<b>Max Items:</b> ${schema.maxItems}`);
+    limits.push(
+      `<span class="descr-label">Max Items:</span> <span class="descr-value">${schema.maxItems}</span>`,
+    );
   }
   if (schema.uniqueItems === true) {
-    extraParts.push(`<b>Must have unique items</b>`);
-  }
-  if (level > 0 && schema.items?.description) {
-    let itemsMarkdown = '';
-    if (schema.items.minProperties) {
-      itemsMarkdown = `<b>Min Properties:</b> ${schema.items.minProperties}`;
-    }
-    if (schema.items.maxProperties) {
-      itemsMarkdown = `${itemsMarkdown} <b>Max Properties:</b> ${schema.items.maxProperties}`;
-    }
-    extraParts.push(`⮕ ${itemsMarkdown} [ ${schema.items.description} ]`);
+    limits.push(`<span class="descr-label">Must have unique items</span>`);
   }
 
-  if (mainText && extraParts.length > 0) {
-    return `${mainText.trim()}\n\n${extraParts.join(' ')}`;
+  const parts = mainText ? [mainText.trim()] : [];
+  if (limits.length > 0) {
+    // Same wrapper as the constraint chips, so both sit the same distance under the description.
+    // Kept on one line so markdown treats it as a single block.
+    parts.push(`<div class="item-details">${limits.join(" ")}</div>`);
   }
-  if (mainText) {
-    return mainText.trim();
+  if (level > 0 && schema.items?.description) {
+    let itemsMarkdown = "";
+    if (schema.items.minProperties) {
+      itemsMarkdown = `<span class="descr-label">Min Properties:</span> <span class="descr-value">${schema.items.minProperties}</span>`;
+    }
+    if (schema.items.maxProperties) {
+      itemsMarkdown = `${itemsMarkdown} <span class="descr-label">Max Properties:</span> <span class="descr-value">${schema.items.maxProperties}</span>`;
+    }
+    parts.push(`⮕ ${itemsMarkdown} [ ${schema.items.description} ]`);
   }
-  return extraParts.join(' ');
+  return parts.join("\n\n");
 }
 /**
  * For changing OpenAPI-Schema to an Object Notation,
@@ -944,44 +1016,48 @@ function populateProperties(target, schema, level) {
   }
   if (schema.patternProperties) {
     for (const key in schema.patternProperties) {
-      target[`[pattern: ${key}]`] = schemaInObjectNotation(schema.patternProperties[key], {}, level + 1);
+      target[`[pattern: ${key}]`] = schemaInObjectNotation(
+        schema.patternProperties[key],
+        {},
+        level + 1,
+      );
     }
   }
   if (schema.additionalProperties) {
-    target['[any-key]'] = schemaInObjectNotation(schema.additionalProperties, {}, level + 1);
+    target["[any-key]"] = schemaInObjectNotation(schema.additionalProperties, {}, level + 1);
   }
 }
 
 function handleObjectSchema(schema, baseObj = {}, level = 0) {
   const obj = Object.assign({}, baseObj);
-  obj['::title'] = schema.title || '';
-  obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
-  obj['::type'] = 'object';
-  if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
-    obj['::dataTypeLabel'] = 'object ┃ null';
-    obj['::nullable'] = true;
+  obj["::title"] = schema.title || "";
+  obj["::description"] = generateMarkdownForArrayAndObjectDescription(schema, level);
+  obj["::type"] = "object";
+  if ((Array.isArray(schema.type) && schema.type.includes("null")) || schema.nullable) {
+    obj["::dataTypeLabel"] = "object ┃ null";
+    obj["::nullable"] = true;
   }
-  obj['::deprecated'] = schema.deprecated || false;
-  obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
+  obj["::deprecated"] = schema.deprecated || false;
+  obj["::readwrite"] = schema.readOnly ? "readonly" : schema.writeOnly ? "writeonly" : "";
   populateProperties(obj, schema, level);
   return obj;
 }
 
 function handleArraySchema(schema, baseObj = {}, level = 0) {
   const obj = Object.assign({}, baseObj);
-  obj['::title'] = schema.title || '';
-  obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
-  obj['::type'] = 'array';
-  if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
-    obj['::dataTypeLabel'] = 'array ┃ null';
-    obj['::nullable'] = true;
+  obj["::title"] = schema.title || "";
+  obj["::description"] = generateMarkdownForArrayAndObjectDescription(schema, level);
+  obj["::type"] = "array";
+  if ((Array.isArray(schema.type) && schema.type.includes("null")) || schema.nullable) {
+    obj["::dataTypeLabel"] = "array ┃ null";
+    obj["::nullable"] = true;
   }
-  obj['::deprecated'] = schema.deprecated || false;
-  obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
+  obj["::deprecated"] = schema.deprecated || false;
+  obj["::readwrite"] = schema.readOnly ? "readonly" : schema.writeOnly ? "writeonly" : "";
   if (schema.items?.items) {
-    obj['::array-type'] = schema.items.items.type;
+    obj["::array-type"] = schema.items.items.type;
   }
-  obj['::props'] = schema.items ? schemaInObjectNotation(schema.items, {}, level + 1) : undefined;
+  obj["::props"] = schema.items ? schemaInObjectNotation(schema.items, {}, level + 1) : undefined;
   return obj;
 }
 
@@ -993,11 +1069,11 @@ function handleAllOfSchema(schema, baseObj = {}, level = 0) {
 
   const objWithAllProps = Object.assign({}, baseObj);
   schema.allOf.forEach((v, i) => {
-    if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
-      const propSuffix = (v.anyOf || v.oneOf) && i > 0 ? `${i}` : '';
+    if (v.type === "object" || v.properties || v.allOf || v.anyOf || v.oneOf) {
+      const propSuffix = (v.anyOf || v.oneOf) && i > 0 ? `${i}` : "";
       const partialObj = schemaInObjectNotation(v, {}, level + 1, propSuffix);
       Object.assign(objWithAllProps, partialObj);
-    } else if (v.type === 'array' || v.items) {
+    } else if (v.type === "array" || v.items) {
       const partialObj = schemaInObjectNotation(v, {}, level + 1);
       Object.assign(objWithAllProps, partialObj);
     } else if (v.type) {
@@ -1010,61 +1086,64 @@ function handleAllOfSchema(schema, baseObj = {}, level = 0) {
   return objWithAllProps;
 }
 
-function handleAnyOrOneOfSchema(schema, baseObj = {}, level = 0, suffix = '') {
+function handleAnyOrOneOfSchema(schema, baseObj = {}, level = 0, suffix = "") {
   const obj = Object.assign({}, baseObj);
-  obj['::description'] = schema.description || '';
+  obj["::description"] = schema.description || "";
 
   // 1. First iterate the regular properties if defined
-  if (schema.type === 'object' || schema.properties) {
-    obj['::type'] = 'object';
+  if (schema.type === "object" || schema.properties) {
+    obj["::type"] = "object";
     populateProperties(obj, schema, level);
   }
 
   // 2. Then build anyOf / oneOf option entries
   const objWithAnyOfProps = {};
-  const xxxOf = schema.anyOf ? 'anyOf' : 'oneOf';
+  const xxxOf = schema.anyOf ? "anyOf" : "oneOf";
   schema[xxxOf].forEach((v, index) => {
-    const optKey = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
-    if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
+    const optKey = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ""}`;
+    if (v.type === "object" || v.properties || v.allOf || v.anyOf || v.oneOf) {
       const partialObj = schemaInObjectNotation(v, {}, level + 1);
       objWithAnyOfProps[optKey] = partialObj;
-      if (typeof partialObj === 'object' && partialObj !== null) {
-        partialObj['::readwrite'] = ''; // xxx-options cannot be read or write only
+      if (typeof partialObj === "object" && partialObj !== null) {
+        partialObj["::readwrite"] = ""; // xxx-options cannot be read or write only
       }
-      objWithAnyOfProps['::type'] = 'xxx-of-option';
-    } else if (v.type === 'array' || v.items) {
+      objWithAnyOfProps["::type"] = "xxx-of-option";
+    } else if (v.type === "array" || v.items) {
       const partialObj = schemaInObjectNotation(v, {}, level + 1);
       objWithAnyOfProps[optKey] = partialObj;
-      if (typeof partialObj === 'object' && partialObj !== null) {
-        partialObj['::readwrite'] = '';
+      if (typeof partialObj === "object" && partialObj !== null) {
+        partialObj["::readwrite"] = "";
       }
-      objWithAnyOfProps['::type'] = 'xxx-of-array';
+      objWithAnyOfProps["::type"] = "xxx-of-array";
     } else {
       objWithAnyOfProps[optKey] = `${getTypeInfo(v).html}`;
-      objWithAnyOfProps['::type'] = 'xxx-of-option';
+      objWithAnyOfProps["::type"] = "xxx-of-option";
     }
   });
 
-  const operatorKey = schema.anyOf ? '::ANY~OF' : '::ONE~OF';
+  const operatorKey = schema.anyOf ? "::ANY~OF" : "::ONE~OF";
   const fullKey = suffix ? `${operatorKey} ${suffix}` : operatorKey;
   obj[fullKey] = objWithAnyOfProps;
-  obj['::type'] = 'object';
+  obj["::type"] = "object";
 
   return obj;
 }
 
 function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
   // Recognize OpenAPI 3.1 nullable object and array
-  if (schema.type.length === 2 && schema.type.includes('null')) {
-    if (schema.type.includes('object')) {
+  if (schema.type.length === 2 && schema.type.includes("null")) {
+    if (schema.type.includes("object")) {
       return handleObjectSchema(schema, baseObj, level);
     }
-    if (schema.type.includes('array')) {
+    if (schema.type.includes("array")) {
       return handleArraySchema(schema, baseObj, level);
     }
   }
 
-  const subSchema = typeof structuredClone === 'function' ? structuredClone(schema) : JSON.parse(JSON.stringify(schema));
+  const subSchema =
+    typeof structuredClone === "function"
+      ? structuredClone(schema)
+      : JSON.parse(JSON.stringify(schema));
   const primitiveType = [];
   const complexTypes = [];
 
@@ -1072,11 +1151,14 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
     if (v.match(/integer|number|string|null|boolean/g)) {
       primitiveType.push(v);
     } else if (
-      v === 'array' &&
-      typeof subSchema.items?.type === 'string' &&
+      v === "array" &&
+      typeof subSchema.items?.type === "string" &&
       subSchema.items?.type.match(/integer|number|string|null|boolean/g)
     ) {
-      if (subSchema.items.type === 'string' && (subSchema.items.format || subSchema.items.contentMediaType)) {
+      if (
+        subSchema.items.type === "string" &&
+        (subSchema.items.format || subSchema.items.contentMediaType)
+      ) {
         primitiveType.push(`[${subSchema.items.format || subSchema.items.contentMediaType}]`);
       } else {
         primitiveType.push(`[${subSchema.items.type}]`);
@@ -1088,37 +1170,37 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
 
   let multiPrimitiveTypes;
   if (primitiveType.length > 0) {
-    subSchema.type = primitiveType.join('┃');
+    subSchema.type = primitiveType.join("┃");
     multiPrimitiveTypes = getTypeInfo(subSchema);
     if (complexTypes.length === 0) {
-      return `${multiPrimitiveTypes?.html || ''}`;
+      return `${multiPrimitiveTypes?.html || ""}`;
     }
   }
 
   if (complexTypes.length > 0) {
     const obj = Object.assign({}, baseObj);
-    obj['::type'] = 'object';
+    obj["::type"] = "object";
     const multiTypeOptions = {
-      '::type': 'xxx-of-option',
+      "::type": "xxx-of-option",
     };
 
     let optionIndex = 1;
     complexTypes.forEach((v) => {
-      if (v === 'object') {
+      if (v === "object") {
         const objTypeOption = {
-          '::title': schema.title || '',
-          '::description': schema.description || '',
-          '::type': 'object',
-          '::deprecated': schema.deprecated || false,
+          "::title": schema.title || "",
+          "::description": schema.description || "",
+          "::type": "object",
+          "::deprecated": schema.deprecated || false,
         };
         populateProperties(objTypeOption, schema, level);
         multiTypeOptions[`::OPTION~${optionIndex++}`] = objTypeOption;
-      } else if (v === 'array') {
+      } else if (v === "array") {
         multiTypeOptions[`::OPTION~${optionIndex++}`] = {
-          '::title': schema.title || '',
-          '::description': schema.description || '',
-          '::type': 'array',
-          '::props': schemaInObjectNotation(schema.items, {}, level + 1),
+          "::title": schema.title || "",
+          "::description": schema.description || "",
+          "::type": "array",
+          "::props": schemaInObjectNotation(schema.items, {}, level + 1),
         };
       }
     });
@@ -1127,7 +1209,7 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
       multiTypeOptions[`::OPTION~${optionIndex++}`] = multiPrimitiveTypes.html;
     }
 
-    obj['::ONE~OF'] = multiTypeOptions;
+    obj["::ONE~OF"] = multiTypeOptions;
     return obj;
   }
 
@@ -1135,7 +1217,8 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
 }
 
 function createObjectAST(schema, level, name, isRequired) {
-  const isNullable = schema.nullable || (Array.isArray(schema.type) && schema.type.includes('null')) || false;
+  const isNullable =
+    schema.nullable || (Array.isArray(schema.type) && schema.type.includes("null")) || false;
   const properties = [];
   if (schema.properties) {
     for (const key in schema.properties) {
@@ -1148,27 +1231,32 @@ function createObjectAST(schema, level, name, isRequired) {
   const patternProperties = [];
   if (schema.patternProperties) {
     for (const key in schema.patternProperties) {
-      const child = schemaToAST(schema.patternProperties[key], level + 1, `[pattern: ${key}]`, false);
+      const child = schemaToAST(
+        schema.patternProperties[key],
+        level + 1,
+        `[pattern: ${key}]`,
+        false,
+      );
       if (child) patternProperties.push(child);
     }
   }
 
   let additionalProperties = null;
-  if (schema.additionalProperties && typeof schema.additionalProperties === 'object') {
-    additionalProperties = schemaToAST(schema.additionalProperties, level + 1, '[any-key]', false);
+  if (schema.additionalProperties && typeof schema.additionalProperties === "object") {
+    additionalProperties = schemaToAST(schema.additionalProperties, level + 1, "[any-key]", false);
   }
 
   return {
-    kind: 'object',
+    kind: "object",
     name,
-    title: schema.title || '',
+    title: schema.title || "",
     description: generateMarkdownForArrayAndObjectDescription(schema, level),
     required: isRequired,
     deprecated: schema.deprecated || false,
     readOnly: schema.readOnly || false,
     writeOnly: schema.writeOnly || false,
     nullable: isNullable,
-    dataTypeLabel: isNullable ? 'object ┃ null' : 'object',
+    dataTypeLabel: isNullable ? "object ┃ null" : "object",
     properties,
     patternProperties,
     additionalProperties,
@@ -1176,30 +1264,31 @@ function createObjectAST(schema, level, name, isRequired) {
 }
 
 function createArrayAST(schema, level, name, isRequired) {
-  const isNullable = schema.nullable || (Array.isArray(schema.type) && schema.type.includes('null')) || false;
+  const isNullable =
+    schema.nullable || (Array.isArray(schema.type) && schema.type.includes("null")) || false;
   let itemsNode = null;
   if (schema.items) {
-    itemsNode = schemaToAST(schema.items, level + 1, '', false);
+    itemsNode = schemaToAST(schema.items, level + 1, "", false);
   }
 
-  let arrayType = '';
+  let arrayType = "";
   if (schema.items?.items) {
-    arrayType = schema.items.items.type || '';
-  } else if (schema.items?.type && typeof schema.items.type === 'string') {
+    arrayType = schema.items.items.type || "";
+  } else if (schema.items?.type && typeof schema.items.type === "string") {
     arrayType = schema.items.type;
   }
 
   return {
-    kind: 'array',
+    kind: "array",
     name,
-    title: schema.title || '',
+    title: schema.title || "",
     description: generateMarkdownForArrayAndObjectDescription(schema, level),
     required: isRequired,
     deprecated: schema.deprecated || false,
     readOnly: schema.readOnly || false,
     writeOnly: schema.writeOnly || false,
     nullable: isNullable,
-    dataTypeLabel: isNullable ? 'array ┃ null' : 'array',
+    dataTypeLabel: isNullable ? "array ┃ null" : "array",
     arrayType,
     minItems: schema.minItems,
     maxItems: schema.maxItems,
@@ -1211,61 +1300,127 @@ function createArrayAST(schema, level, name, isRequired) {
 function createPrimitiveAST(schema, name, isRequired) {
   const typeInfo = getTypeInfo(schema) || {};
   return {
-    kind: 'primitive',
+    kind: "primitive",
     name,
-    type: typeInfo.type || schema.type || '',
-    format: typeInfo.format || schema.format || '',
-    contentMediaType: typeInfo.contentMediaType || schema.contentMediaType || '',
-    contentEncoding: typeInfo.contentEncoding || schema.contentEncoding || '',
+    type: typeInfo.type || schema.type || "",
+    format: typeInfo.format || schema.format || "",
+    contentMediaType: typeInfo.contentMediaType || schema.contentMediaType || "",
+    contentEncoding: typeInfo.contentEncoding || schema.contentEncoding || "",
     contentSchema: typeInfo.contentSchema || schema.contentSchema || null,
-    pattern: typeInfo.pattern || schema.pattern || '',
-    constraints: typeInfo.constrain || '',
-    defaultValue: typeInfo.default !== undefined && typeInfo.default !== '' ? String(typeInfo.default) : '',
-    allowedValues: typeInfo.allowedValues || '',
-    description: (schema.description || typeInfo.description || '').trim(),
-    title: (schema.title || '').trim(),
+    pattern: typeInfo.pattern || schema.pattern || "",
+    constraints: typeInfo.constrain || "",
+    defaultValue:
+      typeInfo.default !== undefined && typeInfo.default !== "" ? String(typeInfo.default) : "",
+    allowedValues: typeInfo.allowedValues || "",
+    description: (schema.description || typeInfo.description || "").trim(),
+    title: (schema.title || "").trim(),
     required: isRequired,
     deprecated: schema.deprecated || !!typeInfo.deprecated,
-    readOnly: schema.readOnly || typeInfo.readOrWriteOnly === 'readonly',
-    writeOnly: schema.writeOnly || typeInfo.readOrWriteOnly === 'writeonly',
-    html: typeInfo.html || '',
+    readOnly: schema.readOnly || typeInfo.readOrWriteOnly === "readonly",
+    writeOnly: schema.writeOnly || typeInfo.readOrWriteOnly === "writeonly",
+    html: typeInfo.html || "",
   };
 }
+
+// Deepest JSON nesting level expanded; anything below an object or array at this level is truncated
+const MAX_SCHEMA_DEPTH = 8;
+// Largest tree built for one schema. A bigger tree (e.g. Stripe's expandable fields) is rebuilt one level shallower,
+// down to MIN_SCHEMA_DEPTH, so the page stays responsive
+const SCHEMA_NODE_BUDGET = 8000;
+const MIN_SCHEMA_DEPTH = 4;
+
+/**
+ * Whether a schema opens a new JSON nesting level (an object or array), directly or through allOf.
+ * Primitives and unions are not containers: primitives cost nothing to show, and union options are checked one by one.
+ * @param {object} schema - OpenAPI/JSON Schema object
+ * @returns {boolean}
+ */
+function isContainerSchema(schema) {
+  const types = Array.isArray(schema.type) ? schema.type : [schema.type];
+  return (
+    types.includes("object") ||
+    types.includes("array") ||
+    !!(schema.properties || schema.patternProperties || schema.items) ||
+    (!!schema.additionalProperties && typeof schema.additionalProperties === "object") ||
+    !!schema.allOf?.some((sub) => sub && isContainerSchema(sub))
+  );
+}
+
+// State of the schemaToAST() call in progress (conversion is synchronous)
+// Schemas on the current path, to stop on cycles that only go through allOf/anyOf/oneOf
+const schemasInProgress = new Set();
+let maxDepth = MAX_SCHEMA_DEPTH;
+let nodeCount = 0;
 
 /**
  * Transforms an OpenAPI Schema into a strongly-typed Abstract Syntax Tree (AST) node.
  *
  * @param {object} schema - OpenAPI/JSON Schema object
- * @param {number} [level=0] - Recursion depth
+ * @param {number} [level=0] - JSON nesting depth: grows through properties, items and additionalProperties, not through allOf/anyOf/oneOf
  * @param {string} [name=''] - Property or field name
  * @param {boolean} [isRequired=false] - Whether this property is required
  * @param {string} [suffix=''] - Suffix used for union composition
  * @returns {object|null} Typed SchemaNode AST
  */
-export function schemaToAST(schema, level = 0, name = '', isRequired = false, suffix = '') {
+export function schemaToAST(schema, level = 0, name = "", isRequired = false, suffix = "") {
   if (!schema) {
     return null;
   }
-  if (level > 8) {
+  if (schemasInProgress.size > 0) {
+    return nodeToAST(schema, level, name, isRequired, suffix);
+  }
+  // Top-level call: expand as deep as allowed while the tree fits the budget
+  for (maxDepth = MAX_SCHEMA_DEPTH; ; maxDepth -= 1) {
+    nodeCount = 0;
+    const ast = nodeToAST(schema, level, name, isRequired, suffix);
+    if (nodeCount <= SCHEMA_NODE_BUDGET || maxDepth <= MIN_SCHEMA_DEPTH) {
+      return ast;
+    }
+  }
+}
+
+function nodeToAST(schema, level, name, isRequired, suffix) {
+  if (!schema) {
+    return null;
+  }
+  nodeCount += 1;
+  // Once over budget this attempt is discarded, so stop expanding to get to the next one quickly
+  const overBudget = nodeCount > SCHEMA_NODE_BUDGET && maxDepth > MIN_SCHEMA_DEPTH;
+  if (
+    schemasInProgress.has(schema) ||
+    ((level > maxDepth || overBudget) && isContainerSchema(schema))
+  ) {
+    const isArray =
+      schema.type === "array" ||
+      (Array.isArray(schema.type) && schema.type.includes("array")) ||
+      !!schema.items;
     return {
-      kind: 'object',
+      kind: isArray ? "array" : "object",
       name,
-      type: schema.type || 'object',
-      title: schema.title || '',
-      description: schema.description || '',
+      type: isArray ? "array" : "object",
+      title: schema.title || "",
+      description: schema.description || "",
       required: isRequired,
       truncated: true,
     };
   }
+  schemasInProgress.add(schema);
+  try {
+    return composeSchemaAST(schema, level, name, isRequired, suffix);
+  } finally {
+    schemasInProgress.delete(schema);
+  }
+}
 
+function composeSchemaAST(schema, level, name, isRequired, suffix) {
   // 1. allOf
   if (schema.allOf) {
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
       const mergedSchema = {
         ...schema.allOf[0],
         ...schema,
-        title: schema.title || schema.allOf[0].title || '',
-        description: schema.description || schema.allOf[0].description || '',
+        title: schema.title || schema.allOf[0].title || "",
+        description: schema.description || schema.allOf[0].description || "",
       };
       delete mergedSchema.allOf;
       return schemaToAST(mergedSchema, level, name, isRequired);
@@ -1275,8 +1430,8 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
     const mergedPatternProps = [];
     let mergedAdditionalProps = null;
     const unionChildren = [];
-    let mergedTitle = schema.title || '';
-    let mergedDescription = schema.description || '';
+    let mergedTitle = schema.title || "";
+    let mergedDescription = schema.description || "";
     let mergedDeprecated = schema.deprecated || false;
     let mergedReadOnly = schema.readOnly || false;
     let mergedWriteOnly = schema.writeOnly || false;
@@ -1290,40 +1445,43 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
       if (sub.writeOnly) mergedWriteOnly = true;
       if (sub.nullable) mergedNullable = true;
 
-      if (sub.type === 'object' || sub.properties || sub.allOf || sub.anyOf || sub.oneOf) {
-        const subSuffix = (sub.anyOf || sub.oneOf) && i > 0 ? `${i}` : '';
-        const subAst = schemaToAST(sub, level + 1, '', false, subSuffix);
+      if (sub.type === "object" || sub.properties || sub.allOf || sub.anyOf || sub.oneOf) {
+        const subSuffix = (sub.anyOf || sub.oneOf) && i > 0 ? `${i}` : "";
+        const subAst = schemaToAST(sub, level, "", false, subSuffix);
         if (subAst) {
-          if (subAst.kind === 'object') {
+          if (subAst.kind === "object") {
             if (subAst.properties) mergedProps.push(...subAst.properties);
             if (subAst.patternProperties) mergedPatternProps.push(...subAst.patternProperties);
             if (subAst.additionalProperties) mergedAdditionalProps = subAst.additionalProperties;
-          } else if (subAst.kind === 'union') {
+          } else if (subAst.kind === "union") {
             unionChildren.push(subAst);
           }
         }
-      } else if (sub.type === 'array' || sub.items) {
-        const subAst = schemaToAST(sub, level + 1);
+      } else if (sub.type === "array" || sub.items) {
+        const subAst = schemaToAST(sub, level);
         if (subAst) {
           mergedProps.push(subAst);
         }
       } else if (sub.type) {
         const propName = `prop${mergedProps.length}`;
-        mergedProps.push(schemaToAST(sub, level + 1, propName, false));
+        mergedProps.push(schemaToAST(sub, level, propName, false));
       }
     });
 
     return {
-      kind: 'object',
+      kind: "object",
       name,
       title: mergedTitle,
-      description: generateMarkdownForArrayAndObjectDescription({ ...schema, title: mergedTitle, description: mergedDescription }, level),
+      description: generateMarkdownForArrayAndObjectDescription(
+        { ...schema, title: mergedTitle, description: mergedDescription },
+        level,
+      ),
       required: isRequired,
       deprecated: mergedDeprecated,
       readOnly: mergedReadOnly,
       writeOnly: mergedWriteOnly,
       nullable: mergedNullable,
-      dataTypeLabel: mergedNullable ? 'object ┃ null' : 'object',
+      dataTypeLabel: mergedNullable ? "object ┃ null" : "object",
       properties: mergedProps,
       patternProperties: mergedPatternProps,
       additionalProperties: mergedAdditionalProps,
@@ -1333,12 +1491,12 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
 
   // 2. anyOf / oneOf
   if (schema.anyOf || schema.oneOf) {
-    const operator = schema.anyOf ? 'anyOf' : 'oneOf';
+    const operator = schema.anyOf ? "anyOf" : "oneOf";
     const rawOptions = schema.anyOf || schema.oneOf;
     const options = rawOptions
       .map((opt, idx) => {
-        const optTitle = opt.title || '';
-        const optAst = schemaToAST(opt, level + 1, optTitle || `Option ${idx + 1}`, false);
+        const optTitle = opt.title || "";
+        const optAst = schemaToAST(opt, level, optTitle || `Option ${idx + 1}`, false);
         if (optAst) {
           optAst.readOnly = false;
           optAst.writeOnly = false;
@@ -1350,7 +1508,7 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
       .filter(Boolean);
 
     let baseProps = [];
-    if (schema.type === 'object' || schema.properties) {
+    if (schema.type === "object" || schema.properties) {
       if (schema.properties) {
         for (const key in schema.properties) {
           const isReq = Array.isArray(schema.required) && schema.required.includes(key);
@@ -1361,12 +1519,12 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
     }
 
     return {
-      kind: 'union',
+      kind: "union",
       operator,
       name,
       suffix,
-      title: schema.title || '',
-      description: schema.description || '',
+      title: schema.title || "",
+      description: schema.description || "",
       required: isRequired,
       properties: baseProps,
       options,
@@ -1375,16 +1533,19 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
 
   // 3. Multi-type array (OpenAPI 3.1)
   if (Array.isArray(schema.type)) {
-    if (schema.type.length === 2 && schema.type.includes('null')) {
-      if (schema.type.includes('object')) {
+    if (schema.type.length === 2 && schema.type.includes("null")) {
+      if (schema.type.includes("object")) {
         return createObjectAST(schema, level, name, isRequired);
       }
-      if (schema.type.includes('array')) {
+      if (schema.type.includes("array")) {
         return createArrayAST(schema, level, name, isRequired);
       }
     }
 
-    const subSchema = typeof structuredClone === 'function' ? structuredClone(schema) : JSON.parse(JSON.stringify(schema));
+    const subSchema =
+      typeof structuredClone === "function"
+        ? structuredClone(schema)
+        : JSON.parse(JSON.stringify(schema));
     const primitiveType = [];
     const complexTypes = [];
 
@@ -1392,11 +1553,14 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
       if (v.match(/integer|number|string|null|boolean/g)) {
         primitiveType.push(v);
       } else if (
-        v === 'array' &&
-        typeof subSchema.items?.type === 'string' &&
+        v === "array" &&
+        typeof subSchema.items?.type === "string" &&
         subSchema.items?.type.match(/integer|number|string|null|boolean/g)
       ) {
-        if (subSchema.items.type === 'string' && (subSchema.items.format || subSchema.items.contentMediaType)) {
+        if (
+          subSchema.items.type === "string" &&
+          (subSchema.items.format || subSchema.items.contentMediaType)
+        ) {
           primitiveType.push(`[${subSchema.items.format || subSchema.items.contentMediaType}]`);
         } else {
           primitiveType.push(`[${subSchema.items.type}]`);
@@ -1407,7 +1571,7 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
     });
 
     if (complexTypes.length === 0 && primitiveType.length > 0) {
-      subSchema.type = primitiveType.join('┃');
+      subSchema.type = primitiveType.join("┃");
       return createPrimitiveAST(subSchema, name, isRequired);
     }
 
@@ -1415,32 +1579,42 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
       const options = [];
       let optionIndex = 1;
       complexTypes.forEach((v) => {
-        if (v === 'object') {
-          const objNode = createObjectAST(schema, level + 1, schema.title || `Option ${optionIndex}`, false);
+        if (v === "object") {
+          const objNode = createObjectAST(
+            schema,
+            level,
+            schema.title || `Option ${optionIndex}`,
+            false,
+          );
           objNode.optionIndex = optionIndex++;
-          objNode.optionTitle = schema.title || '';
+          objNode.optionTitle = schema.title || "";
           options.push(objNode);
-        } else if (v === 'array') {
-          const arrNode = createArrayAST(schema, level + 1, schema.title || `Option ${optionIndex}`, false);
+        } else if (v === "array") {
+          const arrNode = createArrayAST(
+            schema,
+            level,
+            schema.title || `Option ${optionIndex}`,
+            false,
+          );
           arrNode.optionIndex = optionIndex++;
-          arrNode.optionTitle = schema.title || '';
+          arrNode.optionTitle = schema.title || "";
           options.push(arrNode);
         }
       });
 
       if (primitiveType.length > 0) {
-        subSchema.type = primitiveType.join('┃');
+        subSchema.type = primitiveType.join("┃");
         const primNode = createPrimitiveAST(subSchema, `Option ${optionIndex}`, false);
         primNode.optionIndex = optionIndex++;
         options.push(primNode);
       }
 
       return {
-        kind: 'union',
-        operator: 'oneOf',
+        kind: "union",
+        operator: "oneOf",
         name,
-        title: schema.title || '',
-        description: schema.description || '',
+        title: schema.title || "",
+        description: schema.description || "",
         required: isRequired,
         options,
       };
@@ -1448,12 +1622,12 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
   }
 
   // 4. Object
-  if (schema.type === 'object' || schema.properties) {
+  if (schema.type === "object" || schema.properties) {
     return createObjectAST(schema, level, name, isRequired);
   }
 
   // 5. Array
-  if (schema.type === 'array' || schema.items) {
+  if (schema.type === "array" || schema.items) {
     return createArrayAST(schema, level, name, isRequired);
   }
 
@@ -1470,15 +1644,15 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
  * @param {number} [level=0] - recursion level
  * @param {string} [suffix=''] - used for suffixing property names to avoid duplicate props during object composition
  */
-export function schemaInObjectNotation(schema, obj = {}, level = 0, suffix = '') {
+export function schemaInObjectNotation(schema, obj = {}, level = 0, suffix = "") {
   if (!schema) {
     return;
   }
   if (level > 8) {
     return {
       ...obj,
-      '::type': schema.type || 'object',
-      '::description': schema.description || '',
+      "::type": schema.type || "object",
+      "::description": schema.description || "",
     };
   }
   if (schema.allOf) {
@@ -1490,48 +1664,51 @@ export function schemaInObjectNotation(schema, obj = {}, level = 0, suffix = '')
   if (Array.isArray(schema.type)) {
     return handleMultiTypeSchema(schema, obj, level);
   }
-  if (schema.type === 'object' || schema.properties) {
+  if (schema.type === "object" || schema.properties) {
     return handleObjectSchema(schema, obj, level);
   }
-  if (schema.type === 'array' || schema.items) {
+  if (schema.type === "array" || schema.items) {
     return handleArraySchema(schema, obj, level);
   }
   const typeObj = getTypeInfo(schema);
   if (typeObj?.html) {
     return `${typeObj.html}`;
   }
-  return '';
+  return "";
 }
 
 /**
  * Helper to consistently format raw example values according to mimeType and outputType.
  */
-function formatExampleContent(rawVal, mimeType = '', outputType = 'json') {
+function formatExampleContent(rawVal, mimeType = "", outputType = "json") {
   let content = rawVal;
-  let format = 'text';
+  let format = "text";
 
-  if (mimeType?.toLowerCase().includes('json')) {
-    if (outputType === 'text') {
-      content = typeof rawVal === 'string' ? rawVal : JSON.stringify(rawVal, undefined, 2);
-      format = 'text';
-    } else if (typeof rawVal === 'object' && rawVal !== null) {
+  if (mimeType?.toLowerCase().includes("json")) {
+    if (outputType === "text") {
+      content = typeof rawVal === "string" ? rawVal : JSON.stringify(rawVal, undefined, 2);
+      format = "text";
+    } else if (typeof rawVal === "object" && rawVal !== null) {
       content = rawVal;
-      format = 'json';
-    } else if (typeof rawVal === 'string') {
+      format = "json";
+    } else if (typeof rawVal === "string") {
       try {
         content = JSON.parse(rawVal);
-        format = 'json';
+        format = "json";
       } catch {
         content = rawVal;
-        format = 'text';
+        format = "text";
       }
     } else {
       content = rawVal;
-      format = 'json';
+      format = "json";
     }
   } else {
-    content = typeof rawVal === 'object' && rawVal !== null ? JSON.stringify(rawVal, undefined, 2) : String(rawVal ?? '');
-    format = 'text';
+    content =
+      typeof rawVal === "object" && rawVal !== null
+        ? JSON.stringify(rawVal, undefined, 2)
+        : String(rawVal ?? "");
+    format = "text";
   }
 
   return { content, format };
@@ -1540,20 +1717,20 @@ function formatExampleContent(rawVal, mimeType = '', outputType = 'json') {
 /* Create Example object */
 export function generateExample(
   schema,
-  mimeType = '',
+  mimeType = "",
   examples = null,
   example = null,
   includeReadOnly = true,
   includeWriteOnly = true,
-  outputType = 'json',
-  includeGeneratedExample = false
+  outputType = "json",
+  includeGeneratedExample = false,
 ) {
   const finalExamples = [];
-  const isJson = mimeType?.toLowerCase().includes('json');
-  const isXml = mimeType?.toLowerCase().includes('xml');
+  const isJson = mimeType?.toLowerCase().includes("json");
+  const isXml = mimeType?.toLowerCase().includes("xml");
 
   // 1. Process multiple examples (examples map)
-  if (examples && typeof examples === 'object' && Object.keys(examples).length > 0) {
+  if (examples && typeof examples === "object" && Object.keys(examples).length > 0) {
     for (const eg in examples) {
       const rawVal = examples[eg]?.value !== undefined ? examples[eg].value : examples[eg];
       const { content, format } = formatExampleContent(rawVal, mimeType, outputType);
@@ -1561,7 +1738,7 @@ export function generateExample(
       finalExamples.push({
         exampleId: eg,
         exampleSummary: examples[eg]?.summary || eg,
-        exampleDescription: examples[eg]?.description || '',
+        exampleDescription: examples[eg]?.description || "",
         exampleType: mimeType,
         exampleValue: content,
         exampleFormat: format,
@@ -1569,14 +1746,18 @@ export function generateExample(
     }
   }
   // 2. Process single example (when examples is absent or empty)
-  else if (example !== null && example !== undefined && (typeof example !== 'object' || Object.keys(example).length > 0)) {
+  else if (
+    example !== null &&
+    example !== undefined &&
+    (typeof example !== "object" || Object.keys(example).length > 0)
+  ) {
     const rawVal = example?.value !== undefined ? example.value : example;
     const { content, format } = formatExampleContent(rawVal, mimeType, outputType);
 
     finalExamples.push({
-      exampleId: 'Example',
-      exampleSummary: example?.summary || '',
-      exampleDescription: example?.description || '',
+      exampleId: "Example",
+      exampleSummary: example?.summary || "",
+      exampleDescription: example?.description || "",
       exampleType: mimeType,
       exampleValue: content,
       exampleFormat: format,
@@ -1590,9 +1771,9 @@ export function generateExample(
       if (firstExample !== undefined && firstExample !== null) {
         const { content, format } = formatExampleContent(firstExample, mimeType, outputType);
         finalExamples.push({
-          exampleId: 'Example',
-          exampleSummary: '',
-          exampleDescription: '',
+          exampleId: "Example",
+          exampleSummary: "",
+          exampleDescription: "",
           exampleType: mimeType,
           exampleValue: content,
           exampleFormat: format,
@@ -1600,20 +1781,20 @@ export function generateExample(
       } else if (
         isJson ||
         isXml ||
-        mimeType?.toLowerCase().includes('text') ||
-        mimeType?.toLowerCase().includes('yaml') ||
-        mimeType?.toLowerCase().includes('*/*')
+        mimeType?.toLowerCase().includes("text") ||
+        mimeType?.toLowerCase().includes("yaml") ||
+        mimeType?.toLowerCase().includes("*/*")
       ) {
-        let xmlRootStart = '';
-        let xmlRootEnd = '';
+        let xmlRootStart = "";
+        let xmlRootEnd = "";
         let exampleFormat = outputType;
 
         if (isXml) {
           xmlRootStart = schema.xml?.name
-            ? `<${schema.xml.name}${schema.xml.namespace ? ` xmlns="${schema.xml.namespace}"` : ''}>`
-            : '<root>';
-          xmlRootEnd = schema.xml?.name ? `</${schema.xml.name}>` : '</root>';
-          exampleFormat = 'text';
+            ? `<${schema.xml.name}${schema.xml.namespace ? ` xmlns="${schema.xml.namespace}"` : ""}>`
+            : "<root>";
+          xmlRootEnd = schema.xml?.name ? `</${schema.xml.name}>` : "</root>";
+          exampleFormat = "text";
         }
 
         const samples = schemaToSampleObj(schema, {
@@ -1628,15 +1809,18 @@ export function generateExample(
           if (!samples[samplesKey]) {
             continue;
           }
-          const summary = samples[samplesKey]['::TITLE'] || `Example ${++i}`;
-          const description = samples[samplesKey]['::DESCRIPTION'] || '';
-          let exampleValue = '';
+          const summary = samples[samplesKey]["::TITLE"] || `Example ${++i}`;
+          const description = samples[samplesKey]["::DESCRIPTION"] || "";
+          let exampleValue = "";
 
           if (isXml) {
             exampleValue = `<?xml version="1.0" encoding="UTF-8"?>\n${xmlRootStart}${json2xml(samples[samplesKey], 1)}\n${xmlRootEnd}`;
           } else {
             removeTitlesAndDescriptions(samples[samplesKey]);
-            exampleValue = outputType === 'text' ? JSON.stringify(samples[samplesKey], null, 2) : samples[samplesKey];
+            exampleValue =
+              outputType === "text"
+                ? JSON.stringify(samples[samplesKey], null, 2)
+                : samples[samplesKey];
           }
 
           finalExamples.push({
@@ -1648,34 +1832,34 @@ export function generateExample(
             exampleValue,
           });
         }
-      } else if (mimeType?.toLowerCase().includes('jose')) {
+      } else if (mimeType?.toLowerCase().includes("jose")) {
         finalExamples.push({
-          exampleId: 'Example',
-          exampleSummary: 'Base64 Encoded',
-          exampleDescription: '',
+          exampleId: "Example",
+          exampleSummary: "Base64 Encoded",
+          exampleDescription: "",
           exampleType: mimeType,
-          exampleValue: schema.pattern || 'bXJpbg==',
-          exampleFormat: 'text',
+          exampleValue: schema.pattern || "bXJpbg==",
+          exampleFormat: "text",
         });
       } else {
         finalExamples.push({
-          exampleId: 'Example',
-          exampleSummary: '',
-          exampleDescription: '',
+          exampleId: "Example",
+          exampleSummary: "",
+          exampleDescription: "",
           exampleType: mimeType,
-          exampleValue: '',
-          exampleFormat: 'text',
+          exampleValue: "",
+          exampleFormat: "text",
         });
       }
     } else {
       // No Example or Schema provided
       finalExamples.push({
-        exampleId: 'Example',
-        exampleSummary: '',
-        exampleDescription: '',
+        exampleId: "Example",
+        exampleSummary: "",
+        exampleDescription: "",
         exampleType: mimeType,
-        exampleValue: '',
-        exampleFormat: 'text',
+        exampleValue: "",
+        exampleFormat: "text",
       });
     }
   }
@@ -1684,11 +1868,11 @@ export function generateExample(
 }
 
 function getSerializeStyleForContentType(contentType) {
-  if (contentType === 'application/json') {
-    return 'json';
+  if (contentType === "application/json") {
+    return "json";
   }
-  if (contentType === 'application/xml') {
-    return 'xml';
+  if (contentType === "application/xml") {
+    return "xml";
   }
   return null;
 }
@@ -1701,7 +1885,11 @@ export function getSchemaFromParam(param) {
     // we gonna use the first content-encoding
     for (const contentType of Object.keys(param.content)) {
       if (param.content[contentType].schema) {
-        return [param.content[contentType].schema, getSerializeStyleForContentType(contentType), param.content[contentType]];
+        return [
+          param.content[contentType].schema,
+          getSerializeStyleForContentType(contentType),
+          param.content[contentType],
+        ];
       }
     }
   }
@@ -1711,11 +1899,11 @@ export function getSchemaFromParam(param) {
 export const EMPTY_ARRAY = Object.freeze([]);
 
 export function getMergedProperties(schema, visited = new Set()) {
-  if (!schema || typeof schema !== 'object' || visited.has(schema)) {
+  if (!schema || typeof schema !== "object" || visited.has(schema)) {
     return {};
   }
   visited.add(schema);
-  const properties = { ...(schema.properties || {}) };
+  const properties = { ...schema.properties };
   if (Array.isArray(schema.allOf)) {
     schema.allOf.forEach((sub) => {
       Object.assign(properties, getMergedProperties(sub, visited));
@@ -1725,7 +1913,7 @@ export function getMergedProperties(schema, visited = new Set()) {
 }
 
 export function getMergedRequired(schema, visited = new Set()) {
-  if (!schema || typeof schema !== 'object' || visited.has(schema)) {
+  if (!schema || typeof schema !== "object" || visited.has(schema)) {
     return [];
   }
   visited.add(schema);

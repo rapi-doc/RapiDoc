@@ -1,0 +1,1036 @@
+---
+import portalConfig from 'virtual:rapidoc-portal/config';
+import Icon from './Icon.astro';
+import PortalMobileNav from './PortalMobileNav.astro';
+import PortalSearchModal from './PortalSearchModal.astro';
+import PortalUserMenu from './PortalUserMenu.astro';
+import { activeTab } from './header-nav.js';
+import { withBase, withoutBase } from './base-path.js';
+
+interface Props {
+  portalConfig?: any;
+  /** id of the page's popover sidebar, opened by the menu button on narrow screens */
+  sidebarId?: string;
+}
+
+const config = Astro.props.portalConfig ?? portalConfig;
+
+const { site, tabs } = config;
+const banner = site.banner;
+const logo = site.logo;
+const headerLinks = config.header.links;
+const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
+
+// On pages with a sidebar, the menu button opens the sidebar on narrow screens, and the sidebar
+// lists the header links above its own navigation (PortalSidebar.astro, api-reference.astro).
+let sidebarId = Astro.props.sidebarId;
+if (!sidebarId) {
+  // Starlight's `starlightRoute` getter throws on pages Starlight does not render (home, catalog, APIs).
+  try {
+    if (Astro.locals.starlightRoute?.hasSidebar) sidebarId = 'starlight__sidebar';
+  } catch {}
+}
+const hasSidebar = Boolean(sidebarId);
+
+const currentPath = withoutBase(Astro.url?.pathname || '/');
+const currentTab = activeTab(tabs, currentPath);
+---
+
+<header class="portal-header-root" data-portal-region="header" data-has-sidebar={hasSidebar ? '' : undefined}>
+  <script is:inline>
+    try {
+      const navEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      if (navEntry && navEntry.type === 'reload') {
+        sessionStorage.removeItem('portal-announcement-dismissed');
+      }
+      if (sessionStorage.getItem('portal-announcement-dismissed') === 'true') {
+        document.documentElement.classList.add('portal-announcement-dismissed');
+      }
+    } catch {}
+  </script>
+
+  {
+    banner && (
+      <aside
+        class="portal-announcement-bar"
+        id="portal-announcement"
+        style={[banner.background && `background-color: ${banner.background}`, banner.color && `color: ${banner.color}`].filter(Boolean).join('; ')}
+      >
+        <div class="portal-announcement-inner">
+          <span class="portal-announcement-msg">{banner.message}</span>
+          {banner.href && (
+            <a href={withBase(banner.href)} class="portal-announcement-cta">
+              Explore <Icon name="arrow-right" size={16} />
+            </a>
+          )}
+        </div>
+        {banner.dismissible && (
+          <button type="button" class="portal-announcement-close" id="portal-announcement-close" aria-label="Dismiss announcement">
+            <Icon name="x" size={16} />
+          </button>
+        )}
+      </aside>
+    )
+  }
+
+  <!-- Row 1: brand, search, links and menus, theme switcher -->
+  <div class="portal-navbar" data-portal-region="header-inner">
+    <a href={withBase(logo.href)} class="portal-brand" aria-label={`${site.title} home`}>
+      {logo.light && <img src={withBase(logo.light)} alt={logo.text ? '' : logo.alt} class:list={['portal-brand-img', { 'portal-brand-img-light': logo.dark !== logo.light }]} />}
+      {logo.dark && logo.dark !== logo.light && <img src={withBase(logo.dark)} alt={logo.text ? '' : logo.alt} class="portal-brand-img portal-brand-img-dark" />}
+      {logo.text && <span class="portal-brand-text">{logo.text}</span>}
+    </a>
+
+    {
+      config.search ? (
+        <button type="button" class="portal-search-trigger" id="portal-search-btn" aria-label="Search ⌘K" aria-keyshortcuts="Meta+K Control+K /">
+          <Icon name="magnifying-glass" size={16} class="portal-search-icon" />
+          <span class="portal-search-text">Search</span>
+          <kbd class="portal-search-kbd">⌘K</kbd>
+        </button>
+      ) : (
+        <span class="portal-search-spacer" />
+      )
+    }
+
+    <div class="portal-nav-end">
+      <nav class="portal-nav-menu" aria-label="Main">
+        {
+          headerLinks.map((link, linkIndex) => {
+            const hasSubmenu = Array.isArray(link.items) && link.items.length > 0;
+            const anyHasFeatures = hasSubmenu && link.items.some((it) => it.items?.length > 0);
+
+            if (hasSubmenu) {
+              return (
+                <div class="portal-dropdown-wrapper">
+                  <button type="button" class="portal-nav-button portal-dropdown-trigger" aria-expanded="false" aria-controls={`portal-menu-${linkIndex}`}>
+                    <span>{link.label}</span>
+                    <Icon name="caret-down" size={16} class="portal-chevron" />
+                  </button>
+
+                  <div class="portal-megamenu-panel" id={`portal-menu-${linkIndex}`}>
+                    {anyHasFeatures ? (
+                      /* Cypress.io Sectioned Mode: Hero card + 2-column feature links below it */
+                      <div class="portal-megamenu-sections">
+                        {link.items.map((item, idx) => {
+                          const hasFeats = item.items?.length > 0;
+                          return (
+                            <div class:list={['portal-megamenu-section', { 'with-divider': idx < link.items.length - 1 }]}>
+                              <a href={withBase(item.href)} class="portal-megamenu-hero-card">
+                                <div class="portal-card-icon-box">
+                                  <Icon name={item.icon || 'lightning'} duotone />
+                                </div>
+                                <div class="portal-card-body">
+                                  <div class="portal-card-title-row">
+                                    <span class="portal-card-title">{item.label}</span>
+                                    {item.badge && <span class="portal-card-badge">{item.badge}</span>}
+                                    <span class="portal-card-arrow"><Icon name="arrow-right" size={16} /></span>
+                                  </div>
+                                  {item.description && <p class="portal-card-desc">{item.description}</p>}
+                                </div>
+                              </a>
+
+                              {hasFeats && (
+                                <div class="portal-features-grid">
+                                  {item.items.map((feat) => (
+                                    <a href={withBase(feat.href)} class="portal-feature-item">
+                                      <Icon name={feat.icon || 'check-circle'} size={16} class="portal-feature-icon" />
+                                      <span class="portal-feature-label">{feat.label}</span>
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      /* Cypress.io 2-Column Grid Mode: Wide cards side by side */
+                      <div class="portal-megamenu-grid">
+                        {link.items.map((item) => (
+                          <a href={withBase(item.href)} class="portal-megamenu-card">
+                            <div class="portal-card-icon-box">
+                              <Icon name={item.icon || 'lightning'} duotone />
+                            </div>
+                            <div class="portal-card-body">
+                              <div class="portal-card-title-row">
+                                <span class="portal-card-title">{item.label}</span>
+                                {item.badge && <span class="portal-card-badge">{item.badge}</span>}
+                                <span class="portal-card-arrow"><Icon name="arrow-right" size={16} /></span>
+                              </div>
+                              {item.description && <p class="portal-card-desc">{item.description}</p>}
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
+            const external = isExternal(link.href);
+            const isActive = !external && link.href !== '/' && (currentPath === link.href || currentPath.startsWith(`${link.href.replace(/\/$/, '')}/`));
+            return (
+              <a
+                href={withBase(link.href)}
+                class:list={['portal-nav-link', link.style && link.style !== 'link' && `portal-nav-${link.style}`, { active: isActive }]}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
+              >
+                {link.label}
+              </a>
+            );
+          })
+        }
+      </nav>
+
+{
+        config.header.themeSwitcher && (
+      <button type="button" class="portal-theme-btn" id="portal-theme-toggle" aria-label="Dark mode" aria-pressed="false">
+        <span class="portal-theme-option portal-theme-light" aria-hidden="true">
+          <Icon name="sun" size={16} />
+        </span>
+        <span class="portal-theme-option portal-theme-dark" aria-hidden="true">
+          <Icon name="moon" size={16} />
+        </span>
+      </button>
+        )
+      }
+
+      {config.auth && <PortalUserMenu />}
+
+      <button type="button" class="portal-mobile-toggle" id="portal-mobile-menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="portal-mobile-drawer">
+        <Icon name="list" />
+      </button>
+      {
+        hasSidebar && (
+          <button type="button" class="portal-mobile-toggle portal-sidebar-toggle" popovertarget={sidebarId} aria-label="Menu">
+            <Icon name="list" />
+          </button>
+        )
+      }
+    </div>
+  </div>
+
+  <!-- Row 2: section tabs -->
+  {
+    tabs.length > 0 && (
+      <nav class="portal-tabs" data-portal-region="header-tabs" aria-label="Sections">
+        {tabs.map((tab) => (
+          <a
+            href={withBase(tab.href)}
+            class="portal-tab"
+            aria-current={tab === currentTab ? 'page' : undefined}
+            target={isExternal(tab.href) ? '_blank' : undefined}
+            rel={isExternal(tab.href) ? 'noopener noreferrer' : undefined}
+          >
+            {tab.icon && <Icon name={tab.icon} size={16} />}
+            <span>{tab.label}</span>
+            {tab.badge && <span class="portal-tab-badge">{typeof tab.badge === 'string' ? tab.badge : tab.badge.text}</span>}
+          </a>
+        ))}
+      </nav>
+    )
+  }
+
+  <!-- Mobile Drawer -->
+  <div class="portal-mobile-drawer" id="portal-mobile-drawer" hidden>
+    <PortalMobileNav portalConfig={config} />
+  </div>
+</header>
+
+<PortalSearchModal portalConfig={config} />
+
+<style is:global>
+  /* Keyboard focus ring for every control in the header */
+  .portal-header-root :is(a, button):focus-visible {
+    outline: 2px solid var(--ph-primary);
+    outline-offset: 2px;
+  }
+
+  /* Header Container */
+  .portal-header-root {
+    --ph-bg: var(--portal-bg, oklch(0.2613 0.0134 272.84));
+    --ph-surface: var(--portal-surface, oklch(0.2613 0.0134 272.84));
+    --ph-fg: var(--portal-fg, #cccccc);
+    --ph-muted: var(--portal-muted, #8b949e);
+    --ph-primary: var(--portal-primary, #f76b39);
+    --ph-border: var(--portal-border, #363636);
+    --ph-border-subtle: var(--portal-border-subtle, rgba(255, 255, 255, 0.06));
+
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    flex-shrink: 0;
+    font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif);
+    line-height: 1.4;
+  }
+
+  /* Frosted glass for all three header rows: a translucent tint of the page background over a blur,
+     so content scrolling underneath stays legible but muted. A banner with a configured `background`
+     keeps that colour (its inline style outranks the tint). The rows are positioned with descending
+     z-index because the blur makes each one a stacking context: without it, the tabs row would paint
+     over the menus and user panel that drop down from row 1. */
+  .portal-announcement-bar,
+  .portal-navbar,
+  .portal-tabs {
+    position: relative;
+    background-color: color-mix(in srgb, var(--ph-bg) 72%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+    backdrop-filter: blur(16px) saturate(1.6);
+    border-bottom: 1px solid var(--ph-border-subtle);
+  }
+  .portal-announcement-bar {
+    z-index: 3;
+  }
+  .portal-navbar {
+    z-index: 2;
+  }
+  .portal-tabs {
+    z-index: 1;
+  }
+
+  /* Announcement bar: one line of fixed height (--portal-banner-height), so the header height is
+     known before paint. Long text is truncated. */
+  .portal-announcement-bar {
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--portal-banner-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    font-family: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  html.portal-announcement-dismissed .portal-announcement-bar {
+    display: none;
+  }
+  .portal-announcement-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+  .portal-announcement-msg {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .portal-announcement-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    color: inherit;
+    text-decoration: underline;
+    font-weight: 700;
+  }
+  .portal-announcement-close {
+    position: absolute;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    color: inherit;
+    opacity: 0.75;
+  }
+  .portal-announcement-close:hover {
+    opacity: 1;
+  }
+
+  /* Row 1: brand | search (centred in the free space) | links, menus and theme switcher */
+  .portal-navbar {
+    height: var(--portal-navbar-height);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-inline: var(--portal-shell-pad-x);
+    box-sizing: border-box;
+  }
+
+  .portal-nav-end {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  /* Brand */
+  .portal-brand {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--ph-fg);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+    min-width: 0;
+  }
+  .portal-brand-img {
+    height: 28px;
+    width: auto;
+    /* On narrow screens a wide logo shrinks (keeping its proportions) instead of running under the search button. */
+    min-width: 0;
+    max-width: 100%;
+    flex-shrink: 1;
+    object-fit: contain;
+    object-position: left center;
+  }
+  :root[data-theme='light'] .portal-brand-img-dark,
+  :root:not([data-theme='light']) .portal-brand-img-light {
+    display: none;
+  }
+  .portal-brand-text {
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Menu Links */
+  .portal-nav-menu {
+    display: none;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  @media (min-width: 72rem) {
+    .portal-nav-menu {
+      display: flex;
+    }
+  }
+
+  .portal-nav-link {
+    white-space: nowrap;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ph-muted);
+    text-decoration: none;
+    border-radius: var(--portal-radius);
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .portal-nav-link:hover,
+  .portal-nav-link.active {
+    color: var(--ph-fg);
+    background-color: var(--portal-hover-bg);
+  }
+  /* header.links[].style: button (outlined) and primary (filled) */
+  .portal-nav-link.portal-nav-button,
+  .portal-nav-link.portal-nav-primary {
+    margin-inline-start: 0.25rem;
+    padding: 0.4rem 0.875rem;
+    border: 1px solid var(--ph-border);
+    color: var(--ph-fg);
+  }
+  .portal-nav-link.portal-nav-primary {
+    border-color: var(--ph-primary);
+    background-color: var(--ph-primary);
+    color: var(--portal-on-primary);
+    font-weight: 600;
+  }
+  .portal-nav-link.portal-nav-primary:hover {
+    background-color: color-mix(in srgb, var(--ph-primary) 85%, #ffffff);
+    color: var(--portal-on-primary);
+  }
+
+  /* Dropdown Trigger */
+  .portal-dropdown-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+  .portal-dropdown-trigger {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ph-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--portal-radius);
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .portal-dropdown-trigger:hover,
+  .portal-dropdown-wrapper:hover .portal-dropdown-trigger,
+  .portal-dropdown-wrapper.is-open .portal-dropdown-trigger {
+    color: var(--ph-fg);
+    background-color: var(--portal-hover-bg);
+  }
+  .portal-chevron {
+    transition: transform 0.2s ease;
+  }
+  .portal-dropdown-wrapper:hover .portal-chevron,
+  .portal-dropdown-wrapper.is-open .portal-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Mega-Menu Panel (Cypress.io Aesthetic) */
+  .portal-megamenu-panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 680px;
+    max-width: min(680px, calc(100vw - 2rem));
+    background: var(--ph-surface, oklch(0.2613 0.0134 272.84));
+    border: 1px solid var(--ph-border);
+    border-radius: var(--portal-radius);
+    padding: 1.25rem 1.5rem;
+    margin-top: 6px;
+    box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  /* Invisible hover bridge connecting trigger to panel to prevent closing on mouse move */
+  .portal-megamenu-panel::before {
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background: transparent;
+  }
+
+  /* Show panel on hover or clicked open */
+  .portal-dropdown-wrapper:hover .portal-megamenu-panel,
+  .portal-dropdown-wrapper.is-open .portal-megamenu-panel {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Sibling suppression: only suppress when ANOTHER dropdown wrapper is actively hovered */
+  .portal-nav-menu:has(.portal-dropdown-wrapper:hover) .portal-dropdown-wrapper.is-open:not(:hover) .portal-megamenu-panel {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* Cypress Sectioned Layout */
+  .portal-megamenu-sections {
+    display: flex;
+    flex-direction: column;
+  }
+  .portal-megamenu-section {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+  .portal-megamenu-section.with-divider {
+    border-bottom: 1px solid var(--ph-border-subtle, rgba(255, 255, 255, 0.06));
+  }
+  .portal-megamenu-section:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+
+  .portal-megamenu-hero-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: var(--portal-radius);
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+  .portal-megamenu-hero-card:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .portal-features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 1.5rem;
+    padding-left: 3.75rem;
+    margin-top: 0.4rem;
+  }
+  .portal-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: var(--portal-radius);
+    text-decoration: none;
+    color: var(--ph-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .portal-feature-item:hover {
+    color: var(--ph-fg);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  .portal-feature-icon {
+    color: var(--ph-muted);
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+  }
+  .portal-feature-item:hover .portal-feature-icon {
+    color: var(--ph-primary);
+  }
+
+  /* 2-Column Card Grid (Products Mode) */
+  .portal-megamenu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .portal-megamenu-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 0.75rem;
+    border-radius: var(--portal-radius);
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    border: 1px solid transparent;
+  }
+  .portal-megamenu-card:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  /* Icon box: the accent for the first item, then four more tones in turn */
+  .portal-card-icon-box {
+    --icon-tone: var(--ph-primary);
+    width: 42px;
+    height: 42px;
+    border-radius: var(--portal-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: color-mix(in srgb, var(--icon-tone) 14%, transparent);
+    color: var(--icon-tone);
+    border: 1px solid color-mix(in srgb, var(--icon-tone) 26%, transparent);
+  }
+  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 2) .portal-card-icon-box {
+    --icon-tone: #f59e0b;
+  }
+  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 3) .portal-card-icon-box {
+    --icon-tone: #34d399;
+  }
+  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 4) .portal-card-icon-box {
+    --icon-tone: #38bdf8;
+  }
+  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 5) .portal-card-icon-box {
+    --icon-tone: #a78bfa;
+  }
+
+  .portal-card-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .portal-card-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .portal-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ph-fg);
+    letter-spacing: -0.01em;
+  }
+  .portal-card-arrow {
+    display: flex;
+    color: var(--ph-muted);
+    transition: transform 0.15s ease, color 0.15s ease;
+    margin-left: 0.35rem;
+  }
+  .portal-megamenu-hero-card:hover .portal-card-arrow,
+  .portal-megamenu-card:hover .portal-card-arrow {
+    transform: translateX(3px);
+    color: var(--ph-fg);
+  }
+  .portal-card-desc {
+    font-size: 0.875rem;
+    color: var(--ph-muted);
+    margin: 0.25rem 0 0;
+    line-height: 1.45;
+  }
+  .portal-card-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: var(--ph-primary);
+    color: var(--portal-on-primary);
+  }
+
+  /* Search: a wide field from 50rem, an icon button below */
+  .portal-search-trigger {
+    flex: 1 1 auto;
+    max-width: 30rem;
+    margin-inline: auto;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0 0.75rem;
+    background: color-mix(in srgb, var(--ph-bg) 80%, transparent);
+    border: 1px solid var(--ph-border);
+    border-radius: var(--portal-radius);
+    color: var(--ph-muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.875rem;
+    transition: all 0.15s ease;
+  }
+  .portal-search-trigger:hover {
+    border-color: var(--ph-primary);
+    color: var(--ph-fg);
+  }
+  .portal-search-text {
+    flex: 1;
+    text-align: start;
+  }
+  @media (width < 50rem) {
+    .portal-search-trigger {
+      flex: none;
+      width: 2.5rem;
+      margin-inline: auto 0;
+      justify-content: center;
+      padding: 0;
+    }
+    .portal-search-text,
+    .portal-search-kbd {
+      display: none;
+    }
+  }
+  .portal-search-kbd {
+    color: var(--ph-fg);
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-family: inherit;
+  }
+
+  /* Theme switcher: light and dark options side by side, the current one highlighted */
+  .portal-theme-btn {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: transparent;
+    border: 1px solid var(--ph-border);
+    cursor: pointer;
+    color: var(--ph-muted);
+  }
+  .portal-theme-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .portal-theme-btn:hover .portal-theme-option {
+    color: var(--ph-fg);
+  }
+  :root[data-theme='light'] .portal-theme-light,
+  :root:not([data-theme='light']) .portal-theme-dark {
+    color: var(--ph-fg);
+    background-color: var(--portal-hover-bg);
+  }
+
+  /* Narrow screens: one icon per control, and the brand gives way first. */
+  @media (width < 50rem) {
+    .portal-navbar,
+    .portal-nav-end {
+      gap: 0.5rem;
+    }
+    .portal-brand {
+      flex-shrink: 1;
+    }
+    .portal-theme-btn {
+      padding: 0;
+      border: none;
+    }
+    .portal-theme-option {
+      width: 36px;
+      height: 36px;
+    }
+    :root[data-theme='light'] .portal-theme-dark,
+    :root:not([data-theme='light']) .portal-theme-light {
+      display: none;
+    }
+    :root[data-theme='light'] .portal-theme-light,
+    :root:not([data-theme='light']) .portal-theme-dark {
+      background-color: transparent;
+    }
+  }
+
+  .portal-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    color: var(--ph-fg);
+    cursor: pointer;
+  }
+  .portal-sidebar-toggle {
+    display: none;
+  }
+  @media (min-width: 72rem) {
+    .portal-mobile-toggle {
+      display: none;
+    }
+  }
+  /* Narrow docs pages: one menu button, which opens the sidebar (it lists the header links too). */
+  @media (width < 50rem) {
+    .portal-header-root[data-has-sidebar] .portal-mobile-toggle:not(.portal-sidebar-toggle),
+    .portal-header-root[data-has-sidebar] .portal-mobile-drawer {
+      display: none;
+    }
+    .portal-header-root[data-has-sidebar] .portal-sidebar-toggle {
+      display: flex;
+    }
+  }
+
+  /* Row 2: section tabs. Hidden below 50rem, where the menu lists them. */
+  .portal-tabs {
+    height: var(--portal-tabs-height);
+    display: flex;
+    align-items: stretch;
+    gap: 2rem;
+    padding-inline: var(--portal-shell-pad-x);
+    box-sizing: border-box;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  @media (width < 50rem) {
+    .portal-tabs {
+      display: none;
+    }
+  }
+  .portal-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ph-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .portal-tab:hover,
+  .portal-tab[aria-current='page'] {
+    color: var(--ph-fg);
+  }
+  .portal-tab-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    border: 1px solid var(--ph-border);
+    color: var(--ph-muted);
+  }
+  /* Keeps the links on the right when search is off. */
+  .portal-search-spacer {
+    flex: 1;
+  }
+  .portal-tab[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 2px;
+    border-radius: 2px;
+    background-color: var(--ph-primary);
+  }
+
+  /* Mobile Drawer */
+  .portal-mobile-drawer {
+    background: var(--ph-surface);
+    border-bottom: 1px solid var(--ph-border);
+    padding: 1rem var(--portal-shell-pad-x);
+    max-height: calc(100dvh - var(--sl-nav-height));
+    overflow-y: auto;
+  }
+  .portal-mobile-drawer[hidden] {
+    display: none;
+  }
+  @media (min-width: 72rem) {
+    .portal-mobile-drawer {
+      display: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Theme switcher: a toggle button, pressed while the dark theme is on
+    const themeBtn = document.getElementById('portal-theme-toggle');
+    if (themeBtn) {
+      const root = document.documentElement;
+      const sync = () => themeBtn.setAttribute('aria-pressed', String(root.getAttribute('data-theme') !== 'light'));
+      sync();
+      themeBtn.addEventListener('click', () => {
+        const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        root.setAttribute('data-theme', next);
+        try {
+          localStorage.setItem('starlight-theme', next);
+        } catch {}
+        sync();
+      });
+    }
+
+    // 2. Announcement Dismissal
+    const closeAnnounce = document.getElementById('portal-announcement-close');
+    const announceBar = document.getElementById('portal-announcement');
+    if (closeAnnounce && announceBar) {
+      // The class hides the bar and sets --portal-banner-height to 0 (portal-theme.css).
+      closeAnnounce.addEventListener('click', () => {
+        document.documentElement.classList.add('portal-announcement-dismissed');
+        try {
+          sessionStorage.setItem('portal-announcement-dismissed', 'true');
+        } catch {}
+      });
+    }
+
+    // 3. Search Trigger (⌘K)
+    const searchBtn = document.getElementById('portal-search-btn');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', () => {
+        const slSearch = document.querySelector('button[data-open-modal]');
+        if (slSearch) {
+          slSearch.click();
+        } else {
+          const rapiDoc = document.querySelector('rapi-doc');
+          if (rapiDoc && typeof rapiDoc.openSearchDialog === 'function') {
+            rapiDoc.openSearchDialog();
+          } else {
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
+          }
+        }
+      });
+    }
+
+    // 4. Dropdown menus (WAI-ARIA disclosure navigation): the trigger button toggles its panel, and
+    // hovering opens it for the mouse. Keyboard: Enter/Space toggle, ArrowDown opens the menu and moves
+    // to the next link, ArrowUp/Home/End move between links, Escape closes the menu and returns to its
+    // trigger, and tabbing out closes it. ArrowLeft/ArrowRight move between the top-level items.
+    const navMenu = document.querySelector('.portal-nav-menu');
+    const wrappers = [...document.querySelectorAll('.portal-dropdown-wrapper')];
+    const triggerOf = (wrapper) => wrapper.querySelector('.portal-dropdown-trigger');
+    const isOpen = (wrapper) => wrapper.classList.contains('is-open');
+    const setOpen = (wrapper, open) => {
+      wrapper.classList.toggle('is-open', open);
+      triggerOf(wrapper).setAttribute('aria-expanded', String(open));
+    };
+    const closeAll = (except) => wrappers.forEach((wrapper) => wrapper !== except && setOpen(wrapper, false));
+
+    wrappers.forEach((wrapper) => {
+      const trigger = triggerOf(wrapper);
+      wrapper.addEventListener('mouseenter', () => closeAll(wrapper));
+      trigger.addEventListener('click', () => {
+        const open = !isOpen(wrapper);
+        closeAll(wrapper);
+        setOpen(wrapper, open);
+      });
+      wrapper.addEventListener('keydown', (e) => {
+        const links = [...wrapper.querySelectorAll('.portal-megamenu-panel a')];
+        const index = links.indexOf(document.activeElement);
+        let next;
+        if (e.key === 'Escape') {
+          if (!isOpen(wrapper)) return;
+          setOpen(wrapper, false);
+          trigger.focus();
+        } else if (e.key === 'ArrowDown') {
+          if (!isOpen(wrapper)) {
+            closeAll(wrapper);
+            setOpen(wrapper, true);
+          }
+          next = links[(index + 1) % links.length];
+        } else if (index !== -1 && e.key === 'ArrowUp') {
+          next = links[(index - 1 + links.length) % links.length];
+        } else if (index !== -1 && e.key === 'Home') {
+          next = links[0];
+        } else if (index !== -1 && e.key === 'End') {
+          next = links[links.length - 1];
+        } else {
+          return;
+        }
+        e.preventDefault();
+        next?.focus();
+      });
+      wrapper.addEventListener('focusout', (e) => {
+        if (!wrapper.contains(e.relatedTarget)) setOpen(wrapper, false);
+      });
+    });
+
+    if (navMenu) {
+      navMenu.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        const items = [...navMenu.querySelectorAll(':scope > a, :scope > .portal-dropdown-wrapper > .portal-dropdown-trigger')];
+        const index = items.indexOf(document.activeElement);
+        if (index === -1) return;
+        e.preventDefault();
+        items[(index + (e.key === 'ArrowRight' ? 1 : items.length - 1)) % items.length].focus();
+      });
+      navMenu.addEventListener('mouseleave', () => closeAll());
+      navMenu.querySelectorAll(':scope > a').forEach((link) => link.addEventListener('mouseenter', () => closeAll()));
+    }
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.portal-dropdown-wrapper')) closeAll();
+    });
+
+    // 5. Menu drawer (narrow screens without a sidebar): closes on Escape and when a link is chosen
+    const mobileBtn = document.getElementById('portal-mobile-menu-btn');
+    const mobileDrawer = document.getElementById('portal-mobile-drawer');
+    if (mobileBtn && mobileDrawer) {
+      const setDrawer = (open) => {
+        mobileDrawer.hidden = !open;
+        mobileBtn.setAttribute('aria-expanded', String(open));
+      };
+      mobileBtn.addEventListener('click', () => setDrawer(mobileDrawer.hidden));
+      mobileDrawer.addEventListener('click', (e) => {
+        if (e.target.closest('a')) setDrawer(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !mobileDrawer.hidden) {
+          setDrawer(false);
+          mobileBtn.focus();
+        }
+      });
+    }
+  });
+</script>

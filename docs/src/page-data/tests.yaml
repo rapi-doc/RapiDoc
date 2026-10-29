@@ -89,7 +89,7 @@ advanced:
         - Primitive and nested object types
         - Parameters with constraints and deprecations
   - data-types-multiple:
-      title: 'Multi-Type Fields (type: [string, number])'
+      title: "Multi-Type Fields (type: [string, number])"
       validates:
         - Schema properties supporting multiple simultaneous data types
   - example-filling:
@@ -182,6 +182,11 @@ advanced:
       validates:
         - Collapsing tag groups by default using x-tag-expanded: false extension
         - Programmatic navigation and auto-expansion into collapsed tags via scrollToPath()
+  - demo-shipment:
+      title: Demonstrate a Real world shipment API example
+      description: Used for validating a real world Example Spec
+      validates:
+        - Real World Test case
   - swagger-v2:
       title: Legacy Swagger 2.0 Backward Compatibility
       validates:

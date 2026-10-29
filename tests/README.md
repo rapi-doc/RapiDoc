@@ -45,12 +45,12 @@ tests/
 
 Run the test suites from the repository root:
 
-| Command | Scope | Description |
-| :--- | :--- | :--- |
-| `npm run test:unit` | Monorepo | Runs Node.js native unit tests in `tests/unit/*.test.js` |
-| `npm run test:component` | Component | Runs Lit component tests in `tests/component/*.test.js` |
-| `npm run test:e2e` | E2E | Runs Tier 1 functional Shadow DOM tests across all 8 domain specs |
-| `npm run test:visual` | Visual | Runs Tier 2 visual regression snapshots and unclipped flow captures |
-| `npm run test:all` | All | Executes unit, component, E2E, and visual tests sequentially |
-| `npm run test:parser` | Benchmark | Measures spec parsing and circular reference resolution times |
-| `npm run test:perf` | Benchmark | Measures headless browser rendering performance across modes |
+| Command                  | Scope     | Description                                                         |
+| :----------------------- | :-------- | :------------------------------------------------------------------ |
+| `npm run test:unit`      | Monorepo  | Runs Node.js native unit tests in `tests/unit/*.test.js`            |
+| `npm run test:component` | Component | Runs Lit component tests in `tests/component/*.test.js`             |
+| `npm run test:e2e`       | E2E       | Runs Tier 1 functional Shadow DOM tests across all 8 domain specs   |
+| `npm run test:visual`    | Visual    | Runs Tier 2 visual regression snapshots and unclipped flow captures |
+| `npm run test:all`       | All       | Executes unit, component, E2E, and visual tests sequentially        |
+| `npm run test:parser`    | Benchmark | Measures spec parsing and circular reference resolution times       |
+| `npm run test:perf`      | Benchmark | Measures headless browser rendering performance across modes        |

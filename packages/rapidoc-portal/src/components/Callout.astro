@@ -1,0 +1,26 @@
+---
+/**
+ * A note set apart from the text: `<Callout type="tip" title="..." icon="...">` in MDX, and
+ * `{% callout %}` / `{% aside %}` in Markdoc. `type` is one of CALLOUT_TYPES (callout-types.js),
+ * `icon` any Phosphor name. Styles: `.portal-callout` in portal-theme.css, shared with `:::type` blocks.
+ */
+import Icon from './Icon.astro';
+import { CALLOUT_ICONS } from './callout-types.js';
+
+interface Props {
+  type?: string;
+  title?: string;
+  icon?: string;
+}
+
+const { type = 'note', title, icon } = Astro.props;
+const kind = type in CALLOUT_ICONS ? type : 'note';
+---
+
+<div class="portal-callout" role="note" data-type={kind}>
+  <Icon name={icon || CALLOUT_ICONS[kind]} size={16} class="portal-callout-icon" />
+  <div class="portal-callout-body">
+    {title && <p class="portal-callout-title">{title}</p>}
+    <slot />
+  </div>
+</div>

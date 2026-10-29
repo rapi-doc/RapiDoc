@@ -11,35 +11,35 @@
  *   npm run test:perf
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { performance } from 'perf_hooks';
-import { load, dereference } from '@scalar/openapi-parser';
-import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
-import ProcessSpec from '../../packages/rapidoc/src/utils/spec-parser.js';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { performance } from "perf_hooks";
+import { load, dereference } from "@scalar/openapi-parser";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
+import ProcessSpec from "../../packages/rapidoc/src/utils/spec-parser.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '../..');
+const rootDir = path.resolve(__dirname, "../..");
 
 const SPECS = [
   {
-    id: 'bookstore',
-    name: 'Bookstore (Baseline)',
-    path: path.join(rootDir, 'docs/public/specs-test/bookstore.yaml'),
+    id: "bookstore",
+    name: "Bookstore (Baseline)",
+    path: path.join(rootDir, "docs/public/specs-test/bookstore.yaml"),
     maxExpectedMs: 60,
   },
   {
-    id: 'stripe',
-    name: 'Stripe (Deep Schemas)',
-    path: path.join(rootDir, 'docs/public/specs-test/stripe-deep-schema.yaml'),
+    id: "stripe",
+    name: "Stripe (Deep Schemas)",
+    path: path.join(rootDir, "docs/public/specs-test/stripe-deep-schema.yaml"),
     maxExpectedMs: 1400,
   },
   {
-    id: 'github',
-    name: 'GitHub (Large Spec)',
-    path: path.join(rootDir, 'docs/public/specs-test/github-large.yaml'),
+    id: "github",
+    name: "GitHub (Large Spec)",
+    path: path.join(rootDir, "docs/public/specs-test/github-large.yaml"),
     maxExpectedMs: 2000,
   },
 ];
@@ -51,15 +51,15 @@ const createMockComponent = () => ({
 });
 
 function formatBytes(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(2) + " MB";
 }
 
 async function runBenchmark() {
-  console.log('\n===============================================================');
-  console.log('       🚀  RAPIDOC SPEC PARSER & ENGINE BENCHMARK SUITE       ');
-  console.log('===============================================================\n');
+  console.log("\n===============================================================");
+  console.log("       🚀  RAPIDOC SPEC PARSER & ENGINE BENCHMARK SUITE       ");
+  console.log("===============================================================\n");
   console.log(`Node.js: ${process.version} | Platform: ${process.platform} (${process.arch})\n`);
 
   const results = [];
@@ -72,7 +72,7 @@ async function runBenchmark() {
       continue;
     }
 
-    const rawContent = fs.readFileSync(spec.path, 'utf-8');
+    const rawContent = fs.readFileSync(spec.path, "utf-8");
     const fileSize = formatBytes(Buffer.byteLength(rawContent));
 
     // Force GC if available
@@ -99,7 +99,7 @@ async function runBenchmark() {
     const t1 = performance.now();
     await dereference(loaded.filesystem, {
       onDereference: ({ schema, ref }) => {
-        schema['x-ref'] = ref;
+        schema["x-ref"] = ref;
       },
     });
     const derefTime = performance.now() - t1;
@@ -113,7 +113,8 @@ async function runBenchmark() {
     const memAfter = process.memoryUsage().heapUsed;
     const memDelta = formatBytes(Math.max(0, memAfter - memBefore));
 
-    const operationsCount = processed.tags?.reduce((acc, tag) => acc + (tag.paths?.length || 0), 0) || 0;
+    const operationsCount =
+      processed.tags?.reduce((acc, tag) => acc + (tag.paths?.length || 0), 0) || 0;
     const tagsCount = processed.tags?.length || 0;
 
     const isPass = totalProcessTime <= spec.maxExpectedMs && !processed.specLoadError;
@@ -121,14 +122,14 @@ async function runBenchmark() {
 
     results.push({
       Specification: spec.name,
-      'File Size': fileSize,
+      "File Size": fileSize,
       Tags: tagsCount,
       Operations: operationsCount,
-      'Spec Load': `${loadTime.toFixed(1)} ms`,
+      "Spec Load": `${loadTime.toFixed(1)} ms`,
       Deref: `${derefTime.toFixed(1)} ms`,
-      'Total ProcessSpec': `${totalProcessTime.toFixed(1)} ms`,
-      'Heap Delta': memDelta,
-      Status: isPass ? '✅ PASS' : '❌ SLOW / FAIL',
+      "Total ProcessSpec": `${totalProcessTime.toFixed(1)} ms`,
+      "Heap Delta": memDelta,
+      Status: isPass ? "✅ PASS" : "❌ SLOW / FAIL",
     });
 
     benchmarkItems.push({
@@ -145,30 +146,32 @@ async function runBenchmark() {
 
   console.table(results);
 
-  console.log('\n---------------------------------------------------------------');
-  console.log('📊 Benchmark Threshold Summary:');
+  console.log("\n---------------------------------------------------------------");
+  console.log("📊 Benchmark Threshold Summary:");
   for (const spec of SPECS) {
     console.log(`  • ${spec.name.padEnd(38)} Expected < ${spec.maxExpectedMs} ms`);
   }
-  console.log('---------------------------------------------------------------\n');
+  console.log("---------------------------------------------------------------\n");
 
   if (allPassed) {
-    console.log('✨ ALL SPECIFICATION BENCHMARKS PASSED UNDER PERFORMANCE THRESHOLDS!\n');
+    console.log("✨ ALL SPECIFICATION BENCHMARKS PASSED UNDER PERFORMANCE THRESHOLDS!\n");
     saveParserBenchmarkResults(benchmarkItems);
     process.exit(0);
   } else {
-    console.warn('⚠️ SOME SPECIFICATIONS EXCEEDED MAX TIME BUDGET.\n');
+    console.warn("⚠️ SOME SPECIFICATIONS EXCEEDED MAX TIME BUDGET.\n");
     process.exit(1);
   }
 }
 
 function saveParserBenchmarkResults(rawResults) {
-  const yamlPath = path.join(rootDir, 'docs/src/page-data/performance-benchmarks.yaml');
-  const rapidocPkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'packages/rapidoc/package.json'), 'utf-8'));
+  const yamlPath = path.join(rootDir, "docs/src/page-data/performance-benchmarks.yaml");
+  const rapidocPkg = JSON.parse(
+    fs.readFileSync(path.join(rootDir, "packages/rapidoc/package.json"), "utf-8"),
+  );
   let doc = { benchmarks: [] };
   if (fs.existsSync(yamlPath)) {
     try {
-      doc = parseYaml(fs.readFileSync(yamlPath, 'utf-8')) || { benchmarks: [] };
+      doc = parseYaml(fs.readFileSync(yamlPath, "utf-8")) || { benchmarks: [] };
     } catch {}
   }
   doc.rapidocVersion = rapidocPkg.version;
@@ -195,11 +198,11 @@ function saveParserBenchmarkResults(rawResults) {
     heapDelta: r.heapDelta,
   }));
 
-  fs.writeFileSync(yamlPath, stringifyYaml(doc), 'utf-8');
+  fs.writeFileSync(yamlPath, stringifyYaml(doc), "utf-8");
   console.log(`💾 Saved parser benchmark data to: ${yamlPath}\n`);
 }
 
 runBenchmark().catch((err) => {
-  console.error('Fatal benchmark error:', err);
+  console.error("Fatal benchmark error:", err);
   process.exit(1);
 });

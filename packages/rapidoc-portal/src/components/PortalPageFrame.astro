@@ -1,0 +1,125 @@
+---
+/**
+ * Starlight PageFrame override: the portal app shell for documentation pages.
+ *
+ *   header (sticky)
+ *   [ sidebar (sticky, full height) | main-frame ]
+ *   site footer (full width)
+ *
+ * The page itself scrolls. The sidebar sticks below the header and fills the screen down to its
+ * bottom edge; at the end of the page the site footer scrolls in and pushes it up. Below 50rem the
+ * sidebar is Starlight's popover menu, opened from the header's menu button.
+ */
+import PortalFooter from './PortalFooter.astro';
+
+const { hasSidebar } = Astro.locals.starlightRoute;
+---
+
+<div class="page sl-flex">
+  <slot name="header" />
+  <div class="portal-shell">
+    {
+      hasSidebar && (
+        <nav class="sidebar print:hidden" aria-label={Astro.locals.t('sidebarNav.accessibleLabel')}>
+          <script>
+            // Same element as Starlight's PageFrame: a popover on mobile, a plain pane on desktop.
+            class StarlightSidebarPane extends HTMLElement {
+              constructor() {
+                super();
+                const desktopMediaQuery = matchMedia('(min-width: 50em)');
+                const resetPopoverAttribute = () => {
+                  this.popover = desktopMediaQuery.matches ? null : 'auto';
+                };
+                resetPopoverAttribute();
+                desktopMediaQuery.addEventListener('change', () => resetPopoverAttribute());
+                this.addEventListener('toggle', (event) => this.trapFocus((event as ToggleEvent).newState === 'open'));
+              }
+              /** Keep keyboard focus in the header and the menu while the menu is open. */
+              trapFocus(shouldTrap: boolean) {
+                document.querySelectorAll<HTMLElement>('.main-frame, .portal-footer-root, .sl-skip-link').forEach((el) => {
+                  el.toggleAttribute('inert', shouldTrap);
+                });
+              }
+            }
+            customElements.define('sl-sidebar-pane', StarlightSidebarPane);
+          </script>
+          <sl-sidebar-pane popover="" id="starlight__sidebar" class="sidebar-pane" data-portal-region="sidebar">
+            <div class="sidebar-content sl-flex">
+              <slot name="sidebar" />
+            </div>
+          </sl-sidebar-pane>
+        </nav>
+      )
+    }
+    <div class="main-frame"><slot /></div>
+  </div>
+  <PortalFooter />
+</div>
+
+<style>
+  .page {
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .portal-shell {
+    flex: 1 0 auto;
+  }
+
+  /* Mobile: the sidebar is a full-screen popover below the header. */
+  .sidebar-pane {
+    /* User agents give popovers opinionated styles. */
+    border: unset;
+    padding: unset;
+    height: unset;
+    color: unset;
+
+    position: fixed;
+    z-index: var(--sl-z-index-menu);
+    inset-block: var(--sl-nav-height) 0;
+    inset-inline-start: 0;
+    width: 100%;
+    background-color: var(--sl-color-black);
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .sidebar-content {
+    height: 100%;
+    min-height: max-content;
+    padding: 1rem var(--sl-sidebar-pad-x) 0;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .main-frame {
+    min-width: 0;
+    /* Room for Starlight's fixed "On this page" bar on narrow screens (0 from 72rem). */
+    padding-top: var(--sl-mobile-toc-height);
+  }
+
+  @media (min-width: 50rem) {
+    :global([data-has-sidebar]) .portal-shell {
+      display: grid;
+      grid-template-columns: var(--sl-sidebar-width) minmax(0, 1fr);
+    }
+
+    /* Desktop: sticks below the header and fills the screen; the footer pushes it up at the end. */
+    .sidebar-pane {
+      display: block;
+      position: sticky;
+      inset: auto;
+      top: var(--sl-nav-height);
+      z-index: auto;
+      width: auto;
+      height: calc(100dvh - var(--sl-nav-height));
+      background-color: var(--sl-color-bg-sidebar);
+      border-inline-end: 1px solid var(--sl-color-hairline-shade);
+    }
+
+    .sidebar-content {
+      height: auto;
+      padding-bottom: 1rem;
+    }
+  }
+</style>

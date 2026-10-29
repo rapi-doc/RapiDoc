@@ -1,0 +1,532 @@
+/*
+ * RapiDoc Portal theme for Starlight and the portal pages.
+ * Tokens replaced at build time by src/engine/theme-css.js:
+ *   PORTAL_PRIMARY_COLOR, PORTAL_ON_PRIMARY, PORTAL_PRIMARY_TEXT_LIGHT, PORTAL_PRIMARY_TEXT_DARK,
+ *   FONT_SANS_STACK, FONT_MONO_STACK (each wrapped in double underscores)
+ *
+ * Accent usage, so text keeps WCAG AA contrast for any primary color (engine/accent-colors.js):
+ * --portal-primary for fills, borders and icons; --portal-primary-text for text; --portal-on-primary for
+ * text on a primary fill; --portal-primary-tint behind accent text.
+ *
+ * This file is unlayered, so it takes precedence over Starlight's `@layer starlight.*` styles
+ * without `!important`.
+ */
+:root,
+:root[data-theme="dark"] {
+  --portal-bg: oklch(0.2613 0.0134 272.84);
+  --portal-surface: oklch(0.2613 0.0134 272.84);
+  --portal-card: oklch(0.2613 0.0134 272.84);
+  /* Borders, muted text and code take the background's blue-grey hue instead of a neutral grey. */
+  --portal-border: oklch(0.36 0.018 272.84);
+  --portal-border-subtle: rgba(255, 255, 255, 0.06);
+  --portal-fg: #cccccc;
+  --portal-heading: oklch(0.97 0.005 272.84);
+  --portal-muted: oklch(0.74 0.02 272.84);
+  --portal-hover-bg: rgba(255, 255, 255, 0.06);
+  --portal-primary: __PORTAL_PRIMARY_COLOR__;
+  --portal-primary-text: __PORTAL_PRIMARY_TEXT_DARK__;
+  --portal-on-primary: __PORTAL_ON_PRIMARY__;
+  --portal-primary-tint: color-mix(in srgb, var(--portal-primary) 12%, transparent);
+  /* Cards (.portal-doc-card): raised a step above the page, a hairline ring and a soft shadow. */
+  --portal-card-bg: oklch(0.29 0.014 272.84);
+  --portal-card-shadow:
+    0 -1px rgba(255, 255, 255, 0.06), 0 4px 8px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(255, 255, 255, 0.1), 0 1px 6px -4px #000;
+  --portal-card-shadow-hover:
+    0 -1px rgba(255, 255, 255, 0.08), 0 4px 11px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.16), 0 1px 7px -4px #000;
+  --portal-card-inner: rgba(255, 255, 255, 0.05);
+
+  /* Starlight colors */
+  --sl-color-bg: var(--portal-bg);
+  --sl-color-bg-nav: color-mix(in srgb, var(--portal-bg) 92%, transparent);
+  --sl-color-bg-sidebar: var(--portal-bg);
+  --sl-color-bg-inline-code: oklch(0.33 0.018 272.84);
+  --sl-color-black: var(--portal-bg);
+  --sl-color-gray-6: oklch(0.235 0.0134 272.84);
+  --sl-color-gray-7: var(--portal-bg);
+  --sl-color-hairline: var(--portal-border);
+  --sl-color-hairline-shade: var(--portal-border);
+  --sl-color-hairline-light: rgba(255, 255, 255, 0.04);
+  --sl-color-white: var(--portal-heading);
+  --sl-color-gray-1: #e5e5e5;
+  --sl-color-gray-2: #cccccc;
+  --sl-color-gray-3: var(--portal-muted);
+  --sl-color-gray-4: oklch(0.6 0.02 272.84);
+  --sl-color-gray-5: var(--portal-border);
+
+  --sl-color-accent: __PORTAL_PRIMARY_COLOR__;
+  --sl-color-accent-low: color-mix(in srgb, __PORTAL_PRIMARY_COLOR__ 18%, transparent);
+  --sl-color-accent-high: color-mix(in srgb, __PORTAL_PRIMARY_COLOR__ 80%, #ffffff);
+  --sl-color-text-accent: var(--portal-primary-text);
+}
+
+[data-theme="light"] {
+  --portal-bg: #ffffff;
+  --portal-surface: #f4f4f5;
+  --portal-card: #f4f4f5;
+  --portal-border: #e4e4e7;
+  --portal-border-subtle: #f4f4f5;
+  --portal-fg: #555555;
+  --portal-heading: #111827;
+  --portal-muted: #5b5f6b;
+  --portal-hover-bg: rgba(0, 0, 0, 0.05);
+  --portal-primary-text: __PORTAL_PRIMARY_TEXT_LIGHT__;
+  --portal-card-bg: #ffffff;
+  --portal-card-shadow:
+    0 0 0 1px rgba(19, 19, 22, 0.075), 0 1px 5px -4px rgba(19, 19, 22, 0.7),
+    0 4px 8px rgba(32, 42, 54, 0.05);
+  --portal-card-shadow-hover:
+    0 0 0 1px rgba(19, 19, 22, 0.125), 0 1px 7px -4px rgba(19, 19, 22, 0.8),
+    0 4px 11px rgba(32, 42, 54, 0.05);
+  --portal-card-inner: rgba(19, 19, 22, 0.05);
+
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: rgba(255, 255, 255, 0.95);
+  --sl-color-bg-sidebar: #f4f4f5;
+  --sl-color-bg-inline-code: #e2e8f0;
+  --sl-color-black: #ffffff;
+  --sl-color-white: var(--portal-heading);
+  --sl-color-gray-1: #111111;
+  --sl-color-gray-2: #333333;
+  --sl-color-gray-3: #555555;
+  --sl-color-gray-4: #71717a;
+  --sl-color-gray-5: #cbd5e1;
+  --sl-color-gray-6: #f4f4f5;
+  --sl-color-gray-7: #ffffff;
+  --sl-color-hairline-light: rgba(0, 0, 0, 0.04);
+  --sl-color-accent-low: color-mix(in srgb, __PORTAL_PRIMARY_COLOR__ 18%, #ffffff);
+  --sl-color-accent-high: var(--portal-primary-text);
+  --sl-color-text-accent: var(--portal-primary-text);
+}
+
+/* Typography and app-shell geometry */
+:root {
+  --font-sans: __FONT_SANS_STACK__;
+  --font-mono: __FONT_MONO_STACK__;
+  --sl-font: var(--font-sans);
+  --sl-font-system: var(--font-sans);
+  --sl-font-mono: var(--font-mono);
+
+  /* Type scale, one step below Starlight's defaults (body 16px/1.75, h1 35px, 42px from 50em):
+     developer docs read better a little denser. api-reference.astro gives <rapi-doc> the same headings. */
+  --sl-text-body: 0.9375rem;
+  --sl-line-height: 1.85;
+  --sl-text-code: 0.8125rem;
+  --sl-text-h1: 2rem;
+  --sl-text-h2: 1.5rem;
+  --sl-text-h3: 1.25rem;
+  --sl-text-h4: 1.125rem;
+  --sl-text-h5: 1rem;
+  --sl-text-6xl: 3.5rem;
+
+  /* Header = announcement bar + navbar + section tabs. All three have fixed heights, so the sticky
+     sidebar and TOC know where the header ends before the page paints. */
+  --portal-banner-height: 0px;
+  --portal-navbar-height: 64px;
+  --portal-tabs-height: 48px;
+  --sl-nav-height: calc(
+    var(--portal-banner-height) + var(--portal-navbar-height) + var(--portal-tabs-height)
+  );
+
+  /* One corner radius for boxes, menus, dialogs and controls: callouts, code blocks, cards, buttons,
+     the header menus and the search dialog. Small badges stay 4px and pills stay round. */
+  --portal-radius: 6px;
+
+  /* Sidebar width on pages Starlight does not render (Starlight's own --sl-sidebar-width is 18.75rem). */
+  --portal-sidebar-width: 18.75rem;
+
+  /* Header bar and site footer share these content edges. */
+  --portal-shell-max-width: 96rem;
+  --portal-shell-pad-x: max(1.5rem, (100% - var(--portal-shell-max-width)) / 2);
+}
+
+@media (min-width: 50rem) {
+  :root {
+    --sl-text-h1: 2.25rem;
+    --sl-text-h2: 1.75rem;
+    --sl-text-h3: 1.375rem;
+    --sl-text-h4: 1.25rem;
+  }
+}
+
+:root:has(#portal-announcement):not(.portal-announcement-dismissed) {
+  --portal-banner-height: 36px;
+}
+
+/* The section tabs row is hidden on narrow screens (the menu lists the tabs), and absent without tabs. */
+@media (width < 50rem) {
+  :root {
+    --portal-tabs-height: 0px;
+  }
+}
+:root:not(:has(.portal-tabs)) {
+  --portal-tabs-height: 0px;
+}
+
+body {
+  background-color: var(--portal-bg);
+  color: var(--portal-fg);
+  font-family: var(--font-sans);
+}
+
+/* Starlight leaves guide text at the browser default (16px); the portal's type scale applies here.
+   Headings get roomier line heights and slightly tighter letter-spacing. */
+.sl-markdown-content {
+  font-size: var(--sl-text-body);
+}
+/* The page title only: the splash hero's title has the same id and its own size. */
+.sl-container > h1#_top {
+  line-height: 2.5rem;
+  letter-spacing: -0.015em;
+}
+.sl-markdown-content h2 {
+  line-height: 2rem;
+  letter-spacing: -0.025em;
+}
+.sl-markdown-content h3 {
+  line-height: 1.75rem;
+  letter-spacing: -0.015em;
+}
+
+/* "On this page": a hairline rail that steps right, with a diagonal, at each nested level. Every link
+   draws its own piece (::before vertical, ::after diagonal) at its --depth, so nothing is measured;
+   the current link's piece is drawn in the heading color. The mobile dropdown (.isMobile) keeps its look. */
+starlight-toc ul {
+  --toc-step: 0.75rem;
+}
+starlight-toc a {
+  --toc-rail: color-mix(in oklab, var(--portal-border) 70%, var(--portal-fg));
+  position: relative;
+  padding-block: 0.375rem;
+  padding-inline: calc(var(--toc-step) * var(--depth) + 1.25rem) 0.5rem;
+  border-radius: 0;
+  font-size: 0.8125rem;
+  line-height: 1rem;
+  color: var(--portal-muted);
+}
+starlight-toc a:hover {
+  color: var(--sl-color-white);
+}
+starlight-toc a[aria-current="true"] {
+  --toc-rail: var(--sl-color-white);
+  color: var(--sl-color-white);
+}
+starlight-toc a::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: calc(var(--toc-step) * var(--depth));
+  width: 1px;
+  background: var(--toc-rail);
+}
+starlight-toc li > ul > li:first-child > a::before,
+starlight-toc li:has(> ul) + li > a::before {
+  top: var(--toc-step);
+}
+starlight-toc li > ul > li:first-child > a::after,
+starlight-toc li:has(> ul) + li > a::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: var(--toc-step);
+  height: var(--toc-step);
+}
+/* Into a nested list: from the parent's rail down-right to this one. */
+starlight-toc li > ul > li:first-child > a::after {
+  left: calc(var(--toc-step) * (var(--depth) - 1));
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.5px),
+    var(--toc-rail) 0 calc(50% + 0.5px),
+    transparent 0
+  );
+}
+/* Out of it: from the nested rail down-left to this one. */
+starlight-toc li:has(> ul) + li > a::after {
+  left: calc(var(--toc-step) * var(--depth));
+  background: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 0.5px),
+    var(--toc-rail) 0 calc(50% + 0.5px),
+    transparent 0
+  );
+}
+
+/* Cards: Markdoc {% card %}, MDX <Card> and the API catalog. A hairline ring and a soft shadow, a grey
+   duotone icon that darkens on hover, a title whose arrow slides in, and a faint inner ring on hover. */
+.portal-doc-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border-radius: var(--portal-radius);
+  background-color: var(--portal-card-bg);
+  box-shadow: var(--portal-card-shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.2s ease;
+}
+.portal-doc-card::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid var(--portal-card-inner);
+  border-radius: calc(var(--portal-radius) - 4px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+a.portal-doc-card:hover {
+  box-shadow: var(--portal-card-shadow-hover);
+}
+a.portal-doc-card:hover::before {
+  opacity: 1;
+}
+.portal-doc-card-icon {
+  flex-shrink: 0;
+  margin-bottom: 1.5rem;
+  color: var(--portal-muted);
+  transition: color 0.2s ease;
+}
+a.portal-doc-card:hover .portal-doc-card-icon {
+  color: var(--sl-color-white);
+}
+.portal-doc-card .portal-doc-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  color: var(--sl-color-white);
+}
+.portal-doc-card-arrow {
+  flex-shrink: 0;
+  color: var(--portal-muted);
+  opacity: 0;
+  transform: translateX(-0.5rem);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+a.portal-doc-card:hover .portal-doc-card-arrow {
+  color: var(--sl-color-white);
+  opacity: 1;
+  transform: none;
+}
+.portal-doc-card .portal-doc-card-body {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--portal-muted);
+}
+.portal-doc-card-body > :first-child {
+  margin-top: 0;
+}
+
+/* Callouts: components/Callout.astro, {% callout %} / {% aside %} and `:::type` blocks
+   (engine/callout-directives.js). A light tint of the type's color behind, a stronger one as the border.
+   Type colors are Tailwind's 400 shades in the dark theme (Starlight's accent colors are too dark on the
+   portal's dark background) and 600 or 700 in the light one, so every icon keeps at least 4.5:1 against the box. */
+.portal-callout {
+  --callout-color: var(--portal-muted);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in oklab, var(--callout-color) 25%, transparent);
+  border-radius: var(--portal-radius);
+  background-color: color-mix(in oklab, var(--callout-color) 6%, var(--portal-bg));
+  font-size: var(--sl-text-sm);
+  line-height: 1.6;
+}
+.portal-callout-icon {
+  flex-shrink: 0;
+  margin-top: 0.1875rem;
+  color: var(--callout-color);
+}
+.portal-callout-body {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+.portal-callout-body > :first-child {
+  margin-top: 0;
+}
+.portal-callout-body > * + * {
+  margin-top: 0.5rem;
+}
+.portal-callout-title {
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+.portal-callout-title + * {
+  margin-top: 0.125rem;
+}
+.portal-callout[data-type="info"] {
+  --callout-color: light-dark(#2563eb, #60a5fa);
+}
+.portal-callout:is([data-type="tip"], [data-type="success"]) {
+  --callout-color: light-dark(#15803d, #4ade80);
+}
+.portal-callout:is([data-type="caution"], [data-type="warning"]) {
+  --callout-color: light-dark(#b45309, #fbbf24);
+}
+.portal-callout[data-type="danger"] {
+  --callout-color: light-dark(#b91c1c, #f87171);
+}
+.portal-callout[data-type="sparkles"] {
+  --callout-color: light-dark(#9333ea, #c084fc);
+}
+.portal-callout[data-type="rocket"] {
+  --callout-color: light-dark(#4f46e5, #818cf8);
+}
+.portal-callout[data-type="zap"] {
+  --callout-color: light-dark(#a16207, #facc15);
+}
+.portal-callout[data-type="lock"] {
+  --callout-color: light-dark(#475569, #94a3b8);
+}
+.portal-callout[data-type="megaphone"] {
+  --callout-color: light-dark(#0e7490, #22d3ee);
+}
+
+/* Inline code */
+:not(pre) > code {
+  background-color: var(--sl-color-bg-inline-code);
+  color: var(--portal-fg);
+  border: 1px solid var(--portal-border);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+  font-size: 0.875em;
+  overflow-wrap: anywhere;
+}
+
+/* Names in a table's first column (packages, options, fields) stay on one line, so the column is as wide as the longest */
+.sl-markdown-content td:first-child > code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+[data-theme="light"] :not(pre) > code {
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+/* Seamless RapiDoc full-viewport and embedded container styling */
+.rapidoc-fullscreen-portal {
+  width: 100%;
+  min-height: calc(100vh - var(--sl-nav-height));
+  margin: 0;
+  padding: 0;
+}
+
+.portal-rapidoc-embed {
+  width: 100%;
+  border-radius: var(--portal-radius);
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+
+/* Documentation sidebar links */
+.sidebar-pane a {
+  color: var(--portal-muted);
+  border-radius: var(--portal-radius);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.sidebar-pane a:hover {
+  color: var(--portal-fg);
+  background-color: var(--portal-hover-bg);
+}
+
+/* The current page: accent text on a tint, in the same weight as the other links. */
+.sidebar-pane a[aria-current="page"],
+.sidebar-pane a[aria-current="page"] span {
+  color: var(--portal-primary-text);
+}
+
+.sidebar-pane a[aria-current="page"] {
+  background-color: var(--portal-primary-tint);
+}
+
+/* Starlight's filled buttons (hero actions, LinkButton) */
+.sl-link-button.primary {
+  background-color: var(--portal-primary);
+  border-color: var(--portal-primary);
+  color: var(--portal-on-primary);
+}
+
+/* Buttons share the content boxes' corners instead of Starlight's pills. */
+.sl-link-button {
+  border-radius: var(--portal-radius);
+}
+
+/* Landing pages (Starlight's splash template, which sets data-has-hero): a gradient background,
+   an accent glow top-left and a violet and an amber one further down. */
+:root[data-has-hero] body {
+  background-image:
+    radial-gradient(
+      55% 45% at 12% 8%,
+      color-mix(in srgb, var(--portal-primary) 22%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 40% at 92% 42%,
+      light-dark(rgba(139, 92, 246, 0.12), rgba(139, 92, 246, 0.14)),
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 35% at 50% 100%,
+      light-dark(rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.08)),
+      transparent 70%
+    );
+  background-attachment: fixed;
+}
+
+/* Hero: a large title whose <mark> is gradient text, and the image (hero.image.html) floating with a shadow. */
+.hero h1 {
+  font-size: clamp(2.5rem, 1rem + 4vw, 4rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+.hero h1 mark {
+  background: linear-gradient(90deg, light-dark(#0f766e, #5eead4), light-dark(#b45309, #fbbf24));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero .tagline {
+  color: var(--portal-muted);
+}
+/* The image follows the text on narrow screens too, so the headline is the first thing a phone shows. */
+.hero > .hero-html {
+  order: 2;
+  width: min(90%, 30rem);
+}
+.hero-html img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 24px 40px color-mix(in srgb, var(--portal-primary) 30%, transparent));
+}
+@media (min-width: 50rem) {
+  .hero {
+    grid-template-columns: 1.15fr 1fr;
+  }
+}
+
+/* Starlight's previous / next page links */
+.pagination-links > a {
+  border-radius: var(--portal-radius);
+}
+
+/* Images in guides (banners, diagrams) */
+.sl-markdown-content img {
+  border-radius: var(--portal-radius);
+}

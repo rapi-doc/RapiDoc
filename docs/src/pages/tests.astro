@@ -299,7 +299,7 @@ let totalAssertions = 0;
 
           // Search across entire visible row text (title, path, validation tags)
           const rowText = (row.textContent || '').toLowerCase();
-          const matchesQuery = searchTerms.length === 0 || searchTerms.every(term => rowText.includes(term));
+          const matchesQuery = searchTerms.every(term => rowText.includes(term));
 
           if (matchesSection && matchesQuery) {
             row.style.display = '';

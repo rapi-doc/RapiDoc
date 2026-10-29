@@ -1,0 +1,55 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  sector?: string;
+  [key: string]: any;
+}
+
+const { sector, ...rest } = Astro.props;
+const label = sector ? `Space Warning (Sector ${sector})` : 'Space Warning';
+---
+
+<aside class="space-warning-callout" {...rest}>
+  <div class="space-warning-header">
+    <Icon name="warning" class="space-warning-icon" />
+    <span class="space-warning-title">{label}</span>
+  </div>
+  <div class="space-warning-content">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .space-warning-callout {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-radius: var(--portal-radius);
+    border: 1px solid #f59e0b;
+    background: rgba(245, 158, 11, 0.08);
+    color: #fef3c7;
+  }
+  .space-warning-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: #f59e0b;
+    margin-bottom: 0.5rem;
+  }
+  .space-warning-icon {
+    flex-shrink: 0;
+  }
+  .space-warning-title {
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+  }
+  .space-warning-content {
+    font-size: 0.925rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+  }
+  .space-warning-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

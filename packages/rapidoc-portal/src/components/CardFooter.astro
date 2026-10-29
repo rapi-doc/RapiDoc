@@ -1,0 +1,6 @@
+---
+const { class: className = '', ...props } = Astro.props;
+---
+<div class:list={['portal-card-footer mt-3 pt-3 border-t border-[var(--sl-color-hairline,#2d3748)] text-sm flex items-center justify-between', className]} {...props}>
+  <slot />
+</div>

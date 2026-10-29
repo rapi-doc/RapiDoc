@@ -1,0 +1,30 @@
+---
+import { withBase } from './base-path.js';
+
+interface Props {
+  to?: string;
+  href?: string;
+  class?: string;
+  [key: string]: any;
+}
+
+const { to, href, class: className = '', ...rest } = Astro.props;
+const targetHref = withBase(to || href || '#');
+---
+
+<a href={targetHref} class={`portal-link ${className}`} {...rest}>
+  <slot />
+</a>
+
+<style>
+  .portal-link {
+    color: var(--sl-color-accent, #f76b39);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 500;
+    transition: opacity 0.15s;
+  }
+  .portal-link:hover {
+    opacity: 0.85;
+  }
+</style>

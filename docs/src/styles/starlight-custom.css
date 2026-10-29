@@ -2,15 +2,15 @@
    RapiDoc Starlight Custom Theme - Permanent Dark Theme
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 /* --------------------------------------------------------------------------
    1. Theme Color Tokens (Dark Mode Enforced)
    -------------------------------------------------------------------------- */
 
 :root,
-:root[data-theme='dark'],
-:root[data-theme='light'],
+:root[data-theme="dark"],
+:root[data-theme="light"],
 html {
   color-scheme: dark !important;
 
@@ -43,8 +43,8 @@ html {
   --rd-body-glow-2: rgba(245, 158, 11, 0.1);
 
   /* Typography */
-  --sl-font-system: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --sl-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+  --sl-font-system: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --sl-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
 
   /* Sizing */
   --sl-sidebar-width: 18.5rem;
@@ -170,9 +170,9 @@ ul.top-level ul li a:hover {
 }
 
 /* Active Page in Sidebar */
-.sidebar-content a[aria-current='page'],
-.sidebar-pane a[aria-current='page'],
-ul.top-level a[aria-current='page'] {
+.sidebar-content a[aria-current="page"],
+.sidebar-pane a[aria-current="page"],
+ul.top-level a[aria-current="page"] {
   background: var(--sl-color-accent-low) !important;
   color: var(--sl-color-accent) !important;
   font-weight: 600 !important;
@@ -197,7 +197,11 @@ ul.top-level ul li {
   font-size: 2.25rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  background: linear-gradient(135deg, var(--rd-heading-grad-start) 40%, var(--rd-heading-grad-end) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--rd-heading-grad-start) 40%,
+    var(--rd-heading-grad-end) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.75rem;
@@ -284,7 +288,7 @@ starlight-toc a {
 }
 
 starlight-toc a:hover,
-starlight-toc a[aria-current='true'] {
+starlight-toc a[aria-current="true"] {
   color: var(--sl-color-accent) !important;
   font-weight: 500;
 }

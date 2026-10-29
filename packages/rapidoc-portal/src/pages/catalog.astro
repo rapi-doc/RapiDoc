@@ -1,0 +1,106 @@
+---
+import Icon from '../components/Icon.astro';
+import PortalLayout from '../components/PortalLayout.astro';
+import { withBase } from '../components/base-path.js';
+import portalConfig from 'virtual:rapidoc-portal/config';
+
+const apis = portalConfig.apis || [];
+
+const categorized = new Map();
+for (const api of apis) {
+  const cat = api.category || 'General';
+  if (!categorized.has(cat)) categorized.set(cat, []);
+  categorized.get(cat).push(api);
+}
+---
+
+<PortalLayout title={portalConfig.catalog.label}>
+  <div class="catalog-container">
+    <div class="catalog-hero">
+      <h1>{portalConfig.catalog.label}</h1>
+      <p>Discover, explore, and integrate with our comprehensive developer APIs.</p>
+    </div>
+
+    {Array.from(categorized.entries()).map(([category, items]) => (
+      <section class="catalog-section">
+        <h2 class="category-title">{category}</h2>
+        <div class="api-grid">
+          {items.map((api) => (
+            <a href={withBase(api.path)} class="portal-doc-card api-card">
+              <div class="api-card-header">
+                <Icon name="notebook" duotone class="portal-doc-card-icon" />
+                {api.versioned ? (
+                  <span class="api-version">
+                    {api.versions[0].label}
+                    {api.versions.length > 1 && <span class="api-version-count"> · {api.versions.length} versions</span>}
+                  </span>
+                ) : (
+                  api.version && <span class="api-version">v{String(api.version).replace(/^v/i, '')}</span>
+                )}
+              </div>
+              <h3 class="portal-doc-card-title">
+                <span>{api.title || api.id}</span>
+                <Icon name="caret-right" size={16} class="portal-doc-card-arrow" />
+              </h3>
+              <p class="portal-doc-card-body api-card-desc">{api.summary || 'Interactive OpenAPI documentation and live request testing.'}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</PortalLayout>
+
+<style is:global>
+  .catalog-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+  .catalog-hero {
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+  .catalog-hero h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+  }
+  .catalog-hero p {
+    font-size: 1.0625rem;
+    color: var(--portal-muted, #8b949e);
+  }
+  .catalog-section {
+    margin-bottom: 3rem;
+  }
+  .category-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--portal-border, #363636);
+    padding-bottom: 0.5rem;
+  }
+  .api-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  /* Card look: .portal-doc-card in portal-theme.css */
+  .api-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .api-version {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--portal-muted);
+  }
+  .api-card-desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+  }
+</style>

@@ -11,37 +11,37 @@
 export function serializeHeaderValue(rawValue, options = {}) {
   const { explode = false, isObject = false } = options;
 
-  if (rawValue === undefined || rawValue === null || rawValue === '') {
-    return '';
+  if (rawValue === undefined || rawValue === null || rawValue === "") {
+    return "";
   }
 
-  if (isObject || (typeof rawValue === 'object' && !Array.isArray(rawValue))) {
+  if (isObject || (typeof rawValue === "object" && !Array.isArray(rawValue))) {
     let obj = rawValue;
-    if (typeof rawValue === 'string') {
+    if (typeof rawValue === "string") {
       try {
-        obj = JSON.parse(rawValue.replace(/\n/g, '').trim());
+        obj = JSON.parse(rawValue.replace(/\n/g, "").trim());
       } catch {
-        return '';
+        return "";
       }
     }
 
-    if (!obj || typeof obj !== 'object') {
-      return '';
+    if (!obj || typeof obj !== "object") {
+      return "";
     }
 
-    const separator = explode ? '=' : ',';
+    const separator = explode ? "=" : ",";
     return Object.keys(obj)
       .map((key) => {
         const val = obj[key];
-        const valStr = typeof val === 'object' ? JSON.stringify(val) : String(val);
+        const valStr = typeof val === "object" ? JSON.stringify(val) : String(val);
         return `${key}${separator}${valStr}`;
       })
-      .join(',');
+      .join(",");
   }
 
   if (Array.isArray(rawValue)) {
-    const filtered = rawValue.filter((v) => v !== '' && v !== undefined && v !== null);
-    return filtered.join(',');
+    const filtered = rawValue.filter((v) => v !== "" && v !== undefined && v !== null);
+    return filtered.join(",");
   }
 
   return String(rawValue);
@@ -57,16 +57,21 @@ export function serializeHeaderValue(rawValue, options = {}) {
  * @param {string} [options.contentType] - Content-Type to apply (omitted for multipart/form-data)
  * @returns {Headers}
  */
-export function constructFetchHeaders({ accept = '', apiKeys = [], headerParams = [], contentType = '' } = {}) {
+export function constructFetchHeaders({
+  accept = "",
+  apiKeys = [],
+  headerParams = [],
+  contentType = "",
+} = {}) {
   const reqHeaders = new Headers();
 
   if (accept) {
-    reqHeaders.append('Accept', accept);
+    reqHeaders.append("Accept", accept);
   }
 
   if (Array.isArray(apiKeys)) {
     apiKeys
-      .filter((k) => k && k.in === 'header' && k.finalKeyValue)
+      .filter((k) => k && k.in === "header" && k.finalKeyValue)
       .forEach((k) => {
         reqHeaders.append(k.name, k.finalKeyValue);
       });
@@ -74,9 +79,15 @@ export function constructFetchHeaders({ accept = '', apiKeys = [], headerParams 
 
   if (Array.isArray(headerParams)) {
     headerParams.forEach((param) => {
-      if (param && param.name && param.value !== undefined && param.value !== null && param.value !== '') {
+      if (
+        param &&
+        param.name &&
+        param.value !== undefined &&
+        param.value !== null &&
+        param.value !== ""
+      ) {
         const headerValue = serializeHeaderValue(param.value, {
-          explode: param.explode === true || param.explode === 'true',
+          explode: param.explode === true || param.explode === "true",
           isObject: param.isObject === true,
         });
         if (headerValue) {
@@ -86,8 +97,8 @@ export function constructFetchHeaders({ accept = '', apiKeys = [], headerParams 
     });
   }
 
-  if (contentType && !contentType.includes('form-data')) {
-    reqHeaders.append('Content-Type', contentType);
+  if (contentType && !contentType.includes("form-data")) {
+    reqHeaders.append("Content-Type", contentType);
   }
 
   return reqHeaders;
@@ -100,15 +111,18 @@ export function constructFetchHeaders({ accept = '', apiKeys = [], headerParams 
  * @param {string} [dynamicJson] - Raw JSON string for dynamic forms
  * @returns {URLSearchParams}
  */
-export function buildUrlEncodedBody(fields = [], dynamicJson = '') {
+export function buildUrlEncodedBody(fields = [], dynamicJson = "") {
   const params = new URLSearchParams();
 
   if (dynamicJson) {
     try {
       const obj = JSON.parse(dynamicJson);
-      if (obj && typeof obj === 'object') {
+      if (obj && typeof obj === "object") {
         for (const prop of Object.keys(obj)) {
-          params.append(prop, typeof obj[prop] === 'object' ? JSON.stringify(obj[prop]) : String(obj[prop]));
+          params.append(
+            prop,
+            typeof obj[prop] === "object" ? JSON.stringify(obj[prop]) : String(obj[prop]),
+          );
         }
         return params;
       }
@@ -119,14 +133,20 @@ export function buildUrlEncodedBody(fields = [], dynamicJson = '') {
 
   if (Array.isArray(fields)) {
     fields.forEach((field) => {
-      if (!field || !field.name || field.value === undefined || field.value === null || field.value === '') {
+      if (
+        !field ||
+        !field.name ||
+        field.value === undefined ||
+        field.value === null ||
+        field.value === ""
+      ) {
         return;
       }
       if (field.isArray) {
         const arr = Array.isArray(field.value) ? field.value : [field.value];
-        const filtered = arr.filter((v) => v !== '' && v !== undefined && v !== null);
+        const filtered = arr.filter((v) => v !== "" && v !== undefined && v !== null);
         if (filtered.length > 0) {
-          params.append(field.name, filtered.join(','));
+          params.append(field.name, filtered.join(","));
         }
       } else {
         params.append(field.name, String(field.value));
@@ -155,20 +175,20 @@ export function buildMultipartFormData(fields = []) {
       return;
     }
 
-    if (typeof File !== 'undefined' && field.file instanceof File) {
+    if (typeof File !== "undefined" && field.file instanceof File) {
       formData.append(field.name, field.file, field.file.name);
       return;
     }
 
-    if (field.value === undefined || field.value === null || field.value === '') {
+    if (field.value === undefined || field.value === null || field.value === "") {
       return;
     }
 
     if (field.isArray) {
       const arr = Array.isArray(field.value) ? field.value : [field.value];
-      const filtered = arr.filter((v) => v !== '' && v !== undefined && v !== null);
+      const filtered = arr.filter((v) => v !== "" && v !== undefined && v !== null);
       filtered.forEach((item) => {
-        if (typeof File !== 'undefined' && item instanceof File) {
+        if (typeof File !== "undefined" && item instanceof File) {
           formData.append(field.name, item, item.name);
         } else {
           formData.append(field.name, String(item));

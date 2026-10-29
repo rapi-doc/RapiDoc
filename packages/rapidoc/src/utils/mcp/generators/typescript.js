@@ -2,33 +2,33 @@
  * Single-file TypeScript MCP Server Generator
  * Uses official @modelcontextprotocol/sdk and zod.
  */
-import { toSnakeCase, estimateTokenCost } from '../common.js';
+import { toSnakeCase, estimateTokenCost } from "../common.js";
 
 export function generateTypeScriptMcpServer(metadata, tools, resources, workflows, options = {}) {
-  const serverName = toSnakeCase(options.serverName || metadata.title || 'rapidoc_mcp_server');
+  const serverName = toSnakeCase(options.serverName || metadata.title || "rapidoc_mcp_server");
   const budget = estimateTokenCost(tools, resources, workflows);
-  const defaultBaseUrl = metadata.servers?.[0]?.url || 'http://localhost:3000';
+  const defaultBaseUrl = metadata.servers?.[0]?.url || "http://localhost:3000";
 
   const toolDefinitions = tools
     .map((t) => {
       // Build Zod schema properties
       const zodProps = t.parameters
         .map((p) => {
-          let zodType = 'z.string()';
-          if (p.type === 'integer' || p.type === 'number') zodType = 'z.number()';
-          else if (p.type === 'boolean') zodType = 'z.boolean()';
-          else if (p.type === 'array') zodType = 'z.array(z.string())';
-          else if (p.type === 'object') zodType = 'z.record(z.any())';
+          let zodType = "z.string()";
+          if (p.type === "integer" || p.type === "number") zodType = "z.number()";
+          else if (p.type === "boolean") zodType = "z.boolean()";
+          else if (p.type === "array") zodType = "z.array(z.string())";
+          else if (p.type === "object") zodType = "z.record(z.any())";
 
           if (p.description) {
             zodType += `.describe(${JSON.stringify(p.description)})`;
           }
           if (!p.required) {
-            zodType += '.optional()';
+            zodType += ".optional()";
           }
           return `    ${JSON.stringify(p.name)}: ${zodType},`;
         })
-        .join('\n');
+        .join("\n");
 
       const allZodProps = zodProps
         ? `${zodProps}\n    apiKey: z.string().optional().describe('Optional Bearer API key override for multi-tenant sessions'),`
@@ -36,20 +36,20 @@ export function generateTypeScriptMcpServer(metadata, tools, resources, workflow
 
       const pathSubstitution = t.path.replace(/\{([^}]+)\}/g, '${encodeURIComponent(args["$1"])}');
 
-      const headerParams = t.parameters.filter((p) => p.in === 'header');
+      const headerParams = t.parameters.filter((p) => p.in === "header");
       const headerAppends = headerParams
         .map(
           (p) =>
-            `    if (args[${JSON.stringify(p.name)}]) {\n      headers[${JSON.stringify(p.name)}] = String(args[${JSON.stringify(p.name)}]);\n    }`
+            `    if (args[${JSON.stringify(p.name)}]) {\n      headers[${JSON.stringify(p.name)}] = String(args[${JSON.stringify(p.name)}]);\n    }`,
         )
-        .join('\n');
+        .join("\n");
 
       return `
 // Tool: ${t.name} (${t.method} ${t.path})
-// ${t.isConsequential ? '⚠️ Consequential/Destructive action' : 'Safe/Read-only action'}
+// ${t.isConsequential ? "⚠️ Consequential/Destructive action" : "Safe/Read-only action"}
 server.tool(
   ${JSON.stringify(t.name)},
-  ${JSON.stringify(t.description + (t.isConsequential ? ' (Requires confirmation)' : ''))},
+  ${JSON.stringify(t.description + (t.isConsequential ? " (Requires confirmation)" : ""))},
   {
 ${allZodProps}
   },
@@ -58,12 +58,12 @@ ${allZodProps}
     let url = targetUrl.toString();
     const queryParams = new URLSearchParams();
 ${t.parameters
-  .filter((p) => p.in === 'query')
+  .filter((p) => p.in === "query")
   .map(
     (p) =>
-      `    if (args[${JSON.stringify(p.name)}] !== undefined) queryParams.set(${JSON.stringify(p.name)}, String(args[${JSON.stringify(p.name)}]));`
+      `    if (args[${JSON.stringify(p.name)}] !== undefined) queryParams.set(${JSON.stringify(p.name)}, String(args[${JSON.stringify(p.name)}]));`,
   )
-  .join('\n')}
+  .join("\n")}
     const qs = queryParams.toString();
     if (qs) url += (url.includes('?') ? '&' : '?') + qs;
 
@@ -71,7 +71,7 @@ ${t.parameters
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     };
-${headerAppends ? '\n' + headerAppends + '\n' : ''}    const resolvedKey = args?.apiKey || API_KEY;
+${headerAppends ? "\n" + headerAppends + "\n" : ""}    const resolvedKey = args?.apiKey || API_KEY;
     if (resolvedKey) headers['Authorization'] = \`Bearer \${resolvedKey}\`;
 
     const fetchOptions: RequestInit = {
@@ -80,19 +80,19 @@ ${headerAppends ? '\n' + headerAppends + '\n' : ''}    const resolvedKey = args?
     };
 
 ${
-  ['POST', 'PUT', 'PATCH'].includes(t.method)
+  ["POST", "PUT", "PATCH"].includes(t.method)
     ? `    const bodyPayload: Record<string, any> = {};
 ${t.parameters
-  .filter((p) => p.in === 'body')
+  .filter((p) => p.in === "body")
   .map(
     (p) =>
-      `    if (args[${JSON.stringify(p.name)}] !== undefined) bodyPayload[${JSON.stringify(p.name)}] = args[${JSON.stringify(p.name)}];`
+      `    if (args[${JSON.stringify(p.name)}] !== undefined) bodyPayload[${JSON.stringify(p.name)}] = args[${JSON.stringify(p.name)}];`,
   )
-  .join('\n')}
+  .join("\n")}
     if (Object.keys(bodyPayload).length > 0) {
       fetchOptions.body = JSON.stringify(bodyPayload);
     }`
-    : ''
+    : ""
 }
 
     try {
@@ -112,7 +112,7 @@ ${t.parameters
   }
 );`;
     })
-    .join('\n');
+    .join("\n");
 
   const resourceDefinitions = resources
     .map((r) => {
@@ -146,23 +146,28 @@ server.resource(
   }
 );`;
     })
-    .join('\n');
+    .join("\n");
 
   const workflowDefinitions = workflows
     .map((w) => {
       const paramKeys = w.parameters ? Object.keys(w.parameters) : [];
       const zodProps = paramKeys
-        .map((k) => `    ${JSON.stringify(k)}: z.string().describe(${JSON.stringify(w.parameters[k].description || '')}),`)
-        .concat([`    apiKey: z.string().optional().describe('Optional Bearer API key override for multi-tenant sessions'),`])
-        .join('\n');
-      const firstParam = paramKeys[0] || 'id';
+        .map(
+          (k) =>
+            `    ${JSON.stringify(k)}: z.string().describe(${JSON.stringify(w.parameters[k].description || "")}),`,
+        )
+        .concat([
+          `    apiKey: z.string().optional().describe('Optional Bearer API key override for multi-tenant sessions'),`,
+        ])
+        .join("\n");
+      const firstParam = paramKeys[0] || "id";
 
       return `
 // Composite Workflow: ${w.name}
 // Collapses multi-step atomic REST calls into 1 tool call
 server.tool(
   ${JSON.stringify(w.name)},
-  ${JSON.stringify(w.description || 'Composite workflow')},
+  ${JSON.stringify(w.description || "Composite workflow")},
   {
 ${zodProps}
   },
@@ -180,7 +185,7 @@ ${(w.steps || [])
       const resp_${idx} = await fetch(stepUrl_${idx}, { headers });
       results[${JSON.stringify(s.call)}] = await resp_${idx}.json();`;
   })
-  .join('\n')}
+  .join("\n")}
       return {
         content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
       };
@@ -193,7 +198,7 @@ ${(w.steps || [])
   }
 );`;
     })
-    .join('\n');
+    .join("\n");
 
   return `/**
  * Auto-generated by RapiDoc Curated MCP Generator
@@ -209,7 +214,7 @@ ${(w.steps || [])
  * - Total Resources: ${budget.totalResources}
  * - Total Workflows: ${budget.totalWorkflows}
  * - Estimated Prompt Context Overhead: ~${budget.estimatedTokens.toLocaleString()} tokens/turn
-${budget.warnings.map((w) => ` * - ⚠️ ${w}`).join('\n')}
+${budget.warnings.map((w) => ` * - ⚠️ ${w}`).join("\n")}
  *
  * [HOW TO RUN]
  * 1. npm install @modelcontextprotocol/sdk zod
@@ -247,19 +252,19 @@ main().catch((err) => {
 
 export function generateTypeScriptFiles(serverCode, metadata, options = {}) {
   const packageJson = {
-    name: toSnakeCase(options.serverName || metadata.title || 'rapidoc-mcp-server'),
-    version: metadata.version || '1.0.0',
-    type: 'module',
+    name: toSnakeCase(options.serverName || metadata.title || "rapidoc-mcp-server"),
+    version: metadata.version || "1.0.0",
+    type: "module",
     scripts: {
-      start: 'npx tsx server.ts',
+      start: "npx tsx server.ts",
     },
     dependencies: {
-      '@modelcontextprotocol/sdk': '^1.6.0',
-      zod: '^3.24.0',
+      "@modelcontextprotocol/sdk": "^1.6.0",
+      zod: "^3.24.0",
     },
     devDependencies: {
-      tsx: '^4.19.0',
-      typescript: '^5.7.0',
+      tsx: "^4.19.0",
+      typescript: "^5.7.0",
     },
   };
 
@@ -278,8 +283,8 @@ API_KEY="your-key" npm start
 `;
 
   return {
-    'server.ts': serverCode,
-    'package.json': JSON.stringify(packageJson, null, 2),
-    'README.md': readme,
+    "server.ts": serverCode,
+    "package.json": JSON.stringify(packageJson, null, 2),
+    "README.md": readme,
   };
 }

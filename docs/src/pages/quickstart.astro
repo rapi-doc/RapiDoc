@@ -652,7 +652,7 @@ const categories = [
 
           // Search across card title, summary, tags, and code
           const cardText = (card.textContent || '').toLowerCase();
-          const matchesQuery = searchTerms.length === 0 || searchTerms.every((term) => cardText.includes(term));
+          const matchesQuery = searchTerms.every((term) => cardText.includes(term));
 
           if (matchesCategory && matchesQuery) {
             card.style.display = '';

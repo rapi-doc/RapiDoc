@@ -57,7 +57,7 @@ async function switchTenantSpec(tenantId) {
 
 ---
 
-### `setApiKey(apiKeyId, apiKeyValue)`
+### `setApiKey(apiKeyId, apiKeyValue, options?)`
 Injects API Key or Bearer Token authentication credentials dynamically:
 
 ```javascript
@@ -68,6 +68,12 @@ function onUserLogin(sessionToken) {
   // apiKeyId matches the security scheme name in your OpenAPI spec
   doc.setApiKey('BearerAuth', sessionToken);
 }
+```
+
+Pass `{ note }` as a third argument to say where the key came from. The Authentication section then shows the note in place of that scheme's form, with a **Use a different token** link that opens the form. Changing or removing the key drops the note.
+
+```javascript
+doc.setApiKey('BearerAuth', sessionToken, { note: 'Using your sign-in (ann@example.com).' });
 ```
 
 ---

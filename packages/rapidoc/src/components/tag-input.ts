@@ -1,13 +1,13 @@
-import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { LitElement, html, css } from "lit";
+import { customElement, property } from "lit/decorators.js";
 
-@customElement('tag-input')
+@customElement("tag-input")
 export default class TagInput extends LitElement {
-  @property({ type: String }) placeholder = '';
+  @property({ type: String }) placeholder = "";
 
   @property({
     type: Array,
-    attribute: 'value',
+    attribute: "value",
     hasChanged(newVal, oldVal) {
       if (newVal === oldVal) return false;
       if (!Array.isArray(newVal) || !Array.isArray(oldVal)) return true;
@@ -23,10 +23,10 @@ export default class TagInput extends LitElement {
   }
 
   render() {
-    let tagItemTmpl = '';
+    let tagItemTmpl = "";
     if (Array.isArray(this.value)) {
       tagItemTmpl = html`${this.value
-        .filter((v) => v !== '' && v !== null && v !== undefined && String(v).trim() !== '')
+        .filter((v) => v !== "" && v !== null && v !== undefined && String(v).trim() !== "")
         .map((v) => html`<span class="tag">${v}</span>`)}`;
     }
     return html`<div class="tags" @click="${(e) => this.focusEditor(e)}">
@@ -37,35 +37,39 @@ export default class TagInput extends LitElement {
         @paste="${(e) => this.afterPaste(e)}"
         @keydown="${(e) => this.afterKeyDown(e)}"
         @blur="${(e) => this.onBlur(e)}"
-        placeholder="${this.placeholder || ''}"
+        placeholder="${this.placeholder || ""}"
       />
     </div>`;
   }
 
   focusEditor(e) {
-    if (e.target.classList.contains('tags')) {
-      this.shadowRoot?.querySelector('.editor')?.focus();
+    if (e.target.classList.contains("tags")) {
+      this.shadowRoot?.querySelector(".editor")?.focus();
     }
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    if (name === 'value') {
+    if (name === "value") {
       if (newVal && oldVal !== newVal) {
-        this.value = newVal.split(',').filter((v) => v.trim() !== '');
+        this.value = newVal.split(",").filter((v) => v.trim() !== "");
       }
     }
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   dispatchEvents() {
-    this.dispatchEvent(new CustomEvent('change', { bubbles: true, composed: true, detail: { value: this.value } }));
-    this.dispatchEvent(new CustomEvent('input', { bubbles: true, composed: true, detail: { value: this.value } }));
+    this.dispatchEvent(
+      new CustomEvent("change", { bubbles: true, composed: true, detail: { value: this.value } }),
+    );
+    this.dispatchEvent(
+      new CustomEvent("input", { bubbles: true, composed: true, detail: { value: this.value } }),
+    );
   }
 
   afterPaste(e) {
     const clipboardData = e.clipboardData || window.clipboardData;
-    const pastedData = clipboardData.getData('Text');
-    const pastedArray = pastedData ? pastedData.split(',').filter((v) => v.trim() !== '') : '';
+    const pastedData = clipboardData.getData("Text");
+    const pastedArray = pastedData ? pastedData.split(",").filter((v) => v.trim() !== "") : "";
     if (pastedArray) {
       if (Array.isArray(this.value)) {
         this.value = [...this.value, ...pastedArray];
@@ -78,20 +82,20 @@ export default class TagInput extends LitElement {
   }
 
   afterKeyDown(e) {
-    if (e.key === 'Enter' || e.keyCode === 13) {
+    if (e.key === "Enter" || e.keyCode === 13) {
       e.stopPropagation();
       e.preventDefault();
-      const val = e.target.value ? e.target.value.trim() : '';
+      const val = e.target.value ? e.target.value.trim() : "";
       if (val) {
         if (Array.isArray(this.value)) {
           this.value = [...this.value, val];
         } else {
           this.value = [val];
         }
-        e.target.value = '';
+        e.target.value = "";
         this.dispatchEvents();
       }
-    } else if (e.key === 'Backspace' || e.key === 'Delete' || e.keyCode === 8 || e.keyCode === 46) {
+    } else if (e.key === "Backspace" || e.key === "Delete" || e.keyCode === 8 || e.keyCode === 46) {
       if (!e.target.value || e.target.value.length === 0) {
         if (Array.isArray(this.value) && this.value.length > 0) {
           e.preventDefault();
@@ -103,14 +107,14 @@ export default class TagInput extends LitElement {
   }
 
   onBlur(e) {
-    const val = e.target.value ? e.target.value.trim() : '';
+    const val = e.target.value ? e.target.value.trim() : "";
     if (val) {
       if (Array.isArray(this.value)) {
         this.value = [...this.value, val];
       } else {
         this.value = [val];
       }
-      e.target.value = '';
+      e.target.value = "";
       this.dispatchEvents();
     }
   }
@@ -121,24 +125,38 @@ export default class TagInput extends LitElement {
         .tags {
           display: flex;
           flex-wrap: wrap;
+          align-items: center;
+          box-sizing: border-box;
+          /* Same height as the text inputs in a parameter row (see param-list-styles.js) */
+          min-height: calc(2.75 * var(--font-size-small) + 2px);
           outline: none;
           padding: 0;
-          border-radius: var(--border-radius);
-          border: 1px solid var(--input-border);
+          border-radius: var(--radius);
+          border: 1px solid var(--input);
           cursor: text;
           overflow: hidden;
           background: var(--input-background);
+          transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+
+          /* Same focus ring as the text inputs */
+          &:focus-within {
+            border-color: var(--primary);
+            box-shadow: var(--focus-shadow);
+          }
         }
         .tag,
         .editor {
           padding: 3px;
           margin: 2px;
         }
+        /* Chips: a muted fill with the form-field border, so each one stands apart on a white or dark field */
         .tag {
-          border: 1px solid var(--border);
+          border: 1px solid var(--input);
           background: var(--muted);
-          color: var(--muted-foreground);
-          border-radius: var(--border-radius);
+          color: var(--foreground);
+          border-radius: var(--radius);
           word-break: break-all;
           font-size: var(--font-size-small);
         }
@@ -155,9 +173,6 @@ export default class TagInput extends LitElement {
           font-family: inherit;
           background: transparent;
           font-size: calc(var(--font-size-small) + 1px);
-        }
-        .editor:focus-visible {
-          outline: 1px solid;
         }
         .editor::placeholder {
           color: var(--muted-foreground);

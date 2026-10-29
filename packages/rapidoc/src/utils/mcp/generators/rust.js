@@ -2,58 +2,64 @@
  * Single-file Rust MCP Server Generator
  * Uses mcp_sdk / rmcp conventions.
  */
-import { toSnakeCase, estimateTokenCost } from '../common.js';
+import { toSnakeCase, estimateTokenCost } from "../common.js";
 
 export function generateRustMcpServer(metadata, tools, resources, workflows, options = {}) {
-  const serverName = toSnakeCase(options.serverName || metadata.title || 'rapidoc_mcp_server');
+  const serverName = toSnakeCase(options.serverName || metadata.title || "rapidoc_mcp_server");
   const budget = estimateTokenCost(tools, resources, workflows);
-  const defaultBaseUrl = metadata.servers?.[0]?.url || 'http://localhost:3000';
+  const defaultBaseUrl = metadata.servers?.[0]?.url || "http://localhost:3000";
 
   const toolRegistrations = tools
     .map((t) => {
       const propCalls = t.parameters
         .map((p) => {
-          let rustSchemaType = 'string';
-          if (p.type === 'integer' || p.type === 'number') rustSchemaType = 'number';
-          else if (p.type === 'boolean') rustSchemaType = 'boolean';
-          else if (p.type === 'array') rustSchemaType = 'array';
-          else if (p.type === 'object') rustSchemaType = 'object';
-          return `\n            .property("${toSnakeCase(p.name)}", "${rustSchemaType}", ${Boolean(p.required)}, ${JSON.stringify(p.description || '')})`;
+          let rustSchemaType = "string";
+          if (p.type === "integer" || p.type === "number") rustSchemaType = "number";
+          else if (p.type === "boolean") rustSchemaType = "boolean";
+          else if (p.type === "array") rustSchemaType = "array";
+          else if (p.type === "object") rustSchemaType = "object";
+          return `\n            .property("${toSnakeCase(p.name)}", "${rustSchemaType}", ${Boolean(p.required)}, ${JSON.stringify(p.description || "")})`;
         })
-        .join('');
+        .join("");
 
       return `    server.add_tool(
         Tool::new("${t.name}", ${JSON.stringify(t.description)})
-${propCalls ? propCalls + '\n' : ''}            .property("api_key", "string", false, "Optional Bearer API key override for multi-tenant sessions")
+${propCalls ? propCalls + "\n" : ""}            .property("api_key", "string", false, "Optional Bearer API key override for multi-tenant sessions")
     );`;
     })
-    .join('\n\n');
+    .join("\n\n");
 
   const workflowRegistrations = workflows
     .map((w) => {
       const paramKeys = w.parameters ? Object.keys(w.parameters) : [];
       const propCalls = paramKeys
-        .map((k) => `\n            .property("${toSnakeCase(k)}", "string", true, ${JSON.stringify(w.parameters[k].description || '')})`)
-        .join('');
+        .map(
+          (k) =>
+            `\n            .property("${toSnakeCase(k)}", "string", true, ${JSON.stringify(w.parameters[k].description || "")})`,
+        )
+        .join("");
 
       return `    server.add_tool(
-        Tool::new("${w.name}", ${JSON.stringify(w.description || 'Composite workflow')})
-${propCalls ? propCalls + '\n' : ''}            .property("api_key", "string", false, "Optional Bearer API key override for multi-tenant sessions")
+        Tool::new("${w.name}", ${JSON.stringify(w.description || "Composite workflow")})
+${propCalls ? propCalls + "\n" : ""}            .property("api_key", "string", false, "Optional Bearer API key override for multi-tenant sessions")
     );`;
     })
-    .join('\n\n');
+    .join("\n\n");
 
   const toolArms = tools
     .map((t) => {
-      const pathSub = t.path.replace(/\{[^}]+\}/g, '{}');
-      const pathParams = t.parameters.filter((p) => p.in === 'path');
-      const queryParams = t.parameters.filter((p) => p.in === 'query');
-      const bodyParams = t.parameters.filter((p) => p.in === 'body');
-      const hasBody = ['POST', 'PUT', 'PATCH'].includes(t.method) && bodyParams.length > 0;
+      const pathSub = t.path.replace(/\{[^}]+\}/g, "{}");
+      const pathParams = t.parameters.filter((p) => p.in === "path");
+      const queryParams = t.parameters.filter((p) => p.in === "query");
+      const bodyParams = t.parameters.filter((p) => p.in === "body");
+      const hasBody = ["POST", "PUT", "PATCH"].includes(t.method) && bodyParams.length > 0;
 
       const pathArgs = pathParams
-        .map((p) => `urlencoding::encode(args.get("${toSnakeCase(p.name)}").and_then(|v| v.as_str()).unwrap_or("")).as_ref()`)
-        .join(', ');
+        .map(
+          (p) =>
+            `urlencoding::encode(args.get("${toSnakeCase(p.name)}").and_then(|v| v.as_str()).unwrap_or("")).as_ref()`,
+        )
+        .join(", ");
 
       const queryCode =
         queryParams.length > 0
@@ -63,13 +69,13 @@ ${queryParams
     (p) => `                    if let Some(val) = args.get("${toSnakeCase(p.name)}") {
                         let s = val.as_str().map(String::from).unwrap_or_else(|| val.to_string());
                         query_params.push(("${p.name}", s));
-                    }`
+                    }`,
   )
-  .join('\n')}
+  .join("\n")}
                     if !query_params.is_empty() {
                         req = req.query(&query_params);
                     }\n`
-          : '';
+          : "";
 
       const bodyCode = hasBody
         ? `                    let mut body_map = serde_json::Map::new();
@@ -77,25 +83,25 @@ ${bodyParams
   .map(
     (p) => `                    if let Some(val) = args.get("${toSnakeCase(p.name)}") {
                         body_map.insert("${p.name}".to_string(), val.clone());
-                    }`
+                    }`,
   )
-  .join('\n')}
+  .join("\n")}
                     if !body_map.is_empty() {
                         req = req.json(&body_map);
                     }\n`
-        : '';
+        : "";
 
       return `                "${t.name}" => {
-                    let url = format!("{}${pathSub}", base_url.trim_end_matches('/')${pathArgs ? `, ${pathArgs}` : ''});
+                    let url = format!("{}${pathSub}", base_url.trim_end_matches('/')${pathArgs ? `, ${pathArgs}` : ""});
                     let mut req = client.request(reqwest::Method::from_bytes(b"${t.method}")?, &url)
                         .header("Accept", "application/json");
 ${t.parameters
-  .filter((p) => p.in === 'header')
+  .filter((p) => p.in === "header")
   .map(
     (p) =>
-      `                    if let Some(h) = args.get("${p.name}").or_else(|| args.get("${toSnakeCase(p.name)}")).and_then(|v| v.as_str()) {\n                        req = req.header("${p.name}", h);\n                    }`
+      `                    if let Some(h) = args.get("${p.name}").or_else(|| args.get("${toSnakeCase(p.name)}")).and_then(|v| v.as_str()) {\n                        req = req.header("${p.name}", h);\n                    }`,
   )
-  .join('\n')}
+  .join("\n")}
                     let resolved_key = args.get("api_key").and_then(|v| v.as_str()).map(String::from).or_else(|| api_key.clone());
                     if let Some(ref key) = resolved_key {
                         req = req.header("Authorization", format!("Bearer {}", key));
@@ -105,12 +111,12 @@ ${queryCode}${bodyCode}                    let resp = req.send().await?;
                     Ok(ToolResponse::text(text))
                 }`;
     })
-    .join('\n');
+    .join("\n");
 
   const workflowArms = workflows
     .map((w) => {
       const paramKeys = w.parameters ? Object.keys(w.parameters) : [];
-      const argKey = paramKeys[0] || 'id';
+      const argKey = paramKeys[0] || "id";
 
       return `                "${w.name}" => {
                     let resolved_key = args.get("api_key").and_then(|v| v.as_str()).map(String::from).or_else(|| api_key.clone());
@@ -128,13 +134,13 @@ ${(w.steps || [])
                         if let Ok(json_res) = resp.json::<serde_json::Value>().await {
                             results.insert("${s.call}".to_string(), json_res);
                         }
-                    }`
+                    }`,
   )
-  .join('\n')}
+  .join("\n")}
                     Ok(ToolResponse::text(serde_json::to_string_pretty(&results)?))
                 }`;
     })
-    .join('\n');
+    .join("\n");
 
   const resourceArms = resources
     .map((r) => {
@@ -151,7 +157,7 @@ ${(w.steps || [])
                     Ok(vec![mcp_sdk::server::ResourceContents::text("${r.uri}", "${r.mimeType}", text)])
                 }`;
     })
-    .join('\n');
+    .join("\n");
 
   const hasResources = resources.length > 0;
   const resourceRegistration = hasResources
@@ -185,7 +191,7 @@ ${resourceArms}
             }
         }
     });`
-    : '';
+    : "";
 
   return `/*
 Auto-generated by RapiDoc Curated MCP Generator
@@ -201,7 +207,7 @@ Spec: ${metadata.title} (v${metadata.version})
 - Total Resources: ${budget.totalResources}
 - Total Workflows: ${budget.totalWorkflows}
 - Estimated Prompt Context Overhead: ~${budget.estimatedTokens.toLocaleString()} tokens/turn
-${budget.warnings.map((w) => `- ${w}`).join('\n')}
+${budget.warnings.map((w) => `- ${w}`).join("\n")}
 
 [HOW TO RUN]
 1. cargo build --release
@@ -219,10 +225,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let base_url = env::var("API_BASE_URL").unwrap_or_else(|_| "${defaultBaseUrl}".to_string());
     let client = reqwest::Client::new();
 
-    let mut server = Server::new("${serverName}", "${metadata.version || '1.0.0'}");
+    let mut server = Server::new("${serverName}", "${metadata.version || "1.0.0"}");
 
 ${toolRegistrations}
-${workflowRegistrations ? '\n' + workflowRegistrations : ''}
+${workflowRegistrations ? "\n" + workflowRegistrations : ""}
 
     server.on_call_tool(move |name, args: Value| {
         let client = client.clone();
@@ -251,7 +257,7 @@ ${workflowArms}
 }
 
 export function generateRustFiles(serverCode, metadata, options = {}) {
-  const cargoToml = `[package]\nname = "${toSnakeCase(options.serverName || metadata.title || 'rapidoc_mcp')}"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\nmcp-sdk = "0.1"\ntokio = { version = "1.0", features = ["full"] }\nreqwest = { version = "0.11", features = ["json"] }\nserde_json = "1.0"\nurlencoding = "2.1"\n`;
+  const cargoToml = `[package]\nname = "${toSnakeCase(options.serverName || metadata.title || "rapidoc_mcp")}"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\nmcp-sdk = "0.1"\ntokio = { version = "1.0", features = ["full"] }\nreqwest = { version = "0.11", features = ["json"] }\nserde_json = "1.0"\nurlencoding = "2.1"\n`;
   const readme = `# ${metadata.title} - MCP Server (Rust)
 
 Auto-generated by RapiDoc Curated MCP Generator.
@@ -263,13 +269,13 @@ Auto-generated by RapiDoc Curated MCP Generator.
 \`\`\`bash
 cargo build --release
 export API_KEY="your-api-key"
-./target/release/${toSnakeCase(options.serverName || metadata.title || 'rapidoc_mcp')}
+./target/release/${toSnakeCase(options.serverName || metadata.title || "rapidoc_mcp")}
 \`\`\`
 `;
 
   return {
-    'src/main.rs': serverCode,
-    'Cargo.toml': cargoToml,
-    'README.md': readme,
+    "src/main.rs": serverCode,
+    "Cargo.toml": cargoToml,
+    "README.md": readme,
   };
 }

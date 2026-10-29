@@ -1,4 +1,4 @@
-import { css } from 'lit';
+import { css } from "lit";
 
 export default css`
   *,
@@ -13,7 +13,7 @@ export default css`
     background: var(--card);
     padding: 0;
     color: var(--card-foreground);
-    border-radius: var(--card-radius);
+    border-radius: min(var(--radius), 0.5rem);
     max-height: 70vh;
     height: 70vh;
     max-width: 70vw;
@@ -38,25 +38,25 @@ export default css`
     max-height: 60px;
     border-bottom: 1px solid var(--border);
     overflow: hidden;
-    border-top-left-radius: var(--card-radius);
-    border-top-right-radius: var(--card-radius);
-  }
+    border-top-left-radius: min(var(--radius), 0.5rem);
+    border-top-right-radius: min(var(--radius), 0.5rem);
+    & button {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--foreground);
+      border: none;
+      outline: none;
+      background: transparent;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      margin-inline-end: -8px;
 
-  .dialog-box-header button {
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--foreground);
-    border: none;
-    outline: none;
-    background: transparent;
-    cursor: pointer;
-    border: 1px solid transparent;
-    border-radius: 50%;
-    margin-inline-end: -8px;
-  }
-  .dialog-box-header button:hover {
-    border-color: var(--primary);
+      &:hover {
+        border-color: var(--primary);
+      }
+    }
   }
 
   .dialog-box-content {
@@ -68,7 +68,7 @@ export default css`
 
   .dialog-box-title {
     flex-grow: 1;
-    font-size: 24px;
+    font-size: var(--h2-font-size);
   }
 
   .search-options-row {
@@ -82,7 +82,7 @@ export default css`
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.5em;
     user-select: none;
   }
 

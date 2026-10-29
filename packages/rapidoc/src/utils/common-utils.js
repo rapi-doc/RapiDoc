@@ -11,7 +11,7 @@ export function debounce(fn, delay) {
 }
 
 export const invalidCharsRegEx = /[\s#:?&={}]/g; // used for generating valid html element ids by replacing the invalid chars with hyphen (-)
-export const rapidocApiKey = '_rapidoc_api_key';
+export const rapidocApiKey = "_rapidoc_api_key";
 
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -19,26 +19,26 @@ export function sleep(ms) {
 
 export function copyToClipboard(data, e) {
   const btnEl = e.target;
-  const textArea = document.createElement('textarea');
+  const textArea = document.createElement("textarea");
   textArea.value = data;
-  textArea.style.position = 'fixed'; // avoid scrolling to bottom
+  textArea.style.position = "fixed"; // avoid scrolling to bottom
   document.body.appendChild(textArea);
   textArea.focus();
   textArea.select();
   try {
-    document.execCommand('copy');
-    btnEl.innerText = 'Copied';
+    document.execCommand("copy");
+    btnEl.innerText = "Copied";
     setTimeout(() => {
-      btnEl.innerText = 'Copy';
+      btnEl.innerText = "Copy";
     }, 5000);
   } catch (err) {
-    console.error('Unable to copy', err);
+    console.error("Unable to copy", err);
   }
   document.body.removeChild(textArea);
 }
 
 export function getBaseUrlFromUrl(url) {
-  const pathArray = url.split('/');
+  const pathArray = url.split("/");
   return `${pathArray[0]}//${pathArray[2]}`;
 }
 
@@ -52,13 +52,31 @@ export function getMatchedComponents(searchVal, component) {
   return component.name.toLowerCase().includes(searchVal.toLowerCase());
 }
 
-export function getMatchedPaths(searchVal = '', path, tagName = '') {
+export function getMatchedPaths(searchVal = "", path, tagName = "") {
   if (!searchVal) {
     return true;
   }
   const stringToSearch =
-    `${path.method} ${path.path} ${path.summary || ''} ${path.description || ''} ${path.operationId || ''} ${tagName}`.toLowerCase();
+    `${path.method} ${path.path} ${path.summary || ""} ${path.description || ""} ${path.operationId || ""} ${tagName}`.toLowerCase();
   return stringToSearch.includes(searchVal.toLowerCase());
+}
+
+export function isInternalOrHidden(item) {
+  if (!item || typeof item !== "object") return false;
+  return (
+    item.xInternal === true ||
+    item.xInternal === "true" ||
+    item.xHidden === true ||
+    item.xHidden === "true" ||
+    item["x-internal"] === true ||
+    item["x-internal"] === "true" ||
+    item["x-hidden"] === true ||
+    item["x-hidden"] === "true" ||
+    item.rawOperation?.["x-internal"] === true ||
+    item.rawOperation?.["x-internal"] === "true" ||
+    item.rawOperation?.["x-hidden"] === true ||
+    item.rawOperation?.["x-hidden"] === "true"
+  );
 }
 
 export function schemaKeys(schemaProps, result = new Set()) {
@@ -84,31 +102,31 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
   const pathsMatched = [];
   allSpecTags.forEach((tag) => {
     tag.paths.forEach((path) => {
-      let stringToSearch = '';
-      if (searchOptions.includes('search-api-path')) {
+      let stringToSearch = "";
+      if (searchOptions.includes("search-api-path")) {
         stringToSearch = path.path;
       }
-      if (searchOptions.includes('search-api-descr')) {
-        stringToSearch = `${stringToSearch} ${(path.summary || '') + (path.description || '')}`;
+      if (searchOptions.includes("search-api-descr")) {
+        stringToSearch = `${stringToSearch} ${(path.summary || "") + (path.description || "")}`;
       }
-      if (searchOptions.includes('search-api-params')) {
-        stringToSearch = `${stringToSearch} ${path.parameters?.map((v) => v.name).join(' ') || ''}`;
+      if (searchOptions.includes("search-api-params")) {
+        stringToSearch = `${stringToSearch} ${path.parameters?.map((v) => v.name).join(" ") || ""}`;
       }
 
-      if (searchOptions.includes('search-api-request-body') && path.requestBody) {
+      if (searchOptions.includes("search-api-request-body") && path.requestBody) {
         let schemaKeySet = new Set();
         for (const contentType in path.requestBody?.content) {
           if (path.requestBody.content[contentType].schema?.properties) {
             schemaKeySet = schemaKeys(path.requestBody.content[contentType].schema?.properties);
           }
-          stringToSearch = `${stringToSearch} ${[...schemaKeySet].join(' ')}`;
+          stringToSearch = `${stringToSearch} ${[...schemaKeySet].join(" ")}`;
         }
       }
 
-      if (searchOptions.includes('search-api-resp-descr')) {
+      if (searchOptions.includes("search-api-resp-descr")) {
         stringToSearch = `${stringToSearch} ${Object.values(path.responses)
-          .map((v) => v.description || '')
-          .join(' ')}`;
+          .map((v) => v.description || "")
+          .join(" ")}`;
       }
 
       if (stringToSearch.toLowerCase().includes(searchVal.trim().toLowerCase())) {
@@ -116,7 +134,7 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
           elementId: path.elementId,
           method: path.method,
           path: path.path,
-          summary: path.summary || path.description || '',
+          summary: path.summary || path.description || "",
           deprecated: path.deprecated,
         });
       }
@@ -150,9 +168,9 @@ export function prettyXml(sourceXmlString) {
 
 export function downloadResource(url, fileName) {
   if (url) {
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     document.body.appendChild(a);
-    a.style = 'display: none';
+    a.style = "display: none";
     a.href = url;
     a.download = fileName;
     a.click();
@@ -162,11 +180,11 @@ export function downloadResource(url, fileName) {
 
 export function viewResource(url) {
   if (url) {
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     document.body.appendChild(a);
-    a.style = 'display: none';
+    a.style = "display: none";
     a.href = url;
-    a.target = '_blank';
+    a.target = "_blank";
     a.click();
     a.remove();
   }

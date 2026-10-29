@@ -1,16 +1,127 @@
-import { css } from 'lit';
+import { css, unsafeCSS } from "lit";
+
+export const DEFAULT_THEME = "ember";
 
 /**
- * Supported brand theme presets in RapiDoc.
- * - 'amber': Warm minimal developer aesthetic (default)
- * - 'blue': Classic developer portal palette with neutral dark surfaces
- * - 'emerald': Fintech & documentation palette (deep navy slate surfaces)
- * - 'violet': Web3 & SaaS palette (deep purple surfaces)
- * - 'graphite': Ultra-clean monochrome minimal palette
- * - 'rose': Ruby accent palette (warm charcoal surfaces)
- * - 'slate': Understated corporate enterprise palette
+ * Brand theme presets (the `theme` attribute), as CSS declaration lists. Each one sets the accent and, where the theme tints
+ * its surfaces, the background and foreground for the dark and the light color scheme; every other
+ * token (card, muted, border, input, ...) is derived from those two in section 3. A theme rule outranks the
+ * shared color-scheme rules, so a theme that sets a surface for one scheme must set it for the other too.
+ *
+ * - 'ember'  (default): orange-red accent over neutral charcoal
+ * - 'carbon': monochrome, near-black surfaces and a white accent
+ * - 'cobalt': matte steel-blue accent over grey-blue slate, with cards darker than the page
+ * - 'jade':   daisyUI-style green accent over slate-navy, with cards darker than the page
+ * - 'indigo': indigo accent over indigo-black
  */
-export const THEME_PRESETS = ['amber', 'blue', 'emerald', 'violet', 'graphite', 'rose', 'slate'];
+export const THEMES = {
+  ember: {
+    dark: `
+      --primary: #f76b39;
+      --primary-foreground: #000000;
+    `,
+    light: `
+      --primary: #f76b39;
+      --primary-foreground: #000000;
+    `,
+  },
+  carbon: {
+    dark: `
+      --primary: #fafafa;
+      --primary-foreground: #18181b;
+      --ring: #a1a1aa;
+      --background: #121214;
+      --foreground: #e4e4e7;
+    `,
+    light: `
+      --primary: #18181b;
+      --primary-foreground: #fafafa;
+      --ring: #52525b;
+      --background: #ffffff;
+      --foreground: #18181b;
+    `,
+  },
+  cobalt: {
+    dark: `
+      --primary: #7aa2d6;
+      --primary-foreground: #0f1a2a;
+      --background: #1e2530;
+      --foreground: #b4bcc8;
+      --card: #181e27;
+      --card-foreground: #ced5df;
+    `,
+    light: `
+      --primary: #3a6cb0;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #243244;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+    `,
+  },
+  jade: {
+    dark: `
+      --primary: #00d390;
+      --primary-foreground: #0b1f17;
+      --background: #1d232a;
+      --foreground: #a6adbb;
+      --card: #181e25;
+      --card-foreground: #c8cfd9;
+    `,
+    light: `
+      --primary: #047857;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #1a2e26;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+    `,
+  },
+  indigo: {
+    dark: `
+      --primary: #818cf8;
+      --primary-foreground: #1e1b4b;
+      --background: #0f0e1c;
+      --foreground: #e4e2f5;
+    `,
+    light: `
+      --primary: #4f46e5;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #1e1b3a;
+    `,
+  },
+};
+
+export const THEME_PRESETS = Object.keys(THEMES);
+
+/**
+ * The :host rules for one preset: dark (the default scheme), light, and light again for
+ * color-scheme="system" when the OS prefers light. The default preset also applies without a theme attribute.
+ * The selector shapes are what getThemeTokensCss (css-bundle.js) rewrites for the portal's light DOM.
+ */
+function presetCss(name, { dark, light }) {
+  const selector = (scheme) => {
+    const suffix = scheme ? `[color-scheme='${scheme}']` : "";
+    const hosts = [`:host([theme='${name}']${suffix})`];
+    if (name === DEFAULT_THEME) hosts.push(`:host(:not([theme])${suffix})`);
+    return hosts.join(",\n  ");
+  };
+  return `
+  /* --------- ${name.toUpperCase()}${name === DEFAULT_THEME ? " (default)" : ""} --------- */
+  ${selector()} {${dark}}
+  ${selector("light")} {${light}}
+  @media (prefers-color-scheme: light) {
+    ${selector("system")} {${light}}
+  }
+`;
+}
+
+const presetsCss = unsafeCSS(
+  Object.entries(THEMES)
+    .map(([name, schemes]) => presetCss(name, schemes))
+    .join(""),
+);
 
 /**
  * Checks if a string is a valid CSS hex color code (#rgb, #rrggbb, #rrggbbaa).
@@ -18,7 +129,7 @@ export const THEME_PRESETS = ['amber', 'blue', 'emerald', 'violet', 'graphite', 
  * @returns {boolean} True if the string is a valid hex color code.
  */
 export function isValidHexColor(color) {
-  if (!color || typeof color !== 'string') return false;
+  if (!color || typeof color !== "string") return false;
   return /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(color.trim());
 }
 
@@ -28,7 +139,7 @@ export function isValidHexColor(color) {
  * @returns {boolean} True if theme is supported.
  */
 export function isValidTheme(theme) {
-  if (!theme || typeof theme !== 'string') return false;
+  if (!theme || typeof theme !== "string") return false;
   const trimmed = theme.trim().toLowerCase();
   return THEME_PRESETS.includes(trimmed) || isValidHexColor(theme);
 }
@@ -37,14 +148,14 @@ export function isValidTheme(theme) {
  * Normalizes and validates the theme attribute value.
  * - Allowed presets are normalized to lowercase.
  * - Valid hex color codes are preserved as-is.
- * - Any invalid, unrecognized, or missing value defaults to 'amber'.
+ * - Any invalid, unrecognized, or missing value defaults to DEFAULT_THEME.
  *
  * @param {string} theme - The raw theme attribute value.
  * @returns {{ theme: string }}
  */
 export function normalizeTheme(theme) {
-  if (!theme || typeof theme !== 'string') {
-    return { theme: 'amber' };
+  if (!theme || typeof theme !== "string") {
+    return { theme: DEFAULT_THEME };
   }
   const trimmed = theme.trim();
   const lower = trimmed.toLowerCase();
@@ -54,7 +165,7 @@ export function normalizeTheme(theme) {
   if (isValidHexColor(trimmed)) {
     return { theme: trimmed };
   }
-  return { theme: 'amber' };
+  return { theme: DEFAULT_THEME };
 }
 
 /**
@@ -63,7 +174,7 @@ export function normalizeTheme(theme) {
  * @returns {boolean}
  */
 export function isCustomColor(color) {
-  if (!color || typeof color !== 'string') return false;
+  if (!color || typeof color !== "string") return false;
   const trimmed = color.trim().toLowerCase();
   if (THEME_PRESETS.includes(trimmed)) return false;
   return isValidHexColor(color);
@@ -76,13 +187,13 @@ export function isCustomColor(color) {
  * @returns {boolean} True if color luminance >= 128 (light).
  */
 export function isLightColor(color) {
-  if (!color || typeof color !== 'string') return false;
-  let hex = color.trim().replace(/^#/, '');
+  if (!color || typeof color !== "string") return false;
+  let hex = color.trim().replace(/^#/, "");
   if (hex.length === 3) {
     hex = hex
-      .split('')
+      .split("")
       .map((c) => c + c)
-      .join('');
+      .join("");
   }
   if (hex.length === 6 || hex.length === 8) {
     const r = parseInt(hex.slice(0, 2), 16);
@@ -96,23 +207,25 @@ export function isLightColor(color) {
 
 /**
  * Dynamically applies custom corporate brand hex colors to the host element.
- * Calculates luminance and injects `--primary`, `--ring`, and `--primary-foreground`.
+ * Calculates luminance and injects `--primary` and `--primary-foreground` (`--ring` follows `--primary`).
  * @param {HTMLElement} element - Custom element host target.
  * @param {string} themeVal - User-supplied theme attribute value.
  */
 export function applyCustomTheme(element, themeVal) {
   if (!element || !element.style) return;
-  if (!themeVal || THEME_PRESETS.includes(themeVal.trim().toLowerCase()) || !isValidHexColor(themeVal)) {
-    element.style.removeProperty('--primary');
-    element.style.removeProperty('--ring');
-    element.style.removeProperty('--primary-foreground');
+  if (
+    !themeVal ||
+    THEME_PRESETS.includes(themeVal.trim().toLowerCase()) ||
+    !isValidHexColor(themeVal)
+  ) {
+    element.style.removeProperty("--primary");
+    element.style.removeProperty("--primary-foreground");
     return;
   }
   const hex = themeVal.trim();
-  element.style.setProperty('--primary', hex);
-  element.style.setProperty('--ring', hex);
-  const fg = isLightColor(hex) ? '#000000' : '#ffffff';
-  element.style.setProperty('--primary-foreground', fg);
+  element.style.setProperty("--primary", hex);
+  const fg = isLightColor(hex) ? "#000000" : "#ffffff";
+  element.style.setProperty("--primary-foreground", fg);
 }
 
 export default css`
@@ -120,35 +233,71 @@ export default css`
      1. ROOT DESIGN TOKEN DEFAULTS (:host)
      ========================================================================= */
   :host {
-    /* --- Typography Tokens --- */
-    --font-mono: 'Roboto Mono', Monaco, 'Andale Mono', Consolas, monospace;
-    --font-regular: var(--font-sans, 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif);
+    /* --- Fonts (shadcn/ui) --- */
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace;
 
-    /* --- Default Corner Radii & Geometry --- */
+    /* --- Headings & Prose (RapiDoc headings and markdown descriptions) --- */
+    --heading-font: var(--font-sans);
+    --heading-weight: 600;
+    --heading-line-height: 1.25;
+    --heading-letter-spacing: normal;
+    --heading-color: var(--foreground);
+    --heading-margin-top: 1.5em;
+    --heading-margin-bottom: 0.5em;
+    --h1-font-size: 2rem;
+    --h2-font-size: 1.5rem;
+    --h3-font-size: 1.25rem;
+    --h4-font-size: 1rem;
+    --h5-font-size: 0.875rem;
+    --h6-font-size: 0.8125rem;
+    --label-heading-font-size: var(--font-size-small);
+    --line-height: 1.6;
+    --paragraph-spacing: 1em;
+
+    /* --- Corner Radius (shadcn/ui) --- */
     --radius: 0.25rem;
-    --card-radius: 4px;
-    --border-radius: var(--radius);
 
-    /* --- Layout Dimensions --- */
-    --ui-base-size: 14px;
+    /* --- Sizes & Layout --- */
+    /* xs is the floor: badges, chips and tiny buttons never go below it. description is for
+       short prose next to data (parameter and property descriptions). */
+    --font-size-xs: 11px;
     --font-size-small: 12px;
+    --font-size-description: 13px;
     --font-size-mono: 13px;
     --font-size-regular: 14px;
-    --nav-width: 18.75rem;
-    --nav-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
-    --nav-logo-max-height: 60px;
     --resp-area-height: 400px;
-    --layout: row;
     --table-schema-key-width: 240px;
     --table-schema-key-text-overflow: ellipsis;
     --table-schema-key-whitespace: nowrap;
-    --scroll-bar-width: 8px;
+    --scroll-margin-top: 120px;
+
+    /* --- Parameter lists (request parameters, form fields, response headers) --- */
+    --param-label-width: 12rem;
+    --param-gap: 0.5rem;
+    --param-row-gap: 0.25rem;
+    --param-padding: 0.5rem;
+    --auth-scheme-padding: 0.75rem;
+    --value-list-gap: 0.375rem;
+    --value-list-row-gap: 0.125rem;
+    --value-list-label-gap: 0.25rem;
 
     /* --- Focus Ring & Selection --- */
+    --ring: var(--primary);
     --focus-shadow: 0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);
     --selection-bg: color-mix(in srgb, var(--primary) 25%, transparent);
     --selection-fg: var(--foreground);
-    --nav-accent-fg: var(--primary);
+
+    /* --- Navigation Sidebar (shadcn/ui sidebar tokens) --- */
+    --sidebar-width: 18.75rem;
+    --sidebar-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
+    --sidebar-logo-max-height: 60px;
+    --sidebar: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
   }
 
   /* =========================================================================
@@ -158,92 +307,103 @@ export default css`
   /* --- 2A. Corner Radius Scale (radius) --- */
   :host([radius='none']) {
     --radius: 0px;
-    --card-radius: 0px;
   }
   :host([radius='sm']),
   :host(:not([radius])) {
     --radius: 0.25rem;
-    --card-radius: 4px;
   }
   :host([radius='md']) {
     --radius: 0.375rem;
-    --card-radius: 6px;
   }
   :host([radius='lg']) {
     --radius: 0.5rem;
-    --card-radius: 8px;
   }
   :host([radius='full']) {
     --radius: 9999px;
-    --card-radius: 8px;
   }
 
   /* --- 2B. UI Scale & Typography (scale) --- */
   :host([scale='sm']) {
-    --ui-base-size: 13px;
+    --font-size-xs: 11px;
     --font-size-small: 11px;
+    --font-size-description: 12px;
     --font-size-mono: 12px;
     --font-size-regular: 13px;
-    --nav-width: 17rem;
+    --sidebar-width: 17rem;
   }
   :host([scale='default']),
   :host(:not([scale])) {
-    --ui-base-size: 14px;
+    --font-size-xs: 11px;
     --font-size-small: 12px;
+    --font-size-description: 13px;
     --font-size-mono: 13px;
     --font-size-regular: 14px;
-    --nav-width: 18.75rem;
+    --sidebar-width: 18.75rem;
   }
   :host([scale='lg']) {
-    --ui-base-size: 16px;
+    --font-size-xs: 12px;
     --font-size-small: 14px;
+    --font-size-description: 15px;
     --font-size-mono: 15px;
     --font-size-regular: 16px;
-    --nav-width: 21rem;
+    --sidebar-width: 21rem;
   }
 
   /* --- 2C. Navigation Density (nav-item-spacing) --- */
   :host([nav-item-spacing='compact']) {
-    --nav-item-padding: 0.3125rem 1rem 0.3125rem 0.625rem;
+    --sidebar-item-padding: 0.3125rem 1rem 0.3125rem 0.625rem;
   }
   :host([nav-item-spacing='default']),
   :host(:not([nav-item-spacing])) {
-    --nav-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
+    --sidebar-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
   }
   :host([nav-item-spacing='relaxed']) {
-    --nav-item-padding: 0.625rem 1rem 0.625rem 0.625rem;
+    --sidebar-item-padding: 0.625rem 1rem 0.625rem 0.625rem;
   }
 
   /* =========================================================================
      3. SURFACE & COLOR SCHEME (color-scheme)
      ========================================================================= */
 
-  /* --- 3A. Dark Mode Surfaces (Default / System Dark) --- */
+  /* --------- 3A. DARK (Default) --------- */
   :host,
   :host([color-scheme='dark']),
   :host([color-scheme='system']),
   :host(:not([color-scheme])) {
-    /* Surfaces */
-    --background: var(--_preset-bg, #09090b);
-    --foreground: var(--_preset-fg, #fafafa);
-    --card: var(--_preset-card, #18181b);
-    --card-foreground: var(--_preset-card-fg, #fafafa);
-    --muted: var(--_preset-muted, #27272a);
-    --muted-foreground: #a1a1aa;
-    --border: var(--_preset-border, #27272a);
-    --nav-hover-bg: color-mix(in srgb, var(--background) 85%, #000000);
-    --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
-    --nav-hover-fg: var(--foreground);
-    --input-background: color-mix(in srgb, var(--background) 75%, #000000);
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
-    --input: var(--input-background);
+    /* Surfaces: neutral charcoal. Tinted themes override these two; everything below is derived from them. */
+    --background: #1f1f23;
+    --foreground: #d4d4d8;
+
+    /* Card Vars:
+      card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
+      card-foreground : Text & icon color on elevated surfaces (dialog content, table header labels, tooltip text, schema type badges)
+    */
+    --card: color-mix(in srgb, var(--background) 92%, var(--foreground));
+    --card-foreground: color-mix(in srgb, var(--foreground) 90%, #ffffff);
+
+    /* Muted Vars:
+      muted (bg)       : input tags, secondary buttons, table footers, and code backgrounds
+      muted-foreground : inactive tabs, parameter descriptions, schema constraints, and timestamps
+    */
+    --muted: color-mix(in srgb, var(--background) 86%, var(--foreground));
+    --muted-foreground: color-mix(in srgb, var(--foreground) 65%, var(--background));
+
+    /* Border Vars:
+      border: dividing lines for tables, cards, sections, and panels
+    */
+    --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+
+    --sidebar-accent: color-mix(in srgb, var(--background) 88%, var(--foreground));
+
+    --input: oklch(from var(--border) calc(l + 0.05) c h);
+    --input-background: color-mix(in srgb, var(--background) 80%, #000000);
 
     /* HTTP Method Badges (Dark Mode: High Vibrancy) */
     --method-get: #5c98f9ff;
     --method-post: #68cc97;
     --method-put: #f59e0b;
     --method-delete: #f75252ff;
-    --method-patch: #8b5cf6;
+    --method-patch: #a78bfa; /* violet-400: 4.5:1 or more as text on the dark background */
     --method-head: #eab308;
     --method-options: #06b6d4;
     --method-trace: #ec4899;
@@ -251,7 +411,9 @@ export default css`
     --method-default: #64748b;
     --method-badge-fg: #000000;
 
-    /* Status Helpers */
+    --destructive: #ef4444;
+
+    /* Named colours (also used by x-badges: color: blue | green | ...) */
     --blue: #3b82f6;
     --green: #10b981;
     --orange: #f59e0b;
@@ -277,47 +439,58 @@ export default css`
     --syntax-deleted: #ff7b72;
 
     /* Code Blocks */
+
     --code-bg: var(--input-background);
-    --code-fg: var(--foreground);
-    --inline-code-fg: #c4c6d1;
-    --inline-code-bg: #3b3c45;
-    --markdown-fg: #c4c6d1;
-    --code-property-color: var(--syntax-property);
-    --code-keyword-color: var(--syntax-keyword);
-    --code-operator-color: var(--syntax-operator);
   }
 
-  /* --- 3B. Light Mode Surfaces --- */
+  /* --------- 3B. LIGHT  --------- */
   :host([color-scheme='light']) {
     /* Surfaces */
     --background: #ffffff;
-    --foreground: #09090b;
-    --card: #f4f4f5;
-    --card-foreground: #09090b;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --border: #e4e4e7;
-    --nav-hover-bg: color-mix(in srgb, var(--background) 95%, #000000);
-    --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
-    --nav-hover-fg: var(--foreground);
-    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-    --input: var(--input-background);
+    --foreground: #27272a;
 
-    /* HTTP Method Badges (Light Mode: High Contrast) */
+    /* Card Vars:
+      card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
+      card-foreground : Text & icon color on elevated surfaces
+    */
+    --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+    --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+
+    /* Muted Vars:
+      muted (bg)       : input tags, secondary buttons, table footers, and code backgrounds
+      muted-foreground : inactive tabs, parameter descriptions, schema constraints, and timestamps
+    */
+    --muted: color-mix(in srgb, var(--background) 94%, var(--foreground));
+    --muted-foreground: color-mix(in srgb, var(--foreground) 60%, var(--background));
+
+    /* Border Vars:
+      border: dividing lines for tables, cards, sections, and panels
+    */
+    --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+
+    --sidebar-accent: color-mix(in srgb, var(--background) 92%, var(--foreground));
+
+    --input: color-mix(in srgb, var(--border) 75%, var(--foreground));
+    /* Light: fields are white, so they stand out on the tinted card surface */
+    --input-background: var(--background);
+
+    /* HTTP Method Badges (Light Mode: High Contrast). White badge text, and the colors used as text on
+       the tinted card surface, keep WCAG AA contrast (4.5:1). */
     --method-get: #2563eb;
-    --method-post: #059669;
+    --method-post: #047857;
     --method-put: #c2410c;
-    --method-delete: #dc2626;
+    --method-delete: #b91c1c;
     --method-patch: #7c3aed;
     --method-head: #b45309;
     --method-options: #0e7490;
-    --method-trace: #db2777;
+    --method-trace: #be185d;
     --method-query: #4f46e5;
     --method-default: #475569;
     --method-badge-fg: #ffffff;
 
-    /* Status Helpers */
+    --destructive: #dc2626;
+
+    /* Named colours (also used by x-badges: color: blue | green | ...) */
     --blue: #2768f4ff;
     --green: #059669;
     --orange: #d97706;
@@ -343,44 +516,37 @@ export default css`
     --syntax-deleted: #cf222e;
 
     /* Code Blocks */
-    --code-bg: var(--input-background);
-    --code-fg: var(--foreground);
-    --inline-code-fg: #334155;
-    --inline-code-bg: #e2e8f0;
-    --markdown-fg: #475569;
-    --code-property-color: var(--syntax-property);
-    --code-keyword-color: var(--syntax-keyword);
-    --code-operator-color: var(--syntax-operator);
+
+    --code-bg: color-mix(in srgb, var(--background) 96%, var(--foreground));
   }
 
-  /* --- 3C. System Mode Dynamic Surfaces --- */
+  /* --------- 3C. SYSTEM --------- */
   @media (prefers-color-scheme: light) {
     :host([color-scheme='system']) {
       --background: #ffffff;
-      --foreground: #09090b;
-      --card: #f4f4f5;
-      --card-foreground: #09090b;
-      --muted: #f4f4f5;
-      --muted-foreground: #71717a;
-      --border: #e4e4e7;
-      --nav-hover-bg: color-mix(in srgb, var(--background) 95%, #000000);
-      --nav-hover-bg: oklch(from var(--background) calc(l - 0.04) c h);
-      --nav-hover-fg: var(--foreground);
-      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
-      --input: var(--input-background);
+      --foreground: #27272a;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+      --muted: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --muted-foreground: color-mix(in srgb, var(--foreground) 60%, var(--background));
+      --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+      --sidebar-accent: color-mix(in srgb, var(--background) 92%, var(--foreground));
+      --input: color-mix(in srgb, var(--border) 75%, var(--foreground));
+      --input-background: var(--background);
 
       --method-get: #2563eb;
-      --method-post: #059669;
+      --method-post: #047857;
       --method-put: #c2410c;
-      --method-delete: #dc2626;
+      --method-delete: #b91c1c;
       --method-patch: #7c3aed;
       --method-head: #b45309;
       --method-options: #0e7490;
-      --method-trace: #db2777;
+      --method-trace: #be185d;
       --method-query: #4f46e5;
       --method-default: #475569;
       --method-badge-fg: #ffffff;
+
+      --destructive: #dc2626;
 
       --blue: #2768f4ff;
       --green: #059669;
@@ -405,177 +571,12 @@ export default css`
       --syntax-inserted: #116329;
       --syntax-deleted: #cf222e;
 
-      --code-bg: var(--input-background);
-      --code-fg: var(--foreground);
-      --inline-code-fg: #334155;
-      --inline-code-bg: #e2e8f0;
-      --markdown-fg: #475569;
-      --code-property-color: var(--syntax-property);
-      --code-keyword-color: var(--syntax-keyword);
-      --code-operator-color: var(--syntax-operator);
+      --code-bg: color-mix(in srgb, var(--background) 94%, var(--foreground));
     }
   }
 
   /* =========================================================================
-     4. BRAND THEME PRESETS (theme)
+     4. BRAND THEME PRESETS (theme), generated from THEMES above
      ========================================================================= */
-
-  /* --- Preset 1: AMBER (Default) --- */
-  :host,
-  :host([theme='amber']),
-  :host(:not([theme])) {
-    --primary: #f76b39;
-    --primary-foreground: #000000;
-    --foreground: #cccccc;
-    --ring: #f76b39;
-    --_preset-bg: oklch(0.2613 0.0134 272.84);
-    --_preset-card: oklch(0.2613 0.0134 272.84);
-    --_preset-border: #363636ff;
-  }
-  :host([theme='amber'][color-scheme='light']),
-  :host(:not([theme])[color-scheme='light']) {
-    --primary: #f76b39;
-    --primary-foreground: #000000;
-    --foreground: #555555;
-    --ring: #d97706;
-  }
-
-  /* --- Preset 2: BLUE --- */
-  :host([theme='blue']) {
-    --primary: #488bf8ff;
-    --primary-foreground: #ffffff;
-    --ring: #488bf8ff;
-    --_preset-bg: #1c1b1bff;
-    --_preset-fg: #e5e5e5;
-    --_preset-border: #414146ff;
-  }
-  :host([theme='blue'][color-scheme='light']) {
-    --primary: #2563eb;
-    --primary-foreground: #ffffff;
-    --ring: #2563eb;
-  }
-
-  /* --- Preset 3: EMERALD --- */
-  :host([theme='emerald']) {
-    --primary: #03bf80ff;
-    --primary-foreground: #0f331dff;
-    --ring: #03bf80ff;
-    --_preset-bg: #060913;
-    --_preset-fg: #e2e8f0;
-    --_preset-card: #0f172a;
-    --_preset-card-fg: #f8fafc;
-    --_preset-muted: #111827;
-    --_preset-border: #242c29ff;
-  }
-  :host([theme='emerald'][color-scheme='light']) {
-    --primary: #059669;
-    --primary-foreground: #ffffff;
-    --ring: #059669;
-  }
-
-  /* --- Preset 4: VIOLET --- */
-  :host([theme='violet']) {
-    --primary: #8b5cf6;
-    --primary-foreground: #ffffff;
-    --ring: #8b5cf6;
-    --_preset-bg: #130e20;
-    --_preset-fg: #f5f3ff;
-    --_preset-card: #1e1633;
-    --_preset-card-fg: #f5f3ff;
-    --_preset-muted: #19122b;
-    --_preset-border: #342854;
-  }
-  :host([theme='violet'][color-scheme='light']) {
-    --primary: #7c3aed;
-    --primary-foreground: #ffffff;
-    --ring: #7c3aed;
-  }
-
-  /* --- Preset 5: GRAPHITE --- */
-  :host([theme='graphite']) {
-    --primary: #fafafa;
-    --primary-foreground: #18181b;
-    --ring: #d4d4d8;
-  }
-  :host([theme='graphite'][color-scheme='light']) {
-    --primary: #18181b;
-    --primary-foreground: #fafafa;
-    --foreground: #111111;
-    --muted-foreground: #222222;
-    --ring: #27272a;
-  }
-
-  /* --- Preset 6: ROSE --- */
-  :host([theme='rose']) {
-    --primary: #ee5d7cff;
-    --ring: #ee5d7cff;
-    --_preset-bg: oklch(0.2613 0.0134 272.84);
-    --_preset-card: oklch(0.2613 0.0134 272.84);
-  }
-  :host([theme='rose'][color-scheme='light']) {
-    --primary: #e11d48;
-    --primary-foreground: #ffffff;
-    --ring: #e11d48;
-  }
-
-  /* --- Preset 7: SLATE --- */
-  :host([theme='slate']) {
-    --primary: #64748b;
-    --primary-foreground: #ffffff;
-    --nav-accent-fg: #ffffff;
-    --ring: #64748b;
-  }
-  :host([theme='slate'][color-scheme='light']) {
-    --primary: #475569;
-    --primary-foreground: #ffffff;
-    --ring: #475569;
-  }
-
-  /* =========================================================================
-     5. SYSTEM COLOR SCHEME PRESET OVERRIDES
-     ========================================================================= */
-  @media (prefers-color-scheme: light) {
-    :host([theme='amber'][color-scheme='system']),
-    :host(:not([theme])[color-scheme='system']) {
-      --primary: #d97706;
-      --primary-foreground: #ffffff;
-      --ring: #d97706;
-    }
-
-    :host([theme='blue'][color-scheme='system']) {
-      --primary: #2563eb;
-      --primary-foreground: #ffffff;
-      --ring: #2563eb;
-    }
-
-    :host([theme='emerald'][color-scheme='system']) {
-      --primary: #059669;
-      --primary-foreground: #ffffff;
-      --ring: #059669;
-    }
-
-    :host([theme='violet'][color-scheme='system']) {
-      --primary: #7c3aed;
-      --primary-foreground: #ffffff;
-      --ring: #7c3aed;
-    }
-
-    :host([theme='graphite'][color-scheme='system']) {
-      --primary: #18181b;
-      --primary-foreground: #fafafa;
-      --ring: #27272a;
-    }
-
-    :host([theme='rose'][color-scheme='system']) {
-      --primary: #e11d48;
-      --primary-foreground: #ffffff;
-      --ring: #e11d48;
-    }
-
-    :host([theme='slate'][color-scheme='system']) {
-      --primary: #475569;
-      --primary-foreground: #ffffff;
-      --ring: #475569;
-    }
-  }
+  ${presetsCss}
 `;

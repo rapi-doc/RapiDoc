@@ -1,0 +1,59 @@
+---
+/**
+ * Starlight TwoColumnContent override: the "On this page" column sticks below the header instead of
+ * being fixed to the viewport, so the site footer can scroll in below it at the end of the page.
+ */
+---
+
+<div class="lg:sl-flex">
+  {
+    Astro.locals.starlightRoute.toc && (
+      <aside class="right-sidebar-container print:hidden">
+        <div class="right-sidebar" data-portal-region="toc">
+          <slot name="right-sidebar" />
+        </div>
+      </aside>
+    )
+  }
+  <div class="main-pane"><slot /></div>
+</div>
+
+<style>
+  .main-pane {
+    isolation: isolate;
+  }
+
+  @media (min-width: 72rem) {
+    .right-sidebar-container {
+      order: 2;
+      position: relative;
+      width: max(
+        var(--sl-sidebar-width),
+        calc(var(--sl-sidebar-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2)
+      );
+    }
+
+    .right-sidebar {
+      position: sticky;
+      top: var(--sl-nav-height);
+      height: calc(100dvh - var(--sl-nav-height));
+      overflow-y: auto;
+      scrollbar-width: none;
+      border-inline-start: 1px solid var(--sl-color-hairline);
+    }
+
+    .main-pane {
+      width: 100%;
+    }
+
+    :global([data-has-sidebar][data-has-toc]) .main-pane {
+      --sl-content-margin-inline: auto 0;
+
+      order: 1;
+      width: min(
+        calc(100% - var(--sl-sidebar-width)),
+        calc(var(--sl-content-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2)
+      );
+    }
+  }
+</style>

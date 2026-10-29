@@ -99,7 +99,10 @@ export default defineConfig({
         },
         {
           label: 'Migration',
-          items: [{ label: 'Migrating from v10 to v11', slug: 'docs/migration/v10-to-v11' }],
+          items: [
+            { label: 'Migrating from v11 to v12', slug: 'docs/migration/v11-to-v12' },
+            { label: 'Migrating from v10 to v11', slug: 'docs/migration/v10-to-v11' },
+          ],
         },
         {
           label: 'Theming & Deep Styling',
@@ -148,6 +151,8 @@ export default defineConfig({
         'rapidoc/static': resolve(rapidocSrcPath, 'static/index.js'),
         rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },
+      // Starlight default-imports js-yaml 4; bundled, it resolves to Starlight's copy, not a hoisted js-yaml 5 (no default export).
+      noExternal: ['js-yaml'],
     },
     server: {
       fs: {
@@ -198,13 +203,25 @@ export default defineConfig({
             next();
           });
 
-          // Watch rapidoc source changes and trigger page reload
-          watch(rapidocSrcPath, { recursive: true }, () => {
-            const hot = server.hot || server.ws;
-            hot?.send({
-              type: 'full-reload',
-              path: '*',
-            });
+          // Watch rapidoc source changes and trigger page reload. Invalidate the changed module first and
+          // debounce: this watcher can fire before Vite's own, and reloading then serves a mix of new and
+          // stale cached modules (e.g. a new font-styles.js with an old theme-tokens.js).
+          let reloadTimer;
+          watch(rapidocSrcPath, { recursive: true }, (_event, filename) => {
+            const moduleGraph = server.environments?.client?.moduleGraph ?? server.moduleGraph;
+            if (filename) {
+              for (const mod of moduleGraph.getModulesByFile(resolve(rapidocSrcPath, filename)) ?? []) {
+                moduleGraph.invalidateModule(mod);
+              }
+            }
+            clearTimeout(reloadTimer);
+            reloadTimer = setTimeout(() => {
+              const hot = server.hot || server.ws;
+              hot?.send({
+                type: 'full-reload',
+                path: '*',
+              });
+            }, 150);
           });
 
           // Watch yaml changes and trigger reload

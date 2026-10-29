@@ -3,6 +3,7 @@ node_modules
 .astro/
 dist/
 docs/dist/
+.test-tmp/
 stats.html
 prerender-demo.html
 
@@ -29,3 +30,8 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+# Claude Code personal settings
+.claude/settings.local.json
+
+# Portal layout baseline screenshots (npm run layout:baseline in packages/rapidoc-portal)
+packages/rapidoc-portal/tests/layout/screenshots/

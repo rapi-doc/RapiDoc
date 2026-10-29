@@ -1,0 +1,15 @@
+---
+/**
+ * Starlight ThemeProvider override: same API (window.StarlightThemeProvider), but a visitor who has not
+ * picked a theme gets `theme.mode` from rapidoc.config.yaml instead of always following the OS.
+ */
+import portalConfig from 'virtual:rapidoc-portal/config';
+import { themeBootstrapScript } from './theme-script.js';
+
+// No <starlight-theme-select> to update (PortalThemeSelect renders none): the header's switcher is the theme control.
+const script = `${themeBootstrapScript(portalConfig.theme.mode)};
+window.StarlightThemeProvider = { updatePickers() {} };`;
+---
+
+{/* Inlined to avoid a flash of the wrong theme. */}
+<script is:inline set:html={script} />

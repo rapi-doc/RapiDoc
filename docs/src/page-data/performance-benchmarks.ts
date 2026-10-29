@@ -1,5 +1,5 @@
-import * as yaml from 'js-yaml';
-import { readDataYaml } from '../utils/readDataYaml';
+import * as yaml from "js-yaml";
+import { readDataYaml } from "../utils/readDataYaml";
 
 export interface BenchmarkSpecItem {
   id: string;
@@ -21,6 +21,8 @@ export interface PerformanceBenchmarksData {
   benchmarks: BenchmarkSpecItem[];
 }
 
-const benchmarkData = yaml.load(readDataYaml('performance-benchmarks.yaml')) as PerformanceBenchmarksData;
+const benchmarkData = yaml.load(
+  readDataYaml("performance-benchmarks.yaml"),
+) as PerformanceBenchmarksData;
 
 export { benchmarkData };

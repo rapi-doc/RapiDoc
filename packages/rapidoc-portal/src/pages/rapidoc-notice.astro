@@ -1,0 +1,106 @@
+---
+/**
+ * Pages `rapidoc serve` shows instead of content, injected when `auth` is configured. Always public
+ * (/_rapidoc/ is never protected); they hold no content of their own.
+ *
+ *   /_rapidoc/access-denied   signed in, but the page's zone does not include the reader (403)
+ *   /_rapidoc/sign-in-error   the provider sign-in failed; ?reason= picks the explanation
+ */
+import PortalLayout from '../components/PortalLayout.astro';
+import { withBase } from '../components/base-path.js';
+import portalConfig from 'virtual:rapidoc-portal/config';
+
+export function getStaticPaths() {
+  return [{ params: { notice: 'access-denied' } }, { params: { notice: 'sign-in-error' } }];
+}
+
+const { notice } = Astro.params;
+const denied = notice === 'access-denied';
+const title = denied ? 'You don’t have access to this page' : 'Sign-in didn’t work';
+
+// ?reason= from @rapidoc/server; unknown reasons keep the generic text.
+const reasonScript = `(() => {
+  const reasons = {
+    denied: 'You cancelled the sign-in, or the provider refused it.',
+    expired: 'The sign-in took too long or was started in another tab. Try again.',
+    provider: 'The sign-in provider could not be reached, or sent an answer the portal could not verify.',
+  };
+  const text = reasons[new URLSearchParams(location.search).get('reason')];
+  const el = document.querySelector('.portal-notice-reason');
+  if (el && text) el.textContent = text;
+})();`;
+---
+
+<PortalLayout title={title}>
+  <meta name="robots" content="noindex" slot="head" />
+  <section class="portal-notice">
+    <h1>{title}</h1>
+    {
+      denied ? (
+        <p>Your account isn’t allowed to read it. Ask the people who run this portal for access, or sign in with another account.</p>
+      ) : (
+        <p class="portal-notice-reason">Something went wrong while signing you in. Try again; if it keeps happening, tell the people who run this portal.</p>
+      )
+    }
+    <div class="portal-notice-actions">
+      <a class="portal-notice-primary" href={withBase('/')}>Go to the home page</a>
+      {
+        denied ? (
+          <form method="post" action={withBase('/_rapidoc/auth/logout')}>
+            <button type="submit">Sign in with another account</button>
+          </form>
+        ) : (
+          <a href={withBase('/_rapidoc/auth/login')}>Try again</a>
+        )
+      }
+    </div>
+  </section>
+  {!denied && <script is:inline set:html={reasonScript} />}
+</PortalLayout>
+
+<style>
+  .portal-notice {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 5rem 1.5rem 6rem;
+  }
+  .portal-notice h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    line-height: 1.2;
+  }
+  .portal-notice p {
+    margin: 0 0 2rem;
+    color: var(--portal-muted, var(--sl-color-gray-3));
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  .portal-notice-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .portal-notice-actions :is(a, button) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid var(--sl-color-gray-5, #3f3f46);
+    border-radius: var(--portal-radius);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .portal-notice-actions .portal-notice-primary {
+    border-color: var(--portal-primary);
+    background: var(--portal-primary);
+    color: var(--portal-on-primary);
+  }
+  .portal-notice-actions :is(a, button):focus-visible {
+    outline: 2px solid var(--portal-primary);
+    outline-offset: 2px;
+  }
+</style>

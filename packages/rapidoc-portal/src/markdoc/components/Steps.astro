@@ -1,0 +1,13 @@
+---
+/**
+ * {% steps %} of {% step title="..." %} items: Starlight steps. Starlight's own syntax, a Markdown
+ * ordered list inside {% steps %}, works too.
+ */
+import { Steps } from '@astrojs/starlight/components';
+
+// Starlight's <Steps> expects exactly one <ol>; {% step %} items render as <li> elements.
+const content = (await Astro.slots.render('default')).trim();
+const list = content.startsWith('<ol') ? content : `<ol>${content}</ol>`;
+---
+
+<Steps><Fragment set:html={list} /></Steps>

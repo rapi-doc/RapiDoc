@@ -1,62 +1,29 @@
-import { customElement } from 'lit/decorators.js';
+import { customElement } from "lit/decorators.js";
+import { OAUTH_CHANNEL, readOAuthReply } from "~/utils/oauth-utils";
 
-@customElement('oauth-receiver')
+/**
+ * The OAuth return page's element: the provider sends the sign-in popup back here with a code (or, in the legacy
+ * implicit flow, a token). It hands the reply to the page that opened the popup, which checks it (origin, popup
+ * window, state) before using it, then removes it from the address bar and history.
+ *
+ * Two ways to reach the opener, both limited to this site's origin: `window.opener.postMessage`, and a
+ * BroadcastChannel for when the provider's page cut the link to the opener (Cross-Origin-Opener-Policy).
+ */
+@customElement("oauth-receiver")
 export default class OauthReceiver extends HTMLElement {
-  target: any;
-
   connectedCallback() {
-    this.receiveAuthParms();
-    window.addEventListener('storage', (e) => this.relayAuthParams(e), true);
-  }
-
-  /**
-   * Read OAuth2 parameters and sends them off
-   * to the window opener through `window.postMessage`.
-   */
-  receiveAuthParms() {
-    let authData: any = {};
-    if (document.location.search) {
-      // Applies to authorizationCode flow
-      const params = new URLSearchParams(document.location.search);
-      const code = params.get('code');
-      const error = params.get('error');
-      const state = params.get('state');
-      authData = {
-        code,
-        error,
-        state,
-        responseType: 'code',
-      };
-    } else if (window.location.hash) {
-      // Applies to Implicit flow
-      const token_type = this.parseQueryString(window.location.hash.substring(1), 'token_type');
-      const access_token = this.parseQueryString(window.location.hash.substring(1), 'access_token');
-      authData = { token_type, access_token, responseType: 'token' };
-    }
-
-    if (window.opener) {
-      window.opener.postMessage(authData, this.target);
+    const reply = readOAuthReply(window.location);
+    if (!reply) {
       return;
     }
-    sessionStorage.setItem('rapidoc-oauth-data', JSON.stringify(authData)); // Fallback to session storage if window.opener dont exist
-  }
-
-  relayAuthParams(e) {
-    if (window.parent) {
-      if (e.key === 'rapidoc-oauth-data') {
-        const authData = JSON.parse(e.newValue);
-        window.parent.postMessage(authData, this.target);
-      }
+    window.history.replaceState(null, "", window.location.pathname);
+    if (window.opener) {
+      window.opener.postMessage(reply, window.location.origin);
     }
-  }
-
-  parseQueryString(queryString, key) {
-    const vars = queryString.split('&');
-    for (let i = 0; i < vars.length; i++) {
-      const pair = vars[i].split('=');
-      if (decodeURIComponent(pair[0]) === key) {
-        return decodeURIComponent(pair[1]);
-      }
+    if (typeof BroadcastChannel === "function") {
+      const channel = new BroadcastChannel(OAUTH_CHANNEL);
+      channel.postMessage(reply);
+      channel.close();
     }
   }
 }

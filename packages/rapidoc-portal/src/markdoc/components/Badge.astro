@@ -1,0 +1,26 @@
+---
+/** {% badge text="..." variant="info|tip|success|warning|caution|danger" %}: a Starlight badge. */
+import { Badge } from '@astrojs/starlight/components';
+
+interface Props {
+  text: string;
+  variant?: string;
+  size?: 'small' | 'medium' | 'large';
+}
+
+const BADGE_VARIANTS: Record<string, 'note' | 'tip' | 'success' | 'caution' | 'danger' | 'default'> = {
+  info: 'note',
+  note: 'note',
+  tip: 'tip',
+  success: 'success',
+  warning: 'caution',
+  caution: 'caution',
+  danger: 'danger',
+  error: 'danger',
+  default: 'default',
+};
+
+const { text, variant = 'info', size } = Astro.props;
+---
+
+<Badge text={text} variant={BADGE_VARIANTS[variant] ?? 'default'} size={size} />

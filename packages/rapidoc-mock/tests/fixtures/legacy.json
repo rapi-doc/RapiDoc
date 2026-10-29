@@ -1,0 +1,31 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "Legacy API", "version": "1.0.0" },
+  "paths": {
+    "/accounts/{id}": {
+      "get": {
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "security": [{ "basic": [] }],
+        "responses": {
+          "200": {
+            "description": "An account (no operationId, OpenAPI 3.0 nullable and exclusiveMinimum)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["id", "balance", "closed_on"],
+                  "properties": {
+                    "id": { "type": "integer" },
+                    "balance": { "type": "number", "minimum": 0, "exclusiveMinimum": true, "maximum": 1000 },
+                    "closed_on": { "type": "string", "format": "date", "nullable": true }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": { "securitySchemes": { "basic": { "type": "http", "scheme": "basic" } } }
+}

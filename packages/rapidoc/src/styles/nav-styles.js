@@ -1,17 +1,15 @@
-import { css } from 'lit';
+import { css } from "lit";
 
 export default css`
   #advanced-search-btn {
     display: none;
     margin-left: 5px;
-    padding: 6px 8px;
     width: 75px;
   }
   .btn-clear-filter {
     margin-left: 5px;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     width: 75px;
-    padding: 6px 8px;
   }
   .nav-bar-header {
     position: sticky;
@@ -52,11 +50,13 @@ export default css`
     position: relative;
     line-height: 22px;
   }
-  .nav-bar-search-input {
+  /* Wrapper in the selector so it outranks input-styles' input[type='text'] padding (room for the icon) */
+  .nav-bar-search-input-wrapper .nav-bar-search-input {
     width: 100%;
-    padding: 6px 28px 6px 10px;
+    line-height: 1.25;
+    padding: 0.45em 28px 0.45em 10px;
     color: var(--foreground);
-    border: 1px solid var(--input-border);
+    border: 1px solid var(--input);
     border-radius: var(--radius);
     background: var(--input-background);
     font-size: calc(var(--font-size-small) + 1px);
@@ -67,8 +67,8 @@ export default css`
   }
   .nav-bar-search-input:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent);
+    border-color: var(--sidebar-ring);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--sidebar-ring) 25%, transparent);
   }
   .nav-bar-search-icon {
     position: absolute;
@@ -77,9 +77,14 @@ export default css`
     transform: translateY(-50%);
     font-size: var(--font-size-regular);
     cursor: pointer;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     opacity: 0.6;
     user-select: none;
+  }
+  /* The static nav's filter icon is a single-colour SVG (magnifying glass), not a glyph. */
+  svg.nav-bar-search-icon {
+    cursor: default;
+    pointer-events: none;
   }
   .nav-bar-search-icon:hover {
     opacity: 1;
@@ -96,7 +101,7 @@ export default css`
     background: var(--card);
     color: var(--foreground);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius);
     cursor: pointer;
     z-index: 10;
     box-shadow:
@@ -111,12 +116,13 @@ export default css`
     width: 0;
     height: 100%;
     overflow: hidden;
-    color: var(--muted-foreground);
-    background: var(--background);
+    color: var(--sidebar-foreground);
+    background: var(--sidebar);
     background-blend-mode: multiply;
-    border-right: 1px solid var(--border);
-    line-height: calc(var(--font-size-small) + 4px);
-    font-size: calc(var(--font-size-small) + 1px);
+    border-right: 1px solid var(--sidebar-border);
+    /* Same size as body text (14px by default), like most API references; 20px line height at that size. */
+    font-size: var(--font-size-regular);
+    line-height: calc(var(--font-size-regular) + 6px);
     position: relative;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -146,7 +152,7 @@ export default css`
     outline-offset: 2px;
   }
   ::slotted([slot='nav-logo']) {
-    max-height: var(--nav-logo-max-height, 60px);
+    max-height: var(--sidebar-logo-max-height);
     overflow: hidden;
     box-sizing: border-box;
     width: auto;
@@ -172,11 +178,10 @@ export default css`
   .nav-bar-paths-under-tag {
     overflow: hidden;
     padding-left: 10px;
-    transition:
-      max-height 0.2s ease-out,
-      visibility 0.3s;
   }
-  .collapsed .nav-bar-paths-under-tag {
+  .collapsed .nav-bar-paths-under-tag,
+  .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag {
+    display: none;
     visibility: hidden;
     max-height: 0;
   }
@@ -198,7 +203,7 @@ export default css`
   .nav-bar-tag-icon,
   .nav-bar-tag-group-icon {
     font-size: 14px;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -263,7 +268,7 @@ export default css`
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     cursor: pointer;
     user-select: none;
     border-inline-start: 4px solid transparent;
@@ -294,10 +299,19 @@ export default css`
     text-transform: capitalize;
     min-width: 0;
   }
-  .nav-bar-tag-title {
+  .nav-bar-tag a,
+  .nav-bar-tag-title,
+  a.nav-bar-tag-title {
+    color: inherit;
+    text-decoration: none;
     flex: 1;
     min-width: 0;
-    pointer-events: none;
+  }
+  .nav-bar-tag a:hover,
+  .nav-bar-tag-title:hover,
+  a.nav-bar-tag-title:hover {
+    color: inherit;
+    text-decoration: none;
   }
 
   .nav-bar-components,
@@ -310,7 +324,7 @@ export default css`
     cursor: pointer;
     width: 100%;
     border: none;
-    color: var(--muted-foreground);
+    color: var(--foreground);
     background: transparent;
     border-inline-start: 4px solid transparent;
     transition:
@@ -318,16 +332,31 @@ export default css`
       color 0.15s ease;
   }
 
-  .nav-bar-path {
+  .nav-bar-path,
+  a.nav-bar-path {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
     min-width: 0;
     box-sizing: border-box;
+    text-decoration: none;
+  }
+
+  .nav-bar-path:hover,
+  a.nav-bar-path:hover {
+    text-decoration: none;
   }
 
   .nav-bar-path > * {
     pointer-events: none;
+  }
+
+  .nav-bar-path.deprecated {
+    filter: opacity(0.5);
+  }
+
+  .portal-sidebar-footer-link {
+    padding: 16px 12px;
   }
 
   .nav-bar-path-label {
@@ -340,15 +369,124 @@ export default css`
   .nav-bar-webhook {
     font-weight: bold;
     margin-right: 8px;
-    font-size: calc(var(--font-size-small) - 2px);
+    font-size: var(--font-size-xs);
     flex-shrink: 0;
+  }
+
+  /* A path in place of the summary (use-path-in-nav-bar); also in the static navigation, which has no font styles */
+  .nav-bar-path-label .mono-font {
+    font-family: var(--font-mono);
+  }
+
+  .nav-method {
+    font-weight: bold;
+    margin-inline-start: auto;
+    flex-shrink: 0;
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+
+    &.false {
+      display: none;
+    }
+  }
+
+  .nav-method.as-colored-text {
+    color: var(--method-default);
+  }
+  .nav-method.as-colored-text.get {
+    color: var(--method-get);
+  }
+  .nav-method.as-colored-text.put {
+    color: var(--method-put);
+  }
+  .nav-method.as-colored-text.post {
+    color: var(--method-post);
+  }
+  .nav-method.as-colored-text.delete {
+    color: var(--method-delete);
+  }
+  .nav-method.as-colored-text.head {
+    color: var(--method-head);
+  }
+  .nav-method.as-colored-text.patch {
+    color: var(--method-patch);
+  }
+  .nav-method.as-colored-text.options {
+    color: var(--method-options);
+  }
+  .nav-method.as-colored-text.trace {
+    color: var(--method-trace);
+  }
+  .nav-method.as-colored-text.query {
+    color: var(--method-query);
+  }
+  .nav-method.as-colored-text.copy {
+    color: var(--method-default);
+  }
+  .nav-method.as-colored-text.purge {
+    color: var(--method-default);
+  }
+
+  .nav-method.as-colored-block {
+    padding: 1px 4px;
+    min-width: 32px;
+    text-align: center;
+    border-radius: 4px;
+    color: var(--method-badge-fg);
+    background: var(--method-default);
+    font-weight: 600;
+  }
+  :host([color-scheme='light']) .nav-method.as-colored-block {
+    color: var(--method-badge-fg);
+  }
+  @media (prefers-color-scheme: light) {
+    :host([color-scheme='system']) .nav-method.as-colored-block {
+      color: var(--method-badge-fg);
+    }
+  }
+  .colored-block .nav-method.as-colored-block {
+    outline: 1px solid;
+  }
+
+  .nav-method.as-colored-block.get {
+    background: var(--method-get);
+  }
+  .nav-method.as-colored-block.put {
+    background: var(--method-put);
+  }
+  .nav-method.as-colored-block.post {
+    background: var(--method-post);
+  }
+  .nav-method.as-colored-block.delete {
+    background: var(--method-delete);
+  }
+  .nav-method.as-colored-block.head {
+    background: var(--method-head);
+  }
+  .nav-method.as-colored-block.patch {
+    background: var(--method-patch);
+  }
+  .nav-method.as-colored-block.options {
+    background: var(--method-options);
+  }
+  .nav-method.as-colored-block.trace {
+    background: var(--method-trace);
+  }
+  .nav-method.as-colored-block.query {
+    background: var(--method-query);
+  }
+  .nav-method.as-colored-block.copy {
+    background: var(--method-default);
+  }
+  .nav-method.as-colored-block.purge {
+    background: var(--method-default);
   }
 
   .nav-bar-h1,
   .nav-bar-h2,
   .nav-bar-path {
     font-weight: 400;
-    padding: var(--nav-item-padding);
+    padding: var(--sidebar-item-padding);
   }
 
   .nav-bar-info {
@@ -359,19 +497,12 @@ export default css`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    color: var(--muted-foreground);
-    padding: var(--nav-item-padding);
+    color: var(--foreground);
+    padding: var(--sidebar-item-padding);
     font-weight: 700;
   }
   .nav-bar-section.operations {
-    cursor: pointer;
-    transition:
-      background 0.15s ease,
-      color 0.15s ease;
-  }
-  .nav-bar-section.operations:hover {
-    color: var(--nav-hover-fg, var(--foreground));
-    background: var(--nav-hover-bg, var(--muted));
+    display: none !important;
   }
 
   .nav-bar-section:first-child {
@@ -394,8 +525,8 @@ export default css`
   .nav-bar-tag.left-bar.active,
   .nav-bar-path.left-bar.active,
   .nav-bar-section.left-bar.operations.active {
-    border-inline-start: 4px solid var(--primary);
-    color: var(--nav-accent-fg, var(--primary));
+    border-inline-start: 4px solid var(--sidebar-primary);
+    color: var(--sidebar-primary);
   }
 
   .nav-bar-h1.active:hover,
@@ -410,23 +541,23 @@ export default css`
   .nav-bar-tag.left-bar.active:hover,
   .nav-bar-path.left-bar.active:hover,
   .nav-bar-section.left-bar.operations.active:hover {
-    color: var(--nav-accent-fg, var(--primary));
+    color: var(--sidebar-primary);
   }
 
   /* Highlight collapsed parents using modern CSS :has() */
   .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag {
-    border-inline-start-color: var(--primary);
-    color: var(--nav-accent-fg, var(--primary));
+    border-inline-start-color: var(--sidebar-primary);
+    color: var(--sidebar-primary);
   }
 
   .nav-bar-tag-group.collapsed:has(.active) > .nav-bar-tag-group-header {
-    border-inline-start-color: var(--primary);
-    color: var(--nav-accent-fg, var(--primary));
+    border-inline-start-color: var(--sidebar-primary);
+    color: var(--sidebar-primary);
   }
 
   .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag:hover,
   .nav-bar-tag-group.collapsed:has(.active) > .nav-bar-tag-group-header:hover {
-    color: var(--nav-accent-fg, var(--primary));
+    color: var(--sidebar-primary);
   }
 
   .nav-bar-h1:hover,
@@ -434,8 +565,8 @@ export default css`
   .nav-bar-info:hover,
   .nav-bar-tag:hover,
   .nav-bar-path:hover {
-    color: var(--nav-hover-fg, var(--foreground));
-    background: var(--nav-hover-bg, var(--muted));
+    color: var(--sidebar-accent-foreground);
+    background: var(--sidebar-accent);
   }
 
   /* nav-item-overflow: ellipsis (default) vs wrap */

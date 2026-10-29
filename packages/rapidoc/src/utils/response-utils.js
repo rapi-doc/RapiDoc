@@ -1,5 +1,5 @@
-import { formatXml } from './xml-utils.js';
-import { schemaToAST, generateExample, standardizeExample } from './schema-utils.js';
+import { formatXml } from "./xml-utils.js";
+import { schemaToAST, generateExample, standardizeExample } from "./schema-utils.js";
 
 /**
  * Parses and processes a standard Fetch API Response into RapiDoc formatted response state.
@@ -23,27 +23,27 @@ export async function processFetchResponse(fetchResponse) {
   let respJson;
   let respText;
   let responseIsBlob = false;
-  let responseBlobType = '';
-  let responseBlobUrl = '';
-  let respContentDisposition = '';
-  let responseText = '';
+  let responseBlobType = "";
+  let responseBlobUrl = "";
+  let respContentDisposition = "";
+  let responseText = "";
 
-  let contentType = fetchResponse.headers.get('content-type');
+  let contentType = fetchResponse.headers.get("content-type");
   const respEmpty = (await fetchResponse.clone().text()).length === 0;
   if (respEmpty) {
-    responseText = '';
+    responseText = "";
   } else if (contentType) {
-    contentType = contentType.split(';')[0].trim();
-    if (contentType === 'application/x-ndjson') {
+    contentType = contentType.split(";")[0].trim();
+    if (contentType === "application/x-ndjson") {
       responseText = await fetchResponse.text();
-    } else if (contentType.includes('json')) {
+    } else if (contentType.includes("json")) {
       if (/charset=[^"']+/.test(contentType)) {
-        const encoding = contentType.split('charset=')[1];
+        const encoding = contentType.split("charset=")[1];
         const buffer = await fetchResponse.arrayBuffer();
         try {
           respText = new TextDecoder(encoding).decode(buffer);
         } catch {
-          respText = new TextDecoder('utf-8').decode(buffer);
+          respText = new TextDecoder("utf-8").decode(buffer);
         }
         try {
           respJson = JSON.parse(respText);
@@ -55,26 +55,30 @@ export async function processFetchResponse(fetchResponse) {
         respJson = await fetchResponse.json();
         responseText = JSON.stringify(respJson, null, 2);
       }
-    } else if (/^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$|^application\/vnd\./.test(contentType)) {
+    } else if (
+      /^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$|^application\/vnd\./.test(
+        contentType,
+      )
+    ) {
       responseIsBlob = true;
-      responseBlobType = 'download';
-    } else if (/^image/.test(contentType)) {
+      responseBlobType = "download";
+    } else if (contentType.startsWith("image")) {
       responseIsBlob = true;
-      responseBlobType = 'image';
+      responseBlobType = "image";
     } else if (/^audio|^image|^video/.test(contentType)) {
       responseIsBlob = true;
-      responseBlobType = 'view';
+      responseBlobType = "view";
     } else {
       respText = await fetchResponse.text();
-      if (contentType.includes('xml')) {
-        responseText = formatXml(respText, { textNodesOnSameLine: true, indentor: '  ' });
+      if (contentType.includes("xml")) {
+        responseText = formatXml(respText, { textNodesOnSameLine: true, indentor: "  " });
       } else {
         responseText = respText;
       }
     }
     if (responseIsBlob) {
-      const contentDisposition = fetchResponse.headers.get('content-disposition') || '';
-      let filenameFromContentDisposition = 'filename';
+      const contentDisposition = fetchResponse.headers.get("content-disposition") || "";
+      let filenameFromContentDisposition = "filename";
       if (contentDisposition) {
         const filenameStarRegexMatch = contentDisposition.match(/filename\*=\s*UTF-8''([^;]+)/);
         if (filenameStarRegexMatch) {
@@ -88,7 +92,7 @@ export async function processFetchResponse(fetchResponse) {
       }
       respContentDisposition = filenameFromContentDisposition;
       respBlob = await fetchResponse.blob();
-      if (typeof URL !== 'undefined' && URL.createObjectURL) {
+      if (typeof URL !== "undefined" && URL.createObjectURL) {
         responseBlobUrl = URL.createObjectURL(respBlob);
       }
     }
@@ -126,14 +130,15 @@ export async function processFetchResponse(fetchResponse) {
  */
 export function prepareResponseDefinitions(responses, options = {}) {
   const { callback = false, webhook = false } = options;
-  const isCallbackOrWebhook = callback === true || callback === 'true' || webhook === true || webhook === 'true';
+  const isCallbackOrWebhook =
+    callback === true || callback === "true" || webhook === true || webhook === "true";
 
   const headersForEachRespStatus = {};
   const mimeResponsesForEachStatus = {};
-  let defaultStatus = '';
-  let defaultMimeType = '';
+  let defaultStatus = "";
+  let defaultMimeType = "";
 
-  if (!responses || typeof responses !== 'object') {
+  if (!responses || typeof responses !== "object") {
     return {
       headersForEachRespStatus,
       mimeResponsesForEachStatus,
@@ -143,7 +148,7 @@ export function prepareResponseDefinitions(responses, options = {}) {
   }
 
   for (const statusCode of Object.keys(responses)) {
-    if (statusCode === '$$ref') {
+    if (statusCode === "$$ref") {
       continue;
     }
     if (!defaultStatus) {
@@ -152,7 +157,7 @@ export function prepareResponseDefinitions(responses, options = {}) {
     const allMimeResp = {};
     const content = responses[statusCode]?.content;
 
-    if (content && typeof content === 'object') {
+    if (content && typeof content === "object") {
       for (const mimeResp of Object.keys(content)) {
         const mimeRespObj = content[mimeResp];
         if (!defaultMimeType) {
@@ -167,13 +172,13 @@ export function prepareResponseDefinitions(responses, options = {}) {
           standardizeExample(mimeRespObj?.example),
           !isCallbackOrWebhook,
           isCallbackOrWebhook,
-          mimeResp.includes('json') ? 'json' : 'text'
+          mimeResp.includes("json") ? "json" : "text",
         );
 
         allMimeResp[mimeResp] = {
           description: responses[statusCode].description,
           examples: respExamples,
-          selectedExample: respExamples[0]?.exampleId || '',
+          selectedExample: respExamples[0]?.exampleId || "",
           schemaTree,
         };
       }

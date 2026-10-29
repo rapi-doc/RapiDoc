@@ -562,7 +562,7 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
 
           // Search across entire visible row content (name, description, allowed values, default)
           const rowText = (row.textContent || '').toLowerCase();
-          const matchesQuery = searchTerms.length === 0 || searchTerms.every(term => rowText.includes(term));
+          const matchesQuery = searchTerms.every(term => rowText.includes(term));
 
           if (matchesSection && matchesQuery) {
             row.style.display = '';

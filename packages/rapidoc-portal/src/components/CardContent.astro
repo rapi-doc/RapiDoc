@@ -1,0 +1,6 @@
+---
+const { class: className = '', ...props } = Astro.props;
+---
+<div class:list={['portal-card-content py-2', className]} {...props}>
+  <slot />
+</div>

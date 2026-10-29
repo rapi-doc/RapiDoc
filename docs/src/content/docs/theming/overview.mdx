@@ -26,7 +26,7 @@ RapiDoc consolidates visual customization into four primary attributes:
 ```html
 <rapi-doc
   spec-url="https://api.example.com/openapi.json"
-  theme="emerald"
+  theme="cobalt"
   color-scheme="dark"
   radius="md"
   scale="default"
@@ -38,12 +38,11 @@ RapiDoc consolidates visual customization into four primary attributes:
 
 | Attribute          | Allowed Values                                                                                             | Default     | Description                                                                                                            |
 | :----------------- | :--------------------------------------------------------------------------------------------------------- | :---------- | :--------------------------------------------------------------------------------------------------------------------- |
-| `theme`            | `amber`, `blue`, `graphite`, `modern`, `emerald`, `violet`, `rose`, `slate`, `default`, or any `#hex` code | `"amber"`   | Color palette preset matching shadcn/ui color tokens, or a custom brand color hex code.                                |
+| `theme`            | `ember`, `carbon`, `cobalt`, `jade`, `indigo`, or any `#hex` code                                                | `"ember"`   | Brand color preset (dark and light palette), or a custom brand color hex code.                                        |
 | `color-scheme`     | `dark`, `light`, `system`                                                                                  | `"dark"`    | Base surface mode. `"system"` automatically tracks the user's OS `prefers-color-scheme` preference.                    |
 | `radius`           | `none`, `sm`, `md`, `lg`, `full`                                                                           | `"sm"`      | Corner radius scale applied across cards, buttons, badges, inputs, and modal dialogs.                                  |
 | `scale`            | `sm`, `default`, `lg`                                                                                      | `"default"` | Proportional scale factor for UI base dimensions, body typography, code blocks, and sidebar width.                     |
 | `nav-item-spacing` | `compact`, `default`, `relaxed`                                                                            | `"default"` | Vertical density and padding of sidebar navigation links, decoupled from font size scaling.                            |
-| `load-fonts`       | `true`, `false`                                                                                            | `"true"`    | When set to `"false"`, prevents automatic loading of Open Sans from Google Fonts (for air-gapped or offline networks). |
 
 ---
 
@@ -95,56 +94,127 @@ Adjust sidebar link density without altering the global font size:
 
 ---
 
-## 4. Typography & Custom Web Fonts
+## 4. Typography & Brand Fonts
 
-RapiDoc natively supports standard design system typography tokens. You can configure custom fonts by setting CSS variables on `<rapi-doc>`:
+RapiDoc does not download any fonts. Out of the box it uses the operating system's own UI font: San Francisco on macOS and iOS, Segoe UI on Windows, Roboto on ChromeOS and Android. That means no font requests, no third-party calls, and it works offline and under a strict Content Security Policy.
 
-- `--font-sans` or `--font-regular`: Primary font family for body text, headings, and navigation links.
-- `--font-mono`: Monospace font family for code blocks, HTTP methods, route paths, and schema models.
+To use your brand font, load it in your page and point two CSS variables at it:
+
+- `--font-sans`: body text, headings, and navigation links. `--heading-font` follows it unless you set that too.
+- `--font-mono`: code blocks, HTTP methods, paths, and schemas.
+
+Keep the system fonts at the end of the list, so text stays readable while your font loads or if it fails to load.
+
+<Aside type="caution" title="Declare @font-face in the page, not inside RapiDoc">
+  Most browsers ignore `@font-face` rules inside a shadow root, so a font declared through `css-file` or in a `<style>` injected into RapiDoc never loads. Declare fonts in the page (a `<style>`, a stylesheet, or your app's bundle). Fonts declared in the page are available inside RapiDoc's Shadow DOM.
+</Aside>
+
+RapiDoc uses the weights **400**, **500**, **600**, and **700**. Load all four, or a single variable font that covers them, so the browser does not substitute the nearest weight or fake a bold.
 
 <Tabs>
-  <TabItem label="HTML & CSS">
+  <TabItem label="Self-hosted (recommended)">
+Put the font files next to your site (for example in `/fonts/`) and declare them with `@font-face`. Nothing is requested from another server.
+
 ```html
 <head>
-  <!-- 1. Load your preferred Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-    rel="stylesheet"
-  />
+  <!-- Optional: start downloading the main font early -->
+  <link rel="preload" href="/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin />
 
   <style>
-    /* 2. Bind typography tokens directly to <rapi-doc> */
+    @font-face {
+      font-family: 'Inter';
+      src: url('/fonts/InterVariable.woff2') format('woff2');
+      font-weight: 100 900; /* one variable file covers every weight */
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'JetBrains Mono';
+      src: url('/fonts/JetBrainsMono-Variable.woff2') format('woff2');
+      font-weight: 100 800;
+      font-style: normal;
+      font-display: swap;
+    }
+
     rapi-doc {
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
     }
   </style>
-
 </head>
 
 <body>
-  <rapi-doc
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
-    theme="emerald"
-    color-scheme="dark"
-    load-fonts="false"
-  ></rapi-doc>
+  <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade"></rapi-doc>
 </body>
 ```
   </TabItem>
 
-  <TabItem label="Tailwind / Framework Global CSS">
+  <TabItem label="npm (Fontsource)">
+With a bundler (Vite, Astro, Next.js, webpack), [Fontsource](https://fontsource.org/) packages ship the font files and the `@font-face` rules. Your build copies the files into your site, so they are self-hosted too.
+
+```bash
+npm install @fontsource-variable/inter @fontsource-variable/jetbrains-mono
+```
+
+```js
+// In your app's entry file
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import 'rapidoc';
+```
+
 ```css
-/* Inherit from parent application font variables */
+rapi-doc {
+  --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, Menlo, Consolas, monospace;
+}
+```
+  </TabItem>
+
+  <TabItem label="Google Fonts">
+The quickest setup, but every visitor's browser contacts Google's servers, which may need consent under privacy rules such as the GDPR, and your Content Security Policy must allow `fonts.googleapis.com` and `fonts.gstatic.com`.
+
+```html
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    rapi-doc {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+  </style>
+</head>
+```
+  </TabItem>
+
+  <TabItem label="Use your app's fonts">
+If your site already loads its fonts and keeps them in CSS variables (Tailwind, shadcn/ui, a design system), reuse those variables:
+
+```css
 rapi-doc {
   --font-sans: var(--font-inter, sans-serif);
   --font-mono: var(--font-jetbrains, monospace);
 }
 ```
+
+If your site names its variables `--font-sans` and `--font-mono` too, use `inherit`. Writing `var(--font-sans)` on `rapi-doc` would refer to itself.
+
+```css
+rapi-doc {
+  --font-sans: inherit;
+  --font-mono: inherit;
+}
+```
   </TabItem>
 </Tabs>
+
+See the [Brand Fonts example](/examples/brand-fonts) to compare the system fonts with a brand font pairing.
 
 ---
 
@@ -157,7 +227,7 @@ const doc = document.querySelector('rapi-doc');
 
 // Switch brand preset or custom hex color
 function setBrandColor(themeValue) {
-  doc.setAttribute('theme', themeValue); // e.g., 'violet' or '#2563eb'
+  doc.setAttribute('theme', themeValue); // e.g., 'jade' or '#2563eb'
 }
 
 // Toggle between dark and light modes

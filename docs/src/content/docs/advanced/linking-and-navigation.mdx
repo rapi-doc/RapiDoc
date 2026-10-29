@@ -46,7 +46,7 @@ RapiDoc assigns deterministic, predictable DOM element IDs to every primary sect
 
 When a user clicks an internal link, RapiDoc:
 
-1. Updates the browser's URL hash (e.g. `https://api.example.com/docs#get-/users/-userId-`).
+1. Updates the browser's URL hash (e.g. `https://api.example.com/docs#get-user`).
 2. Automatically expands the target tag group and endpoint accordion if it was collapsed.
 3. Smoothly scrolls the element into view across all render modes (`read`, `view`, and `focused`).
 
@@ -54,53 +54,32 @@ When a user clicks an internal link, RapiDoc:
 
 The table below outlines how RapiDoc constructs element IDs across your specification:
 
-| Target Section        | Generated Element ID              | Formatting Rule & Logic                                                                          |
-| :-------------------- | :-------------------------------- | :----------------------------------------------------------------------------------------------- |
-| **Overview Section**  | `overview`                        | Static identifier for the API title, version, and general description card.                      |
-| **API Servers**       | `servers`                         | Static identifier for the server configuration and URL selector panel.                           |
-| **Authentication**    | `auth`                            | Static identifier for security schemes (Bearer tokens, API keys, OAuth).                         |
-| **Tag Group (Top-level)** | `tag-group--{group-name}`         | Prefix `tag-group--` followed by sanitized group name from `x-tagGroups`.                       |
-| **Tag Section**       | `tag--{tag-name}`                 | Prefix `tag--` followed by the sanitized tag name.                                               |
-| **Path / Operation**  | `{method}-{path}`                 | Lowercase HTTP verb (`get`, `post`, `put`, `delete`, `patch`), a hyphen, and the sanitized path. |
-| **Overview Headings** | `overview--{heading-slug}`        | Prefix `overview--` followed by GitHub-slugger formatted heading text.                           |
-| **Tag Headings**      | `tag--{tag-name}--{heading-slug}` | Tag element ID followed by GitHub-slugger formatted heading text.                                |
+| Target Section            | Generated Element ID              | Formatting Rule & Logic                                                                                                                         |
+| :------------------------ | :-------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Overview Section**      | `overview`                        | Static identifier for the API title, version, and general description card.                                                                     |
+| **API Servers**           | `servers`                         | Static identifier for the server configuration and URL selector panel.                                                                          |
+| **Authentication**        | `auth`                            | Static identifier for security schemes (Bearer tokens, API keys, OAuth).                                                                        |
+| **Tag Group (Top-level)** | `tag-group--{group-name}`         | Prefix `tag-group--` followed by sanitized group name from `x-tagGroups`.                                                                       |
+| **Tag Section**           | `tag--{tag-name}`                 | Prefix `tag--` followed by the sanitized tag name.                                                                                              |
+| **Path / Operation**      | `{operation-slug}`                | Built from the `operationId`, else the `summary`, else the method and path (see below). With `x-tagGroups` the ID is `{tag}--{operation-slug}`. |
+| **Overview Headings**     | `overview--{heading-slug}`        | Prefix `overview--` followed by GitHub-slugger formatted heading text.                                                                          |
+| **Tag Headings**          | `tag--{tag-name}--{heading-slug}` | Tag element ID followed by GitHub-slugger formatted heading text.                                                                               |
 
-### The Character Sanitization Rule
+### Operation IDs
 
-To guarantee that generated element IDs remain valid HTML IDs and CSS selectors, RapiDoc applies the following regular expression:
+An operation's ID comes from the first of these that is available:
 
-```javascript
-const invalidCharsRegEx = /[\s#:?&={}]/g;
-```
+1. **`operationId`** in kebab-case, when it is at most 45 characters and not a placeholder such as `operation1`: `getUserById` &rarr; `get-user-by-id`.
+2. **`summary`** in kebab-case, cut at a word boundary after 40 characters: `Get a user by ID` &rarr; `get-a-user-by-id`.
+3. **Method and path**: `GET /users/{userId}` &rarr; `get-users-userId`.
 
-Any character matching **spaces, `#`, `:`, `?`, `&`, `=`, `{`, or `}`** is automatically replaced with a hyphen (`-`).
+Duplicates get the method as a prefix (`post-webhooks`), then a number (`-1`). An ID built from the summary changes whenever the summary is edited, so give operations an `operationId` when links to them should last. `rapidoc validate` and the portal's `rapidoc dev` / `rapidoc build` list operations without one.
 
-#### Examples:
+Every operation can also be reached by its **method + path anchor**, whatever its ID: `#get-users-userId` or, for `DELETE /orgs/{orgId}/teams/{teamId}/members/{userId}`, `#delete-orgs-orgId-teams-teamId-members-userId`. Case and punctuation are ignored, so links in the format of older RapiDoc versions (`#get-/users/-userId-`) keep working.
 
-- **Path Parameters**: Operation `GET /users/{userId}` becomes:
+Tag and tag group IDs use the kebab-case name: tag group `Shipment Logistics` &rarr; `tag-group--shipment-logistics`, tag `User Management & Auth` &rarr; `tag--user-management-auth`.
 
-  ```text
-  get-/users/-userId-
-  ```
-
-  _(Notice that `{` and `}` surrounding `userId` are replaced by `-`)_
-
-- **Multiple Path Parameters**: Operation `DELETE /orgs/{orgId}/teams/{teamId}/members/{userId}` becomes:
-
-  ```text
-  delete-/orgs/-orgId-/teams/-teamId-/members/-userId-
-  ```
-
-- **Query / Complex Paths**: Operation `POST /api/v1/search?type=user` becomes:
-
-  ```text
-  post-/api/v1/search-type-user
-  ```
-
-- **Tag Groups & Tags**:
-  - Tag Group `Shipment Logistics` &rarr; `tag-group--Shipment-Logistics`
-  - Tag `Users` &rarr; `tag--Users`
-  - Tag `User Management & Auth` &rarr; `tag--User-Management---Auth`
+---Auth`
 
 ---
 
@@ -151,7 +130,9 @@ x-tagGroups:
 ```
 
 <Aside type="note" title="Unified Click & Interaction Behavior">
-All clicks on tags or tag-groups in the sidebar uniformly expand or collapse the section, and automatically highlight the parent container when child endpoints are selected. The previous attributes `on-nav-tag-click` and `nav-active-item-marker` have been deprecated in favor of this standardized interaction and left-bar active styling.
+  All clicks on tags or tag-groups in the sidebar uniformly expand or collapse the section, and automatically highlight the parent container
+  when child endpoints are selected. The previous attributes `on-nav-tag-click` and `nav-active-item-marker` have been deprecated in favor
+  of this standardized interaction and left-bar active styling.
 </Aside>
 
 ---
@@ -242,7 +223,8 @@ RapiDoc provides the `info-description-headings-in-navbar` attribute:
 </Aside>
 
 <Aside type="tip" title="Dedicated Markdown Headings Guide">
-  For complete examples, tag description headings, heading level rules, and CSS Shadow Parts customization, see our dedicated [Markdown Headings in Navbar Guide](/docs/advanced/markdown-headings/).
+  For complete examples, tag description headings, heading level rules, and CSS Shadow Parts customization, see our dedicated [Markdown
+  Headings in Navbar Guide](/docs/advanced/markdown-headings/).
 </Aside>
 
 ---
@@ -252,12 +234,7 @@ RapiDoc provides the `info-description-headings-in-navbar` attribute:
 To enable seamless bookmarking, browser back/forward history navigation, and team link sharing, enable RapiDoc's route synchronization:
 
 ```html
-<rapi-doc
-  spec-url="/specs/petstore.json"
-  update-route="true"
-  route-prefix="#"
->
-</rapi-doc>
+<rapi-doc spec-url="/specs/petstore.json" update-route="true"> </rapi-doc>
 ```
 
 ### Configuration Attributes
@@ -265,19 +242,16 @@ To enable seamless bookmarking, browser back/forward history navigation, and tea
 | Attribute         | Type      | Default    | Description                                                                                                                                                  |
 | :---------------- | :-------- | :--------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `update-route`    | `boolean` | `"true"`   | When `true`, automatically updates the browser URL hash as the user scrolls through or clicks operations. Set to `"false"` to disable URL hash modification. |
-| `route-prefix`    | `string`  | `"#"`      | Prefix prepended to the route hash in the address bar. Useful when integrating with client-side SPA routers (e.g., `route-prefix="#/"` for hash routing).    |
 | `goto-path`       | `string`  | `""`       | Target element ID to automatically scroll/navigate to immediately after the specification loads if no URL hash is present.                                   |
 | `scroll-behavior` | `string`  | `"smooth"` | Controls scrolling animation style (`"smooth"` or `"auto"`).                                                                                                 |
 
-### Example: Custom Router Prefix for SPAs
+### SPA Framework Integration (Vue, React, Angular)
 
-If your host single-page application (Vue Router, Angular, HashRouter) uses `#/` prefix conventions:
+When embedding `<rapi-doc>` inside an SPA framework where the host router manages URL state, disable internal URL updates and listen to the `@nav-active-change` event:
 
 ```html
-<rapi-doc spec-url="/specs/petstore.yaml" update-route="true" route-prefix="#/" goto-path="get-/pet/-petId-"> </rapi-doc>
+<rapi-doc spec-url="/specs/petstore.yaml" update-route="false" :goto-path="activeEndpoint" @nav-active-change="handleNavChange"> </rapi-doc>
 ```
-
-When users navigate, the browser URL updates to `https://yourapp.com/#/get-/pet/-petId-`.
 
 ---
 

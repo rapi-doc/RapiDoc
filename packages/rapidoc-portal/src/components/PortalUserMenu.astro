@@ -1,0 +1,250 @@
+---
+/**
+ * Sign-in button / user menu in header row 1, shown when `auth` is configured. The state comes from
+ * `rapidoc serve` (@rapidoc/server) at runtime, so pages stay static:
+ *
+ *   GET  /_rapidoc/auth/me        200 { user } → user menu; 401 → sign-in button; 404 (no server) → hidden
+ *   POST /_rapidoc/access/check   { paths } → { locked }: links to pages the reader can't open get a lock
+ *   GET  /_rapidoc/auth/token     with auth.tryIt: the reader's access token, filled into RapiDoc's Try
+ *
+ * The slot has a fixed size, so filling it in moves nothing (the header height is CSS-only).
+ */
+import portalConfig from 'virtual:rapidoc-portal/config';
+import { withBase } from './base-path.js';
+
+const label = portalConfig.auth?.label || 'Sign in';
+const tryIt = portalConfig.auth?.tryIt === true;
+---
+
+<div class="portal-user" data-base={import.meta.env.BASE_URL} data-state="pending" data-try-it={tryIt ? '' : undefined}>
+  <a class="portal-user-signin portal-nav-link portal-nav-button" href={withBase('/_rapidoc/auth/login')}>{label}</a>
+  <button type="button" class="portal-user-trigger" aria-expanded="false" aria-controls="portal-user-panel">
+    <span class="portal-user-avatar" aria-hidden="true"></span>
+    <span class="portal-user-sr">Account</span>
+  </button>
+  <div class="portal-user-panel" id="portal-user-panel" hidden>
+    <p class="portal-user-name"></p>
+    <p class="portal-user-email"></p>
+    <form method="post" action={withBase('/_rapidoc/auth/logout')}>
+      <button type="submit" class="portal-user-signout">Sign out</button>
+    </form>
+  </div>
+</div>
+
+<style is:global>
+  .portal-user {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 5.5rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+  }
+  .portal-user[data-state='pending'] > * {
+    visibility: hidden;
+  }
+  .portal-user[data-state='none'] {
+    display: none;
+  }
+  .portal-user[data-state='signed-in'] .portal-user-signin,
+  .portal-user:not([data-state='signed-in']) .portal-user-trigger {
+    display: none;
+  }
+  .portal-user-signin {
+    white-space: nowrap;
+  }
+  .portal-user-trigger {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid var(--sl-color-gray-5, #3f3f46);
+    border-radius: 50%;
+    background: var(--portal-primary-tint, transparent);
+    color: var(--portal-primary-text, inherit);
+    font: 600 0.875rem/1 var(--sl-font, inherit);
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .portal-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .portal-user-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .portal-user-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 30;
+    min-width: 14rem;
+    max-width: 20rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--sl-color-gray-5, #3f3f46);
+    border-radius: var(--portal-radius);
+    background: var(--sl-color-bg-nav, var(--sl-color-bg, #18181b));
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+  }
+  .portal-user-panel p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .portal-user-name {
+    font-weight: 600;
+  }
+  .portal-user-email {
+    color: var(--portal-muted, var(--sl-color-gray-3));
+    font-size: 0.875rem;
+  }
+  .portal-user-signout {
+    margin-top: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--sl-color-gray-5, #3f3f46);
+    border-radius: var(--portal-radius);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .portal-user :is(a, button):focus-visible {
+    outline: 2px solid var(--portal-primary);
+    outline-offset: 2px;
+  }
+
+  /* Links to pages the reader can't open (POST /_rapidoc/access/check): Phosphor's lock-simple, bold at 16px */
+  [data-portal-locked]::after {
+    content: '';
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-inline-start: 0.35em;
+    vertical-align: -0.15em;
+    background: currentColor;
+    opacity: 0.7;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M208,76H180V56A52,52,0,0,0,76,56V76H48A20,20,0,0,0,28,96V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V96A20,20,0,0,0,208,76ZM100,56a28,28,0,0,1,56,0V76H100ZM204,204H52V100H204Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('.portal-user');
+    if (!root) return;
+    const trigger = root.querySelector('.portal-user-trigger');
+    const panel = root.querySelector('.portal-user-panel');
+    const signin = root.querySelector('.portal-user-signin');
+    // The server's endpoints are under the base path the portal is served under.
+    const endpoint = (path) => `${(root.dataset.base || '/').replace(/\/+$/, '')}${path}`;
+    const here = () => location.pathname + location.search + location.hash;
+    signin.href = `${endpoint('/_rapidoc/auth/login')}?returnTo=${encodeURIComponent(here())}`;
+
+    const setOpen = (open) => {
+      panel.hidden = !open;
+      trigger.setAttribute('aria-expanded', String(open));
+    };
+    trigger.addEventListener('click', () => setOpen(panel.hidden));
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) {
+        setOpen(false);
+        trigger.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!root.contains(e.target)) setOpen(false);
+    });
+
+    const showUser = (user) => {
+      const name = user.name || user.email || 'Signed in';
+      root.querySelector('.portal-user-name').textContent = name;
+      root.querySelector('.portal-user-email').textContent = user.email && user.email !== name ? user.email : '';
+      const avatar = root.querySelector('.portal-user-avatar');
+      if (user.picture && user.picture.startsWith('https://')) {
+        const img = document.createElement('img');
+        img.src = user.picture;
+        img.alt = '';
+        img.referrerPolicy = 'no-referrer';
+        avatar.replaceChildren(img);
+      } else {
+        avatar.textContent = name.trim().charAt(0).toUpperCase();
+      }
+      trigger.querySelector('.portal-user-sr').textContent = `Account: ${name}`;
+    };
+
+    const markLocked = async () => {
+      const links = [...document.querySelectorAll('a[href^="/"]')].filter((a) => !a.getAttribute('href').startsWith('//'));
+      const pathOf = (a) => new URL(a.href).pathname;
+      const paths = [...new Set(links.map(pathOf))].slice(0, 500);
+      if (!paths.length) return;
+      const res = await fetch(endpoint('/_rapidoc/access/check'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ paths }),
+      });
+      if (!res.ok) return;
+      const locked = new Set((await res.json()).locked || []);
+      // On cards (catalog, mega-menu) the lock goes after the title, not after the whole card.
+      const titleSelector = 'h1, h2, h3, h4, h5, h6, .portal-card-title, .portal-doc-card-title, .portal-feature-label';
+      for (const a of links) {
+        if (!locked.has(pathOf(a))) continue;
+        (a.querySelector(titleSelector) || a).setAttribute('data-portal-locked', '');
+        const note = document.createElement('span');
+        note.className = 'portal-user-sr';
+        note.textContent = ' (locked)';
+        a.append(note);
+      }
+    };
+
+    // Sign-in token (auth.tryIt): give every RapiDoc element on the page the reader's access token. Only one scheme per
+    // spec gets it, because they all send the Authorization header and RapiDoc sends every filled scheme an
+    // operation lists: the first oauth2 / openIdConnect scheme (as "Bearer <token>", since setApiKey() sends
+    // those values as given), else the first http bearer scheme (setApiKey() adds "Bearer " itself). The note tells
+    // the reader the key is their sign-in's; RapiDoc shows it in place of that scheme's form.
+    const applySignInToken = async (user) => {
+      const elements = [...document.querySelectorAll('rapi-doc, rapi-doc-mini')];
+      if (!elements.length) return;
+      const res = await fetch(endpoint('/_rapidoc/auth/token'), { headers: { accept: 'application/json' } });
+      if (!res.ok) return;
+      const { access_token: token } = await res.json();
+      if (!token) return;
+      const note = `Using your sign-in${user.email ? ` (${user.email})` : ''}. Try sends your access token.`;
+      const apply = (el) => {
+        const schemes = el.resolvedSpec?.securitySchemes || [];
+        const typeOf = (s) => String(s.type || '').toLowerCase();
+        const oauth = schemes.find((s) => typeOf(s) === 'oauth2' || typeOf(s) === 'openidconnect');
+        const bearer = schemes.find((s) => typeOf(s) === 'http' && String(s.scheme || '').toLowerCase() === 'bearer');
+        if (oauth) el.setApiKey(oauth.securitySchemeId, `Bearer ${token}`, { note });
+        else if (bearer) el.setApiKey(bearer.securitySchemeId, token, { note });
+      };
+      for (const el of elements) {
+        if (el.resolvedSpec) apply(el);
+        el.addEventListener('spec-loaded', () => apply(el));
+      }
+    };
+
+    fetch(endpoint('/_rapidoc/auth/me'), { headers: { accept: 'application/json' } })
+      .then(async (res) => {
+        if (res.ok) {
+          const user = (await res.json()).user || {};
+          showUser(user);
+          root.dataset.state = 'signed-in';
+          if (root.hasAttribute('data-try-it')) applySignInToken(user).catch(() => {});
+        } else {
+          root.dataset.state = res.status === 401 ? 'signed-out' : 'none';
+        }
+        if (res.status !== 404) await markLocked();
+      })
+      .catch(() => {
+        root.dataset.state = 'none';
+      });
+  })();
+</script>

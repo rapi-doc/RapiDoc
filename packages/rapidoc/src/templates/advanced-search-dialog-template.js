@@ -1,7 +1,7 @@
 /**
  * Renders the modal search dialog for full-text search across paths, operation summaries, descriptions, and tags.
  */
-import { html } from 'lit';
+import { html } from "lit";
 export default function advancedSearchDialogTemplate() {
   return html`<dialog id="advanced-search-dialog" class="dialog-box">
     <header class="dialog-box-header">
@@ -73,12 +73,12 @@ export default function advancedSearchDialogTemplate() {
         (path) => html`
           <div
             class="mono-font small-font-size hover-bg search-match-row"
-            style="${path.deprecated ? 'filter:opacity(0.5);' : ''}"
+            style="${path.deprecated ? "filter:opacity(0.5);" : ""}"
             data-content-id="${path.elementId}"
             tabindex="0"
             @click="${(e) => {
-              this.searchVal = ''; // clear quick filter if applied
-              this.shadowRoot.getElementById('advanced-search-dialog').close();
+              this.searchVal = ""; // clear quick filter if applied
+              this.shadowRoot.getElementById("advanced-search-dialog").close();
               this.requestUpdate();
               this.scrollToEventTarget(e, true);
             }}"
@@ -87,7 +87,7 @@ export default function advancedSearchDialogTemplate() {
             <span>${path.path}</span>
             <span class="regular-font gray-text">${path.summary}</span>
           </div>
-        `
+        `,
       )}
     </div>
   </dialog>`;

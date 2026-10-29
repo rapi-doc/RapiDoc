@@ -4,26 +4,59 @@
  * Runs seamlessly in Node.js >= 22, Bun, Astro, Nuxt, Next.js, and custom SSG scripts.
  */
 
-// Minimal polyfill for customElements registry in pure Node/Bun environments
-if (typeof globalThis.customElements === 'undefined') {
+// Safe idempotent customElements registry in pure Node/Bun/SSR environments
+if (typeof globalThis.customElements === "undefined") {
+  const registry = new Map();
   globalThis.customElements = {
-    define: () => {},
-    get: () => undefined,
+    define: (name, constructor) => {
+      registry.set(name, constructor);
+    },
+    get: (name) => registry.get(name),
     whenDefined: () => Promise.resolve(),
   };
+} else if (globalThis.customElements && !globalThis.customElements.__safeDefinePatched) {
+  const origDefine = globalThis.customElements.define;
+  globalThis.customElements.define = function (name, constructor, options) {
+    if (!this.get(name)) {
+      try {
+        origDefine.call(this, name, constructor, options);
+      } catch {
+        // Safe fallback if already registered in registry
+      }
+    }
+  };
+  globalThis.customElements.__safeDefinePatched = true;
 }
 
-import ProcessSpec from '../utils/spec-parser.js';
-import mainBodyTemplate from '../templates/main-body-template.js';
-import { expandedEndpointBodyTemplate } from '../templates/expanded-endpoint-template.js';
-import { schemaToAST } from '../utils/schema-utils.js';
-import SchemaTable from '../components/schema-table.ts';
-import SchemaTree from '../components/schema-tree.ts';
-import { getBundledCss } from '../styles/css-bundle.js';
-import { renderTemplateToString, escapeHtml } from './serializer.js';
+if (
+  typeof CustomElementRegistry !== "undefined" &&
+  !CustomElementRegistry.prototype.__safeDefinePatched
+) {
+  const origProtoDefine = CustomElementRegistry.prototype.define;
+  CustomElementRegistry.prototype.define = function (name, constructor, options) {
+    if (!this.get(name)) {
+      try {
+        origProtoDefine.call(this, name, constructor, options);
+      } catch {
+        // Safe fallback if already registered in registry
+      }
+    }
+  };
+  CustomElementRegistry.prototype.__safeDefinePatched = true;
+}
+
+import ProcessSpec from "../utils/spec-parser.js";
+import mainBodyTemplate from "../templates/main-body-template.js";
+import { expandedEndpointBodyTemplate } from "../templates/expanded-endpoint-template.js";
+import { schemaToAST } from "../utils/schema-utils.js";
+import SchemaTable from "../components/schema-table.ts";
+import SchemaTree from "../components/schema-tree.ts";
+import { getBundledCss } from "../styles/css-bundle.js";
+import { DEFAULT_THEME } from "../styles/theme-tokens.js";
+import { renderTemplateToString, escapeHtml } from "./serializer.js";
 
 function toKebabCase(str) {
-  return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+  return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
 function toCamelCase(str) {
@@ -39,33 +72,37 @@ function toCamelCase(str) {
  */
 export async function resolveSpecInput(specInput, options = {}) {
   if (!specInput) {
-    throw new Error('OpenAPI specification input is required (file path, URL, string, or object).');
+    throw new Error("OpenAPI specification input is required (file path, URL, string, or object).");
   }
 
   // Already resolved/parsed spec object (from ProcessSpec)
-  if (typeof specInput === 'object' && specInput !== null && Array.isArray(specInput.securitySchemes)) {
+  if (
+    typeof specInput === "object" &&
+    specInput !== null &&
+    Array.isArray(specInput.securitySchemes)
+  ) {
     return specInput;
   }
 
   let rawSpec = specInput;
 
-  if (typeof specInput === 'string') {
+  if (typeof specInput === "string") {
     const trimmed = specInput.trim();
 
     // Check if it's inlined JSON or multiline YAML
-    if (trimmed.startsWith('{') || trimmed.startsWith('[') || trimmed.includes('\n')) {
+    if (trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes("\n")) {
       try {
         rawSpec = JSON.parse(trimmed);
       } catch {
         rawSpec = trimmed;
       }
-    } else if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+    } else if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
       // Local file path in Node.js / Bun
-      if (typeof process !== 'undefined' && process.versions?.node) {
+      if (typeof process !== "undefined" && process.versions?.node) {
         try {
-          const fs = await import('node:fs');
+          const fs = await import("node:fs");
           if (fs.existsSync(trimmed)) {
-            const content = fs.readFileSync(trimmed, 'utf-8');
+            const content = fs.readFileSync(trimmed, "utf-8");
             try {
               rawSpec = JSON.parse(content);
             } catch {
@@ -81,17 +118,19 @@ export async function resolveSpecInput(specInput, options = {}) {
 
   return ProcessSpec(
     rawSpec,
-    options.generateMissingTags ?? options['generate-missing-tags'] ?? false,
-    options.sortTags ?? options['sort-tags'] ?? false,
-    options.sortSchemas ?? options['sort-schemas'] ?? false,
-    options.sortEndpointsBy ?? options['sort-endpoints-by'] ?? 'none',
-    options.apiKey ?? options.apiKeyName ?? options['api-key-name'] ?? '',
-    options.apiKeyLocation ?? options['api-key-location'] ?? '',
-    options.apiKeyValue ?? options['api-key-value'] ?? '',
-    options.serverUrl ?? options['server-url'] ?? '',
-    options.matchPaths ?? options['match-paths'] ?? '',
-    options.matchType ?? options['match-type'] ?? '',
-    options.removeEndpointsWithBadgeLabelAs ?? options['remove-endpoints-with-badge-label-as'] ?? ''
+    options.generateMissingTags ?? options["generate-missing-tags"] ?? false,
+    options.sortTags ?? options["sort-tags"] ?? false,
+    options.sortSchemas ?? options["sort-schemas"] ?? false,
+    options.sortEndpointsBy ?? options["sort-endpoints-by"] ?? "none",
+    options.apiKey ?? options.apiKeyName ?? options["api-key-name"] ?? "",
+    options.apiKeyLocation ?? options["api-key-location"] ?? "",
+    options.apiKeyValue ?? options["api-key-value"] ?? "",
+    options.serverUrl ?? options["server-url"] ?? "",
+    options.matchPaths ?? options["match-paths"] ?? "",
+    options.matchType ?? options["match-type"] ?? "",
+    options.removeEndpointsWithBadgeLabelAs ??
+      options["remove-endpoints-with-badge-label-as"] ??
+      "",
   );
 }
 
@@ -106,7 +145,7 @@ export async function resolveSpecInput(specInput, options = {}) {
  * @param {Object} options
  * @param {string|Object} options.spec - Specification file path, URL, raw string, or parsed object
  * @param {'read'|'view'|'focused'} [options.renderStyle='read'] - Layout style
- * @param {string} [options.theme='amber'] - Theme preset ('amber', 'blue', 'emerald', 'violet', etc.) or hex
+ * @param {string} [options.theme='ember'] - Theme preset ('ember', 'carbon', 'cobalt', 'jade', 'indigo') or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {'row'|'column'} [options.layout] - Layout orientation ('column' default for read/focused, 'row' for view)
  * @param {boolean|string} [options.showHeader=true] - Whether to render top header
@@ -133,9 +172,9 @@ export async function renderRapiDoc(options = {}) {
   }
 
   const spec = options.spec ?? normalized.spec;
-  const renderStyle = normalized.renderStyle ?? 'read';
-  const theme = normalized.theme ?? 'amber';
-  const colorScheme = normalized.colorScheme ?? 'dark';
+  const renderStyle = normalized.renderStyle ?? "read";
+  const theme = normalized.theme ?? DEFAULT_THEME;
+  const colorScheme = normalized.colorScheme ?? "dark";
   const showHeader = normalized.showHeader ?? true;
   const showSideNav = normalized.showSideNav ?? true;
   const showInfo = normalized.showInfo ?? true;
@@ -144,25 +183,31 @@ export async function renderRapiDoc(options = {}) {
   const allowServerSelection = normalized.allowServerSelection ?? true;
   const allowAuthentication = normalized.allowAuthentication ?? true;
   const allowTry = normalized.allowTry ?? true;
-  const schemaStyle = normalized.schemaStyle ?? 'table';
+  const schemaStyle = normalized.schemaStyle ?? "table";
   const schemaExpandLevel = normalized.schemaExpandLevel ?? 99999;
-  const defaultSchemaTab = normalized.defaultSchemaTab ?? 'example';
-  const outputMode = normalized.outputMode ?? 'dsd';
+  const defaultSchemaTab = normalized.defaultSchemaTab ?? "example";
+  const outputMode = normalized.outputMode ?? "dsd";
   const includeStyles = normalized.includeStyles ?? true;
-  const pageDirection = normalized.pageDirection ?? 'ltr';
+  const pageDirection = normalized.pageDirection ?? "ltr";
 
-  const defaultLayout = renderStyle === 'read' || renderStyle === 'focused' ? 'column' : 'row';
+  const defaultLayout = renderStyle === "read" || renderStyle === "focused" ? "column" : "row";
   const layout = normalized.layout || defaultLayout;
 
   const resolvedSpec = await resolveSpecInput(spec, normalized);
 
-  const INTERNAL_KEYS = new Set(['spec', 'outputMode', 'includeStyles', 'inlineSpec', 'focusedElementId']);
+  const INTERNAL_KEYS = new Set([
+    "spec",
+    "outputMode",
+    "includeStyles",
+    "inlineSpec",
+    "focusedElementId",
+  ]);
 
   // Pass any custom options into the template context
   const customContextProps = {};
   for (const [key, val] of Object.entries(normalized)) {
     if (!INTERNAL_KEYS.has(key) && val !== undefined && val !== null) {
-      customContextProps[key] = typeof val === 'boolean' ? String(val) : val;
+      customContextProps[key] = typeof val === "boolean" ? String(val) : val;
     }
   }
 
@@ -192,20 +237,24 @@ export async function renderRapiDoc(options = {}) {
       defaultSchemaTab,
       allowTry: String(allowTry),
     },
-    matchPaths: normalized.matchPaths || '',
+    matchPaths: normalized.matchPaths || "",
     selectedServer: resolvedSpec.servers?.[0],
     focusedElementId:
       options.focusedElementId ||
-      (showInfo === 'false' || showInfo === false ? resolvedSpec.tags?.[0]?.paths?.[0]?.elementId || '' : 'overview'),
+      (showInfo === "false" || showInfo === false
+        ? resolvedSpec.tags?.[0]?.paths?.[0]?.elementId || ""
+        : "overview"),
     handleHref: () => {},
   };
 
   const templateResult = mainBodyTemplate.call(context);
   const serializedBody = renderTemplateToString(templateResult);
 
-  if (outputMode === 'html' || outputMode === 'light') {
-    const scopeClass = 'rapidoc-static-container';
-    const cssText = includeStyles ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${scopeClass}` })}</style>` : '';
+  if (outputMode === "html" || outputMode === "light") {
+    const scopeClass = "rapidoc-static-container";
+    const cssText = includeStyles
+      ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${scopeClass}` })}</style>`
+      : "";
     return `<div class="${scopeClass}" data-theme="${escapeHtml(theme)}" data-color-scheme="${escapeHtml(colorScheme)}" data-render-style="${escapeHtml(renderStyle)}" data-layout="${escapeHtml(layout)}" data-schema-style="${escapeHtml(schemaStyle)}">
 ${cssText}
 ${serializedBody}
@@ -213,47 +262,47 @@ ${serializedBody}
   }
 
   // Default: Declarative Shadow DOM (DSD)
-  const cssText = includeStyles ? `<style>${getBundledCss({ theme, colorScheme })}</style>` : '';
+  const cssText = includeStyles ? `<style>${getBundledCss({ theme, colorScheme })}</style>` : "";
   const specScript =
-    options.inlineSpec !== false && typeof spec === 'object' && spec !== null
-      ? `  <script type="application/json" slot="rapidoc-spec">${JSON.stringify(spec).replace(/<\/script/gi, '<\\/script')}</script>\n`
-      : '';
+    options.inlineSpec !== false && typeof spec === "object" && spec !== null
+      ? `  <script type="application/json" slot="rapidoc-spec">${JSON.stringify(spec).replace(/</g, "\\u003c")}</script>\n`
+      : "";
 
   // Construct complete attributes map to ensure exact client hydration parity
   const attrsMap = new Map();
-  attrsMap.set('theme', theme);
-  attrsMap.set('color-scheme', colorScheme);
-  attrsMap.set('render-style', renderStyle);
-  attrsMap.set('layout', layout);
-  attrsMap.set('schema-style', schemaStyle);
-  attrsMap.set('schema-expand-level', String(schemaExpandLevel));
-  attrsMap.set('default-schema-tab', defaultSchemaTab);
-  attrsMap.set('show-header', String(showHeader));
-  attrsMap.set('show-side-nav', String(showSideNav));
-  attrsMap.set('show-info', String(showInfo));
-  attrsMap.set('allow-search', String(allowSearch));
-  attrsMap.set('allow-advanced-search', String(allowAdvancedSearch));
-  attrsMap.set('allow-server-selection', String(allowServerSelection));
-  attrsMap.set('allow-authentication', String(allowAuthentication));
-  attrsMap.set('allow-try', String(allowTry));
-  attrsMap.set('page-direction', pageDirection);
+  attrsMap.set("theme", theme);
+  attrsMap.set("color-scheme", colorScheme);
+  attrsMap.set("render-style", renderStyle);
+  attrsMap.set("layout", layout);
+  attrsMap.set("schema-style", schemaStyle);
+  attrsMap.set("schema-expand-level", String(schemaExpandLevel));
+  attrsMap.set("default-schema-tab", defaultSchemaTab);
+  attrsMap.set("show-header", String(showHeader));
+  attrsMap.set("show-side-nav", String(showSideNav));
+  attrsMap.set("show-info", String(showInfo));
+  attrsMap.set("allow-search", String(allowSearch));
+  attrsMap.set("allow-advanced-search", String(allowAdvancedSearch));
+  attrsMap.set("allow-server-selection", String(allowServerSelection));
+  attrsMap.set("allow-authentication", String(allowAuthentication));
+  attrsMap.set("allow-try", String(allowTry));
+  attrsMap.set("page-direction", pageDirection);
 
   // Reflect any additional user-provided options to custom element attributes (converted to kebab-case)
   for (const [key, val] of Object.entries(options)) {
     const camel = toCamelCase(key);
     if (!INTERNAL_KEYS.has(camel) && !INTERNAL_KEYS.has(key) && val !== undefined && val !== null) {
       const kebab = toKebabCase(camel);
-      attrsMap.set(kebab, typeof val === 'boolean' ? String(val) : String(val));
+      attrsMap.set(kebab, typeof val === "boolean" ? String(val) : String(val));
     }
   }
 
-  if (typeof spec === 'string' && (spec.startsWith('http://') || spec.startsWith('https://'))) {
-    attrsMap.set('spec-url', spec);
+  if (typeof spec === "string" && (spec.startsWith("http://") || spec.startsWith("https://"))) {
+    attrsMap.set("spec-url", spec);
   }
 
   const attrsString = Array.from(attrsMap.entries())
     .map(([name, value]) => `${name}="${escapeHtml(value)}"`)
-    .join(' ');
+    .join(" ");
 
   return `<rapi-doc ${attrsString}>
 ${specScript}  <template shadowrootmode="open">
@@ -273,7 +322,7 @@ ${serializedBody}
  * @param {string} options.method - HTTP method ('get', 'post', 'put', 'delete', etc.)
  * @param {'read'|'view'} [options.renderStyle='read'] - Layout style
  * @param {'row'|'column'} [options.layout='column'] - Layout orientation
- * @param {string} [options.theme='amber'] - Theme preset name or hex
+ * @param {string} [options.theme='ember'] - Theme preset name or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
  * @returns {Promise<string>} Rendered HTML string of the isolated endpoint
@@ -283,16 +332,16 @@ export async function renderEndpoint(options = {}) {
     spec,
     path: targetPathStr,
     method: targetMethodStr,
-    renderStyle = 'read',
-    layout = 'column',
-    theme = 'amber',
-    colorScheme = 'dark',
+    renderStyle = "read",
+    layout = "column",
+    theme = DEFAULT_THEME,
+    colorScheme = "dark",
     includeStyles = true,
     allowTry = false,
   } = options;
 
   if (!targetPathStr || !targetMethodStr) {
-    throw new Error('Both `path` and `method` are required for renderEndpoint().');
+    throw new Error("Both `path` and `method` are required for renderEndpoint().");
   }
 
   const normalizedMethod = targetMethodStr.toLowerCase().trim();
@@ -300,23 +349,27 @@ export async function renderEndpoint(options = {}) {
 
   // Search across tags for matching operation
   let matchedPath = null;
-  let matchedTagName = '';
-  let matchedTagDescription = '';
+  let matchedTagName = "";
+  let matchedTagDescription = "";
   let isFirstOperation = false;
 
   for (const tag of resolvedSpec.tags || []) {
-    const foundIdx = (tag.paths || []).findIndex((p) => p.path === targetPathStr && p.method.toLowerCase() === normalizedMethod);
+    const foundIdx = (tag.paths || []).findIndex(
+      (p) => p.path === targetPathStr && p.method.toLowerCase() === normalizedMethod,
+    );
     if (foundIdx !== -1) {
       matchedPath = tag.paths[foundIdx];
       matchedTagName = tag.name;
-      matchedTagDescription = tag.description || '';
+      matchedTagDescription = tag.description || "";
       isFirstOperation = foundIdx === 0;
       break;
     }
   }
 
   if (!matchedPath) {
-    throw new Error(`Endpoint not found in spec: ${targetMethodStr.toUpperCase()} ${targetPathStr}`);
+    throw new Error(
+      `Endpoint not found in spec: ${targetMethodStr.toUpperCase()} ${targetPathStr}`,
+    );
   }
 
   const context = {
@@ -325,21 +378,29 @@ export async function renderEndpoint(options = {}) {
     layout,
     theme,
     colorScheme,
-    fillRequestFieldsWithExample: 'true',
+    fillRequestFieldsWithExample: "true",
     allowTry: String(allowTry),
     config: {
       renderStyle,
-      schemaStyle: options.schemaStyle || 'table',
+      schemaStyle: options.schemaStyle || "table",
       allowTry: String(allowTry),
     },
     selectedServer: resolvedSpec.servers?.[0],
   };
 
-  const renderedTemplate = expandedEndpointBodyTemplate.call(context, matchedPath, matchedTagName, matchedTagDescription, isFirstOperation);
+  const renderedTemplate = expandedEndpointBodyTemplate.call(
+    context,
+    matchedPath,
+    matchedTagName,
+    matchedTagDescription,
+    isFirstOperation,
+  );
   const serializedHtml = renderTemplateToString(renderedTemplate);
 
-  const containerClass = 'rapidoc-endpoint-container';
-  const cssText = includeStyles ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${containerClass}` })}</style>` : '';
+  const containerClass = "rapidoc-endpoint-container";
+  const cssText = includeStyles
+    ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${containerClass}` })}</style>`
+    : "";
 
   return `<div class="${containerClass} ${renderStyle}-mode" data-theme="${theme}" data-color-scheme="${colorScheme}">
 ${cssText}
@@ -355,24 +416,32 @@ ${serializedHtml}
  * @param {Object|string} [options.spec] - Optional OpenAPI spec to resolve schema names against
  * @param {'table'|'tree'} [options.style='table'] - Display style ('table' or 'tree')
  * @param {number} [options.schemaExpandLevel=99999] - Level of initial property expansion
- * @param {string} [options.theme='amber'] - Theme preset name or hex
+ * @param {string} [options.theme='ember'] - Theme preset name or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
  * @returns {Promise<string>} Rendered schema HTML string
  */
 export async function renderSchema(options = {}) {
-  const { schema, spec, style = 'table', schemaExpandLevel = 99999, theme = 'amber', colorScheme = 'dark', includeStyles = true } = options;
+  const {
+    schema,
+    spec,
+    style = "table",
+    schemaExpandLevel = 99999,
+    theme = DEFAULT_THEME,
+    colorScheme = "dark",
+    includeStyles = true,
+  } = options;
 
   let resolvedSchema = schema;
 
-  if (typeof schema === 'string') {
+  if (typeof schema === "string") {
     if (!spec) {
       throw new Error(`When schema is a string name ('${schema}'), options.spec must be provided.`);
     }
     const resolvedSpec = await resolveSpecInput(spec);
-    let schemaObj = (typeof spec === 'object' && spec.components?.schemas?.[schema]) || null;
+    let schemaObj = (typeof spec === "object" && spec.components?.schemas?.[schema]) || null;
     if (!schemaObj) {
-      const schemasGroup = (resolvedSpec.components || []).find((c) => c.name === 'Schemas');
+      const schemasGroup = (resolvedSpec.components || []).find((c) => c.name === "Schemas");
       const found = (schemasGroup?.subComponents || []).find((sc) => sc.name === schema);
       schemaObj = found?.component;
     }
@@ -382,14 +451,14 @@ export async function renderSchema(options = {}) {
     resolvedSchema = schemaObj;
   }
 
-  if (!resolvedSchema || typeof resolvedSchema !== 'object') {
-    throw new Error('Invalid schema provided to renderSchema().');
+  if (!resolvedSchema || typeof resolvedSchema !== "object") {
+    throw new Error("Invalid schema provided to renderSchema().");
   }
 
   const ast = schemaToAST(resolvedSchema);
   let renderedTemplate;
 
-  if (style === 'tree') {
+  if (style === "tree") {
     const tree = new SchemaTree();
     tree.data = ast;
     tree.schemaExpandLevel = schemaExpandLevel;
@@ -402,8 +471,10 @@ export async function renderSchema(options = {}) {
   }
 
   const serializedHtml = renderTemplateToString(renderedTemplate);
-  const containerClass = 'rapidoc-schema-container';
-  const cssText = includeStyles ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${containerClass}` })}</style>` : '';
+  const containerClass = "rapidoc-schema-container";
+  const cssText = includeStyles
+    ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${containerClass}` })}</style>`
+    : "";
 
   return `<div class="${containerClass}" data-theme="${theme}" data-color-scheme="${colorScheme}">
 ${cssText}

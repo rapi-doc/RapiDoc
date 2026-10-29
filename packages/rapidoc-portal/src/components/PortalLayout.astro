@@ -1,0 +1,138 @@
+---
+/**
+ * Page shell for the portal pages Starlight does not render (home, catalog, API reference). Same
+ * layout as PortalPageFrame on documentation pages:
+ *
+ *   header (sticky)
+ *   [ sidebar (sticky, full height) | content ]   (the sidebar slot is optional)
+ *   site footer (full width)
+ *
+ * The page itself scrolls. A page with a sidebar gives it the id passed as `sidebarId` and
+ * `popover="auto"`: on narrow screens it is a menu opened by the header's menu button; from 50rem
+ * it is a sticky column (see `.portal-layout-sidebar` below).
+ */
+import 'virtual:rapidoc-portal/theme.css';
+import 'virtual:rapidoc-portal/user-css';
+import portalConfig from 'virtual:rapidoc-portal/config';
+import PortalFooter from './PortalFooter.astro';
+import PortalHeader from './PortalHeader.astro';
+import { openGraphEntries, pageTitle, portalHeadEntries, renderHeadHtml } from '../engine/page-head.js';
+import { themeBootstrapScript } from './theme-script.js';
+import { withBase } from './base-path.js';
+
+interface Props {
+  /** The page's own title; site.titleTemplate makes the full one. */
+  title: string;
+  description?: string;
+  sidebarId?: string;
+}
+
+const { title, description = portalConfig.site.description, sidebarId } = Astro.props;
+const fullTitle = pageTitle(portalConfig, title);
+const headHtml = renderHeadHtml([
+  ...openGraphEntries(portalConfig, { title, description, pathname: Astro.url.pathname }),
+  ...portalHeadEntries(portalConfig),
+]);
+const hasSidebar = Astro.slots.has('sidebar');
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    {description && <meta name="description" content={description} />}
+    {portalConfig.site.favicon && <link rel="icon" href={withBase(portalConfig.site.favicon)} />}
+    <script is:inline set:html={`${themeBootstrapScript(portalConfig.theme.mode)};`} />
+    <Fragment set:html={headHtml} />
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="portal-layout">
+      <PortalHeader sidebarId={hasSidebar ? sidebarId : undefined} />
+      {
+        hasSidebar ? (
+          <div class="portal-layout-shell">
+            <slot name="sidebar" />
+            <div class="portal-layout-main">
+              <slot />
+            </div>
+          </div>
+        ) : (
+          <div class="portal-layout-main">
+            <slot />
+          </div>
+        )
+      }
+      <PortalFooter />
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  html {
+    /* Anchors and RapiDoc navigation (scroll-offset) land below the sticky header. */
+    scroll-padding-top: calc(var(--sl-nav-height) + 1rem);
+  }
+
+  body {
+    margin: 0;
+  }
+
+  .portal-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .portal-layout-main {
+    flex: 1 0 auto;
+    min-width: 0;
+  }
+
+  .portal-layout-shell {
+    flex: 1 0 auto;
+  }
+
+  /* Narrow screens: the sidebar is a popover menu below the header. */
+  .portal-layout-sidebar {
+    position: fixed;
+    inset: var(--sl-nav-height) 0 0 0;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background-color: var(--portal-bg);
+    overflow-y: auto;
+  }
+
+  .portal-layout-sidebar:popover-open {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (min-width: 50rem) {
+    .portal-layout-shell {
+      display: grid;
+      grid-template-columns: var(--portal-sidebar-width) minmax(0, 1fr);
+    }
+
+    /* Sticks below the header and fills the screen; the footer pushes it up at the end. */
+    .portal-layout-sidebar {
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      inset: auto;
+      top: var(--sl-nav-height);
+      width: auto;
+      height: calc(100dvh - var(--sl-nav-height));
+      overflow: hidden;
+      border-inline-end: 1px solid var(--portal-border);
+    }
+  }
+</style>

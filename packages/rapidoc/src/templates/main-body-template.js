@@ -1,26 +1,28 @@
 /**
  * Renders the top-level main layout shell, orchestrating header, navbar, content panels, and modal dialogs based on renderStyle.
  */
-import { html } from 'lit';
+import { html } from "lit";
 
 // Templates
-import expandedEndpointTemplate from '~/templates/expanded-endpoint-template';
-import focusedEndpointTemplate from '~/templates/focused-endpoint-template';
-import overviewTemplate from '~/templates/overview-template';
-import endpointTemplate from '~/templates/endpoint-template';
-import serverTemplate from '~/templates/server-template';
-import securitySchemeTemplate, { recoverPersistedApiKeys } from '~/templates/security-scheme-template';
-import headerTemplate from '~/templates/header-template';
-import navbarTemplate from '~/templates/navbar-template';
-import advancedSearchDialogTemplate from '~/templates/advanced-search-dialog-template';
-import componentsTemplate from '~/templates/components-template';
-import downloadsTemplate from '~/templates/downloads-template';
+import expandedEndpointTemplate from "~/templates/expanded-endpoint-template";
+import focusedEndpointTemplate from "~/templates/focused-endpoint-template";
+import overviewTemplate from "~/templates/overview-template";
+import endpointTemplate from "~/templates/endpoint-template";
+import serverTemplate from "~/templates/server-template";
+import securitySchemeTemplate, {
+  recoverPersistedApiKeys,
+} from "~/templates/security-scheme-template";
+import headerTemplate from "~/templates/header-template";
+import navbarTemplate from "~/templates/navbar-template";
+import advancedSearchDialogTemplate from "~/templates/advanced-search-dialog-template";
+import componentsTemplate from "~/templates/components-template";
+import downloadsTemplate from "~/templates/downloads-template";
 
 export default function mainBodyTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
-    return '';
+    return "";
   }
-  if (this.persistAuth === 'true') {
+  if (this.persistAuth === "true") {
     recoverPersistedApiKeys.call(this);
   }
 
@@ -39,17 +41,19 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
 
   return html` <slot name="fixed-header"></slot>
     <!-- Header -->
-    ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
+    ${this.showHeader === "false" ? "" : headerTemplate.call(this)}
 
     <!-- Advanced Search -->
-    ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchDialogTemplate.call(this)}
+    ${this.allowAdvancedSearch === "false" ? "" : advancedSearchDialogTemplate.call(this)}
 
     <div id="the-main-body" class="body ${this.cssClasses}" dir="${this.pageDirection}">
       <!-- Side Nav -->
       ${
-        (this.renderStyle === 'read' || this.renderStyle === 'focused') && this.showSideNav === 'true' && this.resolvedSpec
+        (this.renderStyle === "read" || this.renderStyle === "focused") &&
+        this.showSideNav === "true" &&
+        this.resolvedSpec
           ? navbarTemplate.call(this)
-          : ''
+          : ""
       }
 
       <!-- Main Content -->
@@ -70,21 +74,21 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
                           }}"
                         >
                           ${
-                            this.renderStyle === 'focused'
-                              ? html`${this.showInfo === 'false' ? downloadsTemplate.call(this) : ''}${focusedEndpointTemplate.call(this)}`
+                            this.renderStyle === "focused"
+                              ? html`${this.showInfo === "false" ? downloadsTemplate.call(this) : ""}${focusedEndpointTemplate.call(this)}`
                               : html`
-                                  ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''} ${downloadsTemplate.call(this)}
-                                  ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
-                                  ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this, this.allowTry) : ''}
+                                  ${this.showInfo === "true" ? overviewTemplate.call(this) : ""} ${downloadsTemplate.call(this)}
+                                  ${this.allowServerSelection === "true" ? serverTemplate.call(this) : ""}
+                                  ${this.allowAuthentication === "true" ? securitySchemeTemplate.call(this, this.allowTry) : ""}
                                   <div id="operations-top" class="observe-me">
                                     <slot name="operations-top"></slot>
                                   </div>
                                   ${
-                                    this.renderStyle === 'read'
+                                    this.renderStyle === "read"
                                       ? expandedEndpointTemplate.call(this)
                                       : endpointTemplate.call(this, isMini, pathsExpanded)
                                   }
-                                  ${this.showComponents === 'true' ? componentsTemplate.call(this) : ''}
+                                  ${this.showComponents === "true" ? componentsTemplate.call(this) : ""}
                                 `
                           }
                         </div>

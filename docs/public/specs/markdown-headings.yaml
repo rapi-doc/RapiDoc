@@ -68,7 +68,7 @@ tags:
     description: |-
       Markdown headings can contain HTML as well as complex markdown formatting.
       
-      <div style="background-color: var(--bg2, rgba(128, 128, 128, 0.3)); color: var(--fg, currentColor); padding: 12px 16px; border-left: 5px solid #F90258; border-radius: 0 4px 4px 0; margin: 12px 0;">
+      <div style="background-color: var(--muted); color: var(--foreground); padding: 12px 16px; border-left: 5px solid #F90258; border-radius: 0 4px 4px 0; margin: 12px 0;">
         Markdown doesn't natively support colors or callout containers. However, you can drop raw HTML directly inside the markdown with inline styling.
         This TIP box was designed using inline HTML inside the markdown description!
       </div>

@@ -1,0 +1,199 @@
+---
+/**
+ * Starlight PageTitle override: the page title, with the page actions of `llms.pageActions` beside it.
+ *
+ *   [Copy page] [ ▾ ]   the menu: View as Markdown, Open in ChatGPT, Open in Claude
+ *
+ * Copy page copies the page's Markdown (/docs/<page>.md, engine/llms.js). The assistants open with a prompt to
+ * read that URL, so they are left out on protected pages: an assistant can't sign in. The menu follows the
+ * WAI-ARIA disclosure pattern, like the header menus: Escape closes it and returns focus to its button.
+ */
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import portalConfig from 'virtual:rapidoc-portal/config';
+import Icon from './Icon.astro';
+import { createZoneMatcher, PUBLIC_ZONE } from '../access/rules.js';
+import { markdownUrlOf } from '../engine/llms.js';
+import { withoutBase } from './base-path.js';
+
+const actions: string[] = portalConfig.llms ? portalConfig.llms.pageActions : [];
+const isPublic = createZoneMatcher(portalConfig.access).zoneOf(withoutBase(Astro.url.pathname)) === PUBLIC_ZONE;
+const markdownUrl = markdownUrlOf(Astro.url.pathname);
+const assistants = { chatgpt: 'https://chatgpt.com/?q=', claude: 'https://claude.ai/new?q=' };
+const menuItems = [
+  actions.includes('markdown') && { label: 'View as Markdown', icon: 'markdown-logo', href: markdownUrl },
+  actions.includes('chatgpt') && isPublic && { label: 'Open in ChatGPT', icon: 'open-ai-logo', assistant: assistants.chatgpt },
+  actions.includes('claude') && isPublic && { label: 'Open in Claude', icon: 'sparkle', assistant: assistants.claude },
+].filter(Boolean) as { label: string; icon: string; href?: string; assistant?: string }[];
+const hasCopy = actions.includes('copy');
+const show = hasCopy || menuItems.length > 0;
+---
+
+{
+  show ? (
+    <div class="portal-page-title">
+      <Default />
+      <div class="portal-page-actions not-content" data-markdown-url={markdownUrl}>
+        {hasCopy && (
+          <button type="button" class="portal-page-action" data-portal-copy-page>
+            <Icon name="copy" size={16} />
+            <span data-portal-copy-label>Copy page</span>
+          </button>
+        )}
+        {menuItems.length > 0 && (
+          <div class="portal-page-actions-menu">
+            <button
+              type="button"
+              class="portal-page-action"
+              aria-expanded="false"
+              aria-controls="portal-page-actions-panel"
+              aria-label={hasCopy ? 'More page actions' : undefined}
+            >
+              {!hasCopy && <span>Page actions</span>}
+              <Icon name="caret-down" size={16} />
+            </button>
+            <ul id="portal-page-actions-panel" class="portal-page-actions-panel" hidden>
+              {menuItems.map((item) => (
+                <li>
+                  <a
+                    href={item.href || markdownUrl}
+                    data-assistant={item.assistant}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Icon name={item.icon} size={16} />
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <span class="sr-only" aria-live="polite" data-portal-copy-status />
+      </div>
+    </div>
+  ) : (
+    <Default />
+  )
+}
+
+<script>
+  for (const actions of document.querySelectorAll<HTMLElement>('.portal-page-actions')) {
+    const markdownUrl = new URL(actions.dataset.markdownUrl || '', location.href).href;
+
+    // The assistants get the full URL of the Markdown, which is only known in the browser.
+    for (const link of actions.querySelectorAll<HTMLAnchorElement>('a[data-assistant]')) {
+      link.href = `${link.dataset.assistant}${encodeURIComponent(`Read ${markdownUrl} so I can ask questions about it.`)}`;
+    }
+
+    const copy = actions.querySelector<HTMLButtonElement>('[data-portal-copy-page]');
+    const label = actions.querySelector<HTMLElement>('[data-portal-copy-label]');
+    const status = actions.querySelector<HTMLElement>('[data-portal-copy-status]');
+    copy?.addEventListener('click', async () => {
+      let text = 'Copied';
+      try {
+        const response = await fetch(markdownUrl);
+        if (!response.ok) throw new Error(String(response.status));
+        await navigator.clipboard.writeText(await response.text());
+      } catch {
+        text = 'Copy failed';
+      }
+      if (label) label.textContent = text;
+      if (status) status.textContent = text === 'Copied' ? 'Page copied as Markdown' : 'Copying the page failed';
+      setTimeout(() => {
+        if (label) label.textContent = 'Copy page';
+      }, 2000);
+    });
+
+    const trigger = actions.querySelector<HTMLButtonElement>('[aria-controls="portal-page-actions-panel"]');
+    const panel = actions.querySelector<HTMLElement>('.portal-page-actions-panel');
+    if (!trigger || !panel) continue;
+    const setOpen = (open: boolean) => {
+      trigger.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
+    };
+    trigger.addEventListener('click', () => setOpen(panel.hidden));
+    actions.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !panel.hidden) {
+        setOpen(false);
+        trigger.focus();
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (!panel.hidden && !trigger.parentElement?.contains(event.target as Node)) setOpen(false);
+    });
+    panel.addEventListener('click', (event) => {
+      if ((event.target as Element).closest('a')) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .portal-page-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    column-gap: 1rem;
+  }
+
+  .portal-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 1rem;
+  }
+
+  .portal-page-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    background: transparent;
+    color: var(--portal-fg);
+    font: inherit;
+    font-size: var(--sl-text-sm);
+    cursor: pointer;
+  }
+
+  .portal-page-action:hover {
+    background: color-mix(in oklab, var(--portal-fg) 6%, transparent);
+  }
+
+  .portal-page-actions-menu {
+    position: relative;
+  }
+
+  .portal-page-actions-panel {
+    position: absolute;
+    inset-inline-end: 0;
+    top: calc(100% + 0.25rem);
+    z-index: 10;
+    min-width: 12rem;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    background: var(--portal-bg);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+  }
+
+  .portal-page-actions-panel a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: calc(var(--portal-radius) - 2px);
+    color: var(--portal-fg);
+    font-size: var(--sl-text-sm);
+    text-decoration: none;
+  }
+
+  .portal-page-actions-panel a:hover,
+  .portal-page-actions-panel a:focus-visible {
+    background: color-mix(in oklab, var(--portal-fg) 8%, transparent);
+  }
+</style>

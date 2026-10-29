@@ -6,10 +6,18 @@
  * Usable across Node.js >= 22, Bun, Astro, Nuxt, Next.js, 11ty, VitePress, or custom scripts.
  */
 
-import { renderRapiDoc, renderEndpoint, renderSchema, resolveSpecInput } from './render.js';
-import { renderTemplateToString, escapeHtml } from './serializer.js';
-import { getSpecNavigation } from './navigation.js';
-import { getBundledCss } from '../styles/css-bundle.js';
+import { renderRapiDoc, renderEndpoint, renderSchema, resolveSpecInput } from "./render.js";
+import { renderTemplateToString, escapeHtml } from "./serializer.js";
+import {
+  getSpecNavigation,
+  getNavBarHtml,
+  renderNavBarHtml,
+  getNavFilterHtml,
+  getMethodBadge,
+  bindNavBar,
+} from "./navigation.js";
+import { getBundledCss, getNavCss, getThemeTokensCss } from "../styles/css-bundle.js";
+import { toKebabCase, methodPathSlug, operationAnchorSource } from "../utils/slugger.js";
 
 export {
   renderRapiDoc,
@@ -19,7 +27,17 @@ export {
   renderTemplateToString,
   escapeHtml,
   getSpecNavigation,
+  getNavBarHtml,
+  renderNavBarHtml,
+  getNavFilterHtml,
+  getMethodBadge,
+  bindNavBar,
   getBundledCss,
+  getNavCss,
+  getThemeTokensCss,
+  toKebabCase,
+  methodPathSlug,
+  operationAnchorSource,
 };
 
 export default {
@@ -30,5 +48,15 @@ export default {
   renderTemplateToString,
   escapeHtml,
   getSpecNavigation,
+  getNavBarHtml,
+  renderNavBarHtml,
+  getNavFilterHtml,
+  getMethodBadge,
+  bindNavBar,
   getBundledCss,
+  getNavCss,
+  getThemeTokensCss,
+  toKebabCase,
+  methodPathSlug,
+  operationAnchorSource,
 };

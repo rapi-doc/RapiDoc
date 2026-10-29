@@ -5,12 +5,12 @@
  * @returns {string} Deduplicated header value
  */
 export function deduplicateHeaderValues(value) {
-  if (!value || typeof value !== 'string') {
-    return value || '';
+  if (!value || typeof value !== "string") {
+    return value || "";
   }
   const seenValues = [];
   return value
-    .split(',')
+    .split(",")
     .map((val) => {
       const trimmed = val.trim();
       const normalizedValue = trimmed.toLowerCase();
@@ -21,7 +21,7 @@ export function deduplicateHeaderValues(value) {
       return trimmed;
     })
     .filter((val) => val !== null)
-    .join(', ');
+    .join(", ");
 }
 
 /**
@@ -38,15 +38,15 @@ export function deduplicateHeaderValues(value) {
  * @returns {string} Formatted cURL snippet
  */
 export function generateCurlCommand({
-  method = 'GET',
-  url = '',
+  method = "GET",
+  url = "",
   headers,
   body,
-  contentType = '',
-  baseLocation = typeof location !== 'undefined' ? location.href : '',
+  contentType = "",
+  baseLocation = typeof location !== "undefined" ? location.href : "",
 } = {}) {
   let curlUrl = url;
-  if (!url.startsWith('http://') && !url.startsWith('https://') && baseLocation) {
+  if (!url.startsWith("http://") && !url.startsWith("https://") && baseLocation) {
     try {
       curlUrl = new URL(url, baseLocation).href;
     } catch {
@@ -58,7 +58,7 @@ export function generateCurlCommand({
 
   // Process headers into key-value pairs with deduplicated comma values
   const headerEntries = [];
-  if (headers instanceof Headers || (headers && typeof headers.forEach === 'function')) {
+  if (headers instanceof Headers || (headers && typeof headers.forEach === "function")) {
     headers.forEach((value, key) => {
       headerEntries.push([key, deduplicateHeaderValues(value)]);
     });
@@ -66,40 +66,43 @@ export function generateCurlCommand({
     headers.forEach(([key, value]) => {
       headerEntries.push([key, deduplicateHeaderValues(value)]);
     });
-  } else if (headers && typeof headers === 'object') {
+  } else if (headers && typeof headers === "object") {
     Object.entries(headers).forEach(([key, value]) => {
       headerEntries.push([key, deduplicateHeaderValues(String(value))]);
     });
   }
 
-  let curlHeaders = headerEntries.map(([key, value]) => ` -H '${key}: ${value}'`).join('\\\n');
+  let curlHeaders = headerEntries.map(([key, value]) => ` -H '${key}: ${value}'`).join("\\\n");
   if (curlHeaders) {
     curlHeaders = `${curlHeaders} \\\n`;
   }
 
-  let curlData = '';
-  let curlForm = '';
+  let curlData = "";
+  let curlForm = "";
 
-  if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {
+  if (typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams) {
     curlData = ` -d ${body.toString()} \\\n`;
-  } else if (typeof File !== 'undefined' && body instanceof File) {
+  } else if (typeof File !== "undefined" && body instanceof File) {
     curlData = ` --data-binary @${body.name} \\\n`;
-  } else if (typeof FormData !== 'undefined' && body instanceof FormData) {
+  } else if (typeof FormData !== "undefined" && body instanceof FormData) {
     curlForm = Array.from(body)
       .map(([key, value]) => {
-        if (typeof File !== 'undefined' && value instanceof File) {
+        if (typeof File !== "undefined" && value instanceof File) {
           return ` -F "${key}=@${value.name}"`;
         }
-        const sanitizedVal = typeof value === 'string' ? value.replace(/\\/g, '\\\\').replace(/"/g, '\\"') : value;
+        const sanitizedVal =
+          typeof value === "string" ? value.replace(/\\/g, "\\\\").replace(/"/g, '\\"') : value;
         return ` -F "${key}=${sanitizedVal}"`;
       })
-      .join('\\\n');
+      .join("\\\n");
     if (curlForm) {
       curlForm = `${curlForm} \\\n`;
     }
-  } else if (body !== undefined && body !== null && body !== '') {
-    const rawBody = typeof body === 'object' ? JSON.stringify(body) : String(body);
-    const isJson = contentType.includes('json') || (rawBody.trim().startsWith('{') && rawBody.trim().endsWith('}'));
+  } else if (body !== undefined && body !== null && body !== "") {
+    const rawBody = typeof body === "object" ? JSON.stringify(body) : String(body);
+    const isJson =
+      contentType.includes("json") ||
+      (rawBody.trim().startsWith("{") && rawBody.trim().endsWith("}"));
 
     if (isJson) {
       try {
@@ -116,5 +119,5 @@ export function generateCurlCommand({
   }
 
   const result = `${curl}${curlHeaders}${curlData}${curlForm}`;
-  return result.endsWith(' \\\n') ? result.slice(0, -3) : result;
+  return result.endsWith(" \\\n") ? result.slice(0, -3) : result;
 }

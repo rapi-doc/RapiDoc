@@ -1,5 +1,5 @@
-import * as yaml from 'js-yaml';
-import { readDataYaml } from '../utils/readDataYaml';
+import * as yaml from "js-yaml";
+import { readDataYaml } from "../utils/readDataYaml";
 
 export interface CssPartItem {
   name: string;
@@ -37,6 +37,6 @@ export interface StylingData {
   slots: SlotItem[];
 }
 
-const stylingData = yaml.load(readDataYaml('styling-data.yaml')) as StylingData;
+const stylingData = yaml.load(readDataYaml("styling-data.yaml")) as StylingData;
 
 export { stylingData };
