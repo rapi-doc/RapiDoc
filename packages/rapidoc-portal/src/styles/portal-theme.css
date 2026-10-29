@@ -387,6 +387,12 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
   overflow-wrap: anywhere;
 }
 
+/* Names in a table's first column (packages, options, fields) stay on one line, so the column is as wide as the longest */
+.sl-markdown-content td:first-child > code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
 [data-theme='light'] :not(pre) > code {
   color: #334155;
   border-color: #cbd5e1;
