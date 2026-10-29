@@ -19,8 +19,8 @@ export const SEARCH_URL_PREFIX = '/_rapidoc/search';
 export const EMPTY_SEARCH_ZONE = '_empty';
 const SEARCH_INDEX_FILE = 'search-index.json';
 
-/** Build files that carry no page content: always public. */
-const ALWAYS_PUBLIC = [/^_astro\//, /^_rapidoc\//, /^assets\/rapidoc-min\.js$/, /^oauth-receiver\.html$/];
+/** Build files that carry no page content: always public. `_rapidoc/` holds the build assets too. */
+const ALWAYS_PUBLIC = [/^_rapidoc\//, /^assets\/rapidoc-min\.js$/, /^oauth-receiver\.html$/];
 
 /** The logo and favicon stay public too: the sign-in error and access-denied pages show them. */
 function brandingFiles(site) {

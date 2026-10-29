@@ -154,7 +154,7 @@ export function writeFixtureBuild({ defaultZone = 'public', tryIt = false } = {}
 
   write('public/index.html', page('Home'));
   write('public/docs/intro/index.html', page('Intro'));
-  write('public/_astro/app.abc123.js', 'console.log(1)');
+  write('public/_rapidoc/assets/app.abc123.js', 'console.log(1)');
   write('public/_rapidoc/access-denied/index.html', page('Access denied'));
   write('public/_rapidoc/sign-in-error/index.html', page('Sign-in error'));
   write('public/pagefind/pagefind-entry.json', '{"public":true}');

@@ -47,9 +47,9 @@ export function findFile(root, candidates) {
   return null;
 }
 
-/** Cache-Control for a public file: hashed build assets are immutable, the rest revalidates. */
+/** Cache-Control for a public file: hashed build assets (`_rapidoc/assets/`) are immutable, the rest revalidates. */
 export function publicCacheControl(rel) {
-  return rel.startsWith('_astro/') ? IMMUTABLE : REVALIDATE;
+  return rel.startsWith('_rapidoc/assets/') ? IMMUTABLE : REVALIDATE;
 }
 
 /**

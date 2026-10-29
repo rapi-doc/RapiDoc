@@ -125,14 +125,14 @@ describe('auth and access in rapidoc.config.yaml', () => {
         auth: AUTH,
         access: {
           rules: [
-            { path: '/_astro/**', allow: 'signed-in' },
+            { path: '/_rapidoc/assets/**', allow: 'signed-in' },
             { path: '/_rapidoc', allow: 'public' },
           ],
         },
         redirects: [{ from: '/_rapidoc/old', to: '/' }],
       }),
       [
-        'access.rules[0].path: /_astro/ holds no page content and is always public',
+        'access.rules[0].path: /_rapidoc/ holds no page content and is always public',
         'access.rules[1].path: /_rapidoc/ holds no page content and is always public',
         'redirects[0].from: /_rapidoc/ is reserved for the portal',
       ]
@@ -205,7 +205,7 @@ describe('splitting a build for rapidoc serve', () => {
       'docs/billing/index.html': page('Billing secrets'),
       'apis/billing/index.html': page('Billing API'),
       'specs/billing.json': '{}',
-      '_astro/app.js': 'x',
+      '_rapidoc/assets/app.js': 'x',
       'sitemap-0.xml':
         '<urlset><url><loc>https://dev.acme.test/</loc></url><url><loc>https://dev.acme.test/docs/billing/</loc></url><url><loc>https://dev.acme.test/_rapidoc/access-denied/</loc></url></urlset>',
       'search-index.json': JSON.stringify({ version: 1, records: [{ url: '/' }, { url: '/docs/billing#a' }] }),
@@ -237,7 +237,7 @@ describe('splitting a build for rapidoc serve', () => {
       assert.deepEqual(manifest.access.groups, ['billing-team']);
       assert.equal(manifest.auth.issuer, AUTH.issuer);
       assert.ok(fs.existsSync(path.join(dir, 'public/logo.svg')), 'the logo stays public even with default signed-in');
-      assert.ok(fs.existsSync(path.join(dir, 'public/_astro/app.js')));
+      assert.ok(fs.existsSync(path.join(dir, 'public/_rapidoc/assets/app.js')));
 
       const sitemap = fs.readFileSync(path.join(dir, 'public/sitemap-0.xml'), 'utf8');
       assert.ok(sitemap.includes('https://dev.acme.test/</loc>'));
@@ -324,6 +324,8 @@ describe('building a portal with sign-in', () => {
     assert.ok(fs.existsSync(path.join(outDir, 'public/_rapidoc/access-denied/index.html')));
     assert.ok(fs.existsSync(path.join(outDir, 'public/_rapidoc/sign-in-error/index.html')));
     assert.ok(fs.existsSync(path.join(outDir, 'public/oauth-receiver.html')), "RapiDoc's OAuth return page stays public");
+    assert.ok(fs.readdirSync(path.join(outDir, 'public/_rapidoc/assets')).length > 0, 'build assets stay public');
+    assert.ok(!fs.existsSync(path.join(outDir, 'protected/_rapidoc/assets')));
     assert.ok(fs.existsSync(path.join(outDir, 'protected/_rapidoc/search/_empty/pagefind/pagefind-entry.json')));
   });
 

@@ -6,8 +6,8 @@ import crypto from 'node:crypto';
  * `rapidoc serve` decides per zone (it never sees the patterns).
  */
 
-/** URL prefixes that hold no page content and are never protected. */
-export const RESERVED_PREFIXES = ['/_astro/', '/_rapidoc/'];
+/** URL prefixes that hold no page content and are never protected (build assets are under /_rapidoc/assets/). */
+export const RESERVED_PREFIXES = ['/_rapidoc/'];
 
 export const PUBLIC_ZONE = 'public';
 export const SIGNED_IN_ZONE = 'signed-in';

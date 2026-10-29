@@ -222,6 +222,14 @@ describe('RapiDoc Portal build engine', () => {
       assert.ok(fulfillment.includes('API operation not found'), 'an unknown spec id shows a notice');
       assert.ok(!fulfillment.includes('/assets/rapidoc-min.js'), 'pages without a working embed do not load RapiDoc');
 
+      // Pages do not name the tooling they are built with
+      assert.ok(fs.readdirSync(path.join(outDir, '_rapidoc/assets')).length > 0, 'build assets are under /_rapidoc/assets/');
+      for (const page of ['', 'docs/shipping-process', 'catalog', 'apis/shipments']) {
+        const html = read(page);
+        assert.ok(!/<meta[^>]*name="generator"/.test(html), `no generator meta tag on /${page}`);
+        assert.ok(!html.includes('/_astro/'), `no /_astro/ paths on /${page}`);
+      }
+
       assert.deepEqual(listTree(DEMO_PORTAL_DIR), projectBefore, 'build must not add or remove files in the project');
     } finally {
       fs.rmSync(outDir, { recursive: true, force: true });

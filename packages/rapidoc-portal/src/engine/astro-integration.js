@@ -17,6 +17,13 @@ import { resolveDependencyRoot } from './temp-workspace.js';
 export const CONFIG_MODULE = 'virtual:rapidoc-portal/config';
 export const ICONS_MODULE = 'virtual:rapidoc-portal/icons';
 
+/** Where built scripts and styles go (Astro's default is `_astro`); under the portal's reserved, always-public `/_rapidoc/`. */
+export const BUILD_ASSETS_DIR = '_rapidoc/assets';
+
+// Client scripts are named by hash alone: by default their names carry component and package names
+// (`TableOfContents.astro_astro_type_script…`, `starlight-toc…`).
+const hashedScriptName = () => `${BUILD_ASSETS_DIR}/[hash].js`;
+
 /** Phosphor's SVG folders (assets/<weight>/), read by components/Icon.astro at build time. */
 const iconsDir = fileURLToPath(new URL('../assets/', import.meta.resolve('@phosphor-icons/core')));
 
@@ -96,10 +103,15 @@ export function createAstroConfig(workspace, overrides = {}) {
     configFile: false,
     site: workspace.config.site.url || 'https://developer.portal',
     redirects: Object.fromEntries(workspace.config.redirects.map(({ from, to }) => [from, to])),
-    build: { format: 'directory' },
+    build: { format: 'directory', assets: BUILD_ASSETS_DIR },
     // markdoc() renders .mdoc docs with the workspace's markdoc.config.mjs; it must come before Starlight.
     integrations: [markdoc(), starlight(createStarlightOptions(workspace.config)), rapidocPortal({ portalConfig: workspace.config })],
-    vite: { server: { fs: { allow: allowedServeDirs(workspace.root) } } },
+    vite: {
+      server: { fs: { allow: allowedServeDirs(workspace.root) } },
+      environments: {
+        client: { build: { rolldownOptions: { output: { entryFileNames: hashedScriptName, chunkFileNames: hashedScriptName } } } },
+      },
+    },
     ...overrides,
   };
 }

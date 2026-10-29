@@ -50,7 +50,7 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 | `sync-assets.js` | Specs, `rapidoc-min.js` (throws if missing or stale — never rebuilds), `search-index.json` |
 | `astro-integration.js` | Inline Astro config: Markdoc + Starlight + injected routes for `src/pages/*.astro` + virtual modules |
 | `starlight-options.js` / `theme-css.js` | Config → Starlight options (sidebar: one group per documentation tab) / `styles/portal-theme.css` with tokens filled in |
-| `route-middleware.js` | Starlight route middleware: keeps only the current tab's sidebar group, drops prev/next links into other tabs |
+| `route-middleware.js` | Starlight route middleware: keeps only the current tab's sidebar group, drops prev/next links into other tabs, drops Starlight's `generator` meta tags |
 | `../access/rules.js` | Rule patterns (`*` one segment, `**` any), allow → zone id, first-match zone matcher |
 | `../access/split-output.js` | After `astro build` (only with `auth`): moves non-public files to `protected/`, splits `search-index.json` and Pagefind per zone, filters the sitemap, writes `rapidoc-server.json`; fails on a rule that matches nothing and then removes the output |
 
@@ -74,6 +74,7 @@ Invariants:
 - **Workspace location**: must stay inside the project. The OS temp folder does not work — Astro only compiles `.astro` files that share a parent folder with the root — and a folder inside `node_modules` makes Vite treat the pages as dependencies.
 - **Workspace `package.json` is required**: Astro reads its dependencies to decide which packages (Starlight) to bundle for SSR.
 - **Nothing protected in `public/`**: with `auth`, no text of a protected page may reach `dist/public/` (pages, search indexes, sitemap, JS). Never put protected content into a client script or the virtual config module's client imports; `tests/access.test.js` checks the demo build for leaks.
+- **No tooling names in built pages**: no `generator` meta tags (dropped in `route-middleware.js`; `PortalLayout.astro` adds none) and build assets under `/_rapidoc/assets/` (`BUILD_ASSETS_DIR` in `astro-integration.js`), not Astro's `/_astro/`.
 - **Specs are published at `/specs/<api id><ext>`** (`api.specUrl`), so an access rule for `/apis/<id>` also covers the spec. Use `api.specUrl`; never build spec URLs from file names.
 
 ---

@@ -41,7 +41,7 @@ describe('rapidoc serve: sign-in and access rules', () => {
     assert.equal(home.status, 200);
     assert.match(await home.text(), /Home/);
     assert.equal((await browser.send('/docs/intro')).status, 200, 'directory URL without slash');
-    const asset = await browser.send('/_astro/app.abc123.js');
+    const asset = await browser.send('/_rapidoc/assets/app.abc123.js');
     assert.match(asset.headers.get('cache-control'), /immutable/);
     assert.match(asset.headers.get('content-type'), /javascript/);
   });

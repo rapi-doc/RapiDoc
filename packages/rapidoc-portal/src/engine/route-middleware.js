@@ -3,6 +3,7 @@
  *
  * Starlight's sidebar holds one group per documentation tab (starlight-options.js). For each page this
  * keeps only the entries of the active tab's group, and drops prev/next links that lead to another tab.
+ * It also drops the `generator` meta tags Starlight adds to the head: a portal does not name its tooling.
  */
 
 import portalConfig from 'virtual:rapidoc-portal/config';
@@ -33,8 +34,11 @@ function collectHrefs(entries, hrefs = new Set()) {
   return hrefs;
 }
 
+const isGeneratorTag = ({ tag, attrs }) => tag === 'meta' && attrs?.name === 'generator';
+
 export async function onRequest(context, next) {
   const route = context.locals.starlightRoute;
+  route.head = route.head.filter((entry) => !isGeneratorTag(entry));
   if (docsTabs.length > 0 && route.hasSidebar) {
     const tab = activeTab(docsTabs, context.url.pathname) || docsTabs[0];
     const group = route.sidebar[docsTabs.indexOf(tab)];

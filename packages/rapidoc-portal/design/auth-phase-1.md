@@ -117,14 +117,14 @@ There is no explicit deny. To lock a subtree inside a public area, put the narro
 
 ### 2.5 Always public
 
-Some files carry no page content and stay public whatever the rules say: build assets under `/_astro/`, `/assets/rapidoc-min.js`, the portal's own `/_rapidoc/` pages (sign-in error, access denied). A rule whose path is under `/_astro/` or `/_rapidoc/` is a config error.
+Some files carry no page content and stay public whatever the rules say: build assets under `/_rapidoc/assets/`, `/assets/rapidoc-min.js`, the portal's own `/_rapidoc/` pages (sign-in error, access denied). A rule whose path is under `/_rapidoc/` is a config error.
 
 ### 2.6 Validation
 
 Schema errors (on load, same style as today's messages):
 
 - `access` with any allow other than `public` but no `auth` → `access.rules[1].allow: needs "auth" — who is signed in is only known when sign-in is configured`.
-- A rule path that does not start with `/`, or is under `/_astro/` or `/_rapidoc/`.
+- A rule path that does not start with `/`, or is under `/_rapidoc/`.
 - An allow object with neither `groups` nor `emails`.
 - `redirects[].from` under `/_rapidoc/` (reserved).
 
@@ -200,7 +200,7 @@ The build turns each distinct allow into a **zone** and assigns every page and f
 
 The last row means a signed-out reader can't tell whether a protected URL exists.
 
-Headers: every response that depends on the session has `Cache-Control: private, no-store` and `Vary: Cookie`, so a shared cache never serves one reader's page to another. Public files keep today's caching (`/_astro/*` immutable).
+Headers: every response that depends on the session has `Cache-Control: private, no-store` and `Vary: Cookie`, so a shared cache never serves one reader's page to another. Public files keep today's caching (`/_rapidoc/assets/*` immutable).
 
 ---
 
