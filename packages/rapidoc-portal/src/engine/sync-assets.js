@@ -37,10 +37,19 @@ export function copySpecs(portalConfig, publicDir) {
   }
 }
 
-function newestMtimeMs(dir) {
+const isHidden = (relativePath) => relativePath.split(path.sep).some((part) => part.startsWith('.'));
+
+/**
+ * Newest modification time of the files under `dir`. Dotfiles and dot-folders (Finder's .DS_Store, editor
+ * settings) are not source, so they are skipped: opening src/ in Finder must not make the bundle look stale.
+ */
+export function newestSourceMtimeMs(dir) {
   let newest = 0;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true, recursive: true })) {
-    if (entry.isFile()) newest = Math.max(newest, fs.statSync(path.join(entry.parentPath, entry.name)).mtimeMs);
+    if (!entry.isFile()) continue;
+    const file = path.join(entry.parentPath, entry.name);
+    if (isHidden(path.relative(dir, file))) continue;
+    newest = Math.max(newest, fs.statSync(file).mtimeMs);
   }
   return newest;
 }
@@ -59,7 +68,7 @@ export function resolveRapidocBundle() {
   }
 
   const srcDir = path.resolve(path.dirname(bundlePath), '../src');
-  if (fs.existsSync(srcDir) && newestMtimeMs(srcDir) > fs.statSync(bundlePath).mtimeMs) {
+  if (fs.existsSync(srcDir) && newestSourceMtimeMs(srcDir) > fs.statSync(bundlePath).mtimeMs) {
     throw new StaleRapidocBundleError(bundlePath, 'older than its source');
   }
 
