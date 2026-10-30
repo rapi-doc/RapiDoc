@@ -51,13 +51,17 @@ export default css`
     gap: 4px;
   }
 
+  /* a block, so it fills the callback box less its indent; width: 100% plus the margin overflowed the box */
   .callback-operation-list {
     margin-left: 16px;
-    width: 100%;
   }
 
   .callback-operation-item {
     margin-top: 12px;
+  }
+  /* a callback sits in the request column, too narrow to put its request and response side by side in row layout */
+  .callback-operation-item > .expanded-req-resp-container {
+    flex-direction: column !important;
   }
 
   .callback-operation-header {

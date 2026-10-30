@@ -102,4 +102,48 @@ describe("E2E: Request Payloads & Response Status Tabs", () => {
       "Response schema tabs should remain visible after scrollToPath in focused mode",
     );
   });
+
+  // The callback's request and response, down to the TRY button, stay inside the callback's border.
+  // In row layout the callback sits in the request column, so its request and response stack.
+  for (const [layout, width] of [
+    ["row", 1400],
+    ["column", 1400],
+    ["row", 420],
+  ]) {
+    it(`keeps callback content inside the callback box (layout="${layout}", ${width}px)`, async () => {
+      await page.setViewportSize({ width, height: 900 });
+      await loadHarness(page, baseUrl, {
+        spec: "/specs/04-request-response.yaml",
+        "render-style": "read",
+        layout,
+      });
+      const overflow = await page.evaluate(() => {
+        const doc = document.getElementById("thedoc");
+        const box = [...doc.shadowRoot.querySelectorAll(".tiny-title")].find((el) =>
+          el.querySelector(".callback-name"),
+        );
+        if (!box) return ["no callback box"];
+        const inner =
+          box.getBoundingClientRect().right - parseFloat(getComputedStyle(box).paddingRight);
+        const offenders = [
+          box.querySelector(".callback-operation-list"),
+          ...box.querySelectorAll("api-request, api-response"),
+        ];
+        for (const host of box.querySelectorAll("api-request, api-response"))
+          offenders.push(...host.shadowRoot.querySelectorAll("*"));
+        return offenders
+          .filter(
+            (el) =>
+              el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().right > inner + 1,
+          )
+          .slice(0, 5)
+          .map(
+            (el) =>
+              `${el.tagName.toLowerCase()}.${[...el.classList].join(".")} ${Math.round(el.getBoundingClientRect().right - inner)}px`,
+          );
+      });
+      await page.setViewportSize({ width: 1280, height: 720 });
+      assert.deepEqual(overflow, []);
+    });
+  }
 });

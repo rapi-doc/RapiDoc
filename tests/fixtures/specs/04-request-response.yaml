@@ -94,6 +94,25 @@ paths:
                 rememberMe:
                   type: boolean
                   default: false
+      callbacks:
+        onLogin:
+          '{$request.body#/callbackUrl}/events':
+            post:
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      required:
+                        - event
+                      properties:
+                        event:
+                          type: string
+                          enum: [login, logout, session_expired, password_changed]
+              responses:
+                '200':
+                  description: Event received
       responses:
         '200':
           description: Authentication succeeded
