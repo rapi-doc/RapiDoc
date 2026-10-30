@@ -28,8 +28,14 @@ import {
   examplesBesideConstraints,
   renderExample,
 } from "~/templates/request-params-template";
+import { multipartPartContentType } from "~/utils/request-utils";
 
-export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) {
+export function formDataParamAsObjectTemplate(
+  fieldName,
+  fieldSchema,
+  mimeType,
+  partContentType = "",
+) {
   // This template is used when form-data param should be send as a object (application/json, application/xml)
   const formdataPartSchema = schemaToAST(fieldSchema);
   const formdataPartExample = generateExample(
@@ -95,6 +101,7 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
           data-array="false"
           data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
           data-pname="${fieldName}"
+          data-content-type="${partContentType}"
           data-example="${formdataPartExample[0]?.exampleValue || ""}"
           .value="${live(this.fillRequestFieldsWithExample === "true" ? formdataPartExample[0]?.exampleValue || "" : "")}"
           spellcheck="false"
@@ -133,7 +140,7 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
   `;
 }
 
-export function formDataTemplate(schema, mimeType, exampleValue = "") {
+export function formDataTemplate(schema, mimeType, exampleValue = "", encoding = {}) {
   const formFieldItems = [];
   const properties = getMergedProperties(schema);
   const required = getMergedRequired(schema);
@@ -145,6 +152,10 @@ export function formDataTemplate(schema, mimeType, exampleValue = "") {
       }
       const fieldExamples = fieldSchema.examples || fieldSchema.example || "";
       const fieldType = fieldSchema.type;
+      // multipart parts are sent with this Content-Type (application/json for objects); empty means text/plain
+      const partContentType = mimeType.includes("form-data")
+        ? multipartPartContentType(fieldSchema, encoding?.[fieldName])
+        : "";
       const paramSchema = getTypeInfo(fieldSchema);
       const example = normalizeExamples(
         paramSchema.examples || paramSchema.example,
@@ -227,6 +238,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = "") {
                               style="width:100%"
                               data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
                               data-pname="${fieldName}"
+                              data-content-type="${partContentType}"
                               data-example="${Array.isArray(fieldExamples) ? fieldExamples.join("~|~") : fieldExamples}"
                               data-array="true"
                               placeholder="add-multiple &#x21a9;"
@@ -247,6 +259,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = "") {
                                 fieldName,
                                 fieldSchema,
                                 mimeType,
+                                partContentType,
                               )
                             : html`
                                 ${
@@ -259,6 +272,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = "") {
                                         style="width:100%"
                                         data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
                                         data-pname="${fieldName}"
+                                        data-content-type="${partContentType}"
                                         data-example="${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
                                         data-array="false"
                                       />`
@@ -379,6 +393,7 @@ export default function requestBodyTemplate() {
       schema: content[mimeType].schema,
       example: content[mimeType].example,
       examples: content[mimeType].examples,
+      encoding: content[mimeType].encoding,
     });
     // Fallback guard: If selectedRequestBodyType was cleared (e.g., after focused-mode navigation),
     // automatically latch onto the first available MIME type (e.g., application/json).
@@ -524,6 +539,7 @@ ${v.exampleFormat === "text" ? v.exampleValue : JSON.stringify(v.exampleValue, n
             reqBody.schema,
             reqBody.mimeType,
             ex[0] ? ex[0].exampleValue : "",
+            reqBody.encoding,
           );
         }
       }

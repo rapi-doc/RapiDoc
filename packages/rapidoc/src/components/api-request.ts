@@ -16,6 +16,7 @@ import {
   constructFetchHeaders,
   buildUrlEncodedBody,
   buildMultipartFormData,
+  serializeMultipartBody,
 } from "~/utils/request-utils";
 import { processFetchResponse } from "../utils/response-utils.js";
 import { inputParametersTemplate } from "~/templates/request-params-template";
@@ -582,6 +583,15 @@ export default class ApiRequest extends LitElement {
           isArray: el.dataset.array !== "false",
         }));
         fetchOptions.body = buildMultipartFormData(fields);
+        // Content-Type of the parts that need one (application/json for objects, or the spec's encoding)
+        const partContentTypes = Object.fromEntries(
+          formDataEls
+            .filter((el: any) => el.dataset.contentType)
+            .map((el: any) => [el.dataset.pname, el.dataset.contentType]),
+        );
+        if (Object.keys(partContentTypes).length > 0) {
+          fetchOptions.partContentTypes = partContentTypes;
+        }
       } else if (
         /^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(
           requestBodyType,
@@ -651,6 +661,14 @@ export default class ApiRequest extends LitElement {
       credentials: tempRequest.credentials,
       body: tempRequest.body,
     };
+    // FormData can't give a text part a Content-Type, so such bodies are serialized here
+    if (tempRequest.body instanceof FormData && tempRequest.partContentTypes) {
+      const multipart = serializeMultipartBody(tempRequest.body, tempRequest.partContentTypes);
+      const headers = new Headers(tempRequest.headers);
+      headers.set("Content-Type", multipart.contentType);
+      updatedFetchOptions.headers = headers;
+      updatedFetchOptions.body = multipart.body;
+    }
     let fetchRequest;
     let fetchResponse;
     let responseClone;
@@ -776,6 +794,7 @@ export default class ApiRequest extends LitElement {
       headers: fetchHeaders,
       body,
       contentType: requestBodyType,
+      partContentTypes: fetchOptions?.partContentTypes,
     });
   }
 

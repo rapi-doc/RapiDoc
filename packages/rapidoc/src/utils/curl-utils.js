@@ -34,6 +34,7 @@ export function deduplicateHeaderValues(value) {
  * @param {Headers|Map|Array<[string, string]>|object} [options.headers] - Request headers
  * @param {URLSearchParams|FormData|File|string|object} [options.body] - Request body payload
  * @param {string} [options.contentType=''] - Content type of the payload
+ * @param {Object<string, string>} [options.partContentTypes] - Content-Type of multipart parts, by field name
  * @param {string} [options.baseLocation] - Optional base location to resolve relative URLs
  * @returns {string} Formatted cURL snippet
  */
@@ -43,6 +44,7 @@ export function generateCurlCommand({
   headers,
   body,
   contentType = "",
+  partContentTypes = {},
   baseLocation = typeof location !== "undefined" ? location.href : "",
 } = {}) {
   let curlUrl = url;
@@ -87,12 +89,13 @@ export function generateCurlCommand({
   } else if (typeof FormData !== "undefined" && body instanceof FormData) {
     curlForm = Array.from(body)
       .map(([key, value]) => {
+        const type = partContentTypes?.[key] ? `;type=${partContentTypes[key]}` : "";
         if (typeof File !== "undefined" && value instanceof File) {
-          return ` -F "${key}=@${value.name}"`;
+          return ` -F "${key}=@${value.name}${value.type ? "" : type}"`;
         }
         const sanitizedVal =
           typeof value === "string" ? value.replace(/\\/g, "\\\\").replace(/"/g, '\\"') : value;
-        return ` -F "${key}=${sanitizedVal}"`;
+        return ` -F "${key}=${sanitizedVal}${type}"`;
       })
       .join("\\\n");
     if (curlForm) {

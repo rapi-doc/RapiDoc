@@ -157,6 +157,67 @@ export function buildUrlEncodedBody(fields = [], dynamicJson = "") {
   return params;
 }
 
+const isComplexSchema = (schema) =>
+  !!schema &&
+  (schema.type === "object" ||
+    (Array.isArray(schema.type) && schema.type.includes("object")) ||
+    (!schema.type && !!schema.properties));
+
+/**
+ * Content-Type of a multipart/form-data part, following OpenAPI's "Special Considerations for multipart Content":
+ * the encoding object's contentType when the spec gives one (the first of a comma-separated list), application/json
+ * for an object or an array of objects, and "" otherwise (text/plain, or a file's own type).
+ *
+ * @param {object} schema - Schema of the form field
+ * @param {object} [encoding] - The media type's encoding entry for that field
+ * @returns {string}
+ */
+export function multipartPartContentType(schema, encoding) {
+  const declared =
+    typeof encoding?.contentType === "string" ? encoding.contentType.split(",")[0].trim() : "";
+  if (declared) {
+    return declared;
+  }
+  if (isComplexSchema(schema) || (schema?.type === "array" && isComplexSchema(schema.items))) {
+    return "application/json";
+  }
+  return "";
+}
+
+// Quotes and line breaks in part names and file names are percent-encoded, as browsers do for FormData
+const escapePartName = (name) =>
+  String(name).replace(/"/g, "%22").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
+
+/**
+ * Serializes FormData into a multipart/form-data body in which parts carry a Content-Type.
+ * A browser only sends a Content-Type for a part that is a file, and a Blob part always gets filename="blob",
+ * which servers read as an upload; so parts with a type in partContentTypes are written by hand.
+ *
+ * @param {FormData} formData
+ * @param {Object<string, string>} partContentTypes - Content-Type per field name, for fields that are not files
+ * @param {string} [boundary]
+ * @returns {{ body: Blob, contentType: string }}
+ */
+export function serializeMultipartBody(
+  formData,
+  partContentTypes = {},
+  boundary = `----RapiDocFormBoundary${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`,
+) {
+  const chunks = [];
+  for (const [name, value] of formData.entries()) {
+    const isFile = typeof value !== "string";
+    let head = `--${boundary}\r\nContent-Disposition: form-data; name="${escapePartName(name)}"`;
+    if (isFile) {
+      head += `; filename="${escapePartName(value.name ?? "blob")}"\r\nContent-Type: ${value.type || partContentTypes[name] || "application/octet-stream"}`;
+    } else if (partContentTypes[name]) {
+      head += `\r\nContent-Type: ${partContentTypes[name]}`;
+    }
+    chunks.push(`${head}\r\n\r\n`, isFile ? value : value.replace(/\r?\n/g, "\r\n"), "\r\n");
+  }
+  chunks.push(`--${boundary}--\r\n`);
+  return { body: new Blob(chunks), contentType: `multipart/form-data; boundary=${boundary}` };
+}
+
 /**
  * Builds a FormData instance from structured field entries.
  *
