@@ -150,6 +150,25 @@ export default class SchemaTable extends SchemaBaseElement {
             }
           }
         }
+
+        /* Narrow schemas: the description spans the row, under the field and type, with no column of its own (#1074) */
+        @container (width < 500px) {
+          .table {
+            /* no column for descriptions, and field and type share the width instead of scrolling sideways */
+            & .table-container {
+              grid-template-columns: minmax(0, 1fr) minmax(0, max-content) 0;
+            }
+            & .tr > .key-descr {
+              grid-column: 1 / -1;
+            }
+            & .table-header > .key-descr {
+              display: none;
+            }
+            &.collapsed-all-descr .tr:not(.expanded-descr) {
+              max-height: calc(2 * (var(--font-size-small) + 16px));
+            }
+          }
+        }
       `,
       CustomStyles,
     ];

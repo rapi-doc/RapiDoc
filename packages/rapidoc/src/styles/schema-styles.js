@@ -47,7 +47,7 @@ export default css`
     gap: 4px;
     align-items: flex-start;
     overflow: hidden;
-    display: none;
+    display: flex;
 
     /* in the description box's start padding, so descriptions line up whether or not a row shows its arrow */
     & .descr-expand-toggle {
@@ -280,9 +280,17 @@ export default css`
     text-transform: uppercase;
   }
 
-  @container (min-width: 500px) {
-    .key-descr {
-      display: flex;
+  /* Narrow schemas (phones): a description gets a line of its own under its field instead of a column (#1074) */
+  @container (width < 500px) {
+    .tr {
+      flex-wrap: wrap;
+    }
+    .tr > .key-descr {
+      flex-basis: 100%;
+
+      &:empty {
+        display: none;
+      }
     }
   }
 `;

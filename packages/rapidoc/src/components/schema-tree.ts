@@ -76,6 +76,13 @@ export default class SchemaTree extends SchemaBaseElement {
           }
         }
 
+        /* Narrow schemas: a collapsed row holds its field line and the description's line under it (#1074) */
+        @container (width < 500px) {
+          .tree.collapsed-all-descr .tr:not(.expanded-descr) {
+            max-height: calc(2 * (var(--font-size-small) + 8px));
+          }
+        }
+
         .inside-bracket {
           &.xxx-of-option {
             border-left: 1px solid transparent;

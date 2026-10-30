@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createTestServer, launchTestBrowser } from "../helpers/test-harness.js";
+import { createTestServer, launchTestBrowser, loadHarness } from "../helpers/test-harness.js";
 
 const SPECS = fs
   .readdirSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../fixtures/specs"))
@@ -74,6 +74,48 @@ describe("E2E: narrow screens (read mode, auto-height)", () => {
       assert.deepEqual(overflow, []);
       const pageWidth = await page.evaluate(() => document.documentElement.scrollWidth);
       assert.ok(pageWidth <= 375, `page is ${pageWidth}px wide`);
+    });
+  }
+
+  // Schema descriptions get a line of their own under the field instead of disappearing (#1074)
+  for (const schemaStyle of ["tree", "table"]) {
+    it(`schema-style="${schemaStyle}": descriptions show under their fields at 375px`, async () => {
+      await loadHarness(page, baseUrl, {
+        spec: "/specs/03-schemas.yaml",
+        "render-style": "read",
+        "schema-style": schemaStyle,
+        "default-schema-tab": "schema",
+      });
+      const result = await page.evaluate((tag) => {
+        const doc = document.getElementById("thedoc");
+        const schema = doc.shadowRoot
+          .querySelector("api-response")
+          .shadowRoot.querySelector(tag).shadowRoot;
+        const rows = [...schema.querySelectorAll(".tr:not(.table-header)")]
+          .map((tr) => ({
+            key: tr.querySelector(":scope > .key"),
+            descr: tr.querySelector(":scope > .key-descr"),
+          }))
+          .filter(({ descr }) => descr?.textContent.trim());
+        const container = schema.querySelector(".table-container");
+        return {
+          described: rows.length,
+          notShown: rows
+            .filter(({ key, descr }) => {
+              const k = key.getBoundingClientRect();
+              const d = descr.getBoundingClientRect();
+              return d.height === 0 || d.top < k.bottom - 1;
+            })
+            .map(({ key }) => key.textContent.trim()),
+          sidewaysScroll: container ? container.scrollWidth - container.clientWidth : 0,
+        };
+      }, `schema-${schemaStyle}`);
+      assert.ok(result.described > 0, "the fixture has schema descriptions");
+      assert.deepEqual(result.notShown, []);
+      assert.ok(
+        result.sidewaysScroll <= 1,
+        `the table scrolls ${result.sidewaysScroll}px sideways`,
+      );
     });
   }
 });
