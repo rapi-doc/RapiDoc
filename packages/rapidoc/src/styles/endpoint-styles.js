@@ -261,6 +261,7 @@ export default css`
 
   .endpoint-head .method {
     padding: 2px 5px;
+    box-sizing: border-box;
     vertical-align: middle;
     font-size: var(--font-size-small);
     height: calc(var(--font-size-small) + 16px);
