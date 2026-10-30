@@ -134,7 +134,7 @@ export default function serverTemplate() {
                       .checked="${this.selectedServer.url === server.url}"
                     />
                     <label for="srvr-opt-${i}">
-                      ${server.url} ${server.description ? html`- <span class="regular-font">${server.description} </span>` : ""}
+                      ${server.url} ${server.description ? html`- <span class="regular-font">${unsafeHTML(sanitizeHTML(marked.parseInline(server.description)))} </span>` : ""}
                     </label>
                   </div>
                 `,
