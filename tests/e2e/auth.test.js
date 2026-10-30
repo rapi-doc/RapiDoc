@@ -106,12 +106,28 @@ describe("E2E: Authentication & Security Schemes", () => {
               .map((el) => `overlaps ${el.tagName} "${el.textContent.trim().slice(0, 30)}"`);
             if (getComputedStyle(row).position !== "static") issues.push("not in normal flow");
             if (r.left < 0 || r.right > window.innerWidth) issues.push("outside viewport");
-            // Reads after the summary and description, as a labeled line
-            for (const el of op.querySelectorAll("h3:not(.visually-hidden), .m-markdown")) {
+            // Sits under the summary and the method and path, before the description
+            const above = op.querySelectorAll(
+              "h3:not(.visually-hidden), [part='section-operation-webhook-method']",
+            );
+            for (const el of above) {
               if (el.getBoundingClientRect().bottom > r.top) issues.push(`not below ${el.tagName}`);
             }
-            if (row.querySelector(".security-label")?.textContent.trim() !== "Authorization")
-              issues.push("missing label");
+            for (const el of op.querySelectorAll(".m-markdown")) {
+              if (el.getBoundingClientRect().top < r.bottom) issues.push(`not above ${el.tagName}`);
+            }
+            // A lock icon comes first, and "Authorization" is kept for screen readers
+            const lock = row.querySelector(".security-lock-btn");
+            const firstChip = row.querySelector(".security-chip");
+            if (!lock || lock.getBoundingClientRect().width === 0) issues.push("missing lock");
+            else if (
+              firstChip &&
+              lock.compareDocumentPosition(firstChip) !== Node.DOCUMENT_POSITION_FOLLOWING
+            )
+              issues.push("lock not before chips");
+            const label = row.querySelector(".security-label");
+            if (label?.textContent.trim() !== "Authorization") issues.push("missing label");
+            else if (!label.classList.contains("visually-hidden")) issues.push("label visible");
             return issues;
           });
           return { rows: rows.length, problems };
@@ -167,22 +183,31 @@ describe("E2E: Authentication & Security Schemes", () => {
     assert.equal(await isOpen(), false, "Escape should close the details");
   });
 
-  it("keeps security chips as links to the authentication section when authentication is allowed", async () => {
+  it("links the lock icon to the authentication section when authentication is allowed", async () => {
     await loadHarness(page, baseUrl, {
       spec: "/specs/05-auth.yaml",
       "render-style": "read",
       "allow-authentication": "true",
     });
 
-    const link = page
-      .locator(".expanded-endpoint-body", { hasText: "complex AND / OR" })
-      .locator(".security-chip-label")
-      .first();
-    assert.equal(await link.getAttribute("href"), "#auth");
-    assert.equal(await link.getAttribute("part"), "anchor anchor-operation-security");
+    const op = page.locator(".expanded-endpoint-body", { hasText: "complex AND / OR" });
+    const lock = op.locator(".security-lock-btn").first();
+    assert.equal(await lock.evaluate((el) => el.tagName), "A", "lock should be a link");
+    assert.equal(await lock.getAttribute("href"), "#auth");
+    assert.equal(await lock.getAttribute("part"), "anchor anchor-operation-security");
+
+    // Chips only open their details popover
+    const chip = op.locator(".security-chip-label").first();
+    assert.equal(await chip.evaluate((el) => el.tagName), "BUTTON", "chip should be a button");
+    assert.equal(await chip.getAttribute("href"), null, "chip should not link anywhere");
+    assert.equal(
+      await op.locator(".security-chip-label[part~='anchor-operation-security']").count(),
+      0,
+      "anchor-operation-security part should be on the lock, not the chips",
+    );
     assert.ok(
-      await link.getAttribute("aria-describedby"),
-      "link should be described by its details popover",
+      await chip.getAttribute("aria-describedby"),
+      "chip should be described by its details popover",
     );
   });
 });

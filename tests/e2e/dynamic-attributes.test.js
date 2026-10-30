@@ -24,7 +24,7 @@ describe("E2E: Dynamic Attribute Reactivity", () => {
   it("reactively updates theme preset and color-scheme attributes", async () => {
     await loadHarness(page, baseUrl, {
       spec: "/specs/01-sections.yaml",
-      theme: "amber",
+      theme: "ember",
       "color-scheme": "dark",
     });
 
@@ -32,12 +32,12 @@ describe("E2E: Dynamic Attribute Reactivity", () => {
       const doc = document.getElementById("thedoc");
       return doc.getAttribute("theme");
     });
-    assert.equal(initialTheme, "amber");
+    assert.equal(initialTheme, "ember");
 
-    // Dynamically change theme to graphite
+    // Dynamically change theme to carbon
     await page.evaluate(() => {
       const doc = document.getElementById("thedoc");
-      doc.setAttribute("theme", "graphite");
+      doc.setAttribute("theme", "carbon");
       doc.setAttribute("color-scheme", "light");
     });
     await page.waitForTimeout(200);
@@ -49,7 +49,7 @@ describe("E2E: Dynamic Attribute Reactivity", () => {
         colorScheme: doc.getAttribute("color-scheme"),
       };
     });
-    assert.equal(updatedState.theme, "graphite");
+    assert.equal(updatedState.theme, "carbon");
     assert.equal(updatedState.colorScheme, "light");
   });
 
