@@ -169,7 +169,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = "") {
         >
           <div class="param-label" part="param-label">
             <div class="param-name ${fieldSchema.deprecated ? "deprecated" : ""}" part="param-name">
-              ${fieldName}${required.includes(fieldName) || fieldSchema.required ? html`<span class="param-required" title="Required">*</span>` : ""}
+              ${fieldName}${required.includes(fieldName) ? html`<span class="param-required" title="Required">*</span>` : ""}
             </div>
             <div class="param-type" part="param-type">
               ${
