@@ -129,6 +129,23 @@ export function isBinaryFileField(schema) {
   );
 }
 
+// Keywords that only annotate a schema, without telling anything about the type of the value
+const ANNOTATION_KEYWORDS = new Set([
+  "title",
+  "description",
+  "example",
+  "examples",
+  "default",
+  "deprecated",
+  "readOnly",
+  "writeOnly",
+  "externalDocs",
+]);
+
+function isAnnotationOnly(schema) {
+  return Object.keys(schema).every((key) => ANNOTATION_KEYWORDS.has(key) || key.startsWith("x-"));
+}
+
 /* Generates an schema object containing type and constraint info */
 export function getTypeInfo(schema) {
   if (!schema) {
@@ -170,7 +187,7 @@ export function getTypeInfo(schema) {
       }
     });
     dataType = subTypes.length > 0 ? subTypes.join("┃") : "{missing-type-info}";
-  } else if (Object.keys(schema).length === 0) {
+  } else if (isAnnotationOnly(schema)) {
     dataType = "any";
   } else {
     dataType = "{missing-type-info}";
@@ -1502,6 +1519,10 @@ function composeSchemaAST(schema, level, name, isRequired, suffix) {
           optAst.writeOnly = false;
           optAst.optionIndex = idx + 1;
           optAst.optionTitle = optTitle;
+          if (optAst.kind === "primitive" && !optTitle) {
+            // The OPT n badge already names it, a row labelled "Option n" would only repeat it
+            optAst.name = "";
+          }
         }
         return optAst;
       })

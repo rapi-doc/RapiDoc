@@ -327,6 +327,19 @@ describe("generateExample", () => {
 });
 
 describe("getTypeInfo", () => {
+  it("should return any for a schema that only carries annotations", () => {
+    assert.strictEqual(getTypeInfo({}).type, "any");
+    assert.strictEqual(getTypeInfo({ description: "A string, a number or a boolean" }).type, "any");
+    assert.strictEqual(
+      getTypeInfo({ title: "Value", description: "Anything", example: 1, "x-internal": true }).type,
+      "any",
+    );
+  });
+
+  it("should still report a missing type when the schema has constraints but no type", () => {
+    assert.strictEqual(getTypeInfo({ minLength: 3 }).type, "{missing-type-info}");
+  });
+
   it("should format non-string const values as strings in allowedValues", () => {
     const numSchema = { type: "number", const: 1 };
     const info = getTypeInfo(numSchema);

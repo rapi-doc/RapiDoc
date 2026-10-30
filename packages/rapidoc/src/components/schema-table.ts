@@ -409,18 +409,29 @@ export default class SchemaTable extends SchemaBaseElement {
           ${this.renderDescrCell(node.description)}
         </div>
         <div class="object-body">
-          ${node.options?.map(
-            (opt, i) => html`
-              <div class="tr expanded xxx-of-option" data-obj="OPTION ${opt.optionIndex || i + 1}">
-                <div class="td key" style="padding-left:${leftPadding + 16}px">
-                  <span class="xxx-of-key">OPT ${opt.optionIndex || i + 1}</span>
-                  ${opt.optionTitle ? html`<span class="xxx-of-descr">${opt.optionTitle}</span>` : ""}
-                </div>
-                <div class="td key-type"></div>
-                <div class="td key-descr"></div>
-              </div>
-              <div class="object-body">${this.renderAST(opt, "xxx-of-option", schemaLevel + 1, indentLevel + 1)}</div>
-            `,
+          ${node.options?.map((opt, i) =>
+            opt.kind === "primitive"
+              ? // A primitive option fits on a single row: the badge, then its type and description
+                html`<div class="object-body">
+                  ${this.renderAST(opt, "xxx-of-option", schemaLevel + 1, indentLevel + 1)}
+                </div>`
+              : html`
+                  <div class="tr expanded xxx-of-option" data-obj="OPTION ${opt.optionIndex || i + 1}">
+                    <div class="td key" style="padding-left:${leftPadding + 16}px">
+                      <span class="xxx-of-key">OPT ${opt.optionIndex || i + 1}</span>
+                      ${
+                        opt.optionTitle
+                          ? html`<span class="xxx-of-descr">${opt.optionTitle}</span>`
+                          : ""
+                      }
+                    </div>
+                    <div class="td key-type"></div>
+                    <div class="td key-descr"></div>
+                  </div>
+                  <div class="object-body">
+                    ${this.renderAST(opt, "xxx-of-option", schemaLevel + 1, indentLevel + 1)}
+                  </div>
+                `,
           )}
         </div>
       `;
@@ -429,11 +440,26 @@ export default class SchemaTable extends SchemaBaseElement {
     // 4. Primitive kind
     if (node.kind === "primitive") {
       const dataTypeCss = this.getDataTypeCss(node.type);
+      // Primitive option of a oneOf / anyOf: the OPT n badge (and the title) takes the place of the name
+      const isOption = parentType === "xxx-of-option" && !!node.optionIndex;
 
       return html`
         <div class="tr primitive ${nullClass}" title="${node.deprecated ? "Deprecated" : nothing}">
           <div class="td key ${node.deprecated ? "deprecated" : ""}" style="padding-left:${leftPadding}px">
-            ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${node.name}">${node.name}</span>` : ""}
+            ${
+              isOption
+                ? html`<span class="xxx-of-key">OPT ${node.optionIndex}</span
+                  >${
+                    node.optionTitle
+                      ? html`<span class="xxx-of-descr">${node.optionTitle}</span>`
+                      : ""
+                  }`
+                : ""
+            }${deprecatedIcon}${
+              node.name && !isOption
+                ? html`<span class="key-label" title="${node.name}">${node.name}</span>`
+                : ""
+            }
             ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ""}
           </div>
           <div class="td key-type ${dataTypeCss}" title="${readWriteTip || nothing}">
