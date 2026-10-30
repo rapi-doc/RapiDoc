@@ -21,6 +21,29 @@ export function replacePathParams(pathTemplate = "", pathParams = {}) {
 }
 
 /**
+ * A value typed into an array input is a string; in a JSON array, numbers and booleans keep their JSON type.
+ */
+function typedArrayItem(value, itemType) {
+  if (typeof value !== "string") {
+    return value;
+  }
+  // an OpenAPI 3.1 type list such as ["integer", "null"] arrives as "integer,null"
+  const types = String(itemType).split(",");
+  const text = value.trim();
+  if (
+    (types.includes("integer") || types.includes("number")) &&
+    text !== "" &&
+    Number.isFinite(Number(text))
+  ) {
+    return Number(text);
+  }
+  if (types.includes("boolean") && (text === "true" || text === "false")) {
+    return text === "true";
+  }
+  return value;
+}
+
+/**
  * Serializes a single query parameter into an array of [key, value] tuples based on OpenAPI style and explode rules.
  */
 export function serializeQueryParam(name, rawValue, options = {}) {
@@ -29,6 +52,7 @@ export function serializeQueryParam(name, rawValue, options = {}) {
     explode = style === "form",
     isArray = Array.isArray(rawValue),
     isObject = false,
+    itemType = "",
   } = options;
 
   if (rawValue === undefined || rawValue === null || rawValue === "") {
@@ -95,6 +119,10 @@ export function serializeQueryParam(name, rawValue, options = {}) {
       return [];
     }
 
+    // A parameter described by content: application/json is one JSON array, not one parameter per value
+    if (style === "json") {
+      return [[name, JSON.stringify(vals.map((v) => typedArrayItem(v, itemType)))]];
+    }
     if (style === "spaceDelimited") {
       return [[name, vals.join(" ")]];
     }
@@ -140,9 +168,16 @@ export function buildQueryString(queryParams = []) {
       allowReserved = false,
       isArray = false,
       isObject = false,
+      itemType = "",
     } = param;
 
-    const entries = serializeQueryParam(name, value, { style, explode, isArray, isObject });
+    const entries = serializeQueryParam(name, value, {
+      style,
+      explode,
+      isArray,
+      isObject,
+      itemType,
+    });
 
     for (const [k, v] of entries) {
       const encodedKey = encodeURIComponent(k);

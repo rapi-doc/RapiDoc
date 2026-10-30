@@ -269,6 +269,7 @@ export function inputParametersTemplate(paramType) {
                         style="width:100%"
                         data-ptype="${paramType}"
                         data-pname="${param.name}"
+                        data-item-type="${declaredParamSchema.items?.type || ""}"
                         data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join("~|~") : example.exampleVal}"
                         data-param-serialize-style="${paramStyle}"
                         data-param-serialize-explode="${paramExplode}"

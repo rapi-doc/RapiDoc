@@ -494,6 +494,7 @@ export default class ApiRequest extends LitElement {
         explode,
         allowReserved,
         isArray,
+        itemType: el.dataset.itemType || "",
       });
     });
 
