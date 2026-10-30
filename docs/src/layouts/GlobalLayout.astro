@@ -20,7 +20,7 @@ const {
   contentGroup,
   description = 'RapiDoc is a modern, fast, and customizable web component for viewing OpenAPI 3.0 & 3.1 and Swagger API specifications with an interactive console.',
   keywords = 'OpenAPI, Swagger, API documentation, Web Component, OpenAPI 3.1, REST API, API Console, RapiDoc',
-  image = '/assets/images/logo.png',
+  image = '/assets/images/rapidoc-leaves.png',
   canonicalUrl,
   noindex = false,
 } = Astro.props;
@@ -50,6 +50,7 @@ const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.start
     <meta name="description" content={description} />
     {keywords && <meta name="keywords" content={keywords} />}
     <link rel="canonical" href={fullCanonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {
       noindex ? (
         <meta name="robots" content="noindex, nofollow" />

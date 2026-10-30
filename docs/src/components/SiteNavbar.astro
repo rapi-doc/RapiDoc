@@ -15,8 +15,7 @@ const current = resolveActiveNavKey(pathname, activePage);
 <header class="rd-navbar">
   <div class="rd-nav-container">
     <a href="/" class="rd-brand">
-      <img src="/assets/images/logo.png" alt="RapiDoc Logo" class="rd-logo" />
-      <span class="rd-brand-name">RapiDoc</span>
+      <img src="/assets/images/rapidoc-lockup-dark.svg" alt="RapiDoc" class="rd-logo" width="167" height="28" />
       <span class="rd-version-badge" title={`RapiDoc ${rapidocBuildInfo.versionTag} (${rapidocBuildInfo.bundle.minified.formatted})`}>
         {rapidocBuildInfo.versionShort}
       </span>
@@ -70,15 +69,9 @@ const current = resolveActiveNavKey(pathname, activePage);
     text-decoration: none;
   }
   .rd-logo {
-    width: 32px;
-    height: 32px;
-    filter: drop-shadow(0 0 10px var(--rd-accent-glow));
-  }
-  .rd-brand-name {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--rd-text-bright);
-    letter-spacing: -0.02em;
+    display: block;
+    width: auto;
+    height: 28px;
   }
   .rd-version-badge {
     font-size: 11px;

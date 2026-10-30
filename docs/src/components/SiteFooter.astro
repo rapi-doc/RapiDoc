@@ -12,8 +12,7 @@ const { currentPath = '' } = Astro.props;
   <div class="rd-footer-container">
     <div class="rd-footer-col">
       <div class="rd-footer-brand">
-        <img src="/assets/images/logo.png" alt="RapiDoc" width="28" height="28" />
-        <span class="rd-footer-brand-title">RapiDoc</span>
+        <img src="/assets/images/rapidoc-lockup-dark.svg" alt="RapiDoc" class="rd-footer-logo" width="143" height="24" />
       </div>
       <p class="rd-footer-tagline">The modern, framework-agnostic OpenAPI Web Component for developers and product leaders.</p>
       <div class="rd-footer-meta">
@@ -83,10 +82,10 @@ const { currentPath = '' } = Astro.props;
     align-items: center;
     gap: 8px;
   }
-  .rd-footer-brand-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--rd-text-bright);
+  .rd-footer-logo {
+    display: block;
+    width: auto;
+    height: 24px;
   }
   .rd-footer-tagline {
     color: var(--rd-text-muted);

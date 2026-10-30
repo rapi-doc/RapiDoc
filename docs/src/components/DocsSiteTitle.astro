@@ -8,8 +8,7 @@ const current = resolveActiveNavKey(pathname, 'docs');
 
 <div class="rd-docs-header-left">
   <a href="/" class="site-title sl-flex">
-    <img src="/assets/images/logo.png" alt="RapiDoc Logo" class="rd-brand-logo" />
-    <span class="rd-brand-name">RapiDoc</span>
+    <img src="/assets/images/rapidoc-lockup-dark.svg" alt="RapiDoc" class="rd-brand-logo" width="155" height="26" />
     <span class="rd-brand-badge">Docs</span>
   </a>
 
@@ -53,18 +52,9 @@ const current = resolveActiveNavKey(pathname, 'docs');
   }
 
   .rd-brand-logo {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-  }
-
-  .rd-brand-name {
-    font-size: 1.15rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    background: linear-gradient(135deg, var(--sl-color-white) 40%, var(--sl-color-gray-2) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    display: block;
+    width: auto;
+    height: 26px;
   }
 
   .rd-brand-badge {

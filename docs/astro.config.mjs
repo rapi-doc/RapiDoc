@@ -75,8 +75,12 @@ export default defineConfig({
         },
       ],
       logo: {
-        src: './src/assets/logo.png',
+        light: './src/assets/rapidoc-lockup-light.svg',
+        dark: './src/assets/rapidoc-lockup-dark.svg',
+        alt: 'RapiDoc',
+        replacesTitle: true,
       },
+      favicon: '/favicon.svg',
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/rapi-doc/RapiDoc' }],
       customCss: ['./src/styles/starlight-custom.css'],
       components: {
