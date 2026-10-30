@@ -13,6 +13,8 @@
  */
 :root,
 :root[data-theme="dark"] {
+  /* Declared for the portal pages, which have no Starlight CSS: <rapi-doc color-scheme="auto"> reads it. */
+  color-scheme: dark;
   --portal-bg: oklch(0.2613 0.0134 272.84);
   --portal-surface: oklch(0.2613 0.0134 272.84);
   --portal-card: oklch(0.2613 0.0134 272.84);
@@ -62,6 +64,7 @@
 }
 
 [data-theme="light"] {
+  color-scheme: light;
   --portal-bg: #ffffff;
   --portal-surface: #f4f4f5;
   --portal-card: #f4f4f5;
