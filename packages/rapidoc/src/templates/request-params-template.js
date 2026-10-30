@@ -148,6 +148,12 @@ export function exampleListTemplate(paramName, paramType, exampleList = []) {
   }`;
 }
 
+// A singular `example` is the value itself, even an object; only an `examples` map wraps its values in { value }
+const singleExample = (ex) =>
+  ex !== null && typeof ex === "object" && !Array.isArray(ex)
+    ? { Example: { value: ex } }
+    : standardizeExample(ex);
+
 export function inputParametersTemplate(paramType) {
   const filteredParams = this.parameters
     ? this.parameters.filter((param) => param.in === paramType)
@@ -196,8 +202,8 @@ export function inputParametersTemplate(paramType) {
     // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
     const example = normalizeExamples(
       standardizeExample(param.examples) ||
-        standardizeExample(param.example) ||
-        standardizeExample(mimeTypeElem?.example) ||
+        singleExample(param.example) ||
+        singleExample(mimeTypeElem?.example) ||
         standardizeExample(mimeTypeElem?.examples) ||
         standardizeExample(paramSchema.examples) ||
         standardizeExample(paramSchema.example),
@@ -337,7 +343,11 @@ export function inputParametersTemplate(paramType) {
                               part="textarea textarea-param"
                               data-ptype="${paramType}-object"
                               data-pname="${param.name}"
-                              data-example="${example.exampleVal}"
+                              data-example="${
+                                typeof example.exampleVal === "object"
+                                  ? JSON.stringify(example.exampleVal, null, 2)
+                                  : example.exampleVal
+                              }"
                               data-param-serialize-style="${paramStyle}"
                               data-param-serialize-explode="${paramExplode}"
                               data-param-allow-reserved="${paramAllowReserved}"
