@@ -18,6 +18,7 @@ import {
   EMPTY_ARRAY,
   getMergedProperties,
   getMergedRequired,
+  exampleLabel,
 } from "~/utils/schema-utils";
 import "~/components/schema-tree";
 import "~/components/schema-table";
@@ -451,11 +452,16 @@ export default function requestBodyTemplate() {
               reqBodyExamples.length === 1
                 ? ""
                 : html`
-                    <select class="select-sm example-select" aria-label="request body examples" @change="${(e) => this.onSelectExample(e)}">
+                    <select
+                      class="select-sm example-select"
+                      aria-label="request body examples"
+                      title="${exampleLabel(reqBodyExamples.find((v) => v.exampleId === this.selectedRequestBodyExample))}"
+                      @change="${(e) => this.onSelectExample(e)}"
+                    >
                       ${reqBodyExamples.map(
                         (v) =>
-                          html`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample}>
-                            ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary ? v.exampleSummary : v.exampleId}
+                          html`<option value="${v.exampleId}" title="${exampleLabel(v)}" ?selected=${v.exampleId === this.selectedRequestBodyExample}>
+                            ${exampleLabel(v)}
                           </option>`,
                       )}
                     </select>
@@ -469,7 +475,7 @@ export default function requestBodyTemplate() {
                     class="example ${v.exampleId === this.selectedRequestBodyExample ? "example-selected" : ""}"
                     data-example="${v.exampleId}"
                   >
-                    ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ""}
+                    ${reqBodyExamples.length === 1 && v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ""}
                     ${
                       v.exampleDescription
                         ? html`<div class="m-markdown-small" style="padding: 4px 0">

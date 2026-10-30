@@ -1877,6 +1877,14 @@ function getSerializeStyleForContentType(contentType) {
   return null;
 }
 
+/**
+ * Text that names an example in an examples dropdown: its summary, or its key when it has none.
+ * A long summary is shown whole; the dropdown wraps it, or cuts it where the browser's select can't wrap.
+ */
+export function exampleLabel(example) {
+  return example?.exampleSummary || example?.exampleId || "";
+}
+
 export function getSchemaFromParam(param) {
   if (param.schema) {
     return [param.schema, null, null];

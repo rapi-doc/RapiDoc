@@ -4,6 +4,7 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHTML } from "../utils/sanitize.js";
 import { marked } from "marked";
 import { prepareResponseDefinitions } from "../utils/response-utils.js";
+import { exampleLabel } from "~/utils/schema-utils";
 import FontStyles from "~/styles/font-styles";
 import FlexStyles from "~/styles/flex-styles";
 import ParamListStyles from "~/styles/param-list-styles";
@@ -435,11 +436,16 @@ export default class ApiResponse extends LitElement {
             }`
           : html`
               <div class="example-panel">
-                <select aria-label="response examples" class="select-sm example-select" @change="${(e) => this.onSelectExample(e)}">
+                <select
+                  aria-label="response examples"
+                  class="select-sm example-select"
+                  title="${exampleLabel(mimeRespDetails.examples.find((v) => v.exampleId === mimeRespDetails.selectedExample))}"
+                  @change="${(e) => this.onSelectExample(e)}"
+                >
                   ${mimeRespDetails.examples.map(
                     (v) =>
-                      html`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample}>
-                        ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
+                      html`<option value="${v.exampleId}" title="${exampleLabel(v)}" ?selected=${v.exampleId === mimeRespDetails.selectedExample}>
+                        ${exampleLabel(v)}
                       </option>`,
                   )}
                 </select>
@@ -450,7 +456,6 @@ export default class ApiResponse extends LitElement {
                       data-example="${v.exampleId}"
                       style="display: ${v.exampleId === mimeRespDetails.selectedExample ? "block" : "none"}"
                     >
-                      ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ""}
                       ${
                         v.exampleDescription
                           ? html`<div class="m-markdown-small" style="padding: 4px 0">
