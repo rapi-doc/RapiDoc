@@ -181,7 +181,7 @@ export function apiCallTemplate() {
             this.parameters.length > 0 || this.request_body
               ? html` <button
                     class="btn btn-outline"
-                    part="btn btn-outline btn-fill"
+                    part="btn btn-outline btn-fill btn-fill-example"
                     ?disabled="${this.loading}"
                     @click="${this.onFillRequestData}"
                     title="Fills with example data (if provided)"

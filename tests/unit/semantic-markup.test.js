@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { renderRapiDoc, renderTemplateToString } from "rapidoc/static";
 import { renderLongFormatExamples } from "~/templates/request-params-template";
+import { apiCallTemplate } from "~/templates/api-response-template";
 
 const spec = {
   openapi: "3.1.0",
@@ -189,6 +190,31 @@ describe("Semantic heading markup", () => {
           `exportparts lacks "${name}"`,
         );
     }
+  });
+
+  // FILL EXAMPLE has a part of its own, so it can be hidden without the other btn-fill buttons (#1073)
+  it("exports btn-fill-example wherever btn-clear is exported", async () => {
+    const tryBar = renderTemplateToString(
+      apiCallTemplate.call({
+        parameters: [{ name: "q" }],
+        security: [],
+        api_keys: [],
+        loading: false,
+        responseHeaders: "",
+        responseMessage: "",
+      }),
+    );
+    assert.match(
+      tryBar,
+      /<button[^>]*part="btn btn-outline btn-fill btn-fill-example"[^>]*>\s*FILL EXAMPLE/,
+    );
+    const html = await render({ renderStyle: "read" });
+    const lists = [...html.matchAll(/exportparts="([^"]*)"/g)]
+      .map((m) => m[1])
+      .filter((list) => /(^|[\s,])btn-clear:btn-clear(,|\s|$)/.test(list));
+    assert.ok(lists.length > 0, "some element exports btn-clear");
+    for (const list of lists)
+      assert.match(list, /(^|[\s,])btn-fill-example:btn-fill-example(,|\s|$)/);
   });
 
   it("renders authentication and server variables as lists, not tables", async () => {

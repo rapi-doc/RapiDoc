@@ -390,7 +390,7 @@ export function inputParametersTemplate(paramType) {
                               allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
                               schema-hide-read-only="${this.schemaHideReadOnly.includes(this.method)}"
                               schema-hide-write-only="${this.schemaHideWriteOnly.includes(this.method)}"
-                              exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                              exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-fill-example:btn-fill-example, btn-clear-resp:btn-clear-resp,
                           file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
                           anchor:anchor, anchor-param-example:anchor-param-example"
                             >
