@@ -1519,6 +1519,10 @@ function composeSchemaAST(schema, level, name, isRequired, suffix) {
           optAst.writeOnly = false;
           optAst.optionIndex = idx + 1;
           optAst.optionTitle = optTitle;
+          if (optAst.kind === "primitive" && !optTitle) {
+            // The OPT n badge already names it, a row labelled "Option n" would only repeat it
+            optAst.name = "";
+          }
         }
         return optAst;
       })

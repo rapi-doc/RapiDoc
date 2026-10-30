@@ -414,6 +414,27 @@ describe("schemaToAST", () => {
     });
   });
 
+  describe("oneOf options", () => {
+    it("should not name the untitled primitive options, but keep the name of the other options", () => {
+      const ast = schemaToAST({
+        oneOf: [
+          { type: "string" },
+          { type: "number", title: "Count" },
+          { type: "object", properties: { id: { type: "string" } } },
+        ],
+      });
+      assert.strictEqual(ast.kind, "union");
+      assert.deepStrictEqual(
+        ast.options.map((o) => [o.optionIndex, o.name]),
+        [
+          [1, ""],
+          [2, "Count"],
+          [3, "Option 3"],
+        ],
+      );
+    });
+  });
+
   describe("recursion limit & null inputs", () => {
     it("should return null for falsy schema input", () => {
       assert.strictEqual(schemaToAST(null), null);
