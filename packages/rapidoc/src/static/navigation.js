@@ -110,9 +110,10 @@ export async function getSpecNavigation(specInput, options = {}) {
         elementId: t.elementId || slugger.slugTag(t.name),
         expanded: t.expanded !== false,
         paths,
+        ...(t.descriptionOnly ? { descriptionOnly: true } : {}),
       };
     })
-    .filter((t) => t.paths.length > 0);
+    .filter((t) => t.paths.length > 0 || t.descriptionOnly);
 
   const assignedTagNames = new Set();
   const tagGroups = (resolvedSpec.tagGroups || [])
@@ -130,9 +131,10 @@ export async function getSpecNavigation(specInput, options = {}) {
             elementId: t.elementId || slugger.slugTag(t.name),
             expanded: t.expanded !== false,
             paths,
+            ...(t.descriptionOnly ? { descriptionOnly: true } : {}),
           };
         })
-        .filter((t) => t.paths.length > 0);
+        .filter((t) => t.paths.length > 0 || t.descriptionOnly);
 
       if (groupTags.length === 0) return null;
       return {
@@ -245,7 +247,7 @@ function renderOperation(op, tagSlug, ctx) {
 function renderTag(tag, ctx) {
   if (!tag || isInternalOrHidden(tag)) return "";
   const visiblePaths = getTagOperations(tag, ctx.resolvedSpec, ctx.slugger);
-  if (visiblePaths.length === 0) return "";
+  if (visiblePaths.length === 0 && !tag.descriptionOnly) return "";
   const tagSlug = toKebabCase(tag.name);
   const elementId = tag.elementId || ctx.slugger.slugTag(tag.name);
   const title = tag.displayName || tag.name || "";
@@ -255,6 +257,27 @@ function renderTag(tag, ctx) {
     ctx.routingMode === "tag-pages" && tagSlug && tagSlug !== "general"
       ? `${ctx.cleanBase}/${tagSlug}`
       : `${ctx.basePath}#${elementId}`;
+
+  // A description-only tag (show-unused-tags) is a link to its section, with nothing to expand
+  if (tag.descriptionOnly) {
+    const isActive = Boolean(
+      ctx.activeHref && (ctx.activeHref === tagHref || ctx.activeHref.endsWith(`#${elementId}`)),
+    );
+    return `
+    <div class="nav-bar-tag-and-paths description-only">
+      <a
+        href="${escapeHtml(tagHref)}"
+        class="nav-bar-tag ${isActive ? "active" : ""}"
+        part="section-navbar-item section-navbar-tag"
+        id="link-${elementId}"
+        data-action="navigate"
+        data-content-id="${elementId}"
+        tabindex="0"
+      >
+        <span class="nav-bar-tag-title">${escapeHtml(title)}</span>
+      </a>
+    </div>`;
+  }
 
   return `
     <div class="nav-bar-tag-and-paths ${isExpanded ? "expanded" : "collapsed"}" id="link-${elementId}">

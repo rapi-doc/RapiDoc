@@ -61,6 +61,10 @@ export function isNavTagVisible(tag, searchVal) {
   if (isInternalOrHidden(tag)) {
     return false;
   }
+  // A description-only tag (show-unused-tags) has no operations to match, so the filter hides it
+  if (tag.descriptionOnly) {
+    return !searchVal;
+  }
   return (tag.paths || []).some((path) => isNavPathVisible(path, searchVal, tag.name));
 }
 
@@ -338,6 +342,22 @@ export default function navbarTemplate() {
         <!-- TAGS AND PATHS (3-tier if tagGroups exist, else 2-tier) -->
         ${(() => {
           const renderNavTagItem = (tag) => {
+            // A description-only tag is a link to its section: no operations to expand or collapse
+            if (tag.descriptionOnly) {
+              if (!isNavTagVisible(tag, this.searchVal)) return "";
+              return html` <div class="nav-bar-tag-and-paths description-only">
+                <div
+                  class="nav-bar-tag"
+                  part="section-navbar-item section-navbar-tag"
+                  id="link-${tag.elementId}"
+                  data-action="navigate"
+                  data-content-id="${tag.elementId}"
+                  tabindex="0"
+                >
+                  <div class="nav-bar-tag-title">${tag.displayName || tag.name}</div>
+                </div>
+              </div>`;
+            }
             const visiblePaths = (tag.paths || []).filter((p) =>
               isNavPathVisible(p, this.searchVal, tag.name),
             );

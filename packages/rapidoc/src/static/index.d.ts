@@ -23,6 +23,8 @@ export interface RenderRapiDocOptions {
   includeStyles?: boolean;
   matchPaths?: string;
   pageDirection?: "ltr" | "rtl";
+  /** Keep tags that no operation uses when they have a description, as `show-unused-tags` of `<rapi-doc>`. */
+  showUnusedTags?: boolean | "true" | "false";
   [key: string]: any;
 }
 
@@ -68,6 +70,8 @@ export interface NavigationTag {
   elementId: string;
   expanded: boolean;
   paths: NavigationOperation[];
+  /** A tag kept for its description (`show-unused-tags`, or listed in `x-tagGroups`); `paths` is empty. */
+  descriptionOnly?: boolean;
 }
 
 export interface NavigationTagGroup {

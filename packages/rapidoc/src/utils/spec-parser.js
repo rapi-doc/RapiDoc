@@ -169,6 +169,7 @@ export default async function ProcessSpec(
   matchPaths = "",
   matchType = "",
   removeEndpointsWithBadgeLabelAs = "",
+  showUnusedTags = false,
 ) {
   let jsonParsedSpec;
   try {
@@ -286,6 +287,7 @@ export default async function ProcessSpec(
     generateMissingTags,
     sortTags,
     hasTagGroups,
+    showUnusedTags,
   );
 
   // 3-Level Tag Groups (x-tagGroups / x-tag-groups)
@@ -615,6 +617,7 @@ function groupByTags(
   generateMissingTags = false,
   sortTags = false,
   hasTagGroups = false,
+  showUnusedTags = false,
 ) {
   const supportedMethods = [
     "get",
@@ -832,7 +835,24 @@ function groupByTags(
     }); // End of operationsToProcess
   }
 
-  const tagsWithSortedPaths = tags.filter((tag) => tag.paths && tag.paths.length > 0);
+  // A tag no operation uses is dropped, unless it has a description to show (a guide or concepts section) and
+  // either show-unused-tags is on or the spec lists the tag in x-tagGroups. Such a tag is marked descriptionOnly.
+  const tagNamesInGroups = new Set(
+    (openApiSpec["x-tagGroups"] || openApiSpec["x-tag-groups"] || [])
+      .flatMap((g) => (Array.isArray(g?.tags) ? g.tags : []))
+      .filter((name) => typeof name === "string")
+      .map((name) => name.toLowerCase()),
+  );
+  const tagsWithSortedPaths = tags.filter((tag) => {
+    if (tag.paths && tag.paths.length > 0) {
+      return true;
+    }
+    if (tag.description && (showUnusedTags || tagNamesInGroups.has(tag.name.toLowerCase()))) {
+      tag.descriptionOnly = true;
+      return true;
+    }
+    return false;
+  });
   tagsWithSortedPaths.forEach((tag) => {
     if (sortEndpointsBy !== "none") {
       if (sortEndpointsBy === "method") {

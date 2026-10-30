@@ -29,6 +29,14 @@ Attributes:
           <span class="green">ⓘ This is a static initialization attribute. It will not have any effect if modified using JavaScript after the spec is rendered.</span>
         example: /examples/arrange-by-tags
         default: path
+      - name: show-unused-tags
+        description: >
+          Shows tags that no operation uses, as long as they have a <span class="mono fg-color">description</span>, so a tag can hold a
+          guide or concepts section (written in markdown) next to the operations. Each such tag gets a section and a sidebar link.
+          When "false", tags without operations are left out, except those the spec lists in <span class="mono fg-color">x-tagGroups</span>, which show either way.<br/>
+          <span class="green">ⓘ This is a static initialization attribute. It will not have any effect if modified using JavaScript after the spec is rendered.</span>
+        allowed: ["true", "false"]
+        default: "false"
       - name: heading-text
         description: Custom title text displayed on the top-left corner of the header.
         default: (empty)

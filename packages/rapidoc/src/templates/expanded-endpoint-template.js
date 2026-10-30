@@ -228,9 +228,13 @@ export default function expandedEndpointTemplate() {
           )}
         </div>`)}
     </section>
-    <section class="regular-font section-gap--read-mode" part="section-operations-in-tag">
-      ${tag.paths.map((path, idx) => expandedEndpointBodyTemplate.call(this, path, tag.name, tag.description, idx === 0))}
-    </section>
+    ${
+      tag.paths.length > 0
+        ? html`<section class="regular-font section-gap--read-mode" part="section-operations-in-tag">
+            ${tag.paths.map((path, idx) => expandedEndpointBodyTemplate.call(this, path, tag.name, tag.description, idx === 0))}
+          </section>`
+        : ""
+    }
   `;
 
   if (this.resolvedSpec.tagGroups && this.resolvedSpec.tagGroups.length > 0) {

@@ -131,6 +131,7 @@ export async function resolveSpecInput(specInput, options = {}) {
     options.removeEndpointsWithBadgeLabelAs ??
       options["remove-endpoints-with-badge-label-as"] ??
       "",
+    String(options.showUnusedTags ?? options["show-unused-tags"] ?? false) === "true",
   );
 }
 

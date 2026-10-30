@@ -313,6 +313,10 @@ export default css`
     color: inherit;
     text-decoration: none;
   }
+  /* a description-only tag (show-unused-tags) is itself the link */
+  a.nav-bar-tag {
+    text-decoration: none;
+  }
 
   .nav-bar-components,
   .nav-bar-h1,

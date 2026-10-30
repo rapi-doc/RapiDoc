@@ -104,6 +104,7 @@ export default class RapiDoc extends LitElement {
   @property({ type: String, attribute: "sort-tags" }) sortTags = "false";
   @property({ type: String, attribute: "sort-schemas" }) sortSchemas = "false";
   @property({ type: String, attribute: "generate-missing-tags" }) generateMissingTags = "false";
+  @property({ type: String, attribute: "show-unused-tags" }) showUnusedTags = "false";
   @property({ type: String, attribute: "sort-endpoints-by" }) sortEndpointsBy = "path";
   @property({ type: String, attribute: false }) specFile: any;
 
@@ -387,6 +388,9 @@ export default class RapiDoc extends LitElement {
     }
     if (!this.generateMissingTags || !"true, false,".includes(`${this.generateMissingTags},`)) {
       this.generateMissingTags = "false";
+    }
+    if (!this.showUnusedTags || !"true, false,".includes(`${this.showUnusedTags},`)) {
+      this.showUnusedTags = "false";
     }
     if (
       !this.sortEndpointsBy ||
@@ -919,6 +923,7 @@ export default class RapiDoc extends LitElement {
         this.matchPaths,
         this.matchType,
         this.removeEndpointsWithBadgeLabelAs,
+        this.showUnusedTags === "true",
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
@@ -993,7 +998,9 @@ export default class RapiDoc extends LitElement {
       // If goto-path is provided and no location-hash is present then try to scroll to default element
       if (!this.gotoPath) {
         const defaultElementId =
-          this.showInfo === "true" ? "overview" : this.resolvedSpec.tags[0]?.paths[0]?.elementId;
+          this.showInfo === "true"
+            ? "overview"
+            : this.resolvedSpec.tags.find((t) => t.paths.length > 0)?.paths[0]?.elementId;
         if (defaultElementId) {
           this.scrollToPath(defaultElementId);
         }

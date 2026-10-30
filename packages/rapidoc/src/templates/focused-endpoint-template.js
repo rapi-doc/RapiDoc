@@ -36,8 +36,9 @@ function defaultContentTemplate() {
   if (this.showInfo === "true") {
     return wrapFocusedTemplate(html`${overviewTemplate.call(this)}${downloadsTemplate.call(this)}`);
   }
-  const selectedTagObj = this.resolvedSpec.tags[0];
-  const selectedPathObj = this.resolvedSpec.tags[0]?.paths[0];
+  // the first tag with operations: a description-only tag (show-unused-tags) has none
+  const selectedTagObj = this.resolvedSpec.tags.find((t) => t.paths.length > 0);
+  const selectedPathObj = selectedTagObj?.paths[0];
   return selectedTagObj && selectedPathObj
     ? wrapFocusedTemplate(
         expandedEndpointBodyTemplate.call(
@@ -79,7 +80,7 @@ export default function focusedEndpointTemplate() {
   if (!this.focusedElementId && this.resolvedSpec) {
     this.focusedElementId =
       this.showInfo === "false" || this.showInfo === false
-        ? this.resolvedSpec.tags?.[0]?.paths?.[0]?.elementId || ""
+        ? this.resolvedSpec.tags?.find((t) => t.paths.length > 0)?.paths[0]?.elementId || ""
         : "overview";
   }
   if (!this.focusedElementId || !this.resolvedSpec) {
