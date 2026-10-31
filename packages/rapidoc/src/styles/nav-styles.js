@@ -326,11 +326,15 @@ export default css`
   .nav-bar-path {
     display: flex;
     cursor: pointer;
+    /* Border-box and no underline here too: getNavCss() (rapidoc/static) styles these on a page
+       without the component's global box-sizing reset and link styles */
+    box-sizing: border-box;
     width: 100%;
     border: none;
     color: var(--foreground);
     background: transparent;
     border-inline-start: 4px solid transparent;
+    text-decoration: none;
     transition:
       background 0.15s ease,
       color 0.15s ease;
@@ -342,11 +346,9 @@ export default css`
     justify-content: space-between;
     gap: 8px;
     min-width: 0;
-    box-sizing: border-box;
-    text-decoration: none;
   }
 
-  .nav-bar-path:hover,
+  a.nav-bar-info:hover,
   a.nav-bar-path:hover {
     text-decoration: none;
   }
