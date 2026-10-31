@@ -109,6 +109,26 @@ const hasCurrent = (entries: any[]): boolean =>
       transform: rotateZ(90deg);
     }
 
+    /* Opening and closing a group slides its list (browsers with ::details-content; others switch). */
+    details {
+      interpolate-size: allow-keywords;
+    }
+    details::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        block-size 0.25s ease,
+        content-visibility 0.25s allow-discrete;
+    }
+    details[open]::details-content {
+      block-size: auto;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      details::details-content {
+        transition: none;
+      }
+    }
+
     a {
       display: block;
       border-radius: 0.25rem;
