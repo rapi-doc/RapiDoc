@@ -175,15 +175,34 @@ export default css`
     justify-content: space-between;
     flex-direction: row;
   }
-  .nav-bar-paths-under-tag {
+  /* Collapsing a tag or tag group slides its body shut: height auto -> 0 (interpolate-size lets the
+     keyword animate; browsers without it switch at once). The body goes visibility: hidden once
+     closed, so its links leave the tab order; opening shows it at once. */
+  .nav-bar-paths-under-tag,
+  .nav-bar-tags-under-group {
+    interpolate-size: allow-keywords;
+    height: auto;
     overflow: hidden;
-    padding-left: 10px;
+    transition:
+      height 0.25s ease,
+      visibility 0s;
   }
-  .collapsed .nav-bar-paths-under-tag,
-  .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag {
-    display: none;
+  .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag,
+  .nav-bar-tag-group.collapsed .nav-bar-tags-under-group {
+    height: 0;
     visibility: hidden;
-    max-height: 0;
+    transition:
+      height 0.25s ease,
+      visibility 0s linear 0.25s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-bar-paths-under-tag,
+    .nav-bar-tags-under-group {
+      transition: none;
+    }
+  }
+  .nav-bar-paths-under-tag {
+    padding-left: 10px;
   }
 
   .nav-bar-expand-all {
@@ -282,9 +301,6 @@ export default css`
   .nav-bar-tag-group-title {
     flex: 1;
     min-width: 0;
-  }
-  .nav-bar-tag-group.collapsed .nav-bar-tags-under-group {
-    display: none;
   }
   .nav-bar-tags-under-group {
     border-inline-start: 1px solid var(--border);
