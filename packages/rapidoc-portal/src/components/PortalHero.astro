@@ -1,0 +1,13 @@
+---
+/**
+ * Starlight Hero override: Starlight's own hero, with the page's `hero.layout` (split or stacked,
+ * engine/frontmatter.js) as data-layout. The layouts are styled in styles/portal-theme.css.
+ */
+import Default from '@astrojs/starlight/components/Hero.astro';
+
+const layout = Astro.locals.starlightRoute.entry.data.hero?.layout || 'split';
+---
+
+<div class="portal-hero" data-layout={layout}>
+  <Default />
+</div>

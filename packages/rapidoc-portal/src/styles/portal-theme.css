@@ -509,6 +509,7 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
   color: var(--portal-muted);
 }
 /* The image follows the text on narrow screens too, so the headline is the first thing a phone shows. */
+.hero > img,
 .hero > .hero-html {
   order: 2;
   width: min(90%, 30rem);
@@ -518,9 +519,36 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
   height: auto;
   filter: drop-shadow(0 24px 40px color-mix(in srgb, var(--portal-primary) 30%, transparent));
 }
+/* hero.layout (PortalHero.astro): split puts the image right of the text; without an image the text
+   takes the full width. stacked keeps one centred column at every width, the image below the text. */
 @media (min-width: 50rem) {
-  .hero {
+  .portal-hero[data-layout="split"] .hero {
     grid-template-columns: 1.15fr 1fr;
+  }
+  .portal-hero[data-layout="split"] .hero:not(:has(> img, > .hero-html)) {
+    grid-template-columns: 100%;
+  }
+}
+.portal-hero[data-layout="stacked"] {
+  .hero {
+    grid-template-columns: 100%;
+    justify-items: center;
+  }
+  .hero > img,
+  .hero > .hero-html {
+    width: min(100%, 48rem);
+  }
+  .stack {
+    text-align: center;
+  }
+  .copy {
+    align-items: center;
+  }
+  .copy > * {
+    max-width: 60ch;
+  }
+  .actions {
+    justify-content: center;
   }
 }
 

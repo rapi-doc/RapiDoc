@@ -81,11 +81,12 @@ export default defineMarkdocConfig(portalMarkdocConfig(${JSON.stringify({ base }
 const CONTENT_CONFIG_TS = `import { defineCollection } from 'astro:content';
 import { docsLoader } from '@astrojs/starlight/loaders';
 import { docsSchema } from '@astrojs/starlight/schema';
+import { portalFrontmatterSchema } from '@rapidoc/portal/frontmatter';
 
 export const collections = {
   docs: defineCollection({
     loader: docsLoader(),
-    schema: docsSchema(),
+    schema: docsSchema({ extend: portalFrontmatterSchema }),
   }),
 };
 `;

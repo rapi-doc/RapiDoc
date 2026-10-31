@@ -12,6 +12,7 @@
     "./components": "./src/components/index.js",
     "./markdoc/astro": "./src/markdoc/astro-config.js",
     "./markdoc/components": "./src/markdoc/components.js",
+    "./frontmatter": "./src/engine/frontmatter.js",
     "./schema.json": "./schema.json"
   },
   "scripts": {

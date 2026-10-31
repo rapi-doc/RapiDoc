@@ -223,6 +223,7 @@ title: "${title}"
 description: Guides and interactive API reference.
 template: splash
 hero:
+  # layout: stacked  # split (default): text left, image right; stacked: centred, image below
   tagline: Everything you need to integrate with our APIs, from your first request to production.
   actions:
     - text: Get started

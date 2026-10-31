@@ -253,6 +253,11 @@ describe("RapiDoc Portal build engine", () => {
       const home = read("");
       assert.ok(home.includes("Cosmo Cargo Developer Platform"), "docs/index.* renders at /");
       assert.ok(!home.includes("sl-sidebar-pane"), "the splash home page has no sidebar");
+      assert.match(
+        home,
+        /class="portal-hero"[^>]*data-layout="stacked"/,
+        "hero.layout reaches the hero",
+      );
       const activeTab = (html) =>
         html.match(
           /<a[^>]*class="portal-tab[^"]*"[^>]*aria-current="page"[^>]*>[\s\S]*?<span>([^<]+)<\/span>/,
