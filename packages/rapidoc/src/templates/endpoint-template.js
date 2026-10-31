@@ -30,28 +30,19 @@ function toggleExpand(path) {
   this.requestUpdate();
 }
 
-export function expandCollapseAll(operationsRootEl, action = "expand-all") {
-  const groupList = [...operationsRootEl.querySelectorAll(".section-tag-group")];
-  const elList = [...operationsRootEl.querySelectorAll(".section-tag")];
-  if (action === "expand-all") {
-    groupList.forEach((el) => {
-      el.classList.replace("collapsed", "expanded");
+// Sets `expanded` on every tag group and tag, so a tag's own toggle starts from what is shown
+export function expandCollapseAll(action = "expand-all") {
+  const expanded = action === "expand-all";
+  (this.resolvedSpec.tagGroups || []).forEach((group) => {
+    group.expanded = expanded;
+    (group.tags || []).forEach((tag) => {
+      tag.expanded = expanded;
     });
-    elList.forEach((el) => {
-      el.classList.replace("collapsed", "expanded");
-    });
-  } else {
-    groupList.forEach((el) => {
-      el.classList.replace("expanded", "collapsed");
-    });
-    elList.forEach((el) => {
-      el.classList.replace("expanded", "collapsed");
-    });
-  }
-}
-
-function onExpandCollapseAll(e, action = "expand-all") {
-  expandCollapseAll.call(this, e.target.closest(".operations-root"), action);
+  });
+  (this.resolvedSpec.tags || []).forEach((tag) => {
+    tag.expanded = expanded;
+  });
+  this.requestUpdate();
 }
 
 function endpointHeadTemplate(path, pathsExpanded = false) {
@@ -336,9 +327,9 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
     isMini
       ? ""
       : html`<div class="section-expand-collapse-container">
-          <span @click="${(e) => onExpandCollapseAll(e, "expand-all")}" style="color:var(--primary); cursor:pointer;"> Expand all </span>
+          <span @click="${() => expandCollapseAll.call(this, "expand-all")}" style="color:var(--primary); cursor:pointer;"> Expand all </span>
           &nbsp;|&nbsp;
-          <span @click="${(e) => onExpandCollapseAll(e, "collapse-all")}" style="color:var(--primary); cursor:pointer;">
+          <span @click="${() => expandCollapseAll.call(this, "collapse-all")}" style="color:var(--primary); cursor:pointer;">
             Collapse all
           </span>
           &nbsp; sections
