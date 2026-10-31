@@ -18,9 +18,7 @@ import { plainSummary } from "../src/config/normalizer.js";
 
 const DEMO_PORTAL_DIR =
   process.env.RAPIDOC_DEMO_PORTAL_DIR ??
-  fileURLToPath(
-    new URL("../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo", import.meta.url),
-  );
+  fileURLToPath(new URL("../../../../rapi-portal-demo/cosmo-cargo", import.meta.url));
 
 async function withTempDir(files, fn) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-config-test-"));

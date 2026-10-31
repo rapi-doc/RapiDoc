@@ -14,7 +14,7 @@
     "build:rapidoc:dev": "npm run build:dev --workspace=rapidoc",
     "build:size": "npm run build:size --workspace=rapidoc",
     "build:docs": "npm run build --workspace=docs",
-    "build:demo": "npm run build --workspace=rapidoc && node packages/rapidoc-cli/src/index.js build ../rapi-portal-demo",
+    "build:demo": "npm run build --workspace=rapidoc && node packages/rapidoc-cli/src/index.js build ../rapi-portal-demo/rapid-parcels",
     "preview": "npm run preview --workspace=docs",
     "lint": "oxlint --deny-warnings packages docs/src tests scripts docs/astro.config.mjs",
     "format": "oxfmt --check packages docs/src tests scripts '!**/fixtures/**' '!**/*.mdx' '!packages/rapidoc-portal/schema.json' '!packages/rapidoc-portal/tests/layout/measurements.json'",

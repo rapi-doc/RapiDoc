@@ -19,7 +19,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DEMO_PORTAL_DIR =
   process.env.RAPIDOC_DEMO_PORTAL_DIR ??
-  path.resolve(__dirname, "../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo");
+  path.resolve(__dirname, "../../../../rapi-portal-demo/cosmo-cargo");
 
 test("RapiDoc Portal Full-Text Search Engine (Milestone 5)", async (t) => {
   await t.test(

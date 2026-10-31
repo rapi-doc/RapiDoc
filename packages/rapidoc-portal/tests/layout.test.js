@@ -28,7 +28,7 @@ import { findChromeExecutable, launchTestBrowser } from "../../../tests/helpers/
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEMO_PORTAL_DIR =
   process.env.RAPIDOC_DEMO_PORTAL_DIR ??
-  path.resolve(__dirname, "../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo");
+  path.resolve(__dirname, "../../../../rapi-portal-demo/cosmo-cargo");
 const OUTPUT_DIR = process.env.RAPIDOC_LAYOUT_OUT
   ? path.resolve(process.env.RAPIDOC_LAYOUT_OUT)
   : null;

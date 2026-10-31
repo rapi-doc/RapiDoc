@@ -12,9 +12,7 @@ import { buildPortal } from "../src/index.js";
 
 const DEMO_PORTAL_DIR =
   process.env.RAPIDOC_DEMO_PORTAL_DIR ??
-  fileURLToPath(
-    new URL("../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo", import.meta.url),
-  );
+  fileURLToPath(new URL("../../../../rapi-portal-demo/cosmo-cargo", import.meta.url));
 const TEST_TMP = fileURLToPath(new URL("./.test-tmp/", import.meta.url));
 const BASE = "/dev";
 

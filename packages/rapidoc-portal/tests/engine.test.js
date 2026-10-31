@@ -17,7 +17,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEMO_PORTAL_DIR =
   process.env.RAPIDOC_DEMO_PORTAL_DIR ??
-  path.resolve(__dirname, "../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo");
+  path.resolve(__dirname, "../../../../rapi-portal-demo/cosmo-cargo");
 
 /** Relative paths of every entry under dir, skipping .git and never following symlinks. */
 function listTree(dir, base = dir) {

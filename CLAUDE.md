@@ -34,7 +34,7 @@ The full command tables are in `AGENTS.md` §3.
 
 ## Dogfood Repo
 
-`/Users/mrin/work/rapi-portal-demo` is a working directory in this project (via `.claude/settings.local.json`). It is a separate git repo that consumes `@rapidoc/portal`: the **Rapid Parcels** demo at its root (with sign-in), and the **Cosmo Cargo** test fixture in `fixtures/zudoku-cosmo-cargo/`, which the monorepo tests build. When portal config structure, Markdoc tags, or CLI commands change, propose and make the matching edits there too (rules: `packages/rapidoc-portal/AGENTS.md` §7). Don't commit in either repo unless asked.
+`/Users/mrin/work/rapi-portal-demo` is a working directory in this project (via `.claude/settings.local.json`). It is a separate git repo of example portals that consume `@rapidoc/portal`, one per folder: the **Rapid Parcels** demo (`rapid-parcels/`, with sign-in), the **Cosmo Cargo** test fixture (`cosmo-cargo/`), which the monorepo tests build, and the small **Bookstore** portal (`bookstore/`). When portal config structure, Markdoc tags, or CLI commands change, propose and make the matching edits there too (rules: `packages/rapidoc-portal/AGENTS.md` §7). Don't commit in either repo unless asked.
 
 ## Claude Code Configuration
 

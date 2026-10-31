@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 const CLI_PATH = path.resolve(__dirname, "../src/index.js");
 const DEMO_PORTAL_DIR =
   process.env.RAPIDOC_DEMO_PORTAL_DIR ??
-  path.resolve(__dirname, "../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo");
+  path.resolve(__dirname, "../../../../rapi-portal-demo/cosmo-cargo");
 
 /** A one-operation OpenAPI document (GET /ping). */
 const minimalSpec = (title) =>

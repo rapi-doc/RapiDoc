@@ -10,9 +10,7 @@ import { portalMarkdocConfig } from "../src/markdoc/astro-config.js";
 describe("RapiDoc Portal Markdoc Engine (Milestone 3)", () => {
   const DEMO_GUIDES_DIR = path.join(
     process.env.RAPIDOC_DEMO_PORTAL_DIR ??
-      fileURLToPath(
-        new URL("../../../../rapi-portal-demo/fixtures/zudoku-cosmo-cargo", import.meta.url),
-      ),
+      fileURLToPath(new URL("../../../../rapi-portal-demo/cosmo-cargo", import.meta.url)),
     "docs/guides",
   );
 
