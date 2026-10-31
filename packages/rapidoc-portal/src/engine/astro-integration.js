@@ -1,7 +1,7 @@
 /**
  * Astro configuration for a portal: Starlight plus the rapidocPortal integration, which
  * injects the portal pages shipped in src/pages/ and exposes the portal config and theme
- * CSS to them as virtual modules (nothing is read from process.cwd()).
+ * CSS to them as `virtual:rapidoc-portal/*` modules (nothing is read from process.cwd()).
  */
 
 import fs from "node:fs";
@@ -13,7 +13,6 @@ import { calloutDirectives } from "./callout-directives.js";
 import { baseLinks } from "./base-links.js";
 import { withBase } from "../components/base-path.js";
 import { createStarlightOptions, THEME_CSS_MODULE } from "./starlight-options.js";
-import { renderThemeCss } from "./theme-css.js";
 import { resolveDependencyRoot } from "./temp-workspace.js";
 
 export const CONFIG_MODULE = "virtual:rapidoc-portal/config";
@@ -49,10 +48,12 @@ function portalRoutes(portalConfig) {
   ];
 }
 
-function virtualModulesPlugin(portalConfig) {
+// The theme CSS is a file in the workspace, not virtual: in dev, Astro writes a virtual CSS module's
+// <style> under its URL id (/@id/__x00__…) and Vite's client adds a second copy under its raw id
+// (\0…), after the theme.css files. A file has one id on both sides.
+function virtualModulesPlugin(portalConfig, themeCssPath) {
   const modules = {
     [CONFIG_MODULE]: `export default ${JSON.stringify(portalConfig)};`,
-    [THEME_CSS_MODULE]: renderThemeCss(portalConfig),
     [ICONS_MODULE]: `export const iconsDir = ${JSON.stringify(iconsDir)};`,
     [USER_CSS_MODULE]:
       portalConfig.theme.css.map((file) => `import ${JSON.stringify(file)};`).join("\n") ||
@@ -61,6 +62,7 @@ function virtualModulesPlugin(portalConfig) {
   return {
     name: "rapidoc-portal:virtual-modules",
     resolveId(id) {
+      if (id === THEME_CSS_MODULE) return themeCssPath;
       if (id in modules) return `\0${id}`;
     },
     load(id) {
@@ -87,15 +89,16 @@ function allowedServeDirs(workspaceRoot, cssFiles = []) {
 /**
  * @param {object} options
  * @param {object} options.portalConfig - Normalized rapidoc.config.yaml
+ * @param {string} options.themeCssPath - The workspace's portal theme CSS (createPortalWorkspace())
  * @returns {import('astro').AstroIntegration}
  */
-export function rapidocPortal({ portalConfig }) {
+export function rapidocPortal({ portalConfig, themeCssPath }) {
   return {
     name: "@rapidoc/portal",
     hooks: {
       "astro:config:setup": ({ config, injectRoute, updateConfig }) => {
         for (const route of portalRoutes(portalConfig)) injectRoute(route);
-        updateConfig({ vite: { plugins: [virtualModulesPlugin(portalConfig)] } });
+        updateConfig({ vite: { plugins: [virtualModulesPlugin(portalConfig, themeCssPath)] } });
         // First, so `:::type` blocks become portal callouts before Starlight's asides plugin sees them.
         config.markdown.processor.options.mdastPlugins.unshift(calloutDirectives(iconsDir));
         if (portalConfig.site.basePath)
@@ -134,7 +137,7 @@ export function createAstroConfig(workspace, overrides = {}) {
     integrations: [
       markdoc(),
       starlight(createStarlightOptions(workspace.config)),
-      rapidocPortal({ portalConfig: workspace.config }),
+      rapidocPortal({ portalConfig: workspace.config, themeCssPath: workspace.themeCssPath }),
     ],
     vite: {
       server: { fs: { allow: allowedServeDirs(workspace.root, workspace.config.theme.css) } },

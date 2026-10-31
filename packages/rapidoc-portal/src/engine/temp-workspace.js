@@ -8,6 +8,7 @@
  *     package.json             lists the dependencies Astro must bundle (Starlight, portal, rapidoc)
  *     markdoc.config.mjs       Markdoc tags for .mdoc docs (src/markdoc/astro-config.js)
  *     src/content.config.ts
+ *     src/portal-theme.css     styles/portal-theme.css with the config's colours and fonts (theme-css.js)
  *     src/content/docs/docs/   normalized copy of the project's docs/ (.markdoc renamed to .mdoc)
  *     src/content/docs/index.* docs/index.*, the home page (if the project has one)
  *     public/                  the project's public/ folder (logo, favicon, images)
@@ -30,6 +31,7 @@ import { loadConfig } from "../config/loader.js";
 import { listDocFiles, syncDocs } from "./sync-docs.js";
 import { copyRapidocBundle, copySpecs, writeRobotsTxt, writeSearchIndex } from "./sync-assets.js";
 import { writeLlmsFiles } from "./llms.js";
+import { renderThemeCss } from "./theme-css.js";
 
 export const WORKSPACE_DIRNAME = ".rapidoc-temp";
 
@@ -147,6 +149,7 @@ export async function createPortalWorkspace(projectDir = process.cwd(), { kind =
     contentDir: path.join(root, "src", "content", "docs"),
     docsContentDir: path.join(root, "src", "content", "docs", "docs"),
     publicDir: path.join(root, "public"),
+    themeCssPath: path.join(root, "src", "portal-theme.css"),
   };
 
   fs.mkdirSync(workspace.docsContentDir, { recursive: true });
@@ -159,6 +162,7 @@ export async function createPortalWorkspace(projectDir = process.cwd(), { kind =
       "utf8",
     );
     fs.writeFileSync(path.join(root, "src", "content.config.ts"), CONTENT_CONFIG_TS, "utf8");
+    fs.writeFileSync(workspace.themeCssPath, renderThemeCss(config), "utf8");
     fs.writeFileSync(
       path.join(root, "markdoc.config.mjs"),
       markdocConfigMjs(config.site.basePath),
