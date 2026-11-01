@@ -70,6 +70,7 @@ export function createStarlightOptions(portalConfig) {
       ThemeSelect: componentPath("PortalThemeSelect.astro"),
       PageTitle: componentPath("PortalPageTitle.astro"),
       Hero: componentPath("PortalHero.astro"),
+      Pagination: componentPath("PortalPagination.astro"),
     },
     // theme.css files come after the portal theme, so their plain selectors win.
     customCss: [THEME_CSS_MODULE, ...portalConfig.theme.css],

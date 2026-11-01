@@ -427,7 +427,7 @@ function measureInPage(regions) {
       regions.tabs.map((selector) => `${selector} [aria-current="page"]`).join(","),
     ),
   ].map((el) => el.textContent.trim());
-  result.hasPagination = Boolean(document.querySelector(".pagination-links"));
+  result.hasPagination = Boolean(document.querySelector(".portal-pagination a[rel]"));
   result.loadsRapidoc = Boolean(document.querySelector('script[src*="rapidoc-min.js"]'));
   result.hasSidebarDockedBar = Boolean(document.querySelector(".portal-sidebar-docked-footer"));
   return result;

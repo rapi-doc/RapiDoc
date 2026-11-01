@@ -1,0 +1,144 @@
+---
+/**
+ * Starlight Pagination override: the previous and next pages in one bar.
+ *
+ *   [ ‹ Previous ] [                         Quick Start │ Next › ]
+ *
+ * The next page is the card: its title, a divider, "Next" and a caret, right-aligned, taking the width of
+ * the bar. The previous page is a quiet button that says only "Previous"; its title is in the accessible
+ * name. On the last page of a tab the previous page is the card instead, mirrored. Below 40rem the words
+ * go and the carets and the title stay.
+ *
+ * A card's accessible name is its content, "Next <title>" or "Previous <title>", so the visible text is
+ * part of it (WCAG 2.5.3); only the quiet button, whose title is not shown, has an aria-label.
+ */
+import Icon from './Icon.astro';
+
+const { dir, pagination } = Astro.locals.starlightRoute;
+const { prev, next } = pagination;
+const isRtl = dir === 'rtl';
+const previousLabel = Astro.locals.t('page.previousLink');
+const nextLabel = Astro.locals.t('page.nextLink');
+const prevIsCard = !next;
+---
+
+{
+  (prev || next) && (
+    <nav class="portal-pagination print:hidden" aria-label="Previous and next pages" dir={dir}>
+      {prev && (
+        <a
+          href={prev.href}
+          rel="prev"
+          class:list={['portal-pagination-link', 'is-prev', { 'is-card': prevIsCard }]}
+          aria-label={prevIsCard ? undefined : `${previousLabel}: ${prev.label}`}
+        >
+          <Icon name={isRtl ? 'caret-right' : 'caret-left'} size={16} />
+          <span class="portal-pagination-label">{previousLabel}</span>
+          {prevIsCard && <span class="portal-pagination-divider" role="none" />}
+          <span class="portal-pagination-title">{prev.label}</span>
+        </a>
+      )}
+      {next && (
+        <a href={next.href} rel="next" class="portal-pagination-link is-next is-card">
+          <span class="sr-only">{nextLabel}</span>
+          <span class="portal-pagination-title">{next.label}</span>
+          <span class="portal-pagination-divider" role="none" />
+          <span class="portal-pagination-label" aria-hidden="true">{nextLabel}</span>
+          <Icon name={isRtl ? 'caret-left' : 'caret-right'} size={16} />
+        </a>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .portal-pagination {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: calc(var(--portal-radius) + 0.25rem);
+    background: color-mix(in oklab, var(--portal-fg) 7%, transparent);
+  }
+
+  .portal-pagination-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.5rem;
+    min-width: 2.75rem;
+    padding: 0 0.75rem;
+    border: 1px solid transparent;
+    border-radius: var(--portal-radius);
+    color: var(--portal-muted);
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+    line-height: 1.25;
+    text-decoration: none;
+    transition:
+      border-color 0.15s,
+      background-color 0.15s;
+  }
+
+  .portal-pagination-link:hover {
+    background: color-mix(in oklab, var(--portal-fg) 6%, transparent);
+  }
+
+  /* The quiet button: the caret next to its word, no title */
+  .is-prev:not(.is-card) {
+    gap: 0.25rem;
+  }
+
+  .is-prev:not(.is-card) .portal-pagination-title {
+    display: none;
+  }
+
+  .is-card {
+    flex: 1;
+    min-width: 0;
+    border-color: var(--portal-border);
+    background: var(--portal-bg);
+  }
+
+  .is-card:hover {
+    border-color: var(--portal-fg);
+    background: var(--portal-bg);
+  }
+
+  .is-next {
+    justify-content: flex-end;
+    text-align: end;
+  }
+
+  .portal-pagination-title {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-base);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .portal-pagination-divider {
+    flex-shrink: 0;
+    width: 1px;
+    height: 2rem;
+    background: var(--portal-border);
+  }
+
+  .portal-pagination-link > :global(svg) {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 40rem) {
+    .portal-pagination-label,
+    .portal-pagination-divider {
+      display: none;
+    }
+
+    .is-prev:not(.is-card) {
+      justify-content: center;
+      padding: 0;
+    }
+  }
+</style>

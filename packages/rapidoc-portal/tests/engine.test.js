@@ -265,6 +265,23 @@ describe("RapiDoc Portal build engine", () => {
       assert.equal(activeTab(read("docs/shipping-process")), "Documentation");
       assert.equal(activeTab(read("apis/shipments")), "Shipments");
 
+      // Docs pages link their neighbours in the portal's own pagination bar: a quiet previous button
+      // and a card for the next page
+      const paginatedPage = read("docs/shipping-process");
+      assert.match(
+        paginatedPage,
+        /<nav class="portal-pagination[^"]*"[^>]*aria-label="Previous and next pages"/,
+      );
+      assert.match(
+        paginatedPage,
+        /<a href="\/docs\/guides\/first-shipment\/?" rel="prev" class="portal-pagination-link is-prev[^"]*" aria-label="Previous: Book Your First Shipment"/,
+      );
+      assert.match(
+        paginatedPage,
+        /<a href="\/docs\/warp-lane-tutorial\/?" rel="next" class="portal-pagination-link is-next is-card[^"]*"><span class="sr-only[^"]*">Next<\/span><span class="portal-pagination-title[^"]*">Warp Lane Tutorial<\/span>/,
+      );
+      assert.ok(!paginatedPage.includes('class="pagination-links'));
+
       // Without `rapidoc.show-method-in-nav-bar`, the API sidebar shows each method as colored text
       const shipments = read("apis/shipments");
       assert.match(

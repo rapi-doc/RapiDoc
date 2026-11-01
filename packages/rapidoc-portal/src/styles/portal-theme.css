@@ -552,11 +552,6 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
   }
 }
 
-/* Starlight's previous / next page links */
-.pagination-links > a {
-  border-radius: var(--portal-radius);
-}
-
 /* Images in guides (banners, diagrams) */
 .sl-markdown-content img {
   border-radius: var(--portal-radius);
