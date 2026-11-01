@@ -145,6 +145,28 @@ const TEST_SPEC = {
         },
       },
     },
+    "/books": {
+      get: {
+        summary: "List books: parameters with defaults but no examples",
+        parameters: [
+          {
+            name: "limit",
+            in: "query",
+            schema: { type: "integer", default: 20 },
+          },
+          {
+            name: "offset",
+            in: "query",
+            schema: { type: "integer", default: 0 },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+        },
+      },
+    },
   },
 };
 
@@ -240,7 +262,7 @@ describe("api-request Lit Component Tests", () => {
   });
 
   it("renders parameters with path, query, and header inputs", async () => {
-    const getRequest = page.locator('api-request[method="get"]');
+    const getRequest = page.locator('api-request[method="get"][path="/users/{userId}"]');
     await getRequest.waitFor({ state: "visible" });
 
     // Verify parameter inputs exist via Playwright automatic Shadow DOM piercing
@@ -254,20 +276,49 @@ describe("api-request Lit Component Tests", () => {
   });
 
   it("handles CLEAR and FILL EXAMPLE buttons cleanly", async () => {
-    const getRequest = page.locator('api-request[method="get"]');
+    const getRequest = page.locator('api-request[method="get"][path="/users/{userId}"]');
     const pathInput = getRequest.locator('input[data-ptype="path"]');
+    const clearBtn = getRequest.locator('button[part~="btn-clear"]');
+    const fillBtn = getRequest.locator('button[part~="btn-fill"]');
+
+    // The fields are pre-filled with their examples, so there is something to clear
+    await getRequest.locator('button[part~="btn-clear"]:enabled').waitFor({ state: "attached" });
 
     // Click CLEAR
-    await getRequest.locator('button[part~="btn-clear"]').click();
+    await clearBtn.click();
     assert.equal(await pathInput.inputValue(), "");
 
+    // Nothing is left to clear, but the examples can still be restored
+    await getRequest.locator('button[part~="btn-clear"]:disabled').waitFor({ state: "attached" });
+    assert.equal(await fillBtn.count(), 1);
+
     // Click FILL EXAMPLE
-    await getRequest.locator('button[part~="btn-fill"]').click();
+    await fillBtn.click();
     assert.equal(await pathInput.inputValue(), "123");
+    await getRequest.locator('button[part~="btn-clear"]:enabled').waitFor({ state: "attached" });
+  });
+
+  it("hides FILL EXAMPLE without examples and enables CLEAR once a field has a value", async () => {
+    const booksRequest = page.locator('api-request[method="get"][path="/books"]');
+    await booksRequest.waitFor({ state: "visible" });
+    const limitInput = booksRequest.locator('input[data-pname="limit"]');
+
+    // Defaults are not examples: nothing to fill, nothing to clear
+    assert.equal(await booksRequest.locator('button[part~="btn-fill"]').count(), 0);
+    await booksRequest.locator('button[part~="btn-clear"]:disabled').waitFor({ state: "attached" });
+
+    // Typing a value enables CLEAR
+    await limitInput.fill("5");
+    await booksRequest.locator('button[part~="btn-clear"]:enabled').waitFor({ state: "attached" });
+
+    // Clearing it disables CLEAR again
+    await booksRequest.locator('button[part~="btn-clear"]').click();
+    assert.equal(await limitInput.inputValue(), "");
+    await booksRequest.locator('button[part~="btn-clear"]:disabled').waitFor({ state: "attached" });
   });
 
   it("executes TRY request and renders response without ChildPart errors", async () => {
-    const getRequest = page.locator('api-request[method="get"]');
+    const getRequest = page.locator('api-request[method="get"][path="/users/{userId}"]');
     const tryBtn = getRequest.locator('button[part~="btn-try"]');
 
     // First TRY click
@@ -301,7 +352,7 @@ describe("api-request Lit Component Tests", () => {
   });
 
   it("switches between RESPONSE, RESPONSE HEADERS, and CURL tabs", async () => {
-    const getRequest = page.locator('api-request[method="get"]');
+    const getRequest = page.locator('api-request[method="get"][path="/users/{userId}"]');
 
     // Switch to RESPONSE HEADERS
     const headersTabBtn = getRequest.locator('button[data-tab="headers"]');
@@ -327,7 +378,7 @@ describe("api-request Lit Component Tests", () => {
   });
 
   it("handles CLEAR RESPONSE action and allows re-trying cleanly", async () => {
-    const getRequest = page.locator('api-request[method="get"]');
+    const getRequest = page.locator('api-request[method="get"][path="/users/{userId}"]');
 
     // Click CLEAR RESPONSE
     const clearRespBtn = getRequest.locator('button[part~="btn-clear-response"]');

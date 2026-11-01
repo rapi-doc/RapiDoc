@@ -79,6 +79,10 @@ export default class ApiRequest extends LitElement {
   @state() selectedRequestBodyExample = "";
   @state() fileInputKeys: any = {};
   @state() loading = false;
+  // Try-bar buttons follow the fields: Fill Example shows only when a field has an example,
+  // Clear is enabled only while a field holds a value
+  @state() hasExampleToFill = false;
+  @state() hasValueToClear = false;
 
   activeAbortController: any = null;
 
@@ -343,6 +347,8 @@ export default class ApiRequest extends LitElement {
 
   render() {
     return html`<div
+      @input="${this.syncTryBarState}"
+      @change="${this.syncTryBarState}"
       class="col regular-font request-panel ${
         "read focused".includes(this.renderStyle) || this.callback === "true"
           ? "read-mode"
@@ -380,6 +386,8 @@ export default class ApiRequest extends LitElement {
     if (this.webhook === "true") {
       this.allowTry = "false";
     }
+    // After the fields are in the DOM; deferred so the update is not requested mid-update
+    queueMicrotask(() => this.syncTryBarState());
   }
 
   // This method is called before navigation change in focused mode
@@ -453,6 +461,7 @@ export default class ApiRequest extends LitElement {
         }
       }
     });
+    this.syncTryBarState();
   }
 
   async onClearRequestData(e) {
@@ -463,6 +472,20 @@ export default class ApiRequest extends LitElement {
     requestPanelInputEls.forEach((el) => {
       el.value = "";
     });
+    this.syncTryBarState();
+  }
+
+  // Reads the request fields (the same ones Fill Example and Clear act on) and updates the
+  // try-bar flags; setting a flag to its current value schedules no render
+  syncTryBarState() {
+    const requestPanelEl = this.shadowRoot?.querySelector(".request-panel");
+    const inputEls: any[] = requestPanelEl
+      ? [...requestPanelEl.querySelectorAll("input, tag-input, textarea:not(.is-hidden)")]
+      : [];
+    this.hasExampleToFill = inputEls.some((el) => !!el.dataset.example);
+    this.hasValueToClear = inputEls.some((el) =>
+      Array.isArray(el.value) ? el.value.length > 0 : el.value !== "",
+    );
   }
 
   buildFetchURL(requestPanelEl) {

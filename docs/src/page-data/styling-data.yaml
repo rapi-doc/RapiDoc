@@ -272,7 +272,7 @@ parts:
         description: "Solid filled buttons (e.g., primary actions, search). Also on FILL EXAMPLE; target btn-fill-example to style that button alone."
       - name: "btn-fill-example"
         target: "<button>"
-        description: "The FILL EXAMPLE button, which refills request fields with the spec's examples. To hide it and CLEAR: rapi-doc::part(btn-fill-example), rapi-doc::part(btn-clear) { display: none; }"
+        description: "The FILL EXAMPLE button, which refills request fields with the spec's examples; it is only rendered when a field has an example, and CLEAR is disabled while every field is empty. To hide both: rapi-doc::part(btn-fill-example), rapi-doc::part(btn-clear) { display: none; }"
       - name: "btn-outline"
         target: "<button>"
         description: "Outlined secondary buttons."

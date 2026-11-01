@@ -179,19 +179,23 @@ export function apiCallTemplate() {
         <div class="try-actions">
           ${
             this.parameters.length > 0 || this.request_body
-              ? html` <button
-                    class="btn btn-outline"
-                    part="btn btn-outline btn-fill btn-fill-example"
-                    ?disabled="${this.loading}"
-                    @click="${this.onFillRequestData}"
-                    title="Fills with example data (if provided)"
-                  >
-                    FILL EXAMPLE
-                  </button>
+              ? html`${
+                  this.hasExampleToFill
+                    ? html`<button
+                          class="btn btn-outline"
+                          part="btn btn-outline btn-fill btn-fill-example"
+                          ?disabled="${this.loading}"
+                          @click="${this.onFillRequestData}"
+                          title="Fills the request fields with their examples"
+                        >
+                          FILL EXAMPLE
+                        </button>`
+                    : ""
+                }
                   <button
                     class="btn btn-outline"
                     part="btn btn-outline btn-clear"
-                    ?disabled="${this.loading}"
+                    ?disabled="${this.loading || !this.hasValueToClear}"
                     @click="${this.onClearRequestData}"
                   >
                     CLEAR

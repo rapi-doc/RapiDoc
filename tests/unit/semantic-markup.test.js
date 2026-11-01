@@ -200,6 +200,8 @@ describe("Semantic heading markup", () => {
         security: [],
         api_keys: [],
         loading: false,
+        hasExampleToFill: true,
+        hasValueToClear: true,
         responseHeaders: "",
         responseMessage: "",
       }),
