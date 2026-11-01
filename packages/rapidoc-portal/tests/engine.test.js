@@ -264,6 +264,14 @@ describe("RapiDoc Portal build engine", () => {
         )?.[1];
       assert.equal(activeTab(read("docs/shipping-process")), "Documentation");
       assert.equal(activeTab(read("apis/shipments")), "Shipments");
+
+      // Without `rapidoc.show-method-in-nav-bar`, the API sidebar shows each method as colored text
+      const shipments = read("apis/shipments");
+      assert.match(
+        shipments,
+        /<span class="nav-method as-colored-text (get|post|put|patch|delete)">/,
+      );
+      assert.ok(!shipments.includes('class="nav-method as-colored-block'));
       assert.equal(
         activeTab(read("apis/labels")),
         "API Catalog",
