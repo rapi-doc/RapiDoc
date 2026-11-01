@@ -61,7 +61,7 @@
     "test": "node --import ../../scripts/test-loader.mjs --test ../../tests/unit/*.test.js"
   },
   "dependencies": {
-    "@scalar/openapi-parser": "^0.29.18",
+    "@scalar/openapi-parser": "^0.29.19",
     "github-slugger": "^2.0.0",
     "lit": "^3.3.3",
     "marked": "^18.1.2",

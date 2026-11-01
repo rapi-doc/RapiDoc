@@ -11,7 +11,7 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.42.7",
+    "@astrojs/starlight": "^0.42.8",
     "@tabler/icons-astro": "^3.50.0",
     "rapidoc": "*"
   },
