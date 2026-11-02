@@ -263,6 +263,86 @@ OpenAPI specs are organized inside `docs/public/` based on their visibility and 
 
 ---
 
+## Architecture Contract
+
+What this package exposes, what must stay true, and what touches the outside world. Each folder
+under `src/` has its own `README.md` contract with the detail; this section covers the package as
+a whole.
+
+### Overview
+
+`packages/rapidoc` is a Lit 3 web component library built by Vite into two ES module bundles:
+
+- `dist/rapidoc-min.js` (`vite.config.mjs`, entry `src/index.js`): registers `<rapi-doc>`,
+  `<rapi-doc-mini>` and `<oauth-receiver>` on import. Production builds are minified, carry the
+  license banner, and have `console.*` and `debugger` removed.
+- `dist/rapidoc-static-min.js` (`vite.config.static.mjs`, entry `src/static/index.js`), exported as
+  `rapidoc/static`: an SSR build for Node that `@rapidoc/portal` uses for sidebar HTML and
+  Declarative Shadow DOM pre-rendering. It is not minified despite its name, keeps `console`, and
+  leaves `lit`, `@scalar/openapi-parser`, `marked`, `yaml`, `github-slugger` and `microlighter`
+  external.
+
+```text
+spec-url / inline spec ──▶ utils/spec-parser.js ProcessSpec (load, upgrade, dereference, group)
+        │                    └─ dispatches before-render on the host
+        ▼ resolvedSpec
+<rapi-doc> (src/rapidoc.ts) ──▶ templates/ ──▶ components/ (<api-request>, <api-response>, schema views)
+        ├── events: spec-loaded, nav-active-change   (components: before-try, after-try, request-aborted)
+        └── utils/mock-interceptor.js patches fetch / XMLHttpRequest while mock-server="true"
+
+rapidoc/static ──▶ the same templates and components, serialized by static/serializer.js
+                   renderTemplateToString (no DOM)
+```
+
+### Folder Contracts
+
+- [`src/`](./src/README.md): the three custom elements and the bundle entry.
+- [`src/components/`](./src/components/README.md): nested elements for request, response and
+  schema panels.
+- [`src/templates/`](./src/templates/README.md): Lit `html` functions bound to the host.
+- [`src/utils/`](./src/utils/README.md): spec pipeline, stable anchors, schema, request and mock
+  helpers; [`utils/mcp/`](./src/utils/mcp/README.md) and
+  [`utils/mcp/generators/`](./src/utils/mcp/generators/README.md) for the MCP server export.
+- [`src/styles/`](./src/styles/README.md): stylesheets and the theme-token contract.
+- [`src/static/`](./src/static/README.md): the `rapidoc/static` renderer.
+
+### Global Invariants
+
+- **No runtime dependencies for browser users**: everything is bundled into
+  `dist/rapidoc-min.js`.
+- **One spec shape**: `ProcessSpec` never rejects. It resolves to the parsed spec
+  (`info`, `tags`, `tagGroups`, `components`, `securitySchemes`, `servers`, ...) or to a result
+  with `specLoadError: true`, and templates, components and the static renderer all read it as
+  `this.resolvedSpec`.
+- **Stable anchors**: operation ids come from `utils/slugger.js` `OperationSlugger`; the static
+  sidebar and `@rapidoc/portal` depend on them and on `nav-active-change`, so changing the rules is
+  a breaking change (see `src/utils/README.md`).
+- **Boolean-like attributes are strings** (`allow-try="false"`) and are compared as strings.
+- **Semantic headings and parts**, **theme tokens** and **DSD hydration** follow
+  `packages/rapidoc/AGENTS.md` §5 and are checked by `tests/unit/semantic-markup.test.js` and
+  `tests/unit/css-variables.test.js`.
+- **Markdown** passes through `utils/sanitize.js` before `unsafeHTML`. In Node there is no
+  `DOMParser`, so the static renderer's markdown is not sanitized.
+
+### Global Side Effects
+
+- **Network**: spec and external `$ref` fetches, Try requests from `<api-request>`, OAuth token
+  requests and the sign-in popup.
+- **Global patching**: the mock server replaces `window.fetch` and three `XMLHttpRequest`
+  prototype methods and restores them on disable; importing `rapidoc/static` installs or wraps
+  `customElements.define`; importing the elements configures the global `marked` instance.
+- **Storage and messaging**: `localStorage["rapidoc"]` with `persist-auth="true"`; OAuth replies
+  via `window.opener.postMessage` and a `BroadcastChannel`.
+- **URL and history**: `<rapi-doc>` replaces the location hash when `update-route="true"`;
+  `bindNavBar` pushes or replaces history for portal sidebars.
+
+### Verification
+
+From the monorepo root: `npm run test:unit`, then `npm run lint` and `npm run format-fix`. After
+any change under `src/`, run `npm run build:rapidoc`; never restore `dist/rapidoc-min.js` from git.
+
+---
+
 ## License
 
 MIT © [Mrinmoy Majumdar](https://github.com/mrin9)
