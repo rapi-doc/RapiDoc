@@ -747,3 +747,41 @@ describe("mcp-generator: parseMcpTargets attribute normalization and kill-switch
     assert.deepStrictEqual(parseMcpTargets(["go", "go", "rust"]), ["go", "rust"]);
   });
 });
+
+describe("mcp-generator: consequential default and parameter-less workflows", () => {
+  const spec = {
+    openapi: "3.0.0",
+    info: { title: "Ping", version: "1.0.0" },
+    paths: {
+      "/ping": {
+        get: { operationId: "ping", summary: "Ping", responses: { 200: { description: "OK" } } },
+        post: { operationId: "poke", summary: "Poke", responses: { 200: { description: "OK" } } },
+      },
+    },
+    "x-mcp-workflows": [
+      { name: "health_check", description: "Pings the service", steps: [{ call: "ping" }] },
+    ],
+  };
+
+  it("treats post/put/delete/patch as consequential by default, get as safe", () => {
+    const { tools } = extractMcpOperations(spec);
+    assert.strictEqual(tools.find((t) => t.name === "ping").isConsequential, false);
+    assert.strictEqual(tools.find((t) => t.name === "poke").isConsequential, true);
+  });
+
+  it("emits no reference to an undeclared `id` for a workflow without parameters", () => {
+    const code = (target) => Object.values(generateMcpServer(spec, { target }).files).join("\n");
+
+    const csharp = code("csharp");
+    assert.ok(csharp.includes('Uri.EscapeDataString("")'), "C# step path is empty");
+    assert.ok(!/EscapeDataString\(id\b/.test(csharp), "C# must not reference `id`");
+
+    const java = code("java");
+    assert.ok(java.includes('UriUtils.encodePath("", StandardCharsets.UTF_8)'));
+    assert.ok(!java.includes("request.id()"), "Java must not call an undeclared accessor");
+
+    const python = code("python");
+    assert.ok(python.includes('urllib.parse.quote("")'));
+    assert.ok(!python.includes("str(id)"), "Python must not fall back to the builtin `id`");
+  });
+});

@@ -407,6 +407,9 @@ export const highlightAllCode = (rootNode = document) => {
 };
 
 export const scheduleHighlight = (rootNode = document) => {
+  if (typeof window === "undefined" || typeof CSS === "undefined" || !CSS.highlights) {
+    return;
+  }
   if (highlightScheduled) return;
   highlightScheduled = true;
   requestAnimationFrame(() => {

@@ -234,9 +234,7 @@ export function getTypeInfo(schema) {
     html: "",
   };
 
-  if (info.type === "{recursive}") {
-    info.description = schema.$ref.substring(schema.$ref.lastIndexOf("/") + 1);
-  } else if (info.type === "{missing-type-info}" || info.type === "any") {
+  if (info.type === "{missing-type-info}" || info.type === "any") {
     info.description = info.description || "";
   }
   // Set Allowed Values
@@ -1333,8 +1331,8 @@ function createPrimitiveAST(schema, name, isRequired) {
     title: (schema.title || "").trim(),
     required: isRequired,
     deprecated: schema.deprecated || !!typeInfo.deprecated,
-    readOnly: schema.readOnly || typeInfo.readOrWriteOnly === "readonly",
-    writeOnly: schema.writeOnly || typeInfo.readOrWriteOnly === "writeonly",
+    readOnly: schema.readOnly || typeInfo.readOrWriteOnly === "🆁",
+    writeOnly: schema.writeOnly || typeInfo.readOrWriteOnly === "🆆",
     html: typeInfo.html || "",
   };
 }

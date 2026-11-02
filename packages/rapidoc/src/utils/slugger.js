@@ -129,21 +129,19 @@ export class OperationSlugger {
       return this.opMap.get(opKey);
     }
 
-    let candidate = this.slugOp(op);
+    // Hierarchical style prefixes with tag if provided; `used` holds the prefixed slugs
+    const prefix = tagSlug && tagSlug !== "general" ? `${tagSlug}--` : "";
+    const base = this.slugOp(op);
+    let candidate = `${prefix}${base}`;
 
     // Smart semantic collision differentiator:
     // If the base candidate has already been seen in this spec, attempt method-prefix first (e.g. post-webhooks)
     if (this.used.has(candidate)) {
       const method = (op.method || "get").toLowerCase();
-      const methodCandidate = `${method}-${candidate}`;
+      const methodCandidate = `${prefix}${method}-${base}`;
       if (!this.used.has(methodCandidate)) {
         candidate = methodCandidate;
       }
-    }
-
-    // Hierarchical style prefixes with tag if provided
-    if (tagSlug && tagSlug !== "general") {
-      candidate = `${tagSlug}--${candidate}`;
     }
 
     // Guaranteed uniqueness via GitHub slugger registry

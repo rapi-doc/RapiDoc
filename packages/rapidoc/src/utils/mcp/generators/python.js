@@ -164,9 +164,10 @@ def ${toSnakeCase(w.name)}(${pyArgs}) -> str:
     try:
 ${(w.steps || [])
   .map((s, idx) => {
-    const argKey = paramKeys[0] || "id";
+    // Without parameters the step path is empty: no reference to the builtin `id` in the output
+    const stepArg = paramKeys[0] ? `str(${toSnakeCase(paramKeys[0])})` : '""';
     return `        # Step ${idx + 1}: ${s.call}
-        step_url_${idx} = f"{BASE_URL.rstrip('/')}/api/{urllib.parse.quote(str(${toSnakeCase(argKey)}))}"
+        step_url_${idx} = f"{BASE_URL.rstrip('/')}/api/{urllib.parse.quote(${stepArg})}"
         req_${idx} = urllib.request.Request(step_url_${idx}, headers=headers, method="GET")
         with urllib.request.urlopen(req_${idx}, timeout=30.0) as resp_${idx}:
             results["${s.call}"] = json.loads(resp_${idx}.read().decode("utf-8"))`;

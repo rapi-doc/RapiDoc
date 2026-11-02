@@ -56,6 +56,16 @@ function renderMarkdownDescription(text, title) {
   return rendered;
 }
 
+/**
+ * The host's `schema-hide-*` flags are `"default"` | `"never"`: `"never"` shows the fields, `"default"` keeps
+ * the `"true"` | `"false"` the template chose for this element (requests hide read-only, responses write-only).
+ */
+function hideFlagFromConfig(configValue, current) {
+  if (configValue === "never") return "false";
+  if (configValue === "true" || configValue === "false") return configValue;
+  return current;
+}
+
 export default class SchemaBaseElement extends LitElement {
   @property({ type: Object }) config: any;
   @property({ type: Object }) data: any;
@@ -76,10 +86,14 @@ export default class SchemaBaseElement extends LitElement {
         this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
       if (this.config.allowSchemaDescriptionExpandToggle !== undefined)
         this.allowSchemaDescriptionExpandToggle = this.config.allowSchemaDescriptionExpandToggle;
-      if (this.config.schemaHideReadOnly !== undefined)
-        this.schemaHideReadOnly = this.config.schemaHideReadOnly;
-      if (this.config.schemaHideWriteOnly !== undefined)
-        this.schemaHideWriteOnly = this.config.schemaHideWriteOnly;
+      this.schemaHideReadOnly = hideFlagFromConfig(
+        this.config.schemaHideReadOnly,
+        this.schemaHideReadOnly,
+      );
+      this.schemaHideWriteOnly = hideFlagFromConfig(
+        this.config.schemaHideWriteOnly,
+        this.schemaHideWriteOnly,
+      );
     }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;

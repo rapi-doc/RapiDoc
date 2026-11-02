@@ -245,3 +245,20 @@ describe("multipart/form-data cURL and Array Input Handling", () => {
     });
   });
 });
+
+describe("TagInput value attribute", () => {
+  const { converter } = TagInput.properties.value;
+
+  it("reads a comma-separated list, dropping blank parts", () => {
+    assert.deepEqual(converter.fromAttribute("a,b,,c"), ["a", "b", "c"]);
+    assert.deepEqual(converter.fromAttribute(""), []);
+  });
+
+  it("clears the value when the attribute is removed", () => {
+    assert.deepEqual(converter.fromAttribute(null), []);
+  });
+
+  it("serializes an array back to a comma-separated list", () => {
+    assert.equal(converter.toAttribute(["a", "b"]), "a,b");
+  });
+});

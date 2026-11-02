@@ -180,7 +180,10 @@ ${headerAppends ? headerAppends + "\n" : ""}${
 ${recordFields.join(",\n")}
     ) {}`);
 
-      const firstParam = paramKeys[0] || "id";
+      // Without parameters the step path is empty: no undeclared `id` accessor in the output
+      const stepArg = paramKeys[0]
+        ? `String.valueOf(request.${toCamelCase(paramKeys[0])}())`
+        : '""';
 
       return `    // Composite Workflow: ${w.name}
     @Bean
@@ -195,7 +198,7 @@ ${(w.steps || [])
   .map((s, idx) => {
     return `                // Step ${idx + 1}: ${s.call}
                 UriComponentsBuilder stepUri_${idx} = UriComponentsBuilder.fromUriString(this.baseUrl);
-                stepUri_${idx}.path("/api/" + UriUtils.encodePath(String.valueOf(request.${toCamelCase(firstParam)}()), StandardCharsets.UTF_8));
+                stepUri_${idx}.path("/api/" + UriUtils.encodePath(${stepArg}, StandardCharsets.UTF_8));
                 RestClient.RequestHeadersSpec<?> stepSpec_${idx} = restClient.get().uri(stepUri_${idx}.build().toUri()).accept(MediaType.APPLICATION_JSON);
                 if (resolvedKey != null && !resolvedKey.isBlank()) { stepSpec_${idx}.header("Authorization", "Bearer " + resolvedKey); }
                 String stepBody_${idx} = stepSpec_${idx}.retrieve().body(String.class);

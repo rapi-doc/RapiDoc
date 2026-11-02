@@ -51,7 +51,7 @@ export function getBundledCss(options = {}) {
   // If rendering in Light DOM without Shadow DOM, adapt :host selectors to the container
   if (scope && scope !== ":host") {
     combinedCss = combinedCss
-      .replace(/:host\(([^)]+)\)/g, `${scope}$1`)
+      .replace(/:host\(((?:[^()]|\([^()]*\))+)\)/g, `${scope}$1`)
       .replace(/:host\b/g, scope)
       .replace(/::slotted\(([^)]+)\)/g, `$1`);
   }
@@ -73,7 +73,7 @@ export function getNavCss(scope = "") {
         /:host\(\[color-scheme='([^']+)'\]\)/g,
         `[data-theme='$1'] ${scope}, ${scope}[color-scheme='$1']`,
       )
-      .replace(/:host\(([^)]+)\)/g, `${scope}$1`)
+      .replace(/:host\(((?:[^()]|\([^()]*\))+)\)/g, `${scope}$1`)
       .replace(/:host\b/g, scope)
       .replace(/::slotted\(([^)]+)\)/g, `$1`)
       .replace(/^\s*\.nav-bar\s*\{/gm, "&.nav-bar, & {");

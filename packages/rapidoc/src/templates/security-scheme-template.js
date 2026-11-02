@@ -119,6 +119,9 @@ export function onClearAllApiKeys() {
     v.finalKeyValue = "";
     v.hostNote = "";
   });
+  if (this.persistAuth === "true") {
+    setPersistedApiKeys.call(this, {});
+  }
   this.requestUpdate();
 }
 
@@ -133,7 +136,7 @@ function setPersistedApiKeys(obj) {
 export function recoverPersistedApiKeys() {
   const rapidocLs = getPersistedApiKeys.call(this);
   Object.values(rapidocLs).forEach((p) => {
-    applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
+    applyApiKey.call(this, p.securitySchemeId, "", "", p.value);
   });
 }
 
@@ -159,8 +162,14 @@ function onApiKeyChange(securitySchemeId) {
         applyApiKey.call(this, securitySchemeId, "", "", apiKeyValue);
       }
       if (this.persistAuth === "true") {
+        // Only what recoverPersistedApiKeys restores: the apiKey / bearer value. Basic credentials
+        // (and the derived Authorization header) are never written to localStorage.
         const rapidocLs = getPersistedApiKeys.call(this);
-        rapidocLs[securitySchemeId] = securityObj;
+        if (securityObj.value) {
+          rapidocLs[securitySchemeId] = { securitySchemeId, value: securityObj.value };
+        } else {
+          delete rapidocLs[securitySchemeId];
+        }
         setPersistedApiKeys.call(this, rapidocLs);
       }
     }

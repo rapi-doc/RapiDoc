@@ -91,6 +91,11 @@ export default class RapiDoc extends LitElement {
     // Set on the reader's first pointer, key, wheel or touch input (see getContentScrollBehavior)
     this._readerHasInteracted = false;
     this._onFirstInteraction = null;
+    this._onHashChange = null;
+    // Spec loads carry a token; only the latest load may apply its result (see loadSpec)
+    this._specLoadSeq = 0;
+    // The spec-url attribute value whose load has been handled, or that an inlined spec superseded
+    this._lastSpecUrlRequested = null;
     this.initIntersectionObserver();
   }
 
@@ -476,13 +481,12 @@ export default class RapiDoc extends LitElement {
       this.mcp = "none";
     }
 
-    window.addEventListener(
-      "hashchange",
-      () => {
+    if (!this._onHashChange) {
+      this._onHashChange = () => {
         this.scrollToPath(this.getElementIDFromURL());
-      },
-      true,
-    );
+      };
+      window.addEventListener("hashchange", this._onHashChange, true);
+    }
 
     if (!this._readerHasInteracted && !this._onFirstInteraction) {
       this._onFirstInteraction = () => {
@@ -494,7 +498,9 @@ export default class RapiDoc extends LitElement {
       );
     }
 
-    // Auto-hydrate from inlined spec or spec-url attribute if not already loaded
+    // Auto-hydrate from inlined spec or spec-url attribute if not already loaded. This block owns
+    // the initial load; the deferred spec-url path in attributeChangedCallback skips the value
+    // recorded in _lastSpecUrlRequested so one <rapi-doc spec-url> loads once.
     if (!this.resolvedSpec) {
       const inlinedSpecEl = this.querySelector(
         'script[type="application/json"][slot="rapidoc-spec"]',
@@ -502,6 +508,8 @@ export default class RapiDoc extends LitElement {
       if (inlinedSpecEl?.textContent) {
         try {
           const parsed = JSON.parse(inlinedSpecEl.textContent);
+          // The inlined spec wins over a spec-url attribute present at connect
+          this._lastSpecUrlRequested = this.getAttribute("spec-url");
           this.loadSpec(parsed);
         } catch {
           // ignore parse error
@@ -527,6 +535,10 @@ export default class RapiDoc extends LitElement {
     }
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
+    }
+    if (this._onHashChange) {
+      window.removeEventListener("hashchange", this._onHashChange, true);
+      this._onHashChange = null;
     }
     this.removeFirstInteractionListeners();
     if (this.mockServer === "true") {
@@ -599,11 +611,12 @@ export default class RapiDoc extends LitElement {
     }
     this._clearDsdIfNeeded();
 
-    // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
-    const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
-    // adding custom style for RapiDoc
-    if (cssLinkEl) {
-      this.shadowRoot.appendChild(cssLinkEl.cloneNode());
+    // adding custom style for RapiDoc: the page's <link> whose href contains the css-file value
+    if (this.cssFile) {
+      const cssLinkEl = document.querySelector(`link[href*="${CSS.escape(this.cssFile)}"]`);
+      if (cssLinkEl) {
+        this.shadowRoot.appendChild(cssLinkEl.cloneNode());
+      }
     }
     return mainBodyTemplate.call(this);
   }
@@ -706,6 +719,10 @@ export default class RapiDoc extends LitElement {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
         window.setTimeout(async () => {
+          // Already loaded by connectedCallback (or superseded by an inlined spec there)
+          if (newVal === this._lastSpecUrlRequested) {
+            return;
+          }
           await this.loadSpec(newVal);
           // If goto-path is provided and no location-hash is present then try to scroll there
           if (this.gotoPath && !window.location.hash) {
@@ -898,6 +915,11 @@ export default class RapiDoc extends LitElement {
     if (!specUrl) {
       return;
     }
+    if (typeof specUrl === "string") {
+      this._lastSpecUrlRequested = specUrl;
+    }
+    // Each load gets a token; a load whose token is no longer current never applies its result
+    const token = ++this._specLoadSeq;
     this.searchVal = "";
     try {
       if (!this._hasDsd) {
@@ -925,9 +947,15 @@ export default class RapiDoc extends LitElement {
         this.removeEndpointsWithBadgeLabelAs,
         this.showUnusedTags === "true",
       );
+      if (token !== this._specLoadSeq) {
+        return; // a newer load started while this one was parsing
+      }
       this.loading = false;
-      this.afterSpecParsedAndValidated(spec);
+      this.afterSpecParsedAndValidated(spec, token);
     } catch (err) {
+      if (token !== this._specLoadSeq) {
+        return;
+      }
       this.loading = false;
       this._clearDsdIfNeeded();
       this.loadFailed = true;
@@ -936,7 +964,7 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  async afterSpecParsedAndValidated(spec) {
+  async afterSpecParsedAndValidated(spec, token = this._specLoadSeq) {
     this._clearDsdIfNeeded();
     this.resolvedSpec = spec;
     this.selectedServer = undefined;
@@ -959,6 +987,9 @@ export default class RapiDoc extends LitElement {
     }
     this.requestUpdate();
     while (!(await this.updateComplete));
+    if (token !== this._specLoadSeq) {
+      return; // a newer load took over while this one was rendering; it fires its own spec-loaded
+    }
     const specLoadedEvent = new CustomEvent("spec-loaded", { detail: spec });
     this.dispatchEvent(specLoadedEvent);
 
@@ -978,6 +1009,9 @@ export default class RapiDoc extends LitElement {
     }
     if (this.renderStyle === "read") {
       await sleep(100);
+      if (token !== this._specLoadSeq) {
+        return;
+      }
       this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode
     }
 

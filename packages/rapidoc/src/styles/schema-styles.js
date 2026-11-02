@@ -239,7 +239,7 @@ export default css`
   .int3,
   .floa,
   .doub,
-  .deci .blue {
+  .deci {
     color: var(--blue);
   }
   .null {

@@ -202,4 +202,16 @@ describe("OperationSlugger and Clean Route Name Generation", () => {
     assert.equal(operationAnchorSource({ operationId: "!!!", summary: "  " }), "path");
     assert.equal(operationAnchorSource({}), "path");
   });
+
+  it("Collision handling with tag groups: the method prefix goes inside the tag prefix", () => {
+    const slugger = new OperationSlugger();
+    const op = (method, path) => ({ method, path, summary: "List items" });
+    assert.equal(slugger.slug(op("get", "/items"), "billing"), "billing--list-items");
+    // same summary, same tag, other method: differentiated by the method, not by a counter
+    assert.equal(slugger.slug(op("post", "/items"), "billing"), "billing--post-list-items");
+    assert.equal(slugger.slug(op("get", "/archive/items"), "billing"), "billing--get-list-items");
+    assert.equal(slugger.slug(op("get", "/history/items"), "billing"), "billing--list-items-1");
+    // the same summary under another tag is no collision
+    assert.equal(slugger.slug(op("get", "/items"), "catalog"), "catalog--list-items");
+  });
 });

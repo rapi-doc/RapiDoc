@@ -25,6 +25,10 @@ export interface RenderRapiDocOptions {
   pageDirection?: "ltr" | "rtl";
   /** Keep tags that no operation uses when they have a description, as `show-unused-tags` of `<rapi-doc>`. */
   showUnusedTags?: boolean | "true" | "false";
+  /** Inline an object `spec` as a `<script type="application/json" slot="rapidoc-spec">` (default `true`). */
+  inlineSpec?: boolean;
+  /** The operation shown first in focused mode (default `"overview"`, or the first operation when `showInfo` is off). */
+  focusedElementId?: string;
   [key: string]: any;
 }
 
@@ -66,6 +70,8 @@ export interface NavigationOperation {
 
 export interface NavigationTag {
   name: string;
+  /** `x-displayName` when the spec sets it, else `name`. */
+  displayName: string;
   description: string;
   elementId: string;
   expanded: boolean;
@@ -76,6 +82,8 @@ export interface NavigationTag {
 
 export interface NavigationTagGroup {
   name: string;
+  /** `x-displayName` when the spec sets it, else `name`. */
+  displayName: string;
   description: string;
   elementId: string;
   expanded: boolean;
@@ -88,6 +96,8 @@ export interface SpecNavigation {
   description: string;
   tagGroups: NavigationTagGroup[];
   tags: NavigationTag[];
+  /** With tag groups, the tags no group lists; otherwise empty. */
+  remainingTags: NavigationTag[];
 }
 
 export interface RenderNavBarHtmlOptions {
@@ -107,6 +117,7 @@ export interface RenderNavBarHtmlOptions {
   usePathInNav?: boolean | "true" | "false";
   "use-path-in-nav-bar"?: boolean | "true" | "false";
   routingMode?: "tag-pages" | "single-page";
+  "routing-mode"?: "tag-pages" | "single-page";
 }
 
 export function renderRapiDoc(options: RenderRapiDocOptions): Promise<string>;
@@ -126,6 +137,8 @@ export function getNavBarHtml(
 export function renderNavBarHtml(resolvedSpec: any, options?: RenderNavBarHtmlOptions): string;
 export function getNavFilterHtml(options?: {
   searchPlaceholder?: string;
+  /** Alias of `searchPlaceholder`. */
+  placeholder?: string;
   inputClassName?: string;
 }): string;
 export function bindNavBar(

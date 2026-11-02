@@ -275,140 +275,163 @@ export default async function ProcessSpec(
     };
   }
 
-  const hasTagGroups = Boolean(
-    (jsonParsedSpec?.["x-tagGroups"] && jsonParsedSpec["x-tagGroups"].length > 0) ||
-    (jsonParsedSpec?.["x-tag-groups"] && jsonParsedSpec["x-tag-groups"].length > 0),
-  );
+  // Everything after loading is also guarded: a spec that parses but trips the grouping code
+  // (a server without `url`, a tag without `name`, ...) still yields a `specLoadError` result
+  try {
+    const hasTagGroups = Boolean(
+      (jsonParsedSpec?.["x-tagGroups"] && jsonParsedSpec["x-tagGroups"].length > 0) ||
+      (jsonParsedSpec?.["x-tag-groups"] && jsonParsedSpec["x-tag-groups"].length > 0),
+    );
 
-  // Tags with Paths and WebHooks
-  const tags = groupByTags(
-    jsonParsedSpec,
-    sortEndpointsBy,
-    generateMissingTags,
-    sortTags,
-    hasTagGroups,
-    showUnusedTags,
-  );
+    // Tags with Paths and WebHooks
+    const tags = groupByTags(
+      jsonParsedSpec,
+      sortEndpointsBy,
+      generateMissingTags,
+      sortTags,
+      hasTagGroups,
+      showUnusedTags,
+    );
 
-  // 3-Level Tag Groups (x-tagGroups / x-tag-groups)
-  const tagGroups = groupByTagGroups(jsonParsedSpec, tags);
+    // 3-Level Tag Groups (x-tagGroups / x-tag-groups)
+    const tagGroups = groupByTagGroups(jsonParsedSpec, tags);
 
-  // Components
-  const components = getComponents(jsonParsedSpec, sortSchemas);
+    // Components
+    const components = getComponents(jsonParsedSpec, sortSchemas);
 
-  // Info Description Headers
-  const infoDescriptionHeaders = jsonParsedSpec.info?.description
-    ? getHeadersFromMarkdown(jsonParsedSpec.info.description)
-    : [];
+    // Info Description Headers
+    const infoDescriptionHeaders = jsonParsedSpec.info?.description
+      ? getHeadersFromMarkdown(jsonParsedSpec.info.description)
+      : [];
 
-  // Security Scheme
-  const securitySchemes = [];
-  if (jsonParsedSpec.components?.securitySchemes) {
-    const securitySchemeSet = new Set();
-    Object.entries(jsonParsedSpec.components.securitySchemes).forEach((kv) => {
-      if (!securitySchemeSet.has(kv[0])) {
-        securitySchemeSet.add(kv[0]);
-        const securityObj = { securitySchemeId: kv[0], ...kv[1] };
-        securityObj.in = "header";
-        securityObj.name = "Authorization"; // Name of the header/cookie/api-key
-        securityObj.nameId = kv[1].name || kv[0]; // Name of the security-scheme
-        securityObj.user = "";
-        securityObj.password = "";
-        securityObj.clientId = "";
-        securityObj.clientSecret = "";
-        securityObj.value = "";
-        securityObj.finalKeyValue = "";
-        if (kv[1].type === "apiKey") {
-          securityObj.in = kv[1].in || "header";
-          securityObj.name = kv[1].name || "Authorization";
+    // Security Scheme
+    const securitySchemes = [];
+    if (jsonParsedSpec.components?.securitySchemes) {
+      const securitySchemeSet = new Set();
+      Object.entries(jsonParsedSpec.components.securitySchemes).forEach((kv) => {
+        if (!securitySchemeSet.has(kv[0])) {
+          securitySchemeSet.add(kv[0]);
+          const securityObj = { securitySchemeId: kv[0], ...kv[1] };
+          securityObj.in = "header";
+          securityObj.name = "Authorization"; // Name of the header/cookie/api-key
+          securityObj.nameId = kv[1].name || kv[0]; // Name of the security-scheme
+          securityObj.user = "";
+          securityObj.password = "";
+          securityObj.clientId = "";
+          securityObj.clientSecret = "";
+          securityObj.value = "";
+          securityObj.finalKeyValue = "";
+          if (kv[1].type === "apiKey") {
+            securityObj.in = kv[1].in || "header";
+            securityObj.name = kv[1].name || "Authorization";
+          }
+          securitySchemes.push(securityObj);
         }
-        securitySchemes.push(securityObj);
+      });
+    }
+
+    if (attrApiKey && attrApiKeyLocation && attrApiKeyValue) {
+      securitySchemes.push({
+        securitySchemeId: rapidocApiKey,
+        description: "api-key provided in rapidoc element attributes",
+        type: "apiKey",
+        oAuthFlow: "",
+        name: attrApiKey, // Name of the header/cookie/api-key
+        nameId: attrApiKey, // Name of the security-scheme
+        in: attrApiKeyLocation,
+        value: attrApiKeyValue,
+        finalKeyValue: attrApiKeyValue,
+      });
+    }
+
+    // Updated Security Type Display Text based on Type
+    securitySchemes.forEach((v) => {
+      if (v.type === "http") {
+        v.typeDisplay = v.scheme === "basic" ? "HTTP Basic" : `HTTP Bearer ${v.nameId}`;
+      } else if (v.type === "apiKey") {
+        v.typeDisplay = `API Key (${v.name})`;
+      } else if (v.type === "oauth2") {
+        v.typeDisplay = `OAuth (${v.securitySchemeId})`;
+      } else {
+        v.typeDisplay = v.type || "None";
       }
     });
-  }
 
-  if (attrApiKey && attrApiKeyLocation && attrApiKeyValue) {
-    securitySchemes.push({
-      securitySchemeId: rapidocApiKey,
-      description: "api-key provided in rapidoc element attributes",
-      type: "apiKey",
-      oAuthFlow: "",
-      name: attrApiKey, // Name of the header/cookie/api-key
-      nameId: attrApiKey, // Name of the security-scheme
-      in: attrApiKeyLocation,
-      value: attrApiKeyValue,
-      finalKeyValue: attrApiKeyValue,
-    });
-  }
-
-  // Updated Security Type Display Text based on Type
-  securitySchemes.forEach((v) => {
-    if (v.type === "http") {
-      v.typeDisplay = v.scheme === "basic" ? "HTTP Basic" : `HTTP Bearer ${v.nameId}`;
-    } else if (v.type === "apiKey") {
-      v.typeDisplay = `API Key (${v.name})`;
-    } else if (v.type === "oauth2") {
-      v.typeDisplay = `OAuth (${v.securitySchemeId})`;
+    // Servers
+    let servers = [];
+    if (
+      jsonParsedSpec.servers &&
+      Array.isArray(jsonParsedSpec.servers) &&
+      jsonParsedSpec.servers.length > 0
+    ) {
+      jsonParsedSpec.servers.forEach((v) => {
+        let computedUrl = String(v.url ?? "").trim();
+        if (
+          !(
+            computedUrl.startsWith("http") ||
+            computedUrl.startsWith("//") ||
+            computedUrl.startsWith("{")
+          )
+        ) {
+          if (typeof window !== "undefined" && window.location?.origin?.startsWith("http")) {
+            v.url = window.location.origin + v.url;
+            computedUrl = v.url;
+          }
+        }
+        // Apply server-variables to generate final computed-url
+        if (v.variables) {
+          Object.entries(v.variables).forEach((kv) => {
+            const regex = new RegExp(`{${kv[0]}}`, "g");
+            computedUrl = computedUrl.replace(regex, kv[1].default || "");
+            kv[1].value = kv[1].default || "";
+          });
+        }
+        v.computedUrl = computedUrl;
+      });
+      if (serverUrl) {
+        jsonParsedSpec.servers.push({ url: serverUrl, computedUrl: serverUrl });
+      }
+    } else if (serverUrl) {
+      jsonParsedSpec.servers = [{ url: serverUrl, computedUrl: serverUrl }];
+    } else if (typeof window !== "undefined" && window.location?.origin?.startsWith("http")) {
+      jsonParsedSpec.servers = [
+        { url: window.location.origin, computedUrl: window.location.origin },
+      ];
     } else {
-      v.typeDisplay = v.type || "None";
+      jsonParsedSpec.servers = [{ url: "http://localhost", computedUrl: "http://localhost" }];
     }
-  });
-
-  // Servers
-  let servers = [];
-  if (
-    jsonParsedSpec.servers &&
-    Array.isArray(jsonParsedSpec.servers) &&
-    jsonParsedSpec.servers.length > 0
-  ) {
-    jsonParsedSpec.servers.forEach((v) => {
-      let computedUrl = v.url.trim();
-      if (
-        !(
-          computedUrl.startsWith("http") ||
-          computedUrl.startsWith("//") ||
-          computedUrl.startsWith("{")
-        )
-      ) {
-        if (typeof window !== "undefined" && window.location?.origin?.startsWith("http")) {
-          v.url = window.location.origin + v.url;
-          computedUrl = v.url;
-        }
-      }
-      // Apply server-variables to generate final computed-url
-      if (v.variables) {
-        Object.entries(v.variables).forEach((kv) => {
-          const regex = new RegExp(`{${kv[0]}}`, "g");
-          computedUrl = computedUrl.replace(regex, kv[1].default || "");
-          kv[1].value = kv[1].default || "";
-        });
-      }
-      v.computedUrl = computedUrl;
-    });
-    if (serverUrl) {
-      jsonParsedSpec.servers.push({ url: serverUrl, computedUrl: serverUrl });
-    }
-  } else if (serverUrl) {
-    jsonParsedSpec.servers = [{ url: serverUrl, computedUrl: serverUrl }];
-  } else if (typeof window !== "undefined" && window.location?.origin?.startsWith("http")) {
-    jsonParsedSpec.servers = [{ url: window.location.origin, computedUrl: window.location.origin }];
-  } else {
-    jsonParsedSpec.servers = [{ url: "http://localhost", computedUrl: "http://localhost" }];
+    servers = jsonParsedSpec.servers;
+    const parsedSpec = {
+      specLoadError: false,
+      isSpecLoading: false,
+      info: jsonParsedSpec.info,
+      infoDescriptionHeaders,
+      tags,
+      tagGroups,
+      components,
+      externalDocs: jsonParsedSpec.externalDocs,
+      securitySchemes,
+      servers,
+    };
+    return parsedSpec;
+  } catch (err) {
+    console.info(
+      "RapiDoc: %c There was an issue while processing the spec %o ",
+      "color:orangered",
+      err,
+    );
+    return {
+      specLoadError: true,
+      isSpecLoading: false,
+      info: {
+        title: "Error processing the spec",
+        description: `Unable to process the spec ┃ ${err?.message || err}`,
+        version: "",
+      },
+      tags: [],
+      tagGroups: [],
+    };
   }
-  servers = jsonParsedSpec.servers;
-  const parsedSpec = {
-    specLoadError: false,
-    isSpecLoading: false,
-    info: jsonParsedSpec.info,
-    infoDescriptionHeaders,
-    tags,
-    tagGroups,
-    components,
-    externalDocs: jsonParsedSpec.externalDocs,
-    securitySchemes,
-    servers,
-  };
-  return parsedSpec;
 }
 
 function filterPaths(
@@ -648,45 +671,37 @@ function groupByTags(
         }))
       : [];
 
-  const pathsAndWebhooks = openApiSpec.paths || {};
-  if (openApiSpec.webhooks) {
-    for (const [key, value] of Object.entries(openApiSpec.webhooks)) {
-      value._type = "webhook";
-      pathsAndWebhooks[key] = value;
-    }
-  }
+  // Paths first, then webhooks; a webhook named like a path does not replace it and the spec is not mutated
+  const pathsAndWebhooks = [
+    ...Object.entries(openApiSpec.paths || {}).map(([name, item]) => [name, item, false]),
+    ...Object.entries(openApiSpec.webhooks || {}).map(([name, item]) => [name, item, true]),
+  ];
   // For each path find the tag and push it into the corresponding tag
-  for (const pathOrHookName in pathsAndWebhooks) {
-    const commonParams = pathsAndWebhooks[pathOrHookName].parameters;
+  for (const [pathOrHookName, pathItem, isWebhook] of pathsAndWebhooks) {
+    const commonParams = pathItem.parameters;
     const commonPathProp = {
-      servers: pathsAndWebhooks[pathOrHookName].servers || [],
-      parameters: pathsAndWebhooks[pathOrHookName].parameters || [],
+      servers: pathItem.servers || [],
+      parameters: pathItem.parameters || [],
     };
-    const isWebhook = pathsAndWebhooks[pathOrHookName]._type === "webhook";
     const operationsToProcess = [];
     supportedMethods.forEach((methodName) => {
-      if (pathsAndWebhooks[pathOrHookName][methodName]) {
+      if (pathItem[methodName]) {
         operationsToProcess.push({
           methodName,
-          pathOrHookObj: pathsAndWebhooks[pathOrHookName][methodName],
+          pathOrHookObj: pathItem[methodName],
         });
       }
     });
 
-    if (
-      pathsAndWebhooks[pathOrHookName].additionalOperations &&
-      typeof pathsAndWebhooks[pathOrHookName].additionalOperations === "object"
-    ) {
-      Object.entries(pathsAndWebhooks[pathOrHookName].additionalOperations).forEach(
-        ([customMethod, customObj]) => {
-          if (customObj && typeof customObj === "object") {
-            operationsToProcess.push({
-              methodName: customMethod.toLowerCase(),
-              pathOrHookObj: customObj,
-            });
-          }
-        },
-      );
+    if (pathItem.additionalOperations && typeof pathItem.additionalOperations === "object") {
+      Object.entries(pathItem.additionalOperations).forEach(([customMethod, customObj]) => {
+        if (customObj && typeof customObj === "object") {
+          operationsToProcess.push({
+            methodName: customMethod.toLowerCase(),
+            pathOrHookObj: customObj,
+          });
+        }
+      });
     }
 
     operationsToProcess.forEach(({ methodName, pathOrHookObj }) => {
@@ -712,7 +727,7 @@ function groupByTags(
         let specTagsItem;
 
         if (openApiSpec.tags) {
-          specTagsItem = openApiSpec.tags.find((v) => v.name.toLowerCase() === tag.toLowerCase());
+          specTagsItem = openApiSpec.tags.find((v) => v.name?.toLowerCase() === tag.toLowerCase());
         }
 
         tagObj = tags.find((v) => v.name === tag);
@@ -820,14 +835,8 @@ function groupByTags(
           xCodeSamples: pathOrHookObj["x-codeSamples"] || pathOrHookObj["x-code-samples"] || "",
           rawOperation: pathOrHookObj,
           xMcp: pathOrHookObj["x-mcp"] || pathOrHookObj["x-mcp-tool"] || undefined,
-          xInternal:
-            pathOrHookObj["x-internal"] ??
-            pathsAndWebhooks[pathOrHookName]?.["x-internal"] ??
-            undefined,
-          xHidden:
-            pathOrHookObj["x-hidden"] ??
-            pathsAndWebhooks[pathOrHookName]?.["x-hidden"] ??
-            undefined,
+          xInternal: pathOrHookObj["x-internal"] ?? pathItem?.["x-internal"] ?? undefined,
+          xHidden: pathOrHookObj["x-hidden"] ?? pathItem?.["x-hidden"] ?? undefined,
           xOpenAiIsConsequential: pathOrHookObj["x-openai-isConsequential"],
           xSpeakeasyNameOverride: pathOrHookObj["x-speakeasy-name-override"] || undefined,
         });
@@ -847,7 +856,7 @@ function groupByTags(
     if (tag.paths && tag.paths.length > 0) {
       return true;
     }
-    if (tag.description && (showUnusedTags || tagNamesInGroups.has(tag.name.toLowerCase()))) {
+    if (tag.description && (showUnusedTags || tagNamesInGroups.has(tag.name?.toLowerCase()))) {
       tag.descriptionOnly = true;
       return true;
     }

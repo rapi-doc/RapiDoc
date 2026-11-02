@@ -321,7 +321,7 @@ export function extractMcpOperations(parsedSpec, options = {}) {
     const isConsequential = Boolean(
       xMcp.requireConfirmation ??
       raw["x-openai-isConsequential"] ??
-      ["post", "put", "delete", "patch"].includes(method.toUpperCase()),
+      ["post", "put", "delete", "patch"].includes(method.toLowerCase()),
     );
 
     // 6. Response Filter

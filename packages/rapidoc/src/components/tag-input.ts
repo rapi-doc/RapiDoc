@@ -8,6 +8,11 @@ export default class TagInput extends LitElement {
   @property({
     type: Array,
     attribute: "value",
+    converter: {
+      // `value="a,b"` is a comma-separated list, not the JSON Lit's Array converter expects
+      fromAttribute: (value) => (value ? value.split(",").filter((v) => v.trim() !== "") : []),
+      toAttribute: (value) => (Array.isArray(value) ? value.join(",") : value),
+    },
     hasChanged(newVal, oldVal) {
       if (newVal === oldVal) return false;
       if (!Array.isArray(newVal) || !Array.isArray(oldVal)) return true;
@@ -46,15 +51,6 @@ export default class TagInput extends LitElement {
     if (e.target.classList.contains("tags")) {
       this.shadowRoot?.querySelector(".editor")?.focus();
     }
-  }
-
-  attributeChangedCallback(name, oldVal, newVal) {
-    if (name === "value") {
-      if (newVal && oldVal !== newVal) {
-        this.value = newVal.split(",").filter((v) => v.trim() !== "");
-      }
-    }
-    super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   dispatchEvents() {

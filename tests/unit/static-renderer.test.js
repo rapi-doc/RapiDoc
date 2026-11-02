@@ -866,3 +866,20 @@ describe("Navigation & Styling Helpers (getSpecNavigation, getBundledCss)", () =
     assert.ok(cobaltTokens.includes("--primary: #3a6cb0;"));
   });
 });
+
+describe("Light DOM scoping of :host selectors (getBundledCss, getNavCss)", () => {
+  it("rewrites :host(:not([x])...) whole, keeping the nested parentheses", () => {
+    const bundled = getBundledCss({ scope: ".api-docs" });
+    assert.ok(
+      bundled.includes(".api-docs:not([theme])[color-scheme='light']"),
+      "the default preset's light selector keeps its attribute after :not()",
+    );
+    assert.ok(!bundled.includes(":not([theme][color-scheme"), "no attribute swallowed into :not()");
+    assert.ok(!bundled.includes("]))"), "no stray closing parenthesis");
+    assert.ok(bundled.includes(".api-docs:not([nav-item-overflow]) .nav-bar-tag-title"));
+
+    const nav = getNavCss(".api-nav");
+    assert.ok(nav.includes(".api-nav:not([nav-item-overflow]) .nav-bar-tag-title"));
+    assert.ok(!nav.includes("]))"), "no stray closing parenthesis in the nav css");
+  });
+});

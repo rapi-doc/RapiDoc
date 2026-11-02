@@ -120,6 +120,7 @@ export default class RapiDocMini extends LitElement {
   @property({ type: Boolean }) loading = false;
 
   isMini: boolean;
+  _specLoadSeq: number;
   updateRoute: string;
   renderStyle: string;
   showHeader: string;
@@ -135,6 +136,8 @@ export default class RapiDocMini extends LitElement {
   constructor() {
     super();
     this.isMini = true;
+    // Spec loads carry a token; only the latest load may apply its result (see loadSpec)
+    this._specLoadSeq = 0;
     this.updateRoute = "false";
     this.renderStyle = "view";
     this.showHeader = "false";
@@ -438,7 +441,8 @@ export default class RapiDocMini extends LitElement {
       }
 
       if (updateSelectedApiKey) {
-        if (this.resolvedSpec) {
+        // While the spec is loading, resolvedSpec is a placeholder without securitySchemes
+        if (this.resolvedSpec?.securitySchemes) {
           const rapiDocApiKey = this.resolvedSpec.securitySchemes.find(
             (v: any) => v.securitySchemeId === rapidocApiKey,
           );
@@ -474,6 +478,8 @@ export default class RapiDocMini extends LitElement {
     if (!specUrl) {
       return;
     }
+    // Each load gets a token; a load whose token is no longer current never applies its result
+    const token = ++this._specLoadSeq;
     try {
       this.resolvedSpec = {
         specLoadError: false,
@@ -498,9 +504,15 @@ export default class RapiDocMini extends LitElement {
         this.matchType,
         this.removeEndpointsWithBadgeLabelAs,
       );
+      if (token !== this._specLoadSeq) {
+        return; // a newer load started while this one was parsing
+      }
       this.loading = false;
-      this.afterSpecParsedAndValidated(spec);
+      this.afterSpecParsedAndValidated(spec, token);
     } catch (err: any) {
+      if (token !== this._specLoadSeq) {
+        return;
+      }
       this.loading = false;
       this.loadFailed = true;
       this.resolvedSpec = null;
@@ -530,7 +542,7 @@ export default class RapiDocMini extends LitElement {
     return setApiServer.call(this, apiServerUrl);
   }
 
-  async afterSpecParsedAndValidated(spec) {
+  async afterSpecParsedAndValidated(spec, token = this._specLoadSeq) {
     this.resolvedSpec = spec;
     this.selectedServer = undefined;
     if (this.defaultApiServerUrl) {
@@ -553,6 +565,9 @@ export default class RapiDocMini extends LitElement {
     this.requestUpdate();
 
     while (!(await this.updateComplete));
+    if (token !== this._specLoadSeq) {
+      return; // a newer load took over while this one was rendering; it fires its own spec-loaded
+    }
     const specLoadedEvent = new CustomEvent("spec-loaded", { detail: spec });
     this.dispatchEvent(specLoadedEvent);
 

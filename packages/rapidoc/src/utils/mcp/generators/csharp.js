@@ -133,7 +133,8 @@ ${bodyCode}        var response = await client.SendAsync(request);
           '[Description("Optional Bearer API key override for multi-tenant sessions")] string apiKey = default',
         ])
         .join(", ");
-      const argKey = paramKeys[0] || "id";
+      // Without parameters the step path is empty: no undeclared `id` variable in the output
+      const stepArg = paramKeys[0] ? `${toCamelCase(paramKeys[0])} ?? ""` : '""';
 
       return `
     [McpTool("${w.name}", ${JSON.stringify(w.description || "Composite workflow")})]
@@ -148,7 +149,7 @@ ${bodyCode}        var response = await client.SendAsync(request);
 ${(w.steps || [])
   .map(
     (s, idx) => `        // Step ${idx + 1}: ${s.call}
-        var resp_${idx} = await client.GetStringAsync($"api/{Uri.EscapeDataString(${toCamelCase(argKey)} ?? "")}");
+        var resp_${idx} = await client.GetStringAsync($"api/{Uri.EscapeDataString(${stepArg})}");
         results["${s.call}"] = JsonSerializer.Deserialize<object>(resp_${idx});`,
   )
   .join("\n")}
