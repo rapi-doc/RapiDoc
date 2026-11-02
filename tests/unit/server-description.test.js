@@ -40,4 +40,41 @@ describe("server descriptions", () => {
     );
     assert.doesNotMatch(label, /<p>/);
   });
+
+  it("recompute the URL when a server variable is edited", () => {
+    const server = {
+      url: "https://{region}.example.com/{version}",
+      variables: { region: { default: "eu" }, version: { default: "v1" } },
+    };
+    const doc = {
+      renderStyle: "read",
+      mockServer: "false",
+      resolvedSpec: { servers: [server] },
+      selectedServer: { ...server, computedUrl: "https://eu.example.com/v1" },
+      requestUpdate() {},
+    };
+    // The @input handlers sit in the template's values; the serializer drops them, so call them directly
+    const handlers = [];
+    const walk = (v) => {
+      if (typeof v === "function") handlers.push(v);
+      else if (Array.isArray(v)) v.forEach(walk);
+      else if (v && typeof v === "object" && Array.isArray(v.values)) v.values.forEach(walk);
+    };
+    walk(serverTemplate.call(doc));
+    assert.ok(
+      handlers.some((h) => String(h).includes("onApiServerVarChange")),
+      "the variable inputs have handlers",
+    );
+
+    const inputs = [
+      { dataset: { var: "region" }, value: "us" },
+      { dataset: { var: "version" }, value: "v2" },
+    ];
+    const list = { querySelectorAll: () => inputs };
+    // The variables render in <ul class="server-vars">, not a table
+    const currentTarget = { closest: (sel) => (sel === ".server-vars" ? list : null) };
+    const onVarInput = handlers.find((h) => String(h).includes("onApiServerVarChange"));
+    onVarInput({ currentTarget });
+    assert.equal(doc.selectedServer.computedUrl, "https://us.example.com/v2");
+  });
 });

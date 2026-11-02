@@ -60,8 +60,9 @@ Default exports are section templates; named exports are helpers used by other t
 - **Persistence.** With `persistAuth === "true"`, `localStorage["rapidoc"]` holds
   `{ securitySchemeId, value }` per apiKey / bearer scheme; Basic credentials are never stored.
   `removeApiKey` deletes one entry; `[security-scheme-template.js:onClearAllApiKeys]` empties it.
-- **Known defect.** `[server-template.js:onApiServerVarChange]` looks up `closest("table")`, but
-  server variables render in a `<ul>`, so editing a variable throws.
+- **Server variables.** `[server-template.js:onApiServerVarChange]` reads every input in the
+  enclosing `<ul class="server-vars">` and recomputes `selectedServer.computedUrl`; the list
+  class is what it looks up, so keep it.
 
 ## Side Effects
 

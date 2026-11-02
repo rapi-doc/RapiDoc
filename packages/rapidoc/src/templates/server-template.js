@@ -26,7 +26,8 @@ export function setApiServer(serverUrl) {
 }
 
 function onApiServerVarChange(e, serverObj) {
-  const inputEls = [...e.currentTarget.closest("table").querySelectorAll("input, select")];
+  // The variables render as a list, <ul class="server-vars">
+  const inputEls = [...e.currentTarget.closest(".server-vars").querySelectorAll("input, select")];
   let tempUrl = serverObj.url;
   inputEls.forEach((v) => {
     const regex = new RegExp(`{${v.dataset.var}}`, "g");

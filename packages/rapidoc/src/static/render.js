@@ -403,7 +403,7 @@ export async function renderEndpoint(options = {}) {
     ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${containerClass}` })}</style>`
     : "";
 
-  return `<div class="${containerClass} ${renderStyle}-mode" data-theme="${theme}" data-color-scheme="${colorScheme}">
+  return `<div class="${containerClass} ${escapeHtml(renderStyle)}-mode" data-theme="${escapeHtml(theme)}" data-color-scheme="${escapeHtml(colorScheme)}">
 ${cssText}
 ${serializedHtml}
 </div>`;
@@ -477,7 +477,7 @@ export async function renderSchema(options = {}) {
     ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${containerClass}` })}</style>`
     : "";
 
-  return `<div class="${containerClass}" data-theme="${theme}" data-color-scheme="${colorScheme}">
+  return `<div class="${containerClass}" data-theme="${escapeHtml(theme)}" data-color-scheme="${escapeHtml(colorScheme)}">
 ${cssText}
 ${serializedHtml}
 </div>`;

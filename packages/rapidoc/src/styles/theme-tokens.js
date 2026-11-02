@@ -214,7 +214,7 @@ export function isLightColor(color) {
 export function applyCustomTheme(element, themeVal) {
   if (!element || !element.style) return;
   if (
-    !themeVal ||
+    typeof themeVal !== "string" ||
     THEME_PRESETS.includes(themeVal.trim().toLowerCase()) ||
     !isValidHexColor(themeVal)
   ) {
@@ -571,7 +571,7 @@ export default css`
       --syntax-inserted: #116329;
       --syntax-deleted: #cf222e;
 
-      --code-bg: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --code-bg: color-mix(in srgb, var(--background) 96%, var(--foreground));
     }
   }
 

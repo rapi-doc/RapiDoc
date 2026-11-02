@@ -31,8 +31,8 @@ re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `rapidoc/stat
 - `isValidHexColor`, `isValidTheme`, `isCustomColor`, `isLightColor`: theme value checks.
 - `normalizeTheme(theme) -> { theme }`: presets lower-cased, hex kept, anything else becomes
   `DEFAULT_THEME`.
-- `applyCustomTheme(element, themeVal)`: sets or removes inline `--primary` and
-  `--primary-foreground` on the host.
+- `applyCustomTheme(element, themeVal)`: sets inline `--primary` and `--primary-foreground` on
+  the host for a valid hex string, and removes them for anything else (presets, non-strings).
 - default export: the token stylesheet (defaults, geometry switches, color schemes, presets).
 
 `css-bundle.js`:

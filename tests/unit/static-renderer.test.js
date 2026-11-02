@@ -882,4 +882,26 @@ describe("Light DOM scoping of :host selectors (getBundledCss, getNavCss)", () =
     assert.ok(nav.includes(".api-nav:not([nav-item-overflow]) .nav-bar-tag-title"));
     assert.ok(!nav.includes("]))"), "no stray closing parenthesis in the nav css");
   });
+
+  it("escapes theme and colorScheme in the endpoint and schema containers", async () => {
+    const theme = '"><script>alert(1)</script>';
+    const endpoint = await renderEndpoint({
+      spec: sampleSpec,
+      path: "/v1/shipments",
+      method: "get",
+      theme,
+      colorScheme: theme,
+      includeStyles: false,
+    });
+    const schema = await renderSchema({
+      schema: { type: "string" },
+      theme,
+      colorScheme: theme,
+      includeStyles: false,
+    });
+    for (const out of [endpoint, schema]) {
+      assert.ok(!out.includes("<script>alert(1)</script>"), "no raw markup from the theme");
+      assert.ok(out.includes('data-theme="&quot;&gt;&lt;script&gt;'));
+    }
+  });
 });

@@ -5,6 +5,7 @@ import themeTokens, {
   isValidHexColor,
   isValidTheme,
   normalizeTheme,
+  applyCustomTheme,
 } from "../../packages/rapidoc/src/styles/theme-tokens.js";
 import navStyles from "../../packages/rapidoc/src/styles/nav-styles.js";
 
@@ -168,5 +169,28 @@ test("theme-validation", async (t) => {
   await t.test("--font-sans and --font-mono are plain shadcn/ui font tokens", () => {
     assert.match(themeTokens.cssText, /--font-sans:\s*-apple-system/);
     assert.match(themeTokens.cssText, /--font-mono:\s*ui-monospace/);
+  });
+
+  await t.test("applyCustomTheme ignores a value that is not a string", () => {
+    const removed = [];
+    const element = {
+      style: { removeProperty: (n) => removed.push(n), setProperty: () => assert.fail("no set") },
+    };
+    assert.doesNotThrow(() => applyCustomTheme(element, 42));
+    assert.doesNotThrow(() => applyCustomTheme(element, { theme: "#ff0000" }));
+    assert.deepEqual(removed, [
+      "--primary",
+      "--primary-foreground",
+      "--primary",
+      "--primary-foreground",
+    ]);
+  });
+
+  await t.test("color-scheme system under a light OS uses the light --code-bg", () => {
+    const codeBg = [...themeTokens.cssText.matchAll(/--code-bg:\s*(color-mix\([^;]+\));/g)].map(
+      (m) => m[1],
+    );
+    assert.equal(codeBg.length, 2, "one value for light, one for system-light");
+    assert.equal(codeBg[0], codeBg[1]);
   });
 });
