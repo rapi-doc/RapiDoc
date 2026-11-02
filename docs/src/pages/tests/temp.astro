@@ -1,8 +1,8 @@
 ---
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
-import { getSpecUrl } from '../../utils/getSpecUrl';
 
-const specUrl = getSpecUrl(Astro.url);
+// Scratch page: the scratch spec lives in public/specs/, not public/specs-test/.
+const specUrl = '/specs/temp.yaml';
 ---
 
 <ExampleLayout>

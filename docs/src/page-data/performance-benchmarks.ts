@@ -8,7 +8,6 @@ export interface BenchmarkSpecItem {
   format: string;
   fileSize: string;
   operations: number | string;
-  schemas: number | string;
   focusedModeTime: string;
   viewModeTime: string;
   readModeTime: string;

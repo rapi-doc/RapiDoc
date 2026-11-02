@@ -3,9 +3,8 @@ import '../styles/examples.css';
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import RapidocTuner from '../components/RapidocTuner.astro';
 import PrettyRapidocTuner from '../components/PrettyRapidocTuner.astro';
-import { getSpecUrl } from '../utils/getSpecUrl';
-import { exampleListData } from '../page-data/example-list';
-import { testListData } from '../page-data/tests';
+import { getSpecUrl, isTestPath } from '../utils/getSpecUrl';
+import { findTestBySlug, findExampleBySlug } from '../utils/pageMeta';
 import type { ControllerPreset } from '../components/controller-registry';
 
 interface Props {
@@ -52,7 +51,7 @@ if (controller === 'pretty' || controller === 'drawer') {
 }
 
 const pathname = Astro.url.pathname;
-const isTest = pathname.startsWith('/tests');
+const isTest = isTestPath(pathname);
 
 // Extract slug (e.g. /examples/render-read/ -> render-read)
 const segments = pathname.replace(/\/+$/, '').split('/').filter(Boolean);
@@ -60,15 +59,6 @@ let slug = segments[segments.length - 1] || '';
 if (slug === 'index' || slug === 'index.html') {
   slug = segments[segments.length - 2] || '';
 }
-
-function formatSlug(s: string): string {
-  return s
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
-
-import { findTestBySlug, findExampleBySlug } from '../utils/pageMeta';
 
 let autoTitle = '';
 let autoDescription = '';

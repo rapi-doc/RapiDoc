@@ -49,12 +49,18 @@ export default defineConfig(({ mode }) => {
             },
           ]
         : []),
-      {
-        name: "record-build-info",
-        closeBundle() {
-          captureBuildInfo();
-        },
-      },
+      // Only the minified bundle is the published one; a `--mode development` build would
+      // record the unminified size as `bundle.minified`.
+      ...(!isDev
+        ? [
+            {
+              name: "record-build-info",
+              closeBundle() {
+                captureBuildInfo();
+              },
+            },
+          ]
+        : []),
       ...(process.env.ANALYZE === "true"
         ? [
             visualizer({

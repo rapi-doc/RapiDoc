@@ -25,9 +25,15 @@ const testToSpecMap: Record<string, string> = {
   "theme-n-color": "petstore.yaml",
 };
 
+// A test page lives under /tests/<slug> (after any BASE_URL). Shared with ExampleLayout so the
+// layout and the spec folder agree on what a test page is.
+export function isTestPath(pathname: string): boolean {
+  return pathname.includes("/tests/");
+}
+
 export function getSpecUrl(url: URL): string {
   const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
-  const isTest = url.pathname.includes("/tests/");
+  const isTest = isTestPath(url.pathname);
   const baseUrl = `${base}/${isTest ? "specs-test" : "specs"}`;
 
   const segments = url.pathname.replace(/\/+$/, "").split("/").filter(Boolean);

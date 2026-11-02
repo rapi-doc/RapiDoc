@@ -20,10 +20,14 @@ rapidocApiData.Attributes.forEach(group => {
   const [, items] = Object.entries(group)[0] as [string, RapidocAttribute[]];
   totalAttributes += items.filter(a => !a.hidden).length;
 });
-const totalMethods = rapidocApiData.Methods.items.length;
-const totalEvents = rapidocApiData.Events.items.length;
-const totalSlots = rapidocApiData.Slots.items.length;
-const totalExtensions = rapidocApiData.Extensions.items.length;
+const visibleMethods = rapidocApiData.Methods.items.filter(m => m.hidden !== true);
+const visibleEvents = rapidocApiData.Events.items.filter(e => e.hidden !== true);
+const visibleSlots = rapidocApiData.Slots.items.filter(s => s.hidden !== true);
+const visibleExtensions = rapidocApiData.Extensions.items.filter(x => x.hidden !== true);
+const totalMethods = visibleMethods.length;
+const totalEvents = visibleEvents.length;
+const totalSlots = visibleSlots.length;
+const totalExtensions = visibleExtensions.length;
 
 const eventCodeExample = `// Intercept requests and add authentication or telemetry
 const rapidocEl = document.getElementById('the-doc');
@@ -298,7 +302,7 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
               </tr>
             </thead>
             <tbody>
-              {rapidocApiData.Methods.items.map(method => (
+              {visibleMethods.map(method => (
                 <tr class="rd-api-row" id={method.name.replace(/[^a-zA-Z0-9_-]/g, '-')} data-section="methods" data-name={method.name.toLowerCase()}>
                   <td class="col-name">
                     <div class="rd-name-cell">
@@ -362,7 +366,7 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
               </tr>
             </thead>
             <tbody>
-              {rapidocApiData.Events.items.map(ev => (
+              {visibleEvents.map(ev => (
                 <tr class="rd-api-row" id={ev.name} data-section="events" data-name={ev.name.toLowerCase()}>
                   <td class="col-name">
                     <div class="rd-name-cell">
@@ -419,7 +423,7 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
               </tr>
             </thead>
             <tbody>
-              {rapidocApiData.Slots.items.map(slot => (
+              {visibleSlots.map(slot => (
                 <tr class="rd-api-row" id={`slot-${slot.name.replace(/[^a-zA-Z0-9_-]/g, '-')}`} data-section="slots" data-name={slot.name.toLowerCase()}>
                   <td class="col-name">
                     <div class="rd-name-cell">
@@ -479,7 +483,7 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
               </tr>
             </thead>
             <tbody>
-              {rapidocApiData.Extensions.items.map(ext => (
+              {visibleExtensions.map(ext => (
                 <tr class="rd-api-row" id={ext.name} data-section="extensions" data-name={ext.name.toLowerCase()}>
                   <td class="col-name">
                     <div class="rd-name-cell">
