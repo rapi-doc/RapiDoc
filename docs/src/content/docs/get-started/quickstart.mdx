@@ -20,7 +20,7 @@ Add the ES module script tag inside the `<head>` of your HTML document:
 ```
 
 <Aside type="note">
-For production environments, we recommend pinning the specific version (e.g. `https://unpkg.com/rapidoc@9.3.9/dist/rapidoc-min.js`) or self-hosting the bundle.
+For production environments, we recommend pinning the specific version (e.g. `https://unpkg.com/rapidoc@12.0.0/dist/rapidoc-min.js`) or self-hosting the bundle.
 </Aside>
   </TabItem>
 
@@ -255,11 +255,11 @@ Here are the most frequently used attributes when initializing RapiDoc:
 | Attribute | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `spec-url` | `string` | `""` | URL of the OpenAPI / Swagger JSON or YAML specification. |
-| `theme` | `string` | `"amber"` | Theme palette preset (`amber`, `blue`, `emerald`, `violet`, `rose`, `graphite`, `slate`) or custom `#hex`. |
+| `theme` | `string` | `"ember"` | Brand color preset (`ember`, `carbon`, `cobalt`, `jade`, `indigo`) or a custom `#hex` brand color. |
 | `color-scheme` | `string` | `"dark"` | Color mode: `'dark'`, `'light'`, or `'system'`. |
 | `radius` | `string` | `"sm"` | Corner radius: `'none'`, `'sm'`, `'md'`, `'lg'`, or `'full'`. |
 | `scale` | `string` | `"default"` | Global UI scale: `'sm'`, `'default'`, or `'lg'`. |
-| `render-style` | `string` | `"view"` | Layout mode: `'read'`, `'view'`, or `'focused'`. |
-| `show-header` | `boolean` | `true` | Displays the top navigation bar with search, server selection, and auth controls. |
-| `allow-try` | `boolean` | `true` | Allows developers to execute interactive API requests directly from the UI. |
-| `allow-authentication` | `boolean` | `true` | Shows security and API key authentication panels. |
+| `render-style` | `string` | `"read"` | Layout mode: `'read'`, `'view'`, or `'focused'`. |
+| `show-header` | `string` (`"true"` / `"false"`) | `"true"` | Displays the top navigation bar with search, server selection, and auth controls. |
+| `allow-try` | `string` (`"true"` / `"false"`) | `"true"` | Allows developers to execute interactive API requests directly from the UI. |
+| `allow-authentication` | `string` (`"true"` / `"false"`) | `"true"` | Shows security and API key authentication panels. |

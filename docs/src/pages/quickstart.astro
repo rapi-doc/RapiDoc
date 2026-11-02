@@ -34,7 +34,7 @@ const recipes: Recipe[] = [
   </head>
   <body>
     <rapi-doc 
-      spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
     > </rapi-doc>
   </body>
 </html>`,
@@ -79,7 +79,7 @@ export function ApiDocsPortal() {
       'Displays a high-performance sidebar navigation on the left and renders only the currently selected endpoint on the right. Employs lazy DOM instantiation for lightning-fast speeds even with 10MB+ specs.',
     demoUrl: '/examples/render-focused',
     code: `<rapi-doc
-  spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   render-style="focused"
   show-header="false"
 >
@@ -96,7 +96,7 @@ export function ApiDocsPortal() {
       'Renders all endpoints sequentially into a continuous, printable technical document. Ideal for comprehensive API reference manuals, product guides, and technical whitepapers.',
     demoUrl: '/examples/render-read',
     code: `<rapi-doc
-  spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   render-style="read"
 >
 </rapi-doc>`,
@@ -112,7 +112,7 @@ export function ApiDocsPortal() {
       'Presents API tags and operations as an expandable/collapsible accordion hierarchy. Balances overview density with focused exploration.',
     demoUrl: '/examples/render-view',
     code: `<rapi-doc
-  spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   render-style="view"
 >
 </rapi-doc>`,
@@ -128,7 +128,7 @@ export function ApiDocsPortal() {
       'Switches complex JSON schema models in request bodies and response payloads from interactive collapsible tree views to clean, structured data tables.',
     demoUrl: '/examples/schema-styles',
     code: `<rapi-doc
-  spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   schema-style="table"
   default-schema-tab="schema"
 >
@@ -147,7 +147,7 @@ export function ApiDocsPortal() {
       'Tailor RapiDoc to match your brand identity. Configure background surfaces, header colors, primary action buttons, and sidebar navigation accents.',
     demoUrl: '/examples/header-color',
     code: `<rapi-doc
-  spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   color-scheme="light"
   theme="#2563eb"
   radius="md"
@@ -162,7 +162,7 @@ export function ApiDocsPortal() {
     title: 'Custom Typography & Google Web Fonts',
     category: 'Theming & Branding',
     summary:
-      'Apply modern typography using Google Fonts or custom font faces. Set regular-font for general interface text and mono-font for code payloads and parameter definitions.',
+      'Apply modern typography using Google Fonts or custom font faces. RapiDoc reads its fonts from the CSS custom properties --font-sans (interface text) and --font-mono (code payloads and parameter definitions), so set them on the element.',
     demoUrl: '/examples/font',
     code: `<!doctype html>
 <html>
@@ -171,14 +171,15 @@ export function ApiDocsPortal() {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  <style>
+    rapi-doc {
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+  </style>
 </head>
 <body>
-  <rapi-doc
-    spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
-    regular-font="Outfit, sans-serif"
-    mono-font="'JetBrains Mono', monospace"
-    font-size="default"
-  >
+  <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" scale="default">
   </rapi-doc>
 </body>
 </html>`,
@@ -201,13 +202,12 @@ export function ApiDocsPortal() {
 
   <main style="flex: 1; overflow: hidden;">
     <rapi-doc
-      spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
       render-style="read"
       show-header="false"
       show-info="false"
       allow-authentication="false"
       allow-server-selection="false"
-      allow-api-list-style-selection="false"
       style="height: 100%; width: 100%;"
     >
     </rapi-doc>
@@ -226,13 +226,13 @@ export function ApiDocsPortal() {
     summary: 'Replace default branding with your organization or product logo inside the sidebar navigation header using slot="nav-logo".',
     demoUrl: '/examples/logo',
     code: `<rapi-doc
-  spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   render-style="read"
 >
   <!-- Injects custom logo into sidebar navigation -->
   <img
     slot="nav-logo"
-    src="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/assets/images/dog.png"
+    src="logo.png"
     alt="Brand Logo"
     style="width: 32px; height: 32px; margin-right: 8px;"
   />
