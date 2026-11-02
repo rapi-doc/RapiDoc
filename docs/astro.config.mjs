@@ -21,7 +21,7 @@ export default defineConfig({
   srcDir: './src',
   outDir: './dist',
   publicDir: './public',
-  site: 'https://rapidocweb.com',
+  site: 'https://rapidocui.com',
   build: {
     format: 'directory',
   },

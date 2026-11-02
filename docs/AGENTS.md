@@ -5,7 +5,7 @@
 
 - **Package Name**: `docs` (private workspace)
 - **Framework**: [Astro 7](https://astro.build/) with [@astrojs/starlight](https://starlight.astro.build/)
-- **Live Site**: `https://rapidocweb.com`
+- **Live Site**: `https://rapidocui.com`
 - **Default Dev Port**: `4321` (`http://localhost:4321`)
 - **Build Output**: `docs/dist/`
 
