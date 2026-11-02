@@ -104,3 +104,7 @@ packages/rapidoc/src/
    - `packages/rapidoc/dist/rapidoc-min.js` is tracked in git at an older commit (`4ff07e3f`).
    - **DO NOT** run `git checkout packages/rapidoc/dist/rapidoc-min.js` or `git restore` to clean up `git status`. Doing so restores the obsolete pre-slugger bundle and breaks navigation/scrolling across all portal pages.
    - Always keep `dist/rapidoc-min.js` compiled via `npm run build:rapidoc`.
+10. **Folder Contracts (`src/**/README.md`)**:
+    - Each code folder under `src/` has a `README.md` contract: what the folder owns, its public interface, invariants callers rely on, side effects, and the tests that cover it.
+    - A change that alters a documented interface, invariant or side effect updates that folder's `README.md` in the same commit.
+    - Cite code by file and symbol (`[slugger.js:OperationSlugger.slug]`), never by line number. Keep inventories (every method, CSS part, option default) out; the code and `static/index.d.ts` hold them.
