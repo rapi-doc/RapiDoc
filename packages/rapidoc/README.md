@@ -59,39 +59,50 @@ Include the script in your HTML page and use the `<rapi-doc>` custom element:
 
 ## Repository Architecture
 
-This repository is structured as a **Monorepo** using workspaces, compatible with **Node/npm**, **pnpm**, and **Bun**:
+This repository is a monorepo built on **npm workspaces** (`packages/*` and `docs`):
 
 ```text
 rapidoc/
 ├── packages/
-│   ├── rapidoc/                 # Core Web Component library (published as "rapidoc")
-│   │   ├── src/                 # Web component source code (Lit + modern ESM)
-│   │   ├── dist/                # Production bundle (rapidoc-min.js)
-│   │   ├── package.json         # Library package config
-│   │   └── vite.config.mjs      # Dedicated library build config
+│   ├── rapidoc/                 # Core web component library (npm "rapidoc"): <rapi-doc>, <rapi-doc-mini>
+│   │   ├── src/                 # Lit 3 source; each folder has a README.md contract
+│   │   ├── dist/                # rapidoc-min.js (browser) and rapidoc-static-min.js ("rapidoc/static")
+│   │   ├── vite.config.mjs      # Browser bundle build
+│   │   └── vite.config.static.mjs  # Static (SSR) renderer build
 │   │
-│   ├── rapidoc-cli/             # The `rapidoc` command (init, dev, build, validate, migrate)
-│   │   ├── src/                 # CLI source code
-│   │   └── package.json
-│   │
-│   └── rapidoc-portal/          # PocketBase developer portal to host & secure specs
-│       └── package.json
+│   ├── rapidoc-cli/             # @rapidoc/cli, the `rapidoc` command: init, dev, build, serve, mock, validate, migrate
+│   ├── rapidoc-portal/          # @rapidoc/portal: docs-as-code developer portal for OpenAPI and Markdoc (Astro)
+│   ├── rapidoc-server/          # @rapidoc/server: serves a built portal with OpenID Connect sign-in and access rules
+│   ├── rapidoc-mock/            # @rapidoc/mock: mock server for a portal's APIs, with OAuth scope checks
+│   └── create-rapidoc/          # create-rapidoc: scaffolds a new portal (npm create rapidoc)
 │
-├── docs/                        # Astro documentation & showcase site (GitHub Pages)
-│   ├── src/                     # Astro pages, components, and layouts
-│   │   ├── pages/examples/      # Public showcase pages (code-highlight, petstore, etc.)
-│   │   └── pages/tests/         # Internal test & edge-case pages
+├── docs/                        # Astro + Starlight documentation and showcase site (GitHub Pages)
+│   ├── src/
+│   │   ├── content/docs/        # Documentation pages
+│   │   ├── pages/examples/      # Public showcase pages
+│   │   ├── pages/tests/         # Internal test and edge-case pages
+│   │   └── page-data/           # YAML data for attribute tables and the example list
 │   ├── public/
-│   │   ├── specs/               # PUBLIC showcase specs (used by /examples)
-│   │   └── specs-test/          # INTERNAL test specs (edge cases & parser fixtures)
-│   │       └── parser/          # Malformed & validation test specs
-│   ├── astro.config.mjs         # Astro site configuration
-│   └── package.json             # Workspace package "docs"
+│   │   ├── specs/               # Public showcase specs (used by /examples)
+│   │   └── specs-test/          # Internal edge-case specs
+│   │       └── parser/          # Malformed and invalid specs for validation tests
+│   ├── generated-docs/          # Committed build of the site; the docs build refreshes only its rapidoc-min.js
+│   └── astro.config.mjs         # Astro site configuration
 │
-├── tests/
-│   └── visual/                  # Automated visual regression test suite (Playwright)
+├── tests/                       # See tests/README.md
+│   ├── unit/                    # Node test runner: parser, schema, templates, static renderer
+│   ├── component/               # Lit component tests
+│   ├── e2e/                     # Functional tests in a headless browser (playwright-core)
+│   ├── visual/                  # Visual regression tests with golden snapshots
+│   ├── perf/                    # Spec parsing and rendering benchmarks
+│   ├── fixtures/                # Shared specs and the HTML test harness
+│   └── helpers/                 # Test server and browser helpers
 │
-├── package.json                 # Monorepo root configuration (workspaces)
+├── scripts/                     # Build info capture, demo prerender, test loader
+├── docker/                      # Dockerfile and Nginx config for hosting RapiDoc
+├── brand/                       # Logo SVGs and usage notes
+├── package.json                 # Monorepo root: npm workspaces (packages/*, docs) and scripts
+├── AGENTS.md                    # Guidance for contributors and coding agents
 └── README.md
 ```
 
@@ -246,7 +257,7 @@ When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/m
 
 OpenAPI specs are organized inside `docs/public/` based on their visibility and purpose:
 
-- **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](file:///Users/mrin/work/rapidoc/docs/src/data/example-list.yaml) and displayed on `rapidocui.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
+- **`docs/public/specs/`**: Public showcase specs referenced in `docs/src/page-data/example-list.yaml` and displayed on `rapidocui.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
 - **`docs/public/specs-test/`**: Internal edge-case and boundary specs used for UI verification and regression tests (e.g., `circular-refs.yaml`, `xxx-of-combinations.yaml`).
 - **`docs/public/specs-test/parser/`**: Malformed or invalid specs used to test CLI validation and error reporting (e.g., `invalid-syntax.yaml`, `missing-info.yaml`, `broken-ref.yaml`).
 
@@ -257,7 +268,7 @@ OpenAPI specs are organized inside `docs/public/` based on their visibility and 
 - [x] Modernize project dependencies (Vite + Astro + Node 22+)
 - [x] Restructure as a multi-package Monorepo
 - [ ] Build `rapidoc-cli` for OpenAPI linting and local zero-config previews
-- [ ] Build `rapidoc-portal` with PocketBase for developer API portals
+- [x] Build `rapidoc-portal`, a docs-as-code developer portal, with sign-in (`rapidoc-server`) and mocking (`rapidoc-mock`)
 - [ ] Automated visual regression testing suite with Playwright
 - [ ] Web Content Accessibility Guidelines (WCAG 2.1) compliance enhancements
 
