@@ -164,3 +164,37 @@ export function operationAnchorSource(op: {
   operationId?: string;
   summary?: string;
 }): "operationId" | "summary" | "path";
+
+/** A problem found by Arazzo validation. */
+export interface ArazzoProblem {
+  level: "error" | "warning";
+  path: string;
+  message: string;
+}
+
+/**
+ * Draws one Arazzo workflow as an SVG string. `sources` maps source description names to their
+ * OpenAPI documents (text or object), so steps show their method and path. Style the result with
+ * `getFlowCss()` plus `getThemeTokensCss()`.
+ */
+export function renderArazzoWorkflow(
+  arazzo: string | object,
+  options?: {
+    workflowId?: string;
+    sources?: Record<string, string | object>;
+    /** "expanded" (default) lists each step's inputs and actions in its box. */
+    view?: "expanded" | "compact";
+    idPrefix?: string;
+    interactive?: boolean;
+  },
+): {
+  svg: string;
+  /** Kinds of lines drawn, for a legend, in this order when present. */
+  legend: ("seq" | "data" | "output" | "success" | "failure" | "action")[];
+  graph: object | null;
+  problems: ArazzoProblem[];
+  workflowIds: string[];
+};
+
+/** CSS for the diagrams drawn by `renderArazzoWorkflow`. */
+export function getFlowCss(): string;

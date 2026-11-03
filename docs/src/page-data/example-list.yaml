@@ -50,6 +50,12 @@ examples:
       description: Generate token-efficient, agent-friendly MCP servers from OpenAPI specs. Contrasts curated agent tooling vs plain 1:1 conversion.
       category: Console & Interactive
 
+  - Arazzo Workflows:
+      img: /assets/images/terminal.png
+      href: /examples/arazzo-flow
+      description: Draw the workflows of an Arazzo document with the rapi-flow element, next to the API reference; click a step to open its operation.
+      category: Console & Interactive
+
   - Schema Styles:
       img: /assets/images/schema-style.png
       href: /examples/schema-styles

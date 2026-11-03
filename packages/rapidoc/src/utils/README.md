@@ -7,9 +7,11 @@ the static renderer (`rapidoc/static`, `src/static/`). `utils/` owns the spec pi
 dereference, group, anchor), schema rendering and example generation, request/response/mock
 helpers, and UI helpers (highlighting, Markdown, sanitizing, navbar binding, color, OAuth). It
 does not own rendering (`templates/`, `components/`) or styles. The MCP library and emitters
-are documented in [`./mcp/README.md`](./mcp/README.md).
+are documented in [`./mcp/README.md`](./mcp/README.md); Arazzo parsing and workflow diagrams in
+[`./arazzo/README.md`](./arazzo/README.md).
 
-Everything is bundled into `dist/rapidoc-min.js`. `@rapidoc/portal` depends on this folder
+Everything except `arazzo/` is bundled into `dist/rapidoc-min.js`; `arazzo/` goes into
+`dist/rapidoc-flow-min.js` and `rapidoc/static`. `@rapidoc/portal` depends on this folder
 indirectly through `rapidoc/static` (`methodPathSlug`, `operationAnchorSource`, `toKebabCase`)
 and the anchors `<rapi-doc>` emits, so anchor generation is public behavior.
 Several modules run in Node (static renderer, unit tests) and must guard `window`/`document`.

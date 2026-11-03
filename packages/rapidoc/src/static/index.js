@@ -18,6 +18,13 @@ import {
 } from "./navigation.js";
 import { getBundledCss, getNavCss, getThemeTokensCss } from "../styles/css-bundle.js";
 import { toKebabCase, methodPathSlug, operationAnchorSource } from "../utils/slugger.js";
+import { renderArazzoWorkflow } from "../utils/arazzo/index.js";
+import FlowStyles from "../styles/flow-styles.js";
+
+/** CSS for diagrams from `renderArazzoWorkflow`; the page also needs the theme tokens (`getThemeTokensCss`). */
+function getFlowCss() {
+  return FlowStyles.cssText;
+}
 
 export {
   renderRapiDoc,
@@ -38,6 +45,8 @@ export {
   toKebabCase,
   methodPathSlug,
   operationAnchorSource,
+  renderArazzoWorkflow,
+  getFlowCss,
 };
 
 export default {
@@ -59,4 +68,6 @@ export default {
   toKebabCase,
   methodPathSlug,
   operationAnchorSource,
+  renderArazzoWorkflow,
+  getFlowCss,
 };

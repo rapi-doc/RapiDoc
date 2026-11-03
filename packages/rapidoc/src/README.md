@@ -6,6 +6,8 @@ Source root of the `rapidoc` package. It owns the three custom elements and the 
 `rapidoc.ts` (`<rapi-doc>`, the full viewer), `rapidoc-mini.ts` (`<rapi-doc-mini>`, the embeddable
 subset) and `oauth-receiver.ts` (`<oauth-receiver>`, the OAuth 2 return page). `index.js` is the
 entry Vite builds into `dist/rapidoc-min.js`; `static/` is the second entry (`rapidoc/static`).
+`rapi-flow.ts` (`<rapi-flow>`, the Arazzo workflow diagram) has its own entry, `flow.js`, built into
+`dist/rapidoc-flow-min.js` (`rapidoc/flow`), so `rapidoc-min.js` carries no Arazzo code.
 
 It does not own parsing, rendering or styling: a spec goes through `ProcessSpec`
 ([`utils/`](./utils/README.md)) into `this.resolvedSpec`, and `render()` hands it to
@@ -36,6 +38,18 @@ other member is internal; templates call internal members freely through `this`.
   `setHttpUserNameAndPassword`, `removeAllSecurityKeys`, `setApiServer`; event `spec-loaded`.
 - `<oauth-receiver>` (`[oauth-receiver.ts:OauthReceiver]`): plain `HTMLElement` for the page named
   by the `oauth-receiver` attribute; relays the provider's reply to the opener.
+- `<rapi-flow>` (`[rapi-flow.ts:RapiFlow]`): attributes `arazzo-url`, `spec-url` (replaces the
+  first OpenAPI source's URL), `workflow-id` (defaults to the first workflow), `for` (id of a
+  `<rapi-doc>`: clicking a step calls its `scrollToPath`), `show-docs` (`"false"` hides the inputs,
+  outputs and step details under the diagram), `view` (`expanded`, the default, or `compact`;
+  the header's Compact / Expanded switch sets it), `show-view-toggle` (`"false"` hides that
+  switch), `theme`, `color-scheme`; method `load`; events `flow-loaded` (`detail: { doc,
+  problems }`), `step-click` (`detail: { workflowId, stepId, operation, workflowRef }`) and
+  `view-change` (`detail: { view }`, fired only by the switch), all bubbling and composed. The
+  element does not store the chosen view; a page that wants it remembered listens for
+  `view-change`. The legend lists only the kinds of lines the current diagram draws. Clicking a
+  step also opens its entry in the step details; clicking a step that calls another workflow of
+  the same document switches to it. Display only: it calls no API.
 
 ## Invariants
 
@@ -93,6 +107,8 @@ other member is internal; templates call internal members freely through `this`.
 - `downloadMcpServer` creates a Blob URL and a temporary `<a>`; the file input uses `FileReader`.
 - `console.error` on load or parse failure (not for superseded loads); `console.warn` when
   `scroll-container` is not an ancestor.
+- `<rapi-flow>` fetches `arazzo-url` and each OpenAPI source description (relative to the Arazzo
+  URL); a source that fails to load becomes a warning, not an error.
 - `<oauth-receiver>` clears its URL with `history.replaceState`, posts the reply to
   `window.opener` (when set) with `location.origin` as target, and to
   `BroadcastChannel("rapidoc-oauth")` when that global exists.

@@ -35,7 +35,9 @@ typed contract (option types, navigation types, signatures) and declares no defa
   serializer for Lit `TemplateResult` values.
 - Re-exports: `bindNavBar` (browser-side, `../utils/bind-navbar.js`); `getBundledCss`,
   `getNavCss`, `getThemeTokensCss` (`../styles/css-bundle.js`); `toKebabCase`, `methodPathSlug`,
-  `operationAnchorSource` (`../utils/slugger.js`).
+  `operationAnchorSource` (`../utils/slugger.js`); `renderArazzoWorkflow`
+  (`../utils/arazzo/index.js`: one Arazzo workflow as an SVG string) and `getFlowCss` (its
+  stylesheet, `../styles/flow-styles.js`; the page also needs `getThemeTokensCss`).
 
 ## Invariants
 

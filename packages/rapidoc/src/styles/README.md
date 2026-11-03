@@ -49,6 +49,8 @@ re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `rapidoc/stat
 
 Every other file default-exports one stylesheet named after what it styles (`nav-styles.js`,
 `endpoint-styles.js`, `schema-styles.js`, ...); `custom-styles.js` is an empty slot kept last.
+`flow-styles.js` styles the Arazzo diagram for `<rapi-flow>` and `rapidoc/static` `getFlowCss()`; it
+uses plain class selectors (no `:host`) and is not part of `allStyles`.
 
 The custom properties themselves are not listed here: `theme-tokens.js` is the source of truth and
 `docs/src/page-data/styling-data.yaml` is the documented list (`packages/rapidoc/AGENTS.md` §5,

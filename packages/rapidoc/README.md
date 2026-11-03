@@ -282,7 +282,7 @@ a whole.
 
 ### Overview
 
-`packages/rapidoc` is a Lit 3 web component library built by Vite into two ES module bundles:
+`packages/rapidoc` is a Lit 3 web component library built by Vite into three ES module bundles:
 
 - `dist/rapidoc-min.js` (`vite.config.mjs`, entry `src/index.js`): registers `<rapi-doc>`,
   `<rapi-doc-mini>` and `<oauth-receiver>` on import. Production builds are minified, carry the
@@ -292,6 +292,9 @@ a whole.
   Declarative Shadow DOM pre-rendering. It is not minified despite its name, keeps `console`, and
   leaves `lit`, `@scalar/openapi-parser`, `marked`, `yaml`, `github-slugger` and `microlighter`
   external.
+- `dist/rapidoc-flow-min.js` (`vite.config.flow.mjs`, entry `src/flow.js`), exported as
+  `rapidoc/flow`: registers `<rapi-flow>`, the Arazzo workflow diagram. It bundles its own copy of
+  Lit and `yaml`, so pages that do not load it pay nothing.
 
 ```text
 spec-url / inline spec ──▶ utils/spec-parser.js ProcessSpec (load, upgrade, dereference, group)
@@ -313,7 +316,8 @@ rapidoc/static ──▶ the same templates and components, serialized by static
 - [`src/templates/`](./src/templates/README.md): Lit `html` functions bound to the host.
 - [`src/utils/`](./src/utils/README.md): spec pipeline, stable anchors, schema, request and mock
   helpers; [`utils/mcp/`](./src/utils/mcp/README.md) and
-  [`utils/mcp/generators/`](./src/utils/mcp/generators/README.md) for the MCP server export.
+  [`utils/mcp/generators/`](./src/utils/mcp/generators/README.md) for the MCP server export;
+  [`utils/arazzo/`](./src/utils/arazzo/README.md) for Arazzo workflow diagrams.
 - [`src/styles/`](./src/styles/README.md): stylesheets and the theme-token contract.
 - [`src/static/`](./src/static/README.md): the `rapidoc/static` renderer.
 

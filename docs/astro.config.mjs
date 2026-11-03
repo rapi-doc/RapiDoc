@@ -153,6 +153,7 @@ export default defineConfig({
         '~/rapidoc-mini': resolve(rapidocSrcPath, 'rapidoc-mini.ts'),
         '~/oauth-receiver': resolve(rapidocSrcPath, 'oauth-receiver.ts'),
         'rapidoc/static': resolve(rapidocSrcPath, 'static/index.js'),
+        'rapidoc/flow': resolve(rapidocSrcPath, 'flow.js'),
         rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },
       // Starlight default-imports js-yaml 4; bundled, it resolves to Starlight's copy, not a hoisted js-yaml 5 (no default export).

@@ -47,12 +47,17 @@
     "./static": {
       "import": "./dist/rapidoc-static-min.js",
       "types": "./src/static/index.d.ts"
+    },
+    "./flow": {
+      "browser": "./dist/rapidoc-flow-min.js",
+      "default": "./dist/rapidoc-flow-min.js"
     }
   },
   "scripts": {
-    "build": "vite build && vite build --config vite.config.static.mjs",
+    "build": "vite build && vite build --config vite.config.static.mjs && vite build --config vite.config.flow.mjs",
     "build:client": "vite build",
     "build:static": "vite build --config vite.config.static.mjs",
+    "build:flow": "vite build --config vite.config.flow.mjs",
     "build:dev": "vite build --mode development",
     "build:size": "ANALYZE=true vite build",
     "lint": "oxlint --deny-warnings src",

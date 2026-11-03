@@ -1,0 +1,101 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+
+const specUrl = '/specs/petstore.yaml';
+// Sample Arazzo files; `?arazzo=<key>` picks one
+const arazzoFiles = [
+  { key: 'petstore', url: '/specs/petstore.arazzo.yaml', label: 'Petstore workflows (3)' },
+  { key: 'petstore-order', url: '/specs/petstore-order.arazzo.yaml', label: 'Petstore order workflow' },
+];
+---
+
+<ExampleLayout
+  title="Arazzo workflows with rapi-flow"
+  description="Draw the workflows of an Arazzo document next to the API reference with the rapi-flow element."
+>
+  <script>
+    import 'rapidoc/flow';
+
+    const flow = document.querySelector('rapi-flow');
+    const picker = document.querySelector<HTMLSelectElement>('#arazzo-file');
+    const show = (key: string) => {
+      const option = [...picker.options].find((o) => o.dataset.key === key) || picker.options[0];
+      picker.value = option.value;
+      flow.removeAttribute('workflow-id');
+      flow.setAttribute('arazzo-url', option.value);
+    };
+    show(new URLSearchParams(location.search).get('arazzo') || '');
+    picker.addEventListener('change', () => {
+      const key = picker.selectedOptions[0].dataset.key;
+      history.replaceState(null, '', `?arazzo=${key}`);
+      show(key);
+    });
+  </script>
+  <div class="flow-example">
+    <div class="flow-pane">
+      <label class="file-picker">
+        Arazzo file
+        <select id="arazzo-file">
+          {arazzoFiles.map((f) => <option value={f.url} data-key={f.key}>{f.label}</option>)}
+        </select>
+      </label>
+      <rapi-flow for="thedoc"></rapi-flow>
+    </div>
+    <rapi-doc
+      id="thedoc"
+      class="doc-pane"
+      spec-url={specUrl}
+      show-header="false"
+      render-style="focused"
+    ></rapi-doc>
+  </div>
+</ExampleLayout>
+
+<style>
+  .flow-example {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+  }
+  .flow-pane {
+    flex: 0 0 auto;
+    width: min(46rem, 50%);
+    padding: 1.25rem;
+    overflow: auto;
+    border-right: 1px solid #333;
+  }
+  .file-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.8125rem;
+    color: #a1a1aa;
+  }
+  .file-picker select {
+    font: inherit;
+    color: #e4e4e7;
+    background: #18181b;
+    border: 1px solid #3f3f46;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+  }
+  .doc-pane {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  @media (max-width: 900px) {
+    .flow-example {
+      flex-direction: column;
+      height: auto;
+    }
+    .flow-pane {
+      width: auto;
+      border-right: 0;
+      border-bottom: 1px solid #333;
+    }
+    .doc-pane {
+      height: 100vh;
+    }
+  }
+</style>

@@ -1,0 +1,231 @@
+arazzo: 1.0.1
+info:
+  title: Petstore workflows
+  version: 1.0.0
+  description: Multi-step journeys through the Swagger Petstore API.
+sourceDescriptions:
+  - name: petstore
+    url: ./petstore.yaml
+    type: openapi
+
+workflows:
+  - workflowId: adoptPet
+    summary: Adopt an available pet
+    description: Finds an available pet, checks it, places an order for it and confirms the order.
+    inputs:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          default: 1
+        shipDate:
+          type: string
+          format: date-time
+    steps:
+      - stepId: findAvailable
+        description: List the pets that are available for adoption.
+        operationId: findPetsByStatus
+        parameters:
+          - name: status
+            in: query
+            value: available
+        successCriteria:
+          - condition: $statusCode == 200
+          - context: $response.body
+            condition: $.length > 0
+            type: jsonpath
+        onFailure:
+          - name: noPets
+            type: end
+        outputs:
+          petId: $response.body#/0/id
+
+      - stepId: checkPet
+        description: Read the chosen pet to make sure it is still available.
+        operationId: getPetById
+        parameters:
+          - name: petId
+            in: path
+            value: $steps.findAvailable.outputs.petId
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: pickAnother
+            type: goto
+            stepId: findAvailable
+        outputs:
+          name: $response.body#/name
+
+      - stepId: placeOrder
+        description: Place an order for the pet.
+        operationId: placeOrder
+        requestBody:
+          contentType: application/json
+          payload:
+            petId: $steps.findAvailable.outputs.petId
+            quantity: $inputs.quantity
+            shipDate: $inputs.shipDate
+            status: placed
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: storeBusy
+            type: retry
+            retryAfter: 2
+            retryLimit: 3
+            criteria:
+              - condition: $statusCode == 503
+        outputs:
+          orderId: $response.body#/id
+
+      - stepId: confirmOrder
+        description: Read the order back to confirm it was placed.
+        operationPath: '{$sourceDescriptions.petstore.url}#/paths/~1store~1order~1{orderId}/get'
+        parameters:
+          - name: orderId
+            in: path
+            value: $steps.placeOrder.outputs.orderId
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          status: $response.body#/status
+
+    outputs:
+      petName: $steps.checkPet.outputs.name
+      orderId: $steps.placeOrder.outputs.orderId
+      orderStatus: $steps.confirmOrder.outputs.status
+
+  - workflowId: orderOrReserve
+    summary: Order a pet now, or reserve one when the store is sold out
+    description: Checks the inventory first. In stock, it reads the pet and places an order; sold out, it finds a pending pet and marks it as wanted.
+    inputs:
+      type: object
+      properties:
+        petId:
+          type: integer
+        quantity:
+          type: integer
+          default: 1
+    steps:
+      - stepId: checkInventory
+        description: Count the pets in each status.
+        operationId: getInventory
+        successCriteria:
+          - condition: $statusCode == 200
+        onSuccess:
+          - name: inStock
+            type: goto
+            stepId: readPet
+            criteria:
+              - condition: $response.body#/available > 0
+          - name: soldOut
+            type: goto
+            stepId: findPending
+        outputs:
+          available: $response.body#/available
+
+      - stepId: readPet
+        description: Read the pet the caller asked for.
+        operationId: getPetById
+        parameters:
+          - name: petId
+            in: path
+            value: $inputs.petId
+        outputs:
+          name: $response.body#/name
+
+      - stepId: placeOrder
+        description: Order the pet.
+        operationId: placeOrder
+        requestBody:
+          contentType: application/json
+          payload:
+            petId: $inputs.petId
+            quantity: $inputs.quantity
+            status: placed
+        successCriteria:
+          - condition: $statusCode == 200
+        onSuccess:
+          - name: done
+            type: end
+        onFailure:
+          - name: tryAgain
+            type: retry
+            retryAfter: 1
+            retryLimit: 2
+        outputs:
+          orderId: $response.body#/id
+
+      - stepId: findPending
+        description: Find a pet that is pending.
+        operationId: findPetsByStatus
+        parameters:
+          - name: status
+            in: query
+            value: pending
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          pendingPetId: $response.body#/0/id
+
+      - stepId: markWanted
+        description: Mark the pending pet as wanted.
+        operationId: updatePetWithForm
+        parameters:
+          - name: petId
+            in: path
+            value: $steps.findPending.outputs.pendingPetId
+          - name: status
+            in: query
+            value: wanted
+        successCriteria:
+          - condition: $statusCode == 200
+
+    outputs:
+      petName: $steps.readPet.outputs.name
+      orderId: $steps.placeOrder.outputs.orderId
+      reservedPetId: $steps.findPending.outputs.pendingPetId
+
+  - workflowId: registerUser
+    summary: Register and sign in a user
+    inputs:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    steps:
+      - stepId: createUser
+        operationId: createUser
+        requestBody:
+          contentType: application/json
+          payload:
+            username: $inputs.username
+            password: $inputs.password
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: login
+        operationId: loginUser
+        parameters:
+          - name: username
+            in: query
+            value: $inputs.username
+          - name: password
+            in: query
+            value: $inputs.password
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          session: $response.body
+      - stepId: readProfile
+        operationId: getUserByName
+        parameters:
+          - name: username
+            in: path
+            value: $inputs.username
+        outputs:
+          email: $response.body#/email
+    outputs:
+      session: $steps.login.outputs.session
+      email: $steps.readProfile.outputs.email
