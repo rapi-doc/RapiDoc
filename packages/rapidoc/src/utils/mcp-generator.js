@@ -9,9 +9,6 @@
  *   - C# (.NET / ModelContextProtocol.NET)
  *   - Rust (mcp-sdk / rmcp)
  *   - Java (Spring AI MCP)
- *
- * Honors primary `x-mcp` extensions and compatibility aliases from Redocly,
- * Scalar, OpenAI (x-openai-isConsequential), and Speakeasy.
  */
 
 export {
@@ -62,7 +59,7 @@ export function generateMcpServer(parsedSpec, options = {}) {
   const rawTarget = (options.target || "typescript").toLowerCase();
   const target = rawTarget === "c#" ? "csharp" : rawTarget;
   const extracted = extractMcpOperations(parsedSpec, options);
-  const budget = estimateTokenCost(extracted.tools, extracted.resources, extracted.workflows);
+  const budget = estimateTokenCost(extracted.tools, extracted.resources);
   const hostConfigs = generateHostConfigs(options.serverName || extracted.metadata.title, {
     target,
   });
@@ -75,7 +72,6 @@ export function generateMcpServer(parsedSpec, options = {}) {
       extracted.metadata,
       extracted.tools,
       extracted.resources,
-      extracted.workflows,
       options,
     );
     targetFiles = generatePythonFiles(serverCode, extracted.metadata, options);
@@ -84,7 +80,6 @@ export function generateMcpServer(parsedSpec, options = {}) {
       extracted.metadata,
       extracted.tools,
       extracted.resources,
-      extracted.workflows,
       options,
     );
     targetFiles = generateGoFiles(serverCode, extracted.metadata, options);
@@ -93,7 +88,6 @@ export function generateMcpServer(parsedSpec, options = {}) {
       extracted.metadata,
       extracted.tools,
       extracted.resources,
-      extracted.workflows,
       options,
     );
     targetFiles = generateCSharpFiles(serverCode, extracted.metadata, options);
@@ -102,7 +96,6 @@ export function generateMcpServer(parsedSpec, options = {}) {
       extracted.metadata,
       extracted.tools,
       extracted.resources,
-      extracted.workflows,
       options,
     );
     targetFiles = generateRustFiles(serverCode, extracted.metadata, options);
@@ -111,7 +104,6 @@ export function generateMcpServer(parsedSpec, options = {}) {
       extracted.metadata,
       extracted.tools,
       extracted.resources,
-      extracted.workflows,
       options,
     );
     targetFiles = generateJavaFiles(serverCode, extracted.metadata, options);
@@ -121,7 +113,6 @@ export function generateMcpServer(parsedSpec, options = {}) {
       extracted.metadata,
       extracted.tools,
       extracted.resources,
-      extracted.workflows,
       options,
     );
     targetFiles = generateTypeScriptFiles(serverCode, extracted.metadata, options);

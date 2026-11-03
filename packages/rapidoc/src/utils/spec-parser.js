@@ -834,11 +834,8 @@ function groupByTags(
           xBadges: pathOrHookObj["x-badges"] || undefined,
           xCodeSamples: pathOrHookObj["x-codeSamples"] || pathOrHookObj["x-code-samples"] || "",
           rawOperation: pathOrHookObj,
-          xMcp: pathOrHookObj["x-mcp"] || pathOrHookObj["x-mcp-tool"] || undefined,
           xInternal: pathOrHookObj["x-internal"] ?? pathItem?.["x-internal"] ?? undefined,
           xHidden: pathOrHookObj["x-hidden"] ?? pathItem?.["x-hidden"] ?? undefined,
-          xOpenAiIsConsequential: pathOrHookObj["x-openai-isConsequential"],
-          xSpeakeasyNameOverride: pathOrHookObj["x-speakeasy-name-override"] || undefined,
         });
       }); // End of tag path create
     }); // End of operationsToProcess

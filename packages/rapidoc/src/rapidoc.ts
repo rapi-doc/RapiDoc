@@ -1820,7 +1820,7 @@ export default class RapiDoc extends LitElement {
     const spec = this.resolvedSpec || this.openApiSpec;
     if (!spec) return null;
     const extracted = extractMcpOperations(spec, options);
-    return estimateTokenCost(extracted.tools, extracted.resources, extracted.workflows);
+    return estimateTokenCost(extracted.tools, extracted.resources);
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes

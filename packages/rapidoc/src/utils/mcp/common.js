@@ -140,18 +140,11 @@ export function deriveToolName(method, path) {
 /**
  * Extracts and maps parameters from path parameters, query parameters, and requestBody.
  */
-export function extractParameters(pathObj, xMcp = {}) {
+export function extractParameters(pathObj) {
   const params = [];
   const excludedNames = new Set(
-    (xMcp.parameters?.exclude || [])
-      .concat(pathObj["x-ignoredHeaderParameters"] || [])
-      .map((s) => s.toLowerCase()),
+    (pathObj["x-ignoredHeaderParameters"] || []).map((s) => s.toLowerCase()),
   );
-  const includedNames = xMcp.parameters?.include
-    ? new Set(xMcp.parameters.include.map((s) => s.toLowerCase()))
-    : null;
-  const customDescriptions = xMcp.parameters?.descriptions || {};
-  const defaults = xMcp.parameters?.defaults || {};
 
   // 1. Process query, path, and header parameters
   if (Array.isArray(pathObj.parameters)) {
@@ -163,10 +156,7 @@ export function extractParameters(pathObj, xMcp = {}) {
       if (p.in === "header" && AUTH_TRANSPORT_HEADERS.has(lowerName)) {
         continue;
       }
-      if (p["x-speakeasy-param-ignore"] === true || excludedNames.has(lowerName)) {
-        continue;
-      }
-      if (includedNames && !includedNames.has(lowerName)) {
+      if (excludedNames.has(lowerName)) {
         continue;
       }
 
@@ -178,9 +168,9 @@ export function extractParameters(pathObj, xMcp = {}) {
         type,
         format: schema.format,
         enum: schema.enum,
-        description: customDescriptions[p.name] || p.description || schema.description || "",
+        description: p.description || schema.description || "",
         required: Boolean(p.required || p.in === "path"),
-        default: defaults[p.name] !== undefined ? defaults[p.name] : schema.default,
+        default: schema.default,
       });
     }
   }
@@ -196,9 +186,7 @@ export function extractParameters(pathObj, xMcp = {}) {
     if (bodySchema && bodySchema.properties) {
       const requiredProps = new Set(bodySchema.required || []);
       for (const [propName, propDef] of Object.entries(bodySchema.properties)) {
-        const lowerName = propName.toLowerCase();
-        if (excludedNames.has(lowerName)) continue;
-        if (includedNames && !includedNames.has(lowerName)) continue;
+        if (excludedNames.has(propName.toLowerCase())) continue;
 
         params.push({
           name: propName,
@@ -206,9 +194,9 @@ export function extractParameters(pathObj, xMcp = {}) {
           type: propDef.type || "string",
           format: propDef.format,
           enum: propDef.enum,
-          description: customDescriptions[propName] || propDef.description || "",
+          description: propDef.description || "",
           required: requiredProps.has(propName),
-          default: defaults[propName] !== undefined ? defaults[propName] : propDef.default,
+          default: propDef.default,
         });
       }
     } else if (bodySchema) {
@@ -265,12 +253,8 @@ export function extractMcpOperations(parsedSpec, options = {}) {
 
   for (const op of operations) {
     const raw = op.rawOperation || op;
-    const xMcp = raw["x-mcp"] || raw["x-mcp-tool"] || {};
 
     // 1. Check exclusion rules
-    if (xMcp.enabled === false || xMcp.type === "skip") {
-      continue;
-    }
     if (!includeInternal && (raw["x-internal"] === true || raw["x-hidden"] === true)) {
       continue;
     }
@@ -283,14 +267,10 @@ export function extractMcpOperations(parsedSpec, options = {}) {
 
     const method = (op.method || "get").toLowerCase();
     const path = op.path || "";
-    const params = extractParameters(op, xMcp);
+    const params = extractParameters(op);
 
     // 2. Classify as Tool vs Resource
-    let isResource = false;
-    if (xMcp.type === "resource") {
-      isResource = true;
-    } else if (
-      xMcp.type !== "tool" &&
+    const isResource =
       method === "get" &&
       params.filter((p) => p.required).length === 0 &&
       (path.includes("/reference") ||
@@ -299,34 +279,18 @@ export function extractMcpOperations(parsedSpec, options = {}) {
         path.includes("/tiers") ||
         path.includes("/categories") ||
         path.includes("/status") ||
-        path.includes("/schema"))
-    ) {
-      isResource = true;
-    }
+        path.includes("/schema"));
 
     // 3. Resolve Tool Name
-    const toolName = toSnakeCase(
-      xMcp.name ||
-        raw["x-speakeasy-name-override"] ||
-        op.operationId ||
-        deriveToolName(method, path),
-    );
+    const toolName = toSnakeCase(op.operationId || deriveToolName(method, path));
 
     // 4. Resolve Description
-    const rawDesc =
-      xMcp.description || op.summary || op.description || `${method.toUpperCase()} ${path}`;
-    const description = sanitizeDescription(rawDesc);
-
-    // 5. Resolve Consequential/Safety Flag
-    const isConsequential = Boolean(
-      xMcp.requireConfirmation ??
-      raw["x-openai-isConsequential"] ??
-      ["post", "put", "delete", "patch"].includes(method.toLowerCase()),
+    const description = sanitizeDescription(
+      op.summary || op.description || `${method.toUpperCase()} ${path}`,
     );
 
-    // 6. Response Filter
-    const responseFilter = xMcp.response?.filter || "";
-    const responseMaxItems = xMcp.response?.maxItems || 0;
+    // 5. Write methods need confirmation
+    const isConsequential = ["post", "put", "delete", "patch"].includes(method);
 
     const opItem = {
       name: toolName,
@@ -335,25 +299,20 @@ export function extractMcpOperations(parsedSpec, options = {}) {
       description,
       parameters: params,
       isConsequential,
-      readOnly: Boolean(xMcp.readOnly ?? method === "get"),
-      responseFilter,
-      responseMaxItems,
+      readOnly: method === "get",
       tag: op.tagName || "",
     };
 
     if (isResource) {
       resources.push({
         ...opItem,
-        uri: xMcp.uri || `reference://${toolName.replace(/^get_/, "").replace(/_/g, "-")}`,
-        mimeType: xMcp.mimeType || "application/json",
+        uri: `reference://${toolName.replace(/^get_/, "").replace(/_/g, "-")}`,
+        mimeType: "application/json",
       });
     } else {
       tools.push(opItem);
     }
   }
-
-  // Extract root-level composite workflows
-  const workflows = rawSpec["x-mcp-workflows"] || [];
 
   const metadata = {
     title: rawSpec.info?.title || "OpenAPI MCP Server",
@@ -362,13 +321,13 @@ export function extractMcpOperations(parsedSpec, options = {}) {
     servers: rawSpec.servers || [{ url: "http://localhost:3000" }],
   };
 
-  return { metadata, tools, resources, workflows };
+  return { metadata, tools, resources };
 }
 
 /**
  * Calculates estimated token overhead for LLM tool definitions.
  */
-export function estimateTokenCost(tools = [], resources = [], workflows = []) {
+export function estimateTokenCost(tools = [], resources = []) {
   let estimatedTokens = 0;
   let consequentialCount = 0;
 
@@ -390,17 +349,10 @@ export function estimateTokenCost(tools = [], resources = [], workflows = []) {
     estimatedTokens += Math.ceil((r.name.length + r.description.length + r.uri.length) / 4) + 20;
   }
 
-  for (const w of workflows) {
-    estimatedTokens += Math.ceil((w.name.length + (w.description || "").length) / 4) + 40;
-    if (w.parameters) {
-      estimatedTokens += Object.keys(w.parameters).length * 15;
-    }
-  }
-
   const warnings = [];
   if (estimatedTokens > 5000) {
     warnings.push(
-      `Context overhead (~${estimatedTokens.toLocaleString()} tokens/turn) is high. Consider pruning unused tools with x-mcp.enabled: false.`,
+      `Context overhead (~${estimatedTokens.toLocaleString()} tokens/turn) is high. Consider hiding unused operations with x-internal: true.`,
     );
   }
   if (tools.length > 30) {
@@ -412,7 +364,6 @@ export function estimateTokenCost(tools = [], resources = [], workflows = []) {
   return {
     totalTools: tools.length,
     totalResources: resources.length,
-    totalWorkflows: workflows.length,
     estimatedTokens,
     consequentialCount,
     warnings,

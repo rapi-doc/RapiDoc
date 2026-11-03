@@ -52,62 +52,43 @@ if apiKey != "" {
     req.Header.Set("Authorization", "Bearer " + apiKey)
 }`;
 
-const naiveVsCuratedSnippet = `# Naive 1:1 conversion (raw endpoint)
-# Problem: 14 tools, 4,200 tokens overhead, leaks internal trace tokens
-/orders:
-  post:
-    summary: Create order
-    # No curation: LLM sees 15 fields including internalDebugTrace, clientTelemetry
-
-# Curated with RapiDoc x-mcp extensions:
-# Result: 1 tool, clean prompt, 3 parameters, confirmation guardrail
-/orders:
-  post:
-    summary: Create order
-    x-mcp:
-      name: place_customer_order
-      description: "Places a verified order for the customer. Requires confirmation before billing."
-      requireConfirmation: true
+const openApiToMcpSnippet = `# Plain OpenAPI: no extra annotations needed
+paths:
+  /orders:
+    post:
+      operationId: placeOrder        # Tool "place_order"
+      summary: Place a new order     # Tool description
       parameters:
-        include:
-          - customerId
-          - items
-          - shippingMethod
-        defaults:
-          shippingMethod: "standard"
-        descriptions:
-          customerId: "Unique customer UUID"`;
+        - name: Authorization        # Stripped: the server sends Bearer API_KEY
+          in: header
+          schema: { type: string }
+      # POST: flagged as consequential (needs confirmation)
 
-const compositeWorkflowSnippet = `# Root-level composite task workflow
-# Collapses 3 distinct HTTP roundtrips into 1 single tool call for the agent
-x-mcp-workflows:
-  - name: get_customer_order_summary
-    description: "Fetches customer profile, subscription status, and latest 3 orders in a single tool call."
-    parameters:
-      customerId:
-        type: string
-        description: "Unique customer UUID (e.g. 'cust_98234')"
-    steps:
-      - call: getCustomer
-        args: { id: "$params.customerId" }
-      - call: listOrders
-        args: { customerId: "$params.customerId", limit: 3 }`;
+  /orders/{orderId}:
+    get:
+      operationId: getOrder          # Read-only tool "get_order"
+      summary: Get an order
 
-const staticResourceSnippet = `# Distinguishing Actionable Tools from Static Data
-# Parameterless lookups are compiled into MCP Resources (reference://...)
-/shipping-tiers:
-  get:
-    summary: Supported carrier shipping tiers
-    description: Static lookup table of carrier delivery speeds and pricing.
-    x-mcp:
-      type: resource
-      uri: "reference://shipping-tiers"`;
+  /currencies:
+    get:
+      operationId: getCurrencies     # Resource "reference://currencies"
+      summary: List supported currencies
+
+  /admin/database/vacuum:
+    post:
+      summary: Trigger internal database maintenance
+      x-internal: true               # Excluded
+
+  /orders/legacy:
+    get:
+      summary: Legacy order list
+      deprecated: true               # Excluded`;
 
 const rapiDocTagSnippet = `<!-- 1. Enable MCP Export button in API overview -->
 <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 
 <rapi-doc
-  spec-url="/specs/curated-mcp-demo.yaml"
+  spec-url="/specs/my-api.yaml"
   mcp="typescript, python, go"
   mcp-server-name="my-api-mcp"
   theme="slate"
@@ -131,9 +112,9 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
 ---
 
 <GlobalLayout
-  title="Curated MCP Server Guide & Vendor Extensions | RapiDoc"
-  description="Learn how to shape token-efficient, agent-first Model Context Protocol (MCP) servers from OpenAPI specs using x-mcp vendor extensions and smart heuristics."
-  keywords="Model Context Protocol, MCP, OpenAPI to MCP, x-mcp, FastMCP, Claude Desktop, Cursor, AI agents, RapiDoc MCP"
+  title="Curated MCP Server Guide | RapiDoc"
+  description="Learn how to shape token-efficient, agent-first Model Context Protocol (MCP) servers from plain OpenAPI specs using smart heuristics."
+  keywords="Model Context Protocol, MCP, OpenAPI to MCP, FastMCP, Claude Desktop, Cursor, AI agents, RapiDoc MCP"
 >
   <!-- Ambient background glow elements -->
   <div class="ambient-glow glow-emerald"></div>
@@ -156,8 +137,8 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
       </h1>
 
       <p class="mcp-page-subtitle">
-        How to use OpenAPI vendor extensions (<code>x-mcp-*</code>) and smart heuristics to eliminate prompt token tax,
-        collapse multi-hop REST roundtrips, and compile production-ready AI agent servers directly in the browser.
+        How RapiDoc applies smart heuristics to a plain OpenAPI spec to cut prompt token tax, keep internal endpoints
+        away from agents, and compile production-ready AI agent servers directly in the browser.
       </p>
 
       <div class="mcp-cta-row">
@@ -174,8 +155,8 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
 
       <div class="mcp-quick-stats">
         <div class="mcp-stat-chip">
-          <span class="mcp-stat-num">~80%</span>
-          <span class="mcp-stat-txt">Token Overhead Reduction</span>
+          <span class="mcp-stat-num">Zero Config</span>
+          <span class="mcp-stat-txt">Works on Plain OpenAPI</span>
         </div>
         <div class="mcp-stat-chip">
           <span class="mcp-stat-num">6 Targets</span>
@@ -209,7 +190,6 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
             <h3 class="card-title">Endpoint-as-a-Tool Trap</h3>
             <ul class="comparison-list">
               <li><strong>Token Window Bloat:</strong> 30–50 raw JSON schemas consume 4,000–8,000 tokens on <em>every conversation turn</em>.</li>
-              <li><strong>Chained Atomic Hops:</strong> Agents must guess and execute 3–4 sequential calls (get customer &rarr; get orders &rarr; get items) just to fulfill one user intent.</li>
               <li><strong>Internal Leaks:</strong> Infrastructure endpoints (<code>/healthz</code>, <code>/metrics</code>, <code>/admin/debug</code>) confuse the model.</li>
               <li><strong>Transport Pollution:</strong> Headers like <code>Authorization</code>, <code>Cookie</code>, and <code>X-Api-Key</code> pollute tool parameters.</li>
             </ul>
@@ -219,8 +199,8 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
             <div class="card-status-badge badge-success">RapiDoc Curated MCP</div>
             <h3 class="card-title">Agent-First Tool Design</h3>
             <ul class="comparison-list">
-              <li><strong>Lean Token Footprint:</strong> Parameter pruning and curated tool sets drop prompt cost by <strong>~80%</strong> (~850 tokens).</li>
-              <li><strong>Composite Workflows:</strong> Multi-step REST hops collapse into single task tools via <code>x-mcp-workflows</code>.</li>
+              <li><strong>Lean Token Footprint:</strong> Reference lookups become MCP Resources, and a live token budget warns before the tool catalog saturates the context.</li>
+              <li><strong>Safety Flags:</strong> <code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> tools are flagged as needing confirmation.</li>
               <li><strong>Zero Admin Leaks:</strong> Automatic filtering via <code>x-internal</code>, <code>x-hidden</code>, and <code>deprecated: true</code>.</li>
               <li><strong>Clean Auth Separation:</strong> Transport headers are automatically stripped into environment variables (<code>process.env.API_KEY</code>).</li>
             </ul>
@@ -240,29 +220,15 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
           <div class="kpi-card">
             <div class="kpi-badge">Token Budget KPI</div>
             <div class="kpi-metric-row">
-              <span class="kpi-value">~80%</span>
-              <span class="kpi-unit">prompt savings</span>
+              <span class="kpi-value">5,000</span>
+              <span class="kpi-unit">token guardrail</span>
             </div>
-            <h4>Context Overhead Elimination</h4>
-            <p>Reduces prompt overhead from <strong>4,000–8,000 tokens</strong> down to <strong>~850 tokens/turn</strong>. Prevents LLM context saturation, eliminates model paralysis, and cuts recurring LLM inference bills.</p>
+            <h4>Context Overhead Control</h4>
+            <p>Skips internal, hidden, deprecated and webhook operations, strips transport headers and moves reference lookups into resources. <code>getMcpBudget()</code> estimates the per-turn overhead and warns above <strong>5,000 tokens</strong> or <strong>30 tools</strong>.</p>
             <div class="kpi-bar-track">
               <div class="kpi-bar-fill" style="width: 80%;"></div>
             </div>
-            <div class="kpi-meta">Benchmarked across Bookstore, Stripe & GitHub specs</div>
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-badge">Agent Latency KPI</div>
-            <div class="kpi-metric-row">
-              <span class="kpi-value">1 Turn</span>
-              <span class="kpi-unit">vs 3–5 hops</span>
-            </div>
-            <h4>Composite Workflow Hop Reduction</h4>
-            <p>Aggregates sequential REST requests (<code>getCustomer</code> &rarr; <code>listOrders</code> &rarr; <code>getDetails</code>) into atomic tools via <code>x-mcp-workflows</code>, reducing execution latency by <strong>~75%</strong>.</p>
-            <div class="kpi-bar-track">
-              <div class="kpi-bar-fill" style="width: 75%; background: #38bdf8;"></div>
-            </div>
-            <div class="kpi-meta">Zero compounding intermediate hallucination errors</div>
+            <div class="kpi-meta">Estimated live from your spec</div>
           </div>
 
           <div class="kpi-card">
@@ -312,22 +278,16 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>Prompt Token Overhead</strong></td>
-                  <td>4,000–8,000+ tokens / turn</td>
-                  <td>2,500–5,000 tokens / turn</td>
-                  <td><strong style="color: #34d399;">~850 tokens / turn (~80% reduction)</strong></td>
+                  <td><strong>Internal & Deprecated Endpoints</strong></td>
+                  <td>Exposed as tools</td>
+                  <td>Partially filtered</td>
+                  <td><strong style="color: #34d399;">Skips <code>x-internal</code>, <code>x-hidden</code>, <code>deprecated</code> and webhooks</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Target Languages Supported</strong></td>
                   <td>1 (TypeScript only)</td>
                   <td>1–2 languages</td>
                   <td><strong style="color: #34d399;">6 Targets (TS, Python, Go, C#, Rust, Java)</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Multi-Hop REST Aggregation</strong></td>
-                  <td>None (Agent must chain calls)</td>
-                  <td>None (Raw 1:1 mapping)</td>
-                  <td><strong style="color: #34d399;">Native <code>x-mcp-workflows</code> composite tools</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Path Traversal & Injection Safety</strong></td>
@@ -370,29 +330,43 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
         <div class="section-tag">Zero Configuration</div>
         <h2 class="section-heading">Smart Heuristics (Out of the Box)</h2>
         <p class="section-lead">
-          Even if your OpenAPI spec does not contain custom vendor extensions, RapiDoc applies smart heuristics during export:
+          RapiDoc needs no extra annotations. It derives every tool and resource from standard OpenAPI fields during export:
         </p>
 
         <div class="heuristics-cards">
           <div class="heuristic-card">
             <div class="heuristic-icon"><IconCheck size={20} /></div>
             <div>
-              <h4>Header & Transport Sanitization</h4>
-              <p>Headers like <code>Authorization</code>, <code>Cookie</code>, <code>X-Api-Key</code>, <code>User-Agent</code>, and <code>Accept</code> are stripped from LLM parameter schemas and mapped to host environment variables.</p>
+              <h4>Tool Names & Descriptions</h4>
+              <p>Tool names are the snake_case form of each <code>operationId</code>, or derived from method and path when it is missing. Descriptions come from the <code>summary</code>, else the <code>description</code>, else <code>METHOD /path</code>.</p>
             </div>
           </div>
           <div class="heuristic-card">
             <div class="heuristic-icon"><IconCheck size={20} /></div>
             <div>
-              <h4>Deprecated Route Exclusion</h4>
-              <p>Operations marked with <code>deprecated: true</code> are automatically omitted from generated agent tools to prevent models from utilizing stale APIs.</p>
+              <h4>Header & Transport Sanitization</h4>
+              <p>Headers like <code>Authorization</code>, <code>Cookie</code>, <code>X-Api-Key</code>, <code>User-Agent</code>, and <code>Accept</code> are stripped from LLM parameter schemas. Generated servers send a Bearer token from <code>API_KEY</code> (or a per-call <code>apiKey</code> argument) to the base URL in <code>API_BASE_URL</code>.</p>
+            </div>
+          </div>
+          <div class="heuristic-card">
+            <div class="heuristic-icon"><IconCheck size={20} /></div>
+            <div>
+              <h4>Internal & Deprecated Route Exclusion</h4>
+              <p>Operations marked <code>x-internal: true</code>, <code>x-hidden: true</code> or <code>deprecated: true</code>, and webhooks, are omitted from generated agent tools so models never see admin or stale APIs.</p>
             </div>
           </div>
           <div class="heuristic-card">
             <div class="heuristic-icon"><IconCheck size={20} /></div>
             <div>
               <h4>Static Resource Classification</h4>
-              <p>Zero-parameter <code>GET</code> endpoints (such as <code>/currencies</code> or <code>/shipping-tiers</code>) are converted into <strong>MCP Resources</strong> (<code>reference://...</code>), preserving tool calling budgets.</p>
+              <p>A <code>GET</code> with no required parameters on a reference-data path (<code>/reference</code>, <code>/currencies</code>, <code>/countries</code>, <code>/tiers</code>, <code>/categories</code>, <code>/status</code>, <code>/schema</code>) becomes an <strong>MCP Resource</strong> (<code>reference://&lt;name&gt;</code>), preserving tool calling budgets.</p>
+            </div>
+          </div>
+          <div class="heuristic-card">
+            <div class="heuristic-icon"><IconCheck size={20} /></div>
+            <div>
+              <h4>Confirmation Flags</h4>
+              <p><code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> operations are flagged as consequential, so agent hosts can ask the user before running them.</p>
             </div>
           </div>
           <div class="heuristic-card">
@@ -405,129 +379,70 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
         </div>
       </section>
 
-      <!-- Section 3: Vendor Extensions Specification -->
+      <!-- Section 4: From OpenAPI to MCP -->
       <section class="mcp-section">
-        <div class="section-tag">Specification</div>
-        <h2 class="section-heading">The <code>x-mcp</code> Extension Family</h2>
+        <div class="section-tag">Mapping</div>
+        <h2 class="section-heading">From OpenAPI to MCP</h2>
         <p class="section-lead">
-          Use the following vendor extensions to shape how agents interact with your operations:
+          In the Model Context Protocol, <strong>Tools</strong> represent executable actions, while <strong>Resources</strong>
+          represent contextual reference data the model can inspect without function calling. Here is how each operation in a plain spec is treated:
         </p>
 
-        <!-- 3.1: Tool Curation & Parameter Pruning -->
         <div class="sub-topic">
-          <h3>1. Parameter Pruning & Agent Descriptions</h3>
-          <p>
-            REST APIs often contain telemetry, internal tracking tokens, and debug fields that confuse agents.
-            Use <code>x-mcp.parameters.include</code> to expose only essential business parameters:
-          </p>
-          <CodeBlock code={naiveVsCuratedSnippet} lang="yaml" filename="openapi.yaml (Tool Curation)" />
+          <CodeBlock code={openApiToMcpSnippet} lang="yaml" filename="openapi.yaml" />
         </div>
 
-        <!-- 3.2: Tools vs Resources -->
         <div class="sub-topic">
-          <h3>2. Declaring MCP Resources (Read-Only Lookups)</h3>
-          <p>
-            In the Model Context Protocol, <strong>Tools</strong> represent executable actions with side-effects, while <strong>Resources</strong>
-            represent contextual reference data (like database catalogs, tax rates, or pricing tiers) that the model can inspect without function calling:
-          </p>
-          <CodeBlock code={staticResourceSnippet} lang="yaml" filename="openapi.yaml (MCP Resource)" />
-        </div>
-
-        <!-- 3.3: Composite Task Workflows -->
-        <div class="sub-topic">
-          <h3>3. Composite Task Workflows (<code>x-mcp-workflows</code>)</h3>
-          <p>
-            Instead of having the agent call <code>getCustomer</code>, then <code>listOrders</code>, and then <code>getOrderItems</code>,
-            define a root-level composite workflow. The generated server executes the individual HTTP hops internally and returns consolidated JSON to the agent in <strong>1 single tool call</strong>:
-          </p>
-          <CodeBlock code={compositeWorkflowSnippet} lang="yaml" filename="openapi.yaml (Composite Workflows)" />
-        </div>
-
-        <!-- 3.4: Vendor Compatibility Matrix Table -->
-        <div class="sub-topic">
-          <h3>4. Vendor Extension Reference & Compatibility Matrix</h3>
+          <h3>OpenAPI Field Reference</h3>
           <div class="table-container">
             <table class="mcp-spec-table">
               <thead>
                 <tr>
-                  <th>Extension Key</th>
+                  <th>OpenAPI Field</th>
                   <th>Applies To</th>
-                  <th>Type</th>
-                  <th>Purpose & Compatibility</th>
+                  <th>Effect on the Generated Server</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><code>x-mcp.name</code></td>
+                  <td><code>operationId</code></td>
                   <td>Operation</td>
-                  <td>string</td>
-                  <td>Agent-friendly snake_case tool name (e.g., <code>place_customer_order</code>).</td>
+                  <td>Tool name in snake_case (<code>placeOrder</code> &rarr; <code>place_order</code>); derived from method and path when missing.</td>
                 </tr>
                 <tr>
-                  <td><code>x-mcp.description</code></td>
+                  <td><code>summary</code> / <code>description</code></td>
                   <td>Operation</td>
-                  <td>string</td>
-                  <td>Prompt engineering instructions tailored specifically for LLMs.</td>
-                </tr>
-                <tr>
-                  <td><code>x-mcp.type</code></td>
-                  <td>Operation</td>
-                  <td><code>tool | resource</code></td>
-                  <td>Explicitly assigns the endpoint as an actionable Tool or a reference Resource.</td>
-                </tr>
-                <tr>
-                  <td><code>x-mcp.uri</code></td>
-                  <td>Operation</td>
-                  <td>string</td>
-                  <td>Resource URI identifier (e.g., <code>reference://shipping-tiers</code>).</td>
-                </tr>
-                <tr>
-                  <td><code>x-mcp.parameters.include</code></td>
-                  <td>Operation</td>
-                  <td>array&lt;string&gt;</td>
-                  <td>Whitelist of parameters exposed to the LLM (prunes all other fields).</td>
-                </tr>
-                <tr>
-                  <td><code>x-mcp.parameters.exclude</code></td>
-                  <td>Operation</td>
-                  <td>array&lt;string&gt;</td>
-                  <td>Blacklist of parameters hidden from the agent.</td>
-                </tr>
-                <tr>
-                  <td><code>x-mcp.parameters.defaults</code></td>
-                  <td>Operation</td>
-                  <td>object</td>
-                  <td>Default argument values pre-filled for the agent.</td>
-                </tr>
-                <tr>
-                  <td><code>x-mcp.requireConfirmation</code></td>
-                  <td>Operation</td>
-                  <td>boolean</td>
-                  <td>Flags mutating/financial actions as requiring user confirmation.</td>
-                </tr>
-                <tr>
-                  <td><code>x-mcp-workflows</code></td>
-                  <td>Root Spec</td>
-                  <td>array</td>
-                  <td>Multi-step composite workflows collapsing REST hops into single tools.</td>
+                  <td>Tool description (<code>summary</code> first), stripped of HTML and Markdown and truncated to 300 characters.</td>
                 </tr>
                 <tr>
                   <td><code>x-internal</code> / <code>x-hidden</code></td>
                   <td>Operation</td>
-                  <td>boolean</td>
-                  <td><strong>Compatibility alias:</strong> Redocly & Scalar internal endpoint exclusion.</td>
+                  <td>When <code>true</code>, the operation is left out.</td>
                 </tr>
                 <tr>
-                  <td><code>x-openai-isConsequential</code></td>
+                  <td><code>deprecated</code></td>
                   <td>Operation</td>
-                  <td>boolean</td>
-                  <td><strong>Compatibility alias:</strong> OpenAI ChatGPT Actions safety flag.</td>
+                  <td>When <code>true</code>, the operation is left out.</td>
                 </tr>
                 <tr>
-                  <td><code>x-speakeasy-name-override</code></td>
+                  <td>HTTP method</td>
                   <td>Operation</td>
-                  <td>string</td>
-                  <td><strong>Compatibility alias:</strong> Speakeasy SDK tool naming override.</td>
+                  <td><code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> are flagged as needing confirmation.</td>
+                </tr>
+                <tr>
+                  <td>Path</td>
+                  <td>Operation</td>
+                  <td>A parameterless <code>GET</code> on a reference-data path becomes a <code>reference://</code> resource.</td>
+                </tr>
+                <tr>
+                  <td>Header parameters</td>
+                  <td>Parameter</td>
+                  <td>Auth and transport headers (<code>Authorization</code>, <code>Cookie</code>, <code>X-API-Key</code>, <code>User-Agent</code>, ...) are not exposed as tool arguments.</td>
+                </tr>
+                <tr>
+                  <td><code>servers</code></td>
+                  <td>Root Spec</td>
+                  <td>Default base URL, overridable with the <code>API_BASE_URL</code> environment variable.</td>
                 </tr>
               </tbody>
             </table>

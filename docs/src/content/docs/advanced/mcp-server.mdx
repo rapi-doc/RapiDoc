@@ -1,15 +1,15 @@
 ---
 title: Curated MCP Server Generator
-description: Shape token-efficient, agent-first Model Context Protocol (MCP) servers directly from your OpenAPI specifications using vendor extensions and smart heuristics.
+description: Generate token-efficient, agent-first Model Context Protocol (MCP) servers directly from your OpenAPI specifications using smart heuristics.
 ---
 
 import { Aside, Tabs, TabItem, Steps, Card, CardGrid } from '@astrojs/starlight/components';
 
 As AI agents (like Claude Desktop, Cursor, and autonomous assistants) become primary consumers of APIs, exposing your backend to LLMs via the **Model Context Protocol (MCP)** is essential.
 
-However, as emphasized by Jeremiah Lowin (creator of FastMCP) in [*Stop Converting Your REST APIs to MCP*](https://jlowin.dev/blog/stop-converting-rest-apis-to-mcp), **naive 1:1 REST-to-MCP conversions fail in production**. Exposing every HTTP endpoint as an individual tool floods the agent's context window, leaks internal endpoints, and forces the model into slow, error-prone multi-hop roundtrips.
+However, as emphasized by Jeremiah Lowin (creator of FastMCP) in [*Stop Converting Your REST APIs to MCP*](https://jlowin.dev/blog/stop-converting-rest-apis-to-mcp), **naive 1:1 REST-to-MCP conversions fail in production**. Exposing every HTTP endpoint as an individual tool floods the agent's context window, leaks internal endpoints, and pollutes tool arguments with transport details.
 
-RapiDoc includes a client-side **Curated MCP Server Generator** that uses **smart heuristics** and **OpenAPI vendor extensions (`x-mcp-*`)** to prune parameters, eliminate token tax, and compile your spec into clean MCP servers.
+RapiDoc includes a client-side **Curated MCP Server Generator** that reads your plain OpenAPI spec, applies **smart heuristics** to drop internal and deprecated operations, strip transport headers and classify reference data, and compiles the result into clean MCP servers.
 
 <Aside type="tip" title="Interactive Showcase & Live Tuner">
   Want to see the code generator in action and inspect side-by-side token comparisons? Visit the [Curated MCP Server Showcase](/examples/mcp-server) or read the [MCP Implementation Guide](/guides/mcp).
@@ -25,9 +25,6 @@ Converting every OpenAPI path directly into an MCP tool creates several critical
   <Card title="Context Window Explosion" icon="warning">
     A typical 40-endpoint REST API exposes ~4,000 to 8,000 tokens of raw JSON schemas. This prompt overhead is re-injected on **every conversation turn**, drastically increasing inference cost and latency.
   </Card>
-  <Card title="Chained Atomic Hops" icon="random">
-    To complete a business task (e.g. "cancel an order"), an agent must chain multiple atomic REST calls (`getCustomer` &rarr; `getOrders` &rarr; `findItems` &rarr; `cancel`). Each hop is a separate LLM roundtrip prone to compounding errors.
-  </Card>
   <Card title="Internal & Admin Leaks" icon="error">
     Naive converters expose internal infrastructure endpoints (`/healthz`, `/metrics`, `/admin/users/debug`), confusing the model and creating potential security risks.
   </Card>
@@ -40,14 +37,11 @@ Converting every OpenAPI path directly into an MCP tool creates several critical
 
 ## Key Performance Indicators (KPIs) & Production Benchmarks
 
-RapiDoc's curated MCP generator is engineered to meet strict, quantifiable enterprise production benchmarks:
+RapiDoc's curated MCP generator is engineered to meet strict, quantifiable production benchmarks:
 
 <CardGrid>
-  <Card title="~80% Token Budget Reduction" icon="rocket">
-    Prunes noisy endpoints, stripped transport headers, and non-essential schema properties to reduce context overhead from **4,000–8,000 tokens** down to **~850 tokens/turn**. Eliminates LLM context saturation and halves recurring token inference bills.
-  </Card>
-  <Card title="~75% Turn Latency Drop" icon="forward-slash">
-    Composite task workflows (`x-mcp-workflows`) orchestrate dependent REST roundtrips internally within the server. Converts 3–5 intermediate agent roundtrips into 1 single tool call with zero compounding hallucination risks.
+  <Card title="Leaner Token Budget" icon="rocket">
+    Skips internal, hidden, deprecated and webhook operations, strips transport headers from tool arguments, and turns parameterless reference lookups into MCP Resources, so far fewer tokens are re-injected on every turn.
   </Card>
   <Card title="100% RFC 3986 Injection Immunity" icon="approve-check">
     Guarantees strict target-native percent-encoding across all path parameter substitutions in all 6 supported languages, completely neutralizing path traversal and URL injection vulnerabilities.
@@ -66,8 +60,7 @@ Unlike raw 1:1 endpoint wrappers or generic cloud CLI tools, RapiDoc treats AI a
 | Capability / Benchmark | Generic 1:1 Converters | Cloud SaaS / Generic CLIs | RapiDoc Curated MCP |
 | :--- | :--- | :--- | :--- |
 | **Supported Polyglot Runtimes** | 1 target (TypeScript only) | 1–2 targets | **6 Runtimes (TS, Python, Go, C#, Rust, Java)** |
-| **Prompt Overhead / Turn** | 4,000–8,000+ tokens | 2,500–5,000 tokens | **~850 tokens (~80% reduction)** |
-| **Multi-Hop Task Aggregation** | ✕ None (Agent chains calls) | ✕ None (1:1 mapping) | **✓ Native `x-mcp-workflows` composite tools** |
+| **Internal & Deprecated Endpoints** | ✕ Exposed as tools | ~ Partial | **✓ Skips `x-internal`, `x-hidden`, `deprecated` and webhooks** |
 | **Path Traversal & Injection Safety** | ✕ Vulnerable raw string templates | ~ Partial / Unescaped | **✓ 100% Target-Native RFC 3986 Escaping** |
 | **Multi-Tenant Gateway Auth** | ✕ Stdio environment only | ✕ Static credentials | **✓ Dual-Mode: Env fallback + Dynamic per-turn keys** |
 | **Resource Query Forwarding** | ✕ Broken or ignored | ✕ Unparsed URI query strings | **✓ RFC 6570 Dynamic Query Forwarding & Scrubbing** |
@@ -79,80 +72,38 @@ Unlike raw 1:1 endpoint wrappers or generic cloud CLI tools, RapiDoc treats AI a
 
 ## 1. Zero-Config Smart Heuristics
 
-Even without custom vendor extensions, RapiDoc applies smart defaults when compiling your OpenAPI spec:
+RapiDoc needs no extra annotations. It derives every tool and resource from standard OpenAPI fields:
 
-1. **Automatic Header Pruning**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, and transport metadata are stripped from LLM tool arguments and mapped to host environment variables (`process.env.API_KEY`, `os.environ["API_KEY"]`).
-2. **Deprecated Endpoint Elimination**: Any operation marked `deprecated: true` is automatically excluded.
-3. **Static Resource Classification**: Parameterless `GET` lookups (e.g., `/currencies`, `/tax-rates`, `/shipping-tiers`) are converted into **MCP Resources** (`reference://...`) instead of tools, avoiding function-calling overhead.
-4. **Token Budget Calculation**: Real-time diagnostic calculation estimates prompt token overhead and warns when total tools exceed recommended limits (>30 tools or >5,000 tokens).
-
----
-
-## 2. Shaping MCP with Vendor Extensions
-
-By annotating your OpenAPI spec with `x-mcp` and supported industry aliases, you have granular control over how AI agents perceive and interact with your API.
-
-### Extension Reference Table
-
-| Extension | Target | Type | Description |
-| :--- | :--- | :--- | :--- |
-| `x-mcp.name` | Operation | `string` | Agent-friendly snake_case tool name (e.g., `place_customer_order`). |
-| `x-mcp.description` | Operation | `string` | Concise, agent-focused prompt instructions specifying when and how to call the tool. |
-| `x-mcp.type` | Operation | `tool` \| `resource` | Explicitly declares an endpoint as an actionable Tool or a static read-only Resource. |
-| `x-mcp.uri` | Operation | `string` | Custom URI scheme for resources (e.g., `reference://shipping-tiers`). |
-| `x-mcp.parameters.include` | Operation | `string[]` | Whitelist of essential parameters to expose to the LLM. Strips internal/debug noise. |
-| `x-mcp.parameters.exclude` | Operation | `string[]` | Blacklist of parameters to hide from the agent. |
-| `x-mcp.parameters.defaults` | Operation | `object` | Default argument values pre-filled for the agent (e.g., `{ priority: "standard" }`). |
-| `x-mcp.parameters.descriptions` | Operation | `object` | Custom parameter descriptions optimized for prompt engineering. |
-| `x-mcp.requireConfirmation` | Operation | `boolean` | Flags mutating or financial tools as requiring user consent. |
-| `x-mcp-workflows` | Root Spec | `array` | Defines high-level composite workflows that collapse multiple REST calls into 1 tool. |
-| `x-internal` / `x-hidden` | Operation | `boolean` | Compatibility alias (Redocly/Scalar) to auto-exclude admin routes. |
-| `x-openai-isConsequential` | Operation | `boolean` | OpenAI Actions alias to mark consequential operations. |
-| `x-speakeasy-name-override` | Operation | `string` | Speakeasy alias to customize tool naming. |
+1. **Tool Naming**: The tool name is the snake_case form of the `operationId` (`placeOrder` becomes `place_order`). Operations without an `operationId` get a name derived from the HTTP method and path.
+2. **Tool Descriptions**: The operation `summary` is used, else its `description`, else `METHOD /path`. HTML and Markdown are stripped and the text is truncated to 300 characters.
+3. **Endpoint Exclusion**: Operations marked `x-internal: true` or `x-hidden: true`, operations marked `deprecated: true`, and webhooks are left out.
+4. **Automatic Header Pruning**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, `User-Agent` and other transport metadata are stripped from LLM tool arguments. Generated servers send a Bearer token from the `API_KEY` environment variable (or a per-call `apiKey` argument) and read the base URL from `API_BASE_URL`.
+5. **Static Resource Classification**: A `GET` with no required parameters on a reference-data path (`/reference`, `/currencies`, `/countries`, `/tiers`, `/categories`, `/status`, `/schema`) becomes an **MCP Resource** (`reference://<name>`) instead of a tool, avoiding function-calling overhead.
+6. **Confirmation Flags**: `POST`, `PUT`, `PATCH` and `DELETE` operations are flagged as consequential, so hosts can ask the user before running them.
+7. **Token Budget Calculation**: Real-time diagnostic calculation estimates prompt token overhead and warns when total tools exceed recommended limits (>30 tools or >5,000 tokens).
 
 ---
 
-## 3. Annotated OpenAPI Example
+## 2. Annotated OpenAPI Example
 
-Here is a real-world OpenAPI 3.x snippet illustrating how `x-mcp` extensions transform noisy REST operations into clean agent tools:
+Here is a plain OpenAPI 3.x snippet and how each operation is treated:
 
 ```yaml
 openapi: 3.0.3
 info:
-  title: Apex Commerce Fulfillment API
+  title: Commerce Fulfillment API
   version: 2.4.0
 
-# 1. Composite Task Tool: Collapses 3 atomic REST calls into 1 server-side tool
-x-mcp-workflows:
-  - name: get_customer_order_summary
-    description: "Fetches customer profile, subscription status, and latest 3 orders in a single tool call."
-    parameters:
-      customerId:
-        type: string
-        description: "Unique customer UUID (e.g., 'cust_98234')"
-    steps:
-      - call: getCustomer
-      - call: listOrders
-
 paths:
-  # 2. Curated Mutating Tool with Parameter Pruning & Confirmation Flag
+  # 1. Tool "place_order", flagged as needing confirmation (POST)
   /orders:
     post:
       summary: Place a new order
       operationId: placeOrder
-      x-mcp:
-        name: place_customer_order
-        description: "Places a verified order for the customer. Requires confirmation before dispatch."
-        requireConfirmation: true
-        parameters:
-          include:
-            - customerId
-            - items
-            - shippingMethod
-          defaults:
-            shippingMethod: "standard"
-          descriptions:
-            customerId: "Customer UUID account identifier"
+      parameters:
+        - name: Authorization # Stripped: supplied by the server from API_KEY
+          in: header
+          schema: { type: string }
       requestBody:
         required: true
         content:
@@ -164,28 +115,40 @@ paths:
                 customerId: { type: string }
                 items: { type: array, items: { type: string } }
                 shippingMethod: { type: string, enum: [standard, express, overnight] }
-                internalTraceToken: { type: string } # Automatically stripped!
-                debugClientTimestamp: { type: string } # Automatically stripped!
 
-  # 3. Static Reference Table as an MCP Resource
-  /shipping-tiers:
+  # 2. Read-only tool "get_order"
+  /orders/{orderId}:
     get:
-      summary: Get shipping tiers
-      description: Static reference list of carrier delivery estimates and pricing tiers.
-      x-mcp:
-        type: resource
-        uri: "reference://shipping-tiers"
+      summary: Get an order
+      operationId: getOrder
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
 
-  # 4. Hidden Admin Endpoint (Auto-excluded)
+  # 3. MCP Resource "reference://currencies" (GET, no required params, reference-data path)
+  /currencies:
+    get:
+      summary: List supported currencies
+      operationId: getCurrencies
+
+  # 4. Excluded: internal endpoint
   /admin/database/vacuum:
     post:
       summary: Trigger internal database maintenance
-      x-internal: true # Excluded from generated MCP tools!
+      x-internal: true
+
+  # 5. Excluded: deprecated endpoint
+  /orders/legacy:
+    get:
+      summary: Legacy order list
+      deprecated: true
 ```
 
 ---
 
-## 4. Multi-Target Code Generation
+## 3. Multi-Target Code Generation
 
 RapiDoc generates production-ready, single-file MCP servers across **6 major programming languages**:
 
@@ -241,7 +204,7 @@ RapiDoc generates production-ready, single-file MCP servers across **6 major pro
 
 ---
 
-## 5. Enterprise Code Generation Standards
+## 4. Enterprise Code Generation Standards
 
 Generic converters produce brittle, insecure code that fails when deployed to production agent hosts or multi-tenant proxies. RapiDoc enforces strict engineering invariants across all 6 target runtimes:
 
@@ -287,7 +250,7 @@ OpenAPI arrays are translated into first-class collection schemas rather than ge
 
 ---
 
-## 6. Integrating with `<rapi-doc>`
+## 5. Integrating with `<rapi-doc>`
 
 ### HTML Attributes
 
@@ -339,7 +302,7 @@ console.log(`Overhead: ~${budget.estimatedTokens} tokens/turn across ${budget.to
 
 ---
 
-## 7. Configuring AI Host Clients
+## 6. Configuring AI Host Clients
 
 Every generated MCP package includes ready-to-use configuration for **Claude Desktop** and **Cursor**:
 

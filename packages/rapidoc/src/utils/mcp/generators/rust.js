@@ -4,9 +4,9 @@
  */
 import { toSnakeCase, estimateTokenCost } from "../common.js";
 
-export function generateRustMcpServer(metadata, tools, resources, workflows, options = {}) {
+export function generateRustMcpServer(metadata, tools, resources, options = {}) {
   const serverName = toSnakeCase(options.serverName || metadata.title || "rapidoc_mcp_server");
-  const budget = estimateTokenCost(tools, resources, workflows);
+  const budget = estimateTokenCost(tools, resources);
   const defaultBaseUrl = metadata.servers?.[0]?.url || "http://localhost:3000";
 
   const toolRegistrations = tools
@@ -24,23 +24,6 @@ export function generateRustMcpServer(metadata, tools, resources, workflows, opt
 
       return `    server.add_tool(
         Tool::new("${t.name}", ${JSON.stringify(t.description)})
-${propCalls ? propCalls + "\n" : ""}            .property("api_key", "string", false, "Optional Bearer API key override for multi-tenant sessions")
-    );`;
-    })
-    .join("\n\n");
-
-  const workflowRegistrations = workflows
-    .map((w) => {
-      const paramKeys = w.parameters ? Object.keys(w.parameters) : [];
-      const propCalls = paramKeys
-        .map(
-          (k) =>
-            `\n            .property("${toSnakeCase(k)}", "string", true, ${JSON.stringify(w.parameters[k].description || "")})`,
-        )
-        .join("");
-
-      return `    server.add_tool(
-        Tool::new("${w.name}", ${JSON.stringify(w.description || "Composite workflow")})
 ${propCalls ? propCalls + "\n" : ""}            .property("api_key", "string", false, "Optional Bearer API key override for multi-tenant sessions")
     );`;
     })
@@ -113,35 +96,6 @@ ${queryCode}${bodyCode}                    let resp = req.send().await?;
     })
     .join("\n");
 
-  const workflowArms = workflows
-    .map((w) => {
-      const paramKeys = w.parameters ? Object.keys(w.parameters) : [];
-      const argKey = paramKeys[0] || "id";
-
-      return `                "${w.name}" => {
-                    let resolved_key = args.get("api_key").and_then(|v| v.as_str()).map(String::from).or_else(|| api_key.clone());
-                    let param_val = args.get("${toSnakeCase(argKey)}").and_then(|v| v.as_str()).unwrap_or("");
-                    let mut results = serde_json::Map::new();
-${(w.steps || [])
-  .map(
-    (s, idx) => `                    // Step ${idx + 1}: ${s.call}
-                    let step_url_${idx} = format!("{}/api/{}", base_url.trim_end_matches('/'), urlencoding::encode(param_val));
-                    let mut step_req_${idx} = client.get(&step_url_${idx}).header("Accept", "application/json");
-                    if let Some(ref key) = resolved_key {
-                        step_req_${idx} = step_req_${idx}.header("Authorization", format!("Bearer {}", key));
-                    }
-                    if let Ok(resp) = step_req_${idx}.send().await {
-                        if let Ok(json_res) = resp.json::<serde_json::Value>().await {
-                            results.insert("${s.call}".to_string(), json_res);
-                        }
-                    }`,
-  )
-  .join("\n")}
-                    Ok(ToolResponse::text(serde_json::to_string_pretty(&results)?))
-                }`;
-    })
-    .join("\n");
-
   const resourceArms = resources
     .map((r) => {
       return `                "${r.uri}" => {
@@ -205,7 +159,6 @@ Spec: ${metadata.title} (v${metadata.version})
 [TOKEN BUDGET DIAGNOSTIC]
 - Total Tools: ${budget.totalTools}
 - Total Resources: ${budget.totalResources}
-- Total Workflows: ${budget.totalWorkflows}
 - Estimated Prompt Context Overhead: ~${budget.estimatedTokens.toLocaleString()} tokens/turn
 ${budget.warnings.map((w) => `- ${w}`).join("\n")}
 
@@ -228,7 +181,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut server = Server::new("${serverName}", "${metadata.version || "1.0.0"}");
 
 ${toolRegistrations}
-${workflowRegistrations ? "\n" + workflowRegistrations : ""}
 
     server.on_call_tool(move |name, args: Value| {
         let client = client.clone();
@@ -238,8 +190,7 @@ ${workflowRegistrations ? "\n" + workflowRegistrations : ""}
             let result: Result<ToolResponse, Box<dyn Error>> = async {
                 match name.as_str() {
 ${toolArms}
-${workflowArms}
-                    _ => Err(format!("Unknown tool or workflow: {}", name).into()),
+                    _ => Err(format!("Unknown tool: {}", name).into()),
                 }
             }.await;
 

@@ -2,9 +2,9 @@
 
 ## Overview
 
-Six template-string builders, one per target language, that turn the tool, resource and
-workflow lists from `../common.js` (`extractMcpOperations`) into the source of a stand-alone MCP
-server plus its packaging files. `src/utils/mcp-generator.js` picks one module per
+Six template-string builders, one per target language, that turn the tool and resource lists
+from `../common.js` (`extractMcpOperations`) into the source of a stand-alone MCP server plus its
+packaging files. `src/utils/mcp-generator.js` picks one module per
 `options.target`; `<rapi-doc>` offers the result as its MCP server download.
 
 Not owned here: extraction, naming and token estimates (`../common.js`). Nothing here runs the
@@ -14,7 +14,7 @@ strings.
 ## Interface
 
 Each module exports a server builder,
-`(metadata, tools, resources, workflows, options = {}) -> string`, and a files builder,
+`(metadata, tools, resources, options = {}) -> string`, and a files builder,
 `(serverCode, metadata[, options]) -> { [relativePath]: content }` (source file, packaging file,
 `README.md`). `options.serverName` is the only option read.
 
@@ -39,15 +39,12 @@ Each module exports a server builder,
   as a comment; packaging files and emitted READMEs do not.
 - **Base URL.** `metadata.servers[0].url`, else `http://localhost:3000`, overridable at run time
   by the `API_BASE_URL` environment variable.
-- **Auth is Bearer only.** Tools and workflows take an optional per-call key (`apiKey` or
+- **Auth is Bearer only.** Tools take an optional per-call key (`apiKey` or
   `api_key`) that overrides the `API_KEY` environment variable and is sent as
   `Authorization: Bearer <key>`. No other auth scheme is emitted.
 - **Parameters.** Path parameters are URL-escaped in every target; `in: "header"` parameters
   are sent as request headers; only `POST`, `PUT` and `PATCH` send a JSON body, built from the
   `in: "body"` parameters and keyed by the original `p.name`.
-- **Workflows are stubs.** Each step issues `GET <base>/api/<value of the first workflow
-  parameter>` (empty when the workflow declares none) and stores the result under `steps[].call`.
-  Workflow parameters are strings.
 - **Known gap.** `generateJavaFiles` always names the file `RapiDocMcpServer.java`, while the
   class is `toPascalCase(options.serverName || "RapiDocMcpServer")`, so a custom `serverName`
   produces a file and class name mismatch.
@@ -60,5 +57,5 @@ Each module exports a server builder,
 ## Verification
 
 - `npm run test:unit` from the repo root. `tests/unit/mcp-generator.test.js` exercises every
-  target through `src/utils/mcp-generator.js`, including workflows without parameters.
+  target through `src/utils/mcp-generator.js`.
 - After editing, `npm run lint` and `npm run format-fix`.

@@ -101,44 +101,11 @@ describe("mcp-generator: zero-config smart heuristics on raw OpenAPI specs", () 
   });
 });
 
-describe("mcp-generator: vendor extensions & compatibility aliases", () => {
-  const specWithExtensions = {
+describe("mcp-generator: exclusion rules", () => {
+  const spec = {
     openapi: "3.0.3",
     info: { title: "Enterprise Portal", version: "2.0.0" },
     paths: {
-      "/orders": {
-        post: {
-          summary: "Create order",
-          operationId: "createOrder",
-          "x-mcp": {
-            name: "place_customer_order",
-            description: "Places a verified order for the customer.",
-            requireConfirmation: true,
-            parameters: {
-              include: ["customerId", "items"],
-              defaults: { priority: "standard" },
-              descriptions: { customerId: "Target customer ID" },
-            },
-          },
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  required: ["customerId", "items"],
-                  properties: {
-                    customerId: { type: "string" },
-                    items: { type: "array", items: { type: "string" } },
-                    internalDebugToken: { type: "string" },
-                  },
-                },
-              },
-            },
-          },
-          responses: { 201: { description: "Created" } },
-        },
-      },
       "/admin/health": {
         get: {
           summary: "Internal health check",
@@ -146,67 +113,13 @@ describe("mcp-generator: vendor extensions & compatibility aliases", () => {
           responses: { 200: { description: "OK" } },
         },
       },
-      "/refunds": {
-        post: {
-          summary: "Process refund",
-          "x-speakeasy-name-override": "issue_refund",
-          "x-openai-isConsequential": true,
-          responses: { 200: { description: "OK" } },
-        },
-      },
     },
-    "x-mcp-workflows": [
-      {
-        name: "get_customer_summary",
-        description: "Fetches customer and active orders",
-        parameters: { customerId: { type: "string", description: "Customer UUID" } },
-        steps: [
-          { call: "getCustomer", args: { id: "$params.customerId" } },
-          { call: "listOrders", args: { customerId: "$params.customerId" } },
-        ],
-      },
-    ],
   };
 
-  it("honors x-mcp parameter whitelisting and descriptions", () => {
-    const extracted = extractMcpOperations(specWithExtensions);
-    const orderTool = extracted.tools.find((t) => t.name === "place_customer_order");
-    assert.ok(orderTool);
-    assert.strictEqual(orderTool.description, "Places a verified order for the customer.");
-    assert.strictEqual(orderTool.isConsequential, true);
-
-    const paramNames = orderTool.parameters.map((p) => p.name);
-    assert.deepStrictEqual(paramNames.sort(), ["customerId", "items"].sort());
-    assert.ok(
-      !paramNames.includes("internalDebugToken"),
-      "internalDebugToken should be excluded by whitelist",
-    );
-
-    const customerIdParam = orderTool.parameters.find((p) => p.name === "customerId");
-    assert.strictEqual(customerIdParam.description, "Target customer ID");
-  });
-
   it("honors x-internal: true to exclude admin endpoints", () => {
-    const extracted = extractMcpOperations(specWithExtensions);
+    const extracted = extractMcpOperations(spec);
     const adminTool = extracted.tools.find((t) => t.path === "/admin/health");
     assert.strictEqual(adminTool, undefined, "x-internal endpoint should be excluded");
-  });
-
-  it("honors x-speakeasy-name-override and x-openai-isConsequential aliases", () => {
-    const extracted = extractMcpOperations(specWithExtensions);
-    const refundTool = extracted.tools.find((t) => t.name === "issue_refund");
-    assert.ok(refundTool, "Tool name override must be respected");
-    assert.strictEqual(
-      refundTool.isConsequential,
-      true,
-      "x-openai-isConsequential must set isConsequential",
-    );
-  });
-
-  it("extracts root-level composite workflows", () => {
-    const extracted = extractMcpOperations(specWithExtensions);
-    assert.strictEqual(extracted.workflows.length, 1);
-    assert.strictEqual(extracted.workflows[0].name, "get_customer_summary");
   });
 });
 
@@ -225,7 +138,7 @@ describe("mcp-generator: token budget estimation", () => {
       });
     }
 
-    const budget = estimateTokenCost(tools, [], []);
+    const budget = estimateTokenCost(tools, []);
     assert.strictEqual(budget.totalTools, 35);
     assert.ok(budget.estimatedTokens > 1000);
     assert.ok(budget.warnings.some((w) => w.includes("recommended limit of 30 tools")));
@@ -278,22 +191,14 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
           responses: { 201: { description: "Created" } },
         },
       },
-      "/shipping-tiers": {
+      "/reference/shipping-tiers": {
         get: {
           summary: "Shipping tiers reference",
-          "x-mcp": { type: "resource", uri: "reference://shipping-tiers" },
+          operationId: "getShippingTiers",
           responses: { 200: { description: "OK" } },
         },
       },
     },
-    "x-mcp-workflows": [
-      {
-        name: "get_order_summary",
-        description: "Fetches order and shipping in one call",
-        parameters: { orderId: { type: "string", description: "Order ID" } },
-        steps: [{ call: "getOrder" }],
-      },
-    ],
   };
 
   it("generates valid TypeScript server code with McpServer, Zod, query, body, and auth", () => {
@@ -325,7 +230,6 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
       pkg.serverCode.includes("targetUrl.searchParams.set(key, val);"),
       "Should propagate query params in TS resource handler",
     );
-    assert.ok(pkg.serverCode.includes("get_order_summary"));
     assert.ok(pkg.serverCode.includes("StdioServerTransport"));
     assert.ok(pkg.files["package.json"]);
     assert.ok(pkg.files["claude_desktop_config.json"]);
@@ -376,10 +280,6 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
     assert.ok(
       pkg.serverCode.includes('k.lower() not in ["apikey", "api_key"]'),
       "Should forward non-auth query parameters to downstream resource",
-    );
-    assert.ok(
-      pkg.serverCode.includes("def get_order_summary("),
-      "Should generate composite workflow function",
     );
     assert.ok(pkg.files["server.py"]);
     assert.ok(pkg.files["requirements.txt"]);
@@ -434,14 +334,13 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
       pkg.serverCode.includes("targetQuery.Set(k, v[0])"),
       "Should forward non-auth query parameters downstream in Go resource",
     );
-    assert.ok(pkg.serverCode.includes('s.AddTool(mcp.NewTool("get_order_summary"'));
     assert.ok(pkg.files["main.go"]);
     assert.ok(pkg.files["go.mod"]);
     assert.ok(pkg.files["go.mod"].includes("github.com/mark3labs/mcp-go"));
     assert.ok(pkg.files["README.md"].includes("go mod tidy"));
   });
 
-  it("generates valid C# (.NET) server code with query, body, workflows, and multi-tenancy", () => {
+  it("generates valid C# (.NET) server code with query, body, and multi-tenancy", () => {
     const pkg = generateMcpServer(spec, { target: "csharp" });
     assert.strictEqual(pkg.target, "csharp");
     assert.ok(pkg.serverCode.includes("ModelContextProtocol.NET.Server"));
@@ -488,13 +387,12 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
       pkg.serverCode.includes("outboundQuery[key] = incomingParams[key]"),
       "Should mirror non-auth parameters downstream in C# resource",
     );
-    assert.ok(pkg.serverCode.includes('[McpTool("get_order_summary"'));
     assert.ok(pkg.files["Program.cs"]);
     assert.ok(pkg.files["Server.csproj"]);
     assert.ok(pkg.files["README.md"].includes("dotnet run"));
   });
 
-  it("generates valid Rust server code with query, body, workflows, and multi-tenancy", () => {
+  it("generates valid Rust server code with query, body, and multi-tenancy", () => {
     const pkg = generateMcpServer(spec, { target: "rust" });
     assert.strictEqual(pkg.target, "rust");
     assert.ok(pkg.serverCode.includes("mcp_sdk::server"));
@@ -517,7 +415,6 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
       "Should strip trailing slashes from base_url in Rust",
     );
     assert.ok(pkg.serverCode.includes('let resolved_key = args.get("api_key")'));
-    assert.ok(pkg.serverCode.includes('"get_order_summary" => {'));
     assert.ok(pkg.serverCode.includes('"reference://shipping-tiers" => {'));
     assert.ok(
       pkg.serverCode.includes("uri.split_once('?')"),
@@ -592,7 +489,6 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
       "Should forward x-trace-id header parameter to RestClient",
     );
     assert.ok(pkg.serverCode.includes(".body(bodyPayload)"));
-    assert.ok(pkg.serverCode.includes("getOrderSummary()"));
     assert.ok(
       pkg.serverCode.includes("Function<Map<String, Object>, String> getShippingTiers()"),
       "Should use standard Map<String, Object> compatible with Spring AI resource routing",
@@ -622,7 +518,7 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
       "Should use UriComponentsBuilder for resources",
     );
     assert.ok(
-      pkg.serverCode.includes('uriBuilder.path("/shipping-tiers");'),
+      pkg.serverCode.includes('uriBuilder.path("/reference/shipping-tiers");'),
       "Should independently bind path to UriComponentsBuilder for safe normalization",
     );
     assert.ok(
@@ -630,7 +526,7 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
       "Should forward client query variables to outbound resource URL",
     );
     assert.ok(
-      !pkg.serverCode.includes('this.baseUrl + "/shipping-tiers"'),
+      !pkg.serverCode.includes('this.baseUrl + "/reference/shipping-tiers"'),
       "Must not use direct string concatenation for resource URIs",
     );
     assert.ok(
@@ -642,8 +538,8 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
     assert.ok(pkg.files["README.md"].includes("./mvnw spring-boot:run"));
   });
 
-  it("omits ObjectMapper completely when no workflows exist in Java", () => {
-    const specWithoutWorkflows = {
+  it("never imports ObjectMapper in Java", () => {
+    const simpleSpec = {
       openapi: "3.0.3",
       info: { title: "Simple API", version: "1.0.0" },
       paths: {
@@ -654,19 +550,19 @@ describe("mcp-generator: TypeScript and Python code generation", () => {
             responses: { 200: { description: "OK" } },
           },
         },
-        "/info": {
+        "/status": {
           get: {
             summary: "App info",
-            "x-mcp": { type: "resource", uri: "reference://info" },
+            operationId: "getInfo",
             responses: { 200: { description: "OK" } },
           },
         },
       },
     };
-    const pkg = generateMcpServer(specWithoutWorkflows, { target: "java" });
+    const pkg = generateMcpServer(simpleSpec, { target: "java" });
     assert.ok(
       !pkg.serverCode.includes("ObjectMapper"),
-      "Must not import or instantiate ObjectMapper when there are no workflows",
+      "Must not import or instantiate ObjectMapper",
     );
     assert.ok(
       pkg.serverCode.includes("Function<Map<String, Object>, String> getInfo()"),
@@ -748,7 +644,7 @@ describe("mcp-generator: parseMcpTargets attribute normalization and kill-switch
   });
 });
 
-describe("mcp-generator: consequential default and parameter-less workflows", () => {
+describe("mcp-generator: consequential default", () => {
   const spec = {
     openapi: "3.0.0",
     info: { title: "Ping", version: "1.0.0" },
@@ -758,30 +654,11 @@ describe("mcp-generator: consequential default and parameter-less workflows", ()
         post: { operationId: "poke", summary: "Poke", responses: { 200: { description: "OK" } } },
       },
     },
-    "x-mcp-workflows": [
-      { name: "health_check", description: "Pings the service", steps: [{ call: "ping" }] },
-    ],
   };
 
   it("treats post/put/delete/patch as consequential by default, get as safe", () => {
     const { tools } = extractMcpOperations(spec);
     assert.strictEqual(tools.find((t) => t.name === "ping").isConsequential, false);
     assert.strictEqual(tools.find((t) => t.name === "poke").isConsequential, true);
-  });
-
-  it("emits no reference to an undeclared `id` for a workflow without parameters", () => {
-    const code = (target) => Object.values(generateMcpServer(spec, { target }).files).join("\n");
-
-    const csharp = code("csharp");
-    assert.ok(csharp.includes('Uri.EscapeDataString("")'), "C# step path is empty");
-    assert.ok(!/EscapeDataString\(id\b/.test(csharp), "C# must not reference `id`");
-
-    const java = code("java");
-    assert.ok(java.includes('UriUtils.encodePath("", StandardCharsets.UTF_8)'));
-    assert.ok(!java.includes("request.id()"), "Java must not call an undeclared accessor");
-
-    const python = code("python");
-    assert.ok(python.includes('urllib.parse.quote("")'));
-    assert.ok(!python.includes("str(id)"), "Python must not fall back to the builtin `id`");
   });
 });

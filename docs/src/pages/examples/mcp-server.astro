@@ -1,7 +1,7 @@
 ---
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
 
-const sampleSpecUrl = '/specs/curated-mcp-demo.yaml';
+const sampleSpecUrl = '/specs/petstore.yaml';
 ---
 
 <ExampleLayout
@@ -14,7 +14,7 @@ const sampleSpecUrl = '/specs/curated-mcp-demo.yaml';
   rapidocProps={{
     'spec-url': sampleSpecUrl,
     'mcp': 'typescript, python, go, csharp, rust, java',
-    'mcp-server-name': 'apex-commerce-mcp',
+    'mcp-server-name': 'petstore-mcp',
     'allow-spec-file-download': 'true',
     'render-style': 'read',
     'show-header': 'true',
@@ -28,7 +28,7 @@ const sampleSpecUrl = '/specs/curated-mcp-demo.yaml';
     id="thedoc"
     spec-url={sampleSpecUrl}
     mcp="typescript, python, go, csharp, rust, java"
-    mcp-server-name="apex-commerce-mcp"
+    mcp-server-name="petstore-mcp"
     allow-spec-file-download="true"
     render-style="read"
     show-header="true"
@@ -43,9 +43,9 @@ const sampleSpecUrl = '/specs/curated-mcp-demo.yaml';
       <div class="mcp-badge-pill">Model Context Protocol</div>
       <h2 class="mcp-title">Curated MCP Server vs. Plain 1:1 Conversion</h2>
       <p class="mcp-subtitle">
-        As described by Jeremiah Lowin in <em>"Stop Converting Your REST APIs to MCP"</em>, naive 1:1 endpoint converters 
-        poison AI agents with context bloat, chained atomic hops, and leaked internal endpoints.
-        RapiDoc’s client-side generator uses smart heuristics and <code>x-mcp-*</code> vendor extensions to produce clean, curated MCP servers.
+        As described by Jeremiah Lowin in <em>"Stop Converting Your REST APIs to MCP"</em>, naive 1:1 endpoint converters
+        poison AI agents with context bloat, leaked internal endpoints and transport noise.
+        RapiDoc’s client-side generator applies smart heuristics to a plain OpenAPI spec (here, the Swagger Petstore) to produce clean, curated MCP servers.
       </p>
     </div>
 
@@ -63,22 +63,23 @@ const sampleSpecUrl = '/specs/curated-mcp-demo.yaml';
         </div>
         <ul class="mcp-stats-list">
           <li>
-            <strong class="text-green">~850 tokens</strong> / turn context overhead <span class="mcp-savings">(-80% token tax)</span>
+            <strong class="text-green" id="mcp-budget-tokens">Live token budget</strong>
+            <span id="mcp-budget-detail">computed from this spec with <code>getMcpBudget()</code></span>
           </li>
           <li>
-            <strong>5 Agent-Focused Tools</strong> with pruned parameters and clean prompt descriptions
+            <strong>Agent-friendly tool names</strong> from each <code>operationId</code> (<code>findPetsByStatus</code> &rarr; <code>find_pets_by_status</code>)
           </li>
           <li>
-            <strong>1 Composite Workflow</strong> (<code>get_customer_order_summary</code>) replacing 3 atomic REST hops
+            <strong>Concise descriptions</strong> from the operation <code>summary</code>, stripped of HTML and Markdown
           </li>
           <li>
-            <strong>2 Static Resources</strong> (<code>reference://shipping-tiers</code>, <code>reference://currencies</code>)
+            <strong>Auto-Excluded</strong> operations marked <code>x-internal</code>, <code>x-hidden</code> or <code>deprecated</code>, and webhooks
           </li>
           <li>
-            <strong>Auto-Excluded</strong> internal admin routes (<code>x-internal: true</code>) and deprecated paths
+            <strong>Static Resources</strong> for parameterless reference lookups (<code>/currencies</code>, <code>/status</code>, ...)
           </li>
           <li>
-            <strong>Guarded Actions</strong> (<code>refund_customer_payment</code> marked as consequential/destructive)
+            <strong>Guarded Actions</strong>: <code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> tools such as <code>delete_pet</code> flagged as consequential
           </li>
         </ul>
       </div>
@@ -95,22 +96,22 @@ const sampleSpecUrl = '/specs/curated-mcp-demo.yaml';
         </div>
         <ul class="mcp-stats-list">
           <li>
-            <strong class="text-red">~4,200+ tokens</strong> / turn prompt context bloat
+            <strong class="text-red">Unbudgeted</strong> prompt context, with no warning when the tool catalog grows too large
           </li>
           <li>
-            <strong>14 Atomic Tools</strong> forcing LLMs through 3 sequential HTTP roundtrips
+            <strong>Generic tool names</strong> and raw, Markdown-heavy descriptions
           </li>
           <li>
-            <strong>0 Resources</strong> (static tables & currencies pollutes the active tool catalog)
+            <strong>0 Resources</strong> (static lookup tables pollute the active tool catalog)
           </li>
           <li>
-            <strong>Leaked Endpoints</strong>: <code>/admin/health</code> and <code>/admin/cache/purge</code> exposed to agent
+            <strong>Leaked Endpoints</strong>: internal and deprecated routes exposed to the agent
           </li>
           <li>
-            <strong>Parameter Noise</strong>: Internal warehouse routing IDs and fraud scores visible to LLM
+            <strong>Transport Noise</strong>: <code>Authorization</code>, <code>Cookie</code> and <code>X-API-Key</code> headers exposed as tool arguments
           </li>
           <li>
-            <strong>No Safety Guardrails</strong>: Destructive financial operations unflagged
+            <strong>No Safety Guardrails</strong>: destructive operations unflagged
           </li>
         </ul>
       </div>
@@ -385,6 +386,17 @@ const sampleSpecUrl = '/specs/curated-mcp-demo.yaml';
       document.getElementById('btn-inspect-csharp')?.addEventListener('click', () => showCode('csharp'));
       document.getElementById('btn-inspect-rust')?.addEventListener('click', () => showCode('rust'));
       document.getElementById('btn-inspect-java')?.addEventListener('click', () => showCode('java'));
+
+      function showBudget() {
+        const tokensEl = document.getElementById('mcp-budget-tokens');
+        const detailEl = document.getElementById('mcp-budget-detail');
+        const budget = docEl.getMcpBudget?.();
+        if (!tokensEl || !detailEl || !budget) return;
+        tokensEl.textContent = `~${budget.estimatedTokens.toLocaleString()} tokens`;
+        detailEl.textContent = `/ turn context overhead across ${budget.totalTools} tools and ${budget.totalResources} resources (${budget.consequentialCount} flagged as consequential)`;
+      }
+      docEl.addEventListener('spec-loaded', showBudget);
+      showBudget();
 
       closeBtn?.addEventListener('click', () => {
         drawer.style.display = 'none';
