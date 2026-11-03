@@ -16,21 +16,7 @@ import {
   buildFlowGraph,
   renderFlowDiagram,
   escapeXml,
-  actionLabel,
-  actionSentence,
-  describeAction,
 } from "~/utils/arazzo/index.js";
-
-/** A value from an Arazzo document as display text: strings as is, anything else as JSON. */
-function valueText(value) {
-  if (value === undefined) return "";
-  return typeof value === "string" ? value : JSON.stringify(value, null, 2);
-}
-
-/** An action as one line: "✗ retry 3× after 1s if $statusCode == 503". */
-function actionText(action) {
-  return `${actionLabel(action).slice(0, 1)} ${actionSentence(action)}`;
-}
 
 let instanceCount = 0;
 
@@ -47,8 +33,6 @@ export default class RapiFlow extends LitElement {
   @property({ type: String, attribute: "for" }) for = "";
   @property({ type: String, reflect: true }) theme = DEFAULT_THEME;
   @property({ type: String, attribute: "color-scheme", reflect: true }) colorScheme = "dark";
-  // "false" hides the inputs, outputs and step details under the diagram
-  @property({ type: String, attribute: "show-docs" }) showDocs = "true";
   // "expanded" shows each step's inputs and actions in its box; "compact" only the operation
   @property({ type: String, reflect: true }) view = "expanded";
   // "false" hides the Compact / Expanded switch
@@ -60,9 +44,10 @@ export default class RapiFlow extends LitElement {
   @state() private loading = false;
   @state() private loadError = "";
   @state() private selectedStepId = "";
-  @state() private openSteps: Set<string> = new Set();
 
   private loadId = 0;
+  // Step whose box, lines and output rows are highlighted while the pointer is over one of them
+  private linkedStepId = "";
   private idPrefix = `rf${++instanceCount}`;
   _autoColorScheme = new AutoColorSchemeController(this);
 
@@ -70,8 +55,11 @@ export default class RapiFlow extends LitElement {
     ThemeTokens,
     FlowStyles,
     css`
+      /* The element paints its own background, so it keeps its content off the edges; a page
+         can set rapi-flow { padding: 0 } */
       :host {
         display: block;
+        padding: 1rem 1.25rem;
         color: var(--foreground);
         background: var(--background);
         font-family: var(--font-sans);
@@ -164,39 +152,11 @@ export default class RapiFlow extends LitElement {
         font-family: var(--font-mono);
         font-size: var(--font-size-small);
       }
-      .flow-every-step {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.375rem;
-        margin: 0 0 0.75rem;
-        font-size: var(--font-size-small);
-        color: var(--muted-foreground);
-      }
-      .pill {
-        display: inline-block;
-        padding: 0 0.5rem;
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        font-size: var(--font-size-xs);
-        line-height: 1.6;
-        color: var(--foreground);
-        white-space: nowrap;
-      }
-      .pill.success {
-        border-color: var(--green);
-      }
-      .pill.failure {
-        border-color: var(--destructive);
-      }
-      .pill.inherited {
-        border-style: dashed;
-      }
       .flow-legend {
         display: flex;
         flex-wrap: wrap;
         gap: 0.25rem 1rem;
-        margin: 0.5rem 0 0;
+        margin: 0.75rem 0 0;
         padding: 0;
         list-style: none;
         font-size: var(--font-size-xs);
@@ -209,116 +169,6 @@ export default class RapiFlow extends LitElement {
       }
       .flow-legend svg {
         overflow: visible;
-      }
-      .flow-docs {
-        margin-top: 1.5rem;
-      }
-      .flow-docs h3 {
-        margin: 1.25rem 0 0.5rem;
-        font-size: var(--h5-font-size);
-        font-weight: var(--heading-weight);
-        color: var(--heading-color);
-      }
-      .flow-docs h4 {
-        margin: 0.75rem 0 0.25rem;
-        font-size: var(--font-size-small);
-        font-weight: var(--heading-weight);
-        color: var(--muted-foreground);
-      }
-      .flow-docs table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: var(--font-size-description);
-      }
-      .flow-docs th,
-      .flow-docs td {
-        padding: 0.375rem 0.5rem;
-        border-bottom: 1px solid var(--border);
-        text-align: left;
-        vertical-align: top;
-      }
-      .flow-docs th {
-        font-size: var(--font-size-xs);
-        font-weight: 600;
-        color: var(--muted-foreground);
-      }
-      .flow-docs td code {
-        word-break: break-word;
-      }
-      .flow-docs td.name code {
-        white-space: nowrap;
-        word-break: normal;
-      }
-      .flow-docs .muted,
-      .flow-docs .empty {
-        color: var(--muted-foreground);
-      }
-      .required {
-        color: var(--destructive);
-        font-size: var(--font-size-xs);
-        font-weight: 600;
-      }
-      details.step {
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        margin-bottom: 0.5rem;
-        background: var(--card);
-      }
-      details.step[open] {
-        padding-bottom: 0.5rem;
-      }
-      details.step.selected {
-        border-color: var(--primary);
-      }
-      details.step summary {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
-        gap: 0.25rem 0.75rem;
-        padding: 0.5rem 0.75rem;
-        cursor: pointer;
-      }
-      details.step summary .step-id {
-        font-weight: 600;
-      }
-      details.step summary .step-op {
-        font-family: var(--font-mono);
-        font-size: var(--font-size-small);
-        color: var(--muted-foreground);
-      }
-      details.step .step-body {
-        padding: 0 0.75rem;
-      }
-      details.step pre {
-        margin: 0;
-        padding: 0.5rem;
-        overflow-x: auto;
-        background: var(--muted);
-        border-radius: var(--radius);
-      }
-      .method {
-        font-weight: 700;
-      }
-      .method-get { color: var(--method-get); }
-      .method-post { color: var(--method-post); }
-      .method-put { color: var(--method-put); }
-      .method-delete { color: var(--method-delete); }
-      .method-patch { color: var(--method-patch); }
-      ul.plain {
-        margin: 0;
-        padding-left: 1.25rem;
-        font-size: var(--font-size-description);
-      }
-      ul.plain li {
-        margin: 0.125rem 0;
-      }
-      .tag {
-        margin-left: 0.25rem;
-        padding: 0 0.375rem;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        font-size: var(--font-size-xs);
-        color: var(--muted-foreground);
       }
     `,
   ];
@@ -339,6 +189,8 @@ export default class RapiFlow extends LitElement {
       applyCustomTheme(this, this.theme);
     }
     if (changed.has("arazzoUrl") || changed.has("specUrl")) this.load();
+    // A redrawn diagram has lost the highlight classes
+    this.linkedStepId = "";
   }
 
   /** Loads the Arazzo document and its OpenAPI sources. Fires `flow-loaded` when done. */
@@ -423,7 +275,6 @@ export default class RapiFlow extends LitElement {
     const step = graph?.steps.find((s) => s.stepId === stepId);
     if (!step) return;
     this.selectedStepId = stepId;
-    this.openSteps = new Set([...this.openSteps, stepId]);
     const op = step.operation;
     this.dispatchEvent(
       new CustomEvent("step-click", {
@@ -455,20 +306,64 @@ export default class RapiFlow extends LitElement {
 
   private onDiagramEvent(e: Event) {
     if (e instanceof KeyboardEvent && e.key !== "Enter" && e.key !== " ") return;
-    const el = (e.target as Element)?.closest?.(".rf-clickable");
+    const el = (e.target as Element)?.closest?.(".rf-jump, .rf-clickable");
     if (!el) return;
     e.preventDefault();
+    // A step name in the outputs box or a value line: bring that step into view, then select it
+    if (el.classList.contains("rf-jump")) {
+      const stepId = el.getAttribute("data-from-step") || "";
+      this.selectStep(stepId);
+      // Selecting redraws the diagram, so scroll to the new step box once it is drawn
+      this.updateComplete.then(() => {
+        const sel = `.rf-step[data-step-id="${CSS.escape(stepId)}"]`;
+        const box = this.renderRoot.querySelector(sel);
+        if (box) this.scrollToCenter(box.getBoundingClientRect());
+      });
+      return;
+    }
     this.selectStep(el.getAttribute("data-step-id") || "");
   }
 
-  private renderWorkflowActions(graph) {
-    if (!graph.workflowActions.length) return nothing;
-    return html`<div class="flow-every-step" part="workflow-actions">
-      <span>Every step:</span>
-      ${graph.workflowActions.map(
-        (a) => html`<span class="pill ${a.outcome}">${actionText(a)}</span>`,
-      )}
-    </div>`;
+  /**
+   * Highlights the step under the pointer together with its value lines and its rows in the
+   * outputs box (or, from an output row, the step it comes from). The diagram is an SVG string,
+   * so the classes are set on its elements directly.
+   */
+  private onDiagramHover(e: Event) {
+    const el =
+      e.type === "mouseleave"
+        ? null
+        : (e.target as Element)?.closest?.("[data-step-id], [data-from-step]");
+    const id = el?.getAttribute("data-step-id") || el?.getAttribute("data-from-step") || "";
+    if (id === this.linkedStepId) return;
+    this.linkedStepId = id;
+    const svg = this.renderRoot.querySelector(".flow-diagram svg");
+    if (!svg) return;
+    svg.querySelectorAll(".rf-linked").forEach((n) => n.classList.remove("rf-linked"));
+    if (!id) return;
+    const sel = CSS.escape(id);
+    svg
+      .querySelectorAll(`[data-step-id="${sel}"], [data-from-step="${sel}"]`)
+      .forEach((n) => n.classList.add("rf-linked"));
+  }
+
+  /**
+   * Scrolls the nearest scrolling ancestor (or the window) so a rect is centered. Used instead of
+   * scrollIntoView, which does not move SVG groups in every browser.
+   */
+  private scrollToCenter(rect: DOMRect) {
+    // Walk up through shadow roots too, in case <rapi-flow> sits inside another component
+    const up = (node: Element) =>
+      node.parentElement || ((node.getRootNode() as ShadowRoot).host as Element) || null;
+    let el = up(this);
+    while (el) {
+      const { overflowY } = getComputedStyle(el);
+      if (/(auto|scroll)/.test(overflowY) && el.scrollHeight > el.clientHeight) break;
+      el = up(el);
+    }
+    const view = el ? el.getBoundingClientRect() : { top: 0, height: window.innerHeight };
+    const top = rect.top - view.top - (view.height - Math.min(rect.height, view.height)) / 2;
+    (el || window).scrollBy({ top, behavior: "smooth" });
   }
 
   private setView(view: string) {
@@ -500,167 +395,10 @@ export default class RapiFlow extends LitElement {
       output: html`${line("rf-data rf-to-output", "output", true)}value passed to the outputs`,
       success: html`${line("rf-goto rf-success", "success")}goto on success`,
       failure: html`${line("rf-goto rf-failure", "failure")}goto on failure`,
-      action: html`<span class="pill success">✓</span><span class="pill failure">✗</span>action on success / failure`,
     };
     return html`<ul class="flow-legend" part="legend" aria-label="Legend">
       ${kinds.map((k) => html`<li>${entries[k]}</li>`)}
     </ul>`;
-  }
-
-  private renderDocs(graph) {
-    return html`<section class="flow-docs" part="docs">
-      <h3>Inputs</h3>
-      ${
-        graph.inputDetails.length
-          ? html`<table part="inputs">
-              <thead><tr><th>Name</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-              <tbody>
-                ${graph.inputDetails.map(
-                  (i) => html`<tr>
-                    <td class="name"><code>${i.name}</code>${i.required ? html` <span class="required">required</span>` : nothing}</td>
-                    <td>${i.type}${i.format ? html` <span class="muted">(${i.format})</span>` : nothing}</td>
-                    <td>${i.default !== undefined ? html`<code>${valueText(i.default)}</code>` : nothing}</td>
-                    <td>
-                      ${i.description}
-                      ${
-                        i.enum
-                          ? html`<div class="muted">One of ${i.enum.map((v, n) => html`${n ? ", " : ""}<code>${valueText(v)}</code>`)}</div>`
-                          : nothing
-                      }
-                    </td>
-                  </tr>`,
-                )}
-              </tbody>
-            </table>`
-          : html`<p class="empty">No inputs.</p>`
-      }
-      <h3>Outputs</h3>
-      ${
-        graph.outputs.length
-          ? html`<table part="outputs">
-              <thead><tr><th>Name</th><th>From step</th><th>Value</th></tr></thead>
-              <tbody>
-                ${graph.outputs.map((o) => {
-                  // "$steps.<id>.outputs.<name>" reads better as the step's output name
-                  const m = o.expr.match(/^\$steps\.([A-Za-z0-9_-]+)\.outputs\.([A-Za-z0-9_-]+)$/);
-                  return html`<tr>
-                    <td class="name"><code>${o.name}</code></td>
-                    <td>${o.stepId}</td>
-                    <td><code title=${o.expr}>${m ? `outputs.${m[2]}` : o.expr}</code></td>
-                  </tr>`;
-                })}
-              </tbody>
-            </table>`
-          : html`<p class="empty">No outputs.</p>`
-      }
-      <h3>Steps</h3>
-      ${graph.steps.map((s, n) => this.renderStepDetails(s, n))}
-    </section>`;
-  }
-
-  private renderStepDetails(step, n) {
-    const op = step.operation;
-    const toggle = (e) => {
-      const open = new Set(this.openSteps);
-      if (e.target.open) open.add(step.stepId);
-      else open.delete(step.stepId);
-      this.openSteps = open;
-    };
-    return html`<details
-      class="step ${this.selectedStepId === step.stepId ? "selected" : ""}"
-      part="step"
-      data-step-id=${step.stepId}
-      ?open=${this.openSteps.has(step.stepId)}
-      @toggle=${toggle}
-    >
-      <summary>
-        <span class="step-id">${n + 1}. ${step.stepId}</span>
-        ${
-          op
-            ? html`<span class="step-op"><span class="method method-${op.method}">${op.method.toUpperCase()}</span> ${op.path}</span>`
-            : html`<span class="step-op">${step.kind === "workflow" ? `workflow ${step.workflowId}` : step.operationRef}</span>`
-        }
-      </summary>
-      <div class="step-body">
-        ${step.description ? html`<p>${step.description}</p>` : nothing}
-        ${op?.operationId ? html`<p class="muted">Operation <code>${op.operationId}</code>${op.summary ? html` · ${op.summary}` : nothing}</p>` : nothing}
-        ${
-          step.parameters.length
-            ? html`<h4>Parameters</h4>
-              <table>
-                <thead><tr><th>Name</th><th>In</th><th>Value</th></tr></thead>
-                <tbody>
-                  ${step.parameters.map(
-                    (p) =>
-                      html`<tr><td class="name"><code>${p.name}</code></td><td>${p.in}</td><td><code>${valueText(p.value)}</code></td></tr>`,
-                  )}
-                </tbody>
-              </table>`
-            : nothing
-        }
-        ${
-          step.requestBody
-            ? html`<h4>Request body${step.requestBody.contentType ? html` <span class="muted">${step.requestBody.contentType}</span>` : nothing}</h4>
-              <pre>${valueText(step.requestBody.payload)}</pre>
-              ${
-                step.requestBody.replacements?.length
-                  ? html`<ul class="plain">
-                      ${step.requestBody.replacements.map(
-                        (r) =>
-                          html`<li><code>${r.target}</code> ← <code>${valueText(r.value)}</code></li>`,
-                      )}
-                    </ul>`
-                  : nothing
-              }`
-            : nothing
-        }
-        ${
-          step.criteria.length
-            ? html`<h4>Success criteria</h4>
-              <ul class="plain">
-                ${step.criteria.map(
-                  (c) => html`<li>
-                    <code>${c.condition}</code>
-                    ${c.type !== "simple" ? html`<span class="muted">(${c.type}${c.context ? ` on ${c.context}` : ""})</span>` : nothing}
-                  </li>`,
-                )}
-              </ul>`
-            : nothing
-        }
-        ${
-          step.outputExprs.length
-            ? html`<h4>Outputs</h4>
-              <table>
-                <thead><tr><th>Name</th><th>Expression</th></tr></thead>
-                <tbody>
-                  ${step.outputExprs.map(
-                    (o) =>
-                      html`<tr><td class="name"><code>${o.name}</code></td><td><code>${valueText(o.expr)}</code></td></tr>`,
-                  )}
-                </tbody>
-              </table>`
-            : nothing
-        }
-        ${["success", "failure"].map((outcome) => {
-          const actions = step.actions.filter((a) => a.outcome === outcome);
-          if (!actions.length) return nothing;
-          return html`<h4>On ${outcome}</h4>
-            <ul class="plain">
-              ${actions.map((a) => {
-                const d = describeAction(a);
-                return html`<li
-                  class=${a.shadowed ? "muted" : ""}
-                  title=${a.shadowed ? "Never runs: an earlier action without criteria always matches first" : nothing}
-                >
-                  ${a.criteria.length ? html`<code>${d.when}</code>` : d.when} → ${d.does}
-                  ${d.tag ? html`<span class="tag">${d.tag}</span>` : nothing}
-                  ${a.shadowed ? html`<span class="muted">(never runs)</span>` : nothing}
-                </li>`;
-              })}
-            </ul>`;
-        })}
-      </div>
-    </details>`;
   }
 
   render() {
@@ -688,6 +426,7 @@ export default class RapiFlow extends LitElement {
         `class="rf-node rf-step rf-clickable rf-selected" data-step-id="${stepId}"`,
       );
     }
+    // Only problems a reader can't miss; the graph's authoring warnings are left to tooling
     const shown = this.problems.filter(
       (p) => p.level === "error" || p.path.startsWith("sourceDescriptions"),
     );
@@ -707,7 +446,6 @@ export default class RapiFlow extends LitElement {
                     @change=${(e) => {
                       this.workflowId = e.target.value;
                       this.selectedStepId = "";
-                      this.openSteps = new Set();
                     }}
                   >
                     ${ids.map((id) => html`<option value=${id} ?selected=${id === graph.workflowId}>${id}</option>`)}
@@ -722,12 +460,11 @@ export default class RapiFlow extends LitElement {
                 ? html`<p class="flow-description" part="description">${graph.description}</p>`
                 : nothing
             }
-            ${view === "compact" ? this.renderWorkflowActions(graph) : nothing}
-            <div class="flow-diagram" part="diagram" @click=${this.onDiagramEvent} @keydown=${this.onDiagramEvent}>
+            <div class="flow-diagram" part="diagram" @click=${this.onDiagramEvent} @keydown=${this.onDiagramEvent} @mouseover=${this.onDiagramHover} @mouseleave=${this.onDiagramHover}>
               ${unsafeSVG(svg)}
             </div>
             ${this.renderLegend(diagram.legend)}
-            ${this.showDocs === "false" ? nothing : this.renderDocs(graph)}`
+`
           : html`<p class="flow-message" part="message">No workflow to show.</p>`
       }
       ${

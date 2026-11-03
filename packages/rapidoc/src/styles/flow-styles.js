@@ -22,12 +22,11 @@ export default css`
     fill: var(--muted);
   }
   .rf-title {
-    fill: var(--foreground);
+    fill: color-mix(in srgb, var(--primary) 65%, var(--foreground));
     font-weight: 600;
     font-size: var(--font-size-regular);
   }
-  .rf-sub,
-  .rf-io-names {
+  .rf-sub {
     fill: var(--muted-foreground);
   }
   .rf-io-title,
@@ -66,6 +65,15 @@ export default css`
   .rf-unresolved {
     fill: var(--muted-foreground);
     font-style: italic;
+  }
+  .rf-jump {
+    cursor: pointer;
+    outline: none;
+  }
+  .rf-jump:hover .rf-step-name,
+  .rf-tag.rf-jump:hover,
+  .rf-tag.rf-jump:focus-visible {
+    text-decoration: underline;
   }
   .rf-clickable {
     cursor: pointer;
@@ -130,16 +138,43 @@ export default css`
   .rf-in-type,
   .rf-in-default,
   .rf-in-enum,
+  .rf-out-from,
+  .rf-out-kind,
   .rf-more,
   .rf-tag,
   .rf-sec-title {
     fill: var(--muted-foreground);
   }
-  .rf-kw {
+  .rf-kw,
+  .rf-out-kind {
     font-weight: 600;
   }
-  .rf-kw-step {
-    fill: var(--primary);
+  /* Step names are the step color wherever they appear: box titles, value lines, outputs */
+  /* --primary mixed toward the text color keeps the hue and reads at 4.5:1 on light cards */
+  .rf-step-name,
+  .rf-kw-step,
+  .rf-tag.rf-out-step,
+  .rf-row.rf-linked .rf-out-name {
+    fill: color-mix(in srgb, var(--primary) 65%, var(--foreground));
+  }
+  .rf-tag.rf-out-step {
+    font-size: var(--font-size-small);
+    font-weight: 600;
+  }
+  /* Hover linking (<rapi-flow>): a step, its lines and its rows in the outputs box */
+  .rf-step.rf-linked rect {
+    stroke: var(--primary);
+    stroke-width: 2;
+  }
+  .rf-data.rf-linked {
+    stroke-width: 2.5;
+  }
+  .rf-io .rf-sep {
+    stroke: var(--muted-foreground);
+    stroke-opacity: 0.35;
+  }
+  .rf-out-from {
+    font-family: var(--font-mono);
   }
   .rf-kw-input {
     fill: var(--blue);
@@ -162,16 +197,22 @@ export default css`
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  .rf-shadowed {
-    opacity: 0.45;
+  .rf-check-type {
+    fill: var(--muted-foreground);
+  }
+  .rf-check-type,
+  .rf-check {
+    font-family: var(--font-mono);
+  }
+  .rf-check {
+    fill: var(--foreground);
   }
   .rf-data-label rect {
     fill: var(--background);
     stroke: var(--primary);
     stroke-width: 1;
   }
-  .rf-data-label text,
-  .rf-action text {
+  .rf-data-label text {
     fill: var(--foreground);
     font-size: var(--font-size-xs);
   }
@@ -190,15 +231,5 @@ export default css`
   }
   .rf-head-failure {
     fill: var(--destructive);
-  }
-  .rf-action rect {
-    fill: var(--background);
-    stroke-width: 1.25;
-  }
-  .rf-action.rf-success rect {
-    stroke: var(--green);
-  }
-  .rf-action.rf-failure rect {
-    stroke: var(--destructive);
   }
 `;

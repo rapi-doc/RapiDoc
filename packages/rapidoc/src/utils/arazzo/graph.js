@@ -111,17 +111,43 @@ function describeBindings(parameters, requestBody) {
   for (const r of requestBody?.replacements || []) {
     if (r?.target) rows.push({ name: `body ${r.target}`, in: "body", value: r.value });
   }
-  return rows.map((r) => ({
-    ...r,
-    source: describeSource(r.value),
-    fromSteps: [
-      ...new Set(
-        collectRefs(r.value)
-          .filter((x) => x.kind === "step")
-          .map((x) => x.stepId),
-      ),
-    ],
-  }));
+  return rows.map((r) => {
+    const stepRefs = collectRefs(r.value).filter((x) => x.kind === "step");
+    return {
+      ...r,
+      source: describeSource(r.value),
+      fromSteps: [...new Set(stepRefs.map((x) => x.stepId))],
+      fromOutputs: stepRefs.filter((x) => x.name).map((x) => ({ stepId: x.stepId, name: x.name })),
+    };
+  });
+}
+
+const listOf = (names) =>
+  names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0];
+
+/**
+ * One warning per step and outcome whose actions include some that can never run, because an
+ * earlier action without criteria always matches first.
+ */
+function shadowWarnings(steps, workflowIndex) {
+  const warnings = [];
+  steps.forEach((step, si) => {
+    for (const outcome of ["success", "failure"]) {
+      const actions = step.actions.filter((a) => a.outcome === outcome);
+      const never = actions.filter((a) => a.shadowed);
+      if (!never.length) continue;
+      const catchAll = actions.find((a) => !a.conditional);
+      const names = never.map((a) => a.name || `an unnamed ${a.type}`);
+      const whose = never.every((a) => a.inherited) ? "the workflow's " : "";
+      const verb = never.length > 1 ? "never run" : "never runs";
+      warnings.push({
+        level: "warning",
+        path: `workflows[${workflowIndex}].steps[${si}].${outcome === "failure" ? "onFailure" : "onSuccess"}`,
+        message: `${step.stepId}: ${whose}${listOf(names)} ${verb}, because ${catchAll?.name || "an action"} has no criteria and always matches first`,
+      });
+    }
+  });
+  return warnings;
 }
 
 function pushEdge(edges, from, to, label) {
@@ -136,10 +162,11 @@ function pushEdge(edges, from, to, label) {
  * @param {object} [options]
  * @param {Map<string, {byId: Map, byPath: Map}>} [options.sources] operation indexes by source name
  * Each step's `bindings` list the values it sends (`{ name, in, value, source, fromSteps }`, with
- * body fields named `body.<path>`); `source` is `{ kind: 'input'|'step'|'expression'|'value', text }`.
+ * body fields named `body.<path>`; `fromOutputs` the `{ stepId, name }` step outputs they read);
+ * `usedOutputs` are the step's own outputs that a later step or the workflow reads; `source` is `{ kind: 'input'|'step'|'expression'|'value', text }`.
  *
  * @returns {object|null} `{ workflowId, summary, description, inputs, inputDetails, workflowActions,
- *   operationsKnown, outputs, steps, dataEdges }`,
+ *   operationsKnown, outputs, steps, dataEdges, warnings }`,
  *   or null when there is no such workflow. Data edges go from a step id to a later step id or
  *   to "outputs"; `labels` are the output names passed.
  */
@@ -213,6 +240,19 @@ export function buildFlowGraph(doc, workflowId, options = {}) {
     };
   });
 
+  // Each step output something else reads: later steps' values and the workflow's outputs
+  const used = new Map();
+  const markUsed = (stepId, name) => {
+    if (stepId && name) used.set(stepId, (used.get(stepId) || new Set()).add(name));
+  };
+  for (const s of steps)
+    for (const b of s.bindings) for (const r of b.fromOutputs) markUsed(r.stepId, r.name);
+  for (const o of outputs) markUsed(o.stepId, o.output);
+  for (const s of steps) {
+    const names = used.get(s.stepId) || new Set();
+    s.usedOutputs = s.outputExprs.filter((o) => names.has(o.name));
+  }
+
   return {
     workflowId: workflow.workflowId || "",
     summary: workflow.summary || "",
@@ -224,5 +264,6 @@ export function buildFlowGraph(doc, workflowId, options = {}) {
     outputs,
     steps,
     dataEdges,
+    warnings: shadowWarnings(steps, workflows.indexOf(workflow)),
   };
 }

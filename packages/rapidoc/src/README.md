@@ -40,16 +40,18 @@ other member is internal; templates call internal members freely through `this`.
   by the `oauth-receiver` attribute; relays the provider's reply to the opener.
 - `<rapi-flow>` (`[rapi-flow.ts:RapiFlow]`): attributes `arazzo-url`, `spec-url` (replaces the
   first OpenAPI source's URL), `workflow-id` (defaults to the first workflow), `for` (id of a
-  `<rapi-doc>`: clicking a step calls its `scrollToPath`), `show-docs` (`"false"` hides the inputs,
-  outputs and step details under the diagram), `view` (`expanded`, the default, or `compact`;
+  `<rapi-doc>`: clicking a step calls its `scrollToPath`), `view` (`expanded`, the default, or `compact`;
   the header's Compact / Expanded switch sets it), `show-view-toggle` (`"false"` hides that
   switch), `theme`, `color-scheme`; method `load`; events `flow-loaded` (`detail: { doc,
   problems }`), `step-click` (`detail: { workflowId, stepId, operation, workflowRef }`) and
   `view-change` (`detail: { view }`, fired only by the switch), all bubbling and composed. The
   element does not store the chosen view; a page that wants it remembered listens for
-  `view-change`. The legend lists only the kinds of lines the current diagram draws. Clicking a
-  step also opens its entry in the step details; clicking a step that calls another workflow of
-  the same document switches to it. Display only: it calls no API.
+  `view-change`. The legend lists only the kinds of lines the current diagram draws. Hovering a step, one of its value lines or its rows in the outputs box highlights all of
+  them. Clicking a step name in the outputs box (focusable, Enter works too) or a value line that
+  reads a step selects that step and scrolls its nearest scrolling ancestor (or the window) to
+  center it. Clicking a step selects it; clicking a step that calls another workflow of the same document switches to
+  it. Errors and sources that failed to load are listed under the diagram; the graph's authoring
+  warnings are not shown. Display only: it calls no API.
 
 ## Invariants
 

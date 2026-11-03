@@ -12,6 +12,7 @@ import {
   resolveOperation,
   buildFlowGraph,
   renderArazzoWorkflow,
+  describeAction,
 } from "../../packages/rapidoc/src/utils/arazzo/index.js";
 import { getFlowCss } from "../../packages/rapidoc/src/static/index.js";
 
@@ -305,9 +306,11 @@ describe("arazzo: SVG rendering", () => {
     }
     assert.ok(svg.includes('class="rf-method rf-method-post"'));
     assert.ok(svg.includes("/store/order/{orderId}"));
-    assert.ok(svg.includes("✗ goto findAvailable"));
-    assert.ok(svg.includes("✗ retry 3× after 2s (if)"));
-    assert.ok(svg.includes("orderId ← placeOrder"));
+    // no action pills, but checkPet's own goto still draws its line
+    assert.ok(!svg.includes("rf-action"));
+    assert.equal((svg.match(/class="rf-goto rf-failure"/g) || []).length, 1);
+    assert.ok(svg.includes('class="rf-tag rf-out-step"'));
+    assert.ok(svg.includes(">orderId</tspan>"));
   });
 
   it("draws branches as goto lines and no next-step arrow after an end or a goto", () => {
@@ -330,13 +333,25 @@ describe("arazzo: SVG rendering", () => {
     assert.ok(readPet.operation.path === "/pet/{petId}");
   });
 
-  it("lists workflow-level actions once, not as pills on every step (compact)", () => {
-    const { svg, problems } = renderArazzoWorkflow(orderText, {
+  it("uses the full inputs and outputs boxes and row-aligned output arrows (compact)", () => {
+    const { svg, graph, legend } = renderArazzoWorkflow(orderText, {
       view: "compact",
       sources: { petstoreAPI: petstoreText },
     });
-    assert.deepEqual(problems, []);
-    assert.equal((svg.match(/class="rf-action /g) || []).length, 1); // findAvailablePets' own end
+    assert.ok(svg.includes(">required</tspan>"));
+    assert.ok(svg.includes(">From step</text>"));
+    assert.ok(svg.includes(">← confirmedOrderStatus</tspan>"));
+    assert.ok(!svg.includes("…"));
+    // one gray arrow per step, each at the height of its group's first row
+    const rows = [...svg.matchAll(/<text class="rf-tag rf-out-step" x="[\d.]+" y="([\d.]+)"/g)].map(
+      (m) => Number(m[1]) - 4,
+    );
+    const heads = [
+      ...svg.matchAll(/class="rf-data rf-to-output"[^>]*d="M[\d.]+ ([\d.]+)H[\d.]+" marker-end/g),
+    ].map((m) => Number(m[1]));
+    assert.deepEqual(heads.sort(), rows.sort());
+    assert.equal(heads.length, new Set(graph.outputs.map((o) => o.stepId)).size);
+    assert.ok(!legend.includes("action"));
   });
 
   it("lists step bindings, actions and typed inputs in the expanded view", () => {
@@ -357,35 +372,97 @@ describe("arazzo: SVG rendering", () => {
     assert.deepEqual(place.bindings[0].fromSteps, ["findAvailablePets"]);
     // every value has a keyword: input, step, fixed or expr
     assert.ok(svg.includes('rf-kw rf-kw-step" x="'));
-    assert.ok(svg.includes(">findAvailablePets.bestMatchPetId</tspan>"));
+    assert.ok(
+      svg.includes('>findAvailablePets</tspan><tspan class="rf-bind-val">.bestMatchPetId</tspan>'),
+    );
     assert.ok(svg.includes('rf-kw rf-kw-value"'));
     assert.ok(svg.includes(">placed</tspan>"));
     assert.ok(svg.includes(">required</tspan>"));
     assert.ok(svg.includes("available | pending | sold"));
     // actions read "condition → what happens", tagged with their name or "workflow"
-    assert.equal((svg.match(/>On failure<\/tspan>/g) || []).length, 5);
-    assert.ok(svg.includes(">any failure</tspan>"));
+    assert.equal((svg.match(/>On failure · first match runs<\/tspan>/g) || []).length, 5);
+    assert.ok(svg.includes(">checks fail</tspan>"));
+    // the checks, numbered, in place of the count in the header
+    assert.equal((svg.match(/>Checks<\/tspan>/g) || []).length, 5);
+    assert.ok(svg.includes(">$response.body#/0 != null</tspan>"));
+    assert.ok(!svg.includes("2 checks"));
+    assert.ok(!svg.includes("rf-check-num"));
     assert.ok(svg.includes(">→ stop the workflow</tspan>"));
     assert.ok(svg.includes(">→ retry 3×, 1s apart</tspan>"));
     assert.ok(svg.includes(">status 503</tspan>"));
     assert.ok(svg.includes(">noPetsAvailable</text>"));
-    assert.equal((svg.match(/>workflow<\/text>/g) || []).length, 10);
     // findAvailablePets' own end has no criteria, so the workflow's two actions never run there
     const find = graph.steps.find((s) => s.stepId === "findAvailablePets");
     assert.deepEqual(
       find.actions.map((a) => a.shadowed),
       [false, true, true],
     );
-    assert.equal((svg.match(/class="rf-row rf-shadowed"/g) || []).length, 2);
-    assert.ok(svg.includes(">verifyOrderConfirmation.confirmedOrderStatus</tspan>"));
-    // no labels on value lines; one gray arrow per output line
+    // they are left out of the box and named once in the graph's warnings
+    assert.ok(!svg.includes("orderFailed") && (svg.match(/>workflow<\/text>/g) || []).length === 8);
+    assert.deepEqual(graph.warnings, [
+      {
+        level: "warning",
+        path: "workflows[0].steps[1].onFailure",
+        message:
+          "findAvailablePets: the workflow's orderFailed and retryOnServiceUnavailable never run, because noPetsAvailable has no criteria and always matches first",
+      },
+    ]);
+    // outputs grouped by step; a renamed step output follows the output's name
+    // a flat table: names on the left, the step once per group on the right, in the step color
+    assert.ok(svg.includes(">From step</text>"));
+    assert.equal((svg.match(/class="rf-tag rf-out-step"/g) || []).length, 4);
+    assert.ok(
+      svg.includes('data-from-step="verifyOrderConfirmation">verifyOrderConfirmation</text>'),
+    );
+    assert.ok(svg.includes('<tspan class="rf-step-name" x="'));
+    assert.ok(svg.includes('data-from-step="placeOrder" d="M'));
+    // with interactive, step names in the outputs box and value lines link to the step
+    const live = renderArazzoWorkflow(orderText, { interactive: true }).svg;
+    assert.ok(live.includes('class="rf-tag rf-out-step rf-jump"'));
+    assert.ok(live.includes('aria-label="Go to step loginUser"'));
+    assert.ok(live.includes('class="rf-row rf-jump" y="'));
+    assert.ok(!svg.includes("rf-jump"));
+    assert.ok(svg.includes(">← confirmedOrderStatus</tspan>"));
+    assert.ok(!svg.includes(">← petName</tspan>"));
+    // no labels on value lines; one gray arrow per step the outputs come from
     assert.ok(!svg.includes("rf-data-label"));
     assert.equal(
-      (svg.match(/class="rf-data rf-to-output" d="M[\d.]+ [\d.]+H[\d.]+" marker-end/g) || [])
-        .length,
-      graph.outputs.length,
+      (
+        svg.match(
+          /class="rf-data rf-to-output" data-from-step="[^"]+" d="M[\d.]+ [\d.]+H[\d.]+" marker-end/g,
+        ) || []
+      ).length,
+      new Set(graph.outputs.map((o) => o.stepId)).size,
     );
+    // each step lists the outputs something reads, and the lines start there
+    assert.deepEqual(
+      graph.steps.map((st) => st.usedOutputs.map((o) => o.name)),
+      [
+        ["sessionToken"],
+        ["bestMatchPetId"],
+        ["orderId", "orderQuantity", "orderShipDate"],
+        ["petName", "petCategory", "petId"],
+        ["confirmedOrderStatus"],
+      ],
+    );
+    assert.equal(place.bindings[0].fromOutputs[0].name, "bestMatchPetId");
+    assert.ok(svg.includes(">response body /0/id</tspan>"));
+    assert.ok(svg.includes(">+3 unused</tspan>"));
+    assert.ok(svg.includes("<title>$response.body#/status</title>"));
+    // input descriptions as tooltips
+    assert.ok(svg.includes("<title>User login identifier</title>"));
     assert.deepEqual(legend, ["seq", "data", "output"]);
+  });
+
+  it("words catch-all actions after the step's checks and shows typed checks", () => {
+    const base = { type: "end", outcome: "failure", criteria: [] };
+    assert.equal(describeAction(base, 2).when, "checks fail");
+    assert.equal(describeAction(base, 1).when, "check fails");
+    assert.equal(describeAction(base, 0).when, "request fails");
+    assert.equal(describeAction({ ...base, outcome: "success" }, 1).when, "check passes");
+    assert.equal(describeAction(base, 2, 1).when, "otherwise");
+    const { svg } = renderArazzoWorkflow(arazzoText, { sources: { petstore: petstoreText } });
+    assert.ok(svg.includes(">jsonpath on $response.body:</tspan>"));
   });
 
   it("starts goto lines at the action line in the expanded view", () => {
