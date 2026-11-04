@@ -41,9 +41,10 @@ import { applyApiKey, onClearAllApiKeys } from "~/templates/security-scheme-temp
 import { setApiServer } from "~/templates/server-template";
 import {
   generateMcpServer as mcpServerGenerator,
-  extractMcpOperations,
+  buildMcpManifest,
   estimateTokenCost,
-  parseMcpTargets,
+  parseMcpEnabled,
+  createZip,
 } from "~/utils/mcp-generator";
 import { bindNavBar } from "~/utils/bind-navbar";
 import { methodPathSlug } from "~/utils/slugger";
@@ -166,7 +167,8 @@ export default class RapiDoc extends LitElement {
   @property({ type: String, attribute: "allow-server-selection" }) allowServerSelection = "true";
   @property({ type: String, attribute: "allow-schema-description-expand-toggle" })
   allowSchemaDescriptionExpandToggle = "true";
-  @property({ type: String, attribute: "mcp" }) mcp = "true";
+  // "true" shows the Export MCP Server button; "none" or "false" hides it
+  @property({ type: String, attribute: "mcp" }) mcp = "false";
   @property({ type: String, attribute: "mcp-server-name" }) mcpServerName = "";
   @property({ type: String, attribute: "show-components" }) showComponents = "false";
   @property({ type: String, attribute: "page-direction" }) pageDirection = "ltr";
@@ -1762,53 +1764,26 @@ export default class RapiDoc extends LitElement {
     return setApiServer.call(this, apiServerUrl);
   }
 
-  // Getter for normalized active MCP targets
-  get mcpTargets() {
-    return parseMcpTargets(this.mcp);
+  // True when the `mcp` attribute asks for the Export MCP Server button
+  get mcpEnabled() {
+    return parseMcpEnabled(this.mcp);
   }
 
-  // Public Method - Generates MCP Server code and configuration in memory
-  generateMcpServer(target, options = {}) {
+  // Public Method - Builds the MCP manifest and the files of the exported project in memory
+  generateMcpServer(options = {}) {
     const spec = this.resolvedSpec || this.openApiSpec;
     if (!spec) return null;
-    const defaultTarget = this.mcpTargets[0] || "typescript";
-    return mcpServerGenerator(spec, {
-      target: target || defaultTarget,
-      serverName: this.mcpServerName,
-      ...options,
-    });
+    return mcpServerGenerator(spec, { serverName: this.mcpServerName, ...options });
   }
 
-  // Public Method - Triggers browser download of generated MCP server file
-  downloadMcpServer(target, options = {}) {
-    const defaultTarget = this.mcpTargets[0] || "typescript";
-    const result = this.generateMcpServer(target || defaultTarget, options);
-    if (!result || !result.serverCode) return;
-    const t = result.target;
-    let filename = "server.ts";
-    let mime = "text/typescript";
-
-    if (t === "python") {
-      filename = "server.py";
-      mime = "text/x-python";
-    } else if (t === "go") {
-      filename = "main.go";
-      mime = "text/x-go";
-    } else if (t === "csharp" || t === "c#") {
-      filename = "Program.cs";
-      mime = "text/plain";
-    } else if (t === "rust") {
-      filename = "main.rs";
-      mime = "text/x-rust";
-    } else if (t === "java") {
-      filename = "RapiDocMcpServer.java";
-      mime = "text/x-java-source";
-    }
-
-    const blob = new Blob([result.serverCode], { type: mime });
+  // Public Method - Downloads the exported MCP project as a zip
+  downloadMcpServer(options = {}) {
+    const result = this.generateMcpServer(options);
+    if (!result) return;
+    const blob = new Blob([createZip(result.files)], { type: "application/zip" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = filename;
+    link.download = `${result.manifest.server.name.replace(/_/g, "-")}-mcp.zip`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1819,8 +1794,7 @@ export default class RapiDoc extends LitElement {
   getMcpBudget(options = {}) {
     const spec = this.resolvedSpec || this.openApiSpec;
     if (!spec) return null;
-    const extracted = extractMcpOperations(spec, options);
-    return estimateTokenCost(extracted.tools, extracted.resources);
+    return estimateTokenCost(buildMcpManifest(spec, options));
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes

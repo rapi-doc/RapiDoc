@@ -1,64 +1,95 @@
-# MCP Extraction Library
+# MCP Manifest, Runtime and Export
 
 ## Overview
 
-The language-independent half of RapiDoc's MCP (Model Context Protocol) server generator.
-`common.js` turns an OpenAPI document into lists of MCP tools and resources, estimates their token
-cost, and builds host configuration snippets.
+Turns an OpenAPI document into an **MCP manifest** (plain JSON: one tool per operation, with
+JSON Schema arguments and MCP safety annotations) and executes that manifest with `fetch`. The
+exported MCP server is the manifest plus two fixed files: `runtime.js` (this folder's runtime,
+copied verbatim) and `project/server.ts` (a stdio server on `@modelcontextprotocol/sdk` that
+registers the manifest's tools and hands calls to the runtime). The entry point is
+`src/utils/mcp-generator.js`; `<rapi-doc>` (`src/rapidoc.ts`, `src/templates/downloads-template.js`)
+uses it for its Export MCP Server button.
 
-Not owned here: the per-language code emitters ([`./generators/`](./generators/README.md)) and
-the entry point that wires the two together, `src/utils/mcp-generator.js`, which `<rapi-doc>`
-(`src/rapidoc.ts`, `src/templates/downloads-template.js`) uses for its MCP server download.
-
-`common.js` has no imports and does not touch the browser or `<rapi-doc>`.
+Not owned here: workflows (the manifest's `workflows` is empty until the Arazzo runtime lands),
+the `<rapi-doc>` attribute and methods, and the network calls themselves (the runtime only builds
+and sends requests).
 
 ## Interface
 
-- `AUTH_TRANSPORT_HEADERS`: lowercase header names never exposed as tool parameters.
-- `VALID_MCP_TARGETS`, `VALID_TARGET_SET`, `MCP_TARGET_LABELS`: the six target ids and their
-  display names.
-- `parseMcpTargets(val) -> string[]`: normalizes an array, JSON-array string or comma list to
-  valid, de-duplicated target ids; `"none"` or `"false"` anywhere returns `[]`; no wildcards.
-- `toSnakeCase`, `toPascalCase`, `toCamelCase`: identifier helpers shared with the generators.
-- `sanitizeDescription(text, maxLength = 300)`: strips HTML and Markdown and truncates.
-- `deriveToolName(method, path)`: fallback tool name from method and path segments.
-- `extractParameters(pathObj)`: one operation's parameters and request-body properties as
-  flat `{ name, in, type, description, required, default, ... }` items.
-- `extractMcpOperations(parsedSpec, options) -> { metadata, tools, resources }`:
-  accepts the `ProcessSpec` result (`tags[].paths[]`) or a raw OpenAPI object; `options` are
-  `includeInternal` and `includeDeprecated`.
-- `estimateTokenCost(tools, resources)`: totals, an estimated token count,
-  `consequentialCount` and warnings.
-- `generateHostConfigs(serverName, options) -> { claudeDesktopConfig, cursorConfig }`:
-  `mcpServers` JSON whose command depends on `options.target`.
+- `buildMcpManifest(spec, options) -> manifest` [manifest.js]: `spec` is a raw OpenAPI 3.x /
+  Swagger 2.0 object or `ProcessSpec`'s result (`tags[].paths[]`). Options: `serverName`,
+  `sourceName` (default `api`), `includeInternal`, `includeDeprecated`. `toJsonSchema(schema,
+  root)` is the schema converter on its own; `MANIFEST_VERSION` is `1`.
+- `createMcpRuntime(manifest, { fetch, credentials, baseUrls })` [runtime.js]: `listTools()`,
+  `listResources()`, `callTool(name, args) -> { content, structuredContent?, isError? }`,
+  `readResource(uri) -> { contents }`. `buildRequest(manifest, operation, args, options)` returns
+  the request without sending it; `credentialsFromEnv(manifest, env)` and `envNameFor(id)` map
+  security schemes to environment variables.
+- `writeMcpProject(manifest, { serverName }) -> { [path]: text }` [project.js]: `manifest.json`,
+  `server.ts`, `runtime.js`, `package.json`, `README.md`, `claude_desktop_config.json`.
+- `createZip(files) -> Uint8Array` [zip.js]: a stored (uncompressed) ZIP of text files.
+- `generateMcpServer(spec, options) -> { manifest, files, budget, hostConfig }`
+  [../mcp-generator.js]: the three above in one call.
+- `common.js`: `parseMcpEnabled(val)` (the `mcp` attribute), `toSnakeCase`, `sanitizeDescription`,
+  `deriveToolName`, `AUTH_TRANSPORT_HEADERS`, `estimateTokenCost(manifest)` and
+  `generateHostConfigs(serverName, { schemes })`.
 
 ## Invariants
 
-- **Exclusion** (`[common.js:extractMcpOperations]`): an operation is skipped when
-  `x-internal` / `x-hidden` is `true` (unless `includeInternal`), when `deprecated === true`
-  (unless `includeDeprecated`), or when it is a webhook. `x-internal` and `x-hidden` are read from
-  `rawOperation`; `deprecated`, `operationId`, `summary`, `description`, `parameters` and
-  `requestBody` from the operation object itself.
-- **Classification**: a resource when the operation is a `get` with no required parameter and a
-  path matching one of a fixed list of reference-data segments (`/reference`, `/status`,
-  `/schema`, ...); otherwise a tool.
-- **Naming**: `toSnakeCase` of `operationId`, else `deriveToolName`. Duplicates are not renamed.
-- **`isConsequential`**: `true` for `post`, `put`, `delete` and `patch`, `false` otherwise.
-- **Auth stripping** drops only `in: "header"` parameters named in `AUTH_TRANSPORT_HEADERS`.
-- **Order** follows tag order then path order (object key order in raw mode); nothing is sorted.
-- **Shape handed to generators**: tool `method` is upper-case; parameters never carry `items`;
-  `in` is whatever the spec used.
-- `estimateTokenCost` reads `name`, `description` and `parameters` of every tool and `uri` of
-  every resource without guards, so items must come from `extractMcpOperations`.
-- `sanitizeDescription` deletes every `_` (`user_id` becomes `userid`).
+- **Manifest shape.** `{ manifestVersion, server: { name, version, description }, sources:
+  { [name]: { baseUrl, securitySchemes } }, tools, resources, workflows }`. A tool is
+  `{ name, description, inputSchema, annotations, operation }` with `operation = { source, method,
+  path, params: [{ name, in, arg?, contentType? }], security }`; `arg` names the argument when it
+  differs from the wire name, `contentType` is set for `in: "body"`. A resource has `uri`
+  (`reference://...`) and `mimeType` instead of `inputSchema` and `annotations`.
+- **Exclusion** (`[manifest.js:buildMcpManifest]`): an operation is skipped when `x-internal` or
+  `x-hidden` is `true` on it or its path item (unless `includeInternal`), when `deprecated` (unless
+  `includeDeprecated`), or when it is a webhook.
+- **Arguments.** Path, query, header and cookie parameters become properties by name (a clash
+  across locations gets `_<in>`); path parameters are required. The request body is one `body`
+  property with the first JSON content type's schema (else form-urlencoded, multipart, or the first
+  listed). Path-level parameters are merged unless the operation redefines them. Headers in
+  `AUTH_TRANSPORT_HEADERS` and any parameter that matches an `apiKey` scheme's `in` and `name`
+  are never arguments: the runtime sends them.
+- **JSON Schema** (`[manifest.js:toJsonSchema]`): `$ref`s are inlined from the raw document;
+  a schema met again on the same branch is cut to `{ type }`; `nullable` folds into `type`;
+  `readOnly` properties (and their `required` entries) are dropped; OpenAPI 3.0 boolean
+  `exclusiveMinimum/Maximum` become numbers; `example`, `xml`, `x-*` and other non-schema keys
+  are dropped.
+- **Naming**: `toSnakeCase(operationId)`, else `deriveToolName(method, path)`; a repeated name gets
+  `_2`, `_3`, ... in document order. `sanitizeDescription` deletes every `_`.
+- **Annotations**: `readOnlyHint` for GET; `destructiveHint` for PUT, PATCH and DELETE;
+  `idempotentHint` for GET, PUT and DELETE. `estimateTokenCost.consequentialCount` counts tools
+  without `readOnlyHint`.
+- **Resources**: a GET with no required argument whose path contains one of `/reference`,
+  `/currencies`, `/countries`, `/tiers`, `/categories`, `/status`, `/schema`.
+- **Security.** `securitySchemes` keeps `type, description, in, name, scheme, bearerFormat,
+  openIdConnectUrl` and OAuth 2 `flows`; `<rapi-doc>`'s injected `_rapidoc_api_key` scheme is
+  left out. A tool's `security` is the operation's, else the document's. The runtime uses the
+  first alternative all of whose credentials are known; with none, nothing is sent when an
+  alternative is empty, else the first alternative as far as credentials go.
+- **Runtime.** `runtime.js` imports nothing and uses only `fetch`, `URLSearchParams`,
+  `TextEncoder` and `btoa`, because the project writer embeds its text (`?raw` import, supported
+  by Vite and `scripts/test-loader.mjs`). Path parameters are percent-encoded; array query values
+  repeat the key; objects elsewhere are JSON; `Accept: application/json` unless set; a missing path
+  parameter is an error result, as is a transport failure or a non-2xx status (text `HTTP <status>`
+  plus the body). JSON responses are pretty-printed and, for objects, also `structuredContent`.
+- **Environment.** `envNameFor("petstore_auth")` is `PETSTORE_AUTH`; `API_KEY` is the fallback
+  for every scheme; HTTP Basic reads `<NAME>` as `user:password` or `<NAME>_USERNAME` /
+  `<NAME>_PASSWORD`. `API_BASE_URL` in `server.ts` overrides every source's base URL.
+- **Project.** `server.ts` and `runtime.js` are identical for every API; only `manifest.json`,
+  `package.json`, `README.md` and `claude_desktop_config.json` vary. The zip stores entries
+  uncompressed with a fixed 1980-01-01 timestamp and UTF-8 names.
 
 ## Side Effects
 
-- None: no network, DOM, storage or console. Exported constants are shared module state that the
-  code never mutates. `estimateTokenCost` warning text uses `toLocaleString()`.
+- None in this folder: no network, DOM, storage or console. The exported `server.ts` reads
+  `manifest.json`, the environment and stdio, and the runtime it calls makes HTTP requests.
 
 ## Verification
 
-- `npm run test:unit` from the repo root. `tests/unit/mcp-generator.test.js` covers extraction,
-  naming, token cost and host configs through `src/utils/mcp-generator.js`.
-- After editing, `npm run lint` and `npm run format-fix`.
+- `npm run test:unit` from the repo root. `tests/unit/mcp-generator.test.js` covers the manifest
+  (from `docs/public/specs/petstore.yaml` and small documents), the schema converter, the runtime
+  with a fake `fetch`, credentials from the environment, the project files and the zip.
+- `/examples/mcp-server` on the docs site shows the manifest, `server.ts` and `runtime.js` and
+  downloads the project. After editing, `npm run lint` and `npm run format-fix`.

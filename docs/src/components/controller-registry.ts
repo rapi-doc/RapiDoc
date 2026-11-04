@@ -475,18 +475,11 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     category: "sections",
   },
   mcp: {
-    type: "segmented",
+    type: "toggle",
     attr: "mcp",
     label: "MCP Export",
-    tip: "Configure supported MCP server export languages or disable with None",
+    tip: "Shows the Export MCP Server button (a manifest-driven TypeScript project as a zip)",
     category: "sections",
-    options: [
-      { label: "None", rawVal: "none", isDefault: true },
-      { label: "TypeScript", rawVal: "typescript" },
-      { label: "Python", rawVal: "python" },
-      { label: "Go", rawVal: "go" },
-      { label: "All 6 Targets", rawVal: "typescript, python, go, csharp, rust, java" },
-    ],
   },
   "mock-server": {
     type: "toggle",

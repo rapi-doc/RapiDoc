@@ -1,664 +1,569 @@
 import { describe, it } from "node:test";
-import assert from "node:assert";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { parse as parseYaml } from "yaml";
 import {
   toSnakeCase,
   deriveToolName,
   sanitizeDescription,
-  extractMcpOperations,
+  parseMcpEnabled,
+  buildMcpManifest,
+  toJsonSchema,
   estimateTokenCost,
   generateHostConfigs,
+  envNameFor,
+  buildRequest,
+  createMcpRuntime,
+  credentialsFromEnv,
+  writeMcpProject,
   generateMcpServer,
-  parseMcpTargets,
+  createZip,
 } from "../../packages/rapidoc/src/utils/mcp-generator.js";
+import runtimeSource from "../../packages/rapidoc/src/utils/mcp/runtime.js?raw";
 
-describe("mcp-generator: string utilities", () => {
+const here = path.dirname(fileURLToPath(import.meta.url));
+const petstore = parseYaml(
+  fs.readFileSync(path.join(here, "../../docs/public/specs/petstore.yaml"), "utf8"),
+);
+
+/** A fetch stand-in that records the request and answers with it. */
+function fakeFetch(status = 200, body) {
+  const calls = [];
+  const impl = async (url, init) => {
+    calls.push({ url, ...init });
+    const text = body === undefined ? JSON.stringify({ url, method: init.method }) : body;
+    return {
+      ok: status >= 200 && status < 300,
+      status,
+      statusText: status === 200 ? "OK" : "",
+      text: async () => text,
+    };
+  };
+  return { impl, calls };
+}
+
+describe("mcp: string utilities and the mcp attribute", () => {
   it("converts diverse casing to clean snake_case", () => {
-    assert.strictEqual(toSnakeCase("listCustomerInvoices"), "list_customer_invoices");
-    assert.strictEqual(toSnakeCase("Get-User-By-Id"), "get_user_by_id");
-    assert.strictEqual(toSnakeCase("orders_create_v2"), "orders_create_v2");
-    assert.strictEqual(toSnakeCase("API/v1/orders/{orderId}"), "api_v1_orders_order_id");
+    assert.equal(toSnakeCase("listCustomerInvoices"), "list_customer_invoices");
+    assert.equal(toSnakeCase("Get-User-By-Id"), "get_user_by_id");
+    assert.equal(toSnakeCase("API/v1/orders/{orderId}"), "api_v1_orders_order_id");
   });
 
-  it("derives semantic tool names from method and path", () => {
-    assert.strictEqual(
+  it("derives tool names from method and path", () => {
+    assert.equal(
       deriveToolName("get", "/customers/{customerId}/orders"),
       "get_customers_by_customer_id_orders",
     );
-    assert.strictEqual(deriveToolName("post", "/orders"), "post_orders");
-    assert.strictEqual(deriveToolName("delete", "/items/{id}"), "delete_items_by_id");
+    assert.equal(deriveToolName("delete", "/items/{id}"), "delete_items_by_id");
   });
 
-  it("sanitizes markdown and HTML from prompt descriptions", () => {
-    assert.strictEqual(
+  it("sanitizes markdown and HTML from descriptions", () => {
+    assert.equal(
       sanitizeDescription("<b>Create an order</b> with [link](https://example.com) and `code`."),
       "Create an order with link and code.",
     );
   });
-});
 
-describe("mcp-generator: zero-config smart heuristics on raw OpenAPI specs", () => {
-  const rawSpec = {
-    openapi: "3.0.3",
-    info: { title: "Store API", version: "1.2.0" },
-    servers: [{ url: "https://api.store.com/v1" }],
-    paths: {
-      "/customers/{customerId}/orders": {
-        get: {
-          summary: "List customer orders",
-          operationId: "listOrders",
-          parameters: [
-            { name: "customerId", in: "path", required: true, schema: { type: "string" } },
-            {
-              name: "status",
-              in: "query",
-              schema: { type: "string", enum: ["pending", "shipped"] },
-            },
-            { name: "Authorization", in: "header", required: true, schema: { type: "string" } },
-            { name: "Cookie", in: "header", schema: { type: "string" } },
-          ],
-          responses: { 200: { description: "OK" } },
-        },
-      },
-      "/currencies": {
-        get: {
-          summary: "Get supported currency codes",
-          responses: { 200: { description: "List of currencies" } },
-        },
-      },
-      "/deprecated-route": {
-        get: {
-          summary: "Old route",
-          deprecated: true,
-          responses: { 200: { description: "OK" } },
-        },
-      },
-    },
-  };
-
-  it("strips transport/auth headers (Authorization, Cookie) from tool parameters", () => {
-    const extracted = extractMcpOperations(rawSpec);
-    const orderTool = extracted.tools.find((t) => t.name === "list_orders");
-    assert.ok(orderTool, "Tool list_orders should exist");
-
-    const paramNames = orderTool.parameters.map((p) => p.name.toLowerCase());
-    assert.ok(paramNames.includes("customerid"));
-    assert.ok(paramNames.includes("status"));
-    assert.ok(!paramNames.includes("authorization"), "Authorization header must be stripped");
-    assert.ok(!paramNames.includes("cookie"), "Cookie header must be stripped");
-  });
-
-  it("skips deprecated endpoints by default", () => {
-    const extracted = extractMcpOperations(rawSpec);
-    const oldTool = extracted.tools.find((t) => t.name.includes("deprecated"));
-    assert.strictEqual(oldTool, undefined, "Deprecated endpoint must be excluded");
-  });
-
-  it("classifies static zero-parameter reference lookup as an MCP Resource", () => {
-    const extracted = extractMcpOperations(rawSpec);
-    const currencyResource = extracted.resources.find((r) => r.path === "/currencies");
-    assert.ok(currencyResource, "Currency endpoint should be classified as a resource");
-    assert.strictEqual(currencyResource.uri, "reference://currencies");
-  });
-});
-
-describe("mcp-generator: exclusion rules", () => {
-  const spec = {
-    openapi: "3.0.3",
-    info: { title: "Enterprise Portal", version: "2.0.0" },
-    paths: {
-      "/admin/health": {
-        get: {
-          summary: "Internal health check",
-          "x-internal": true,
-          responses: { 200: { description: "OK" } },
-        },
-      },
-    },
-  };
-
-  it("honors x-internal: true to exclude admin endpoints", () => {
-    const extracted = extractMcpOperations(spec);
-    const adminTool = extracted.tools.find((t) => t.path === "/admin/health");
-    assert.strictEqual(adminTool, undefined, "x-internal endpoint should be excluded");
-  });
-});
-
-describe("mcp-generator: token budget estimation", () => {
-  it("calculates token budget and generates warnings for heavy tool counts", () => {
-    const tools = [];
-    for (let i = 0; i < 35; i++) {
-      tools.push({
-        name: `tool_${i}`,
-        description: "A tool that performs some business operations in the system",
-        parameters: [
-          { name: "param1", description: "First parameter", type: "string" },
-          { name: "param2", description: "Second parameter", type: "number" },
-        ],
-        isConsequential: i % 2 === 0,
-      });
+  it("reads the mcp attribute: on for true or a language, off for false, none, or a list with them", () => {
+    assert.equal(parseMcpEnabled("true"), true);
+    assert.equal(parseMcpEnabled("typescript"), true);
+    assert.equal(parseMcpEnabled(["typescript", "python"]), true);
+    for (const off of ["", "false", "none", false, undefined, "typescript, none", ["none"]]) {
+      assert.equal(parseMcpEnabled(off), false, String(off));
     }
-
-    const budget = estimateTokenCost(tools, []);
-    assert.strictEqual(budget.totalTools, 35);
-    assert.ok(budget.estimatedTokens > 1000);
-    assert.ok(budget.warnings.some((w) => w.includes("recommended limit of 30 tools")));
   });
 });
 
-describe("mcp-generator: TypeScript and Python code generation", () => {
-  const spec = {
-    openapi: "3.0.3",
-    info: { title: "Order Service", version: "1.0.0" },
-    servers: [{ url: "https://api.orders.example.com" }],
-    paths: {
-      "/orders/{id}": {
-        get: {
-          summary: "Get order by id",
-          operationId: "getOrder",
-          parameters: [
-            { name: "id", in: "path", required: true, schema: { type: "string" } },
-            { name: "includeDetails", in: "query", schema: { type: "boolean" } },
-            { name: "tags", in: "query", schema: { type: "array" }, description: "Filter tags" },
-            {
-              name: "x-trace-id",
-              in: "header",
-              schema: { type: "string" },
-              description: "Distributed tracing header",
-            },
-          ],
-          responses: { 200: { description: "OK" } },
-        },
+describe("mcp: manifest from a raw OpenAPI document", () => {
+  const manifest = buildMcpManifest(petstore);
+
+  it("has one tool per operation, with server, source and security schemes", () => {
+    assert.equal(manifest.manifestVersion, 1);
+    assert.equal(manifest.server.name, "swagger_petstore_open_api_3_1");
+    assert.equal(manifest.server.version, petstore.info.version);
+    assert.deepEqual(Object.keys(manifest.sources), ["api"]);
+    assert.equal(manifest.sources.api.baseUrl, "https://petstore3.swagger.io/api/v3");
+    assert.deepEqual(manifest.sources.api.securitySchemes.api_key, {
+      type: "apiKey",
+      in: "header",
+      name: "api_key",
+    });
+    assert.equal(manifest.sources.api.securitySchemes.petstore_auth.type, "oauth2");
+    assert.equal(manifest.tools.length, 19);
+    assert.deepEqual(manifest.workflows, {});
+  });
+
+  it("gives tools JSON Schema arguments: parameters by name and the request body as `body`", () => {
+    const get = manifest.tools.find((t) => t.name === "get_pet_by_id");
+    assert.deepEqual(get.inputSchema, {
+      type: "object",
+      properties: {
+        petId: { type: "integer", format: "int64", description: "ID of pet to return" },
       },
-      "/orders": {
-        post: {
-          summary: "Create order",
-          operationId: "createOrder",
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  required: ["customerId"],
-                  properties: {
-                    customerId: { type: "string" },
-                    amount: { type: "number" },
-                  },
-                },
-              },
-            },
-          },
-          responses: { 201: { description: "Created" } },
-        },
-      },
-      "/reference/shipping-tiers": {
-        get: {
-          summary: "Shipping tiers reference",
-          operationId: "getShippingTiers",
-          responses: { 200: { description: "OK" } },
-        },
-      },
-    },
-  };
-
-  it("generates valid TypeScript server code with McpServer, Zod, query, body, and auth", () => {
-    const pkg = generateMcpServer(spec, { target: "typescript" });
-    assert.strictEqual(pkg.target, "typescript");
-    assert.ok(pkg.serverCode.includes("@modelcontextprotocol/sdk/server/mcp.js"));
-    assert.ok(pkg.serverCode.includes("import { z } from 'zod';"));
-    assert.ok(pkg.serverCode.includes("server.tool("));
-    assert.ok(pkg.serverCode.includes("get_order"));
-    assert.ok(pkg.serverCode.includes("create_order"));
-    assert.ok(pkg.serverCode.includes('queryParams.set("includeDetails"'));
-    assert.ok(pkg.serverCode.includes('bodyPayload["customerId"] = args["customerId"]'));
-    assert.ok(
-      pkg.serverCode.includes('headers["x-trace-id"] = String(args["x-trace-id"])'),
-      "Should forward x-trace-id header in TypeScript",
-    );
-    assert.ok(
-      pkg.serverCode.includes("new URL(`${BASE_URL.replace(/\\/$/, '')}"),
-      "Should safely build targetUrl using new URL and strip trailing slashes",
-    );
-    assert.ok(
-      pkg.serverCode.includes('encodeURIComponent(args["id"])'),
-      "Should safely encode path variables with encodeURIComponent in TypeScript",
-    );
-    assert.ok(pkg.serverCode.includes("const resolvedKey = args?.apiKey || API_KEY"));
-    assert.ok(pkg.serverCode.includes("server.resource("));
-    assert.ok(pkg.serverCode.includes("reference://shipping-tiers"));
-    assert.ok(
-      pkg.serverCode.includes("targetUrl.searchParams.set(key, val);"),
-      "Should propagate query params in TS resource handler",
-    );
-    assert.ok(pkg.serverCode.includes("StdioServerTransport"));
-    assert.ok(pkg.files["package.json"]);
-    assert.ok(pkg.files["claude_desktop_config.json"]);
+      required: ["petId"],
+    });
+    assert.deepEqual(get.operation, {
+      source: "api",
+      method: "GET",
+      path: "/pet/{petId}",
+      params: [{ name: "petId", in: "path" }],
+      security: [{ api_key: [] }, { petstore_auth: ["write:pets", "read:pets"] }],
+    });
+    const place = manifest.tools.find((t) => t.name === "place_order");
+    const body = place.inputSchema.properties.body;
+    assert.equal(body.type, "object");
+    assert.deepEqual(body.properties.status.enum, ["placed", "approved", "delivered"]);
+    assert.deepEqual(place.operation.params, [
+      { name: "body", in: "body", contentType: "application/json" },
+    ]);
+    // the Pet schema's nested Category and Tag objects survive, as objects
+    const add = manifest.tools.find((t) => t.name === "add_pet");
+    assert.equal(add.inputSchema.properties.body.properties.category.type, "object");
+    assert.equal(add.inputSchema.properties.body.properties.tags.items.type, "object");
+    assert.deepEqual(add.inputSchema.required, ["body"]);
   });
 
-  it("generates valid Python FastMCP server code with requirements.txt, zero-dependency HTTP, query, and body", () => {
-    const pkg = generateMcpServer(spec, { target: "python" });
-    assert.strictEqual(pkg.target, "python");
-    assert.ok(pkg.serverCode.includes("from fastmcp import FastMCP"));
-    assert.ok(pkg.serverCode.includes("import urllib.request"));
-    assert.ok(
-      !pkg.serverCode.includes("httpx"),
-      "Should use built-in urllib instead of 3rd party httpx",
-    );
-    assert.ok(
-      !pkg.serverCode.includes("requests"),
-      "Should use built-in urllib instead of 3rd party requests",
-    );
-    assert.ok(pkg.serverCode.includes("@mcp.tool("));
-    assert.ok(pkg.serverCode.includes("def get_order("));
-    assert.ok(pkg.serverCode.includes("def create_order("));
-    assert.ok(pkg.serverCode.includes('params["includeDetails"] = include_details'));
-    assert.ok(pkg.serverCode.includes('body_payload["customerId"] = customer_id'));
-    assert.ok(
-      pkg.serverCode.includes('headers["x-trace-id"] = str(x_trace_id)'),
-      "Should forward x-trace-id header in Python",
-    );
-    assert.ok(
-      pkg.serverCode.includes("url = f\"{BASE_URL.rstrip('/')}"),
-      "Should strip trailing slashes from BASE_URL in Python",
-    );
-    assert.ok(pkg.serverCode.includes("resolved_key = api_key or API_KEY"));
-    assert.ok(
-      pkg.serverCode.includes("safe_id = urllib.parse.quote(str(id))"),
-      "Should sanitize path parameter with urllib.parse.quote",
-    );
-    assert.ok(pkg.serverCode.includes("{safe_id}"), "Should bind safe escaped path variable");
-    assert.ok(pkg.serverCode.includes("@mcp.resource("));
-    assert.ok(pkg.serverCode.includes("reference://shipping-tiers"));
-    assert.ok(
-      pkg.serverCode.includes('(uri: str = "") -> str:'),
-      "Should accept uri string context in FastMCP resource callback",
-    );
-    assert.ok(
-      pkg.serverCode.includes('parsed_query.get("apiKey") or parsed_query.get("api_key")'),
-      "Should extract dynamic auth key from resource URI",
-    );
-    assert.ok(
-      pkg.serverCode.includes('k.lower() not in ["apikey", "api_key"]'),
-      "Should forward non-auth query parameters to downstream resource",
-    );
-    assert.ok(pkg.files["server.py"]);
-    assert.ok(pkg.files["requirements.txt"]);
-    assert.strictEqual(pkg.files["requirements.txt"].trim(), "fastmcp>=0.4.0");
-    assert.ok(pkg.files["README.md"].includes("pip install -r requirements.txt"));
+  it("annotates tools with MCP hints by method", () => {
+    const hints = (name) => manifest.tools.find((t) => t.name === name).annotations;
+    assert.deepEqual(hints("get_pet_by_id"), {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+    });
+    assert.deepEqual(hints("add_pet"), {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+    });
+    assert.deepEqual(hints("delete_pet"), {
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: true,
+    });
   });
 
-  it("generates valid Go server code with mark3labs/mcp-go, query, body, and auth", () => {
-    const pkg = generateMcpServer(spec, { target: "go" });
-    assert.strictEqual(pkg.target, "go");
-    assert.ok(pkg.serverCode.includes("github.com/mark3labs/mcp-go/mcp"));
-    assert.ok(pkg.serverCode.includes('s.AddTool(mcp.NewTool("get_order"'));
-    assert.ok(pkg.serverCode.includes('s.AddTool(mcp.NewTool("create_order"'));
-    assert.ok(
-      pkg.serverCode.includes(
-        "func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {",
-      ),
-      "Should generate valid, complete tool callback signature in Go",
-    );
-    assert.ok(
-      pkg.serverCode.includes('url.PathEscape(fmt.Sprintf("%v", args["id"]))'),
-      "Should escape path parameters using url.PathEscape in Go",
-    );
-    assert.ok(
-      pkg.serverCode.includes('mcp.WithList("tags", mcp.Description("Filter tags"))'),
-      "Should map array parameter to mcp.WithList in Go",
-    );
-    assert.ok(pkg.serverCode.includes("queryParams := url.Values{}"));
-    assert.ok(pkg.serverCode.includes('queryParams.Set("includeDetails"'));
-    assert.ok(pkg.serverCode.includes('bodyPayload["customerId"] = v'));
-    assert.ok(
-      pkg.serverCode.includes('req.Header.Set("x-trace-id", fmt.Sprintf("%v", v))'),
-      "Should forward x-trace-id header in Go",
-    );
-    assert.ok(
-      pkg.serverCode.includes('strings.TrimRight(baseURL, "/")'),
-      "Should strip trailing slashes from baseURL in Go",
-    );
-    assert.ok(pkg.serverCode.includes("resolvedKey := apiKey"));
-    assert.ok(
-      pkg.serverCode.includes('s.AddResource(mcp.NewResource("reference://shipping-tiers"'),
-    );
-    assert.ok(
-      pkg.serverCode.includes("if incomingURL, err := url.Parse(request.Params.URI); err == nil {"),
-      "Should parse incoming request.Params.URI in Go resource callback",
-    );
-    assert.ok(
-      pkg.serverCode.includes('passedKey := q.Get("apiKey")'),
-      "Should extract dynamic apiKey from query params in Go resource",
-    );
-    assert.ok(
-      pkg.serverCode.includes("targetQuery.Set(k, v[0])"),
-      "Should forward non-auth query parameters downstream in Go resource",
-    );
-    assert.ok(pkg.files["main.go"]);
-    assert.ok(pkg.files["go.mod"]);
-    assert.ok(pkg.files["go.mod"].includes("github.com/mark3labs/mcp-go"));
-    assert.ok(pkg.files["README.md"].includes("go mod tidy"));
-  });
-
-  it("generates valid C# (.NET) server code with query, body, and multi-tenancy", () => {
-    const pkg = generateMcpServer(spec, { target: "csharp" });
-    assert.strictEqual(pkg.target, "csharp");
-    assert.ok(pkg.serverCode.includes("ModelContextProtocol.NET.Server"));
-    assert.ok(
-      pkg.serverCode.includes("using System.Web;"),
-      "Should include System.Web for query parsing",
-    );
-    assert.ok(pkg.serverCode.includes('[McpTool("get_order"'));
-    assert.ok(pkg.serverCode.includes('[McpTool("create_order"'));
-    assert.ok(
-      pkg.serverCode.includes('var safeId = Uri.EscapeDataString(id?.ToString() ?? "");'),
-      "Should sanitize path parameters with Uri.EscapeDataString in C#",
-    );
-    assert.ok(
-      pkg.serverCode.includes("IEnumerable<string> tags = default"),
-      "Should map array parameters to IEnumerable<string> in C#",
-    );
-    assert.ok(pkg.serverCode.includes("var queryParams = new List<string>();"));
-    assert.ok(pkg.serverCode.includes("var bodyPayload = new Dictionary<string, object>();"));
-    assert.ok(pkg.serverCode.includes("StringContent(JsonSerializer.Serialize(bodyPayload)"));
-    assert.ok(
-      pkg.serverCode.includes('request.Headers.TryAddWithoutValidation("x-trace-id", xTraceId)'),
-      "Should forward x-trace-id header in C#",
-    );
-    assert.ok(
-      pkg.serverCode.includes("BaseUrl.TrimEnd('/')"),
-      "Should strip trailing slashes from BaseUrl in C#",
-    );
-    assert.ok(
-      pkg.serverCode.includes("var resolvedKey = !string.IsNullOrEmpty(apiKey) ? apiKey : ApiKey;"),
-    );
-    assert.ok(pkg.serverCode.includes('[McpResource("reference://shipping-tiers"'));
-    assert.ok(
-      pkg.serverCode.includes('GetShippingTiers(string uri = "")'),
-      "Should accept uri parameter in C# resource method",
-    );
-    assert.ok(
-      pkg.serverCode.includes(
-        'var dynamicKey = incomingParams["apiKey"] ?? incomingParams["api_key"]',
-      ),
-      "Should extract dynamic auth key from resource URI in C#",
-    );
-    assert.ok(
-      pkg.serverCode.includes("outboundQuery[key] = incomingParams[key]"),
-      "Should mirror non-auth parameters downstream in C# resource",
-    );
-    assert.ok(pkg.files["Program.cs"]);
-    assert.ok(pkg.files["Server.csproj"]);
-    assert.ok(pkg.files["README.md"].includes("dotnet run"));
-  });
-
-  it("generates valid Rust server code with query, body, and multi-tenancy", () => {
-    const pkg = generateMcpServer(spec, { target: "rust" });
-    assert.strictEqual(pkg.target, "rust");
-    assert.ok(pkg.serverCode.includes("mcp_sdk::server"));
-    assert.ok(pkg.serverCode.includes('"get_order" => {'));
-    assert.ok(pkg.serverCode.includes('"create_order" => {'));
-    assert.ok(
-      pkg.serverCode.includes("urlencoding::encode"),
-      "Should escape path parameters with urlencoding::encode in Rust",
-    );
-    assert.ok(pkg.serverCode.includes("let mut query_params: Vec<(&str, String)> = Vec::new();"));
-    assert.ok(pkg.serverCode.includes("req = req.query(&query_params);"));
-    assert.ok(pkg.serverCode.includes("let mut body_map = serde_json::Map::new();"));
-    assert.ok(pkg.serverCode.includes("req = req.json(&body_map);"));
-    assert.ok(
-      pkg.serverCode.includes('req = req.header("x-trace-id", h)'),
-      "Should forward x-trace-id header in Rust",
-    );
-    assert.ok(
-      pkg.serverCode.includes("base_url.trim_end_matches('/')"),
-      "Should strip trailing slashes from base_url in Rust",
-    );
-    assert.ok(pkg.serverCode.includes('let resolved_key = args.get("api_key")'));
-    assert.ok(pkg.serverCode.includes('"reference://shipping-tiers" => {'));
-    assert.ok(
-      pkg.serverCode.includes("uri.split_once('?')"),
-      "Should split resource URI on query boundary in Rust",
-    );
-    assert.ok(
-      pkg.serverCode.includes("resolved_key = Some(v.to_string())"),
-      "Should dynamically extract auth key from resource URI in Rust",
-    );
-    assert.ok(
-      pkg.serverCode.includes("server.add_tool("),
-      "Should register tools with server.add_tool in Rust",
-    );
-    assert.ok(
-      pkg.serverCode.includes('.property("tags", "array"'),
-      "Should register array schema property in Rust",
-    );
-    assert.ok(
-      pkg.serverCode.includes("ToolResponse::error("),
-      "Should gracefully catch errors without crashing in Rust",
-    );
-    assert.ok(pkg.files["src/main.rs"]);
-    assert.ok(pkg.files["Cargo.toml"]);
-    assert.ok(
-      pkg.files["Cargo.toml"].includes('urlencoding = "2.1"'),
-      "Should declare urlencoding dependency in Cargo.toml",
-    );
-    assert.ok(pkg.files["README.md"].includes("cargo build --release"));
-  });
-
-  it("generates valid Java Spring AI server code with pom.xml, records, and zero broken String.format", () => {
-    const pkg = generateMcpServer(spec, { target: "java" });
-    assert.strictEqual(pkg.target, "java");
-    assert.ok(pkg.serverCode.includes("org.springframework.boot"));
-    assert.ok(pkg.serverCode.includes("@SpringBootApplication"));
-    assert.ok(
-      pkg.serverCode.includes("public record GetOrderRequest"),
-      "Should generate typed Java record for tool arguments",
-    );
-    assert.ok(
-      pkg.serverCode.includes("public record CreateOrderRequest"),
-      "Should generate typed Java record for POST tool arguments",
-    );
-    assert.ok(
-      pkg.serverCode.includes('@JsonPropertyDescription("id")'),
-      "Should annotate record fields with @JsonPropertyDescription",
-    );
-    assert.ok(
-      pkg.serverCode.includes('@JsonPropertyDescription("Distributed tracing header")'),
-      "Should expose tracing header in record fields",
-    );
-    assert.ok(
-      pkg.serverCode.includes("Function<GetOrderRequest, String> getOrder()"),
-      "Should use strongly typed record in Function bean",
-    );
-    assert.ok(pkg.serverCode.includes("Function<CreateOrderRequest, String> createOrder()"));
-    assert.ok(
-      !pkg.serverCode.includes('String.format("%s/orders/%s", baseUrl)'),
-      "Must not generate broken String.format missing path arguments",
-    );
-    assert.ok(
-      pkg.serverCode.includes("UriUtils.encodePath"),
-      "Should use UriUtils.encodePath for path parameter binding",
-    );
-    assert.ok(
-      pkg.serverCode.includes("UriComponentsBuilder.fromUriString"),
-      "Should build URIs using UriComponentsBuilder",
-    );
-    assert.ok(pkg.serverCode.includes('uriBuilder.queryParam("includeDetails"'));
-    assert.ok(
-      pkg.serverCode.includes('spec.header("x-trace-id", String.valueOf(request.xTraceId()))'),
-      "Should forward x-trace-id header parameter to RestClient",
-    );
-    assert.ok(pkg.serverCode.includes(".body(bodyPayload)"));
-    assert.ok(
-      pkg.serverCode.includes("Function<Map<String, Object>, String> getShippingTiers()"),
-      "Should use standard Map<String, Object> compatible with Spring AI resource routing",
-    );
-    assert.ok(
-      pkg.serverCode.includes('@JsonProperty("x-trace-id")'),
-      "Should annotate header parameter with explicit @JsonProperty wire name",
-    );
-    assert.ok(
-      pkg.serverCode.includes('@JsonProperty(value = "id", required = true)'),
-      "Should annotate required parameter with explicit @JsonProperty wire name",
-    );
-    assert.ok(
-      pkg.serverCode.includes(
-        'Description("Resource: get_shipping_tiers (reference://shipping-tiers{?apiKey,api_key})")',
-      ),
-      "Should expose RFC 6570 URI template in resource description",
-    );
-    assert.ok(
-      pkg.serverCode.includes('args.containsKey("apiKey")'),
-      "Should extract session apiKey from URI query parameters map",
-    );
-    assert.ok(
-      pkg.serverCode.includes(
-        "UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.baseUrl);",
-      ),
-      "Should use UriComponentsBuilder for resources",
-    );
-    assert.ok(
-      pkg.serverCode.includes('uriBuilder.path("/reference/shipping-tiers");'),
-      "Should independently bind path to UriComponentsBuilder for safe normalization",
-    );
-    assert.ok(
-      pkg.serverCode.includes("uriBuilder.queryParam(key, value);"),
-      "Should forward client query variables to outbound resource URL",
-    );
-    assert.ok(
-      !pkg.serverCode.includes('this.baseUrl + "/reference/shipping-tiers"'),
-      "Must not use direct string concatenation for resource URIs",
-    );
-    assert.ok(
-      !pkg.serverCode.includes("private final ObjectMapper objectMapper = new ObjectMapper();"),
-      "Class must not define dead ObjectMapper field",
-    );
-    assert.ok(pkg.files["src/main/java/com/rapidoc/mcp/RapiDocMcpServer.java"]);
-    assert.ok(pkg.files["pom.xml"]);
-    assert.ok(pkg.files["README.md"].includes("./mvnw spring-boot:run"));
-  });
-
-  it("never imports ObjectMapper in Java", () => {
-    const simpleSpec = {
+  it("never exposes the api_key header, other auth headers, or credential parameters as arguments", () => {
+    // deletePet declares an api_key header parameter; it is the security scheme's, not an argument
+    const del = manifest.tools.find((t) => t.name === "delete_pet");
+    assert.deepEqual(Object.keys(del.inputSchema.properties), ["petId"]);
+    const spec = {
       openapi: "3.0.3",
-      info: { title: "Simple API", version: "1.0.0" },
+      info: { title: "T", version: "1" },
+      components: {
+        securitySchemes: { key: { type: "apiKey", in: "query", name: "token" } },
+      },
       paths: {
-        "/items": {
+        "/a": {
           get: {
-            summary: "List items",
-            operationId: "listItems",
-            responses: { 200: { description: "OK" } },
-          },
-        },
-        "/status": {
-          get: {
-            summary: "App info",
-            operationId: "getInfo",
-            responses: { 200: { description: "OK" } },
+            operationId: "a",
+            parameters: [
+              { name: "Authorization", in: "header", schema: { type: "string" } },
+              { name: "X-API-Key", in: "header", schema: { type: "string" } },
+              { name: "token", in: "query", schema: { type: "string" } },
+              { name: "q", in: "query", schema: { type: "string" } },
+            ],
           },
         },
       },
     };
-    const pkg = generateMcpServer(simpleSpec, { target: "java" });
-    assert.ok(
-      !pkg.serverCode.includes("ObjectMapper"),
-      "Must not import or instantiate ObjectMapper",
-    );
-    assert.ok(
-      pkg.serverCode.includes("Function<Map<String, Object>, String> getInfo()"),
-      "Should use standard resource routing",
-    );
-    assert.ok(
-      pkg.serverCode.includes('args.containsKey("apiKey")'),
-      "Should support dynamic apiKey in resource via URI query params",
-    );
-  });
-
-  it("generates host configuration snippets for Claude Desktop and Cursor", () => {
-    const configs = generateHostConfigs("my_store_api", { target: "typescript" });
-    const parsedClaude = JSON.parse(configs.claudeDesktopConfig);
-    assert.ok(parsedClaude.mcpServers.my_store_api);
-    assert.strictEqual(parsedClaude.mcpServers.my_store_api.command, "npx");
-
-    const goConfigs = generateHostConfigs("my_store_api", { target: "go" });
-    const parsedGo = JSON.parse(goConfigs.claudeDesktopConfig);
-    assert.strictEqual(parsedGo.mcpServers.my_store_api.command, "./my_store_api");
+    const { tools } = buildMcpManifest(spec);
+    assert.deepEqual(Object.keys(tools[0].inputSchema.properties), ["q"]);
   });
 });
 
-describe("mcp-generator: parseMcpTargets attribute normalization and kill-switch", () => {
-  it("parses a single language string", () => {
-    assert.deepStrictEqual(parseMcpTargets("python"), ["python"]);
-    assert.deepStrictEqual(parseMcpTargets("typescript"), ["typescript"]);
+describe("mcp: manifest rules", () => {
+  const minimal = (paths, extra = {}) => ({
+    openapi: "3.0.3",
+    info: { title: "Store API", version: "1.2.0" },
+    servers: [
+      { url: "https://api.store.com/{version}", variables: { version: { default: "v1" } } },
+    ],
+    paths,
+    ...extra,
   });
 
-  it("parses comma-separated string with whitespace and mixed casing", () => {
-    assert.deepStrictEqual(parseMcpTargets(" TypeScript , Python , GO "), [
-      "typescript",
-      "python",
-      "go",
-    ]);
+  it("merges path-level parameters, the operation's own winning on name and location", () => {
+    const { tools } = buildMcpManifest(
+      minimal({
+        "/customers/{customerId}": {
+          parameters: [
+            { name: "customerId", in: "path", required: true, schema: { type: "string" } },
+            { name: "verbose", in: "query", schema: { type: "boolean" } },
+          ],
+          get: {
+            operationId: "getCustomer",
+            parameters: [
+              { name: "verbose", in: "query", schema: { type: "string", enum: ["yes"] } },
+            ],
+          },
+        },
+      }),
+    );
+    assert.deepEqual(tools[0].inputSchema.properties, {
+      customerId: { type: "string" },
+      verbose: { type: "string", enum: ["yes"] },
+    });
+    assert.deepEqual(tools[0].inputSchema.required, ["customerId"]);
+    assert.equal(tools[0].operation.params.length, 2);
   });
 
-  it("parses JavaScript arrays and JSON string arrays", () => {
-    assert.deepStrictEqual(parseMcpTargets(["go", "rust", "java"]), ["go", "rust", "java"]);
-    assert.deepStrictEqual(parseMcpTargets('["typescript", "csharp"]'), ["typescript", "csharp"]);
+  it("reads a raw spec that has a top-level tags array", () => {
+    const { tools } = buildMcpManifest(
+      minimal({ "/a": { get: { operationId: "a" } } }, { tags: [{ name: "x" }] }),
+    );
+    assert.equal(tools.length, 1);
   });
 
-  it('maps "c#" alias to "csharp"', () => {
-    assert.deepStrictEqual(parseMcpTargets("c#, rust"), ["csharp", "rust"]);
-    assert.deepStrictEqual(parseMcpTargets(["c#"]), ["csharp"]);
+  it("skips internal, hidden, deprecated operations and webhooks unless asked to keep them", () => {
+    const spec = minimal({
+      "/health": { get: { operationId: "health", "x-internal": true } },
+      "/hidden": { "x-hidden": true, get: { operationId: "hidden" } },
+      "/old": { get: { operationId: "old", deprecated: true } },
+      "/new": { get: { operationId: "fresh" } },
+    });
+    assert.deepEqual(
+      buildMcpManifest(spec).tools.map((t) => t.name),
+      ["fresh"],
+    );
+    assert.equal(
+      buildMcpManifest(spec, { includeInternal: true, includeDeprecated: true }).tools.length,
+      4,
+    );
   });
 
-  it('kills all targets if "none" is specified alone or mixed in list/array', () => {
-    assert.deepStrictEqual(parseMcpTargets("none"), []);
-    assert.deepStrictEqual(parseMcpTargets("NONE"), []);
-    assert.deepStrictEqual(parseMcpTargets("none, python, go"), []);
-    assert.deepStrictEqual(parseMcpTargets("typescript, none"), []);
-    assert.deepStrictEqual(parseMcpTargets(["none", "python"]), []);
-    assert.deepStrictEqual(parseMcpTargets(["typescript", "none", "go"]), []);
+  it("classifies a parameterless GET on a reference-data path as a resource", () => {
+    const { tools, resources } = buildMcpManifest(
+      minimal({
+        "/currencies": { get: { summary: "Currency codes" } },
+        "/orders": { get: { operationId: "listOrders" } },
+      }),
+    );
+    assert.deepEqual(
+      tools.map((t) => t.name),
+      ["list_orders"],
+    );
+    assert.equal(resources[0].uri, "reference://currencies");
+    assert.equal(resources[0].operation.path, "/currencies");
   });
 
-  it('kills all targets if boolean false or "false" is provided', () => {
-    assert.deepStrictEqual(parseMcpTargets(false), []);
-    assert.deepStrictEqual(parseMcpTargets("false"), []);
-    assert.deepStrictEqual(parseMcpTargets("false, python"), []);
-    assert.deepStrictEqual(parseMcpTargets(["false", "go"]), []);
+  it("substitutes server variables and numbers duplicate tool names", () => {
+    const m = buildMcpManifest(
+      minimal({
+        "/a": { get: { operationId: "same" } },
+        "/b": { get: { operationId: "same" } },
+      }),
+    );
+    assert.equal(m.sources.api.baseUrl, "https://api.store.com/v1");
+    assert.deepEqual(
+      m.tools.map((t) => t.name),
+      ["same", "same_2"],
+    );
   });
 
-  it("returns empty array for falsy, empty or unconfigured inputs", () => {
-    assert.deepStrictEqual(parseMcpTargets(""), []);
-    assert.deepStrictEqual(parseMcpTargets("   "), []);
-    assert.deepStrictEqual(parseMcpTargets(null), []);
-    assert.deepStrictEqual(parseMcpTargets(undefined), []);
-  });
-
-  it("discards unknown targets and wildcards without throwing", () => {
-    assert.deepStrictEqual(parseMcpTargets("typescript, php, ruby, *"), ["typescript"]);
-    assert.deepStrictEqual(parseMcpTargets(["all", "python"]), ["python"]);
-  });
-
-  it("deduplicates targets in the returned array", () => {
-    assert.deepStrictEqual(parseMcpTargets("python, python, go, python"), ["python", "go"]);
-    assert.deepStrictEqual(parseMcpTargets(["go", "go", "rust"]), ["go", "rust"]);
+  it("accepts ProcessSpec's shape: tags[].paths[] with merged parameters and xInternal flags", () => {
+    const processed = {
+      specLoadError: false,
+      info: { title: "Processed", version: "3" },
+      servers: [{ url: "https://p.example.com" }],
+      securitySchemes: [
+        {
+          securitySchemeId: "bearer",
+          type: "http",
+          scheme: "bearer",
+          in: "header",
+          name: "Authorization",
+        },
+        { securitySchemeId: "_rapidoc_api_key", type: "apiKey", in: "header", name: "x-key" },
+      ],
+      tags: [
+        {
+          name: "pets",
+          paths: [
+            {
+              method: "post",
+              path: "/pets",
+              summary: "Add a pet",
+              parameters: [{ name: "dryRun", in: "query", schema: { type: "boolean" } }],
+              requestBody: {
+                required: true,
+                content: {
+                  "application/json": {
+                    schema: { type: "object", properties: { name: { type: "string" } } },
+                  },
+                },
+              },
+              security: [{ bearer: [] }],
+              rawOperation: { operationId: "addPet" },
+            },
+            { method: "get", path: "/secret", xInternal: true, rawOperation: {} },
+            { method: "post", path: "/hook", isWebhook: true, rawOperation: {} },
+          ],
+        },
+      ],
+    };
+    const m = buildMcpManifest(processed, { serverName: "My Pets" });
+    assert.equal(m.server.name, "my_pets");
+    assert.deepEqual(Object.keys(m.sources.api.securitySchemes), ["bearer"]);
+    assert.deepEqual(m.sources.api.securitySchemes.bearer, { type: "http", scheme: "bearer" });
+    assert.deepEqual(
+      m.tools.map((t) => t.name),
+      ["add_pet"],
+    );
+    assert.deepEqual(Object.keys(m.tools[0].inputSchema.properties), ["dryRun", "body"]);
+    assert.deepEqual(m.tools[0].operation.security, [{ bearer: [] }]);
   });
 });
 
-describe("mcp-generator: consequential default", () => {
-  const spec = {
-    openapi: "3.0.0",
-    info: { title: "Ping", version: "1.0.0" },
-    paths: {
-      "/ping": {
-        get: { operationId: "ping", summary: "Ping", responses: { 200: { description: "OK" } } },
-        post: { operationId: "poke", summary: "Poke", responses: { 200: { description: "OK" } } },
+describe("mcp: OpenAPI schemas as JSON Schema", () => {
+  it("inlines $refs, cuts cycles, folds nullable and drops read-only properties", () => {
+    const root = {
+      components: {
+        schemas: {
+          Node: {
+            type: "object",
+            required: ["id", "name"],
+            properties: {
+              id: { type: "integer", readOnly: true },
+              name: { type: "string", nullable: true, example: "x", "x-note": 1 },
+              parent: { $ref: "#/components/schemas/Node" },
+              tags: { type: "array", items: { $ref: "#/components/schemas/Tag" } },
+            },
+          },
+          Tag: { type: "string", minimum: 1, exclusiveMinimum: true },
+        },
       },
-    },
-  };
+    };
+    const schema = toJsonSchema({ $ref: "#/components/schemas/Node" }, root);
+    assert.deepEqual(Object.keys(schema.properties), ["name", "parent", "tags"]);
+    assert.deepEqual(schema.required, ["name"]);
+    assert.deepEqual(schema.properties.name, { type: ["string", "null"] });
+    assert.deepEqual(schema.properties.parent, { type: "object" });
+    assert.deepEqual(schema.properties.tags.items, { type: "string", exclusiveMinimum: 1 });
+    assert.deepEqual(toJsonSchema({ $ref: "#/components/schemas/Missing" }, root), {
+      description: "See #/components/schemas/Missing",
+    });
+  });
+});
 
-  it("treats post/put/delete/patch as consequential by default, get as safe", () => {
-    const { tools } = extractMcpOperations(spec);
-    assert.strictEqual(tools.find((t) => t.name === "ping").isConsequential, false);
-    assert.strictEqual(tools.find((t) => t.name === "poke").isConsequential, true);
+describe("mcp: the runtime builds and sends requests", () => {
+  const manifest = buildMcpManifest(petstore);
+  const op = (name) => manifest.tools.find((t) => t.name === name).operation;
+
+  it("places arguments by location, encodes path parameters and applies the first known credential", () => {
+    const req = buildRequest(
+      manifest,
+      op("get_pet_by_id"),
+      { petId: "a/b" },
+      { credentials: { api_key: "k1" } },
+    );
+    assert.equal(req.url, "https://petstore3.swagger.io/api/v3/pet/a%2Fb");
+    assert.deepEqual(req.headers, { api_key: "k1", Accept: "application/json" });
+    // only petstore_auth known: the second alternative, as a bearer token
+    const bearer = buildRequest(
+      manifest,
+      op("get_pet_by_id"),
+      { petId: 1 },
+      { credentials: { petstore_auth: "tok" } },
+    );
+    assert.equal(bearer.headers.Authorization, "Bearer tok");
+    const q = buildRequest(manifest, op("find_pets_by_status"), { status: "sold" }, {});
+    assert.equal(q.url, "https://petstore3.swagger.io/api/v3/pet/findByStatus?status=sold");
+    assert.equal(q.headers.Authorization, undefined);
+  });
+
+  it("sends JSON bodies, repeats array query values and overrides the base URL", () => {
+    const req = buildRequest(
+      manifest,
+      op("place_order"),
+      { body: { petId: 1, quantity: 2 } },
+      { baseUrls: { api: "http://localhost:4010/" } },
+    );
+    assert.equal(req.url, "http://localhost:4010/store/order");
+    assert.equal(req.method, "POST");
+    assert.equal(req.headers["Content-Type"], "application/json");
+    assert.equal(req.body, '{"petId":1,"quantity":2}');
+    const tags = buildRequest(manifest, op("find_pets_by_tags"), { tags: ["a", "b"] });
+    assert.ok(tags.url.endsWith("/pet/findByTags?tags=a&tags=b"));
+    assert.throws(
+      () => buildRequest(manifest, op("get_pet_by_id"), {}),
+      /Missing path parameter \{petId\}/,
+    );
+  });
+
+  it("supports API keys in query and cookie, HTTP Basic and form bodies", () => {
+    const m = {
+      sources: {
+        api: {
+          baseUrl: "https://x.test",
+          securitySchemes: {
+            qkey: { type: "apiKey", in: "query", name: "token" },
+            ckey: { type: "apiKey", in: "cookie", name: "sid" },
+            basic: { type: "http", scheme: "basic" },
+          },
+        },
+      },
+    };
+    const operation = {
+      source: "api",
+      method: "POST",
+      path: "/login",
+      params: [
+        { name: "X-Trace", in: "header", arg: "trace" },
+        { name: "body", in: "body", contentType: "application/x-www-form-urlencoded" },
+      ],
+      security: [{ qkey: [], ckey: [], basic: [] }],
+    };
+    const req = buildRequest(
+      m,
+      operation,
+      { trace: "t1", body: { user: "a b" } },
+      {
+        credentials: { qkey: "q", ckey: "c", basic: { username: "u", password: "p" } },
+      },
+    );
+    assert.equal(req.url, "https://x.test/login?token=q");
+    assert.equal(req.headers["X-Trace"], "t1");
+    assert.equal(req.headers.Cookie, "sid=c");
+    assert.equal(req.headers.Authorization, `Basic ${Buffer.from("u:p").toString("base64")}`);
+    assert.equal(req.body, "user=a+b");
+  });
+
+  it("calls tools through fetch and turns responses into MCP results", async () => {
+    const ok = fakeFetch(200, '{"id": 7, "name": "Rex"}');
+    const runtime = createMcpRuntime(manifest, { fetch: ok.impl, credentials: { api_key: "k" } });
+    const result = await runtime.callTool("get_pet_by_id", { petId: 7 });
+    assert.deepEqual(result, {
+      content: [{ type: "text", text: '{\n  "id": 7,\n  "name": "Rex"\n}' }],
+      structuredContent: { id: 7, name: "Rex" },
+    });
+    assert.equal(ok.calls[0].url, "https://petstore3.swagger.io/api/v3/pet/7");
+    assert.equal(ok.calls[0].headers.api_key, "k");
+
+    const notFound = fakeFetch(404, "Pet not found");
+    const failing = createMcpRuntime(manifest, { fetch: notFound.impl });
+    const error = await failing.callTool("get_pet_by_id", { petId: 8 });
+    assert.equal(error.isError, true);
+    assert.equal(error.content[0].text, "HTTP 404\nPet not found");
+    assert.equal((await failing.callTool("nope", {})).isError, true);
+    assert.equal(
+      (await failing.callTool("get_pet_by_id", {})).content[0].text,
+      "Missing path parameter {petId}",
+    );
+    assert.equal(runtime.listTools().length, 19);
+    assert.equal(runtime.listTools()[0].operation, undefined);
+  });
+
+  it("reads resources", async () => {
+    const m = buildMcpManifest({
+      openapi: "3.0.0",
+      info: { title: "R", version: "1" },
+      servers: [{ url: "https://r.test" }],
+      paths: { "/currencies": { get: { summary: "Currencies" } } },
+    });
+    const f = fakeFetch(200, '["EUR"]');
+    const runtime = createMcpRuntime(m, { fetch: f.impl });
+    assert.deepEqual(runtime.listResources(), [
+      {
+        name: "get_currencies",
+        uri: "reference://currencies",
+        description: "Currencies",
+        mimeType: "application/json",
+      },
+    ]);
+    assert.deepEqual(await runtime.readResource("reference://currencies"), {
+      contents: [{ uri: "reference://currencies", mimeType: "application/json", text: '["EUR"]' }],
+    });
+    await assert.rejects(runtime.readResource("reference://none"), /Unknown resource/);
+  });
+
+  it("reads credentials from the environment by scheme name, with API_KEY as the fallback", () => {
+    assert.equal(envNameFor("petstore_auth"), "PETSTORE_AUTH");
+    assert.equal(envNameFor("myApiKey"), "MY_API_KEY");
+    assert.deepEqual(credentialsFromEnv(manifest, { PETSTORE_AUTH: "t", API_KEY: "k" }), {
+      petstore_auth: "t",
+      api_key: "k",
+    });
+    assert.deepEqual(credentialsFromEnv(manifest, { API_KEY: "k" }), {
+      petstore_auth: "k",
+      api_key: "k",
+    });
+    const basic = {
+      sources: { api: { securitySchemes: { basic: { type: "http", scheme: "basic" } } } },
+    };
+    assert.deepEqual(credentialsFromEnv(basic, { BASIC_USERNAME: "u", BASIC_PASSWORD: "p" }), {
+      basic: { username: "u", password: "p" },
+    });
+  });
+});
+
+describe("mcp: the exported project", () => {
+  const { manifest, files, budget, hostConfig } = generateMcpServer(petstore, {
+    serverName: "Pet Store",
+  });
+
+  it("writes the manifest as data and the runtime and server as fixed files", () => {
+    assert.deepEqual(Object.keys(files), [
+      "manifest.json",
+      "server.ts",
+      "runtime.js",
+      "package.json",
+      "README.md",
+      "claude_desktop_config.json",
+    ]);
+    assert.deepEqual(JSON.parse(files["manifest.json"]), manifest);
+    assert.equal(files["runtime.js"], runtimeSource);
+    assert.ok(!/^import /m.test(files["runtime.js"]), "the runtime imports nothing");
+    assert.ok(files["server.ts"].includes('from "./runtime.js"'));
+    assert.ok(files["server.ts"].includes("setRequestHandler(CallToolRequestSchema"));
+    const pkg = JSON.parse(files["package.json"]);
+    assert.equal(pkg.name, "pet-store");
+    assert.ok(pkg.dependencies["@modelcontextprotocol/sdk"]);
+    assert.equal(pkg.dependencies.zod, undefined);
+    assert.ok(files["README.md"].includes("`PETSTORE_AUTH`"));
+    assert.ok(files["README.md"].includes("`API_KEY`: the API key sent as header `api_key`"));
+  });
+
+  it("writes host configuration with one env entry per security scheme", () => {
+    const config = JSON.parse(hostConfig);
+    assert.deepEqual(config.mcpServers.pet_store.args, ["-y", "tsx", "server.ts"]);
+    assert.deepEqual(Object.keys(config.mcpServers.pet_store.env), ["PETSTORE_AUTH", "API_KEY"]);
+    assert.deepEqual(JSON.parse(generateHostConfigs("x").claudeDesktopConfig).mcpServers.x.env, {
+      API_KEY: "your-api-key-here",
+    });
+    assert.equal(files["claude_desktop_config.json"], hostConfig);
+  });
+
+  it("estimates the token budget from the manifest", () => {
+    assert.equal(budget.totalTools, 19);
+    assert.equal(budget.consequentialCount, 11);
+    assert.ok(budget.estimatedTokens > 1000);
+    const many = {
+      tools: Array.from({ length: 35 }, (_, i) => ({
+        name: `t${i}`,
+        description: "d",
+        inputSchema: {},
+      })),
+    };
+    assert.ok(
+      estimateTokenCost(many).warnings.some((w) => w.includes("recommended limit of 30 tools")),
+    );
+  });
+
+  it("packs the files into a stored zip", () => {
+    const zip = createZip({ "a.txt": "hello", "dir/b.json": "{}" });
+    const view = new DataView(zip.buffer);
+    assert.equal(view.getUint32(0, true), 0x04034b50);
+    assert.equal(view.getUint32(zip.length - 22, true), 0x06054b50);
+    assert.equal(view.getUint16(zip.length - 12, true), 2); // entries
+    const text = new TextDecoder().decode(zip);
+    assert.ok(text.includes("a.txt") && text.includes("hello") && text.includes("dir/b.json"));
+    // the CRC of "hello"
+    assert.equal(view.getUint32(14, true), 0x3610a686);
+  });
+
+  it("builds the whole project from <rapi-doc>'s processed spec shape too", () => {
+    assert.equal(writeMcpProject(manifest)["package.json"].includes('"pet-store"'), true);
   });
 });

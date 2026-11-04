@@ -1,8 +1,11 @@
 /**
- * MCP (Model Context Protocol) Common Utilities and Spec Extraction
+ * MCP (Model Context Protocol) helpers shared by the manifest builder and the project writer.
  */
+import { envNameFor } from "./runtime.js";
 
-// Common authentication and transport headers to strip from LLM parameter schemas
+export { envNameFor };
+
+// Auth and transport headers never exposed as tool arguments
 export const AUTH_TRANSPORT_HEADERS = new Set([
   "authorization",
   "cookie",
@@ -10,6 +13,7 @@ export const AUTH_TRANSPORT_HEADERS = new Set([
   "x-api-key",
   "api-key",
   "apikey",
+  "api_key",
   "user-agent",
   "host",
   "content-length",
@@ -18,56 +22,20 @@ export const AUTH_TRANSPORT_HEADERS = new Set([
   "connection",
 ]);
 
-export const VALID_MCP_TARGETS = ["typescript", "python", "go", "csharp", "rust", "java"];
-export const VALID_TARGET_SET = new Set(VALID_MCP_TARGETS);
-
-export const MCP_TARGET_LABELS = {
-  typescript: "TypeScript",
-  python: "Python",
-  go: "Go",
-  csharp: "C#",
-  rust: "Rust",
-  java: "Java",
-};
-
 /**
- * Normalizes and parses the `mcp` attribute/property value.
- * Supports:
- *   - Comma-separated strings: "typescript, python"
- *   - Arrays of strings: ["typescript", "python"]
- *   - JSON string arrays: '["typescript", "python"]'
- * If 'none' or 'false' is included anywhere in the value (or if empty/falsy),
- * it acts as a complete kill-switch, returning [].
- * Wildcards like '*' or 'all' are intentionally NOT supported.
+ * Reads the `mcp` attribute: export is off for an empty value, `false`, `none` or a list that
+ * contains one of them (the old kill-switch), and on for anything else, including the old
+ * language names.
  *
  * @param {string|string[]|boolean} val
- * @returns {string[]} Array of normalized target names (e.g. ['typescript', 'python'])
+ * @returns {boolean}
  */
-export function parseMcpTargets(val) {
-  if (!val || val === false || val === "false") return [];
-  let items = [];
-  if (Array.isArray(val)) {
-    items = val;
-  } else if (typeof val === "string") {
-    const trimmed = val.trim();
-    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
-      try {
-        items = JSON.parse(trimmed);
-      } catch {
-        items = trimmed.slice(1, -1).split(",");
-      }
-    } else {
-      items = trimmed.split(",");
-    }
-  }
+export function parseMcpEnabled(val) {
+  if (!val || val === "false") return false;
+  const items = Array.isArray(val) ? val : String(val).split(",");
   const normalized = items.map((s) => String(s).trim().toLowerCase()).filter(Boolean);
-  if (normalized.includes("none") || normalized.includes("false")) {
-    return [];
-  }
-  const validTargets = normalized
-    .map((t) => (t === "c#" ? "csharp" : t))
-    .filter((t) => VALID_TARGET_SET.has(t));
-  return [...new Set(validTargets)];
+  if (!normalized.length) return false;
+  return !normalized.some((s) => s === "none" || s === "false");
 }
 
 /**
@@ -81,28 +49,6 @@ export function toSnakeCase(str) {
     .replace(/_+/g, "_")
     .replace(/^_|_$/g, "")
     .toLowerCase();
-}
-
-/**
- * Converts text into PascalCase (e.g. for C#, Java, Go types).
- */
-export function toPascalCase(str) {
-  if (!str) return "Tool";
-  const snake = toSnakeCase(str);
-  return snake
-    .split("_")
-    .filter(Boolean)
-    .map((seg) => seg.charAt(0).toUpperCase() + seg.slice(1))
-    .join("");
-}
-
-/**
- * Converts text into camelCase (e.g. for Go, Java, C# method arguments).
- */
-export function toCamelCase(str) {
-  const pascal = toPascalCase(str);
-  if (!pascal) return "param";
-  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
 }
 
 /**
@@ -138,215 +84,32 @@ export function deriveToolName(method, path) {
 }
 
 /**
- * Extracts and maps parameters from path parameters, query parameters, and requestBody.
+ * Estimates the prompt context a manifest's tool definitions cost an agent on every turn.
+ *
+ * @param {object} manifest from buildMcpManifest()
+ * @returns {{ totalTools: number, totalResources: number, estimatedTokens: number,
+ *   consequentialCount: number, warnings: string[] }} `consequentialCount` is the number of
+ *   tools that are not read-only
  */
-export function extractParameters(pathObj) {
-  const params = [];
-  const excludedNames = new Set(
-    (pathObj["x-ignoredHeaderParameters"] || []).map((s) => s.toLowerCase()),
-  );
-
-  // 1. Process query, path, and header parameters
-  if (Array.isArray(pathObj.parameters)) {
-    for (const p of pathObj.parameters) {
-      if (!p || !p.name) continue;
-      const lowerName = p.name.toLowerCase();
-
-      // Automatically strip auth & transport headers
-      if (p.in === "header" && AUTH_TRANSPORT_HEADERS.has(lowerName)) {
-        continue;
-      }
-      if (excludedNames.has(lowerName)) {
-        continue;
-      }
-
-      const schema = p.schema || {};
-      const type = schema.type || (schema.enum ? "string" : "string");
-      params.push({
-        name: p.name,
-        in: p.in || "query",
-        type,
-        format: schema.format,
-        enum: schema.enum,
-        description: p.description || schema.description || "",
-        required: Boolean(p.required || p.in === "path"),
-        default: schema.default,
-      });
-    }
-  }
-
-  // 2. Process requestBody schema properties
-  if (pathObj.requestBody && pathObj.requestBody.content) {
-    const jsonContent =
-      pathObj.requestBody.content["application/json"] ||
-      pathObj.requestBody.content["application/x-www-form-urlencoded"] ||
-      Object.values(pathObj.requestBody.content)[0];
-
-    const bodySchema = jsonContent?.schema;
-    if (bodySchema && bodySchema.properties) {
-      const requiredProps = new Set(bodySchema.required || []);
-      for (const [propName, propDef] of Object.entries(bodySchema.properties)) {
-        if (excludedNames.has(propName.toLowerCase())) continue;
-
-        params.push({
-          name: propName,
-          in: "body",
-          type: propDef.type || "string",
-          format: propDef.format,
-          enum: propDef.enum,
-          description: propDef.description || "",
-          required: requiredProps.has(propName),
-          default: propDef.default,
-        });
-      }
-    } else if (bodySchema) {
-      // Single object body without top-level exploded properties
-      params.push({
-        name: "payload",
-        in: "body",
-        type: bodySchema.type || "object",
-        description: pathObj.requestBody.description || "Request payload",
-        required: Boolean(pathObj.requestBody.required),
-        default: undefined,
-      });
-    }
-  }
-
-  return params;
-}
-
-/**
- * Inspects an operation and extracts curated MCP tool/resource metadata.
- */
-export function extractMcpOperations(parsedSpec, options = {}) {
-  const tools = [];
-  const resources = [];
-  const { includeInternal = false, includeDeprecated = false } = options;
-
-  const rawSpec = parsedSpec?.spec || parsedSpec || {};
-  const tags = parsedSpec?.tags || [];
-
-  // Collect all path operations across tags or direct spec.paths
-  const operations = [];
-  if (tags.length > 0) {
-    for (const tag of tags) {
-      if (Array.isArray(tag.paths)) {
-        for (const p of tag.paths) {
-          operations.push({ ...p, tagName: tag.name });
-        }
-      }
-    }
-  } else if (rawSpec.paths) {
-    for (const [pathStr, pathItem] of Object.entries(rawSpec.paths)) {
-      for (const [methodStr, opObj] of Object.entries(pathItem)) {
-        if (["get", "post", "put", "delete", "patch"].includes(methodStr.toLowerCase())) {
-          operations.push({
-            ...opObj,
-            method: methodStr.toLowerCase(),
-            path: pathStr,
-            rawOperation: opObj,
-          });
-        }
-      }
-    }
-  }
-
-  for (const op of operations) {
-    const raw = op.rawOperation || op;
-
-    // 1. Check exclusion rules
-    if (!includeInternal && (raw["x-internal"] === true || raw["x-hidden"] === true)) {
-      continue;
-    }
-    if (!includeDeprecated && op.deprecated === true) {
-      continue;
-    }
-    if (op.isWebhook) {
-      continue;
-    }
-
-    const method = (op.method || "get").toLowerCase();
-    const path = op.path || "";
-    const params = extractParameters(op);
-
-    // 2. Classify as Tool vs Resource
-    const isResource =
-      method === "get" &&
-      params.filter((p) => p.required).length === 0 &&
-      (path.includes("/reference") ||
-        path.includes("/currencies") ||
-        path.includes("/countries") ||
-        path.includes("/tiers") ||
-        path.includes("/categories") ||
-        path.includes("/status") ||
-        path.includes("/schema"));
-
-    // 3. Resolve Tool Name
-    const toolName = toSnakeCase(op.operationId || deriveToolName(method, path));
-
-    // 4. Resolve Description
-    const description = sanitizeDescription(
-      op.summary || op.description || `${method.toUpperCase()} ${path}`,
-    );
-
-    // 5. Write methods need confirmation
-    const isConsequential = ["post", "put", "delete", "patch"].includes(method);
-
-    const opItem = {
-      name: toolName,
-      method: method.toUpperCase(),
-      path,
-      description,
-      parameters: params,
-      isConsequential,
-      readOnly: method === "get",
-      tag: op.tagName || "",
-    };
-
-    if (isResource) {
-      resources.push({
-        ...opItem,
-        uri: `reference://${toolName.replace(/^get_/, "").replace(/_/g, "-")}`,
-        mimeType: "application/json",
-      });
-    } else {
-      tools.push(opItem);
-    }
-  }
-
-  const metadata = {
-    title: rawSpec.info?.title || "OpenAPI MCP Server",
-    description: sanitizeDescription(rawSpec.info?.description || ""),
-    version: rawSpec.info?.version || "1.0.0",
-    servers: rawSpec.servers || [{ url: "http://localhost:3000" }],
-  };
-
-  return { metadata, tools, resources };
-}
-
-/**
- * Calculates estimated token overhead for LLM tool definitions.
- */
-export function estimateTokenCost(tools = [], resources = []) {
+export function estimateTokenCost(manifest) {
+  const tools = manifest?.tools || [];
+  const resources = manifest?.resources || [];
   let estimatedTokens = 0;
   let consequentialCount = 0;
 
   for (const t of tools) {
-    // Tool name + description: ~4 chars per token
-    estimatedTokens += Math.ceil((t.name.length + t.description.length) / 4);
-    // Base JSON Schema overhead per function tool
+    // Name, description and the JSON Schema: ~4 chars per token, plus the envelope
+    estimatedTokens += Math.ceil(
+      (t.name.length + (t.description || "").length + JSON.stringify(t.inputSchema || {}).length) /
+        4,
+    );
     estimatedTokens += 25;
-    if (t.isConsequential) consequentialCount++;
-
-    for (const p of t.parameters) {
-      estimatedTokens += Math.ceil((p.name.length + (p.description || "").length) / 4);
-      estimatedTokens += 10; // type, required, structure tokens
-      if (p.enum) estimatedTokens += p.enum.length * 3;
-    }
+    if (!t.annotations?.readOnlyHint) consequentialCount++;
   }
 
   for (const r of resources) {
-    estimatedTokens += Math.ceil((r.name.length + r.description.length + r.uri.length) / 4) + 20;
+    estimatedTokens +=
+      Math.ceil((r.name.length + (r.description || "").length + r.uri.length) / 4) + 20;
   }
 
   const warnings = [];
@@ -371,40 +134,25 @@ export function estimateTokenCost(tools = [], resources = []) {
 }
 
 /**
- * Generates Claude Desktop and Cursor JSON configuration snippets.
+ * Generates Claude Desktop and Cursor JSON configuration snippets for the exported project.
+ *
+ * @param {string} serverName
+ * @param {object} [options]
+ * @param {string[]} [options.schemes] security scheme ids; one `env` entry each (`API_KEY` when none)
  */
 export function generateHostConfigs(serverName, options = {}) {
   const safeName = toSnakeCase(serverName || "api_mcp_server");
-  const target = (options.target || "typescript").toLowerCase();
-
-  let command = "npx";
-  let args = ["-y", "tsx", "server.ts"];
-
-  if (target === "python") {
-    command = "fastmcp";
-    args = ["run", "server.py"];
-  } else if (target === "go") {
-    command = `./${safeName}`;
-    args = [];
-  } else if (target === "csharp" || target === "c#") {
-    command = "dotnet";
-    args = ["run"];
-  } else if (target === "rust") {
-    command = `./target/release/${safeName}`;
-    args = [];
-  } else if (target === "java") {
-    command = "java";
-    args = ["-jar", "target/mcp-server.jar"];
-  }
+  const schemes = options.schemes?.length ? options.schemes : [];
+  const env = {};
+  for (const id of schemes) env[envNameFor(id)] = `your-${toSnakeCase(id).replace(/_/g, "-")}`;
+  if (!schemes.length) env.API_KEY = "your-api-key-here";
 
   const claudeConfig = {
     mcpServers: {
       [safeName]: {
-        command,
-        args,
-        env: {
-          API_KEY: "your-api-key-here",
-        },
+        command: "npx",
+        args: ["-y", "tsx", "server.ts"],
+        env,
       },
     },
   };

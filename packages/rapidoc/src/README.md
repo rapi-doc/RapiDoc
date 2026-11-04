@@ -66,8 +66,8 @@ other member is internal; templates call internal members freely through `this`.
   `color-scheme="auto"` is resolved by `AutoColorSchemeController` before normalization; a missing
   or invalid `layout` is derived from `render-style` (`column` for `read`/`focused`, `row` for
   `view`) and written back, while an author-set `row`/`column` is kept; an empty `mcp` becomes
-  `none`. The declared `mcp` default `"true"` is not a target, so the effective default is no MCP
-  export.
+  `none`. `mcp` defaults to `"false"`: the Export MCP Server button shows only for `"true"` (or
+  any value that is not `false`/`none`, such as the old language names).
 - **Spec loading** (`[rapidoc.ts:loadSpec]`). Each load takes a token from `_specLoadSeq`; a load
   whose token is no longer current applies nothing (no `resolvedSpec`, no `loadFailed`, no
   `spec-loaded`), so the newest call wins. `connectedCallback` owns the initial load: an inlined
@@ -108,7 +108,8 @@ other member is internal; templates call internal members freely through `this`.
   `XMLHttpRequest` methods page-wide; disconnect restores them only when the flag is still `"true"`.
 - `AutoColorSchemeController` observes `<html>`/`<body>` and a `matchMedia` query while
   `color-scheme="auto"`, removed on disconnect.
-- `downloadMcpServer` creates a Blob URL and a temporary `<a>`; the file input uses `FileReader`.
+- `downloadMcpServer` zips the exported project (`utils/mcp/zip.js`) into a Blob URL and clicks a
+  temporary `<a>`; the file input uses `FileReader`.
 - `console.error` on load or parse failure (not for superseded loads); `console.warn` when
   `scroll-container` is not an ancestor.
 - `<rapi-flow>` fetches `arazzo-url` and each OpenAPI source description (relative to the Arazzo

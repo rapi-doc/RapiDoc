@@ -6,14 +6,14 @@ const sampleSpecUrl = '/specs/petstore.yaml';
 
 <ExampleLayout
   title="Curated MCP Server Generator | RapiDoc"
-  description="Generate token-efficient, agent-friendly MCP servers from OpenAPI specs. Contrasts curated agent tooling vs plain 1:1 conversion."
+  description="Build a token-efficient, agent-friendly MCP manifest and TypeScript server from an OpenAPI spec. Contrasts curated agent tooling vs plain 1:1 conversion."
   autoRenderRapiDoc={false}
   controller="pretty"
   preset="mcp"
   specUrl={sampleSpecUrl}
   rapidocProps={{
     'spec-url': sampleSpecUrl,
-    'mcp': 'typescript, python, go, csharp, rust, java',
+    'mcp': 'true',
     'mcp-server-name': 'petstore-mcp',
     'allow-spec-file-download': 'true',
     'render-style': 'read',
@@ -27,7 +27,7 @@ const sampleSpecUrl = '/specs/petstore.yaml';
   <rapi-doc
     id="thedoc"
     spec-url={sampleSpecUrl}
-    mcp="typescript, python, go, csharp, rust, java"
+    mcp="true"
     mcp-server-name="petstore-mcp"
     allow-spec-file-download="true"
     render-style="read"
@@ -45,7 +45,7 @@ const sampleSpecUrl = '/specs/petstore.yaml';
       <p class="mcp-subtitle">
         As described by Jeremiah Lowin in <em>"Stop Converting Your REST APIs to MCP"</em>, naive 1:1 endpoint converters
         poison AI agents with context bloat, leaked internal endpoints and transport noise.
-        RapiDoc’s client-side generator applies smart heuristics to a plain OpenAPI spec (here, the Swagger Petstore) to produce clean, curated MCP servers.
+        RapiDoc’s client-side generator applies smart heuristics to a plain OpenAPI spec (here, the Swagger Petstore) to build a curated MCP manifest, exported with a runtime and a TypeScript server you can run as-is.
       </p>
     </div>
 
@@ -79,7 +79,13 @@ const sampleSpecUrl = '/specs/petstore.yaml';
             <strong>Static Resources</strong> for parameterless reference lookups (<code>/currencies</code>, <code>/status</code>, ...)
           </li>
           <li>
-            <strong>Guarded Actions</strong>: <code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> tools such as <code>delete_pet</code> flagged as consequential
+            <strong>Real JSON Schema arguments</strong>: nested request bodies, enums and <code>required</code>, with <code>$ref</code>s inlined
+          </li>
+          <li>
+            <strong>Safety annotations</strong>: MCP <code>readOnlyHint</code>, <code>destructiveHint</code> and <code>idempotentHint</code> on every tool, so hosts can ask before <code>delete_pet</code>
+          </li>
+          <li>
+            <strong>Auth from <code>securitySchemes</code></strong>: <code>api_key</code> and <code>petstore_auth</code> are applied by the runtime from <code>API_KEY</code> and <code>PETSTORE_AUTH</code>, never asked of the model
           </li>
         </ul>
       </div>
@@ -120,26 +126,17 @@ const sampleSpecUrl = '/specs/petstore.yaml';
     <!-- Interactive Live Code Preview & Actions -->
     <div class="mcp-actions-bar">
       <div class="mcp-actions-label">
-        <strong>Try it:</strong> Click <em>"Export MCP Server"</em> in the action bar above or use the options below:
+        <strong>Try it:</strong> Click <em>"Export MCP Server"</em> in the action bar above to download the zip, or inspect its files below:
       </div>
       <div class="mcp-button-group">
-        <button type="button" class="mcp-action-btn primary" id="btn-inspect-mcp">
-          <span class="btn-icon">⚡</span> TypeScript
+        <button type="button" class="mcp-action-btn primary" id="btn-inspect-manifest">
+          <span class="btn-icon">📄</span> manifest.json
         </button>
-        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-python">
-          <span class="btn-icon">🐍</span> Python
+        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-server">
+          <span class="btn-icon">⚡</span> server.ts
         </button>
-        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-go">
-          <span class="btn-icon">🐹</span> Go
-        </button>
-        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-csharp">
-          <span class="btn-icon">🔷</span> C# (.NET)
-        </button>
-        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-rust">
-          <span class="btn-icon">🦀</span> Rust
-        </button>
-        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-java">
-          <span class="btn-icon">☕</span> Java
+        <button type="button" class="mcp-action-btn secondary" id="btn-inspect-runtime">
+          <span class="btn-icon">⚙</span> runtime.js
         </button>
       </div>
     </div>
@@ -147,10 +144,10 @@ const sampleSpecUrl = '/specs/petstore.yaml';
     <!-- Collapsible Code Preview Drawer -->
     <div id="mcp-code-preview" class="mcp-code-drawer" style="display: none;">
       <div class="mcp-drawer-header">
-        <span id="mcp-drawer-title" class="mcp-drawer-title">Generated TypeScript MCP Server</span>
+        <span id="mcp-drawer-title" class="mcp-drawer-title">manifest.json</span>
         <button type="button" id="btn-close-drawer" class="mcp-close-btn">&times;</button>
       </div>
-      <pre class="mcp-code-block"><code id="mcp-code-content">// Loading generated code...</code></pre>
+      <pre class="mcp-code-block"><code id="mcp-code-content">// Loading...</code></pre>
     </div>
   </div>
 </rapi-doc>
@@ -362,30 +359,24 @@ const sampleSpecUrl = '/specs/petstore.yaml';
       if (!docEl) return;
 
       const titles = {
-        typescript: 'Generated TypeScript Server (@modelcontextprotocol/sdk)',
-        python: 'Generated Python Server (FastMCP)',
-        go: 'Generated Go Server (mark3labs/mcp-go)',
-        csharp: 'Generated C# / .NET Server (ModelContextProtocol.NET)',
-        rust: 'Generated Rust Server (mcp-sdk / tokio)',
-        java: 'Generated Java Server (Spring AI MCP)',
+        'manifest.json': 'manifest.json: the tools, resources and security schemes as plain JSON',
+        'server.ts': 'server.ts: a fixed stdio server on @modelcontextprotocol/sdk',
+        'runtime.js': 'runtime.js: executes the manifest with fetch (Node, browsers, edge workers)',
       };
 
-      function showCode(target) {
+      function showFile(name) {
         if (!docEl.generateMcpServer) return;
-        const res = docEl.generateMcpServer(target);
-        if (!res) return;
+        const res = docEl.generateMcpServer();
+        if (!res?.files?.[name]) return;
         drawer.style.display = 'block';
-        drawerTitle.textContent = titles[target] || `Generated ${target} Server`;
-        codeContent.textContent = res.serverCode;
+        drawerTitle.textContent = titles[name] || name;
+        codeContent.textContent = res.files[name];
         drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
 
-      document.getElementById('btn-inspect-mcp')?.addEventListener('click', () => showCode('typescript'));
-      document.getElementById('btn-inspect-python')?.addEventListener('click', () => showCode('python'));
-      document.getElementById('btn-inspect-go')?.addEventListener('click', () => showCode('go'));
-      document.getElementById('btn-inspect-csharp')?.addEventListener('click', () => showCode('csharp'));
-      document.getElementById('btn-inspect-rust')?.addEventListener('click', () => showCode('rust'));
-      document.getElementById('btn-inspect-java')?.addEventListener('click', () => showCode('java'));
+      document.getElementById('btn-inspect-manifest')?.addEventListener('click', () => showFile('manifest.json'));
+      document.getElementById('btn-inspect-server')?.addEventListener('click', () => showFile('server.ts'));
+      document.getElementById('btn-inspect-runtime')?.addEventListener('click', () => showFile('runtime.js'));
 
       function showBudget() {
         const tokensEl = document.getElementById('mcp-budget-tokens');

@@ -6,8 +6,8 @@ Framework-free helpers behind the `<rapi-doc>` component (`src/rapidoc.ts`), its
 the static renderer (`rapidoc/static`, `src/static/`). `utils/` owns the spec pipeline (load,
 dereference, group, anchor), schema rendering and example generation, request/response/mock
 helpers, and UI helpers (highlighting, Markdown, sanitizing, navbar binding, color, OAuth). It
-does not own rendering (`templates/`, `components/`) or styles. The MCP library and emitters
-are documented in [`./mcp/README.md`](./mcp/README.md); Arazzo parsing and workflow diagrams in
+does not own rendering (`templates/`, `components/`) or styles. The MCP manifest, runtime and
+project writer are documented in [`./mcp/README.md`](./mcp/README.md); Arazzo parsing and workflow diagrams in
 [`./arazzo/README.md`](./arazzo/README.md).
 
 Everything except `arazzo/` is bundled into `dist/rapidoc-min.js`; `arazzo/` goes into
@@ -53,7 +53,9 @@ UI helpers:
 - `oauth-utils.js`: PKCE (`randomUrlSafe`, `pkceChallenge`), `readOAuthReply`,
   `isExpectedOAuthReply`.
 - `color-utils.js`, `xml-utils.js` (`formatXml`): pure helpers.
-- `mcp-generator.js`: `generateMcpServer`, re-exporting `./mcp` helpers.
+- `mcp-generator.js`: `generateMcpServer(spec, options) -> { manifest, files, budget, hostConfig }`,
+  re-exporting `./mcp` (`buildMcpManifest`, `createMcpRuntime`, `writeMcpProject`, `createZip`,
+  `parseMcpEnabled`, ...).
 
 ## Invariants
 

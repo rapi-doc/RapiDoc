@@ -1,134 +1,43 @@
 /**
- * MCP (Model Context Protocol) Server Generator for RapiDoc
+ * MCP (Model Context Protocol) server export for RapiDoc.
  *
- * Implements client-side, zero-runtime-dependency translation from OpenAPI specs
- * into curated, token-efficient MCP servers across multiple language ecosystems:
- *   - TypeScript (@modelcontextprotocol/sdk + zod)
- *   - Python (fastmcp + standard urllib)
- *   - Go (mark3labs/mcp-go)
- *   - C# (.NET / ModelContextProtocol.NET)
- *   - Rust (mcp-sdk / rmcp)
- *   - Java (Spring AI MCP)
+ * An OpenAPI document becomes an MCP manifest (plain JSON: one tool per operation, with JSON
+ * Schema arguments and MCP safety annotations), and the exported project is that manifest plus
+ * two fixed files: a runtime that executes it with fetch, and a stdio server built on
+ * @modelcontextprotocol/sdk.
  */
 
 export {
   AUTH_TRANSPORT_HEADERS,
-  VALID_MCP_TARGETS,
-  MCP_TARGET_LABELS,
-  parseMcpTargets,
+  parseMcpEnabled,
   toSnakeCase,
-  toPascalCase,
-  toCamelCase,
   sanitizeDescription,
   deriveToolName,
-  extractParameters,
-  extractMcpOperations,
   estimateTokenCost,
+  envNameFor,
   generateHostConfigs,
 } from "./mcp/common.js";
+export { buildMcpManifest, toJsonSchema, MANIFEST_VERSION } from "./mcp/manifest.js";
+export { createMcpRuntime, buildRequest, credentialsFromEnv } from "./mcp/runtime.js";
+export { writeMcpProject } from "./mcp/project.js";
+export { createZip } from "./mcp/zip.js";
 
-import { extractMcpOperations, estimateTokenCost, generateHostConfigs } from "./mcp/common.js";
-import {
-  generateTypeScriptMcpServer,
-  generateTypeScriptFiles,
-} from "./mcp/generators/typescript.js";
-import { generatePythonFastMcpServer, generatePythonFiles } from "./mcp/generators/python.js";
-import { generateGoMcpServer, generateGoFiles } from "./mcp/generators/go.js";
-import { generateCSharpMcpServer, generateCSharpFiles } from "./mcp/generators/csharp.js";
-import { generateRustMcpServer, generateRustFiles } from "./mcp/generators/rust.js";
-import { generateJavaMcpServer, generateJavaFiles } from "./mcp/generators/java.js";
-
-export {
-  generateTypeScriptMcpServer,
-  generatePythonFastMcpServer,
-  generateGoMcpServer,
-  generateCSharpMcpServer,
-  generateRustMcpServer,
-  generateJavaMcpServer,
-};
+import { estimateTokenCost, generateHostConfigs } from "./mcp/common.js";
+import { buildMcpManifest } from "./mcp/manifest.js";
+import { writeMcpProject } from "./mcp/project.js";
 
 /**
- * Main orchestrator: extracts MCP operations, computes budget, and generates
- * language-specific server implementation and packaging manifests.
+ * Builds the manifest and the files of the exported project.
  *
- * @param {object} parsedSpec Raw or parsed OpenAPI specification object
- * @param {object} options Target language, server name, and filtering options
- * @returns {object} { target, serverCode, hostConfig, budget, files, extracted }
+ * @param {object} spec Raw OpenAPI object or `ProcessSpec`'s result
+ * @param {object} [options] `serverName`, `includeInternal`, `includeDeprecated`
+ * @returns {{ manifest: object, files: Record<string, string>, budget: object, hostConfig: string }}
  */
-export function generateMcpServer(parsedSpec, options = {}) {
-  const rawTarget = (options.target || "typescript").toLowerCase();
-  const target = rawTarget === "c#" ? "csharp" : rawTarget;
-  const extracted = extractMcpOperations(parsedSpec, options);
-  const budget = estimateTokenCost(extracted.tools, extracted.resources);
-  const hostConfigs = generateHostConfigs(options.serverName || extracted.metadata.title, {
-    target,
-  });
-
-  let serverCode;
-  let targetFiles;
-
-  if (target === "python") {
-    serverCode = generatePythonFastMcpServer(
-      extracted.metadata,
-      extracted.tools,
-      extracted.resources,
-      options,
-    );
-    targetFiles = generatePythonFiles(serverCode, extracted.metadata, options);
-  } else if (target === "go") {
-    serverCode = generateGoMcpServer(
-      extracted.metadata,
-      extracted.tools,
-      extracted.resources,
-      options,
-    );
-    targetFiles = generateGoFiles(serverCode, extracted.metadata, options);
-  } else if (target === "csharp") {
-    serverCode = generateCSharpMcpServer(
-      extracted.metadata,
-      extracted.tools,
-      extracted.resources,
-      options,
-    );
-    targetFiles = generateCSharpFiles(serverCode, extracted.metadata, options);
-  } else if (target === "rust") {
-    serverCode = generateRustMcpServer(
-      extracted.metadata,
-      extracted.tools,
-      extracted.resources,
-      options,
-    );
-    targetFiles = generateRustFiles(serverCode, extracted.metadata, options);
-  } else if (target === "java") {
-    serverCode = generateJavaMcpServer(
-      extracted.metadata,
-      extracted.tools,
-      extracted.resources,
-      options,
-    );
-    targetFiles = generateJavaFiles(serverCode, extracted.metadata, options);
-  } else {
-    // Default: TypeScript
-    serverCode = generateTypeScriptMcpServer(
-      extracted.metadata,
-      extracted.tools,
-      extracted.resources,
-      options,
-    );
-    targetFiles = generateTypeScriptFiles(serverCode, extracted.metadata, options);
-  }
-
-  const files = {
-    "claude_desktop_config.json": hostConfigs.claudeDesktopConfig,
-    ...targetFiles,
-  };
-
-  return {
-    target,
-    serverCode,
-    hostConfig: hostConfigs.claudeDesktopConfig,
-    budget,
-    files,
-    extracted,
-  };
+export function generateMcpServer(spec, options = {}) {
+  const manifest = buildMcpManifest(spec, options);
+  const files = writeMcpProject(manifest, options);
+  const budget = estimateTokenCost(manifest);
+  const schemes = Object.values(manifest.sources).flatMap((s) => Object.keys(s.securitySchemes));
+  const hostConfig = generateHostConfigs(manifest.server.name, { schemes }).claudeDesktopConfig;
+  return { manifest, files, budget, hostConfig };
 }

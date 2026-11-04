@@ -4,12 +4,11 @@
  */
 import { html } from "lit";
 import { downloadResource, viewResource } from "~/utils/common-utils";
-import { parseMcpTargets, MCP_TARGET_LABELS } from "~/utils/mcp-generator";
+import { parseMcpEnabled } from "~/utils/mcp-generator";
 
 export default function downloadsTemplate() {
-  const mcpTargets = parseMcpTargets(this.mcp);
   const showSpecDownload = this.specUrl && this.allowSpecFileDownload === "true";
-  const showMcpExport = mcpTargets.length > 0;
+  const showMcpExport = parseMcpEnabled(this.mcp);
 
   if (!showSpecDownload && !showMcpExport) {
     return "";
@@ -54,30 +53,16 @@ export default function downloadsTemplate() {
       }
       ${
         showMcpExport
-          ? mcpTargets.length === 1
-            ? html`<button
-                class="btn btn-outline download-btn"
-                part="btn btn-outline btn-mcp-export"
-                @click="${() => {
-                  this.downloadMcpServer(mcpTargets[0]);
-                }}"
-              >
-                Export MCP Server (${MCP_TARGET_LABELS[mcpTargets[0]] || mcpTargets[0]})
-              </button>`
-            : html`<select
-                class="btn btn-outline download-select"
-                part="btn btn-outline btn-mcp-export"
-                @change="${(e) => {
-                  const target = e.target.value;
-                  if (target) {
-                    this.downloadMcpServer(target);
-                    e.target.value = "";
-                  }
-                }}"
-              >
-                <option value="" disabled selected>Export MCP Server</option>
-                ${mcpTargets.map((t) => html`<option value="${t}">Export ${MCP_TARGET_LABELS[t] || t}</option>`)}
-              </select>`
+          ? html`<button
+              class="btn btn-outline download-btn"
+              part="btn btn-outline btn-mcp-export"
+              title="Download an MCP server project (manifest, runtime and stdio server) as a zip"
+              @click="${() => {
+                this.downloadMcpServer();
+              }}"
+            >
+              Export MCP Server
+            </button>`
           : ""
       }
     </section>

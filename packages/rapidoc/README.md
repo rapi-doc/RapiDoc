@@ -315,8 +315,8 @@ rapidoc/static ──▶ the same templates and components, serialized by static
   schema panels.
 - [`src/templates/`](./src/templates/README.md): Lit `html` functions bound to the host.
 - [`src/utils/`](./src/utils/README.md): spec pipeline, stable anchors, schema, request and mock
-  helpers; [`utils/mcp/`](./src/utils/mcp/README.md) and
-  [`utils/mcp/generators/`](./src/utils/mcp/generators/README.md) for the MCP server export;
+  helpers; [`utils/mcp/`](./src/utils/mcp/README.md) for the MCP manifest, runtime and exported
+  project;
   [`utils/arazzo/`](./src/utils/arazzo/README.md) for Arazzo workflow diagrams.
 - [`src/styles/`](./src/styles/README.md): stylesheets and the theme-token contract.
 - [`src/static/`](./src/static/README.md): the `rapidoc/static` renderer.

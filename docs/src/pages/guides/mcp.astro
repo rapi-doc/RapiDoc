@@ -16,53 +16,64 @@ import {
   IconLock,
 } from '@tabler/icons-astro';
 
-const pathEscapingSnippet = `// Enterprise Security: Dynamic RFC 3986 Escaping across all targets
-// Go (mark3labs/mcp-go)
-url := fmt.Sprintf("%s/v1/users/%s", baseURL, url.PathEscape(userId))
-
-// C# (ModelContextProtocol.NET)
-var path = $"/v1/users/{Uri.EscapeDataString(userId)}";
-
-// Rust (tokio / reqwest)
-let path = format!("/v1/users/{}", urlencoding::encode(&user_id));
-
-// Python (FastMCP standard library)
-clean_id = urllib.parse.quote(str(user_id), safe="")
-url = f"{base_url}/v1/users/{clean_id}"
-
-// Java (Spring AI RestClient)
-String cleanId = URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8);
-String url = baseUrl + "/v1/users/" + cleanId;`;
-
-const dualModeAuthSnippet = `// Dual-Mode Multi-Tenancy: Local Stdio vs. Gateway Per-Turn Override
-// TypeScript:
-const apiKey = (args?.apiKey as string) || (args?.api_key as string) || process.env.API_KEY || '';
-if (apiKey) {
-  headers['Authorization'] = \`Bearer \${apiKey}\`;
-}
-
-// Go:
-apiKey := ""
-if key, ok := args["apiKey"].(string); ok && key != "" {
-    apiKey = key
-} else {
-    apiKey = os.Getenv("API_KEY")
-}
-if apiKey != "" {
-    req.Header.Set("Authorization", "Bearer " + apiKey)
+const manifestToolSnippet = `{
+  "name": "place_order",
+  "description": "Place a new order",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "body": {
+        "type": "object",
+        "required": ["customerId", "items"],
+        "properties": {
+          "customerId": { "type": "string" },
+          "items": { "type": "array", "items": { "type": "string" } },
+          "shippingMethod": { "type": "string", "enum": ["standard", "express", "overnight"] }
+        }
+      }
+    },
+    "required": ["body"]
+  },
+  "annotations": { "readOnlyHint": false, "destructiveHint": false, "idempotentHint": false },
+  "operation": {
+    "source": "api",
+    "method": "POST",
+    "path": "/orders",
+    "params": [{ "name": "body", "in": "body", "contentType": "application/json" }],
+    "security": [{ "api_key": [] }]
+  }
 }`;
 
+const runProjectSnippet = `# The zip: manifest.json, runtime.js, server.ts, package.json, README.md, claude_desktop_config.json
+unzip my-api-mcp.zip -d my-api-mcp
+cd my-api-mcp
+npm install
+
+# One environment variable per security scheme (upper snake case); API_KEY is the fallback
+API_KEY="your-key" npm start        # runs: tsx server.ts
+
+# Point the server at another environment
+API_BASE_URL="https://staging.example.com/v2" API_KEY="your-key" npm start`;
+
 const openApiToMcpSnippet = `# Plain OpenAPI: no extra annotations needed
+security:
+  - api_key: []                      # Applied by the runtime from API_KEY
+
 paths:
   /orders:
     post:
       operationId: placeOrder        # Tool "place_order"
       summary: Place a new order     # Tool description
       parameters:
-        - name: Authorization        # Stripped: the server sends Bearer API_KEY
+        - name: Authorization        # Stripped: never a tool argument
           in: header
           schema: { type: string }
-      # POST: flagged as consequential (needs confirmation)
+      requestBody:                   # Tool argument "body", full JSON Schema
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewOrder" }
+      # POST: readOnlyHint false, so hosts can ask before running it
 
   /orders/{orderId}:
     get:
@@ -82,14 +93,21 @@ paths:
   /orders/legacy:
     get:
       summary: Legacy order list
-      deprecated: true               # Excluded`;
+      deprecated: true               # Excluded
 
-const rapiDocTagSnippet = `<!-- 1. Enable MCP Export button in API overview -->
+components:
+  securitySchemes:
+    api_key:                         # Copied into the manifest's sources
+      type: apiKey
+      in: header
+      name: X-API-Key`;
+
+const rapiDocTagSnippet = `<!-- 1. Enable the Export MCP Server button in the API overview -->
 <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 
 <rapi-doc
   spec-url="/specs/my-api.yaml"
-  mcp="typescript, python, go"
+  mcp="true"
   mcp-server-name="my-api-mcp"
   theme="slate"
 > </rapi-doc>`;
@@ -97,14 +115,15 @@ const rapiDocTagSnippet = `<!-- 1. Enable MCP Export button in API overview -->
 const programmaticApiSnippet = `// Access the RapiDoc custom element in JavaScript
 const doc = document.querySelector('rapi-doc');
 
-// 1. Generate in-memory code & Claude Desktop / Cursor configuration
-const result = doc.generateMcpServer('python');
-console.log(result.serverCode);   // FastMCP Python source code
-console.log(result.hostConfig);   // Claude Desktop JSON config
-console.log(result.budget);       // { totalTools: 5, estimatedTokens: 850 }
+// 1. Build the manifest, the project files and the host configuration in memory
+const result = doc.generateMcpServer({ serverName: 'my_api_mcp' });
+console.log(result.manifest.tools);       // [{ name, description, inputSchema, annotations, operation }]
+console.log(result.files['server.ts']);   // also manifest.json, runtime.js, package.json, README.md, ...
+console.log(result.hostConfig);           // Claude Desktop / Cursor JSON config
+console.log(result.budget);               // { totalTools: 5, estimatedTokens: 850, ... }
 
-// 2. Trigger browser download of server file (server.ts, server.py, main.go, Program.cs)
-doc.downloadMcpServer('go');
+// 2. Download the project as <server-name>-mcp.zip
+doc.downloadMcpServer();
 
 // 3. Inspect token budget overhead before exporting
 const budget = doc.getMcpBudget();
@@ -114,7 +133,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
 <GlobalLayout
   title="Curated MCP Server Guide | RapiDoc"
   description="Learn how to shape token-efficient, agent-first Model Context Protocol (MCP) servers from plain OpenAPI specs using smart heuristics."
-  keywords="Model Context Protocol, MCP, OpenAPI to MCP, FastMCP, Claude Desktop, Cursor, AI agents, RapiDoc MCP"
+  keywords="Model Context Protocol, MCP, OpenAPI to MCP, MCP manifest, Claude Desktop, Cursor, AI agents, RapiDoc MCP"
 >
   <!-- Ambient background glow elements -->
   <div class="ambient-glow glow-emerald"></div>
@@ -138,7 +157,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
 
       <p class="mcp-page-subtitle">
         How RapiDoc applies smart heuristics to a plain OpenAPI spec to cut prompt token tax, keep internal endpoints
-        away from agents, and compile production-ready AI agent servers directly in the browser.
+        away from agents, and build an MCP manifest with a runnable TypeScript server directly in the browser.
       </p>
 
       <div class="mcp-cta-row">
@@ -159,16 +178,16 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
           <span class="mcp-stat-txt">Works on Plain OpenAPI</span>
         </div>
         <div class="mcp-stat-chip">
-          <span class="mcp-stat-num">6 Targets</span>
-          <span class="mcp-stat-txt">TS, Python, Go, C#, Rust, Java</span>
+          <span class="mcp-stat-num">One Manifest</span>
+          <span class="mcp-stat-txt">JSON Schema Tools & Annotations</span>
         </div>
         <div class="mcp-stat-chip">
           <span class="mcp-stat-num">Zero Backend</span>
           <span class="mcp-stat-txt">Runs 100% in Browser</span>
         </div>
         <div class="mcp-stat-chip">
-          <span class="mcp-stat-num">100%</span>
-          <span class="mcp-stat-txt">RFC 3986 Hardened</span>
+          <span class="mcp-stat-num">npm start</span>
+          <span class="mcp-stat-txt">Runnable TypeScript Project</span>
         </div>
       </div>
     </header>
@@ -200,9 +219,9 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
             <h3 class="card-title">Agent-First Tool Design</h3>
             <ul class="comparison-list">
               <li><strong>Lean Token Footprint:</strong> Reference lookups become MCP Resources, and a live token budget warns before the tool catalog saturates the context.</li>
-              <li><strong>Safety Flags:</strong> <code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> tools are flagged as needing confirmation.</li>
+              <li><strong>Safety Annotations:</strong> every tool carries MCP <code>readOnlyHint</code>, <code>destructiveHint</code> and <code>idempotentHint</code>, so hosts can ask before a <code>POST</code>, <code>PUT</code>, <code>PATCH</code> or <code>DELETE</code>.</li>
               <li><strong>Zero Admin Leaks:</strong> Automatic filtering via <code>x-internal</code>, <code>x-hidden</code>, and <code>deprecated: true</code>.</li>
-              <li><strong>Clean Auth Separation:</strong> Transport headers are automatically stripped into environment variables (<code>process.env.API_KEY</code>).</li>
+              <li><strong>Clean Auth Separation:</strong> Transport headers are stripped; the runtime applies the spec's <code>securitySchemes</code> from environment variables.</li>
             </ul>
           </div>
         </div>
@@ -234,29 +253,29 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
           <div class="kpi-card">
             <div class="kpi-badge">Security Scorecard</div>
             <div class="kpi-metric-row">
-              <span class="kpi-value">100%</span>
-              <span class="kpi-unit">RFC 3986 escaped</span>
+              <span class="kpi-value">0</span>
+              <span class="kpi-unit">credentials in tool arguments</span>
             </div>
-            <h4>Path Traversal & Injection Immunity</h4>
-            <p>Enforces dynamic percent-encoding across all path parameters in all 6 targets, stripping transport headers (<code>Authorization</code>, <code>Cookie</code>) and preventing path injection attacks.</p>
+            <h4>Auth Stays Out of the Model's Hands</h4>
+            <p>Auth headers and API-key parameters are never tool arguments. The runtime applies the spec's <code>securitySchemes</code> from environment variables and percent-encodes every path parameter it substitutes.</p>
             <div class="kpi-bar-track">
               <div class="kpi-bar-fill" style="width: 100%; background: #10b981;"></div>
             </div>
-            <div class="kpi-meta">Audited across Go, C#, Rust, Python, TS & Java</div>
+            <div class="kpi-meta">API key, HTTP Basic, Bearer, OAuth 2, OpenID Connect</div>
           </div>
 
           <div class="kpi-card">
-            <div class="kpi-badge">Polyglot Parity</div>
+            <div class="kpi-badge">Data, Not Code</div>
             <div class="kpi-metric-row">
-              <span class="kpi-value">6 Targets</span>
-              <span class="kpi-unit">100% parity</span>
+              <span class="kpi-value">1</span>
+              <span class="kpi-unit">manifest, one runtime</span>
             </div>
-            <h4>Enterprise Polyglot Parity</h4>
-            <p>First-class native implementations across TypeScript, Python (FastMCP with 0 external network dependencies), Go (static binary), C# (.NET 8/9), Rust (&lt;10 MB RAM), and Java (Spring AI).</p>
+            <h4>One Manifest Drives Everything</h4>
+            <p><code>manifest.json</code> holds every tool with real JSON Schema arguments and MCP annotations. <code>runtime.js</code> executes it with <code>fetch</code> in Node, browsers and edge workers, and <code>server.ts</code> is the same file for every API.</p>
             <div class="kpi-bar-track">
               <div class="kpi-bar-fill" style="width: 100%; background: #f59e0b;"></div>
             </div>
-            <div class="kpi-meta">Single-file zero-headache deployment</div>
+            <div class="kpi-meta">Servers in other languages can read the same manifest</div>
           </div>
         </div>
 
@@ -284,28 +303,28 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
                   <td><strong style="color: #34d399;">Skips <code>x-internal</code>, <code>x-hidden</code>, <code>deprecated</code> and webhooks</strong></td>
                 </tr>
                 <tr>
-                  <td><strong>Target Languages Supported</strong></td>
-                  <td>1 (TypeScript only)</td>
-                  <td>1–2 languages</td>
-                  <td><strong style="color: #34d399;">6 Targets (TS, Python, Go, C#, Rust, Java)</strong></td>
+                  <td><strong>Output</strong></td>
+                  <td>Generated code per API</td>
+                  <td>Hosted proxy or heavy CLI</td>
+                  <td><strong style="color: #34d399;">One JSON manifest, one fixed runtime, a runnable TypeScript project</strong></td>
                 </tr>
                 <tr>
-                  <td><strong>Path Traversal & Injection Safety</strong></td>
-                  <td>Vulnerable (raw string templates)</td>
-                  <td>Unescaped parameter substitution</td>
-                  <td><strong style="color: #34d399;">100% Target-Native RFC 3986 Escaping</strong></td>
+                  <td><strong>Tool Arguments</strong></td>
+                  <td>Flat string bags</td>
+                  <td>Partial schemas</td>
+                  <td><strong style="color: #34d399;">Real JSON Schema: nested bodies, arrays, enums, <code>required</code></strong></td>
                 </tr>
                 <tr>
-                  <td><strong>Multi-Tenant Gateway Auth</strong></td>
-                  <td>Stdio environment only</td>
+                  <td><strong>Safety Annotations</strong></td>
+                  <td>None</td>
+                  <td>None</td>
+                  <td><strong style="color: #34d399;">MCP <code>readOnlyHint</code>, <code>destructiveHint</code>, <code>idempotentHint</code></strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Authentication</strong></td>
+                  <td>Keys as tool arguments</td>
                   <td>Hardcoded static credentials</td>
-                  <td><strong style="color: #34d399;">Dual-Mode: Env fallback + Per-turn dynamic keys</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Resource Dynamic Query Forwarding</strong></td>
-                  <td>Statically broken or ignored</td>
-                  <td>Unparsed query strings</td>
-                  <td><strong style="color: #34d399;">RFC 6570 Dynamic Query Forwarding & Scrubbing</strong></td>
+                  <td><strong style="color: #34d399;">From <code>securitySchemes</code>, via environment variables</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Backend / Cloud Dependency</strong></td>
@@ -345,7 +364,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
             <div class="heuristic-icon"><IconCheck size={20} /></div>
             <div>
               <h4>Header & Transport Sanitization</h4>
-              <p>Headers like <code>Authorization</code>, <code>Cookie</code>, <code>X-Api-Key</code>, <code>User-Agent</code>, and <code>Accept</code> are stripped from LLM parameter schemas. Generated servers send a Bearer token from <code>API_KEY</code> (or a per-call <code>apiKey</code> argument) to the base URL in <code>API_BASE_URL</code>.</p>
+              <p>Headers like <code>Authorization</code>, <code>Cookie</code>, <code>X-Api-Key</code>, <code>User-Agent</code>, and <code>Accept</code> are stripped from LLM parameter schemas, as is any parameter that carries an API key named in <code>securitySchemes</code>. The runtime applies the scheme itself, from an environment variable named after it, against the base URL from <code>servers[0]</code> (or <code>API_BASE_URL</code>).</p>
             </div>
           </div>
           <div class="heuristic-card">
@@ -365,8 +384,8 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
           <div class="heuristic-card">
             <div class="heuristic-icon"><IconCheck size={20} /></div>
             <div>
-              <h4>Confirmation Flags</h4>
-              <p><code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> operations are flagged as consequential, so agent hosts can ask the user before running them.</p>
+              <h4>Safety Annotations</h4>
+              <p>Every tool carries MCP annotations: <code>readOnlyHint</code> for <code>GET</code>, <code>destructiveHint</code> for <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code>, <code>idempotentHint</code> for <code>GET</code>, <code>PUT</code> and <code>DELETE</code>, so agent hosts can ask the user before running a consequential tool.</p>
             </div>
           </div>
           <div class="heuristic-card">
@@ -400,7 +419,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
                 <tr>
                   <th>OpenAPI Field</th>
                   <th>Applies To</th>
-                  <th>Effect on the Generated Server</th>
+                  <th>Effect on the Manifest</th>
                 </tr>
               </thead>
               <tbody>
@@ -427,7 +446,12 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
                 <tr>
                   <td>HTTP method</td>
                   <td>Operation</td>
-                  <td><code>POST</code>, <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> are flagged as needing confirmation.</td>
+                  <td>Sets the tool's <code>annotations</code>: <code>readOnlyHint</code> for <code>GET</code>, <code>destructiveHint</code> for <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code>, <code>idempotentHint</code> for <code>GET</code>, <code>PUT</code> and <code>DELETE</code>.</td>
+                </tr>
+                <tr>
+                  <td>Parameters and <code>requestBody</code></td>
+                  <td>Operation</td>
+                  <td>The tool's <code>inputSchema</code>: path, query, header and cookie parameters by name, plus a <code>body</code> property with the request body's full schema (<code>$ref</code>s inlined, read-only properties dropped).</td>
                 </tr>
                 <tr>
                   <td>Path</td>
@@ -444,110 +468,100 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
                   <td>Root Spec</td>
                   <td>Default base URL, overridable with the <code>API_BASE_URL</code> environment variable.</td>
                 </tr>
+                <tr>
+                  <td><code>securitySchemes</code> / <code>security</code></td>
+                  <td>Root Spec / Operation</td>
+                  <td>Copied into the manifest; the runtime reads each scheme's credential from an environment variable named after it (<code>petstore_auth</code> &rarr; <code>PETSTORE_AUTH</code>).</td>
+                </tr>
               </tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <!-- Section 5: Multi-Target Code Generation -->
+      <!-- Section 5: The Manifest -->
       <section class="mcp-section">
-        <div class="section-tag">Polyglot Runtimes</div>
-        <h2 class="section-heading">Supported Target Languages</h2>
+        <div class="section-tag">Data, Not Code</div>
+        <h2 class="section-heading">The Manifest</h2>
         <p class="section-lead">
-          RapiDoc generates self-contained, production-ready server implementations across 6 popular languages:
+          The export is a plain JSON <code>manifest.json</code>, not generated code. It holds the <code>server</code> (name, version, description),
+          one entry in <code>sources</code> (the base URL from <code>servers[0]</code> and the spec's <code>securitySchemes</code>),
+          the <code>tools</code>, the <code>resources</code> and, for now empty, <code>workflows</code>. Each tool has a real JSON Schema
+          <code>inputSchema</code>, MCP <code>annotations</code> and an <code>operation</code> block that tells the runtime where every argument goes:
         </p>
+
+        <div class="sub-topic">
+          <CodeBlock code={manifestToolSnippet} lang="json" filename="manifest.json (one tool)" />
+        </div>
 
         <div class="targets-grid">
           <div class="target-card">
-            <div class="target-badge">TypeScript</div>
-            <h4>@modelcontextprotocol/sdk</h4>
-            <p>Single-file TypeScript server with full <code>zod</code> parameter validation, async fetch handlers, and StdioServerTransport.</p>
-            <div class="target-command">API_KEY="key" npx tsx server.ts</div>
+            <div class="target-badge">inputSchema</div>
+            <h4>Real JSON Schema arguments</h4>
+            <p>Path, query, header and cookie parameters by name, plus a <code>body</code> property with the request body's full schema: nested objects, arrays, enums and <code>required</code>. <code>$ref</code>s are inlined, cycles cut, read-only properties dropped.</p>
           </div>
 
           <div class="target-card">
-            <div class="target-badge">Python</div>
-            <h4>FastMCP (The "Sweet Spot")</h4>
-            <p>Uses Jeremiah Lowin's <code>fastmcp</code> with Python's built-in <code>urllib.request</code>. Zero 3rd party networking dependencies.</p>
-            <div class="target-command">fastmcp run server.py</div>
+            <div class="target-badge">annotations</div>
+            <h4>MCP safety hints</h4>
+            <p><code>readOnlyHint</code> for <code>GET</code>, <code>destructiveHint</code> for <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code>, <code>idempotentHint</code> for <code>GET</code>, <code>PUT</code> and <code>DELETE</code>.</p>
           </div>
 
           <div class="target-card">
-            <div class="target-badge">Go</div>
-            <h4>mark3labs/mcp-go</h4>
-            <p>Compiles to a single standalone static binary with zero host dependencies. Standard library <code>net/http</code>.</p>
-            <div class="target-command">go build -o server && ./server</div>
-          </div>
-
-          <div class="target-card">
-            <div class="target-badge">C# (.NET)</div>
-            <h4>ModelContextProtocol.NET</h4>
-            <p>Built for .NET 8 / 9 enterprise environments, Microsoft Semantic Kernel integration, and native <code>HttpClient</code>.</p>
-            <div class="target-command">dotnet run</div>
-          </div>
-
-          <div class="target-card">
-            <div class="target-badge">Rust</div>
-            <h4>mcp-sdk + tokio</h4>
-            <p>Ultra-low memory footprint (&lt;10 MB RAM), zero-cost abstractions, and instant cold starts.</p>
-            <div class="target-command">cargo build --release</div>
-          </div>
-
-          <div class="target-card">
-            <div class="target-badge">Java</div>
-            <h4>Spring AI MCP</h4>
-            <p>Uses Spring AI MCP starter with <code>@Bean</code> function tools and Spring Boot <code>RestClient</code>.</p>
-            <div class="target-command">./mvnw spring-boot:run</div>
+            <div class="target-badge">operation</div>
+            <h4>How to make the call</h4>
+            <p><code>source</code>, <code>method</code>, <code>path</code>, <code>params</code> with each argument's location, and the operation's <code>security</code> requirement (else the spec's).</p>
           </div>
         </div>
       </section>
 
-      <!-- Section 6: Enterprise Code Generation Standard -->
+      <!-- Section 6: The Runtime and the Project -->
       <section class="mcp-section">
-        <div class="section-tag">Quality Standards</div>
-        <h2 class="section-heading">Enterprise Code Generation Standard</h2>
+        <div class="section-tag">Run It</div>
+        <h2 class="section-heading">One Runtime, One TypeScript Project</h2>
         <p class="section-lead">
-          Generic REST-to-MCP tools output brittle, insecure code that fails in production. RapiDoc enforces strict enterprise standards across every generated server:
+          <strong>Export MCP Server</strong> downloads <code>&lt;server-name&gt;-mcp.zip</code>: the manifest plus files that are identical for every API.
+          Run it with <code>npm install</code> and <code>npm start</code>, or copy the <code>mcpServers</code> entry from <code>claude_desktop_config.json</code> into Claude Desktop or Cursor:
         </p>
+
+        <div class="sub-topic">
+          <CodeBlock code={runProjectSnippet} lang="bash" filename="terminal" />
+        </div>
 
         <div class="standards-grid">
           <div class="standard-card">
-            <div class="standard-badge">Security Invariant</div>
-            <h4>1. Path Traversal & Injection Immunity</h4>
+            <div class="standard-badge">runtime.js</div>
+            <h4>1. Executes any tool with <code>fetch</code></h4>
             <p>
-              Generic generators use naive string interpolation (e.g. <code>fmt.Sprintf("/items/%s", id)</code>), leaving servers vulnerable to path traversal (<code>../../admin</code>). RapiDoc enforces language-native RFC 3986 percent-encoding across all path parameters in all 6 runtimes:
-            </p>
-            <CodeBlock code={pathEscapingSnippet} lang="go" filename="Path Escaping Parity" />
-          </div>
-
-          <div class="standard-card">
-            <div class="standard-badge">Architecture Invariant</div>
-            <h4>2. Dual-Mode Multi-Tenancy (Stdio + Gateway)</h4>
-            <p>
-              When running locally in Claude Desktop, servers read the host environment (<code>process.env.API_KEY</code>). But when deployed behind a multi-tenant agent gateway, the client must supply credentials dynamically. RapiDoc generates dual-mode auth resolution:
-            </p>
-            <CodeBlock code={dualModeAuthSnippet} lang="typescript" filename="Dual-Mode Auth Resolution" />
-          </div>
-
-          <div class="standard-card">
-            <div class="standard-badge">RFC 6570 Compliance</div>
-            <h4>3. Dynamic Resource Query Forwarding & Secret Scrubbing</h4>
-            <p>
-              When agents access an MCP Resource with URI query parameters (e.g., <code>reference://orders?status=shipped&apiKey=secret</code>), RapiDoc cleanly parses query bounds, preserves parameter filters, and scrubs sensitive API keys before dispatching upstream requests.
+              <code>createMcpRuntime(manifest, &#123; fetch, credentials, baseUrls &#125;)</code> puts each argument where <code>operation.params</code> says, percent-encodes path parameters, applies the security scheme (API key in header, query or cookie; HTTP Basic; Bearer tokens for HTTP bearer, OAuth 2 and OpenID Connect) and returns the MCP result: pretty-printed <code>content</code>, <code>structuredContent</code> for JSON objects, <code>isError</code> with the HTTP status and body on 4xx and 5xx. The same file runs in Node, browsers and edge workers.
             </p>
           </div>
 
           <div class="standard-card">
-            <div class="standard-badge">Zero-Dependency Runtimes</div>
-            <h4>4. Lightweight Runtimes & Instant Cold Starts</h4>
+            <div class="standard-badge">server.ts</div>
+            <h4>2. A fixed stdio server</h4>
             <p>
-              Generated servers avoid heavy third-party networking bloat. Python uses standard library <code>urllib</code>; Go uses native <code>net/http</code> to compile into a single static binary with <strong>&lt;15ms startup</strong>; Rust compiles with tokio into an ultra-lean <strong>&lt;10 MB RAM</strong> footprint.
+              Built on <code>@modelcontextprotocol/sdk</code>, it reads <code>manifest.json</code>, registers its tools and resources and hands every call to the runtime. It is the same file for every API, so there is nothing API-specific to review. <code>package.json</code> depends on <code>@modelcontextprotocol/sdk</code> and <code>tsx</code>.
+            </p>
+          </div>
+
+          <div class="standard-card">
+            <div class="standard-badge">Environment</div>
+            <h4>3. Credentials by security scheme</h4>
+            <p>
+              Each scheme reads an environment variable named after it in upper snake case (<code>petstore_auth</code> &rarr; <code>PETSTORE_AUTH</code>), with <code>API_KEY</code> as the fallback for any scheme. HTTP Basic takes <code>user:password</code> or <code>&lt;NAME&gt;_USERNAME</code> / <code>&lt;NAME&gt;_PASSWORD</code>. <code>API_BASE_URL</code> overrides the base URL. The Claude Desktop and Cursor config has one <code>env</code> entry per scheme.
+            </p>
+          </div>
+
+          <div class="standard-card">
+            <div class="standard-badge">Portable</div>
+            <h4>4. Other languages read the same manifest</h4>
+            <p>
+              Only TypeScript is exported today. Because the manifest holds everything a server needs, a server in another language is a fixed file reading the same <code>manifest.json</code>, not another code generator.
             </p>
           </div>
         </div>
       </section>
-
       <!-- Section 7: Integration & API -->
       <section class="mcp-section">
         <div class="section-tag">Integration</div>
@@ -571,7 +585,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
       <section class="mcp-cta-box">
         <div class="mcp-cta-content">
           <h3>Ready to test the Curated MCP Generator?</h3>
-          <p>Explore our live interactive demo with side-by-side token diagnostics, tuner options, and syntax-highlighted code inspection.</p>
+          <p>Explore our live interactive demo with side-by-side token diagnostics, tuner options, and the exported manifest, server and runtime to inspect.</p>
           <div class="cta-actions">
             <a href="/examples/mcp-server" class="mcp-btn primary">
               <span>Open MCP Showcase Demo</span>

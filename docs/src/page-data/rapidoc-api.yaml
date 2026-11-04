@@ -265,15 +265,11 @@ Attributes:
         default: "false"
       - name: mcp
         allowed:
+          - "true"
+          - "false"
           - none
-          - typescript
-          - python
-          - go
-          - csharp
-          - rust
-          - java
-        description: Enables Model Context Protocol (MCP) server export for AI agents. Accepts a single target language, comma-separated targets (e.g. <span class="mono fg-color">"typescript, python"</span>), or an array of strings in JavaScript (<span class="mono fg-color">['typescript', 'python']</span>). When multiple targets are configured, an export dropdown menu is rendered in the overview section. Setting or including <span class="mono fg-color">none</span> (or <span class="mono fg-color">false</span>) completely disables export.
-        default: "none"
+        description: Enables Model Context Protocol (MCP) server export for AI agents. <span class="mono fg-color">true</span> renders an <span class="mono fg-color">Export MCP Server</span> button in the overview section that downloads a zip with the MCP manifest (<span class="mono fg-color">manifest.json</span>), a fixed runtime (<span class="mono fg-color">runtime.js</span>) and a stdio TypeScript server (<span class="mono fg-color">server.ts</span>). <span class="mono fg-color">false</span>, <span class="mono fg-color">none</span> or an empty value hides the button.
+        default: "false"
         example: /examples/mcp-server
       - name: mcp-server-name
         description: Custom name for the generated MCP server. Defaults to the API specification title.
@@ -483,15 +479,15 @@ Methods:
           </script>
           ...
         </html>
-    - name: generateMcpServer(target, options)
+    - name: generateMcpServer(options)
       description: >
-        Programmatically generates an MCP server in memory. Returns an object containing <span class="mono fg-color">serverCode</span>, <span class="mono fg-color">hostConfig</span> (for Claude Desktop / Cursor), and <span class="mono fg-color">budget</span> (token diagnostics).
-    - name: downloadMcpServer(target, options)
+        Builds the MCP manifest and the exported project in memory. Returns <span class="mono fg-color">{ manifest, files, budget, hostConfig }</span>: <span class="mono fg-color">manifest</span> is the plain JSON description of the server (one tool per operation with a JSON Schema <span class="mono fg-color">inputSchema</span>, MCP <span class="mono fg-color">annotations</span> and the <span class="mono fg-color">operation</span> the runtime executes), <span class="mono fg-color">files</span> maps every file of the zip to its text (<span class="mono fg-color">manifest.json</span>, <span class="mono fg-color">server.ts</span>, <span class="mono fg-color">runtime.js</span>, <span class="mono fg-color">package.json</span>, <span class="mono fg-color">README.md</span>, <span class="mono fg-color">claude_desktop_config.json</span>), <span class="mono fg-color">budget</span> is the token diagnostics and <span class="mono fg-color">hostConfig</span> the Claude Desktop / Cursor config JSON. <span class="mono fg-color">options</span>: <span class="mono fg-color">serverName</span>, <span class="mono fg-color">includeInternal</span>, <span class="mono fg-color">includeDeprecated</span>.
+    - name: downloadMcpServer(options)
       description: >
-        Programmatically triggers browser download of the generated MCP server file (<span class="mono fg-color">server.ts</span> or <span class="mono fg-color">server.py</span>).
+        Downloads the exported project as <span class="mono fg-color">&lt;server-name&gt;-mcp.zip</span>. Same <span class="mono fg-color">options</span> as <span class="mono fg-color">generateMcpServer</span>.
     - name: getMcpBudget(options)
       description: >
-        Returns prompt token overhead diagnostics and context footprint warnings for the current OpenAPI specification.
+        Returns prompt token overhead diagnostics for the current OpenAPI specification: <span class="mono fg-color">{ totalTools, totalResources, estimatedTokens, consequentialCount, warnings }</span>, where <span class="mono fg-color">consequentialCount</span> is the number of tools that are not read-only and <span class="mono fg-color">warnings</span> lists context footprint warnings (over 30 tools or 5,000 tokens).
 
 Events:
   description: Custom DOM events dispatched by `<rapi-doc>` to intercept requests, handle lifecycle transitions, and customize runtime behavior.

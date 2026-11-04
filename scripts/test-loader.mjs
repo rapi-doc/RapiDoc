@@ -5,6 +5,11 @@ import { fileURLToPath } from "node:url";
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
+    // Vite's `?raw` import (a file's text as the default export), for the MCP project writer
+    if (specifier.endsWith("?raw")) {
+      const resolved = nextResolve(specifier.slice(0, -4), context);
+      return { ...resolved, url: `${resolved.url}?raw` };
+    }
     let target = specifier;
     if (specifier === "~") {
       target = fileURLToPath(new URL("../packages/rapidoc/src/index.js", import.meta.url));
@@ -35,6 +40,14 @@ registerHooks({
     }
   },
   load(url, context, nextLoad) {
+    if (url.endsWith("?raw")) {
+      const text = fs.readFileSync(fileURLToPath(url.slice(0, -4)), "utf-8");
+      return {
+        format: "module",
+        source: `export default ${JSON.stringify(text)};`,
+        shortCircuit: true,
+      };
+    }
     if (url.endsWith(".ts")) {
       const filePath = fileURLToPath(url);
       const source = fs.readFileSync(filePath, "utf-8");
