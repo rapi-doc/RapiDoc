@@ -140,6 +140,7 @@ export default css`
   .rf-in-enum,
   .rf-out-from,
   .rf-out-kind,
+  .rf-act-name,
   .rf-more,
   .rf-tag,
   .rf-sec-title {

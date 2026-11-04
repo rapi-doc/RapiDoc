@@ -9,6 +9,7 @@ import {
   validateArazzo,
   collectRefs,
   indexOperations,
+  indexResolvedSpec,
   resolveOperation,
   buildFlowGraph,
   renderArazzoWorkflow,
@@ -149,6 +150,38 @@ describe("arazzo: references and operations", () => {
     );
     assert.equal(op.operationId, "getOrderById");
     assert.equal(resolveOperation({ operationId: "nope" }, sources), null);
+  });
+});
+
+describe("arazzo: operations from <rapi-doc>'s resolved spec", () => {
+  it("indexes tags[].paths[] like a raw document, skipping webhooks", () => {
+    const index = indexResolvedSpec({
+      tags: [
+        {
+          paths: [
+            { method: "get", path: "/pet/{petId}", operationId: "getPetById", summary: "Find pet" },
+            { method: "post", path: "/hook", operationId: "onEvent", isWebhook: true },
+          ],
+        },
+        { paths: [{ method: "GET", path: "/pet/{petId}", operationId: "getPetById" }] },
+      ],
+    });
+    assert.deepEqual(index.byId.get("getPetById"), {
+      operationId: "getPetById",
+      method: "get",
+      path: "/pet/{petId}",
+      summary: "Find pet",
+    });
+    assert.equal(index.byId.has("onEvent"), false);
+    const sources = new Map([["petstore", index]]);
+    assert.equal(resolveOperation({ operationId: "getPetById" }, sources).path, "/pet/{petId}");
+    assert.equal(
+      resolveOperation(
+        { operationPath: "{$sourceDescriptions.petstore.url}#/paths/~1pet~1{petId}/get" },
+        sources,
+      ).operationId,
+      "getPetById",
+    );
   });
 });
 
@@ -379,6 +412,9 @@ describe("arazzo: SVG rendering", () => {
     assert.ok(svg.includes(">placed</tspan>"));
     assert.ok(svg.includes(">required</tspan>"));
     assert.ok(svg.includes("available | pending | sold"));
+    // a string enum is labelled "enum", as <rapi-doc> does; the other inputs keep their type
+    assert.equal((svg.match(/class="rf-in-type"[^>]*>enum<\/tspan>/g) || []).length, 1);
+    assert.equal((svg.match(/class="rf-in-type"[^>]*>string<\/tspan>/g) || []).length, 2);
     // actions read "condition → what happens", tagged with their name or "workflow"
     assert.equal((svg.match(/>On failure · first match runs<\/tspan>/g) || []).length, 5);
     assert.ok(svg.includes(">checks fail</tspan>"));
@@ -390,7 +426,10 @@ describe("arazzo: SVG rendering", () => {
     assert.ok(svg.includes(">→ stop the workflow</tspan>"));
     assert.ok(svg.includes(">→ retry 3×, 1s apart</tspan>"));
     assert.ok(svg.includes(">status 503</tspan>"));
-    assert.ok(svg.includes(">noPetsAvailable</text>"));
+    // every action shows its name beside it; only inherited ones carry the "workflow" tag
+    assert.ok(svg.includes('<tspan class="rf-act-name" dx="8">(noPetsAvailable)</tspan>'));
+    assert.ok(svg.includes(">(retryOnServiceUnavailable)</tspan>"));
+    assert.ok(!svg.includes(">noPetsAvailable</text>"));
     // findAvailablePets' own end has no criteria, so the workflow's two actions never run there
     const find = graph.steps.find((s) => s.stepId === "findAvailablePets");
     assert.deepEqual(
@@ -398,7 +437,12 @@ describe("arazzo: SVG rendering", () => {
       [false, true, true],
     );
     // they are left out of the box and named once in the graph's warnings
-    assert.ok(!svg.includes("orderFailed") && (svg.match(/>workflow<\/text>/g) || []).length === 8);
+    const findBox = svg.slice(
+      svg.indexOf('data-step-id="findAvailablePets"'),
+      svg.indexOf('data-step-id="placeOrder"'),
+    );
+    assert.ok(!findBox.includes("orderFailed") && !findBox.includes(">workflow</text>"));
+    assert.equal((svg.match(/>workflow<\/text>/g) || []).length, 8);
     assert.deepEqual(graph.warnings, [
       {
         level: "warning",
@@ -461,6 +505,14 @@ describe("arazzo: SVG rendering", () => {
     assert.equal(describeAction(base, 0).when, "request fails");
     assert.equal(describeAction({ ...base, outcome: "success" }, 1).when, "check passes");
     assert.equal(describeAction(base, 2, 1).when, "otherwise");
+    assert.deepEqual(
+      [
+        describeAction({ ...base, name: "stop" }).name,
+        describeAction({ ...base, name: "stop" }).tag,
+      ],
+      ["stop", ""],
+    );
+    assert.equal(describeAction({ ...base, inherited: true }).tag, "workflow");
     const { svg } = renderArazzoWorkflow(arazzoText, { sources: { petstore: petstoreText } });
     assert.ok(svg.includes(">jsonpath on $response.body:</tspan>"));
   });

@@ -8,7 +8,7 @@ import { renderFlowDiagram } from "./svg.js";
 
 export { parseDocument, validateArazzo, resolveComponentRef } from "./parse.js";
 export { collectRefs } from "./refs.js";
-export { indexOperations, resolveOperation } from "./operations.js";
+export { indexOperations, indexResolvedSpec, resolveOperation } from "./operations.js";
 export { buildFlowGraph } from "./graph.js";
 export {
   renderFlowDiagram,

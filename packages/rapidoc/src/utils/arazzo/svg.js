@@ -74,9 +74,10 @@ function shortCondition(condition) {
 }
 
 /**
- * An action in words, for a step box or the step details.
- * `{ when: "status 503", does: "retry 3×, 1s apart", tag: "workflow" }`; `tag` is the action's
- * name, or "workflow" for one the step inherits. An action without criteria applies whenever the
+ * An action in words, for a step box.
+ * `{ when: "status 503", does: "retry 3×, 1s apart", name: "retryOnServiceUnavailable",
+ * tag: "workflow" }`; `name` is the action's own name ("" when the file gives none), `tag` is
+ * "workflow" for an action the step inherits and "" for the step's own. An action without criteria applies whenever the
  * step's checks fail (or pass); `checks` is how many the step has, for the wording. After other
  * actions (`index` > 0 in its outcome's list) it reads "otherwise".
  */
@@ -98,7 +99,7 @@ export function describeAction(a, checks = 0, index = 0) {
     if (a.retryAfter) does += `, ${a.retryAfter}s apart`;
     if (a.stepId) does += ` from ${a.stepId}`;
   }
-  return { when, does, tag: a.inherited ? "workflow" : a.name || "" };
+  return { when, does, name: a.name || "", tag: a.inherited ? "workflow" : "" };
 }
 
 /** Greedy lane assignment: edges whose spans overlap get different lanes. */
@@ -269,6 +270,10 @@ function actionSections(step) {
           parts: [
             part(truncate(described[i].when, whenChars), "rf-act-when", CHAR_W, { x: PAD }),
             part(`→ ${described[i].does}`, "rf-act-then", CHAR_W, { x: col }),
+            // The name often says what the action is for; it is cut first when the line is long
+            ...(described[i].name
+              ? [part(`(${described[i].name})`, "rf-act-name", CHAR_W, { dx: 8 })]
+              : []),
           ],
         })),
       ];
@@ -282,7 +287,9 @@ function inputRows(graph) {
   const rows = [];
   for (const i of graph.inputDetails) {
     const parts = [part(truncate(i.name, nameChars), "rf-in-name", CHAR_W, { x: PAD })];
-    const type = i.type ? `${i.type}${i.format ? ` (${i.format})` : ""}` : "any";
+    // As <rapi-doc> labels it (schema-utils getTypeInfo): a string enum reads "enum"
+    const base = i.enum?.length ? i.type.replace("string", "enum") : i.type;
+    const type = base ? `${base}${i.format ? ` (${i.format})` : ""}` : "any";
     parts.push(part(type, "rf-in-type", MONO_W, { x: col }));
     if (i.required) parts.push(part("required", "rf-req", PILL_CHAR_W, { dx: 8 }));
     if (i.default !== undefined) {

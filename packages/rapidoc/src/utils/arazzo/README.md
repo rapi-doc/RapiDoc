@@ -4,7 +4,8 @@
 
 Reads Arazzo 1.x documents and draws one workflow as an SVG string: the workflow's inputs and
 outputs, its steps in order, the values passed between steps, and each step's success and failure
-actions. The inputs box (each input's type, required flag, default and enum values) and the
+actions. The inputs box (each input's type, required flag, default and enum values; a string enum's type
+reads `enum`, as `<rapi-doc>` labels it) and the
 outputs table are the same in both views, which differ in the step boxes: `expanded` (the
 default) lists each step's values with a keyword for where they come from (`input`, `step`,
 `fixed`, `expr`), its checks (the success criteria, unnumbered), its actions as "condition →
@@ -27,14 +28,16 @@ events (`src/rapi-flow.ts`), and the diagram's look (`src/styles/flow-styles.js`
   to the component, or null.
 - `collectRefs(value)` [refs.js]: `$inputs`, `$steps` and `$workflows` expressions anywhere in a
   JSON value, distinct, in first-seen order.
-- `indexOperations(openapi)`, `resolveOperation(step, sources)` [operations.js]: operation lookup
+- `indexOperations(openapi)`, `indexResolvedSpec(resolvedSpec)` (the same index from
+  `<rapi-doc>`'s processed `tags[].paths[]`, webhooks skipped, the first entry kept for an
+  operation with several tags), `resolveOperation(step, sources)` [operations.js]: operation lookup
   by operationId (plain or `$sourceDescriptions.<name>.` qualified) and by `operationPath`.
 - `buildFlowGraph(doc, workflowId?, { sources })` [graph.js]: the graph the SVG draws; null when
   the workflow does not exist.
 - `renderFlowDiagram(graph, { view, idPrefix, interactive }) -> { svg, legend }` [svg.js]:
   `legend` names the kinds of lines drawn (`seq`, `data`, `output`, `success`, `failure`);
   `renderFlowSvg` returns only the SVG. `actionLabel` (short: "✗ retry 3× after 2s (if)"),
-  `actionSentence` (with criteria), `describeAction(action, checks)` (`{ when, does, tag }`, the
+  `actionSentence` (with criteria), `describeAction(action, checks, index)` (`{ when, does, name, tag }`, the
   wording of the expanded boxes; an action without criteria reads "checks
   fail" / "check fails" / "request fails" by the step's number of checks, or "otherwise" after
   other actions) and `escapeXml` are exported too.
@@ -79,8 +82,8 @@ events (`src/rapi-flow.ts`), and the diagram's look (`src/styles/flow-styles.js`
 - **Actions.** A step's actions are its own `onSuccess` / `onFailure`, then the workflow's
   `successActions` / `failureActions` (marked `inherited`) minus any the step overrides by `name`.
   The graph also lists the workflow's actions once as `workflowActions`. Compact shows no
-  actions; expanded lists a step's own actions and the inherited ones in one list per outcome, in merge order, each tagged with its
-  name or `workflow`. A runner takes the first action whose criteria match, so every action after
+  actions; expanded lists a step's own actions and the inherited ones in one list per outcome, in merge order, each with its name in parentheses after
+  what it does; inherited ones also carry a `workflow` tag on the right. A runner takes the first action whose criteria match, so every action after
   one without criteria is marked `shadowed` (it never runs). Shadowed actions are left out of the
   boxes and draw no goto line; the graph's `warnings` (`{ level, path,
   message }`, one per step and outcome) name them, for author tooling;

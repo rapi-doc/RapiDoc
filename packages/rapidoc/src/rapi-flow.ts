@@ -13,6 +13,7 @@ import {
   parseDocument,
   validateArazzo,
   indexOperations,
+  indexResolvedSpec,
   buildFlowGraph,
   renderFlowDiagram,
   escapeXml,
@@ -46,6 +47,9 @@ export default class RapiFlow extends LitElement {
   @state() private selectedStepId = "";
 
   private loadId = 0;
+  // The <rapi-doc> named by `for` while it supplies the first OpenAPI source (no spec-url)
+  private specDoc: any = null;
+  private onSpecLoaded = () => this.useRapiDocSpec();
   // Step whose box, lines and output rows are highlighted while the pointer is over one of them
   private linkedStepId = "";
   private idPrefix = `rf${++instanceCount}`;
@@ -180,6 +184,17 @@ export default class RapiFlow extends LitElement {
     if (!"dark, light, system, auto,".includes(`${this.colorScheme},`)) this.colorScheme = "dark";
     if (!this.getAttribute("color-scheme")) this.setAttribute("color-scheme", this.colorScheme);
     applyCustomTheme(this, this.theme);
+    // Reconnected after a load: listen to the <rapi-doc> again
+    if (this.doc) {
+      this.watchRapiDoc();
+      this.useRapiDocSpec();
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.specDoc?.removeEventListener("spec-loaded", this.onSpecLoaded);
+    this.specDoc = null;
   }
 
   updated(changed) {
@@ -188,7 +203,7 @@ export default class RapiFlow extends LitElement {
       if (normalized !== this.theme) this.theme = normalized;
       applyCustomTheme(this, this.theme);
     }
-    if (changed.has("arazzoUrl") || changed.has("specUrl")) this.load();
+    if (changed.has("arazzoUrl") || changed.has("specUrl") || changed.has("for")) this.load();
     // A redrawn diagram has lost the highlight classes
     this.linkedStepId = "";
   }
@@ -205,6 +220,8 @@ export default class RapiFlow extends LitElement {
     try {
       const arazzoUrl = new URL(this.arazzoUrl, document.baseURI).href;
       const doc = parseDocument(await this.fetchText(arazzoUrl));
+      // With `for` and no spec-url, the first OpenAPI source is the spec <rapi-doc> loads
+      this.watchRapiDoc();
       const problems = validateArazzo(doc);
       const sources = new Map();
       const openapiSources = (doc.sourceDescriptions || []).filter(
@@ -212,6 +229,7 @@ export default class RapiFlow extends LitElement {
       );
       await Promise.all(
         openapiSources.map(async (s, i) => {
+          if (i === 0 && this.specDoc) return;
           const url = i === 0 && this.specUrl ? this.specUrl : s.url;
           try {
             const text = await this.fetchText(
@@ -231,6 +249,7 @@ export default class RapiFlow extends LitElement {
       this.doc = doc;
       this.sources = sources;
       this.problems = problems;
+      this.useRapiDocSpec();
       this.dispatchEvent(
         new CustomEvent("flow-loaded", {
           detail: { doc, problems },
@@ -262,6 +281,29 @@ export default class RapiFlow extends LitElement {
     const ids = this.workflowIds;
     const wanted = ids.includes(this.workflowId) ? this.workflowId : ids[0];
     return buildFlowGraph(this.doc, wanted, { sources: this.sources });
+  }
+
+  /** Follows the <rapi-doc> named by `for`, unless spec-url names the spec to load instead. */
+  private watchRapiDoc() {
+    const rapiDoc = this.specUrl ? null : this.findRapiDoc();
+    if (rapiDoc === this.specDoc) return;
+    this.specDoc?.removeEventListener("spec-loaded", this.onSpecLoaded);
+    this.specDoc = rapiDoc;
+    rapiDoc?.addEventListener("spec-loaded", this.onSpecLoaded);
+  }
+
+  /**
+   * Indexes the spec the <rapi-doc> has processed as the first OpenAPI source. Runs after a load
+   * and on each `spec-loaded`, since <rapi-doc> often finishes after <rapi-flow>. Until then,
+   * steps of that source show their operationId.
+   */
+  private useRapiDocSpec() {
+    const first = (this.doc?.sourceDescriptions || []).find(
+      (s) => s?.name && s?.url && (!s.type || s.type === "openapi"),
+    );
+    const spec = this.specDoc?.resolvedSpec;
+    if (!first || !spec) return;
+    this.sources = new Map(this.sources).set(first.name, indexResolvedSpec(spec));
   }
 
   private findRapiDoc(): any {

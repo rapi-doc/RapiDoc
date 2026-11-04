@@ -39,8 +39,10 @@ other member is internal; templates call internal members freely through `this`.
 - `<oauth-receiver>` (`[oauth-receiver.ts:OauthReceiver]`): plain `HTMLElement` for the page named
   by the `oauth-receiver` attribute; relays the provider's reply to the opener.
 - `<rapi-flow>` (`[rapi-flow.ts:RapiFlow]`): attributes `arazzo-url`, `spec-url` (replaces the
-  first OpenAPI source's URL), `workflow-id` (defaults to the first workflow), `for` (id of a
-  `<rapi-doc>`: clicking a step calls its `scrollToPath`), `view` (`expanded`, the default, or `compact`;
+  first OpenAPI source's URL, resolved against the page), `workflow-id` (defaults to the first
+  workflow), `for` (id of a `<rapi-doc>`: clicking a step calls its `scrollToPath`; without
+  `spec-url`, that `<rapi-doc>`'s processed spec stands in for the first OpenAPI source, read
+  again on each of its `spec-loaded` events), `view` (`expanded`, the default, or `compact`;
   the header's Compact / Expanded switch sets it), `show-view-toggle` (`"false"` hides that
   switch), `theme`, `color-scheme`; method `load`; events `flow-loaded` (`detail: { doc,
   problems }`), `step-click` (`detail: { workflowId, stepId, operation, workflowRef }`) and
@@ -110,7 +112,9 @@ other member is internal; templates call internal members freely through `this`.
 - `console.error` on load or parse failure (not for superseded loads); `console.warn` when
   `scroll-container` is not an ancestor.
 - `<rapi-flow>` fetches `arazzo-url` and each OpenAPI source description (relative to the Arazzo
-  URL); a source that fails to load becomes a warning, not an error.
+  URL); a source that fails to load becomes a warning, not an error. The first OpenAPI source is
+  not fetched while `for` names a `<rapi-doc>` and `spec-url` is unset; `<rapi-flow>` listens to
+  that element's `spec-loaded` until it disconnects.
 - `<oauth-receiver>` clears its URL with `history.replaceState`, posts the reply to
   `window.opener` (when set) with `location.origin` as target, and to
   `BroadcastChannel("rapidoc-oauth")` when that global exists.
