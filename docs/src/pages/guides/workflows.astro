@@ -192,22 +192,29 @@ const mockServerHtmlSnippet = `<rapi-flow
         </p>
 
         <div class="wf-scenarios" role="group" aria-label="What the mock answers">
-          <button type="button" class="wf-scenario is-active" data-codes="200">
+          <button type="button" class="wf-scenario is-active" data-codes="{}" data-note="The mock answers every step with its success response.">
             <span class="wf-scenario-code ok">200</span>
             <span>
               <strong>Everything succeeds</strong>
               <small>Every step answers from the spec's examples; the outputs table fills in.</small>
             </span>
           </button>
-          <button type="button" class="wf-scenario" data-codes="404">
+          <button type="button" class="wf-scenario" data-codes='{"*":"404"}' data-note="The mock answers every step with 404.">
             <span class="wf-scenario-code fail">404</span>
             <span>
               <strong>No pets available</strong>
               <small>The first step fails; its <code>noPets</code> action ends the run, which reports the failure.</small>
             </span>
           </button>
+          <button type="button" class="wf-scenario" data-codes='{"placeOrder":"503, 200"}' data-note="The order step answers 503 first, then 200; the other steps succeed.">
+            <span class="wf-scenario-code warn">503 → 200</span>
+            <span>
+              <strong>Store busy, then free</strong>
+              <small>Only <code>placeOrder</code> fails, once; its <code>retry</code> action waits 2 s and the second attempt succeeds.</small>
+            </span>
+          </button>
         </div>
-        <p class="wf-scenario-note" aria-live="polite">The mock answers <strong>200</strong>. Press Run workflow.</p>
+        <p class="wf-scenario-note" aria-live="polite">The mock answers every step with its success response. Press Run workflow.</p>
 
         <div class="wf-demo">
           <div class="wf-demo-flow">
@@ -231,12 +238,12 @@ const mockServerHtmlSnippet = `<rapi-flow
               show-header="false"
               show-info="false"
               allow-authentication="false"
-              style="height: 100%; width: 100%; display: block;"></rapi-doc>
+              style="height: 100%; width: 100%;"></rapi-doc>
           </div>
         </div>
         <p class="wf-demo-caveat">
-          The status applies to every request of the run. Making one step fail while the others succeed (a
-          <code>503</code> on the order step, to watch its retry) needs per-operation codes, which are planned.
+          The buttons fill the <strong>Mock status</strong> table under the diagram: one row per step, plus a default.
+          Edit it yourself to try other paths.
         </p>
       </section>
 
@@ -380,16 +387,15 @@ const mockServerHtmlSnippet = `<rapi-flow
 <script>
   import 'rapidoc/flow';
 
-  // Scenario buttons: set the status code the tied <rapi-doc>'s in-browser mock answers with
-  const doc = document.getElementById('workflow-guide-doc');
+  // Scenario buttons fill the flow's status-code table (`*` = every step, else by step id); the
+  // flow hands them to the tied <rapi-doc>'s in-browser mock, per operation, for the run.
+  const flow = document.querySelector('rapi-flow') as any;
   const note = document.querySelector('.wf-scenario-note');
   document.querySelectorAll<HTMLButtonElement>('.wf-scenario').forEach((button) => {
     button.addEventListener('click', () => {
-      const codes = button.dataset.codes || '200';
-      doc?.setAttribute('mock-server-status-code', codes);
-      doc?.setAttribute('mock-server-status-strategy', 'first');
+      if (flow) flow.statusCodes = JSON.parse(button.dataset.codes || '{}');
       document.querySelectorAll('.wf-scenario').forEach((b) => b.classList.toggle('is-active', b === button));
-      if (note) note.innerHTML = `The mock answers <strong>${codes}</strong>. Press Run workflow.`;
+      if (note) note.textContent = `${button.dataset.note} Press Run workflow.`;
     });
   });
 </script>
@@ -738,6 +744,11 @@ const mockServerHtmlSnippet = `<rapi-flow
     background: rgba(239, 68, 68, 0.15);
     color: #f87171;
   }
+  .wf-scenario-code.warn {
+    background: rgba(249, 115, 22, 0.15);
+    color: #fb923c;
+    white-space: nowrap;
+  }
   .wf-scenario-note {
     margin: 14px 0 18px;
     font-size: 13px;
@@ -749,6 +760,9 @@ const mockServerHtmlSnippet = `<rapi-flow
   .wf-demo {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    /* One row exactly the box's height: an auto row would grow to the content, and each pane's own
+       scroll area with it, leaving the run panel below the clipped edge */
+    grid-template-rows: minmax(0, 1fr);
     height: 760px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
@@ -756,7 +770,8 @@ const mockServerHtmlSnippet = `<rapi-flow
     background: rgba(15, 23, 42, 0.7);
   }
   .wf-demo-flow {
-    padding: 18px;
+    min-height: 0;
+    padding: 0;
     overflow: auto;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
   }

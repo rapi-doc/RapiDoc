@@ -60,18 +60,22 @@ const arazzoFiles = [
     height: 100vh;
     width: 100%;
   }
+  /* The pane is the elements' own background (the ember theme's dark --background), with no padding,
+     so <rapi-flow> meets <rapi-doc> at the divider as one surface */
   .flow-pane {
     flex: 0 0 auto;
     width: min(46rem, 50%);
-    padding: 1.25rem;
+    padding: 0;
     overflow: auto;
-    border-right: 1px solid #333;
+    background: rgb(31, 31, 35);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
   }
+  /* Same side spacing as <rapi-flow>'s own padding, so the picker lines up with the diagram's title */
   .file-picker {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    padding: 16px 20px 0;
     font-size: 0.8125rem;
     color: #a1a1aa;
   }
@@ -95,7 +99,7 @@ const arazzoFiles = [
     .flow-pane {
       width: auto;
       border-right: 0;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
     .doc-pane {
       height: 100vh;

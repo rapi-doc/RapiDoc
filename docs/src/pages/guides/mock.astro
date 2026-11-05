@@ -25,6 +25,19 @@ const multiStatusCode = `<!-- Cycle through 200, 429, and 500 to test retry logi
   mock-server-delay="400"
 > </rapi-doc>`;
 
+const perOperationCode = `<!-- Only the order call fails, once: first 503, then 200 on the retry. Everything else answers 200. -->
+<rapi-doc
+  spec-url="/specs/petstore.yaml"
+  mock-server="true"
+  mock-server-status-code='{ "POST /store/order": "503, 200", "*": "200" }'
+  mock-server-status-strategy="cycle"
+> </rapi-doc>`;
+
+const twoMocksCode = `<!-- Two APIs mocked on one page, each with its own codes and delay -->
+<rapi-doc-mini spec-url="/specs/orders.yaml"   match-paths="post /orders" mock-server="true"></rapi-doc-mini>
+<rapi-doc-mini spec-url="/specs/payments.yaml" match-paths="post /charges" mock-server="true"
+               mock-server-status-code="402" mock-server-delay="800"></rapi-doc-mini>`;
+
 const reactViteCode = `// src/App.jsx - Seamless frontend prototyping without waiting for backend
 import React, { useEffect, useState } from 'react';
 
@@ -65,7 +78,7 @@ const mockAttributes = [
     name: 'mock-server-status-code',
     type: 'String',
     default: '(auto)',
-    desc: 'Target HTTP status code or comma-separated list of codes (e.g. "200, 404, 500") to simulate. If omitted, the mock server automatically picks the first available 2xx response in the spec.',
+    desc: 'Target HTTP status code or comma-separated list of codes (e.g. "200, 404, 500") to simulate, or a JSON map by operation ({ "POST /orders": "503, 200", "*": "200" }, keys are the method and path template, "*" the default). If omitted, the mock server automatically picks the first available 2xx response in the spec.',
   },
   {
     name: 'mock-server-status-strategy',
@@ -336,10 +349,10 @@ const mockAttributes = [
               color-scheme="dark"
               theme="amber"
               render-style="view"
-              show-header="true"
+              show-header="false"
               allow-try="true"
               show-info="false"
-              style="height: 520px; width: 100%; display: block;"></rapi-doc>
+              style="width: 100%;"></rapi-doc>
           </div>
         </div>
       </div>
@@ -485,7 +498,28 @@ const mockAttributes = [
       </div>
 
       <div class="rd-recipe-card" style="margin-top: 24px;">
-        <h3>3. React, Vite, or Vue Frontend Prototyping</h3>
+        <h3>3. One Operation Fails, the Rest Succeed</h3>
+        <p>
+          A list of codes applies to every operation. To make a single call fail (a retry path, a 404 on one lookup), give
+          <code>mock-server-status-code</code> a map keyed by method and path template, with <code>"*"</code> as the default.
+          Each entry cycles on its own, so <code>"503, 200"</code> on the order call fails once and succeeds on the retry.
+          <a href="/guides/workflows">Arazzo workflows</a> use the same map, per step, from their run panel:
+        </p>
+        <CodeBlock code={perOperationCode} lang="html" filename="retry-path.html" />
+      </div>
+
+      <div class="rd-recipe-card" style="margin-top: 24px;">
+        <h3>4. Several APIs Mocked on One Page</h3>
+        <p>
+          Every <code>&lt;rapi-doc&gt;</code> and <code>&lt;rapi-doc-mini&gt;</code> with <code>mock-server="true"</code> mocks its own
+          spec with its own status codes and delay. A request is answered by the most specific match (the server's origin and base
+          path first), and the real <code>fetch</code> comes back when the last mocked element turns its mock off or leaves the page:
+        </p>
+        <CodeBlock code={twoMocksCode} lang="html" filename="two-apis.html" />
+      </div>
+
+      <div class="rd-recipe-card" style="margin-top: 24px;">
+        <h3>5. React, Vite, or Vue Frontend Prototyping</h3>
         <p>Mount RapiDoc in your development environment to unblock UI components before backend development finishes:</p>
         <CodeBlock code={reactViteCode} lang="jsx" filename="UserProfile.jsx" />
       </div>
@@ -905,7 +939,7 @@ const mockAttributes = [
   /* Playground Grid */
   .rd-playground-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
     gap: 24px;
     align-items: stretch;
   }
@@ -1247,9 +1281,22 @@ const mockAttributes = [
     overflow-y: auto;
   }
 
+  /* Both playground cards have square bottom corners, matching the element that sits flush in the right one */
+  .rd-client-card,
+  .rd-rapidoc-embed-card {
+    border-radius: 12px 12px 0 0;
+  }
+  /* The element fills the card, at least 520px tall, and grows with the tester beside it */
   .rd-embed-container {
-    padding: 8px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
     background: #0b1121;
+  }
+  .rd-embed-container rapi-doc {
+    flex: 1;
+    min-height: 520px;
   }
 
   /* Use cases grid */
