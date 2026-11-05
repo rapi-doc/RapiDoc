@@ -258,11 +258,12 @@ function renderTag(tag, ctx) {
       ? `${ctx.cleanBase}/${tagSlug}`
       : `${ctx.basePath}#${elementId}`;
 
+  const isActive = Boolean(
+    ctx.activeHref && (ctx.activeHref === tagHref || ctx.activeHref.endsWith(`#${elementId}`)),
+  );
+
   // A description-only tag (show-unused-tags) is a link to its section, with nothing to expand
   if (tag.descriptionOnly) {
-    const isActive = Boolean(
-      ctx.activeHref && (ctx.activeHref === tagHref || ctx.activeHref.endsWith(`#${elementId}`)),
-    );
     return `
     <div class="nav-bar-tag-and-paths description-only">
       <a
@@ -280,19 +281,25 @@ function renderTag(tag, ctx) {
   }
 
   return `
-    <div class="nav-bar-tag-and-paths ${isExpanded ? "expanded" : "collapsed"}" id="link-${elementId}">
+    <div class="nav-bar-tag-and-paths ${isExpanded ? "expanded" : "collapsed"}">
       <div
-        class="nav-bar-tag"
+        class="nav-bar-tag${isActive ? " active" : ""}"
         part="section-navbar-item section-navbar-tag"
-        id="link-${elementId}-header"
-        data-action="expand-collapse-tag"
+        id="link-${elementId}"
+        data-action="navigate"
+        data-content-id="${elementId}"
         data-tag-href="${escapeHtml(tagHref)}"
         tabindex="0"
-        role="button"
-        aria-expanded="${isExpanded ? "true" : "false"}"
       >
-        <div class="nav-bar-tag-title" data-tag-href="${escapeHtml(tagHref)}">${escapeHtml(title)}</div>
-        <div class="nav-bar-tag-icon" tabindex="0" data-action="expand-collapse-tag"></div>
+        <div class="nav-bar-tag-title">${escapeHtml(title)}</div>
+        <div
+          class="nav-bar-tag-icon"
+          tabindex="0"
+          role="button"
+          aria-label="Expand or collapse ${escapeHtml(title)}"
+          aria-expanded="${isExpanded ? "true" : "false"}"
+          data-action="expand-collapse-tag"
+        ></div>
       </div>
       <div class="nav-bar-paths-under-tag">
         ${pathsHtml}
