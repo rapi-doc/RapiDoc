@@ -1043,6 +1043,12 @@ export default class RapiDoc extends LitElement {
     } else {
       for (let i = 0; i < this.resolvedSpec.tags?.length; i++) {
         const tag = this.resolvedSpec.tags[i];
+        if (tag.elementId === elementId) {
+          // A click on a tag in the navigation bar opens that tag
+          isExpandingNeeded = !tag.expanded;
+          tag.expanded = true;
+          break;
+        }
         const path = tag.paths?.find((p) => p.elementId === elementId);
         if (path) {
           if (path.expanded && tag.expanded) {
@@ -1056,7 +1062,9 @@ export default class RapiDoc extends LitElement {
       if (this.resolvedSpec.tagGroups) {
         for (let g = 0; g < this.resolvedSpec.tagGroups.length; g++) {
           const group = this.resolvedSpec.tagGroups[g];
-          const hasPath = group.tags?.some((t) => t.paths?.some((p) => p.elementId === elementId));
+          const hasPath = group.tags?.some(
+            (t) => t.elementId === elementId || t.paths?.some((p) => p.elementId === elementId),
+          );
           if (hasPath && !group.expanded) {
             group.expanded = true;
             isExpandingNeeded = true;

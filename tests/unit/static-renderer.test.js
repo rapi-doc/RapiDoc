@@ -794,6 +794,22 @@ describe("Navigation & Styling Helpers (getSpecNavigation, getBundledCss)", () =
     assert.ok(tagPagesHtml.includes('href="/apis/shipments/shipments#list-shipments"'));
   });
 
+  it("getNavBarHtml should make a tag's title go to the tag and its chevron expand or collapse it", async () => {
+    const html = await getNavBarHtml(sampleSpec, {
+      basePath: "/apis/shipments",
+      routingMode: "tag-pages",
+      activeHref: "/apis/shipments/shipments",
+    });
+    const row = html.match(/<div\s+class="nav-bar-tag[ "][\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? "";
+    assert.match(row, /class="nav-bar-tag active"/);
+    assert.match(row, /data-action="navigate"\s+data-content-id="tag--shipments"/);
+    assert.match(row, /data-tag-href="\/apis\/shipments\/shipments"/);
+    assert.match(
+      row,
+      /class="nav-bar-tag-icon"[^>]*role="button"[^>]*aria-expanded="true"[^>]*data-action="expand-collapse-tag"/,
+    );
+  });
+
   it("renderNavBarHtml should show methods and paths as <rapi-doc> does (show-method-in-nav-bar, use-path-in-nav-bar)", async () => {
     const nav = (options) => getNavBarHtml(sampleSpec, { basePath: "/apis/shipments", ...options });
 
