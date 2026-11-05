@@ -95,9 +95,14 @@ UI helpers:
   `Sanitizer` path allows all attributes; the fallback removes only `<script>`, `on*` attributes
   and `javascript:` / `data:text/html` in `href`/`src`. Without `DOMParser` (Node) the input is
   returned unchanged, so server-side output is not sanitized.
-- **Mock server** (`[mock-interceptor.js:enableMockServer]`): repeated calls refresh routes and
-  config but never stack wrappers; `disableMockServer` restores the originals. Unmatched
-  requests fall through to the real `fetch`/XHR. Mock responses carry `X-Mock-Server: RapiDoc`.
+- **Mock server** (`[mock-interceptor.js:enableMockServer]`): one mock per `options.owner` (the
+  element; omitted, a page-wide default), so several `<rapi-doc>` / `<rapi-doc-mini>` on a page
+  mock their own APIs with their own status codes, delay and cycle positions. Repeated calls for an
+  owner refresh its routes and config but never stack wrappers; `disableMockServer(owner)` drops
+  that mock and restores the originals once none is left. A request is answered by the most
+  specific match across the mocks (server origin and base path, then base path, then bare path;
+  ties to the mock enabled first); unmatched requests fall through to the real `fetch`/XHR. Mock
+  responses carry `X-Mock-Server: RapiDoc`.
 - **Highlighter** (`[highlighter.js]`): `highlightAllCode` and `scheduleHighlight` are no-ops
   without `window` and `CSS.highlights`; highlighting never mutates the DOM.
 

@@ -23,29 +23,40 @@ const STATUS_TEXTS = {
   504: "Gateway Timeout",
 };
 
-let isMockActive = false;
 let originalFetch = null;
 let originalXhrOpen = null;
 let originalXhrSend = null;
 let originalXhrSetRequestHeader = null;
 
-let compiledRoutes = [];
-let mockConfig = {
-  statusCode: "",
-  statusStrategy: "first",
-  delay: 0,
-  log: "true",
-};
+/**
+ * One mock per owner (the element that turned it on), so several <rapi-doc> and <rapi-doc-mini>
+ * on a page can each mock their own API: `{ routes, config, cycle }`. Calls without an owner use
+ * DEFAULT_OWNER, so a page with one mocked element works as before.
+ */
+const mocks = new Map();
+const DEFAULT_OWNER = Symbol("rapidoc-mock");
 
-const routeCycleIndices = new Map();
+function normalizeConfig(options = {}, current = {}) {
+  return {
+    statusCode:
+      options.statusCode !== undefined ? options.statusCode || "" : current.statusCode || "",
+    statusStrategy:
+      options.statusStrategy !== undefined
+        ? options.statusStrategy || "first"
+        : current.statusStrategy || "first",
+    delay: options.delay !== undefined ? Number(options.delay) || 0 : current.delay || 0,
+    log: options.log !== undefined ? options.log !== "false" : current.log !== false,
+  };
+}
 
 /**
- * Normalizes and extracts base paths and hostnames from OpenAPI servers array.
+ * The bases a route can be requested under, from the OpenAPI servers: `{ origin, base }` per
+ * server (origin null for a relative server URL), plus the bare path (`{ origin: null, base: "" }`)
+ * so a request without the server's base path still matches.
  */
 function extractServerBases(servers = []) {
-  const bases = new Set();
-  // Always include empty root base path
-  bases.add("");
+  const bases = new Map();
+  bases.set("|", { origin: null, base: "" });
 
   servers.forEach((s) => {
     const rawUrl = s.computedUrl || s.url || "";
@@ -55,17 +66,17 @@ function extractServerBases(servers = []) {
       if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
         const u = new URL(rawUrl);
         const p = u.pathname.replace(/\/+$/, "");
-        if (p) bases.add(p);
+        bases.set(`${u.origin}|${p}`, { origin: u.origin, base: p });
       } else {
         const p = rawUrl.replace(/\/+$/, "");
-        if (p) bases.add(p.startsWith("/") ? p : `/${p}`);
+        if (p) bases.set(`|${p}`, { origin: null, base: p.startsWith("/") ? p : `/${p}` });
       }
     } catch {
       // Ignore invalid URL formats
     }
   });
 
-  return Array.from(bases);
+  return Array.from(bases.values());
 }
 
 /**
@@ -114,7 +125,11 @@ export function compileRoutes(spec) {
       const endpointBases =
         pathItem.servers?.length > 0 ? extractServerBases(pathItem.servers) : rootBases;
 
-      const patterns = endpointBases.map((base) => compileRoutePattern(pathTemplate, base));
+      const patterns = endpointBases.map(({ origin, base }) => ({
+        regex: compileRoutePattern(pathTemplate, base),
+        origin,
+        base,
+      }));
 
       routes.push({
         method,
@@ -131,10 +146,12 @@ export function compileRoutes(spec) {
 }
 
 /**
- * Matches a request (method + URL) against the compiled routes.
+ * Matches a request (method + URL) against every mock's routes. With several mocks, the most
+ * specific match wins: a route under the server's origin and base path beats one under the base
+ * path alone, which beats a bare path; ties go to the mock enabled first.
  */
 function matchRoute(method, urlStr) {
-  if (!compiledRoutes.length || !urlStr) {
+  if (!mocks.size || !urlStr) {
     return null;
   }
 
@@ -152,30 +169,32 @@ function matchRoute(method, urlStr) {
   const upperMethod = (method || "GET").toUpperCase();
   const pathname = decodeURI(reqUrl.pathname);
 
-  for (const route of compiledRoutes) {
-    if (route.method !== upperMethod) {
-      continue;
-    }
+  let best = null;
+  for (const mock of mocks.values()) {
+    for (const route of mock.routes) {
+      if (route.method !== upperMethod) {
+        continue;
+      }
 
-    for (const pattern of route.patterns) {
-      const match = pathname.match(pattern);
-      if (match) {
-        return {
-          route,
-          pathParams: match.groups || {},
-          url: reqUrl,
-        };
+      for (const pattern of route.patterns) {
+        const match = pathname.match(pattern.regex);
+        if (!match) continue;
+        const rank =
+          (pattern.base ? 1 : 0) + (pattern.origin && pattern.origin === reqUrl.origin ? 1 : 0);
+        if (!best || rank > best.rank) {
+          best = { mock, route, rank, pathParams: match.groups || {}, url: reqUrl };
+        }
       }
     }
   }
 
-  return null;
+  return best;
 }
 
 /**
  * Chooses the status code based on config and strategy (first, cycle, random).
  */
-function selectStatusCode(configuredCodesStr, strategy, endpointKey, responses = {}) {
+function selectStatusCode(configuredCodesStr, strategy, endpointKey, responses = {}, cycle) {
   const codes = (configuredCodesStr || "")
     .split(",")
     .map((s) => s.trim())
@@ -194,10 +213,10 @@ function selectStatusCode(configuredCodesStr, strategy, endpointKey, responses =
     return codes[Math.floor(Math.random() * codes.length)];
   }
 
-  if (strategy === "cycle") {
-    const currentIndex = routeCycleIndices.get(endpointKey) || 0;
+  if (strategy === "cycle" && cycle) {
+    const currentIndex = cycle.get(endpointKey) || 0;
     const selected = codes[currentIndex % codes.length];
-    routeCycleIndices.set(endpointKey, (currentIndex + 1) % codes.length);
+    cycle.set(endpointKey, (currentIndex + 1) % codes.length);
     return selected;
   }
 
@@ -309,23 +328,32 @@ function buildMockResponsePayload(route, statusCode) {
   };
 }
 
+/** The status and payload of a matched request, by the mock that owns the route. */
+function answer(match) {
+  const { config, cycle } = match.mock;
+  const statusCode = selectStatusCode(
+    config.statusCode,
+    config.statusStrategy,
+    match.route.routeKey,
+    match.route.responses,
+    cycle,
+  );
+  return { config, statusCode, payload: buildMockResponsePayload(match.route, statusCode) };
+}
+
 /**
- * Enables the in-browser mock server by patching window.fetch and XMLHttpRequest.
+ * Enables the in-browser mock for `options.owner` (the element; omitted: a page-wide default),
+ * replacing that owner's routes and config. Other owners' mocks stay. window.fetch and
+ * XMLHttpRequest are patched once, while at least one mock is enabled.
  */
 export function enableMockServer(spec, options = {}) {
-  mockConfig = {
-    statusCode: options.statusCode || "",
-    statusStrategy: options.statusStrategy || "first",
-    delay: Number(options.delay) || 0,
-    log: options.log !== "false",
-  };
-
-  compiledRoutes = compileRoutes(spec);
-  routeCycleIndices.clear();
-
-  if (isMockActive) {
-    return;
-  }
+  const owner = options.owner || DEFAULT_OWNER;
+  const current = mocks.get(owner);
+  mocks.set(owner, {
+    routes: compileRoutes(spec),
+    config: normalizeConfig(options, current?.config),
+    cycle: new Map(),
+  });
 
   if (typeof window === "undefined") {
     return;
@@ -336,7 +364,7 @@ export function enableMockServer(spec, options = {}) {
     originalFetch = window.fetch;
 
     window.fetch = async function mockFetch(input, init = {}) {
-      if (!isMockActive) {
+      if (!mocks.size) {
         return originalFetch.apply(this, arguments);
       }
 
@@ -359,19 +387,13 @@ export function enableMockServer(spec, options = {}) {
         return originalFetch.apply(this, arguments);
       }
 
-      const statusCode = selectStatusCode(
-        mockConfig.statusCode,
-        mockConfig.statusStrategy,
-        match.route.routeKey,
-        match.route.responses,
-      );
-      const payload = buildMockResponsePayload(match.route, statusCode);
+      const { config, payload } = answer(match);
 
-      if (mockConfig.delay > 0) {
-        await new Promise((resolve) => setTimeout(resolve, mockConfig.delay));
+      if (config.delay > 0) {
+        await new Promise((resolve) => setTimeout(resolve, config.delay));
       }
 
-      if (mockConfig.log) {
+      if (config.log) {
         console.info(
           `%c[RapiDoc Mock]%c ${method.toUpperCase()} ${match.url.pathname} ➔ ${payload.statusCode} ${payload.statusText}`,
           "color:#10b981; font-weight:bold;",
@@ -408,7 +430,7 @@ export function enableMockServer(spec, options = {}) {
     };
 
     window.XMLHttpRequest.prototype.send = function mockXhrSend() {
-      if (!isMockActive) {
+      if (!mocks.size) {
         return originalXhrSend.apply(this, arguments);
       }
 
@@ -417,18 +439,12 @@ export function enableMockServer(spec, options = {}) {
         return originalXhrSend.apply(this, arguments);
       }
 
-      const statusCode = selectStatusCode(
-        mockConfig.statusCode,
-        mockConfig.statusStrategy,
-        match.route.routeKey,
-        match.route.responses,
-      );
-      const payload = buildMockResponsePayload(match.route, statusCode);
+      const { config, payload } = answer(match);
 
-      const delayMs = mockConfig.delay > 0 ? mockConfig.delay : 10;
+      const delayMs = config.delay > 0 ? config.delay : 10;
 
       setTimeout(() => {
-        if (mockConfig.log) {
+        if (config.log) {
           console.info(
             `%c[RapiDoc Mock (XHR)]%c ${this._mockMethod.toUpperCase()} ${match.url.pathname} ➔ ${payload.statusCode} ${payload.statusText}`,
             "color:#10b981; font-weight:bold;",
@@ -465,17 +481,15 @@ export function enableMockServer(spec, options = {}) {
       }, delayMs);
     };
   }
-
-  isMockActive = true;
 }
 
 /**
- * Disables the mock server and restores original network primitives.
+ * Disables the mock of `owner` (omitted: the page-wide default). The original fetch and
+ * XMLHttpRequest come back once no mock is enabled.
  */
-export function disableMockServer() {
-  isMockActive = false;
-  compiledRoutes = [];
-  routeCycleIndices.clear();
+export function disableMockServer(owner = DEFAULT_OWNER) {
+  mocks.delete(owner);
+  if (mocks.size) return;
 
   if (typeof window !== "undefined") {
     if (originalFetch) {
@@ -494,15 +508,15 @@ export function disableMockServer() {
 }
 
 /**
- * Updates mock options without re-registering or recompiling routes.
+ * Updates the options of `options.owner`'s mock (omitted: the page-wide default) without
+ * recompiling its routes. Does nothing for an owner without a mock.
  */
 export function updateMockConfig(options = {}) {
-  if (options.statusCode !== undefined) mockConfig.statusCode = options.statusCode;
-  if (options.statusStrategy !== undefined) mockConfig.statusStrategy = options.statusStrategy;
-  if (options.delay !== undefined) mockConfig.delay = Number(options.delay) || 0;
-  if (options.log !== undefined) mockConfig.log = options.log !== "false";
+  const mock = mocks.get(options.owner || DEFAULT_OWNER);
+  if (mock) mock.config = normalizeConfig(options, mock.config);
 }
 
-export function isMockServerActive() {
-  return isMockActive;
+/** Whether `owner`'s mock is enabled; without an owner, whether any mock is. */
+export function isMockServerActive(owner) {
+  return owner ? mocks.has(owner) : mocks.size > 0;
 }

@@ -119,6 +119,115 @@ describe("mock-interceptor", () => {
     assert.strictEqual(data.realNetwork, true);
   });
 
+  describe("several mocks on one page", () => {
+    const ordersSpec = {
+      servers: [{ url: "http://localhost:4010/orders" }],
+      tags: [
+        {
+          name: "Orders",
+          paths: [
+            {
+              method: "GET",
+              path: "/orders",
+              responses: {
+                200: { content: { "application/json": { example: [{ id: "o-1" }] } } },
+              },
+            },
+            {
+              method: "GET",
+              path: "/users/{id}",
+              responses: {
+                200: { content: { "application/json": { example: { id: 9, from: "orders" } } } },
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const users = { id: "users-element" };
+    const orders = { id: "orders-element" };
+
+    afterEach(() => {
+      disableMockServer(users);
+      disableMockServer(orders);
+    });
+
+    it("answers each API's routes, whoever enabled its mock", async () => {
+      enableMockServer(testSpec, { log: "false", owner: users });
+      enableMockServer(ordersSpec, { log: "false", owner: orders });
+      assert.strictEqual(isMockServerActive(), true);
+      assert.strictEqual(isMockServerActive(users), true);
+      assert.strictEqual(isMockServerActive(orders), true);
+
+      assert.deepStrictEqual(await (await fetch("https://api.example.com/v1/users/1")).json(), {
+        id: 1,
+        name: "Alice",
+      });
+      assert.deepStrictEqual(await (await fetch("http://localhost:4010/orders/orders")).json(), [
+        { id: "o-1" },
+      ]);
+    });
+
+    it("prefers the route under the request's server over a bare path", async () => {
+      enableMockServer(testSpec, { log: "false", owner: users });
+      enableMockServer(ordersSpec, { log: "false", owner: orders });
+
+      // Both APIs have GET /users/{id}; the server in the URL decides
+      assert.deepStrictEqual(await (await fetch("http://localhost:4010/orders/users/9")).json(), {
+        id: 9,
+        from: "orders",
+      });
+      assert.deepStrictEqual(await (await fetch("https://api.example.com/v1/users/9")).json(), {
+        id: 1,
+        name: "Alice",
+      });
+      // A bare path matches the mock enabled first
+      assert.deepStrictEqual(await (await fetch("/users/9")).json(), { id: 1, name: "Alice" });
+    });
+
+    it("keeps status codes and cycle positions per mock", async () => {
+      enableMockServer(testSpec, { log: "false", owner: users, statusCode: "404" });
+      enableMockServer(ordersSpec, { log: "false", owner: orders });
+      updateMockConfig({ owner: orders, statusCode: "200, 404", statusStrategy: "cycle" });
+
+      assert.strictEqual((await fetch("https://api.example.com/v1/users/1")).status, 404);
+      assert.strictEqual((await fetch("http://localhost:4010/orders/orders")).status, 200);
+      assert.strictEqual((await fetch("http://localhost:4010/orders/orders")).status, 404);
+      assert.strictEqual((await fetch("https://api.example.com/v1/users/1")).status, 404);
+    });
+
+    it("disabling one mock leaves the others on; the last one restores fetch", async () => {
+      enableMockServer(testSpec, { log: "false", owner: users });
+      enableMockServer(ordersSpec, { log: "false", owner: orders });
+
+      disableMockServer(users);
+      assert.strictEqual(isMockServerActive(users), false);
+      assert.strictEqual(isMockServerActive(), true);
+      const posted = await (
+        await fetch("https://api.example.com/v1/users", { method: "POST" })
+      ).json();
+      assert.strictEqual(posted.realNetwork, true, "the users API is no longer mocked");
+      assert.strictEqual((await fetch("http://localhost:4010/orders/orders")).status, 200);
+
+      disableMockServer(orders);
+      assert.strictEqual(isMockServerActive(), false);
+      assert.strictEqual(fetch, originalFetch);
+    });
+
+    it("re-enabling an owner replaces only its own routes", async () => {
+      enableMockServer(testSpec, { log: "false", owner: users });
+      enableMockServer(ordersSpec, { log: "false", owner: orders });
+      enableMockServer(ordersSpec, { log: "false", owner: users });
+
+      // POST /users was only in users' old routes
+      const posted = await (
+        await fetch("https://api.example.com/v1/users", { method: "POST" })
+      ).json();
+      assert.strictEqual(posted.realNetwork, true, "users' old routes are gone");
+      assert.strictEqual((await fetch("http://localhost:4010/orders/orders")).status, 200);
+    });
+  });
+
   it("should restore original fetch when disabled", async () => {
     enableMockServer(testSpec, { log: "false" });
     disableMockServer();

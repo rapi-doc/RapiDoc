@@ -315,7 +315,7 @@ export default class RapiDocMini extends LitElement {
 
   disconnectedCallback() {
     if (this.mockServer === "true") {
-      disableMockServer();
+      disableMockServer(this);
     }
     super.disconnectedCallback();
   }
@@ -367,13 +367,14 @@ export default class RapiDocMini extends LitElement {
     if (changedProperties.has("mockServer")) {
       if (this.mockServer === "true" && this.resolvedSpec) {
         enableMockServer(this.resolvedSpec, {
+          owner: this,
           statusCode: this.mockServerStatusCode,
           statusStrategy: this.mockServerStatusStrategy,
           delay: this.mockServerDelay,
           log: this.mockServerLog,
         });
       } else if (this.mockServer !== "true") {
-        disableMockServer();
+        disableMockServer(this);
       }
     }
     if (
@@ -383,6 +384,7 @@ export default class RapiDocMini extends LitElement {
       changedProperties.has("mockServerLog")
     ) {
       updateMockConfig({
+        owner: this,
         statusCode: this.mockServerStatusCode,
         statusStrategy: this.mockServerStatusStrategy,
         delay: this.mockServerDelay,
@@ -573,6 +575,7 @@ export default class RapiDocMini extends LitElement {
 
     if (this.mockServer === "true") {
       enableMockServer(this.resolvedSpec, {
+        owner: this,
         statusCode: this.mockServerStatusCode,
         statusStrategy: this.mockServerStatusStrategy,
         delay: this.mockServerDelay,
