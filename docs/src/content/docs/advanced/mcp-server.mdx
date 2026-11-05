@@ -225,7 +225,8 @@ The `place_order` tool from the example above:
 | File | Purpose |
 | :--- | :--- |
 | `manifest.json` | The manifest described above |
-| `runtime.js` | The runtime; identical for every API |
+| `runtime.js` | The runtime for operation tools; identical for every API |
+| `workflow-runtime.js` | Runs workflow tools; present only when the manifest has workflows, identical for every API |
 | `server.ts` | A stdio server on `@modelcontextprotocol/sdk` that registers the manifest's tools and resources and hands every call to the runtime; identical for every API |
 | `package.json` | Depends on `@modelcontextprotocol/sdk`; `tsx` as a dev dependency; `npm start` runs `tsx server.ts` |
 | `README.md` | How to run it and which environment variables it reads |
@@ -248,7 +249,7 @@ Credentials are read from environment variables named after the security schemes
 
 ### Workflows as tools
 
-When the page also has a [`<rapi-flow>`](/examples/arazzo-flow) element, the export adds one tool per Arazzo workflow. The manifest's `workflows` holds each workflow's steps with their operations resolved, and the runtime runs them: inputs become the tool's arguments, every step's parameters and body are filled from `$inputs` and earlier steps' outputs, success criteria are checked, `onSuccess` / `onFailure` actions (`end`, `goto`, `retry`) are followed, and the workflow's `outputs` are the result. A workflow that uses something the runtime does not run yet (a step that calls another workflow, `regex` / `jsonpath` / `xpath` criteria) is left out, and `generateMcpServer().problems` says why.
+When the page also has a [`<rapi-flow>`](/examples/arazzo-flow) element, the export adds one tool per Arazzo workflow. The manifest's `workflows` holds each workflow's steps with their operations resolved, and the runtime runs them: inputs become the tool's arguments, every step's parameters and body are filled from `$inputs` and earlier steps' outputs, success criteria are checked (a step without criteria succeeds on a 2xx response), `onSuccess` / `onFailure` actions (`end`, `goto`, `retry`) are followed, and the workflow's `outputs` are the result. The same runtime powers the **Run** button of `<rapi-flow>`, which runs a workflow in the browser with the credentials entered in the tied `<rapi-doc>` and lights up each step. A workflow that uses something the runtime does not run yet (a step that calls another workflow, `regex` / `jsonpath` / `xpath` criteria) is left out, and `generateMcpServer().problems` says why.
 
 ```javascript
 import { buildMcpManifest, createMcpRuntime, parseArazzo } from 'rapidoc/mcp';

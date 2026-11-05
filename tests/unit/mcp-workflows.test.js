@@ -367,6 +367,16 @@ describe("mcp: the runtime runs workflows", () => {
     assert.ok(soldOut.calls[2].url.endsWith("/pet/11?status=wanted"));
   });
 
+  it("treats a non-2xx response as a failure when a step has no criteria", async () => {
+    const { result, steps } = await run(
+      { "GET /store/inventory": { available: 3 }, "GET /pet/4": fail(404, { message: "no pet" }) },
+      "order_or_reserve",
+      { petId: 4 },
+    );
+    assert.deepEqual(steps, ["checkInventory#1 success", "readPet#1 failure"]);
+    assert.match(result.content[0].text, /failed at step readPet: HTTP 404\nHTTP 404/);
+  });
+
   it("ends the workflow on a failure action and checks required inputs", async () => {
     const { result, steps } = await run({ "GET /pet/findByStatus": [] }, "adopt_pet", {});
     assert.equal(result.isError, true);

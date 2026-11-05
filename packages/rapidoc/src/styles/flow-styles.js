@@ -170,6 +170,18 @@ export default css`
   .rf-data.rf-linked {
     stroke-width: 2.5;
   }
+  /* A run in <rapi-flow>: the step whose request is in flight */
+  .rf-step.rf-running rect {
+    stroke: var(--primary);
+    stroke-width: 2;
+    stroke-dasharray: 6 4;
+    animation: rf-march 1s linear infinite;
+  }
+  @keyframes rf-march {
+    to {
+      stroke-dashoffset: -20;
+    }
+  }
   .rf-io .rf-sep {
     stroke: var(--muted-foreground);
     stroke-opacity: 0.35;

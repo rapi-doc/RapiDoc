@@ -293,8 +293,9 @@ a whole.
   leaves `lit`, `@scalar/openapi-parser`, `marked`, `yaml`, `github-slugger` and `microlighter`
   external.
 - `dist/rapidoc-flow-min.js` (`vite.config.flow.mjs`, entry `src/flow.js`), exported as
-  `rapidoc/flow`: registers `<rapi-flow>`, the Arazzo workflow diagram. It bundles its own copy of
-  Lit and `yaml`, so pages that do not load it pay nothing.
+  `rapidoc/flow`: registers `<rapi-flow>`, the Arazzo workflow diagram, with the workflow runtime
+  that runs them in the browser. It bundles its own copy of Lit and `yaml`, so pages that do not
+  load it pay nothing; `rapidoc-min.js` carries no Arazzo runtime.
 - `dist/rapidoc-mcp-min.js` (`vite.config.mcp.mjs`, entry `src/mcp.js`), exported as
   `rapidoc/mcp` with types in `src/mcp.d.ts`: the MCP manifest builder, runtime and project
   writer for Node (`@rapidoc/server`, the CLI), with no Lit and no element.

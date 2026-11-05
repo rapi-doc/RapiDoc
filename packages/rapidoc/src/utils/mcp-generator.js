@@ -19,14 +19,7 @@ export {
 } from "./mcp/common.js";
 export { buildMcpManifest, toJsonSchema, MANIFEST_VERSION } from "./mcp/manifest.js";
 export { compileWorkflows } from "./mcp/workflows.js";
-export {
-  createMcpRuntime,
-  buildRequest,
-  credentialsFromEnv,
-  evaluateExpression,
-  evaluateCondition,
-  resolveValue,
-} from "./mcp/runtime.js";
+export { createMcpRuntime, buildRequest, credentialsFromEnv } from "./mcp/runtime.js";
 export { writeMcpProject } from "./mcp/project.js";
 export { createZip } from "./mcp/zip.js";
 
@@ -38,7 +31,8 @@ import { writeMcpProject } from "./mcp/project.js";
  * Builds the manifest and the files of the exported project.
  *
  * @param {object} spec Raw OpenAPI object or `ProcessSpec`'s result
- * @param {object} [options] `serverName`, `includeInternal`, `includeDeprecated`, `arazzo`
+ * @param {object} [options] `serverName`, `includeInternal`, `includeDeprecated`, `arazzo`,
+ *   `workflowRuntime` (the text of workflow-runtime.js for the export; see project.js)
  * @returns {{ manifest: object, files: Record<string, string>, budget: object, hostConfig: string,
  *   problems: object[] }} `problems` lists the workflows left out and why
  */

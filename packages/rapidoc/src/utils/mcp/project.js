@@ -10,10 +10,14 @@ import { envNameFor, generateHostConfigs, toSnakeCase } from "./common.js";
  * @param {object} manifest from buildMcpManifest()
  * @param {object} [options]
  * @param {string} [options.serverName] the package name; defaults to the manifest's server name
+ * @param {string} [options.workflowRuntime] the text of workflow-runtime.js, written as
+ *   `workflow-runtime.js` when the manifest has workflows (rapidoc/mcp and <rapi-flow> supply it;
+ *   dist/rapidoc-min.js does not carry it)
  * @returns {Record<string, string>} file path → content
  */
 export function writeMcpProject(manifest, options = {}) {
   const name = manifest.server.name || "api_mcp_server";
+  const hasWorkflows = Object.keys(manifest.workflows || {}).length > 0;
   const schemeIds = Object.values(manifest.sources || {}).flatMap((s) =>
     Object.keys(s.securitySchemes || {}),
   );
@@ -44,10 +48,12 @@ export function writeMcpProject(manifest, options = {}) {
   const readme = `# ${manifest.server.name} MCP server
 
 Exported by RapiDoc from the API's OpenAPI document. \`manifest.json\` lists ${manifest.tools.length} tools${
-    Object.keys(manifest.workflows || {}).length
-      ? ` (${Object.keys(manifest.workflows).length} of them workflows)`
+    hasWorkflows ? ` (${Object.keys(manifest.workflows).length} of them workflows)` : ""
+  }${manifest.resources.length ? ` and ${manifest.resources.length} resources` : ""}; \`server.ts\` serves them over stdio and \`runtime.js\` makes the requests${
+    hasWorkflows && options.workflowRuntime
+      ? ", with workflow-runtime.js running the workflows"
       : ""
-  }${manifest.resources.length ? ` and ${manifest.resources.length} resources` : ""}; \`server.ts\` serves them over stdio and \`runtime.js\` makes the requests.
+  }.
 
 ## Run
 
@@ -72,6 +78,9 @@ and fill in the credentials.
     "manifest.json": JSON.stringify(manifest, null, 2),
     "server.ts": serverSource,
     "runtime.js": runtimeSource,
+    ...(hasWorkflows && options.workflowRuntime
+      ? { "workflow-runtime.js": options.workflowRuntime }
+      : {}),
     "package.json": JSON.stringify(packageJson, null, 2),
     "README.md": readme,
     "claude_desktop_config.json": hostConfigs.claudeDesktopConfig,

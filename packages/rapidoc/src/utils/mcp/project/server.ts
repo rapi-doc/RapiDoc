@@ -17,6 +17,11 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { createMcpRuntime, credentialsFromEnv } from "./runtime.js";
 
+// workflow-runtime.js is part of the export only when the manifest has workflow tools
+const { runWorkflow } = await import("./workflow-runtime.js").catch(() => ({
+  runWorkflow: undefined,
+}));
+
 const manifest = JSON.parse(readFileSync(new URL("./manifest.json", import.meta.url), "utf8"));
 
 const baseUrls: Record<string, string> = {};
@@ -26,6 +31,7 @@ if (process.env.API_BASE_URL) {
 const runtime = createMcpRuntime(manifest, {
   credentials: credentialsFromEnv(manifest, process.env),
   baseUrls,
+  runWorkflow,
 });
 
 const server = new Server(

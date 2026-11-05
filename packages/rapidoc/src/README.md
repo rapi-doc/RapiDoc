@@ -55,7 +55,15 @@ other member is internal; templates call internal members freely through `this`.
   reads a step selects that step and scrolls its nearest scrolling ancestor (or the window) to
   center it. Clicking a step selects it; clicking a step that calls another workflow of the same document switches to
   it. Errors and sources that failed to load are listed under the diagram; the graph's authoring
-  warnings are not shown. Display only: it calls no API.
+  warnings are not shown. **Run** builds the MCP manifest for the shown workflow
+  (`utils/mcp/manifest.js` with the tied `<rapi-doc>`'s processed spec, else the first source this
+  element loaded) and runs it in the browser with `utils/mcp/workflow-runtime.js`. The run panel
+  under the legend is always open: the inputs form (defaults filled, values coerced by type), the
+  Run workflow button, then a log of every step's request, response and outputs and the
+  workflow's outputs or the error. While a step's request is out its box carries `rf-running`;
+  results are not drawn on the diagram. Credentials are the tied `<rapi-doc>`'s
+  entered ones (API keys, Basic, Bearer and OAuth tokens); a standalone element runs anonymously.
+  A workflow the runtime cannot run says why instead of a form.
 
 ## Invariants
 
@@ -117,7 +125,9 @@ other member is internal; templates call internal members freely through `this`.
 - `console.error` on load or parse failure (not for superseded loads); `console.warn` when
   `scroll-container` is not an ancestor.
 - `<rapi-flow>` fetches `arazzo-url` and each OpenAPI source description (relative to the Arazzo
-  URL); a source that fails to load becomes a warning, not an error. The first OpenAPI source is
+  URL); a source that fails to load becomes a warning, not an error. A run sends the workflow's
+  requests from the browser with `fetch`, as Try-it does, so the API must allow cross-origin
+  requests. The first OpenAPI source is
   not fetched while `for` names a `<rapi-doc>` and `spec-url` is unset; `<rapi-flow>` listens to
   that element's `spec-loaded` until it disconnects.
 - `<oauth-receiver>` clears its URL with `history.replaceState`, posts the reply to

@@ -12,8 +12,10 @@ uses it for its Export MCP Server button, and `src/mcp.js` re-exports it as `rap
 (`dist/rapidoc-mcp-min.js`, Node only, no Lit) for the portal build, `@rapidoc/server` and the CLI.
 
 Arazzo workflows become tools too: `workflows.js` compiles a parsed Arazzo document into
-`manifest.workflows` (steps resolved to operations) and one tool per workflow, and the runtime runs
-them. Not owned here: Arazzo parsing and validation (`../arazzo/`), the `<rapi-doc>` attribute and
+`manifest.workflows` (steps resolved to operations) and one tool per workflow, and
+`workflow-runtime.js` runs them on top of `runtime.js`. The two runtimes are separate files so
+`dist/rapidoc-min.js` (operation tools only) carries no Arazzo runtime, while
+`dist/rapidoc-flow-min.js` and `rapidoc/mcp` include both. Not owned here: Arazzo parsing and validation (`../arazzo/`), the `<rapi-doc>` attribute and
 methods, and the network calls themselves (the runtime only builds and sends requests).
 
 ## Interface
@@ -28,14 +30,23 @@ methods, and the network calls themselves (the runtime only builds and sends req
   Swagger 2.0 object or `ProcessSpec`'s result (`tags[].paths[]`). Options: `serverName`,
   `sourceName` (default `api`), `includeInternal`, `includeDeprecated`. `toJsonSchema(schema,
   root)` is the schema converter on its own; `MANIFEST_VERSION` is `1`.
-- `createMcpRuntime(manifest, { fetch, credentials, baseUrls, sleep })` [runtime.js]: `listTools()`,
-  `listResources()`, `callTool(name, args, { onStep }) -> { content, structuredContent?, isError? }`
-  (a workflow tool runs its steps and reports each through `onStep`),
+- `createMcpRuntime(manifest, { fetch, credentials, baseUrls, runWorkflow })` [runtime.js]:
+  `listTools()`, `listResources()`, `callTool(name, args, hooks) -> { content, structuredContent?,
+  isError? }`, `execute(operation, args)` (one request, for workflow runners). A workflow tool is
+  handed to `runWorkflow`; without it the call is an error result.
+- `runWorkflow(runtime, tool, args, { onStepStart, onStep, sleep })` and
+  `createMcpWorkflowRuntime(manifest, options)` (createMcpRuntime with `runWorkflow` plugged in;
+  `options.sleep` waits between retries) [workflow-runtime.js], plus `evaluateExpression`,
+  `resolveValue` and `evaluateCondition`. `rapidoc/mcp` exports `createMcpWorkflowRuntime` as its
+  `createMcpRuntime`.
   `readResource(uri) -> { contents }`. `buildRequest(manifest, operation, args, options)` returns
   the request without sending it; `credentialsFromEnv(manifest, env)` and `envNameFor(id)` map
   security schemes to environment variables.
-- `writeMcpProject(manifest, { serverName }) -> { [path]: text }` [project.js]: `manifest.json`,
-  `server.ts`, `runtime.js`, `package.json`, `README.md`, `claude_desktop_config.json`.
+- `writeMcpProject(manifest, { serverName, workflowRuntime }) -> { [path]: text }` [project.js]:
+  `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md`,
+  `claude_desktop_config.json`, and `workflow-runtime.js` when the manifest has workflows and
+  `workflowRuntime` (its text) is given: `rapidoc/mcp` and `<rapi-flow>` supply it,
+  `dist/rapidoc-min.js` does not carry it. `server.ts` imports it dynamically when present.
 - `createZip(files) -> Uint8Array` [zip.js]: a stored (uncompressed) ZIP of text files.
 - `generateMcpServer(spec, options) -> { manifest, files, budget, hostConfig }`
   [../mcp-generator.js]: the three above in one call.
@@ -85,8 +96,9 @@ methods, and the network calls themselves (the runtime only builds and sends req
   first alternative all of whose credentials are known; with none, nothing is sent when an
   alternative is empty, else the first alternative as far as credentials go.
 - **Runtime.** `runtime.js` imports nothing and uses only `fetch`, `URLSearchParams`,
-  `TextEncoder` and `btoa`, because the project writer embeds its text (`?raw` import, supported
-  by Vite and `scripts/test-loader.mjs`). Path parameters are percent-encoded; array query values
+  `TextEncoder` and `btoa`, and `workflow-runtime.js` imports only `./runtime.js`, because the
+  project writer embeds their text (`?raw` imports, supported by Vite and
+  `scripts/test-loader.mjs`). Path parameters are percent-encoded; array query values
   repeat the key; objects elsewhere are JSON; `Accept: application/json` unless set; a missing path
   parameter is an error result, as is a transport failure or a non-2xx status (text `HTTP <status>`
   plus the body). JSON responses are pretty-printed and, for objects, also `structuredContent`.
@@ -97,19 +109,20 @@ methods, and the network calls themselves (the runtime only builds and sends req
   seconds) with simple criteria, and `$inputs` / `$steps` expressions. Steps that call another
   workflow, actions that go to one, and `$workflows` expressions are reported. A step's actions
   are its own `onSuccess` / `onFailure` followed by the workflow's it does not override by name.
-- **Running a workflow** (`[runtime.js:createMcpRuntime]`): required inputs are checked first.
+- **Running a workflow** (`[workflow-runtime.js:runWorkflow]`): required inputs are checked first.
   Each step's parameters and payload are evaluated against `$inputs` and earlier steps' outputs
   (`resolveValue`: a whole-string expression keeps its type, `{$expr}` inside text is
   interpolated), the request is sent, and every criterion must hold (`evaluateCondition`: `==`,
   `!=`, `<`, `>`, `<=`, `>=`, `&&`, `||`, `!`, parentheses, quoted strings, numbers, `true`,
   `false`, `null`; `==` compares numbers and strings as text and treats a missing value as
-  `null`). No criteria means success. The first action whose criteria all hold runs: on success
+  `null`). A step without criteria succeeds on a 2xx response. The first action whose criteria all hold runs: on success
   `end` finishes, `goto` jumps, none falls through; on failure none or `end` fails the workflow
   (the result names the step, the criterion and the response), `goto` jumps, `retry` re-runs the
   step (or `stepId`) after `retryAfter` seconds up to `retryLimit` times. A transport error is a
   failure with no response. More than 1000 step runs is an error. The result is the workflow's
-  `outputs` as `structuredContent`; `onStep` gets `{ workflowId, stepId, attempt, outcome,
-  request, response, outputs, failedCriterion, action }` after each run.
+  `outputs` as `structuredContent`; `onStepStart` gets `{ workflowId, stepId, attempt }` before
+  each request and `onStep` gets `{ workflowId, stepId, attempt, outcome, request, response,
+  outputs, failedCriterion, action }` after it.
 - **Environment.** `envNameFor("petstore_auth")` is `PETSTORE_AUTH`; `API_KEY` is the fallback
   for every scheme; HTTP Basic reads `<NAME>` as `user:password` or `<NAME>_USERNAME` /
   `<NAME>_PASSWORD`. `API_BASE_URL` in `server.ts` overrides every source's base URL.

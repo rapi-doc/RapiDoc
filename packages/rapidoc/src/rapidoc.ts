@@ -1770,22 +1770,26 @@ export default class RapiDoc extends LitElement {
   }
 
   /**
-   * The Arazzo document of a <rapi-flow> on the page, for workflow tools in the export: the one
-   * whose `for` names this element, else one without `for`. Nothing when rapi-flow is not loaded.
+   * The <rapi-flow> on the page whose Arazzo document the export takes workflow tools from: the
+   * one whose `for` names this element, else one without `for`. Nothing when rapi-flow is not
+   * loaded.
    */
   private findArazzoDocument() {
     if (typeof customElements === "undefined" || !customElements.get("rapi-flow")) return undefined;
     const flows = [...document.querySelectorAll("rapi-flow")] as any[];
-    const flow =
+    return (
       flows.find((f) => this.id && f.getAttribute("for") === this.id && f.arazzoDocument) ||
-      flows.find((f) => !f.getAttribute("for") && f.arazzoDocument);
-    return flow?.arazzoDocument;
+      flows.find((f) => !f.getAttribute("for") && f.arazzoDocument)
+    );
   }
 
   private mcpOptions(options) {
+    const flow = this.findArazzoDocument();
     return {
       serverName: this.mcpServerName,
-      arazzo: this.findArazzoDocument(),
+      arazzo: flow?.arazzoDocument,
+      // <rapi-flow> carries the workflow runtime; this bundle does not
+      workflowRuntime: flow?.workflowRuntimeSource,
       ...options,
     };
   }

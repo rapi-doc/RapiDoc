@@ -53,7 +53,7 @@ examples:
   - Arazzo Workflows:
       img: /assets/images/terminal.png
       href: /examples/arazzo-flow
-      description: Draw the workflows of an Arazzo document with the rapi-flow element, next to the API reference; click a step to open its operation.
+      description: Draw the workflows of an Arazzo document with the rapi-flow element, next to the API reference; click a step to open its operation, or run the workflow against the API.
       category: Console & Interactive
 
   - Schema Styles:

@@ -157,6 +157,22 @@ export interface RuntimeOptions {
   baseUrls?: Record<string, string>;
   /** Waits between retries; defaults to setTimeout. */
   sleep?: (ms: number) => Promise<void>;
+  /** Runs workflow tools; `rapidoc/mcp`'s createMcpRuntime sets it to `runWorkflow`. */
+  runWorkflow?: (
+    runtime: McpRuntime,
+    tool: McpTool,
+    args: Record<string, unknown>,
+    hooks: McpRunHooks,
+  ) => Promise<McpToolResult>;
+}
+
+export interface McpRunHooks {
+  /** Before each step's request. */
+  onStepStart?: (event: { workflowId: string; stepId: string; attempt: number }) => void;
+  /** After each step run. */
+  onStep?: (event: McpStepEvent) => void;
+  /** Waits between retries; defaults to setTimeout. */
+  sleep?: (ms: number) => Promise<void>;
 }
 
 /** What a workflow run reports after each step. */
@@ -194,12 +210,38 @@ export interface McpRuntime {
   callTool(
     name: string,
     args?: Record<string, unknown>,
-    hooks?: { onStep?: (event: McpStepEvent) => void },
+    hooks?: McpRunHooks,
   ): Promise<McpToolResult>;
+  /** Sends one operation; for workflow runners. */
+  execute(
+    operation: McpOperation,
+    args: Record<string, unknown>,
+  ): Promise<
+    | {
+        request: BuiltRequest;
+        response: Response;
+        headers: Record<string, string>;
+        text: string;
+        data: unknown;
+      }
+    | { request?: BuiltRequest; error: McpToolResult }
+  >;
   readResource(uri: string): Promise<McpResourceResult>;
 }
 
+/** In `rapidoc/mcp` this is createMcpWorkflowRuntime: workflow tools run too. */
 export function createMcpRuntime(manifest: McpManifest, options?: RuntimeOptions): McpRuntime;
+
+/** Runs a workflow tool on a runtime; pass as `runWorkflow`. */
+export function runWorkflow(
+  runtime: McpRuntime,
+  tool: McpTool,
+  args: Record<string, unknown>,
+  hooks?: McpRunHooks,
+): Promise<McpToolResult>;
+
+/** The text of workflow-runtime.js, for a project writer of your own. */
+export const WORKFLOW_RUNTIME_SOURCE: string;
 
 export interface BuiltRequest {
   url: string;
@@ -225,10 +267,14 @@ export function credentialsFromEnv(
 /** `petstore_auth` → `PETSTORE_AUTH`. */
 export function envNameFor(schemeId: string): string;
 
-/** The exported project's files: manifest.json, server.ts, runtime.js, package.json, README.md, claude_desktop_config.json. */
+/**
+ * The exported project's files: manifest.json, server.ts, runtime.js, package.json, README.md,
+ * claude_desktop_config.json, and workflow-runtime.js when the manifest has workflows (`rapidoc/mcp`
+ * supplies its text; pass `workflowRuntime` to override).
+ */
 export function writeMcpProject(
   manifest: McpManifest,
-  options?: { serverName?: string },
+  options?: { serverName?: string; workflowRuntime?: string },
 ): Record<string, string>;
 
 /** A stored (uncompressed) ZIP of text files. */
@@ -282,7 +328,7 @@ export function validateArazzo(doc: object): McpProblem[];
 /** The manifest, the project files, the budget and the Claude Desktop config in one call. */
 export function generateMcpServer(
   spec: object,
-  options?: BuildManifestOptions,
+  options?: BuildManifestOptions & { workflowRuntime?: string },
 ): GenerateMcpServerResult;
 
 /** Reads `<rapi-doc>`'s `mcp` attribute: off for empty, `false` or `none`. */
