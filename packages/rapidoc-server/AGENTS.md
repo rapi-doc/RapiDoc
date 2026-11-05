@@ -7,13 +7,14 @@
 - **Package Name**: `@rapidoc/server`
 - **Module Type**: ESM (`"type": "module"`)
 - **Entry Point**: `src/index.js` (`createApp`, `startServer`, `loadSettings`, `SettingsError`)
-- **Dependencies**: `hono` + `@hono/node-server` (HTTP), `openid-client` (OpenID Connect), `jose` (encrypted cookies). Dev: `oidc-provider` (a real OIDC provider for tests).
+- **Dependencies**: `hono` + `@hono/node-server` (HTTP), `openid-client` (OpenID Connect), `jose` (encrypted cookies), `@modelcontextprotocol/sdk` (the `/mcp` transport) and `rapidoc` (`rapidoc/mcp`: the runtime that calls the APIs). Dev: `oidc-provider` (a real OIDC provider for tests).
 
 ---
 
 ## 2. Boundaries
 
-- **No dependency on `@rapidoc/portal` or Astro.** The server reads only the build: `dist/public/`, `dist/protected/` and `dist/rapidoc-server.json`. The build-side contract is `packages/rapidoc-portal/src/access/split-output.js`; change both sides together and keep the manifest `version` in step.
+- **No dependency on `@rapidoc/portal` or Astro.** The server reads only the build: `dist/public/`, `dist/protected/`, `dist/rapidoc-server.json` and the MCP manifests in `dist/mcp/`. The build-side contract is `packages/rapidoc-portal/src/access/split-output.js` (and `src/engine/mcp-output.js` for the `mcp` section); change both sides together and keep the manifest `version` in step.
+- **`rapidoc` is used only as `rapidoc/mcp`** (`dist/rapidoc-mcp-min.js`: manifest runtime, no Lit). The server never parses a spec itself; the build already turned the specs into manifests.
 - **The server never evaluates rule patterns.** The build gives every file a zone; the server only maps a file to its zone and a zone's allow to the session.
 - **Stateless.** No database, no in-memory sessions: the session and the sign-in transaction are encrypted cookies (`src/auth/session.js`). Anything shared between instances must fit that model.
 - **Secrets only from environment variables** (`src/settings.js`). Never read them from, or write them to, the build.
@@ -28,6 +29,7 @@
 - Responses that depend on the session: `Cache-Control: private, no-store` and `Vary: Cookie`.
 - `returnTo` stays on this site (`safeReturnTo`); sign-out is same-origin only (`isSameOrigin`).
 - The ID and refresh tokens never reach the browser or a cookie. The access token does only with `auth.tryIt`: in its own encrypted cookie (`rapidoc-api-token`), and to the page only through `GET /_rapidoc/auth/token` (same-origin, no-store). Only groups named by some rule go into the session.
+- MCP tokens (`POST /_rapidoc/mcp/token`, same-origin, signed in) are sealed with the session key and marked `mcp: true`, so a session cookie is never accepted as a bearer token and an MCP token never as a cookie. `/mcp` answers a bad token with 401, lists only the tools of zones the reader may see, and calls the API with the embedded access token for bearer-style schemes only.
 
 ---
 
@@ -42,7 +44,8 @@
 | `src/search.js`       | Merged `search-index.json`; per-zone Pagefind bundles with the empty-bundle fallback                                                                                                                                                                                                        |
 | `src/auth/oidc.js`    | Discovery, PKCE sign-in, code exchange + userinfo, end-session URL, claim paths                                                                                                                                                                                                             |
 | `src/auth/session.js` | Encrypted cookies (JWE dir + A256GCM), cookie names (`__Host-` on https)                                                                                                                                                                                                                    |
-| `src/auth/routes.js`  | `/_rapidoc/auth/{login,callback,logout,me}`                                                                                                                                                                                                                                                 |
+| `src/auth/routes.js`  | `/_rapidoc/auth/{login,callback,logout,me,token}`                                                                                                                                                                                                                                           |
+| `src/mcp.js`          | `POST /mcp` (one SDK `Server` + stateless Streamable HTTP transport per request, tools filtered by `visibleZones`, calls through `rapidoc/mcp`) and `POST /_rapidoc/mcp/token`; `loadMcpManifests()` reads `dist/mcp/`                                                                      |
 
 ---
 

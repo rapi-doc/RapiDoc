@@ -72,9 +72,26 @@ Responses that depend on the session are `Cache-Control: private, no-store` with
 | `GET /_rapidoc/auth/me`                   | `{ user, zones }` or 401                                                                                                    |
 | `GET /_rapidoc/auth/token`                | With `auth.tryIt`: `{ access_token, expires_at }` for Try, same-origin only; 401 signed out or expired, 404 without `tryIt` |
 | `POST /_rapidoc/access/check`             | `{ paths }` → `{ locked }`, for lock icons on links                                                                         |
+| `POST /mcp`                               | The portal's APIs and workflows as MCP tools (Streamable HTTP, stateless); see below                                        |
+| `POST /_rapidoc/mcp/token`                | Signed in, same-origin only: `{ token, expires_at, url }`, a bearer token for the reader's agents                           |
 | `GET /_rapidoc/health`                    | `{ ok: true }`                                                                                                              |
 
 The session cookie holds the user's id, name, email, picture and only the groups some access rule names. The ID and refresh tokens never leave the server. With `auth.tryIt`, the access token is kept in its own encrypted cookie (no longer than the token and the session last) and handed to same-origin page scripts through `/_rapidoc/auth/token`, so Try can call the API with it.
+
+## MCP: the APIs as tools for agents
+
+`rapidoc build` writes one MCP manifest per API to `dist/mcp/<api id>.json` (tools named `<api id>_<tool>`) and one per Arazzo workflow file to `dist/mcp/workflows/<id>.json`, and records them in `rapidoc-server.json` with each API's zone. `rapidoc serve` hosts them at `POST /mcp` with the [MCP Streamable HTTP transport](https://modelcontextprotocol.io/specification/latest/basic/transports), stateless with JSON answers, so any instance can answer any request. The tools are run by `rapidoc/mcp`, the same runtime as RapiDoc's exported MCP servers.
+
+- **Without a token** an agent sees the public tools, and the API is called without credentials.
+- **With a token** (`Authorization: Bearer …`, from **Connect an AI agent** in the user menu, i.e. `POST /_rapidoc/mcp/token`) it sees the tools of every zone the reader may see. The token is the reader's session sealed like the cookies, plus, with `auth.tryIt`, their API access token: operations secured with `oauth2`, `openIdConnect` or an HTTP `bearer` scheme are called with it. It lasts as long as the session.
+- **API keys and HTTP Basic** come from the server's environment, named like the exported project's: `<SCHEME>` (the scheme id in upper snake case; `<SCHEME>_USERNAME` / `<SCHEME>_PASSWORD` for Basic) or `API_KEY` for any scheme.
+- A build without `auth` serves every manifest in `dist/mcp/` as public.
+
+A client that speaks stdio only (Claude Desktop) connects through [mcp-remote](https://www.npmjs.com/package/mcp-remote):
+
+```bash
+npx mcp-remote https://developers.acme.com/mcp --header "Authorization: Bearer <token>"
+```
 
 ## Programmatic use
 

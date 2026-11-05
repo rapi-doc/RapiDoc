@@ -6,7 +6,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { build as astroBuild } from "astro";
-import { splitOutput, usesServerLayout } from "../access/split-output.js";
+import { splitOutput, usesServerLayout, SERVER_MANIFEST } from "../access/split-output.js";
+import { createZoneMatcher } from "../access/rules.js";
+import { writeMcpOutput } from "./mcp-output.js";
 import { createAstroConfig } from "./astro-integration.js";
 import { createPortalWorkspace, removePortalWorkspace } from "./temp-workspace.js";
 import { reportSpecWarnings } from "./spec-checks.js";
@@ -49,9 +51,30 @@ export async function buildPortal(projectDir = process.cwd(), options = {}) {
     }
   }
 
+  // MCP manifests next to the site (and, with sign-in, in rapidoc-server.json with each API's zone)
+  const mcp = writeMcpOutput(outDir, workspace.config, {
+    warn: (line) => console.warn(`[rapidoc-portal] Warning: ${line}`),
+  });
+  if (access) {
+    const matcher = createZoneMatcher(workspace.config.access);
+    const manifestFile = path.join(outDir, SERVER_MANIFEST);
+    const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
+    manifest.mcp = {
+      apis: Object.fromEntries(
+        Object.entries(mcp.apis).map(([id, entry]) => {
+          const api = workspace.config.apis.find((a) => a.id === id);
+          return [id, { ...entry, zone: matcher.zoneOf(api.path) }];
+        }),
+      ),
+      workflows: mcp.workflows,
+    };
+    fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 2), "utf8");
+  }
+
   return {
     success: true,
     apisCount: workspace.config.apis?.length || 0,
+    mcp,
     outDir,
     durationMs: Date.now() - startTime,
     ...(access ? { access } : {}),

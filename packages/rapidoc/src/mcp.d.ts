@@ -136,6 +136,8 @@ export interface BuildManifestOptions {
   sourceName?: string;
   includeInternal?: boolean;
   includeDeprecated?: boolean;
+  /** `false` leaves the operations out: the Arazzo workflows' tools alone (default `true`). */
+  includeOperations?: boolean;
 }
 
 /**

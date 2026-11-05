@@ -6,6 +6,7 @@ import { decide, allows, visibleZones } from "./access.js";
 import { discoverProvider } from "./auth/oidc.js";
 import { AUTH_PREFIX, registerAuthRoutes } from "./auth/routes.js";
 import { cookieNames, createSealer } from "./auth/session.js";
+import { registerMcpRoutes } from "./mcp.js";
 import { createSearch, SEARCH_PREFIX } from "./search.js";
 import { loadSettings, SettingsError } from "./settings.js";
 import {
@@ -45,7 +46,7 @@ const MAX_CHECK_BODY = 64 * 1024;
  * @param {Record<string, string | undefined>} [options.env] - Default process.env
  * @param {(line: string) => void} [options.log] - Default console.log with a [rapidoc serve] prefix
  * @param {string} [options.mountPath] - Path requests arrive under (default $RAPIDOC_MOUNT_PATH, else the base path)
- * @returns {Promise<{app: Hono, settings: object}>}
+ * @returns {Promise<{app: Hono, settings: object, mcp: {count: number}}>} `mcp.count`: tools served at /mcp
  */
 export async function createApp({
   distDir,
@@ -59,6 +60,15 @@ export async function createApp({
   app.get("/_rapidoc/health", (c) => c.json({ ok: true }));
 
   if (settings.mode === "static") {
+    const mcp = registerMcpRoutes(app, {
+      settings,
+      sealer: null,
+      userOf: async () => null,
+      originOf: (c) => new URL(c.req.url).origin,
+      base,
+      env,
+      log,
+    });
     app.on(["GET", "HEAD"], "*", (c) => {
       const candidates = candidateFiles(new URL(c.req.url).pathname);
       if (!candidates) return textResponse(400, "Bad request");
@@ -67,7 +77,7 @@ export async function createApp({
         ? fileResponse(c.req.raw, file.full, { cacheControl: publicCacheControl(file.rel) })
         : textResponse(404, "Not found");
     });
-    return { app: mount(app, settings.mountPath), settings };
+    return { app: mount(app, settings.mountPath), settings, mcp };
   }
 
   const { manifest } = settings;
@@ -99,6 +109,8 @@ export async function createApp({
 
   if (settings.auth)
     registerAuthRoutes(app, { settings, provider, sealer, userOf, originOf, base, log });
+
+  const mcp = registerMcpRoutes(app, { settings, zones, sealer, userOf, originOf, base, env, log });
 
   // Which of these paths would the reader be refused? (lock icons on links; PortalUserMenu.astro)
   app.post("/_rapidoc/access/check", async (c) => {
@@ -211,7 +223,7 @@ export async function createApp({
   });
 
   app.all("*", () => textResponse(405, "Method not allowed", { allow: "GET, HEAD" }));
-  return { app: mount(app, settings.mountPath), settings };
+  return { app: mount(app, settings.mountPath), settings, mcp };
 
   /** `/developers/docs/a/` → `/docs/a/`; null for a path outside the portal. */
   function withoutBase(urlPath) {
@@ -249,10 +261,10 @@ function mount(portal, mountPath) {
  * @param {Record<string, string | undefined>} [options.env]
  * @param {(line: string) => void} [options.log]
  * @param {string} [options.mountPath] - See createApp()
- * @returns {Promise<{url: string, port: number, settings: object, close: () => Promise<void>}>}
+ * @returns {Promise<{url: string, port: number, settings: object, mcp: {count: number}, close: () => Promise<void>}>}
  */
 export async function startServer({ distDir, port, host, env = process.env, log, mountPath } = {}) {
-  const { app, settings } = await createApp({
+  const { app, settings, mcp } = await createApp({
     distDir: path.resolve(distDir || "dist"),
     env,
     log,
@@ -266,6 +278,7 @@ export async function startServer({ distDir, port, host, env = process.env, log,
         url: `http://${hostname === "0.0.0.0" ? "localhost" : hostname}:${info.port}${settings.mountPath ? `${settings.mountPath}/` : ""}`,
         port: info.port,
         settings,
+        mcp,
         close: () => new Promise((done) => server.close(() => done())),
       });
     });

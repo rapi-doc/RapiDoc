@@ -354,7 +354,12 @@ describe("building a portal with sign-in", () => {
   });
 
   it("splits the output into public and protected folders with a server manifest", () => {
-    assert.deepEqual(fs.readdirSync(outDir).sort(), ["protected", "public", "rapidoc-server.json"]);
+    assert.deepEqual(fs.readdirSync(outDir).sort(), [
+      "mcp",
+      "protected",
+      "public",
+      "rapidoc-server.json",
+    ]);
     assert.equal(
       result.access.protectedPages,
       16,
@@ -388,6 +393,29 @@ describe("building a portal with sign-in", () => {
         path.join(outDir, "protected/_rapidoc/search/_empty/pagefind/pagefind-entry.json"),
       ),
     );
+  });
+
+  it("records the MCP manifests with each API's zone in the server manifest", () => {
+    const manifest = JSON.parse(fs.readFileSync(path.join(outDir, "rapidoc-server.json"), "utf8"));
+    assert.equal(manifest.mcp.apis.shipments.zone, "public");
+    assert.equal(manifest.mcp.apis.shipments.file, "mcp/shipments.json");
+    assert.equal(manifest.mcp.apis.labels.zone, "signed-in", "the default version's zone");
+    assert.ok(manifest.mcp.apis.labels.tools > 0);
+    assert.deepEqual(manifest.mcp.workflows["track-a-shipment"].apis, ["shipments"]);
+    assert.equal(
+      manifest.mcp.workflows["track-a-shipment"].file,
+      "mcp/workflows/track-a-shipment.json",
+    );
+    for (const entry of [
+      ...Object.values(manifest.mcp.apis),
+      ...Object.values(manifest.mcp.workflows),
+    ]) {
+      assert.ok(
+        fs.existsSync(path.join(outDir, entry.file)),
+        `${entry.file} is written next to the site`,
+      );
+    }
+    assert.equal(result.mcp.apis.labels.zone, undefined, "zones live in the server manifest only");
   });
 
   it("leaves no protected text anywhere in the public folder", () => {

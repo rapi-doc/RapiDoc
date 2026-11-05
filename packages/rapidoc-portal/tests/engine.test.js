@@ -416,6 +416,27 @@ describe("RapiDoc Portal build engine", () => {
       assert.ok(fs.existsSync(path.join(outDir, "workflows", "track-a-shipment.arazzo.yaml")));
       assert.ok(fs.existsSync(path.join(outDir, "assets", "rapidoc-flow-min.js")));
 
+      // MCP manifests for rapidoc serve's /mcp: one per API, one per workflow file
+      const shipmentsMcp = JSON.parse(
+        fs.readFileSync(path.join(outDir, "mcp/shipments.json"), "utf8"),
+      );
+      assert.equal(shipmentsMcp.manifestVersion, 1);
+      assert.ok(
+        shipmentsMcp.tools.every((tool) => tool.name.startsWith("shipments_")),
+        "tool names carry the API id",
+      );
+      assert.equal(result.mcp.apis.shipments.tools, shipmentsMcp.tools.length);
+      const trackMcp = JSON.parse(
+        fs.readFileSync(path.join(outDir, "mcp/workflows/track-a-shipment.json"), "utf8"),
+      );
+      assert.deepEqual(
+        trackMcp.tools.map((tool) => tool.name),
+        ["track_shipment"],
+      );
+      assert.ok(trackMcp.tools[0].workflow, "a workflow tool");
+      assert.deepEqual(trackMcp.apis, { shipments: "shipments" });
+      assert.deepEqual(result.mcp.workflows["track-a-shipment"].apis, ["shipments"]);
+
       // Pages do not name the tooling they are built with
       assert.ok(
         fs.readdirSync(path.join(outDir, "_rapidoc/assets")).length > 0,

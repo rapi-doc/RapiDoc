@@ -196,6 +196,8 @@ function bodyContent(requestBody) {
  *   operations resolve for workflow steps
  * @param {boolean} [options.includeInternal] keep `x-internal` / `x-hidden` operations
  * @param {boolean} [options.includeDeprecated] keep deprecated operations
+ * @param {boolean} [options.includeOperations] `false` leaves the operations out: a manifest of the
+ *   Arazzo document's workflow tools alone (the sources stay, the runtime needs them)
  * @returns {object} the manifest: `{ manifestVersion, server, sources, tools, resources,
  *   workflows }`. A workflow tool has `workflow` (its id in `workflows`) instead of `operation`. Each tool has `name`, `description`, `inputSchema` (JSON Schema; parameters by
  *   name plus `body`), `annotations` (`readOnlyHint`, `destructiveHint`, `idempotentHint`) and
@@ -205,7 +207,7 @@ function bodyContent(requestBody) {
 export function buildMcpManifest(spec, options = {}) {
   const src = spec && typeof spec === "object" ? spec : {};
   const processed = isProcessedSpec(src);
-  const { includeInternal = false, includeDeprecated = false } = options;
+  const { includeInternal = false, includeDeprecated = false, includeOperations = true } = options;
   const info = src.info || {};
   const title = info.title || "OpenAPI MCP Server";
   const arazzo = typeof options.arazzo === "string" ? JSON.parse(options.arazzo) : options.arazzo;
@@ -225,7 +227,7 @@ export function buildMcpManifest(spec, options = {}) {
   const resources = [];
   const usedNames = new Map();
 
-  for (const op of collectOperations(src, processed)) {
+  for (const op of includeOperations ? collectOperations(src, processed) : []) {
     if (op.isWebhook) continue;
     if (op.internal && !includeInternal) continue;
     if (op.deprecated && !includeDeprecated) continue;

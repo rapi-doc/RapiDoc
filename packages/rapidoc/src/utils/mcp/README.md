@@ -28,7 +28,8 @@ methods, and the network calls themselves (the runtime only builds and sends req
 
 - `buildMcpManifest(spec, options) -> manifest` [manifest.js]: `spec` is a raw OpenAPI 3.x /
   Swagger 2.0 object or `ProcessSpec`'s result (`tags[].paths[]`). Options: `serverName`,
-  `sourceName` (default `api`), `includeInternal`, `includeDeprecated`. `toJsonSchema(schema,
+  `sourceName` (default `api`), `includeInternal`, `includeDeprecated`, `includeOperations` (`false`:
+  only the Arazzo workflows' tools, for a manifest of workflows). `toJsonSchema(schema,
   root)` is the schema converter on its own; `MANIFEST_VERSION` is `1`.
 - `createMcpRuntime(manifest, { fetch, credentials, baseUrls, runWorkflow })` [runtime.js]:
   `listTools()`, `listResources()`, `callTool(name, args, hooks) -> { content, structuredContent?,

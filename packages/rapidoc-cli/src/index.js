@@ -207,6 +207,8 @@ async function handleServe() {
   const { settings } = server;
   console.log(`\n🌐 Serving ${distDir}`);
   console.log(`   • URL:      ${server.url}`);
+  if (server.mcp?.count)
+    console.log(`   • MCP:      ${server.url.replace(/\/$/, "")}/mcp  (${server.mcp.count} tools)`);
   if (settings.mountPath !== settings.basePath) {
     console.log(
       `   • Paths:    requests arrive under ${settings.mountPath || "/"}; links use ${settings.basePath || "/"}`,

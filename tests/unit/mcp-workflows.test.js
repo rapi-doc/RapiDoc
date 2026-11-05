@@ -241,6 +241,27 @@ describe("mcp: workflows compiled into the manifest", () => {
       ["get_pet_by_id", "get_pet_by_id_2"],
     );
   });
+
+  it("builds a manifest of the workflows alone with includeOperations: false", () => {
+    const doc = {
+      ...arazzo,
+      workflows: [
+        { workflowId: "getPetById", steps: [{ stepId: "a", operationId: "getPetById" }] },
+      ],
+    };
+    const manifest = buildMcpManifest(petstore, { arazzo: doc, includeOperations: false });
+    assert.deepEqual(
+      manifest.tools.map((t) => t.name),
+      ["get_pet_by_id"],
+      "no operation tools, so no numbering either",
+    );
+    assert.ok(manifest.tools[0].workflow);
+    assert.deepEqual(manifest.resources, []);
+    assert.ok(
+      Object.keys(manifest.sources).length,
+      "the sources stay: the runtime resolves steps through them",
+    );
+  });
 });
 
 describe("mcp: runtime expressions and conditions", () => {
