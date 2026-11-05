@@ -59,6 +59,8 @@ export default css`
     border: 1px solid var(--input);
     border-radius: var(--radius);
     background: var(--input-background);
+    /* Inputs do not inherit the page font; getNavCss() puts this on a page, outside the element's input styles. */
+    font-family: inherit;
     font-size: calc(var(--font-size-small) + 1px);
     box-sizing: border-box;
     transition:
@@ -287,7 +289,7 @@ export default css`
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--foreground);
+    color: var(--sidebar-foreground);
     cursor: pointer;
     user-select: none;
     border-inline-start: 4px solid transparent;
@@ -296,7 +298,7 @@ export default css`
       color 0.15s ease;
   }
   .nav-bar-tag-group-header:hover {
-    color: var(--foreground);
+    color: var(--sidebar-accent-foreground);
   }
   .nav-bar-tag-group-title {
     flex: 1;
@@ -347,7 +349,7 @@ export default css`
     box-sizing: border-box;
     width: 100%;
     border: none;
-    color: var(--foreground);
+    color: var(--sidebar-foreground);
     background: transparent;
     border-inline-start: 4px solid transparent;
     text-decoration: none;

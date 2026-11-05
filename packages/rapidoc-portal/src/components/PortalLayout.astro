@@ -78,6 +78,9 @@ const hasSidebar = Astro.slots.has('sidebar');
 
   body {
     margin: 0;
+    /* The same text rendering as Starlight's pages (its body rule); without it macOS draws text heavier. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .portal-layout {

@@ -170,9 +170,16 @@ const rapidocAttributes = {
       padding: 16px;
     }
   }
-  /* Accent text in the sidebar keeps WCAG AA contrast. Method colors are RapiDoc's own. */
+  /* The guides' sidebar colors: links muted and brighter on hover (`.sidebar-pane a` in
+     styles/portal-theme.css), tag and group headings in Starlight's group-label color. Accent text
+     keeps WCAG AA contrast. Method colors are RapiDoc's own. */
   .portal-api-nav {
     --sidebar-primary: var(--portal-primary-text);
+    --sidebar-foreground: var(--portal-muted);
+    --sidebar-accent-foreground: var(--portal-fg);
+  }
+  .portal-api-nav.portal-sidebar :is(.nav-bar-tag:not(.active), .nav-bar-tag-group-header) {
+    color: var(--sl-color-white);
   }
 
   /* One weight for every sidebar level, as in the guides' sidebar (PortalSidebarSublist); RapiDoc's
