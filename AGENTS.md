@@ -102,6 +102,7 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run build:rapidoc`     | `packages/rapidoc`    | Builds `dist/rapidoc-min.js` and `dist/rapidoc-flow-min.js` (`rapidoc/flow`) with Vite. |
 | `npm run build:prerender`      | `packages/rapidoc-prerender` | Builds `@rapidoc/prerender` (`dist/index.js`); the portal, the docs guide's build and `prerender:demo` use it. |
 | `npm run build:mcp`         | `packages/rapidoc-mcp` | Builds `@rapidoc/mcp` (`dist/index.js`); the portal and server import it, so `pretest:portal` and `build:demo` run it. |
+| `npm run build-info`       | Monorepo              | Rewrites `docs/src/page-data/rapidoc-build-info.{json,yaml}`: version, bundle sizes and npm package sizes of every package (the package builds run it last). |
 | `npm run build:rapidoc:dev` | `packages/rapidoc`    | Builds an unminified bundle with sourcemaps and console logs intact.                                                    |
 | `npm run build:size`        | `packages/rapidoc`    | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`.                                  |
 | `npm run build:docs`        | `docs`                | Builds the Astro Starlight documentation site to `docs/dist/`.                                                          |

@@ -101,8 +101,11 @@ Rules that cross folder boundaries and are not visible from any single file. Che
 one of them stops being true, and update this list in the same change.
 
 1. **Generated files in `src/page-data/`**: `rapidoc-build-info.{json,yaml}` are written by
-   `scripts/capture-build-info.js` at the end of every production rapidoc Vite build (the
-   `record-build-info` plugin in `packages/rapidoc/vite.config.mjs`); `performance-benchmarks.yaml`
+   `scripts/capture-build-info.js`, which the `build` scripts of `rapidoc`, `@rapidoc/prerender` and
+   `@rapidoc/mcp` run last (or `npm run build-info`). It records rapidoc's version, the size of
+   `rapidoc-min.js` (`bundle`, which the pages print) and, under `packages`, every publishable
+   package's `dist/*.js` sizes and `npm pack --dry-run` sizes (`RapiDocBuildInfo` in
+   `rapidoc-build-info.ts`); `performance-benchmarks.yaml`
    is written by `tests/perf/benchmark.js` (sets `operations` per row) and
    `tests/perf/render-benchmark.js` (rebuilds every row from its `TEST_SPECS` and `specMeta`,
    dropping other rows and fields). Never hand-edit them; they, and the tracked

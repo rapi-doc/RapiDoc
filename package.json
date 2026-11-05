@@ -33,7 +33,8 @@
     "test:portal": "node --test --test-concurrency=1 packages/rapidoc-portal/tests/**/*.test.js packages/rapidoc-cli/tests/**/*.test.js packages/rapidoc-server/tests/**/*.test.js packages/rapidoc-mock/tests/**/*.test.js packages/create-rapidoc/tests/**/*.test.js",
     "test:e2e": "node --import ./scripts/test-loader.mjs --test tests/e2e/*.test.js",
     "test:visual": "node --import ./scripts/test-loader.mjs --test tests/visual/*.test.js",
-    "test:all": "npm run test:unit && npm run test:component && npm run test:e2e && npm run test:visual"
+    "test:all": "npm run test:unit && npm run test:component && npm run test:e2e && npm run test:visual",
+    "build-info": "node scripts/capture-build-info.js"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",

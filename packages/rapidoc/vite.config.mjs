@@ -6,7 +6,6 @@ import minifyHTML from "@lit-labs/rollup-plugin-minify-html-literals";
 import { visualizer } from "rollup-plugin-visualizer";
 import { transform } from "esbuild";
 import pkg from "./package.json" with { type: "json" };
-import { captureBuildInfo } from "../../scripts/capture-build-info.js";
 import { thirdPartyLicenses, LICENSE_FILE_SUFFIX } from "../../scripts/third-party-licenses.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -53,18 +52,6 @@ export default defineConfig(({ mode }) => {
                     chunk.code = result.code;
                   }
                 }
-              },
-            },
-          ]
-        : []),
-      // Only the minified bundle is the published one; a `--mode development` build would
-      // record the unminified size as `bundle.minified`.
-      ...(!isDev
-        ? [
-            {
-              name: "record-build-info",
-              closeBundle() {
-                captureBuildInfo();
               },
             },
           ]

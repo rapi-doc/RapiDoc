@@ -23,7 +23,7 @@
   - `vite-plugin-banner` (license & version header injection)
   - Custom esbuild transformer (strips `console.*` and `debugger` calls in production)
   - `rollup-plugin-visualizer` (activated via `ANALYZE=true` for bundle treemap)
-  - `scripts/capture-build-info.js` (records build size and metadata on bundle completion)
+  - `scripts/capture-build-info.js` (run last by `npm run build`, not a Vite plugin: records the version and the sizes of every package's bundles and npm package in `docs/src/page-data/rapidoc-build-info.{json,yaml}`)
   - `scripts/third-party-licenses.js` (writes `<bundle>.LICENSE.txt` with the license notices of the bundled npm packages, which minification strips; the banner names the file; `tests/unit/third-party-licenses.test.js`)
 - **Path Aliases**:
   - `~` -> `./src`

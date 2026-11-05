@@ -31,7 +31,7 @@
     }
   },
   "scripts": {
-    "build": "vite build"
+    "build": "vite build && node ../../scripts/capture-build-info.js"
   },
   "dependencies": {
     "yaml": "^2.9.1"

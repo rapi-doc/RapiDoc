@@ -33,7 +33,7 @@
     }
   },
   "scripts": {
-    "build": "vite build"
+    "build": "vite build && node ../../scripts/capture-build-info.js"
   },
   "dependencies": {
     "@scalar/openapi-parser": "^0.29.19",

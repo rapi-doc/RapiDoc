@@ -1,99 +1,155 @@
-import fs from "fs";
-import path from "path";
-import zlib from "zlib";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import zlib from "node:zlib";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { stringify } from "yaml";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, "..");
+const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const packagesDir = path.join(rootDir, "packages");
+const targetDir = path.join(rootDir, "docs/src/page-data");
 
-export function captureBuildInfo() {
-  const pkgPath = path.resolve(rootDir, "packages/rapidoc/package.json");
-  const distFile = path.resolve(rootDir, "packages/rapidoc/dist/rapidoc-min.js");
-  const targetDir = path.resolve(rootDir, "docs/src/page-data");
+export function formatSize(bytes) {
+  if (!bytes) return "0 KB";
+  const kb = bytes / 1024;
+  if (kb >= 1024) return `${(kb / 1024).toFixed(1)} MB`;
+  return kb >= 100 ? `${Math.round(kb)} KB` : `${kb.toFixed(1)} KB`;
+}
 
-  if (!fs.existsSync(pkgPath)) {
-    console.error(`[capture-build-info] package.json not found at: ${pkgPath}`);
+/** One size: bytes plus the forms the docs pages print. */
+export function sizeInfo(bytes) {
+  return {
+    bytes,
+    formatted: formatSize(bytes),
+    kb: Math.round(bytes / 1024),
+    exactKb: +(bytes / 1024).toFixed(1),
+  };
+}
+
+function fileSizes(file) {
+  const buf = fs.readFileSync(file);
+  return { size: sizeInfo(buf.length), gzip: sizeInfo(zlib.gzipSync(buf, { level: 9 }).length) };
+}
+
+/** The publishable workspaces under packages/ (not private), `rapidoc` first, then by name. */
+function publishablePackages() {
+  return fs
+    .readdirSync(packagesDir)
+    .map((dir) => path.join(packagesDir, dir))
+    .filter((dir) => fs.existsSync(path.join(dir, "package.json")))
+    .map((dir) => ({
+      dir,
+      pkg: JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8")),
+    }))
+    .filter(({ pkg }) => !pkg.private)
+    .sort((a, b) =>
+      a.pkg.name === "rapidoc"
+        ? -1
+        : b.pkg.name === "rapidoc"
+          ? 1
+          : a.pkg.name.localeCompare(b.pkg.name),
+    );
+}
+
+/**
+ * What `npm publish` would upload for each package: `{ name: { packed, unpacked, files } }`.
+ * One `npm pack --dry-run` for all of them; null (with a warning) when npm cannot be run.
+ */
+function npmPackSizes(names) {
+  try {
+    const out = execFileSync(
+      "npm",
+      ["pack", "--dry-run", "--json", "--ignore-scripts", ...names.flatMap((n) => ["-w", n])],
+      {
+        cwd: rootDir,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+        shell: process.platform === "win32",
+      },
+    );
+    return Object.fromEntries(
+      JSON.parse(out).map((p) => [
+        p.name,
+        { packed: sizeInfo(p.size), unpacked: sizeInfo(p.unpackedSize), files: p.entryCount },
+      ]),
+    );
+  } catch (err) {
+    console.warn(`[capture-build-info] npm pack failed, package sizes left out: ${err.message}`);
     return null;
   }
+}
 
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
-  const version = pkg.version || "0.0.0";
-  const versionParts = version.split(".");
-  const versionShort = `v${versionParts[0]}.${versionParts[1]}`;
+/**
+ * Writes docs/src/page-data/rapidoc-build-info.{json,yaml}: rapidoc's version, the size of
+ * rapidoc-min.js (`bundle`, which the docs pages print), and for every publishable package its
+ * built bundles (`dist/*.js`, raw and gzip) and what npm would publish (packed, unpacked, files).
+ * Run after the production builds (the build scripts of rapidoc, @rapidoc/prerender and
+ * @rapidoc/mcp end with it), so it measures what is on disk.
+ */
+export function captureBuildInfo() {
+  const packages = publishablePackages();
+  const rapidoc = packages.find(({ pkg }) => pkg.name === "rapidoc");
+  if (!rapidoc) {
+    console.error("[capture-build-info] packages/rapidoc not found");
+    return null;
+  }
+  const version = rapidoc.pkg.version || "0.0.0";
+  const [major, minor] = version.split(".");
+  const npmSizes = npmPackSizes(packages.map(({ pkg }) => pkg.name));
 
-  let minBytes = 0;
-  let gzipBytes = 0;
-
-  if (fs.existsSync(distFile)) {
-    const buf = fs.readFileSync(distFile);
-    minBytes = buf.length;
-    gzipBytes = zlib.gzipSync(buf, { level: 9 }).length;
-  } else {
-    console.warn(`[capture-build-info] Dist file not found at: ${distFile}`);
+  const packageInfo = {};
+  for (const { dir, pkg } of packages) {
+    const distDir = path.join(dir, "dist");
+    const bundles = fs.existsSync(distDir)
+      ? Object.fromEntries(
+          fs
+            .readdirSync(distDir)
+            .filter((name) => name.endsWith(".js"))
+            .sort()
+            .map((name) => [name, fileSizes(path.join(distDir, name))]),
+        )
+      : {};
+    packageInfo[pkg.name] = {
+      version: pkg.version,
+      ...(Object.keys(bundles).length ? { bundles } : {}),
+      ...(npmSizes?.[pkg.name] ? { npm: npmSizes[pkg.name] } : {}),
+    };
   }
 
-  const formatSize = (bytes) => {
-    if (bytes === 0) return "0 KB";
-    const kb = bytes / 1024;
-    return kb >= 100 ? `${Math.round(kb)} KB` : `${kb.toFixed(1)} KB`;
-  };
-
+  const main = packageInfo.rapidoc.bundles?.["rapidoc-min.js"];
+  if (!main) console.warn("[capture-build-info] packages/rapidoc/dist/rapidoc-min.js not found");
   const buildInfo = {
-    name: pkg.name || "rapidoc",
-    version: version,
+    name: rapidoc.pkg.name,
+    version,
     versionTag: `v${version}`,
-    versionShort: versionShort,
+    versionShort: `v${major}.${minor}`,
     buildTime: new Date().toISOString(),
+    // rapidoc-min.js, the bundle a page loads: what the docs pages quote.
     bundle: {
-      minified: {
-        bytes: minBytes,
-        formatted: formatSize(minBytes),
-        kb: Math.round(minBytes / 1024),
-        exactKb: +(minBytes / 1024).toFixed(1),
-      },
-      gzip: {
-        bytes: gzipBytes,
-        formatted: formatSize(gzipBytes),
-        kb: Math.round(gzipBytes / 1024),
-        exactKb: +(gzipBytes / 1024).toFixed(1),
-      },
+      minified: main?.size ?? sizeInfo(0),
+      gzip: main?.gzip ?? sizeInfo(0),
     },
+    packages: packageInfo,
   };
 
   fs.mkdirSync(targetDir, { recursive: true });
-
-  // 1. Write JSON file for direct JS/TS/Astro imports
-  const targetJson = path.resolve(targetDir, "rapidoc-build-info.json");
+  const targetJson = path.join(targetDir, "rapidoc-build-info.json");
   fs.writeFileSync(targetJson, JSON.stringify(buildInfo, null, 2) + "\n", "utf8");
-
-  // 2. Write YAML file for page-data conventions
-  const targetYaml = path.resolve(targetDir, "rapidoc-build-info.yaml");
-  const yamlContent = `# Auto-generated by build workflow. Do not edit manually.
-name: "${buildInfo.name}"
-version: "${buildInfo.version}"
-versionTag: "${buildInfo.versionTag}"
-versionShort: "${buildInfo.versionShort}"
-buildTime: "${buildInfo.buildTime}"
-bundle:
-  minified:
-    bytes: ${buildInfo.bundle.minified.bytes}
-    formatted: "${buildInfo.bundle.minified.formatted}"
-    kb: ${buildInfo.bundle.minified.kb}
-    exactKb: ${buildInfo.bundle.minified.exactKb}
-  gzip:
-    bytes: ${buildInfo.bundle.gzip.bytes}
-    formatted: "${buildInfo.bundle.gzip.formatted}"
-    kb: ${buildInfo.bundle.gzip.kb}
-    exactKb: ${buildInfo.bundle.gzip.exactKb}
-`;
-  fs.writeFileSync(targetYaml, yamlContent, "utf8");
+  fs.writeFileSync(
+    path.join(targetDir, "rapidoc-build-info.yaml"),
+    `# Auto-generated by scripts/capture-build-info.js. Do not edit manually.\n${stringify(buildInfo, { aliasDuplicateObjects: false })}`,
+    "utf8",
+  );
 
   console.log(
-    `📦 [RapiDoc Build Info] Version: ${buildInfo.versionTag} | Bundle: ${buildInfo.bundle.minified.formatted} (minified) / ${buildInfo.bundle.gzip.formatted} (gzip)`,
+    `📦 [RapiDoc Build Info] ${buildInfo.versionTag} | rapidoc-min.js: ${buildInfo.bundle.minified.formatted} (minified) / ${buildInfo.bundle.gzip.formatted} (gzip)`,
   );
-  console.log(`   Saved to: ${targetJson}`);
-
+  for (const [name, info] of Object.entries(packageInfo)) {
+    if (info.npm)
+      console.log(
+        `   ${name}: ${info.npm.packed.formatted} packed, ${info.npm.unpacked.formatted} unpacked`,
+      );
+  }
   return buildInfo;
 }
 
