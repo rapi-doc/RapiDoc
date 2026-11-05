@@ -20,6 +20,8 @@ my-portal/
 ├── public/                 # Static files served from / (logo, favicon, images)
 ├── specs/                  # OpenAPI 3.0 / 3.1 / Swagger 2.0 files (YAML or JSON)
 │   └── orders.yaml
+├── workflows/              # Arazzo 1.x files (optional): diagrams in docs, runnable, MCP tools
+│   └── checkout.arazzo.yaml
 └── docs/                   # Guides: .md, .mdx, .markdoc (sub-folders become URL segments)
     ├── index.markdoc       # the home page (optional)
     ├── getting-started.md
@@ -114,6 +116,11 @@ apis:
     spec: ./specs/shipments.json # file or URL
     category: Core # catalog group (default General)
     # title, description               # default: info.title / info.description of the spec
+
+workflows:
+  - file: ./workflows/checkout.arazzo.yaml # drawn by {% workflow file="checkout" /%}; sources named like an API id
+    # id: checkout                           # default: the file name; published at /workflows/<id>.arazzo.yaml
+    # sources: { storeAPI: shipments }       # a source description that is not named like an API
 
 docs:
   dir: ./docs # default ./docs

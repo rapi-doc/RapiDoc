@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import YAML from "yaml";
-import { checkApiSpec, summaryAnchoredOperations } from "../src/index.js";
+import { checkApiSpec, checkWorkflow, summaryAnchoredOperations } from "../src/index.js";
 
 const SPEC = `openapi: 3.1.0
 info: { title: Orders, version: 1.0.0 }
@@ -25,6 +25,50 @@ describe("spec checks (operation link stability)", () => {
       { method: "post", path: "/orders", alias: "post-orders" },
       { method: "get", path: "/orders/{orderId}", alias: "get-orders-orderId" },
     ]);
+  });
+
+  it("checkWorkflow reports unmapped sources, unknown operations and unsupported features", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-workflow-checks-"));
+    try {
+      fs.writeFileSync(
+        path.join(dir, "api.yaml"),
+        "openapi: 3.1.0\ninfo: { title: A, version: '1' }\npaths:\n  /a:\n    get: { operationId: getA, responses: { '200': { description: ok } } }\n",
+      );
+      fs.writeFileSync(
+        path.join(dir, "flow.yaml"),
+        [
+          "arazzo: 1.0.1",
+          "info: { title: F, version: '1' }",
+          "sourceDescriptions:",
+          "  - { name: api, url: ./api.yaml, type: openapi }",
+          "  - { name: other, url: ./other.yaml, type: openapi }",
+          "workflows:",
+          "  - workflowId: good",
+          "    steps:",
+          "      - { stepId: a, operationId: getA }",
+          "  - workflowId: broken",
+          "    steps:",
+          "      - { stepId: a, operationId: nope }",
+          "      - { stepId: b, operationId: getA, successCriteria: [{ condition: $.x, type: jsonpath, context: $response.body }] }",
+        ].join("\n"),
+      );
+      const warnings = checkWorkflow(
+        { id: "flow", fullPath: path.join(dir, "flow.yaml"), sources: { api: "a" } },
+        [{ id: "a", fullPath: path.join(dir, "api.yaml") }],
+      );
+      assert.equal(warnings.length, 2, warnings.join("\n"));
+      assert.match(warnings[0], /source "other" is not one of the portal's APIs/);
+      assert.match(
+        warnings[1],
+        /workflow broken is left out.*operation nope was not found in api.*jsonpath is not supported/,
+      );
+      assert.deepEqual(
+        checkWorkflow({ id: "gone", fullPath: path.join(dir, "missing.yaml"), sources: {} }),
+        [],
+      );
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("checkApiSpec warns once per API, and skips remote or missing specs", () => {

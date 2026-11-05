@@ -586,6 +586,39 @@
         "additionalProperties": false
       }
     },
+    "workflows": {
+      "description": "Arazzo workflow files, drawn by the workflow tag and exported as MCP tools.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Referenced by the workflow tag (file=). Default: the file name without .arazzo.yaml. The file is published at /workflows/<id>.arazzo<ext>.",
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "file": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Arazzo 1.x file (relative to this config)."
+          },
+          "sources": {
+            "description": "Arazzo source description name → id of the API in apis: it describes (default: a source whose name is an API id). Steps resolve against that API's spec.",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "additionalProperties": false
+      }
+    },
     "docs": {
       "type": "object",
       "properties": {

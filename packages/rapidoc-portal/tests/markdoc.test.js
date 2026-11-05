@@ -102,6 +102,39 @@ describe("RapiDoc Portal Markdoc Engine (Milestone 3)", () => {
     );
   });
 
+  it("should draw {% workflow %} as inline SVG from the workflows variable, else leave a placeholder", () => {
+    const demo = path.dirname(DEMO_GUIDES_DIR);
+    const arazzo = fs.readFileSync(
+      path.join(demo, "../workflows/track-a-shipment.arazzo.yaml"),
+      "utf8",
+    );
+    const shipments = JSON.parse(
+      fs.readFileSync(path.join(demo, "../specs/shipments.json"), "utf8"),
+    );
+    const source = '{% workflow file="track-a-shipment" id="trackShipment" title="Track" /%}';
+    const drawn = compileMarkdoc(source, {
+      variables: { workflows: { "track-a-shipment": { arazzo, sources: { shipments } } } },
+    });
+    assert.ok(
+      drawn.html.includes(
+        '<figure class="portal-workflow not-content" data-file="track-a-shipment" data-workflow="trackShipment">',
+      ),
+    );
+    assert.ok(drawn.html.includes("<figcaption>Track</figcaption>"));
+    assert.ok(
+      drawn.html.includes('<svg xmlns="http://www.w3.org/2000/svg" class="rf-svg'),
+      "the SVG is not escaped",
+    );
+    assert.ok(drawn.html.includes('data-step-id="listEvents"'));
+    assert.ok(
+      drawn.html.includes("/shipments/{shipmentId}/events"),
+      "steps resolve against the spec",
+    );
+    const plain = compileMarkdoc(source);
+    assert.ok(plain.html.includes('data-file="track-a-shipment"'));
+    assert.ok(!plain.html.includes("<svg"), "no SVG without the documents");
+  });
+
   it("should generate unique anchor slugs for duplicate headings", () => {
     const content = `
 # Section

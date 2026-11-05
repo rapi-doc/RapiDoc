@@ -119,6 +119,16 @@ export function portalMarkdocConfig({ base = "" } = {}) {
           size: { type: String, matches: ["small", "medium", "large"] },
         },
       },
+      workflow: {
+        render: portal("Workflow"),
+        selfClosing: true,
+        attributes: {
+          file: { type: String, required: true },
+          id: { type: String },
+          view: { type: String, matches: ["expanded", "compact"] },
+          title: { type: String },
+        },
+      },
       "api-operation": {
         render: portal("ApiOperation"),
         selfClosing: true,

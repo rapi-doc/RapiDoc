@@ -65,7 +65,8 @@ other member is internal; templates call internal members freely through `this`.
   form also takes the status codes its in-browser mock answers with (`503`, or a list used in
   turn or at random): they are set on the `<rapi-doc>`'s `mock-server-status-code` /
   `-strategy` for the run and restored after, and log lines say `mocked`. Credentials are the tied `<rapi-doc>`'s
-  entered ones (API keys, Basic, Bearer and OAuth tokens); a standalone element runs anonymously.
+  entered ones (API keys, Basic, Bearer and OAuth tokens); a standalone element shows one
+  password field per security scheme of the first source instead (kept in memory only).
   A workflow the runtime cannot run says why instead of a form.
 
 ## Invariants

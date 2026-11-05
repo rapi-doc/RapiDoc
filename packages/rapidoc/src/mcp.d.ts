@@ -126,6 +126,8 @@ export interface McpProblem {
 export interface BuildManifestOptions {
   /** A parsed Arazzo document (or JSON text) whose workflows become tools. */
   arazzo?: object | string;
+  /** The other OpenAPI documents those workflows use, by Arazzo source description name. */
+  sources?: Record<string, object>;
   /** Receives one entry per workflow the runtime cannot run, which is left out. */
   onProblem?: (problem: McpProblem) => void;
   /** The MCP server's name; defaults to the API title. */
@@ -320,6 +322,16 @@ export function evaluateExpression(expr: string, ctx: object): unknown;
 export function resolveValue(value: unknown, ctx: object): unknown;
 /** A simple Arazzo condition; throws when it cannot be parsed. */
 export function evaluateCondition(condition: string, ctx: object): boolean;
+
+/** Operation indexes for compileWorkflows' `sources`, from a raw OpenAPI document or <rapi-doc>'s processed one. */
+export function indexOperations(openapi: object): {
+  byId: Map<string, object>;
+  byPath: Map<string, object>;
+};
+export function indexResolvedSpec(resolvedSpec: object): {
+  byId: Map<string, object>;
+  byPath: Map<string, object>;
+};
 
 /** Parses Arazzo text (JSON or YAML) to an object. */
 export function parseArazzo(input: string | object): object;

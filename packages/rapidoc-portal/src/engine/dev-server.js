@@ -87,12 +87,13 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
       .flatMap((api) => api.versions)
       .filter((version) => !version.isRemote && version.fullPath)
       .map((version) => version.fullPath);
-    return new Set([workspace.configPath, ...specs]);
+    const workflows = (workspace.config.workflows || []).map((workflow) => workflow.fullPath);
+    return new Set([workspace.configPath, ...specs, ...workflows]);
   }
 
   await startAstro();
 
-  // Watch the whole project folder once; filter to docs/, the config file and local specs.
+  // Watch the whole project folder once; filter to docs/, the config file, local specs and workflow files.
   const projectRoot = workspace.projectDir;
   watcher = fs.watch(projectRoot, { recursive: true }, (_event, fileName) => {
     if (!fileName) return;

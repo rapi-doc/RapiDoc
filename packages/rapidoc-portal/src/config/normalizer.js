@@ -18,6 +18,8 @@ export const CATALOG_PATH = "/catalog";
 export const API_PATH = "/apis";
 /** Local specs are published at SPECS_PATH/<api id><ext>. */
 export const SPECS_PATH = "/specs";
+/** Workflow files are published at WORKFLOWS_PATH/<id>.arazzo<ext>. */
+export const WORKFLOWS_PATH = "/workflows";
 export const DEFAULT_PRIMARY_COLOR = "#f76b39";
 
 const isExternal = (href) => /^[a-z][a-z0-9+.-]*:/i.test(href);
@@ -107,6 +109,54 @@ function normalizeVersion(entry, api, index, { baseDir, versioned, problems, whe
         ? `${SPECS_PATH}/${api.id}${ext}`
         : `${SPECS_PATH}/${api.id}/${version}${ext}`,
     pinnedSpecUrl: isRemote || !versioned ? null : `${SPECS_PATH}/${api.id}/${version}${ext}`,
+  };
+}
+
+/**
+ * One Arazzo file of `workflows:`: where it is, where it is published, and which portal API each of
+ * its source descriptions is (`sources`, from the config and from names that are API ids). Sources
+ * that match no API are left out; the spec checks warn about them.
+ */
+function normalizeWorkflow(entry, index, baseDir, apiIds, problems) {
+  const where = `workflows[${index}]`;
+  const fullPath = path.resolve(baseDir, entry.file);
+  let doc = {};
+  if (!fs.existsSync(fullPath)) problems.push(`${where}.file: ${fullPath} not found`);
+  else {
+    try {
+      const text = fs.readFileSync(fullPath, "utf8");
+      doc = (fullPath.endsWith(".json") ? JSON.parse(text) : YAML.parse(text)) || {};
+    } catch (err) {
+      problems.push(`${where}.file: ${entry.file} cannot be parsed: ${err.message.split("\n")[0]}`);
+    }
+  }
+  const ext = path.extname(fullPath) || ".yaml";
+  const id =
+    entry.id ||
+    path
+      .basename(entry.file)
+      .replace(/\.(ya?ml|json)$/i, "")
+      .replace(/\.arazzo$/i, "");
+  const sources = {};
+  for (const s of doc.sourceDescriptions || []) {
+    if (s?.name && apiIds.has(s.name)) sources[s.name] = s.name;
+  }
+  for (const [name, apiId] of Object.entries(entry.sources || {})) {
+    if (!apiIds.has(apiId)) {
+      problems.push(
+        `${where}.sources.${name}: no API with id "${apiId}" in apis (ids: ${[...apiIds].join(", ")})`,
+      );
+    } else sources[name] = apiId;
+  }
+  return {
+    id,
+    file: entry.file,
+    fullPath,
+    url: `${WORKFLOWS_PATH}/${id}.arazzo${ext}`,
+    sources,
+    apiIds: [...new Set(Object.values(sources))],
+    workflowIds: (doc.workflows || []).map((w) => w?.workflowId).filter(Boolean),
+    title: doc.info?.title || id,
   };
 }
 
@@ -411,6 +461,15 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = "rapido
   const problems = [];
   const apis = (raw.apis || []).map((api, i) => normalizeApi(api, i, baseDir, problems));
   const apiById = new Map(apis.map((a) => [a.id, a]));
+  const workflows = (raw.workflows || []).map((w, i) =>
+    normalizeWorkflow(w, i, baseDir, new Set(apiById.keys()), problems),
+  );
+  const workflowIds = new Set();
+  workflows.forEach((w, i) => {
+    if (workflowIds.has(w.id))
+      problems.push(`workflows[${i}].id: "${w.id}" is used by another workflow`);
+    workflowIds.add(w.id);
+  });
   // `api:` (+ `version:`) of a navigation item → the API and the URL it links to.
   const apiLink = (item) => {
     const api = apiById.get(item.api);
@@ -484,6 +543,7 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = "rapido
     },
     tabs,
     apis,
+    workflows,
     catalog: { path: CATALOG_PATH, label: catalogTab?.label || "API Catalog" },
     docs,
     footer: raw.footer === false ? false : { branding: true, ...raw.footer },

@@ -183,6 +183,51 @@ describe("mcp: workflows compiled into the manifest", () => {
     );
   });
 
+  it("resolves steps on other sources passed as OpenAPI documents, each a manifest source", () => {
+    const other = {
+      openapi: "3.0.3",
+      info: { title: "Tracking", version: "1" },
+      servers: [{ url: "https://track.test" }],
+      components: { securitySchemes: { key: { type: "apiKey", in: "header", name: "X-Key" } } },
+      paths: { "/subscriptions": { post: { operationId: "subscribe", security: [{ key: [] }] } } },
+    };
+    const doc = {
+      ...arazzo,
+      sourceDescriptions: [
+        { name: "petstore", url: "x", type: "openapi" },
+        { name: "tracking", url: "y", type: "openapi" },
+      ],
+      workflows: [
+        {
+          workflowId: "twoApis",
+          steps: [
+            { stepId: "a", operationId: "$sourceDescriptions.petstore.getInventory" },
+            { stepId: "b", operationId: "$sourceDescriptions.tracking.subscribe" },
+          ],
+        },
+      ],
+    };
+    const problems = [];
+    const m = buildMcpManifest(petstore, {
+      arazzo: doc,
+      sources: { tracking: other },
+      onProblem: (p) => problems.push(p),
+    });
+    assert.deepEqual(problems, []);
+    assert.deepEqual(Object.keys(m.sources), ["petstore", "tracking"]);
+    assert.equal(m.sources.tracking.baseUrl, "https://track.test");
+    assert.deepEqual(m.sources.tracking.securitySchemes.key.name, "X-Key");
+    const steps = m.workflows.twoApis.steps;
+    assert.deepEqual(
+      steps.map((st) => [st.operation.source, st.operation.path]),
+      [
+        ["petstore", "/store/inventory"],
+        ["tracking", "/subscriptions"],
+      ],
+    );
+    assert.deepEqual(steps[1].operation.security, [{ key: [] }]);
+  });
+
   it("numbers a workflow tool whose name clashes with an operation's", () => {
     const doc = {
       ...arazzo,

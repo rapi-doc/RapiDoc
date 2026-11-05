@@ -9,6 +9,7 @@ import { generateMcpServer as generate, writeMcpProject as write } from "./utils
 
 export * from "./utils/mcp-generator.js";
 export { parseDocument as parseArazzo, validateArazzo } from "./utils/arazzo/parse.js";
+export { indexOperations, indexResolvedSpec } from "./utils/arazzo/operations.js";
 export {
   createMcpWorkflowRuntime as createMcpRuntime,
   runWorkflow,

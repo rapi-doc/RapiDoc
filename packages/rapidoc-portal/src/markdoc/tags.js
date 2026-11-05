@@ -1,6 +1,7 @@
 import Markdoc from "@markdoc/markdoc";
 import GithubSlugger from "github-slugger";
 import { operationMatchPattern } from "./operation.js";
+import { renderArazzoWorkflow } from "rapidoc/static";
 import { CALLOUT_TYPES } from "../components/callout-types.js";
 
 /**
@@ -220,6 +221,53 @@ export const cardGrid = {
  * `variables: { specUrls: { [id]: url, ['<id>@<version>']: url } }` to compileMarkdoc() to fill in its spec-url, and `variables: { oauthReceiver: '/oauth-receiver.html' }` for
  * its OAuth popup's return page. (Portal pages use components/ApiOperation.astro instead.)
  */
+/**
+ * Workflow Tag ({% workflow file="<workflows id>" id="<workflowId>" view="compact" /%}): one
+ * Arazzo workflow as a static SVG diagram. `config.variables.workflows[file]` supplies
+ * `{ arazzo, sources }` (the document, and OpenAPI documents by source name) for the drawing;
+ * without it the tag is a placeholder whose data attributes name the file and workflow.
+ */
+export const workflow = {
+  render: "PortalWorkflow",
+  attributes: {
+    file: { type: String, required: true },
+    id: { type: String },
+    view: { type: String, matches: ["expanded", "compact"] },
+    title: { type: String },
+  },
+  transform(node, config) {
+    const attributes = node.transformAttributes(config);
+    const entry = config.variables?.workflows?.[attributes.file];
+    const attrs = {
+      class: "portal-workflow not-content",
+      "data-file": attributes.file,
+      ...(attributes.id && { "data-workflow": attributes.id }),
+      ...(attributes.view && { "data-view": attributes.view }),
+    };
+    const children = attributes.title
+      ? [new Markdoc.Tag("figcaption", {}, [attributes.title])]
+      : [];
+    if (entry?.arazzo) {
+      const drawn = renderArazzoWorkflow(entry.arazzo, {
+        workflowId: attributes.id,
+        sources: entry.sources || {},
+        view: attributes.view,
+        idPrefix: `rf-${attributes.file}-${attributes.id || "first"}`,
+      });
+      // Markdoc's HTML renderer escapes strings, so the SVG goes through compileMarkdoc()'s raw
+      // slots: a marker here, the markup put back after rendering
+      const raw = (config.variables.__raw ||= []);
+      raw.push(drawn.svg);
+      children.push(
+        new Markdoc.Tag("div", { class: "portal-workflow-diagram" }, [
+          `@@rapidoc-raw:${raw.length - 1}@@`,
+        ]),
+      );
+    }
+    return new Markdoc.Tag("figure", attrs, children);
+  },
+};
+
 export const apiOperation = {
   render: "PortalApiOperation",
   attributes: {
@@ -309,5 +357,6 @@ export const tags = {
   card,
   "card-grid": cardGrid,
   "api-operation": apiOperation,
+  workflow,
   badge,
 };

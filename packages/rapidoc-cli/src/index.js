@@ -488,6 +488,12 @@ async function handleValidate() {
       failed += 1;
     }
   }
+  for (const workflow of config.workflows || []) {
+    console.log(`\n🔍 ${workflow.id}: ${workflow.fullPath}`);
+    const warnings = portal.checkWorkflow(workflow, config.apis);
+    if (!warnings.length) console.log("   ✅ Workflows resolve against the portal's APIs");
+    for (const warning of warnings) console.warn(`   ⚠️  ${warning}`);
+  }
   const total = versions.length;
   console.log(
     failed

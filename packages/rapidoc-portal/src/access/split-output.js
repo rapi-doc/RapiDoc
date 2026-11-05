@@ -170,6 +170,15 @@ export async function splitOutput(outDir, portalConfig) {
   const specZones = new Map(
     specFiles.map(({ url, version }) => [url.slice(1), matcher.zoneOf(version.path)]),
   );
+  // A workflow file follows its APIs: public when every API it uses is public, else the zone of the
+  // first non-public one (its steps show those APIs' operations).
+  for (const workflow of portalConfig.workflows || []) {
+    const zones = workflow.apiIds
+      .map((id) => apis.find((api) => api.id === id))
+      .filter(Boolean)
+      .map((api) => matcher.zoneOf(api.path));
+    specZones.set(workflow.url.slice(1), zones.find((zone) => zone !== PUBLIC_ZONE) || PUBLIC_ZONE);
+  }
   const branding = brandingFiles(portalConfig.site);
   const zoneOfFile = (relPath) => {
     if (branding.has(relPath) || ALWAYS_PUBLIC.some((pattern) => pattern.test(relPath)))

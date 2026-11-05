@@ -56,8 +56,12 @@ export function compileMarkdoc(content, options = {}) {
   // 3. Transform AST using custom tags and nodes
   const transformed = Markdoc.transform(ast, config);
 
-  // 4. Render to standard, semantic HTML
-  const html = Markdoc.renderers.html(transformed);
+  // 4. Render to standard, semantic HTML; tags that produce markup (the workflow SVG) left a
+  // marker and their HTML in `variables.__raw`, put back here since the renderer escapes strings
+  const raw = config.variables.__raw || [];
+  const html = Markdoc.renderers
+    .html(transformed)
+    .replace(/@@rapidoc-raw:(\d+)@@/g, (_, n) => raw[Number(n)] ?? "");
 
   return {
     html,

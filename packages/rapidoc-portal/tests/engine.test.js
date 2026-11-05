@@ -141,6 +141,8 @@ describe("RapiDoc Portal build engine", () => {
         "public/assets/rapidoc-min.js",
         "public/search-index.json",
         "public/specs/shipments.json",
+        "public/workflows/track-a-shipment.arazzo.yaml",
+        "public/assets/rapidoc-flow-min.js",
       ]) {
         assert.ok(fs.existsSync(path.join(workspace.root, file)), `${file} should exist`);
       }
@@ -397,6 +399,22 @@ describe("RapiDoc Portal build engine", () => {
         !fulfillment.includes("/assets/rapidoc-min.js"),
         "pages without a working embed do not load RapiDoc",
       );
+
+      // {% workflow %}: a static SVG at build time, the <rapi-flow> bundle only on demand
+      assert.ok(firstShipment.includes("portal-workflow not-content"), "the workflow figure");
+      assert.ok(firstShipment.includes('data-workflow="trackShipment"'));
+      assert.ok(firstShipment.includes('data-step-id="findShipment"'), "the diagram is inline SVG");
+      assert.ok(
+        firstShipment.includes("GET /shipments/{trackingNumber}".replace("GET ", "")),
+        "steps show their path",
+      );
+      assert.ok(firstShipment.includes('data-flow-bundle="/assets/rapidoc-flow-min.js"'));
+      assert.ok(
+        !firstShipment.includes('src="/assets/rapidoc-flow-min.js"'),
+        "the bundle is not loaded up front",
+      );
+      assert.ok(fs.existsSync(path.join(outDir, "workflows", "track-a-shipment.arazzo.yaml")));
+      assert.ok(fs.existsSync(path.join(outDir, "assets", "rapidoc-flow-min.js")));
 
       // Pages do not name the tooling they are built with
       assert.ok(

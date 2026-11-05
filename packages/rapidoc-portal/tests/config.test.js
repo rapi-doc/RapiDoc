@@ -66,6 +66,21 @@ describe("rapidoc.config.yaml (v2)", () => {
       css: [],
     });
 
+    // workflows: the Arazzo file, published under /workflows, with its sources mapped to APIs by name
+    assert.deepEqual(
+      config.workflows.map((w) => [w.id, w.url, w.sources, w.apiIds, w.workflowIds]),
+      [
+        [
+          "track-a-shipment",
+          "/workflows/track-a-shipment.arazzo.yaml",
+          { shipments: "shipments" },
+          ["shipments"],
+          ["trackShipment"],
+        ],
+      ],
+    );
+    assert.ok(config.workflows[0].fullPath.endsWith("workflows/track-a-shipment.arazzo.yaml"));
+
     assert.deepEqual(
       config.tabs.map((t) => [t.label, t.kind, t.href]),
       [

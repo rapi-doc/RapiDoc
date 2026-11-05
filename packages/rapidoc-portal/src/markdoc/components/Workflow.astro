@@ -1,0 +1,219 @@
+---
+/**
+ * {% workflow file="<workflows id>" id="<workflowId>" view="compact" title="..." /%}: one Arazzo
+ * workflow of `workflows:`, drawn at build time as a static SVG (rapidoc/static), so it shows
+ * without JavaScript. "Run workflow" loads the <rapi-flow> bundle and puts the element in its
+ * place: the same diagram, with the run panel. The bundle is loaded only on pages that ask.
+ */
+import fs from 'node:fs';
+import { Aside } from '@astrojs/starlight/components';
+import { renderArazzoWorkflow, getFlowCss, getThemeTokensCss } from 'rapidoc/static';
+import portalConfig from 'virtual:rapidoc-portal/config';
+import { readVersionSpec } from '../../engine/api-routes.js';
+import { FLOW_BUNDLE_PATH } from '../../engine/sync-assets.js';
+import { withBase } from '../../components/base-path.js';
+
+interface Props {
+  file: string;
+  id?: string;
+  view?: 'expanded' | 'compact';
+  title?: string;
+}
+
+const { file, id, view, title } = Astro.props;
+const workflows = portalConfig.workflows || [];
+const entry = workflows.find((w: any) => w.id === file);
+const apis = portalConfig.apis || [];
+
+let svg = '';
+let legend: string[] = [];
+let workflowId = id || '';
+let problem = '';
+if (!entry) {
+  console.warn(`[rapidoc-portal] workflow on ${Astro.url.pathname}: no workflow file with id "${file}" in workflows:`);
+} else if (id && !entry.workflowIds.includes(id)) {
+  problem = `The file has no workflow "${id}". Its workflows: ${entry.workflowIds.join(', ')}.`;
+  console.warn(`[rapidoc-portal] workflow on ${Astro.url.pathname}: ${problem}`);
+} else {
+  // Steps resolve against the default version of each source's API
+  const sources: Record<string, object> = {};
+  for (const [name, apiId] of Object.entries(entry.sources as Record<string, string>)) {
+    const api = apis.find((a: any) => a.id === apiId);
+    const spec = api && readVersionSpec(api.versions[0]);
+    if (spec) sources[name] = spec;
+  }
+  const drawn = renderArazzoWorkflow(fs.readFileSync(entry.fullPath, 'utf8'), {
+    workflowId: id,
+    sources,
+    view,
+    idPrefix: `rf-${file}-${id || 'first'}`,
+  });
+  svg = drawn.svg;
+  legend = drawn.legend;
+  workflowId = drawn.graph?.workflowId || id || '';
+}
+
+const themePreset = portalConfig.rapidoc?.theme || 'ember';
+// As on the API reference pages: the tokens follow <html data-theme>, so the diagram switches with the portal theme
+const tokensCss = getThemeTokensCss(themePreset);
+const flowCss = getFlowCss();
+const firstApi = entry && apis.find((a: any) => a.id === entry.apiIds[0]);
+const LEGEND: Record<string, [string, string]> = {
+  seq: ['rf-seq', 'next step'],
+  data: ['rf-data', 'value passed to a later step'],
+  output: ['rf-data rf-to-output', 'value passed to the outputs'],
+  success: ['rf-goto rf-success', 'goto on success'],
+  failure: ['rf-goto rf-failure', 'goto on failure'],
+};
+---
+
+{
+  entry && !problem ? (
+    <figure
+      class="portal-workflow not-content"
+      data-file={file}
+      data-workflow={workflowId}
+      data-view={view}
+      data-arazzo-url={withBase(entry.url)}
+      data-spec-url={firstApi ? withBase(firstApi.specUrl) : undefined}
+      data-flow-bundle={withBase(FLOW_BUNDLE_PATH)}
+      data-theme={themePreset}
+    >
+      {title && <figcaption>{title}</figcaption>}
+      <div class="portal-workflow-diagram">
+        <Fragment set:html={svg} />
+      </div>
+      <div class="portal-workflow-footer">
+        <ul class="portal-workflow-legend" aria-label="Legend">
+          {legend.map((kind) => (
+            <li>
+              <svg width="28" height="10" aria-hidden="true">
+                <path class={LEGEND[kind][0]} d="M1 5H23" stroke-dasharray={kind === 'data' || kind === 'output' ? '5 4' : 'none'} />
+                <path class={`rf-head-${kind}`} d="M22 1L28 5L22 9z" />
+              </svg>
+              {LEGEND[kind][1]}
+            </li>
+          ))}
+        </ul>
+        <button type="button" class="portal-workflow-run">Run workflow</button>
+      </div>
+    </figure>
+  ) : (
+    <Aside type="caution" title="Workflow not found">
+      {entry ? (
+        <>{problem}</>
+      ) : (
+        <>
+          No workflow file with id <code>{file}</code> in <code>workflows:</code> of <code>rapidoc.config.yaml</code>
+          {workflows.length > 0 && <>. Available ids: {workflows.map((w: any) => w.id).join(', ')}</>}.
+        </>
+      )}
+    </Aside>
+  )
+}
+
+<style set:html={tokensCss}></style>
+<style set:html={flowCss}></style>
+<style>
+  .portal-workflow {
+    margin: 1.5rem 0;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--portal-radius);
+    overflow: hidden;
+    --primary: var(--portal-primary);
+  }
+  figcaption {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    font-weight: 600;
+  }
+  .portal-workflow-diagram {
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  .portal-workflow-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+  .portal-workflow-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.75rem;
+    color: var(--sl-color-gray-3);
+  }
+  .portal-workflow-legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  .portal-workflow-legend svg {
+    overflow: visible;
+  }
+  .portal-workflow-run {
+    font: inherit;
+    font-size: 0.875rem;
+    padding: 0.375rem 0.875rem;
+    border: 1px solid var(--portal-primary);
+    border-radius: var(--portal-radius);
+    background: var(--portal-primary);
+    color: var(--portal-on-primary);
+    cursor: pointer;
+  }
+  /* <rapi-flow>, once loaded, takes the figure over: the page's fonts, no second border */
+  .portal-workflow rapi-flow {
+    display: block;
+    --font-sans: inherit;
+    --font-mono: inherit;
+  }
+</style>
+
+<script>
+  // Run workflow: load the <rapi-flow> bundle once, then replace the static diagram with the
+  // element (it draws the same diagram and adds the run panel).
+  document.querySelectorAll<HTMLElement>('.portal-workflow[data-arazzo-url]').forEach((figure) => {
+    const button = figure.querySelector<HTMLButtonElement>('.portal-workflow-run');
+    if (!button) return;
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      button.textContent = 'Loading…';
+      try {
+        // A script tag, not import(): the bundle is a static file, and Vite's dev server does not
+        // serve public/ files to import()
+        if (!customElements.get('rapi-flow')) {
+          await new Promise<void>((resolve, reject) => {
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = figure.dataset.flowBundle!;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error(`could not load ${script.src}`));
+            document.head.append(script);
+          });
+          await customElements.whenDefined('rapi-flow');
+        }
+      } catch (err) {
+        button.disabled = false;
+        button.textContent = 'Run workflow';
+        console.error('[rapidoc-portal] could not load the workflow runner', err);
+        return;
+      }
+      const flow = document.createElement('rapi-flow');
+      flow.setAttribute('arazzo-url', figure.dataset.arazzoUrl!);
+      if (figure.dataset.specUrl) flow.setAttribute('spec-url', figure.dataset.specUrl);
+      if (figure.dataset.workflow) flow.setAttribute('workflow-id', figure.dataset.workflow);
+      if (figure.dataset.view) flow.setAttribute('view', figure.dataset.view);
+      flow.setAttribute('theme', figure.dataset.theme || 'ember');
+      flow.setAttribute('color-scheme', 'auto');
+      const caption = figure.querySelector('figcaption');
+      figure.replaceChildren(...(caption ? [caption] : []), flow);
+    });
+  });
+</script>

@@ -191,6 +191,9 @@ function bodyContent(requestBody) {
  *   receives one entry per workflow the runtime cannot run, which is left out
  * @param {string} [options.sourceName] the key of the API in `sources`: the Arazzo document's
  *   first OpenAPI source name, else `api`
+ * @param {Record<string, object>} [options.sources] the other OpenAPI documents the Arazzo
+ *   document's workflows use, by source description name; each becomes a manifest source and its
+ *   operations resolve for workflow steps
  * @param {boolean} [options.includeInternal] keep `x-internal` / `x-hidden` operations
  * @param {boolean} [options.includeDeprecated] keep deprecated operations
  * @returns {object} the manifest: `{ manifestVersion, server, sources, tools, resources,
@@ -312,10 +315,22 @@ export function buildMcpManifest(spec, options = {}) {
   }
 
   const workflows = {};
+  const sources = { [sourceName]: { baseUrl: baseUrlOf(src, processed), securitySchemes } };
   if (arazzo && typeof arazzo === "object") {
-    const index = processed ? indexResolvedSpec(src) : indexOperations(src);
+    const indexes = new Map([
+      [sourceName, processed ? indexResolvedSpec(src) : indexOperations(src)],
+    ]);
+    for (const [name, doc] of Object.entries(options.sources || {})) {
+      if (name === sourceName || !doc || typeof doc !== "object") continue;
+      const docProcessed = isProcessedSpec(doc);
+      indexes.set(name, docProcessed ? indexResolvedSpec(doc) : indexOperations(doc));
+      sources[name] = {
+        baseUrl: baseUrlOf(doc, docProcessed),
+        securitySchemes: collectSecuritySchemes(doc, docProcessed),
+      };
+    }
     const compiled = compileWorkflows(arazzo, {
-      sources: new Map([[sourceName, index]]),
+      sources: indexes,
       onProblem: options.onProblem,
     });
     for (const tool of compiled.tools) {
@@ -333,7 +348,7 @@ export function buildMcpManifest(spec, options = {}) {
       version: info.version || "1.0.0",
       description: sanitizeDescription(info.description || ""),
     },
-    sources: { [sourceName]: { baseUrl: baseUrlOf(src, processed), securitySchemes } },
+    sources,
     tools,
     resources,
     workflows,

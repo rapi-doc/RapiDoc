@@ -29,7 +29,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadConfig } from "../config/loader.js";
 import { listDocFiles, syncDocs } from "./sync-docs.js";
-import { copyRapidocBundle, copySpecs, writeRobotsTxt, writeSearchIndex } from "./sync-assets.js";
+import {
+  copyRapidocBundle,
+  copyRapidocFlowBundle,
+  copySpecs,
+  copyWorkflows,
+  writeRobotsTxt,
+  writeSearchIndex,
+} from "./sync-assets.js";
 import { writeLlmsFiles } from "./llms.js";
 import { renderThemeCss } from "./theme-css.js";
 
@@ -172,7 +179,9 @@ export async function createPortalWorkspace(projectDir = process.cwd(), { kind =
     copyProjectPublic(resolvedProjectDir, workspace.publicDir);
     writeRobotsTxt(config, workspace.publicDir);
     copySpecs(config, workspace.publicDir);
+    copyWorkflows(config, workspace.publicDir);
     copyRapidocBundle(workspace.publicDir);
+    copyRapidocFlowBundle(config, workspace.publicDir);
     refreshDocs(workspace);
   } catch (err) {
     removePortalWorkspace(workspace);

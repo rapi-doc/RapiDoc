@@ -32,6 +32,7 @@ export { buildPortal } from "./engine/build-portal.js";
 export { startDevServer } from "./engine/dev-server.js";
 export {
   checkApiSpec,
+  checkWorkflow,
   checkPortalSpecs,
   readSpecFile,
   summaryAnchoredOperations,

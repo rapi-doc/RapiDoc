@@ -303,6 +303,11 @@ ${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join("")}# S
 #     - "./specs/api-v2.yaml"
 #     - "./specs/api-v1.yaml"
 
+# Arazzo workflow files: drawn by {% workflow file="<id>" /%} in docs pages and exported as MCP
+# tools. A source description named like an API id resolves against that API's spec.
+# workflows:
+#   - file: "./workflows/checkout.arazzo.yaml"
+
 rapidoc:
   render-style: "focused"
   schema-style: "tree"

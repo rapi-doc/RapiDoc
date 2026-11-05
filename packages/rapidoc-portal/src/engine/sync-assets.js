@@ -39,6 +39,16 @@ export function copySpecs(portalConfig, publicDir) {
   }
 }
 
+/** Copies every Arazzo file of `workflows:` to its `url` (public/workflows/<id>.arazzo<ext>). */
+export function copyWorkflows(portalConfig, publicDir) {
+  for (const workflow of portalConfig.workflows || []) {
+    if (!fs.existsSync(workflow.fullPath)) continue;
+    const target = path.join(publicDir, workflow.url);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(workflow.fullPath, target);
+  }
+}
+
 const isHidden = (relativePath) =>
   relativePath.split(path.sep).some((part) => part.startsWith("."));
 
@@ -76,6 +86,22 @@ export function resolveRapidocBundle() {
   }
 
   return bundlePath;
+}
+
+/** The URL of the <rapi-flow> bundle, copied only for portals with `workflows:`. */
+export const FLOW_BUNDLE_PATH = "/assets/rapidoc-flow-min.js";
+
+/**
+ * Copies rapidoc's dist/rapidoc-flow-min.js (the <rapi-flow> element, which draws and runs
+ * workflows) to public/assets/, when the portal has `workflows:`. The bundle is built with
+ * rapidoc-min.js, so resolveRapidocBundle() already checked that the build is current.
+ */
+export function copyRapidocFlowBundle(portalConfig, publicDir) {
+  if (!portalConfig.workflows?.length) return;
+  const bundlePath = fileURLToPath(import.meta.resolve("rapidoc/flow"));
+  if (!fs.existsSync(bundlePath)) throw new StaleRapidocBundleError(bundlePath, "missing");
+  fs.mkdirSync(path.join(publicDir, "assets"), { recursive: true });
+  fs.copyFileSync(bundlePath, path.join(publicDir, FLOW_BUNDLE_PATH));
 }
 
 /** Where RapiDoc's OAuth popup returns to (the `oauth-receiver` attribute of every RapiDoc element). */

@@ -335,6 +335,23 @@ export const ApiSchema = z
   })
   .superRefine(exactlyOne(["spec", "versions"], "An API"));
 
+export const WorkflowSchema = z.strictObject({
+  id: z
+    .string()
+    .regex(/^[a-z0-9][a-z0-9-]*$/, "use lowercase letters, digits and dashes")
+    .optional()
+    .describe(
+      "Referenced by the workflow tag (file=). Default: the file name without .arazzo.yaml. The file is published at /workflows/<id>.arazzo<ext>.",
+    ),
+  file: z.string().min(1).describe("Arazzo 1.x file (relative to this config)."),
+  sources: z
+    .record(z.string(), z.string())
+    .optional()
+    .describe(
+      "Arazzo source description name → id of the API in apis: it describes (default: a source whose name is an API id). Steps resolve against that API's spec.",
+    ),
+});
+
 export const DocsSchema = z.strictObject({
   dir: z.string().optional().describe("Folder with .md, .mdx and .markdoc pages (default ./docs)."),
   toc: z
@@ -527,6 +544,10 @@ export const RapidocConfigSchema = z.strictObject({
     .optional()
     .describe("The header tabs; each documentation tab has its own sidebar."),
   apis: z.array(ApiSchema).optional(),
+  workflows: z
+    .array(WorkflowSchema)
+    .optional()
+    .describe("Arazzo workflow files, drawn by the workflow tag and exported as MCP tools."),
   docs: DocsSchema.optional(),
   footer: z.union([FooterSchema, z.literal(false)]).optional(),
   rapidoc: z

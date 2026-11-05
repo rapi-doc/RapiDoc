@@ -60,6 +60,8 @@ export default class RapiFlow extends LitElement {
   // Status codes the tied <rapi-doc>'s in-browser mock answers with during a run ("" = its own)
   @state() private mockStatus = "";
   @state() private mockStrategy = "cycle";
+  // Credentials typed into the run panel, by security scheme id, when no <rapi-doc> supplies them
+  @state() private manualCredentials: Record<string, string> = {};
   @state() private runningStepId = "";
   @state() private trace: any[] = [];
   @state() private runResult: any = null;
@@ -655,6 +657,7 @@ export default class RapiFlow extends LitElement {
     const problems = [];
     const manifest = buildMcpManifest(spec, {
       arazzo: this.doc,
+      sources: Object.fromEntries(this.specObjects),
       onProblem: (p) => problems.push(p),
     });
     const tool = manifest.tools.find((t) => t.workflow === graph.workflowId);
@@ -668,7 +671,7 @@ export default class RapiFlow extends LitElement {
     }
     const baseUrl = this.serverUrl || rapiDoc?.selectedServer?.computedUrl;
     const runtime = createMcpWorkflowRuntime(manifest, {
-      credentials: this.credentialsFromRapiDoc(rapiDoc),
+      credentials: { ...this.typedCredentials(), ...this.credentialsFromRapiDoc(rapiDoc) },
       baseUrls: baseUrl ? { [first.name]: baseUrl } : {},
     });
     return { runtime, tool };
@@ -746,6 +749,62 @@ export default class RapiFlow extends LitElement {
     );
   }
 
+  /**
+   * The security schemes of the loaded OpenAPI sources, for the credentials fields of a standalone
+   * element: `{ id, type, scheme, in, name }` each, one per scheme id (a credential applies to every
+   * source that names the scheme). Empty with a tied <rapi-doc>, which has its own.
+   */
+  private standaloneSchemes() {
+    if (this.findRapiDoc()) return [];
+    const byId = new Map();
+    for (const spec of this.specObjects.values()) {
+      const schemes = spec?.components?.securitySchemes || spec?.securityDefinitions || {};
+      for (const [id, s] of Object.entries(schemes) as [string, any][]) {
+        if (s && typeof s === "object" && s.type && !byId.has(id)) {
+          byId.set(id, { id, type: s.type, scheme: s.scheme, in: s.in, name: s.name });
+        }
+      }
+    }
+    return [...byId.values()];
+  }
+
+  /** The typed credentials as the runtime takes them: a string ("user:password" for Basic). */
+  private typedCredentials() {
+    const credentials = {};
+    for (const [id, value] of Object.entries(this.manualCredentials)) {
+      if (!value) continue;
+      const scheme = this.standaloneSchemes().find((s) => s.id === id);
+      const basic = scheme?.type === "http" && String(scheme.scheme).toLowerCase() === "basic";
+      credentials[id] = basic ? value : value.replace(/^bearer\s+/i, "");
+    }
+    return credentials;
+  }
+
+  private renderCredentials() {
+    const schemes = this.standaloneSchemes();
+    if (!schemes.length) return nothing;
+    const hint = (s) =>
+      s.type === "apiKey"
+        ? `API key (${s.in || "header"} ${s.name})`
+        : s.type === "http" && String(s.scheme).toLowerCase() === "basic"
+          ? "user:password"
+          : "token";
+    return html`<h3>Credentials <span class="muted">kept in this page only</span></h3>
+      ${schemes.map(
+        (s) => html`<label>
+          <span class="run-input-name"><code>${s.id}</code><span class="muted">${s.type}</span></span>
+          <input
+            type="password"
+            name=${`credential-${s.id}`}
+            autocomplete="off"
+            .value=${this.manualCredentials[s.id] ?? ""}
+            placeholder=${hint(s)}
+            @input=${(e) => (this.manualCredentials = { ...this.manualCredentials, [s.id]: e.target.value })}
+          />
+        </label>`,
+      )}`;
+  }
+
   private renderInputsForm(graph) {
     const set = (name, value) => (this.runInputs = { ...this.runInputs, [name]: value });
     const running = this.runState === "running";
@@ -757,6 +816,7 @@ export default class RapiFlow extends LitElement {
         if (!running) this.executeRun(graph);
       }}
     >
+      ${this.renderCredentials()}
       ${graph.inputDetails.length ? html`<h3>Inputs</h3>` : html`<p class="muted">This workflow takes no inputs.</p>`}
       ${graph.inputDetails.map(
         (i) => html`<label>
