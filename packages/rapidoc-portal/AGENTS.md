@@ -90,10 +90,12 @@ Invariants:
   about it, as about workflows the runtime cannot run (`rapidoc validate`, `dev` and `build` print
   those). Files are published at `url` and, with `auth`, follow their APIs' zones (public when every
   API is public, else the first non-public API's zone: `access/split-output.js`). The
-  `{% workflow file= id= %}` tag draws a workflow at build time (`markdoc/components/Workflow.astro`,
-  with `renderArazzoWorkflow` from `@rapidoc/prerender`; `markdoc/tags.js` does the same for
-  `compileMarkdoc()` through a `workflows` variable) and loads `/assets/rapidoc-flow-min.js` only
-  when a reader clicks Run workflow.
+  `{% workflow file= id= %}` tag (`markdoc/components/Workflow.astro`) renders a `<rapi-flow>`
+  (diagram and run panel) and loads `/assets/rapidoc-flow-min.js` on that page only. Inside the
+  element, the same diagram drawn at build time (`renderArazzoWorkflow` from `@rapidoc/prerender`) is
+  fallback content, shown until the bundle loads and without JavaScript; `<rapi-flow>` has no slot,
+  so its shadow DOM replaces it. `markdoc/tags.js` draws only the static diagram, for
+  `compileMarkdoc()` through a `workflows` variable.
 - **MCP manifests** (`engine/mcp-output.js:writeMcpOutput`, run by `buildPortal()` after the split): every
   build writes `dist/mcp/<api id>.json` (the default version's operations as tools named
   `<api id>_<tool>`) and `dist/mcp/workflows/<workflow id>.json` (its workflow tools, `apis` mapping

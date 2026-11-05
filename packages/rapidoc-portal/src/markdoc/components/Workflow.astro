@@ -1,9 +1,10 @@
 ---
 /**
  * {% workflow file="<workflows id>" id="<workflowId>" view="compact" title="..." /%}: one Arazzo
- * workflow of `workflows:`, drawn at build time as a static SVG (@rapidoc/prerender), so it shows
- * without JavaScript. "Run workflow" loads the <rapi-flow> bundle and puts the element in its
- * place: the same diagram, with the run panel. The bundle is loaded only on pages that ask.
+ * workflow of `workflows:`, shown as a <rapi-flow> (the diagram with its run panel). Inside it, the
+ * same diagram drawn at build time as a static SVG (@rapidoc/prerender) is the fallback content:
+ * it shows until the <rapi-flow> bundle loads, and without JavaScript. Once the element upgrades,
+ * its shadow DOM (which has no slot) replaces it. Pages without a workflow do not load the bundle.
  */
 import fs from 'node:fs';
 import { Aside } from '@astrojs/starlight/components';
@@ -69,34 +70,36 @@ const LEGEND: Record<string, [string, string]> = {
 
 {
   entry && !problem ? (
-    <figure
-      class="portal-workflow not-content"
-      data-file={file}
-      data-workflow={workflowId}
-      data-view={view}
-      data-arazzo-url={withBase(entry.url)}
-      data-spec-url={firstApi ? withBase(firstApi.specUrl) : undefined}
-      data-flow-bundle={withBase(FLOW_BUNDLE_PATH)}
-      data-theme={themePreset}
-    >
+    <figure class="portal-workflow not-content" data-file={file} data-workflow={workflowId}>
       {title && <figcaption>{title}</figcaption>}
-      <div class="portal-workflow-diagram">
-        <Fragment set:html={svg} />
-      </div>
-      <div class="portal-workflow-footer">
-        <ul class="portal-workflow-legend" aria-label="Legend">
-          {legend.map((kind) => (
-            <li>
-              <svg width="28" height="10" aria-hidden="true">
-                <path class={LEGEND[kind][0]} d="M1 5H23" stroke-dasharray={kind === 'data' || kind === 'output' ? '5 4' : 'none'} />
-                <path class={`rf-head-${kind}`} d="M22 1L28 5L22 9z" />
-              </svg>
-              {LEGEND[kind][1]}
-            </li>
-          ))}
-        </ul>
-        <button type="button" class="portal-workflow-run">Run workflow</button>
-      </div>
+      <rapi-flow
+        arazzo-url={withBase(entry.url)}
+        spec-url={firstApi ? withBase(firstApi.specUrl) : undefined}
+        workflow-id={workflowId || undefined}
+        view={view}
+        theme={themePreset}
+        color-scheme="auto"
+      >
+        <div class="portal-workflow-diagram">
+          <Fragment set:html={svg} />
+        </div>
+        <div class="portal-workflow-footer">
+          <ul class="portal-workflow-legend" aria-label="Legend">
+            {legend.map((kind) => (
+              <li>
+                <svg width="28" height="10" aria-hidden="true">
+                  <path class={LEGEND[kind][0]} d="M1 5H23" stroke-dasharray={kind === 'data' || kind === 'output' ? '5 4' : 'none'} />
+                  <path class={`rf-head-${kind}`} d="M22 1L28 5L22 9z" />
+                </svg>
+                {LEGEND[kind][1]}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </rapi-flow>
+      {/* A module script: one load per page however many workflows it has. Inline, so Astro leaves the
+          static file's URL alone (Vite's dev server does not serve public/ files to import()). */}
+      <script is:inline type="module" src={withBase(FLOW_BUNDLE_PATH)}></script>
     </figure>
   ) : (
     <Aside type="caution" title="Workflow not found">
@@ -158,17 +161,7 @@ const LEGEND: Record<string, [string, string]> = {
   .portal-workflow-legend svg {
     overflow: visible;
   }
-  .portal-workflow-run {
-    font: inherit;
-    font-size: 0.875rem;
-    padding: 0.375rem 0.875rem;
-    border: 1px solid var(--portal-primary);
-    border-radius: var(--portal-radius);
-    background: var(--portal-primary);
-    color: var(--portal-on-primary);
-    cursor: pointer;
-  }
-  /* <rapi-flow>, once loaded, takes the figure over: the page's fonts, no second border */
+  /* The page's fonts, no second border */
   .portal-workflow rapi-flow {
     display: block;
     --font-sans: inherit;
@@ -176,44 +169,3 @@ const LEGEND: Record<string, [string, string]> = {
   }
 </style>
 
-<script>
-  // Run workflow: load the <rapi-flow> bundle once, then replace the static diagram with the
-  // element (it draws the same diagram and adds the run panel).
-  document.querySelectorAll<HTMLElement>('.portal-workflow[data-arazzo-url]').forEach((figure) => {
-    const button = figure.querySelector<HTMLButtonElement>('.portal-workflow-run');
-    if (!button) return;
-    button.addEventListener('click', async () => {
-      button.disabled = true;
-      button.textContent = 'Loading…';
-      try {
-        // A script tag, not import(): the bundle is a static file, and Vite's dev server does not
-        // serve public/ files to import()
-        if (!customElements.get('rapi-flow')) {
-          await new Promise<void>((resolve, reject) => {
-            const script = document.createElement('script');
-            script.type = 'module';
-            script.src = figure.dataset.flowBundle!;
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error(`could not load ${script.src}`));
-            document.head.append(script);
-          });
-          await customElements.whenDefined('rapi-flow');
-        }
-      } catch (err) {
-        button.disabled = false;
-        button.textContent = 'Run workflow';
-        console.error('[rapidoc-portal] could not load the workflow runner', err);
-        return;
-      }
-      const flow = document.createElement('rapi-flow');
-      flow.setAttribute('arazzo-url', figure.dataset.arazzoUrl!);
-      if (figure.dataset.specUrl) flow.setAttribute('spec-url', figure.dataset.specUrl);
-      if (figure.dataset.workflow) flow.setAttribute('workflow-id', figure.dataset.workflow);
-      if (figure.dataset.view) flow.setAttribute('view', figure.dataset.view);
-      flow.setAttribute('theme', figure.dataset.theme || 'ember');
-      flow.setAttribute('color-scheme', 'auto');
-      const caption = figure.querySelector('figcaption');
-      figure.replaceChildren(...(caption ? [caption] : []), flow);
-    });
-  });
-</script>

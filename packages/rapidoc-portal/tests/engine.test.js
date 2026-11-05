@@ -402,18 +402,38 @@ describe("RapiDoc Portal build engine", () => {
         "pages without a working embed do not load RapiDoc",
       );
 
-      // {% workflow %}: a static SVG at build time, the <rapi-flow> bundle only on demand
+      // {% workflow %}: a <rapi-flow> with the build-time SVG inside as fallback content
       assert.ok(firstShipment.includes("portal-workflow not-content"), "the workflow figure");
-      assert.ok(firstShipment.includes('data-workflow="trackShipment"'));
-      assert.ok(firstShipment.includes('data-step-id="findShipment"'), "the diagram is inline SVG");
+      assert.match(
+        firstShipment,
+        /<rapi-flow[^>]* arazzo-url="\/workflows\/track-a-shipment\.arazzo\.yaml"[^>]* workflow-id="trackShipment"/,
+        "the runner, for that workflow",
+      );
+      assert.match(
+        firstShipment,
+        /<rapi-flow[^>]* color-scheme="auto"/,
+        "follows the portal theme",
+      );
+      assert.ok(
+        firstShipment.includes('data-step-id="findShipment"'),
+        "the fallback is inline SVG",
+      );
+      assert.ok(
+        firstShipment.indexOf('data-step-id="findShipment"') > firstShipment.indexOf("<rapi-flow"),
+        "the fallback is inside <rapi-flow>",
+      );
       assert.ok(
         firstShipment.includes("GET /shipments/{trackingNumber}".replace("GET ", "")),
         "steps show their path",
       );
-      assert.ok(firstShipment.includes('data-flow-bundle="/assets/rapidoc-flow-min.js"'));
+      assert.equal(
+        firstShipment.match(/<script type="module" src="\/assets\/rapidoc-flow-min\.js">/g)?.length,
+        1,
+        "the page loads the <rapi-flow> bundle",
+      );
       assert.ok(
-        !firstShipment.includes('src="/assets/rapidoc-flow-min.js"'),
-        "the bundle is not loaded up front",
+        !fulfillment.includes("rapidoc-flow-min.js"),
+        "pages without a workflow do not load it",
       );
       assert.ok(fs.existsSync(path.join(outDir, "workflows", "track-a-shipment.arazzo.yaml")));
       assert.ok(fs.existsSync(path.join(outDir, "assets", "rapidoc-flow-min.js")));
