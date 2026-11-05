@@ -57,6 +57,9 @@ export default class RapiFlow extends LitElement {
   // Running a workflow: the inputs form, the step whose request is in flight, and a log
   @state() private runState: "idle" | "running" | "done" = "idle";
   @state() private runInputs: Record<string, string> = {};
+  // Status codes the tied <rapi-doc>'s in-browser mock answers with during a run ("" = its own)
+  @state() private mockStatus = "";
+  @state() private mockStrategy = "cycle";
   @state() private runningStepId = "";
   @state() private trace: any[] = [];
   @state() private runResult: any = null;
@@ -262,6 +265,13 @@ export default class RapiFlow extends LitElement {
         border-radius: var(--radius);
         padding: 0.25rem 0.5rem;
         min-width: 0;
+      }
+      .run-mock-fields {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .run-mock-fields input {
+        flex: 1;
       }
       .run-actions {
         display: flex;
@@ -700,13 +710,31 @@ export default class RapiFlow extends LitElement {
     }
     const inputs = this.coerceInputs(graph);
     this.runState = "running";
+    // The in-browser mock reads its status codes from the <rapi-doc>; set them for this run only
+    const rapiDoc = this.findRapiDoc();
+    const mocked = rapiDoc?.mockServer === "true";
+    const codes = this.mockStatus.trim();
+    const previous = mocked &&
+      codes && {
+        code: rapiDoc.mockServerStatusCode,
+        strategy: rapiDoc.mockServerStatusStrategy,
+      };
+    if (previous) {
+      rapiDoc.mockServerStatusCode = codes;
+      rapiDoc.mockServerStatusStrategy = codes.includes(",") ? this.mockStrategy : "first";
+      await rapiDoc.updateComplete;
+    }
     const result = await prepared.runtime.callTool(prepared.tool.name, inputs, {
       onStepStart: (e) => (this.runningStepId = e.stepId),
       onStep: (e) => {
         this.runningStepId = "";
-        this.trace = [...this.trace, e];
+        this.trace = [...this.trace, { ...e, mocked }];
       },
     });
+    if (previous) {
+      rapiDoc.mockServerStatusCode = previous.code;
+      rapiDoc.mockServerStatusStrategy = previous.strategy;
+    }
     this.runResult = result;
     this.runState = "done";
     this.dispatchEvent(
@@ -756,6 +784,35 @@ export default class RapiFlow extends LitElement {
           }
         </label>`,
       )}
+      ${
+        this.findRapiDoc()?.mockServer === "true"
+          ? html`<label class="run-mock">
+              <span class="run-input-name">
+                Mock status
+                <span class="muted">the in-browser mock answers with</span>
+              </span>
+              <span class="run-mock-fields">
+                <input
+                  name="mock-status"
+                  .value=${this.mockStatus}
+                  placeholder="the spec's example; or 503; or 200, 200, 503"
+                  @input=${(e) => (this.mockStatus = e.target.value)}
+                />
+                ${
+                  this.mockStatus.includes(",")
+                    ? html`<select
+                        aria-label="How the codes are used"
+                        @change=${(e) => (this.mockStrategy = e.target.value)}
+                      >
+                        <option value="cycle" ?selected=${this.mockStrategy === "cycle"}>in turn</option>
+                        <option value="random" ?selected=${this.mockStrategy === "random"}>at random</option>
+                      </select>`
+                    : nothing
+                }
+              </span>
+            </label>`
+          : nothing
+      }
       <div class="run-actions">
         <button type="submit" class="run-button" part="run-button" ?disabled=${running}>
           ${running ? "Running…" : "▶ Run workflow"}
@@ -776,7 +833,7 @@ export default class RapiFlow extends LitElement {
           <span class="trace-step">${n + 1}. ${e.stepId}</span>
           ${e.attempt > 1 ? html`<span class="muted">attempt ${e.attempt}</span>` : nothing}
           <span class="trace-request">${e.request?.method} ${e.request?.url}</span>
-          <span class="trace-status">${e.response ? `HTTP ${e.response.status}` : "no response"}</span>
+          <span class="trace-status">${e.response ? `HTTP ${e.response.status}` : "no response"}${e.mocked ? html` <span class="muted">mocked</span>` : nothing}</span>
           <span class="trace-outcome">${e.outcome === "success" ? "✓" : "✗"}</span>
           ${e.failedCriterion ? html`<code>${e.failedCriterion}</code>` : nothing}
           ${e.action ? html`<span class="muted">→ ${e.action.type}${e.action.stepId ? ` ${e.action.stepId}` : ""}</span>` : nothing}

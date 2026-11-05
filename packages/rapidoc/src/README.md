@@ -61,7 +61,10 @@ other member is internal; templates call internal members freely through `this`.
   under the legend is always open: the inputs form (defaults filled, values coerced by type), the
   Run workflow button, then a log of every step's request, response and outputs and the
   workflow's outputs or the error. While a step's request is out its box carries `rf-running`;
-  results are not drawn on the diagram. Credentials are the tied `<rapi-doc>`'s
+  results are not drawn on the diagram. When the tied `<rapi-doc>` has `mock-server="true"`, the
+  form also takes the status codes its in-browser mock answers with (`503`, or a list used in
+  turn or at random): they are set on the `<rapi-doc>`'s `mock-server-status-code` /
+  `-strategy` for the run and restored after, and log lines say `mocked`. Credentials are the tied `<rapi-doc>`'s
   entered ones (API keys, Basic, Bearer and OAuth tokens); a standalone element runs anonymously.
   A workflow the runtime cannot run says why instead of a form.
 
