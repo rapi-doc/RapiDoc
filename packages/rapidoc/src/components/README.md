@@ -2,7 +2,7 @@
 
 ## Overview
 
-Lit 3 elements that `<rapi-doc>` (and `rapidoc/static`, which constructs the schema renderers
+Lit 3 elements that `<rapi-doc>` (and `@rapidoc/static`, which constructs the schema renderers
 directly) composes into each operation's request and response panels. Each file is a TypeScript
 class with `@customElement` / `@property` decorators and shadow DOM.
 

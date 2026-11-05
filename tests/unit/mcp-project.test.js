@@ -12,7 +12,7 @@ import { parse as parseYaml } from "yaml";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { startMockServer } from "@rapidoc/mock";
-import { generateMcpServer } from "rapidoc/mcp";
+import { generateMcpServer } from "@rapidoc/mcp";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");

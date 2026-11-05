@@ -12,7 +12,7 @@ default) lists each step's values with a keyword for where they come from (`inpu
 what happens" under "On success · first match runs" / "On failure · first match runs", and the
 outputs something reads; `compact` shows each step's name, method, path and number of checks,
 with labelled value lines and no actions. Used by `<rapi-flow>` (`src/rapi-flow.ts`, bundled as `dist/rapidoc-flow-min.js`) and by
-the build-time renderer (`rapidoc/static`: `renderArazzoWorkflow`, `getFlowCss`).
+the build-time renderer (`@rapidoc/static`: `renderArazzoWorkflow`, `getFlowCss`).
 
 Not owned here: running workflows (nothing here makes a request), the element's loading and
 events (`src/rapi-flow.ts`), and the diagram's look (`src/styles/flow-styles.js`). `dist/rapidoc-min.js`

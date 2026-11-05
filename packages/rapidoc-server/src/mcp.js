@@ -9,7 +9,7 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { createMcpRuntime, credentialsFromEnv } from "rapidoc/mcp";
+import { createMcpRuntime, credentialsFromEnv } from "@rapidoc/mcp";
 import { allows } from "./access.js";
 import { isSameOrigin } from "./auth/routes.js";
 import { cookieNames } from "./auth/session.js";

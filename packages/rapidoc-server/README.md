@@ -80,7 +80,7 @@ The session cookie holds the user's id, name, email, picture and only the groups
 
 ## MCP: the APIs as tools for agents
 
-`rapidoc build` writes one MCP manifest per API to `dist/mcp/<api id>.json` (tools named `<api id>_<tool>`) and one per Arazzo workflow file to `dist/mcp/workflows/<id>.json`, and records them in `rapidoc-server.json` with each API's zone. `rapidoc serve` hosts them at `POST /mcp` with the [MCP Streamable HTTP transport](https://modelcontextprotocol.io/specification/latest/basic/transports), stateless with JSON answers, so any instance can answer any request. The tools are run by `rapidoc/mcp`, the same runtime as RapiDoc's exported MCP servers.
+`rapidoc build` writes one MCP manifest per API to `dist/mcp/<api id>.json` (tools named `<api id>_<tool>`) and one per Arazzo workflow file to `dist/mcp/workflows/<id>.json`, and records them in `rapidoc-server.json` with each API's zone. `rapidoc serve` hosts them at `POST /mcp` with the [MCP Streamable HTTP transport](https://modelcontextprotocol.io/specification/latest/basic/transports), stateless with JSON answers, so any instance can answer any request. The tools are run by `@rapidoc/mcp`, the same runtime as RapiDoc's exported MCP servers.
 
 - **Without a token** an agent sees the public tools, and the API is called without credentials.
 - **With a token** (`Authorization: Bearer …`, from **Connect an AI agent** in the user menu, i.e. `POST /_rapidoc/mcp/token`) it sees the tools of every zone the reader may see. The token is the reader's session sealed like the cookies, plus, with `auth.tryIt`, their API access token: operations secured with `oauth2`, `openIdConnect` or an HTTP `bearer` scheme are called with it. It lasts as long as the session.

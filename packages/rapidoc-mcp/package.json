@@ -1,0 +1,45 @@
+{
+  "name": "@rapidoc/mcp",
+  "version": "0.1.0",
+  "description": "Turns OpenAPI and Arazzo documents into MCP tools: manifest builder, runtime and MCP server project writer for Node",
+  "keywords": [
+    "arazzo",
+    "mcp",
+    "model-context-protocol",
+    "openapi",
+    "rapidoc"
+  ],
+  "homepage": "https://rapidocui.com",
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/rapidoc-mcp"
+  },
+  "files": [
+    "dist",
+    "src/index.d.ts"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "vite": "^8.3.5"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

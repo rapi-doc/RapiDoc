@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { resolveSpecInput, getSpecNavigation, getNavBarHtml, renderRapiDoc } from "rapidoc/static";
+import { resolveSpecInput, getSpecNavigation, getNavBarHtml, renderRapiDoc } from "@rapidoc/static";
 import { isNavTagVisible } from "~/templates/navbar-template";
 
 // Tags no operation uses can hold a guide or concepts section (#923)

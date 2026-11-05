@@ -7,14 +7,14 @@
 - **Package Name**: `@rapidoc/server`
 - **Module Type**: ESM (`"type": "module"`)
 - **Entry Point**: `src/index.js` (`createApp`, `startServer`, `loadSettings`, `SettingsError`)
-- **Dependencies**: `hono` + `@hono/node-server` (HTTP), `openid-client` (OpenID Connect), `jose` (encrypted cookies), `@modelcontextprotocol/sdk` (the `/mcp` transport) and `rapidoc` (`rapidoc/mcp`: the runtime that calls the APIs). Dev: `oidc-provider` (a real OIDC provider for tests).
+- **Dependencies**: `hono` + `@hono/node-server` (HTTP), `openid-client` (OpenID Connect), `jose` (encrypted cookies), `@modelcontextprotocol/sdk` (the `/mcp` transport) and `@rapidoc/mcp` (the runtime that calls the APIs). Dev: `oidc-provider` (a real OIDC provider for tests).
 
 ---
 
 ## 2. Boundaries
 
 - **No dependency on `@rapidoc/portal` or Astro.** The server reads only the build: `dist/public/`, `dist/protected/`, `dist/rapidoc-server.json` and the MCP manifests in `dist/mcp/`. The build-side contract is `packages/rapidoc-portal/src/access/split-output.js` (and `src/engine/mcp-output.js` for the `mcp` section); change both sides together and keep the manifest `version` in step.
-- **`rapidoc` is used only as `rapidoc/mcp`** (`dist/rapidoc-mcp-min.js`: manifest runtime, no Lit). The server never parses a spec itself; the build already turned the specs into manifests.
+- **MCP comes from `@rapidoc/mcp`** (manifest runtime, no Lit); the server does not depend on `rapidoc`. The server never parses a spec itself; the build already turned the specs into manifests.
 - **The server never evaluates rule patterns.** The build gives every file a zone; the server only maps a file to its zone and a zone's allow to the session.
 - **Stateless.** No database, no in-memory sessions: the session and the sign-in transaction are encrypted cookies (`src/auth/session.js`). Anything shared between instances must fit that model.
 - **Secrets only from environment variables** (`src/settings.js`). Never read them from, or write them to, the build.
@@ -45,7 +45,7 @@
 | `src/auth/oidc.js`    | Discovery, PKCE sign-in, code exchange + userinfo, end-session URL, claim paths                                                                                                                                                                                                             |
 | `src/auth/session.js` | Encrypted cookies (JWE dir + A256GCM), cookie names (`__Host-` on https)                                                                                                                                                                                                                    |
 | `src/auth/routes.js`  | `/_rapidoc/auth/{login,callback,logout,me,token}`                                                                                                                                                                                                                                           |
-| `src/mcp.js`          | `POST /mcp` (one SDK `Server` + stateless Streamable HTTP transport per request, tools filtered by `visibleZones`, calls through `rapidoc/mcp`) and `POST /_rapidoc/mcp/token`; `loadMcpManifests()` reads `dist/mcp/`                                                                      |
+| `src/mcp.js`          | `POST /mcp` (one SDK `Server` + stateless Streamable HTTP transport per request, tools filtered by `visibleZones`, calls through `@rapidoc/mcp`) and `POST /_rapidoc/mcp/token`; `loadMcpManifests()` reads `dist/mcp/`                                                                     |
 
 ---
 

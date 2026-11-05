@@ -15,7 +15,7 @@ import {
   renderArazzoWorkflow,
   describeAction,
 } from "../../packages/rapidoc/src/utils/arazzo/index.js";
-import { getFlowCss } from "../../packages/rapidoc/src/static/index.js";
+import { getFlowCss } from "@rapidoc/static";
 
 const specsDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),

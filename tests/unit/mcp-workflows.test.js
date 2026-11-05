@@ -12,7 +12,7 @@ import {
   evaluateExpression,
   resolveValue,
   generateMcpServer,
-} from "rapidoc/mcp";
+} from "@rapidoc/mcp";
 import { indexOperations } from "../../packages/rapidoc/src/utils/arazzo/operations.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));

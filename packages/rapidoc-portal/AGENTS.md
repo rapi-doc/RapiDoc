@@ -91,13 +91,13 @@ Invariants:
   those). Files are published at `url` and, with `auth`, follow their APIs' zones (public when every
   API is public, else the first non-public API's zone: `access/split-output.js`). The
   `{% workflow file= id= %}` tag draws a workflow at build time (`markdoc/components/Workflow.astro`,
-  with `renderArazzoWorkflow` from `rapidoc/static`; `markdoc/tags.js` does the same for
+  with `renderArazzoWorkflow` from `@rapidoc/static`; `markdoc/tags.js` does the same for
   `compileMarkdoc()` through a `workflows` variable) and loads `/assets/rapidoc-flow-min.js` only
   when a reader clicks Run workflow.
 - **MCP manifests** (`engine/mcp-output.js:writeMcpOutput`, run by `buildPortal()` after the split): every
   build writes `dist/mcp/<api id>.json` (the default version's operations as tools named
   `<api id>_<tool>`) and `dist/mcp/workflows/<workflow id>.json` (its workflow tools, `apis` mapping
-  source names to API ids), built with `rapidoc/mcp` from the specs on disk (remote specs are left
+  source names to API ids), built with `@rapidoc/mcp` from the specs on disk (remote specs are left
   out). With `auth`, `rapidoc-server.json` gets an `mcp` section with each API's zone, which
   `@rapidoc/server` serves at `POST /mcp`.
 - **Every API has `versions`** in the normalized config (one entry for `spec:`). The API-level `spec`, `fullPath`, `isRemote`, `specUrl` and `path` describe the default version; code that reads, copies, indexes, checks or protects specs loops over `api.versions`. Other versions are at `version.specUrl` = `/specs/<id>/<version><ext>`, and with `versions:` every version also has `pinnedSpecUrl`; each spec's access zone is that of `version.path`.
@@ -116,7 +116,7 @@ Invariants:
 
 API pages use the same app shell as the docs (`PortalLayout.astro`; full pattern: `.claude/skills/rapidoc-static-navigation/SKILL.md`):
 
-1. **Separate navigation and content**: never render RapiDoc's own sidebar or header (`show-side-nav="false"`, `show-header="false"`). The sidebar is static HTML from `getNavBarHtml(spec, options)` (`rapidoc/static`), in its own `.portal-sidebar.nav-bar` element inside the layout's sticky sidebar, because `getNavCss()` styles its scope element.
+1. **Separate navigation and content**: never render RapiDoc's own sidebar or header (`show-side-nav="false"`, `show-header="false"`). The sidebar is static HTML from `getNavBarHtml(spec, options)` (`@rapidoc/static`), in its own `.portal-sidebar.nav-bar` element inside the layout's sticky sidebar, because `getNavCss()` styles its scope element.
 2. **The page scrolls**: `<rapi-doc auto-height="true">` in the normal page flow, sticky sidebar, full-width footer below. Never lock the viewport or give the content its own scroll box. The sidebar's `.nav-scroll` scrolls on its own.
 3. **Sticky header offset and theme**: `html { scroll-padding-top }` (set by `PortalLayout`) is RapiDoc's scroll offset (or `scroll-offset="<px>"`); `color-scheme="auto"` follows the portal theme.
 4. **Sync**: `rapiDocEl.bindNavBar(navEl)`, which keeps the active link in view inside the sidebar without scrolling the page.

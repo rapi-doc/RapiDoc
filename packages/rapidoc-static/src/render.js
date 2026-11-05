@@ -45,14 +45,14 @@ if (
   CustomElementRegistry.prototype.__safeDefinePatched = true;
 }
 
-import ProcessSpec from "../utils/spec-parser.js";
-import mainBodyTemplate from "../templates/main-body-template.js";
-import { expandedEndpointBodyTemplate } from "../templates/expanded-endpoint-template.js";
-import { schemaToAST } from "../utils/schema-utils.js";
-import SchemaTable from "../components/schema-table.ts";
-import SchemaTree from "../components/schema-tree.ts";
-import { getBundledCss } from "../styles/css-bundle.js";
-import { DEFAULT_THEME } from "../styles/theme-tokens.js";
+import ProcessSpec from "../../rapidoc/src/utils/spec-parser.js";
+import mainBodyTemplate from "../../rapidoc/src/templates/main-body-template.js";
+import { expandedEndpointBodyTemplate } from "../../rapidoc/src/templates/expanded-endpoint-template.js";
+import { schemaToAST } from "../../rapidoc/src/utils/schema-utils.js";
+import SchemaTable from "../../rapidoc/src/components/schema-table.ts";
+import SchemaTree from "../../rapidoc/src/components/schema-tree.ts";
+import { getBundledCss } from "../../rapidoc/src/styles/css-bundle.js";
+import { DEFAULT_THEME } from "../../rapidoc/src/styles/theme-tokens.js";
 import { renderTemplateToString, escapeHtml } from "./serializer.js";
 
 function toKebabCase(str) {

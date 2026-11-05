@@ -17,9 +17,9 @@ Not owned here: which attributes exist (`src/rapidoc.ts`), the documented token 
 (`docs/src/page-data/styling-data.yaml`), and the portal's own layout CSS.
 
 Dependents: `src/rapidoc.ts`, `src/rapidoc-mini.ts` and the shadow-root components in
-`src/components/` list the stylesheets they need in `static get styles()`; `src/static/index.js`
-re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `rapidoc/static`, and
-`src/static/render.js` uses `getBundledCss` for Declarative Shadow DOM output; `@rapidoc/portal`
+`src/components/` list the stylesheets they need in `static get styles()`; `packages/rapidoc-static/src/index.js`
+re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `@rapidoc/static`, and
+`packages/rapidoc-static/src/render.js` uses `getBundledCss` for Declarative Shadow DOM output; `@rapidoc/portal`
 (`src/pages/api-reference.astro`) uses `getNavCss` and `getThemeTokensCss`.
 
 ## Interface
@@ -49,7 +49,7 @@ re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `rapidoc/stat
 
 Every other file default-exports one stylesheet named after what it styles (`nav-styles.js`,
 `endpoint-styles.js`, `schema-styles.js`, ...); `custom-styles.js` is an empty slot kept last.
-`flow-styles.js` styles the Arazzo diagram for `<rapi-flow>` and `rapidoc/static` `getFlowCss()`; it
+`flow-styles.js` styles the Arazzo diagram for `<rapi-flow>` and `@rapidoc/static` `getFlowCss()`; it
 uses plain class selectors (no `:host`) and is not part of `allStyles`.
 
 The custom properties themselves are not listed here: `theme-tokens.js` is the source of truth and

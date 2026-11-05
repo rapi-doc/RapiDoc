@@ -11,7 +11,7 @@ import { envNameFor, generateHostConfigs, toSnakeCase } from "./common.js";
  * @param {object} [options]
  * @param {string} [options.serverName] the package name; defaults to the manifest's server name
  * @param {string} [options.workflowRuntime] the text of workflow-runtime.js, written as
- *   `workflow-runtime.js` when the manifest has workflows (rapidoc/mcp and <rapi-flow> supply it;
+ *   `workflow-runtime.js` when the manifest has workflows (@rapidoc/mcp and <rapi-flow> supply it;
  *   dist/rapidoc-min.js does not carry it)
  * @returns {Record<string, string>} file path → content
  */

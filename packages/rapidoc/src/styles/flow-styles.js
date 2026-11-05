@@ -2,7 +2,7 @@ import { css } from "lit";
 
 /**
  * Styles for the workflow diagram drawn by utils/arazzo/svg.js. Shared by <rapi-flow> and by
- * build-time pages (rapidoc/static `getFlowCss()`), so selectors are plain classes, not :host.
+ * build-time pages (@rapidoc/static `getFlowCss()`), so selectors are plain classes, not :host.
  */
 export default css`
   .rf-svg {

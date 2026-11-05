@@ -1,5 +1,5 @@
 /**
- * TypeScript Type Definitions for 'rapidoc/static'
+ * TypeScript Type Definitions for '@rapidoc/static'
  */
 
 export interface RenderRapiDocOptions {

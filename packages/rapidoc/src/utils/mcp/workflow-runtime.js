@@ -3,7 +3,7 @@
  * workflows.js) on top of runtime.js: runtime expressions, success criteria, success and failure
  * actions (end, goto, retry) and outputs. Kept apart from runtime.js so dist/rapidoc-min.js,
  * which exports operation tools only, carries no Arazzo code; dist/rapidoc-flow-min.js and
- * rapidoc/mcp include it.
+ * @rapidoc/mcp include it.
  *
  * This file is copied verbatim into exported MCP server projects that have workflows as
  * `workflow-runtime.js`, so it imports only `./runtime.js`.

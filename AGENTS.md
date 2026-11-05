@@ -16,6 +16,8 @@ rapidoc/
 │   ├── rapidoc-portal/   # Developer portal framework for OpenAPI & Markdoc (@rapidoc/portal)
 │   ├── rapidoc-server/   # Serves a built portal with OIDC sign-in and access rules (@rapidoc/server, `rapidoc serve`)
 │   ├── rapidoc-mock/     # Mock server for the portal's APIs, with OAuth scope checks (@rapidoc/mock, `rapidoc mock`)
+│   ├── rapidoc-static/   # Build-time renderer: pre-rendered <rapi-doc>, sidebar HTML, Arazzo SVG (@rapidoc/static)
+│   ├── rapidoc-mcp/      # MCP manifest builder, runtime and project writer for Node (@rapidoc/mcp), built from rapidoc/src
 │   └── create-rapidoc/   # Scaffolding CLI for new portals (npm create rapidoc)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── tests/
@@ -48,9 +50,12 @@ All agents must strictly adhere to the following system boundaries:
 ### Package Isolation & Dependencies
 
 - **Core Library Independence (`packages/rapidoc`)**:
-  - `rapidoc` is published to npm as a standalone, zero-runtime-dependency bundle for end users (`dist/rapidoc-min.js`).
+  - `rapidoc` is published to npm as standalone browser bundles (`dist/rapidoc-min.js`, `dist/rapidoc-flow-min.js`) with an empty `dependencies` list: its libraries are `devDependencies`, bundled by Vite. Never add a runtime dependency or a Node-only export to it; Node entry points are separate packages (`@rapidoc/static`, `@rapidoc/mcp`).
   - Third-party runtime dependencies (e.g., `lit`, `@scalar/openapi-parser`, `marked`, `microlighter`, `github-slugger`) are bundled directly into `dist/rapidoc-min.js` via Vite.
   - Never import code from `docs/` or other sub-packages into `packages/rapidoc`.
+- **Node packages built from the core source (`packages/rapidoc-static`, `packages/rapidoc-mcp`)**:
+  - `@rapidoc/static` owns its renderer (`src/`) and renders the templates, components and styles of `packages/rapidoc/src`; `@rapidoc/mcp` is only an entry over the MCP code there. Both bundle that source by relative path and publish `dist/` plus types only. The dependency runs one way: nothing in `packages/rapidoc/src` imports them.
+  - Both must be built before the portal, server or `prerender:demo` use them in the monorepo: `npm run build:static`, `npm run build:mcp` (`pretest:portal`, `build` and `build:demo` run them).
 - **Documentation Site (`docs`)**:
   - Consumes `packages/rapidoc` via npm workspaces (`"rapidoc": "*"`).
   - Aliases `rapidoc` and `~` to `../packages/rapidoc/src/` in development for instantaneous hot reloading.
@@ -61,7 +66,8 @@ All agents must strictly adhere to the following system boundaries:
   - `@rapidoc/server` (behind `rapidoc serve`) is the CLI's other optional peer, also imported lazily. It depends only on the build output (`dist/public/`, `dist/protected/`, `dist/rapidoc-server.json`), never on `@rapidoc/portal` or Astro; the portal writes that layout in `src/access/split-output.js`. Secrets (session key, client secret) are environment variables of the server, never config keys.
   - `rapidoc init` reuses `create-rapidoc`'s `scaffoldProject`/`findOpenApiSpecs` (`create-rapidoc/scaffold`); keep scaffolding logic only there.
   - `@rapidoc/mock` (behind `rapidoc mock`) is the CLI's third optional peer, imported lazily. It reads only spec files (the CLI passes the `apis:` from `loadConfig`), never `@rapidoc/portal` or Astro, and keeps its third-party mock libraries (openapi-backend, json-schema-faker) behind `src/engine/`.
-  - Internal dependency ranges are pinned (`rapidoc ^12.0.0` in the portal, `@rapidoc/portal ^0.1.0`, `@rapidoc/server ^0.1.0` and `@rapidoc/mock ^0.1.0` as the CLI's peers), never `*`.
+  - `@rapidoc/mcp` is RapiDoc's MCP code built for Node (the portal build and `@rapidoc/server` use it). Its source stays in `packages/rapidoc/src` (`utils/mcp-generator.js`, `utils/mcp/`, `utils/arazzo/`), shared with `<rapi-doc>`'s Export MCP Server button and `<rapi-flow>`; `packages/rapidoc-mcp` holds only the entry and build. That shared code is headless: `tests/unit/headless-boundary.test.js` fails if it imports Lit, elements, templates, styles or an unlisted package.
+  - Internal dependency ranges are pinned (`rapidoc ^12.1.0`, `@rapidoc/static ^0.1.0` and `@rapidoc/mcp ^0.1.0` in the portal, `@rapidoc/mcp ^0.1.0` in the server, `@rapidoc/portal ^0.1.0`, `@rapidoc/server ^0.1.0` and `@rapidoc/mock ^0.1.0` as the CLI's peers), never `*`.
 
 ### Build Artifact Hygiene
 
@@ -93,7 +99,9 @@ All primary scripts are runnable from the repository root via npm:
 | Command                     | Scope                 | Description                                                                                                             |
 | :-------------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `npm run build`             | Monorepo              | Sequentially builds `rapidoc` (via Vite) and `docs` (via Astro).                                                        |
-| `npm run build:rapidoc`     | `packages/rapidoc`    | Builds `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js` (`rapidoc/static`) with Vite.                             |
+| `npm run build:rapidoc`     | `packages/rapidoc`    | Builds `dist/rapidoc-min.js` and `dist/rapidoc-flow-min.js` (`rapidoc/flow`) with Vite. |
+| `npm run build:static`      | `packages/rapidoc-static` | Builds `@rapidoc/static` (`dist/index.js`); the portal, the docs guide's build and `prerender:demo` use it. |
+| `npm run build:mcp`         | `packages/rapidoc-mcp` | Builds `@rapidoc/mcp` (`dist/index.js`); the portal and server import it, so `pretest:portal` and `build:demo` run it. |
 | `npm run build:rapidoc:dev` | `packages/rapidoc`    | Builds an unminified bundle with sourcemaps and console logs intact.                                                    |
 | `npm run build:size`        | `packages/rapidoc`    | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`.                                  |
 | `npm run build:docs`        | `docs`                | Builds the Astro Starlight documentation site to `docs/dist/`.                                                          |
@@ -166,6 +174,8 @@ When executing tasks in this repository, follow these rules:
      - [`packages/rapidoc-cli/AGENTS.md`](packages/rapidoc-cli/AGENTS.md)
      - [`packages/rapidoc-server/AGENTS.md`](packages/rapidoc-server/AGENTS.md)
      - [`packages/rapidoc-mock/AGENTS.md`](packages/rapidoc-mock/AGENTS.md)
+     - [`packages/rapidoc-static/AGENTS.md`](packages/rapidoc-static/AGENTS.md)
+     - [`packages/rapidoc-mcp/AGENTS.md`](packages/rapidoc-mcp/AGENTS.md)
      - [`packages/rapidoc-portal/AGENTS.md`](packages/rapidoc-portal/AGENTS.md)
      - [`packages/create-rapidoc/AGENTS.md`](packages/create-rapidoc/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.

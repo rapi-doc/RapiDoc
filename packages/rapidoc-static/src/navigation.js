@@ -12,9 +12,9 @@
 
 import { resolveSpecInput } from "./render.js";
 import { escapeHtml } from "./serializer.js";
-import { OperationSlugger, toKebabCase } from "../utils/slugger.js";
-import { bindNavBar } from "../utils/bind-navbar.js";
-import { isInternalOrHidden } from "../utils/common-utils.js";
+import { OperationSlugger, toKebabCase } from "../../rapidoc/src/utils/slugger.js";
+import { bindNavBar } from "../../rapidoc/src/utils/bind-navbar.js";
+import { isInternalOrHidden } from "../../rapidoc/src/utils/common-utils.js";
 
 export { isInternalOrHidden };
 

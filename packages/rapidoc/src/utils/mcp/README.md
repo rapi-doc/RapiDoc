@@ -8,14 +8,14 @@ exported MCP server is the manifest plus two fixed files: `runtime.js` (this fol
 copied verbatim) and `project/server.ts` (a stdio server on `@modelcontextprotocol/sdk` that
 registers the manifest's tools and hands calls to the runtime). The entry point is
 `src/utils/mcp-generator.js`; `<rapi-doc>` (`src/rapidoc.ts`, `src/templates/downloads-template.js`)
-uses it for its Export MCP Server button, and `src/mcp.js` re-exports it as `rapidoc/mcp`
-(`dist/rapidoc-mcp-min.js`, Node only, no Lit) for the portal build, `@rapidoc/server` and the CLI.
+uses it for its Export MCP Server button, and `packages/rapidoc-mcp/src/index.js` re-exports it as `@rapidoc/mcp`
+(a separate package, Node only, no Lit) for the portal build, `@rapidoc/server` and the CLI.
 
 Arazzo workflows become tools too: `workflows.js` compiles a parsed Arazzo document into
 `manifest.workflows` (steps resolved to operations) and one tool per workflow, and
 `workflow-runtime.js` runs them on top of `runtime.js`. The two runtimes are separate files so
 `dist/rapidoc-min.js` (operation tools only) carries no Arazzo runtime, while
-`dist/rapidoc-flow-min.js` and `rapidoc/mcp` include both. Not owned here: Arazzo parsing and validation (`../arazzo/`), the `<rapi-doc>` attribute and
+`dist/rapidoc-flow-min.js` and `@rapidoc/mcp` include both. Not owned here: Arazzo parsing and validation (`../arazzo/`), the `<rapi-doc>` attribute and
 methods, and the network calls themselves (the runtime only builds and sends requests).
 
 ## Interface
@@ -42,7 +42,7 @@ methods, and the network calls themselves (the runtime only builds and sends req
 - `runWorkflow(runtime, tool, args, { onStepStart, onStep, sleep })` and
   `createMcpWorkflowRuntime(manifest, options)` (createMcpRuntime with `runWorkflow` plugged in;
   `options.sleep` waits between retries) [workflow-runtime.js], plus `evaluateExpression`,
-  `resolveValue` and `evaluateCondition`. `rapidoc/mcp` exports `createMcpWorkflowRuntime` as its
+  `resolveValue` and `evaluateCondition`. `@rapidoc/mcp` exports `createMcpWorkflowRuntime` as its
   `createMcpRuntime`.
   `readResource(uri) -> { contents }`. `buildRequest(manifest, operation, args, options)` returns
   the request without sending it; `credentialsFromEnv(manifest, env)` and `envNameFor(id)` map
@@ -50,7 +50,7 @@ methods, and the network calls themselves (the runtime only builds and sends req
 - `writeMcpProject(manifest, { serverName, workflowRuntime }) -> { [path]: text }` [project.js]:
   `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md`,
   `claude_desktop_config.json`, and `workflow-runtime.js` when the manifest has workflows and
-  `workflowRuntime` (its text) is given: `rapidoc/mcp` and `<rapi-flow>` supply it,
+  `workflowRuntime` (its text) is given: `@rapidoc/mcp` and `<rapi-flow>` supply it,
   `dist/rapidoc-min.js` does not carry it. `server.ts` imports it dynamically when present.
 - `createZip(files) -> Uint8Array` [zip.js]: a stored (uncompressed) ZIP of text files.
 - `generateMcpServer(spec, options) -> { manifest, files, budget, hostConfig }`

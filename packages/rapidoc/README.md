@@ -66,9 +66,12 @@ rapidoc/
 ├── packages/
 │   ├── rapidoc/                 # Core web component library (npm "rapidoc"): <rapi-doc>, <rapi-doc-mini>
 │   │   ├── src/                 # Lit 3 source; each folder has a README.md contract
-│   │   ├── dist/                # rapidoc-min.js (browser) and rapidoc-static-min.js ("rapidoc/static")
+│   │   ├── dist/                # rapidoc-min.js and rapidoc-flow-min.js ("rapidoc/flow"), both for browsers
 │   │   ├── vite.config.mjs      # Browser bundle build
-│   │   └── vite.config.static.mjs  # Static (SSR) renderer build
+│   │   └── vite.config.flow.mjs # <rapi-flow> bundle build
+│   │
+│   ├── rapidoc-static/          # @rapidoc/static: build-time renderer (pre-rendered <rapi-doc>, sidebar HTML) for Node
+│   ├── rapidoc-mcp/             # @rapidoc/mcp: MCP manifest builder, runtime and project writer for Node
 │   │
 │   ├── rapidoc-cli/             # @rapidoc/cli, the `rapidoc` command: init, dev, build, serve, mock, validate, migrate
 │   ├── rapidoc-portal/          # @rapidoc/portal: docs-as-code developer portal for OpenAPI and Markdoc (Astro)
@@ -282,23 +285,20 @@ a whole.
 
 ### Overview
 
-`packages/rapidoc` is a Lit 3 web component library built by Vite into four ES module bundles:
+`packages/rapidoc` is a Lit 3 web component library built by Vite into two ES module bundles, and has no runtime dependencies:
 
 - `dist/rapidoc-min.js` (`vite.config.mjs`, entry `src/index.js`): registers `<rapi-doc>`,
   `<rapi-doc-mini>` and `<oauth-receiver>` on import. Production builds are minified, carry the
   license banner, and have `console.*` and `debugger` removed.
-- `dist/rapidoc-static-min.js` (`vite.config.static.mjs`, entry `src/static/index.js`), exported as
-  `rapidoc/static`: an SSR build for Node that `@rapidoc/portal` uses for sidebar HTML and
-  Declarative Shadow DOM pre-rendering. It is not minified despite its name, keeps `console`, and
-  leaves `lit`, `@scalar/openapi-parser`, `marked`, `yaml`, `github-slugger` and `microlighter`
-  external.
 - `dist/rapidoc-flow-min.js` (`vite.config.flow.mjs`, entry `src/flow.js`), exported as
   `rapidoc/flow`: registers `<rapi-flow>`, the Arazzo workflow diagram, with the workflow runtime
   that runs them in the browser. It bundles its own copy of Lit and `yaml`, so pages that do not
   load it pay nothing; `rapidoc-min.js` carries no Arazzo runtime.
-- `dist/rapidoc-mcp-min.js` (`vite.config.mcp.mjs`, entry `src/mcp.js`), exported as
-  `rapidoc/mcp` with types in `src/mcp.d.ts`: the MCP manifest builder, runtime and project
-  writer for Node (`@rapidoc/server`, the CLI), with no Lit and no element.
+
+Two Node packages are built from this source: `@rapidoc/static` (`packages/rapidoc-static`), the
+build-time renderer that renders these templates and components to HTML, and `@rapidoc/mcp`
+(`packages/rapidoc-mcp`), the MCP code in `src/utils/` (`mcp-generator.js`, `mcp/`, `arazzo/`).
+Nothing in `src/` imports either package.
 
 ```text
 spec-url / inline spec ──▶ utils/spec-parser.js ProcessSpec (load, upgrade, dereference, group)
@@ -308,8 +308,8 @@ spec-url / inline spec ──▶ utils/spec-parser.js ProcessSpec (load, upgrade
         ├── events: spec-loaded, nav-active-change   (components: before-try, after-try, request-aborted)
         └── utils/mock-interceptor.js patches fetch / XMLHttpRequest while mock-server="true"
 
-rapidoc/static ──▶ the same templates and components, serialized by static/serializer.js
-                   renderTemplateToString (no DOM)
+@rapidoc/static ──▶ the same templates and components, serialized by its serializer.js
+                    renderTemplateToString (no DOM)
 ```
 
 ### Folder Contracts
@@ -323,7 +323,8 @@ rapidoc/static ──▶ the same templates and components, serialized by static
   project;
   [`utils/arazzo/`](./src/utils/arazzo/README.md) for Arazzo workflow diagrams.
 - [`src/styles/`](./src/styles/README.md): stylesheets and the theme-token contract.
-- [`src/static/`](./src/static/README.md): the `rapidoc/static` renderer.
+- [`../rapidoc-static/src/`](../rapidoc-static/src/README.md): the `@rapidoc/static` renderer, a
+  separate package that renders this folder's templates.
 
 ### Global Invariants
 
@@ -348,7 +349,7 @@ rapidoc/static ──▶ the same templates and components, serialized by static
 - **Network**: spec and external `$ref` fetches, Try requests from `<api-request>`, OAuth token
   requests and the sign-in popup.
 - **Global patching**: the mock server replaces `window.fetch` and three `XMLHttpRequest`
-  prototype methods and restores them on disable; importing `rapidoc/static` installs or wraps
+  prototype methods and restores them on disable; importing `@rapidoc/static` installs or wraps
   `customElements.define`; importing the elements configures the global `marked` instance.
 - **Storage and messaging**: `localStorage["rapidoc"]` with `persist-auth="true"`; OAuth replies
   via `window.opener.postMessage` and a `BroadcastChannel`.

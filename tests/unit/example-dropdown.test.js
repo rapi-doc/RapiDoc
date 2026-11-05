@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { renderTemplateToString } from "rapidoc/static";
+import { renderTemplateToString } from "@rapidoc/static";
 import requestBodyTemplate from "~/templates/request-body-template";
 import { exampleLabel } from "~/utils/schema-utils";
 

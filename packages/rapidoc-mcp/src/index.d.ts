@@ -1,5 +1,5 @@
 /**
- * TypeScript Type Definitions for 'rapidoc/mcp'
+ * TypeScript Type Definitions for '@rapidoc/mcp'
  */
 
 /** A JSON Schema object, as the manifest writes it. */
@@ -161,7 +161,7 @@ export interface RuntimeOptions {
   baseUrls?: Record<string, string>;
   /** Waits between retries; defaults to setTimeout. */
   sleep?: (ms: number) => Promise<void>;
-  /** Runs workflow tools; `rapidoc/mcp`'s createMcpRuntime sets it to `runWorkflow`. */
+  /** Runs workflow tools; `@rapidoc/mcp`'s createMcpRuntime sets it to `runWorkflow`. */
   runWorkflow?: (
     runtime: McpRuntime,
     tool: McpTool,
@@ -233,7 +233,7 @@ export interface McpRuntime {
   readResource(uri: string): Promise<McpResourceResult>;
 }
 
-/** In `rapidoc/mcp` this is createMcpWorkflowRuntime: workflow tools run too. */
+/** In `@rapidoc/mcp` this is createMcpWorkflowRuntime: workflow tools run too. */
 export function createMcpRuntime(manifest: McpManifest, options?: RuntimeOptions): McpRuntime;
 
 /** Runs a workflow tool on a runtime; pass as `runWorkflow`. */
@@ -273,7 +273,7 @@ export function envNameFor(schemeId: string): string;
 
 /**
  * The exported project's files: manifest.json, server.ts, runtime.js, package.json, README.md,
- * claude_desktop_config.json, and workflow-runtime.js when the manifest has workflows (`rapidoc/mcp`
+ * claude_desktop_config.json, and workflow-runtime.js when the manifest has workflows (`@rapidoc/mcp`
  * supplies its text; pass `workflowRuntime` to override).
  */
 export function writeMcpProject(

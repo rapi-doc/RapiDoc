@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { renderTemplateToString } from "rapidoc/static";
+import { renderTemplateToString } from "@rapidoc/static";
 import serverTemplate from "~/templates/server-template";
 
 // The API Server section for a spec whose server descriptions use markdown.

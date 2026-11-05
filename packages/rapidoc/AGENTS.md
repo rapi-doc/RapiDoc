@@ -5,17 +5,17 @@
 `packages/rapidoc` contains the core RapiDoc custom elements library. It produces the zero-runtime-dependency web component `<rapi-doc>` as well as companion components `<rapi-doc-mini>` and `<oauth-receiver>`.
 
 - **Package Name**: `rapidoc`
-- **Output Targets**: Standalone ES Module bundle at `dist/rapidoc-min.js`, plus the build-time static renderer at `dist/rapidoc-static-min.js` (exported as `rapidoc/static`)
+- **Output Targets**: Standalone ES Module bundles `dist/rapidoc-min.js` and `dist/rapidoc-flow-min.js` (`rapidoc/flow`). No runtime `dependencies`: everything is bundled, so the libraries are `devDependencies`.
+- **Node packages built from this source**: `@rapidoc/static` (`packages/rapidoc-static`, the build-time renderer) and `@rapidoc/mcp` (`packages/rapidoc-mcp`). Nothing in `src/` may import them.
 - **Component Entry**: `src/index.js`
 - **Main Element**: `src/rapidoc.ts` (`<rapi-doc>`)
-- **Static Renderer**: `src/static/` (`getNavBarHtml`, `getNavCss`, DSD rendering)
 
 ---
 
 ## 2. Technology Stack & Build Pipeline
 
 - **Framework**: [Lit 3](https://lit.dev/) (`LitElement`, `html`, `css`)
-- **Bundler**: [Vite 8](https://vitejs.dev/) in Library Mode (`vite.config.mjs`, plus `vite.config.static.mjs` for `rapidoc/static`)
+- **Bundler**: [Vite 8](https://vitejs.dev/) in Library Mode (`vite.config.mjs`, plus `vite.config.flow.mjs` for `rapidoc/flow`)
 - **Spec Parser**: `@scalar/openapi-parser` for OpenAPI 3.0, OpenAPI 3.1, and Swagger 2.0 dereferencing and parsing
 - **Markdown & Highlight**: `marked`, `microlighter`, `github-slugger`
 - **Rollup / Vite Plugins**:
@@ -36,9 +36,9 @@ Run these commands from `packages/rapidoc` (or from the monorepo root using `--w
 
 | Command                | Purpose                                                                                                          |
 | :--------------------- | :--------------------------------------------------------------------------------------------------------------- |
-| `npm run build`        | Builds `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js`                                                    |
+| `npm run build`        | Builds `dist/rapidoc-min.js` and `dist/rapidoc-flow-min.js`                                                      |
 | `npm run build:client` | Builds only `dist/rapidoc-min.js`                                                                                |
-| `npm run build:static` | Builds only `dist/rapidoc-static-min.js`                                                                         |
+| `npm run build:flow`   | Builds only `dist/rapidoc-flow-min.js`                                                                           |
 | `npm run build:dev`    | Builds the unminified bundle with sourcemaps & console logs intact                                               |
 | `npm run build:size`   | Builds with `ANALYZE=true` and generates `dist/stats.html` treemap                                               |
 | `npm run lint`         | Runs oxlint on `src/` (default rules; any warning fails)                                                         |
@@ -55,7 +55,6 @@ packages/rapidoc/src/
 ├── components/          # Reusable Lit UI components (nav, headers, inputs, buttons)
 ├── templates/           # Sub-templates (endpoint details, request/response bodies, security)
 ├── styles/              # Scoped CSS stylesheets and theming tokens
-├── static/              # Build-time static renderer (rapidoc/static): nav HTML, DSD output
 ├── utils/
 │   ├── spec-parser.js       # Core OpenAPI spec parser & dereferencing pipeline
 │   ├── schema-utils.js      # Type resolver, constraints, schema tree building, and sample generation
@@ -99,7 +98,7 @@ packages/rapidoc/src/
    - Strip debug logging before finalizing changes; `vite.config.mjs` removes `console` in production bundles, but keeping the source clean avoids unintended warning noise.
 8. **Declarative Shadow DOM (DSD) Hydration Hygiene**:
    - When pre-rendering with DSD (`outputMode: 'dsd'`), `_clearDsdIfNeeded()` must replace all children (`this.shadowRoot.replaceChildren()`) and reset render options before Lit mounts its dynamic template result.
-   - Whenever changes are made to `src/rapidoc.ts` or static rendering logic, execute `npm run build:rapidoc` to keep `dist/rapidoc-min.js` and `dist/rapidoc-static-min.js` in sync.
+   - Whenever changes are made to `src/rapidoc.ts` or static rendering logic, execute `npm run build:rapidoc` and `npm run build:static` (root) to keep `dist/rapidoc-min.js` and `@rapidoc/static`'s `dist/index.js` in sync.
 9. **NEVER Revert `dist/rapidoc-min.js` via Git Checkout**:
    - `packages/rapidoc/dist/rapidoc-min.js` is tracked in git at an older commit (`4ff07e3f`).
    - **DO NOT** run `git checkout packages/rapidoc/dist/rapidoc-min.js` or `git restore` to clean up `git status`. Doing so restores the obsolete pre-slugger bundle and breaks navigation/scrolling across all portal pages.
@@ -107,4 +106,4 @@ packages/rapidoc/src/
 10. **Folder Contracts (`src/**/README.md`)**:
     - Each code folder under `src/` has a `README.md` contract: what the folder owns, its public interface, invariants callers rely on, side effects, and the tests that cover it.
     - A change that alters a documented interface, invariant or side effect updates that folder's `README.md` in the same commit.
-    - Cite code by file and symbol (`[slugger.js:OperationSlugger.slug]`), never by line number. Keep inventories (every method, CSS part, option default) out; the code and `static/index.d.ts` hold them.
+    - Cite code by file and symbol (`[slugger.js:OperationSlugger.slug]`), never by line number. Keep inventories (every method, CSS part, option default) out; the code and `packages/rapidoc-static/src/index.d.ts` hold them.

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { renderRapiDoc, renderTemplateToString } from "rapidoc/static";
+import { renderRapiDoc, renderTemplateToString } from "@rapidoc/static";
 import { renderLongFormatExamples } from "~/templates/request-params-template";
 import { apiCallTemplate } from "~/templates/api-response-template";
 

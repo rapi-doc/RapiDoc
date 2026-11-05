@@ -1,17 +1,17 @@
-# rapidoc/static — Static Renderer
+# @rapidoc/static — Static Renderer
 
 ## Overview
 
-The build-time, framework-agnostic renderer of the `rapidoc` package, published as the
-`rapidoc/static` subpath (`dist/rapidoc-static-min.js`, built by `vite.config.static.mjs` in SSR
-library mode; types in `index.d.ts`). It turns an OpenAPI spec into HTML strings without a
+The build-time, framework-agnostic renderer, published as `@rapidoc/static` (`dist/index.js`, built
+by `../vite.config.mjs` in SSR library mode; types in `index.d.ts`). It renders the templates and
+components of `packages/rapidoc/src` on the server, so a change there shows up here too. It turns an OpenAPI spec into HTML strings without a
 browser: the sidebar markup and navigation model that `@rapidoc/portal` places beside a headless
 `<rapi-doc>`, and pre-rendered `<rapi-doc>` output as Declarative Shadow DOM or light DOM.
 
-It does not parse specs (`../utils/spec-parser.js`), build CSS (`../styles/css-bundle.js`),
-compute anchors (`../utils/slugger.js`) or bind the sidebar in the browser
-(`../utils/bind-navbar.js`); it re-exports those entry points. Its Lit templates come from
-`../templates/` and its schema renderers from `../components/`.
+It does not parse specs (`../../rapidoc/src/utils/spec-parser.js`), build CSS (`../../rapidoc/src/styles/css-bundle.js`),
+compute anchors (`../../rapidoc/src/utils/slugger.js`) or bind the sidebar in the browser
+(`../../rapidoc/src/utils/bind-navbar.js`); it re-exports those entry points. Its Lit templates come from
+`../../rapidoc/src/templates/` and its schema renderers from `../../rapidoc/src/components/`.
 
 ## Interface
 
@@ -33,11 +33,11 @@ typed contract (option types, navigation types, signatures) and declares no defa
   and method badge text.
 - `renderTemplateToString(result, options?)`, `escapeHtml(str)` [serializer.js] — DOM-free
   serializer for Lit `TemplateResult` values.
-- Re-exports: `bindNavBar` (browser-side, `../utils/bind-navbar.js`); `getBundledCss`,
-  `getNavCss`, `getThemeTokensCss` (`../styles/css-bundle.js`); `toKebabCase`, `methodPathSlug`,
-  `operationAnchorSource` (`../utils/slugger.js`); `renderArazzoWorkflow`
-  (`../utils/arazzo/index.js`: one Arazzo workflow as an SVG string) and `getFlowCss` (its
-  stylesheet, `../styles/flow-styles.js`; the page also needs `getThemeTokensCss`).
+- Re-exports: `bindNavBar` (browser-side, `../../rapidoc/src/utils/bind-navbar.js`); `getBundledCss`,
+  `getNavCss`, `getThemeTokensCss` (`../../rapidoc/src/styles/css-bundle.js`); `toKebabCase`, `methodPathSlug`,
+  `operationAnchorSource` (`../../rapidoc/src/utils/slugger.js`); `renderArazzoWorkflow`
+  (`../../rapidoc/src/utils/arazzo/index.js`: one Arazzo workflow as an SVG string) and `getFlowCss` (its
+  stylesheet, `../../rapidoc/src/styles/flow-styles.js`; the page also needs `getThemeTokensCss`).
 
 ## Invariants
 
@@ -59,7 +59,7 @@ typed contract (option types, navigation types, signatures) and declares no defa
   [navigation.js:renderOperation].
 - In `routingMode: "tag-pages"`, hrefs are `${base}/${tagSlug}#${opSlug}` except for an empty or
   `general` tag slug, which keeps the single-page `${base}#${id}` form.
-- `@rapidoc/portal` and `../utils/bind-navbar.js` rely on the sidebar's classes and `data-*`
+- `@rapidoc/portal` and `../../rapidoc/src/utils/bind-navbar.js` rely on the sidebar's classes and `data-*`
   attributes (`.nav-bar-path`, `data-action`, `data-content-id`, `data-op-slug`,
   `data-tag-href`); changing them is a breaking change
   [navigation.js:renderNavBarHtml].
@@ -82,5 +82,5 @@ typed contract (option types, navigation types, signatures) and declares no defa
 
 - Run `npm run test:unit` from the repo root; `tests/unit/static-renderer.test.js` covers this
   folder.
-- After changes, rebuild the bundle with `npm run build:rapidoc` from the root (or
-  `npm run build:static` in `packages/rapidoc`).
+- After changes here or in the `packages/rapidoc/src` code it renders, rebuild with
+  `npm run build:static` from the root (or `npm run build` in `packages/rapidoc-static`).

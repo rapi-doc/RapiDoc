@@ -342,7 +342,7 @@ export default css`
   .nav-bar-path {
     display: flex;
     cursor: pointer;
-    /* Border-box and no underline here too: getNavCss() (rapidoc/static) styles these on a page
+    /* Border-box and no underline here too: getNavCss() (@rapidoc/static) styles these on a page
        without the component's global box-sizing reset and link styles */
     box-sizing: border-box;
     width: 100%;

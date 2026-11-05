@@ -1,0 +1,52 @@
+{
+  "name": "@rapidoc/static",
+  "version": "0.1.0",
+  "description": "Renders RapiDoc API documentation to HTML at build time: pre-rendered <rapi-doc> (Declarative Shadow DOM or light DOM), sidebar navigation, Arazzo diagrams",
+  "keywords": [
+    "api-documentation",
+    "declarative-shadow-dom",
+    "openapi",
+    "rapidoc",
+    "ssg",
+    "ssr",
+    "static-site"
+  ],
+  "homepage": "https://rapidocui.com",
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/rapidoc-static"
+  },
+  "files": [
+    "dist",
+    "src/index.d.ts"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@scalar/openapi-parser": "^0.29.19",
+    "github-slugger": "^2.0.0",
+    "lit": "^3.3.3",
+    "marked": "^18.1.2",
+    "microlighter": "^2.2.0",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "vite": "^8.3.5"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

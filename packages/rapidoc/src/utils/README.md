@@ -3,7 +3,7 @@
 ## Overview
 
 Framework-free helpers behind the `<rapi-doc>` component (`src/rapidoc.ts`), its templates and
-the static renderer (`rapidoc/static`, `src/static/`). `utils/` owns the spec pipeline (load,
+the static renderer (`@rapidoc/static`, `packages/rapidoc-static`). `utils/` owns the spec pipeline (load,
 dereference, group, anchor), schema rendering and example generation, request/response/mock
 helpers, and UI helpers (highlighting, Markdown, sanitizing, navbar binding, color, OAuth). It
 does not own rendering (`templates/`, `components/`) or styles. The MCP manifest, runtime and
@@ -11,8 +11,8 @@ project writer are documented in [`./mcp/README.md`](./mcp/README.md); Arazzo pa
 [`./arazzo/README.md`](./arazzo/README.md).
 
 Everything except `arazzo/` is bundled into `dist/rapidoc-min.js`; `arazzo/` goes into
-`dist/rapidoc-flow-min.js` and `rapidoc/static`. `@rapidoc/portal` depends on this folder
-indirectly through `rapidoc/static` (`methodPathSlug`, `operationAnchorSource`, `toKebabCase`)
+`dist/rapidoc-flow-min.js` and `@rapidoc/static`. `@rapidoc/portal` depends on this folder
+indirectly through `@rapidoc/static` (`methodPathSlug`, `operationAnchorSource`, `toKebabCase`)
 and the anchors `<rapi-doc>` emits, so anchor generation is public behavior.
 Several modules run in Node (static renderer, unit tests) and must guard `window`/`document`.
 
@@ -105,6 +105,11 @@ UI helpers:
   responses carry `X-Mock-Server: RapiDoc`.
 - **Highlighter** (`[highlighter.js]`): `highlightAllCode` and `scheduleHighlight` are no-ops
   without `window` and `CSS.highlights`; highlighting never mutates the DOM.
+- **Headless boundary**: `spec-parser.js`, `schema-utils.js`, `slugger.js`, `mcp-generator.js`,
+  `mcp/`, `arazzo/` and everything they import are shared with the Node builds (`@rapidoc/static`,
+  `@rapidoc/mcp`). They never import Lit, elements, `components/`, `templates/`, `styles/` or
+  `static/`, and use only the third-party packages allowed in `tests/unit/headless-boundary.test.js`.
+  DOM calls inside functions are allowed (Node never calls them); DOM access at import time is not.
 
 ## Side Effects
 
@@ -138,3 +143,4 @@ Run `npm run test:unit` from the repo root before and after changing `spec-parse
 - `response-utils.js`: `api-request-response`.
 - `mock-interceptor.js`, `oauth-utils.js`, `markdown-utils.js`, `mcp-generator.js`: the
   test file of the same name.
+- Headless boundary (imports of the modules above, transitively): `headless-boundary`.

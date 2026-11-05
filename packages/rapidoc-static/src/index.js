@@ -1,7 +1,7 @@
 /**
  * Framework-Agnostic Static Pre-Rendering & Portal Utilities for RapiDoc.
  *
- * Exported subpath: 'rapidoc/static'
+ * Package: '@rapidoc/static' (built into dist/index.js)
  *
  * Usable across Node.js >= 22, Bun, Astro, Nuxt, Next.js, 11ty, VitePress, or custom scripts.
  */
@@ -16,10 +16,18 @@ import {
   getMethodBadge,
   bindNavBar,
 } from "./navigation.js";
-import { getBundledCss, getNavCss, getThemeTokensCss } from "../styles/css-bundle.js";
-import { toKebabCase, methodPathSlug, operationAnchorSource } from "../utils/slugger.js";
-import { renderArazzoWorkflow } from "../utils/arazzo/index.js";
-import FlowStyles from "../styles/flow-styles.js";
+import {
+  getBundledCss,
+  getNavCss,
+  getThemeTokensCss,
+} from "../../rapidoc/src/styles/css-bundle.js";
+import {
+  toKebabCase,
+  methodPathSlug,
+  operationAnchorSource,
+} from "../../rapidoc/src/utils/slugger.js";
+import { renderArazzoWorkflow } from "../../rapidoc/src/utils/arazzo/index.js";
+import FlowStyles from "../../rapidoc/src/styles/flow-styles.js";
 
 /** CSS for diagrams from `renderArazzoWorkflow`; the page also needs the theme tokens (`getThemeTokensCss`). */
 function getFlowCss() {

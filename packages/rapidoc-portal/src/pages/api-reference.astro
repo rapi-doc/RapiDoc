@@ -2,7 +2,7 @@
 import PortalLayout from '../components/PortalLayout.astro';
 import PortalMobileNav from '../components/PortalMobileNav.astro';
 import Callout from '../components/Callout.astro';
-import { getNavBarHtml, getNavCss, getThemeTokensCss } from 'rapidoc/static';
+import { getNavBarHtml, getNavCss, getThemeTokensCss } from '@rapidoc/static';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import { OAUTH_RECEIVER_PATH } from '../engine/sync-assets.js';
 import { apiReferencePaths, readVersionSpec } from '../engine/api-routes.js';
@@ -24,7 +24,7 @@ const versionChoices = api.versions.map((v, i) => ({ ...v, tags: versionTags[i] 
 
 const themePreset = portalConfig.rapidoc.theme || 'ember';
 
-// RapiDoc's own navigation is hidden (show-side-nav=false); the sidebar is rapidoc/static's, so the navigation
+// RapiDoc's own navigation is hidden (show-side-nav=false); the sidebar is @rapidoc/static's, so the navigation
 // attributes of `rapidoc:` are passed to it.
 const navAttributes = {
   'show-method-in-nav-bar': portalConfig.rapidoc['show-method-in-nav-bar'] || 'as-colored-text',
@@ -108,7 +108,7 @@ const rapidocAttributes = {
         </select>
       </div>
     )}
-    <!-- The nav CSS from rapidoc/static styles its scope element, so it gets an element of its own. -->
+    <!-- The nav CSS from @rapidoc/static styles its scope element, so it gets an element of its own. -->
     <div class="portal-api-nav portal-sidebar nav-bar">
       <Fragment set:html={sidebarNavHtml} />
     </div>

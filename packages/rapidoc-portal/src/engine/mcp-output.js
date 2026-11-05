@@ -8,14 +8,14 @@
  *                                           tools and the sources they use (`apis` maps each
  *                                           source name to the API id)
  *
- * The manifests are built with rapidoc/mcp from the specs on disk, after the site is built and,
+ * The manifests are built with @rapidoc/mcp from the specs on disk, after the site is built and,
  * with `auth`, after the output is split, so they live next to public/ and protected/ rather than
  * inside them. Remote specs and workflows the runtime cannot run are left out (the latter with the
  * same warnings `rapidoc validate` prints).
  */
 import fs from "node:fs";
 import path from "node:path";
-import { buildMcpManifest, parseArazzo } from "rapidoc/mcp";
+import { buildMcpManifest, parseArazzo } from "@rapidoc/mcp";
 import { readSpecFile } from "./spec-checks.js";
 
 export const MCP_DIR = "mcp";

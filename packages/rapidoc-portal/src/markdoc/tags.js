@@ -1,7 +1,7 @@
 import Markdoc from "@markdoc/markdoc";
 import GithubSlugger from "github-slugger";
 import { operationMatchPattern } from "./operation.js";
-import { renderArazzoWorkflow } from "rapidoc/static";
+import { renderArazzoWorkflow } from "@rapidoc/static";
 import { CALLOUT_TYPES } from "../components/callout-types.js";
 
 /**

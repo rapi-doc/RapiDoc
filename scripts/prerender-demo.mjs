@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { renderRapiDoc } from "rapidoc/static";
+import { renderRapiDoc } from "@rapidoc/static";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

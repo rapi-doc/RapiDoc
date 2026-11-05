@@ -20,10 +20,10 @@
   "dependencies": {
     "@hono/node-server": "^2.1.5",
     "@modelcontextprotocol/sdk": "^1.32.2",
+    "@rapidoc/mcp": "^0.1.0",
     "hono": "^4.13.16",
     "jose": "^6.2.14",
-    "openid-client": "^6.8.8",
-    "rapidoc": "^12.0.0"
+    "openid-client": "^6.8.8"
   },
   "devDependencies": {
     "oidc-provider": "^9.13.3"

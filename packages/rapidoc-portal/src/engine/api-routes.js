@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import yaml from "yaml";
-import { getSpecNavigation, toKebabCase } from "rapidoc/static";
+import { getSpecNavigation, toKebabCase } from "@rapidoc/static";
 import { API_PATH } from "../config/normalizer.js";
 
 /**

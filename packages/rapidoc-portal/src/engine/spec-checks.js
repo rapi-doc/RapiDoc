@@ -9,8 +9,8 @@
 
 import fs from "node:fs";
 import yaml from "yaml";
-import { methodPathSlug, operationAnchorSource } from "rapidoc/static";
-import { compileWorkflows, indexOperations, parseArazzo, validateArazzo } from "rapidoc/mcp";
+import { methodPathSlug, operationAnchorSource } from "@rapidoc/static";
+import { compileWorkflows, indexOperations, parseArazzo, validateArazzo } from "@rapidoc/mcp";
 
 const HTTP_METHODS = ["get", "put", "post", "delete", "options", "head", "patch", "trace", "query"];
 const LISTED_OPERATIONS = 3;

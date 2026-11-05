@@ -19,7 +19,7 @@ import {
   getBundledCss,
   getNavCss,
   getThemeTokensCss,
-} from "rapidoc/static";
+} from "@rapidoc/static";
 import { isInternalOrHidden } from "~/utils/common-utils";
 
 const sampleSpec = {
