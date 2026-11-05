@@ -51,13 +51,18 @@
     "./flow": {
       "browser": "./dist/rapidoc-flow-min.js",
       "default": "./dist/rapidoc-flow-min.js"
+    },
+    "./mcp": {
+      "import": "./dist/rapidoc-mcp-min.js",
+      "types": "./src/mcp.d.ts"
     }
   },
   "scripts": {
-    "build": "vite build && vite build --config vite.config.static.mjs && vite build --config vite.config.flow.mjs",
+    "build": "vite build && vite build --config vite.config.static.mjs && vite build --config vite.config.flow.mjs && vite build --config vite.config.mcp.mjs",
     "build:client": "vite build",
     "build:static": "vite build --config vite.config.static.mjs",
     "build:flow": "vite build --config vite.config.flow.mjs",
+    "build:mcp": "vite build --config vite.config.mcp.mjs",
     "build:dev": "vite build --mode development",
     "build:size": "ANALYZE=true vite build",
     "lint": "oxlint --deny-warnings src",

@@ -287,6 +287,28 @@ console.log(`Overhead: ~${budget.estimatedTokens} tokens/turn across ${budget.to
 
 `result.files` has the keys `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md` and `claude_desktop_config.json`. `getMcpBudget()` returns `{ totalTools, totalResources, estimatedTokens, consequentialCount, warnings }`, where `consequentialCount` is the number of tools that are not read-only.
 
+### In Node: `rapidoc/mcp`
+
+The same builder, runtime and project writer are available without the browser or any element, for build scripts and servers:
+
+```javascript
+import { readFileSync } from 'node:fs';
+import { parse } from 'yaml';
+import { buildMcpManifest, createMcpRuntime, writeMcpProject } from 'rapidoc/mcp';
+
+const spec = parse(readFileSync('openapi.yaml', 'utf8'));
+const manifest = buildMcpManifest(spec, { serverName: 'petstore' });
+
+// Call a tool directly, with credentials by security scheme
+const runtime = createMcpRuntime(manifest, { credentials: { api_key: process.env.API_KEY } });
+const result = await runtime.callTool('get_pet_by_id', { petId: 1 });
+
+// Or write the same project the Export button downloads
+const files = writeMcpProject(manifest); // path → text
+```
+
+`rapidoc/mcp` ships TypeScript types (`McpManifest`, `McpRuntime`, ...) and has no dependencies beyond Node's `fetch`.
+
 ---
 
 ## 6. Configuring AI Host Clients

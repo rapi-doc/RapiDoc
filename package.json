@@ -32,6 +32,7 @@
     "test:all": "npm run test:unit && npm run test:component && npm run test:e2e && npm run test:visual"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "oxfmt": "^0.75.0",
     "oxlint": "^1.90.0",
     "playwright-core": "^1.64.1"

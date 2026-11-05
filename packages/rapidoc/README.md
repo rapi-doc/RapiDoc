@@ -282,7 +282,7 @@ a whole.
 
 ### Overview
 
-`packages/rapidoc` is a Lit 3 web component library built by Vite into three ES module bundles:
+`packages/rapidoc` is a Lit 3 web component library built by Vite into four ES module bundles:
 
 - `dist/rapidoc-min.js` (`vite.config.mjs`, entry `src/index.js`): registers `<rapi-doc>`,
   `<rapi-doc-mini>` and `<oauth-receiver>` on import. Production builds are minified, carry the
@@ -295,6 +295,9 @@ a whole.
 - `dist/rapidoc-flow-min.js` (`vite.config.flow.mjs`, entry `src/flow.js`), exported as
   `rapidoc/flow`: registers `<rapi-flow>`, the Arazzo workflow diagram. It bundles its own copy of
   Lit and `yaml`, so pages that do not load it pay nothing.
+- `dist/rapidoc-mcp-min.js` (`vite.config.mcp.mjs`, entry `src/mcp.js`), exported as
+  `rapidoc/mcp` with types in `src/mcp.d.ts`: the MCP manifest builder, runtime and project
+  writer for Node (`@rapidoc/server`, the CLI), with no Lit and no element.
 
 ```text
 spec-url / inline spec ──▶ utils/spec-parser.js ProcessSpec (load, upgrade, dereference, group)

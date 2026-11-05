@@ -19,6 +19,8 @@ registerHooks({
       );
     } else if (specifier === "rapidoc/static") {
       target = fileURLToPath(new URL("../packages/rapidoc/src/static/index.js", import.meta.url));
+    } else if (specifier === "rapidoc/mcp") {
+      target = fileURLToPath(new URL("../packages/rapidoc/src/mcp.js", import.meta.url));
     }
 
     try {

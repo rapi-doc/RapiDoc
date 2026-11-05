@@ -5,7 +5,8 @@
 Source root of the `rapidoc` package. It owns the three custom elements and the bundle entry:
 `rapidoc.ts` (`<rapi-doc>`, the full viewer), `rapidoc-mini.ts` (`<rapi-doc-mini>`, the embeddable
 subset) and `oauth-receiver.ts` (`<oauth-receiver>`, the OAuth 2 return page). `index.js` is the
-entry Vite builds into `dist/rapidoc-min.js`; `static/` is the second entry (`rapidoc/static`).
+entry Vite builds into `dist/rapidoc-min.js`; `static/` is the second entry (`rapidoc/static`),
+and `mcp.js` (`rapidoc/mcp`, typed by `mcp.d.ts`) re-exports `utils/mcp-generator.js` for Node.
 `rapi-flow.ts` (`<rapi-flow>`, the Arazzo workflow diagram) has its own entry, `flow.js`, built into
 `dist/rapidoc-flow-min.js` (`rapidoc/flow`), so `rapidoc-min.js` carries no Arazzo code.
 

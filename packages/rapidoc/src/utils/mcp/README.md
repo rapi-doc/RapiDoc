@@ -8,7 +8,8 @@ exported MCP server is the manifest plus two fixed files: `runtime.js` (this fol
 copied verbatim) and `project/server.ts` (a stdio server on `@modelcontextprotocol/sdk` that
 registers the manifest's tools and hands calls to the runtime). The entry point is
 `src/utils/mcp-generator.js`; `<rapi-doc>` (`src/rapidoc.ts`, `src/templates/downloads-template.js`)
-uses it for its Export MCP Server button.
+uses it for its Export MCP Server button, and `src/mcp.js` re-exports it as `rapidoc/mcp`
+(`dist/rapidoc-mcp-min.js`, Node only, no Lit) for the portal build, `@rapidoc/server` and the CLI.
 
 Not owned here: workflows (the manifest's `workflows` is empty until the Arazzo runtime lands),
 the `<rapi-doc>` attribute and methods, and the network calls themselves (the runtime only builds
@@ -91,5 +92,9 @@ and sends requests).
 - `npm run test:unit` from the repo root. `tests/unit/mcp-generator.test.js` covers the manifest
   (from `docs/public/specs/petstore.yaml` and small documents), the schema converter, the runtime
   with a fake `fetch`, credentials from the environment, the project files and the zip.
+  `tests/unit/mcp-project.test.js` runs the exported project for real: it starts `server.ts`
+  (through `scripts/test-loader.mjs` instead of `tsx`) under `.test-tmp/`, drives it with the MCP
+  SDK's stdio client (`@modelcontextprotocol/sdk`, a root dev dependency) and points
+  `API_BASE_URL` at `@rapidoc/mock` serving the same Petstore spec.
 - `/examples/mcp-server` on the docs site shows the manifest, `server.ts` and `runtime.js` and
   downloads the project. After editing, `npm run lint` and `npm run format-fix`.
