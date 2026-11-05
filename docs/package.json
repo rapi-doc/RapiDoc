@@ -11,13 +11,13 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.42.8",
+    "@astrojs/starlight": "^0.42.9",
     "@tabler/icons-astro": "^3.50.0",
     "rapidoc": "*"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "astro": "^7.4.4",
+    "astro": "^7.4.6",
     "fs-extra": "^11.4.1",
     "glob": "^14.0.3",
     "js-yaml": "^5.5.0"

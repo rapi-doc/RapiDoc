@@ -159,7 +159,9 @@ export default defineConfig({
         rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },
       // Starlight default-imports js-yaml 4; bundled, it resolves to Starlight's copy, not a hoisted js-yaml 5 (no default export).
-      noExternal: ['js-yaml'],
+      // Astro's prerender chunk imports cookie 2 (`parseCookie`); bundled, it resolves to Astro's copy, not the
+      // hoisted cookie 0.7 that express (via @modelcontextprotocol/sdk) puts at the repo root.
+      noExternal: ['js-yaml', 'cookie'],
     },
     server: {
       fs: {

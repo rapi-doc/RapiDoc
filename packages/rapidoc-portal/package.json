@@ -22,15 +22,15 @@
   },
   "dependencies": {
     "@astrojs/markdoc": "^2.1.2",
-    "@astrojs/starlight": "^0.42.8",
+    "@astrojs/starlight": "^0.42.9",
     "@astrojs/starlight-markdoc": "^0.7.0",
     "@markdoc/markdoc": "^0.5.11",
     "@phosphor-icons/core": "^2.1.1",
     "@rapidoc/mcp": "^0.1.0",
     "@rapidoc/prerender": "^0.1.0",
-    "astro": "^7.4.4",
+    "astro": "^7.4.6",
     "github-slugger": "^2.0.0",
-    "pagefind": "^1.5.2",
+    "pagefind": "^1.6.0",
     "rapidoc": "^12.1.0",
     "yaml": "^2.9.1",
     "zod": "^4.6.7"

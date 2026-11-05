@@ -37,7 +37,7 @@
     "yaml": "^2.9.1"
   },
   "devDependencies": {
-    "vite": "^8.3.5"
+    "vite": "^8.3.6"
   },
   "engines": {
     "node": ">=22.12.0"

@@ -142,7 +142,9 @@ export function createAstroConfig(workspace, overrides = {}) {
     vite: {
       server: { fs: { allow: allowedServeDirs(workspace.root, workspace.config.theme.css) } },
       // Starlight default-imports js-yaml 4; bundled, it resolves to Starlight's copy, not a hoisted js-yaml 5 (no default export).
-      resolve: { noExternal: ["js-yaml"] },
+      // Astro's cookie code lands in the prerender chunk and imports cookie 2 (`parseCookie`); left external, it resolves
+      // from the project, where a hoisted cookie 0.x (express's) breaks the build. Bundled, it resolves to Astro's copy.
+      resolve: { noExternal: ["js-yaml", "cookie"] },
       environments: {
         client: {
           build: {
