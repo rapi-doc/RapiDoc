@@ -155,7 +155,7 @@ Attributes:
           - expand-collapse
           - show-description
         description: >
-          <span class="red bold">[DEPRECATED]</span> All clicks on navigation tags and tag-groups now uniformly toggle expand/collapse.<br/>
+          <span class="red bold">[DEPRECATED]</span> A click on a tag's name shows the tag's description; a click on its arrow expands or collapses it.<br/>
           Previously configured sidebar tag click behavior in focused mode.
         default: expand-collapse
 

@@ -443,11 +443,12 @@ describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
           return null;
         },
         querySelector: (selector) => {
-          return (
-            children.find(
-              (c) => selector.startsWith(".") && c.classList.contains(selector.slice(1)),
-            ) || null
-          );
+          for (const c of children) {
+            if (selector.startsWith(".") && c.classList.contains(selector.slice(1))) return c;
+            const match = c.querySelector(selector);
+            if (match) return match;
+          }
+          return null;
         },
         get parentElement() {
           return parent;
@@ -471,6 +472,8 @@ describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
 
     const tagAndPathsEl = createMockElement("nav-bar-tag-and-paths collapsed");
     const tagHeader = createMockElement("nav-bar-tag");
+    const tagIcon = createMockElement("nav-bar-tag-icon");
+    tagHeader.appendChild(tagIcon);
     const pathsUnderTag = createMockElement("nav-bar-paths-under-tag");
     tagAndPathsEl.appendChild(tagHeader);
     tagAndPathsEl.appendChild(pathsUnderTag);
@@ -487,7 +490,7 @@ describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
     assert.ok(tagGroupEl.classList.contains("expanded"));
     assert.ok(tagAndPathsEl.classList.contains("expanded"));
     assert.equal(groupHeader.getAttribute("aria-expanded"), "true");
-    assert.equal(tagHeader.getAttribute("aria-expanded"), "true");
+    assert.equal(tagIcon.getAttribute("aria-expanded"), "true");
   });
 
   it("should include :has() rules for collapsed active parents in nav-styles", async () => {

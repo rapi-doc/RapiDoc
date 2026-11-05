@@ -11,10 +11,10 @@ export function expandCollapseNavBarTag(navLinkEl, action = "toggle") {
     const isExpanded = tagAndPathEl.classList.contains("expanded");
     if (isExpanded && (action === "toggle" || action === "collapse")) {
       tagAndPathEl.classList.replace("expanded", "collapsed");
-      tagAndPathEl.querySelector(".nav-bar-tag")?.setAttribute("aria-expanded", "false");
+      tagAndPathEl.querySelector(".nav-bar-tag-icon")?.setAttribute("aria-expanded", "false");
     } else if (!isExpanded && (action === "toggle" || action === "expand")) {
       tagAndPathEl.classList.replace("collapsed", "expanded");
-      tagAndPathEl.querySelector(".nav-bar-tag")?.setAttribute("aria-expanded", "true");
+      tagAndPathEl.querySelector(".nav-bar-tag-icon")?.setAttribute("aria-expanded", "true");
     }
   }
 }
@@ -90,10 +90,12 @@ export function expandCollapseAll(event, action = "expand-all") {
   if (action === "expand-all") {
     elList.forEach((el) => {
       el.classList.replace("collapsed", "expanded");
+      el.querySelector(".nav-bar-tag-icon")?.setAttribute("aria-expanded", "true");
     });
   } else {
     elList.forEach((el) => {
       el.classList.replace("expanded", "collapsed");
+      el.querySelector(".nav-bar-tag-icon")?.setAttribute("aria-expanded", "false");
     });
   }
 }
@@ -358,14 +360,20 @@ export default function navbarTemplate() {
                 class="nav-bar-tag"
                 part="section-navbar-item section-navbar-tag"
                 id="link-${tag.elementId}"
-                data-action="expand-collapse-tag"
+                data-action="navigate"
+                data-content-id="${tag.elementId}"
                 data-first-path-id="${firstPathId}"
                 tabindex="0"
-                role="button"
-                aria-expanded="${tag.expanded ? "true" : "false"}"
               >
                 <div class="nav-bar-tag-title">${tag.displayName || tag.name}</div>
-                <div class="nav-bar-tag-icon" tabindex="0" data-action="expand-collapse-tag"></div>
+                <div
+                  class="nav-bar-tag-icon"
+                  tabindex="0"
+                  role="button"
+                  aria-label="Expand or collapse ${tag.displayName || tag.name}"
+                  aria-expanded="${tag.expanded ? "true" : "false"}"
+                  data-action="expand-collapse-tag"
+                ></div>
               </div>
               ${
                 this.infoDescriptionHeadingsInNavBar === "true"

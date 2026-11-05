@@ -85,8 +85,9 @@ export function bindNavBar(sidebar, rapiDoc, options = {}) {
     ) {
       const href = navEl.getAttribute("href") || navEl.getAttribute("data-tag-href");
       const hashIdx = href ? href.indexOf("#") : -1;
+      // A tag's link on a tag page (tag-pages routing) has no hash: its section is in data-content-id
       const elementId =
-        (hashIdx !== -1 ? href.substring(hashIdx + 1) : href) ||
+        (hashIdx !== -1 ? href.substring(hashIdx + 1) : "") ||
         navEl.getAttribute("data-content-id") ||
         navEl.getAttribute("data-op-slug") ||
         navEl.id?.replace(/^link-/, "");
