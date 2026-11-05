@@ -33,8 +33,12 @@ methods, and the network calls themselves (the runtime only builds and sends req
   root)` is the schema converter on its own; `MANIFEST_VERSION` is `1`.
 - `createMcpRuntime(manifest, { fetch, credentials, baseUrls, runWorkflow })` [runtime.js]:
   `listTools()`, `listResources()`, `callTool(name, args, hooks) -> { content, structuredContent?,
-  isError? }`, `execute(operation, args)` (one request, for workflow runners). A workflow tool is
-  handed to `runWorkflow`; without it the call is an error result.
+  isError? }`, `execute(operation, args, { headers? })` (one request, for workflow runners; the
+  headers are added to the request). A workflow tool is handed to `runWorkflow`; without it the
+  call is an error result. `callTool`'s hooks reach the workflow runner: `onStepStart`, `onStep`,
+  `sleep`, and `requestHeaders({ workflowId, stepId, attempt, operation })`, whose result is sent
+  with that step's request (how `<rapi-flow>` asks `rapidoc mock` for a status with
+  `Prefer: code=`).
 - `runWorkflow(runtime, tool, args, { onStepStart, onStep, sleep })` and
   `createMcpWorkflowRuntime(manifest, options)` (createMcpRuntime with `runWorkflow` plugged in;
   `options.sleep` waits between retries) [workflow-runtime.js], plus `evaluateExpression`,

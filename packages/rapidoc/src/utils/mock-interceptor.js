@@ -36,10 +36,45 @@ let originalXhrSetRequestHeader = null;
 const mocks = new Map();
 const DEFAULT_OWNER = Symbol("rapidoc-mock");
 
+/**
+ * The status setting: a string of codes (`"200, 404"`) for every operation, or a map by
+ * operation (`{ "POST /store/order": "503, 200", "*": "200" }`, `*` the default), also as JSON
+ * text. Map keys are the spec's method and path template, method case-insensitive.
+ */
+function normalizeStatus(value) {
+  if (value && typeof value === "object") {
+    const map = {};
+    for (const [key, codes] of Object.entries(value)) {
+      const k = key.trim();
+      if (!k || !codes) continue;
+      map[k === "*" ? "*" : k.replace(/^(\w+)\s+/, (m, method) => `${method.toUpperCase()} `)] =
+        String(codes);
+    }
+    return map;
+  }
+  const text = typeof value === "string" ? value.trim() : "";
+  if (text.startsWith("{")) {
+    try {
+      return normalizeStatus(JSON.parse(text));
+    } catch {
+      return "";
+    }
+  }
+  return text;
+}
+
+/** The codes for a route: its own entry of a status map, else the map's `*`, else the string. */
+function codesFor(status, routeKey) {
+  if (!status || typeof status === "string") return status || "";
+  return status[routeKey] ?? status["*"] ?? "";
+}
+
 function normalizeConfig(options = {}, current = {}) {
   return {
     statusCode:
-      options.statusCode !== undefined ? options.statusCode || "" : current.statusCode || "",
+      options.statusCode !== undefined
+        ? normalizeStatus(options.statusCode)
+        : current.statusCode || "",
     statusStrategy:
       options.statusStrategy !== undefined
         ? options.statusStrategy || "first"
@@ -332,7 +367,7 @@ function buildMockResponsePayload(route, statusCode) {
 function answer(match) {
   const { config, cycle } = match.mock;
   const statusCode = selectStatusCode(
-    config.statusCode,
+    codesFor(config.statusCode, match.route.routeKey),
     config.statusStrategy,
     match.route.routeKey,
     match.route.responses,

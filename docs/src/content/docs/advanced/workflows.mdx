@@ -56,7 +56,7 @@ All events bubble and cross the shadow boundary (`composed`).
 | `view-change` | `{ view }` | The reader switched between compact and expanded. |
 | `workflow-run` | `{ workflowId, inputs, result, trace }` | A run finished. `result` is the MCP tool result; `trace` has one entry per step attempt with its request and response. |
 
-The element also exposes `arazzoDocument` (the parsed document) and `workflowRuntimeSource`, which a tied `<rapi-doc>` uses to add workflow tools to its [MCP export](/docs/advanced/mcp-server#workflows-as-tools).
+The element also exposes `arazzoDocument` (the parsed document), `workflowRuntimeSource`, which a tied `<rapi-doc>` uses to add workflow tools to its [MCP export](/docs/advanced/mcp-server#workflows-as-tools), and the `statusCodes` property that fills the Mock status table (see below).
 
 ## Running a workflow
 
@@ -77,17 +77,13 @@ Turn on [`mock-server`](/docs/advanced/mock-server) on the tied `<rapi-doc>`. Ev
 <rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" mock-server="true"></rapi-doc>
 ```
 
-The run panel then shows a **Mock status** field: the status codes the mock answers with during that run.
+The run panel then has a **Mock status** table: the status codes the mock answers with during that run, one row per step and a default row for every other step.
 
 - Empty: the mock's own setting (`mock-server-status-code`, by default the spec's 2xx response).
-- One code, such as `404`: every request of the run gets it. Use it to see a failure path: in the sample `adoptPet` workflow, a 404 on the first step takes its `onFailure` branch and ends the run.
-- Several codes, such as `503, 200`: each operation takes the next code every time it is called (**in turn**), or a code at random (**at random**).
+- One code in the default row, such as `404`: every request of the run gets it. In the sample `adoptPet` workflow, a 404 on the first step takes its `onFailure` branch and ends the run.
+- A code on one step, such as `503, 200` on `placeOrder`: that step's first attempt gets 503 and its retry gets 200, while the other steps succeed. With several codes, a step takes the next code on each attempt (**in turn**) or one at random.
 
-<Aside type="caution" title="One setting for the whole run">
-  The codes apply to every operation of the run, so you can't yet make one step fail while the others succeed (for example a `503` on the order step only, to watch its `retry` fire). Per-operation codes are planned.
-</Aside>
-
-The field sets the `<rapi-doc>`'s mock for that run only and puts the previous setting back afterwards.
+The table sets the `<rapi-doc>`'s mock for that run only, per operation, and puts the previous setting back afterwards. Pages can fill it from a script through the `statusCodes` property: `flow.statusCodes = { "*": "200", placeOrder: "503, 200" }`.
 
 ### A mock server
 
@@ -99,6 +95,8 @@ To run against a mock that behaves more like the real API (request validation, g
 ```
 
 Or list the mock as a server in the spec and pick it in the tied `<rapi-doc>`'s server list. With OAuth, sign in through **Authorize** in `<rapi-doc>`, or paste a token into the standalone credentials field; the mock checks it like the real API would.
+
+The same **Mock status** table works here: each step's codes are sent as `Prefer: code=<status>`, which `rapidoc mock` honours (a real API ignores the header). The table is folded by default when no in-browser mock is tied, since it does nothing against a real API.
 
 ## What runs
 

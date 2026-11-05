@@ -193,8 +193,8 @@ function errorResult(text) {
  *   workflow-runtime.js; without it a workflow tool answers with an error result
  * @returns {{ manifest: object, listTools(): object[], listResources(): object[],
  *   callTool(name: string, args?: object, hooks?: object): Promise<object>,
- *   readResource(uri: string): Promise<object>, execute(operation: object, args: object):
- *   Promise<object> }} MCP results: `callTool` returns `{ content, structuredContent?,
+ *   readResource(uri: string): Promise<object>, execute(operation: object, args: object,
+ *   extra?: { headers?: object }): Promise<object> }} MCP results: `callTool` returns `{ content, structuredContent?,
  *   isError? }`, `readResource` returns `{ contents }`. `execute` sends one operation and returns
  *   `{ request, response, headers, text, data }` or `{ request?, error }`, for workflow runners.
  */
@@ -207,10 +207,11 @@ export function createMcpRuntime(manifest, options = {}) {
   const tools = new Map((manifest.tools || []).map((t) => [t.name, t]));
   const resources = new Map((manifest.resources || []).map((r) => [r.uri, r]));
 
-  async function send(operation, args) {
+  async function send(operation, args, extra = {}) {
     let request;
     try {
       request = buildRequest(manifest, operation, args, requestOptions);
+      if (extra.headers) request.headers = { ...request.headers, ...extra.headers };
     } catch (err) {
       return { error: errorResult(err.message) };
     }

@@ -119,6 +119,29 @@ describe("mock-interceptor", () => {
     assert.strictEqual(data.realNetwork, true);
   });
 
+  it("takes status codes per operation from a map, with * as the default", async () => {
+    enableMockServer(testSpec, {
+      log: "false",
+      statusCode: { "get /users/{id}": "404", "*": "201" },
+      statusStrategy: "cycle",
+    });
+    assert.strictEqual((await fetch("https://api.example.com/v1/users/1")).status, 404);
+    assert.strictEqual(
+      (await fetch("https://api.example.com/v1/users", { method: "POST" })).status,
+      201,
+    );
+
+    // The same map as JSON text, as an attribute carries it; a list cycles per operation
+    updateMockConfig({ statusCode: '{ "GET /users/{id}": "503, 200" }' });
+    assert.strictEqual((await fetch("https://api.example.com/v1/users/1")).status, 503);
+    assert.strictEqual((await fetch("https://api.example.com/v1/users/1")).status, 200);
+    assert.strictEqual(
+      (await fetch("https://api.example.com/v1/users", { method: "POST" })).status,
+      201,
+      "an operation outside the map, with no *, answers the spec's success",
+    );
+  });
+
   describe("several mocks on one page", () => {
     const ordersSpec = {
       servers: [{ url: "http://localhost:4010/orders" }],

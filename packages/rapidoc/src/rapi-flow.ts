@@ -57,8 +57,12 @@ export default class RapiFlow extends LitElement {
   // Running a workflow: the inputs form, the step whose request is in flight, and a log
   @state() private runState: "idle" | "running" | "done" = "idle";
   @state() private runInputs: Record<string, string> = {};
-  // Status codes the tied <rapi-doc>'s in-browser mock answers with during a run ("" = its own)
-  @state() private mockStatus = "";
+  /**
+   * Status codes a mock answers with during a run, by step id, `*` for every other step; each a
+   * list such as "503, 200". A tied <rapi-doc>'s in-browser mock gets them per operation; any other
+   * server gets `Prefer: code=<status>` on the request, which `rapidoc mock` honours.
+   */
+  @property({ type: Object, attribute: false }) statusCodes: Record<string, string> = {};
   @state() private mockStrategy = "cycle";
   // Credentials typed into the run panel, by security scheme id, when no <rapi-doc> supplies them
   @state() private manualCredentials: Record<string, string> = {};
@@ -268,12 +272,38 @@ export default class RapiFlow extends LitElement {
         padding: 0.25rem 0.5rem;
         min-width: 0;
       }
-      .run-mock-fields {
-        display: flex;
-        gap: 0.5rem;
+      .run-mock {
+        margin-top: 0.75rem;
       }
-      .run-mock-fields input {
-        flex: 1;
+      .run-mock summary {
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .run-mock summary .muted {
+        font-weight: 400;
+        margin-left: 0.5rem;
+      }
+      .run-mock-rows {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.375rem 0.75rem;
+        align-items: center;
+        margin-top: 0.5rem;
+      }
+      .run-mock-rows .run-input-name {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .run-inputs .run-mock-strategy {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      .run-mock-strategy select {
+        flex: 0 0 auto;
+        width: auto;
       }
       .run-actions {
         display: flex;
@@ -713,26 +743,51 @@ export default class RapiFlow extends LitElement {
     }
     const inputs = this.coerceInputs(graph);
     this.runState = "running";
-    // The in-browser mock reads its status codes from the <rapi-doc>; set them for this run only
+    // Status codes for this run: the in-browser mock reads them from the <rapi-doc> (set for the
+    // run only), any other server gets them as Prefer: code=
     const rapiDoc = this.findRapiDoc();
     const mocked = rapiDoc?.mockServer === "true";
-    const codes = this.mockStatus.trim();
+    const codes = this.statusCodesByStep(graph);
+    const anyList = Object.values(codes).some((c) => c.includes(","));
     const previous = mocked &&
-      codes && {
+      Object.keys(codes).length && {
         code: rapiDoc.mockServerStatusCode,
         strategy: rapiDoc.mockServerStatusStrategy,
       };
     if (previous) {
-      rapiDoc.mockServerStatusCode = codes;
-      rapiDoc.mockServerStatusStrategy = codes.includes(",") ? this.mockStrategy : "first";
+      const byOperation = {};
+      for (const step of graph.steps) {
+        const op = step.operation;
+        if (op && codes[step.stepId])
+          byOperation[`${op.method.toUpperCase()} ${op.path}`] = codes[step.stepId];
+      }
+      if (codes["*"]) byOperation["*"] = codes["*"];
+      rapiDoc.mockServerStatusCode = byOperation;
+      rapiDoc.mockServerStatusStrategy = anyList ? this.mockStrategy : "first";
       await rapiDoc.updateComplete;
     }
+    const pick = (list: string, attempt: number) => {
+      const items = list
+        .split(",")
+        .map((c) => c.trim())
+        .filter(Boolean);
+      if (!items.length) return "";
+      if (this.mockStrategy === "random" && items.length > 1)
+        return items[Math.floor(Math.random() * items.length)];
+      return items[(attempt - 1) % items.length];
+    };
     const result = await prepared.runtime.callTool(prepared.tool.name, inputs, {
       onStepStart: (e) => (this.runningStepId = e.stepId),
       onStep: (e) => {
         this.runningStepId = "";
         this.trace = [...this.trace, { ...e, mocked }];
       },
+      requestHeaders: mocked
+        ? undefined
+        : (e) => {
+            const code = pick(codes[e.stepId] || codes["*"] || "", e.attempt);
+            return code ? { Prefer: `code=${code}` } : undefined;
+          },
     });
     if (previous) {
       rapiDoc.mockServerStatusCode = previous.code;
@@ -805,6 +860,67 @@ export default class RapiFlow extends LitElement {
       )}`;
   }
 
+  /** The run's status codes with blanks dropped: `{ "*": "...", <stepId>: "..." }`. */
+  private statusCodesByStep(graph): Record<string, string> {
+    const out = {};
+    const stepIds = new Set(graph.steps.map((s) => s.stepId));
+    for (const [key, value] of Object.entries(this.statusCodes || {})) {
+      const codes = String(value ?? "").trim();
+      if (codes && (key === "*" || stepIds.has(key))) out[key] = codes;
+    }
+    return out;
+  }
+
+  /**
+   * Status codes to answer with, one row per step plus a default: for a tied <rapi-doc>'s
+   * in-browser mock, or for a server that honours Prefer: code= (rapidoc mock). Open when the
+   * in-browser mock is on; otherwise folded, since a real API ignores it.
+   */
+  private renderStatusCodes(graph) {
+    const mocked = this.findRapiDoc()?.mockServer === "true";
+    const set = (key, value) => (this.statusCodes = { ...this.statusCodes, [key]: value });
+    const anyList = Object.values(this.statusCodes || {}).some((c) => String(c).includes(","));
+    const steps = graph.steps.filter((s) => s.operation);
+    return html`<details class="run-mock" ?open=${mocked || Object.keys(this.statusCodesByStep(graph)).length > 0}>
+      <summary>
+        Mock status
+        <span class="muted">${mocked ? "the in-browser mock answers with" : "sent as Prefer: code= (rapidoc mock)"}</span>
+      </summary>
+      <div class="run-mock-rows">
+        <span class="run-input-name"><span>every step</span><span class="muted">default</span></span>
+        <input
+          name="mock-status"
+          .value=${this.statusCodes?.["*"] ?? ""}
+          placeholder="the spec's example; or 404; or 503, 200"
+          @input=${(e) => set("*", e.target.value)}
+        />
+        ${steps.map(
+          (s) => html`<span class="run-input-name">
+              <code>${s.stepId}</code>
+              <span class="muted">${s.operation.method.toUpperCase()} ${s.operation.path}</span>
+            </span>
+            <input
+              name=${`mock-status-${s.stepId}`}
+              .value=${this.statusCodes?.[s.stepId] ?? ""}
+              placeholder="default"
+              @input=${(e) => set(s.stepId, e.target.value)}
+            />`,
+        )}
+      </div>
+      ${
+        anyList
+          ? html`<label class="run-mock-strategy">
+              <span class="muted">Several codes are used</span>
+              <select aria-label="How the codes are used" @change=${(e) => (this.mockStrategy = e.target.value)}>
+                <option value="cycle" ?selected=${this.mockStrategy === "cycle"}>in turn, per step</option>
+                <option value="random" ?selected=${this.mockStrategy === "random"}>at random</option>
+              </select>
+            </label>`
+          : nothing
+      }
+    </details>`;
+  }
+
   private renderInputsForm(graph) {
     const set = (name, value) => (this.runInputs = { ...this.runInputs, [name]: value });
     const running = this.runState === "running";
@@ -844,35 +960,7 @@ export default class RapiFlow extends LitElement {
           }
         </label>`,
       )}
-      ${
-        this.findRapiDoc()?.mockServer === "true"
-          ? html`<label class="run-mock">
-              <span class="run-input-name">
-                Mock status
-                <span class="muted">the in-browser mock answers with</span>
-              </span>
-              <span class="run-mock-fields">
-                <input
-                  name="mock-status"
-                  .value=${this.mockStatus}
-                  placeholder="the spec's example; or 503; or 200, 200, 503"
-                  @input=${(e) => (this.mockStatus = e.target.value)}
-                />
-                ${
-                  this.mockStatus.includes(",")
-                    ? html`<select
-                        aria-label="How the codes are used"
-                        @change=${(e) => (this.mockStrategy = e.target.value)}
-                      >
-                        <option value="cycle" ?selected=${this.mockStrategy === "cycle"}>in turn</option>
-                        <option value="random" ?selected=${this.mockStrategy === "random"}>at random</option>
-                      </select>`
-                    : nothing
-                }
-              </span>
-            </label>`
-          : nothing
-      }
+      ${this.renderStatusCodes(graph)}
       <div class="run-actions">
         <button type="submit" class="run-button" part="run-button" ?disabled=${running}>
           ${running ? "Running…" : "▶ Run workflow"}

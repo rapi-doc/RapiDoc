@@ -27,7 +27,12 @@ const fail = (status, body) => ({ __status: status, body });
 function apiStub(answers) {
   const calls = [];
   const impl = async (url, init) => {
-    calls.push({ url, method: init.method, body: init.body && JSON.parse(init.body) });
+    calls.push({
+      url,
+      method: init.method,
+      headers: init.headers,
+      body: init.body && JSON.parse(init.body),
+    });
     const key = `${init.method} ${new URL(url).pathname.replace("/api/v3", "")}`;
     const answer = typeof answers[key] === "function" ? answers[key](calls.length) : answers[key];
     const status = answer?.__status ?? 200;
@@ -333,6 +338,36 @@ describe("mcp: the runtime runs workflows", () => {
       .callTool(name, args, { onStep: (s) => steps.push(`${s.stepId}#${s.attempt} ${s.outcome}`) })
       .then((result) => ({ result, steps, calls: stub.calls }));
   };
+
+  it("adds the headers requestHeaders returns to that step's request", async () => {
+    const stub = apiStub({
+      "GET /pet/findByStatus": [{ id: 7, name: "Rex" }],
+      "GET /pet/7": { id: 7, name: "Rex" },
+      "POST /store/order": { id: 99 },
+      "GET /store/order/99": { id: 99, status: "placed" },
+    });
+    const runtime = createMcpRuntime(manifest, { fetch: stub.impl });
+    const seen = [];
+    await runtime.callTool(
+      "adopt_pet",
+      {},
+      {
+        requestHeaders: (e) => {
+          seen.push(`${e.stepId}#${e.attempt} ${e.operation.method}`);
+          return e.stepId === "placeOrder" ? { Prefer: "code=503" } : undefined;
+        },
+      },
+    );
+    assert.deepEqual(seen, [
+      "findAvailable#1 GET",
+      "checkPet#1 GET",
+      "placeOrder#1 POST",
+      "confirmOrder#1 GET",
+    ]);
+    const order = stub.calls.find((c) => c.method === "POST");
+    assert.equal(order.headers?.Prefer, "code=503");
+    assert.ok(!stub.calls.find((c) => c.url.includes("findByStatus")).headers?.Prefer);
+  });
 
   it("passes outputs between steps and returns the workflow outputs", async () => {
     const { result, steps, calls } = await run(

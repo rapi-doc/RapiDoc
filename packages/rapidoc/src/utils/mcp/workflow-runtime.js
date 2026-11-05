@@ -226,6 +226,8 @@ function evaluateAll(criteria, ctx) {
  * @param {Function} [hooks.onStep] gets `{ workflowId, stepId, attempt, outcome, request,
  *   response, outputs, failedCriterion, action }` after each step run
  * @param {(ms: number) => Promise<void>} [hooks.sleep] waits between retries (default setTimeout)
+ * @param {Function} [hooks.requestHeaders] gets `{ workflowId, stepId, attempt, operation }` and
+ *   returns extra headers for that request (a mock's `Prefer: code=503`, say), or nothing
  * @returns {Promise<object>} the MCP result: the workflow's outputs as `structuredContent`, or an
  *   error result naming the step, the failed criterion and the response
  */
@@ -260,8 +262,10 @@ export async function runWorkflow(runtime, tool, args, hooks = {}) {
       }
       stepArgs.body = payload;
     }
-    hooks.onStepStart?.({ workflowId: workflow.workflowId, stepId: step.stepId, attempt });
-    const sent = await runtime.execute(step.operation, stepArgs);
+    const event = { workflowId: workflow.workflowId, stepId: step.stepId, attempt };
+    hooks.onStepStart?.(event);
+    const headers = hooks.requestHeaders?.({ ...event, operation: step.operation });
+    const sent = await runtime.execute(step.operation, stepArgs, headers ? { headers } : {});
     const stepCtx = {
       ...ctx,
       request: sent.request && {

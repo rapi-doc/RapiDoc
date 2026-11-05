@@ -81,7 +81,7 @@ Configure the mock server declaratively on `<rapi-doc>` or `<rapi-doc-mini>`:
 | Attribute | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `mock-server` | `true \| false` | `false` | Enables or disables the in-browser mock server interceptor. |
-| `mock-server-status-code` | `String` | `""` *(auto)* | Target HTTP status code or comma-separated list of codes (e.g. `"200, 404, 500"`). If omitted, the first available `2xx` response in the spec is returned. |
+| `mock-server-status-code` | `String` | `""` *(auto)* | Target HTTP status code or comma-separated list of codes (e.g. `"200, 404, 500"`). If omitted, the first available `2xx` response in the spec is returned. Per operation: a JSON map keyed by `"<METHOD> /path"` with `"*"` as the default, e.g. `'{ "POST /orders": "503, 200", "*": "200" }'` (the property also takes the object). |
 | `mock-server-status-strategy` | `first \| cycle \| random` | `first` | Selection strategy when multiple status codes are provided in `mock-server-status-code`. |
 | `mock-server-delay` | `Number` | `0` | Artificial network latency in milliseconds before resolving mock responses. |
 | `mock-server-log` | `true \| false` | `true` | Outputs color-coded intercept logs to the browser DevTools console showing URL, matched path, and generated status code. |
@@ -147,6 +147,25 @@ Supply a comma-separated list of status codes to `mock-server-status-code`:
 </Tabs>
 
 ---
+
+### Per-Operation Status Codes
+
+To make one operation fail while the rest succeed (a retry path, a 404 on a lookup), give `mock-server-status-code` a map instead of a list. Keys are the spec's method and path template; `"*"` is the default for every other operation. A list in an entry cycles per operation with `mock-server-status-strategy="cycle"`:
+
+```html
+<rapi-doc
+  spec-url="/specs/petstore.yaml"
+  mock-server="true"
+  mock-server-status-code='{ "POST /store/order": "503, 200", "*": "200" }'
+  mock-server-status-strategy="cycle"
+> </rapi-doc>
+```
+
+The same value can be set as an object on the `mockServerStatusCode` property. [`<rapi-flow>`](/docs/advanced/workflows#running-against-a-mock) fills it from its Mock status table for the duration of a run.
+
+### Several Mocked Elements on One Page
+
+Each `<rapi-doc>` and `<rapi-doc-mini>` with `mock-server="true"` mocks its own spec with its own status codes and delay, so a page can mock two APIs at once. A request is answered by the most specific match: a route under the request's server origin and base path wins over the same path under another API's base path, which wins over a bare path. The real `fetch` comes back when the last mocked element turns its mock off or leaves the page.
 
 ## 4. Response Example Generation Hierarchy
 

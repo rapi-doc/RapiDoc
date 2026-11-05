@@ -145,7 +145,10 @@ export default class RapiDoc extends LitElement {
 
   // Mock Server
   @property({ type: String, attribute: "mock-server" }) mockServer = "false";
-  @property({ type: String, attribute: "mock-server-status-code" }) mockServerStatusCode = "200";
+  // A string of codes for every operation, or a map by operation (`{ "POST /orders": "503, 200", "*": "200" }`)
+  @property({ type: String, attribute: "mock-server-status-code" }) mockServerStatusCode:
+    | string
+    | Record<string, string> = "200";
   @property({ type: String, attribute: "mock-server-status-strategy" }) mockServerStatusStrategy =
     "example";
   @property({ type: Number, attribute: "mock-server-delay" }) mockServerDelay = 0;
