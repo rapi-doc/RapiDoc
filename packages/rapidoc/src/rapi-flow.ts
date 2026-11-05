@@ -227,12 +227,8 @@ export default class RapiFlow extends LitElement {
       .flow-run .muted {
         color: var(--muted-foreground);
       }
-      .required {
-        color: var(--destructive);
-        font-size: var(--font-size-xs);
-        font-weight: 600;
-      }
       .run-inputs {
+        container-type: inline-size;
         margin: 0 0 0.75rem;
         padding: 0.5rem 0.75rem;
         border: 1px solid var(--border);
@@ -248,18 +244,57 @@ export default class RapiFlow extends LitElement {
       .run-inputs p {
         margin: 0.25rem 0 0.5rem;
       }
-      .run-inputs label {
+      /*
+       * One field per row, laid out like <rapi-doc>'s parameter rows: a right-aligned two-line label
+       * (name over type) and a control as tall as the label: 1.25em + 2 x 0.75em + 2px border.
+       */
+      .run-field {
         display: grid;
-        grid-template-columns: minmax(8rem, 14rem) 1fr;
-        gap: 0.25rem 1rem;
+        grid-template-columns: minmax(8rem, 14rem) minmax(0, 1fr);
+        column-gap: 1rem;
         align-items: center;
-        margin: 0.375rem 0;
+        margin: 0.5rem 0;
+        font-size: var(--font-size-small);
       }
-      .run-input-name {
+      .run-field-label {
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.375rem;
-        align-items: baseline;
+        flex-direction: column;
+        min-width: 0;
+        text-align: right;
+      }
+      .run-field-name,
+      .run-field-type {
+        margin: 1px 0;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+      }
+      .run-field-name {
+        color: var(--foreground);
+        font-family: var(--font-mono);
+      }
+      .run-field-type {
+        color: var(--muted-foreground);
+        font-family: var(--font-sans);
+      }
+      .run-field-required {
+        color: var(--destructive);
+      }
+      .run-inputs .run-field :is(input, select) {
+        font-family: var(--font-mono);
+        line-height: 1.25;
+        padding: 0.75em;
+      }
+      @container (max-width: 28rem) {
+        .run-field {
+          grid-template-columns: minmax(0, 1fr);
+          row-gap: 0.25rem;
+        }
+        .run-field-label {
+          flex-direction: row;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          text-align: start;
+        }
       }
       .run-inputs input,
       .run-inputs select {
@@ -284,16 +319,7 @@ export default class RapiFlow extends LitElement {
         margin-left: 0.5rem;
       }
       .run-mock-rows {
-        display: grid;
-        grid-template-columns: max-content 1fr;
-        gap: 0.375rem 0.75rem;
-        align-items: center;
-        margin-top: 0.5rem;
-      }
-      .run-mock-rows .run-input-name {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
+        margin-top: 0.25rem;
       }
       .run-inputs .run-mock-strategy {
         display: flex;
@@ -835,6 +861,19 @@ export default class RapiFlow extends LitElement {
     return credentials;
   }
 
+  /** One run-panel field: a two-line label (name over type) and its control, as <rapi-doc> lays out parameters. */
+  private field(name, type, control, { required = false, mono = true } = {}) {
+    return html`<label class="run-field">
+      <span class="run-field-label">
+        <span class="run-field-name" style=${mono ? "" : "font-family: var(--font-sans)"}>
+          ${required ? html`<span class="run-field-required" title="Required">*</span>` : nothing}${name}
+        </span>
+        ${type ? html`<span class="run-field-type">${type}</span>` : nothing}
+      </span>
+      ${control}
+    </label>`;
+  }
+
   private renderCredentials() {
     const schemes = this.standaloneSchemes();
     if (!schemes.length) return nothing;
@@ -845,18 +884,19 @@ export default class RapiFlow extends LitElement {
           ? "user:password"
           : "token";
     return html`<h3>Credentials <span class="muted">kept in this page only</span></h3>
-      ${schemes.map(
-        (s) => html`<label>
-          <span class="run-input-name"><code>${s.id}</code><span class="muted">${s.type}</span></span>
-          <input
+      ${schemes.map((s) =>
+        this.field(
+          s.id,
+          s.type,
+          html`<input
             type="password"
             name=${`credential-${s.id}`}
             autocomplete="off"
             .value=${this.manualCredentials[s.id] ?? ""}
             placeholder=${hint(s)}
             @input=${(e) => (this.manualCredentials = { ...this.manualCredentials, [s.id]: e.target.value })}
-          />
-        </label>`,
+          />`,
+        ),
       )}`;
   }
 
@@ -883,28 +923,34 @@ export default class RapiFlow extends LitElement {
     const steps = graph.steps.filter((s) => s.operation);
     return html`<details class="run-mock" ?open=${mocked || Object.keys(this.statusCodesByStep(graph)).length > 0}>
       <summary>
-        Mock status
+        Mock Response Status
         <span class="muted">${mocked ? "the in-browser mock answers with" : "sent as Prefer: code= (rapidoc mock)"}</span>
       </summary>
       <div class="run-mock-rows">
-        <span class="run-input-name"><span>every step</span><span class="muted">default</span></span>
-        <input
-          name="mock-status"
-          .value=${this.statusCodes?.["*"] ?? ""}
-          placeholder="the spec's example; or 404; or 503, 200"
-          @input=${(e) => set("*", e.target.value)}
-        />
-        ${steps.map(
-          (s) => html`<span class="run-input-name">
-              <code>${s.stepId}</code>
-              <span class="muted">${s.operation.method.toUpperCase()} ${s.operation.path}</span>
-            </span>
-            <input
+        ${this.field(
+          "Every step",
+          "empty: success response",
+          html`<input
+            name="mock-status"
+            inputmode="numeric"
+            .value=${this.statusCodes?.["*"] ?? ""}
+            placeholder="e.g. 404, or 503, 200"
+            @input=${(e) => set("*", e.target.value)}
+          />`,
+          { mono: false },
+        )}
+        ${steps.map((s) =>
+          this.field(
+            s.stepId,
+            `${s.operation.method.toUpperCase()} ${s.operation.path}`,
+            html`<input
               name=${`mock-status-${s.stepId}`}
+              inputmode="numeric"
               .value=${this.statusCodes?.[s.stepId] ?? ""}
-              placeholder="default"
+              placeholder="Same as every step"
               @input=${(e) => set(s.stepId, e.target.value)}
             />`,
+          ),
         )}
       </div>
       ${
@@ -934,31 +980,27 @@ export default class RapiFlow extends LitElement {
     >
       ${this.renderCredentials()}
       ${graph.inputDetails.length ? html`<h3>Inputs</h3>` : html`<p class="muted">This workflow takes no inputs.</p>`}
-      ${graph.inputDetails.map(
-        (i) => html`<label>
-          <span class="run-input-name">
-            <code>${i.name}</code>
-            ${i.required ? html`<span class="required">required</span>` : nothing}
-            <span class="muted">${i.type}</span>
-          </span>
-          ${
-            i.enum
-              ? html`<select name=${i.name} @change=${(e) => set(i.name, e.target.value)}>
-                  <option value="" ?selected=${!this.runInputs[i.name]}></option>
-                  ${i.enum.map(
-                    (v) =>
-                      html`<option value=${String(v)} ?selected=${String(v) === this.runInputs[i.name]}>${String(v)}</option>`,
-                  )}
-                </select>`
-              : html`<input
-                  name=${i.name}
-                  .value=${this.runInputs[i.name] ?? ""}
-                  placeholder=${i.description || ""}
-                  ?required=${i.required}
-                  @input=${(e) => set(i.name, e.target.value)}
-                />`
-          }
-        </label>`,
+      ${graph.inputDetails.map((i) =>
+        this.field(
+          i.name,
+          i.type,
+          i.enum
+            ? html`<select name=${i.name} @change=${(e) => set(i.name, e.target.value)}>
+                <option value="" ?selected=${!this.runInputs[i.name]}></option>
+                ${i.enum.map(
+                  (v) =>
+                    html`<option value=${String(v)} ?selected=${String(v) === this.runInputs[i.name]}>${String(v)}</option>`,
+                )}
+              </select>`
+            : html`<input
+                name=${i.name}
+                .value=${this.runInputs[i.name] ?? ""}
+                placeholder=${i.description || ""}
+                ?required=${i.required}
+                @input=${(e) => set(i.name, e.target.value)}
+              />`,
+          { required: i.required },
+        ),
       )}
       ${this.renderStatusCodes(graph)}
       <div class="run-actions">

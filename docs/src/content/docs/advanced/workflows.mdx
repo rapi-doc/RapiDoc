@@ -56,7 +56,7 @@ All events bubble and cross the shadow boundary (`composed`).
 | `view-change` | `{ view }` | The reader switched between compact and expanded. |
 | `workflow-run` | `{ workflowId, inputs, result, trace }` | A run finished. `result` is the MCP tool result; `trace` has one entry per step attempt with its request and response. |
 
-The element also exposes `arazzoDocument` (the parsed document), `workflowRuntimeSource`, which a tied `<rapi-doc>` uses to add workflow tools to its [MCP export](/docs/advanced/mcp-server#workflows-as-tools), and the `statusCodes` property that fills the Mock status table (see below).
+The element also exposes `arazzoDocument` (the parsed document), `workflowRuntimeSource`, which a tied `<rapi-doc>` uses to add workflow tools to its [MCP export](/docs/advanced/mcp-server#workflows-as-tools), and the `statusCodes` property that fills the Mock Response Status table (see below).
 
 ## Running a workflow
 
@@ -77,7 +77,7 @@ Turn on [`mock-server`](/docs/advanced/mock-server) on the tied `<rapi-doc>`. Ev
 <rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" mock-server="true"></rapi-doc>
 ```
 
-The run panel then has a **Mock status** table: the status codes the mock answers with during that run, one row per step and a default row for every other step.
+The run panel then has a **Mock Response Status** table: the status codes the mock answers with during that run, one row per step and a default row for every other step.
 
 - Empty: the mock's own setting (`mock-server-status-code`, by default the spec's 2xx response).
 - One code in the default row, such as `404`: every request of the run gets it. In the sample `adoptPet` workflow, a 404 on the first step takes its `onFailure` branch and ends the run.
@@ -96,7 +96,7 @@ To run against a mock that behaves more like the real API (request validation, g
 
 Or list the mock as a server in the spec and pick it in the tied `<rapi-doc>`'s server list. With OAuth, sign in through **Authorize** in `<rapi-doc>`, or paste a token into the standalone credentials field; the mock checks it like the real API would.
 
-The same **Mock status** table works here: each step's codes are sent as `Prefer: code=<status>`, which `rapidoc mock` honours (a real API ignores the header). The table is folded by default when no in-browser mock is tied, since it does nothing against a real API.
+The same **Mock Response Status** table works here: each step's codes are sent as `Prefer: code=<status>`, which `rapidoc mock` honours (a real API ignores the header). The table is folded by default when no in-browser mock is tied, since it does nothing against a real API.
 
 ## What runs
 
