@@ -44,8 +44,10 @@ export function writeMcpProject(manifest, options = {}) {
   const readme = `# ${manifest.server.name} MCP server
 
 Exported by RapiDoc from the API's OpenAPI document. \`manifest.json\` lists ${manifest.tools.length} tools${
-    manifest.resources.length ? ` and ${manifest.resources.length} resources` : ""
-  }; \`server.ts\` serves them over stdio and \`runtime.js\` makes the requests.
+    Object.keys(manifest.workflows || {}).length
+      ? ` (${Object.keys(manifest.workflows).length} of them workflows)`
+      : ""
+  }${manifest.resources.length ? ` and ${manifest.resources.length} resources` : ""}; \`server.ts\` serves them over stdio and \`runtime.js\` makes the requests.
 
 ## Run
 

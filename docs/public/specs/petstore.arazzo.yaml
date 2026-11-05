@@ -31,9 +31,7 @@ workflows:
             value: available
         successCriteria:
           - condition: $statusCode == 200
-          - context: $response.body
-            condition: $.length > 0
-            type: jsonpath
+          - condition: $response.body#/0 != null
         onFailure:
           - name: noPets
             type: end
@@ -224,6 +222,10 @@ workflows:
           - name: username
             in: path
             value: $inputs.username
+        successCriteria:
+          - context: $response.body
+            condition: $.email
+            type: jsonpath
         outputs:
           email: $response.body#/email
     outputs:

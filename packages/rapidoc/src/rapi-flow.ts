@@ -272,6 +272,11 @@ export default class RapiFlow extends LitElement {
     return resp.text();
   }
 
+  /** The parsed Arazzo document, for a <rapi-doc> that exports workflow tools; null until loaded. */
+  get arazzoDocument(): any {
+    return this.doc;
+  }
+
   private get workflowIds(): string[] {
     return (this.doc?.workflows || []).map((w) => w?.workflowId).filter(Boolean);
   }

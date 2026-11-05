@@ -17,6 +17,7 @@ import { generateMcpServer } from "rapidoc/mcp";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");
 const specPath = path.join(root, "docs/public/specs/petstore.yaml");
+const arazzoPath = path.join(root, "docs/public/specs/petstore.arazzo.yaml");
 const loader = path.join(root, "scripts/test-loader.mjs");
 
 describe("mcp: the exported project runs against @rapidoc/mock", () => {
@@ -37,7 +38,8 @@ describe("mcp: the exported project runs against @rapidoc/mock", () => {
     fs.mkdirSync(path.join(root, ".test-tmp"), { recursive: true });
     projectDir = fs.mkdtempSync(path.join(root, ".test-tmp", "mcp-project-"));
     const spec = parseYaml(fs.readFileSync(specPath, "utf8"));
-    const { files } = generateMcpServer(spec, { serverName: "petstore" });
+    const arazzo = parseYaml(fs.readFileSync(arazzoPath, "utf8"));
+    const { files } = generateMcpServer(spec, { serverName: "petstore", arazzo });
     for (const [name, text] of Object.entries(files)) {
       fs.writeFileSync(path.join(projectDir, name), text);
     }
@@ -71,7 +73,7 @@ describe("mcp: the exported project runs against @rapidoc/mock", () => {
   it("lists the manifest's tools and calls the API with the credential from the environment", async () => {
     const client = await connect({ API_KEY: "test-key" });
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 19);
+    assert.equal(tools.length, 21); // 19 operations and 2 workflows
     const get = tools.find((t) => t.name === "get_pet_by_id");
     assert.deepEqual(get.annotations, {
       readOnlyHint: true,
@@ -101,6 +103,16 @@ describe("mcp: the exported project runs against @rapidoc/mock", () => {
     assert.equal(missing.isError, true);
     assert.match(missing.content[0].text, /Missing path parameter/);
     assert.equal((await client.listResources()).resources.length, 0);
+  });
+
+  it("runs a workflow tool end to end against the mock", async () => {
+    const client = await connect({ API_KEY: "test-key" });
+    const result = await client.callTool({ name: "adopt_pet", arguments: { quantity: 1 } });
+    assert.equal(result.isError ?? false, false, result.content?.[0]?.text);
+    const outputs = result.structuredContent;
+    assert.equal(typeof outputs.petName, "string");
+    assert.ok(outputs.orderId !== undefined);
+    assert.ok(["placed", "approved", "delivered"].includes(outputs.orderStatus));
   });
 
   it("gets the API's 401 as an error result when no credential is set", async () => {

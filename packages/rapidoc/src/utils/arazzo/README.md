@@ -15,8 +15,10 @@ with labelled value lines and no actions. Used by `<rapi-flow>` (`src/rapi-flow.
 the build-time renderer (`rapidoc/static`: `renderArazzoWorkflow`, `getFlowCss`).
 
 Not owned here: running workflows (nothing here makes a request), the element's loading and
-events (`src/rapi-flow.ts`), and the diagram's look (`src/styles/flow-styles.js`). Nothing in
-`dist/rapidoc-min.js` imports this folder.
+events (`src/rapi-flow.ts`), and the diagram's look (`src/styles/flow-styles.js`). `dist/rapidoc-min.js`
+imports only the YAML-free modules `components.js`, `operations.js` and `refs.js`, through
+`utils/mcp/workflows.js`, which compiles workflows into the MCP manifest; `parse.js` (the `yaml`
+package) stays out of it.
 
 ## Interface
 
@@ -24,7 +26,7 @@ events (`src/rapi-flow.ts`), and the diagram's look (`src/styles/flow-styles.js`
   Throws on empty input or a non-object.
 - `validateArazzo(doc) -> { level, path, message }[]` [parse.js]: structural checks the diagram
   relies on; an empty list means valid.
-- `resolveComponentRef(doc, obj, kind)` [parse.js]: `{ reference: "$components.<kind>.<name>" }`
+- `resolveComponentRef(doc, obj, kind)` [components.js, re-exported by parse.js]: `{ reference: "$components.<kind>.<name>" }`
   to the component, or null.
 - `collectRefs(value)` [refs.js]: `$inputs`, `$steps` and `$workflows` expressions anywhere in a
   JSON value, distinct, in first-seen order.

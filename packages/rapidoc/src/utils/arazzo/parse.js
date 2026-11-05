@@ -3,6 +3,9 @@
  */
 import { parse as parseYaml } from "yaml";
 import { collectRefs } from "./refs.js";
+import { resolveComponentRef } from "./components.js";
+
+export { resolveComponentRef };
 
 const ACTION_TYPES = new Set(["end", "goto", "retry"]);
 const SOURCE_TYPES = new Set(["openapi", "arazzo", "asyncapi"]);
@@ -20,17 +23,6 @@ export function parseDocument(input) {
   const doc = text.startsWith("{") ? JSON.parse(text) : parseYaml(text);
   if (!doc || typeof doc !== "object") throw new Error("The document is not an object");
   return doc;
-}
-
-/**
- * Resolves `{ reference: "$components.<kind>.<name>" }` against the document's components.
- */
-export function resolveComponentRef(doc, obj, kind) {
-  if (!obj || typeof obj.reference !== "string") return obj;
-  const m = obj.reference.match(/^\$components\.([A-Za-z]+)\.([A-Za-z0-9_.-]+)$/);
-  if (!m || m[1] !== kind) return null;
-  const target = doc?.components?.[kind]?.[m[2]];
-  return target ? { ...target, ...(obj.value !== undefined ? { value: obj.value } : {}) } : null;
 }
 
 function problem(level, path, message) {

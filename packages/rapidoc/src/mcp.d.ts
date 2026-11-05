@@ -51,7 +51,52 @@ export interface McpTool {
   description: string;
   inputSchema: JsonSchema;
   annotations: McpToolAnnotations;
+  /** An operation tool's request. */
+  operation?: McpOperation;
+  /** A workflow tool: the id of its entry in `workflows`. */
+  workflow?: string;
+}
+
+export interface McpCriterion {
+  /** A simple Arazzo condition, e.g. `$statusCode == 200`. */
+  condition: string;
+}
+
+export interface McpAction {
+  name: string;
+  type: "end" | "goto" | "retry";
+  criteria: McpCriterion[];
+  stepId?: string;
+  retryLimit?: number;
+  retryAfter?: number;
+}
+
+export interface McpWorkflowStep {
+  stepId: string;
+  description: string;
   operation: McpOperation;
+  /** Arazzo parameters; `value` may be a runtime expression. */
+  parameters: { name: string; in: string; value: unknown }[];
+  requestBody: {
+    contentType: string;
+    payload: unknown;
+    replacements?: { target: string; value: unknown }[];
+  } | null;
+  successCriteria: McpCriterion[];
+  /** The step's own actions, then the workflow's it does not override by name. */
+  onSuccess: McpAction[];
+  onFailure: McpAction[];
+  /** Output name → runtime expression against the step's response. */
+  outputs: Record<string, unknown>;
+}
+
+export interface McpWorkflow {
+  workflowId: string;
+  summary: string;
+  description: string;
+  inputs: JsonSchema;
+  steps: McpWorkflowStep[];
+  outputs: Record<string, unknown>;
 }
 
 export interface McpResource {
@@ -69,10 +114,20 @@ export interface McpManifest {
   tools: McpTool[];
   resources: McpResource[];
   /** Empty until workflows land. */
-  workflows: Record<string, unknown>;
+  workflows: Record<string, McpWorkflow>;
+}
+
+export interface McpProblem {
+  level: "error" | "warning";
+  path: string;
+  message: string;
 }
 
 export interface BuildManifestOptions {
+  /** A parsed Arazzo document (or JSON text) whose workflows become tools. */
+  arazzo?: object | string;
+  /** Receives one entry per workflow the runtime cannot run, which is left out. */
+  onProblem?: (problem: McpProblem) => void;
   /** The MCP server's name; defaults to the API title. */
   serverName?: string;
   /** The key of the API in `sources`; defaults to `api`. */
@@ -100,6 +155,21 @@ export interface RuntimeOptions {
   credentials?: Record<string, McpCredential>;
   /** By source name, overriding the manifest's base URLs. */
   baseUrls?: Record<string, string>;
+  /** Waits between retries; defaults to setTimeout. */
+  sleep?: (ms: number) => Promise<void>;
+}
+
+/** What a workflow run reports after each step. */
+export interface McpStepEvent {
+  workflowId: string;
+  stepId: string;
+  attempt: number;
+  outcome: "success" | "failure";
+  request?: { url: string; method: string; headers: Record<string, string>; body?: unknown };
+  response?: { status: number; headers: Record<string, string>; body: unknown };
+  outputs?: Record<string, unknown>;
+  failedCriterion?: string;
+  action: { type: string; name: string; stepId?: string } | null;
 }
 
 export interface McpContent {
@@ -121,7 +191,11 @@ export interface McpRuntime {
   manifest: McpManifest;
   listTools(): Omit<McpTool, "operation">[];
   listResources(): Omit<McpResource, "operation">[];
-  callTool(name: string, args?: Record<string, unknown>): Promise<McpToolResult>;
+  callTool(
+    name: string,
+    args?: Record<string, unknown>,
+    hooks?: { onStep?: (event: McpStepEvent) => void },
+  ): Promise<McpToolResult>;
   readResource(uri: string): Promise<McpResourceResult>;
 }
 
@@ -181,7 +255,29 @@ export interface GenerateMcpServerResult {
   files: Record<string, string>;
   budget: McpBudget;
   hostConfig: string;
+  /** The workflows left out of the manifest, and why. */
+  problems: McpProblem[];
 }
+
+/** Arazzo workflows as manifest tools and `workflows` entries; `sources` are operation indexes by Arazzo source name. */
+export function compileWorkflows(
+  arazzo: object,
+  options: {
+    sources: Map<string, { byId: Map<string, object>; byPath: Map<string, object> }>;
+    onProblem?: (problem: McpProblem) => void;
+  },
+): { tools: McpTool[]; workflows: Record<string, McpWorkflow> };
+
+/** One Arazzo runtime expression against a step context. */
+export function evaluateExpression(expr: string, ctx: object): unknown;
+/** A value with its expressions filled in; `{$expr}` inside text is interpolated. */
+export function resolveValue(value: unknown, ctx: object): unknown;
+/** A simple Arazzo condition; throws when it cannot be parsed. */
+export function evaluateCondition(condition: string, ctx: object): boolean;
+
+/** Parses Arazzo text (JSON or YAML) to an object. */
+export function parseArazzo(input: string | object): object;
+export function validateArazzo(doc: object): McpProblem[];
 
 /** The manifest, the project files, the budget and the Claude Desktop config in one call. */
 export function generateMcpServer(

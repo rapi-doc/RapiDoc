@@ -9,7 +9,8 @@ const METHODS = ["get", "put", "post", "delete", "options", "head", "patch", "tr
  *
  * @param {object} openapi Raw OpenAPI 2.0, 3.x object
  * @returns {{ byId: Map<string, object>, byPath: Map<string, object> }} values are
- *   `{ operationId, method, path, summary }`, method lower-case
+ *   `{ operationId, method, path, summary, security }`, method lower-case; `security` is the
+ *   operation's requirement, else the document's
  */
 export function indexOperations(openapi) {
   const byId = new Map();
@@ -19,7 +20,14 @@ export function indexOperations(openapi) {
     for (const method of METHODS) {
       const op = item[method];
       if (!op || typeof op !== "object") continue;
-      const entry = { operationId: op.operationId || "", method, path, summary: op.summary || "" };
+      const entry = {
+        operationId: op.operationId || "",
+        method,
+        path,
+        summary: op.summary || "",
+      };
+      const security = op.security ?? openapi.security;
+      if (security !== undefined) entry.security = security;
       if (op.operationId) byId.set(op.operationId, entry);
       byPath.set(`${method} ${path}`, entry);
     }
@@ -49,6 +57,7 @@ export function indexResolvedSpec(resolvedSpec) {
         path: p.path,
         summary: p.summary || "",
       };
+      if (p.security !== undefined) entry.security = p.security;
       // An operation with several tags is listed once per tag; the first entry is kept
       const key = `${method} ${p.path}`;
       if (byPath.has(key)) continue;

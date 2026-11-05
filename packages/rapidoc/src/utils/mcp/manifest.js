@@ -9,6 +9,11 @@ import {
   sanitizeDescription,
   toSnakeCase,
 } from "./common.js";
+import { resolvePointer, toJsonSchema } from "./schema.js";
+import { compileWorkflows } from "./workflows.js";
+import { indexOperations, indexResolvedSpec } from "../arazzo/operations.js";
+
+export { toJsonSchema };
 
 export const MANIFEST_VERSION = 1;
 
@@ -22,32 +27,6 @@ const RESOURCE_PATH_HINTS = [
   "/status",
   "/schema",
 ];
-// JSON Schema keywords copied as they are; everything else (examples, xml, x-*, ...) is dropped
-const SCHEMA_KEYWORDS = new Set([
-  "type",
-  "title",
-  "description",
-  "default",
-  "enum",
-  "const",
-  "format",
-  "multipleOf",
-  "maximum",
-  "exclusiveMaximum",
-  "minimum",
-  "exclusiveMinimum",
-  "maxLength",
-  "minLength",
-  "pattern",
-  "maxItems",
-  "minItems",
-  "uniqueItems",
-  "maxProperties",
-  "minProperties",
-  "required",
-]);
-const SCHEMA_SUBSCHEMAS = new Set(["items", "additionalProperties", "not"]);
-const SCHEMA_LISTS = new Set(["allOf", "anyOf", "oneOf"]);
 const SECURITY_KEYS = [
   "type",
   "description",
@@ -57,73 +36,6 @@ const SECURITY_KEYS = [
   "bearerFormat",
   "openIdConnectUrl",
 ];
-
-function resolvePointer(root, ref) {
-  if (typeof ref !== "string" || !ref.startsWith("#/")) return undefined;
-  return ref
-    .slice(2)
-    .split("/")
-    .map((s) => decodeURIComponent(s).replace(/~1/g, "/").replace(/~0/g, "~"))
-    .reduce((node, key) => (node && typeof node === "object" ? node[key] : undefined), root);
-}
-
-/**
- * An OpenAPI schema as JSON Schema for a tool argument: `$ref`s inlined, `nullable` folded into
- * `type`, read-only properties dropped (they never go in a request), and non-schema keys removed.
- * A schema reached again on the same branch (a cycle) is cut to its bare type.
- */
-export function toJsonSchema(schema, root, stack = new Set()) {
-  if (!schema || typeof schema !== "object") return {};
-  if (schema.$ref) {
-    const target = resolvePointer(root, schema.$ref);
-    if (!target || typeof target !== "object") {
-      return { description: `See ${schema.$ref}` };
-    }
-    return toJsonSchema(target, root, stack);
-  }
-  if (stack.has(schema)) return schema.type ? { type: schema.type } : {};
-  stack.add(schema);
-  const out = {};
-  let nullable = false;
-  for (const [key, value] of Object.entries(schema)) {
-    if (key === "properties" && value && typeof value === "object") {
-      out.properties = {};
-      for (const [name, prop] of Object.entries(value)) {
-        if (prop?.readOnly === true) continue;
-        out.properties[name] = toJsonSchema(prop, root, stack);
-      }
-    } else if (SCHEMA_SUBSCHEMAS.has(key)) {
-      out[key] = typeof value === "object" ? toJsonSchema(value, root, stack) : value;
-    } else if (SCHEMA_LISTS.has(key) && Array.isArray(value)) {
-      out[key] = value.map((s) => toJsonSchema(s, root, stack));
-    } else if (key === "nullable") {
-      nullable = value === true;
-    } else if (SCHEMA_KEYWORDS.has(key)) {
-      out[key] = value;
-    }
-  }
-  stack.delete(schema);
-  if (out.properties && Array.isArray(out.required)) {
-    out.required = out.required.filter((name) => name in out.properties);
-    if (!out.required.length) delete out.required;
-  }
-  // OpenAPI 3.0 booleans: exclusiveMinimum: true means "minimum is exclusive"
-  for (const [flag, bound] of [
-    ["exclusiveMinimum", "minimum"],
-    ["exclusiveMaximum", "maximum"],
-  ]) {
-    if (typeof out[flag] === "boolean") {
-      if (out[flag] && out[bound] !== undefined) {
-        out[flag] = out[bound];
-        delete out[bound];
-      } else delete out[flag];
-    }
-  }
-  if (nullable && out.type && ![].concat(out.type).includes("null")) {
-    out.type = [].concat(out.type, "null");
-  }
-  return out;
-}
 
 function isProcessedSpec(spec) {
   return (
@@ -273,11 +185,16 @@ function bodyContent(requestBody) {
  * @param {object} spec Raw OpenAPI / Swagger object, or `ProcessSpec`'s result
  * @param {object} [options]
  * @param {string} [options.serverName] the MCP server's name; defaults to the API title
- * @param {string} [options.sourceName="api"] the key of the API in `sources`
+ * @param {object|string} [options.arazzo] a parsed Arazzo document (or JSON text) whose workflows
+ *   become tools; its first OpenAPI source description is this API
+ * @param {(problem: { level: string, path: string, message: string }) => void} [options.onProblem]
+ *   receives one entry per workflow the runtime cannot run, which is left out
+ * @param {string} [options.sourceName] the key of the API in `sources`: the Arazzo document's
+ *   first OpenAPI source name, else `api`
  * @param {boolean} [options.includeInternal] keep `x-internal` / `x-hidden` operations
  * @param {boolean} [options.includeDeprecated] keep deprecated operations
  * @returns {object} the manifest: `{ manifestVersion, server, sources, tools, resources,
- *   workflows }`. Each tool has `name`, `description`, `inputSchema` (JSON Schema; parameters by
+ *   workflows }`. A workflow tool has `workflow` (its id in `workflows`) instead of `operation`. Each tool has `name`, `description`, `inputSchema` (JSON Schema; parameters by
  *   name plus `body`), `annotations` (`readOnlyHint`, `destructiveHint`, `idempotentHint`) and
  *   `operation` (`source`, `method`, `path`, `params` [{ name, in, arg?, contentType? }],
  *   `security`).
@@ -288,7 +205,11 @@ export function buildMcpManifest(spec, options = {}) {
   const { includeInternal = false, includeDeprecated = false } = options;
   const info = src.info || {};
   const title = info.title || "OpenAPI MCP Server";
-  const sourceName = toSnakeCase(options.sourceName || "api") || "api";
+  const arazzo = typeof options.arazzo === "string" ? JSON.parse(options.arazzo) : options.arazzo;
+  const firstSource = (arazzo?.sourceDescriptions || []).find(
+    (s) => s?.name && (!s.type || s.type === "openapi"),
+  );
+  const sourceName = options.sourceName || firstSource?.name || "api";
   const securitySchemes = collectSecuritySchemes(src, processed);
   // Header, query and cookie parameters that carry a credential are the runtime's business
   const credentialParams = new Set(
@@ -390,6 +311,21 @@ export function buildMcpManifest(spec, options = {}) {
     });
   }
 
+  const workflows = {};
+  if (arazzo && typeof arazzo === "object") {
+    const index = processed ? indexResolvedSpec(src) : indexOperations(src);
+    const compiled = compileWorkflows(arazzo, {
+      sources: new Map([[sourceName, index]]),
+      onProblem: options.onProblem,
+    });
+    for (const tool of compiled.tools) {
+      const seen = usedNames.get(tool.name) || 0;
+      usedNames.set(tool.name, seen + 1);
+      tools.push(seen ? { ...tool, name: `${tool.name}_${seen + 1}` } : tool);
+    }
+    Object.assign(workflows, compiled.workflows);
+  }
+
   return {
     manifestVersion: MANIFEST_VERSION,
     server: {
@@ -400,6 +336,6 @@ export function buildMcpManifest(spec, options = {}) {
     sources: { [sourceName]: { baseUrl: baseUrlOf(src, processed), securitySchemes } },
     tools,
     resources,
-    workflows: {},
+    workflows,
   };
 }

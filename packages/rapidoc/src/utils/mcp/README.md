@@ -11,18 +11,26 @@ registers the manifest's tools and hands calls to the runtime). The entry point 
 uses it for its Export MCP Server button, and `src/mcp.js` re-exports it as `rapidoc/mcp`
 (`dist/rapidoc-mcp-min.js`, Node only, no Lit) for the portal build, `@rapidoc/server` and the CLI.
 
-Not owned here: workflows (the manifest's `workflows` is empty until the Arazzo runtime lands),
-the `<rapi-doc>` attribute and methods, and the network calls themselves (the runtime only builds
-and sends requests).
+Arazzo workflows become tools too: `workflows.js` compiles a parsed Arazzo document into
+`manifest.workflows` (steps resolved to operations) and one tool per workflow, and the runtime runs
+them. Not owned here: Arazzo parsing and validation (`../arazzo/`), the `<rapi-doc>` attribute and
+methods, and the network calls themselves (the runtime only builds and sends requests).
 
 ## Interface
+
+- `compileWorkflows(arazzo, { sources, onProblem }) -> { tools, workflows }` [workflows.js]:
+  `sources` are operation indexes by Arazzo source name (`../arazzo/operations.js`). A workflow the
+  runtime cannot run is reported once through `onProblem` and left out. `buildMcpManifest` calls
+  it for `options.arazzo`, naming the manifest's source after the Arazzo document's first OpenAPI
+  source so steps resolve; `generateMcpServer` collects the problems into its result.
 
 - `buildMcpManifest(spec, options) -> manifest` [manifest.js]: `spec` is a raw OpenAPI 3.x /
   Swagger 2.0 object or `ProcessSpec`'s result (`tags[].paths[]`). Options: `serverName`,
   `sourceName` (default `api`), `includeInternal`, `includeDeprecated`. `toJsonSchema(schema,
   root)` is the schema converter on its own; `MANIFEST_VERSION` is `1`.
-- `createMcpRuntime(manifest, { fetch, credentials, baseUrls })` [runtime.js]: `listTools()`,
-  `listResources()`, `callTool(name, args) -> { content, structuredContent?, isError? }`,
+- `createMcpRuntime(manifest, { fetch, credentials, baseUrls, sleep })` [runtime.js]: `listTools()`,
+  `listResources()`, `callTool(name, args, { onStep }) -> { content, structuredContent?, isError? }`
+  (a workflow tool runs its steps and reports each through `onStep`),
   `readResource(uri) -> { contents }`. `buildRequest(manifest, operation, args, options)` returns
   the request without sending it; `credentialsFromEnv(manifest, env)` and `envNameFor(id)` map
   security schemes to environment variables.
@@ -38,7 +46,12 @@ and sends requests).
 ## Invariants
 
 - **Manifest shape.** `{ manifestVersion, server: { name, version, description }, sources:
-  { [name]: { baseUrl, securitySchemes } }, tools, resources, workflows }`. A tool is
+  { [name]: { baseUrl, securitySchemes } }, tools, resources, workflows }`. A workflow tool has
+  `workflow` (its id) instead of `operation`; `workflows[id]` is `{ workflowId, summary,
+  description, inputs, steps, outputs }`, each step `{ stepId, operation, parameters, requestBody,
+  successCriteria, onSuccess, onFailure, outputs }` with the operation resolved (source, method,
+  path, params from the step's parameters and body, security from the OpenAPI operation) and
+  values kept as Arazzo expressions. A tool is
   `{ name, description, inputSchema, annotations, operation }` with `operation = { source, method,
   path, params: [{ name, in, arg?, contentType? }], security }`; `arg` names the argument when it
   differs from the wire name, `contentType` is set for `in: "body"`. A resource has `uri`
@@ -57,10 +70,12 @@ and sends requests).
   `readOnly` properties (and their `required` entries) are dropped; OpenAPI 3.0 boolean
   `exclusiveMinimum/Maximum` become numbers; `example`, `xml`, `x-*` and other non-schema keys
   are dropped.
-- **Naming**: `toSnakeCase(operationId)`, else `deriveToolName(method, path)`; a repeated name gets
-  `_2`, `_3`, ... in document order. `sanitizeDescription` deletes every `_`.
+- **Naming**: `toSnakeCase(operationId)`, else `deriveToolName(method, path)`; workflow tools are
+  `toSnakeCase(workflowId)`, after the operations; a repeated name gets `_2`, `_3`, ... in that
+  order. `sanitizeDescription` deletes every `_`.
 - **Annotations**: `readOnlyHint` for GET; `destructiveHint` for PUT, PATCH and DELETE;
-  `idempotentHint` for GET, PUT and DELETE. `estimateTokenCost.consequentialCount` counts tools
+  `idempotentHint` for GET, PUT and DELETE. A workflow tool is read-only when every step is a
+  GET, destructive when any step is PUT, PATCH or DELETE, never idempotent. `estimateTokenCost.consequentialCount` counts tools
   without `readOnlyHint`.
 - **Resources**: a GET with no required argument whose path contains one of `/reference`,
   `/currencies`, `/countries`, `/tiers`, `/categories`, `/status`, `/schema`.
@@ -75,6 +90,26 @@ and sends requests).
   repeat the key; objects elsewhere are JSON; `Accept: application/json` unless set; a missing path
   parameter is an error result, as is a transport failure or a non-2xx status (text `HTTP <status>`
   plus the body). JSON responses are pretty-printed and, for objects, also `structuredContent`.
+- **Workflows the runtime runs** (`[workflows.js:compileWorkflows]`): steps that name an
+  operation found in the sources, parameters in path, query, header or cookie, a request body
+  with `payload` and `replacements`, simple criteria only (`regex`, `jsonpath` and `xpath` are
+  reported), actions `end`, `goto` to a step and `retry` (`retryLimit` default 1, `retryAfter`
+  seconds) with simple criteria, and `$inputs` / `$steps` expressions. Steps that call another
+  workflow, actions that go to one, and `$workflows` expressions are reported. A step's actions
+  are its own `onSuccess` / `onFailure` followed by the workflow's it does not override by name.
+- **Running a workflow** (`[runtime.js:createMcpRuntime]`): required inputs are checked first.
+  Each step's parameters and payload are evaluated against `$inputs` and earlier steps' outputs
+  (`resolveValue`: a whole-string expression keeps its type, `{$expr}` inside text is
+  interpolated), the request is sent, and every criterion must hold (`evaluateCondition`: `==`,
+  `!=`, `<`, `>`, `<=`, `>=`, `&&`, `||`, `!`, parentheses, quoted strings, numbers, `true`,
+  `false`, `null`; `==` compares numbers and strings as text and treats a missing value as
+  `null`). No criteria means success. The first action whose criteria all hold runs: on success
+  `end` finishes, `goto` jumps, none falls through; on failure none or `end` fails the workflow
+  (the result names the step, the criterion and the response), `goto` jumps, `retry` re-runs the
+  step (or `stepId`) after `retryAfter` seconds up to `retryLimit` times. A transport error is a
+  failure with no response. More than 1000 step runs is an error. The result is the workflow's
+  `outputs` as `structuredContent`; `onStep` gets `{ workflowId, stepId, attempt, outcome,
+  request, response, outputs, failedCriterion, action }` after each run.
 - **Environment.** `envNameFor("petstore_auth")` is `PETSTORE_AUTH`; `API_KEY` is the fallback
   for every scheme; HTTP Basic reads `<NAME>` as `user:password` or `<NAME>_USERNAME` /
   `<NAME>_PASSWORD`. `API_BASE_URL` in `server.ts` overrides every source's base URL.
@@ -92,9 +127,11 @@ and sends requests).
 - `npm run test:unit` from the repo root. `tests/unit/mcp-generator.test.js` covers the manifest
   (from `docs/public/specs/petstore.yaml` and small documents), the schema converter, the runtime
   with a fake `fetch`, credentials from the environment, the project files and the zip.
-  `tests/unit/mcp-project.test.js` runs the exported project for real: it starts `server.ts`
+  `tests/unit/mcp-workflows.test.js` covers compiling `docs/public/specs/petstore.arazzo.yaml`,
+  expressions, conditions, and runs (outputs between steps, retry, goto, failure) with a fake
+  `fetch`. `tests/unit/mcp-project.test.js` runs the exported project for real: it starts `server.ts`
   (through `scripts/test-loader.mjs` instead of `tsx`) under `.test-tmp/`, drives it with the MCP
   SDK's stdio client (`@modelcontextprotocol/sdk`, a root dev dependency) and points
-  `API_BASE_URL` at `@rapidoc/mock` serving the same Petstore spec.
+  `API_BASE_URL` at `@rapidoc/mock` serving the same Petstore spec, workflow tools included.
 - `/examples/mcp-server` on the docs site shows the manifest, `server.ts` and `runtime.js` and
   downloads the project. After editing, `npm run lint` and `npm run format-fix`.

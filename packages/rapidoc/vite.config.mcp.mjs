@@ -20,7 +20,7 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: [/^node:/],
+      external: [/^node:/, "yaml"],
       output: {
         entryFileNames: "rapidoc-mcp-min.js",
       },

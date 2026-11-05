@@ -513,7 +513,10 @@ describe("arazzo: SVG rendering", () => {
       ["stop", ""],
     );
     assert.equal(describeAction({ ...base, inherited: true }).tag, "workflow");
-    const { svg } = renderArazzoWorkflow(arazzoText, { sources: { petstore: petstoreText } });
+    const { svg } = renderArazzoWorkflow(arazzoText, {
+      workflowId: "registerUser",
+      sources: { petstore: petstoreText },
+    });
     assert.ok(svg.includes(">jsonpath on $response.body:</tspan>"));
   });
 

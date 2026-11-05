@@ -47,7 +47,8 @@ other member is internal; templates call internal members freely through `this`.
   the header's Compact / Expanded switch sets it), `show-view-toggle` (`"false"` hides that
   switch), `theme`, `color-scheme`; method `load`; events `flow-loaded` (`detail: { doc,
   problems }`), `step-click` (`detail: { workflowId, stepId, operation, workflowRef }`) and
-  `view-change` (`detail: { view }`, fired only by the switch), all bubbling and composed. The
+  `view-change` (`detail: { view }`, fired only by the switch), all bubbling and composed;
+  getter `arazzoDocument` (the parsed document, null until loaded). The
   element does not store the chosen view; a page that wants it remembered listens for
   `view-change`. The legend lists only the kinds of lines the current diagram draws. Hovering a step, one of its value lines or its rows in the outputs box highlights all of
   them. Clicking a step name in the outputs box (focusable, Enter works too) or a value line that
@@ -68,7 +69,9 @@ other member is internal; templates call internal members freely through `this`.
   or invalid `layout` is derived from `render-style` (`column` for `read`/`focused`, `row` for
   `view`) and written back, while an author-set `row`/`column` is kept; an empty `mcp` becomes
   `none`. `mcp` defaults to `"false"`: the Export MCP Server button shows only for `"true"` (or
-  any value that is not `false`/`none`, such as the old language names).
+  any value that is not `false`/`none`, such as the old language names). The export includes
+  workflow tools when `<rapi-flow>` is loaded on the page: the one whose `for` names this
+  element, else one without `for`, supplies its `arazzoDocument` (`options.arazzo` overrides).
 - **Spec loading** (`[rapidoc.ts:loadSpec]`). Each load takes a token from `_specLoadSeq`; a load
   whose token is no longer current applies nothing (no `resolvedSpec`, no `loadFailed`, no
   `spec-loaded`), so the newest call wins. `connectedCallback` owns the initial load: an inlined

@@ -1769,11 +1769,32 @@ export default class RapiDoc extends LitElement {
     return parseMcpEnabled(this.mcp);
   }
 
+  /**
+   * The Arazzo document of a <rapi-flow> on the page, for workflow tools in the export: the one
+   * whose `for` names this element, else one without `for`. Nothing when rapi-flow is not loaded.
+   */
+  private findArazzoDocument() {
+    if (typeof customElements === "undefined" || !customElements.get("rapi-flow")) return undefined;
+    const flows = [...document.querySelectorAll("rapi-flow")] as any[];
+    const flow =
+      flows.find((f) => this.id && f.getAttribute("for") === this.id && f.arazzoDocument) ||
+      flows.find((f) => !f.getAttribute("for") && f.arazzoDocument);
+    return flow?.arazzoDocument;
+  }
+
+  private mcpOptions(options) {
+    return {
+      serverName: this.mcpServerName,
+      arazzo: this.findArazzoDocument(),
+      ...options,
+    };
+  }
+
   // Public Method - Builds the MCP manifest and the files of the exported project in memory
   generateMcpServer(options = {}) {
     const spec = this.resolvedSpec || this.openApiSpec;
     if (!spec) return null;
-    return mcpServerGenerator(spec, { serverName: this.mcpServerName, ...options });
+    return mcpServerGenerator(spec, this.mcpOptions(options));
   }
 
   // Public Method - Downloads the exported MCP project as a zip
@@ -1794,7 +1815,7 @@ export default class RapiDoc extends LitElement {
   getMcpBudget(options = {}) {
     const spec = this.resolvedSpec || this.openApiSpec;
     if (!spec) return null;
-    return estimateTokenCost(buildMcpManifest(spec, options));
+    return estimateTokenCost(buildMcpManifest(spec, this.mcpOptions(options)));
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes
