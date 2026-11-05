@@ -88,4 +88,4 @@ The `before-try`, `after-try`, `request-aborted`, `change` and `input` events ar
   `exportparts`), `schema-modernization.test.js`, `schema-nullable.test.js`,
   `multipart-form-curl.test.js` (`<tag-input>` converter), `static-renderer.test.js`;
   `css-variables.test.js` checks every `var(--x)` read here is defined.
-- Template rendering is also covered by `npm run test:component` and `npm run test:visual`.
+- Template rendering is also covered by `npm run test:component` and `npm run test:e2e`.

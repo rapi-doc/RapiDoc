@@ -96,7 +96,6 @@ rapidoc/
 │   ├── unit/                    # Node test runner: parser, schema, templates, static renderer
 │   ├── component/               # Lit component tests
 │   ├── e2e/                     # Functional tests in a headless browser (playwright-core)
-│   ├── visual/                  # Visual regression tests with golden snapshots
 │   ├── perf/                    # Spec parsing and rendering benchmarks
 │   ├── fixtures/                # Shared specs and the HTML test harness
 │   └── helpers/                 # Test server and browser helpers

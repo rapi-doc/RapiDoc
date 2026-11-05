@@ -164,8 +164,7 @@ rapidoc/
 │   ├── astro.config.mjs         # Astro site configuration
 │   └── package.json             # Workspace package "docs"
 │
-├── tests/
-│   └── visual/                  # Automated visual regression test suite (Playwright)
+├── tests/                       # See tests/README.md
 │
 ├── package.json                 # Monorepo root configuration (workspaces)
 └── README.md
