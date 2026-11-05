@@ -24,7 +24,7 @@ const SEARCH_INDEX_FILE = "search-index.json";
 // llms.txt and llms-full.txt list public pages only (engine/llms.js).
 const ALWAYS_PUBLIC = [
   /^_rapidoc\//,
-  /^assets\/rapidoc-min\.js$/,
+  /^assets\/rapidoc-min\.js(\.LICENSE\.txt)?$/,
   /^oauth-receiver\.html$/,
   /^robots\.txt$/,
   /^llms(-full)?\.txt$/,

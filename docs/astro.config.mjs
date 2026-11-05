@@ -184,6 +184,13 @@ export default defineConfig({
           // Copy rapidoc-min.js to docs output directory (dist)
           await fs.ensureDir(resolve(__dirname, 'dist/rapidoc'));
           await fs.copy(rapidocDistFile, resolve(__dirname, 'dist/rapidoc/rapidoc-min.js'));
+          // and the notices of the third-party code bundled into it, which its banner points to
+          if (fs.existsSync(`${rapidocDistFile}.LICENSE.txt`)) {
+            await fs.copy(
+              `${rapidocDistFile}.LICENSE.txt`,
+              resolve(__dirname, 'dist/rapidoc/rapidoc-min.js.LICENSE.txt'),
+            );
+          }
 
           // Automatically sync rapidoc-min.js to generated-docs as well
           const genDocsDir = resolve(__dirname, 'generated-docs');

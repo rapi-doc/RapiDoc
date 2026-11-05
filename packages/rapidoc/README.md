@@ -285,7 +285,10 @@ a whole.
 
 ### Overview
 
-`packages/rapidoc` is a Lit 3 web component library built by Vite into two ES module bundles, and has no runtime dependencies:
+`packages/rapidoc` is a Lit 3 web component library built by Vite into two ES module bundles. It
+has no runtime dependencies: its libraries are `devDependencies` bundled into those files. Each
+build writes `dist/<bundle>.LICENSE.txt`, the list of bundled packages with their versions and
+license notices, and the bundle's banner names it:
 
 - `dist/rapidoc-min.js` (`vite.config.mjs`, entry `src/index.js`): registers `<rapi-doc>`,
   `<rapi-doc-mini>` and `<oauth-receiver>` on import. Production builds are minified, carry the

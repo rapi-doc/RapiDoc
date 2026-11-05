@@ -7,6 +7,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { transform } from "esbuild";
 import pkg from "./package.json" with { type: "json" };
 import { captureBuildInfo } from "../../scripts/capture-build-info.js";
+import { thirdPartyLicenses, LICENSE_FILE_SUFFIX } from "../../scripts/third-party-licenses.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,12 +24,19 @@ export default defineConfig(({ mode }) => {
             }),
           ]
         : []),
-      bannerPlugin(`/*!
+      bannerPlugin((fileName) =>
+        fileName.endsWith(".js")
+          ? `/*!
  * @license
  * ${pkg.name} v${pkg.version}
  * (c) ${new Date().getFullYear()} ${pkg.author}
  * SPDX-License-Identifier: ${pkg.license}
- */`),
+ * Bundled third-party code and its licenses: ${fileName}${LICENSE_FILE_SUFFIX}
+ */`
+          : null,
+      ),
+      // <bundle>.LICENSE.txt: notices of the npm packages bundled in, which minification strips.
+      thirdPartyLicenses({ owner: `${pkg.name} ${pkg.version}` }),
       ...(!isDev
         ? [
             {

@@ -88,6 +88,16 @@ export function resolveRapidocBundle() {
   return bundlePath;
 }
 
+/**
+ * Copies a RapiDoc bundle with its `<bundle>.LICENSE.txt` (the notices of the third-party code built into
+ * it, which the bundle's banner points to), when the build wrote one.
+ */
+function copyBundle(bundlePath, target) {
+  fs.copyFileSync(bundlePath, target);
+  const notices = `${bundlePath}.LICENSE.txt`;
+  if (fs.existsSync(notices)) fs.copyFileSync(notices, `${target}.LICENSE.txt`);
+}
+
 /** The URL of the <rapi-flow> bundle, copied only for portals with `workflows:`. */
 export const FLOW_BUNDLE_PATH = "/assets/rapidoc-flow-min.js";
 
@@ -101,7 +111,7 @@ export function copyRapidocFlowBundle(portalConfig, publicDir) {
   const bundlePath = fileURLToPath(import.meta.resolve("rapidoc/flow"));
   if (!fs.existsSync(bundlePath)) throw new StaleRapidocBundleError(bundlePath, "missing");
   fs.mkdirSync(path.join(publicDir, "assets"), { recursive: true });
-  fs.copyFileSync(bundlePath, path.join(publicDir, FLOW_BUNDLE_PATH));
+  copyBundle(bundlePath, path.join(publicDir, FLOW_BUNDLE_PATH));
 }
 
 /** Where RapiDoc's OAuth popup returns to (the `oauth-receiver` attribute of every RapiDoc element). */
@@ -122,14 +132,14 @@ const OAUTH_RECEIVER_HTML = `<!doctype html>
 `;
 
 /**
- * Copies the RapiDoc bundle to public/assets/rapidoc-min.js, and writes public/oauth-receiver.html, the page
+ * Copies the RapiDoc bundle to public/assets/rapidoc-min.js (with its .LICENSE.txt), and writes public/oauth-receiver.html, the page
  * RapiDoc's OAuth popup (Authorize button) returns to. One page at the site root, so an OAuth provider needs one
  * redirect URL for the whole portal.
  */
 export function copyRapidocBundle(publicDir) {
   const assetsDir = path.join(publicDir, "assets");
   fs.mkdirSync(assetsDir, { recursive: true });
-  fs.copyFileSync(resolveRapidocBundle(), path.join(assetsDir, "rapidoc-min.js"));
+  copyBundle(resolveRapidocBundle(), path.join(assetsDir, "rapidoc-min.js"));
   fs.writeFileSync(path.join(publicDir, OAUTH_RECEIVER_PATH), OAUTH_RECEIVER_HTML, "utf8");
 }
 

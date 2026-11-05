@@ -5,7 +5,7 @@
 `packages/rapidoc` contains the core RapiDoc custom elements library. It produces the zero-runtime-dependency web component `<rapi-doc>` as well as companion components `<rapi-doc-mini>` and `<oauth-receiver>`.
 
 - **Package Name**: `rapidoc`
-- **Output Targets**: Standalone ES Module bundles `dist/rapidoc-min.js` and `dist/rapidoc-flow-min.js` (`rapidoc/flow`). No runtime `dependencies`: everything is bundled, so the libraries are `devDependencies`.
+- **Output Targets**: Standalone ES Module bundles `dist/rapidoc-min.js` and `dist/rapidoc-flow-min.js` (`rapidoc/flow`). No runtime `dependencies`: everything is bundled, so the libraries are `devDependencies`. `devDependencies` that `src/` imports are bundled; the rest are build tools. Each build writes `<bundle>.LICENSE.txt` (e.g. `dist/rapidoc-min.js.LICENSE.txt`) listing every package bundled in, with version, license and full notice: the exact answer to "what is in this bundle".
 - **Node packages built from this source**: `@rapidoc/prerender` (`packages/rapidoc-prerender`, the build-time renderer) and `@rapidoc/mcp` (`packages/rapidoc-mcp`). Nothing in `src/` may import them.
 - **Component Entry**: `src/index.js`
 - **Main Element**: `src/rapidoc.ts` (`<rapi-doc>`)
@@ -24,6 +24,7 @@
   - Custom esbuild transformer (strips `console.*` and `debugger` calls in production)
   - `rollup-plugin-visualizer` (activated via `ANALYZE=true` for bundle treemap)
   - `scripts/capture-build-info.js` (records build size and metadata on bundle completion)
+  - `scripts/third-party-licenses.js` (writes `<bundle>.LICENSE.txt` with the license notices of the bundled npm packages, which minification strips; the banner names the file; `tests/unit/third-party-licenses.test.js`)
 - **Path Aliases**:
   - `~` -> `./src`
   - `~/rapidoc` -> `./src/rapidoc.js`

@@ -139,10 +139,12 @@ describe("RapiDoc Portal build engine", () => {
         "markdoc.config.mjs",
         "src/content.config.ts",
         "public/assets/rapidoc-min.js",
+        "public/assets/rapidoc-min.js.LICENSE.txt",
         "public/search-index.json",
         "public/specs/shipments.json",
         "public/workflows/track-a-shipment.arazzo.yaml",
         "public/assets/rapidoc-flow-min.js",
+        "public/assets/rapidoc-flow-min.js.LICENSE.txt",
       ]) {
         assert.ok(fs.existsSync(path.join(workspace.root, file)), `${file} should exist`);
       }

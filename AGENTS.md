@@ -50,7 +50,7 @@ All agents must strictly adhere to the following system boundaries:
 ### Package Isolation & Dependencies
 
 - **Core Library Independence (`packages/rapidoc`)**:
-  - `rapidoc` is published to npm as standalone browser bundles (`dist/rapidoc-min.js`, `dist/rapidoc-flow-min.js`) with an empty `dependencies` list: its libraries are `devDependencies`, bundled by Vite. Never add a runtime dependency or a Node-only export to it; Node entry points are separate packages (`@rapidoc/prerender`, `@rapidoc/mcp`).
+  - `rapidoc` is published to npm as standalone browser bundles (`dist/rapidoc-min.js`, `dist/rapidoc-flow-min.js`) with an empty `dependencies` list: its libraries are `devDependencies`, bundled by Vite. Which ones are bundled: `dist/<bundle>.LICENSE.txt`, written by every build with each bundled package's version, license and notice. Copies of a bundle (the portal's `public/assets/`, the docs site's `dist/rapidoc/`) take that file along. Never add a runtime dependency or a Node-only export to it; Node entry points are separate packages (`@rapidoc/prerender`, `@rapidoc/mcp`).
   - Third-party runtime dependencies (e.g., `lit`, `@scalar/openapi-parser`, `marked`, `microlighter`, `github-slugger`) are bundled directly into `dist/rapidoc-min.js` via Vite.
   - Never import code from `docs/` or other sub-packages into `packages/rapidoc`.
 - **Node packages built from the core source (`packages/rapidoc-prerender`, `packages/rapidoc-mcp`)**:
