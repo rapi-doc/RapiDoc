@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { renderTemplateToString } from "@rapidoc/static";
+import { renderTemplateToString } from "@rapidoc/prerender";
 import { serializeQueryParam, buildQueryString } from "~/utils/url-utils";
 import { inputParametersTemplate } from "~/templates/request-params-template";
 

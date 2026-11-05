@@ -4,4 +4,4 @@ Package guidance lives in `AGENTS.md` (shared with other coding agents) and is i
 
 @AGENTS.md
 
-For API reference layouts, use the `rapidoc-static-navigation` skill in `.claude/skills/`.
+For API reference layouts, use the `rapidoc-prerender-navigation` skill in `.claude/skills/`.

@@ -4,7 +4,7 @@ import { dirname, resolve } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// `@rapidoc/static` for Node: this package's renderer plus the templates, components, styles and
+// `@rapidoc/prerender` for Node: this package's renderer plus the templates, components, styles and
 // utilities it uses from packages/rapidoc/src (whose files import each other through `~`). The
 // third-party packages stay external; they are this package's dependencies.
 export default defineConfig({

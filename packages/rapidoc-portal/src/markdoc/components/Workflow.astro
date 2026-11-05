@@ -1,13 +1,13 @@
 ---
 /**
  * {% workflow file="<workflows id>" id="<workflowId>" view="compact" title="..." /%}: one Arazzo
- * workflow of `workflows:`, drawn at build time as a static SVG (@rapidoc/static), so it shows
+ * workflow of `workflows:`, drawn at build time as a static SVG (@rapidoc/prerender), so it shows
  * without JavaScript. "Run workflow" loads the <rapi-flow> bundle and puts the element in its
  * place: the same diagram, with the run panel. The bundle is loaded only on pages that ask.
  */
 import fs from 'node:fs';
 import { Aside } from '@astrojs/starlight/components';
-import { renderArazzoWorkflow, getFlowCss, getThemeTokensCss } from '@rapidoc/static';
+import { renderArazzoWorkflow, getFlowCss, getThemeTokensCss } from '@rapidoc/prerender';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import { readVersionSpec } from '../../engine/api-routes.js';
 import { FLOW_BUNDLE_PATH } from '../../engine/sync-assets.js';

@@ -154,7 +154,7 @@ export default defineConfig({
         '~/rapidoc': resolve(rapidocSrcPath, 'rapidoc.ts'),
         '~/rapidoc-mini': resolve(rapidocSrcPath, 'rapidoc-mini.ts'),
         '~/oauth-receiver': resolve(rapidocSrcPath, 'oauth-receiver.ts'),
-        '@rapidoc/static': resolve(rapidocSrcPath, '../../rapidoc-static/src/index.js'),
+        '@rapidoc/prerender': resolve(rapidocSrcPath, '../../rapidoc-prerender/src/index.js'),
         'rapidoc/flow': resolve(rapidocSrcPath, 'flow.js'),
         rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },

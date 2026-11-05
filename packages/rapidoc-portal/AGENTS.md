@@ -91,7 +91,7 @@ Invariants:
   those). Files are published at `url` and, with `auth`, follow their APIs' zones (public when every
   API is public, else the first non-public API's zone: `access/split-output.js`). The
   `{% workflow file= id= %}` tag draws a workflow at build time (`markdoc/components/Workflow.astro`,
-  with `renderArazzoWorkflow` from `@rapidoc/static`; `markdoc/tags.js` does the same for
+  with `renderArazzoWorkflow` from `@rapidoc/prerender`; `markdoc/tags.js` does the same for
   `compileMarkdoc()` through a `workflows` variable) and loads `/assets/rapidoc-flow-min.js` only
   when a reader clicks Run workflow.
 - **MCP manifests** (`engine/mcp-output.js:writeMcpOutput`, run by `buildPortal()` after the split): every
@@ -114,9 +114,9 @@ Invariants:
 
 ## 6. API Reference Pages (RapiDoc Static + headless `<rapi-doc>`)
 
-API pages use the same app shell as the docs (`PortalLayout.astro`; full pattern: `.claude/skills/rapidoc-static-navigation/SKILL.md`):
+API pages use the same app shell as the docs (`PortalLayout.astro`; full pattern: `.claude/skills/rapidoc-prerender-navigation/SKILL.md`):
 
-1. **Separate navigation and content**: never render RapiDoc's own sidebar or header (`show-side-nav="false"`, `show-header="false"`). The sidebar is static HTML from `getNavBarHtml(spec, options)` (`@rapidoc/static`), in its own `.portal-sidebar.nav-bar` element inside the layout's sticky sidebar, because `getNavCss()` styles its scope element.
+1. **Separate navigation and content**: never render RapiDoc's own sidebar or header (`show-side-nav="false"`, `show-header="false"`). The sidebar is static HTML from `getNavBarHtml(spec, options)` (`@rapidoc/prerender`), in its own `.portal-sidebar.nav-bar` element inside the layout's sticky sidebar, because `getNavCss()` styles its scope element.
 2. **The page scrolls**: `<rapi-doc auto-height="true">` in the normal page flow, sticky sidebar, full-width footer below. Never lock the viewport or give the content its own scroll box. The sidebar's `.nav-scroll` scrolls on its own.
 3. **Sticky header offset and theme**: `html { scroll-padding-top }` (set by `PortalLayout`) is RapiDoc's scroll offset (or `scroll-offset="<px>"`); `color-scheme="auto"` follows the portal theme.
 4. **Sync**: `rapiDocEl.bindNavBar(navEl)`, which keeps the active link in view inside the sidebar without scrolling the page.

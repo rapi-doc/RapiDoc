@@ -39,7 +39,7 @@ You are a specialist agent dedicated to `packages/rapidoc-cli` and `packages/rap
    - Ensure the `#!/usr/bin/env node` shebang is preserved in `packages/rapidoc-cli/src/index.js`.
 3. **Portal Evolution**:
    - Align portal components with RapiDoc Web Component builds and ensure clean separation from the documentation site.
-   - For API reference layouts, use the `rapidoc-static-navigation` skill (static `getNavBarHtml` sidebar + headless `<rapi-doc>`).
+   - For API reference layouts, use the `rapidoc-prerender-navigation` skill (static `getNavBarHtml` sidebar + headless `<rapi-doc>`).
 4. **Test Verification**:
    - Run `npm run test:portal` from the monorepo root after changing CLI, portal, or scaffolding code.
 5. **Dogfood Sync**:

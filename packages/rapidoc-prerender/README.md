@@ -1,4 +1,4 @@
-# @rapidoc/static
+# @rapidoc/prerender
 
 Renders RapiDoc API documentation to HTML at build time, in Node, Bun or any framework's build (Astro, Next.js, Nuxt, 11ty, VitePress):
 
@@ -12,11 +12,11 @@ It renders the same templates as the `rapidoc` web component, so the HTML matche
 ## Use
 
 ```bash
-npm install @rapidoc/static
+npm install @rapidoc/prerender
 ```
 
 ```javascript
-import { renderRapiDoc } from "@rapidoc/static";
+import { renderRapiDoc } from "@rapidoc/prerender";
 
 const html = await renderRapiDoc({ spec: "./openapi.yaml", outputMode: "dsd" });
 ```

@@ -70,7 +70,7 @@ rapidoc/
 │   │   ├── vite.config.mjs      # Browser bundle build
 │   │   └── vite.config.flow.mjs # <rapi-flow> bundle build
 │   │
-│   ├── rapidoc-static/          # @rapidoc/static: build-time renderer (pre-rendered <rapi-doc>, sidebar HTML) for Node
+│   ├── rapidoc-prerender/       # @rapidoc/prerender: build-time renderer (pre-rendered <rapi-doc>, sidebar HTML) for Node
 │   ├── rapidoc-mcp/             # @rapidoc/mcp: MCP manifest builder, runtime and project writer for Node
 │   │
 │   ├── rapidoc-cli/             # @rapidoc/cli, the `rapidoc` command: init, dev, build, serve, mock, validate, migrate
@@ -295,7 +295,7 @@ a whole.
   that runs them in the browser. It bundles its own copy of Lit and `yaml`, so pages that do not
   load it pay nothing; `rapidoc-min.js` carries no Arazzo runtime.
 
-Two Node packages are built from this source: `@rapidoc/static` (`packages/rapidoc-static`), the
+Two Node packages are built from this source: `@rapidoc/prerender` (`packages/rapidoc-prerender`), the
 build-time renderer that renders these templates and components to HTML, and `@rapidoc/mcp`
 (`packages/rapidoc-mcp`), the MCP code in `src/utils/` (`mcp-generator.js`, `mcp/`, `arazzo/`).
 Nothing in `src/` imports either package.
@@ -308,7 +308,7 @@ spec-url / inline spec ──▶ utils/spec-parser.js ProcessSpec (load, upgrade
         ├── events: spec-loaded, nav-active-change   (components: before-try, after-try, request-aborted)
         └── utils/mock-interceptor.js patches fetch / XMLHttpRequest while mock-server="true"
 
-@rapidoc/static ──▶ the same templates and components, serialized by its serializer.js
+@rapidoc/prerender ──▶ the same templates and components, serialized by its serializer.js
                     renderTemplateToString (no DOM)
 ```
 
@@ -323,7 +323,7 @@ spec-url / inline spec ──▶ utils/spec-parser.js ProcessSpec (load, upgrade
   project;
   [`utils/arazzo/`](./src/utils/arazzo/README.md) for Arazzo workflow diagrams.
 - [`src/styles/`](./src/styles/README.md): stylesheets and the theme-token contract.
-- [`../rapidoc-static/src/`](../rapidoc-static/src/README.md): the `@rapidoc/static` renderer, a
+- [`../rapidoc-prerender/src/`](../rapidoc-prerender/src/README.md): the `@rapidoc/prerender` renderer, a
   separate package that renders this folder's templates.
 
 ### Global Invariants
@@ -349,7 +349,7 @@ spec-url / inline spec ──▶ utils/spec-parser.js ProcessSpec (load, upgrade
 - **Network**: spec and external `$ref` fetches, Try requests from `<api-request>`, OAuth token
   requests and the sign-in popup.
 - **Global patching**: the mock server replaces `window.fetch` and three `XMLHttpRequest`
-  prototype methods and restores them on disable; importing `@rapidoc/static` installs or wraps
+  prototype methods and restores them on disable; importing `@rapidoc/prerender` installs or wraps
   `customElements.define`; importing the elements configures the global `marked` instance.
 - **Storage and messaging**: `localStorage["rapidoc"]` with `persist-auth="true"`; OAuth replies
   via `window.opener.postMessage` and a `BroadcastChannel`.

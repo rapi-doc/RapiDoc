@@ -1,5 +1,5 @@
 {
-  "name": "@rapidoc/static",
+  "name": "@rapidoc/prerender",
   "version": "0.1.0",
   "description": "Renders RapiDoc API documentation to HTML at build time: pre-rendered <rapi-doc> (Declarative Shadow DOM or light DOM), sidebar navigation, Arazzo diagrams",
   "keywords": [
@@ -17,7 +17,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rapi-doc/RapiDoc.git",
-    "directory": "packages/rapidoc-static"
+    "directory": "packages/rapidoc-prerender"
   },
   "files": [
     "dist",

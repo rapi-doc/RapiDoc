@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import ProcessSpec, { groupByTagGroups } from "../../packages/rapidoc/src/utils/spec-parser.js";
-import { renderTemplateToString } from "@rapidoc/static";
+import { renderTemplateToString } from "@rapidoc/prerender";
 
 describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
   const mockTags = [

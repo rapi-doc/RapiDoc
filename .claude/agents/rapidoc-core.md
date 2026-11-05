@@ -1,6 +1,6 @@
 ---
 name: rapidoc-core
-description: "Use for changes to packages/rapidoc — the Lit <rapi-doc> web component, OpenAPI spec parsing and dereferencing, schema rendering, mock interception, @rapidoc/static, styles, or bundle size. Runs unit/perf tests and keeps dist/rapidoc-min.js zero-dependency."
+description: "Use for changes to packages/rapidoc — the Lit <rapi-doc> web component, OpenAPI spec parsing and dereferencing, schema rendering, mock interception, @rapidoc/prerender, styles, or bundle size. Runs unit/perf tests and keeps dist/rapidoc-min.js zero-dependency."
 ---
 
 # Agent Role: RapiDoc Core Library Specialist
@@ -14,7 +14,7 @@ You are a specialist agent dedicated to `packages/rapidoc` — the core Lit-base
 - **Package Directory**: `packages/rapidoc`
 - **Component Entry**: `packages/rapidoc/src/index.js`
 - **Main Custom Element**: `packages/rapidoc/src/rapidoc.ts`
-- **Static Renderer**: `packages/rapidoc-static/src/` (`@rapidoc/static`, renders this package's templates; rebuild with `npm run build:static`)
+- **Static Renderer**: `packages/rapidoc-prerender/src/` (`@rapidoc/prerender`, renders this package's templates; rebuild with `npm run build:prerender`)
 - **MCP and Arazzo code**: `packages/rapidoc/src/utils/mcp/`, `utils/arazzo/`, `utils/mcp-generator.js`, published for Node as `@rapidoc/mcp` (`packages/rapidoc-mcp`, entry and build only; rebuild with `npm run build:mcp`)
 - **Parser & Schema Utilities**:
   - `packages/rapidoc/src/utils/spec-parser.js`

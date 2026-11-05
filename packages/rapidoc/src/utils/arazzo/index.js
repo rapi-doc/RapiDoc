@@ -1,5 +1,5 @@
 /**
- * Arazzo support shared by <rapi-flow> and the build-time renderer (@rapidoc/static).
+ * Arazzo support shared by <rapi-flow> and the build-time renderer (@rapidoc/prerender).
  */
 import { parseDocument, validateArazzo } from "./parse.js";
 import { indexOperations } from "./operations.js";

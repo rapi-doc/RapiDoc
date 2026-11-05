@@ -19,7 +19,7 @@ import {
   getBundledCss,
   getNavCss,
   getThemeTokensCss,
-} from "@rapidoc/static";
+} from "@rapidoc/prerender";
 import { isInternalOrHidden } from "~/utils/common-utils";
 
 const sampleSpec = {
@@ -351,8 +351,8 @@ describe("Static Document Pre-Rendering (renderRapiDoc)", () => {
       "Should not use shadowrootmode in Light DOM mode",
     );
     assert.ok(
-      htmlOutput.includes('class="rapidoc-static-container"'),
-      "Should wrap in rapidoc-static-container",
+      htmlOutput.includes('class="rapidoc-prerender-container"'),
+      "Should wrap in rapidoc-prerender-container",
     );
     assert.ok(htmlOutput.includes('data-theme="cobalt"'), "Should preserve theme attribute");
     assert.ok(htmlOutput.includes("Cosmo Cargo API"), "Should render title");

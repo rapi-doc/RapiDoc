@@ -1,5 +1,5 @@
 // The headless code in packages/rapidoc/src (spec parsing, schema utilities, slugs, Arazzo, MCP) is
-// shared by the browser bundles and the Node builds (@rapidoc/static, @rapidoc/mcp). It must not pull in
+// shared by the browser bundles and the Node builds (@rapidoc/prerender, @rapidoc/mcp). It must not pull in
 // Lit, elements, templates or styles, and may use only the third-party packages listed here. Calls to
 // DOM APIs inside functions are allowed (Node never calls them); importing UI code is not.
 //

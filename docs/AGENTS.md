@@ -35,7 +35,7 @@ The `docs/astro.config.mjs` integrates Vite plugins that bridge `docs` and `pack
    - `~` resolves to `packages/rapidoc/src`
    - `~/rapidoc` resolves to `packages/rapidoc/src/rapidoc.js`
    - `rapidoc` resolves to `packages/rapidoc/src/index.js`
-   - `@rapidoc/static` resolves to `packages/rapidoc-static/src/index.js` (the prerender guide renders with it at build time)
+   - `@rapidoc/prerender` resolves to `packages/rapidoc-prerender/src/index.js` (the prerender guide renders with it at build time)
 
 ---
 

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { renderTemplateToString } from "@rapidoc/static";
+import { renderTemplateToString } from "@rapidoc/prerender";
 import { inputParametersTemplate } from "~/templates/request-params-template";
 
 // A query parameter described by content, whose example is an object (#1016)

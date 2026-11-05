@@ -1,7 +1,7 @@
 ---
-name: rapidoc-static-navigation
-description: Build an API reference layout with a static sidebar from @rapidoc/static getNavBarHtml next to a headless <rapi-doc>, in a page-scrolling app shell with a sticky sidebar and sticky header.
-when_to_use: Building or changing a portal/API-reference layout with a sidebar next to <rapi-doc>, wiring nav clicks or nav-active-change sync, fixing duplicate sidebars, headings hidden under a sticky header, or using getNavBarHtml/getNavCss from @rapidoc/static.
+name: rapidoc-prerender-navigation
+description: Build an API reference layout with a static sidebar from @rapidoc/prerender getNavBarHtml next to a headless <rapi-doc>, in a page-scrolling app shell with a sticky sidebar and sticky header.
+when_to_use: Building or changing a portal/API-reference layout with a sidebar next to <rapi-doc>, wiring nav clicks or nav-active-change sync, fixing duplicate sidebars, headings hidden under a sticky header, or using getNavBarHtml/getNavCss from @rapidoc/prerender.
 ---
 
 # RapiDoc static navigation in a page-scrolling shell
@@ -28,7 +28,7 @@ The page is the scroll container. Never lock the viewport (`html, body { overflo
 ## 1. Sidebar: static HTML from `getNavBarHtml`
 
 ```js
-import { getNavBarHtml, getNavCss, getThemeTokensCss } from '@rapidoc/static';
+import { getNavBarHtml, getNavCss, getThemeTokensCss } from '@rapidoc/prerender';
 
 const sidebarNavHtml = await getNavBarHtml(spec, {
   basePath: api.path,

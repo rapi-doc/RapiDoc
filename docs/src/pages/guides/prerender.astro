@@ -21,7 +21,7 @@ import {
   IconExternalLink,
 } from '@tabler/icons-astro';
 
-import { renderRapiDoc, renderEndpoint } from '@rapidoc/static';
+import { renderRapiDoc, renderEndpoint } from '@rapidoc/prerender';
 
 // Pre-render a sample endpoint card at build-time to show live pre-rendering in action!
 const sampleSpecObj = {
@@ -99,7 +99,7 @@ try {
 
 const nodeSnippet = `// prerender.mjs - Standalone Node.js / Bun script
 import fs from 'node:fs';
-import { renderRapiDoc } from '@rapidoc/static';
+import { renderRapiDoc } from '@rapidoc/prerender';
 
 // 1. Pre-render the OpenAPI specification into Declarative Shadow DOM
 const staticHtml = await renderRapiDoc({
@@ -133,7 +133,7 @@ console.log('API Reference pre-rendered successfully to dist/api.html');`;
 // The closing fence is ${'---'}: a bare --- line would end this page's frontmatter for oxlint.
 const astroSnippet = `---
 // src/pages/api.astro - Astro SSG Page
-import { renderRapiDoc } from '@rapidoc/static';
+import { renderRapiDoc } from '@rapidoc/prerender';
 
 // Executed at BUILD TIME on the server
 const preRenderedDoc = await renderRapiDoc({
@@ -161,7 +161,7 @@ ${'---'}
 </html>`;
 
 const nextjsSnippet = `// app/api-reference/page.tsx - Next.js App Router (React Server Component)
-import { renderRapiDoc } from '@rapidoc/static';
+import { renderRapiDoc } from '@rapidoc/prerender';
 import Script from 'next/script';
 
 export const revalidate = 3600; // ISR: Re-cache once per hour
@@ -188,7 +188,7 @@ export default async function ApiReferencePage() {
 }`;
 
 const endpointCardSnippet = `// MDX / Developer Portal Endpoint Embedding (Zudoku / Cosmo Cargo Style)
-import { renderEndpoint, renderSchema } from '@rapidoc/static';
+import { renderEndpoint, renderSchema } from '@rapidoc/prerender';
 
 // Pre-render a single endpoint card inside a guide article
 export const shipmentEndpointHtml = await renderEndpoint({
@@ -434,7 +434,7 @@ const optionsTable = [
         <span class="rd-section-badge">Quick Start • Method 1</span>
         <h2 class="rd-section-title">Pre-Rendering via Node.js or Bun</h2>
         <p class="rd-section-desc">
-          Generate static <code>.html</code> files in your build pipeline with a single function call. Install the renderer with <code>npm install @rapidoc/static</code>; it works in Node.js &gt;= 22 or Bun.
+          Generate static <code>.html</code> files in your build pipeline with a single function call. Install the renderer with <code>npm install @rapidoc/prerender</code>; it works in Node.js &gt;= 22 or Bun.
         </p>
       </div>
 
@@ -517,7 +517,7 @@ const optionsTable = [
         <div class="rd-callout-content">
           <strong>Need Light DOM instead of Shadow DOM?</strong>
           <p>
-            If your project uses a CSS framework (like Tailwind or Bootstrap) that needs to style RapiDoc's internal elements directly, specify <code>outputMode: 'html'</code> or <code>'light'</code>. RapiDoc will emit a standard semantic <code>&lt;div class="rapidoc-static-container"&gt;</code> instead of a custom element.
+            If your project uses a CSS framework (like Tailwind or Bootstrap) that needs to style RapiDoc's internal elements directly, specify <code>outputMode: 'html'</code> or <code>'light'</code>. RapiDoc will emit a standard semantic <code>&lt;div class="rapidoc-prerender-container"&gt;</code> instead of a custom element.
           </p>
         </div>
       </div>

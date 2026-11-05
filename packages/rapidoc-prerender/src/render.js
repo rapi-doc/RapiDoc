@@ -141,7 +141,7 @@ export async function resolveSpecInput(specInput, options = {}) {
  * Supported output modes:
  * - 'dsd' (default): Declarative Shadow DOM `<rapi-doc><template shadowrootmode="open">...</template></rapi-doc>`.
  *   Delivers zero FOUC, instant first paint, and automatic hydration when client bundle loads.
- * - 'html' / 'light': Semantic Light DOM `<div class="rapidoc-static-container">...</div>`.
+ * - 'html' / 'light': Semantic Light DOM `<div class="rapidoc-prerender-container">...</div>`.
  *
  * @param {Object} options
  * @param {string|Object} options.spec - Specification file path, URL, raw string, or parsed object
@@ -252,7 +252,7 @@ export async function renderRapiDoc(options = {}) {
   const serializedBody = renderTemplateToString(templateResult);
 
   if (outputMode === "html" || outputMode === "light") {
-    const scopeClass = "rapidoc-static-container";
+    const scopeClass = "rapidoc-prerender-container";
     const cssText = includeStyles
       ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${scopeClass}` })}</style>`
       : "";

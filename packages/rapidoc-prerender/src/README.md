@@ -1,8 +1,8 @@
-# @rapidoc/static — Static Renderer
+# @rapidoc/prerender — Static Renderer
 
 ## Overview
 
-The build-time, framework-agnostic renderer, published as `@rapidoc/static` (`dist/index.js`, built
+The build-time, framework-agnostic renderer, published as `@rapidoc/prerender` (`dist/index.js`, built
 by `../vite.config.mjs` in SSR library mode; types in `index.d.ts`). It renders the templates and
 components of `packages/rapidoc/src` on the server, so a change there shows up here too. It turns an OpenAPI spec into HTML strings without a
 browser: the sidebar markup and navigation model that `@rapidoc/portal` places beside a headless
@@ -83,4 +83,4 @@ typed contract (option types, navigation types, signatures) and declares no defa
 - Run `npm run test:unit` from the repo root; `tests/unit/static-renderer.test.js` covers this
   folder.
 - After changes here or in the `packages/rapidoc/src` code it renders, rebuild with
-  `npm run build:static` from the root (or `npm run build` in `packages/rapidoc-static`).
+  `npm run build:prerender` from the root (or `npm run build` in `packages/rapidoc-prerender`).

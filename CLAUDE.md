@@ -13,7 +13,7 @@
 | Workspace | Package | Entry |
 | :--- | :--- | :--- |
 | `packages/rapidoc` | `rapidoc` | `src/index.js` → `<rapi-doc>` in `src/rapidoc.ts`; `<rapi-flow>` in `src/rapi-flow.ts` (`rapidoc/flow`); bundles `dist/rapidoc-min.js`, `dist/rapidoc-flow-min.js`; no runtime dependencies |
-| `packages/rapidoc-static` | `@rapidoc/static` | `src/index.js` → `dist/index.js` (`renderRapiDoc`, `getNavBarHtml`, `getNavCss`, `renderArazzoWorkflow`): build-time renderer over the templates in `packages/rapidoc/src`; used by the portal and the prerender guide |
+| `packages/rapidoc-prerender` | `@rapidoc/prerender` | `src/index.js` → `dist/index.js` (`renderRapiDoc`, `getNavBarHtml`, `getNavCss`, `renderArazzoWorkflow`): build-time renderer over the templates in `packages/rapidoc/src`; used by the portal and the prerender guide |
 | `packages/rapidoc-portal` | `@rapidoc/portal` | `src/index.js` (+ `./config`, `./markdoc`, `./search`, `./components`); build engine in `src/engine/`, portal pages in `src/pages/` |
 | `packages/rapidoc-cli` | `@rapidoc/cli` | `src/index.js` (bin `rapidoc`: `init`, `dev`, `build`, `serve`, `mock`, `validate`, `migrate`; loads `@rapidoc/portal`, `@rapidoc/server` and `@rapidoc/mock`, optional peers, only when needed) |
 | `packages/rapidoc-server` | `@rapidoc/server` | `src/index.js` (`createApp`, `startServer`): serves a built portal with OIDC sign-in and the access zones from `dist/rapidoc-server.json` |
@@ -26,7 +26,7 @@
 
 - `npm run dev` / `npm run stop` — docs dev server on `http://localhost:4321`, live-reloading `packages/rapidoc/src/`
 - `npm run build:rapidoc` — rebuild `rapidoc` bundles (never `git checkout`/`git restore` `dist/rapidoc-min.js`)
-- `npm run build:static` — rebuild `@rapidoc/static` after changing templates, components, styles or the renderer
+- `npm run build:prerender` — rebuild `@rapidoc/prerender` after changing templates, components, styles or the renderer
 - `npm run build:mcp` — rebuild `@rapidoc/mcp` after changing MCP or Arazzo code the portal or server uses
 - `npm run test:unit` — run before and after parser/schema changes
 - `npm run test:portal` — portal, CLI, and `create-rapidoc` tests
@@ -48,4 +48,4 @@ The full command tables are in `AGENTS.md` §3.
   - `docs-maintainer` — `docs/` (Astro + Starlight site, examples, redirects)
   - `cli-portal` — `packages/rapidoc-cli`, `packages/rapidoc-portal`, `packages/rapidoc-server`, `packages/rapidoc-mock`, `packages/create-rapidoc`
 - **Skills**:
-  - `rapidoc-static-navigation` (`packages/rapidoc-portal/.claude/skills/`) — static `getNavBarHtml` sidebar + headless `<rapi-doc>` with independent scrolling. Loads once Claude touches files under `packages/rapidoc-portal/`.
+  - `rapidoc-prerender-navigation` (`packages/rapidoc-portal/.claude/skills/`) — static `getNavBarHtml` sidebar + headless `<rapi-doc>` with independent scrolling. Loads once Claude touches files under `packages/rapidoc-portal/`.

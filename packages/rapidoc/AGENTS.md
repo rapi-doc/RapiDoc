@@ -6,7 +6,7 @@
 
 - **Package Name**: `rapidoc`
 - **Output Targets**: Standalone ES Module bundles `dist/rapidoc-min.js` and `dist/rapidoc-flow-min.js` (`rapidoc/flow`). No runtime `dependencies`: everything is bundled, so the libraries are `devDependencies`.
-- **Node packages built from this source**: `@rapidoc/static` (`packages/rapidoc-static`, the build-time renderer) and `@rapidoc/mcp` (`packages/rapidoc-mcp`). Nothing in `src/` may import them.
+- **Node packages built from this source**: `@rapidoc/prerender` (`packages/rapidoc-prerender`, the build-time renderer) and `@rapidoc/mcp` (`packages/rapidoc-mcp`). Nothing in `src/` may import them.
 - **Component Entry**: `src/index.js`
 - **Main Element**: `src/rapidoc.ts` (`<rapi-doc>`)
 
@@ -98,7 +98,7 @@ packages/rapidoc/src/
    - Strip debug logging before finalizing changes; `vite.config.mjs` removes `console` in production bundles, but keeping the source clean avoids unintended warning noise.
 8. **Declarative Shadow DOM (DSD) Hydration Hygiene**:
    - When pre-rendering with DSD (`outputMode: 'dsd'`), `_clearDsdIfNeeded()` must replace all children (`this.shadowRoot.replaceChildren()`) and reset render options before Lit mounts its dynamic template result.
-   - Whenever changes are made to `src/rapidoc.ts` or static rendering logic, execute `npm run build:rapidoc` and `npm run build:static` (root) to keep `dist/rapidoc-min.js` and `@rapidoc/static`'s `dist/index.js` in sync.
+   - Whenever changes are made to `src/rapidoc.ts` or static rendering logic, execute `npm run build:rapidoc` and `npm run build:prerender` (root) to keep `dist/rapidoc-min.js` and `@rapidoc/prerender`'s `dist/index.js` in sync.
 9. **NEVER Revert `dist/rapidoc-min.js` via Git Checkout**:
    - `packages/rapidoc/dist/rapidoc-min.js` is tracked in git at an older commit (`4ff07e3f`).
    - **DO NOT** run `git checkout packages/rapidoc/dist/rapidoc-min.js` or `git restore` to clean up `git status`. Doing so restores the obsolete pre-slugger bundle and breaks navigation/scrolling across all portal pages.
@@ -106,4 +106,4 @@ packages/rapidoc/src/
 10. **Folder Contracts (`src/**/README.md`)**:
     - Each code folder under `src/` has a `README.md` contract: what the folder owns, its public interface, invariants callers rely on, side effects, and the tests that cover it.
     - A change that alters a documented interface, invariant or side effect updates that folder's `README.md` in the same commit.
-    - Cite code by file and symbol (`[slugger.js:OperationSlugger.slug]`), never by line number. Keep inventories (every method, CSS part, option default) out; the code and `packages/rapidoc-static/src/index.d.ts` hold them.
+    - Cite code by file and symbol (`[slugger.js:OperationSlugger.slug]`), never by line number. Keep inventories (every method, CSS part, option default) out; the code and `packages/rapidoc-prerender/src/index.d.ts` hold them.

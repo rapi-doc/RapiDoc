@@ -1,7 +1,7 @@
 /**
  * Framework-Agnostic Static Pre-Rendering & Portal Utilities for RapiDoc.
  *
- * Package: '@rapidoc/static' (built into dist/index.js)
+ * Package: '@rapidoc/prerender' (built into dist/index.js)
  *
  * Usable across Node.js >= 22, Bun, Astro, Nuxt, Next.js, 11ty, VitePress, or custom scripts.
  */

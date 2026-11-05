@@ -9,7 +9,7 @@
 
 import fs from "node:fs";
 import yaml from "yaml";
-import { methodPathSlug, operationAnchorSource } from "@rapidoc/static";
+import { methodPathSlug, operationAnchorSource } from "@rapidoc/prerender";
 import { compileWorkflows, indexOperations, parseArazzo, validateArazzo } from "@rapidoc/mcp";
 
 const HTTP_METHODS = ["get", "put", "post", "delete", "options", "head", "patch", "trace", "query"];

@@ -4,7 +4,7 @@
 
 Lit `html` template functions, no classes. Each is called with `this` bound to its host, so
 `this.*` is the host's reactive state and methods. `main-body-template.js` is the entry used by
-`<rapi-doc>`, `<rapi-doc-mini>` and the static renderer (`@rapidoc/static`, `packages/rapidoc-static/src/`). Three files render inside
+`<rapi-doc>`, `<rapi-doc-mini>` and the static renderer (`@rapidoc/prerender`, `packages/rapidoc-prerender/src/`). Three files render inside
 `<api-request>` (`src/components/`): `request-params-template.js`, `request-body-template.js`,
 `api-response-template.js`.
 
