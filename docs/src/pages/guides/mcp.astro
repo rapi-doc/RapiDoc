@@ -45,6 +45,7 @@ const manifestToolSnippet = `{
 }`;
 
 const runProjectSnippet = `# The zip: manifest.json, runtime.js, server.ts, package.json, README.md, claude_desktop_config.json
+# (and workflow-runtime.js when the page has a <rapi-flow> with workflows)
 unzip my-api-mcp.zip -d my-api-mcp
 cd my-api-mcp
 npm install
@@ -486,7 +487,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
         <p class="section-lead">
           The export is a plain JSON <code>manifest.json</code>, not generated code. It holds the <code>server</code> (name, version, description),
           one entry in <code>sources</code> (the base URL from <code>servers[0]</code> and the spec's <code>securitySchemes</code>),
-          the <code>tools</code>, the <code>resources</code> and, for now empty, <code>workflows</code>. Each tool has a real JSON Schema
+          the <code>tools</code>, the <code>resources</code> and the <code>workflows</code> of a tied <a href="/guides/workflows"><code>&lt;rapi-flow&gt;</code></a>, each one a tool of its own. Each operation tool has a real JSON Schema
           <code>inputSchema</code>, MCP <code>annotations</code> and an <code>operation</code> block that tells the runtime where every argument goes:
         </p>
 

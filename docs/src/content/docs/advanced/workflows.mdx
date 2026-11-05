@@ -1,0 +1,129 @@
+---
+title: Arazzo Workflows (<rapi-flow>)
+description: Draw the workflows of an Arazzo document as a diagram next to your API reference, and run them in the browser against the API or a mock.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+An API reference shows operations one at a time. Integrators also need the order: find a pet, check it, order it, read the order back. [Arazzo](https://spec.openapis.org/arazzo/latest.html) describes those sequences, and `<rapi-flow>` draws them: one box per step, linked to its operation, the values each step passes on, and the success and failure branches. Readers can run a workflow from the page and watch each step answer.
+
+<Aside type="tip" title="See it running">
+  The [Arazzo Workflows guide](/guides/workflows) runs a workflow against the in-browser mock, and the [rapi-flow example](/examples/arazzo-flow) puts the diagram next to a full API reference.
+</Aside>
+
+## Load it
+
+`<rapi-flow>` is a separate bundle, so pages that only use `<rapi-doc>` don't download it.
+
+```html
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-flow-min.js"></script>
+
+<rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" for="thedoc"></rapi-flow>
+<rapi-doc id="thedoc" spec-url="/specs/petstore.yaml"></rapi-doc>
+```
+
+With a bundler, `import 'rapidoc/flow';` registers the element. It carries its own copy of Lit and the Arazzo runtime; `rapidoc-min.js` carries no Arazzo code.
+
+## Standalone or tied to `<rapi-doc>`
+
+- **Tied** (`for="<rapi-doc id>"`): the element uses that `<rapi-doc>`'s spec, its selected server and the credentials entered in its Authentication section. Clicking a step scrolls the reference to the step's operation. If the `<rapi-doc>` has `mock-server="true"`, runs go to the in-browser mock.
+- **Standalone**: the element loads each OpenAPI source of the Arazzo file itself (`spec-url` replaces the first one's URL) and shows its own credentials fields, one per security scheme of the loaded specs. Values typed there stay in the page.
+
+## Attributes
+
+| Attribute | Default | Meaning |
+| :--- | :--- | :--- |
+| `arazzo-url` | | URL of the Arazzo 1.x document, YAML or JSON. |
+| `spec-url` | | Replaces the URL of the first OpenAPI source description. Other sources are fetched relative to the Arazzo file. |
+| `workflow-id` | first workflow | The workflow to show. With several workflows, a picker in the header switches between them. |
+| `for` | | `id` of a `<rapi-doc>` on the page to take the spec, server, credentials and mock from. |
+| `view` | `expanded` | `expanded` shows each step's inputs and actions in its box; `compact` shows only the operation. |
+| `show-view-toggle` | `true` | `false` hides the Compact / Expanded switch. |
+| `allow-run` | `true` | `false` hides the run panel: the diagram only. |
+| `server-url` | | Base URL runs send requests to, instead of the server the tied `<rapi-doc>` selected or the spec's first server. |
+| `theme` | `ember` | One of RapiDoc's theme presets, or a custom accent; same values as on `<rapi-doc>`. |
+| `color-scheme` | `dark` | `dark`, `light`, `system`, or `auto` (follows the page's `data-theme`). |
+
+## Events
+
+All events bubble and cross the shadow boundary (`composed`).
+
+| Event | `detail` | When |
+| :--- | :--- | :--- |
+| `flow-loaded` | `{ doc, problems }` | The Arazzo document and its sources are loaded. `problems` lists validation findings. |
+| `step-click` | `{ workflowId, stepId, operation, workflowRef }` | A step box is clicked or activated with the keyboard. |
+| `view-change` | `{ view }` | The reader switched between compact and expanded. |
+| `workflow-run` | `{ workflowId, inputs, result, trace }` | A run finished. `result` is the MCP tool result; `trace` has one entry per step attempt with its request and response. |
+
+The element also exposes `arazzoDocument` (the parsed document) and `workflowRuntimeSource`, which a tied `<rapi-doc>` uses to add workflow tools to its [MCP export](/docs/advanced/mcp-server#workflows-as-tools).
+
+## Running a workflow
+
+The run panel under the diagram has the workflow's inputs (filled with their defaults), the credentials fields when the element is standalone, and **Run workflow**. While it runs, the step whose request is in flight is highlighted; each finished step adds an entry to the log with its HTTP status, which opens to see the request and response. The workflow's outputs appear as a table at the end.
+
+Runs call the API from the reader's browser, as **Try** does, so a real API must allow cross-origin requests from the docs site.
+
+## Running against a mock
+
+A workflow is easiest to show and test before the API exists, or without touching real data.
+
+### The in-browser mock
+
+Turn on [`mock-server`](/docs/advanced/mock-server) on the tied `<rapi-doc>`. Every request of the run is answered in the page from the spec's examples and schemas; the log marks those steps as mocked.
+
+```html
+<rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" for="thedoc"></rapi-flow>
+<rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" mock-server="true"></rapi-doc>
+```
+
+The run panel then shows a **Mock status** field: the status codes the mock answers with during that run.
+
+- Empty: the mock's own setting (`mock-server-status-code`, by default the spec's 2xx response).
+- One code, such as `404`: every request of the run gets it. Use it to see a failure path: in the sample `adoptPet` workflow, a 404 on the first step takes its `onFailure` branch and ends the run.
+- Several codes, such as `503, 200`: each operation takes the next code every time it is called (**in turn**), or a code at random (**at random**).
+
+<Aside type="caution" title="One setting for the whole run">
+  The codes apply to every operation of the run, so you can't yet make one step fail while the others succeed (for example a `503` on the order step only, to watch its `retry` fire). Per-operation codes are planned.
+</Aside>
+
+The field sets the `<rapi-doc>`'s mock for that run only and puts the previous setting back afterwards.
+
+### A mock server
+
+To run against a mock that behaves more like the real API (request validation, generated data, OAuth scope checks), start [`rapidoc mock`](https://www.npmjs.com/package/@rapidoc/mock) and point the run at it:
+
+```html
+<rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" spec-url="/specs/petstore.yaml"
+           server-url="http://localhost:4010/petstore"></rapi-flow>
+```
+
+Or list the mock as a server in the spec and pick it in the tied `<rapi-doc>`'s server list. With OAuth, sign in through **Authorize** in `<rapi-doc>`, or paste a token into the standalone credentials field; the mock checks it like the real API would.
+
+## What runs
+
+| Arazzo feature | Runs |
+| :--- | :--- |
+| `inputs`, `outputs`, step `outputs` | Yes |
+| `$inputs`, `$steps.<id>.outputs`, `$response.body#/pointer`, `$response.header`, `$statusCode` | Yes |
+| `successCriteria` with simple conditions (`==`, `!=`, `<`, `>`, `&&`, `||`) | Yes |
+| `onSuccess` / `onFailure`: `end`, `goto`, `retry` with `retryAfter` and `retryLimit` | Yes |
+| `requestBody` with payload and replacements | Yes |
+| `regex`, `jsonpath` and `xpath` criteria | Not yet |
+| Steps that call another workflow, AsyncAPI sources | Not yet |
+
+A step without `successCriteria` succeeds on a 2xx status; the first matching action runs; a run stops after 1,000 steps. A workflow that uses something not supported yet is still drawn, with a note that explains why it can't run.
+
+## Styling
+
+`theme` and `color-scheme` work as on `<rapi-doc>`, and the element reads the same [CSS custom properties](/docs/theming/overview). Its CSS parts: `header`, `title`, `select`, `description`, `view-toggle`, `diagram`, `legend`, `run`, `run-inputs`, `run-button`, `message`, `problems`.
+
+```css
+rapi-flow::part(diagram) {
+  max-height: 32rem;
+}
+```
+
+## In a developer portal
+
+`@rapidoc/portal` draws workflows in docs pages with the `{% workflow file="…" id="…" %}` Markdoc tag: the diagram is rendered as static SVG at build time, and `rapidoc-flow-min.js` loads only when a reader clicks **Run workflow**. The portal build also turns each workflow into an MCP tool for `rapidoc serve`'s `/mcp` endpoint.

@@ -1,0 +1,889 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import {
+  IconArrowRight,
+  IconArrowUpRight,
+  IconFileCode,
+  IconPlayerPlay,
+  IconRoute,
+  IconArrowsSplit,
+  IconRepeat,
+  IconLayoutList,
+  IconTable,
+  IconBrowser,
+  IconRobot,
+  IconBook,
+} from '@tabler/icons-astro';
+
+const pageSnippet = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+<!-- A separate bundle: pages without workflows don't load it -->
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-flow-min.js"></script>
+
+<rapi-flow
+  arazzo-url="/specs/petstore.arazzo.yaml"
+  workflow-id="adoptPet"
+  for="thedoc"
+></rapi-flow>
+
+<!-- The workflow borrows this element's spec, server, credentials and mock -->
+<rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" mock-server="true"></rapi-doc>`;
+
+const arazzoSnippet = `arazzo: 1.0.1
+info: { title: Petstore workflows, version: 1.0.0 }
+sourceDescriptions:
+  - name: petstore
+    url: ./petstore.yaml
+    type: openapi
+workflows:
+  - workflowId: adoptPet
+    summary: Adopt an available pet
+    inputs:
+      type: object
+      properties:
+        quantity: { type: integer, default: 1 }
+    steps:
+      - stepId: findAvailable
+        operationId: findPetsByStatus          # a box linked to this operation
+        parameters:
+          - { name: status, in: query, value: available }
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - { name: noPets, type: end }        # the failure branch
+        outputs:
+          petId: $response.body#/0/id          # passed on: a dashed line
+      - stepId: placeOrder
+        operationId: placeOrder
+        requestBody:
+          contentType: application/json
+          payload:
+            petId: $steps.findAvailable.outputs.petId
+            quantity: $inputs.quantity
+        onFailure:
+          - name: storeBusy
+            type: retry                        # drawn as a loop back
+            retryAfter: 2
+            retryLimit: 3
+            criteria:
+              - condition: $statusCode == 503
+        outputs:
+          orderId: $response.body#/id
+    outputs:
+      orderId: $steps.placeOrder.outputs.orderId`;
+
+const mockServerSnippet = `# A mock that validates requests, generates data and checks OAuth scopes
+npx rapidoc mock            # serves every spec under http://localhost:4010/<api id>`;
+
+const mockServerHtmlSnippet = `<rapi-flow
+  arazzo-url="/specs/petstore.arazzo.yaml"
+  spec-url="/specs/petstore.yaml"
+  server-url="http://localhost:4010/petstore"
+></rapi-flow>`;
+---
+
+<GlobalLayout
+  title="Arazzo Workflows Guide | RapiDoc"
+  description="Draw the multi-step journeys through your API from an Arazzo document, run them in the browser against a mock or the real API, and reuse them as MCP tools."
+  keywords="Arazzo, API workflows, rapi-flow, OpenAPI workflows, workflow diagram, API mock, MCP tools, RapiDoc"
+>
+  <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
+
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <SiteNavbar activePage="guides" />
+
+  <main class="wf-guide-main">
+    <header class="wf-guide-header">
+      <div class="wf-badge-pill">
+        <span class="wf-badge-pulse"></span>
+        <span class="wf-badge-text">Arazzo • Workflows</span>
+      </div>
+
+      <h1 class="wf-page-title">
+        Show the <span class="text-gradient">sequence</span>, not just the endpoints
+      </h1>
+
+      <p class="wf-page-subtitle">
+        <code>&lt;rapi-flow&gt;</code> draws the journeys an Arazzo document describes (find a pet, order it, read the order
+        back) right next to your API reference, and lets readers run them against a mock or the real API, one lit-up step
+        at a time.
+      </p>
+
+      <div class="wf-cta-row">
+        <a href="#live-demo" class="wf-btn primary">
+          <IconPlayerPlay size={18} stroke={2} />
+          <span>Run the Live Demo</span>
+        </a>
+        <a href="/docs/advanced/workflows" class="wf-btn secondary">
+          <IconFileCode size={18} stroke={2} />
+          <span>Technical Reference Docs</span>
+          <IconArrowUpRight size={16} stroke={2} />
+        </a>
+      </div>
+
+      <div class="wf-quick-stats">
+        <div class="wf-stat-chip">
+          <span class="wf-stat-num">Arazzo 1.x</span>
+          <span class="wf-stat-txt">The OpenAPI Initiative's Standard</span>
+        </div>
+        <div class="wf-stat-chip">
+          <span class="wf-stat-num">0 KB</span>
+          <span class="wf-stat-txt">Added to rapidoc-min.js</span>
+        </div>
+        <div class="wf-stat-chip">
+          <span class="wf-stat-num">One Runtime</span>
+          <span class="wf-stat-txt">Browser, MCP & Portal</span>
+        </div>
+        <div class="wf-stat-chip">
+          <span class="wf-stat-num">Zero Backend</span>
+          <span class="wf-stat-txt">Runs Against the Mock</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="wf-guide-content">
+      <section class="wf-section">
+        <div class="section-tag">Why</div>
+        <h2 class="section-heading">Integrators Need the Order, Not Just the Operations</h2>
+        <p class="section-lead">
+          An API reference answers "what does this endpoint take?". The first question a new integrator asks is different:
+          "which calls do I make, in which order, and what do I pass from one to the next?". That knowledge usually lives in
+          a tutorial that drifts from the API. Arazzo puts it in a file next to the spec, and <code>&lt;rapi-flow&gt;</code>
+          draws it from that file, so the diagram changes when the workflow does.
+        </p>
+
+        <div class="comparison-grid">
+          <div class="comparison-card before">
+            <div class="card-status-badge badge-muted">Reference Alone</div>
+            <h3 class="card-title">Forty operations, no path through them</h3>
+            <ul class="comparison-list">
+              <li>The order of calls is buried in prose, or in a sample app.</li>
+              <li>Which response field feeds which request is left to the reader.</li>
+              <li>Error handling ("retry when the store is busy") is a footnote, if it's there at all.</li>
+              <li>Trying a journey means copying IDs between Try panels by hand.</li>
+            </ul>
+          </div>
+
+          <div class="comparison-card after">
+            <div class="card-status-badge badge-success">With a Workflow</div>
+            <h3 class="card-title">The journey, drawn from the Arazzo file</h3>
+            <ul class="comparison-list">
+              <li>One box per step, in order, each linked to its operation in the reference.</li>
+              <li>Dashed lines show each value a step passes on, labelled with its name.</li>
+              <li><code>goto</code>, <code>retry</code> and <code>end</code> branches are part of the diagram.</li>
+              <li><strong>Run workflow</strong> makes every call, passes the values along and shows the outputs.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="wf-section" id="live-demo">
+        <div class="section-tag">Live Demo</div>
+        <h2 class="section-heading">Run a Workflow Against the In-Browser Mock</h2>
+        <p class="section-lead">
+          The diagram below is tied to the Petstore reference beside it, which has <code>mock-server="true"</code>: no
+          backend answers, the page does. Pick what the mock should answer, then press <strong>Run workflow</strong> under
+          the diagram and watch each step light up. Click a step to open its operation in the reference.
+        </p>
+
+        <div class="wf-scenarios" role="group" aria-label="What the mock answers">
+          <button type="button" class="wf-scenario is-active" data-codes="200">
+            <span class="wf-scenario-code ok">200</span>
+            <span>
+              <strong>Everything succeeds</strong>
+              <small>Every step answers from the spec's examples; the outputs table fills in.</small>
+            </span>
+          </button>
+          <button type="button" class="wf-scenario" data-codes="404">
+            <span class="wf-scenario-code fail">404</span>
+            <span>
+              <strong>No pets available</strong>
+              <small>The first step fails; its <code>noPets</code> action ends the run, which reports the failure.</small>
+            </span>
+          </button>
+        </div>
+        <p class="wf-scenario-note" aria-live="polite">The mock answers <strong>200</strong>. Press Run workflow.</p>
+
+        <div class="wf-demo">
+          <div class="wf-demo-flow">
+            <rapi-flow
+              arazzo-url="/specs/petstore.arazzo.yaml"
+              workflow-id="adoptPet"
+              for="workflow-guide-doc"
+              theme="ember"
+              color-scheme="dark"></rapi-flow>
+          </div>
+          <div class="wf-demo-doc">
+            <rapi-doc
+              id="workflow-guide-doc"
+              spec-url="/specs/petstore.yaml"
+              mock-server="true"
+              mock-server-status-code="200"
+              mock-server-delay="250"
+              color-scheme="dark"
+              theme="ember"
+              render-style="focused"
+              show-header="false"
+              show-info="false"
+              allow-authentication="false"
+              style="height: 100%; width: 100%; display: block;"></rapi-doc>
+          </div>
+        </div>
+        <p class="wf-demo-caveat">
+          The status applies to every request of the run. Making one step fail while the others succeed (a
+          <code>503</code> on the order step, to watch its retry) needs per-operation codes, which are planned.
+        </p>
+      </section>
+
+      <section class="wf-section">
+        <div class="section-tag">The Diagram</div>
+        <h2 class="section-heading">What It Draws</h2>
+        <p class="section-lead">
+          The layout is RapiDoc's own SVG code with no graph library, so the same diagram renders in the browser and, in a
+          portal, as static SVG at build time.
+        </p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon"><IconRoute size={20} stroke={2} /></div>
+            <div>
+              <h4>Steps linked to operations</h4>
+              <p>Each box names its step, method and path. Clicking it scrolls a tied <code>&lt;rapi-doc&gt;</code> to the operation.</p>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><IconArrowsSplit size={20} stroke={2} /></div>
+            <div>
+              <h4>Values passed between steps</h4>
+              <p>A dashed line from <code>findAvailable</code> to <code>placeOrder</code>, labelled <code>petId</code>. Hover a value to see where it goes.</p>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><IconRepeat size={20} stroke={2} /></div>
+            <div>
+              <h4>Success and failure branches</h4>
+              <p><code>goto</code> and <code>retry</code> draw as arrows back or forward; <code>end</code> closes the run. Each action shows its criteria.</p>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><IconLayoutList size={20} stroke={2} /></div>
+            <div>
+              <h4>Compact and expanded</h4>
+              <p>Expanded shows each step's inputs and actions in its box; compact keeps only the operation, for long workflows.</p>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><IconTable size={20} stroke={2} /></div>
+            <div>
+              <h4>Outputs at a glance</h4>
+              <p>The workflow's outputs sit in a table under the steps, each with the step it comes from.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sub-topic">
+          <h3>The Arazzo behind it</h3>
+          <p>
+            Steps name their operation by <code>operationId</code> (or <code>operationPath</code>); runtime expressions such as
+            <code>$response.body#/0/id</code> and <code>$steps.findAvailable.outputs.petId</code> carry values from one step to the next.
+          </p>
+          <CodeBlock code={arazzoSnippet} lang="yaml" filename="petstore.arazzo.yaml" />
+        </div>
+      </section>
+
+      <section class="wf-section">
+        <div class="section-tag">One Runtime</div>
+        <h2 class="section-heading">One Workflow, Three Places It Runs</h2>
+        <p class="section-lead">
+          The run button, AI agents and the developer portal all use the same workflow runtime, built on RapiDoc's MCP
+          manifest. A workflow that runs on this page runs the same way for an agent.
+        </p>
+        <div class="standards-grid">
+          <div class="standard-card">
+            <div class="standard-badge"><IconBrowser size={14} stroke={2} /> Browser</div>
+            <h4>The run panel</h4>
+            <p>
+              Inputs with their defaults, credentials from the tied <code>&lt;rapi-doc&gt;</code> (or a small form of its own),
+              a log with each step's request and response, and the outputs. Requests go from the reader's browser, like
+              <strong>Try</strong>.
+            </p>
+          </div>
+          <div class="standard-card">
+            <div class="standard-badge"><IconRobot size={14} stroke={2} /> AI agents</div>
+            <h4>One MCP tool per workflow</h4>
+            <p>
+              With a <code>&lt;rapi-flow for="…"&gt;</code> on the page, <strong>Export MCP Server</strong> adds a tool per
+              workflow: its inputs become the arguments, its outputs the result. See the <a href="/guides/mcp">MCP guide</a>.
+            </p>
+          </div>
+          <div class="standard-card">
+            <div class="standard-badge"><IconBook size={14} stroke={2} /> Developer portal</div>
+            <h4>Drawn at build time</h4>
+            <p>
+              <code>@rapidoc/portal</code>'s <code>&#123;% workflow %&#125;</code> tag renders the diagram as static SVG, so
+              it shows without JavaScript; the element loads only when a reader clicks <strong>Run workflow</strong>. The
+              portal's hosted <code>/mcp</code> serves the same workflows to agents.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="wf-section">
+        <div class="section-tag">Integration</div>
+        <h2 class="section-heading">Add It to Your Docs</h2>
+        <p class="section-lead">
+          Load the flow bundle next to RapiDoc, point the element at your Arazzo file and tie it to the reference. Its
+          attributes, events and CSS parts are in the <a href="/docs/advanced/workflows">reference docs</a>.
+        </p>
+        <div class="sub-topic">
+          <CodeBlock code={pageSnippet} lang="html" filename="index.html" />
+        </div>
+
+        <div class="sub-topic">
+          <h3>Against a mock server, or the real API</h3>
+          <p>
+            For a mock that validates requests, generates data and checks OAuth scopes, run <code>rapidoc mock</code> and send
+            the run there with <code>server-url</code> (or list it as a server in the spec and pick it in
+            <code>&lt;rapi-doc&gt;</code>). Against the real API, the browser makes the calls, so the API must allow
+            cross-origin requests from your docs site.
+          </p>
+          <CodeBlock code={mockServerSnippet} lang="bash" filename="terminal" />
+          <CodeBlock code={mockServerHtmlSnippet} lang="html" filename="index.html" />
+        </div>
+      </section>
+
+      <section class="wf-cta-box">
+        <div class="wf-cta-content">
+          <h3>See it next to a full API reference</h3>
+          <p>The example page ties two Arazzo files to the Petstore reference, with branches, retries and the MCP export.</p>
+          <div class="cta-actions">
+            <a href="/examples/arazzo-flow" class="wf-btn primary">
+              <span>Open the rapi-flow Example</span>
+              <IconArrowRight size={18} stroke={2} />
+            </a>
+            <a href="/docs/advanced/workflows" class="wf-btn secondary">
+              <span>View Technical Docs</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<script>
+  import 'rapidoc/flow';
+
+  // Scenario buttons: set the status code the tied <rapi-doc>'s in-browser mock answers with
+  const doc = document.getElementById('workflow-guide-doc');
+  const note = document.querySelector('.wf-scenario-note');
+  document.querySelectorAll<HTMLButtonElement>('.wf-scenario').forEach((button) => {
+    button.addEventListener('click', () => {
+      const codes = button.dataset.codes || '200';
+      doc?.setAttribute('mock-server-status-code', codes);
+      doc?.setAttribute('mock-server-status-strategy', 'first');
+      document.querySelectorAll('.wf-scenario').forEach((b) => b.classList.toggle('is-active', b === button));
+      if (note) note.innerHTML = `The mock answers <strong>${codes}</strong>. Press Run workflow.`;
+    });
+  });
+</script>
+
+<style>
+  .ambient-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow-emerald {
+    top: 50px;
+    left: -150px;
+    background: radial-gradient(circle, #f97316 0%, transparent 70%);
+  }
+  .glow-indigo {
+    top: 300px;
+    right: -150px;
+    background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+  }
+  .glow-cyan {
+    top: 900px;
+    left: 20%;
+    background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+  }
+
+  .wf-guide-main {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+    color: var(--fg, #e2e8f0);
+  }
+
+  /* Hero */
+  .wf-guide-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .wf-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    background: rgba(249, 115, 22, 0.08);
+    border: 1px solid rgba(249, 115, 22, 0.25);
+    margin-bottom: 20px;
+  }
+  .wf-badge-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f97316;
+    box-shadow: 0 0 10px #f97316;
+    animation: pulse 2s infinite;
+  }
+  .wf-badge-text {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fb923c;
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(0.9);
+    }
+  }
+  .wf-page-title {
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+    color: #ffffff;
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #fb923c 0%, #f472b6 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .wf-page-subtitle {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #94a3b8;
+    max-width: 780px;
+    margin: 0 auto 32px;
+  }
+  .wf-page-subtitle code {
+    color: #fdba74;
+  }
+  .wf-cta-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .wf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .wf-btn.primary {
+    background: #f97316;
+    color: #1c0a00;
+    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.25);
+  }
+  .wf-btn.primary:hover {
+    background: #fb923c;
+    transform: translateY(-1px);
+  }
+  .wf-btn.secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+  }
+  .wf-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+  }
+  .wf-quick-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .wf-stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 24px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .wf-stat-num {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fb923c;
+  }
+  .wf-stat-txt {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+
+  /* Sections */
+  .wf-section {
+    margin-bottom: 72px;
+    scroll-margin-top: 80px;
+  }
+  .section-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #f97316;
+    margin-bottom: 8px;
+  }
+  .section-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  .section-lead {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #94a3b8;
+    margin: 0 0 28px;
+    max-width: 860px;
+  }
+  .section-lead a,
+  .standard-card a {
+    color: #fdba74;
+  }
+  .sub-topic {
+    margin-top: 36px;
+    display: grid;
+    gap: 14px;
+  }
+  .sub-topic h3 {
+    font-size: 19px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0;
+  }
+  .sub-topic p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #94a3b8;
+    margin: 0;
+  }
+  code {
+    font-size: 0.9em;
+  }
+
+  /* Before / after */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  .comparison-card {
+    padding: 24px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+  }
+  .comparison-card.after {
+    border-color: rgba(249, 115, 22, 0.3);
+    background: rgba(249, 115, 22, 0.03);
+  }
+  .card-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .badge-muted {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+  }
+  .badge-success {
+    background: rgba(249, 115, 22, 0.15);
+    color: #fb923c;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 16px;
+  }
+  .comparison-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #cbd5e1;
+  }
+  .comparison-list li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+  }
+  .comparison-card.before .comparison-list li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: #64748b;
+    font-weight: 700;
+  }
+  .comparison-card.after .comparison-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #fb923c;
+    font-weight: 700;
+  }
+
+  /* Live demo */
+  .wf-scenarios {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .wf-scenario {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    text-align: left;
+    font: inherit;
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .wf-scenario:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .wf-scenario.is-active {
+    border-color: #f97316;
+    background: rgba(249, 115, 22, 0.06);
+  }
+  .wf-scenario:focus-visible {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+  }
+  .wf-scenario strong {
+    display: block;
+    color: #ffffff;
+    font-size: 14px;
+  }
+  .wf-scenario small {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #94a3b8;
+  }
+  .wf-scenario-code {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font: 700 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .wf-scenario-code.ok {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+  }
+  .wf-scenario-code.fail {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+  }
+  .wf-scenario-note {
+    margin: 14px 0 18px;
+    font-size: 13px;
+    color: #94a3b8;
+  }
+  .wf-scenario-note strong {
+    color: #fdba74;
+  }
+  .wf-demo {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    height: 760px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.7);
+  }
+  .wf-demo-flow {
+    padding: 18px;
+    overflow: auto;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .wf-demo-doc {
+    min-width: 0;
+    height: 100%;
+  }
+  .wf-demo-caveat {
+    margin: 12px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #64748b;
+  }
+  @media (max-width: 860px) {
+    .wf-demo {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 560px;
+      height: auto;
+    }
+    .wf-demo-flow {
+      border-right: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  /* What it draws */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 18px;
+  }
+  .feature-card {
+    display: flex;
+    gap: 14px;
+    padding: 18px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+  }
+  .feature-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(249, 115, 22, 0.15);
+    color: #fb923c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .feature-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 6px;
+  }
+  .feature-card p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #94a3b8;
+    margin: 0;
+  }
+
+  /* Three places */
+  .standards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .standard-card {
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    backdrop-filter: blur(8px);
+  }
+  .standard-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+  .standard-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 10px;
+  }
+  .standard-card p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #94a3b8;
+    margin: 0;
+  }
+
+  /* Closing call to action */
+  .wf-cta-box {
+    padding: 40px;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(129, 140, 248, 0.05) 100%);
+    border: 1px solid rgba(249, 115, 22, 0.25);
+    border-radius: 16px;
+    text-align: center;
+  }
+  .wf-cta-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 10px;
+  }
+  .wf-cta-content p {
+    font-size: 15px;
+    color: #94a3b8;
+    margin: 0 auto 24px;
+    max-width: 600px;
+  }
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+</style>
