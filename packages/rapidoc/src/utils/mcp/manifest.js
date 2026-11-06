@@ -44,6 +44,28 @@ function isProcessedSpec(spec) {
   );
 }
 
+/**
+ * Follows a `#/...` $ref within `spec` (a few hops, for refs to refs); anything else is returned as is.
+ * A raw spec keeps its parameters, request bodies and path items as $refs to components; a processed
+ * one (`<rapi-doc>`'s resolvedSpec) is already dereferenced.
+ */
+function follow(node, spec) {
+  for (
+    let hops = 0;
+    hops < 10 && typeof node?.$ref === "string" && node.$ref.startsWith("#/");
+    hops++
+  ) {
+    let target = spec;
+    for (const segment of node.$ref.slice(2).split("/")) {
+      const key = decodeURIComponent(segment).replace(/~1/g, "/").replace(/~0/g, "~");
+      target = target?.[key];
+    }
+    if (!target || typeof target !== "object") return node;
+    node = target;
+  }
+  return node;
+}
+
 /** Every operation with the fields the manifest needs, from either spec shape. */
 function collectOperations(spec, processed) {
   const operations = [];
@@ -68,13 +90,15 @@ function collectOperations(spec, processed) {
     }
     return operations;
   }
-  for (const [path, item] of Object.entries(spec.paths || {})) {
+  const params = (list) => (Array.isArray(list) ? list.map((p) => follow(p, spec)) : []);
+  for (const [path, rawItem] of Object.entries(spec.paths || {})) {
+    const item = follow(rawItem, spec);
     if (!item || typeof item !== "object") continue;
-    const common = Array.isArray(item.parameters) ? item.parameters : [];
+    const common = params(item.parameters);
     for (const method of METHODS) {
       const op = item[method];
       if (!op || typeof op !== "object") continue;
-      const own = Array.isArray(op.parameters) ? op.parameters : [];
+      const own = params(op.parameters);
       // Path-level parameters apply unless the operation redefines them (same name and location)
       const parameters = common
         .filter((c) => !own.some((o) => o?.name === c?.name && o?.in === c?.in))
@@ -93,7 +117,7 @@ function collectOperations(spec, processed) {
           item["x-internal"] === true ||
           item["x-hidden"] === true,
         parameters,
-        requestBody: op.requestBody || null,
+        requestBody: follow(op.requestBody, spec) || null,
         security: op.security ?? spec.security,
         tag: Array.isArray(op.tags) ? op.tags[0] || "" : "",
       });

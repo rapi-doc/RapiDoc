@@ -77,6 +77,39 @@ describe("mcp: string utilities and the mcp attribute", () => {
 });
 
 describe("mcp: manifest from a raw OpenAPI document", () => {
+  it("follows $refs to parameters and request bodies in a raw spec (path item and operation)", () => {
+    const spec = {
+      openapi: "3.1.0",
+      info: { title: "Items", version: "1.0.0" },
+      paths: {
+        "/items/{id}": {
+          parameters: [{ $ref: "#/components/parameters/Id" }],
+          put: {
+            operationId: "updateItem",
+            parameters: [{ $ref: "#/components/parameters/Dry" }],
+            requestBody: { $ref: "#/components/requestBodies/Item" },
+            responses: { 200: { description: "OK" } },
+          },
+        },
+      },
+      components: {
+        parameters: {
+          Id: { name: "id", in: "path", required: true, schema: { type: "string" } },
+          Dry: { name: "dryRun", in: "query", schema: { type: "boolean" } },
+        },
+        requestBodies: {
+          Item: {
+            required: true,
+            content: { "application/json": { schema: { type: "object" } } },
+          },
+        },
+      },
+    };
+    const [tool] = buildMcpManifest(spec).tools;
+    assert.deepEqual(Object.keys(tool.inputSchema.properties).sort(), ["body", "dryRun", "id"]);
+    assert.deepEqual(tool.inputSchema.required.sort(), ["body", "id"]);
+  });
+
   const manifest = buildMcpManifest(petstore);
 
   it("has one tool per operation, with server, source and security schemes", () => {
