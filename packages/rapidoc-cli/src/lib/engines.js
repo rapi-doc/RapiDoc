@@ -12,11 +12,12 @@ const PORTAL_MODULE = process.env.RAPIDOC_PORTAL_MODULE || "@rapidoc/portal";
 const SERVER_MODULE = process.env.RAPIDOC_SERVER_MODULE || "@rapidoc/server";
 const MOCK_MODULE = process.env.RAPIDOC_MOCK_MODULE || "@rapidoc/mock";
 
-async function tryImport(moduleName) {
+/** The module, or null when its package isn't installed (other import errors are thrown). */
+async function tryImport(specifier, packageName = specifier) {
   try {
-    return await import(moduleName);
+    return await import(specifier);
   } catch (err) {
-    if (err.code === "ERR_MODULE_NOT_FOUND" && err.message.includes(moduleName)) return null;
+    if (err.code === "ERR_MODULE_NOT_FOUND" && err.message.includes(packageName)) return null;
     throw err;
   }
 }
@@ -52,4 +53,22 @@ export async function loadMock() {
     );
   }
   return mock;
+}
+
+// The MCP SDK, for `rapidoc mcp serve` only (export writes a project that installs it itself).
+// RAPIDOC_MCP_SDK_MODULE swaps the module name (tests use it to simulate a missing SDK).
+const MCP_SDK_MODULE = process.env.RAPIDOC_MCP_SDK_MODULE || "@modelcontextprotocol/sdk";
+
+export async function loadMcpSdk() {
+  const [server, stdio, types] = await Promise.all([
+    tryImport(`${MCP_SDK_MODULE}/server/index.js`, MCP_SDK_MODULE),
+    tryImport(`${MCP_SDK_MODULE}/server/stdio.js`, MCP_SDK_MODULE),
+    tryImport(`${MCP_SDK_MODULE}/types.js`, MCP_SDK_MODULE),
+  ]);
+  if (!server || !stdio || !types) {
+    throw new ProblemError(
+      "`rapidoc mcp serve` needs the MCP SDK. Install it next to the CLI:\n   npm install -D @modelcontextprotocol/sdk",
+    );
+  }
+  return { Server: server.Server, StdioServerTransport: stdio.StdioServerTransport, ...types };
 }

@@ -129,7 +129,8 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
   process.on("exit", onExit);
 
   return {
-    port,
+    // The port Astro listens on: it moves to a free one when `port` is taken.
+    port: server.address?.port ?? port,
     get workspaceDir() {
       return workspace.root;
     },

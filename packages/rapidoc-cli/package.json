@@ -12,16 +12,22 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.8.1",
+    "@rapidoc/mcp": "^0.1.0",
     "@scalar/openapi-validator": "^0.1.18",
     "create-rapidoc": "^0.1.0",
+    "rapidoc": "^12.1.0",
     "yaml": "^2.9.1"
   },
   "peerDependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@rapidoc/mock": "^0.1.0",
     "@rapidoc/portal": "^0.1.0",
     "@rapidoc/server": "^0.1.0"
   },
   "peerDependenciesMeta": {
+    "@modelcontextprotocol/sdk": {
+      "optional": true
+    },
     "@rapidoc/mock": {
       "optional": true
     },

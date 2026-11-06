@@ -20,8 +20,11 @@ import serve from "./commands/serve.js";
 import mock from "./commands/mock.js";
 import validate from "./commands/validate.js";
 import migrate from "./commands/migrate.js";
+import preview from "./commands/preview.js";
+import mcp from "./commands/mcp.js";
+import doctor from "./commands/doctor.js";
 
-const COMMANDS = [init, dev, build, serve, mock, validate, migrate];
+const COMMANDS = [init, dev, build, serve, preview, mock, validate, mcp, migrate, doctor];
 const byName = new Map(COMMANDS.map((command) => [command.name, command]));
 
 function unknownCommand(name) {

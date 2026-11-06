@@ -1,11 +1,11 @@
 ---
 title: Command-Line Tools
-description: Validate OpenAPI specs and run a mock server from the command line with @rapidoc/cli. No developer portal needed.
+description: Preview, validate and mock OpenAPI specs, and turn them into MCP servers, from the command line with @rapidoc/cli. No developer portal needed.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-`@rapidoc/cli` gives you the `rapidoc` command. Most of it builds and runs [RapiDoc Portal](https://github.com/rapi-doc/rapi-portal-doc) developer portals, but two commands work on plain OpenAPI files and are useful wherever you use `<rapi-doc>`: **`validate`** checks a spec, and **`mock`** serves its API with example responses.
+`@rapidoc/cli` gives you the `rapidoc` command. Most of it builds and runs [RapiDoc Portal](https://github.com/rapi-doc/rapi-portal-doc) developer portals, but these commands work on plain OpenAPI files and are useful wherever you use `<rapi-doc>`: **`preview`** shows a spec as you edit it, **`validate`** checks it, **`mock`** serves its API with example responses, and **`mcp`** turns it into tools for AI agents.
 
 <Aside type="caution" title="Preview">
   `@rapidoc/cli` is in preview and not on npm yet. The commands below are what it will offer when it is published.
@@ -16,6 +16,14 @@ npm install -D @rapidoc/cli
 npx rapidoc --help            # every command
 npx rapidoc validate --help   # one command's options and examples
 ```
+
+## Preview a spec
+
+```bash
+npx rapidoc preview openapi.yaml --open
+```
+
+Shows the spec in `<rapi-doc>` on `http://localhost:4000` and reloads it whenever a file in its folder changes, so you can edit the YAML and watch the page. Relative `$ref`s to other files work. `--theme` picks a `<rapi-doc>` theme; a URL works too (`npx rapidoc preview https://example.com/openapi.json`), without reloading.
 
 ## Validate a spec
 
@@ -66,8 +74,17 @@ servers:
 
 It complements the [in-browser mock server](/docs/advanced/mock-server/) (`mock-server="true"`): that one needs no process and answers inside the page; `rapidoc mock` is a real HTTP server, so any client can call it (curl, your frontend, [`<rapi-flow>`](/docs/advanced/workflows/) running a workflow), and it checks requests and tokens.
 
+## Turn it into an MCP server
+
+```bash
+npx rapidoc mcp export openapi.yaml --out-dir orders-mcp   # the server project
+npx rapidoc mcp serve openapi.yaml                         # run it over stdio, no files
+```
+
+`mcp export` writes the same project as `<rapi-doc>`'s [Export MCP Server](/docs/advanced/mcp-server/) button. `mcp serve` runs it directly, so an agent's config can start it with `npx rapidoc mcp serve <spec>` (it needs `@modelcontextprotocol/sdk` installed). Credentials come from the environment, one variable per security scheme; `--base-url` points the calls at `rapidoc mock`, and `--arazzo` adds workflows as tools.
+
 ## Everything else
 
-The other commands (`init`, `dev`, `build`, `serve`, `migrate`) create and run a developer portal: OpenAPI references next to Markdown and Markdoc guides, with search and optional sign-in. The full reference, with every option, is in the [RapiDoc Portal docs](https://github.com/rapi-doc/rapi-portal-doc/blob/main/docs/reference/cli.md).
+`rapidoc doctor` checks your setup (Node, package versions) and prints a report for bug reports. The other commands (`init`, `dev`, `build`, `serve`, `migrate`) create and run a developer portal: OpenAPI references next to Markdown and Markdoc guides, with search and optional sign-in. The full reference, with every option, is in the [RapiDoc Portal docs](https://github.com/rapi-doc/rapi-portal-doc/blob/main/docs/reference/cli.md).
 
 In a terminal, `rapidoc` asks for what the options don't say and shows a menu when run alone; piped, in CI or with `--yes` it never asks. Exit codes: `0` success, `1` problems in the input, `2` a wrong command line.

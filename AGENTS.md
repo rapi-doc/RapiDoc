@@ -12,7 +12,7 @@ This repository is managed as an **npm workspaces** monorepo running on **Node.j
 rapidoc/
 ├── packages/
 │   ├── rapidoc/          # Core RapiDoc Web Component library (Lit, Vite)
-│   ├── rapidoc-cli/      # The `rapidoc` command (@rapidoc/cli): init, dev, build, serve, mock, validate, migrate
+│   ├── rapidoc-cli/      # The `rapidoc` command (@rapidoc/cli): init, dev, build, serve, preview, mock, validate, mcp, migrate, doctor
 │   ├── rapidoc-portal/   # Developer portal framework for OpenAPI & Markdoc (@rapidoc/portal)
 │   ├── rapidoc-server/   # Serves a built portal with OIDC sign-in and access rules (@rapidoc/server, `rapidoc serve`)
 │   ├── rapidoc-mock/     # Mock server for the portal's APIs, with OAuth scope checks (@rapidoc/mock, `rapidoc mock`)
@@ -65,8 +65,9 @@ All agents must strictly adhere to the following system boundaries:
   - `@rapidoc/server` (behind `rapidoc serve`) is the CLI's other optional peer, also imported lazily. It depends only on the build output (`dist/public/`, `dist/protected/`, `dist/rapidoc-server.json`), never on `@rapidoc/portal` or Astro; the portal writes that layout in `src/access/split-output.js`. Secrets (session key, client secret) are environment variables of the server, never config keys.
   - `rapidoc init` reuses `create-rapidoc`'s `scaffoldProject`/`findOpenApiSpecs` (`create-rapidoc/scaffold`); keep scaffolding logic only there.
   - `@rapidoc/mock` (behind `rapidoc mock`) is the CLI's third optional peer, imported lazily. It reads only spec files (the CLI passes the `apis:` from `loadConfig`), never `@rapidoc/portal` or Astro, and keeps its third-party mock libraries (openapi-backend, json-schema-faker) behind `src/engine/`.
+  - `@modelcontextprotocol/sdk` is the CLI's fourth optional peer, for `rapidoc mcp serve` only (imported lazily). The CLI's own dependencies stay light: `@rapidoc/mcp`, `rapidoc` (the browser bundle `preview` serves), `@scalar/openapi-validator`, `yaml`, `@clack/prompts`, `create-rapidoc`.
   - `@rapidoc/mcp` is RapiDoc's MCP code built for Node (the portal build and `@rapidoc/server` use it). Its source stays in `packages/rapidoc/src` (`utils/mcp-generator.js`, `utils/mcp/`, `utils/arazzo/`), shared with `<rapi-doc>`'s Export MCP Server button and `<rapi-flow>`; `packages/rapidoc-mcp` holds only the entry and build. That shared code is headless: `tests/unit/headless-boundary.test.js` fails if it imports Lit, elements, templates, styles or an unlisted package.
-  - Internal dependency ranges are pinned (`rapidoc ^12.1.0`, `@rapidoc/prerender ^0.1.0` and `@rapidoc/mcp ^0.1.0` in the portal, `@rapidoc/mcp ^0.1.0` in the server, `@rapidoc/portal ^0.1.0`, `@rapidoc/server ^0.1.0` and `@rapidoc/mock ^0.1.0` as the CLI's peers), never `*`.
+  - Internal dependency ranges are pinned (`rapidoc ^12.1.0`, `@rapidoc/prerender ^0.1.0` and `@rapidoc/mcp ^0.1.0` in the portal, `@rapidoc/mcp ^0.1.0` in the server, `@rapidoc/portal ^0.1.0`, `@rapidoc/server ^0.1.0` and `@rapidoc/mock ^0.1.0` as the CLI's peers, `rapidoc ^12.1.0` and `@rapidoc/mcp ^0.1.0` as its dependencies), never `*`.
 
 ### Build Artifact Hygiene
 

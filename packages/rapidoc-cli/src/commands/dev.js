@@ -3,6 +3,7 @@ import { loadPortal } from "../lib/engines.js";
 import { ProblemError } from "../lib/errors.js";
 import { icon, info } from "../lib/output.js";
 import { choosePort } from "../lib/ports.js";
+import { openBrowser } from "../lib/open.js";
 
 export default {
   name: "dev",
@@ -19,13 +20,14 @@ export default {
       default: 4321,
       description: "Server port",
     },
+    open: { type: "boolean", description: "Open the portal in the browser once the server is up" },
     debug: {
       type: "boolean",
       description:
         "Keep the temporary Astro workspace and print its path (for debugging the engine)",
     },
   },
-  examples: ["rapidoc dev", "rapidoc dev ./my-portal --port 3000"],
+  examples: ["rapidoc dev", "rapidoc dev --open", "rapidoc dev ./my-portal --port 3000"],
 
   async run({ values, positionals }) {
     const targetDir = path.resolve(positionals[0] || ".");
@@ -44,5 +46,6 @@ export default {
       throw new ProblemError(`Dev server failed: ${err.message}`);
     }
     if (values.debug) info(`   • Workspace (kept): ${devServer.workspaceDir}\n`);
+    if (values.open) openBrowser(`http://localhost:${devServer.port}/`);
   },
 };

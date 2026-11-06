@@ -1,6 +1,6 @@
 # `rapidoc` CLI overhaul (design)
 
-Status: phases 1, 2 and 3 done (2026-11-06; phase 2 uncommitted); phases 4–6 proposed.
+Status: phases 1–4 done (2026-11-06; phase 4 uncommitted); phases 5–6 proposed.
 
 `@rapidoc/cli` covers the portal workflow (`init`, `dev`, `build`, `serve`, `mock`, `validate`, `migrate`)
 and loads the heavy engines (`@rapidoc/portal`, `@rapidoc/server`, `@rapidoc/mock`) only when a command
@@ -138,6 +138,13 @@ and many in the docs site's deliberately loose showcase specs.
 Size: medium to large (the location mapping is the careful part).
 
 ### Phase 4: new everyday commands
+
+Done. `preview` serves the spec's folder (so relative `$ref`s work, never outside it) and reloads over
+server-sent events; it binds to localhost by default. `mcp` loads the spec with `validate/bundle.js`;
+`mcp serve` (stdio) needs `@modelcontextprotocol/sdk`, a fourth optional peer. Found and fixed on the way:
+`@rapidoc/mcp` dropped parameters and request bodies given as `$ref`s in a raw spec (the portal build's
+MCP manifests were affected too; `<rapi-doc>`'s Export button wasn't, it passes the resolved spec).
+`dev --open` needed `startDevServer` to report the port Astro actually listens on.
 
 - **`rapidoc preview <spec>`**: zero-config viewer. Serves one spec in `<rapi-doc>` (the browser bundle,
   no Astro) on a local port, reloads on save, `--open` opens the browser. The roadmap's "local

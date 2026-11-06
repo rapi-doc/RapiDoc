@@ -303,6 +303,10 @@ console.log(`Overhead: ~${budget.estimatedTokens} tokens/turn across ${budget.to
 
 `result.files` has the keys `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md` and `claude_desktop_config.json`. `getMcpBudget()` returns `{ totalTools, totalResources, estimatedTokens, consequentialCount, warnings }`, where `consequentialCount` is the number of tools that are not read-only.
 
+### From the command line
+
+`npx rapidoc mcp export openapi.yaml` writes the same project as the Export button, and `npx rapidoc mcp serve openapi.yaml` runs the server over stdio without writing files ([Command-Line Tools](/docs/advanced/command-line/#turn-it-into-an-mcp-server)).
+
 ### In Node: `@rapidoc/mcp`
 
 The same builder, runtime and project writer are available without the browser or any element, for build scripts and servers:
