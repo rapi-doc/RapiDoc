@@ -530,6 +530,18 @@ export const AccessSchema = z.strictObject({
 
 const rapidocValue = z.union([z.string(), z.number(), z.boolean()]);
 
+const lintSeverity = z.enum(["error", "warn", "off"]);
+const lintRules = z
+  .record(z.string(), lintSeverity)
+  .describe("Rule name (see `rapidoc lint --rules`) to error, warn or off.");
+export const LintSchema = z.strictObject({
+  rules: lintRules.optional().describe("Severities for every spec."),
+  apis: z
+    .record(z.string(), lintRules)
+    .optional()
+    .describe("Severities for one API, by its id; they win over rules."),
+});
+
 export const RapidocConfigSchema = z.strictObject({
   $schema: z.string().optional(),
   site: SiteSchema,
@@ -582,5 +594,8 @@ export const RapidocConfigSchema = z.strictObject({
   ),
   access: AccessSchema.optional().describe(
     "Who may read which pages, APIs and files (needs auth unless everything is public).",
+  ),
+  lint: LintSchema.optional().describe(
+    "Settings for `rapidoc lint`: which rules run on the specs and how hard they fail.",
   ),
 });

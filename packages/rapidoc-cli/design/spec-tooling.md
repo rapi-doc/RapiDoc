@@ -1,6 +1,6 @@
 # Spec tooling: `rapidoc bundle` and `rapidoc lint` (design)
 
-Status: `bundle` done (2026-11-06), `lint` next. Phase 5 of `cli-overhaul.md`. `rapidoc diff` was considered and dropped:
+Status: `bundle` and `lint` done (2026-11-06). Phase 5 of `cli-overhaul.md`. `rapidoc diff` was considered and dropped:
 see "Not in this phase".
 
 Both commands work on plain OpenAPI files, with no portal and no config needed, and reuse `validate`'s

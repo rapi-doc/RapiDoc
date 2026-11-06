@@ -13,17 +13,18 @@ import {
  * which is strict: every required field (info.version, a response's description, ...) must be there.
  * (@scalar/openapi-parser's own validate fills in defaults first, so it lets those through.)
  *
+ * `bundle` is an already loaded bundleSpec result (then nothing is read).
  * Returns { location, version, problems, skipped }: problems are
  * { severity: "error", rule, message, location, pointer, line, column }; skipped lists remote files its
  * $refs point to that were not fetched (see `remote`).
  */
-export async function checkSpec(location, { remote = false } = {}) {
+export async function checkSpec(location, { remote = false, bundle: loaded } = {}) {
   // Imported here: the CLI loads every command module for its help; only validate needs these.
   const { validate } = await import("@scalar/openapi-validator");
 
-  let bundle;
+  let bundle = loaded; // lint passes the bundle it loaded, so the spec is read once
   try {
-    bundle = await bundleSpec(location, { remote });
+    bundle ??= await bundleSpec(location, { remote });
   } catch (err) {
     if (err instanceof SpecSyntaxError) {
       const where = { location: err.location, pointer: [], line: err.line, column: err.column };

@@ -53,6 +53,15 @@ It exits with code `1` when the spec has errors, so it can guard a pull request:
 - run: npx rapidoc validate openapi.yaml
 ```
 
+## Lint a spec
+
+```bash
+npx rapidoc lint openapi.yaml
+npx rapidoc lint openapi.yaml --rule operation-description=warn --strict
+```
+
+A valid spec can still make a poor reference page. `rapidoc lint` runs `validate`'s check and then rules for what `<rapi-doc>`, Try and MCP tools need: an `operationId` on every operation (stable anchors and tool names), unique and URL-safe; a summary (the sidebar label); tags declared in the top-level list; a success response; a security requirement on write operations; an example on request and response bodies (Try's sample body); no unused components; no `example.com` servers. Each finding comes with `file:line:col` and the rule name, in the same pretty, JSON or SARIF output as `validate`. Most rules default to `warn`, so a first run doesn't fail CI; `--strict` makes warnings fail, `--rule name=off` turns one off, and `--rules` lists them all.
+
 ## Bundle a spec split over files
 
 ```bash

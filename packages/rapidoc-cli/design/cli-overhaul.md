@@ -1,6 +1,6 @@
 # `rapidoc` CLI overhaul (design)
 
-Status: phases 1–4 done (2026-11-06); phase 5 in progress (`bundle` done, `lint` next; `spec-tooling.md`); phase 6 proposed.
+Status: phases 1–4 done (2026-11-06); phase 5 done (`bundle`, `lint`; `spec-tooling.md`); phase 6 proposed.
 
 `@rapidoc/cli` covers the portal workflow (`init`, `dev`, `build`, `serve`, `mock`, `validate`, `migrate`)
 and loads the heavy engines (`@rapidoc/portal`, `@rapidoc/server`, `@rapidoc/mock`) only when a command

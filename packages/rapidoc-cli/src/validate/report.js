@@ -29,8 +29,8 @@ export function counts(items) {
   };
 }
 
-/** Prints one checked item as soon as it's done (pretty format). */
-export function printItem(item) {
+/** Prints one checked item as soon as it's done (pretty format). `ok` is the line for a clean spec. */
+export function printItem(item, { ok } = {}) {
   info(`\n${icon("🔍")}${item.id}: ${displayPath(item.location)}`);
   if (item.skipped) {
     info(`   ${icon("⏭️ ")}remote, skipped (use --remote to check it)`);
@@ -39,21 +39,28 @@ export function printItem(item) {
   const errors = item.problems.filter((p) => p.severity === "error");
   if (errors.length) {
     error(`${errors.length} error(s):`, "   ");
-    for (const problem of errors) {
-      const pointer = problem.pointer?.length ? `  (${encodePointer(problem.pointer)})` : "";
-      process.stderr.write(`      ${where(problem)}  ${problem.message}${pointer}\n`);
-    }
+    for (const problem of errors) process.stderr.write(`      ${describe(problem)}\n`);
+  } else if (ok) {
+    success(ok, "   ");
   } else if (item.kind === "spec") {
     success("Valid OpenAPI", "   ");
   } else {
     success("Workflows resolve against the portal's APIs", "   ");
   }
   for (const problem of item.problems.filter((p) => p.severity === "warning"))
-    warn(
-      `${problem.location && problem.line ? `${where(problem)}  ` : ""}${problem.message}`,
-      "   ",
-    );
+    warn(describe(problem), "   ");
 }
+
+/** "file:line:col  message  [rule]  (#/pointer)"; the parts a problem has. */
+function describe(problem) {
+  const at = problem.location && problem.line ? `${where(problem)}  ` : "";
+  const rule = LINT_RULE.test(problem.rule) ? `  [${problem.rule}]` : "";
+  const pointer = problem.pointer?.length ? `  (${encodePointer(problem.pointer)})` : "";
+  return `${at}${problem.message}${rule}${pointer}`;
+}
+
+// validate's own rule ids (syntax, openapi, ref, portal, workflow) are not shown; lint's are.
+const LINT_RULE = /-/;
 
 export function toJson(items, { strict }) {
   const { errors, warnings } = counts(items);
@@ -87,8 +94,8 @@ const RULES = {
   workflow: "Arazzo workflow steps must resolve against the portal's APIs.",
 };
 
-/** SARIF 2.1.0, for GitHub code scanning (github/codeql-action/upload-sarif). */
-export function toSarif(items, { version }) {
+/** SARIF 2.1.0, for GitHub code scanning (github/codeql-action/upload-sarif). `rules` adds to validate's. */
+export function toSarif(items, { version, tool = "rapidoc validate", rules = {} }) {
   const results = items.flatMap((item) =>
     item.problems.map((problem) => {
       const location = problem.location ?? item.location;
@@ -117,10 +124,13 @@ export function toSarif(items, { version }) {
       {
         tool: {
           driver: {
-            name: "rapidoc validate",
+            name: tool,
             version,
             informationUri: "https://rapidocui.com",
-            rules: Object.entries(RULES).map(([id, text]) => ({ id, shortDescription: { text } })),
+            rules: Object.entries({ ...RULES, ...rules }).map(([id, text]) => ({
+              id,
+              shortDescription: { text },
+            })),
           },
         },
         results,

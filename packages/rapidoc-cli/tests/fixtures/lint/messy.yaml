@@ -1,0 +1,61 @@
+openapi: 3.1.0
+info:
+  title: Messy
+  version: 1.0.0
+servers:
+  - url: https://api.example.com/v1
+tags:
+  - name: orders
+paths:
+  /orderItems:
+    get:
+      operationId: list orders
+      tags: [orders, legacy]
+      responses:
+        "404":
+          description: Not found
+    post:
+      operationId: createOrder
+      summary: Create an order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+              example: { id: "o1" }
+  /orders/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    delete:
+      operationId: createOrder
+      summary: Delete an order
+      security:
+        - apiKey: []
+      responses:
+        "204":
+          description: Deleted
+    patch:
+      responses:
+        "200":
+          description: OK
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+  schemas:
+    Order:
+      type: object
+      properties:
+        id: { type: string }
+    Unused:
+      type: string

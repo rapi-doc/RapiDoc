@@ -1,0 +1,63 @@
+openapi: 3.1.0
+info:
+  title: Clean
+  version: 1.0.0
+  contact: { email: api@acme.test }
+  license: { name: MIT }
+servers:
+  - url: https://api.acme.test/v1
+tags:
+  - name: orders
+    description: Orders and their items.
+security:
+  - bearer: []
+paths:
+  /orders:
+    get:
+      operationId: listOrders
+      summary: List orders
+      description: Every order, newest first.
+      tags: [orders]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+              example: [{ id: "o1" }]
+        "401":
+          description: Not signed in
+    post:
+      operationId: createOrder
+      summary: Create an order
+      description: Creates one order.
+      tags: [orders]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Bad request
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          example: o1

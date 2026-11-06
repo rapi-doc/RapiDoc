@@ -1077,6 +1077,50 @@
         }
       },
       "additionalProperties": false
+    },
+    "lint": {
+      "description": "Settings for `rapidoc lint`: which rules run on the specs and how hard they fail.",
+      "type": "object",
+      "properties": {
+        "rules": {
+          "description": "Severities for every spec.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warn",
+              "off"
+            ]
+          }
+        },
+        "apis": {
+          "description": "Severities for one API, by its id; they win over rules.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "error",
+                "warn",
+                "off"
+              ]
+            },
+            "description": "Rule name (see `rapidoc lint --rules`) to error, warn or off."
+          }
+        }
+      },
+      "additionalProperties": false
     }
   },
   "required": [
