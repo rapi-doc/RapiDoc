@@ -94,7 +94,7 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
           encoding: "utf8",
         });
         assert.equal(invalid.status, 1);
-        assert.ok(invalid.stdout.includes("1 of 1 specs have errors."));
+        assert.ok(invalid.stderr.includes("error: 1 of 1 specs have errors."), invalid.stderr);
       } finally {
         fs.rmSync(tempDir, { recursive: true, force: true });
       }
@@ -251,7 +251,7 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
       const badPort = spawnSync("node", [CLI_PATH, "mock", specPath, "--port", "x"], {
         encoding: "utf8",
       });
-      assert.equal(badPort.status, 1);
+      assert.equal(badPort.status, 2, "a malformed value is a usage error");
       assert.ok(badPort.stderr.includes("--port needs a whole number"), badPort.stderr);
 
       const mock = await startMock([specPath]);
@@ -351,7 +351,7 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
         }
 
         const mixed = spawnSync("node", [CLI_PATH, "mock", files[0], dir], { encoding: "utf8" });
-        assert.equal(mixed.status, 1);
+        assert.equal(mixed.status, 2, "a folder and files together is a usage error");
         assert.ok(
           mixed.stderr.includes("Pass one folder, or one or more spec files"),
           mixed.stderr,

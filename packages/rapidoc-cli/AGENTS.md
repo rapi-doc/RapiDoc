@@ -6,8 +6,37 @@
 
 - **Package Name**: `@rapidoc/cli`
 - **Binary Name**: `rapidoc`
-- **Entry Point**: `src/index.js`
+- **Entry Point**: `src/index.js` (the dispatcher)
 - **Module Type**: ESM (`"type": "module"`)
+- **Plan**: `design/cli-overhaul.md` (phase 1, the foundation below, is done)
+
+### Layout
+
+```text
+src/
+├── index.js        # picks the command, prints help, runs it, maps thrown errors to exit codes
+├── commands/       # one file per command: { name, usage, summary, description, positionals, options, examples, run }
+└── lib/
+    ├── args.js     # parseCommandArgs: node:util parseArgs + unknown-option suggestions, typed values, choices
+    ├── errors.js   # UsageError (exit 2), ProblemError (exit 1)
+    ├── help.js     # overview and per-command help, generated from the command declarations
+    ├── output.js   # info / success / warn / error; icons only on a terminal without NO_COLOR; --quiet
+    ├── engines.js  # loadPortal / tryLoadPortal / loadServer / loadMock (lazy imports)
+    └── suggest.js  # "did you mean" for commands, options and choices
+```
+
+### Rules for commands
+
+- Declare every option in the command's `options` (`type`, `kind: "port" | "int"`, `choices`, `default`,
+  `required`, `negatable`, `short`, `value`, `description`); help comes from these, so never hand-write help.
+- Options are kebab-case (`--out-dir`, `--mount-path`).
+- Never call `process.exit` to fail: throw `UsageError` for a wrong command line (exit 2) and `ProblemError`
+  for problems in the input (exit 1). The dispatcher prints them (`error: …` when piped).
+- Print through `lib/output.js`: results and progress with `info`/`success` (stdout, hidden by `--quiet`),
+  problems with `warn`/`error` (stderr). Pass emoji through `icon()` so piped output stays plain.
+- Long-running commands (`dev`, `serve`, `mock`) return after starting; they handle SIGINT/SIGTERM themselves.
+- Don't import heavy modules at the top of a command file: every command module is loaded for help
+  (`validate` imports `@scalar/openapi-parser` inside `run`).
 
 ---
 
@@ -27,11 +56,11 @@
 
 Run these commands from `packages/rapidoc-cli`:
 
-| Command                    | Purpose                                        |
-| :------------------------- | :--------------------------------------------- |
-| `npm start`                | Executes `node src/index.js`                   |
-| `node src/index.js <args>` | Directly test CLI arguments during development |
-| `npm test`                 | Runs `tests/**/*.test.js`                      |
+| Command                    | Purpose                                                                                                   |
+| :------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| `npm start`                | Executes `node src/index.js`                                                                              |
+| `node src/index.js <args>` | Directly test CLI arguments during development                                                            |
+| `npm test`                 | Runs `tests/**/*.test.js` (`cli.test.js`: commands end to end; `args.test.js`: parsing, help, exit codes) |
 
 ---
 
@@ -40,7 +69,7 @@ Run these commands from `packages/rapidoc-cli`:
 1. **Pure Node ESM**: Use native Node.js APIs (e.g., `node:fs`, `node:path`, `node:process`).
 2. **CLI Output & Error Handling**:
    - Provide clean, readable terminal output.
-   - Use standard process exit codes (`0` for success, non-zero for validation/runtime failures).
+   - Exit codes: `0` success, `1` problems in the input (spec, config, build, missing engine), `2` a wrong command line.
    - Gracefully handle file reading errors, network timeouts, and OpenAPI parse errors.
 3. **Execution Permissions**:
    - Ensure `src/index.js` retains executable permissions (`chmod +x src/index.js`).
