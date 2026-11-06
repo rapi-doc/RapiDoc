@@ -1,100 +1,96 @@
 ---
-title: Event Hooks & Request Interception
-description: Intercept API requests before they execute with before-try, log telemetry with after-try, and monitor server switching.
+title: Events
+description: Change Try requests before they are sent, read responses, and react to spec loading, server changes and navigation with <rapi-doc> events.
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
-RapiDoc emits standard DOM CustomEvents throughout its lifecycle. These hooks allow you to intercept and modify outgoing HTTP requests, record analytics, and synchronize external UI state.
+`<rapi-doc>` dispatches DOM events you can listen to with `addEventListener`. The full list, with every field, is in the [API reference](/api#events).
 
----
+## Change a request before it is sent: `before-try`
 
-## 1. Request Interception with `before-try`
+`before-try` fires when a reader presses **Try**, before the request goes out. `e.detail.request` is a plain object you can change:
 
-The `before-try` event fires whenever a developer clicks the **"TRY"** button to execute an API call, **before** the request is dispatched across the network.
+| Field | Type |
+| :--- | :--- |
+| `url` | `string`: can be replaced |
+| `method` | `string` |
+| `headers` | `Headers`: add, change or delete headers |
+| `body` | the request body |
+| `credentials` | the `fetch` credentials mode |
 
-<Aside type="tip" title="Common Use Cases for before-try">
-- Automatically inject multi-tenant headers (e.g. `X-Organization-ID`, `X-Correlation-ID`).
-- Sign requests with HMAC or custom cryptographic signatures.
-- Append query parameters dynamically (e.g. `?debug=true` or telemetry tokens).
-- Redirect requests to a local proxy or mock server.
-</Aside>
-
-### Modifying Headers in `before-try`
+`e.detail.controller` is the request's `AbortController`; call `abort()` to cancel it.
 
 ```javascript
-const doc = document.getElementById('the-doc');
+const doc = document.querySelector('rapi-doc');
 
 doc.addEventListener('before-try', (e) => {
   const { request } = e.detail;
+  request.headers.set('X-Correlation-ID', crypto.randomUUID());
 
-  // Add custom headers to the outgoing Request object
-  request.headers.append('X-Client-Platform', 'WebDeveloperPortal/2.0');
-  request.headers.append('X-Trace-ID', crypto.randomUUID());
-
-  // Conditional injection based on path or method
   if (request.url.includes('/billing/')) {
-    request.headers.append('X-Scope-Enforce', 'strict-audit');
+    request.headers.set('X-Audit', 'strict');
   }
-
-  console.log(`Executing ${request.method} to ${request.url}`);
 });
 ```
 
----
+<Aside type="caution" title="Listeners must be synchronous">
+  RapiDoc reads the request as soon as the event returns, so it doesn't wait for promises. Work out any value you need (a signature, a fresh token) before the reader presses **Try**, and set it here synchronously.
+</Aside>
 
-## 2. Response Telemetry with `after-try`
+## Read the response: `after-try`
 
-The `after-try` event triggers when the interactive request completes and the server response is received:
+`after-try` fires when the response arrives:
+
+| Field | Type |
+| :--- | :--- |
+| `request` | the `Request` that was sent |
+| `response` | a clone of the `Response` |
+| `responseHeaders` | the response headers |
+| `responseBody` | the parsed body |
+| `responseStatus` | `boolean`: `true` for a 2xx status |
+
+If the request fails at the network level, `detail` is `{ err, request }` instead.
 
 ```javascript
-const doc = document.getElementById('the-doc');
-
 doc.addEventListener('after-try', (e) => {
-  const { request, response, duration } = e.detail;
-
-  console.log(`Status: ${response.status} (${response.statusText})`);
-  console.log(`Roundtrip Latency: ${duration}ms`);
-
-  // Send telemetry metrics to your analytics pipeline
-  if (window.analytics) {
-    window.analytics.track('API Try Executed', {
-      endpoint: request.url,
-      method: request.method,
-      status: response.status,
-      durationMs: duration,
-    });
-  }
+  if (e.detail.err) return;
+  analytics.track('Try', {
+    url: e.detail.request.url,
+    status: e.detail.response.status,
+  });
 });
 ```
 
----
+To measure how long a request took, note `performance.now()` in `before-try` and compare in `after-try`.
 
-## 3. Server Change Hook (`api-server-change`)
+## React to the spec: `before-render` and `spec-loaded`
 
-Fires whenever a user changes the target server from the header dropdown:
+- `before-render` fires after the spec is parsed and before it is rendered. `e.detail.spec` is the parsed spec; changes you make to it show up in the page.
+- `spec-loaded` fires when rendering is done. `e.detail` is the parsed spec itself (`info`, `tags`, `servers`, `securitySchemes`, …).
 
 ```javascript
-const doc = document.getElementById('the-doc');
+doc.addEventListener('spec-loaded', (e) => {
+  console.log(`${e.detail.info.title}: ${e.detail.servers.length} server(s)`);
+});
+```
 
+## Server changes: `api-server-change`
+
+Fires when the reader picks another server in the API Servers section. `e.detail.selectedServer` is the server object: `url`, `description`, `variables` and `computedUrl` (the URL with its variables filled in).
+
+```javascript
 doc.addEventListener('api-server-change', (e) => {
-  const { selectedServer } = e.detail;
-  console.log('Target API server switched to:', selectedServer);
-
-  // Sync external notifications or warnings
-  if (selectedServer.includes('production')) {
-    showToastWarning('You are now targeting the LIVE production server.');
+  if (e.detail.selectedServer.url.includes('production')) {
+    showWarning('Try now calls the production API.');
   }
 });
 ```
 
----
+## Other events
 
-## Event Summary Reference
-
-| Event Name | Detail Payload | Description |
-| :--- | :--- | :--- |
-| `before-try` | `{ request: Request }` | Fired before an interactive HTTP request is sent. Allows modifying headers, URL, or body. |
-| `after-try` | `{ request, response, duration }` | Fired when the interactive response arrives. Useful for logging and telemetry. |
-| `spec-loaded` | `{ spec: Object }` | Fired when the OpenAPI definition is parsed and ready in memory. |
-| `api-server-change` | `{ selectedServer: string }` | Fired when the user selects a different target server from the dropdown. |
+| Event | When |
+| :--- | :--- |
+| `request-aborted` | A **Try** request was cancelled. |
+| `nav-active-change` | The section in view changed; `detail` is `{ id, elementId }`. See [Links & Navigation](/docs/customizing/linking/#in-a-single-page-app). |
+| `before-authorize`, `before-token-request` | During OAuth sign-in; see [OAuth 2.0](/docs/authentication/oauth/#from-javascript). |

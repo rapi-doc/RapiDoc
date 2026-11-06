@@ -1,5 +1,5 @@
 ---
-title: Pre-built Themes
+title: Built-in Themes
 description: RapiDoc's five built-in themes (Ember, Carbon, Cobalt, Jade, Indigo), each with a dark and a light palette, plus custom brand colors and automatic OS switching.
 ---
 
@@ -137,7 +137,7 @@ rapi-doc {
 
 ## Follow the operating system
 
-`color-scheme="system"` switches between the theme's dark and light palette with the OS preference. `color-scheme="auto"` follows the host page's `data-theme` instead.
+`color-scheme="system"` switches between the theme's dark and light palette with the OS preference. `color-scheme="auto"` follows the host page's CSS `color-scheme` instead (as set, for example, by a site's own light/dark switch), and falls back to the OS preference.
 
 ```html
 <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade" color-scheme="system"></rapi-doc>

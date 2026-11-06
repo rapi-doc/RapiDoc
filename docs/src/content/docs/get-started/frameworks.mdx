@@ -1,0 +1,144 @@
+---
+title: Framework Integration
+description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+`<rapi-doc>` is a standard custom element, so it works in any framework without a wrapper. Two rules apply everywhere:
+
+- **Register it in the browser.** `import 'rapidoc'` defines the element and needs `window`, so with server-side rendering import it on the client only.
+- **Pass attributes as strings**, as in HTML: `render-style="view"`, `allow-try="false"`.
+
+## React and Next.js
+
+Import RapiDoc in an effect, so it runs only in the browser. In the Next.js App Router, mark the file `'use client'`.
+
+```tsx title="ApiDocs.tsx"
+'use client';
+import { useEffect } from 'react';
+
+export default function ApiDocs() {
+  useEffect(() => {
+    import('rapidoc');
+  }, []);
+
+  return (
+    <rapi-doc
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      render-style="view"
+      show-header="false"
+      style={{ height: '100vh' }}
+    />
+  );
+}
+```
+
+The element renders once it is defined; until then the browser shows it as an empty box.
+
+### TypeScript
+
+TypeScript doesn't know `<rapi-doc>` and reports `Property 'rapi-doc' does not exist on type 'JSX.IntrinsicElements'`. Declare it once, for example in `src/rapidoc.d.ts`:
+
+```typescript title="src/rapidoc.d.ts"
+import type { DetailedHTMLProps, HTMLAttributes } from 'react';
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'rapi-doc': DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement> & {
+        'spec-url'?: string;
+        theme?: string;
+        'color-scheme'?: 'light' | 'dark' | 'system';
+        'render-style'?: 'read' | 'view' | 'focused';
+        'show-header'?: 'true' | 'false';
+        'allow-try'?: 'true' | 'false';
+        [attribute: string]: unknown;
+      };
+    }
+  }
+}
+```
+
+## Vue and Nuxt
+
+Tell the Vue compiler that tags starting with `rapi-` are custom elements, not missing Vue components:
+
+<Tabs>
+  <TabItem label="vite.config.js">
+```javascript
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+
+export default defineConfig({
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith('rapi-'),
+        },
+      },
+    }),
+  ],
+});
+```
+  </TabItem>
+  <TabItem label="nuxt.config.ts">
+```typescript
+export default defineNuxtConfig({
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => tag.startsWith('rapi-'),
+    },
+  },
+});
+```
+  </TabItem>
+</Tabs>
+
+Then import RapiDoc when the component mounts:
+
+```vue title="ApiDocs.vue"
+<script setup>
+import { onMounted } from 'vue';
+
+onMounted(() => import('rapidoc'));
+</script>
+
+<template>
+  <rapi-doc
+    spec-url="https://petstore.swagger.io/v2/swagger.json"
+    render-style="focused"
+    style="height: 100vh"
+  ></rapi-doc>
+</template>
+```
+
+## Angular
+
+Add `CUSTOM_ELEMENTS_SCHEMA` to the component (or its module) and import RapiDoc:
+
+```typescript title="api-docs.component.ts"
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import 'rapidoc';
+
+@Component({
+  selector: 'app-api-docs',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <rapi-doc
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      render-style="view"
+      style="height: 100vh"
+    ></rapi-doc>
+  `,
+})
+export class ApiDocsComponent {}
+```
+
+With Angular SSR, move the import into `afterNextRender` so it runs in the browser only.
+
+## Svelte, Astro and plain bundlers
+
+No configuration is needed. Import `rapidoc` in a client-side script and use the element in your markup. In Astro, a `<script>import 'rapidoc';</script>` tag in the page is enough.

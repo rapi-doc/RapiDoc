@@ -1,0 +1,102 @@
+---
+title: Mock Server (rapidoc mock)
+description: Run a real HTTP mock of your API from its OpenAPI spec, with request validation, generated data and OAuth token checks, using rapidoc mock or @rapidoc/mock.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+`rapidoc mock` starts an HTTP server that answers every operation in your OpenAPI spec. Unlike the [in-browser mock](/docs/mocking/in-browser/), it is a real server: curl, your frontend, your tests, [`<rapi-flow>`](/docs/components/workflows/) and an MCP server can all call it. It validates requests against the spec and can check OAuth tokens, so `400`, `401` and `403` responses behave as they will in production.
+
+<Aside type="caution" title="Preview">
+  `@rapidoc/cli` and `@rapidoc/mock` are in preview and not on npm yet. This page describes what they will offer when they are published.
+</Aside>
+
+## Start it
+
+```bash
+npm install -D @rapidoc/cli @rapidoc/mock
+npx rapidoc mock openapi.yaml
+```
+
+The server listens on `http://localhost:4010` and serves each API under its own path, named after the file: `openapi.yaml` is served at `http://localhost:4010/openapi`.
+
+```bash
+npx rapidoc mock orders.yaml billing.yaml   # /orders and /billing
+npx rapidoc mock ./specs --port 4011        # every OpenAPI file in the folder
+npx rapidoc mock                            # in a portal folder: the local specs under apis:
+```
+
+When two files would get the same name, their parent folders are added until the names differ (`billing-v1/openapi.yaml` becomes `/billing-v1-openapi`). The mapping is printed at start, and `GET /` lists the APIs served.
+
+## What it answers
+
+- **Examples first.** An operation's response example is returned when the spec has one; otherwise data is generated from the schema, respecting formats, patterns, enums and ranges. Generated data is the same on every run (change it with `--seed`).
+- **Requests are validated.** Parameters and JSON, form and multipart bodies are checked against the spec. A bad request gets `400` with the list of problems.
+- **Security is enforced** per operation:
+  - **OAuth 2, OpenID Connect and HTTP bearer**: with `--issuer`, the token must be a JWT signed by that issuer, unexpired and for the `--audience`, or the request gets `401`. It must also grant the operation's scopes in its `scope`, `scp` or `permissions` claim, or the request gets `403`. Without `--issuer`, any bearer token is accepted.
+  - **API key** and **HTTP Basic**: the credential must be present.
+  - `security: []`: open.
+- **CORS** is allowed for any origin.
+
+## Pick a response
+
+Clients choose which documented response they get with a `Prefer` header:
+
+| Header | Effect |
+| :--- | :--- |
+| `Prefer: code=404` | The documented `404` response (else `4XX`, else `default`). |
+| `Prefer: example=empty` | The example named `empty`. |
+| `Prefer: dynamic=true` | Generated data, even when the spec has an example. |
+
+The response's `Preference-Applied` header tells you which preferences were used.
+
+## Options
+
+| Option | Environment variable | Meaning |
+| :--- | :--- | :--- |
+| `--port <number>` | | Port to listen on. Default `4010`; if it is taken, the next free port is offered. |
+| `--host <host>` | | Address to listen on. Default `0.0.0.0`. |
+| `--issuer <url>` | `RAPIDOC_MOCK_ISSUER` | OpenID Connect issuer whose access tokens are accepted. The server won't start if the issuer can't be discovered. |
+| `--audience <id>` | `RAPIDOC_MOCK_AUDIENCE` | The `aud` tokens must have (your API's identifier at the provider). |
+| `--seed <number>` | | Seed for generated data. Default `1`. |
+
+```bash
+npx rapidoc mock openapi.yaml --issuer https://example.us.auth0.com/ --audience https://api.example.com
+```
+
+## Call it from `<rapi-doc>`
+
+List the mock first in the spec's `servers`, so **Try** sends requests to it:
+
+```yaml
+servers:
+  - url: http://localhost:4010/openapi
+    description: Mock (rapidoc mock)
+  - url: https://api.example.com
+```
+
+With OAuth, sign in through **Authorize** in `<rapi-doc>` as usual: the mock checks the token like the real API would.
+
+To run [Arazzo workflows](/docs/components/workflows/#a-mock-server) against it, set `server-url` on `<rapi-flow>`. To point an [MCP server](/docs/ai/mcp-server/) at it, use `rapidoc mcp serve openapi.yaml --base-url http://localhost:4010/openapi`.
+
+## Use it as a library
+
+`@rapidoc/mock` runs without the CLI, for test setups and your own servers:
+
+```javascript
+import { createMockApp, startMockServer } from '@rapidoc/mock';
+
+// Start it on a port
+const server = await startMockServer({
+  apis: [{ id: 'orders', fullPath: '/abs/path/orders.yaml' }],
+  port: 4010,
+});
+console.log(server.url); // http://localhost:4010
+// ...
+await server.close();
+
+// Or get the app and mount it yourself (a Hono app: app.fetch(request))
+const { app } = await createMockApp({ apis: [{ id: 'orders', fullPath: '/abs/path/orders.yaml' }] });
+```
+
+`startMockServer` also takes `host`, `issuer`, `audience` and `seed`, and returns `{ url, port, apis, skipped, close }`. A spec it can't load is skipped with the reason, and the others are served.

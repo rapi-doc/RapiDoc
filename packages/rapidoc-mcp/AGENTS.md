@@ -29,4 +29,4 @@
 | `npm run build:mcp` (root) | Same, from the monorepo root                                         |
 | `npm run test:unit` (root) | `mcp-generator`, `mcp-project`, `mcp-workflows`, `headless-boundary` |
 
-When the exported names change, update `src/index.d.ts` and the guide (`docs/src/content/docs/advanced/mcp-server.mdx`).
+When the exported names change, update `src/index.d.ts` and the guide (`docs/src/content/docs/ai/mcp-server.mdx`).

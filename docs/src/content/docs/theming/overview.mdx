@@ -1,27 +1,25 @@
 ---
-title: Theming Overview & Architecture
-description: Learn how RapiDoc's Shadow DOM encapsulation works, how to configure overhauled declarative attributes, brand hex colors, and custom typography.
+title: Theming Overview
+description: Change RapiDoc's colors, light and dark mode, corner radius, size and fonts with a few attributes and CSS variables.
 ---
 
 import { Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
 
-RapiDoc features a streamlined, token-driven theming architecture inspired by modern design systems. Built as a standard W3C Web Component, its markup and stylesheets reside inside an encapsulated **Shadow DOM**, ensuring that external application styles never clash with your API documentation.
+RapiDoc renders inside a **Shadow DOM**, so your site's CSS (resets, Tailwind, component libraries) can't change it by accident, and its CSS can't leak into your site. You style it on purpose, in three layers:
 
-<Aside type="tip" title="Why Shadow DOM Encapsulation Matters">
-  In modern web applications, global CSS rules (such as CSS resets, utility frameworks like Tailwind, or UI library stylesheets) frequently
-  collide with embedded API documentation. With Shadow DOM: - External CSS rules cannot accidentally alter RapiDoc's internal elements. -
-  Internal RapiDoc styles will never leak out into your host application.
-</Aside>
+1. **Attributes** for the common choices: theme, light or dark, corner radius, size. This page.
+2. **CSS custom properties** for any color, font or size: see [CSS Parts & Variables](/docs/theming/css-parts/).
+3. **`::part()` selectors** for individual elements: also on [CSS Parts & Variables](/docs/theming/css-parts/).
 
 <Aside type="note" title="Upgrading from RapiDoc v10?">
-  RapiDoc v11 deprecated legacy styling attributes such as `bg-color`, `text-color`, `header-color`, `primary-color`, `regular-font`, and `nav-*` in favor of standard CSS custom properties and `::part()` selectors. Refer to our [v10 to v11 Migration Guide](/docs/migration/v10-to-v11/) for full mapping tables and migration examples.
+  RapiDoc v11 replaced styling attributes such as `bg-color`, `text-color`, `header-color`, `regular-font` and `nav-*` with CSS custom properties and `::part()` selectors. (`primary-color` still works, as a shortcut for `theme="#hex"`.) The [v10 to v11 guide](/docs/migration/v10-to-v11/) maps each one.
 </Aside>
 
 ---
 
-## 1. Streamlined Declarative Attributes
+## 1. Attributes
 
-RapiDoc consolidates visual customization into four primary attributes:
+Five attributes cover most visual changes:
 
 ```html
 <rapi-doc
@@ -34,37 +32,35 @@ RapiDoc consolidates visual customization into four primary attributes:
 ></rapi-doc>
 ```
 
-### Core Attribute Reference
+### Reference
 
 | Attribute          | Allowed Values                                                                                             | Default     | Description                                                                                                            |
 | :----------------- | :--------------------------------------------------------------------------------------------------------- | :---------- | :--------------------------------------------------------------------------------------------------------------------- |
 | `theme`            | `ember`, `carbon`, `cobalt`, `jade`, `indigo`, or any `#hex` code                                                | `"ember"`   | Brand color preset (dark and light palette), or a custom brand color hex code.                                        |
-| `color-scheme`     | `dark`, `light`, `system`                                                                                  | `"dark"`    | Base surface mode. `"system"` automatically tracks the user's OS `prefers-color-scheme` preference.                    |
+| `color-scheme`     | `dark`, `light`, `system`, `auto`                                                                          | `"dark"`    | Light or dark surfaces. `system` follows the operating system; `auto` follows the host page's CSS `color-scheme`, else the operating system. |
 | `radius`           | `none`, `sm`, `md`, `lg`, `full`                                                                           | `"sm"`      | Corner radius scale applied across cards, buttons, badges, inputs, and modal dialogs.                                  |
 | `scale`            | `sm`, `default`, `lg`                                                                                      | `"default"` | Proportional scale factor for UI base dimensions, body typography, code blocks, and sidebar width.                     |
 | `nav-item-spacing` | `compact`, `default`, `relaxed`                                                                            | `"default"` | Vertical density and padding of sidebar navigation links, decoupled from font size scaling.                            |
 
 ---
 
-## 2. Custom Brand Hex Colors & Contrast Engine
+## 2. Your brand color
 
-You can supply your corporate brand color directly into the `theme` attribute without writing external CSS:
+Pass a hex color as the `theme`:
 
 ```html
 <rapi-doc spec-url="https://api.example.com/openapi.json" theme="#2563eb" color-scheme="dark" radius="md"></rapi-doc>
 ```
 
-### How the Contrast Engine Works
-
-When a hex color is supplied:
+RapiDoc then:
 
 1. **Primary Token**: Sets `--primary` to your exact hex color.
 2. **Focus Ring**: Sets `--ring` to match the brand color.
-3. **Contrast Foregrounds**: Evaluates the perceived luminance (YIQ color space) of your brand color. If your brand color is light, RapiDoc dynamically sets `--primary-foreground: #000000`; if dark, it sets `--primary-foreground: #ffffff`. This guarantees accessible, high-contrast button and badge labels automatically.
+3. **Text on the color**: Sets `--primary-foreground` to black for a light brand color or white for a dark one (by YIQ luminance), so button and badge labels stay readable.
 
 ---
 
-## 3. UI Geometry: Radius & Scale
+## 3. Radius, scale and sidebar density
 
 ### Corner Radius (`radius`)
 
@@ -94,7 +90,7 @@ Adjust sidebar link density without altering the global font size:
 
 ---
 
-## 4. Typography & Brand Fonts
+## 4. Fonts
 
 RapiDoc does not download any fonts. Out of the box it uses the operating system's own UI font: San Francisco on macOS and iOS, Segoe UI on Windows, Roboto on ChromeOS and Android. That means no font requests, no third-party calls, and it works offline and under a strict Content Security Policy.
 
@@ -218,9 +214,9 @@ See the [Brand Fonts example](/examples/brand-fonts) to compare the system fonts
 
 ---
 
-## 5. Dynamic Runtime Theme Switching
+## 5. Changing the theme at runtime
 
-Because `<rapi-doc>` is a standard DOM element, you can dynamically switch themes, toggle light/dark modes, or adjust scale at runtime using standard JavaScript:
+All these attributes can be changed at any time, for example from your site's own theme switcher:
 
 ```javascript
 const doc = document.querySelector('rapi-doc');
@@ -252,6 +248,6 @@ function updateRadius(radiusValue) {
     Guide](/docs/theming/css-parts/)
   </Card>
   <Card title="Pre-built Themes & Recipes" icon="palette">
-    Copy-paste production presets for Fintech, Cloud, Web3, and Developer Portals. [View Theme Recipes](/docs/theming/prebuilt-themes/)
+    The five built-in themes, each in dark and light, and custom brand colors. [See the themes](/docs/theming/prebuilt-themes/)
   </Card>
 </CardGrid>

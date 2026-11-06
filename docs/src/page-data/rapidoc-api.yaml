@@ -311,8 +311,8 @@ Attributes:
         default: tree
         example: /examples/schema-styles
       - name: schema-expand-level
-        description: Initial depth level for auto-expanding complex nested schema properties and sub-objects (default 999 expands all levels).
-        default: 999
+        description: Initial depth level for auto-expanding complex nested schema properties and sub-objects (the default expands all levels).
+        default: 99999
         example: /examples/schema-expand-level
       - name: schema-description-expanded
         allowed: ["true", "false"]
@@ -345,7 +345,7 @@ Attributes:
           - example
         description: >
           Selects which tab is active by default for request and response payloads: 'schema' (data contract model) or 'example' (sample JSON payload).
-        default: schema
+        default: example
 
   - API Server Attributes:
       - name: server-url
@@ -411,8 +411,8 @@ Attributes:
         default: "false"
       - name: mock-server-status-code
         description: >
-          Preferred HTTP status code (or comma-separated list of codes, e.g. "200, 404, 500") to simulate. If left empty, the mock server automatically picks the first available 2xx response in the spec.
-        default: (empty)
+          HTTP status code (or comma-separated list of codes, e.g. "200, 404, 500") to answer with, or a JSON map by operation (<span class="mono yellow">{ "POST /orders": "503, 200", "*": "200" }</span>). Set it to an empty string to use the first 2xx response in the spec.
+        default: "200"
       - name: mock-server-status-strategy
         allowed:
           - first
@@ -428,8 +428,8 @@ Attributes:
       - name: mock-server-log
         allowed: ["true", "false"]
         description: >
-          Logs intercepted requests, matched OpenAPI routes, and synthesized status codes to the browser DevTools console.
-        default: "true"
+          Logs one line per answered request (method, path and status code) to the browser console.
+        default: "false"
 
 Methods:
   description: JavaScript methods exposed directly on the `<rapi-doc>` DOM element for programmatic control.

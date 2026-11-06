@@ -1,0 +1,129 @@
+---
+title: In-Browser Mock
+description: Answer API requests inside the page from your OpenAPI spec with the mock-server attribute, with no server to run.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Add `mock-server="true"` to `<rapi-doc>` or `<rapi-doc-mini>` and requests to your API are answered in the page, from the spec's examples and schemas. Nothing is deployed and nothing leaves the browser. Readers can press **Try** on a published page and get a sensible answer, and you can build and demo a frontend before the backend exists.
+
+<Aside type="tip" title="See it running">
+  The [Mock Server guide](/guides/mock) has a live testbed. For a real HTTP server that any client can call, with request validation and token checks, see [Mock Server](/docs/mocking/mock-server/); the [overview](/docs/mocking/overview/) compares the two.
+</Aside>
+
+## Turn it on
+
+```html
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  mock-server="true"
+></rapi-doc>
+```
+
+`<rapi-doc>` then shows a green **MOCK ACTIVE** label in its API Server section, and the selected server reads **(Mocked)**.
+
+The mock patches the page's `fetch` and `XMLHttpRequest`. A request whose method and path match an operation in the spec is answered by the mock; every other request (analytics, images, other APIs) goes to the network as usual. That means it answers not only **Try**, but any script on the same page:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+doc.addEventListener('spec-loaded', () => {
+  // The mock starts right after spec-loaded, so call it on the next tick
+  setTimeout(async () => {
+    const res = await fetch('https://petstore.swagger.io/v2/pet/findByStatus?status=available');
+    console.log(await res.json()); // from the spec, not the real API
+  });
+});
+```
+
+Only operations that `<rapi-doc>` shows are mocked: endpoints left out by a `<rapi-doc-mini>` filter, for example, go to the network.
+
+## Attributes
+
+| Attribute | Default | Meaning |
+| :--- | :--- | :--- |
+| `mock-server` | `false` | `true` turns the mock on. Setting it back to `false` turns it off. |
+| `mock-server-status-code` | `200` | The status code to answer with, a comma-separated list of codes (`"200, 404, 500"`), or a JSON map by operation (see below). Set it to `""` to use the first `2xx` response in the spec (else `default`, else the first response listed). |
+| `mock-server-status-strategy` | `first` | How to pick from a list of codes: `first`, `cycle` or `random`. |
+| `mock-server-delay` | `0` | Milliseconds to wait before answering, to show loading states. |
+| `mock-server-log` | `false` | `true` logs each answered request to the browser console. |
+
+## Simulating errors
+
+Give `mock-server-status-code` several codes and pick a strategy:
+
+```html
+<rapi-doc
+  spec-url="/specs/api.yaml"
+  mock-server="true"
+  mock-server-status-code="200, 400, 404, 500"
+  mock-server-status-strategy="cycle"
+></rapi-doc>
+```
+
+<Tabs>
+  <TabItem label="cycle">
+    Each operation steps through the list in turn: the first call gets `200`, the second `400`, then `404`, `500`, and back to `200`. Use it to test retries and error messages.
+  </TabItem>
+  <TabItem label="random">
+    Every call gets a code picked at random from the list (for example `"200, 429, 503"`). Use it to check that the UI copes with failures it doesn't expect.
+  </TabItem>
+  <TabItem label="first">
+    Every call gets the first code. With `mock-server-status-code="401"`, every operation answers `401`, which shows how a page behaves when the user is signed out.
+  </TabItem>
+</Tabs>
+
+### Per-operation status codes
+
+To make one operation fail while the others succeed, pass a JSON map. Keys are the method and path template from the spec; `"*"` applies to every other operation. With `cycle`, a list in an entry cycles for that operation only:
+
+```html
+<rapi-doc
+  spec-url="/specs/petstore.yaml"
+  mock-server="true"
+  mock-server-status-code='{ "POST /store/order": "503, 200", "*": "200" }'
+  mock-server-status-strategy="cycle"
+></rapi-doc>
+```
+
+The same value can be set as an object on the `mockServerStatusCode` property. [`<rapi-flow>`](/docs/components/workflows/#running-against-a-mock) sets it from its Mock Response Status table for the length of a run.
+
+## What the mock answers
+
+For the chosen status code, the mock builds the response from the spec's response object:
+
+1. **Body**: the media type's `example`; else the first entry of its `examples`; else the schema's `example`; else a value generated from the schema. Generated values use `enum`, `default`, `minimum`/`maximum`, `pattern` and `format` where they can (`user@example.com` for `email`, a UUID for `uuid`), and `writeOnly` properties are left out. JSON is preferred over XML, and XML over text.
+2. **No body in the spec**: JSON responses get `{ "status": <code>, "message": "<status text>" }`, other types get the status text, and `204` gets an empty body.
+3. **Headers**: response headers from the spec, filled from their `example` or schema `default`, plus `Access-Control-Allow-Origin: *` and `X-Mock-Server: RapiDoc`.
+
+## Mocking your app during development
+
+Because the mock patches the page's `fetch`, your own frontend code in the same page is answered too. Add a hidden `<rapi-doc>` while you develop:
+
+```html title="index.html"
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+<rapi-doc spec-url="/openapi.yaml" mock-server="true" mock-server-delay="200" style="display: none"></rapi-doc>
+<div id="root"></div>
+```
+
+```javascript
+// Anywhere in your app: answered from openapi.yaml, no backend needed
+const user = await fetch('/api/v1/users/me').then((res) => res.json());
+```
+
+Matched requests never reach the network, so cross-origin (CORS) rules don't get in the way. For calls from other programs, or from a different page, use the [mock server](/docs/mocking/mock-server/) instead.
+
+## Console log
+
+With `mock-server-log="true"`, every answered request prints one line:
+
+```text
+[RapiDoc Mock] GET /users/42 ➔ 200 OK
+```
+
+Requests made with `XMLHttpRequest` are tagged `[RapiDoc Mock (XHR)]`.
+
+## Several mocks on one page
+
+Each element with `mock-server="true"` mocks its own spec with its own status codes and delay, so one page can mock two APIs. A request goes to the most specific match: a route under the request's server origin and base path wins over the same path under another API's base path, which wins over a bare path.
+
+When an element turns its mock off or is removed from the page, its routes stop being answered. The page's real `fetch` and `XMLHttpRequest` come back when no element is mocking any more.

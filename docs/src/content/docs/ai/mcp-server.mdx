@@ -1,91 +1,41 @@
 ---
-title: Curated MCP Server Generator
-description: Generate token-efficient, agent-first Model Context Protocol (MCP) servers directly from your OpenAPI specifications using smart heuristics.
+title: MCP Server
+description: Turn an OpenAPI spec into a curated Model Context Protocol (MCP) server for AI agents, from <rapi-doc>, the command line or Node.
 ---
 
-import { Aside, Tabs, TabItem, Steps, Card, CardGrid } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
-As AI agents (like Claude Desktop, Cursor, and autonomous assistants) become primary consumers of APIs, exposing your backend to LLMs via the **Model Context Protocol (MCP)** is essential.
+AI agents such as Claude and Cursor call APIs through tools served over the **Model Context Protocol (MCP)**. RapiDoc turns your OpenAPI spec into an MCP server, and curates it on the way, because exposing every endpoint one-to-one works poorly for agents: internal endpoints leak, transport headers become tool arguments the model has to guess, and every extra tool costs context on every turn.
 
-However, as emphasized by Jeremiah Lowin (creator of FastMCP) in [*Stop Converting Your REST APIs to MCP*](https://jlowin.dev/blog/stop-converting-rest-apis-to-mcp), **naive 1:1 REST-to-MCP conversions fail in production**. Exposing every HTTP endpoint as an individual tool floods the agent's context window, leaks internal endpoints, and pollutes tool arguments with transport details.
+RapiDoc reads your plain OpenAPI spec, leaves out internal and deprecated operations, strips transport and credential headers from tool arguments, and turns reference-data lookups into MCP resources. The result is an **MCP manifest**: plain JSON with one tool per operation, real JSON Schema arguments and MCP safety annotations. It ships in a small TypeScript project you can run as-is.
 
-RapiDoc includes a client-side **Curated MCP Server Generator** that reads your plain OpenAPI spec, applies **smart heuristics** to drop internal and deprecated operations, strip transport headers and classify reference data, and compiles the result into an **MCP manifest**: plain JSON with one tool per operation, real JSON Schema arguments and MCP safety annotations. The manifest ships in a small TypeScript project you can run as-is.
+You can create it three ways:
 
-<Aside type="tip" title="Interactive Showcase & Live Tuner">
-  Want to inspect the manifest, the server and the runtime for a real spec? Visit the [Curated MCP Server Showcase](/examples/mcp-server) or read the [MCP Implementation Guide](/guides/mcp).
+- **In the browser**: the **Export MCP Server** button of `<rapi-doc>` (or its JavaScript methods). Nothing is sent to a server.
+- **On the command line**: `rapidoc mcp export` and `rapidoc mcp serve` (`@rapidoc/cli`).
+- **In Node**: `@rapidoc/mcp`, for build scripts and your own servers.
+
+<Aside type="tip">
+  The [MCP guide](/guides/mcp) and the [MCP Server example](/examples/mcp-server) show the manifest, server and runtime for a real spec.
 </Aside>
 
 ---
 
-## The Problem: The Naive 1:1 Conversion Trap
+## 1. How operations become tools
 
-Converting every OpenAPI path directly into an MCP tool creates several critical problems for LLM agents:
+No extra annotations are needed. Every tool and resource comes from standard OpenAPI fields:
 
-<CardGrid>
-  <Card title="Context Window Explosion" icon="warning">
-    A typical 40-endpoint REST API exposes ~4,000 to 8,000 tokens of raw JSON schemas. This prompt overhead is re-injected on **every conversation turn**, drastically increasing inference cost and latency.
-  </Card>
-  <Card title="Internal & Admin Leaks" icon="error">
-    Naive converters expose internal infrastructure endpoints (`/healthz`, `/metrics`, `/admin/users/debug`), confusing the model and creating potential security risks.
-  </Card>
-  <Card title="Auth & Transport Pollution" icon="puzzle">
-    Headers like `Authorization`, `Cookie`, `X-Api-Key`, and `User-Agent` are exposed as tool arguments, forcing the model to guess or hallucinate authentication tokens.
-  </Card>
-</CardGrid>
+1. **Tool names**: The tool name is the snake_case form of the `operationId` (`placeOrder` becomes `place_order`). Operations without an `operationId` get a name derived from the HTTP method and path. Duplicate names get a `_2`, `_3` suffix.
+2. **Tool descriptions**: The operation `summary` is used, else its `description`, else `METHOD /path`. HTML and Markdown are stripped and the text is truncated to 300 characters.
+3. **Left out**: Operations marked `x-internal: true` or `x-hidden: true`, operations marked `deprecated: true`, and webhooks are left out.
+4. **Headers**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, `User-Agent` and other transport metadata are stripped from LLM tool arguments, as is any parameter that carries an API key named in the spec's `securitySchemes`. The runtime applies the right scheme itself, from environment variables, and reads the base URL from `servers[0]` (overridable with `API_BASE_URL`).
+5. **Resources**: A `GET` with no required parameters whose path contains a reference-data word (`/reference`, `/currencies`, `/countries`, `/tiers`, `/categories`, `/status`, `/schema`) becomes an **MCP resource** instead of a tool. Its URI is `reference://` and the tool name without `get_`, with dashes (`getCurrencies` becomes `reference://currencies`).
+6. **Safety annotations**: Every tool carries MCP annotations: `readOnlyHint` for `GET` only, `destructiveHint` for `PUT`, `PATCH` and `DELETE`, `idempotentHint` for `GET`, `PUT` and `DELETE`. Hosts use them to ask the user before running a consequential tool.
+7. **Token budget**: RapiDoc estimates how many tokens the tool list adds to every turn, and warns above 30 tools or 5,000 tokens.
 
 ---
 
-## Key Performance Indicators (KPIs) & Production Benchmarks
-
-RapiDoc's curated MCP generator is engineered to meet strict, quantifiable production benchmarks:
-
-<CardGrid>
-  <Card title="Leaner Token Budget" icon="rocket">
-    Skips internal, hidden, deprecated and webhook operations, strips transport headers from tool arguments, and turns parameterless reference lookups into MCP Resources, so far fewer tokens are re-injected on every turn.
-  </Card>
-  <Card title="Credentials Never Reach the Model" icon="approve-check">
-    Auth headers and API-key parameters are not tool arguments. The runtime applies the spec's `securitySchemes` from environment variables and percent-encodes every path parameter, so the model cannot inject credentials or path segments.
-  </Card>
-  <Card title="Zero-Latency Client-Side Delivery" icon="setting">
-    Builds the manifest and the project directly in the browser in under **5ms** via the `<rapi-doc>` Web Component. Requires zero external backend APIs, zero cloud telemetry, and is 100% air-gapped compliant.
-  </Card>
-</CardGrid>
-
----
-
-## Why RapiDoc Leads Other MCP Generators
-
-Unlike raw 1:1 endpoint wrappers or generic cloud CLI tools, RapiDoc treats AI agent tool generation as a first-class architectural discipline:
-
-| Capability / Benchmark | Generic 1:1 Converters | Cloud SaaS / Generic CLIs | RapiDoc Curated MCP |
-| :--- | :--- | :--- | :--- |
-| **Output** | Generated code per API | Hosted proxy or heavy CLI | **One JSON manifest, one fixed runtime, a runnable TypeScript project** |
-| **Internal & Deprecated Endpoints** | ✕ Exposed as tools | ~ Partial | **✓ Skips `x-internal`, `x-hidden`, `deprecated` and webhooks** |
-| **Tool Arguments** | ✕ Flat string bags | ~ Partial | **✓ Real JSON Schema: nested bodies, arrays, enums, `required`, `$ref`s inlined** |
-| **Safety Annotations** | ✕ None | ✕ None | **✓ MCP `readOnlyHint`, `destructiveHint`, `idempotentHint` per tool** |
-| **Authentication** | ✕ Keys as tool arguments | ✕ Static credentials | **✓ From `securitySchemes`: API key, HTTP Basic, Bearer, OAuth 2, OpenID Connect** |
-| **Path Parameter Safety** | ✕ Raw string templates | ~ Partial / Unescaped | **✓ Percent-encoded by the runtime** |
-| **Client Delivery Architecture** | ✕ External Node runtime required | ✕ Paid SaaS or heavy local CLI | **✓ 100% Client-Side Web Component (Zero Backend)** |
-| **Token Budget Diagnostics** | ✕ None (Blind to token saturation) | ✕ None | **✓ Real-time turn budget & saturation diagnostics** |
-| **Interactive Browser Preview** | ✕ None (Blind code dump) | ✕ None | **✓ Live manifest, server and runtime inspector & tuner** |
-
----
-
-## 1. Zero-Config Smart Heuristics
-
-RapiDoc needs no extra annotations. It derives every tool and resource from standard OpenAPI fields:
-
-1. **Tool Naming**: The tool name is the snake_case form of the `operationId` (`placeOrder` becomes `place_order`). Operations without an `operationId` get a name derived from the HTTP method and path. Duplicate names get a `_2`, `_3` suffix.
-2. **Tool Descriptions**: The operation `summary` is used, else its `description`, else `METHOD /path`. HTML and Markdown are stripped and the text is truncated to 300 characters.
-3. **Endpoint Exclusion**: Operations marked `x-internal: true` or `x-hidden: true`, operations marked `deprecated: true`, and webhooks are left out.
-4. **Automatic Header Pruning**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, `User-Agent` and other transport metadata are stripped from LLM tool arguments, as is any parameter that carries an API key named in the spec's `securitySchemes`. The runtime applies the right scheme itself, from environment variables, and reads the base URL from `servers[0]` (overridable with `API_BASE_URL`).
-5. **Static Resource Classification**: A `GET` with no required parameters on a reference-data path (`/reference`, `/currencies`, `/countries`, `/tiers`, `/categories`, `/status`, `/schema`) becomes an **MCP Resource** (`reference://<name>`) instead of a tool, avoiding function-calling overhead.
-6. **Safety Annotations**: Every tool carries MCP annotations: `readOnlyHint` for `GET`, `destructiveHint` for `PUT`, `PATCH` and `DELETE`, `idempotentHint` for `GET`, `PUT` and `DELETE`. Hosts use them to ask the user before running a consequential tool.
-7. **Token Budget Calculation**: Real-time diagnostic calculation estimates prompt token overhead and warns when total tools exceed recommended limits (>30 tools or >5,000 tokens).
-
----
-
-## 2. Annotated OpenAPI Example
+## 2. Example
 
 Here is a plain OpenAPI 3.x snippet and how each operation is treated:
 
@@ -165,10 +115,10 @@ components:
 The export is data, not generated code. `manifest.json` describes the whole server:
 
 - **`server`**: `name` (snake_case of the `mcp-server-name` attribute or the API title), `version` and `description` from `info`.
-- **`sources`**: one entry, named `api`, with the `baseUrl` from `servers[0]` (server variables filled with their defaults) and the spec's `securitySchemes` copied as they are.
+- **`sources`**: the API, named `api`, with the `baseUrl` from `servers[0]` (server variables filled with their defaults) and the spec's `securitySchemes` copied as they are. An Arazzo document can add more sources.
 - **`tools`**: one per operation that survives the exclusions above.
 - **`resources`**: the reference-data lookups, with a `reference://` URI.
-- **`workflows`**: empty for now.
+- **`workflows`**: one entry per Arazzo workflow when an Arazzo document is given (see [Workflows as tools](#workflows-as-tools)); otherwise empty.
 
 Each tool has a `name`, a `description`, an `inputSchema`, MCP `annotations` and an `operation` block that tells the runtime how to make the HTTP call. The `inputSchema` is real JSON Schema: path, query, header and cookie parameters become properties by name, and the request body becomes a `body` property holding the full body schema, with nested objects, arrays, enums and `required` intact. `$ref`s are inlined, cycles are cut, and read-only properties are dropped because they never go in a request.
 
@@ -245,11 +195,9 @@ API_KEY="your-key" npm start
 
 Credentials are read from environment variables named after the security schemes in the spec, in upper snake case: the scheme `petstore_auth` reads `PETSTORE_AUTH`, `api_key` reads `API_KEY`. `API_KEY` is also the fallback for any scheme without its own variable. HTTP Basic takes `user:password` in the scheme's variable, or `<NAME>_USERNAME` and `<NAME>_PASSWORD`. `API_BASE_URL` overrides the manifest's base URL for every source.
 
----
-
 ### Workflows as tools
 
-When the page also has a [`<rapi-flow>`](/examples/arazzo-flow) element, the export adds one tool per Arazzo workflow. The manifest's `workflows` holds each workflow's steps with their operations resolved, and the runtime runs them: inputs become the tool's arguments, every step's parameters and body are filled from `$inputs` and earlier steps' outputs, success criteria are checked (a step without criteria succeeds on a 2xx response), `onSuccess` / `onFailure` actions (`end`, `goto`, `retry`) are followed, and the workflow's `outputs` are the result. The same runtime powers the **Run** button of `<rapi-flow>`, which runs a workflow in the browser with the credentials entered in the tied `<rapi-doc>` and lights up each step. A workflow that uses something the runtime does not run yet (a step that calls another workflow, `regex` / `jsonpath` / `xpath` criteria) is left out, and `generateMcpServer().problems` says why.
+When the page also has a [`<rapi-flow>`](/docs/components/workflows/) element tied to the `<rapi-doc>` (or you pass `--arazzo` to `rapidoc mcp`), the export adds one tool per Arazzo workflow. The manifest's `workflows` holds each workflow's steps with their operations resolved, and the runtime runs them: inputs become the tool's arguments, every step's parameters and body are filled from `$inputs` and earlier steps' outputs, success criteria are checked (a step without criteria succeeds on a 2xx response), `onSuccess` / `onFailure` actions (`end`, `goto`, `retry`) are followed, and the workflow's `outputs` are the result. The same runtime powers the **Run** button of `<rapi-flow>`, which runs a workflow in the browser with the credentials entered in the tied `<rapi-doc>` and lights up each step. A workflow that uses something the runtime does not run yet (a step that calls another workflow, `regex` / `jsonpath` / `xpath` criteria) is left out, and `generateMcpServer().problems` says why.
 
 ```javascript
 import { buildMcpManifest, createMcpRuntime, parseArazzo } from '@rapidoc/mcp';
@@ -262,11 +210,11 @@ const result = await runtime.callTool('adopt_pet', { quantity: 1 }, {
 });
 ```
 
-## 5. Integrating with `<rapi-doc>`
+## 5. Creating the server
 
-### HTML Attributes
+### In `<rapi-doc>`
 
-Configure the **`mcp`** attribute on your `<rapi-doc>` element:
+Set the `mcp` attribute:
 
 ```html
 <rapi-doc
@@ -276,12 +224,12 @@ Configure the **`mcp`** attribute on your `<rapi-doc>` element:
 > </rapi-doc>
 ```
 
-- **`mcp`** (`"true" | "false" | "none"`, default: `"false"`): `"true"` renders an `[Export MCP Server]` button in the API overview that downloads the project zip. `"false"`, `"none"` or an empty value hides it.
-- **`mcp-server-name`** (`string`, optional): Custom identifier for the generated MCP server. Defaults to the specification title.
+- **`mcp`** (default `"false"`): `"true"` shows an **Export MCP Server** button in the API overview that downloads the project as a zip. `"false"`, `"none"` or an empty value hides it.
+- **`mcp-server-name`** (optional): the server's name. Defaults to the spec's title.
 
-### Programmatic JavaScript API
+### From JavaScript
 
-You can build the manifest, trigger downloads, or inspect token costs programmatically. Every method accepts an `options` object with `serverName`, `includeInternal` and `includeDeprecated`:
+You can build the manifest, trigger the download, or check the token budget from code. Every method accepts an `options` object with `serverName`, `includeInternal` and `includeDeprecated`:
 
 ```javascript
 const doc = document.querySelector('rapi-doc');
@@ -301,11 +249,11 @@ const budget = doc.getMcpBudget();
 console.log(`Overhead: ~${budget.estimatedTokens} tokens/turn across ${budget.totalTools} tools.`);
 ```
 
-`result.files` has the keys `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md` and `claude_desktop_config.json`. `getMcpBudget()` returns `{ totalTools, totalResources, estimatedTokens, consequentialCount, warnings }`, where `consequentialCount` is the number of tools that are not read-only.
+`result.files` has the keys `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md` and `claude_desktop_config.json`, plus `workflow-runtime.js` when there are workflows. `getMcpBudget()` returns `{ totalTools, totalResources, estimatedTokens, consequentialCount, warnings }`, where `consequentialCount` is the number of tools that are not read-only.
 
 ### From the command line
 
-`npx rapidoc mcp export openapi.yaml` writes the same project as the Export button, and `npx rapidoc mcp serve openapi.yaml` runs the server over stdio without writing files ([Command-Line Tools](/docs/advanced/command-line/#turn-it-into-an-mcp-server)).
+`npx rapidoc mcp export openapi.yaml` writes the same project as the Export button, and `npx rapidoc mcp serve openapi.yaml` runs the server over stdio without writing files ([Command Line](/docs/tools/command-line/#turn-it-into-an-mcp-server)).
 
 ### In Node: `@rapidoc/mcp`
 
@@ -335,7 +283,7 @@ const files = writeMcpProject(manifest); // path → text
 
 ---
 
-## 6. Configuring AI Host Clients
+## 6. Connecting Claude Desktop and Cursor
 
 Every exported project includes a ready-to-use configuration for **Claude Desktop** and **Cursor**, with one `env` entry per security scheme in the spec (`API_KEY` alone when the spec declares none):
 

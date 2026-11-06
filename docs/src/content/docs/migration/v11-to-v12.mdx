@@ -110,7 +110,6 @@ Section titles are now written in normal case ("API Server", "Authentication"). 
 
 - Inline code, markdown text, and code-block text follow the theme's `--foreground` and `--muted` instead of fixed colors.
 - View-mode operation borders use the `--method-*` colors (same as the method badges).
-- In the `slate` dark theme the active navigation marker is white, like its text.
 - Headings are bolder (`600`) and larger, and paragraphs inside descriptions are `1em` apart.
 - No text is smaller than `11px`. Sidebar method tags, oneOf/anyOf chips, and small badges were 9–10px; they now use `--font-size-xs`, which also follows the `scale` attribute.
 - Parameter and property descriptions are `13px` (`--font-size-description`) instead of `12px`.
@@ -182,7 +181,7 @@ rapi-doc::part(param-name) {
 v11 downloaded three weights of Open Sans from `fonts.gstatic.com` on every page unless you set `load-fonts="false"`, even though its own font list no longer used Open Sans. v12 makes no font requests: text uses `--font-sans` and `--font-mono`, which default to the operating system's UI and monospace fonts.
 
 - The `load-fonts` attribute is removed. You can delete `load-fonts="false"` from your markup; leaving it in has no effect.
-- To keep a brand font (Open Sans or any other), load it in your page and set `--font-sans` / `--font-mono` on `rapi-doc`. See [Typography & Brand Fonts](/docs/theming/overview/#4-typography--brand-fonts).
+- To keep a brand font (Open Sans or any other), load it in your page and set `--font-sans` / `--font-mono` on `rapi-doc`. See [Typography & Brand Fonts](/docs/theming/overview/#4-fonts).
 
 ---
 

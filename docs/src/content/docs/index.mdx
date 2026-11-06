@@ -1,84 +1,46 @@
 ---
 title: RapiDoc Documentation
-description: Build fast, beautiful, and fully customizable OpenAPI documentation with standard Web Components.
+description: Interactive OpenAPI documentation as a web component, plus mocks, MCP servers, workflows and developer portals built from the same spec.
 ---
 
-import { Card, CardGrid, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-**RapiDoc** is an ultra-fast, zero-dependency OpenAPI documentation renderer built on native Web Components. It transforms any OpenAPI 3.x (and 2.0) specification into an interactive, beautifully styled developer portal that embeds seamlessly into any web stack.
+**RapiDoc** turns an OpenAPI spec into interactive API documentation. At its core is `<rapi-doc>`, a single HTML element with no runtime dependencies: add one script tag and it works in any page or framework. Its Shadow DOM keeps your site's styles and RapiDoc's styles apart.
 
-<Aside type="tip" title="Why RapiDoc?">
-Unlike traditional heavy documentation frameworks, RapiDoc is a single native HTML element (`<rapi-doc>`). Because it uses the browser's Shadow DOM, styles never leak into or out of the component, guaranteeing rock-solid stability in complex enterprise portals.
-</Aside>
+<CardGrid>
+  <LinkCard title="Quickstart" description="An API reference in one HTML file." href="/docs/get-started/quickstart/" />
+  <LinkCard title="Packages" description="Every package in the RapiDoc family and when you need it." href="/docs/get-started/packages/" />
+</CardGrid>
 
----
+## What you can build
 
-## Core Capabilities
-
-<CardGrid stagger>
-  <Card title="Zero Dependencies" icon="puzzle">
-    Built directly on web standards with no React, Vue, or heavy client bundle dependencies. Load it from a CDN or install via npm.
+<CardGrid>
+  <Card title="API reference" icon="open-book">
+    `<rapi-doc>` renders navigation, search, schemas, examples, authentication and a **Try** console. Choose one long page, expandable sections, or one operation at a time. [Quickstart](/docs/get-started/quickstart/)
   </Card>
-  <Card title="Tailored Theming" icon="pencil">
-    Customize colors, typography, and dark/light modes using simple HTML attributes, or gain pixel-level control with modern CSS `::part()` pseudo-elements.
+  <Card title="Your look" icon="pencil">
+    Five built-in themes, any brand color, light and dark, and full control through CSS custom properties and `::part()`. [Theming](/docs/theming/overview/)
   </Card>
-  <Card title="3 Distinct Render Modes" icon="laptop">
-    Choose between **Read** (continuous scrolling), **View** (collapsible categories), or **Focused** (lazy-loaded single endpoint view for massive specs).
+  <Card title="Embedded endpoints and workflows" icon="puzzle">
+    `<rapi-doc-mini>` puts a single endpoint in a blog post; `<rapi-flow>` draws Arazzo workflows and runs them. [RapiDoc Mini](/docs/components/rapidoc-mini/) · [Workflows](/docs/components/workflows/)
   </Card>
-  <Card title="Full JavaScript SDK" icon="seti:javascript">
-    Control RapiDoc programmatically at runtime: intercept network requests (`before-try`), inject auth credentials dynamically, and control navigation via code.
+  <Card title="Mocks" icon="random">
+    Answer requests from the spec, in the page or as an HTTP server with request validation and token checks. [Mocking](/docs/mocking/overview/)
+  </Card>
+  <Card title="Tools for AI agents" icon="rocket">
+    Turn the spec into a curated MCP server, from a button in `<rapi-doc>`, the command line or Node. [MCP Server](/docs/ai/mcp-server/)
+  </Card>
+  <Card title="Developer portals" icon="laptop">
+    API references next to Markdown guides, with search and optional sign-in, built with the `rapidoc` CLI. [Packages](/docs/get-started/packages/#developer-portals)
   </Card>
 </CardGrid>
 
----
+## How these docs are organized
 
-## 30-Second Quickstart
+- **Getting Started**: install RapiDoc, use it in your framework, and load your spec.
+- **Theming & Styling**, **Customizing Content**, **Authentication**, **JavaScript API** and **Performance**: everything about configuring `<rapi-doc>`.
+- **Components**: `<rapi-doc-mini>` and `<rapi-flow>`.
+- **Mocking**, **AI & MCP** and **Tools**: what you can do with your spec beyond rendering it.
+- **Migration Guides**: upgrading from earlier versions.
 
-Include the script tag, drop in the `<rapi-doc>` element, and you have a fully functional interactive API explorer.
-
-<Tabs>
-  <TabItem label="HTML (CDN)">
-```html
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <!-- Load RapiDoc Web Component -->
-    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-  </head>
-  <body>
-    <rapi-doc
-      spec-url="https://petstore.swagger.io/v2/swagger.json"
-      theme="dark"
-      render-style="read"
-      show-header="false"
-    ></rapi-doc>
-  </body>
-</html>
-```
-  </TabItem>
-  <TabItem label="NPM / Bundlers">
-```bash
-# Install via your preferred package manager
-npm install rapidoc
-```
-
-```javascript
-// Import into your application entrypoint
-import 'rapidoc';
-```
-  </TabItem>
-</Tabs>
-
----
-
-## Documentation Roadmap
-
-Dive deeper into RapiDoc by exploring our dedicated guides:
-
-- **[Getting Started & Frameworks](/docs/get-started/quickstart/)**: Integrate with React, Vue, Angular, Svelte, Next.js, and Astro.
-- **[Theming & Deep Styling](/docs/theming/overview/)**: Master attributes, brand fonts, and the Shadow DOM `::part()` selector.
-- **[Programmatic API & JavaScript Control](/docs/programmatic-api/lifecycle-and-methods/)**: Call runtime methods and listen to lifecycle events.
-- **[Performance & Large Spec Tuning](/docs/performance/large-specs/)**: Keep rendering instant even with 10MB+ specs and thousands of schemas.
-- **[OAuth 2.0 Integration](/docs/advanced/oauth-setup/)**: Configure interactive authentication and tokens.
-- **[Migrating from v10 to v11](/docs/migration/v10-to-v11/)**: Upgrade from legacy styling attributes to modern CSS design tokens and Shadow Parts.
+Every attribute, method, event and slot is listed in the [API reference](/api), and the [Examples](/examples) show them running.

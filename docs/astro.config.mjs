@@ -39,6 +39,15 @@ export default defineConfig({
     '/perf': '/tests/performance',
     '/guide/prerender': '/guides/prerender',
     '/prerender': '/guides/prerender',
+    '/docs/advanced/mock-server': '/docs/mocking/in-browser/',
+    '/docs/advanced/oauth-setup': '/docs/authentication/oauth/',
+    '/docs/advanced/mcp-server': '/docs/ai/mcp-server/',
+    '/docs/advanced/workflows': '/docs/components/workflows/',
+    '/docs/advanced/rapidoc-mini': '/docs/components/rapidoc-mini/',
+    '/docs/advanced/command-line': '/docs/tools/command-line/',
+    '/docs/advanced/slots-and-markdown': '/docs/customizing/slots/',
+    '/docs/advanced/markdown-headings': '/docs/customizing/markdown-headings/',
+    '/docs/advanced/linking-and-navigation': '/docs/customizing/linking/',
   },
   integrations: [
     starlight({
@@ -98,51 +107,79 @@ export default defineConfig({
           label: 'Getting Started',
           items: [
             { label: 'Introduction', slug: 'docs' },
-            { label: 'Quickstart & Frameworks', slug: 'docs/get-started/quickstart' },
-            { label: 'OpenAPI Spec Support', slug: 'docs/get-started/openapi-support' },
+            { label: 'Quickstart', slug: 'docs/get-started/quickstart' },
+            { label: 'Packages', slug: 'docs/get-started/packages' },
+            { label: 'Framework Integration', slug: 'docs/get-started/frameworks' },
+            { label: 'Loading Your Spec', slug: 'docs/get-started/openapi-support' },
           ],
         },
         {
-          label: 'Migration',
-          items: [
-            { label: 'Migrating from v11 to v12', slug: 'docs/migration/v11-to-v12' },
-            { label: 'Migrating from v10 to v11', slug: 'docs/migration/v10-to-v11' },
-          ],
-        },
-        {
-          label: 'Theming & Deep Styling',
+          label: 'Theming & Styling',
           items: [
             { label: 'Theming Overview', slug: 'docs/theming/overview' },
-            { label: 'CSS Parts (::part)', slug: 'docs/theming/css-parts' },
-            { label: 'Pre-built Themes & Recipes', slug: 'docs/theming/prebuilt-themes' },
+            { label: 'Built-in Themes', slug: 'docs/theming/prebuilt-themes' },
+            { label: 'CSS Parts & Variables', slug: 'docs/theming/css-parts' },
           ],
         },
         {
-          label: 'Programmatic API',
+          label: 'Customizing Content',
           items: [
-            { label: 'JavaScript API & Lifecycle', slug: 'docs/programmatic-api/lifecycle-and-methods' },
-            { label: 'Event Hooks & Interception', slug: 'docs/programmatic-api/event-hooks' },
+            { label: 'HTML Slots', slug: 'docs/customizing/slots' },
+            { label: 'Markdown Headings in the Sidebar', slug: 'docs/customizing/markdown-headings' },
+            { label: 'Links & Navigation', slug: 'docs/customizing/linking' },
           ],
         },
         {
-          label: 'Performance Tips',
+          label: 'Authentication',
+          items: [{ label: 'OAuth 2.0', slug: 'docs/authentication/oauth' }],
+        },
+        {
+          label: 'JavaScript API',
           items: [
-            { label: 'Large Spec Optimization', slug: 'docs/performance/large-specs' },
-            { label: 'Render Modes & Benchmarks', slug: 'docs/performance/render-modes' },
+            { label: 'Methods', slug: 'docs/programmatic-api/lifecycle-and-methods' },
+            { label: 'Events', slug: 'docs/programmatic-api/event-hooks' },
           ],
         },
         {
-          label: 'Advanced Guides',
+          label: 'Performance',
           items: [
-            { label: 'In-Browser Mock Server', slug: 'docs/advanced/mock-server' },
-            { label: 'OAuth 2.0 Integration', slug: 'docs/advanced/oauth-setup' },
-            { label: 'Curated MCP Server', slug: 'docs/advanced/mcp-server' },
-            { label: 'Arazzo Workflows', slug: 'docs/advanced/workflows' },
-            { label: 'Command-Line Tools', slug: 'docs/advanced/command-line' },
-            { label: 'Markdown Headings in Navbar', slug: 'docs/advanced/markdown-headings' },
-            { label: 'Markdown Links & Navigation', slug: 'docs/advanced/linking-and-navigation' },
-            { label: 'HTML Slots & Custom UI', slug: 'docs/advanced/slots-and-markdown' },
-            { label: 'RapiDoc Mini Widget', slug: 'docs/advanced/rapidoc-mini' },
+            { label: 'Render Modes', slug: 'docs/performance/render-modes' },
+            { label: 'Large Specs', slug: 'docs/performance/large-specs' },
+          ],
+        },
+        {
+          label: 'Components',
+          items: [
+            { label: 'RapiDoc Mini', slug: 'docs/components/rapidoc-mini' },
+            { label: 'Arazzo Workflows', slug: 'docs/components/workflows' },
+          ],
+        },
+        {
+          label: 'Mocking',
+          items: [
+            { label: 'Overview', slug: 'docs/mocking/overview' },
+            { label: 'In-Browser Mock', slug: 'docs/mocking/in-browser' },
+            { label: 'Mock Server', slug: 'docs/mocking/mock-server' },
+          ],
+        },
+        {
+          label: 'AI & MCP',
+          items: [{ label: 'MCP Server', slug: 'docs/ai/mcp-server' }],
+        },
+        {
+          label: 'Tools',
+          items: [
+            { label: 'Command Line', slug: 'docs/tools/command-line' },
+            { label: 'Pre-rendering', link: '/guides/prerender/' },
+            { label: 'Developer Portal', link: 'https://github.com/rapi-doc/rapi-portal-doc', attrs: { target: '_blank' } },
+          ],
+        },
+        {
+          label: 'Migration Guides',
+          collapsed: true,
+          items: [
+            { label: 'v11 to v12', slug: 'docs/migration/v11-to-v12' },
+            { label: 'v10 to v11', slug: 'docs/migration/v10-to-v11' },
           ],
         },
       ],

@@ -1,0 +1,83 @@
+---
+title: Markdown Headings in the Sidebar
+description: Turn the # and ## headings of your OpenAPI descriptions into sidebar links with info-description-headings-in-navbar.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Many specs carry real documentation in their descriptions: a getting-started section, authentication, rate limits. With `info-description-headings-in-navbar="true"`, RapiDoc lists the level-1 (`#`) and level-2 (`##`) headings of those descriptions in the sidebar, so readers can jump to them.
+
+<Aside type="tip">
+  See it on the [Markdown Headings example](/examples/markdown-headings), which uses [`markdown-headings.yaml`](/specs/markdown-headings.yaml).
+</Aside>
+
+## Set it up
+
+1. Turn it on, in `read` or `focused` mode (`view` mode has no sidebar):
+
+   ```html
+   <rapi-doc
+     spec-url="/specs/markdown-headings.yaml"
+     render-style="read"
+     info-description-headings-in-navbar="true"
+   ></rapi-doc>
+   ```
+
+2. Write headings in `info.description` or in a tag's `description`:
+
+   ```yaml
+   info:
+     title: Fleet Management API
+     version: 1.0.0
+     description: |
+       # Getting Started
+       Welcome to the Fleet API.
+
+       ## Authentication
+       Every request needs an `Authorization: Bearer <token>` header.
+
+       ### Token lifetime
+       Level-3 headings stay in the text and don't appear in the sidebar.
+
+   tags:
+     - name: Vehicles
+       description: |
+         Manage connected vehicles.
+
+         # The Vehicle Object
+         Fields and their meaning.
+   ```
+
+Headings from `info.description` appear under the overview item at the top of the sidebar (labeled with `info.title`). Headings from a tag's description appear under that tag. Headings in operation descriptions are not listed.
+
+## Links to headings
+
+Each heading gets an ID you can link to, made from its text with the same rules GitHub uses for heading anchors:
+
+| Heading | ID |
+| :--- | :--- |
+| `## Authentication` in `info.description` | `overview--authentication` |
+| `## Rate Limits & Quotas` in `info.description` | `overview--rate-limits--quotas` |
+| `# The Vehicle Object` under the tag `Vehicles` | `tag--vehicles--the-vehicle-object` |
+
+IDs are case-sensitive. Clicking a heading in the sidebar scrolls to it and, with `update-route="true"` (the default), puts its ID in the address bar.
+
+## Styling
+
+Heading items under tags have the parts `section-navbar-h1` and `section-navbar-h2`; the overview item has `section-navbar-overview`. Headings under the overview item have no part of their own: style them through the CSS variables on [CSS Parts & Variables](/docs/theming/css-parts/).
+
+```css
+rapi-doc::part(section-navbar-h1) {
+  font-weight: 600;
+}
+rapi-doc::part(section-navbar-h2) {
+  padding-left: 24px;
+}
+```
+
+## Headings don't show up?
+
+- `info-description-headings-in-navbar="true"` is on the element, and `render-style` is `read` or `focused`.
+- The heading is `#` or `##` followed by a space (`# Introduction`, not `#Introduction`).
+- It is in `info.description` or a tag's `description`.
+- For overview headings, the overview is shown: `show-info` is not `false`.

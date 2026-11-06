@@ -1,0 +1,111 @@
+---
+title: Links & Navigation
+description: Element IDs, links between operations in Markdown descriptions, tag groups, URL routing and navigating from JavaScript.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Every section, tag and operation in `<rapi-doc>` has a stable element ID. You can link to these IDs from Markdown descriptions in your spec, from your own page, or from JavaScript.
+
+<Aside type="tip">
+  The [Links example](/examples/links) shows these links working, using [`links.yaml`](/specs/links.yaml).
+</Aside>
+
+## Element IDs
+
+| Target | ID | Example |
+| :--- | :--- | :--- |
+| Overview | `overview` | |
+| API Servers | `servers` | |
+| Authentication | `auth` | |
+| Tag | `tag--` + tag name in kebab-case | `User Management & Auth` → `tag--user-management-auth` |
+| Tag group (`x-tagGroups`) | `tag-group--` + group name in kebab-case | `Shipment Logistics` → `tag-group--shipment-logistics` |
+| Operation | see below | `getUserById` → `get-user-by-id` |
+| Heading in a description | see [Markdown Headings](/docs/customizing/markdown-headings/#links-to-headings) | `overview--authentication` |
+
+IDs are lowercase and case-sensitive: `#tag--users` works, `#tag--Users` does not.
+
+### Operation IDs
+
+An operation's ID comes from the first of these that applies:
+
+1. **`operationId`** in kebab-case, if it is at most 45 characters and not a placeholder such as `operation1`: `getUserById` → `get-user-by-id`.
+2. **`summary`** in kebab-case, cut at a word boundary after 40 characters: `Get a user by ID` → `get-a-user-by-id`.
+3. **Method and path**: `GET /users/{userId}` → `get-users-userid`.
+
+If two operations would get the same ID, the second gets its method in front (`post-webhooks`), then a number. With `x-tagGroups`, every operation ID starts with its tag: `users--get-user-by-id`.
+
+An ID made from the summary changes whenever the summary is edited, so give operations an `operationId` when links to them should last. `rapidoc lint` reports operations without one.
+
+Every operation can also be reached by its **method and path**, whatever its ID: `#get-users-userid`, or `#delete-orgs-orgid-teams-teamid` for `DELETE /orgs/{orgId}/teams/{teamId}`. Case and punctuation are ignored there, so links in the format of older RapiDoc versions (`#get-/users/{userId}`) keep working.
+
+## Links in descriptions
+
+Markdown links to an ID work in any description in the spec: `info.description`, tags, operations, parameters and responses. Clicking one scrolls to the target, opening its tag and operation if they are collapsed, in every render mode.
+
+```yaml
+paths:
+  /users:
+    post:
+      operationId: createUser
+      summary: Create a user
+      description: |
+        Read the new user back with [Get a user](#get-user-by-id).
+        You need a token first; see [Authentication](#auth).
+  /users/{userId}:
+    get:
+      operationId: getUserById
+      summary: Get a user
+      description: To add a user, use [Create a user](#create-user).
+```
+
+## Tag groups
+
+For APIs with many tags, the `x-tagGroups` extension (also spelled `x-tag-groups`) adds a level above tags in the sidebar and the content:
+
+```yaml
+x-tagGroups:
+  - name: Shipments
+    tags: [Shipments, Tracking, Rates]
+  - name: Billing
+    x-tag-expanded: false   # starts collapsed
+    tags: [Invoices, Payments]
+```
+
+Clicking a tag or group in the sidebar opens or closes it. A group starts expanded unless it has `x-tag-expanded: false` (`x-tagExpanded`, `x-expanded` and `expanded` work too).
+
+## The address bar
+
+| Attribute | Default | Meaning |
+| :--- | :--- | :--- |
+| `update-route` | `true` | Puts the ID of the section in view into the URL hash, so readers can bookmark and share it. |
+| `goto-path` | | An ID to scroll to once the spec has loaded, when the URL has no hash. |
+| `scroll-behavior` | `smooth` | `smooth` or `auto` (jump). |
+
+Opening a URL with a hash scrolls to that ID.
+
+### In a single-page app
+
+When your app's router owns the URL, set `update-route="false"` and follow RapiDoc's position through the `nav-active-change` event. Its `detail` is `{ id, elementId }`.
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+doc.addEventListener('nav-active-change', (e) => {
+  router.replace({ hash: `#${e.detail.elementId}` });
+});
+```
+
+RapiDoc updates the URL with `history.replaceState`, which doesn't fire `hashchange`, so listen for `nav-active-change` rather than `hashchange`.
+
+## Navigating from JavaScript
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+doc.scrollToPath('get-user-by-id');       // an operation, by ID or method and path
+doc.scrollToPath('get-/users/{userId}');  // the older format works too
+doc.scrollToPath('tag--users');           // a tag
+doc.scrollToPath('servers');              // a section
+```
+
+Links in your own HTML, such as `<a href="#get-user-by-id">` in your page, work through the URL hash. To place links inside `<rapi-doc>`, use [slots](/docs/customizing/slots/).

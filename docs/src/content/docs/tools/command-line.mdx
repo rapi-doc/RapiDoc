@@ -1,11 +1,17 @@
 ---
-title: Command-Line Tools
-description: Preview, validate and mock OpenAPI specs, and turn them into MCP servers, from the command line with @rapidoc/cli. No developer portal needed.
+title: Command Line
+description: Preview, validate, lint, bundle and mock OpenAPI specs, and turn them into MCP servers, with the rapidoc command (@rapidoc/cli).
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-`@rapidoc/cli` gives you the `rapidoc` command. Most of it builds and runs [RapiDoc Portal](https://github.com/rapi-doc/rapi-portal-doc) developer portals, but these commands work on plain OpenAPI files and are useful wherever you use `<rapi-doc>`: **`preview`** shows a spec as you edit it, **`validate`** checks it, **`mock`** serves its API with example responses, and **`mcp`** turns it into tools for AI agents.
+`@rapidoc/cli` gives you the `rapidoc` command. It builds and runs [developer portals](https://github.com/rapi-doc/rapi-portal-doc), and the commands on this page also work on plain OpenAPI files, wherever you use `<rapi-doc>`:
+
+- **`preview`** shows a spec as you edit it.
+- **`validate`** and **`lint`** check it.
+- **`bundle`** joins a spec split over several files into one.
+- **`mock`** serves its API with example responses.
+- **`mcp`** turns it into tools for AI agents.
 
 <Aside type="caution" title="Preview">
   `@rapidoc/cli` is in preview and not on npm yet. The commands below are what it will offer when it is published.
@@ -75,22 +81,10 @@ npx rapidoc bundle openapi.yaml --dereference > flat.yaml
 
 ```bash
 npx rapidoc mock openapi.yaml                    # http://localhost:4010/openapi
-npx rapidoc mock orders.yaml billing.yaml        # each under /<file name>
 npx rapidoc mock ./specs --port 4011             # every OpenAPI file in the folder
 ```
 
-`rapidoc mock` answers every operation of the spec: with the spec's examples first, else with data generated from the schemas. It validates requests against the spec, and checks bearer tokens against your OpenID Connect issuer when you pass `--issuer` (and `--audience`), so `401` and `403` behave as they will in production. A `Prefer: code=404` header picks a documented response; `Prefer: example=<name>` picks an example.
-
-To call it from `<rapi-doc>`'s **Try**, list the mock first in the spec's `servers`:
-
-```yaml
-servers:
-  - url: http://localhost:4010/openapi
-    description: Mock (rapidoc mock)
-  - url: https://api.example.com
-```
-
-It complements the [in-browser mock server](/docs/advanced/mock-server/) (`mock-server="true"`): that one needs no process and answers inside the page; `rapidoc mock` is a real HTTP server, so any client can call it (curl, your frontend, [`<rapi-flow>`](/docs/advanced/workflows/) running a workflow), and it checks requests and tokens.
+`rapidoc mock` answers every operation of the spec over HTTP, from its examples or with generated data. It validates requests and can check OAuth tokens against your OpenID Connect issuer. It needs `@rapidoc/mock`. See [Mock Server](/docs/mocking/mock-server/) for the options, and the [overview](/docs/mocking/overview/) for how it compares with the in-browser mock.
 
 ## Turn it into an MCP server
 
@@ -99,7 +93,7 @@ npx rapidoc mcp export openapi.yaml --out-dir orders-mcp   # the server project
 npx rapidoc mcp serve openapi.yaml                         # run it over stdio, no files
 ```
 
-`mcp export` writes the same project as `<rapi-doc>`'s [Export MCP Server](/docs/advanced/mcp-server/) button. `mcp serve` runs it directly, so an agent's config can start it with `npx rapidoc mcp serve <spec>` (it needs `@modelcontextprotocol/sdk` installed). Credentials come from the environment, one variable per security scheme; `--base-url` points the calls at `rapidoc mock`, and `--arazzo` adds workflows as tools.
+`mcp export` writes the same project as `<rapi-doc>`'s [Export MCP Server](/docs/ai/mcp-server/) button. `mcp serve` runs it directly, so an agent's config can start it with `npx rapidoc mcp serve <spec>` (it needs `@modelcontextprotocol/sdk` installed). Credentials come from the environment, one variable per security scheme; `--base-url` points the calls at `rapidoc mock`, and `--arazzo` adds workflows as tools.
 
 ## Everything else
 

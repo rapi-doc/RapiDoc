@@ -1,21 +1,22 @@
 ---
-title: Advanced Styling with CSS Parts & Variables
-description: Master CSS Shadow Parts (::part()) and CSS Custom Properties to customize internal elements inside RapiDoc's Shadow DOM, including gradients, sidebars, buttons, and code blocks.
+title: CSS Parts & Variables
+description: Style any element inside RapiDoc's Shadow DOM with CSS custom properties and ::part() selectors, with the full catalog of both.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 import CssPartsCatalog from '../../../components/CssPartsCatalog.astro';
 import CssVariablesCatalog from '../../../components/CssVariablesCatalog.astro';
 
-While declarative attributes handle foundational colors and typography, modern web products often demand bespoke styling—such as frosted glass sidebars, multi-stop gradient buttons, custom focus rings, or branded card containers.
+The [theming attributes](/docs/theming/overview/) cover colors, radius and scale. For anything else, RapiDoc offers two hooks into its Shadow DOM, where ordinary CSS selectors can't reach:
 
-Because RapiDoc is implemented as a standard W3C Web Component, standard external CSS selectors cannot pierce the Shadow DOM boundary. To give you complete design freedom without sacrificing encapsulation, RapiDoc exposes **CSS Shadow Parts** (`::part()`) and **CSS Custom Properties** (Variables).
+- **CSS custom properties**, set on `rapi-doc`, change colors, fonts and sizes everywhere they are used.
+- **CSS parts**, selected with `rapi-doc::part(name)`, style one kind of element directly.
 
 ---
 
-## 1. How `::part()` Piercing Works
+## 1. Using `::part()`
 
-In your parent application stylesheet or `<style>` block, target `<rapi-doc>` followed by `::part(part-name)`:
+In your page's CSS, write `rapi-doc::part(name)`:
 
 ```css
 /* Target the navigation sidebar panel inside RapiDoc */
@@ -32,24 +33,21 @@ rapi-doc::part(section-navbar-header) {
 }
 ```
 
-<Aside type="tip" title="CSS Part Chaining & Pseudo-Classes">
-  CSS Shadow Parts support standard CSS pseudo-classes such as `:hover`, `:focus`, and `:active`. For example,
-  `rapi-doc::part(btn-fill):hover` styles the primary action button on hover.
+<Aside type="tip" title="Pseudo-classes">
+  Parts work with pseudo-classes such as `:hover`, `:focus` and `:active`: `rapi-doc::part(btn-fill):hover`.
 </Aside>
 
 ---
 
-## 2. Complete CSS Shadow Parts Catalog
-
-Below is the complete catalog of all semantic CSS parts exposed by RapiDoc, automatically loaded from the shared styling specification:
+## 2. All CSS parts
 
 <CssPartsCatalog />
 
 ---
 
-## 3. CSS Custom Properties (Design Tokens)
+## 3. CSS custom properties
 
-In addition to Shadow Parts, RapiDoc exposes a comprehensive set of CSS variables on `:host`. You can override these variables on `<rapi-doc>` or any ancestor container in your stylesheet or inline styles:
+Set variables on `rapi-doc` in your stylesheet or inline style:
 
 ```css
 rapi-doc {
@@ -68,15 +66,15 @@ rapi-doc {
 }
 ```
 
-Below is the complete catalog of CSS custom properties exposed by RapiDoc:
+All variables, with their defaults:
 
 <CssVariablesCatalog />
 
 ---
 
-## 4. Production Styling Recipes
+## 4. Recipes
 
-### Recipe 1: Frosted Glass Sidebar with Neon Accents
+### Frosted-glass sidebar
 
 ```css
 /* Frosted glass backdrop blur on sidebar */
@@ -108,7 +106,7 @@ rapi-doc::part(textbox-nav-filter):focus {
 }
 ```
 
-### Recipe 2: Gradient Action Buttons & "TRY" Triggers
+### Gradient buttons
 
 ```css
 /* Base button enhancements */
@@ -118,7 +116,7 @@ rapi-doc::part(btn) {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Primary filled buttons (TRY execution, copy, search) */
+/* Primary filled buttons, such as TRY */
 rapi-doc::part(btn-fill) {
   background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
   color: #ffffff;
@@ -133,7 +131,7 @@ rapi-doc::part(btn-fill):hover {
 }
 ```
 
-### Recipe 3: Custom Server Environment Panel
+### Server panel
 
 ```css
 /* Server selector container */
@@ -152,17 +150,15 @@ rapi-doc::part(label-selected-server) {
 }
 ```
 
-<Aside type="tip" title="Recommended Architecture">
-  The recommended workflow is setting foundational colors and typography using declarative HTML attributes (`theme`, `color-scheme`,
-  `radius`, `scale`), and reserving `::part()` for high-impact visual customizations such as gradients, backdrop filters, and custom
-  container borders.
+<Aside type="tip" title="Which to use">
+  Set the basics with attributes (`theme`, `color-scheme`, `radius`, `scale`) and variables, and keep `::part()` for what they can't do, such as gradients, backdrop filters and borders on specific containers.
 </Aside>
 
 ---
 
 <a id="schema-sizing-and-truncation"></a>
 
-## 5. Schema Descriptions: Truncation & Expanding
+## 5. Schema descriptions
 
 In both **Tree mode** and **Table mode**, each schema row shows its description on a single line. Click a description (or its `➔` arrow) to expand that row, and click again to collapse it. The **Multiline description** toolbar button expands every row at once.
 

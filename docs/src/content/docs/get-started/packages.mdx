@@ -1,0 +1,54 @@
+---
+title: Packages
+description: Every RapiDoc package, what it does and when you need it.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+RapiDoc is a family of packages. Most sites need only the first one, `rapidoc`, which is a browser bundle you load with a `<script>` tag. The others are Node packages for build steps, local tooling and full developer portals.
+
+<Aside type="caution" title="Preview packages">
+  Only `rapidoc` is on npm today. The `@rapidoc/*` packages and `create-rapidoc` are in preview and will be published later; the pages that describe them say so.
+</Aside>
+
+## In the browser
+
+`rapidoc` has no runtime dependencies: everything it needs is bundled into its JavaScript files.
+
+| Import | Elements | What it is for |
+| :--- | :--- | :--- |
+| `rapidoc` (`dist/rapidoc-min.js`) | `<rapi-doc>` | The full interactive API reference: navigation, search, schemas, **Try**, authentication, [in-browser mocking](/docs/mocking/in-browser/) and [MCP export](/docs/ai/mcp-server/). |
+| | `<rapi-doc-mini>` | [One endpoint or a few](/docs/components/rapidoc-mini/), embedded in a blog post, tutorial or changelog. |
+| | `<oauth-receiver>` | The [OAuth 2.0 callback page](/docs/authentication/oauth/) that hands the authorization code back to `<rapi-doc>`. |
+| `rapidoc/flow` (`dist/rapidoc-flow-min.js`) | `<rapi-flow>` | [Arazzo workflows](/docs/components/workflows/) drawn as a diagram and run in the browser. A separate bundle, so pages without workflows don't download it. |
+
+```bash
+npm install rapidoc
+```
+
+## In Node
+
+| Package | What it is for |
+| :--- | :--- |
+| `@rapidoc/cli` | The `rapidoc` command: [preview, validate, lint and bundle](/docs/tools/command-line/) a spec, run a [mock server](/docs/mocking/mock-server/), turn a spec into an MCP server, and build and serve developer portals. |
+| `@rapidoc/mock` | The [mock server](/docs/mocking/mock-server/) behind `rapidoc mock`: answers every operation over HTTP from examples or generated data, validates requests and checks OAuth tokens. Also usable as a library. |
+| `@rapidoc/mcp` | Turns OpenAPI and Arazzo documents into [MCP tools](/docs/ai/mcp-server/#in-node-rapidocmcp): manifest builder, runtime and server project writer. The same code `<rapi-doc>` uses in the browser. |
+| `@rapidoc/prerender` | Renders `<rapi-doc>` to HTML at build time (Declarative Shadow DOM or light DOM), plus a static sidebar and Arazzo diagrams as SVG. Good for SEO and first paint. See the [pre-rendering guide](/guides/prerender/). |
+
+## Developer portals
+
+A developer portal puts your API references next to Markdown guides, with search, navigation and optional sign-in. These packages are documented in the [RapiDoc Portal docs](https://github.com/rapi-doc/rapi-portal-doc).
+
+| Package | What it is for |
+| :--- | :--- |
+| `create-rapidoc` | Scaffolds a new portal: `npm create rapidoc`. `rapidoc init` does the same. |
+| `@rapidoc/portal` | The portal engine behind `rapidoc dev` and `rapidoc build`: OpenAPI specs and Markdown, MDX or Markdoc guides in, a static site out. |
+| `@rapidoc/server` | Serves a built portal with OpenID Connect sign-in and per-page access rules (`rapidoc serve`). |
+
+## Which do I need?
+
+- **An API reference on a page you already have**: `rapidoc`. Start with the [Quickstart](/docs/get-started/quickstart/).
+- **A mock API your frontend or tests can call**: `@rapidoc/cli` and `@rapidoc/mock`.
+- **An MCP server for AI agents**: the Export button in `<rapi-doc>`, `rapidoc mcp`, or `@rapidoc/mcp` in your own code.
+- **Static HTML of your reference at build time**: `@rapidoc/prerender`.
+- **A whole developer portal**: `create-rapidoc`, which installs `@rapidoc/cli` and `@rapidoc/portal`.

@@ -1,62 +1,50 @@
 ---
-title: Render Modes & Layout Benchmarks
-description: Compare Read, View, and Focused rendering styles, their DOM footprints, and benchmark data on large specifications.
+title: Render Modes
+description: Compare RapiDoc's read, view and focused render styles, with measured load times on large specs.
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
-RapiDoc offers three distinct rendering modes via the `render-style` attribute. Each mode addresses a specific documentation experience and scale profile.
+The `render-style` attribute decides how `<rapi-doc>` lays out operations. It is also the setting that matters most for large specs.
 
 ```html
-<rapi-doc render-style="focused"></rapi-doc>
+<rapi-doc spec-url="/openapi.yaml" render-style="focused"></rapi-doc>
 ```
 
----
+## The three modes
 
-## 1. The Three Rendering Styles
+### `read` (default)
 
-### `render-style="read"` (Linear Document)
-- **Mental Model**: Continuous, book-like scrolling documentation similar to classic Stripe or Redoc layouts.
-- **Best Suited For**: Small to medium APIs (< 50 endpoints), onboarding tutorials, and public reference documents where developers prefer reading through all endpoints sequentially.
-- **Trade-off**: High DOM node count because all paths and schemas are rendered at once.
+One long page: the overview, then every tag and operation, fully rendered, with a sidebar that follows as you scroll. Good for small and medium APIs that readers go through from top to bottom. Because everything is rendered, load time grows with the size of the spec.
 
-### `render-style="view"` (Collapsible Sections)
-- **Mental Model**: Categorized documentation organized by tags, with expandable operation cards.
-- **Best Suited For**: General-purpose developer portals (50 to 300 endpoints).
-- **Trade-off**: Balanced DOM footprint. Clicking an endpoint expands it while keeping others collapsed.
+### `view`
 
-### `render-style="focused"` (Single Endpoint Card)
-- **Mental Model**: High-performance dashboard where the left sidebar displays the navigation tree, and the main canvas displays **only the currently selected endpoint**.
-- **Best Suited For**: Large enterprise APIs (300 to 2,000+ endpoints), multi-service microservice portals, and low-powered mobile devices.
-- **Trade-off**: Only one endpoint is visible at a time, resulting in an ultra-lean DOM and maximum snappiness.
+Tags with collapsible operations. Several operations can be open at once, and collapsed ones aren't rendered until they are opened, so the page stays light. Search is in the header. Good for most APIs.
 
----
+### `focused`
 
-## 2. Benchmark Comparison
+A sidebar listing every operation, and one operation at a time in the main area. Only the selected operation is rendered, so it stays fast on very large specs and on slow devices.
 
-The following performance benchmarks were captured on a large specification (~6MB OpenAPI 3.0 file containing 240 paths and 180 schema definitions) running in Chrome on an Apple M-series processor:
+## Measured load times
 
-| Render Mode | Initial Parse + Render | Active DOM Node Count | Memory Allocation | Frame Rate During Scroll |
-| :--- | :--- | :--- | :--- | :--- |
-| **`read`** | ~820ms | 14,200 nodes | ~85 MB | 42 - 55 FPS |
-| **`view`** | ~410ms | 4,600 nodes | ~45 MB | 60 FPS |
-| **`focused`** | **~140ms** | **850 nodes** | **~18 MB** | **60 FPS (Rock Solid)** |
+Time to load, parse and render, measured in headless Chrome with RapiDoc 11.0.0:
 
-<Aside type="tip" title="Recommended Production Default">
-For general portals with unknown spec sizes, **`render-style="view"`** or **`render-style="focused"`** provides the ideal balance of fast initial paint, low memory footprint, and intuitive navigation.
+| Spec | Size | Operations | `focused` | `view` | `read` |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Bookstore (OpenAPI 3.2) | 13.8 KB | 12 | ~56 ms | ~37 ms | ~31 ms |
+| Stripe (OpenAPI 3.0, deep schemas) | 7.00 MB | 644 | ~666 ms | ~650 ms | ~9.22 s |
+| GitHub (OpenAPI 3.1) | 8.19 MB | 1,128 | ~997 ms | ~990 ms | ~5.95 s |
+
+On small specs the mode makes no difference. On large ones, `read` is many times slower than the other two. The [performance tests](/tests/performance) have the details and the scripts that produce them.
+
+<Aside type="tip" title="Which one to choose">
+  If you don't know how large the specs you'll show will get, use `view` or `focused`. Keep `read` for specs of up to a few hundred operations.
 </Aside>
 
----
+## Switching modes at runtime
 
-## 3. Switching Render Modes Dynamically
-
-You can allow users to toggle their preferred reading layout dynamically:
+`render-style` can be changed at any time, for example from a toggle in your page:
 
 ```javascript
-const doc = document.getElementById('the-doc');
-
-// Let the user toggle between Focused and Read mode
-function setMode(mode) {
-  doc.setAttribute('render-style', mode);
-}
+document.querySelector('rapi-doc').setAttribute('render-style', 'read');
 ```

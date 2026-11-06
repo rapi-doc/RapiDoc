@@ -1,0 +1,22 @@
+---
+title: Mocking Overview
+description: Two ways to mock an API from its OpenAPI spec with RapiDoc, in the browser or as an HTTP server, and how to choose.
+---
+
+RapiDoc can answer API requests from your OpenAPI spec before the backend exists, or without touching real data. There are two mocks, built for different jobs.
+
+| | [In-browser mock](/docs/mocking/in-browser/) | [Mock server](/docs/mocking/mock-server/) |
+| :--- | :--- | :--- |
+| **How you turn it on** | `mock-server="true"` on `<rapi-doc>` or `<rapi-doc-mini>` | `npx rapidoc mock openapi.yaml` |
+| **Package** | `rapidoc` (included in the bundle) | `@rapidoc/cli` + `@rapidoc/mock` (preview) |
+| **Runs** | Inside the page, by intercepting `fetch` | As a Node HTTP server (default port `4010`) |
+| **Who can call it** | Code running in the same page: **Try**, `<rapi-flow>`, your page's own scripts | Any client: curl, your frontend, tests, MCP servers |
+| **Responses** | Spec examples, else generated from the schema | Spec examples, else generated from the schema (seeded) |
+| **Choosing a status code** | `mock-server-status-code`, per operation if needed | `Prefer: code=…` request header |
+| **Request validation** | No | Yes: a bad request gets `400` |
+| **Token and scope checks** | No | Yes, against your OpenID Connect issuer |
+| **Latency simulation** | `mock-server-delay` | No |
+
+**Pick the in-browser mock** for docs and demos: readers can press **Try** on a published page and get a sensible answer, with nothing to deploy.
+
+**Pick the mock server** for development and testing: when other programs need to call the API, or when you want requests and tokens checked the way production will check them.

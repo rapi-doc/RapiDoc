@@ -5,6 +5,10 @@ description: Upgrade guide for migrating from RapiDoc v10 to v11. Learn about de
 
 import { Aside, Tabs, TabItem, Card, CardGrid, Steps, Badge } from '@astrojs/starlight/components';
 
+<Aside type="note" title="Upgrading to v12?">
+  v12 renamed several of the CSS variables this guide introduces. Follow this guide first, then [v11 to v12](/docs/migration/v11-to-v12/).
+</Aside>
+
 RapiDoc **v11** introduces a modernized styling architecture designed around **W3C web standards**, **CSS custom properties (design tokens)**, and **CSS Shadow Parts (`::part()`)**.
 
 This major release eliminates attribute bloat by deprecating granular styling attributes (`bg-color`, `text-color`, `nav-bg-color`, `primary-color`, `regular-font`, etc.) in favor of standard CSS declarations and high-level design tokens.

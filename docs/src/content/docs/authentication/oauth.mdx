@@ -1,0 +1,169 @@
+---
+title: OAuth 2.0
+description: Let readers sign in with your OAuth 2.0 or OpenID Connect provider and call your API from RapiDoc, using <oauth-receiver> and vendor extensions.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+When a spec declares an OAuth 2.0 security scheme, RapiDoc's Authentication section lets readers sign in with your identity provider (Okta, Auth0, Microsoft Entra ID, Keycloak and others). The access token is then sent with every **Try** request.
+
+<Aside type="tip">
+  Try it on the [OAuth 2.0 example](/examples/oauth-demo).
+</Aside>
+
+## Set it up in three steps
+
+1. **Register a client** with your identity provider, and add your receiver page as a redirect URI, for example `https://docs.example.com/oauth-receiver.html`.
+2. **Declare the scheme in your spec** (below), and show the spec with `<rapi-doc>` as usual.
+3. **Add `oauth-receiver.html`** next to the page with `<rapi-doc>`:
+
+   ```html title="oauth-receiver.html"
+   <!doctype html>
+   <html lang="en">
+     <head>
+       <meta charset="utf-8" />
+       <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+     </head>
+     <body>
+       <oauth-receiver></oauth-receiver>
+     </body>
+   </html>
+   ```
+
+If the receiver page lives elsewhere, tell `<rapi-doc>` where:
+
+```html
+<rapi-doc spec-url="/openapi.json" oauth-receiver="/auth/oauth-receiver.html"></rapi-doc>
+```
+
+## How sign-in works
+
+1. The reader clicks **Authorize** in the Authentication section.
+2. `<rapi-doc>` builds the authorization URL (client ID, scopes, `redirect_uri` set to your receiver page, `state`, a nonce and, with PKCE, a code challenge) and opens it in a popup.
+3. The reader signs in at the provider, which redirects the popup to `oauth-receiver.html?code=…&state=…`.
+4. `<oauth-receiver>` removes the code from the popup's URL and hands it to the opening page, through `window.opener` and a `BroadcastChannel`.
+5. `<rapi-doc>` checks `state`, closes the popup and exchanges the code for a token at the provider's token endpoint.
+6. The token is kept in memory (never in `localStorage`) and sent with every **Try** request, using the token type from the provider's response (normally `Bearer`).
+
+PKCE (S256) is on by default and can be turned off in the form, unless the scheme sets `x-pkce-only: true`. The implicit flow is supported too: `<oauth-receiver>` reads the token from the URL fragment.
+
+## Declare the scheme
+
+Use a standard OpenAPI `oauth2` security scheme:
+
+```yaml
+components:
+  securitySchemes:
+    OAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/oauth2/authorize
+          tokenUrl: https://auth.example.com/oauth2/token
+          scopes:
+            read:profile: Read your profile
+            write:profile: Change your profile
+
+paths:
+  /user/profile:
+    get:
+      summary: Get the current user's profile
+      security:
+        - OAuth: [read:profile]
+```
+
+## Vendor extensions
+
+These extensions pre-fill the sign-in form, which is useful for sandboxes and public clients. `x-pkce-only` goes on the flow; the others work on the flow or on the scheme (the flow wins).
+
+| Extension | Type | Meaning |
+| :--- | :--- | :--- |
+| `x-client-id` | `string` | Pre-fills the client ID. |
+| `x-client-secret` | `string` | Pre-fills the client secret. For sandboxes only: anyone can read the spec. |
+| `x-default-scopes` | `string` or `array` | Scopes selected by default. |
+| `x-pkce-only` | `boolean` | Always uses PKCE and hides the client secret fields. Use it for public clients. |
+| `x-receive-token-in` | `request-body` or `header` | How the client credentials are sent to the token endpoint: in the body (`client_secret_post`, the default) or as HTTP Basic (`client_secret_basic`). |
+| `x-receive-token-in-options` | `array` | Limits the choices offered for the above. |
+| `x-authorize-params` | `object` or `string` | Extra query parameters for the authorization URL, such as `prompt` or `audience`. |
+| `x-token-params` | `object` or `string` | Extra parameters for the token request, such as `audience` or `resource`. |
+
+```yaml
+components:
+  securitySchemes:
+    # A public client: PKCE only, no secret
+    public-oauth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
+          tokenUrl: https://demo.duendesoftware.com/connect/token
+          scopes:
+            openid: OpenID Connect
+            profile: Your profile
+          x-client-id: interactive.public
+          x-default-scopes: [openid, profile]
+          x-pkce-only: true
+          x-authorize-params:
+            prompt: consent
+          x-token-params:
+            audience: https://api.example.com
+
+    # A sandbox client with a pre-filled test secret
+    sandbox-oauth:
+      type: oauth2
+      x-client-id: interactive.confidential.short
+      x-client-secret: secret
+      x-default-scopes: openid email
+      flows:
+        authorizationCode:
+          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
+          tokenUrl: https://demo.duendesoftware.com/connect/token
+          scopes:
+            openid: OpenID Connect
+            email: Your email address
+```
+
+## Extra parameters for the provider
+
+Some providers and proxies need extra parameters, such as `audience`, `resource`, or a SMART on FHIR `launch` value. Besides the `x-authorize-params` and `x-token-params` extensions, you can set them on the element.
+
+### As attributes
+
+Both attributes take JSON or a URL query string:
+
+```html
+<rapi-doc
+  spec-url="/openapi.json"
+  additional-authorize-params='{"launch": "xyz123", "prompt": "consent"}'
+  additional-token-params="audience=https%3A%2F%2Fapi.example.com"
+></rapi-doc>
+```
+
+Or set objects on the properties: `doc.additionalAuthorizeParams = { launch: 'xyz123' }`.
+
+### From JavaScript
+
+Two events let you change the requests as they are made. Both can be cancelled with `e.preventDefault()`.
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+// Before the popup opens; authParams is a live URLSearchParams
+doc.addEventListener('before-authorize', (e) => {
+  const { securitySchemeId, flowType, authUrl, authParams } = e.detail;
+  authParams.set('launch', sessionStorage.getItem('launch') || 'test-launch');
+});
+
+// Before the token request; params (body) is a URLSearchParams, headers is a Headers
+doc.addEventListener('before-token-request', (e) => {
+  const { securitySchemeId, grantType, tokenUrl, params, headers } = e.detail;
+  params.set('resource', 'https://api.example.com');
+});
+```
+
+## Troubleshooting
+
+- **Redirect URI mismatch**: the redirect URI registered with the provider must match the receiver page's URL exactly, including protocol and port (for example `http://localhost:4321/oauth-receiver.html`).
+- **CORS on the token endpoint**: the browser calls the token endpoint directly, so it must allow requests from your docs site's origin.
+- **Client authentication**: if the provider requires HTTP Basic for client credentials, set `x-receive-token-in: header`, or pick it in the form.
+- **Secrets**: never put a production client secret in a spec. Use `x-pkce-only: true` for public docs and keep `x-client-secret` for sandboxes.

@@ -1,123 +1,86 @@
 ---
-title: JavaScript SDK & Lifecycle Methods
-description: Programmatically control RapiDoc at runtime with JavaScript methods, lifecycle events, and dynamic spec loading.
+title: Methods
+description: Load specs, set credentials, select servers and navigate <rapi-doc> from JavaScript.
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
-Because RapiDoc is a living DOM element, you can interact with it programmatically using standard JavaScript. This makes it straightforward to integrate RapiDoc with external controls—such as custom environment dropdowns, authentication modals, search bars, and analytics pipelines.
+`<rapi-doc>` is a DOM element, so you control it from JavaScript like any other: set attributes, call its methods and listen to its [events](/docs/programmatic-api/event-hooks/). The full list of methods is in the [API reference](/api#methods).
 
----
+## Wait until it is ready
 
-## 1. DOM Element Access & Lifecycle
-
-Before calling methods on `<rapi-doc>`, ensure the Custom Element has been registered and the OpenAPI spec has been parsed.
+Methods that work on the spec need the spec to be loaded. Wait for `spec-loaded`:
 
 ```javascript
-// 1. Grab reference to the DOM element
-const rapidoc = document.getElementById('the-doc');
-
-// 2. Listen for the 'spec-loaded' event
-rapidoc.addEventListener('spec-loaded', (e) => {
-  console.log('OpenAPI spec parsed successfully!');
-  console.log('Parsed API Title:', e.detail.info.title);
-  console.log('Available Servers:', e.detail.servers);
+const doc = document.querySelector('rapi-doc');
+doc.addEventListener('spec-loaded', (e) => {
+  console.log('Loaded', e.detail.info.title);
 });
 ```
 
-<Aside type="tip" title="Checking Custom Element Registration">
-If you need to know when the custom element definition itself is ready, you can use the standard browser API:
-```javascript
-await customElements.whenDefined('rapi-doc');
-console.log('RapiDoc custom element is ready in DOM.');
-```
-</Aside>
+If your script may run before the RapiDoc bundle, wait for the element to be defined first: `await customElements.whenDefined('rapi-doc')`.
 
----
+## Load a spec: `loadSpec(specOrUrl)`
 
-## 2. Programmatic Methods
-
-RapiDoc exposes public JavaScript methods directly on the element instance.
-
-### `loadSpec(specObject)`
-Passes an already-fetched or dynamically modified OpenAPI specification object into RapiDoc without performing a network fetch:
+Takes a spec object or a URL. Useful when you fetch the spec yourself, or switch between specs:
 
 ```javascript
-const doc = document.querySelector('rapi-doc');
-
-// Useful for authenticated endpoints, CI/CD previews, or multi-tenant specs
-async function switchTenantSpec(tenantId) {
+async function showTenant(tenantId) {
   const res = await fetch(`/api/specs/${tenantId}.json`);
-  const specJson = await res.json();
-  
-  // Hand spec directly to RapiDoc
-  doc.loadSpec(specJson);
+  doc.loadSpec(await res.json());
 }
 ```
 
----
+## Set credentials: `setApiKey(schemeId, value, options?)`
 
-### `setApiKey(apiKeyId, apiKeyValue, options?)`
-Injects API Key or Bearer Token authentication credentials dynamically:
+Fills in the credential of a security scheme, so readers don't have to. `schemeId` is the scheme's name under `components.securitySchemes`. For an HTTP bearer scheme, RapiDoc adds the `Bearer ` prefix.
 
 ```javascript
-const doc = document.querySelector('rapi-doc');
-
-// Example: User logged into your SaaS app; inject their JWT token
-function onUserLogin(sessionToken) {
-  // apiKeyId matches the security scheme name in your OpenAPI spec
-  doc.setApiKey('BearerAuth', sessionToken);
-}
+// After your app signs the user in
+doc.setApiKey('BearerAuth', sessionToken);
 ```
 
-Pass `{ note }` as a third argument to say where the key came from. The Authentication section then shows the note in place of that scheme's form, with a **Use a different token** link that opens the form. Changing or removing the key drops the note.
+Pass `{ note }` to say where the credential came from. The Authentication section then shows the note instead of that scheme's form, with a **Use a different token** link that opens the form. Changing or removing the key removes the note.
 
 ```javascript
 doc.setApiKey('BearerAuth', sessionToken, { note: 'Using your sign-in (ann@example.com).' });
 ```
 
----
+Related methods: `setHttpUserNameAndPassword(schemeId, username, password)` for HTTP Basic, and `removeAllSecurityKeys()`.
 
-### `setApiServer(serverUrl)`
-Switches the active API target server programmatically:
+## Select a server: `setApiServer(url)`
+
+Selects one of the spec's `servers` by URL, as if the reader had picked it. It returns `false` and changes nothing when the URL is not in the spec's `servers`. To send requests to a URL that isn't listed, set the `server-url` attribute instead.
 
 ```javascript
-const doc = document.querySelector('rapi-doc');
-
-// Example: Custom environment switcher in your header
 document.getElementById('env-select').addEventListener('change', (e) => {
   doc.setApiServer(e.target.value);
 });
 ```
 
----
+## Navigate: `scrollToPath(id)`
 
-### `scrollToPath(pathKey)`
-Scrolls the view directly to a specific operation or path and expands its details:
+Scrolls to a section, tag or operation and opens it. Takes an [element ID](/docs/customizing/linking/#element-ids) or an operation's method and path:
 
 ```javascript
-const doc = document.querySelector('rapi-doc');
-
-// Format: {method}-{path} (lowercase)
-// Example: Scroll to GET /users/{id}
-doc.scrollToPath('get-/users/{id}');
+doc.scrollToPath('get-pet-by-id');     // by operation ID
+doc.scrollToPath('get-/pet/{petId}');  // by method and path
+doc.scrollToPath('tag--store');        // a tag
 ```
 
----
+`scrollTo(id)` does the same.
 
-## Complete Example: Building External Controls
+## Example: your own toolbar
 
-Here is a full example showing how to build an external header with environment switching and quick navigation:
+With `show-header="false"`, you can build the controls into your own page:
 
 ```html
-<div class="external-toolbar">
+<div class="toolbar">
   <select id="env-picker">
-    <option value="https://api.production.com/v1">Production</option>
-    <option value="https://staging.api.com/v1">Staging</option>
-    <option value="http://localhost:8080/v1">Local Mock</option>
+    <option value="https://petstore.swagger.io/v2">Production</option>
+    <option value="http://petstore.swagger.io/v2">Production (HTTP)</option>
   </select>
-
-  <button id="quick-jump-btn">Jump to Auth API</button>
+  <button id="jump-login">Jump to login</button>
 </div>
 
 <rapi-doc
@@ -125,22 +88,18 @@ Here is a full example showing how to build an external header with environment 
   spec-url="https://petstore.swagger.io/v2/swagger.json"
   render-style="focused"
   show-header="false"
-  style="height: calc(100vh - 50px); width: 100%;"
+  style="height: calc(100vh - 50px)"
 ></rapi-doc>
 
 <script>
   const doc = document.getElementById('the-doc');
-  const envPicker = document.getElementById('env-picker');
-  const jumpBtn = document.getElementById('quick-jump-btn');
-
-  // Change active server on dropdown change
-  envPicker.addEventListener('change', (e) => {
-    doc.setApiServer(e.target.value);
-  });
-
-  // Jump to specific endpoint on button click
-  jumpBtn.addEventListener('click', () => {
-    doc.scrollToPath('post-/user/login');
-  });
+  document.getElementById('env-picker').addEventListener('change', (e) => doc.setApiServer(e.target.value));
+  document.getElementById('jump-login').addEventListener('click', () => doc.scrollToPath('get-/user/login'));
 </script>
 ```
+
+The options must be URLs from the spec's `servers` list.
+
+<Aside type="tip">
+  Methods for MCP export (`generateMcpServer`, `downloadMcpServer`, `getMcpBudget`) are described on [MCP Server](/docs/ai/mcp-server/#from-javascript), and `bindNavBar` in the [pre-rendering guide](/guides/prerender/).
+</Aside>

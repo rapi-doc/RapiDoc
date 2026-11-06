@@ -1,0 +1,149 @@
+---
+title: RapiDoc Mini
+description: Embed one endpoint, or a few, with its Try console in a blog post, tutorial or changelog, using <rapi-doc-mini>.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import RapidocMiniComparisonTable from '../../../components/RapidocMiniComparisonTable.astro';
+
+`<rapi-doc>` is a whole API reference with navigation and search. `<rapi-doc-mini>` shows only the operations you pick, with their parameters, schemas and **Try** console, so you can put a working endpoint in the middle of a tutorial, changelog or wiki page without an `<iframe>`. It is in the same bundle as `<rapi-doc>`.
+
+<Aside type="tip">
+  See it running in the [RapiDoc Mini guide](/guides/mini).
+</Aside>
+
+## Show one endpoint
+
+Point `spec-url` at your spec and choose operations with `match-paths`:
+
+```html
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+
+<rapi-doc-mini
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  match-paths="get /pet/{petId}"
+></rapi-doc-mini>
+```
+
+`match-paths` is compared with `"<method> <path>"` of every operation, ignoring case. By default (`match-type="includes"`) an operation matches when that text **contains** the value, so `post /user` also matches `post /user/createWithList`. For an exact match, use a regular expression:
+
+```html
+<rapi-doc-mini
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  match-paths="^post /user$"
+  match-type="regex"
+></rapi-doc-mini>
+```
+
+## Recipes
+
+<Tabs>
+  <TabItem label="Several endpoints">
+    ```html
+    <rapi-doc-mini
+      spec-url="/specs/reqres.yaml"
+      match-paths="^get /users/\{userId\}$|^post /users$"
+      match-type="regex"
+      schema-style="table"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="Always expanded">
+    ```html
+    <rapi-doc-mini
+      spec-url="/specs/reqres.yaml"
+      match-paths="post /users"
+      paths-expanded="true"
+      layout="column"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="Endpoints from two APIs">
+    Each element loads its own spec, so one page can walk through a flow that spans services:
+
+    ```html
+    <rapi-doc-mini spec-url="https://api.example.com/auth/openapi.yaml" match-paths="post /oauth/token"></rapi-doc-mini>
+    <rapi-doc-mini spec-url="https://api.example.com/billing/openapi.yaml" match-paths="post /charges"></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="With an API key">
+    The key is sent with every **Try** request when all three `api-key-*` attributes are set:
+
+    ```html
+    <rapi-doc-mini
+      spec-url="/specs/api.yaml"
+      match-paths="get /orders"
+      api-key-name="X-API-Key"
+      api-key-location="header"
+      api-key-value="test-key-123"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+</Tabs>
+
+If the spec can't be loaded, the element renders nothing and logs the error to the browser console.
+
+## Attributes
+
+All attributes can be changed at runtime with `setAttribute`.
+
+### What to show
+
+| Attribute | Values | Default | Meaning |
+| :--- | :--- | :--- | :--- |
+| `spec-url` | URL | | The OpenAPI spec, JSON or YAML. |
+| `match-paths` | text | | Which operations to show (see above). |
+| `match-type` | `includes`, `regex` | `includes` | How `match-paths` is compared. |
+| `remove-endpoints-with-badge-label-as` | text | | Hides operations that have an `x-badges` label with this text. |
+| `sort-endpoints-by` | `path`, `method`, `summary` | `path` | Order of the operations shown. |
+
+### Layout
+
+| Attribute | Values | Default | Meaning |
+| :--- | :--- | :--- | :--- |
+| `paths-expanded` | `true`, `false` | `false` | Shows operations open instead of collapsed. |
+| `layout` | `row`, `column` | `row` | Request and response side by side, or one above the other. |
+| `show-summary-when-collapsed` | `true`, `false` | `true` | Shows the summary on a collapsed operation. |
+| `schema-style` | `tree`, `table` | `tree` | How schemas are drawn. |
+| `schema-expand-level` | number | `99999` | How many schema levels start expanded. |
+| `schema-description-expanded` | `true`, `false` | `false` | Shows schema descriptions in full. |
+| `default-schema-tab` | `example`, `schema` | `example` | The tab shown first for request and response bodies. |
+| `response-area-height` | CSS height | `300px` | Height of the response panel. |
+
+### Try and authentication
+
+| Attribute | Values | Default | Meaning |
+| :--- | :--- | :--- | :--- |
+| `allow-try` | `true`, `false` | `true` | Shows the **Try** console. |
+| `show-curl-before-try` | `true`, `false` | `false` | Shows the curl command before the request is sent. |
+| `fill-request-fields-with-example` | `true`, `false` | `true` | Pre-fills request fields with examples. |
+| `server-url` | URL | | The server **Try** sends requests to, instead of the spec's. |
+| `default-api-server` | URL | | The spec server selected first. |
+| `fetch-credentials` | `omit`, `same-origin`, `include` | | The `credentials` mode of **Try** requests. |
+| `api-key-name` | text | | Name of the header, query parameter or cookie that carries the key. |
+| `api-key-location` | `header`, `query` | `header` | Where the key is sent. |
+| `api-key-value` | text | | The key. |
+| `persist-auth` | `true`, `false` | `false` | Keeps entered credentials across page loads. |
+| `oauth-receiver` | URL | `oauth-receiver.html` | The OAuth callback page; see [OAuth 2.0](/docs/authentication/oauth/). |
+| `additional-authorize-params`, `additional-token-params` | JSON or query string | | Extra OAuth parameters. |
+
+### Look
+
+| Attribute | Values | Default |
+| :--- | :--- | :--- |
+| `theme` | `ember`, `carbon`, `cobalt`, `jade`, `indigo`, or a `#hex` color | `ember` |
+| `color-scheme` | `dark`, `light`, `system`, `auto` | `dark` |
+| `radius` | `none`, `sm`, `md`, `lg`, `full` | `sm` |
+| `scale` | `sm`, `default`, `lg` | `default` |
+| `primary-color` | `#hex`: replaces the theme's accent | |
+
+### Mocking
+
+`<rapi-doc-mini>` takes the same `mock-server`, `mock-server-status-code`, `mock-server-status-strategy`, `mock-server-delay` and `mock-server-log` attributes as `<rapi-doc>`; see [In-Browser Mock](/docs/mocking/in-browser/). Only the operations it shows are mocked.
+
+## `<rapi-doc>` or `<rapi-doc-mini>`?
+
+<RapidocMiniComparisonTable />
