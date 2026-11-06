@@ -1,6 +1,6 @@
 # `rapidoc` CLI overhaul (design)
 
-Status: phases 1–4 done (2026-11-06); phase 5 done (`bundle`, `lint`; `spec-tooling.md`); phase 6 proposed.
+Status: done (2026-11-06): all six phases (phase 5's design in `spec-tooling.md`).
 
 `@rapidoc/cli` covers the portal workflow (`init`, `dev`, `build`, `serve`, `mock`, `validate`, `migrate`)
 and loads the heavy engines (`@rapidoc/portal`, `@rapidoc/server`, `@rapidoc/mock`) only when a command
@@ -176,8 +176,11 @@ Size: medium.
 
 ### Phase 6: polish
 
-- Shell completion (`rapidoc completion zsh|bash|fish`), generated from the command declarations.
-- A `files` list in `package.json`, so the published package holds `src/` only (not `design/`, `tests/`).
+- Shell completion (`rapidoc completion zsh|bash|fish`), generated from the command declarations
+  (`lib/completion.js`; the scripts never run the CLI).
+- `files` lists in `package.json`, so the published packages hold `src/` only (not `design/`, `tests/`):
+  done for the CLI, `@rapidoc/portal` (which was publishing 5 MB of tests), server, mock and
+  `create-rapidoc`; `tests/unit/package-files.test.js` keeps it so.
 
 ## Docs and examples to update
 

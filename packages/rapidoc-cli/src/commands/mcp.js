@@ -134,7 +134,7 @@ export default {
   summary: "Turns an OpenAPI spec into MCP tools: export a server project, or serve it over stdio",
   description:
     "export writes the MCP server project (the same files as <rapi-doc>'s Export MCP Server button).\nserve runs it over stdio for an AI agent, without files; it needs @modelcontextprotocol/sdk.\nCredentials come from the environment, one variable per security scheme (see the project's README).",
-  positionals: { name: "export|serve> <spec", max: 2 },
+  positionals: { name: "action", max: 2, choices: ["export", "serve"] },
   options: {
     "out-dir": {
       type: "string",

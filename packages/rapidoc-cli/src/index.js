@@ -25,6 +25,7 @@ import migrate from "./commands/migrate.js";
 import preview from "./commands/preview.js";
 import mcp from "./commands/mcp.js";
 import doctor from "./commands/doctor.js";
+import completion from "./commands/completion.js";
 
 const COMMANDS = [
   init,
@@ -39,6 +40,7 @@ const COMMANDS = [
   mcp,
   migrate,
   doctor,
+  completion,
 ];
 const byName = new Map(COMMANDS.map((command) => [command.name, command]));
 
@@ -74,7 +76,7 @@ async function runCommand(command, argv) {
   const { values, positionals } = parseCommandArgs(command, argv);
   setQuiet(values.quiet);
   setAssumeYes(values.yes);
-  await command.run({ values, positionals });
+  await command.run({ values, positionals, commands: COMMANDS });
 }
 
 async function main(argv) {

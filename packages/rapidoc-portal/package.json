@@ -2,6 +2,10 @@
   "name": "@rapidoc/portal",
   "version": "0.1.0",
   "description": "Docs-as-code developer portal framework for OpenAPI and Markdoc with RapiDoc",
+  "files": [
+    "src",
+    "schema.json"
+  ],
   "type": "module",
   "main": "src/index.js",
   "exports": {

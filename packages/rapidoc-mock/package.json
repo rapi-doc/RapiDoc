@@ -9,6 +9,9 @@
     "openapi",
     "rapidoc"
   ],
+  "files": [
+    "src"
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

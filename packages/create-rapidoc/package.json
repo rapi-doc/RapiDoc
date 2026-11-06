@@ -13,6 +13,9 @@
   "bin": {
     "create-rapidoc": "./src/index.js"
   },
+  "files": [
+    "src"
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

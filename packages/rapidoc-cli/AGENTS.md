@@ -2,13 +2,14 @@
 
 ## 1. Package Scope & Identity
 
-`packages/rapidoc-cli` provides the `rapidoc` command, the one tool users run: `rapidoc init` (scaffold a portal, optionally around existing OpenAPI files), `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc serve` (serve a build with sign-in and access rules), `rapidoc mock` (mock server for the portal's APIs), `rapidoc validate` (OpenAPI validation), `rapidoc lint` (what a portal needs beyond valid OpenAPI), `rapidoc bundle` (one file from a spec split over several), `rapidoc preview` (one spec in `<rapi-doc>`, reloading on save), `rapidoc mcp export|serve` (a spec as MCP tools), `rapidoc doctor` (setup check) and `rapidoc migrate` (config migration from Redocly or Zudoku). Future spec tools belong here too.
+`packages/rapidoc-cli` provides the `rapidoc` command, the one tool users run: `rapidoc init` (scaffold a portal, optionally around existing OpenAPI files), `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc serve` (serve a build with sign-in and access rules), `rapidoc mock` (mock server for the portal's APIs), `rapidoc validate` (OpenAPI validation), `rapidoc lint` (what a portal needs beyond valid OpenAPI), `rapidoc bundle` (one file from a spec split over several), `rapidoc preview` (one spec in `<rapi-doc>`, reloading on save), `rapidoc mcp export|serve` (a spec as MCP tools), `rapidoc doctor` (setup check), `rapidoc migrate` (config migration from Redocly or Zudoku) and `rapidoc completion` (shell completion scripts). Future spec tools belong here too.
 
 - **Package Name**: `@rapidoc/cli`
 - **Binary Name**: `rapidoc`
 - **Entry Point**: `src/index.js` (the dispatcher)
 - **Module Type**: ESM (`"type": "module"`)
-- **Plans**: `design/cli-overhaul.md` (phases 1–4 done) and `design/spec-tooling.md` (phase 5: `bundle` and `lint` done)
+- **Plans**: `design/cli-overhaul.md` (all six phases done) and `design/spec-tooling.md` (phase 5)
+- **Published files**: `files: ["src"]` in `package.json`; `tests/`, `design/` and the guides stay out of npm (`tests/unit/package-files.test.js` checks every package)
 
 ### Layout
 
@@ -26,6 +27,7 @@ src/
     ├── ports.js    # startOnFreePort (serve, mock, preview), choosePort (dev): offer the next free port
     ├── open.js     # openBrowser (--open on dev and preview); RAPIDOC_OPEN_COMMAND swaps the opener in tests
     ├── openapi-shape.js  # childKind(kind, key, v2): which children of an OpenAPI node are schemas, parameters, ...; bundle and lint walk with it
+    ├── completion.js     # zsh / bash / fish scripts from the command declarations (`rapidoc completion`)
     └── suggest.js  # "did you mean" for commands, options and choices
 validate/           # rapidoc validate's engine (imported only by validate, lint and bundle)
 ├── bundle.js       # loadFiles: a spec and the files its $refs reach (yaml, with positions); bundleSpec: the same with other-file $refs inlined, in-file ones kept, origin of every copied node
@@ -46,7 +48,9 @@ lint/               # rapidoc lint's engine (imported only by that command)
 ### Rules for commands
 
 - Declare every option in the command's `options` (`type`, `kind: "port" | "int"`, `choices`, `default`,
-  `required`, `negatable`, `short`, `value`, `description`); help comes from these, so never hand-write help.
+  `required`, `negatable`, `short`, `value`, `description`) and its `positionals` (`name`, `max`, `choices`
+  for the first one); help and shell completion come from these, so never hand-write either. `run` gets
+  `{ values, positionals, commands }` (`commands`: every command, for `completion`).
 - Options are kebab-case (`--out-dir`, `--mount-path`).
 - Never call `process.exit` to fail: throw `UsageError` for a wrong command line (exit 2) and `ProblemError`
   for problems in the input (exit 1). The dispatcher prints them (`error: …` when piped).
@@ -87,11 +91,11 @@ lint/               # rapidoc lint's engine (imported only by that command)
 
 Run these commands from `packages/rapidoc-cli`:
 
-| Command                    | Purpose                                                                                                                                                                                                                                                                                                                      |
-| :------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm start`                | Executes `node src/index.js`                                                                                                                                                                                                                                                                                                 |
-| `node src/index.js <args>` | Directly test CLI arguments during development                                                                                                                                                                                                                                                                               |
-| `npm test`                 | Runs `tests/**/*.test.js` (`cli.test.js`: commands end to end; `args.test.js`: parsing, help, exit codes; `validate.test.js`; `prompts.test.js`: questions; `tools.test.js`: preview, mcp, doctor; `bundle.test.js`: bundle, fixtures in `tests/fixtures/bundle/`; `lint.test.js`: lint, fixtures in `tests/fixtures/lint/`) |
+| Command                    | Purpose                                                                                                                                                                                                                                                                                                                                                                               |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm start`                | Executes `node src/index.js`                                                                                                                                                                                                                                                                                                                                                          |
+| `node src/index.js <args>` | Directly test CLI arguments during development                                                                                                                                                                                                                                                                                                                                        |
+| `npm test`                 | Runs `tests/**/*.test.js` (`cli.test.js`: commands end to end; `args.test.js`: parsing, help, exit codes; `validate.test.js`; `prompts.test.js`: questions; `tools.test.js`: preview, mcp, doctor; `bundle.test.js`: bundle, fixtures in `tests/fixtures/bundle/`; `lint.test.js`: lint, fixtures in `tests/fixtures/lint/`; `completion.test.js`: the scripts parse, bash completes) |
 
 ---
 

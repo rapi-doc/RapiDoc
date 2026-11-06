@@ -5,6 +5,9 @@
   "bin": {
     "rapidoc": "./src/index.js"
   },
+  "files": [
+    "src"
+  ],
   "type": "module",
   "scripts": {
     "start": "node src/index.js",

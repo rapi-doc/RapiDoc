@@ -9,6 +9,9 @@
     "rapidoc",
     "sso"
   ],
+  "files": [
+    "src"
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {
