@@ -760,6 +760,20 @@ function mergePropertyExamples(obj, propertyName, propExamples) {
   return obj;
 }
 
+// An allOf with one member that has no properties, items or composition of its own
+// (allOf/oneOf/anyOf) can be treated as that member.
+function isSingleNonComposedAllOf(schema) {
+  const member = schema.allOf.length === 1 ? schema.allOf[0] : null;
+  return (
+    Boolean(member) &&
+    !member.properties &&
+    !member.items &&
+    !member.allOf &&
+    !member.oneOf &&
+    !member.anyOf
+  );
+}
+
 /* For changing JSON-Schema to a Sample Object, as per the schema (to generate examples based on schema) */
 export function schemaToSampleObj(schema, config = {}, level = 0) {
   let obj = {};
@@ -769,7 +783,7 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
   if (schema.allOf) {
     const mergedObj = {};
 
-    if (schema.allOf.length === 1 && !schema.allOf[0]?.properties && !schema.allOf[0]?.items) {
+    if (isSingleNonComposedAllOf(schema)) {
       // If allOf has single item and the type is not an object or array, then its a primitive
       if (schema.allOf[0].$ref) {
         return { "example-0": {} };
@@ -1079,7 +1093,7 @@ function handleArraySchema(schema, baseObj = {}, level = 0) {
 }
 
 function handleAllOfSchema(schema, baseObj = {}, level = 0) {
-  if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
+  if (isSingleNonComposedAllOf(schema)) {
     // If allOf has single item and the type is not an object or array, then its a primitive
     return `${getTypeInfo(schema.allOf[0]).html}`;
   }
@@ -1432,7 +1446,7 @@ function nodeToAST(schema, level, name, isRequired, suffix) {
 function composeSchemaAST(schema, level, name, isRequired, suffix) {
   // 1. allOf
   if (schema.allOf) {
-    if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
+    if (isSingleNonComposedAllOf(schema)) {
       const mergedSchema = {
         ...schema.allOf[0],
         ...schema,

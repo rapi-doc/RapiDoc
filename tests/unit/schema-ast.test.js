@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { schemaToAST } from "../../packages/rapidoc/src/utils/schema-utils.js";
+import { schemaToAST, schemaToSampleObj } from "../../packages/rapidoc/src/utils/schema-utils.js";
 
 describe("schemaToAST", () => {
   describe("primitive data types", () => {
@@ -591,5 +591,31 @@ describe("schemaToAST", () => {
       assert.ok(!level6.truncated);
       assert.strictEqual(level6.properties.length, 100);
     });
+  });
+});
+
+describe("allOf wrapping a single composed schema", () => {
+  const address = {
+    type: "object",
+    properties: { street: { type: "string" }, city: { type: "string" } },
+  };
+  const geoAddress = {
+    allOf: [address, { type: "object", properties: { lat: { type: "number" } } }],
+  };
+  const wrapped = { description: "Billing address", allOf: [geoAddress] };
+
+  it("schemaToAST keeps the fields of the inner allOf", () => {
+    const ast = schemaToAST(wrapped);
+    assert.strictEqual(ast.kind, "object");
+    assert.deepStrictEqual(
+      ast.properties.map((p) => p.name),
+      ["street", "city", "lat"],
+    );
+  });
+
+  it("schemaToSampleObj keeps the fields of the inner allOf", () => {
+    const sample = schemaToSampleObj({ type: "object", properties: { address: wrapped } });
+    const { street, city, lat } = sample["example-0"].address ?? {};
+    assert.deepStrictEqual({ street, city, lat }, { street: "string", city: "string", lat: 0 });
   });
 });
