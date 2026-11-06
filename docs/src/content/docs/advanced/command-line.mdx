@@ -1,0 +1,73 @@
+---
+title: Command-Line Tools
+description: Validate OpenAPI specs and run a mock server from the command line with @rapidoc/cli. No developer portal needed.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+`@rapidoc/cli` gives you the `rapidoc` command. Most of it builds and runs [RapiDoc Portal](https://github.com/rapi-doc/rapi-portal-doc) developer portals, but two commands work on plain OpenAPI files and are useful wherever you use `<rapi-doc>`: **`validate`** checks a spec, and **`mock`** serves its API with example responses.
+
+<Aside type="caution" title="Preview">
+  `@rapidoc/cli` is in preview and not on npm yet. The commands below are what it will offer when it is published.
+</Aside>
+
+```bash
+npm install -D @rapidoc/cli
+npx rapidoc --help            # every command
+npx rapidoc validate --help   # one command's options and examples
+```
+
+## Validate a spec
+
+```bash
+npx rapidoc validate openapi.yaml
+npx rapidoc validate https://example.com/openapi.json
+```
+
+`rapidoc validate` checks a spec strictly against the OpenAPI Specification (2.0, 3.0, 3.1 and 3.2): required fields such as `info.version`, types, path parameters that are used but not defined, and `$ref`s that point to nothing. Files reached through a relative `$ref` are checked too. Each error names the file, line and column:
+
+```text
+🔍 openapi.yaml: openapi.yaml
+   ❌ 1 error(s):
+      openapi.yaml:3:1  must have required property 'version'  (#/info)
+```
+
+| Option | Meaning |
+| :--- | :--- |
+| `--format pretty \| json \| sarif` | `json` for scripts, `sarif` for GitHub code scanning (problems shown on the pull request). |
+| `--strict` | Fail on warnings too. |
+| `--remote` | Also fetch remote `$ref`s. |
+
+It exits with code `1` when the spec has errors, so it can guard a pull request:
+
+```yaml title=".github/workflows/api.yml"
+# in a job's steps:
+- run: npx rapidoc validate openapi.yaml
+```
+
+## Mock the API
+
+```bash
+npx rapidoc mock openapi.yaml                    # http://localhost:4010/openapi
+npx rapidoc mock orders.yaml billing.yaml        # each under /<file name>
+npx rapidoc mock ./specs --port 4011             # every OpenAPI file in the folder
+```
+
+`rapidoc mock` answers every operation of the spec: with the spec's examples first, else with data generated from the schemas. It validates requests against the spec, and checks bearer tokens against your OpenID Connect issuer when you pass `--issuer` (and `--audience`), so `401` and `403` behave as they will in production. A `Prefer: code=404` header picks a documented response; `Prefer: example=<name>` picks an example.
+
+To call it from `<rapi-doc>`'s **Try**, list the mock first in the spec's `servers`:
+
+```yaml
+servers:
+  - url: http://localhost:4010/openapi
+    description: Mock (rapidoc mock)
+  - url: https://api.example.com
+```
+
+It complements the [in-browser mock server](/docs/advanced/mock-server/) (`mock-server="true"`): that one needs no process and answers inside the page; `rapidoc mock` is a real HTTP server, so any client can call it (curl, your frontend, [`<rapi-flow>`](/docs/advanced/workflows/) running a workflow), and it checks requests and tokens.
+
+## Everything else
+
+The other commands (`init`, `dev`, `build`, `serve`, `migrate`) create and run a developer portal: OpenAPI references next to Markdown and Markdoc guides, with search and optional sign-in. The full reference, with every option, is in the [RapiDoc Portal docs](https://github.com/rapi-doc/rapi-portal-doc/blob/main/docs/reference/cli.md).
+
+In a terminal, `rapidoc` asks for what the options don't say and shows a menu when run alone; piped, in CI or with `--yes` it never asks. Exit codes: `0` success, `1` problems in the input, `2` a wrong command line.
