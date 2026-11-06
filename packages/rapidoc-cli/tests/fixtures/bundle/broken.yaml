@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: Broken
+  version: 1.0.0
+paths:
+  /a:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./missing.yaml"

@@ -1,0 +1,18 @@
+type: object
+required: [id, total]
+properties:
+  id:
+    type: string
+  total:
+    $ref: "../openapi.yaml#/components/schemas/Money"
+  shipTo:
+    $ref: "#/$defs/Address"
+  items:
+    type: array
+    items:
+      $ref: "./LineItem.yaml"
+$defs:
+  Address:
+    type: object
+    properties:
+      street: { type: string }

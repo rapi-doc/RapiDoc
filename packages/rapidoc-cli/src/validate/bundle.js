@@ -82,23 +82,35 @@ function refsIn(value, found = []) {
 }
 
 /**
- * Loads `entry` and every file reachable through $refs. Remote files are fetched only with `remote`
- * (or when the entry itself is a URL); others stay unchecked $refs, reported as `skipped`.
- * Returns { entry, files: Map<location, file>, value, origin, problems, skipped }.
+ * @typedef {object} SpecFile
+ * @property {string} location   file path or URL
+ * @property {import("yaml").Document} [doc]   the parsed document (for positions)
+ * @property {LineCounter} [lineCounter]
+ * @property {unknown} [value]   the document as plain data
+ * @property {string} [error]    why the file couldn't be read (then no doc or value)
  */
-export async function bundleSpec(entry, { remote = false } = {}) {
+
+/**
+ * Loads `entry` and every file reachable through $refs (breadth first). Remote files are fetched only
+ * with `remote` (or when the entry itself is a URL); others are listed in `skipped` and stay $refs.
+ * A file that can't be read is kept with its `error`, so the $ref to it can be reported where it is.
+ * @returns {Promise<{ entry: string, files: Map<string, SpecFile>, skipped: string[] }>}
+ */
+export async function loadFiles(entry, { remote = false } = {}) {
   const allowRemote = remote || isUrl(entry);
   const files = new Map([[entry, await parseFile(entry)]]);
-  const problems = [];
   const skipped = new Set();
 
-  // Load every file the $refs reach (breadth first), before the synchronous copy below.
   const queue = [entry];
   while (queue.length) {
     const from = queue.shift();
     for (const ref of refsIn(files.get(from).value)) {
       const { location } = resolveRef(from, ref);
-      if (files.has(location) || (isUrl(location) && !allowRemote)) continue;
+      if (files.has(location)) continue;
+      if (isUrl(location) && !allowRemote) {
+        skipped.add(location);
+        continue;
+      }
       try {
         files.set(location, await parseFile(location));
         queue.push(location);
@@ -108,6 +120,16 @@ export async function bundleSpec(entry, { remote = false } = {}) {
       }
     }
   }
+  return { entry, files, skipped: [...skipped] };
+}
+
+/**
+ * Loads `entry` and the files its $refs reach, then inlines every other-file $ref (in-file ones stay).
+ * Returns { entry, files: Map<location, file>, value, origin, problems, skipped }.
+ */
+export async function bundleSpec(entry, { remote = false } = {}) {
+  const { files, skipped } = await loadFiles(entry, { remote });
+  const problems = [];
 
   const origin = new WeakMap();
   const copy = (node, location, pointer, chain) => {
@@ -135,7 +157,7 @@ export async function bundleSpec(entry, { remote = false } = {}) {
       }
       const file = files.get(target.location);
       if (!file) {
-        skipped.add(target.location);
+        // A remote file that wasn't fetched (listed in `skipped`): the $ref stays as written.
         const kept = { ...node };
         origin.set(kept, { location, pointer });
         return kept;
@@ -171,7 +193,7 @@ export async function bundleSpec(entry, { remote = false } = {}) {
   };
 
   const value = copy(files.get(entry).value, entry, [], new Set());
-  return { entry, files, value, origin, problems, skipped: [...skipped] };
+  return { entry, files, value, origin, problems, skipped };
 }
 
 /** The file and JSON pointer that a path in the bundle comes from. */

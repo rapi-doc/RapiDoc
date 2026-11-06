@@ -1,0 +1,4 @@
+type: object
+properties:
+  sku: { type: string }
+  quantity: { type: integer }

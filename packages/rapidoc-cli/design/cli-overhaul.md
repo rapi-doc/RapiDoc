@@ -1,6 +1,6 @@
 # `rapidoc` CLI overhaul (design)
 
-Status: phases 1–4 done (2026-11-06; phase 4 uncommitted); phases 5–6 proposed.
+Status: phases 1–4 done (2026-11-06); phase 5 in progress (`bundle` done, `lint` next; `spec-tooling.md`); phase 6 proposed.
 
 `@rapidoc/cli` covers the portal workflow (`init`, `dev`, `build`, `serve`, `mock`, `validate`, `migrate`)
 and loads the heavy engines (`@rapidoc/portal`, `@rapidoc/server`, `@rapidoc/mock`) only when a command
@@ -160,16 +160,19 @@ MCP manifests were affected too; `<rapi-doc>`'s Export button wasn't, it passes 
 
 Size: medium (each command is small; `preview` needs a tiny static server with live reload).
 
-### Phase 5: spec tooling (each gets its own short design first)
+### Phase 5: spec tooling
 
-- **`rapidoc lint`**: rules for what a portal needs (operationId, summaries, examples, naming, unused
-  components, security on write operations), a small rules file to turn them on and off, the same
-  output formats as `validate`.
-- **`rapidoc bundle <spec>`**: resolve `$ref`s into one file.
-- **`rapidoc diff <old> <new>`**: breaking changes between two versions of a spec; pairs with
-  `apis[].versions`, and CI can fail a change that breaks an API without a new version.
+Design: [`spec-tooling.md`](spec-tooling.md). No new dependencies; modern JavaScript with JSDoc types.
 
-Size: large.
+- **`rapidoc bundle <spec>`**: one file from a spec split over several; other-file `$ref`s become
+  components (or `--dereference` inlines everything); validated before it's written.
+- **`rapidoc lint [spec | dir]`**: what a portal needs beyond valid OpenAPI (operationId, summaries,
+  examples, tags, security on writes, unused components), 16 rules with severities in a `lint:` key of
+  the config, the same output formats as `validate`.
+- **`rapidoc diff`**: dropped (see the design's "Not in this phase"); revisit if a changelog page
+  between API versions is wanted.
+
+Size: medium.
 
 ### Phase 6: polish
 

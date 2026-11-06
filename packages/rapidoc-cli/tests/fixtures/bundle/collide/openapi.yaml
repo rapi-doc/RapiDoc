@@ -1,0 +1,25 @@
+openapi: 3.0.3
+info:
+  title: Collide
+  version: 1.0.0
+paths:
+  /a:
+    get:
+      operationId: a
+      responses:
+        "400":
+          description: Bad
+          content:
+            application/json:
+              schema:
+                $ref: "./a/Error.yaml"
+        "500":
+          description: Worse
+          content:
+            application/json:
+              schema:
+                $ref: "./b/Error.yaml"
+components:
+  schemas:
+    Error:
+      type: string

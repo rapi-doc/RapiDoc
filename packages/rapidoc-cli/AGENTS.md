@@ -2,13 +2,13 @@
 
 ## 1. Package Scope & Identity
 
-`packages/rapidoc-cli` provides the `rapidoc` command, the one tool users run: `rapidoc init` (scaffold a portal, optionally around existing OpenAPI files), `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc serve` (serve a build with sign-in and access rules), `rapidoc mock` (mock server for the portal's APIs), `rapidoc validate` (OpenAPI validation), `rapidoc preview` (one spec in `<rapi-doc>`, reloading on save), `rapidoc mcp export|serve` (a spec as MCP tools), `rapidoc doctor` (setup check) and `rapidoc migrate` (config migration from Redocly or Zudoku). Future tools (linting) belong here too.
+`packages/rapidoc-cli` provides the `rapidoc` command, the one tool users run: `rapidoc init` (scaffold a portal, optionally around existing OpenAPI files), `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc serve` (serve a build with sign-in and access rules), `rapidoc mock` (mock server for the portal's APIs), `rapidoc validate` (OpenAPI validation), `rapidoc bundle` (one file from a spec split over several), `rapidoc preview` (one spec in `<rapi-doc>`, reloading on save), `rapidoc mcp export|serve` (a spec as MCP tools), `rapidoc doctor` (setup check) and `rapidoc migrate` (config migration from Redocly or Zudoku). Future tools (linting) belong here too.
 
 - **Package Name**: `@rapidoc/cli`
 - **Binary Name**: `rapidoc`
 - **Entry Point**: `src/index.js` (the dispatcher)
 - **Module Type**: ESM (`"type": "module"`)
-- **Plan**: `design/cli-overhaul.md` (phase 1, the foundation below, is done)
+- **Plans**: `design/cli-overhaul.md` (phases 1–4 done) and `design/spec-tooling.md` (phase 5: `bundle` done, `lint` next)
 
 ### Layout
 
@@ -26,10 +26,14 @@ src/
     ├── ports.js    # startOnFreePort (serve, mock, preview), choosePort (dev): offer the next free port
     ├── open.js     # openBrowser (--open on dev and preview); RAPIDOC_OPEN_COMMAND swaps the opener in tests
     └── suggest.js  # "did you mean" for commands, options and choices
-validate/           # rapidoc validate's engine (imported only by that command)
-├── bundle.js       # load a spec and the files its $refs reach (yaml, with positions); inline other-file $refs, keep in-file ones; origin of every copied node
+validate/           # rapidoc validate's engine (imported only by validate and bundle)
+├── bundle.js       # loadFiles: a spec and the files its $refs reach (yaml, with positions); bundleSpec: the same with other-file $refs inlined, in-file ones kept, origin of every copied node
 ├── check.js        # checkSpec: @scalar/openapi-validator (strict) + path parameters; each error → file, line, column, JSON pointer
 └── report.js       # pretty (terminal), json, sarif 2.1.0
+bundle/             # rapidoc bundle's engine, over loadFiles (imported only by that command)
+├── components.js   # toComponents: other-file $refs → components (#/components/<kind>/<name>; Swagger 2.0: definitions/parameters/responses), by the OpenAPI structure the walk knows; unknown kinds inlined
+├── dereference.js  # dereference: every $ref inlined; CycleError (with the chain) on a recursive one
+└── write.js        # formatFor (--format, else the output's extension), serialize (yaml without aliases, or json)
 ```
 
 ### Rules for commands
@@ -41,7 +45,8 @@ validate/           # rapidoc validate's engine (imported only by that command)
   for problems in the input (exit 1). The dispatcher prints them (`error: …` when piped).
 - Print through `lib/output.js`: results and progress with `info`/`success` (stdout, hidden by `--quiet`),
   problems with `warn`/`error` (stderr). Pass emoji through `icon()` so piped output stays plain.
-- Long-running commands (`dev`, `serve`, `mock`) return after starting; they handle SIGINT/SIGTERM themselves.
+- Long-running commands (`dev`, `serve`, `mock`, `preview`) return after starting; they handle SIGINT/SIGTERM themselves.
+- A command whose result goes to stdout as a document (`validate --format json`, `bundle` without `-o`, `mcp serve`) calls `setQuiet(true)` first, so nothing else lands there; it reports on stderr.
 - Questions only through `lib/prompt.js`, and only when `canAsk()`: stdin and stdout are terminals, `CI`
   is unset, `--yes` (global) wasn't given. Otherwise use the default (`assumingYes()` for --yes) or throw a
   `UsageError` naming the option to pass. Every question needs an option that answers it. Ctrl+C throws
@@ -72,11 +77,11 @@ validate/           # rapidoc validate's engine (imported only by that command)
 
 Run these commands from `packages/rapidoc-cli`:
 
-| Command                    | Purpose                                                                                                                                                                                            |
-| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm start`                | Executes `node src/index.js`                                                                                                                                                                       |
-| `node src/index.js <args>` | Directly test CLI arguments during development                                                                                                                                                     |
-| `npm test`                 | Runs `tests/**/*.test.js` (`cli.test.js`: commands end to end; `args.test.js`: parsing, help, exit codes; `validate.test.js`; `prompts.test.js`: questions; `tools.test.js`: preview, mcp, doctor) |
+| Command                    | Purpose                                                                                                                                                                                                                                                            |
+| :------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm start`                | Executes `node src/index.js`                                                                                                                                                                                                                                       |
+| `node src/index.js <args>` | Directly test CLI arguments during development                                                                                                                                                                                                                     |
+| `npm test`                 | Runs `tests/**/*.test.js` (`cli.test.js`: commands end to end; `args.test.js`: parsing, help, exit codes; `validate.test.js`; `prompts.test.js`: questions; `tools.test.js`: preview, mcp, doctor; `bundle.test.js`: bundle, fixtures in `tests/fixtures/bundle/`) |
 
 ---
 

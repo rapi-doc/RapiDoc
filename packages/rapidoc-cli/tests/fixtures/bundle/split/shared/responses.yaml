@@ -1,0 +1,6 @@
+NotFound:
+  description: Not found
+  content:
+    application/json:
+      schema:
+        $ref: "./Error.yaml"

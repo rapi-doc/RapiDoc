@@ -1,0 +1,53 @@
+openapi: 3.1.0
+info:
+  title: Split
+  version: 1.0.0
+paths:
+  /orders:
+    get:
+      operationId: listOrders
+      summary: List orders
+      parameters:
+        - $ref: "./shared/parameters.yaml#/Page"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "./schemas/Order.yaml"
+        "404":
+          $ref: "./shared/responses.yaml#/NotFound"
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Get an order
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Order.yaml"
+        "404":
+          $ref: "./shared/responses.yaml#/NotFound"
+      x-internal:
+        $ref: "./shared/vendor.yaml"
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    Money:
+      type: object
+      properties:
+        amount: { type: number }
+        currency: { type: string }

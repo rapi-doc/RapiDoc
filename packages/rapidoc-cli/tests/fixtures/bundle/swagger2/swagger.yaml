@@ -1,0 +1,17 @@
+swagger: "2.0"
+info:
+  title: Legacy
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      parameters:
+        - $ref: "./parameters.yaml#/Limit"
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "./Pet.yaml"

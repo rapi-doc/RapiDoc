@@ -53,6 +53,15 @@ It exits with code `1` when the spec has errors, so it can guard a pull request:
 - run: npx rapidoc validate openapi.yaml
 ```
 
+## Bundle a spec split over files
+
+```bash
+npx rapidoc bundle openapi.yaml -o dist/openapi.json
+npx rapidoc bundle openapi.yaml --dereference > flat.yaml
+```
+
+`rapidoc bundle` writes a spec and every file its `$ref`s reach as one document, for tools that can't follow `$ref`s across files. A `$ref` to another file becomes a component (`./schemas/Order.yaml` → `#/components/schemas/Order`, holding a copy; `definitions` in Swagger 2.0), named after the file or the pointer's last part, and in-file `$ref`s stay. `--dereference` inlines everything instead, and stops on a recursive schema. The result is validated before it's written (`--no-validate` skips that); `-o` picks JSON or YAML by the extension, and without it the document goes to stdout.
+
 ## Mock the API
 
 ```bash
