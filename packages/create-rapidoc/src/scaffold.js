@@ -473,37 +473,29 @@ function apisFromSpecs(specs) {
   });
 }
 
+/** The site title a folder gets when none is given: `acme-docs` → "Acme Docs". */
+export function defaultSiteTitle(targetDir, name) {
+  const folderName = name || path.basename(path.resolve(targetDir)) || "my-dev-portal";
+  return folderName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 /**
- * Scaffolds a new RapiDoc Developer Portal into target directory. Existing files are left alone unless
- * `overwrite` is set (they are listed in `filesSkipped`), so it can also add a portal to an existing repo.
- *
- * @param {string} targetDir - Destination directory path
- * @param {object} [options] - { name, title, overwrite, specs }. `specs` lists OpenAPI files (relative to
- *   targetDir) to use instead of the starter spec; see findOpenApiSpecs.
- * @returns {{ targetDir: string, projectName: string, siteTitle: string, apis: Array<object>,
- *   filesCreated: Array<string>, filesSkipped: Array<string> }}
+ * What scaffoldProject would write, without writing anything: { projectName, siteTitle, apis, files },
+ * where files are { path, content }. `init` uses it to list the files --force would overwrite.
  */
-export function scaffoldProject(targetDir, options = {}) {
+export function planScaffold(targetDir, options = {}) {
   const resolvedDir = path.resolve(targetDir);
   const folderName = options.name || path.basename(resolvedDir) || "my-dev-portal";
   const projectName = toPackageName(folderName);
-  const siteTitle =
-    options.title || `${folderName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}`;
+  const siteTitle = options.title || defaultSiteTitle(resolvedDir, options.name);
   const withStarterSpec = !options.specs?.length;
   const apis = withStarterSpec
     ? [{ id: "core", label: "Core API", spec: "./specs/api.yaml" }]
     : apisFromSpecs(options.specs);
 
-  if (!fs.existsSync(resolvedDir)) {
-    fs.mkdirSync(resolvedDir, { recursive: true });
-  }
-
   const docsDir = path.join(resolvedDir, "docs");
   const guidesDir = path.join(docsDir, "guides");
   const specsDir = path.join(resolvedDir, "specs");
-
-  fs.mkdirSync(guidesDir, { recursive: true });
-  if (withStarterSpec) fs.mkdirSync(specsDir, { recursive: true });
 
   const files = [
     {
@@ -518,6 +510,28 @@ export function scaffoldProject(targetDir, options = {}) {
     { path: path.join(docsDir, "getting-started.md"), content: STARTER_GETTING_STARTED },
     { path: path.join(guidesDir, "overview.markdoc"), content: STARTER_OVERVIEW(withStarterSpec) },
   ];
+  return { targetDir: resolvedDir, projectName, siteTitle, apis, files };
+}
+
+/**
+ * Scaffolds a new RapiDoc Developer Portal into target directory. Existing files are left alone unless
+ * `overwrite` is set (they are listed in `filesSkipped`), so it can also add a portal to an existing repo.
+ *
+ * @param {string} targetDir - Destination directory path
+ * @param {object} [options] - { name, title, overwrite, specs }. `specs` lists OpenAPI files (relative to
+ *   targetDir) to use instead of the starter spec; see findOpenApiSpecs.
+ * @returns {{ targetDir: string, projectName: string, siteTitle: string, apis: Array<object>,
+ *   filesCreated: Array<string>, filesSkipped: Array<string> }}
+ */
+export function scaffoldProject(targetDir, options = {}) {
+  const {
+    targetDir: resolvedDir,
+    projectName,
+    siteTitle,
+    apis,
+    files,
+  } = planScaffold(targetDir, options);
+  for (const file of files) fs.mkdirSync(path.dirname(file.path), { recursive: true });
 
   const filesCreated = [];
   const filesSkipped = [];

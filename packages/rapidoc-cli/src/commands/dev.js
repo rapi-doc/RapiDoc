@@ -2,6 +2,7 @@ import path from "node:path";
 import { loadPortal } from "../lib/engines.js";
 import { ProblemError } from "../lib/errors.js";
 import { icon, info } from "../lib/output.js";
+import { choosePort } from "../lib/ports.js";
 
 export default {
   name: "dev",
@@ -35,7 +36,8 @@ export default {
     let devServer;
     try {
       devServer = await startDevServer(targetDir, {
-        port: values.port,
+        // Astro moves to the next free port by itself; in a terminal we ask first.
+        port: await choosePort(values.port, { host: "localhost" }),
         keepWorkspace: values.debug,
       });
     } catch (err) {

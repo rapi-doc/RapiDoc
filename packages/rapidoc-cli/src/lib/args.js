@@ -8,6 +8,11 @@ import { closest } from "./suggest.js";
 export const GLOBAL_OPTIONS = {
   help: { type: "boolean", short: "h", description: "Show this command's help" },
   quiet: { type: "boolean", short: "q", description: "Print errors and warnings only" },
+  yes: {
+    type: "boolean",
+    short: "y",
+    description: "Don't ask: take the default answer to every question",
+  },
 };
 
 /** How an option is written: `--out-dir <path>`, `-f, --force`, `--no-install`. */
@@ -119,7 +124,9 @@ export function parseCommandArgs(command, argv) {
         },
       );
     }
-    values[token.name] = checkValue(token.name, def, token.value, command.name);
+    const value = checkValue(token.name, def, token.value, command.name);
+    if (def.multiple) (values[token.name] ??= []).push(value);
+    else values[token.name] = value;
   }
 
   for (const [name, def] of Object.entries(defs)) {

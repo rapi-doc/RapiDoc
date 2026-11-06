@@ -2,6 +2,7 @@ import path from "node:path";
 import { loadServer } from "../lib/engines.js";
 import { ProblemError } from "../lib/errors.js";
 import { icon, info, warn } from "../lib/output.js";
+import { startOnFreePort } from "../lib/ports.js";
 
 export default {
   name: "serve",
@@ -34,15 +35,24 @@ export default {
   async run({ values, positionals }) {
     const distDir = path.resolve(positionals[0] || "dist");
     const { startServer } = await loadServer();
+    // The server's defaults ($PORT, else 8080; $HOST), to offer another port when that one is taken.
+    const host = values.host ?? process.env.HOST ?? "0.0.0.0";
+    const port = values.port ?? Number(process.env.PORT || 8080);
     let server;
     try {
-      server = await startServer({
-        distDir,
-        port: values.port,
-        host: values.host,
-        mountPath: values["mount-path"],
-      });
+      server = await startOnFreePort(
+        (portToUse) =>
+          startServer({
+            distDir,
+            port: portToUse,
+            host: values.host,
+            mountPath: values["mount-path"],
+          }),
+        port,
+        { host },
+      );
     } catch (err) {
+      if (err.exitCode) throw err; // a busy port without --port, or a cancelled question
       throw new ProblemError(
         err.name === "SettingsError" ? err.message : `Server failed: ${err.message}`,
       );

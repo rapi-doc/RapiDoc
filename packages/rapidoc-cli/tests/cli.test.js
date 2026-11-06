@@ -50,7 +50,7 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
     assert.ok(output.includes("RapiDoc CLI (@rapidoc/cli)"));
     assert.ok(output.includes("build [dir]"));
     assert.ok(output.includes("validate [spec|dir]"));
-    assert.ok(output.includes("migrate --from <src>"));
+    assert.ok(output.includes("migrate [--from <src>]"));
     assert.ok(output.includes("init [dir]"));
     assert.ok(output.includes("serve [dist]"));
     assert.ok(output.includes("mock [dir|spec...]"));

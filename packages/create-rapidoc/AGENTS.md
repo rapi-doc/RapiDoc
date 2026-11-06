@@ -22,7 +22,8 @@
    - Home page in `docs/index.markdoc` (Starlight splash template with cards)
    - Starter Markdown guide in `docs/getting-started.md`
    - Starter Markdoc guide in `docs/guides/overview.markdoc` demonstrating callouts, tabs, step tags, and a live `api-operation` embed of the starter spec
-2. Supports interactive or headless scaffolding (`--title`, `--force`). Existing files are kept unless `overwrite`/`--force` (reported in `filesSkipped`).
+2. Supports interactive or headless scaffolding (`--title`, `--force`, `--yes`). Existing files are kept unless `overwrite`/`--force` (reported in `filesSkipped`). `planScaffold(dir, options)` returns the files `scaffoldProject` would write without writing them (`rapidoc init --force` lists the ones it would replace).
+   - `src/wizard.js` (`create-rapidoc/wizard`): `askInitQuestions({ ask, targetDir, foundSpecs, known, askInstall })`, the questions `rapidoc init` and `npm create rapidoc` both ask in a terminal (title, which specs, npm install) for what the options didn't say. It takes the prompt functions (`ask`) instead of importing them, so the CLI passes its `lib/prompt.js` (scripted answers in tests) and `src/index.js` passes `@clack/prompts`.
 3. `findOpenApiSpecs(dir)` finds OpenAPI/Swagger files in an existing repo; passing them as `specs` to `scaffoldProject` builds `apis:` and one navigation tab per spec instead of writing the starter spec.
 4. Out-of-the-box buildable: freshly scaffolded projects immediately build with `rapidoc build`.
 

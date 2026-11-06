@@ -22,6 +22,8 @@ src/
     ├── help.js     # overview and per-command help, generated from the command declarations
     ├── output.js   # info / success / warn / error; icons only on a terminal without NO_COLOR; --quiet
     ├── engines.js  # loadPortal / tryLoadPortal / loadServer / loadMock (lazy imports)
+    ├── prompt.js   # questions (@clack/prompts, imported lazily): canAsk, text, confirm, select, multiselect
+    ├── ports.js    # startOnFreePort (serve, mock), choosePort (dev): offer the next free port
     └── suggest.js  # "did you mean" for commands, options and choices
 validate/           # rapidoc validate's engine (imported only by that command)
 ├── bundle.js       # load a spec and the files its $refs reach (yaml, with positions); inline other-file $refs, keep in-file ones; origin of every copied node
@@ -39,6 +41,13 @@ validate/           # rapidoc validate's engine (imported only by that command)
 - Print through `lib/output.js`: results and progress with `info`/`success` (stdout, hidden by `--quiet`),
   problems with `warn`/`error` (stderr). Pass emoji through `icon()` so piped output stays plain.
 - Long-running commands (`dev`, `serve`, `mock`) return after starting; they handle SIGINT/SIGTERM themselves.
+- Questions only through `lib/prompt.js`, and only when `canAsk()`: stdin and stdout are terminals, `CI`
+  is unset, `--yes` (global) wasn't given. Otherwise use the default (`assumingYes()` for --yes) or throw a
+  `UsageError` naming the option to pass. Every question needs an option that answers it. Ctrl+C throws
+  `CancelledError` (exit 130). Tests script answers with `RAPIDOC_PROMPT_ANSWERS` (a JSON array; `null` is
+  Ctrl+C): `tests/prompts.test.js`.
+- A taken port: `serve` and `mock` start first and call `startOnFreePort` (so their own checks, such as a
+  missing build, come first); `dev` uses `choosePort`, since Astro moves to a free port itself.
 - Don't import heavy modules at the top of a command file: every command module is loaded for help
   (`validate` imports `@scalar/openapi-parser` inside `run`).
 

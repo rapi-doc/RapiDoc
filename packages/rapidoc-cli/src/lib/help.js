@@ -42,7 +42,11 @@ ${table([
   ["-h, --help", "Show this help (or a command's, after the command)"],
   ["-v, --version", "Show the version"],
   ["-q, --quiet", "Print errors and warnings only"],
+  ["-y, --yes", "Don't ask: take the default answer to every question"],
 ])}
+
+In a terminal, commands ask for what their options don't say (\`rapidoc\` alone shows a menu);
+piped, in CI or with --yes they never ask.
 
 dev, build, migrate, folder-wide validate and mock of a portal folder need @rapidoc/portal installed next to
 the CLI; serve needs @rapidoc/server; mock needs @rapidoc/mock.

@@ -3,6 +3,7 @@ import path from "node:path";
 import { loadMock, loadPortal } from "../lib/engines.js";
 import { ProblemError, UsageError } from "../lib/errors.js";
 import { icon, info, warn } from "../lib/output.js";
+import { startOnFreePort } from "../lib/ports.js";
 
 // The portal's config file names (CONFIG_CANDIDATES in @rapidoc/portal), checked without loading the portal engine.
 export const hasPortalConfig = (dir) =>
@@ -148,18 +149,17 @@ export default {
 
     const issuer = values.issuer || process.env.RAPIDOC_MOCK_ISSUER || undefined;
     const audience = values.audience || process.env.RAPIDOC_MOCK_AUDIENCE || undefined;
-    const { startMockServer } = await loadMock();
+    const { startMockServer, DEFAULT_PORT } = await loadMock();
     let server;
     try {
-      server = await startMockServer({
-        apis,
-        port: values.port,
-        host: values.host,
-        issuer,
-        audience,
-        seed: values.seed,
-      });
+      server = await startOnFreePort(
+        (port) =>
+          startMockServer({ apis, port, host: values.host, issuer, audience, seed: values.seed }),
+        values.port ?? DEFAULT_PORT ?? 4010,
+        { host: values.host ?? "0.0.0.0" }, // the mock server's default host
+      );
     } catch (err) {
+      if (err.exitCode) throw err; // a busy port without --port, or a cancelled question
       throw new ProblemError(`Mock server failed: ${err.message}`);
     }
 

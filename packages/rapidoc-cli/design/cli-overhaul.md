@@ -1,6 +1,6 @@
 # `rapidoc` CLI overhaul (design)
 
-Status: phases 1 and 3 done (2026-11-06; phase 3 uncommitted); phases 2, 4–6 proposed.
+Status: phases 1, 2 and 3 done (2026-11-06; phase 2 uncommitted); phases 4–6 proposed.
 
 `@rapidoc/cli` covers the portal workflow (`init`, `dev`, `build`, `serve`, `mock`, `validate`, `migrate`)
 and loads the heavy engines (`@rapidoc/portal`, `@rapidoc/server`, `@rapidoc/mock`) only when a command
@@ -87,6 +87,12 @@ a folder and spec files together for `mock` is a usage error (exit 2); validate 
 Size: medium. Everything later builds on it.
 
 ### Phase 2: questions where they help
+
+Done with `@clack/prompts` and the menu. Differences from the text below: `--yes` is a global option
+(every command); `--starter-spec` answers "no specs" (the starter spec) so every answer has an option;
+`migrate` also asks before replacing an existing `rapidoc.config.yaml`; `serve` and `mock` start first
+and ask only on `EADDRINUSE` (checking the port first reported a busy port before a missing build);
+`npm create rapidoc` asks the title and specs (not install) through the same `create-rapidoc/wizard`.
 
 - **`init` wizard** (terminal only): title → which of the specs found to include (checkboxes; default
   all) → run `npm install`? Then print the equivalent command, e.g.
