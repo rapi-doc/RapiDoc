@@ -1,0 +1,12 @@
+openapi: 3.1.0
+info:
+  title: Split across files
+  version: 1.0.0
+paths:
+  /a:
+    get:
+      operationId: getA
+      summary: Get A
+      responses:
+        "200":
+          $ref: "./responses.yaml#/ok"

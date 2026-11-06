@@ -1,0 +1,11 @@
+openapi: 3.1.0
+info:
+  title: Warning only
+  version: 1.0.0
+paths:
+  /ping:
+    get:
+      summary: Ping
+      responses:
+        "200":
+          description: OK

@@ -64,7 +64,7 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
   await t.test("validate should verify a valid OpenAPI 3.1 specification", () => {
     const specPath = path.join(DEMO_PORTAL_DIR, "specs/orders-api.yaml");
     const output = execFileSync("node", [CLI_PATH, "validate", specPath], { encoding: "utf8" });
-    assert.ok(output.includes("Specification is valid OpenAPI!"));
+    assert.ok(output.includes("Valid OpenAPI"));
   });
 
   await t.test(
@@ -82,7 +82,10 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
         );
         const result = spawnSync("node", [CLI_PATH, "validate", tempDir], { encoding: "utf8" });
         assert.equal(result.status, 0, result.stderr);
-        assert.ok(result.stdout.includes("1 specs checked, no errors."));
+        assert.ok(
+          result.stdout.includes("1 spec(s) checked: 0 error(s), 1 warning(s)."),
+          result.stdout,
+        );
         assert.ok(result.stderr.includes("orders: 1 operation has no operationId"));
 
         fs.writeFileSync(
@@ -94,7 +97,8 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
           encoding: "utf8",
         });
         assert.equal(invalid.status, 1);
-        assert.ok(invalid.stderr.includes("error: 1 of 1 specs have errors."), invalid.stderr);
+        assert.ok(invalid.stderr.includes("error: 1 spec(s) checked: 1 error(s)"), invalid.stderr);
+        assert.ok(invalid.stderr.includes("specs/orders.yaml:5:"), "the error has a line number");
       } finally {
         fs.rmSync(tempDir, { recursive: true, force: true });
       }
@@ -181,7 +185,7 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
         env,
       });
       assert.equal(validateSpec.status, 0, validateSpec.stderr);
-      assert.ok(validateSpec.stdout.includes("Specification is valid OpenAPI!"));
+      assert.ok(validateSpec.stdout.includes("Valid OpenAPI"));
     },
   );
 

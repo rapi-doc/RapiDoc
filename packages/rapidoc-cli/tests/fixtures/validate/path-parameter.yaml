@@ -1,0 +1,12 @@
+openapi: 3.0.3
+info:
+  title: Undeclared path parameter
+  version: 1.0.0
+paths:
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      summary: Get an order
+      responses:
+        "200":
+          description: OK

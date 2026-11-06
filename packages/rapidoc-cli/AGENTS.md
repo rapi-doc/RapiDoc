@@ -23,6 +23,10 @@ src/
     ├── output.js   # info / success / warn / error; icons only on a terminal without NO_COLOR; --quiet
     ├── engines.js  # loadPortal / tryLoadPortal / loadServer / loadMock (lazy imports)
     └── suggest.js  # "did you mean" for commands, options and choices
+validate/           # rapidoc validate's engine (imported only by that command)
+├── bundle.js       # load a spec and the files its $refs reach (yaml, with positions); inline other-file $refs, keep in-file ones; origin of every copied node
+├── check.js        # checkSpec: @scalar/openapi-validator (strict) + path parameters; each error → file, line, column, JSON pointer
+└── report.js       # pretty (terminal), json, sarif 2.1.0
 ```
 
 ### Rules for commands
@@ -43,7 +47,7 @@ src/
 ## 2. Technology Stack & Dependencies
 
 - **Runtime**: Node.js >= 22.12.0
-- **Parser**: `@scalar/openapi-parser` for OpenAPI specification loading and validation
+- **Validation**: `@scalar/openapi-validator` (strict: the official OpenAPI 2.0–3.2 schemas, path and cookie parameter rules) and `yaml` (parsing with line and column numbers). Not `@scalar/openapi-parser`'s `validate`: it fills in defaults first, so a missing `info.version` passes. In-file `$ref`s stay `$ref`s when validating: dereferencing recursive schemas overflows the stack on OpenAPI 3.0.
 - **Scaffolding**: `create-rapidoc` (`create-rapidoc/scaffold`: `scaffoldProject`, `findOpenApiSpecs`), imported lazily by `init`
 - **Portal Engine**: `@rapidoc/portal`, an **optional peer dependency** (`^0.1.0`). Load it only through `loadPortal()` / `tryLoadPortal()` (dynamic `import()`), never with a top-level import: `dev`, `build`, `migrate` and folder-wide `validate` need it and print `npm install -D @rapidoc/portal` when it is missing; `init` and single-spec `validate` work without it. Tests simulate a missing engine with `RAPIDOC_PORTAL_MODULE`.
 - **Server**: `@rapidoc/server`, the other **optional peer dependency** (`^0.1.0`), behind `rapidoc serve` only. Load it only through `loadServer()` (dynamic `import()`); when missing, `serve` prints `npm install @rapidoc/server`. Tests simulate a missing server with `RAPIDOC_SERVER_MODULE`. `serve` prints the server's `SettingsError` problems (missing secrets, unreachable provider) and exits 1.

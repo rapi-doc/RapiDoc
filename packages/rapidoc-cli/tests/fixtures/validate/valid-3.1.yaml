@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: Valid
+  version: 1.0.0
+paths:
+  /items/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    get:
+      operationId: getItem
+      summary: Get an item
+      responses:
+        "200":
+          description: OK
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string

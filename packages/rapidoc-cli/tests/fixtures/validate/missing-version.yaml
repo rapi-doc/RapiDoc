@@ -1,0 +1,11 @@
+openapi: 3.1.0
+info:
+  title: No version
+paths:
+  /ping:
+    get:
+      operationId: ping
+      summary: Ping
+      responses:
+        "200":
+          description: OK

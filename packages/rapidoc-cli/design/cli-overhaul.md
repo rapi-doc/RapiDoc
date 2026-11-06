@@ -1,6 +1,6 @@
 # `rapidoc` CLI overhaul (design)
 
-Status: phase 1 done (2026-11-06), uncommitted; phases 2–6 proposed.
+Status: phases 1 and 3 done (2026-11-06; phase 3 uncommitted); phases 2, 4–6 proposed.
 
 `@rapidoc/cli` covers the portal workflow (`init`, `dev`, `build`, `serve`, `mock`, `validate`, `migrate`)
 and loads the heavy engines (`@rapidoc/portal`, `@rapidoc/server`, `@rapidoc/mock`) only when a command
@@ -107,6 +107,14 @@ add sign-in (`auth:` stub), add a mock server script.
 Size: medium.
 
 ### Phase 3: a `validate` people can trust
+
+Done, differently in one place: no vendored schemas or own `ajv` setup. `@scalar/openapi-validator`
+already holds the official schemas and is strict; the leniency came from `@scalar/openapi-parser`'s
+`validate`, which fills in defaults first. Other-file `$ref`s are inlined before validating, in-file ones
+kept (dereferencing recursive schemas overflows the stack on 3.0). Running it over the 90 specs in the
+demo, docs and portal-doc repos: no false positives found; two real errors in the Cosmo Cargo fixture
+(`cargo-containers.json` has no `info.version`; `demo-shipment.yaml` is 3.0.3 but uses 3.1 `type` arrays)
+and many in the docs site's deliberately loose showcase specs.
 
 - **Stricter checks**: validate against the official OpenAPI 3.0 and 3.1 JSON Schemas (vendored) with
   `ajv` (already used by `@rapidoc/mock`), in addition to the parser's own checks, so `info.version`,

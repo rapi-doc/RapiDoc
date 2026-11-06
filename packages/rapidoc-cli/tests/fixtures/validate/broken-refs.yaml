@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: Broken refs
+  version: 1.0.0
+paths:
+  /a:
+    get:
+      operationId: getA
+      summary: Get A
+      responses:
+        "200":
+          $ref: "#/components/responses/Missing"
+        "404":
+          $ref: "./no-such-file.yaml#/NotFound"
