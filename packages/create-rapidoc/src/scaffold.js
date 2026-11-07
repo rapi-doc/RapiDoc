@@ -361,7 +361,7 @@ dist/
 
 const STARTER_README = (title) => `# ${title}
 
-Welcome to your developer portal, powered by **[@rapidoc/portal](https://rapidocweb.com)**.
+Welcome to your developer portal, powered by **[@rapidoc/portal](https://rapidocui.com)**.
 
 ## Quick Start
 

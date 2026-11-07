@@ -8,7 +8,7 @@ import { RapidocConfigSchema } from "./schema.js";
 export function configJsonSchema() {
   return {
     ...z.toJSONSchema(RapidocConfigSchema, { io: "input", unrepresentable: "any" }),
-    $id: "https://rapidocweb.com/schema/rapidoc-config.json",
+    $id: "https://rapidocui.com/schema/rapidoc-config.json",
     title: "RapiDoc Portal configuration (rapidoc.config.yaml)",
   };
 }
