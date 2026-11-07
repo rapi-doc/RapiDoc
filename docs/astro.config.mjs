@@ -98,9 +98,29 @@ export default defineConfig({
         ThemeProvider: './src/components/ForceDarkTheme.astro',
         ThemeSelect: './src/components/EmptyComponent.astro',
       },
+      // The RapiDoc Portal's code blocks: the asides' corners and border, a lightly tinted title bar
+      // only on blocks with a title, and no terminal dots.
       expressiveCode: {
         themes: ['github-dark'],
         useStarlightDarkModeSwitch: false,
+        defaultProps: { frame: 'code' },
+        shiki: { langAlias: { markdoc: 'md', mdoc: 'md' } },
+        styleOverrides: {
+          borderRadius: 'var(--rd-radius)',
+          borderColor: 'var(--rd-docs-border)',
+          frames: {
+            frameBoxShadowCssValue: 'none',
+            editorTabBarBackground: 'color-mix(in oklab, var(--rd-docs-fg) 5%, var(--rd-docs-bg))',
+            editorTabBarBorderBottomColor: 'var(--rd-docs-border)',
+            editorActiveTabBackground: 'transparent',
+            editorActiveTabBorderColor: 'transparent',
+            editorActiveTabIndicatorTopColor: 'transparent',
+            editorActiveTabIndicatorBottomColor: 'transparent',
+            terminalTitlebarBackground: 'color-mix(in oklab, var(--rd-docs-fg) 5%, var(--rd-docs-bg))',
+            terminalTitlebarBorderBottomColor: 'var(--rd-docs-border)',
+            terminalTitlebarDotsOpacity: '0',
+          },
+        },
       },
       sidebar: [
         {
