@@ -12,6 +12,9 @@
     "static-site"
   ],
   "homepage": "https://rapidocui.com",
+  "bugs": {
+    "url": "https://github.com/rapi-doc/RapiDoc/issues"
+  },
   "license": "MIT",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -32,8 +35,12 @@
       "import": "./dist/index.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "vite build && node ../../scripts/capture-build-info.js"
+    "build": "vite build && node ../../scripts/capture-build-info.js",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@scalar/openapi-parser": "^0.29.20",

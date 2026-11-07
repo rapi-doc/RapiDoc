@@ -10,8 +10,19 @@
     "rapidoc",
     "scaffold"
   ],
+  "homepage": "https://portal.rapidocui.com",
+  "bugs": {
+    "url": "https://github.com/rapi-doc/RapiDoc/issues"
+  },
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/create-rapidoc"
+  },
   "bin": {
-    "create-rapidoc": "./src/index.js"
+    "create-rapidoc": "src/index.js"
   },
   "files": [
     "src"
@@ -29,5 +40,8 @@
   "dependencies": {
     "@clack/prompts": "^1.8.1",
     "yaml": "^2.9.1"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

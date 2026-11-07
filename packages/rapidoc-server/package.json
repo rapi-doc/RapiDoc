@@ -9,6 +9,17 @@
     "rapidoc",
     "sso"
   ],
+  "homepage": "https://portal.rapidocui.com",
+  "bugs": {
+    "url": "https://github.com/rapi-doc/RapiDoc/issues"
+  },
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/rapidoc-server"
+  },
   "files": [
     "src"
   ],
@@ -16,6 +27,9 @@
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "test": "node --test --test-concurrency=1 tests/**/*.test.js"
@@ -30,5 +44,8 @@
   },
   "devDependencies": {
     "oidc-provider": "^9.13.3"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

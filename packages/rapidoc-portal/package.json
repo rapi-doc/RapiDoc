@@ -2,6 +2,17 @@
   "name": "@rapidoc/portal",
   "version": "0.1.0",
   "description": "Docs-as-code developer portal framework for OpenAPI and Markdoc with RapiDoc",
+  "homepage": "https://portal.rapidocui.com",
+  "bugs": {
+    "url": "https://github.com/rapi-doc/RapiDoc/issues"
+  },
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/rapidoc-portal"
+  },
   "files": [
     "src",
     "schema.json"
@@ -19,10 +30,14 @@
     "./frontmatter": "./src/engine/frontmatter.js",
     "./schema.json": "./schema.json"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "node --test --test-concurrency=1 tests/**/*.test.js",
     "layout:baseline": "RAPIDOC_LAYOUT_OUT=tests/layout node --test tests/layout.test.js",
-    "schema": "node scripts/generate-schema.js"
+    "schema": "node scripts/generate-schema.js",
+    "prepublishOnly": "npm run schema"
   },
   "dependencies": {
     "@astrojs/markdoc": "^2.1.2",
@@ -41,5 +56,8 @@
   },
   "devDependencies": {
     "axe-core": "^4.14.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

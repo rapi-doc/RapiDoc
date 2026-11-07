@@ -2,13 +2,27 @@
   "name": "@rapidoc/cli",
   "version": "0.1.0",
   "description": "The rapidoc command: developer portal dev/build/serve/init, OpenAPI validation and config migration",
+  "homepage": "https://portal.rapidocui.com",
+  "bugs": {
+    "url": "https://github.com/rapi-doc/RapiDoc/issues"
+  },
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/rapidoc-cli"
+  },
   "bin": {
-    "rapidoc": "./src/index.js"
+    "rapidoc": "src/index.js"
   },
   "files": [
     "src"
   ],
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "start": "node src/index.js",
     "test": "node --test tests/**/*.test.js"
@@ -40,5 +54,8 @@
     "@rapidoc/server": {
       "optional": true
     }
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }
