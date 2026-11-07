@@ -33,9 +33,9 @@ import { comparisonData } from '../page-data/rapidoc-mini-comparison';
 .rd-comparison-container {
   width: 100%;
   overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  background: rgba(11, 17, 33, 0.7);
+  border: 1px solid var(--rd-border);
+  border-radius: var(--rd-radius-md);
+  background: var(--rd-surface-card);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
   margin: 20px 0;
 }
@@ -48,17 +48,17 @@ import { comparisonData } from '../page-data/rapidoc-mini-comparison';
 }
 
 .rd-comparison-table th {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--rd-wash);
   padding: 14px 20px;
-  color: #fff;
+  color: var(--rd-text-bright);
   font-weight: 600;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--rd-border);
   white-space: nowrap;
 }
 
 .rd-comparison-table th code {
-  color: #38bdf8;
+  color: var(--rd-sky);
   font-size: 13px;
 }
 
@@ -67,7 +67,7 @@ import { comparisonData } from '../page-data/rapidoc-mini-comparison';
   text-align: left;
   vertical-align: top;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  color: #94a3b8;
+  color: var(--rd-text-muted);
   line-height: 1.55;
 }
 
@@ -76,7 +76,7 @@ import { comparisonData } from '../page-data/rapidoc-mini-comparison';
 }
 
 .col-feature {
-  color: #f8fafc;
+  color: var(--rd-text-primary);
   font-weight: 600;
   min-width: 180px;
   text-align: left;
@@ -89,7 +89,7 @@ import { comparisonData } from '../page-data/rapidoc-mini-comparison';
 
 .col-mini {
   min-width: 260px;
-  color: #cbd5e1;
+  color: var(--rd-text-soft);
   text-align: left;
 }
 

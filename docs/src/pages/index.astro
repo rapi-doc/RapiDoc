@@ -1,11 +1,15 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import CodeBlock from '../components/CodeBlock.astro';
+import { Code } from 'astro:components';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
 import {
   IconArrowRight,
+  IconCheck,
+  IconCloud,
+  IconMinus,
+  IconTilde,
   IconCopy,
   IconCode,
   IconPencil,
@@ -20,56 +24,263 @@ import {
   IconBolt,
 } from '@tabler/icons-astro';
 
-const vanillaCode = `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-</head>
-<body>
-  <rapi-doc
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
-    render-style="read"
-    theme="dark"
-    show-header="false"
-  > </rapi-doc>
-</body>
-</html>`;
+// "Zero Config, Instant Integration": one sample per stack, checked against RapiDoc 12 and the
+// framework setups in content/docs/get-started/frameworks.mdx.
+const integrations = [
+  {
+    id: 'html',
+    label: 'HTML',
+    file: 'index.html',
+    lang: 'html',
+    code: `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <rapi-doc
+      spec-url="https://rapidocui.com/specs/bookstore.yaml"
+      color-scheme="dark"
+    ></rapi-doc>
+  </body>
+</html>`,
+    note: 'One script tag and one element. Nothing to install or build.',
+  },
+  {
+    id: 'react',
+    label: 'React',
+    file: 'ApiDocs.jsx',
+    lang: 'jsx',
+    code: `// npm install rapidoc
+import { useEffect } from 'react';
 
-const reactCode = `import React from 'react';
-import 'rapidoc';
+export default function ApiDocs() {
+  // Load RapiDoc in the browser only, so server rendering keeps working
+  useEffect(() => {
+    import('rapidoc');
+  }, []);
 
-export function ApiReference() {
   return (
     <rapi-doc
-      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      spec-url="https://rapidocui.com/specs/bookstore.yaml"
       render-style="view"
-      theme="dark"
-      style={{ height: '100vh', width: '100%' }}
+      style={{ height: '100vh' }}
     />
   );
-}`;
-
-const vueCode = `<template>
-  <rapi-doc
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
-    render-style="focused"
-    theme="dark"
-    style="height: 100vh; width: 100%"
-  />
-</template>
-
+}`,
+    note: 'In Next.js, add \'use client\' at the top. With TypeScript, declare the element once.',
+    href: '/docs/get-started/frameworks/#react-and-nextjs',
+  },
+  {
+    id: 'vue',
+    label: 'Vue',
+    file: 'ApiDocs.vue',
+    lang: 'vue',
+    code: `<!-- npm install rapidoc -->
 <script setup>
-import 'rapidoc';
-</script>`;
+import { onMounted } from 'vue';
 
-const dockerCode = `FROM nginx:alpine
-# Copy rapidoc bundle and your OpenAPI spec into a zero-dependency container
-COPY dist/rapidoc-min.js /usr/share/nginx/html/
-COPY openapi.yaml /usr/share/nginx/html/
-COPY index.html /usr/share/nginx/html/
-EXPOSE 80
-# Blazing fast, self-contained, <25MB total image size`;
+onMounted(() => import('rapidoc'));
+</script>
+
+<template>
+  <rapi-doc
+    spec-url="https://rapidocui.com/specs/bookstore.yaml"
+    render-style="focused"
+    style="height: 100vh"
+  ></rapi-doc>
+</template>`,
+    note: 'Tell the Vue compiler that rapi- tags are custom elements: one line in vite.config or nuxt.config.',
+    href: '/docs/get-started/frameworks/#vue-and-nuxt',
+  },
+  {
+    id: 'docker',
+    label: 'Self-hosted',
+    file: 'Dockerfile',
+    lang: 'dockerfile',
+    code: `# npm install rapidoc, then build an image that needs nothing else
+FROM nginx:alpine
+
+# The bundle and its license notices (rapidoc-min.js.LICENSE.txt)
+COPY node_modules/rapidoc/dist/rapidoc-min.js* /usr/share/nginx/html/
+
+# Your page and spec: index.html as in the HTML tab, with
+# src="rapidoc-min.js" and spec-url="openapi.yaml"
+COPY index.html openapi.yaml /usr/share/nginx/html/`,
+    note: 'No CDN and no outside calls: the page works on an intranet or air-gapped network.',
+  },
+];
+
+// The comparison on the landing page. status: yes = included and open source; partial = only a
+// basic part is free, the rest is commercial; hosted = needs the vendor's commercial or hosted plan;
+// no = not offered (shown as a mark only, no text). Competitor details checked against their docs
+// in November 2026.
+type CompareStatus = 'yes' | 'partial' | 'hosted' | 'no';
+interface CompareCell {
+  status: CompareStatus;
+  text?: string;
+  note?: string;
+  preview?: boolean;
+  href?: string;
+}
+interface CompareRow {
+  name: string;
+  hint: string;
+  rapidoc: CompareCell;
+  redocly: CompareCell;
+  scalar: CompareCell;
+  swagger: CompareCell;
+}
+const compareGroups: { title: string; rows: CompareRow[] }[] = [
+  {
+    title: 'API reference',
+    rows: [
+      {
+        name: 'How you add it',
+        hint: 'What goes into your page',
+        rapidoc: {
+          status: 'yes',
+          text: 'One web component',
+          note: `<rapi-doc> in any framework or plain HTML, ${rapidocBuildInfo.bundle.gzip.formatted} gzipped, no dependencies`,
+        },
+        redocly: { status: 'yes', text: 'React app or standalone script' },
+        scalar: { status: 'yes', text: 'Script tag or framework packages' },
+        swagger: { status: 'yes', text: 'Standalone bundle or React component' },
+      },
+      {
+        name: 'Try it console',
+        hint: 'Call the API from the docs',
+        rapidoc: { status: 'yes', text: 'Included', note: 'With OAuth 2.0, PKCE and API keys', href: '/docs/authentication/oauth/' },
+        redocly: { status: 'hosted', text: 'Replay, on paid plans', note: 'Not in open-source Redoc' },
+        scalar: { status: 'yes', text: 'Included (API client)' },
+        swagger: { status: 'yes', text: 'Included (Try it out)' },
+      },
+      {
+        name: 'Layouts',
+        hint: 'One reference, several audiences',
+        rapidoc: { status: 'yes', text: 'Three render styles', note: 'Read, view and focused, plus <rapi-doc-mini> for one operation', href: '/docs/performance/render-modes/' },
+        redocly: { status: 'yes', text: 'Three-panel layout' },
+        scalar: { status: 'yes', text: 'Modern and classic layouts' },
+        swagger: { status: 'yes', text: 'One collapsible list' },
+      },
+    ],
+  },
+  {
+    title: 'Mocking & workflows',
+    rows: [
+      {
+        name: 'Mock server',
+        hint: 'Responses before the backend exists',
+        rapidoc: {
+          status: 'yes',
+          text: 'In the browser and standalone',
+          note: 'rapidoc mock: examples, generated data, request validation, OAuth scope checks',
+          preview: true,
+          href: '/docs/mocking/overview/',
+        },
+        redocly: { status: 'hosted', text: 'In Realm (commercial)' },
+        scalar: { status: 'yes', text: 'Open-source mock server' },
+        swagger: { status: 'hosted', text: 'SwaggerHub (commercial)' },
+      },
+      {
+        name: 'Arazzo workflows',
+        hint: 'Multi-step API journeys',
+        rapidoc: { status: 'yes', text: '<rapi-flow>', note: 'A diagram next to the reference, run step by step', href: '/guides/workflows' },
+        redocly: { status: 'yes', text: 'Respect, in Redocly CLI', note: 'Runs and lints them' },
+        scalar: { status: 'no' },
+        swagger: { status: 'no' },
+      },
+    ],
+  },
+  {
+    title: 'Developer portal',
+    rows: [
+      {
+        name: 'Docs-as-code portal',
+        hint: 'Guides, references and a catalog',
+        rapidoc: {
+          status: 'yes',
+          text: 'RapiDoc Portal',
+          note: 'Markdown, Markdoc and MDX guides, API catalog, versions, search',
+          preview: true,
+          href: 'https://github.com/rapi-doc/rapi-portal-doc',
+        },
+        redocly: { status: 'hosted', text: 'Realm (commercial)' },
+        scalar: { status: 'hosted', text: 'Scalar Docs', note: 'Guides and custom domains on paid plans' },
+        swagger: { status: 'no' },
+      },
+      {
+        name: 'Sign-in and access rules',
+        hint: 'Private APIs and partner docs',
+        rapidoc: { status: 'yes', text: 'OpenID Connect sign-in', note: 'Per-page access rules, served by rapidoc serve on your servers', preview: true },
+        redocly: { status: 'hosted', text: 'RBAC in Realm' },
+        scalar: { status: 'hosted', text: 'SSO on Enterprise' },
+        swagger: { status: 'no' },
+      },
+      {
+        name: 'AI agents (MCP)',
+        hint: 'Your API as tools for agents',
+        rapidoc: {
+          status: 'yes',
+          text: 'MCP export and hosting',
+          note: 'Export a server from the browser, or host the tools at /mcp behind sign-in; llms.txt',
+          href: '/docs/ai/mcp-server/',
+        },
+        redocly: { status: 'hosted', text: 'MCP server and llms.txt in Realm' },
+        scalar: { status: 'hosted', text: 'Hosted MCP servers' },
+        swagger: { status: 'no' },
+      },
+      {
+        name: 'Command line',
+        hint: 'Checks in CI and local preview',
+        rapidoc: {
+          status: 'yes',
+          text: 'rapidoc CLI',
+          note: 'validate, lint, bundle, mock, and migrate from Redocly or Zudoku',
+          preview: true,
+          href: '/docs/tools/command-line/',
+        },
+        redocly: { status: 'yes', text: 'Redocly CLI', note: 'lint, bundle' },
+        scalar: { status: 'yes', text: 'Scalar CLI' },
+        swagger: { status: 'no' },
+      },
+    ],
+  },
+  {
+    title: 'License and hosting',
+    rows: [
+      {
+        name: 'License',
+        hint: 'What you may do with it',
+        rapidoc: { status: 'yes', text: 'MIT, every package', note: 'No paid tier' },
+        redocly: { status: 'partial', text: 'Only Redoc and the CLI are MIT', note: 'Everything else is commercial' },
+        scalar: { status: 'partial', text: 'Only the core is MIT', note: 'Docs and MCP are on hosted plans' },
+        swagger: { status: 'yes', text: 'Apache 2.0' },
+      },
+      {
+        name: 'Self-hosted',
+        hint: 'Your servers, no third party',
+        rapidoc: { status: 'yes', text: 'Everything', note: 'Static files, or rapidoc serve with sign-in; no telemetry' },
+        redocly: { status: 'partial', text: 'Limited to basic Redoc', note: 'Everything else is paywalled or commercial' },
+        scalar: { status: 'partial', text: 'Limited to the API reference', note: 'Scalar Docs is hosted' },
+        swagger: { status: 'yes', text: 'Yes' },
+      },
+    ],
+  },
+];
+const statusLabel: Record<CompareStatus, string> = {
+  yes: 'Included',
+  partial: 'Limited',
+  hosted: 'Paid or hosted plan',
+  no: 'Not offered',
+};
+const compareProducts = [
+  { key: 'redocly', name: 'Redocly' },
+  { key: 'scalar', name: 'Scalar' },
+  { key: 'swagger', name: 'Swagger UI' },
+] as const;
+
 ---
 
 <GlobalLayout
@@ -304,8 +515,8 @@ EXPOSE 80
 
   <!-- Bento Grid of Key Advantages (Nuxt-Style) -->
   <section class="rd-bento-section" id="features">
-    <div class="rd-section-header">
-      <span class="rd-sub-tag">Uncompromising Engineering</span>
+    <div class="rd-section-header rd-section-header--center">
+      <span class="rd-section-badge">Uncompromising Engineering</span>
       <h2 class="rd-section-title">Why Teams Choose RapiDoc Over Alternatives</h2>
       <p class="rd-section-desc">
         Designed from the ground up for developer productivity, enterprise privacy, and product design flexibility.
@@ -432,199 +643,164 @@ EXPOSE 80
     </div>
   </section>
 
-  <!-- Comprehensive Comparison Table: RapiDoc vs Others -->
+  <!-- Comparison with other API documentation tools (data: compareGroups in the frontmatter) -->
   <section class="rd-comparison-section" id="comparison">
-    <div class="rd-section-header">
-      <span class="rd-sub-tag">Competitive Matrix</span>
-      <h2 class="rd-section-title">How RapiDoc Compares to Other API Renderers</h2>
-      <p class="rd-section-desc">See why teams switch from Redocly, Scalar, and Swagger UI to RapiDoc.</p>
+    <div class="rd-section-header rd-section-header--center">
+      <span class="rd-section-badge">Comparison</span>
+      <h2 class="rd-section-title">How RapiDoc Compares</h2>
+      <p class="rd-section-desc">
+        From the reference to the whole portal: what each tool includes, and what needs a paid or hosted plan.
+      </p>
     </div>
 
     <div class="rd-table-card">
       <div class="rd-table-responsive">
+        <div class="rd-compare-wrap">
         <table class="rd-compare-table">
+          <colgroup>
+            <col class="rd-colw-feature" />
+            <col class="rd-colw-rapidoc" />
+            <col span="3" />
+          </colgroup>
           <thead>
             <tr>
-              <th class="rd-th-feature">Capability</th>
-              <th class="rd-th-highlight">RapiDoc</th>
-              <th>Redocly (Redoc)</th>
-              <th>Scalar</th>
-              <th>Swagger UI</th>
+              <th class="rd-th-feature" scope="col">Capability</th>
+              <th class="rd-col-rapidoc" scope="col">
+                <span class="rd-rapidoc-head">
+                  <img src="/assets/images/rapidoc-leaves.svg" alt="" width="20" height="20" />
+                  RapiDoc
+                </span>
+                <span class="rd-rapidoc-sub">MIT · open source</span>
+              </th>
+              {compareProducts.map((p) => <th scope="col">{p.name}</th>)}
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td class="rd-td-feature">
-                <strong>Component Architecture</strong>
-                <span>Portability across any framework</span>
-              </td>
-              <td class="rd-td-highlight">
-                <span class="rd-check">✓</span>
-                <strong>Standard Web Component</strong><br />
-                <span class="rd-dim">React, Vue, Svelte, or plain HTML</span>
-              </td>
-              <td>React Component / Standalone bundle</td>
-              <td>Vue 3 Component / Wrapper</td>
-              <td>React Component / Legacy Webpack</td>
-            </tr>
-
-            <tr>
-              <td class="rd-td-feature">
-                <strong>Interactive Test Console</strong>
-                <span>Call live endpoints directly</span>
-              </td>
-              <td class="rd-td-highlight">
-                <span class="rd-check">✓</span>
-                <strong>Built-In (Free)</strong><br />
-                <span class="rd-dim">Supports negative/edge case testing</span>
-              </td>
-              <td><span class="rd-cross">✕</span> Paid / Separate Add-on</td>
-              <td><span class="rd-check">✓</span> Built-in client</td>
-              <td><span class="rd-partial">~</span> Basic (rigid validation)</td>
-            </tr>
-
-            <tr>
-              <td class="rd-td-feature">
-                <strong>In-Browser Mock Server</strong>
-                <span>Zero-setup frontend prototyping & testing</span>
-              </td>
-              <td class="rd-td-highlight">
-                <span class="rd-check">✓</span>
-                <strong>Built-In Mock Server</strong><br />
-                <span class="rd-dim">Zero config, schema-driven, multi-status & latency simulation</span>
-              </td>
-              <td><span class="rd-cross">✕</span> Requires Prism / External CLI</td>
-              <td><span class="rd-cross">✕</span> No mock server</td>
-              <td><span class="rd-cross">✕</span> No mock server</td>
-            </tr>
-
-            <tr>
-              <td class="rd-td-feature">
-                <strong>Curated MCP Server Generator</strong>
-                <span>Direct AI agent tool export (Claude, Cursor)</span>
-              </td>
-              <td class="rd-td-highlight">
-                <span class="rd-check">✓</span>
-                <strong>Built-In (Manifest + TypeScript)</strong><br />
-                <span class="rd-dim">JSON Schema tools, MCP safety annotations, runnable TypeScript project, token budget diagnostics & zero backend</span>
-              </td>
-              <td><span class="rd-cross">✕</span> No MCP generation</td>
-              <td><span class="rd-cross">✕</span> No MCP generation</td>
-              <td><span class="rd-cross">✕</span> No MCP generation</td>
-            </tr>
-
-            <tr>
-              <td class="rd-td-feature">
-                <strong>Model & Schema Folding</strong>
-                <span>Inspect complex nested payloads</span>
-              </td>
-              <td class="rd-td-highlight">
-                <span class="rd-check">✓</span>
-                <strong>Dual Tree & Tabular</strong><br />
-                <span class="rd-dim">Models expanded by default</span>
-              </td>
-              <td>Nested list only</td>
-              <td>Single column list</td>
-              <td>Accordion list (multi-click drilldown)</td>
-            </tr>
-
-            <tr>
-              <td class="rd-td-feature">
-                <strong>Distinct Layout Styles</strong>
-                <span>Adapt to audience needs</span>
-              </td>
-              <td class="rd-td-highlight">
-                <span class="rd-check">✓</span>
-                <strong>3 Modes</strong><br />
-                <span class="rd-dim">Read (wiki), View, & Focused</span>
-              </td>
-              <td>1 fixed 3-column layout</td>
-              <td>1 fixed layout</td>
-              <td>1 vertical accordion layout</td>
-            </tr>
-
-            <tr>
-              <td class="rd-td-feature">
-                <strong>Embedded & Micro-Containers</strong>
-                <span>Lightweight binary / container integration</span>
-              </td>
-              <td class="rd-td-highlight">
-                <span class="rd-check">✓</span>
-                <strong>High Performance</strong><br />
-                <span class="rd-dim"
-                  >~{rapidocBuildInfo.bundle.gzip.formatted} gzip ({rapidocBuildInfo.bundle.minified.formatted} min), zero SSR</span
-                >
-              </td>
-              <td>Heavy bundle size</td>
-              <td>Vue runtime overhead</td>
-              <td>Heavy bundle size</td>
-            </tr>
-
-            <tr>
-              <td class="rd-td-feature">
-                <strong>Data Privacy & Self-Hosting</strong>
-                <span>Air-gapped and internal compliance</span>
-              </td>
-              <td class="rd-td-highlight">
-                <span class="rd-check">✓</span>
-                <strong>100% In-Browser</strong><br />
-                <span class="rd-dim">Zero telemetry, air-gapped safe</span>
-              </td>
-              <td><span class="rd-check">✓</span> Self-hostable</td>
-              <td>Tied to hosted cloud ecosystem</td>
-              <td><span class="rd-check">✓</span> Self-hostable</td>
-            </tr>
-
-            <tr>
-              <td class="rd-td-feature">
-                <strong>Open Source License</strong>
-                <span>Total commercial freedom</span>
-              </td>
-              <td class="rd-td-highlight">
-                <span class="rd-check">✓</span>
-                <strong>100% MIT</strong><br />
-                <span class="rd-dim">Forever free, unlimited APIs</span>
-              </td>
-              <td>Freemium / Commercial tiers</td>
-              <td>Open Core / Cloud upsell</td>
-              <td>Apache 2.0</td>
-            </tr>
-          </tbody>
+          {compareGroups.map((group) => (
+            <tbody>
+              <tr class="rd-group-row">
+                <th scope="colgroup" class="rd-group-title">
+                  {group.title}
+                </th>
+                <td class="rd-col-rapidoc" />
+                <td colspan="3" />
+              </tr>
+              {group.rows.map((row) => (
+                <tr>
+                  <th scope="row" class="rd-td-feature">
+                    <strong>{row.name}</strong>
+                    <span>{row.hint}</span>
+                  </th>
+                  <td class="rd-col-rapidoc">
+                    <div class="rd-cell">
+                      <span class="rd-status rd-status--yes" aria-label="Included">
+                        <IconCheck size={14} stroke={3} />
+                      </span>
+                      <div class="rd-cell-body">
+                        <span class="rd-cell-text">
+                          {row.rapidoc.href ? <a href={row.rapidoc.href}>{row.rapidoc.text}</a> : row.rapidoc.text}
+                          {row.rapidoc.preview && <span class="rd-preview-pill">Preview</span>}
+                        </span>
+                        {row.rapidoc.note && <span class="rd-cell-note">{row.rapidoc.note}</span>}
+                      </div>
+                    </div>
+                  </td>
+                  {compareProducts.map((p) => {
+                    const cell = row[p.key];
+                    return (
+                      <td>
+                        <div class="rd-cell">
+                          <span
+                            class={`rd-status rd-status--${cell.status}`}
+                            role="img"
+                            aria-label={statusLabel[cell.status]}
+                          >
+                            {cell.status === 'yes' && <IconCheck size={14} stroke={3} />}
+                            {cell.status === 'partial' && <IconTilde size={14} stroke={3} />}
+                            {cell.status === 'hosted' && <IconCloud size={14} stroke={2.25} />}
+                            {cell.status === 'no' && <IconMinus size={14} stroke={3} />}
+                          </span>
+                          {cell.text && (
+                            <div class="rd-cell-body">
+                              <span class="rd-cell-text">{cell.text}</span>
+                              {cell.note && <span class="rd-cell-note">{cell.note}</span>}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          ))}
         </table>
+        <!-- The RapiDoc column's glowing edges, drawn once over the whole column -->
+        <div class="rd-rapidoc-edges" aria-hidden="true"></div>
+        </div>
       </div>
     </div>
+
+    <div class="rd-compare-legend">
+      <span><span class="rd-status rd-status--yes"><IconCheck size={12} stroke={3} /></span> Included, open source</span>
+      <span><span class="rd-status rd-status--partial"><IconTilde size={12} stroke={3} /></span> Limited, the rest is commercial</span>
+      <span><span class="rd-status rd-status--hosted"><IconCloud size={12} stroke={2.25} /></span> Needs a paid or hosted plan</span>
+      <span><span class="rd-status rd-status--no"><IconMinus size={12} stroke={3} /></span> Not offered</span>
+      <span><span class="rd-preview-pill">Preview</span> In preview, not on npm yet</span>
+    </div>
+    <p class="rd-compare-footnote">Other products as described in their public documentation, November 2026.</p>
   </section>
 
   <!-- Upgraded Shiki Quickstart Code Showcase -->
   <section class="rd-quickstart-section" id="quickstart">
-    <div class="rd-section-header">
-      <span class="rd-sub-tag">Get Up & Running</span>
+    <div class="rd-section-header rd-section-header--center">
+      <span class="rd-section-badge">Get Up & Running</span>
       <h2 class="rd-section-title">Zero Config, Instant Integration</h2>
       <p class="rd-section-desc">Choose your stack and drop RapiDoc into your application in under 60 seconds.</p>
     </div>
 
-    <div class="rd-code-showcase-card">
-      <div class="rd-code-tabs">
-        <button class="rd-code-tab active" data-tab="tab-html">Vanilla HTML</button>
-        <button class="rd-code-tab" data-tab="tab-react">React</button>
-        <button class="rd-code-tab" data-tab="tab-vue">Vue 3</button>
-        <button class="rd-code-tab" data-tab="tab-docker">Docker / Embedded</button>
+    <div class="rd-code-box">
+      <div class="rd-code-bar">
+        <div class="rd-code-tabs" role="tablist" aria-label="Integration examples">
+          {integrations.map((t, n) => (
+            <button
+              class:list={['rd-code-tab', { active: n === 0 }]}
+              role="tab"
+              id={`tab-${t.id}`}
+              aria-selected={n === 0 ? 'true' : 'false'}
+              aria-controls={`panel-${t.id}`}
+              data-tab={t.id}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <button class="rd-code-copy" type="button" aria-label="Copy the code">
+          <IconCopy size={14} stroke={2} />
+          <span class="rd-code-copy-label">Copy</span>
+        </button>
       </div>
 
-      <div class="rd-tab-panels">
-        <div class="rd-tab-panel active" id="tab-html">
-          <CodeBlock code={vanillaCode} lang="html" filename="index.html" />
+      {integrations.map((t, n) => (
+        <div
+          class:list={['rd-code-panel', { active: n === 0 }]}
+          role="tabpanel"
+          id={`panel-${t.id}`}
+          aria-labelledby={`tab-${t.id}`}
+          data-code={t.code}
+        >
+          <div class="rd-code-file">{t.file}</div>
+          <Code code={t.code} lang={t.lang} theme="github-dark" />
+          <p class="rd-code-note">
+            {t.note}
+            {t.href && (
+              <>
+                {' '}
+                <a href={t.href}>Setup details →</a>
+              </>
+            )}
+          </p>
         </div>
-        <div class="rd-tab-panel" id="tab-react">
-          <CodeBlock code={reactCode} lang="tsx" filename="ApiDocs.tsx" />
-        </div>
-        <div class="rd-tab-panel" id="tab-vue">
-          <CodeBlock code={vueCode} lang="html" filename="ApiDocs.vue" />
-        </div>
-        <div class="rd-tab-panel" id="tab-docker">
-          <CodeBlock code={dockerCode} lang="dockerfile" filename="Dockerfile" />
-        </div>
-      </div>
+      ))}
     </div>
   </section>
 
@@ -656,20 +832,28 @@ EXPOSE 80
 </GlobalLayout>
 
 <script>
-  // Quickstart Code Tabs
-  const codeTabs = document.querySelectorAll('.rd-code-tab');
-  const codePanels = document.querySelectorAll('.rd-tab-panel');
-
+  // Integration examples: tabs and the copy button
+  const codeTabs = document.querySelectorAll<HTMLButtonElement>('.rd-code-tab');
+  const codePanels = document.querySelectorAll<HTMLElement>('.rd-code-panel');
   codeTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
-      const targetId = tab.getAttribute('data-tab');
-      codeTabs.forEach((t) => t.classList.remove('active'));
-      codePanels.forEach((p) => p.classList.remove('active'));
-      tab.classList.add('active');
-      if (targetId) {
-        document.getElementById(targetId)?.classList.add('active');
-      }
+      codeTabs.forEach((t) => {
+        t.classList.toggle('active', t === tab);
+        t.setAttribute('aria-selected', String(t === tab));
+      });
+      codePanels.forEach((p) => p.classList.toggle('active', p.id === `panel-${tab.dataset.tab}`));
     });
+  });
+  const codeCopy = document.querySelector<HTMLButtonElement>('.rd-code-copy');
+  codeCopy?.addEventListener('click', async () => {
+    const code = document.querySelector<HTMLElement>('.rd-code-panel.active')?.dataset.code;
+    if (!code) return;
+    await navigator.clipboard.writeText(code);
+    const label = codeCopy.querySelector('.rd-code-copy-label');
+    if (label) {
+      label.textContent = 'Copied';
+      setTimeout(() => (label.textContent = 'Copy'), 1600);
+    }
   });
 
   // Hero Copy Button
@@ -692,27 +876,8 @@ EXPOSE 80
 </script>
 
 <style>
-  /* Nuxt.com-inspired Core Variables */
-  :root {
-    --rd-bg: #060913;
-    --rd-surface: rgba(255, 255, 255, 0.025);
-    --rd-surface-hover: rgba(255, 255, 255, 0.05);
-    --rd-glass-border: rgba(255, 255, 255, 0.08);
-    --rd-glass-border-hover: var(--rd-border-accent);
-    --rd-emerald: var(--rd-accent);
-    --rd-emerald-dim: var(--rd-accent-hover);
-    --rd-cyan: #06b6d4;
-    --rd-purple: #8b5cf6;
-    --rd-text-primary: #f8fafc;
-    --rd-text-secondary: #94a3b8;
-    --rd-text-muted: #64748b;
-    --rd-font-mono: 'Roboto Mono', Monaco, monospace;
-  }
-
   /* Base resets & layout */
   body {
-    background-color: var(--rd-bg) !important;
-    color: var(--rd-text-primary) !important;
     font-family:
       'Lato',
       system-ui,
@@ -721,87 +886,12 @@ EXPOSE 80
     overflow-x: hidden;
   }
 
-  /* Ambient Radial Glows (Nuxt Style) */
-  .ambient-glow {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(120px);
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.18;
-  }
-  .glow-emerald {
-    top: -80px;
-    left: 20%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, var(--rd-emerald) 0%, transparent 70%);
-  }
-  .glow-indigo {
-    top: 300px;
-    right: 5%;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, var(--rd-purple) 0%, transparent 70%);
-  }
-  .glow-cyan {
-    top: 1200px;
-    left: 10%;
-    width: 550px;
-    height: 550px;
-    background: radial-gradient(circle, var(--rd-cyan) 0%, transparent 70%);
-  }
-
-  /* Buttons */
-  .rd-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 13.5px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    border: none;
-  }
-  .rd-btn-primary {
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
-    color: var(--rd-accent-light) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  }
-  .rd-btn-primary:hover {
-    background: rgba(16, 185, 129, 0.22);
-    border-color: var(--rd-accent);
-    color: #ffffff !important;
-    box-shadow: 0 4px 16px var(--rd-accent-glow);
-    transform: translateY(-1px);
-  }
-  .rd-btn-glass {
-    background: rgba(255, 255, 255, 0.04);
-    color: #f1f5f9;
-    border: 1px solid var(--rd-glass-border);
-    backdrop-filter: blur(8px);
-  }
-  .rd-btn-glass:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-  }
-  .rd-btn-lg {
-    padding: 12px 24px;
-    font-size: 15px;
-    border-radius: 10px;
-  }
-
   /* Hero Section */
   .rd-hero-section {
     position: relative;
     z-index: 1;
     padding: 48px 24px 72px 24px;
-    max-width: 1240px;
+    max-width: var(--rd-max-width);
     margin: 0 auto;
   }
   .rd-hero-container {
@@ -814,43 +904,9 @@ EXPOSE 80
     display: flex;
     flex-direction: column;
   }
-
-  /* Badge Pill */
-  .rd-badge-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+  /* The hero column is a flex column: keep the badge from stretching to its width */
+  .rd-hero-left .rd-badge-pill {
     width: fit-content;
-    padding: 6px 14px;
-    border-radius: 20px;
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
-    margin-bottom: 20px;
-  }
-  .rd-badge-pulse {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--rd-accent);
-    box-shadow: 0 0 10px var(--rd-accent);
-    animation: pulse-dot 2s infinite ease-in-out;
-  }
-  @keyframes pulse-dot {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.4;
-      transform: scale(0.85);
-    }
-  }
-  .rd-badge-text {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--rd-accent-light);
-    letter-spacing: 0.01em;
   }
 
   /* Hero Typography */
@@ -859,32 +915,27 @@ EXPOSE 80
     line-height: 1.15;
     font-weight: 800;
     letter-spacing: -0.03em;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 18px 0;
-  }
-  .rd-gradient-text {
-    background: var(--rapidoc-logo-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
   }
   .rd-hero-subtitle {
     font-size: 1.08rem;
     line-height: 1.6;
-    color: var(--rd-text-secondary);
+    color: var(--rd-text-muted);
     margin: 0 0 28px 0;
     max-width: 580px;
   }
 
   /* Persona Box: Side-by-Side (Below Hero & Screenshot) */
   .rd-persona-box {
-    background: rgba(15, 23, 42, 0.45);
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 14px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     padding: 28px 32px;
     backdrop-filter: blur(12px);
     margin-top: 48px;
     margin-bottom: 28px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--rd-shadow-panel);
   }
   .rd-persona-columns {
     display: grid;
@@ -907,7 +958,7 @@ EXPOSE 80
     align-items: center;
     gap: 10px;
     padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--rd-border);
   }
   .rd-persona-icon-wrap {
     display: flex;
@@ -915,16 +966,15 @@ EXPOSE 80
     justify-content: center;
     width: 28px;
     height: 28px;
-    border-radius: 8px;
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
+    border-radius: var(--rd-radius-sm);
+    background: var(--rd-icon-bg);
     color: var(--rd-accent);
     flex-shrink: 0;
   }
   .rd-persona-title {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--rd-text-bright);
     letter-spacing: -0.01em;
     margin: 0;
   }
@@ -939,10 +989,10 @@ EXPOSE 80
     gap: 10px;
     font-size: 0.95rem;
     line-height: 1.5;
-    color: #cbd5e1;
+    color: var(--rd-text-soft);
   }
   .rd-persona-item strong {
-    color: #fff;
+    color: var(--rd-text-bright);
   }
   .rd-persona-bullet {
     color: var(--rd-accent);
@@ -965,8 +1015,8 @@ EXPOSE 80
     gap: 10px;
     padding: 10px 16px;
     background: rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 8px;
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
     width: fit-content;
     font-family: var(--rd-font-mono);
     font-size: 13px;
@@ -976,24 +1026,24 @@ EXPOSE 80
     font-weight: 700;
   }
   .rd-terminal-code {
-    color: #e2e8f0;
+    color: var(--rd-text);
   }
   .rd-terminal-copy {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--rd-text-secondary);
-    border-radius: 5px;
+    background: var(--rd-wash);
+    border: 1px solid var(--rd-border);
+    color: var(--rd-text-muted);
+    border-radius: var(--rd-radius-sm);
     padding: 3px 8px;
     font-size: 11px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: var(--rd-transition);
   }
   .rd-terminal-copy:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
+    background: var(--rd-wash-strong);
+    color: var(--rd-text-bright);
   }
 
   /* Right Column: RapiDoc Dark Preview Screenshot */
@@ -1008,7 +1058,7 @@ EXPOSE 80
   }
 
   .rd-screenshot-container {
-    --corner-radius: 8px;
+    --corner-radius: var(--rd-radius-md);
     position: relative;
     width: 100%;
     overflow: hidden;
@@ -1020,8 +1070,8 @@ EXPOSE 80
     content: '';
     position: absolute;
     inset: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
-    border-left: 1px solid rgba(255, 255, 255, 0.16);
+    border-top: 1px solid var(--rd-border-hover);
+    border-left: 1px solid var(--rd-border-hover);
     border-radius: var(--corner-radius) 0 0 0;
     pointer-events: none;
     z-index: 2;
@@ -1049,7 +1099,7 @@ EXPOSE 80
   .rd-metrics-section {
     position: relative;
     z-index: 1;
-    max-width: 1240px;
+    max-width: var(--rd-max-width);
     margin: 0 auto;
     padding: 0 24px 64px 24px;
   }
@@ -1059,24 +1109,22 @@ EXPOSE 80
     gap: 16px;
   }
   .rd-metric-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 12px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
     padding: 24px;
     backdrop-filter: blur(10px);
     text-align: left;
-    transition:
-      border-color 0.2s ease,
-      transform 0.2s ease;
+    transition: var(--rd-transition);
   }
   .rd-metric-card:hover {
-    border-color: var(--rd-accent-border);
-    transform: translateY(-2px);
+    border-color: var(--rd-card-border-hover);
+    background: var(--rd-card-bg-hover);
   }
   .rd-metric-number {
     font-size: 2.2rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--rd-text-bright);
     letter-spacing: -0.02em;
     margin-bottom: 6px;
   }
@@ -1087,42 +1135,13 @@ EXPOSE 80
   .rd-metric-label {
     font-size: 14.5px;
     font-weight: 700;
-    color: #e2e8f0;
+    color: var(--rd-text);
     margin-bottom: 4px;
   }
   .rd-metric-desc {
     font-size: 12.5px;
-    color: var(--rd-text-muted);
+    color: var(--rd-text-dim);
     line-height: 1.4;
-  }
-
-  /* Section Common Header */
-  .rd-section-header {
-    text-align: center;
-    max-width: 680px;
-    margin: 0 auto 48px auto;
-  }
-  .rd-sub-tag {
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--rd-accent);
-    margin-bottom: 8px;
-  }
-  .rd-section-title {
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: #fff;
-    margin: 0 0 12px 0;
-  }
-  .rd-section-desc {
-    font-size: 15px;
-    color: var(--rd-text-secondary);
-    line-height: 1.6;
-    margin: 0;
   }
 
   /* Theme Showcase Card Section */
@@ -1134,14 +1153,14 @@ EXPOSE 80
     padding: 32px 24px 72px 24px;
   }
   .rd-theme-card {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 16px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     padding: 48px 32px;
     text-align: center;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--rd-shadow-panel);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1158,7 +1177,7 @@ EXPOSE 80
   .rd-bento-section {
     position: relative;
     z-index: 1;
-    max-width: 1240px;
+    max-width: var(--rd-max-width);
     margin: 0 auto;
     padding: 40px 24px 80px 24px;
   }
@@ -1169,19 +1188,17 @@ EXPOSE 80
   }
   .rd-bento-card {
     background: var(--rd-surface);
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 16px;
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     padding: 28px;
     backdrop-filter: blur(12px);
     position: relative;
     overflow: hidden;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: var(--rd-transition);
   }
   .rd-bento-card:hover {
-    background: var(--rd-surface-hover);
-    border-color: var(--rd-glass-border-hover);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+    background: var(--rd-card-bg-hover);
+    border-color: var(--rd-card-border-hover);
   }
   .rd-col-span-2 {
     grid-column: span 1;
@@ -1202,9 +1219,8 @@ EXPOSE 80
   .rd-bento-icon-box {
     width: 44px;
     height: 44px;
-    border-radius: 10px;
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
+    border-radius: var(--rd-radius-sm);
+    background: var(--rd-icon-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1214,13 +1230,13 @@ EXPOSE 80
   .rd-bento-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--rd-text-bright);
     margin: 0 0 10px 0;
     letter-spacing: -0.01em;
   }
   .rd-bento-text {
     font-size: 13.5px;
-    color: var(--rd-text-secondary);
+    color: var(--rd-text-muted);
     line-height: 1.6;
     margin: 0;
   }
@@ -1232,94 +1248,302 @@ EXPOSE 80
   }
   .rd-tag {
     font-size: 11px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #cbd5e1;
+    background: var(--rd-wash);
+    border: 1px solid var(--rd-border);
+    color: var(--rd-text-soft);
     padding: 3px 8px;
-    border-radius: 6px;
+    border-radius: var(--rd-radius-sm);
   }
 
   /* Comparison Section */
   .rd-comparison-section {
     position: relative;
     z-index: 1;
-    max-width: 1240px;
+    max-width: var(--rd-max-width);
     margin: 0 auto;
     padding: 40px 24px 80px 24px;
   }
+  /* The table is lighter than the page; the RapiDoc column is darker, with neon edges */
   .rd-table-card {
-    background: rgba(15, 23, 42, 0.35);
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 16px;
+    --rd-cap-w: 210px;
+    --rd-rapidoc-w: 30%;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     overflow: hidden;
     backdrop-filter: blur(14px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--rd-shadow-panel);
   }
   .rd-table-responsive {
     overflow-x: auto;
   }
+  .rd-compare-wrap {
+    position: relative;
+    min-width: 960px;
+  }
   .rd-compare-table {
     width: 100%;
-    border-collapse: collapse;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
     text-align: left;
     font-size: 13.5px;
   }
-  .rd-compare-table th {
-    padding: 16px 20px;
+  .rd-colw-feature {
+    width: var(--rd-cap-w);
+  }
+  .rd-colw-rapidoc {
+    width: var(--rd-rapidoc-w);
+  }
+  .rd-compare-table thead th {
+    padding: 18px 20px;
     font-weight: 700;
-    font-size: 13px;
-    color: #94a3b8;
-    border-bottom: 1px solid var(--rd-glass-border);
-    background: rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    color: var(--rd-text-soft);
+    border-bottom: 1px solid var(--rd-border);
+    background: rgba(255, 255, 255, 0.03);
+    vertical-align: bottom;
   }
-  .rd-compare-table td {
-    padding: 16px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    color: #cbd5e1;
-    vertical-align: middle;
+  .rd-compare-table td,
+  .rd-compare-table tbody th {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rd-border);
+    color: var(--rd-text-muted);
+    vertical-align: top;
+    text-align: left;
+    font-weight: 400;
   }
-  .rd-th-highlight,
-  .rd-td-highlight {
-    background: var(--rd-accent-dim);
-    border-left: 1px solid var(--rd-accent-border);
-    border-right: 1px solid var(--rd-accent-border);
+  .rd-compare-table tbody:last-child tr:last-child > * {
+    border-bottom: none;
   }
-  .rd-th-highlight {
-    color: var(--rd-accent) !important;
-    font-size: 15px !important;
-  }
+
+  /* The capability column stays in view when the table scrolls sideways */
+  .rd-th-feature,
   .rd-td-feature {
-    display: flex;
-    flex-direction: column;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #141a29;
+  }
+  .rd-compare-table thead .rd-th-feature {
+    background: #161c2b;
   }
   .rd-td-feature strong {
-    color: #fff;
+    display: block;
+    color: var(--rd-text-bright);
+    font-size: 14px;
+    font-weight: 600;
   }
   .rd-td-feature span {
-    font-size: 11.5px;
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
     color: var(--rd-text-muted);
   }
-  .rd-check {
-    color: var(--rd-accent);
-    font-weight: 800;
-    font-size: 16px;
-    margin-right: 4px;
+
+  /* Group rows */
+  .rd-group-row > * {
+    padding: 22px 20px 8px;
+    border-bottom: 1px solid var(--rd-border);
   }
-  .rd-cross {
-    color: #ef4444;
-    font-weight: 800;
-    font-size: 15px;
-    margin-right: 4px;
-  }
-  .rd-partial {
-    color: #f59e0b;
-    font-weight: 800;
-    font-size: 16px;
-    margin-right: 4px;
-  }
-  .rd-dim {
+  .rd-compare-table .rd-group-title {
     font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rd-accent-light);
+  }
+
+  /* The RapiDoc column: darker than the rest, with a faint accent border */
+  .rd-compare-table .rd-col-rapidoc {
+    background: #070a12;
+    color: var(--rd-text);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+    box-shadow:
+      inset 1px 0 0 color-mix(in srgb, var(--rd-accent) 22%, transparent),
+      inset -1px 0 0 color-mix(in srgb, var(--rd-accent) 22%, transparent);
+  }
+
+  /* Neon edges, like the RapiDoc sidebar: a 1px line, brightest in the middle and fading towards the
+     ends, with a soft glow on the outside only. Each edge is a strip outside the column: the line on
+     its inner side, the glow fading outwards, both faded at the ends by a mask. */
+  .rd-rapidoc-edges {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--rd-cap-w);
+    width: var(--rd-rapidoc-w);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .rd-rapidoc-edges::before,
+  .rd-rapidoc-edges::after {
+    content: "";
+    position: absolute;
+    top: 6%;
+    bottom: 6%;
+    width: 18px;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  }
+  .rd-rapidoc-edges::before {
+    right: 100%;
+    background:
+      linear-gradient(to left, var(--rd-accent) 0 1px, transparent 1px),
+      linear-gradient(to left, color-mix(in srgb, var(--rd-accent) 22%, transparent), transparent);
+  }
+  .rd-rapidoc-edges::after {
+    left: 100%;
+    background:
+      linear-gradient(to right, var(--rd-accent) 0 1px, transparent 1px),
+      linear-gradient(to right, color-mix(in srgb, var(--rd-accent) 22%, transparent), transparent);
+  }
+  .rd-rapidoc-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--rd-text-bright);
+    letter-spacing: -0.01em;
+  }
+  .rd-rapidoc-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--rd-accent-light);
+  }
+
+  /* A cell: status mark, text, optional note */
+  .rd-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .rd-cell-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .rd-cell-text {
+    color: var(--rd-text);
+    line-height: 1.45;
+  }
+  .rd-col-rapidoc .rd-cell-text {
+    color: var(--rd-text-bright);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .rd-col-rapidoc .rd-cell-text a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--rd-accent-border);
+    text-underline-offset: 3px;
+  }
+  .rd-col-rapidoc .rd-cell-text a:hover {
+    color: var(--rd-accent-light);
+    text-decoration-color: currentColor;
+  }
+  .rd-cell-note {
+    font-size: 12px;
+    line-height: 1.5;
     color: var(--rd-text-muted);
+  }
+  .rd-col-rapidoc .rd-cell-note {
+    color: var(--rd-text-muted);
+  }
+
+  .rd-status {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-top: 0;
+    border-radius: 50%;
+  }
+  .rd-status--yes {
+    color: var(--rd-green-light);
+    background: color-mix(in srgb, var(--rd-green) 16%, transparent);
+  }
+  .rd-col-rapidoc .rd-status--yes {
+    color: var(--rd-on-accent);
+    background: var(--rd-accent);
+    box-shadow: 0 0 10px var(--rd-accent-glow);
+  }
+  .rd-status--hosted {
+    color: var(--rd-red-light);
+    background: color-mix(in srgb, var(--rd-red) 14%, transparent);
+  }
+  .rd-status--partial {
+    color: var(--rd-amber-light);
+    background: color-mix(in srgb, var(--rd-amber) 14%, transparent);
+  }
+  .rd-status--no {
+    color: var(--rd-red-light);
+    background: color-mix(in srgb, var(--rd-red) 14%, transparent);
+  }
+  .rd-preview-pill {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 7px;
+    border-radius: var(--rd-radius-pill);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    vertical-align: 1px;
+    color: var(--rd-sky-light);
+    background: color-mix(in srgb, var(--rd-sky) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-sky) 30%, transparent);
+  }
+
+  /* Phones: a narrow sticky capability column, so a product column fits beside it */
+  @media (max-width: 640px) {
+    .rd-table-card {
+      --rd-cap-w: 120px;
+    }
+    .rd-th-feature,
+    .rd-td-feature {
+      padding-inline: 14px;
+    }
+    .rd-td-feature span {
+      display: none;
+    }
+    .rd-compare-wrap {
+      min-width: 820px;
+    }
+  }
+
+  .rd-compare-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 24px;
+    margin-top: 20px;
+    font-size: 12.5px;
+    color: var(--rd-text-muted);
+  }
+  .rd-compare-legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rd-compare-legend .rd-status {
+    width: 18px;
+    height: 18px;
+  }
+  .rd-compare-legend .rd-preview-pill {
+    margin-left: 0;
+  }
+  .rd-compare-footnote {
+    margin: 8px 0 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--rd-text-dim);
   }
 
   /* Quickstart Showcase */
@@ -1330,51 +1554,115 @@ EXPOSE 80
     margin: 0 auto;
     padding: 40px 24px 80px 24px;
   }
-  .rd-code-showcase-card {
-    background: rgba(15, 23, 42, 0.35);
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 16px;
+  /* One box: the tabs and the copy button are its header row, the code fills the rest */
+  .rd-code-box {
+    background: var(--rd-bg-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     overflow: hidden;
-    backdrop-filter: blur(14px);
+    box-shadow: var(--rd-shadow-panel);
+  }
+  .rd-code-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px 8px 8px;
+    border-bottom: 1px solid var(--rd-border);
+    background: rgba(255, 255, 255, 0.025);
   }
   .rd-code-tabs {
     display: flex;
-    gap: 4px;
-    padding: 12px 16px;
-    background: rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
     overflow-x: auto;
+    scrollbar-width: none;
   }
   .rd-code-tab {
+    flex-shrink: 0;
     background: transparent;
     border: none;
     padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 12.5px;
+    border-radius: var(--rd-radius-sm);
+    font-size: 13px;
     font-weight: 600;
     color: var(--rd-text-muted);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: var(--rd-transition);
+  }
+  .rd-code-tab:hover {
+    color: var(--rd-text-bright);
   }
   .rd-code-tab.active {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background: var(--rd-wash-strong);
+    color: var(--rd-text-bright);
   }
-  .rd-tab-panels {
-    padding: 0 16px 16px 16px;
+  .rd-code-copy {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: var(--rd-radius-sm);
+    border: 1px solid var(--rd-border);
+    background: transparent;
+    color: var(--rd-text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--rd-transition);
   }
-  .rd-tab-panel {
+  .rd-code-copy:hover {
+    color: var(--rd-text-bright);
+    border-color: var(--rd-border-hover);
+  }
+  @media (max-width: 480px) {
+    .rd-code-copy-label {
+      display: none;
+    }
+    .rd-code-tab {
+      padding-inline: 10px;
+    }
+  }
+  /* Only the active tab's panel shows; the script moves .active */
+  .rd-code-panel {
     display: none;
   }
-  .rd-tab-panel.active {
+  .rd-code-panel.active {
     display: block;
+  }
+  .rd-code-file {
+    padding: 14px 20px 0;
+    font-family: var(--rd-font-mono);
+    font-size: 12px;
+    color: var(--rd-text-dim);
+  }
+  /* !important: Shiki sets the theme background as an inline style */
+  .rd-code-panel :global(pre.astro-code) {
+    margin: 0;
+    padding: 10px 20px 18px;
+    background: transparent !important;
+    font-size: 13px;
+    line-height: 1.65;
+    overflow-x: auto;
+    /* Show => and <!-- as typed, not as ligatures */
+    font-variant-ligatures: none;
+  }
+  .rd-code-note {
+    margin: 0;
+    padding: 12px 20px;
+    border-top: 1px solid var(--rd-border);
+    font-size: 13px;
+    color: var(--rd-text-muted);
+  }
+  .rd-code-note a {
+    white-space: nowrap;
   }
 
   /* Call to Action Card */
   .rd-cta-section {
     position: relative;
     z-index: 1;
-    max-width: 1240px;
+    max-width: var(--rd-max-width);
     margin: 0 auto;
     padding: 0 24px 80px 24px;
   }
@@ -1382,7 +1670,7 @@ EXPOSE 80
     position: relative;
     background: linear-gradient(135deg, var(--rd-accent-dim) 0%, rgba(255, 255, 255, 0.02) 50%, var(--rd-accent-dim) 100%);
     border: 1px solid var(--rd-accent-border);
-    border-radius: 20px;
+    border-radius: var(--rd-radius-lg);
     padding: 56px 32px;
     text-align: center;
     overflow: hidden;
@@ -1391,13 +1679,13 @@ EXPOSE 80
   .rd-cta-title {
     font-size: 2.2rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--rd-text-bright);
     letter-spacing: -0.02em;
     margin: 0 0 14px 0;
   }
   .rd-cta-desc {
     font-size: 16px;
-    color: #cbd5e1;
+    color: var(--rd-text-soft);
     max-width: 580px;
     margin: 0 auto 28px auto;
     line-height: 1.6;

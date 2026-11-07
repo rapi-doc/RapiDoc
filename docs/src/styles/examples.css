@@ -10,12 +10,12 @@ a {
   width: 100px;
   padding: 8px 12px;
   font-size: 12px;
-  font-family: "Roboto Mono";
+  font-family: var(--rd-font-mono);
   background-color: #333333aa;
   border: 1px solid var(--rd-accent);
-  color: #fff;
+  color: var(--rd-text-bright);
   margin: 0 2px;
-  border-radius: 2px;
+  border-radius: var(--rd-radius-xs);
   outline: none;
 }
 .btn {
@@ -24,9 +24,9 @@ a {
   font-weight: bold;
   line-height: normal;
   background: var(--rd-accent);
-  color: #fff;
+  color: var(--rd-text-bright);
   border: none;
-  border-radius: 2px;
+  border-radius: var(--rd-radius-xs);
   cursor: pointer;
   outline: none;
   &.yellow {

@@ -2,8 +2,9 @@
  * RapiDoc docs theme for Starlight (/docs/ pages only).
  *
  * The same look as the RapiDoc Portal (packages/rapidoc-portal/src/styles/portal-theme.css): a blue-grey
- * dark palette, the brand orange accent, a slightly denser type scale and one 6px corner radius. The
- * site stays dark-only (components/ForceDarkTheme.astro).
+ * dark palette, a slightly denser type scale and one 6px corner radius. The accent, radii and fonts
+ * come from the site tokens (tokens.css, loaded first). The site stays dark-only
+ * (components/ForceDarkTheme.astro).
  *
  * Accent usage, so text keeps WCAG AA contrast: --rd-docs-primary for fills, borders and icons;
  * --rd-docs-primary-text for text; --rd-docs-on-primary for text on a primary fill;
@@ -26,9 +27,9 @@
   --rd-docs-heading: oklch(0.97 0.005 272.84);
   --rd-docs-muted: oklch(0.74 0.02 272.84);
   --rd-docs-hover-bg: rgba(255, 255, 255, 0.06);
-  --rd-docs-primary: #ff791a;
-  --rd-docs-primary-text: #ff791a;
-  --rd-docs-on-primary: #000000;
+  --rd-docs-primary: var(--rd-accent);
+  --rd-docs-primary-text: var(--rd-accent);
+  --rd-docs-on-primary: var(--rd-on-accent);
   --rd-docs-primary-tint: color-mix(in srgb, var(--rd-docs-primary) 12%, transparent);
   /* Cards: raised a step above the page, a hairline ring and a soft shadow. */
   --rd-docs-card-bg: oklch(0.29 0.014 272.84);
@@ -42,7 +43,7 @@
 
   /* One corner radius for boxes and controls: asides, code blocks, cards, buttons and the search box.
      Small badges stay 4px. */
-  --rd-radius: 6px;
+  --rd-radius: var(--rd-radius-sm);
 
   /* Starlight colors */
   --sl-color-bg: var(--rd-docs-bg);
@@ -66,25 +67,17 @@
   --sl-color-accent-low: color-mix(in srgb, var(--rd-docs-primary) 18%, transparent);
   --sl-color-accent-high: color-mix(in srgb, var(--rd-docs-primary) 80%, #ffffff);
   --sl-color-text-accent: var(--rd-docs-primary-text);
-}
 
-/* The site navbar (components/SiteNavbar.astro) takes the docs' accent and background on these pages. */
-:root:root {
-  --rd-accent: #ff791a;
-  --rd-accent-hover: #ea580c;
-  --rd-accent-light: #ff9a52;
-  --rd-accent-dim: rgba(255, 121, 26, 0.12);
-  --rd-accent-border: rgba(255, 121, 26, 0.3);
-  --rd-accent-glow: rgba(255, 121, 26, 0.35);
+  /* The site navbar (components/SiteNavbar.astro) sits on the docs background here. */
   --rd-bg-glass: var(--sl-color-bg-nav);
 }
 
 /* -------------------------------------------------------------------------- Type and layout */
 
 :root {
-  --sl-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --sl-font-system: var(--sl-font);
-  --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sl-font: var(--rd-font-sans);
+  --sl-font-system: var(--rd-font-sans);
+  --sl-font-mono: var(--rd-font-mono);
 
   /* Type scale, one step below Starlight's defaults (body 16px/1.75, h1 35px, 42px from 50em):
      developer docs read better a little denser. */

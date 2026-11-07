@@ -1019,7 +1019,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
 
   .rd-pretty-controller-root {
     --rd-ctrl-font-size: 13px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    font-family: var(--rd-font-sans);
     font-size: var(--rd-ctrl-font-size);
     box-sizing: border-box;
   }
@@ -1042,14 +1042,14 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     padding: 0 16px 0 14px !important;
     background: rgba(15, 23, 42, 0.92) !important;
     backdrop-filter: blur(14px) !important;
-    color: #ffffff !important;
+    color: var(--rd-text-bright) !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
-    border-radius: 30px 0 0 8px !important;
-    border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    border-radius: 30px 0 0 var(--rd-radius-md) !important;
+    border: 1px solid color-mix(in srgb, var(--rd-amber) 35%, transparent) !important;
     border-right: none !important;
-    box-shadow: -2px 0 14px rgba(245, 158, 11, 0.18) !important;
+    box-shadow: -2px 0 14px color-mix(in srgb, var(--rd-amber) 18%, transparent) !important;
     font-family: inherit !important;
     transition:
       transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1062,7 +1062,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   }
 
   .rd-pretty-edge-tab svg {
-    color: #fbbf24 !important;
+    color: var(--rd-amber-light) !important;
     transition: transform 0.2s ease !important;
     flex-shrink: 0;
   }
@@ -1070,8 +1070,8 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   .rd-pretty-edge-tab:hover {
     transform: translateX(-3px) !important;
     background: rgba(22, 34, 60, 0.96) !important;
-    border-color: rgba(245, 158, 11, 0.6) !important;
-    box-shadow: -4px 0 20px rgba(245, 158, 11, 0.28) !important;
+    border-color: color-mix(in srgb, var(--rd-amber) 60%, transparent) !important;
+    box-shadow: -4px 0 20px color-mix(in srgb, var(--rd-amber) 28%, transparent) !important;
   }
 
   .rd-pretty-edge-tab:hover svg {
@@ -1087,18 +1087,18 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background-color: #64748b;
+    background-color: var(--rd-text-dim);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
   }
 
   .rd-pretty-status-dot.is-loaded {
-    background-color: #38bdf8;
-    box-shadow: 0 0 6px #38bdf8;
+    background-color: var(--rd-sky);
+    box-shadow: 0 0 6px var(--rd-sky);
   }
 
   .rd-pretty-status-dot.is-ready {
-    background-color: #10b981;
-    box-shadow: 0 0 6px #10b981;
+    background-color: var(--rd-green);
+    box-shadow: 0 0 6px var(--rd-green);
   }
 
   /* Overlapping Drawer Layer - Non-modal side drawer with frosted glass */
@@ -1115,14 +1115,14 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     height: 100dvh !important;
     max-height: 100dvh !important;
     border: none !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-left: 1px solid var(--rd-border-hover) !important;
     background: rgba(8, 13, 26, 0.82) !important;
     backdrop-filter: blur(24px) saturate(180%) !important;
     box-shadow:
       -12px 0 40px rgba(0, 0, 0, 0.55),
       inset 1px 0 0 rgba(255, 255, 255, 0.08) !important;
-    color: #f1f5f9 !important;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif !important;
+    color: var(--rd-text-primary) !important;
+    font-family: var(--rd-font-sans) !important;
     outline: none !important;
     z-index: 100000 !important;
     overflow: hidden !important;
@@ -1161,7 +1161,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     justify-content: space-between;
     align-items: center;
     padding: 16px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--rd-border);
     background: rgba(15, 23, 42, 0.45);
     flex-shrink: 0;
   }
@@ -1180,14 +1180,14 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   .rd-pretty-title {
     font-size: 15.5px;
     font-weight: 700;
-    color: #f8fafc;
+    color: var(--rd-text-primary);
     letter-spacing: -0.02em;
     margin: 0;
   }
 
   .rd-pretty-subtitle {
     font-size: 11.5px;
-    color: #64748b;
+    color: var(--rd-text-dim);
     margin-top: 2px;
     margin-bottom: 0;
   }
@@ -1206,11 +1206,11 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     gap: 5px !important;
     height: 30px !important;
     box-sizing: border-box !important;
-    background: rgba(255, 255, 255, 0.06) !important;
+    background: var(--rd-wash) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    color: #cbd5e1 !important;
+    color: var(--rd-text-soft) !important;
     padding: 0 10px !important;
-    border-radius: 7px !important;
+    border-radius: var(--rd-radius-sm) !important;
     corner-shape:squircle !important;
     font-size: 12px !important;
     font-weight: 600 !important;
@@ -1222,15 +1222,15 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   }
 
   .rd-pretty-action-btn:hover {
-    color: #fff !important;
+    color: var(--rd-text-bright) !important;
     background: rgba(255, 255, 255, 0.12) !important;
     border-color: rgba(255, 255, 255, 0.28) !important;
   }
 
   .rd-pretty-action-btn.rd-pretty-reset-btn:hover {
-    color: #34d399 !important;
-    border-color: rgba(16, 185, 129, 0.5) !important;
-    background: rgba(16, 185, 129, 0.14) !important;
+    color: var(--rd-accent-light) !important;
+    border-color: color-mix(in srgb, var(--rd-accent) 50%, transparent) !important;
+    background: color-mix(in srgb, var(--rd-accent) 14%, transparent) !important;
   }
 
   .rd-pretty-action-btn.rd-pretty-close-btn {
@@ -1241,16 +1241,16 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   }
 
   .rd-pretty-action-btn.rd-pretty-close-btn:hover {
-    color: #f87171 !important;
-    border-color: rgba(239, 68, 68, 0.4) !important;
-    background: rgba(239, 68, 68, 0.15) !important;
+    color: var(--rd-red-light) !important;
+    border-color: color-mix(in srgb, var(--rd-red) 40%, transparent) !important;
+    background: color-mix(in srgb, var(--rd-red) 15%, transparent) !important;
   }
 
   /* API button active state */
   .is-raw-labels .rd-pretty-label-mode-btn {
-    background: rgba(16, 185, 129, 0.18) !important;
-    border-color: rgba(16, 185, 129, 0.5) !important;
-    color: #34d399 !important;
+    background: color-mix(in srgb, var(--rd-accent) 18%, transparent) !important;
+    border-color: color-mix(in srgb, var(--rd-accent) 50%, transparent) !important;
+    color: var(--rd-accent-light) !important;
   }
 
   /* Body */
@@ -1272,11 +1272,11 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
 
   .rd-pretty-body::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
-    border-radius: 9999px;
+    border-radius: var(--rd-radius-pill);
   }
 
   .rd-pretty-body::-webkit-scrollbar-thumb:hover {
-    background: rgba(16, 185, 129, 0.4);
+    background: color-mix(in srgb, var(--rd-accent) 40%, transparent);
   }
 
   /* Category Section & Dividers */
@@ -1295,7 +1295,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     padding: 3px 8px;
   }
 
@@ -1308,14 +1308,14 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   /* Option Cards */
   .rd-option-card {
     padding: 11px 13px;
-    border-radius: 9px;
+    border-radius: var(--rd-radius-md);
     background: rgba(255, 255, 255, 0.025);
     border: 1px solid rgba(255, 255, 255, 0.06);
     transition: all 0.2s ease;
   }
 
   .rd-option-card:hover {
-    background: rgba(255, 255, 255, 0.045);
+    background: var(--rd-wash);
     border-color: rgba(255, 255, 255, 0.12);
   }
 
@@ -1350,17 +1350,17 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     gap: 5px;
     font-size: 11px;
     font-weight: 500;
-    color: #38bdf8;
-    background: rgba(56, 189, 248, 0.08);
-    border: 1px solid rgba(56, 189, 248, 0.2);
+    color: var(--rd-sky);
+    background: color-mix(in srgb, var(--rd-sky) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-sky) 20%, transparent);
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: var(--rd-radius-xs);
     line-height: 1.35;
   }
 
   .rd-option-info-badge svg {
     flex-shrink: 0;
-    color: #38bdf8;
+    color: var(--rd-sky);
   }
 
   .rd-option-info-text {
@@ -1370,19 +1370,19 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   .rd-option-label {
     font-size: 13px;
     font-weight: 600;
-    color: #e2e8f0;
+    color: var(--rd-text);
     letter-spacing: -0.01em;
   }
 
   .is-raw-labels .rd-option-label {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: var(--rd-font-mono);
     font-size: 12px;
-    color: #38bdf8;
+    color: var(--rd-sky);
   }
 
   .rd-option-tip {
     font-size: 11px;
-    color: #64748b;
+    color: var(--rd-text-dim);
     margin-top: 2px;
     line-height: 1.35;
   }
@@ -1408,8 +1408,8 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     position: absolute;
     inset: 0;
     background-color: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 9999px;
+    border: 1px solid var(--rd-border-hover);
+    border-radius: var(--rd-radius-pill);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -1420,7 +1420,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     width: 16px;
     left: 2px;
     bottom: 2px;
-    background-color: #f1f5f9;
+    background-color: var(--rd-text-primary);
     border-radius: 50%;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
     transition:
@@ -1429,14 +1429,14 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   }
 
   .rd-switch input:checked + .rd-slider {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    border-color: rgba(16, 185, 129, 0.6);
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, var(--rd-accent) 0%, var(--rd-accent-hover) 100%);
+    border-color: color-mix(in srgb, var(--rd-accent) 60%, transparent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--rd-accent) 40%, transparent);
   }
 
   .rd-switch input:checked + .rd-slider::before {
     transform: translateX(20px);
-    background-color: #ffffff;
+    background-color: var(--rd-text-bright);
   }
 
   .rd-switch:hover .rd-slider {
@@ -1456,9 +1456,9 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     align-items: center;
     gap: 5px;
     padding: 5px 11px;
-    border-radius: 7px;
+    border-radius: var(--rd-radius-sm);
     corner-shape:squircle;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--rd-wash);
     border: 1px solid rgba(255, 255, 255, 0.09);
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1478,29 +1478,29 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   .rd-chip .chip-text {
     font-size: 12px;
     font-weight: 500;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     transition: color 0.2s ease;
   }
 
   .rd-chip:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.18);
+    background: var(--rd-wash-strong);
+    border-color: var(--rd-border-hover);
   }
 
   .rd-chip:hover .chip-text {
-    color: #f1f5f9;
+    color: var(--rd-text-primary);
   }
 
   .rd-chip.active,
   .rd-chip.is-active {
-    background: rgba(16, 185, 129, 0.16) !important;
-    border-color: rgba(16, 185, 129, 0.55) !important;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.2) !important;
+    background: color-mix(in srgb, var(--rd-accent) 16%, transparent) !important;
+    border-color: color-mix(in srgb, var(--rd-accent) 55%, transparent) !important;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--rd-accent) 20%, transparent) !important;
   }
 
   .rd-chip.active .chip-text,
   .rd-chip.is-active .chip-text {
-    color: #34d399 !important;
+    color: var(--rd-accent-light) !important;
     font-weight: 600;
   }
 
@@ -1556,8 +1556,8 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   .rd-color-chip.active .color-swatch {
     box-shadow:
       0 0 0 2px #080d1a,
-      0 0 0 4px #10b981,
-      0 0 10px rgba(16, 185, 129, 0.5);
+      0 0 0 4px var(--rd-accent),
+      0 0 10px color-mix(in srgb, var(--rd-accent) 50%, transparent);
   }
 
   /* Method inputs */
@@ -1571,18 +1571,18 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     flex: 1;
     background: rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 6px;
+    border-radius: var(--rd-radius-sm);
     padding: 6px 10px;
-    color: #e2e8f0;
+    color: var(--rd-text);
     font-size: 12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: var(--rd-font-mono);
     outline: none;
     transition: border-color 0.2s ease;
   }
 
   .rd-method-input:focus {
-    border-color: #38bdf8;
-    box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+    border-color: var(--rd-sky);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--rd-sky) 25%, transparent);
   }
 
   .rd-pretty-slot-container {

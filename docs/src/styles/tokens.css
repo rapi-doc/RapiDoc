@@ -1,0 +1,130 @@
+/*
+ * RapiDoc site design tokens: colors, surfaces, text, borders, shadows, radii, fonts and motion.
+ *
+ * Loaded on every page: by styles/global.css (the site pages) and by astro.config.mjs's customCss
+ * (the Starlight pages under /docs/), so components shared by both (SiteNavbar) get the same values.
+ * Use these tokens, never hard-coded colors, radii or fonts.
+ */
+
+:root {
+  /* ------------------------------------------------------------------------ Accent: RapiDoc orange */
+  --rd-accent: #ff791a;
+  --rd-accent-hover: #ea580c;
+  --rd-accent-light: #ff9a52;
+  --rd-accent-dim: rgba(255, 121, 26, 0.12);
+  --rd-accent-border: rgba(255, 121, 26, 0.3);
+  --rd-accent-glow: rgba(255, 121, 26, 0.35);
+  /* Text on an accent fill */
+  --rd-on-accent: #000000;
+  --rapidoc-gradient: linear-gradient(135deg, #ff791a 0%, #f59e0b 100%);
+  --rapidoc-logo-gradient: linear-gradient(135deg, #ff9a52 0%, #ff791a 50%, #f59e0b 100%);
+
+  /* ------------------------------------------------------------------------ Other colors
+     For meaning (success, info, warning, error) and for illustrations, never for the brand accent. */
+  --rd-green: #10b981;
+  --rd-green-light: #34d399;
+  --rd-sky: #38bdf8;
+  --rd-sky-light: #7dd3fc;
+  --rd-cyan: #06b6d4;
+  --rd-indigo: #6366f1;
+  --rd-purple: #a855f7;
+  --rd-amber: #f59e0b;
+  --rd-amber-light: #fbbf24;
+  --rd-red: #ef4444;
+  --rd-red-light: #f87171;
+
+  /* ------------------------------------------------------------------------ Surfaces */
+  --rd-bg: #060913;
+  --rd-bg-surface: #090d16;
+  --rd-bg-input: rgba(15, 23, 42, 0.8);
+  --rd-bg-glass: rgba(6, 9, 19, 0.8);
+  /* Panels and cards, from flattest to most raised */
+  --rd-surface: rgba(15, 23, 42, 0.65);
+  --rd-surface-card: rgba(11, 17, 33, 0.7);
+  --rd-surface-hover: rgba(22, 32, 58, 0.85);
+  /* Card hover: color changes only, no glow or lift. An orange border and one step lighter. */
+  --rd-card-border-hover: color-mix(in srgb, var(--rd-accent) 60%, transparent);
+  --rd-card-bg-hover: var(--rd-surface-hover);
+  /* Icon boxes on cards: a recessed dark square behind an accent icon */
+  --rd-icon-bg: rgba(0, 0, 0, 0.35);
+  --rd-icon-bg-hover: color-mix(in srgb, var(--rd-accent) 14%, rgba(0, 0, 0, 0.35));
+  /* A faint white wash (chips, inline code, ghost hovers) */
+  --rd-wash: rgba(255, 255, 255, 0.05);
+  --rd-wash-strong: rgba(255, 255, 255, 0.1);
+
+  /* ------------------------------------------------------------------------ Text */
+  --rd-text-bright: #ffffff;
+  --rd-text-primary: #f8fafc;
+  --rd-text: #e2e8f0;
+  --rd-text-soft: #cbd5e1;
+  --rd-text-muted: #94a3b8;
+  --rd-text-dim: #64748b;
+
+  /* ------------------------------------------------------------------------ Borders */
+  --rd-border: rgba(255, 255, 255, 0.08);
+  --rd-border-hover: rgba(255, 255, 255, 0.16);
+  --rd-border-accent: var(--rd-accent-border);
+
+  /* ------------------------------------------------------------------------ Shadows */
+  --rd-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --rd-shadow-panel: 0 8px 30px -10px rgba(0, 0, 0, 0.5);
+  --rd-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px var(--rd-accent-glow);
+  --rd-shadow-glow: 0 0 30px var(--rd-accent-glow);
+
+  /* ------------------------------------------------------------------------ Radii
+     One 6px corner for boxes and controls (cards, panels, buttons, inputs, icon boxes), as on the
+     Starlight /docs/ pages and the RapiDoc Portal; badges and inline code 4px; pills round.
+     sm, md and lg stay separate names so a size can change on its own later. */
+  --rd-radius-xs: 4px;
+  --rd-radius-sm: 6px;
+  --rd-radius-md: 6px;
+  --rd-radius-lg: 6px;
+  --rd-radius-pill: 9999px;
+
+  /* ------------------------------------------------------------------------ Type and motion */
+  --rd-font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --rd-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --rd-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --rd-max-width: 1240px;
+
+  /* ------------------------------------------------------------------------ Old names
+     Kept so pages and components not yet moved to the names above keep working. */
+  --rd-emerald: var(--rd-accent);
+  --rd-emerald-glow: var(--rd-accent-glow);
+  --rd-glass-border: var(--rd-border);
+  --rd-glass-border-hover: var(--rd-border-accent);
+  --rd-text-secondary: var(--rd-text-muted);
+  --rd-bg-card: var(--rd-surface);
+  --rd-bg-card-hover: var(--rd-surface-hover);
+  --fg-color: var(--rd-text);
+  --fg-color-mute: var(--rd-text-muted);
+  --fg-color-bright: var(--rd-text-bright);
+  --bg-color: var(--rd-bg);
+  --accent-color: var(--rd-accent);
+  --link-color: var(--rd-accent-light);
+  --border-color: var(--rd-border);
+  --border-color-muted: rgba(255, 255, 255, 0.05);
+  --color-green: #84cc16;
+  --color-yellow: var(--rd-amber);
+  --color-yellow-dim: #a98a4c;
+  --color-salmon: #ff7043;
+  --color-blue: var(--rd-sky);
+  --card-bg-color: var(--rd-surface);
+  --code-block-width: 725px;
+  --code-block-bg-color: var(--rd-bg-surface);
+}
+
+/* The one pulse animation (status dots, live badges) */
+@keyframes rd-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}

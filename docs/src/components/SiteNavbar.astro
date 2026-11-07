@@ -76,7 +76,7 @@ const current = resolveActiveNavKey(pathname, activePage);
   .rd-version-badge {
     font-size: 11px;
     padding: 2px 7px;
-    border-radius: 12px;
+    border-radius: var(--rd-radius-md);
     background: var(--rd-accent-dim);
     color: var(--rd-accent);
     border: 1px solid var(--rd-accent-border);
@@ -110,10 +110,10 @@ const current = resolveActiveNavKey(pathname, activePage);
   .rd-dev-pill {
     font-size: 9px;
     padding: 1px 5px;
-    border-radius: 4px;
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--rd-radius-xs);
+    background: color-mix(in srgb, var(--rd-amber) 15%, transparent);
+    color: var(--rd-amber);
+    border: 1px solid color-mix(in srgb, var(--rd-amber) 30%, transparent);
     font-weight: 700;
     letter-spacing: 0.05em;
     font-family: var(--rd-font-mono);
@@ -122,10 +122,10 @@ const current = resolveActiveNavKey(pathname, activePage);
   }
   .rd-nav-link-dryrun:hover .rd-dev-pill,
   .rd-nav-link-dryrun.active .rd-dev-pill {
-    background: rgba(245, 158, 11, 0.25);
-    border-color: rgba(245, 158, 11, 0.6);
-    color: #fbbf24;
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
+    background: color-mix(in srgb, var(--rd-amber) 25%, transparent);
+    border-color: color-mix(in srgb, var(--rd-amber) 60%, transparent);
+    color: var(--rd-amber-light);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--rd-amber) 25%, transparent);
   }
   .rd-nav-actions {
     display: flex;
@@ -137,7 +137,7 @@ const current = resolveActiveNavKey(pathname, activePage);
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: var(--rd-radius-md);
     font-size: 13.5px;
     font-weight: 600;
     text-decoration: none;
@@ -148,13 +148,13 @@ const current = resolveActiveNavKey(pathname, activePage);
   .rd-btn-primary {
     background: var(--rd-accent-dim);
     border: 1px solid var(--rd-accent-border);
-    color: var(--rd-accent-light) !important;
+    color: var(--rd-accent-light);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   }
   .rd-btn-primary:hover {
-    background: rgba(16, 185, 129, 0.22);
+    background: color-mix(in srgb, var(--rd-accent) 22%, transparent);
     border-color: var(--rd-accent);
-    color: #ffffff !important;
+    color: var(--rd-text-bright);
     box-shadow: 0 4px 16px var(--rd-accent-glow);
     transform: translateY(-1px);
   }
@@ -164,7 +164,7 @@ const current = resolveActiveNavKey(pathname, activePage);
     border: 1px solid var(--rd-border);
   }
   .rd-btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--rd-wash);
     color: var(--rd-text-bright);
   }
   .hide-mobile {

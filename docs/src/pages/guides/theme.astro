@@ -182,6 +182,7 @@ function setScale(size) {
 ---
 
 <GlobalLayout
+  prism
   title="Guide | Theme | RapiDoc"
   description="Explore RapiDoc's overhauled theming architecture: 9 shadcn/ui-inspired presets, custom brand hex colors with automatic contrast calculation, dark/light modes, and typography tokens."
   keywords="RapiDoc themes, OpenAPI styling, Swagger dark mode, API documentation fonts, custom brand hex colors, shadcn color tokens"
@@ -1527,7 +1528,7 @@ function setScale(size) {
         For custom frosted glass navigation, gradient badges, Shadow DOM piercing, and complete parts catalogs, explore our Custom CSS &
         Shadow Parts Guide.
       </p>
-      <a href="/guides/css" class="rd-action-primary rd-next-link">
+      <a href="/guides/css" class="rd-btn rd-btn-primary">
         <span>Explore Custom CSS & Shadow Parts Guide</span>
         <IconArrowRight size={16} stroke={2.5} />
       </a>
@@ -1764,8 +1765,8 @@ function setScale(size) {
 
     .rd-demo-col-illustration {
       width: 100%;
-      border-radius: 8px;
-      padding: 0px;
+      border-radius: var(--rd-radius-md);
+      padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1779,7 +1780,7 @@ function setScale(size) {
       height: auto;
       max-height: 335px;
       display: block;
-      border-radius: 6px;
+      border-radius: var(--rd-radius-sm);
       overflow: hidden;
     }
 
@@ -1792,9 +1793,9 @@ function setScale(size) {
 
     /* Compact Controls Panel */
     .rd-demo-controls-panel {
-      background: rgba(15, 23, 42, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
+      background: var(--rd-surface);
+      border: 1px solid var(--rd-border);
+      border-radius: var(--rd-radius-md);
       padding: 9px 12px;
       display: flex;
       flex-direction: column;
@@ -1805,7 +1806,7 @@ function setScale(size) {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid var(--rd-wash);
       padding-bottom: 5px;
     }
 
@@ -1814,16 +1815,16 @@ function setScale(size) {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: #94a3b8;
+      color: var(--rd-text-muted);
     }
 
     .rd-panel-badge {
       font-size: 9.5px;
       font-weight: 600;
-      color: #10b981;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      border-radius: 3px;
+      color: var(--rd-accent-light);
+      background: var(--rd-accent-dim);
+      border: 1px solid var(--rd-accent-border);
+      border-radius: var(--rd-radius-xs);
       padding: 1px 5px;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -1845,7 +1846,7 @@ function setScale(size) {
 
     .rd-control-row-toggles {
       padding-top: 5px;
-      border-top: 1px dashed rgba(255, 255, 255, 0.06);
+      border-top: 1px dashed var(--rd-wash);
     }
 
     .rd-control-group {
@@ -1857,7 +1858,7 @@ function setScale(size) {
     .rd-control-label {
       font-size: 11px;
       font-weight: 600;
-      color: #cbd5e1;
+      color: var(--rd-text-soft);
       text-transform: uppercase;
       letter-spacing: 0.04em;
       white-space: nowrap;
@@ -1865,9 +1866,9 @@ function setScale(size) {
 
     .rd-segmented-pill {
       display: inline-flex;
-      background: #181c24;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 6px;
+      background: var(--rd-bg-input);
+      border: 1px solid var(--rd-border);
+      border-radius: var(--rd-radius-sm);
       padding: 2px;
       gap: 2px;
     }
@@ -1880,23 +1881,23 @@ function setScale(size) {
       padding: 3px 8px;
       background: transparent;
       border: none;
-      border-radius: 4px;
-      color: #94a3b8;
+      border-radius: var(--rd-radius-xs);
+      color: var(--rd-text-muted);
       font-size: 11px;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.18s ease;
+      transition: var(--rd-transition);
       white-space: nowrap;
       line-height: 1.2;
     }
 
     .rd-seg-btn:hover {
-      color: #ffffff;
+      color: var(--rd-text-bright);
     }
 
     .rd-seg-btn.active {
-      background: #2b3240;
-      color: #ffffff;
+      background: var(--rd-wash-strong);
+      color: var(--rd-text-bright);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
     }
 
@@ -1937,8 +1938,8 @@ function setScale(size) {
       position: relative;
       width: 24px;
       height: 14px;
-      background: #333842;
-      border-radius: 12px;
+      background: var(--rd-border-hover);
+      border-radius: var(--rd-radius-pill);
       transition: background 0.2s ease;
       flex-shrink: 0;
     }
@@ -1950,13 +1951,13 @@ function setScale(size) {
       left: 2px;
       width: 10px;
       height: 10px;
-      background: #e2e8f0;
+      background: var(--rd-text);
       border-radius: 50%;
       transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .rd-switch-item input:checked + .rd-switch-slider {
-      background: #10b981;
+      background: var(--rd-accent);
     }
 
     .rd-switch-item input:checked + .rd-switch-slider::after {
@@ -1965,17 +1966,17 @@ function setScale(size) {
 
     .rd-switch-text {
       font-size: 11px;
-      color: #cbd5e1;
+      color: var(--rd-text-soft);
       font-weight: 500;
     }
 
     /* Compact Code Snippet Card */
     .rd-demo-code-card {
-      background: #090d16;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
+      background: var(--rd-bg-surface);
+      border: 1px solid var(--rd-border);
+      border-radius: var(--rd-radius-md);
       overflow: hidden;
-      box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+      box-shadow: var(--rd-shadow-panel);
       display: flex;
       flex-direction: column;
       flex: 1;
@@ -1985,10 +1986,10 @@ function setScale(size) {
       display: flex;
       align-items: center;
       padding: 6px 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: var(--rd-wash);
+      border-bottom: 1px solid var(--rd-wash);
       font-size: 11px;
-      color: #8b949e;
+      color: var(--rd-text-muted);
     }
 
     .code-dot {
@@ -2009,35 +2010,35 @@ function setScale(size) {
 
     .code-title {
       margin-left: 6px;
-      font-family: 'Roboto Mono', Monaco, monospace;
+      font-family: var(--rd-font-mono);
       font-size: 11px;
-      color: #c9d1d9;
+      color: var(--rd-text-soft);
       flex: 1;
     }
 
     .rd-copy-code-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #c9d1d9;
+      background: var(--rd-wash);
+      border: 1px solid var(--rd-border);
+      color: var(--rd-text-soft);
       padding: 2px 7px;
-      border-radius: 4px;
+      border-radius: var(--rd-radius-xs);
       font-size: 10.5px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 4px;
-      transition: all 0.2s ease;
+      transition: var(--rd-transition);
     }
 
     .rd-copy-code-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
+      background: var(--rd-wash-strong);
+      color: var(--rd-text-bright);
     }
 
     .rd-copy-code-btn.copied {
-      background: rgba(16, 185, 129, 0.2);
-      border-color: #10b981;
-      color: #34d399;
+      background: color-mix(in srgb, var(--rd-green) 20%, transparent);
+      border-color: var(--rd-green);
+      color: var(--rd-green-light);
     }
 
     .rd-code-content {
@@ -2053,7 +2054,7 @@ function setScale(size) {
       background: transparent !important;
       font-size: 11.5px !important;
       line-height: 1.42 !important;
-      font-family: 'Roboto Mono', Monaco, monospace !important;
+      font-family: var(--rd-font-mono) !important;
       flex: 1;
     }
 
@@ -2065,27 +2066,21 @@ function setScale(size) {
 
     .rd-code-content :global(.token.attr-name),
     .tok-attr {
-      color: #38bdf8;
+      color: var(--rd-sky);
     }
 
     .rd-code-content :global(.token.attr-value),
     .tok-val {
-      color: #34d399;
+      color: var(--rd-green-light);
     }
 
     .rd-code-content :global(.token.punctuation),
     .tok-punct {
-      color: #94a3b8;
+      color: var(--rd-text-muted);
     }
 
-    .text-emerald {
-      color: #34d399;
-    }
-    .text-surface {
-      color: #cbd5e1;
-    }
     .text-cyan {
-      color: #38bdf8;
+      color: var(--rd-sky);
     }
 
     /* Section 2: Presets Grid & Cards */
@@ -2096,9 +2091,9 @@ function setScale(size) {
       margin-bottom: 40px;
     }
     .rd-preset-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
+      background: var(--rd-surface);
+      border: 1px solid var(--rd-border);
+      border-radius: var(--rd-radius-lg);
       padding: 22px;
       display: flex;
       flex-direction: column;
@@ -2124,40 +2119,40 @@ function setScale(size) {
     }
     .rd-preset-name {
       font-weight: 700;
-      color: #fff;
+      color: var(--rd-text-bright);
       font-size: 15px;
     }
     .rd-preset-badge {
       font-size: 11px;
       padding: 2px 8px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.05);
-      color: #94a3b8;
-      font-family: monospace;
+      border-radius: var(--rd-radius-xs);
+      background: var(--rd-wash);
+      color: var(--rd-text-muted);
+      font-family: var(--rd-font-mono);
       &:empty {
         display: none;
       }
     }
     .rd-preset-desc {
       font-size: 13px;
-      color: #94a3b8;
+      color: var(--rd-text-muted);
       line-height: 1.5;
       margin: 0;
     }
     .rd-preset-footer {
       margin-top: auto;
       padding-top: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 1px solid var(--rd-wash);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .rd-preset-code {
       font-size: 12px;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
+      color: var(--rd-sky);
+      background: color-mix(in srgb, var(--rd-sky) 10%, transparent);
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: var(--rd-radius-xs);
     }
 
     /* Recipe Code Container */
@@ -2173,15 +2168,15 @@ function setScale(size) {
       margin-bottom: 32px;
     }
     .rd-geometry-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
+      background: var(--rd-surface);
+      border: 1px solid var(--rd-border);
+      border-radius: var(--rd-radius-lg);
       padding: 24px;
     }
     .rd-geometry-title {
       font-size: 18px;
       font-weight: 700;
-      color: #fff;
+      color: var(--rd-text-bright);
       margin-bottom: 12px;
       display: flex;
       align-items: center;
@@ -2189,7 +2184,7 @@ function setScale(size) {
     }
     .rd-geometry-desc {
       font-size: 13.5px;
-      color: #94a3b8;
+      color: var(--rd-text-muted);
       line-height: 1.6;
       margin-bottom: 16px;
     }
@@ -2206,16 +2201,16 @@ function setScale(size) {
       display: flex;
       justify-content: space-between;
       padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 6px;
+      background: var(--rd-wash);
+      border-radius: var(--rd-radius-sm);
     }
     .rd-geometry-text {
-      color: #cbd5e1;
+      color: var(--rd-text-soft);
     }
     .rd-scale-item {
       padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 6px;
+      background: var(--rd-wash);
+      border-radius: var(--rd-radius-sm);
     }
     .rd-scale-item-head {
       display: flex;
@@ -2223,42 +2218,8 @@ function setScale(size) {
       margin-bottom: 4px;
     }
     .rd-scale-item-sub {
-      color: #64748b;
+      color: var(--rd-text-dim);
       font-size: 12px;
-    }
-
-    /* Next Steps Banner */
-    .rd-next-banner {
-      text-align: center;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 16px;
-      padding: 40px 24px;
-      margin-top: 48px;
-    }
-    .rd-next-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 10px;
-    }
-    .rd-next-desc {
-      color: #94a3b8;
-      max-width: 600px;
-      margin: 0 auto 20px;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-    .rd-next-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #10b981;
-      color: #fff;
-      padding: 10px 22px;
-      border-radius: 8px;
-      font-weight: 600;
-      text-decoration: none;
     }
   </style>
 </GlobalLayout>

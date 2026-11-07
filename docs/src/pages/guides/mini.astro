@@ -216,7 +216,7 @@ const attributes = [
 
   <main class="rd-mini-main">
     <!-- Hero Header -->
-    <header class="rd-mini-header">
+    <header class="rd-hero-header">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
         <span class="rd-badge-text">Standalone Endpoint Web Component</span>
@@ -657,55 +657,6 @@ const attributes = [
 </GlobalLayout>
 
 <style>
-  /* CSS Variables & Tokens */
-  :root {
-    --rd-emerald: var(--rd-accent);
-    --rd-emerald-glow: var(--rd-accent-glow);
-    --rd-cyan: var(--rd-logo-yellow, #f59e0b);
-    --rd-cyan-glow: rgba(245, 158, 11, 0.25);
-    --rd-indigo: var(--rd-accent-light);
-    --rd-surface: rgba(15, 23, 42, 0.65);
-    --rd-surface-card: rgba(11, 17, 33, 0.75);
-    --rd-surface-hover: rgba(22, 32, 58, 0.85);
-    --rd-glass-border: rgba(255, 255, 255, 0.08);
-    --rd-glass-border-hover: var(--rd-accent-border);
-    --rd-text-primary: #f8fafc;
-    --rd-text-secondary: #94a3b8;
-    --rd-text-muted: #64748b;
-    --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
-  }
-
-  /* Ambient Radial Glows */
-  .ambient-glow {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(140px);
-    pointer-events: none;
-    opacity: 0.18;
-    z-index: 0;
-  }
-  .glow-emerald {
-    top: 100px;
-    left: 10%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
-  }
-  .glow-indigo {
-    top: 700px;
-    right: 10%;
-    width: 550px;
-    height: 550px;
-    background: radial-gradient(circle, var(--rd-logo-yellow, #f59e0b) 0%, transparent 70%);
-  }
-  .glow-cyan {
-    top: 1500px;
-    left: 15%;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, var(--rd-accent-glow) 0%, transparent 70%);
-  }
-
   /* Page Layout - Single Column Flow */
   .rd-mini-main {
     position: relative;
@@ -715,180 +666,13 @@ const attributes = [
     padding: 48px 24px 96px 24px;
   }
 
-  /* Hero Header */
-  .rd-mini-header {
-    text-align: center;
-    max-width: 860px;
-    margin: 0 auto 64px auto;
-  }
-
-  .rd-badge-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: 9999px;
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
-    margin-bottom: 20px;
-  }
-
-  .rd-badge-pulse {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--rd-accent);
-    box-shadow: 0 0 10px var(--rd-accent);
-    animation: pulse-dot 2s infinite;
-  }
-
-  @keyframes pulse-dot {
-    0% {
-      transform: scale(0.95);
-      box-shadow: 0 0 0 0 var(--rd-accent-glow);
-    }
-    70% {
-      transform: scale(1);
-      box-shadow: 0 0 0 6px transparent;
-    }
-    100% {
-      transform: scale(0.95);
-      box-shadow: 0 0 0 0 transparent;
-    }
-  }
-
-  .rd-badge-text {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--rd-accent-light);
-    letter-spacing: 0.02em;
-  }
-
-  .rd-page-title {
-    font-size: clamp(32px, 5vw, 54px);
-    font-weight: 800;
-    color: #fff;
-    line-height: 1.15;
-    letter-spacing: -0.03em;
-    margin: 0 0 18px 0;
-  }
-
-  .text-gradient {
-    background: var(--rapidoc-logo-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    display: inline-block;
-  }
-
-  .rd-page-subtitle {
-    font-size: clamp(16px, 2vw, 18.5px);
-    color: var(--rd-text-secondary);
-    line-height: 1.6;
-    margin: 0 auto 36px auto;
-  }
-
-  .rd-page-subtitle code {
-    color: #38bdf8;
-    background: rgba(56, 189, 248, 0.1);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.9em;
-    border: 1px solid rgba(56, 189, 248, 0.2);
-  }
-
-  /* Stats Counter Bar */
-  .rd-stats-bar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 14px;
-    margin: 0 auto;
-  }
-
-  .rd-stat-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 12px 20px;
-    background: var(--rd-surface-card);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 12px;
-    min-width: 150px;
-    transition: all 0.2s ease;
-  }
-
-  .rd-stat-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--rd-accent-border);
-    box-shadow:
-      0 8px 24px -6px rgba(0, 0, 0, 0.5),
-      0 0 16px var(--rd-accent-glow);
-  }
-
-  .rd-stat-value {
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-    font-family: var(--rd-font-mono);
-    line-height: 1.2;
-  }
-
-  .rd-stat-label {
-    font-size: 11.5px;
-    font-weight: 500;
-    color: var(--rd-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-top: 4px;
-  }
-
-  /* Sections */
-  .rd-section {
-    margin-bottom: 72px;
-  }
-
-  .rd-section-header {
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .rd-section-badge {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 700;
-    padding: 3px 9px;
-    border-radius: 6px;
-    background: var(--rd-accent-dim);
-    color: var(--rd-accent-light);
-    border: 1px solid var(--rd-accent-border);
-  }
-
-  .rd-section-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-    letter-spacing: -0.02em;
-  }
-
-  .rd-section-title code {
-    color: #38bdf8;
-    font-size: 0.9em;
+  /* Section descriptions sit after the header, not inside it */
+  .rd-section-header:has(+ .rd-section-desc) {
+    margin-bottom: 0;
   }
 
   .rd-section-desc {
-    font-size: 15.5px;
-    color: var(--rd-text-secondary);
-    line-height: 1.65;
-    margin: 0 0 20px 0;
+    margin-bottom: 20px;
   }
 
   /* Use Case Grid */
@@ -901,8 +685,8 @@ const attributes = [
   .rd-usecase-card {
     background: var(--rd-surface-card);
     backdrop-filter: blur(14px);
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 16px;
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     padding: 24px;
     transition:
       transform 0.25s ease,
@@ -910,11 +694,8 @@ const attributes = [
   }
 
   .rd-usecase-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--rd-accent-border);
-    box-shadow:
-      0 10px 30px rgba(0, 0, 0, 0.4),
-      0 0 16px var(--rd-accent-glow);
+    border-color: var(--rd-card-border-hover);
+    background: var(--rd-card-bg-hover);
   }
 
   .rd-card-icon {
@@ -923,31 +704,28 @@ const attributes = [
     justify-content: center;
     width: 44px;
     height: 44px;
-    border-radius: 10px;
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
-    color: var(--rd-accent-light);
+    border-radius: var(--rd-radius-sm);
+    background: var(--rd-icon-bg);
+    color: var(--rd-accent);
     margin-bottom: 16px;
     transition: all 0.2s ease;
   }
 
   .rd-usecase-card:hover .rd-card-icon {
-    background: var(--rd-accent);
-    color: #04120c;
-    box-shadow: 0 0 16px var(--rd-accent-glow);
-    transform: scale(1.05);
+    background: var(--rd-icon-bg-hover);
+    color: var(--rd-accent-light);
   }
 
   .rd-usecase-card h3 {
     font-size: 17px;
     font-weight: 700;
-    color: #fff;
+    color: var(--rd-text-bright);
     margin: 0 0 8px 0;
   }
 
   .rd-usecase-card p {
     font-size: 13.5px;
-    color: var(--rd-text-secondary);
+    color: var(--rd-text-muted);
     line-height: 1.6;
     margin: 0;
   }
@@ -956,7 +734,7 @@ const attributes = [
     color: var(--rd-accent-light);
     background: var(--rd-accent-dim);
     padding: 2px 5px;
-    border-radius: 4px;
+    border-radius: var(--rd-radius-xs);
   }
 
   /* Single-Column Demo Layout */
@@ -1001,14 +779,6 @@ const attributes = [
   }
 
   /* Table Reference */
-  .rd-table-container {
-    overflow-x: auto;
-    border: 1px solid var(--rd-glass-border);
-    border-radius: 16px;
-    background: var(--rd-surface-card);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-  }
-
   .rd-api-table {
     width: 100%;
     border-collapse: collapse;
@@ -1017,17 +787,17 @@ const attributes = [
   }
 
   .rd-api-table th {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--rd-wash);
     padding: 14px 20px;
-    color: #fff;
+    color: var(--rd-text-bright);
     font-weight: 600;
     text-align: left;
-    border-bottom: 1px solid var(--rd-glass-border);
+    border-bottom: 1px solid var(--rd-border);
   }
 
   .rd-api-table td {
     padding: 16px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--rd-wash);
     vertical-align: top;
     text-align: left;
   }
@@ -1037,31 +807,20 @@ const attributes = [
   }
 
   .rd-attr-name {
-    color: #38bdf8;
+    color: var(--rd-sky);
     font-family: var(--rd-font-mono);
     font-weight: 600;
     font-size: 13px;
   }
 
-  .rd-type-tag {
-    display: inline-block;
-    font-family: var(--rd-font-mono);
-    font-size: 11.5px;
-    color: #a78bfa;
-    background: rgba(167, 139, 250, 0.1);
-    padding: 2px 7px;
-    border-radius: 4px;
-    border: 1px solid rgba(167, 139, 250, 0.2);
-  }
-
   .rd-default-tag {
     font-family: var(--rd-font-mono);
     font-size: 11.5px;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
   }
 
   .rd-attr-desc {
-    color: var(--rd-text-secondary);
+    color: var(--rd-text-muted);
     line-height: 1.5;
   }
 
@@ -1070,9 +829,14 @@ const attributes = [
     position: relative;
     overflow: hidden;
     margin-top: 60px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, var(--rd-accent-dim) 0%, rgba(245, 158, 11, 0.08) 50%, rgba(99, 102, 241, 0.08) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--rd-radius-lg);
+    background: linear-gradient(
+      135deg,
+      var(--rd-accent-dim) 0%,
+      color-mix(in srgb, var(--rd-amber) 8%, transparent) 50%,
+      color-mix(in srgb, var(--rd-indigo) 8%, transparent) 100%
+    );
+    border: 1px solid var(--rd-border-hover);
     padding: 48px 36px;
     text-align: center;
   }
@@ -1103,21 +867,21 @@ const attributes = [
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #38bdf8;
+    color: var(--rd-sky);
     margin-bottom: 12px;
   }
 
   .rd-callout-title {
     font-size: clamp(24px, 3.5vw, 32px);
     font-weight: 800;
-    color: #fff;
+    color: var(--rd-text-bright);
     margin: 0 0 14px 0;
     letter-spacing: -0.02em;
   }
 
   .rd-callout-desc {
     font-size: 15px;
-    color: var(--rd-text-secondary);
+    color: var(--rd-text-muted);
     line-height: 1.6;
     margin: 0 0 28px 0;
   }
@@ -1129,75 +893,9 @@ const attributes = [
     gap: 14px;
   }
 
-  /* Button Variants */
-  .rd-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-  }
-
-  .rd-btn-lg {
-    padding: 12px 24px;
-    font-size: 15px;
-  }
-
-  .rd-btn-primary {
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
-    color: var(--rd-accent-light) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  }
-
-  .rd-btn-primary:hover {
-    background: rgba(16, 185, 129, 0.22);
-    border-color: var(--rd-accent);
-    color: #fff !important;
-    box-shadow: 0 4px 16px var(--rd-accent-glow);
-    transform: translateY(-1px);
-  }
-
-  .rd-btn-secondary {
-    background: rgba(255, 255, 255, 0.06);
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-
-  .rd-btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-  }
-
-  .rd-btn-ghost {
-    background: transparent;
-    color: var(--rd-text-secondary);
-    border-color: transparent;
-  }
-
-  .rd-btn-ghost:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.06);
-  }
-
   @media (max-width: 640px) {
     .rd-mini-main {
       padding: 32px 16px 64px 16px;
-    }
-    .rd-stats-bar {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .rd-stat-card {
-      min-width: unset;
     }
     .rd-bottom-callout {
       padding: 32px 20px;

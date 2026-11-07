@@ -125,7 +125,7 @@ const guides = [
 
   <main class="rd-guides-main">
     <!-- Hero Header -->
-    <header class="rd-guides-header">
+    <header class="rd-hero-header">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
         <span class="rd-badge-text">Implementation Blueprints & Tutorials</span>
@@ -236,98 +236,12 @@ const guides = [
 </GlobalLayout>
 
 <style>
-  /* Ambient Background Glow Elements */
-  .ambient-glow {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(140px);
-    pointer-events: none;
-    opacity: 0.16;
-    z-index: 0;
-  }
-  .glow-emerald {
-    top: 0;
-    right: 15%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
-  }
-  .glow-indigo {
-    top: 400px;
-    left: 5%;
-    width: 550px;
-    height: 550px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 70%);
-  }
-  .glow-cyan {
-    top: 1000px;
-    right: 10%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.18) 0%, transparent 70%);
-  }
-
   .rd-guides-main {
-    max-width: 1240px;
+    max-width: var(--rd-max-width);
     margin: 0 auto;
     padding: 60px 24px 100px;
     position: relative;
     z-index: 1;
-  }
-
-  .rd-guides-header {
-    text-align: center;
-    max-width: 760px;
-    margin: 0 auto 56px;
-  }
-
-  .rd-badge-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: 9999px;
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
-    margin-bottom: 20px;
-  }
-
-  .rd-badge-pulse {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--rd-accent);
-    box-shadow: 0 0 10px var(--rd-accent);
-  }
-
-  .rd-badge-text {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--rd-accent-light);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .rd-page-title {
-    font-size: clamp(34px, 5vw, 48px);
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-    margin-bottom: 18px;
-  }
-
-  .text-gradient {
-    background: var(--rapidoc-logo-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .rd-page-subtitle {
-    font-size: 16px;
-    color: #94a3b8;
-    line-height: 1.6;
-    margin-bottom: 28px;
   }
 
   .rd-quick-stats {
@@ -342,21 +256,21 @@ const guides = [
     align-items: center;
     gap: 8px;
     padding: 6px 16px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--rd-radius-md);
+    background: var(--rd-wash);
+    border: 1px solid var(--rd-border);
   }
 
   .rd-stat-num {
     font-size: 14px;
     font-weight: 700;
     color: var(--rd-accent);
-    font-family: 'Roboto Mono', monospace;
+    font-family: var(--rd-font-mono);
   }
 
   .rd-stat-txt {
     font-size: 12.5px;
-    color: #cbd5e1;
+    color: var(--rd-text-soft);
     font-weight: 500;
   }
 
@@ -370,40 +284,22 @@ const guides = [
   .rd-guide-card {
     display: flex;
     flex-direction: column;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     padding: 28px;
     text-decoration: none;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: var(--rd-transition);
     position: relative;
     overflow: hidden;
   }
 
-  .rd-guide-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--rd-accent), transparent);
-    opacity: 0;
-    transition: opacity 0.25s ease;
-  }
 
   .rd-guide-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--rd-accent-border);
-    box-shadow:
-      0 16px 36px -10px rgba(0, 0, 0, 0.5),
-      0 0 8px var(--rd-accent-glow);
-    background: rgba(15, 23, 42, 0.85);
+    border-color: var(--rd-card-border-hover);
+    background: var(--rd-card-bg-hover);
   }
 
-  .rd-guide-card:hover::before {
-    opacity: 1;
-  }
 
   .rd-card-header {
     display: flex;
@@ -418,7 +314,7 @@ const guides = [
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 3px 9px;
-    border-radius: 6px;
+    border-radius: var(--rd-radius-sm);
   }
 
   .badge-orange,
@@ -435,26 +331,26 @@ const guides = [
   }
 
   .badge-purple {
-    background: rgba(168, 85, 247, 0.15);
+    background: color-mix(in srgb, var(--rd-purple) 15%, transparent);
     color: #c084fc;
-    border: 1px solid rgba(168, 85, 247, 0.3);
+    border: 1px solid color-mix(in srgb, var(--rd-purple) 30%, transparent);
   }
 
   .badge-amber {
-    background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    background: color-mix(in srgb, var(--rd-amber) 15%, transparent);
+    color: var(--rd-amber-light);
+    border: 1px solid color-mix(in srgb, var(--rd-amber) 30%, transparent);
   }
 
   .badge-cyan {
-    background: rgba(6, 182, 212, 0.15);
+    background: color-mix(in srgb, var(--rd-cyan) 15%, transparent);
     color: #22d3ee;
-    border: 1px solid rgba(6, 182, 212, 0.3);
+    border: 1px solid color-mix(in srgb, var(--rd-cyan) 30%, transparent);
   }
 
   .rd-card-time {
     font-size: 11.5px;
-    color: #64748b;
+    color: var(--rd-text-dim);
   }
 
   .rd-card-body {
@@ -464,27 +360,25 @@ const guides = [
   .rd-card-icon-wrap {
     width: 44px;
     height: 44px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--rd-radius-sm);
+    background: var(--rd-icon-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--rd-accent);
     margin-bottom: 16px;
-    transition: all 0.2s ease;
+    transition: var(--rd-transition);
   }
 
   .rd-guide-card:hover .rd-card-icon-wrap {
-    background: var(--rd-accent-dim);
-    border-color: var(--rd-accent-border);
+    background: var(--rd-icon-bg-hover);
     color: var(--rd-accent-light);
   }
 
   .rd-card-title {
     font-size: 19px;
     font-weight: 700;
-    color: #fff;
+    color: var(--rd-text-bright);
     margin-bottom: 10px;
     letter-spacing: -0.02em;
     line-height: 1.3;
@@ -492,7 +386,7 @@ const guides = [
 
   .rd-card-desc {
     font-size: 13.5px;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     line-height: 1.6;
     margin-bottom: 20px;
   }
@@ -507,15 +401,15 @@ const guides = [
   .rd-card-tag {
     font-size: 11px;
     padding: 3px 8px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: #94a3b8;
-    font-family: 'Roboto Mono', monospace;
+    border-radius: var(--rd-radius-xs);
+    background: var(--rd-wash);
+    border: 1px solid var(--rd-border);
+    color: var(--rd-text-muted);
+    font-family: var(--rd-font-mono);
   }
 
   .rd-card-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--rd-border);
     padding-top: 16px;
   }
 
@@ -541,9 +435,9 @@ const guides = [
   }
 
   .rd-banner-item {
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -557,13 +451,13 @@ const guides = [
   .rd-banner-content h3 {
     font-size: 16px;
     font-weight: 700;
-    color: #fff;
+    color: var(--rd-text-bright);
     margin-bottom: 4px;
   }
 
   .rd-banner-content p {
     font-size: 13px;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0;
     line-height: 1.5;
   }

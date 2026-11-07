@@ -131,7 +131,7 @@ import 'rapidoc';
 
     <!-- Interactive Live Benchmark Studio -->
     <section class="rd-section" id="live-benchmark">
-      <div class="rd-section-header">
+      <div class="rd-section-header rd-section-header--center">
         <div class="rd-section-badge">Live Interactive Lab</div>
         <h2 class="rd-section-title">Benchmark Real Large Specs</h2>
         <p class="rd-section-desc">
@@ -308,7 +308,7 @@ import 'rapidoc';
 
     <!-- Large Spec Benchmark Comparison Table -->
     <section class="rd-section">
-      <div class="rd-section-header">
+      <div class="rd-section-header rd-section-header--center">
         <div class="rd-section-badge">Empirical Results</div>
         <h2 class="rd-section-title">Tested Specifications & Benchmark Metrics</h2>
         <p class="rd-section-desc">Measured in Chromium on Apple Silicon (M-series) running single-threaded JavaScript execution:</p>
@@ -365,7 +365,7 @@ import 'rapidoc';
 
     <!-- Architectural Deep-Dive Grid -->
     <section class="rd-section" id="architecture">
-      <div class="rd-section-header">
+      <div class="rd-section-header rd-section-header--center">
         <div class="rd-section-badge">Engineering Deep Dive</div>
         <h2 class="rd-section-title">Why RapiDoc Outperforms Traditional Documentation</h2>
         <p class="rd-section-desc">Four foundational engineering breakthroughs that enable instantaneous loads and flat memory profiles:</p>
@@ -461,7 +461,7 @@ import 'rapidoc';
 
     <!-- Code Highlighting Comparison Visual -->
     <section class="rd-section">
-      <div class="rd-section-header">
+      <div class="rd-section-header rd-section-header--center">
         <div class="rd-section-badge">DOM Architecture Comparison</div>
         <h2 class="rd-section-title">Traditional Highlighting vs. RapiDoc Highlighting</h2>
         <p class="rd-section-desc">How RapiDoc prevents the "DOM Explosion" problem on multi-megabyte API payloads:</p>
@@ -540,7 +540,7 @@ import 'rapidoc';
 
     <!-- Best Practices Tuning Guide -->
     <section class="rd-section" id="best-practices">
-      <div class="rd-section-header">
+      <div class="rd-section-header rd-section-header--center">
         <div class="rd-section-badge">Tuning Guide</div>
         <h2 class="rd-section-title">Best Practices for 10MB+ Enterprise Documentation</h2>
         <p class="rd-section-desc">Four critical tips to keep large enterprise specifications loading instantaneously:</p>
@@ -839,46 +839,23 @@ import 'rapidoc';
 </script>
 
 <style>
-  :root {
-    --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
-  }
-
   /* Core Page Layout */
   .rd-perf-page {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--rd-max-width);
     box-sizing: border-box;
     margin: 0 auto;
     padding: 40px 24px 80px 24px;
   }
 
-  /* Ambient Radial Glows */
-  .ambient-glow {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(140px);
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.16;
-  }
-  .glow-emerald {
-    top: -80px;
-    left: 20%;
-    width: 550px;
-    height: 550px;
-    background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
-  }
+  /* Ambient glows: the shared ones, the second in amber */
   .glow-cyan {
-    top: 600px;
-    right: 10%;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, var(--rd-logo-yellow, #f59e0b) 0%, transparent 70%);
+    background: radial-gradient(circle, var(--rd-amber) 0%, transparent 70%);
   }
   .glow-purple {
-    top: 1400px;
+    bottom: -100px;
     left: 5%;
     width: 500px;
     height: 500px;
@@ -891,58 +868,18 @@ import 'rapidoc';
     max-width: 860px;
     margin: 0 auto 64px auto;
   }
-  .rd-badge-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
-    margin-bottom: 20px;
-  }
-  .rd-badge-pulse {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--rd-accent);
-    box-shadow: 0 0 10px var(--rd-accent);
-    animation: pulse-dot 2s infinite ease-in-out;
-  }
-  @keyframes pulse-dot {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.4;
-      transform: scale(0.85);
-    }
-  }
-  .rd-badge-text {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--rd-accent-light);
-  }
-
   .rd-hero-title {
     font-size: 3rem;
     line-height: 1.25;
     font-weight: 800;
     letter-spacing: -0.03em;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 18px 0;
-  }
-  .rd-gradient-text {
-    background: var(--rapidoc-logo-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
   }
   .rd-hero-subtitle {
     font-size: 1.1rem;
     line-height: 1.6;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0 0 40px 0;
   }
 
@@ -954,87 +891,49 @@ import 'rapidoc';
     text-align: left;
   }
   .rd-kpi-card {
-    background: rgba(255, 255, 255, 0.025);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     padding: 22px 20px;
     backdrop-filter: blur(12px);
-    transition: all 0.2s ease;
+    transition: var(--rd-transition);
   }
   .rd-kpi-card:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(16, 185, 129, 0.3);
-    transform: translateY(-2px);
+    background: var(--rd-card-bg-hover);
+    border-color: var(--rd-card-border-hover);
   }
   .rd-kpi-val {
     font-size: 2.1rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     letter-spacing: -0.02em;
     margin-bottom: 6px;
   }
   .rd-kpi-unit {
     font-size: 1.1rem;
-    color: #10b981;
+    color: var(--rd-accent);
   }
   .rd-kpi-label {
     font-size: 14px;
     font-weight: 700;
-    color: #e2e8f0;
+    color: var(--rd-text);
     margin-bottom: 6px;
   }
   .rd-kpi-desc {
     font-size: 12.5px;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     line-height: 1.45;
-  }
-
-  /* Sections */
-  .rd-section {
-    margin-bottom: 88px;
-  }
-  .rd-section-header {
-    text-align: center;
-    max-width: 680px;
-    margin: 0 auto 40px auto;
-  }
-  .rd-section-badge {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #10b981;
-    background: rgba(16, 185, 129, 0.1);
-    padding: 3px 10px;
-    border-radius: 20px;
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    margin-bottom: 12px;
-  }
-  .rd-section-title {
-    font-size: 2.2rem;
-    line-height: 1.3;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.02em;
-    margin: 0 0 12px 0;
-  }
-  .rd-section-desc {
-    font-size: 15px;
-    color: #94a3b8;
-    line-height: 1.6;
-    margin: 0;
   }
 
   /* Benchmark Studio */
   .rd-benchmark-studio {
-    background: #090d16;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
+    background: var(--rd-bg-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     position: relative;
     box-shadow:
       0 20px 50px -10px rgba(0, 0, 0, 0.6),
-      0 0 0 1px rgba(16, 185, 129, 0.15);
+      0 0 0 1px color-mix(in srgb, var(--rd-accent) 15%, transparent);
   }
   .rd-studio-controls {
     display: flex;
@@ -1043,8 +942,8 @@ import 'rapidoc';
     gap: 16px;
     padding: 18px 24px;
     background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 16px 16px 0 0;
+    border-bottom: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg) var(--rd-radius-lg) 0 0;
     position: relative;
     z-index: 30;
   }
@@ -1055,7 +954,7 @@ import 'rapidoc';
   }
   .rd-control-label {
     font-size: 13px;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     font-weight: 600;
     white-space: nowrap;
   }
@@ -1071,33 +970,33 @@ import 'rapidoc';
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: #f8fafc;
+    background: var(--rd-bg-input);
+    border: 1px solid var(--rd-border-hover);
+    color: var(--rd-text-primary);
     padding: 8px 14px;
-    border-radius: 8px;
+    border-radius: var(--rd-radius-md);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     outline: none;
     min-width: 220px;
-    transition: all 0.2s ease;
+    transition: var(--rd-transition);
     backdrop-filter: blur(8px);
   }
 
   .rd-custom-select-trigger:hover {
-    background: rgba(22, 32, 58, 0.95);
-    border-color: rgba(16, 185, 129, 0.4);
+    background: var(--rd-surface-hover);
+    border-color: color-mix(in srgb, var(--rd-accent) 40%, transparent);
   }
 
   .rd-custom-select.is-open .rd-custom-select-trigger {
-    border-color: #10b981;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-    background: rgba(22, 32, 58, 0.95);
+    border-color: var(--rd-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--rd-accent) 20%, transparent);
+    background: var(--rd-surface-hover);
   }
 
   .rd-select-arrow {
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     transition:
       transform 0.2s ease,
       color 0.2s ease;
@@ -1106,7 +1005,7 @@ import 'rapidoc';
 
   .rd-custom-select.is-open .rd-select-arrow {
     transform: rotate(180deg);
-    color: #10b981;
+    color: var(--rd-accent);
   }
 
   .rd-custom-select-menu {
@@ -1117,12 +1016,12 @@ import 'rapidoc';
     width: max-content;
     max-width: 440px;
     background: rgba(11, 17, 33, 0.96);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
+    border: 1px solid var(--rd-border-hover);
+    border-radius: var(--rd-radius-md);
     padding: 6px;
     box-shadow:
       0 16px 36px -4px rgba(0, 0, 0, 0.7),
-      0 0 0 1px rgba(16, 185, 129, 0.15);
+      0 0 0 1px color-mix(in srgb, var(--rd-accent) 15%, transparent);
     backdrop-filter: blur(20px);
     z-index: 100;
     display: none;
@@ -1152,7 +1051,7 @@ import 'rapidoc';
     justify-content: space-between;
     gap: 16px;
     padding: 8px 12px;
-    border-radius: 8px;
+    border-radius: var(--rd-radius-md);
     cursor: pointer;
     transition:
       background 0.15s ease,
@@ -1162,7 +1061,7 @@ import 'rapidoc';
 
   .rd-select-option:hover,
   .rd-select-option:focus {
-    background: rgba(16, 185, 129, 0.12);
+    background: var(--rd-accent-dim);
   }
 
   .rd-option-main {
@@ -1175,32 +1074,32 @@ import 'rapidoc';
   .rd-option-label {
     font-size: 13px;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--rd-text-primary);
   }
 
   .rd-option-badge {
     font-size: 11.5px;
-    color: #94a3b8;
-    font-family: var(--rd-font-mono, monospace);
+    color: var(--rd-text-muted);
+    font-family: var(--rd-font-mono);
   }
 
   .rd-option-check {
-    color: #10b981;
+    color: var(--rd-accent);
     opacity: 0;
     transition: opacity 0.15s ease;
     flex-shrink: 0;
   }
 
   .rd-select-option.is-selected {
-    background: rgba(16, 185, 129, 0.1);
+    background: color-mix(in srgb, var(--rd-accent) 10%, transparent);
   }
 
   .rd-select-option.is-selected .rd-option-label {
-    color: #34d399;
+    color: var(--rd-accent-light);
   }
 
   .rd-select-option.is-selected .rd-option-badge {
-    color: #a7f3d0;
+    color: var(--rd-accent-light);
   }
 
   .rd-select-option.is-selected .rd-option-check {
@@ -1213,7 +1112,7 @@ import 'rapidoc';
     gap: 12px;
     padding: 16px 24px;
     background: rgba(0, 0, 0, 0.25);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--rd-border);
   }
   .rd-score-item {
     display: flex;
@@ -1222,7 +1121,7 @@ import 'rapidoc';
   }
   .rd-score-label {
     font-size: 11.5px;
-    color: #64748b;
+    color: var(--rd-text-dim);
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 0.05em;
@@ -1230,22 +1129,15 @@ import 'rapidoc';
   .rd-score-val {
     font-size: 1.25rem;
     font-weight: 800;
-    color: #f8fafc;
+    color: var(--rd-text-primary);
     font-family: var(--rd-font-mono);
   }
   .highlight-score .rd-score-val {
     font-size: 1.35rem;
   }
-  .text-emerald {
-    color: #34d399 !important;
-  }
-  .text-amber {
-    color: #fbbf24 !important;
-  }
-
   /* Sandbox */
   .rd-sandbox-frame {
-    background: #060913;
+    background: var(--rd-bg);
   }
   .rd-sandbox-header {
     display: flex;
@@ -1253,7 +1145,7 @@ import 'rapidoc';
     justify-content: space-between;
     padding: 10px 18px;
     background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--rd-wash);
   }
   .rd-window-dots {
     display: flex;
@@ -1265,31 +1157,31 @@ import 'rapidoc';
     border-radius: 50%;
   }
   .rd-dot.red {
-    background: #ef4444;
+    background: var(--rd-red);
   }
   .rd-dot.yellow {
-    background: #f59e0b;
+    background: var(--rd-amber);
   }
   .rd-dot.green {
-    background: #10b981;
+    background: var(--rd-green);
   }
 
   .rd-sandbox-status {
     font-size: 12px;
-    color: #64748b;
+    color: var(--rd-text-dim);
     font-family: var(--rd-font-mono);
   }
   .rd-sandbox-status.status-loading {
-    color: #fbbf24;
+    color: var(--rd-amber-light);
   }
   .rd-sandbox-status.status-success {
-    color: #34d399;
+    color: var(--rd-green-light);
   }
 
   .rd-sandbox-viewport {
     position: relative;
     min-height: 480px;
-    background: #090d16;
+    background: var(--rd-bg-surface);
   }
   .rd-placeholder-state {
     display: flex;
@@ -1303,23 +1195,22 @@ import 'rapidoc';
   .rd-placeholder-icon {
     width: 54px;
     height: 54px;
-    border-radius: 14px;
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    color: #10b981;
+    border-radius: var(--rd-radius-sm);
+    background: var(--rd-icon-bg);
+    color: var(--rd-accent);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 16px auto;
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--rd-accent) 15%, transparent);
   }
   .rd-placeholder-state h3 {
-    color: #f8fafc;
+    color: var(--rd-text-primary);
     font-size: 1.3rem;
     margin: 0 0 8px 0;
   }
   .rd-placeholder-state p {
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     max-width: 440px;
     line-height: 1.5;
     margin: 0;
@@ -1327,14 +1218,6 @@ import 'rapidoc';
   }
 
   /* Empirical Table */
-  .rd-table-container {
-    width: 100%;
-    overflow-x: auto;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    background: rgba(11, 17, 33, 0.7);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-  }
   .rd-perf-table {
     width: 100%;
     border-collapse: collapse;
@@ -1342,20 +1225,20 @@ import 'rapidoc';
     font-size: 13.5px;
   }
   .rd-perf-table th {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--rd-wash);
     padding: 14px 18px;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     font-weight: 700;
     text-align: left;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--rd-border);
     white-space: nowrap;
   }
   .rd-perf-table td {
     padding: 14px 18px;
     text-align: left;
     vertical-align: middle;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: #94a3b8;
+    border-bottom: 1px solid var(--rd-wash);
+    color: var(--rd-text-muted);
   }
   .rd-perf-table tr:last-child td {
     border-bottom: none;
@@ -1363,7 +1246,7 @@ import 'rapidoc';
   .rd-table-sub {
     display: block;
     font-size: 11px;
-    color: #64748b;
+    color: var(--rd-text-dim);
     font-weight: 400;
   }
   .rd-pill-fast {
@@ -1372,23 +1255,23 @@ import 'rapidoc';
     font-size: 12px;
     font-weight: 700;
     padding: 3px 8px;
-    border-radius: 6px;
+    border-radius: var(--rd-radius-sm);
     white-space: nowrap;
   }
   .rd-pill-focused {
-    color: #34d399;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: var(--rd-accent-light);
+    background: color-mix(in srgb, var(--rd-accent) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-accent) 25%, transparent);
   }
   .rd-pill-view {
-    color: #38bdf8;
-    background: rgba(6, 182, 212, 0.1);
-    border: 1px solid rgba(6, 182, 212, 0.25);
+    color: var(--rd-sky);
+    background: color-mix(in srgb, var(--rd-cyan) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-cyan) 25%, transparent);
   }
   .rd-pill-read {
     color: #c084fc;
-    background: rgba(168, 85, 247, 0.1);
-    border: 1px solid rgba(168, 85, 247, 0.25);
+    background: color-mix(in srgb, var(--rd-purple) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-purple) 25%, transparent);
   }
 
   /* Architecture Grid */
@@ -1401,39 +1284,21 @@ import 'rapidoc';
   .rd-arch-card {
     display: flex;
     flex-direction: column;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     padding: 28px;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: var(--rd-transition);
     position: relative;
     overflow: hidden;
   }
 
-  .rd-arch-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.6), transparent);
-    opacity: 0;
-    transition: opacity 0.25s ease;
-  }
 
   .rd-arch-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(16, 185, 129, 0.4);
-    box-shadow:
-      0 16px 36px -10px rgba(0, 0, 0, 0.5),
-      0 0 8px rgba(16, 185, 129, 0.15);
-    background: rgba(15, 23, 42, 0.85);
+    border-color: var(--rd-card-border-hover);
+    background: var(--rd-card-bg-hover);
   }
 
-  .rd-arch-card:hover::before {
-    opacity: 1;
-  }
 
   .rd-card-header {
     display: flex;
@@ -1448,13 +1313,13 @@ import 'rapidoc';
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 3px 9px;
-    border-radius: 6px;
+    border-radius: var(--rd-radius-sm);
   }
 
   .badge-emerald {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: color-mix(in srgb, var(--rd-accent) 15%, transparent);
+    color: var(--rd-accent);
+    border: 1px solid var(--rd-accent-border);
   }
 
   .badge-blue {
@@ -1464,53 +1329,51 @@ import 'rapidoc';
   }
 
   .badge-purple {
-    background: rgba(168, 85, 247, 0.15);
+    background: color-mix(in srgb, var(--rd-purple) 15%, transparent);
     color: #c084fc;
-    border: 1px solid rgba(168, 85, 247, 0.3);
+    border: 1px solid color-mix(in srgb, var(--rd-purple) 30%, transparent);
   }
 
   .badge-cyan {
-    background: rgba(6, 182, 212, 0.15);
+    background: color-mix(in srgb, var(--rd-cyan) 15%, transparent);
     color: #22d3ee;
-    border: 1px solid rgba(6, 182, 212, 0.3);
+    border: 1px solid color-mix(in srgb, var(--rd-cyan) 30%, transparent);
   }
 
   .rd-card-time {
     font-size: 11.5px;
-    color: #64748b;
+    color: var(--rd-text-dim);
   }
 
   .rd-card-icon-wrap {
     width: 44px;
     height: 44px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--rd-radius-sm);
+    background: var(--rd-icon-bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #10b981;
+    color: var(--rd-accent);
     margin-bottom: 16px;
-    transition: all 0.2s ease;
+    transition: var(--rd-transition);
   }
 
   .rd-arch-card:hover .rd-card-icon-wrap {
-    background: rgba(16, 185, 129, 0.12);
-    border-color: rgba(16, 185, 129, 0.3);
-    color: #34d399;
+    background: var(--rd-icon-bg-hover);
+    color: var(--rd-accent-light);
   }
 
   .rd-card-title {
     font-size: 19px;
     font-weight: 700;
-    color: #fff;
+    color: var(--rd-text-bright);
     margin-bottom: 10px;
     letter-spacing: -0.02em;
   }
 
   .rd-card-desc {
     font-size: 13.5px;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     line-height: 1.6;
     margin-bottom: 20px;
   }
@@ -1524,12 +1387,12 @@ import 'rapidoc';
 
   .rd-card-tag {
     font-size: 11px;
-    font-family: var(--rd-font-mono, monospace);
-    color: #cbd5e1;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: var(--rd-font-mono);
+    color: var(--rd-text-soft);
+    background: var(--rd-wash);
+    border: 1px solid var(--rd-border);
     padding: 3px 8px;
-    border-radius: 4px;
+    border-radius: var(--rd-radius-xs);
   }
 
   /* Code Highlighting Comparison Visual */
@@ -1545,7 +1408,7 @@ import 'rapidoc';
     }
   }
   .rd-compare-col {
-    border-radius: 14px;
+    border-radius: var(--rd-radius-lg);
     padding: 24px;
     backdrop-filter: blur(10px);
     min-width: 0;
@@ -1553,13 +1416,13 @@ import 'rapidoc';
     box-sizing: border-box;
   }
   .rd-compare-col.bad {
-    background: rgba(239, 68, 68, 0.03);
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    background: color-mix(in srgb, var(--rd-red) 3%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-red) 20%, transparent);
   }
   .rd-compare-col.good {
-    background: rgba(16, 185, 129, 0.03);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.05);
+    background: color-mix(in srgb, var(--rd-green) 3%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-green) 30%, transparent);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--rd-green) 5%, transparent);
   }
   .rd-compare-head {
     display: flex;
@@ -1571,26 +1434,26 @@ import 'rapidoc';
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ef4444;
+    color: var(--rd-red);
     flex-shrink: 0;
   }
   .rd-check-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #10b981;
+    color: var(--rd-green);
     flex-shrink: 0;
   }
   .rd-compare-head h3 {
     font-size: 15px;
     font-weight: 700;
-    color: #fff;
+    color: var(--rd-text-bright);
     margin: 0 0 2px 0;
   }
   .rd-dom-stat {
     font-size: 12px;
     font-weight: 600;
-    color: #f87171;
+    color: var(--rd-red-light);
     font-family: var(--rd-font-mono);
   }
   .rd-compare-code {
@@ -1600,13 +1463,13 @@ import 'rapidoc';
   }
   .rd-compare-code pre {
     margin: 0 0 14px 0;
-    background: #090d16;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+    background: var(--rd-bg-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
     padding: 14px;
     font-size: 12px;
     line-height: 1.5;
-    color: #cbd5e1;
+    color: var(--rd-text-soft);
     overflow-x: auto;
     max-width: 100%;
     box-sizing: border-box;
@@ -1616,11 +1479,11 @@ import 'rapidoc';
   }
   .rd-compare-code pre::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
+    border-radius: var(--rd-radius-xs);
   }
   .rd-compare-code pre::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
+    border-radius: var(--rd-radius-xs);
   }
   .rd-compare-code pre::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
@@ -1642,7 +1505,7 @@ import 'rapidoc';
     font-size: 12.5px;
     line-height: 1.5;
     margin: 0;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
   }
 
   /* Sequential Flow for Best Practices */
@@ -1660,7 +1523,7 @@ import 'rapidoc';
     gap: 28px;
     position: relative;
     padding-bottom: 36px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--rd-border);
   }
 
   .rd-step-item:last-child {
@@ -1678,23 +1541,23 @@ import 'rapidoc';
   .rd-step-num {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #10b981;
+    border-radius: var(--rd-radius-md);
+    background: color-mix(in srgb, var(--rd-accent) 10%, transparent);
+    border: 1px solid var(--rd-accent-border);
+    color: var(--rd-accent);
     font-family: var(--rd-font-mono);
     font-size: 1.15rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--rd-accent) 15%, transparent);
   }
 
   .rd-step-line {
     flex: 1;
     width: 2px;
-    background: linear-gradient(180deg, rgba(16, 185, 129, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
+    background: linear-gradient(180deg, var(--rd-accent-border) 0%, var(--rd-wash) 100%);
     margin-top: 14px;
   }
 
@@ -1721,19 +1584,19 @@ import 'rapidoc';
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 3px 10px;
-    border-radius: 6px;
+    border-radius: var(--rd-radius-sm);
   }
 
   .rd-step-tag.tag-conditional {
-    background: rgba(245, 158, 11, 0.12);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    color: #fbbf24;
+    background: color-mix(in srgb, var(--rd-amber) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-amber) 30%, transparent);
+    color: var(--rd-amber-light);
   }
 
   .rd-step-title {
     font-size: 1.35rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0;
     letter-spacing: -0.01em;
   }
@@ -1741,21 +1604,21 @@ import 'rapidoc';
   .rd-step-desc {
     font-size: 14.5px;
     line-height: 1.65;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0 0 16px 0;
   }
 
   .rd-step-desc code {
-    color: #38bdf8;
-    background: rgba(56, 189, 248, 0.1);
+    color: var(--rd-sky);
+    background: color-mix(in srgb, var(--rd-sky) 10%, transparent);
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: var(--rd-radius-xs);
     font-size: 13px;
     font-family: var(--rd-font-mono);
   }
 
   .rd-step-desc strong {
-    color: #f8fafc;
+    color: var(--rd-text-primary);
   }
 
   .rd-step-bullets {
@@ -1773,7 +1636,7 @@ import 'rapidoc';
     gap: 12px;
     font-size: 14px;
     line-height: 1.55;
-    color: #cbd5e1;
+    color: var(--rd-text-soft);
   }
 
   .rd-bullet-tag {
@@ -1782,21 +1645,21 @@ import 'rapidoc';
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 3px 10px;
-    border-radius: 6px;
+    border-radius: var(--rd-radius-sm);
     white-space: nowrap;
     flex-shrink: 0;
   }
 
   .rd-bullet-tag.tag-focused {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #34d399;
+    background: color-mix(in srgb, var(--rd-accent) 15%, transparent);
+    border: 1px solid var(--rd-accent-border);
+    color: var(--rd-accent-light);
   }
 
   .rd-bullet-tag.tag-view {
-    background: rgba(56, 189, 248, 0.15);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    color: #38bdf8;
+    background: color-mix(in srgb, var(--rd-sky) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-sky) 30%, transparent);
+    color: var(--rd-sky);
   }
 
   .rd-step-code {
@@ -1823,9 +1686,14 @@ import 'rapidoc';
   /* Bottom Callout */
   .rd-bottom-callout {
     position: relative;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(139, 92, 246, 0.1) 100%);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: 20px;
+    background: linear-gradient(
+      135deg,
+      var(--rd-accent-dim) 0%,
+      color-mix(in srgb, var(--rd-cyan) 8%, transparent) 50%,
+      rgba(139, 92, 246, 0.1) 100%
+    );
+    border: 1px solid var(--rd-accent-border);
+    border-radius: var(--rd-radius-lg);
     padding: 56px 32px;
     text-align: center;
     overflow: hidden;
@@ -1838,20 +1706,20 @@ import 'rapidoc';
     left: 30%;
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--rd-accent) 25%, transparent) 0%, transparent 70%);
     pointer-events: none;
   }
   .rd-callout-title {
     font-size: 2.2rem;
     line-height: 1.3;
     font-weight: 800;
-    color: #fff;
+    color: var(--rd-text-bright);
     letter-spacing: -0.02em;
     margin: 0 0 12px 0;
   }
   .rd-callout-desc {
     font-size: 15px;
-    color: #cbd5e1;
+    color: var(--rd-text-soft);
     max-width: 580px;
     margin: 0 auto 28px auto;
     line-height: 1.6;
@@ -1863,68 +1731,10 @@ import 'rapidoc';
     gap: 14px;
   }
 
-  /* Button & Utilities */
-  .rd-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 13.5px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    border: none;
-  }
-  .rd-btn-primary {
-    background: var(--rd-accent-dim);
-    border: 1px solid var(--rd-accent-border);
-    color: var(--rd-accent-light) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  }
-  .rd-btn-primary:hover {
-    background: rgba(16, 185, 129, 0.22);
-    border-color: var(--rd-accent);
-    color: #fff !important;
-    box-shadow: 0 4px 16px var(--rd-accent-glow);
-    transform: translateY(-1px);
-  }
-  .rd-btn-ghost {
-    background: transparent;
-    color: #94a3b8;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .rd-btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-  .rd-btn-glass {
-    background: rgba(255, 255, 255, 0.04);
-    color: #f1f5f9;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(8px);
-  }
-  .rd-btn-glass:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-  }
-  .rd-btn-lg {
-    padding: 12px 24px;
-    font-size: 15px;
-    border-radius: 10px;
-  }
-
   @media (max-width: 768px) {
     .rd-hero-title {
       font-size: 2.3rem;
       line-height: 1.25;
-    }
-    .rd-section-title {
-      font-size: 1.8rem;
-      line-height: 1.3;
     }
     .rd-studio-controls {
       flex-direction: column;
@@ -1940,5 +1750,13 @@ import 'rapidoc';
       width: 100%;
       max-width: 100%;
     }
+  }
+
+  /* Status text colors; last, so they win over the element's own color */
+  .text-emerald {
+    color: var(--rd-green-light);
+  }
+  .text-amber {
+    color: var(--rd-amber-light);
   }
 </style>

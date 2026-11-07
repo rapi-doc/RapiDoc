@@ -12,6 +12,8 @@ interface Props {
   image?: string;
   canonicalUrl?: string;
   noindex?: boolean;
+  /** Loads Prism, which highlights <code class="language-*"> blocks on the page. */
+  prism?: boolean;
 }
 
 const {
@@ -23,6 +25,7 @@ const {
   image = '/assets/images/rapidoc-leaves.png',
   canonicalUrl,
   noindex = false,
+  prism = false,
 } = Astro.props;
 
 // Compute hierarchical page title info for SEO and Google Analytics
@@ -74,18 +77,22 @@ const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.start
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={fullImageUrl} />
 
+    <!-- Fonts: Inter and JetBrains Mono for the site; Lato, Nunito, Roboto Mono and Sono for the font demos -->
     <!-- Fonts - START -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Sono:wght@200..800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Sono:wght@200..800&display=swap"
       rel="stylesheet"
     />
     <!-- Fonts - END -->
 
-    <!-- Prism Code Highlight -->
-    <link rel="stylesheet" href="/assets/prismjs/prism.css" />
-    <script is:inline src="/assets/prismjs/prism.js"></script>
+    {prism && (
+      <>
+        <link rel="stylesheet" href="/assets/prismjs/prism.css" />
+        <script is:inline src="/assets/prismjs/prism.js"></script>
+      </>
+    )}
 
     <slot name="head" />
     <GoogleAnalytics title={effectiveGaTitle} contentGroup={effectiveContentGroup} />

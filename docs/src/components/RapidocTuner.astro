@@ -1004,7 +1004,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     --rd-ctrl-font-size: 12px;
     position: fixed !important;
     z-index: 99990 !important;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--rd-font-sans);
     font-size: var(--rd-ctrl-font-size) !important;
     line-height: 1.4;
     user-select: none;
@@ -1051,11 +1051,11 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     align-items: center;
     gap: 0.6em;
     padding: 0.55em 1.25em;
-    border-radius: 10px 10px 4px 4px;
+    border-radius: var(--rd-radius-md) var(--rd-radius-md) var(--rd-radius-xs) var(--rd-radius-xs);
     background: rgba(15, 23, 42, 0.94);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--rd-border-hover);
     backdrop-filter: blur(20px);
-    color: #e2e8f0;
+    color: var(--rd-text);
     font-size: 1em;
     font-weight: 700;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
@@ -1064,10 +1064,10 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 
   .rd-controller-hud .rd-hud-trigger:hover {
     background: rgba(15, 23, 42, 0.98);
-    border-color: rgba(234, 88, 12, 0.6);
-    color: #fff;
+    border-color: color-mix(in srgb, var(--rd-accent-hover) 60%, transparent);
+    color: var(--rd-text-bright);
     transform: translateY(-1px);
-    box-shadow: 0 10px 30px rgba(234, 88, 12, 0.3);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--rd-accent-hover) 30%, transparent);
   }
 
   .rd-controller-hud .rd-hud-trigger-title {
@@ -1079,19 +1079,19 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     width: 0.65em;
     height: 0.65em;
     border-radius: 50%;
-    background: #64748b;
+    background: var(--rd-text-dim);
     display: inline-block;
     transition: background 0.3s ease;
   }
 
   .rd-controller-hud .rd-hud-status-dot.is-loaded {
-    background: #38bdf8;
-    box-shadow: 0 0 8px #38bdf8;
+    background: var(--rd-sky);
+    box-shadow: 0 0 8px var(--rd-sky);
   }
 
   .rd-controller-hud .rd-hud-status-dot.is-ready {
-    background: #10b981;
-    box-shadow: 0 0 8px #10b981;
+    background: var(--rd-green);
+    box-shadow: 0 0 8px var(--rd-green);
   }
 
   /* Main HUD panel */
@@ -1102,7 +1102,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     padding: 0.75em 1.1em;
     border-radius: 1.1em;
     background: rgba(15, 23, 42, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid var(--rd-border-hover);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
@@ -1143,7 +1143,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   .rd-controller-hud .rd-hud-badge {
     font-size: 0.92em;
     font-weight: 800;
-    color: #e2e8f0;
+    color: var(--rd-text);
     letter-spacing: 0.07em;
   }
 
@@ -1154,8 +1154,8 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     padding: 0.2em 0.55em;
     border-radius: 0.35em;
     background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #cbd5e1;
+    border: 1px solid var(--rd-border-hover);
+    color: var(--rd-text-soft);
     font-size: 0.88em;
     font-weight: 600;
     text-decoration: none;
@@ -1163,9 +1163,9 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   }
 
   .rd-controller-hud .rd-spec-link:hover {
-    color: #fff;
-    background: rgba(234, 88, 12, 0.25);
-    border-color: rgba(234, 88, 12, 0.5);
+    color: var(--rd-text-bright);
+    background: color-mix(in srgb, var(--rd-accent-hover) 25%, transparent);
+    border-color: color-mix(in srgb, var(--rd-accent-hover) 50%, transparent);
   }
 
   .rd-controller-hud .rd-hud-actions-group {
@@ -1179,9 +1179,9 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     align-items: center !important;
     justify-content: center !important;
     gap: 0.35em !important;
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    color: #cbd5e1 !important;
+    background: var(--rd-wash) !important;
+    border: 1px solid var(--rd-border-hover) !important;
+    color: var(--rd-text-soft) !important;
     padding: 0.28em 0.65em !important;
     border-radius: 0.4em !important;
     corner-shape: squircle !important;
@@ -1192,34 +1192,34 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 
   .rd-controller-hud .rd-hud-action-btn:hover {
     background: rgba(255, 255, 255, 0.15) !important;
-    color: #fff !important;
+    color: var(--rd-text-bright) !important;
     border-color: rgba(255, 255, 255, 0.28) !important;
   }
 
   /* API Label Mode Button: Dimmed when toggled off (human mode), highlighted in raw label mode */
   .rd-controller-hud .rd-hud-label-mode-btn {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    font-family: var(--rd-font-mono) !important;
     font-size: 0.88em !important;
     font-weight: 700 !important;
     letter-spacing: 0.05em !important;
-    color: #64748b !important;
-    background: rgba(255, 255, 255, 0.04) !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: var(--rd-text-dim) !important;
+    background: var(--rd-wash) !important;
+    border-color: var(--rd-border) !important;
     opacity: 0.65 !important;
   }
 
   .rd-controller-hud .rd-hud-label-mode-btn:hover {
-    color: #e2e8f0 !important;
+    color: var(--rd-text) !important;
     opacity: 1 !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
+    border-color: var(--rd-border-hover) !important;
   }
 
   .rd-controller-hud.is-raw-labels .rd-hud-label-mode-btn {
-    color: #38bdf8 !important;
-    background: rgba(56, 189, 248, 0.2) !important;
-    border-color: rgba(56, 189, 248, 0.55) !important;
+    color: var(--rd-sky) !important;
+    background: color-mix(in srgb, var(--rd-sky) 20%, transparent) !important;
+    border-color: color-mix(in srgb, var(--rd-sky) 55%, transparent) !important;
     opacity: 1 !important;
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.25) !important;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--rd-sky) 25%, transparent) !important;
   }
 
   /* Tuck Button: Icon only */
@@ -1260,13 +1260,13 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   }
 
   .rd-controller-hud .rd-hud-body::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 9999px;
+    background: var(--rd-wash);
+    border-radius: var(--rd-radius-pill);
   }
 
   .rd-controller-hud .rd-hud-body::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.28);
-    border-radius: 9999px;
+    border-radius: var(--rd-radius-pill);
   }
 
   .rd-controller-hud .rd-hud-body::-webkit-scrollbar-thumb:hover {
@@ -1283,7 +1283,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   .rd-controller-hud .rd-hud-category-title {
     font-size: 0.82em;
     font-weight: 800;
-    color: #38bdf8;
+    color: var(--rd-sky);
     text-transform: uppercase;
     letter-spacing: 0.09em;
     padding-bottom: 0.2em;
@@ -1317,7 +1317,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   .rd-controller-hud .rd-control-label {
     font-size: 0.88em;
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;
@@ -1326,7 +1326,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   }
 
   .rd-controller-hud .rd-control-label:focus-visible {
-    color: #f1f5f9;
+    color: var(--rd-text-primary);
   }
 
   /* Info Icon beside label */
@@ -1336,7 +1336,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    color: #38bdf8 !important;
+    color: var(--rd-sky) !important;
     opacity: 0.75 !important;
     padding: 0.1em !important;
     border-radius: 50% !important;
@@ -1348,7 +1348,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   .rd-controller-hud .rd-control-info-icon:hover,
   .rd-controller-hud .rd-control-info-icon:focus-visible {
     opacity: 1 !important;
-    color: #7dd3fc !important;
+    color: var(--rd-sky-light) !important;
     transform: scale(1.15) !important;
   }
 
@@ -1391,11 +1391,11 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     padding: 0.35em 0.7em !important;
     border-radius: 0.45em !important;
     background: rgba(15, 23, 42, 0.96) !important;
-    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid var(--rd-border-hover) !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
-    color: #f1f5f9 !important;
+    color: var(--rd-text-primary) !important;
     font-size: 11px !important;
     font-weight: 500 !important;
     line-height: 1.35 !important;
@@ -1405,9 +1405,9 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 
   /* Info Notice Tooltip Variant */
   .rd-hud-tooltip[data-type="info"] .rd-tooltip-inner {
-    border-color: rgba(56, 189, 248, 0.45) !important;
+    border-color: color-mix(in srgb, var(--rd-sky) 45%, transparent) !important;
     background: rgba(12, 28, 48, 0.96) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), 0 0 12px rgba(56, 189, 248, 0.2) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), 0 0 12px color-mix(in srgb, var(--rd-sky) 20%, transparent) !important;
   }
 
   .rd-hud-tooltip .rd-tooltip-badge {
@@ -1418,9 +1418,9 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     letter-spacing: 0.05em !important;
     padding: 0.1em 0.4em !important;
     border-radius: 0.25em !important;
-    background: rgba(56, 189, 248, 0.25) !important;
-    color: #7dd3fc !important;
-    border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    background: color-mix(in srgb, var(--rd-sky) 25%, transparent) !important;
+    color: var(--rd-sky-light) !important;
+    border: 1px solid color-mix(in srgb, var(--rd-sky) 40%, transparent) !important;
     flex-shrink: 0 !important;
     line-height: 1.2 !important;
   }
@@ -1457,7 +1457,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     box-shadow: none !important;
     outline: none !important;
     padding: 0.05em 0.25em !important;
-    color: #94a3b8 !important;
+    color: var(--rd-text-muted) !important;
     font-size: 1em !important;
     font-weight: 500 !important;
     cursor: pointer !important;
@@ -1468,7 +1468,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   }
 
   .rd-controller-hud .rd-link-btn:hover {
-    color: #ffffff !important;
+    color: var(--rd-text-bright) !important;
     text-decoration: none !important; /* No text-decoration on hover */
   }
 
@@ -1496,14 +1496,14 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 
   /* Active Link: Highlighted in vibrant RapiDoc Orange without bold font */
   .rd-controller-hud .rd-link-btn.is-active {
-    color: #ff7043 !important;
+    color: var(--rd-accent) !important;
     font-weight: 500 !important; /* NOT bold, same normal weight */
     text-decoration: none !important; /* No underline */
     background: transparent !important;
   }
 
   .rd-controller-hud .rd-link-btn.is-active:hover {
-    color: #ff8a65 !important;
+    color: var(--rd-accent-light) !important;
     text-decoration: none !important;
   }
 
@@ -1527,9 +1527,9 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     gap: 0.35em !important;
     padding: 0.22em 0.65em !important;
     border-radius: 0.35em !important;
-    background: rgba(255, 255, 255, 0.05) !important;
+    background: var(--rd-wash) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    color: #94a3b8 !important;
+    color: var(--rd-text-muted) !important;
     font-size: 0.92em !important;
     font-weight: 500 !important;
     cursor: pointer !important;
@@ -1540,15 +1540,15 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   }
 
   .rd-controller-hud .rd-toggle-chip:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #f1f5f9 !important;
+    background: var(--rd-wash-strong) !important;
+    color: var(--rd-text-primary) !important;
     border-color: rgba(255, 255, 255, 0.22) !important;
   }
 
   .rd-controller-hud .rd-toggle-chip.is-active {
-    background: rgba(16, 185, 129, 0.18) !important;
-    border-color: rgba(16, 185, 129, 0.45) !important;
-    color: #34d399 !important;
+    background: color-mix(in srgb, var(--rd-accent) 18%, transparent) !important;
+    border-color: color-mix(in srgb, var(--rd-accent) 45%, transparent) !important;
+    color: var(--rd-accent-light) !important;
     font-weight: 500 !important;
   }
 
@@ -1578,12 +1578,12 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     flex: 1 1 0% !important;
     min-width: 0 !important;
     background: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    border-radius: 6px !important;
+    border: 1px solid var(--rd-border-hover) !important;
+    border-radius: var(--rd-radius-sm) !important;
     corner-shape:squircle !important;
-    color: #f1f5f9 !important;
+    color: var(--rd-text-primary) !important;
     font-size: 0.9em !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    font-family: var(--rd-font-mono) !important;
     padding: 0.22em 0.55em !important;
     outline: none !important;
     box-sizing: border-box !important;
@@ -1591,7 +1591,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   }
 
   .rd-controller-hud .rd-method-input:focus {
-    border-color: #f76b39 !important;
+    border-color: var(--rd-accent) !important;
     background: rgba(15, 23, 42, 0.9) !important;
   }
 
@@ -1603,11 +1603,11 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     padding: 0.22em 0.65em !important;
     font-size: 0.88em !important;
     font-weight: 600 !important;
-    color: #ffffff !important;
-    background: #ea580c !important;
-    border-radius: 6px !important;
+    color: var(--rd-on-accent) !important;
+    background: var(--rd-accent) !important;
+    border-radius: var(--rd-radius-sm) !important;
     corner-shape:squircle !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid var(--rd-border-hover) !important;
     cursor: pointer !important;
     white-space: nowrap !important;
     line-height: normal !important;
@@ -1617,7 +1617,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   }
 
   .rd-controller-hud .rd-method-exec-btn:hover {
-    background: #f97316 !important;
+    background: var(--rd-accent-hover) !important;
   }
 
   .rd-controller-hud .rd-method-exec-btn:active {
@@ -1631,7 +1631,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   .rd-controller-hud.is-raw-labels .rd-link-btn,
   .rd-controller-hud.is-raw-labels .rd-method-exec-btn,
   .rd-controller-hud.is-raw-labels .rd-toggle-text {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Roboto Mono", monospace !important;
+    font-family: var(--rd-font-mono) !important;
     font-size: 0.88em !important;
     letter-spacing: -0.01em !important;
     text-transform: none !important;
@@ -1673,7 +1673,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     border-right: none !important;
     border-top: none !important;
     border-bottom: none !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-left: 1px solid var(--rd-border-hover) !important;
     background: rgba(15, 23, 42, 0.96) !important;
     padding: 0 !important;
     box-shadow: -10px 0 40px rgba(0, 0, 0, 0.7) !important;
@@ -1711,9 +1711,9 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 
   .rd-controller-hud.is-tucked-right.is-collapsed .rd-hud-trigger {
     display: inline-flex !important;
-    border-radius: 9999px 0 0 9999px !important;
+    border-radius: var(--rd-radius-pill) 0 0 var(--rd-radius-pill) !important;
     border-right: none !important;
-    border-color: rgba(245, 158, 11, 0.4) !important;
+    border-color: color-mix(in srgb, var(--rd-amber) 40%, transparent) !important;
     box-shadow: -4px 0 20px rgba(0, 0, 0, 0.6) !important;
   }
 

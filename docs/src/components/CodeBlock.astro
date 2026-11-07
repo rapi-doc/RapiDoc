@@ -37,8 +37,8 @@ const {
 
 <style>
 .code-wrapper {
-  background: #090d16;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--rd-bg-surface);
+  border: 1px solid var(--rd-border);
   border-radius: 0;
   overflow: hidden;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
@@ -65,17 +65,17 @@ const {
 .code-dot.green { background: #27c93f; }
 .code-title {
   margin-left: 8px;
-  font-family: 'Roboto Mono', monospace;
+  font-family: var(--rd-font-mono);
   font-size: 12px;
   color: #c9d1d9;
   flex: 1;
 }
 .copy-btn {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--rd-wash);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #c9d1d9;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--rd-radius-sm);
   font-size: 11px;
   cursor: pointer;
   display: flex;
@@ -85,7 +85,7 @@ const {
 }
 .copy-btn:hover {
   background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  color: var(--rd-text-bright);
 }
 .code-body {
   padding: 0;
@@ -97,7 +97,7 @@ const {
   background: transparent !important;
   font-size: 13.5px !important;
   line-height: 1.6 !important;
-  font-family: 'Roboto Mono', Monaco, monospace !important;
+  font-family: var(--rd-font-mono) !important;
 }
 </style>
 

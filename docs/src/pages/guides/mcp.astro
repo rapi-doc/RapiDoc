@@ -146,49 +146,49 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
 
   <main class="mcp-guide-main">
     <!-- Hero Header -->
-    <header class="mcp-guide-header">
-      <div class="mcp-badge-pill">
-        <span class="mcp-badge-pulse"></span>
-        <span class="mcp-badge-text">Model Context Protocol • AI Agent Engineering</span>
+    <header class="rd-hero-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Model Context Protocol • AI Agent Engineering</span>
       </div>
 
-      <h1 class="mcp-page-title">
+      <h1 class="rd-page-title">
         Shaping Curated <span class="text-gradient">MCP Servers</span>
       </h1>
 
-      <p class="mcp-page-subtitle">
+      <p class="rd-page-subtitle">
         How RapiDoc applies smart heuristics to a plain OpenAPI spec to cut prompt token tax, keep internal endpoints
         away from agents, and build an MCP manifest with a runnable TypeScript server directly in the browser.
       </p>
 
       <div class="mcp-cta-row">
-        <a href="/examples/mcp-server" class="mcp-btn primary">
+        <a href="/examples/mcp-server" class="rd-btn rd-btn-primary">
           <IconPlayerPlay size={18} stroke={2} />
           <span>Interactive Showcase Demo</span>
         </a>
-        <a href="/docs/ai/mcp-server/" class="mcp-btn secondary">
+        <a href="/docs/ai/mcp-server/" class="rd-btn rd-btn-secondary">
           <IconFileCode size={18} stroke={2} />
           <span>Technical Reference Docs</span>
           <IconArrowUpRight size={16} stroke={2} />
         </a>
       </div>
 
-      <div class="mcp-quick-stats">
-        <div class="mcp-stat-chip">
-          <span class="mcp-stat-num">Zero Config</span>
-          <span class="mcp-stat-txt">Works on Plain OpenAPI</span>
+      <div class="rd-stats-bar rd-stats-bar--words">
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Zero Config</span>
+          <span class="rd-stat-label">Works on Plain OpenAPI</span>
         </div>
-        <div class="mcp-stat-chip">
-          <span class="mcp-stat-num">One Manifest</span>
-          <span class="mcp-stat-txt">JSON Schema Tools & Annotations</span>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">One Manifest</span>
+          <span class="rd-stat-label">JSON Schema Tools & Annotations</span>
         </div>
-        <div class="mcp-stat-chip">
-          <span class="mcp-stat-num">Zero Backend</span>
-          <span class="mcp-stat-txt">Runs 100% in Browser</span>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Zero Backend</span>
+          <span class="rd-stat-label">Runs 100% in Browser</span>
         </div>
-        <div class="mcp-stat-chip">
-          <span class="mcp-stat-num">npm start</span>
-          <span class="mcp-stat-txt">Runnable TypeScript Project</span>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">npm start</span>
+          <span class="rd-stat-label">Runnable TypeScript Project</span>
         </div>
       </div>
     </header>
@@ -196,10 +196,10 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
     <!-- Content Sections -->
     <div class="mcp-guide-content">
       <!-- Section 1: The Core Philosophy -->
-      <section class="mcp-section">
-        <div class="section-tag">Philosophy</div>
-        <h2 class="section-heading">Why Naive 1:1 REST-to-MCP Fails</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">Philosophy</div>
+        <h2 class="rd-section-title">Why Naive 1:1 REST-to-MCP Fails</h2>
+        <p class="rd-section-desc">
           When teams first connect OpenAPI to AI agents, their initial instinct is to convert every REST endpoint into an individual MCP tool.
           As Jeremiah Lowin explains in <em>"Stop Converting Your REST APIs to MCP"</em>, this naive approach severely degrades LLM performance:
         </p>
@@ -229,10 +229,10 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
       </section>
 
       <!-- Section 2: Key Performance Indicators (KPIs) & Production Benchmarks -->
-      <section class="mcp-section">
-        <div class="section-tag">Performance & ROI</div>
-        <h2 class="section-heading">Key Performance Indicators (KPIs)</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">Performance & ROI</div>
+        <h2 class="rd-section-title">Key Performance Indicators (KPIs)</h2>
+        <p class="rd-section-desc">
           Unlike generic converters that blindly dump hundreds of endpoints into an agent's context, RapiDoc is engineered to meet strict, quantifiable enterprise production benchmarks:
         </p>
 
@@ -260,7 +260,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
             <h4>Auth Stays Out of the Model's Hands</h4>
             <p>Auth headers and API-key parameters are never tool arguments. The runtime applies the spec's <code>securitySchemes</code> from environment variables and percent-encodes every path parameter it substitutes.</p>
             <div class="kpi-bar-track">
-              <div class="kpi-bar-fill" style="width: 100%; background: #10b981;"></div>
+              <div class="kpi-bar-fill" style="width: 100%; background: var(--rd-green);"></div>
             </div>
             <div class="kpi-meta">API key, HTTP Basic, Bearer, OAuth 2, OpenID Connect</div>
           </div>
@@ -274,7 +274,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
             <h4>One Manifest Drives Everything</h4>
             <p><code>manifest.json</code> holds every tool with real JSON Schema arguments and MCP annotations. <code>runtime.js</code> executes it with <code>fetch</code> in Node, browsers and edge workers, and <code>server.ts</code> is the same file for every API.</p>
             <div class="kpi-bar-track">
-              <div class="kpi-bar-fill" style="width: 100%; background: #f59e0b;"></div>
+              <div class="kpi-bar-fill" style="width: 100%; background: var(--rd-amber);"></div>
             </div>
             <div class="kpi-meta">Servers in other languages can read the same manifest</div>
           </div>
@@ -286,7 +286,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
           <p>
             How RapiDoc stacks up against raw 1:1 endpoint wrappers and generic cloud CLI tools:
           </p>
-          <div class="table-container">
+          <div class="rd-table-container">
             <table class="mcp-spec-table">
               <thead>
                 <tr>
@@ -301,43 +301,43 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
                   <td><strong>Internal & Deprecated Endpoints</strong></td>
                   <td>Exposed as tools</td>
                   <td>Partially filtered</td>
-                  <td><strong style="color: #34d399;">Skips <code>x-internal</code>, <code>x-hidden</code>, <code>deprecated</code> and webhooks</strong></td>
+                  <td><strong style="color: var(--rd-accent-light);">Skips <code>x-internal</code>, <code>x-hidden</code>, <code>deprecated</code> and webhooks</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Output</strong></td>
                   <td>Generated code per API</td>
                   <td>Hosted proxy or heavy CLI</td>
-                  <td><strong style="color: #34d399;">One JSON manifest, one fixed runtime, a runnable TypeScript project</strong></td>
+                  <td><strong style="color: var(--rd-accent-light);">One JSON manifest, one fixed runtime, a runnable TypeScript project</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Tool Arguments</strong></td>
                   <td>Flat string bags</td>
                   <td>Partial schemas</td>
-                  <td><strong style="color: #34d399;">Real JSON Schema: nested bodies, arrays, enums, <code>required</code></strong></td>
+                  <td><strong style="color: var(--rd-accent-light);">Real JSON Schema: nested bodies, arrays, enums, <code>required</code></strong></td>
                 </tr>
                 <tr>
                   <td><strong>Safety Annotations</strong></td>
                   <td>None</td>
                   <td>None</td>
-                  <td><strong style="color: #34d399;">MCP <code>readOnlyHint</code>, <code>destructiveHint</code>, <code>idempotentHint</code></strong></td>
+                  <td><strong style="color: var(--rd-accent-light);">MCP <code>readOnlyHint</code>, <code>destructiveHint</code>, <code>idempotentHint</code></strong></td>
                 </tr>
                 <tr>
                   <td><strong>Authentication</strong></td>
                   <td>Keys as tool arguments</td>
                   <td>Hardcoded static credentials</td>
-                  <td><strong style="color: #34d399;">From <code>securitySchemes</code>, via environment variables</strong></td>
+                  <td><strong style="color: var(--rd-accent-light);">From <code>securitySchemes</code>, via environment variables</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Backend / Cloud Dependency</strong></td>
                   <td>External Node server required</td>
                   <td>Paid cloud SaaS or heavy CLI</td>
-                  <td><strong style="color: #34d399;">Zero Backend (100% In-Browser & Air-Gapped)</strong></td>
+                  <td><strong style="color: var(--rd-accent-light);">Zero Backend (100% In-Browser & Air-Gapped)</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Real-Time Token Budget Warnings</strong></td>
                   <td>None (Blind to token saturation)</td>
                   <td>None</td>
-                  <td><strong style="color: #34d399;">Built-in turn budget & token saturation guards</strong></td>
+                  <td><strong style="color: var(--rd-accent-light);">Built-in turn budget & token saturation guards</strong></td>
                 </tr>
               </tbody>
             </table>
@@ -346,10 +346,10 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
       </section>
 
       <!-- Section 3: Zero-Config Smart Heuristics -->
-      <section class="mcp-section">
-        <div class="section-tag">Zero Configuration</div>
-        <h2 class="section-heading">Smart Heuristics (Out of the Box)</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">Zero Configuration</div>
+        <h2 class="rd-section-title">Smart Heuristics (Out of the Box)</h2>
+        <p class="rd-section-desc">
           RapiDoc needs no extra annotations. It derives every tool and resource from standard OpenAPI fields during export:
         </p>
 
@@ -400,10 +400,10 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
       </section>
 
       <!-- Section 4: From OpenAPI to MCP -->
-      <section class="mcp-section">
-        <div class="section-tag">Mapping</div>
-        <h2 class="section-heading">From OpenAPI to MCP</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">Mapping</div>
+        <h2 class="rd-section-title">From OpenAPI to MCP</h2>
+        <p class="rd-section-desc">
           In the Model Context Protocol, <strong>Tools</strong> represent executable actions, while <strong>Resources</strong>
           represent contextual reference data the model can inspect without function calling. Here is how each operation in a plain spec is treated:
         </p>
@@ -414,7 +414,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
 
         <div class="sub-topic">
           <h3>OpenAPI Field Reference</h3>
-          <div class="table-container">
+          <div class="rd-table-container">
             <table class="mcp-spec-table">
               <thead>
                 <tr>
@@ -481,10 +481,10 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
       </section>
 
       <!-- Section 5: The Manifest -->
-      <section class="mcp-section">
-        <div class="section-tag">Data, Not Code</div>
-        <h2 class="section-heading">The Manifest</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">Data, Not Code</div>
+        <h2 class="rd-section-title">The Manifest</h2>
+        <p class="rd-section-desc">
           The export is a plain JSON <code>manifest.json</code>, not generated code. It holds the <code>server</code> (name, version, description),
           one entry in <code>sources</code> (the base URL from <code>servers[0]</code> and the spec's <code>securitySchemes</code>),
           the <code>tools</code>, the <code>resources</code> and the <code>workflows</code> of a tied <a href="/guides/workflows"><code>&lt;rapi-flow&gt;</code></a>, each one a tool of its own. Each operation tool has a real JSON Schema
@@ -517,10 +517,10 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
       </section>
 
       <!-- Section 6: The Runtime and the Project -->
-      <section class="mcp-section">
-        <div class="section-tag">Run It</div>
-        <h2 class="section-heading">One Runtime, One TypeScript Project</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">Run It</div>
+        <h2 class="rd-section-title">One Runtime, One TypeScript Project</h2>
+        <p class="rd-section-desc">
           <strong>Export MCP Server</strong> downloads <code>&lt;server-name&gt;-mcp.zip</code>: the manifest plus files that are identical for every API.
           Run it with <code>npm install</code> and <code>npm start</code>, or copy the <code>mcpServers</code> entry from <code>claude_desktop_config.json</code> into Claude Desktop or Cursor:
         </p>
@@ -564,10 +564,10 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
         </div>
       </section>
       <!-- Section 7: Integration & API -->
-      <section class="mcp-section">
-        <div class="section-tag">Integration</div>
-        <h2 class="section-heading">Using MCP in Your Documentation</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">Integration</div>
+        <h2 class="rd-section-title">Using MCP in Your Documentation</h2>
+        <p class="rd-section-desc">
           Enable the MCP generator in your documentation portal with a single attribute, or trigger it programmatically:
         </p>
 
@@ -588,11 +588,11 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
           <h3>Ready to test the Curated MCP Generator?</h3>
           <p>Explore our live interactive demo with side-by-side token diagnostics, tuner options, and the exported manifest, server and runtime to inspect.</p>
           <div class="cta-actions">
-            <a href="/examples/mcp-server" class="mcp-btn primary">
+            <a href="/examples/mcp-server" class="rd-btn rd-btn-primary">
               <span>Open MCP Showcase Demo</span>
               <IconArrowRight size={18} stroke={2} />
             </a>
-            <a href="/docs/ai/mcp-server/" class="mcp-btn secondary">
+            <a href="/docs/ai/mcp-server/" class="rd-btn rd-btn-secondary">
               <span>View Technical Docs</span>
             </a>
           </div>
@@ -606,35 +606,6 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
 
 <style>
   /* --------------------------------------------------
-   * Ambient Glow Elements
-   * -------------------------------------------------- */
-  .ambient-glow {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    border-radius: 50%;
-    filter: blur(140px);
-    opacity: 0.12;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .glow-emerald {
-    top: 50px;
-    left: -150px;
-    background: radial-gradient(circle, #10b981 0%, transparent 70%);
-  }
-  .glow-indigo {
-    top: 300px;
-    right: -150px;
-    background: radial-gradient(circle, #6366f1 0%, transparent 70%);
-  }
-  .glow-cyan {
-    top: 900px;
-    left: 20%;
-    background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
-  }
-
-  /* --------------------------------------------------
    * Main Layout
    * -------------------------------------------------- */
   .mcp-guide-main {
@@ -643,68 +614,9 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
     max-width: 1100px;
     margin: 0 auto;
     padding: 48px 24px 96px;
-    font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
-    color: var(--fg, #e2e8f0);
   }
 
-  /* --------------------------------------------------
-   * Hero Header
-   * -------------------------------------------------- */
-  .mcp-guide-header {
-    text-align: center;
-    margin-bottom: 64px;
-  }
-  .mcp-badge-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 16px;
-    border-radius: 9999px;
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    margin-bottom: 20px;
-  }
-  .mcp-badge-pulse {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 10px #10b981;
-    animation: pulse 2s infinite;
-  }
-  .mcp-badge-text {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #34d399;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.9); }
-  }
-
-  .mcp-page-title {
-    font-size: clamp(32px, 5vw, 48px);
-    font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin: 0 0 18px;
-    color: #ffffff;
-  }
-  .text-gradient {
-    background: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #818cf8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .mcp-page-subtitle {
-    font-size: 17px;
-    line-height: 1.6;
-    color: #94a3b8;
-    max-width: 780px;
-    margin: 0 auto 32px;
-  }
-
+  /* The hero's call-to-action buttons */
   .mcp-cta-row {
     display: flex;
     justify-content: center;
@@ -712,94 +624,13 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
     margin-bottom: 40px;
     flex-wrap: wrap;
   }
-  .mcp-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  .mcp-btn.primary {
-    background: #10b981;
-    color: #042f2e;
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
-  }
-  .mcp-btn.primary:hover {
-    background: #34d399;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-  }
-  .mcp-btn.secondary {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: #e2e8f0;
-  }
-  .mcp-btn.secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.25);
-    color: #ffffff;
-  }
-
-  .mcp-quick-stats {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .mcp-stat-chip {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 24px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    backdrop-filter: blur(8px);
-  }
-  .mcp-stat-num {
-    font-size: 20px;
-    font-weight: 700;
-    color: #34d399;
-  }
-  .mcp-stat-txt {
-    font-size: 11px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-top: 2px;
-  }
 
   /* --------------------------------------------------
    * Section Styling
    * -------------------------------------------------- */
-  .mcp-section {
-    margin-bottom: 72px;
-  }
-  .section-tag {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #10b981;
-    margin-bottom: 8px;
-  }
-  .section-heading {
-    font-size: 28px;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0 0 14px;
-    letter-spacing: -0.01em;
-  }
-  .section-lead {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #94a3b8;
-    margin: 0 0 28px;
-    max-width: 860px;
+  /* The lead paragraph sits directly above the section's content, without a header wrapper */
+  .rd-section > .rd-section-desc {
+    margin-bottom: 28px;
   }
   .sub-topic {
     margin-top: 36px;
@@ -807,13 +638,13 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   .sub-topic h3 {
     font-size: 19px;
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--rd-text-primary);
     margin: 0 0 10px;
   }
   .sub-topic p {
     font-size: 14px;
     line-height: 1.6;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0 0 16px;
   }
 
@@ -828,41 +659,41 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   }
   .comparison-card {
     padding: 24px;
-    border-radius: 12px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--rd-radius-md);
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
     position: relative;
     backdrop-filter: blur(8px);
   }
   .comparison-card.naive {
-    border-color: rgba(239, 68, 68, 0.3);
-    background: rgba(239, 68, 68, 0.02);
+    border-color: color-mix(in srgb, var(--rd-red) 30%, transparent);
+    background: color-mix(in srgb, var(--rd-red) 2%, transparent);
   }
   .comparison-card.curated {
-    border-color: rgba(16, 185, 129, 0.3);
-    background: rgba(16, 185, 129, 0.03);
+    border-color: color-mix(in srgb, var(--rd-green) 30%, transparent);
+    background: color-mix(in srgb, var(--rd-green) 3%, transparent);
   }
   .card-status-badge {
     display: inline-block;
     padding: 3px 10px;
-    border-radius: 9999px;
+    border-radius: var(--rd-radius-pill);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     margin-bottom: 12px;
   }
   .badge-danger {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background: color-mix(in srgb, var(--rd-red) 15%, transparent);
+    color: var(--rd-red);
   }
   .badge-success {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
+    background: color-mix(in srgb, var(--rd-green) 15%, transparent);
+    color: var(--rd-green);
   }
   .card-title {
     font-size: 18px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 16px;
   }
   .comparison-list {
@@ -871,7 +702,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
     margin: 0;
     font-size: 13px;
     line-height: 1.7;
-    color: #cbd5e1;
+    color: var(--rd-text-soft);
   }
   .comparison-list li {
     margin-bottom: 10px;
@@ -882,14 +713,14 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
     content: "✕";
     position: absolute;
     left: 0;
-    color: #ef4444;
+    color: var(--rd-red);
     font-weight: 700;
   }
   .comparison-card.curated .comparison-list li::before {
     content: "✓";
     position: absolute;
     left: 0;
-    color: #10b981;
+    color: var(--rd-green);
     font-weight: 700;
   }
 
@@ -905,16 +736,16 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
     display: flex;
     gap: 14px;
     padding: 18px;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 10px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
   }
   .heuristic-icon {
     width: 32px;
     height: 32px;
-    border-radius: 8px;
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
+    border-radius: var(--rd-radius-md);
+    background: color-mix(in srgb, var(--rd-green) 15%, transparent);
+    color: var(--rd-green);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -923,24 +754,20 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   .heuristic-card h4 {
     font-size: 14px;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 6px;
   }
   .heuristic-card p {
     font-size: 12px;
     line-height: 1.5;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0;
   }
 
   /* --------------------------------------------------
    * Table Styling
    * -------------------------------------------------- */
-  .table-container {
-    overflow-x: auto;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    background: rgba(15, 23, 42, 0.4);
+  .rd-table-container {
     margin-top: 14px;
   }
   .mcp-spec-table {
@@ -952,27 +779,27 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   .mcp-spec-table th,
   .mcp-spec-table td {
     padding: 12px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--rd-wash);
   }
   .mcp-spec-table th {
-    background: rgba(15, 23, 42, 0.8);
+    background: var(--rd-bg-input);
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--rd-text-primary);
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
   .mcp-spec-table td {
-    color: #cbd5e1;
+    color: var(--rd-text-soft);
     line-height: 1.5;
   }
   .mcp-spec-table code {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--rd-wash-strong);
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: var(--rd-radius-xs);
     font-size: 12px;
-    color: #38bdf8;
-    font-family: monospace;
+    color: var(--rd-sky);
+    font-family: var(--rd-font-mono);
   }
 
   /* --------------------------------------------------
@@ -985,16 +812,17 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   }
   .target-card {
     padding: 20px;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
   }
-  .target-badge {
+  .target-badge,
+  .standard-badge {
     display: inline-block;
     padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(56, 189, 248, 0.15);
-    color: #38bdf8;
+    border-radius: var(--rd-radius-xs);
+    background: color-mix(in srgb, var(--rd-sky) 15%, transparent);
+    color: var(--rd-sky);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -1003,23 +831,14 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   .target-card h4 {
     font-size: 16px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 8px;
   }
   .target-card p {
     font-size: 12px;
     line-height: 1.5;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0 0 14px;
-  }
-  .target-command {
-    font-family: monospace;
-    font-size: 11px;
-    padding: 6px 10px;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 6px;
-    color: #34d399;
   }
 
   /* --------------------------------------------------
@@ -1033,25 +852,25 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   }
   .kpi-card {
     padding: 24px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     backdrop-filter: blur(8px);
     display: flex;
     flex-direction: column;
-    transition: all 0.2s ease;
+    transition: var(--rd-transition);
   }
   .kpi-card:hover {
-    border-color: rgba(52, 211, 153, 0.3);
-    transform: translateY(-2px);
+    border-color: var(--rd-card-border-hover);
+    background: var(--rd-card-bg-hover);
   }
   .kpi-badge {
     display: inline-block;
     align-self: flex-start;
     padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(16, 185, 129, 0.12);
-    color: #34d399;
+    border-radius: var(--rd-radius-xs);
+    background: var(--rd-accent-dim);
+    color: var(--rd-accent-light);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -1067,43 +886,43 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   .kpi-value {
     font-size: 28px;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     letter-spacing: -0.02em;
   }
   .kpi-unit {
     font-size: 13px;
     font-weight: 600;
-    color: #38bdf8;
+    color: var(--rd-sky);
     text-transform: uppercase;
   }
   .kpi-card h4 {
     font-size: 15px;
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--rd-text-primary);
     margin: 0 0 8px;
   }
   .kpi-card p {
     font-size: 12.5px;
     line-height: 1.6;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0 0 16px;
     flex-grow: 1;
   }
   .kpi-bar-track {
     height: 6px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 9999px;
+    background: var(--rd-wash-strong);
+    border-radius: var(--rd-radius-pill);
     overflow: hidden;
     margin-bottom: 10px;
   }
   .kpi-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
-    border-radius: 9999px;
+    background: linear-gradient(90deg, var(--rd-accent) 0%, var(--rd-accent-light) 100%);
+    border-radius: var(--rd-radius-pill);
   }
   .kpi-meta {
     font-size: 11px;
-    color: #64748b;
+    color: var(--rd-text-dim);
   }
 
   /* --------------------------------------------------
@@ -1117,33 +936,21 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   }
   .standard-card {
     padding: 24px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     backdrop-filter: blur(8px);
-  }
-  .standard-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(56, 189, 248, 0.12);
-    color: #38bdf8;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 12px;
   }
   .standard-card h4 {
     font-size: 16px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 10px;
   }
   .standard-card p {
     font-size: 13px;
     line-height: 1.6;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0 0 16px;
   }
 
@@ -1152,25 +959,27 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
    * -------------------------------------------------- */
   .mcp-cta-box {
     padding: 40px;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(56, 189, 248, 0.04) 100%);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    border-radius: 16px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--rd-accent) 8%, transparent) 0%,
+      color-mix(in srgb, var(--rd-sky) 4%, transparent) 100%
+    );
+    border: 1px solid var(--rd-accent-border);
+    border-radius: var(--rd-radius-lg);
     text-align: center;
     backdrop-filter: blur(10px);
   }
   .mcp-cta-content h3 {
     font-size: 24px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 10px;
   }
   .mcp-cta-content p {
     font-size: 15px;
-    color: #94a3b8;
-    margin: 0 0 24px;
+    color: var(--rd-text-muted);
+    margin: 0 auto 24px;
     max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
   }
   .cta-actions {
     display: flex;

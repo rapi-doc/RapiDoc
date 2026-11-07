@@ -19,7 +19,7 @@
   - `Header` -> `src/components/DocsHeader.astro`
   - `ThemeProvider` -> `src/components/ForceDarkTheme.astro`
   - `ThemeSelect` -> `src/components/EmptyComponent.astro`
-- **Global Styles**: `src/styles/starlight-custom.css` (custom dark mode, high-contrast recipes, and layout polish).
+- **Styles**: `src/styles/tokens.css` holds the design tokens (orange accent, surfaces, text, borders, radii, fonts) and loads on every page; `src/styles/global.css` (site pages) adds the base styles and the shared page patterns; `src/styles/starlight-custom.css` themes the Starlight `/docs/` pages like the RapiDoc Portal, on the same tokens.
 
 ### Automatic Rapidoc Build & Watch Pipeline
 The `docs/astro.config.mjs` integrates Vite plugins that bridge `docs` and `packages/rapidoc`:
@@ -85,7 +85,11 @@ docs/
    - If relocating an existing documentation page, ensure a redirect is added.
 2. **Page Aesthetics & Theming**:
    - The documentation and example pages are user-facing showcases for RapiDoc's capabilities.
-   - Follow the design system rules in `starlight-custom.css`.
+   - Use the tokens in `tokens.css`, never hard-coded colors, radii or font stacks. Green (`--rd-green`) means success, not the brand.
+   - Use the shared classes in `global.css` (page hero, sections, buttons, pills, stats, cards, search, empty state, tables) and don't redefine them in a page's `<style>`: Astro's scoped styles would win and the pages drift apart. A page styles only what is its own.
+   - Cards and icon boxes use the 6px radius and react to hover with colour only (`--rd-card-border-hover`, `--rd-card-bg-hover`, `--rd-icon-bg-hover`): no glow, shadow, lift or scale.
+   - Colors that are content (theme swatches, values passed to `<rapi-doc>`, the `examples/css-*` and `tests/theme-illustration` demos) stay as they are.
+   - Prism loads only on pages that pass `prism` to `GlobalLayout` (or add it in the `head` slot).
    - Maintain high contrast, responsive viewports, and clean UI aesthetics on all example pages.
 3. **Spec Files**:
    - Store sample OpenAPI specifications in `docs/public/specs/`.

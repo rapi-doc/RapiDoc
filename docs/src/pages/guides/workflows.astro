@@ -98,59 +98,59 @@ const mockServerHtmlSnippet = `<rapi-flow
   <SiteNavbar activePage="guides" />
 
   <main class="wf-guide-main">
-    <header class="wf-guide-header">
-      <div class="wf-badge-pill">
-        <span class="wf-badge-pulse"></span>
-        <span class="wf-badge-text">Arazzo • Workflows</span>
+    <header class="rd-hero-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Arazzo • Workflows</span>
       </div>
 
-      <h1 class="wf-page-title">
+      <h1 class="rd-page-title">
         Show the <span class="text-gradient">sequence</span>, not just the endpoints
       </h1>
 
-      <p class="wf-page-subtitle">
+      <p class="rd-page-subtitle">
         <code>&lt;rapi-flow&gt;</code> draws the journeys an Arazzo document describes (find a pet, order it, read the order
         back) right next to your API reference, and lets readers run them against a mock or the real API, one lit-up step
         at a time.
       </p>
 
       <div class="wf-cta-row">
-        <a href="#live-demo" class="wf-btn primary">
+        <a href="#live-demo" class="rd-btn rd-btn-primary">
           <IconPlayerPlay size={18} stroke={2} />
           <span>Run the Live Demo</span>
         </a>
-        <a href="/docs/components/workflows/" class="wf-btn secondary">
+        <a href="/docs/components/workflows/" class="rd-btn rd-btn-secondary">
           <IconFileCode size={18} stroke={2} />
           <span>Technical Reference Docs</span>
           <IconArrowUpRight size={16} stroke={2} />
         </a>
       </div>
 
-      <div class="wf-quick-stats">
-        <div class="wf-stat-chip">
-          <span class="wf-stat-num">Arazzo 1.x</span>
-          <span class="wf-stat-txt">The OpenAPI Initiative's Standard</span>
+      <div class="rd-stats-bar">
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Arazzo 1.x</span>
+          <span class="rd-stat-label">The OpenAPI Initiative's Standard</span>
         </div>
-        <div class="wf-stat-chip">
-          <span class="wf-stat-num">0 KB</span>
-          <span class="wf-stat-txt">Added to rapidoc-min.js</span>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">0 KB</span>
+          <span class="rd-stat-label">Added to rapidoc-min.js</span>
         </div>
-        <div class="wf-stat-chip">
-          <span class="wf-stat-num">One Runtime</span>
-          <span class="wf-stat-txt">Browser, MCP & Portal</span>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">One Runtime</span>
+          <span class="rd-stat-label">Browser, MCP & Portal</span>
         </div>
-        <div class="wf-stat-chip">
-          <span class="wf-stat-num">Zero Backend</span>
-          <span class="wf-stat-txt">Runs Against the Mock</span>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Zero Backend</span>
+          <span class="rd-stat-label">Runs Against the Mock</span>
         </div>
       </div>
     </header>
 
     <div class="wf-guide-content">
-      <section class="wf-section">
-        <div class="section-tag">Why</div>
-        <h2 class="section-heading">Integrators Need the Order, Not Just the Operations</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">Why</div>
+        <h2 class="rd-section-title">Integrators Need the Order, Not Just the Operations</h2>
+        <p class="rd-section-desc">
           An API reference answers "what does this endpoint take?". The first question a new integrator asks is different:
           "which calls do I make, in which order, and what do I pass from one to the next?". That knowledge usually lives in
           a tutorial that drifts from the API. Arazzo puts it in a file next to the spec, and <code>&lt;rapi-flow&gt;</code>
@@ -182,10 +182,10 @@ const mockServerHtmlSnippet = `<rapi-flow
         </div>
       </section>
 
-      <section class="wf-section" id="live-demo">
-        <div class="section-tag">Live Demo</div>
-        <h2 class="section-heading">Run a Workflow Against the In-Browser Mock</h2>
-        <p class="section-lead">
+      <section class="rd-section" id="live-demo">
+        <div class="rd-section-badge">Live Demo</div>
+        <h2 class="rd-section-title">Run a Workflow Against the In-Browser Mock</h2>
+        <p class="rd-section-desc">
           The diagram below is tied to the Petstore reference beside it, which has <code>mock-server="true"</code>: no
           backend answers, the page does. Pick what the mock should answer, then press <strong>Run workflow</strong> under
           the diagram and watch each step light up. Click a step to open its operation in the reference.
@@ -247,10 +247,10 @@ const mockServerHtmlSnippet = `<rapi-flow
         </p>
       </section>
 
-      <section class="wf-section">
-        <div class="section-tag">The Diagram</div>
-        <h2 class="section-heading">What It Draws</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">The Diagram</div>
+        <h2 class="rd-section-title">What It Draws</h2>
+        <p class="rd-section-desc">
           The layout is RapiDoc's own SVG code with no graph library, so the same diagram renders in the browser and, in a
           portal, as static SVG at build time.
         </p>
@@ -302,10 +302,10 @@ const mockServerHtmlSnippet = `<rapi-flow
         </div>
       </section>
 
-      <section class="wf-section">
-        <div class="section-tag">One Runtime</div>
-        <h2 class="section-heading">One Workflow, Three Places It Runs</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">One Runtime</div>
+        <h2 class="rd-section-title">One Workflow, Three Places It Runs</h2>
+        <p class="rd-section-desc">
           The run button, AI agents and the developer portal all use the same workflow runtime, built on RapiDoc's MCP
           manifest. A workflow that runs on this page runs the same way for an agent.
         </p>
@@ -339,10 +339,10 @@ const mockServerHtmlSnippet = `<rapi-flow
         </div>
       </section>
 
-      <section class="wf-section">
-        <div class="section-tag">Integration</div>
-        <h2 class="section-heading">Add It to Your Docs</h2>
-        <p class="section-lead">
+      <section class="rd-section">
+        <div class="rd-section-badge">Integration</div>
+        <h2 class="rd-section-title">Add It to Your Docs</h2>
+        <p class="rd-section-desc">
           Load the flow bundle next to RapiDoc, point the element at your Arazzo file and tie it to the reference. Its
           attributes, events and CSS parts are in the <a href="/docs/components/workflows/">reference docs</a>.
         </p>
@@ -368,11 +368,11 @@ const mockServerHtmlSnippet = `<rapi-flow
           <h3>See it next to a full API reference</h3>
           <p>The example page ties two Arazzo files to the Petstore reference, with branches, retries and the MCP export.</p>
           <div class="cta-actions">
-            <a href="/examples/arazzo-flow" class="wf-btn primary">
+            <a href="/examples/arazzo-flow" class="rd-btn rd-btn-primary">
               <span>Open the rapi-flow Example</span>
               <IconArrowRight size={18} stroke={2} />
             </a>
-            <a href="/docs/components/workflows/" class="wf-btn secondary">
+            <a href="/docs/components/workflows/" class="rd-btn rd-btn-secondary">
               <span>View Technical Docs</span>
             </a>
           </div>
@@ -401,106 +401,15 @@ const mockServerHtmlSnippet = `<rapi-flow
 </script>
 
 <style>
-  .ambient-glow {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    border-radius: 50%;
-    filter: blur(140px);
-    opacity: 0.12;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .glow-emerald {
-    top: 50px;
-    left: -150px;
-    background: radial-gradient(circle, #f97316 0%, transparent 70%);
-  }
-  .glow-indigo {
-    top: 300px;
-    right: -150px;
-    background: radial-gradient(circle, #6366f1 0%, transparent 70%);
-  }
-  .glow-cyan {
-    top: 900px;
-    left: 20%;
-    background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
-  }
-
   .wf-guide-main {
     position: relative;
     z-index: 1;
     max-width: 1100px;
     margin: 0 auto;
     padding: 48px 24px 96px;
-    font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-    color: var(--fg, #e2e8f0);
   }
 
-  /* Hero */
-  .wf-guide-header {
-    text-align: center;
-    margin-bottom: 64px;
-  }
-  .wf-badge-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 16px;
-    border-radius: 9999px;
-    background: rgba(249, 115, 22, 0.08);
-    border: 1px solid rgba(249, 115, 22, 0.25);
-    margin-bottom: 20px;
-  }
-  .wf-badge-pulse {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #f97316;
-    box-shadow: 0 0 10px #f97316;
-    animation: pulse 2s infinite;
-  }
-  .wf-badge-text {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #fb923c;
-  }
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.4;
-      transform: scale(0.9);
-    }
-  }
-  .wf-page-title {
-    font-size: clamp(32px, 5vw, 48px);
-    font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin: 0 0 18px;
-    color: #ffffff;
-  }
-  .text-gradient {
-    background: linear-gradient(135deg, #fb923c 0%, #f472b6 50%, #818cf8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .wf-page-subtitle {
-    font-size: 17px;
-    line-height: 1.6;
-    color: #94a3b8;
-    max-width: 780px;
-    margin: 0 auto 32px;
-  }
-  .wf-page-subtitle code {
-    color: #fdba74;
-  }
+  /* The hero's call-to-action buttons */
   .wf-cta-row {
     display: flex;
     justify-content: center;
@@ -508,95 +417,14 @@ const mockServerHtmlSnippet = `<rapi-flow
     margin-bottom: 40px;
     flex-wrap: wrap;
   }
-  .wf-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  .wf-btn.primary {
-    background: #f97316;
-    color: #1c0a00;
-    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.25);
-  }
-  .wf-btn.primary:hover {
-    background: #fb923c;
-    transform: translateY(-1px);
-  }
-  .wf-btn.secondary {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: #e2e8f0;
-  }
-  .wf-btn.secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.25);
-    color: #ffffff;
-  }
-  .wf-quick-stats {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .wf-stat-chip {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 24px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    backdrop-filter: blur(8px);
-  }
-  .wf-stat-num {
-    font-size: 20px;
-    font-weight: 700;
-    color: #fb923c;
-  }
-  .wf-stat-txt {
-    font-size: 11px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-top: 2px;
-  }
 
   /* Sections */
-  .wf-section {
-    margin-bottom: 72px;
+  .rd-section {
     scroll-margin-top: 80px;
   }
-  .section-tag {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #f97316;
-    margin-bottom: 8px;
-  }
-  .section-heading {
-    font-size: 28px;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0 0 14px;
-    letter-spacing: -0.01em;
-  }
-  .section-lead {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #94a3b8;
-    margin: 0 0 28px;
-    max-width: 860px;
-  }
-  .section-lead a,
-  .standard-card a {
-    color: #fdba74;
+  /* The lead paragraph sits directly above the section's content, without a header wrapper */
+  .rd-section > .rd-section-desc {
+    margin-bottom: 28px;
   }
   .sub-topic {
     margin-top: 36px;
@@ -606,13 +434,13 @@ const mockServerHtmlSnippet = `<rapi-flow
   .sub-topic h3 {
     font-size: 19px;
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--rd-text-primary);
     margin: 0;
   }
   .sub-topic p {
     font-size: 14px;
     line-height: 1.6;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0;
   }
   code {
@@ -627,36 +455,36 @@ const mockServerHtmlSnippet = `<rapi-flow
   }
   .comparison-card {
     padding: 24px;
-    border-radius: 12px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--rd-radius-md);
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
     backdrop-filter: blur(8px);
   }
   .comparison-card.after {
-    border-color: rgba(249, 115, 22, 0.3);
-    background: rgba(249, 115, 22, 0.03);
+    border-color: var(--rd-accent-border);
+    background: color-mix(in srgb, var(--rd-accent) 3%, transparent);
   }
   .card-status-badge {
     display: inline-block;
     padding: 3px 10px;
-    border-radius: 9999px;
+    border-radius: var(--rd-radius-pill);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     margin-bottom: 12px;
   }
   .badge-muted {
-    background: rgba(148, 163, 184, 0.15);
-    color: #94a3b8;
+    background: color-mix(in srgb, var(--rd-text-muted) 15%, transparent);
+    color: var(--rd-text-muted);
   }
   .badge-success {
-    background: rgba(249, 115, 22, 0.15);
-    color: #fb923c;
+    background: color-mix(in srgb, var(--rd-accent) 15%, transparent);
+    color: var(--rd-accent-light);
   }
   .card-title {
     font-size: 18px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 16px;
   }
   .comparison-list {
@@ -665,7 +493,7 @@ const mockServerHtmlSnippet = `<rapi-flow
     margin: 0;
     font-size: 13px;
     line-height: 1.7;
-    color: #cbd5e1;
+    color: var(--rd-text-soft);
   }
   .comparison-list li {
     margin-bottom: 10px;
@@ -673,17 +501,17 @@ const mockServerHtmlSnippet = `<rapi-flow
     position: relative;
   }
   .comparison-card.before .comparison-list li::before {
-    content: '–';
+    content: "–";
     position: absolute;
     left: 0;
-    color: #64748b;
+    color: var(--rd-text-dim);
     font-weight: 700;
   }
   .comparison-card.after .comparison-list li::before {
-    content: '✓';
+    content: "✓";
     position: absolute;
     left: 0;
-    color: #fb923c;
+    color: var(--rd-accent-light);
     font-weight: 700;
   }
 
@@ -700,27 +528,27 @@ const mockServerHtmlSnippet = `<rapi-flow
     padding: 14px 16px;
     text-align: left;
     font: inherit;
-    color: #cbd5e1;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    color: var(--rd-text-soft);
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
     cursor: pointer;
     transition: border-color 0.15s ease;
   }
   .wf-scenario:hover {
-    border-color: rgba(255, 255, 255, 0.25);
+    border-color: var(--rd-border-hover);
   }
   .wf-scenario.is-active {
-    border-color: #f97316;
-    background: rgba(249, 115, 22, 0.06);
+    border-color: var(--rd-accent);
+    background: color-mix(in srgb, var(--rd-accent) 6%, transparent);
   }
   .wf-scenario:focus-visible {
-    outline: 2px solid #f97316;
+    outline: 2px solid var(--rd-accent);
     outline-offset: 2px;
   }
   .wf-scenario strong {
     display: block;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     font-size: 14px;
   }
   .wf-scenario small {
@@ -728,34 +556,37 @@ const mockServerHtmlSnippet = `<rapi-flow
     margin-top: 2px;
     font-size: 12px;
     line-height: 1.5;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
   }
   .wf-scenario-code {
     flex-shrink: 0;
     padding: 2px 8px;
-    border-radius: 6px;
-    font: 700 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    border-radius: var(--rd-radius-sm);
+    font-family: var(--rd-font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.6;
   }
   .wf-scenario-code.ok {
-    background: rgba(34, 197, 94, 0.15);
-    color: #4ade80;
+    background: color-mix(in srgb, var(--rd-green) 15%, transparent);
+    color: var(--rd-green-light);
   }
   .wf-scenario-code.fail {
-    background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
+    background: color-mix(in srgb, var(--rd-red) 15%, transparent);
+    color: var(--rd-red-light);
   }
   .wf-scenario-code.warn {
-    background: rgba(249, 115, 22, 0.15);
-    color: #fb923c;
+    background: color-mix(in srgb, var(--rd-amber) 15%, transparent);
+    color: var(--rd-amber-light);
     white-space: nowrap;
   }
   .wf-scenario-note {
     margin: 14px 0 18px;
     font-size: 13px;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
   }
   .wf-scenario-note strong {
-    color: #fdba74;
+    color: var(--rd-accent-light);
   }
   .wf-demo {
     display: grid;
@@ -764,16 +595,16 @@ const mockServerHtmlSnippet = `<rapi-flow
        scroll area with it, leaving the run panel below the clipped edge */
     grid-template-rows: minmax(0, 1fr);
     height: 760px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     overflow: hidden;
-    background: rgba(15, 23, 42, 0.7);
+    background: var(--rd-surface);
   }
   .wf-demo-flow {
     min-height: 0;
     padding: 0;
     overflow: auto;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid var(--rd-border);
   }
   .wf-demo-doc {
     min-width: 0;
@@ -783,7 +614,7 @@ const mockServerHtmlSnippet = `<rapi-flow
     margin: 12px 0 0;
     font-size: 12px;
     line-height: 1.6;
-    color: #64748b;
+    color: var(--rd-text-dim);
   }
   @media (max-width: 860px) {
     .wf-demo {
@@ -793,7 +624,7 @@ const mockServerHtmlSnippet = `<rapi-flow
     }
     .wf-demo-flow {
       border-right: 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid var(--rd-border);
     }
   }
 
@@ -807,16 +638,16 @@ const mockServerHtmlSnippet = `<rapi-flow
     display: flex;
     gap: 14px;
     padding: 18px;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 10px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
   }
   .feature-icon {
     width: 34px;
     height: 34px;
-    border-radius: 8px;
-    background: rgba(249, 115, 22, 0.15);
-    color: #fb923c;
+    border-radius: var(--rd-radius-md);
+    background: color-mix(in srgb, var(--rd-accent) 15%, transparent);
+    color: var(--rd-accent-light);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -825,13 +656,13 @@ const mockServerHtmlSnippet = `<rapi-flow
   .feature-card h4 {
     font-size: 14px;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 6px;
   }
   .feature-card p {
     font-size: 13px;
     line-height: 1.55;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0;
   }
 
@@ -843,9 +674,9 @@ const mockServerHtmlSnippet = `<rapi-flow
   }
   .standard-card {
     padding: 24px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
     backdrop-filter: blur(8px);
   }
   .standard-badge {
@@ -853,9 +684,9 @@ const mockServerHtmlSnippet = `<rapi-flow
     align-items: center;
     gap: 6px;
     padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(56, 189, 248, 0.12);
-    color: #38bdf8;
+    border-radius: var(--rd-radius-xs);
+    background: color-mix(in srgb, var(--rd-sky) 12%, transparent);
+    color: var(--rd-sky);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -865,33 +696,37 @@ const mockServerHtmlSnippet = `<rapi-flow
   .standard-card h4 {
     font-size: 16px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 10px;
   }
   .standard-card p {
     font-size: 13px;
     line-height: 1.6;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0;
   }
 
   /* Closing call to action */
   .wf-cta-box {
     padding: 40px;
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(129, 140, 248, 0.05) 100%);
-    border: 1px solid rgba(249, 115, 22, 0.25);
-    border-radius: 16px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--rd-accent) 8%, transparent) 0%,
+      color-mix(in srgb, var(--rd-indigo) 5%, transparent) 100%
+    );
+    border: 1px solid var(--rd-accent-border);
+    border-radius: var(--rd-radius-lg);
     text-align: center;
   }
   .wf-cta-content h3 {
     font-size: 24px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--rd-text-bright);
     margin: 0 0 10px;
   }
   .wf-cta-content p {
     font-size: 15px;
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     margin: 0 auto 24px;
     max-width: 600px;
   }

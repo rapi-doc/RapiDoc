@@ -270,35 +270,31 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
         </p>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px;">
+      <div class="rd-slot-target-grid">
         <!-- Tag Slot -->
-        <div
-          style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px;"
-        >
-          <h3 style="font-size: 17px; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <div class="rd-slot-target-card">
+          <h3 class="rd-slot-target-title">
             <span>Targeting Tag Groups:</span>
-            <code style="color: #38bdf8; font-size: 14px;">slot="tag--{'{name}'}"</code>
+            <code>slot="tag--{'{name}'}"</code>
           </h3>
-          <p style="font-size: 13.5px; color: #94a3b8; line-height: 1.6; margin: 0;">
+          <p class="rd-slot-target-text">
             Inject domain notices, common authentication headers, or SDK snippets directly underneath a specific OpenAPI tag heading.
           </p>
-          <div style="margin-top: auto;">
+          <div class="rd-slot-target-code">
             <CodeBlock code={tagSlotSnippet} lang="html" filename="tag-slot.html" />
           </div>
         </div>
 
         <!-- Endpoint Slot -->
-        <div
-          style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px;"
-        >
-          <h3 style="font-size: 17px; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <div class="rd-slot-target-card">
+          <h3 class="rd-slot-target-title">
             <span>Targeting Operations:</span>
-            <code style="color: #38bdf8; font-size: 14px;">slot="{'{method}-{path}'}"</code>
+            <code>slot="{'{method}-{path}'}"</code>
           </h3>
-          <p style="font-size: 13.5px; color: #94a3b8; line-height: 1.6; margin: 0;">
+          <p class="rd-slot-target-text">
             Inject live status callouts, edge caching hints, or code generation widgets directly inside an individual endpoint card.
           </p>
-          <div style="margin-top: auto;">
+          <div class="rd-slot-target-code">
             <CodeBlock code={endpointSlotSnippet} lang="html" filename="endpoint-slot.html" />
           </div>
         </div>
@@ -347,27 +343,23 @@ const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual en
     </section>
 
     <!-- Cross Navigation Banner -->
-    <section
-      class="rd-section-block"
-      style="text-align: center; background: rgba(15,23,42,0.6); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 40px 24px; margin-top: 48px;"
-    >
-      <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px;">Looking for CSS Shadow Parts or Themes?</h3>
-      <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 20px; font-size: 14px; line-height: 1.6;">
+    <section class="rd-section-block rd-next-banner">
+      <h3 class="rd-next-title">Looking for CSS Shadow Parts or Themes?</h3>
+      <p class="rd-next-desc">
         Explore our Custom CSS guide to style internal elements with W3C Shadow Parts, or check out our Themes guide for built-in color
         presets and design tokens.
       </p>
-      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+      <div class="rd-next-actions">
         <a
           href="/guides/css"
-          class="rd-action-primary"
-          style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;"
+          class="rd-btn rd-btn-primary"
         >
           <span>Custom CSS & Shadow Parts Guide</span>
           <IconArrowRight size={16} stroke={2.5} />
         </a>
         <a
           href="/guides/theme"
-          style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;"
+          class="rd-btn rd-btn-secondary"
         >
           <span>Themes & Brand Colors Guide</span>
           <IconArrowRight size={16} stroke={2.5} />

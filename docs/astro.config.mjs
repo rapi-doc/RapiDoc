@@ -92,7 +92,7 @@ export default defineConfig({
       },
       favicon: '/favicon.svg',
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/rapi-doc/RapiDoc' }],
-      customCss: ['./src/styles/starlight-custom.css'],
+      customCss: ['./src/styles/tokens.css', './src/styles/starlight-custom.css'],
       components: {
         Header: './src/components/DocsHeader.astro',
         ThemeProvider: './src/components/ForceDarkTheme.astro',

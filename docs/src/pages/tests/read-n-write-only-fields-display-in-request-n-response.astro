@@ -6,6 +6,10 @@ const specUrl = getSpecUrl(Astro.url);
 ---
 
 <TestCaseLayout preset={['schema']} autoRenderRapiDoc={false}>
+  <Fragment slot="head">
+    <link rel="stylesheet" href="/assets/prismjs/prism.css" />
+    <script is:inline src="/assets/prismjs/prism.js"></script>
+  </Fragment>
   <rapi-doc 
     id = "thedoc"
     spec-url = "/specs-test/read-n-write-only-fields-display-in-request-n-response.yaml"

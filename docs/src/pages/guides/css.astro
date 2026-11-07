@@ -55,16 +55,16 @@ const totalCategories = stylingData.parts.length;
       </div>
 
       <!-- Quick Jump Navigation -->
-      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px;">
+      <div class="rd-jump-links">
         <a
           href="#variables-catalog"
-          style="font-size: 13px; font-weight: 600; color: #34d399; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); padding: 6px 14px; border-radius: 9999px; text-decoration: none;"
+          class="rd-jump-link"
         >
           🎨 CSS Custom Properties ({totalVariables})
         </a>
         <a
           href="#parts-catalog"
-          style="font-size: 13px; font-weight: 600; color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); padding: 6px 14px; border-radius: 9999px; text-decoration: none;"
+          class="rd-jump-link rd-jump-link--sky"
         >
           🧩 CSS Shadow Parts ({totalParts})
         </a>
@@ -122,36 +122,30 @@ const totalCategories = stylingData.parts.length;
       </div>
 
       <!-- CATALOG 1: CSS CUSTOM PROPERTIES (DESIGN TOKENS) -->
-      <div id="variables-catalog" class="rd-catalog-wrapper" style="margin-top: 36px; margin-bottom: 64px;">
-        <div
-          style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(16,185,129,0.3); padding-bottom: 12px; margin-bottom: 24px;"
-        >
+      <div id="variables-catalog" class="rd-catalog-wrapper rd-catalog-block">
+        <div class="rd-catalog-head">
           <div>
-            <div
-              style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #34d399; background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;"
-            >
+            <div class="rd-catalog-eyebrow">
               Design System Tokens
             </div>
-            <h3 style="font-size: 24px; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.02em;">
+            <h3 class="rd-catalog-title">
               1. CSS Custom Properties ({totalVariables})
             </h3>
           </div>
-          <span style="font-size: 12.5px; color: #94a3b8; font-family: monospace;">:host variables</span>
+          <span class="rd-catalog-meta">:host variables</span>
         </div>
 
         <!-- Quick Link Banner to Advanced Schema Sizing & Thresholds -->
-        <div
-          style="display: flex; align-items: center; justify-content: space-between; gap: 16px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; padding: 14px 20px; margin-bottom: 24px;"
-        >
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 18px;">📐</span>
-            <span style="font-size: 13.5px; color: #cbd5e1;">
+        <div class="rd-info-banner">
+          <div class="rd-info-banner-body">
+            <span class="rd-info-banner-icon">📐</span>
+            <span class="rd-info-banner-text">
               Looking for <strong>Schema Model Sizing, Truncation Calculations & Container Queries</strong>?
             </span>
           </div>
           <a
             href="/docs/theming/css-parts/#schema-sizing-and-truncation"
-            style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #34d399; text-decoration: none; white-space: nowrap;"
+            class="rd-info-banner-link"
           >
             <span>Advanced Schema Guide in Docs</span>
             <IconArrowRight size={14} stroke={2.5} />
@@ -206,21 +200,17 @@ const totalCategories = stylingData.parts.length;
       </div>
 
       <!-- CATALOG 2: CSS SHADOW PARTS (::part()) DIRECTLY BELOW -->
-      <div id="parts-catalog" class="rd-catalog-wrapper" style="margin-top: 48px;">
-        <div
-          style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(56,189,248,0.3); padding-bottom: 12px; margin-bottom: 24px;"
-        >
+      <div id="parts-catalog" class="rd-catalog-wrapper rd-catalog-block">
+        <div class="rd-catalog-head rd-catalog-head--sky">
           <div>
-            <div
-              style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;"
-            >
+            <div class="rd-catalog-eyebrow">
               Shadow Boundary Piercing
             </div>
-            <h3 style="font-size: 24px; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.02em;">
+            <h3 class="rd-catalog-title">
               2. CSS Shadow Parts ({totalParts})
             </h3>
           </div>
-          <span style="font-size: 12.5px; color: #94a3b8; font-family: monospace;">::part() selectors</span>
+          <span class="rd-catalog-meta">::part() selectors</span>
         </div>
 
         <div id="parts-catalog-container" class="rd-catalog-grid">
@@ -286,8 +276,7 @@ const totalCategories = stylingData.parts.length;
           every generated heading of a level with the <code>heading-1</code>…<code>heading-6</code> parts.
         </p>
       </div>
-      <pre
-        style="max-width: 760px; margin: 0 auto; padding: 16px 20px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #e2e8f0; font-size: 13px; line-height: 1.6; overflow-x: auto;"><code>{`rapi-doc {
+      <pre class="rd-code-sample"><code>{`rapi-doc {
   --heading-weight: 600;
   --heading-line-height: 1.2;
   --line-height: 1.75;
@@ -302,27 +291,23 @@ rapi-doc::part(heading-2) {
     </section>
 
     <!-- Cross Navigation Banner -->
-    <section
-      class="rd-section-block"
-      style="text-align: center; background: rgba(15,23,42,0.6); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 40px 24px; margin-top: 64px;"
-    >
-      <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px;">Looking for Named HTML Slots or Theme Presets?</h3>
-      <p style="color: #94a3b8; max-width: 620px; margin: 0 auto 24px; font-size: 14px; line-height: 1.6;">
+    <section class="rd-section-block rd-next-banner">
+      <h3 class="rd-next-title">Looking for Named HTML Slots or Theme Presets?</h3>
+      <p class="rd-next-desc">
         Inject corporate logos, banners, headers, and footers with standard Web Component slots, or configure declarative color presets in
         our Themes guide.
       </p>
-      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+      <div class="rd-next-actions">
         <a
           href="/guides/slots"
-          class="rd-action-primary"
-          style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;"
+          class="rd-btn rd-btn-primary"
         >
           <span>Named HTML Slots Guide</span>
           <IconArrowRight size={16} stroke={2.5} />
         </a>
         <a
           href="/guides/theme"
-          style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;"
+          class="rd-btn rd-btn-secondary"
         >
           <span>Themes & Brand Colors Guide</span>
           <IconArrowRight size={16} stroke={2.5} />

@@ -31,28 +31,28 @@ const shouldRenderSearch =
     align-items: center;
     gap: 8px;
     padding: 7px 12px;
-    border-radius: var(--rd-radius, 6px);
+    border-radius: var(--rd-radius-sm);
     font-size: 13px;
     font-weight: 500;
-    color: var(--rd-docs-muted, #94a3b8);
-    background: var(--rd-docs-hover-bg, rgba(255, 255, 255, 0.04));
-    border: 1px solid var(--rd-docs-border, rgba(255, 255, 255, 0.08));
+    color: var(--rd-docs-muted);
+    background: var(--rd-docs-hover-bg);
+    border: 1px solid var(--rd-docs-border);
     cursor: pointer;
     transition:
       color 0.15s ease,
       border-color 0.15s ease;
   }
   .rd-starlight-search-container :global(button[data-open-modal]:hover) {
-    color: var(--sl-color-white, #fff);
-    border-color: color-mix(in oklab, var(--rd-docs-border, #475569) 60%, var(--rd-docs-fg, #ccc));
+    color: var(--sl-color-white);
+    border-color: color-mix(in oklab, var(--rd-docs-border) 60%, var(--rd-docs-fg));
   }
   .rd-starlight-search-container :global(kbd) {
     font-size: 10px;
     padding: 2px 5px;
-    border-radius: 4px;
-    background: var(--sl-color-bg-inline-code, rgba(255, 255, 255, 0.08));
-    border: 1px solid var(--rd-docs-border, rgba(255, 255, 255, 0.12));
-    color: var(--rd-docs-fg, #cbd5e1);
-    font-family: var(--sl-font-mono, monospace);
+    border-radius: var(--rd-radius-xs);
+    background: var(--sl-color-bg-inline-code);
+    border: 1px solid var(--rd-docs-border);
+    color: var(--rd-docs-fg);
+    font-family: var(--rd-font-mono);
   }
 </style>
