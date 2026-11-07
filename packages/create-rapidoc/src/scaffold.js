@@ -1,5 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
+import pkg from "../package.json" with { type: "json" };
+
+/**
+ * Range for the @rapidoc packages a new project depends on. They release with create-rapidoc as one
+ * fixed group (.changeset/config.json), so its own version is theirs too.
+ */
+const RAPIDOC_PACKAGES_RANGE = `^${pkg.version}`;
 
 /**
  * Starter template contents for scaffolding a new RapiDoc Developer Portal.
@@ -345,8 +352,8 @@ const STARTER_PACKAGE_JSON = (projectName) =>
       // The CLI loads the portal engine for dev/build; listing it here also makes the config's
       // $schema path (node_modules/@rapidoc/portal/schema.json) resolve.
       devDependencies: {
-        "@rapidoc/cli": "^0.1.0",
-        "@rapidoc/portal": "^0.1.0",
+        "@rapidoc/cli": RAPIDOC_PACKAGES_RANGE,
+        "@rapidoc/portal": RAPIDOC_PACKAGES_RANGE,
       },
     },
     null,

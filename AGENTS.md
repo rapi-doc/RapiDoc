@@ -102,6 +102,8 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run build:rapidoc`     | `packages/rapidoc`    | Builds `dist/rapidoc-min.js` and `dist/rapidoc-flow-min.js` (`rapidoc/flow`) with Vite. |
 | `npm run build:prerender`      | `packages/rapidoc-prerender` | Builds `@rapidoc/prerender` (`dist/index.js`); the portal, the docs guide's build and `prerender:demo` use it. |
 | `npm run build:mcp`         | `packages/rapidoc-mcp` | Builds `@rapidoc/mcp` (`dist/index.js`); the portal and server import it, so `pretest:portal` and `build:demo` run it. |
+| `npm run build:packages`   | Monorepo              | Builds everything the packages publish: `rapidoc`, `@rapidoc/mcp`, `@rapidoc/prerender` and the portal's `schema.json` (the release workflow runs it). |
+| `npm run changeset`        | Monorepo              | Adds a changeset for the packages a pull request changes (§6). `npm run version-packages` applies them; the release workflow runs it. |
 | `npm run build-info`       | Monorepo              | Rewrites `docs/src/page-data/rapidoc-build-info.{json,yaml}`: version, bundle sizes and npm package sizes of every package (the package builds run it last). |
 | `npm run build:rapidoc:dev` | `packages/rapidoc`    | Builds an unminified bundle with sourcemaps and console logs intact.                                                    |
 | `npm run build:size`        | `packages/rapidoc`    | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`.                                  |
@@ -184,3 +186,17 @@ When executing tasks in this repository, follow these rules:
 4. **Commits and Git State**:
    - **Never run `git commit` unless explicitly instructed by the user.** Keep all working tree changes uncommitted for user review.
    - Never commit `dist/` or other build artifacts to Git.
+
+---
+
+## 6. Releasing (Changesets)
+
+Versions and npm publishing go through [Changesets](https://changesets.dev) (`.changeset/config.json`) and `.github/workflows/release.yml`. Never run `npm publish` by hand.
+
+- **Two version tracks**:
+  - `rapidoc` (the web component) has its own semver: a major means `<rapi-doc>` changed in a way its users see.
+  - `@rapidoc/cli`, `portal`, `server`, `mock`, `prerender`, `mcp` and `create-rapidoc` are one `fixed` group: every release bumps all seven to the same version. While they are 0.x, a minor (0.2.0) is breaking and a patch is a fix or an addition; they go to 1.0.0 together.
+- **Every pull request that changes a published package adds a changeset**: `npm run changeset`, pick the packages and the bump, write one changelog line in the user's terms. Changes that release nothing (docs site, tests, tooling) need none.
+- **`rapidoc` source is also in `@rapidoc/prerender` and `@rapidoc/mcp`**: both bundle `packages/rapidoc/src` at build time, which Changesets can't see. A change to its templates, components or styles (prerender) or to `utils/mcp/` and `utils/arazzo/` (mcp) needs those packages in its changeset too, so the portal's pre-rendered HTML and the `rapidoc-min.js` that takes it over come from the same source.
+- **The flow**: changesets merged to `master` → the workflow opens or updates the "chore: release packages" pull request (`npm run version-packages`: versions, changelogs, internal ranges, lockfile). Merging it → the workflow builds (`npm run build:packages`), runs `test:unit`, packs, publishes with npm trusted publishing (no token), and creates git tags and GitHub releases.
+- **Internal ranges** are updated by `changeset version` (`updateInternalDependencies: patch`); don't edit them by hand.

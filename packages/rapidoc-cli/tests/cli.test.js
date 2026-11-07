@@ -58,7 +58,10 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
 
   await t.test("--version should print version string", () => {
     const output = execFileSync("node", [CLI_PATH, "--version"], { encoding: "utf8" });
-    assert.ok(output.includes("0.1.0"));
+    const { version } = JSON.parse(
+      fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+    );
+    assert.equal(output.trim(), version);
   });
 
   await t.test("validate should verify a valid OpenAPI 3.1 specification", () => {

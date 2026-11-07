@@ -33,9 +33,13 @@
     "test:portal": "node --test --test-concurrency=1 packages/rapidoc-portal/tests/**/*.test.js packages/rapidoc-cli/tests/**/*.test.js packages/rapidoc-server/tests/**/*.test.js packages/rapidoc-mock/tests/**/*.test.js packages/create-rapidoc/tests/**/*.test.js",
     "test:e2e": "node --import ./scripts/test-loader.mjs --test tests/e2e/*.test.js",
     "test:all": "npm run test:unit && npm run test:component && npm run test:e2e",
-    "build-info": "node scripts/capture-build-info.js"
+    "build-info": "node scripts/capture-build-info.js",
+    "changeset": "changeset",
+    "version-packages": "changeset version && npm install --package-lock-only --ignore-scripts",
+    "build:packages": "npm run build:rapidoc && npm run build:mcp && npm run build:prerender && npm run schema --workspace=@rapidoc/portal"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "oxfmt": "^0.75.0",
     "oxlint": "^1.90.0",

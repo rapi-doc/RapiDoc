@@ -49,8 +49,10 @@ test("create-rapidoc Scaffolding CLI (Milestone 6)", async (t) => {
     assert.strictEqual(pkg.scripts.validate, "rapidoc validate");
     assert.strictEqual(pkg.scripts.dev, "rapidoc dev");
     // The portal engine is a direct dev dependency, so the config's $schema path resolves
-    assert.ok(pkg.devDependencies["@rapidoc/cli"]);
-    assert.ok(pkg.devDependencies["@rapidoc/portal"]);
+    // The @rapidoc packages release with create-rapidoc as one fixed group: same version.
+    const own = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+    assert.equal(pkg.devDependencies["@rapidoc/cli"], `^${own.version}`);
+    assert.equal(pkg.devDependencies["@rapidoc/portal"], `^${own.version}`);
     assert.ok(
       fs
         .readFileSync(path.join(projectDir, "rapidoc.config.yaml"), "utf8")

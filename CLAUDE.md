@@ -31,6 +31,7 @@
 - `npm run test:unit` — run before and after parser/schema changes
 - `npm run test:portal` — portal, CLI, and `create-rapidoc` tests
 - `npm run lint` and `npm run format-fix` — after edits
+- `npm run changeset` — in any change to a published package; releases go through `.github/workflows/release.yml`, never `npm publish` (`AGENTS.md` §6)
 
 The full command tables are in `AGENTS.md` §3.
 

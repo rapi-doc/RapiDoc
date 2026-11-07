@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@4.0.1/schema.json",
+  "baseBranch": "master",
+  "access": "public",
+  "ignore": [],
+  "fixed": [
+    [
+      "@rapidoc/cli",
+      "@rapidoc/portal",
+      "@rapidoc/server",
+      "@rapidoc/mock",
+      "@rapidoc/prerender",
+      "@rapidoc/mcp",
+      "create-rapidoc"
+    ]
+  ],
+  "linked": [],
+  "format": "oxfmt",
+  "updateInternalDependencies": "patch",
+  "commit": false,
+  "changelog": "@changesets/cli/changelog"
+}

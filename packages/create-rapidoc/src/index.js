@@ -2,6 +2,7 @@
 
 import path from "node:path";
 import fs from "node:fs";
+import pkg from "../package.json" with { type: "json" };
 import { findOpenApiSpecs, scaffoldProject } from "./scaffold.js";
 import { askInitQuestions } from "./wizard.js";
 
@@ -34,7 +35,7 @@ if (args.includes("--help") || args.includes("-h")) {
 }
 
 if (args.includes("--version") || args.includes("-v")) {
-  console.log("0.1.0");
+  console.log(pkg.version);
   process.exit(0);
 }
 
