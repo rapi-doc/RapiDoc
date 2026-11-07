@@ -24,13 +24,35 @@ const shouldRenderSearch =
   .rd-starlight-search-container {
     display: flex;
     align-items: center;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  /* From 1000px the search box fills the navbar's search slot (SiteNavbar); below, an icon only */
+  @media (min-width: 1000px) {
+    .rd-starlight-search-container :global(button[data-open-modal]) {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+  @media (max-width: 999px) {
+    .rd-starlight-search-container :global(button[data-open-modal] > span),
+    .rd-starlight-search-container :global(button[data-open-modal] kbd) {
+      display: none;
+    }
+    .rd-starlight-search-container :global(button[data-open-modal]) {
+      width: 36px;
+      padding: 0;
+      justify-content: center;
+    }
   }
   /* The search button, in the docs theme's colors (styles/starlight-custom.css) */
   .rd-starlight-search-container :global(button[data-open-modal]) {
+    box-sizing: border-box;
+    height: 36px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 7px 12px;
+    padding: 0 12px;
     border-radius: var(--rd-radius-sm);
     font-size: 13px;
     font-weight: 500;

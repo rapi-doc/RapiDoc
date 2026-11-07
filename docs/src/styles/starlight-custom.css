@@ -70,6 +70,7 @@
 
   /* The site navbar (components/SiteNavbar.astro) sits on the docs background here. */
   --rd-bg-glass: var(--sl-color-bg-nav);
+  --rd-menu-bg: var(--rd-docs-bg);
 }
 
 /* -------------------------------------------------------------------------- Type and layout */
@@ -91,7 +92,7 @@
   --sl-text-h5: 1rem;
 
   /* Height of the site navbar (components/DocsHeader.astro). */
-  --sl-nav-height: 61px;
+  --sl-nav-height: 65px;
 }
 
 @media (min-width: 50rem) {

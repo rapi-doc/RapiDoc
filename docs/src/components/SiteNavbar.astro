@@ -12,7 +12,7 @@ const pathname = Astro.url.pathname;
 const current = resolveActiveNavKey(pathname, activePage);
 ---
 
-<header class="rd-navbar">
+<header class:list={['rd-navbar', { 'rd-navbar--docs': activePage === 'docs' }]}>
   <div class="rd-nav-container">
     <a href="/" class="rd-brand">
       <img src="/assets/images/rapidoc-lockup-dark.svg" alt="RapiDoc" class="rd-logo" width="167" height="28" />
@@ -36,14 +36,74 @@ const current = resolveActiveNavKey(pathname, activePage);
     </nav>
 
     <div class="rd-nav-actions">
-      <slot name="search" />
+      <!-- Same width on every page, empty except on the Starlight /docs/ pages (DocsHeader), so the
+           links don't move when the search box appears -->
+      <div class="rd-nav-search">
+        <slot name="search" />
+      </div>
       <a href="https://github.com/rapi-doc/RapiDoc" target="_blank" rel="noopener" class="rd-btn rd-btn-ghost rd-github-btn">
         <Icon name="github" size={18} />
-        <span class="hide-mobile">GitHub</span>
+        <span class="rd-github-label">GitHub</span>
       </a>
+      <!-- Below 860px the links move into this menu (a disclosure: the script toggles aria-expanded and hidden) -->
+      <button
+        type="button"
+        class="rd-btn rd-btn-ghost rd-menu-btn"
+        aria-expanded="false"
+        aria-controls="rd-site-menu"
+        aria-label="Site menu"
+      >
+        <!-- On /docs/ a grid, so it isn't confused with Starlight's sidebar menu (a hamburger) beside it -->
+        <span class="rd-menu-icon rd-menu-icon--open"><Icon name={activePage === 'docs' ? 'grid' : 'menu'} size={18} /></span>
+        <span class="rd-menu-icon rd-menu-icon--close"><Icon name="close" size={18} /></span>
+      </button>
     </div>
   </div>
+
+  <nav id="rd-site-menu" class="rd-site-menu" aria-label="Site" hidden>
+    {
+      NAV_LINKS.map((item) => {
+        const active = isNavActive(item, current, pathname);
+        return (
+          <a href={item.href} class:list={['rd-site-menu-link', { active }]} aria-current={active ? 'page' : undefined}>
+            <span>{item.label}</span>
+            {item.pill && <span class="rd-dev-pill">{item.pill}</span>}
+          </a>
+        );
+      })
+    }
+  </nav>
 </header>
+
+<script>
+  // The site menu below 860px. Escape closes it and returns focus to the button; so do a click
+  // outside, picking a link, and growing the window past the breakpoint.
+  for (const navbar of document.querySelectorAll<HTMLElement>('.rd-navbar')) {
+    const button = navbar.querySelector<HTMLButtonElement>('.rd-menu-btn');
+    const menu = navbar.querySelector<HTMLElement>('.rd-site-menu');
+    if (!button || !menu) continue;
+    const setOpen = (open: boolean) => {
+      button.setAttribute('aria-expanded', String(open));
+      menu.hidden = !open;
+    };
+    button.addEventListener('click', () => setOpen(menu.hidden));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !menu.hidden) {
+        setOpen(false);
+        button.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!menu.hidden && !navbar.contains(e.target as Node)) setOpen(false);
+    });
+    menu.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+    window.matchMedia('(min-width: 860px)').addEventListener('change', (e) => {
+      if (e.matches) setOpen(false);
+    });
+  }
+</script>
 
 <style>
   .rd-navbar {
@@ -88,9 +148,11 @@ const current = resolveActiveNavKey(pathname, activePage);
     align-items: center;
     gap: 24px;
   }
+  /* Heights are fixed here, so the bar is the same on the site pages and under Starlight's base styles */
   .rd-nav-link {
     color: var(--rd-text-muted);
     font-size: 14px;
+    line-height: 22px;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -136,7 +198,10 @@ const current = resolveActiveNavKey(pathname, activePage);
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 16px;
+    box-sizing: border-box;
+    height: 36px;
+    line-height: 20px;
+    padding: 0 16px;
     border-radius: var(--rd-radius-md);
     font-size: 13.5px;
     font-weight: 600;
@@ -167,18 +232,105 @@ const current = resolveActiveNavKey(pathname, activePage);
     background: var(--rd-wash);
     color: var(--rd-text-bright);
   }
-  .hide-mobile {
-    display: inline;
+  .rd-nav-search {
+    display: flex;
+    justify-content: flex-end;
+  }
+  /* The menu button and its panel: below 860px, where the links are hidden */
+  .rd-menu-btn {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+  .rd-menu-icon {
+    display: inline-flex;
+  }
+  .rd-menu-btn[aria-expanded='true'] .rd-menu-icon--open,
+  .rd-menu-btn[aria-expanded='false'] .rd-menu-icon--close {
+    display: none;
+  }
+  .rd-site-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px 16px;
+    /* Opaque, so the page doesn't show through (the /docs/ pages set --rd-menu-bg) */
+    background: var(--rd-menu-bg, var(--rd-bg));
+    border-bottom: 1px solid var(--rd-border);
+    box-shadow: var(--rd-shadow-panel);
+  }
+  .rd-site-menu[hidden] {
+    display: none;
+  }
+  .rd-site-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--rd-radius-sm);
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 500;
+    color: var(--rd-text-muted);
+    text-decoration: none;
+  }
+  .rd-site-menu-link:hover {
+    color: var(--rd-text-bright);
+    background: var(--rd-wash);
+  }
+  .rd-site-menu-link.active {
+    color: var(--rd-accent);
+    background: var(--rd-accent-dim);
   }
 
-  @media (max-width: 640px) {
-    .hide-mobile {
+  /* On the Starlight /docs/ pages below 50rem, Starlight's own menu button sits fixed in the top-right
+     corner: leave room for it */
+  @media (max-width: 49.99rem) {
+    .rd-navbar--docs .rd-nav-container {
+      padding-right: 64px;
+    }
+    /* Starlight's menu shows the GitHub link there */
+    .rd-navbar--docs .rd-github-btn {
       display: none;
     }
   }
-  @media (min-width: 768px) {
+
+  /* The links show from 860px; the search slot is the full box from 1000px and an icon below */
+  @media (min-width: 860px) {
     .rd-nav-links {
       display: flex;
+    }
+    .rd-nav-search {
+      width: 36px;
+    }
+    .rd-menu-btn,
+    .rd-site-menu {
+      display: none;
+    }
+  }
+  @media (min-width: 1000px) {
+    .rd-nav-search {
+      width: 150px;
+    }
+  }
+  /* Less room up to 1100px: tighter links, GitHub as an icon; up to 900px, no version badge */
+  @media (max-width: 1100px) {
+    .rd-nav-links {
+      gap: 16px;
+    }
+    .rd-github-label {
+      display: none;
+    }
+  }
+  @media (max-width: 900px) {
+    .rd-nav-links {
+      gap: 12px;
+    }
+    .rd-version-badge {
+      display: none;
     }
   }
 </style>

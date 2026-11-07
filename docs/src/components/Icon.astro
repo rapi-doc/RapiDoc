@@ -11,6 +11,8 @@ import {
   IconCheck,
   IconExternalLink,
   IconInfoCircle,
+  IconMenu2,
+  IconLayoutGrid,
 } from '@tabler/icons-astro';
 
 interface Props {
@@ -25,7 +27,9 @@ interface Props {
     | 'close'
     | 'check'
     | 'external'
-    | 'info';
+    | 'info'
+    | 'menu'
+    | 'grid';
   size?: number;
   class?: string;
   stroke?: number;
@@ -45,4 +49,6 @@ const { name, size = 18, class: className = '', stroke = 2 } = Astro.props;
 {name === 'check' && <IconCheck size={size} class={className} stroke={stroke} />}
 {name === 'external' && <IconExternalLink size={size} class={className} stroke={stroke} />}
 {name === 'info' && <IconInfoCircle size={size} class={className} stroke={stroke} />}
+{name === 'menu' && <IconMenu2 size={size} class={className} stroke={stroke} />}
+{name === 'grid' && <IconLayoutGrid size={size} class={className} stroke={stroke} />}
 
