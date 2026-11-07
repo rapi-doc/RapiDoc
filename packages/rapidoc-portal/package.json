@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/portal",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Docs-as-code developer portal framework for OpenAPI and Markdoc with RapiDoc",
   "homepage": "https://portal.rapidocui.com",
   "bugs": {

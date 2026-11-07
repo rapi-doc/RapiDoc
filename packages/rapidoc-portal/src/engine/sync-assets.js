@@ -68,6 +68,15 @@ export function newestSourceMtimeMs(dir) {
 }
 
 /**
+ * True when `bundlePath` is in a source checkout of rapidoc (the monorepo, where node_modules/rapidoc is
+ * a symlink to packages/rapidoc), false when it is an installed package. An installed package's files
+ * get their install time as mtime, a few milliseconds apart, so comparing them says nothing.
+ */
+export function isSourceCheckout(bundlePath) {
+  return !fs.realpathSync(bundlePath).split(path.sep).includes("node_modules");
+}
+
+/**
  * Finds the `rapidoc` package's dist/rapidoc-min.js and throws if it is missing or stale.
  * "Stale" means it lacks portal navigation support, or (in a source checkout) is older than src/.
  */
@@ -81,7 +90,11 @@ export function resolveRapidocBundle() {
   }
 
   const srcDir = path.resolve(path.dirname(bundlePath), "../src");
-  if (fs.existsSync(srcDir) && newestSourceMtimeMs(srcDir) > fs.statSync(bundlePath).mtimeMs) {
+  if (
+    isSourceCheckout(bundlePath) &&
+    fs.existsSync(srcDir) &&
+    newestSourceMtimeMs(srcDir) > fs.statSync(bundlePath).mtimeMs
+  ) {
     throw new StaleRapidocBundleError(bundlePath, "older than its source");
   }
 
