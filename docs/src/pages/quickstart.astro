@@ -767,7 +767,7 @@ const categories = [
     z-index: 1;
     max-width: var(--rd-max-width);
     margin: 0 auto;
-    padding: 48px 24px 96px 24px;
+    padding: var(--rd-page-top) 24px 96px 24px;
   }
 
   /* The search section holds the search box and the category pills below it */
@@ -1003,7 +1003,7 @@ const categories = [
   /* Responsive Breakpoints */
   @media (max-width: 768px) {
     .rd-ref-main {
-      padding: 32px 16px 64px 16px;
+      padding: var(--rd-page-top) 16px 64px 16px;
     }
     .rd-card-topbar {
       flex-direction: column;

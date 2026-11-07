@@ -87,6 +87,8 @@
   --rd-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --rd-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --rd-max-width: 1240px;
+  /* Space between the navbar and the first thing on a page (each page's main area uses it) */
+  --rd-page-top: 64px;
 
   /* ------------------------------------------------------------------------ Old names
      Kept so pages and components not yet moved to the names above keep working. */
@@ -126,5 +128,11 @@
   50% {
     opacity: 0.4;
     transform: scale(0.85);
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --rd-page-top: 40px;
   }
 }

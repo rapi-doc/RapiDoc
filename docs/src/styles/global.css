@@ -118,7 +118,8 @@ code {
   /* Wide enough for a row of four stat cards; the subtitle keeps its own measure */
   max-width: 1000px;
   margin: 0 auto 48px auto;
-  padding: 40px 20px 0 20px;
+  /* No top padding: the page's main area starts --rd-page-top below the navbar */
+  padding: 0 20px;
   position: relative;
   z-index: 1;
 }

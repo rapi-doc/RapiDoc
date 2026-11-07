@@ -87,6 +87,7 @@ docs/
    - The documentation and example pages are user-facing showcases for RapiDoc's capabilities.
    - Use the tokens in `tokens.css`, never hard-coded colors, radii or font stacks. Green (`--rd-green`) means success, not the brand.
    - Use the shared classes in `global.css` (page hero, sections, buttons, pills, stats, cards, search, empty state, tables) and don't redefine them in a page's `<style>`: Astro's scoped styles would win and the pages drift apart. A page styles only what is its own.
+   - A page's main area starts `--rd-page-top` below the navbar (its own top padding); the shared hero header adds none.
    - Cards and icon boxes use the 6px radius and react to hover with colour only (`--rd-card-border-hover`, `--rd-card-bg-hover`, `--rd-icon-bg-hover`): no glow, shadow, lift or scale.
    - Colors that are content (theme swatches, values passed to `<rapi-doc>`, the `examples/css-*` and `tests/theme-illustration` demos) stay as they are.
    - Prism loads only on pages that pass `prism` to `GlobalLayout` (or add it in the `head` slot).
