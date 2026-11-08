@@ -37,13 +37,13 @@ npm install rapidoc
 
 ## Developer portals
 
-A developer portal puts your API references next to Markdown guides, with search, navigation and optional sign-in. These packages are documented in the [RapiDoc Portal docs](https://github.com/rapi-doc/rapi-portal-doc).
+A developer portal puts your API references next to Markdown guides, with search, navigation and optional single sign-on (SSO) through Okta, Microsoft Entra ID or any OpenID Connect provider. These packages are documented in the [RapiDoc Portal docs](https://portal.rapidocui.com/); for private portals, see [SSO and access](https://portal.rapidocui.com/docs/access/overview/).
 
 | Package | What it is for |
 | :--- | :--- |
 | `create-rapidoc` | Scaffolds a new portal: `npm create rapidoc`. `rapidoc init` does the same. |
 | `@rapidoc/portal` | The portal engine behind `rapidoc dev` and `rapidoc build`: OpenAPI specs and Markdown, MDX or Markdoc guides in, a static site out. |
-| `@rapidoc/server` | Serves a built portal with OpenID Connect sign-in and per-page access rules (`rapidoc serve`). |
+| `@rapidoc/server` | Serves a built portal with single sign-on (OpenID Connect) and per-page access rules (`rapidoc serve`). |
 
 ## Which do I need?
 

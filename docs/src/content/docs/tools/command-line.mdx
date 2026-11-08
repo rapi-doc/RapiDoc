@@ -97,6 +97,6 @@ npx rapidoc mcp serve openapi.yaml                         # run it over stdio, 
 
 ## Everything else
 
-`rapidoc doctor` checks your setup (Node, package versions) and prints a report for bug reports. The other commands (`init`, `dev`, `build`, `serve`, `migrate`) create and run a developer portal: OpenAPI references next to Markdown and Markdoc guides, with search and optional sign-in. The full reference, with every option, is in the [RapiDoc Portal docs](https://github.com/rapi-doc/rapi-portal-doc/blob/main/docs/reference/cli.md).
+`rapidoc doctor` checks your setup (Node, package versions) and prints a report for bug reports. The other commands (`init`, `dev`, `build`, `serve`, `migrate`) create and run a developer portal: OpenAPI references next to Markdown and Markdoc guides, with search and optional [single sign-on](https://portal.rapidocui.com/docs/access/overview/). The full reference, with every option, is in the [RapiDoc Portal docs](https://portal.rapidocui.com/docs/reference/cli/).
 
 In a terminal, `rapidoc` asks for what the options don't say and shows a menu when run alone; piped, in CI or with `--yes` it never asks. Exit codes: `0` success, `1` problems in the input, `2` a wrong command line. `rapidoc completion zsh|bash|fish` prints a completion script for commands, options and their values.
