@@ -389,6 +389,11 @@ describe("RapiDoc Portal build engine", () => {
         "API pages too",
       );
       assert.ok(firstShipment.includes('match-paths="^post /shipments$"'));
+      assert.equal(
+        firstShipment.match(/paths-expanded="false"/g)?.length,
+        1,
+        "collapsed=true shows only the operation's header",
+      );
       assert.ok(
         firstShipment.includes("/assets/rapidoc-min.js"),
         "pages with an embed load RapiDoc",

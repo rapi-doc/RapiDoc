@@ -2,7 +2,8 @@
 /**
  * {% api-operation spec="<api id>" path="/orders" method="post" title="..." /%}: one operation of a
  * portal API, interactive, rendered by <rapi-doc-mini>. `spec` is the `id` of an entry in `apis:`;
- * `version` picks one of its versions (default: the first).
+ * `version` picks one of its versions (default: the first). `collapsed=true` shows only the method and
+ * path until the reader clicks them.
  *
  * The RapiDoc bundle is loaded only on pages that contain an embed.
  */
@@ -18,9 +19,10 @@ interface Props {
   method?: string;
   title?: string;
   version?: string;
+  collapsed?: boolean;
 }
 
-const { spec, path, method = 'get', title, version } = Astro.props;
+const { spec, path, method = 'get', title, version, collapsed = false } = Astro.props;
 const apis = portalConfig.apis || [];
 const api = apis.find((a: any) => a.id === spec);
 const apiVersion = version === undefined ? api?.versions[0] : api?.versions.find((v: any) => v.version === version);
@@ -44,7 +46,7 @@ const rapidoc = portalConfig.rapidoc || {};
         spec-url={specUrl}
         match-paths={matchPaths}
         match-type="regex"
-        paths-expanded="true"
+        paths-expanded={collapsed ? 'false' : 'true'}
         layout="column"
         color-scheme="auto"
         theme={rapidoc.theme}

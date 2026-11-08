@@ -276,6 +276,7 @@ export const apiOperation = {
     method: { type: String, default: "get" },
     title: { type: String },
     version: { type: String },
+    collapsed: { type: Boolean, default: false },
   },
   transform(node, config) {
     const attributes = node.transformAttributes(config);
@@ -316,7 +317,8 @@ export const apiOperation = {
               ...(oauthReceiver ? { "oauth-receiver": oauthReceiver } : {}),
               "match-paths": operationMatchPattern(methodLower, attributes.path),
               "match-type": "regex",
-              "paths-expanded": "true",
+              // Collapsed: only the method and path show, a click on them opens the operation
+              "paths-expanded": attributes.collapsed ? "false" : "true",
               layout: "column",
               "color-scheme": "auto",
             }),

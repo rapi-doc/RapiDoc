@@ -138,6 +138,7 @@ export function portalMarkdocConfig({ base = "" } = {}) {
           method: { type: String, default: "get" },
           title: { type: String },
           version: { type: String },
+          collapsed: { type: Boolean, default: false },
         },
       },
     },

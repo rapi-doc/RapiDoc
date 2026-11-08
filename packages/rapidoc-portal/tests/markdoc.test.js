@@ -102,6 +102,15 @@ describe("RapiDoc Portal Markdoc Engine (Milestone 3)", () => {
     );
   });
 
+  it("should expand the embed unless collapsed=true is set", () => {
+    const open = compileMarkdoc('{% api-operation spec="shipments" path="/shipments" /%}');
+    assert.ok(open.html.includes('paths-expanded="true"'), open.html);
+    const closed = compileMarkdoc(
+      '{% api-operation spec="shipments" path="/shipments" collapsed=true /%}',
+    );
+    assert.ok(closed.html.includes('paths-expanded="false"'), closed.html);
+  });
+
   it("should draw {% workflow %} as inline SVG from the workflows variable, else leave a placeholder", () => {
     const demo = path.dirname(DEMO_GUIDES_DIR);
     const arazzo = fs.readFileSync(
