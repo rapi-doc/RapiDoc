@@ -208,7 +208,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
         },
         redocly: { status: 'hosted', text: 'Realm (commercial)' },
         scalar: { status: 'hosted', text: 'Scalar Docs', note: 'Guides and custom domains on paid plans' },
-        swagger: { status: 'no' },
+        swagger: { status: 'hosted', text: 'SwaggerHub Portal', note: 'Paid add-on for Enterprise plans' },
       },
       {
         name: 'Single sign-on (SSO) and access rules',
@@ -222,7 +222,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
         },
         redocly: { status: 'hosted', text: 'RBAC in Realm' },
         scalar: { status: 'hosted', text: 'SSO on Enterprise' },
-        swagger: { status: 'no' },
+        swagger: { status: 'hosted', text: 'SAML SSO on Enterprise', note: 'In SwaggerHub' },
       },
       {
         name: 'AI agents (MCP)',
@@ -235,7 +235,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
         },
         redocly: { status: 'hosted', text: 'MCP server and llms.txt in Realm' },
         scalar: { status: 'hosted', text: 'Hosted MCP servers' },
-        swagger: { status: 'no' },
+        swagger: { status: 'hosted', text: 'MCP server for SwaggerHub', note: 'And MCP server generation from an API' },
       },
       {
         name: 'Command line',
@@ -249,7 +249,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
         },
         redocly: { status: 'yes', text: 'Redocly CLI', note: 'lint, bundle' },
         scalar: { status: 'yes', text: 'Scalar CLI' },
-        swagger: { status: 'no' },
+        swagger: { status: 'hosted', text: 'SwaggerHub CLI', note: 'Publishes APIs to SwaggerHub from CI' },
       },
     ],
   },
@@ -262,7 +262,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
         rapidoc: { status: 'yes', text: 'MIT, every package', note: 'No paid tier' },
         redocly: { status: 'partial', text: 'Only Redoc and the CLI are MIT', note: 'Everything else is commercial' },
         scalar: { status: 'partial', text: 'Only the core is MIT', note: 'Docs and MCP are on hosted plans' },
-        swagger: { status: 'yes', text: 'Apache 2.0' },
+        swagger: { status: 'partial', text: 'Only Swagger UI, Editor and Codegen are Apache 2.0', note: 'SwaggerHub is commercial' },
       },
       {
         name: 'Self-hosted',
@@ -270,7 +270,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
         rapidoc: { status: 'yes', text: 'Everything', note: 'Static files, or rapidoc serve with sign-in; no telemetry' },
         redocly: { status: 'partial', text: 'Limited to basic Redoc', note: 'Everything else is paywalled or commercial' },
         scalar: { status: 'partial', text: 'Limited to the API reference', note: 'Scalar Docs is hosted' },
-        swagger: { status: 'yes', text: 'Yes' },
+        swagger: { status: 'partial', text: 'Limited to the open-source tools', note: 'SwaggerHub is hosted' },
       },
     ],
   },
@@ -284,7 +284,7 @@ const statusLabel: Record<CompareStatus, string> = {
 const compareProducts = [
   { key: 'redocly', name: 'Redocly' },
   { key: 'scalar', name: 'Scalar' },
-  { key: 'swagger', name: 'Swagger UI' },
+  { key: 'swagger', name: 'Swagger' },
 ] as const;
 
 ---
