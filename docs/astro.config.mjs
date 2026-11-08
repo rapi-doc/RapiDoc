@@ -191,7 +191,7 @@ export default defineConfig({
           items: [
             { label: 'Command Line', slug: 'docs/tools/command-line' },
             { label: 'Pre-rendering', link: '/guides/prerender/' },
-            { label: 'Developer Portal', link: 'https://github.com/rapi-doc/rapi-portal-doc', attrs: { target: '_blank' } },
+            { label: 'Developer Portal', link: 'https://portal.rapidocui.com/', attrs: { target: '_blank' } },
           ],
         },
         {

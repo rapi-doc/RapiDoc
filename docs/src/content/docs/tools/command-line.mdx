@@ -3,19 +3,13 @@ title: Command Line
 description: Preview, validate, lint, bundle and mock OpenAPI specs, and turn them into MCP servers, with the rapidoc command (@rapidoc/cli).
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
-`@rapidoc/cli` gives you the `rapidoc` command. It builds and runs [developer portals](https://github.com/rapi-doc/rapi-portal-doc), and the commands on this page also work on plain OpenAPI files, wherever you use `<rapi-doc>`:
+`@rapidoc/cli` gives you the `rapidoc` command. It builds and runs [developer portals](https://portal.rapidocui.com/), and the commands on this page also work on plain OpenAPI files, wherever you use `<rapi-doc>`:
 
 - **`preview`** shows a spec as you edit it.
 - **`validate`** and **`lint`** check it.
 - **`bundle`** joins a spec split over several files into one.
 - **`mock`** serves its API with example responses.
 - **`mcp`** turns it into tools for AI agents.
-
-<Aside type="caution" title="Preview">
-  `@rapidoc/cli` is in preview and not on npm yet. The commands below are what it will offer when it is published.
-</Aside>
 
 ```bash
 npm install -D @rapidoc/cli

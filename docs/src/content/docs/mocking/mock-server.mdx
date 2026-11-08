@@ -3,13 +3,7 @@ title: Mock Server (rapidoc mock)
 description: Run a real HTTP mock of your API from its OpenAPI spec, with request validation, generated data and OAuth token checks, using rapidoc mock or @rapidoc/mock.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 `rapidoc mock` starts an HTTP server that answers every operation in your OpenAPI spec. Unlike the [in-browser mock](/docs/mocking/in-browser/), it is a real server: curl, your frontend, your tests, [`<rapi-flow>`](/docs/components/workflows/) and an MCP server can all call it. It validates requests against the spec and can check OAuth tokens, so `400`, `401` and `403` responses behave as they will in production.
-
-<Aside type="caution" title="Preview">
-  `@rapidoc/cli` and `@rapidoc/mock` are in preview and not on npm yet. This page describes what they will offer when they are published.
-</Aside>
 
 ## Start it
 
