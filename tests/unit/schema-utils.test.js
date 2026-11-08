@@ -662,7 +662,7 @@ describe("json2xml", () => {
     assert.ok(result[0].exampleValue.includes("<Order>"));
     assert.ok(result[0].exampleValue.includes("<id>0</id>"));
     assert.ok(result[0].exampleValue.includes("<detail>"));
-    assert.ok(result[0].exampleValue.includes("<status></status>"));
+    assert.ok(result[0].exampleValue.includes("<status>open</status>"));
     assert.ok(result[0].exampleValue.includes("</detail>"));
     assert.ok(result[0].exampleValue.includes("</Order>"));
   });

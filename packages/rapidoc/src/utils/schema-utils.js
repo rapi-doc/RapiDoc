@@ -758,17 +758,143 @@ function mergePropertyExamples(obj, propertyName, propExamples) {
   return obj;
 }
 
-// An allOf with one member that has no properties, items or composition of its own
-// (allOf/oneOf/anyOf) can be treated as that member.
-function isSingleNonComposedAllOf(schema) {
-  const member = schema.allOf.length === 1 ? schema.allOf[0] : null;
-  return (
-    Boolean(member) &&
-    !member.properties &&
-    !member.items &&
-    !member.allOf &&
-    !member.oneOf &&
-    !member.anyOf
+// Keywords that are true for the merged schema when any member sets them
+const ANY_TRUE_KEYWORDS = new Set(["readOnly", "writeOnly", "deprecated", "nullable"]);
+// Annotations taken from the schema itself, otherwise from the first member that has them
+const FIRST_WINS_KEYWORDS = new Set(["title", "description"]);
+// Keywords that make a schema more than annotations: what an allOf member contributes to the value
+const CONTENT_KEYWORDS = [
+  "type",
+  "properties",
+  "patternProperties",
+  "additionalProperties",
+  "items",
+  "enum",
+  "const",
+  "format",
+];
+const flattenedAllOf = new WeakMap();
+
+function withoutKeys(obj, keys) {
+  const copy = { ...obj };
+  keys.forEach((key) => delete copy[key]);
+  return copy;
+}
+
+function pickKeys(obj, keys) {
+  const picked = {};
+  keys.forEach((key) => {
+    if (obj[key] !== undefined) picked[key] = obj[key];
+  });
+  return picked;
+}
+const allOfInProgress = new Set();
+
+// Merges two schemas that apply to the same value (the same property in two allOf members)
+function mergeTwoSchemas(a, b) {
+  if (a === b || !a || typeof a !== "object") return b;
+  if (!b || typeof b !== "object") return a;
+  return flattenAllOf({ allOf: [a, b] });
+}
+
+// Merges the keywords of `from` into `into`; later keywords win, properties are merged by name
+function mergeSchemaKeywords(into, from, isOwn) {
+  for (const key in from) {
+    const value = from[key];
+    if (key === "allOf" || value === undefined || (key === "x-ref" && !isOwn)) continue;
+    if (key === "required") {
+      if (Array.isArray(value)) into.required = [...new Set([...(into.required || []), ...value])];
+    } else if (key === "properties" || key === "patternProperties") {
+      const merged = { ...into[key] };
+      for (const name in value) {
+        merged[name] = name in merged ? mergeTwoSchemas(merged[name], value[name]) : value[name];
+      }
+      into[key] = merged;
+    } else if (key === "items" || key === "additionalProperties") {
+      const bothSchemas = typeof into[key] === "object" && typeof value === "object";
+      into[key] = bothSchemas ? mergeTwoSchemas(into[key], value) : value;
+    } else if (ANY_TRUE_KEYWORDS.has(key)) {
+      into[key] = Boolean(into[key] || value);
+    } else if (FIRST_WINS_KEYWORDS.has(key)) {
+      // An empty title or description is the same as none
+      if (value !== "" && (isOwn || into[key] === undefined)) into[key] = value;
+    } else {
+      into[key] = value;
+    }
+  }
+}
+
+/**
+ * Applies an allOf the way JSON Schema does: every member, and the schema's own keywords, hold for the
+ * value. Members are merged in order (nested allOf first), the schema's own keywords last, so they win.
+ * A property defined more than once becomes one property (later keywords win), `required` is the union,
+ * and readOnly/writeOnly/deprecated/nullable are set when any member sets them. title and description
+ * come from the schema itself, otherwise from the first member that has them.
+ *
+ * oneOf/anyOf members stay options. A single one with nothing else to merge becomes the result's
+ * oneOf/anyOf. Otherwise the result keeps an allOf of the merged object part followed by those
+ * members, and none of them has an allOf of its own.
+ * @param {object} schema - OpenAPI/JSON Schema object
+ * @returns {object} The schema itself when it has no allOf, otherwise a new merged schema (cached)
+ */
+export function flattenAllOf(schema) {
+  if (!schema || typeof schema !== "object" || !Array.isArray(schema.allOf)) return schema;
+  const cached = flattenedAllOf.get(schema);
+  if (cached) return cached;
+  // A member that leads back to this schema adds nothing new
+  if (allOfInProgress.has(schema)) return withoutKeys(schema, ["allOf"]);
+  allOfInProgress.add(schema);
+  try {
+    const merged = {};
+    const unions = [];
+    const members = [...schema.allOf, withoutKeys(schema, ["allOf"])];
+    members.forEach((member, i) => {
+      if (!member || typeof member !== "object") return;
+      const isOwn = i === members.length - 1;
+      const flat = flattenAllOf(member);
+      if (flat.allOf) {
+        // A member that kept options: everything but its options merges (its object part is also at its top)
+        mergeSchemaKeywords(merged, flat, isOwn);
+        unions.push(...flat.allOf.slice(1));
+      } else if (flat.oneOf || flat.anyOf) {
+        const optionKeys = [flat.oneOf ? "oneOf" : "anyOf", "discriminator"];
+        mergeSchemaKeywords(merged, withoutKeys(flat, optionKeys), isOwn);
+        // The options keep their own title and description too
+        unions.push(pickKeys(flat, [...optionKeys, "title", "description"]));
+      } else {
+        mergeSchemaKeywords(merged, flat, isOwn);
+      }
+    });
+
+    const hasContent = CONTENT_KEYWORDS.some((key) => merged[key] !== undefined);
+    // A cycle marker ({ $ref }) stands for the whole schema only when nothing else was merged
+    if (merged.$ref && hasContent) delete merged.$ref;
+    let result = merged;
+    if (unions.length > 0) {
+      if (unions.length === 1 && !hasContent) {
+        result = { ...unions[0], ...merged };
+      } else {
+        result = {
+          ...merged,
+          allOf: [pickKeys(merged, [...CONTENT_KEYWORDS, "required"]), ...unions],
+        };
+      }
+    }
+    flattenedAllOf.set(schema, result);
+    return result;
+  } finally {
+    allOfInProgress.delete(schema);
+  }
+}
+
+// Whether a (flattened) schema describes an object, or keeps an allOf of an object and options
+function isObjectLikeSchema(schema) {
+  return Boolean(
+    schema.allOf ||
+    schema.type === "object" ||
+    schema.properties ||
+    schema.patternProperties ||
+    (schema.additionalProperties && typeof schema.additionalProperties === "object"),
   );
 }
 
@@ -778,22 +904,14 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
   if (!schema || level > 8) {
     return;
   }
+  if (schema.allOf && !isObjectLikeSchema(flattenAllOf(schema))) {
+    // A primitive, array or single oneOf/anyOf behind allOf: the merged schema says it all
+    schema = flattenAllOf(schema);
+  }
   if (schema.allOf) {
+    // An object: each member's sample (its own example when it has one), then the schema's own part
     const mergedObj = {};
-
-    if (isSingleNonComposedAllOf(schema)) {
-      // If allOf has single item and the type is not an object or array, then its a primitive
-      if (schema.allOf[0].$ref) {
-        return { "example-0": {} };
-      }
-      if (schema.allOf[0].readOnly && config.includeReadOnly) {
-        const tempSchema = schema.allOf[0];
-        return { "example-0": getSampleValueByType(tempSchema) };
-      }
-      return;
-    }
-
-    schema.allOf.forEach((v) => {
+    [...schema.allOf, withoutKeys(schema, ["allOf"])].forEach((v) => {
       if (!v) return;
       if (v.type === "object" || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialSamples = schemaToSampleObj(v, config, level + 1);
@@ -820,9 +938,10 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
     const objWithSchemaProps = {};
     if (schema.properties) {
       for (const propertyName in schema.properties) {
-        const propSchema = schema.properties[propertyName];
+        const rawPropSchema = schema.properties[propertyName];
+        const propSchema = flattenAllOf(rawPropSchema);
         if (propSchema?.properties || propSchema?.items) {
-          const propSamples = schemaToSampleObj(propSchema, config, level + 1);
+          const propSamples = schemaToSampleObj(rawPropSchema, config, level + 1);
           objWithSchemaProps[propertyName] = propSamples?.["example-0"] ?? propSamples;
         } else {
           objWithSchemaProps[propertyName] = getSampleValueByType(propSchema);
@@ -862,18 +981,19 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
     let commonObj = { "example-0": {} };
     if (schema.type === "object" || schema.properties) {
       for (const propertyName in schema.properties) {
-        const propSchema = schema.properties[propertyName];
+        const rawPropSchema = schema.properties[propertyName];
+        const propSchema = flattenAllOf(rawPropSchema);
         if (propSchema?.deprecated && !config.includeDeprecated) continue;
         if (propSchema?.readOnly && !config.includeReadOnly) continue;
         if (propSchema?.writeOnly && !config.includeWriteOnly) continue;
-        const propExample = getFirstExample(propSchema);
+        const propExample = getFirstExample(rawPropSchema);
         if (propExample !== undefined) {
           commonObj["example-0"][propertyName] = propExample;
         } else {
           mergePropertyExamples(
             commonObj,
             propertyName,
-            schemaToSampleObj(propSchema, config, level + 1),
+            schemaToSampleObj(rawPropSchema, config, level + 1),
           );
         }
       }
@@ -911,7 +1031,9 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
       obj["example-0"] = firstExample;
     } else {
       for (const propertyName in schema.properties) {
-        const propSchema = schema.properties[propertyName];
+        // Flattened for the checks below; the sample is made from the property as written
+        const rawPropSchema = schema.properties[propertyName];
+        const propSchema = flattenAllOf(rawPropSchema);
         if (!propSchema) continue;
         if (propSchema.deprecated && !config.includeDeprecated) continue;
         if (propSchema.readOnly && !config.includeReadOnly) continue;
@@ -940,7 +1062,11 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
           continue;
         }
 
-        mergePropertyExamples(obj, propertyName, schemaToSampleObj(propSchema, config, level + 1));
+        mergePropertyExamples(
+          obj,
+          propertyName,
+          schemaToSampleObj(rawPropSchema, config, level + 1),
+        );
       }
 
       if (typeof schema.additionalProperties === "object" && schema.additionalProperties !== null) {
@@ -1090,12 +1216,8 @@ function handleArraySchema(schema, baseObj = {}, level = 0) {
   return obj;
 }
 
+// For a flattened allOf that kept oneOf/anyOf members (see flattenAllOf)
 function handleAllOfSchema(schema, baseObj = {}, level = 0) {
-  if (isSingleNonComposedAllOf(schema)) {
-    // If allOf has single item and the type is not an object or array, then its a primitive
-    return `${getTypeInfo(schema.allOf[0]).html}`;
-  }
-
   const objWithAllProps = Object.assign({}, baseObj);
   schema.allOf.forEach((v, i) => {
     if (v.type === "object" || v.properties || v.allOf || v.anyOf || v.oneOf) {
@@ -1444,16 +1566,12 @@ function nodeToAST(schema, level, name, isRequired, suffix) {
 function composeSchemaAST(schema, level, name, isRequired, suffix) {
   // 1. allOf
   if (schema.allOf) {
-    if (isSingleNonComposedAllOf(schema)) {
-      const mergedSchema = {
-        ...schema.allOf[0],
-        ...schema,
-        title: schema.title || schema.allOf[0].title || "",
-        description: schema.description || schema.allOf[0].description || "",
-      };
-      delete mergedSchema.allOf;
-      return schemaToAST(mergedSchema, level, name, isRequired);
+    const flat = flattenAllOf(schema);
+    if (!flat.allOf) {
+      return schemaToAST(flat, level, name, isRequired, suffix);
     }
+    // Kept only for oneOf/anyOf members: the merged object part first, then those members
+    schema = flat;
 
     const mergedProps = [];
     const mergedPatternProps = [];
@@ -1687,6 +1805,9 @@ export function schemaInObjectNotation(schema, obj = {}, level = 0, suffix = "")
       "::type": schema.type || "object",
       "::description": schema.description || "",
     };
+  }
+  if (schema.allOf) {
+    schema = flattenAllOf(schema);
   }
   if (schema.allOf) {
     return handleAllOfSchema(schema, obj, level);
@@ -1939,30 +2060,19 @@ export function getSchemaFromParam(param) {
 
 export const EMPTY_ARRAY = Object.freeze([]);
 
-export function getMergedProperties(schema, visited = new Set()) {
-  if (!schema || typeof schema !== "object" || visited.has(schema)) {
+// The properties of a schema with its allOf applied (see flattenAllOf)
+export function getMergedProperties(schema) {
+  if (!schema || typeof schema !== "object") {
     return {};
   }
-  visited.add(schema);
-  const properties = { ...schema.properties };
-  if (Array.isArray(schema.allOf)) {
-    schema.allOf.forEach((sub) => {
-      Object.assign(properties, getMergedProperties(sub, visited));
-    });
-  }
-  return properties;
+  return { ...flattenAllOf(schema).properties };
 }
 
-export function getMergedRequired(schema, visited = new Set()) {
-  if (!schema || typeof schema !== "object" || visited.has(schema)) {
+// The required property names of a schema with its allOf applied (see flattenAllOf)
+export function getMergedRequired(schema) {
+  if (!schema || typeof schema !== "object") {
     return [];
   }
-  visited.add(schema);
-  const required = Array.isArray(schema.required) ? [...schema.required] : [];
-  if (Array.isArray(schema.allOf)) {
-    schema.allOf.forEach((sub) => {
-      required.push(...getMergedRequired(sub, visited));
-    });
-  }
-  return [...new Set(required)];
+  const { required } = flattenAllOf(schema);
+  return Array.isArray(required) ? [...required] : [];
 }

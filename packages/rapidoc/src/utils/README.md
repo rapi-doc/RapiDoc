@@ -31,7 +31,8 @@ Schema rendering:
 
 - `schema-utils.js`: `getTypeInfo`, `schemaToAST` (schema tree for renderers),
   `schemaInObjectNotation` (older tree format), `schemaToSampleObj` and `generateExample`
-  (examples), `json2xml`, `getMergedProperties`/`getMergedRequired`.
+  (examples), `json2xml`, `flattenAllOf` (one merged schema for an `allOf`),
+  `getMergedProperties`/`getMergedRequired`.
 
 Request, response, mock:
 
@@ -86,6 +87,12 @@ UI helpers:
   is cloned without `x-ref` keys and each cycle becomes `{ $ref }` (fallback
   `#/components/schemas/Circular`); shared non-cyclic nodes stay shared. Schema code treats a
   remaining `$ref` as the cycle marker, so renderers must not recurse into it.
+- **allOf** (`[schema-utils.js:flattenAllOf]`): the schema table/tree, object notation and
+  `getMergedProperties`/`getMergedRequired` read one merged schema: members in order, the
+  schema's own keywords last; a property defined in several places is one property, `required`
+  is the union. oneOf/anyOf members stay options. Examples of an object still merge each
+  member's sample, so a member's own `example` is kept. Results are cached per schema object,
+  so schemas must not be changed after they were rendered.
 - **Schema depth limits** (`[schema-utils.js]`): `schemaToSampleObj` returns `undefined` and
   `schemaInObjectNotation` returns a `::type` stub when `level > 8`. `schemaToAST` expands to
   `MAX_SCHEMA_DEPTH` (8) and, while the tree exceeds `SCHEMA_NODE_BUDGET` (8000 nodes), retries

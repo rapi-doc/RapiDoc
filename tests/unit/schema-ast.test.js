@@ -1,6 +1,12 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { schemaToAST, schemaToSampleObj } from "../../packages/rapidoc/src/utils/schema-utils.js";
+import {
+  getMergedProperties,
+  getMergedRequired,
+  schemaInObjectNotation,
+  schemaToAST,
+  schemaToSampleObj,
+} from "../../packages/rapidoc/src/utils/schema-utils.js";
 
 describe("schemaToAST", () => {
   describe("primitive data types", () => {
@@ -617,5 +623,152 @@ describe("allOf wrapping a single composed schema", () => {
     const sample = schemaToSampleObj({ type: "object", properties: { address: wrapped } });
     const { street, city, lat } = sample["example-0"].address ?? {};
     assert.deepStrictEqual({ street, city, lat }, { street: "string", city: "string", lat: 0 });
+  });
+});
+
+describe("allOf next to the schema's own properties (#1168)", () => {
+  const resource = {
+    type: "object",
+    properties: { id: { type: "string" }, version: { type: "integer" } },
+    required: ["version"],
+  };
+  const pet = {
+    allOf: [resource],
+    type: "object",
+    properties: {
+      name: { type: "string", example: "Rex" },
+      status: { type: "string", enum: ["AVAILABLE", "SOLD"] },
+    },
+    required: ["name"],
+  };
+
+  it("schemaToAST lists the member and own properties with their required flags", () => {
+    const ast = schemaToAST(pet);
+    assert.strictEqual(ast.kind, "object");
+    assert.deepStrictEqual(
+      ast.properties.map((p) => [p.name, p.required]),
+      [
+        ["id", false],
+        ["version", true],
+        ["name", true],
+        ["status", false],
+      ],
+    );
+  });
+
+  it("schemaToSampleObj includes the own properties", () => {
+    const sample = schemaToSampleObj(pet)["example-0"];
+    assert.deepStrictEqual(sample, { id: "string", version: 0, name: "Rex", status: "AVAILABLE" });
+  });
+
+  it("schemaToSampleObj keeps the own properties when a member has its own example", () => {
+    const withExample = { ...pet, allOf: [{ ...resource, example: { id: "r-1", version: 3 } }] };
+    const sample = schemaToSampleObj(withExample)["example-0"];
+    assert.deepStrictEqual(sample, { id: "r-1", version: 3, name: "Rex", status: "AVAILABLE" });
+  });
+
+  it("schemaInObjectNotation includes the own properties", () => {
+    const obj = schemaInObjectNotation(pet);
+    assert.ok(["id", "version*", "name*", "status"].every((key) => key in obj));
+  });
+});
+
+describe("property defined in several allOf members (#1169)", () => {
+  const tagInput = { type: "object", properties: { name: { type: "string" } } };
+  const tag = { type: "object", properties: { name: { type: "string" }, id: { type: "string" } } };
+  const pet = {
+    allOf: [
+      {
+        type: "object",
+        properties: {
+          status: { type: "string", description: "Pet status" },
+          tags: { type: "array", items: tagInput },
+        },
+      },
+      {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["AVAILABLE", "SOLD"] },
+          tags: { type: "array", items: tag },
+        },
+        required: ["status"],
+      },
+    ],
+  };
+
+  it("schemaToAST shows one row per property, merged", () => {
+    const ast = schemaToAST(pet);
+    assert.deepStrictEqual(
+      ast.properties.map((p) => p.name),
+      ["status", "tags"],
+    );
+    const [status, tags] = ast.properties;
+    assert.strictEqual(status.required, true);
+    assert.strictEqual(status.type, "enum");
+    assert.strictEqual(status.description, "Pet status");
+    assert.deepStrictEqual(
+      tags.items.properties.map((p) => p.name),
+      ["name", "id"],
+    );
+  });
+
+  it("getMergedProperties and getMergedRequired agree with the table", () => {
+    assert.deepStrictEqual(Object.keys(getMergedProperties(pet)), ["status", "tags"]);
+    assert.deepStrictEqual(getMergedRequired(pet), ["status"]);
+  });
+});
+
+describe("allOf wrapping a single oneOf", () => {
+  const wrapped = {
+    description: "Amount or label",
+    allOf: [{ oneOf: [{ type: "string" }, { type: "integer" }] }],
+  };
+
+  it("schemaToAST renders it as the union, not as an object", () => {
+    const ast = schemaToAST(wrapped);
+    assert.strictEqual(ast.kind, "union");
+    assert.strictEqual(ast.description, "Amount or label");
+    assert.strictEqual(ast.options.length, 2);
+  });
+
+  it("allOf of an object and a oneOf keeps the object with the options beside it", () => {
+    const ast = schemaToAST({
+      allOf: [
+        { type: "object", properties: { id: { type: "string" } }, required: ["id"] },
+        {
+          oneOf: [
+            { properties: { a: { type: "string" } } },
+            { properties: { b: { type: "string" } } },
+          ],
+        },
+      ],
+    });
+    assert.strictEqual(ast.kind, "object");
+    assert.deepStrictEqual(
+      ast.properties.map((p) => [p.name, p.required]),
+      [["id", true]],
+    );
+    assert.strictEqual(ast.unions.length, 1);
+  });
+});
+
+describe("allOf wrapping a primitive", () => {
+  it("keeps the property in the example", () => {
+    const sample = schemaToSampleObj({
+      type: "object",
+      properties: { status: { description: "State", allOf: [{ type: "string", enum: ["ON"] }] } },
+    });
+    assert.deepStrictEqual(sample["example-0"], { status: "ON" });
+  });
+
+  it("drops a readOnly one unless read-only fields are included", () => {
+    const schema = {
+      type: "object",
+      properties: { id: { allOf: [{ type: "string", readOnly: true }] } },
+    };
+    assert.deepStrictEqual(schemaToSampleObj(schema)["example-0"], {});
+    assert.deepStrictEqual(schemaToSampleObj(schema, { includeReadOnly: true })["example-0"], {
+      id: "string",
+    });
   });
 });

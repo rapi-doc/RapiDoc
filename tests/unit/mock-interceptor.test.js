@@ -346,15 +346,14 @@ describe("mock-interceptor", () => {
       assert.deepStrictEqual(data, {}, "Should omit writeOnly fields, returning {}");
     });
 
-    it("should provide fallback JSON response when allOf primitive has no example", async () => {
+    it("should answer with a sample of the primitive when allOf wraps one without example", async () => {
       enableMockServer(edgeCaseSpec, { log: "false" });
 
       const res = await fetch("/allof-primitive");
       assert.strictEqual(res.status, 200);
 
       const data = await res.json();
-      assert.strictEqual(data.status, 200);
-      assert.strictEqual(data.message, "OK");
+      assert.strictEqual(data, "string");
     });
 
     it("should return empty JSON object {} for empty schema definition", async () => {
