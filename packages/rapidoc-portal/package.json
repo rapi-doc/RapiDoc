@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/portal",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Docs-as-code developer portal framework for OpenAPI and Markdoc with RapiDoc",
   "homepage": "https://portal.rapidocui.com",
   "bugs": {
@@ -45,12 +45,12 @@
     "@astrojs/starlight-markdoc": "^0.7.0",
     "@markdoc/markdoc": "^0.5.11",
     "@phosphor-icons/core": "^2.1.1",
-    "@rapidoc/mcp": "^0.1.2",
-    "@rapidoc/prerender": "^0.1.2",
+    "@rapidoc/mcp": "^0.1.3",
+    "@rapidoc/prerender": "^0.1.3",
     "astro": "^7.4.6",
     "github-slugger": "^2.0.0",
     "pagefind": "^1.6.0",
-    "rapidoc": "^12.1.0",
+    "rapidoc": "^12.1.1",
     "yaml": "^2.9.1",
     "zod": "^4.6.7"
   },
