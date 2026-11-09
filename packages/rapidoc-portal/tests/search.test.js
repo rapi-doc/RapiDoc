@@ -91,25 +91,25 @@ Content under subsection.`;
       const docFiles = [
         path.join(DEMO_PORTAL_DIR, "docs/getting-started.md"),
         path.join(DEMO_PORTAL_DIR, "docs/guides/order-fulfillment.markdoc"),
-        path.join(DEMO_PORTAL_DIR, "docs/tutorials/table-reservation-flow.mdx"),
+        path.join(DEMO_PORTAL_DIR, "docs/tutorials/cargo-bay-reservation.mdx"),
       ];
 
       const index = buildSearchIndex(config, DEMO_PORTAL_DIR, docFiles);
       assert.ok(index.totalRecords > 15, "Index should contain doc and API records");
 
       // Test in-memory search
-      const orderResults = searchRecords(index.records, "orders");
-      assert.ok(orderResults.length > 0, 'Searching for "orders" should yield results');
+      const bookingResults = searchRecords(index.records, "booking");
+      assert.ok(bookingResults.length > 0, 'Searching for "booking" should yield results');
 
       // Test filter 'doc'
-      const docResults = searchRecords(index.records, "order", { filter: "doc" });
+      const docResults = searchRecords(index.records, "container", { filter: "doc" });
       assert.ok(
         docResults.every((r) => r.type === "doc"),
         "All results should be type doc",
       );
 
       // Test filter 'api'
-      const apiResults = searchRecords(index.records, "orders", { filter: "api" });
+      const apiResults = searchRecords(index.records, "containers", { filter: "api" });
       assert.ok(
         apiResults.every((r) => r.type === "api"),
         "All results should be type api",

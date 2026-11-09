@@ -871,7 +871,21 @@ describe(
         const page = await openTagPage(TAG_PATH);
         try {
           await page.click('.portal-api-nav a[href$="#overview"]');
-          await page.waitForTimeout(1500);
+          // The smooth scroll up from the tag (deep in the page) can outlast a fixed wait: give it
+          // up to 5s to arrive, then check where it stopped.
+          await page
+            .waitForFunction(
+              () => {
+                const offset =
+                  parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+                const overview = document.querySelector("rapi-doc").getTargetElement("overview");
+                const distance = overview.getBoundingClientRect().top - offset;
+                return window.scrollY === 0 || Math.abs(distance) < 2;
+              },
+              null,
+              { timeout: 5000 },
+            )
+            .catch(() => {});
           assert.equal(await currentUrl(page), "/apis/shipments#overview");
           // The overview is at the top of the reading area, or as close as the page can scroll
           const { y, distance } = await page.evaluate(() => {

@@ -27,12 +27,12 @@ describe("RapiDoc Portal Markdoc Engine (Milestone 3)", () => {
     assert.ok(result.html.includes('class="portal-callout" role="note" data-type="info"'));
     assert.ok(result.html.includes("Real-time Webhook Updates"));
     assert.ok(result.html.includes('data-type="warning"'));
-    assert.ok(result.html.includes("Inventory Locks"));
+    assert.ok(result.html.includes("Bay Holds"));
 
     // Steps verification
     assert.ok(result.html.includes("portal-steps-list"));
     assert.ok(result.html.includes("portal-step"));
-    assert.ok(result.html.includes("1. Query Item Availability"));
+    assert.ok(result.html.includes("1. Request a Quote"));
 
     // Tabs verification
     assert.ok(result.html.includes("portal-tabs-container"));
@@ -42,11 +42,11 @@ describe("RapiDoc Portal Markdoc Engine (Milestone 3)", () => {
 
     // Interactive RapiDoc operation embed verification
     assert.ok(result.html.includes("portal-api-operation-embed"));
-    assert.ok(result.html.includes('data-spec="orders"'));
-    assert.ok(result.html.includes('data-path="/orders"'));
+    assert.ok(result.html.includes('data-spec="cargo-containers"'));
+    assert.ok(result.html.includes('data-path="/containers/book"'));
     assert.ok(result.html.includes('data-method="POST"'));
     assert.ok(result.html.includes("<rapi-doc-mini"));
-    assert.ok(result.html.includes('match-paths="^post /orders$"'));
+    assert.ok(result.html.includes('match-paths="^post /containers/book$"'));
     assert.ok(result.html.includes('match-type="regex"'));
     assert.ok(!result.html.includes("spec-url="), "no spec-url without a specUrls variable");
 
@@ -70,17 +70,17 @@ describe("RapiDoc Portal Markdoc Engine (Milestone 3)", () => {
     // Card grid & cards
     assert.ok(result.html.includes("portal-card-grid"));
     assert.ok(result.html.includes("portal-card"));
-    assert.ok(result.html.includes("Seed Tier"));
-    assert.ok(result.html.includes("Sprout Tier"));
-    assert.ok(result.html.includes("Bloom Tier"));
+    assert.ok(result.html.includes("Bronze Tier"));
+    assert.ok(result.html.includes("Silver Tier"));
+    assert.ok(result.html.includes("Gold Tier"));
 
     // Callout tip
     assert.ok(result.html.includes('data-type="tip"'));
-    assert.ok(result.html.includes("Double Points Tuesdays"));
+    assert.ok(result.html.includes("Double Miles on Warp Days"));
 
-    // RapiDoc operation embed for loyalty redeem
-    assert.ok(result.html.includes('data-spec="loyalty"'));
-    assert.ok(result.html.includes('data-path="/rewards/redeem"'));
+    // RapiDoc operation embed for a priority upgrade
+    assert.ok(result.html.includes('data-spec="shipments"'));
+    assert.ok(result.html.includes('data-path="/shipments/{shipmentId}/priority"'));
 
     // TOC
     assert.equal(result.toc.length, 2);
