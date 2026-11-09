@@ -22,7 +22,7 @@ export const ROUTE_MIDDLEWARE_PATH = fileURLToPath(
 export function buildStarlightSidebar(tabs = []) {
   const docsTabs = tabs.filter((tab) => tab.kind === "docs");
   if (docsTabs.length === 0)
-    return [{ label: "Documentation", autogenerate: { directory: "docs" } }];
+    return [{ label: "Documentation", items: [{ autogenerate: { directory: "docs" } }] }];
   return docsTabs.map((tab) => ({ label: tab.label, items: tab.sidebar.map(withoutIcons) }));
 }
 

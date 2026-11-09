@@ -65,7 +65,7 @@ describe("RapiDoc Portal build engine", () => {
     ]);
     assert.deepEqual(
       buildStarlightSidebar([]),
-      [{ label: "Documentation", autogenerate: { directory: "docs" } }],
+      [{ label: "Documentation", items: [{ autogenerate: { directory: "docs" } }] }],
       "no tabs: every doc",
     );
   });
@@ -164,7 +164,7 @@ describe("RapiDoc Portal build engine", () => {
       );
       assert.ok(gettingStartedContent.startsWith("---"), "Should have frontmatter injected");
       assert.ok(
-        gettingStartedContent.includes('title: "Welcome to the BrewCraft Developer Platform"'),
+        gettingStartedContent.includes('title: "Welcome to the Cosmo Cargo Developer Platform"'),
         "Should extract first heading as title",
       );
 
@@ -374,7 +374,7 @@ describe("RapiDoc Portal build engine", () => {
       assert.ok(fulfillment.includes("<starlight-tabs"), "{% tabs %} renders as Starlight tabs");
       assert.ok(fulfillment.includes("sl-steps"), "{% steps %} renders as Starlight steps");
       assert.ok(!fulfillment.includes("{%"), "no unrendered Markdoc tags");
-      assert.ok(read("docs/guides/loyalty-and-rewards").includes("Bloom Tier"));
+      assert.ok(read("docs/guides/loyalty-and-rewards").includes("Gold Tier"));
 
       // {% api-operation %}: a <rapi-doc-mini> showing one operation, and the bundle only where it is used
       const firstShipment = read("docs/guides/first-shipment");
@@ -399,12 +399,12 @@ describe("RapiDoc Portal build engine", () => {
         "pages with an embed load RapiDoc",
       );
       assert.ok(
-        fulfillment.includes("API operation not found"),
-        "an unknown spec id shows a notice",
+        fulfillment.includes('spec-url="/specs/cargo-containers.json"'),
+        "an embed of another API",
       );
       assert.ok(
-        !fulfillment.includes("/assets/rapidoc-min.js"),
-        "pages without a working embed do not load RapiDoc",
+        !read("docs/authentication").includes("/assets/rapidoc-min.js"),
+        "pages without an embed do not load RapiDoc",
       );
 
       // {% workflow %}: a <rapi-flow> with the build-time SVG inside as fallback content
@@ -482,6 +482,40 @@ describe("RapiDoc Portal build engine", () => {
       );
     } finally {
       fs.rmSync(outDir, { recursive: true, force: true });
+    }
+  });
+
+  it("should show a notice for an api-operation embed of an unknown API", async () => {
+    // Not the OS temp folder: Astro only compiles .astro files that share a parent folder with the root.
+    const tmpRoot = fileURLToPath(new URL("./.test-tmp/", import.meta.url));
+    fs.mkdirSync(tmpRoot, { recursive: true });
+    const projectDir = fs.mkdtempSync(path.join(tmpRoot, "embed-"));
+    const outDir = path.join(projectDir, "dist");
+    try {
+      fs.mkdirSync(path.join(projectDir, "docs"));
+      fs.mkdirSync(path.join(projectDir, "specs"));
+      fs.writeFileSync(
+        path.join(projectDir, "specs/pets.yaml"),
+        "openapi: 3.1.0\ninfo: { title: Pets, version: 1.0.0 }\npaths:\n  /pets:\n    get: { operationId: listPets, responses: { '200': { description: OK } } }\n",
+      );
+      fs.writeFileSync(
+        path.join(projectDir, "rapidoc.config.yaml"),
+        "site: { title: Acme }\napis:\n  - { id: pets, spec: ./specs/pets.yaml }\n",
+      );
+      fs.writeFileSync(
+        path.join(projectDir, "docs/guide.markdoc"),
+        '# Guide\n\n{% api-operation spec="orders" path="/orders" method="post" /%}\n',
+      );
+
+      await buildPortal(projectDir, { outDir });
+      const guide = fs.readFileSync(path.join(outDir, "docs/guide/index.html"), "utf8");
+      assert.ok(guide.includes("API operation not found"), "an unknown spec id shows a notice");
+      assert.ok(
+        !guide.includes("/assets/rapidoc-min.js"),
+        "pages without a working embed do not load RapiDoc",
+      );
+    } finally {
+      fs.rmSync(projectDir, { recursive: true, force: true });
     }
   });
 });
