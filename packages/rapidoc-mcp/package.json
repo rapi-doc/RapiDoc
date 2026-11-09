@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/mcp",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Turns OpenAPI and Arazzo documents into MCP tools: manifest builder, runtime and MCP server project writer for Node",
   "keywords": [
     "arazzo",
