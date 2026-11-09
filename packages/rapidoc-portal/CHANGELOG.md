@@ -1,5 +1,14 @@
 # @rapidoc/portal
 
+## 0.1.4
+
+### Patch Changes
+
+- c109c23: A portal without `navigation:` builds again: its default sidebar (every page in `docs/`) uses the group format current Starlight versions require.
+- 98c5872: Uses Starlight 0.42.10.
+- @rapidoc/mcp@0.1.4
+  - @rapidoc/prerender@0.1.4
+
 ## 0.1.3
 
 ### Patch Changes
