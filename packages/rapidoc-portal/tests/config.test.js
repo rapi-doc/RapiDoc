@@ -111,7 +111,12 @@ describe("rapidoc.config.yaml (v2)", () => {
 
     assert.ok(fs.existsSync(config.docs.fullPath));
     assert.equal(config.docs.home, true, "docs/index.markdoc is the home page");
-    assert.deepEqual(config.rapidoc, { "render-style": "read", "schema-style": "tree" });
+    // scale: lg shows the difference from the portal's default scale (Rapid Parcels keeps the default)
+    assert.deepEqual(config.rapidoc, {
+      "render-style": "read",
+      "schema-style": "tree",
+      scale: "lg",
+    });
     assert.equal(config.search, true);
   });
 
