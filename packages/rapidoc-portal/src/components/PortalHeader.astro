@@ -17,6 +17,11 @@ const config = Astro.props.portalConfig ?? portalConfig;
 
 const { site, tabs } = config;
 const banner = site.banner;
+// Identifies this announcement: a dismissal is remembered for it alone, so a new message shows
+// again, and portals sharing an origin (different base paths) keep their own.
+const bannerKey = banner
+  ? `${[...`${banner.message}|${banner.href ?? ''}`].reduce((h, ch) => (Math.imul(h, 31) + ch.codePointAt(0)) | 0, 0) >>> 0}`
+  : '';
 const logo = site.logo;
 const headerLinks = config.header.links;
 const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
@@ -37,23 +42,25 @@ const currentTab = activeTab(tabs, currentPath);
 ---
 
 <header class="portal-header-root" data-portal-region="header" data-has-sidebar={hasSidebar ? '' : undefined}>
-  <script is:inline>
-    try {
-      const navEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
-      if (navEntry && navEntry.type === 'reload') {
-        sessionStorage.removeItem('portal-announcement-dismissed');
-      }
-      if (sessionStorage.getItem('portal-announcement-dismissed') === 'true') {
-        document.documentElement.classList.add('portal-announcement-dismissed');
-      }
-    } catch {}
-  </script>
+  {
+    banner && (
+      <script is:inline define:vars={{ bannerKey }}>
+        // Before the bar is drawn, so a dismissed announcement never flashes or shifts the page.
+        try {
+          if (localStorage.getItem(`portal-announcement-dismissed:${bannerKey}`)) {
+            document.documentElement.classList.add('portal-announcement-dismissed');
+          }
+        } catch {}
+      </script>
+    )
+  }
 
   {
     banner && (
       <aside
         class="portal-announcement-bar"
         id="portal-announcement"
+        data-banner-key={bannerKey}
         style={[banner.background && `background-color: ${banner.background}`, banner.color && `color: ${banner.color}`].filter(Boolean).join('; ')}
       >
         <div class="portal-announcement-inner">
@@ -920,8 +927,9 @@ const currentTab = activeTab(tabs, currentPath);
       // The class hides the bar and sets --portal-banner-height to 0 (portal-theme.css).
       closeAnnounce.addEventListener('click', () => {
         document.documentElement.classList.add('portal-announcement-dismissed');
+        // Remembered across reloads and visits until the announcement changes.
         try {
-          sessionStorage.setItem('portal-announcement-dismissed', 'true');
+          localStorage.setItem(`portal-announcement-dismissed:${announceBar.dataset.bannerKey}`, '1');
         } catch {}
       });
     }
