@@ -147,11 +147,84 @@ function isAnnotationOnly(schema) {
 }
 
 /* Generates an schema object containing type and constraint info */
+// Formats that already say which type they belong to: shown in place of that type (int64, date-time). Any other
+// format (string + decimal, custom formats) would mislead on its own, so the type stays and the format is a chip.
+const TYPE_IMPLYING_FORMATS = {
+  integer: ["int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"],
+  number: ["float", "double", "decimal", "decimal128"],
+  string: [
+    "date",
+    "date-time",
+    "time",
+    "duration",
+    "email",
+    "idn-email",
+    "hostname",
+    "idn-hostname",
+    "ipv4",
+    "ipv6",
+    "uri",
+    "uri-reference",
+    "uri-template",
+    "iri",
+    "iri-reference",
+    "url",
+    "uuid",
+    "json-pointer",
+    "relative-json-pointer",
+    "regex",
+    "byte",
+    "binary",
+    "base64url",
+    "password",
+  ],
+};
+
+/**
+ * The type label a schema row or parameter shows, the same everywhere: a format that implies its type takes the
+ * type's place (int64, date-time), any other format is returned as `formatNote` for a Format chip. `baseType` is
+ * the declared type (`┃`-joined for a type list, with `┃null`); `displayType` is getTypeInfo's `type`, kept when it
+ * says more than the type (enum, const, a $ref). `cssType` is the type the label is colored by.
+ *
+ * @param {string} baseType
+ * @param {string} [format]
+ * @param {string} [displayType]
+ * @returns {{label: string, cssType: string, formatNote: string}}
+ */
+export function typeLabel(baseType, format = "", displayType = "") {
+  const types = String(baseType || displayType || "").split("┃");
+  const cssType = types.find((t) => t && t !== "null") || types[0] || "";
+  // enum, const and $ref labels say more than the type; without a declared type (anyOf / oneOf members, already
+  // labelled per member) there is nothing to replace either
+  if (displayType && /(^|┃)(enum|const)(┃|$)|^\{/.test(displayType)) {
+    return { label: displayType, cssType: displayType, formatNote: "" };
+  }
+  if (!baseType) {
+    return { label: types.join("┃"), cssType, formatNote: "" };
+  }
+  if (!format) {
+    return { label: types.join("┃"), cssType, formatNote: "" };
+  }
+  const fmt = String(format);
+  let shown = false;
+  const label = types
+    .map((t) => {
+      if (!shown && TYPE_IMPLYING_FORMATS[t]?.includes(fmt.toLowerCase())) {
+        shown = true;
+        return fmt;
+      }
+      return t;
+    })
+    .join("┃");
+  return { label, cssType, formatNote: shown ? "" : fmt };
+}
+
 export function getTypeInfo(schema) {
   if (!schema) {
     return;
   }
   let dataType = "";
+  let baseType = "";
   let constrain = "";
   // let examples;
 
@@ -161,6 +234,7 @@ export function getTypeInfo(schema) {
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
     dataType = Array.isArray(schema.type) ? schema.type.join("┃") : schema.type;
+    baseType = schema.nullable ? `${dataType}┃null` : dataType;
     if (schema.format || schema.enum || schema.const !== undefined) {
       dataType = dataType.replace(
         "string",
@@ -204,6 +278,7 @@ export function getTypeInfo(schema) {
 
   const info = {
     type: dataType,
+    baseType,
     format: schema.format || effectiveSchema.format || "",
     contentMediaType: schema.contentMediaType || effectiveSchema.contentMediaType || "",
     contentEncoding: schema.contentEncoding || effectiveSchema.contentEncoding || "",
@@ -269,10 +344,14 @@ export function getTypeInfo(schema) {
 
   const itemsSchema = schema.items || effectiveSchema.items;
   if ((dataType === "array" || dataType.split("┃").includes("array")) && itemsSchema) {
+    const itemBaseType = Array.isArray(itemsSchema?.type)
+      ? itemsSchema.type.join("┃")
+      : itemsSchema?.type || "";
+    const itemLabel = typeLabel(itemBaseType, itemsSchema.format);
     const arrayItemType =
-      itemsSchema.format ||
+      (itemsSchema.format && !itemLabel.formatNote ? itemLabel.label : "") ||
       itemsSchema.contentMediaType ||
-      (Array.isArray(itemsSchema?.type) ? itemsSchema.type.join("┃") : itemsSchema?.type) ||
+      itemLabel.label ||
       "";
     const arrayItemDefault = getPrintableVal(itemsSchema.default);
 
@@ -1450,11 +1529,17 @@ function createArrayAST(schema, level, name, isRequired) {
 
 function createPrimitiveAST(schema, name, isRequired) {
   const typeInfo = getTypeInfo(schema) || {};
+  const type = typeInfo.type || schema.type || "";
+  const format = typeInfo.format || schema.format || "";
+  const label = typeLabel(typeInfo.baseType, format, type);
   return {
     kind: "primitive",
     name,
-    type: typeInfo.type || schema.type || "",
-    format: typeInfo.format || schema.format || "",
+    type,
+    typeLabel: label.label,
+    typeCss: label.cssType,
+    formatNote: label.formatNote,
+    format,
     contentMediaType: typeInfo.contentMediaType || schema.contentMediaType || "",
     contentEncoding: typeInfo.contentEncoding || schema.contentEncoding || "",
     contentSchema: typeInfo.contentSchema || schema.contentSchema || null,

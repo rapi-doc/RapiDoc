@@ -9,6 +9,7 @@ import { marked } from "marked";
 import {
   schemaToAST,
   getTypeInfo,
+  typeLabel,
   normalizeExamples,
   getSchemaFromParam,
   generateExample,
@@ -47,6 +48,7 @@ export function constraintListTemplate(paramSchema, allowedItems, exampleItems) 
       <dd>${value}</dd>`;
   return html`<dl class="param-constraint" part="param-constraint">
     ${paramSchema.default ? row("Default:", paramSchema.default) : ""} ${paramSchema.pattern ? row("Pattern:", paramSchema.pattern) : ""}
+    ${paramSchema.formatNote ? row("Format:", paramSchema.formatNote) : ""}
     ${
       paramSchema.constrain
         ? row(
@@ -182,6 +184,10 @@ export function inputParametersTemplate(paramType) {
     if (!paramSchema) {
       continue;
     }
+    // The same label as the schema tree and table: int64, date-time; a format that doesn't imply its type
+    // (string + decimal) leaves the type and goes in the constraint list
+    const paramLabel = typeLabel(paramSchema.baseType, paramSchema.format, paramSchema.type);
+    paramSchema.formatNote = paramLabel.formatNote;
     const schemaAsObj = schemaToAST(declaredParamSchema);
     let paramStyle = "form";
     let paramExplode = true;
@@ -232,7 +238,8 @@ export function inputParametersTemplate(paramType) {
       paramSchema.default ||
       paramSchema.constrain ||
       paramSchema.allowedValues ||
-      paramSchema.pattern;
+      paramSchema.pattern ||
+      paramSchema.formatNote;
     const inlineExamples = examplesBesideConstraints(
       param.description,
       hasConstraint,
@@ -255,7 +262,7 @@ export function inputParametersTemplate(paramType) {
             ${
               paramSchema.type === "array" || paramSchema.type.split("┃").includes("array")
                 ? `${paramSchema.arrayType || paramSchema.type}`
-                : `${paramSchema.format && !paramSchema.type.includes("┃") ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes("┃") ? paramSchema.contentMediaType : paramSchema.type}`
+                : `${paramSchema.format && !paramLabel.formatNote ? paramLabel.label : paramSchema.contentMediaType && !paramSchema.type.includes("┃") ? paramSchema.contentMediaType : paramLabel.label}`
             }
           </div>
         </div>

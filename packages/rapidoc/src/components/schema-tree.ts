@@ -176,8 +176,12 @@ export default class SchemaTree extends SchemaBaseElement {
 
       // If array of primitives
       if (items.kind === "primitive") {
-        const itemType = items.format || items.contentMediaType || items.type || "string";
-        const dataTypeCss = this.getDataTypeCss(itemType);
+        const itemType =
+          (items.formatNote || !items.format ? items.contentMediaType : "") ||
+          items.typeLabel ||
+          items.type ||
+          "string";
+        const dataTypeCss = this.getDataTypeCss(items.typeCss || itemType);
         const fieldTitle = node.name
           ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ""}`
           : "";
@@ -372,7 +376,7 @@ export default class SchemaTree extends SchemaBaseElement {
 
     // 4. Primitive kind
     if (node.kind === "primitive") {
-      const dataTypeCss = this.getDataTypeCss(node.type);
+      const dataTypeCss = this.getDataTypeCss(node.typeCss || node.type);
       const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ""}` : "";
 
       return html`
@@ -380,7 +384,7 @@ export default class SchemaTree extends SchemaBaseElement {
           <div class="td key ${node.deprecated ? "deprecated" : ""}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive);">*</span>` : ""}:</span>` : ""}
             <span class="${dataTypeCss}" title="${readWriteTip || nothing}"
-              >${parentType === "array" ? `[${node.type}]` : node.type}${readWriteBadge}</span
+              >${parentType === "array" ? `[${node.typeLabel || node.type}]` : node.typeLabel || node.type}${readWriteBadge}</span
             >
           </div>
           ${this.renderDescrCell(node.description, node, node.title)}

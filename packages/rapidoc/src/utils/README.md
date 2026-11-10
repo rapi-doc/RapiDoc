@@ -29,7 +29,8 @@ Spec pipeline:
 
 Schema rendering:
 
-- `schema-utils.js`: `getTypeInfo`, `schemaToAST` (schema tree for renderers),
+- `schema-utils.js`: `getTypeInfo`, `typeLabel` (the type label every parameter and schema row
+  shows), `schemaToAST` (schema tree for renderers),
   `schemaInObjectNotation` (older tree format), `schemaToSampleObj` and `generateExample`
   (examples), `json2xml`, `flattenAllOf` (one merged schema for an `allOf`),
   `getMergedProperties`/`getMergedRequired`.
@@ -93,6 +94,12 @@ UI helpers:
   is the union. oneOf/anyOf members stay options. Examples of an object still merge each
   member's sample, so a member's own `example` is kept. Results are cached per schema object,
   so schemas must not be changed after they were rendered.
+- **Type labels** (`[schema-utils.js:typeLabel]`): parameters, form fields, the schema tree and
+  table label a type the same way. A format that implies its type replaces it (`int64`,
+  `date-time`); any other format (`string` + `decimal`, custom formats) keeps the type and is
+  returned as `formatNote`, shown as a Format chip or constraint. The color comes from the
+  declared type, never the format. `getTypeInfo().type` still puts any format in place of
+  `string`; example generation reads it, so labels must use `baseType` and `typeLabel`.
 - **Schema depth limits** (`[schema-utils.js]`): `schemaToSampleObj` returns `undefined` and
   `schemaInObjectNotation` returns a `::type` stub when `level > 8`. `schemaToAST` expands to
   `MAX_SCHEMA_DEPTH` (8) and, while the tree exceeds `SCHEMA_NODE_BUDGET` (8000 nodes), retries
@@ -144,7 +151,7 @@ Run `npm run test:unit` from the repo root before and after changing `spec-parse
   `spec-parser-tag-groups`, `spec-parser-webhooks`, `unused-tags`, `openapi-3-2-bookstore`.
 - `slugger.js`: `slugger`.
 - `schema-utils.js`: `schema-utils`, `schema-ast`, `schema-in-object-notation`,
-  `schema-nullable`, `schema-modernization`, `multipart-form-curl`.
+  `schema-nullable`, `schema-modernization`, `multipart-form-curl`, `type-format-label`.
 - `url-utils.js`: `query-param-serialization`, `oauth-receiver-url`.
 - `request-utils.js`, `curl-utils.js`: `request-utils`, `multipart-part-types`, `curl-command`.
 - `response-utils.js`: `api-request-response`.

@@ -11,6 +11,7 @@ import { marked } from "marked";
 import {
   schemaToAST,
   getTypeInfo,
+  typeLabel,
   isBinaryFileField,
   generateExample,
   normalizeExamples,
@@ -158,6 +159,8 @@ export function formDataTemplate(schema, mimeType, exampleValue = "", encoding =
         ? multipartPartContentType(fieldSchema, encoding?.[fieldName])
         : "";
       const paramSchema = getTypeInfo(fieldSchema);
+      const fieldLabel = typeLabel(paramSchema.baseType, paramSchema.format, paramSchema.type);
+      paramSchema.formatNote = fieldLabel.formatNote;
       const example = normalizeExamples(
         paramSchema.examples || paramSchema.example,
         paramSchema.type,
@@ -167,7 +170,8 @@ export function formDataTemplate(schema, mimeType, exampleValue = "", encoding =
         (paramSchema.default ||
           paramSchema.constrain ||
           paramSchema.allowedValues ||
-          paramSchema.pattern);
+          paramSchema.pattern ||
+          paramSchema.formatNote);
       const inlineExamples = examplesBesideConstraints(
         fieldSchema.description,
         hasConstraint,
@@ -187,7 +191,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = "", encoding =
               ${
                 paramSchema.type === "array" || paramSchema.type.split("┃").includes("array")
                   ? `${paramSchema.arrayType || paramSchema.type}`
-                  : `${paramSchema.format && !paramSchema.type.includes("┃") ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes("┃") ? paramSchema.contentMediaType : paramSchema.type}`
+                  : `${paramSchema.format && !fieldLabel.formatNote ? fieldLabel.label : paramSchema.contentMediaType && !paramSchema.type.includes("┃") ? paramSchema.contentMediaType : fieldLabel.label}`
               }
             </div>
           </div>

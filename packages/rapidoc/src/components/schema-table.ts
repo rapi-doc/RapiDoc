@@ -232,8 +232,12 @@ export default class SchemaTable extends SchemaBaseElement {
       }
 
       if (items.kind === "primitive") {
-        const itemType = items.format || items.contentMediaType || items.type || "string";
-        const dataTypeCss = this.getDataTypeCss(itemType);
+        const itemType =
+          (items.formatNote || !items.format ? items.contentMediaType : "") ||
+          items.typeLabel ||
+          items.type ||
+          "string";
+        const dataTypeCss = this.getDataTypeCss(items.typeCss || itemType);
 
         return html`
           <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? "Deprecated" : nothing}">
@@ -439,7 +443,7 @@ export default class SchemaTable extends SchemaBaseElement {
 
     // 4. Primitive kind
     if (node.kind === "primitive") {
-      const dataTypeCss = this.getDataTypeCss(node.type);
+      const dataTypeCss = this.getDataTypeCss(node.typeCss || node.type);
       // Primitive option of a oneOf / anyOf: the OPT n badge (and the title) takes the place of the name
       const isOption = parentType === "xxx-of-option" && !!node.optionIndex;
 
@@ -463,7 +467,7 @@ export default class SchemaTable extends SchemaBaseElement {
             ${node.required ? html`<span style="color:var(--destructive);">*</span>` : ""}
           </div>
           <div class="td key-type ${dataTypeCss}" title="${readWriteTip || nothing}">
-            ${parentType === "array" ? `[${node.type}]` : node.type}${readWriteBadge}
+            ${parentType === "array" ? `[${node.typeLabel || node.type}]` : node.typeLabel || node.type}${readWriteBadge}
           </div>
           ${this.renderDescrCell(node.description, node, node.title)}
         </div>
