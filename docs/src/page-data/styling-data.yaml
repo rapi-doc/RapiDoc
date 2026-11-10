@@ -47,6 +47,9 @@ parts:
       - name: "section-navbar-path"
         target: "<div>"
         description: "Sidebar item representing an individual endpoint operation (e.g., GET /users)."
+      - name: "section-navbar-active-item"
+        target: "<div>"
+        description: "Added to the sidebar item of the section in view (operation, tag, overview, servers, authentication), and moved as the reader navigates. Style it to highlight the whole active row, e.g. rapi-doc::part(section-navbar-active-item) { background-color: #E2000F; color: #fff; }."
 
   - category: "Header & Branding"
     description: "Parts for the top utility header, logo slot, and dynamic spec loader."
