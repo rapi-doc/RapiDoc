@@ -51,7 +51,7 @@ Attributes:
         default: true
       - name: persist-auth
         allowed: ["true", "false"]
-        description: Persists authenticated user credentials (API keys, tokens) in localStorage across browser sessions and page reloads.
+        description: Keeps API keys, bearer tokens and OAuth access tokens in localStorage across page reloads; an OAuth token is dropped once it expires. Basic credentials and OAuth client secrets are never stored.
         default: "false"
 
   - UI Colors and Fonts Attributes:

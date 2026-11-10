@@ -58,7 +58,10 @@ Default exports are section templates; named exports are helpers used by other t
   `isExpectedOAuthReply` matches. Relative OAuth URLs resolve against the selected server's
   `computedUrl` (or its origin).
 - **Persistence.** With `persistAuth === "true"`, `localStorage["rapidoc"]` holds
-  `{ securitySchemeId, value }` per apiKey / bearer scheme; Basic credentials are never stored.
+  `{ securitySchemeId, value }` per apiKey / bearer scheme, and per OAuth scheme the access token
+  (`[security-scheme-template.js:updateOAuthKey]`) with `expiresAt` when the provider sent
+  `expires_in`; `recoverPersistedApiKeys` drops an expired token. Basic credentials and OAuth
+  client secrets are never stored.
   `removeApiKey` deletes one entry; `[security-scheme-template.js:onClearAllApiKeys]` empties it.
 - **Server variables.** `[server-template.js:onApiServerVarChange]` reads every input in the
   enclosing `<ul class="server-vars">` and recomputes `selectedServer.computedUrl`; the list

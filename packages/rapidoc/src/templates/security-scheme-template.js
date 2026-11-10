@@ -135,9 +135,19 @@ function setPersistedApiKeys(obj) {
 
 export function recoverPersistedApiKeys() {
   const rapidocLs = getPersistedApiKeys.call(this);
-  Object.values(rapidocLs).forEach((p) => {
+  let expired = false;
+  Object.entries(rapidocLs).forEach(([id, p]) => {
+    // An OAuth token saved with its expiry is dropped once it has expired
+    if (p.expiresAt && p.expiresAt <= Date.now()) {
+      delete rapidocLs[id];
+      expired = true;
+      return;
+    }
     applyApiKey.call(this, p.securitySchemeId, "", "", p.value);
   });
+  if (expired) {
+    setPersistedApiKeys.call(this, rapidocLs);
+  }
 }
 
 function onApiKeyChange(securitySchemeId) {
@@ -187,13 +197,27 @@ function showOAuthStatus(el, text, colorVar) {
   el.replaceChildren(span);
 }
 
-// Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
-function updateOAuthKey(securitySchemeId, accessToken, tokenType = "Bearer") {
+/**
+ * Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls. With persist-auth, the
+ * token (only the token, never the client secret) is saved with its expiry when the provider sent `expires_in`.
+ */
+export function updateOAuthKey(securitySchemeId, accessToken, tokenType = "Bearer", expiresIn = 0) {
   const securityObj = this.resolvedSpec.securitySchemes.find(
     (v) => v.securitySchemeId === securitySchemeId,
   );
   securityObj.finalKeyValue = `${tokenType.toLowerCase() === "bearer" ? "Bearer" : tokenType.toLowerCase() === "mac" ? "MAC" : tokenType} ${accessToken}`;
   securityObj.hostNote = "";
+  if (this.persistAuth === "true") {
+    securityObj.value = securityObj.finalKeyValue;
+    const entry = { securitySchemeId, value: securityObj.finalKeyValue };
+    const seconds = Number(expiresIn);
+    if (seconds > 0) {
+      entry.expiresAt = Date.now() + seconds * 1000;
+    }
+    const rapidocLs = getPersistedApiKeys.call(this);
+    rapidocLs[securitySchemeId] = entry;
+    setPersistedApiKeys.call(this, rapidocLs);
+  }
   this.requestUpdate();
 }
 
@@ -292,7 +316,13 @@ async function fetchAccessToken(
     const tokenResp = await resp.json();
     if (resp.ok) {
       if (tokenResp.token_type && tokenResp.access_token) {
-        updateOAuthKey.call(this, securitySchemeId, tokenResp.access_token, tokenResp.token_type);
+        updateOAuthKey.call(
+          this,
+          securitySchemeId,
+          tokenResp.access_token,
+          tokenResp.token_type,
+          tokenResp.expires_in,
+        );
         showOAuthStatus(respDisplayEl, "Access Token Received", "--green");
         return true;
       }
@@ -348,6 +378,7 @@ function onOAuthReply(reply, flow) {
         flow.securitySchemeId,
         accessToken,
         reply.tokenType || reply.token_type || "Bearer",
+        reply.expiresIn || reply.expires_in,
       );
     }
   }

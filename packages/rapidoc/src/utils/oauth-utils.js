@@ -56,6 +56,7 @@ export function readOAuthReply(location) {
       responseType: "token",
       accessToken: params.get("access_token"),
       tokenType: params.get("token_type"),
+      expiresIn: params.get("expires_in"),
       state: params.get("state"),
       error: params.get("error"),
       errorDescription: params.get("error_description"),

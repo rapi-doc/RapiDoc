@@ -126,7 +126,7 @@ All attributes can be changed at runtime with `setAttribute`.
 | `api-key-name` | text | | Name of the header, query parameter or cookie that carries the key. |
 | `api-key-location` | `header`, `query` | `header` | Where the key is sent. |
 | `api-key-value` | text | | The key. |
-| `persist-auth` | `true`, `false` | `false` | Keeps entered credentials across page loads. |
+| `persist-auth` | `true`, `false` | `false` | Keeps API keys, bearer tokens and OAuth access tokens across page loads (never Basic credentials). |
 | `oauth-receiver` | URL | `oauth-receiver.html` | The OAuth callback page; see [OAuth 2.0](/docs/authentication/oauth/). |
 | `additional-authorize-params`, `additional-token-params` | JSON or query string | | Extra OAuth parameters. |
 

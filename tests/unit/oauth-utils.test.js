@@ -39,9 +39,10 @@ describe("OAuth popup helpers", () => {
     });
     const token = readOAuthReply({
       search: "",
-      hash: "#access_token=t+1%2F2&token_type=Bearer&state=s2",
+      hash: "#access_token=t+1%2F2&token_type=Bearer&expires_in=3600&state=s2",
     });
     assert.equal(token.responseType, "token");
+    assert.equal(token.expiresIn, "3600");
     assert.equal(token.accessToken, "t 1/2", "+ and %xx are decoded");
     assert.equal(token.state, "s2");
     assert.equal(
