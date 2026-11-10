@@ -97,6 +97,8 @@ export default class RapiDoc extends LitElement {
     this._specLoadSeq = 0;
     // The spec-url attribute value whose load has been handled, or that an inlined spec superseded
     this._lastSpecUrlRequested = null;
+    // The spec (URL or object) of the latest load: a match-paths change re-filters this one
+    this._lastLoadedSpec = null;
     this.initIntersectionObserver();
   }
 
@@ -140,6 +142,8 @@ export default class RapiDoc extends LitElement {
   @property({ type: String, attribute: "oauth-receiver" }) oauthReceiver = "oauth-receiver.html";
   @property({ type: Object, attribute: "additional-authorize-params", converter: paramsConverter })
   additionalAuthorizeParams: any;
+  _lastSpecUrlRequested: string | null;
+  _lastLoadedSpec: any;
   @property({ type: Object, attribute: "additional-token-params", converter: paramsConverter })
   additionalTokenParams: any;
 
@@ -515,7 +519,8 @@ export default class RapiDoc extends LitElement {
           const parsed = JSON.parse(inlinedSpecEl.textContent);
           // The inlined spec wins over a spec-url attribute present at connect
           this._lastSpecUrlRequested = this.getAttribute("spec-url");
-          this.loadSpec(parsed);
+          // spec-url stays the spec's URL (download, view), so not through loadSpec, which would clear it
+          this._loadSpec(parsed);
         } catch {
           // ignore parse error
         }
@@ -745,7 +750,7 @@ export default class RapiDoc extends LitElement {
     ) {
       if (oldVal !== newVal) {
         window.setTimeout(async () => {
-          await this.loadSpec(this.specUrl);
+          await this._loadSpec(this._lastLoadedSpec || this.specUrl);
         }, 0);
       }
     }
@@ -922,6 +927,17 @@ export default class RapiDoc extends LitElement {
     if (!specUrl) {
       return;
     }
+    // The download / view buttons and the Spec URL box follow the spec loaded last: its URL, or none
+    // for a spec object (the property doesn't reflect, so this starts no second load)
+    this.specUrl = typeof specUrl === "string" ? specUrl : "";
+    await this._loadSpec(specUrl);
+  }
+
+  async _loadSpec(specUrl) {
+    if (!specUrl) {
+      return;
+    }
+    this._lastLoadedSpec = specUrl;
     if (typeof specUrl === "string") {
       this._lastSpecUrlRequested = specUrl;
     }

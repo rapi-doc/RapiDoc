@@ -124,6 +124,7 @@ export default class RapiDocMini extends LitElement {
 
   isMini: boolean;
   _specLoadSeq: number;
+  _lastLoadedSpec: any;
   updateRoute: string;
   renderStyle: string;
   showHeader: string;
@@ -412,7 +413,7 @@ export default class RapiDocMini extends LitElement {
     ) {
       if (oldVal !== newVal) {
         window.setTimeout(async () => {
-          await this.loadSpec(this.specUrl);
+          await this.loadSpec(this._lastLoadedSpec || this.specUrl);
         }, 0);
       }
     }
@@ -483,6 +484,8 @@ export default class RapiDocMini extends LitElement {
     if (!specUrl) {
       return;
     }
+    // The spec (URL or object) of the latest load: a match-paths change re-filters this one
+    this._lastLoadedSpec = specUrl;
     // Each load gets a token; a load whose token is no longer current never applies its result
     const token = ++this._specLoadSeq;
     try {

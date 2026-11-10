@@ -436,7 +436,7 @@ Methods:
   items:
     - name: loadSpec(spec)
       description: >
-        Programmatically loads a new OpenAPI specification. Accepts either a string URL or a valid in-memory JSON/JavaScript spec object.
+        Programmatically loads a new OpenAPI specification. Accepts either a string URL or a valid in-memory JSON/JavaScript spec object. The download and view buttons and the header's spec URL box follow the spec loaded: its URL, or none for a spec object (the spec download buttons are then hidden).
       example: https://github.com/rapi-doc/RapiDoc/blob/master/docs/examples/example9.html
     - name: scrollToPath(path)
       description: >
