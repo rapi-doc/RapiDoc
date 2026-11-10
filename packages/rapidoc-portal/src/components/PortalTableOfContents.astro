@@ -4,12 +4,13 @@
  *
  *   │ Overview
  *   ╰╮  Page size        the rail bends with an S-curve where the depth changes;
- *    │  The next page    the current entry's stretch of it is drawn again on top, with a dash
- *   ╭╯ Walking …         that glides along the path when the current heading changes
+ *    │  The next page    the stretch of the entries whose sections are on screen is drawn again
+ *   ╭╯ Walking …         on top, with one dash that grows, shrinks and glides as the page scrolls
  *
  * The rail runs at x = 0.75rem × depth, the bends take the first 0.75rem of the entry they lead into
- * (the link padding in portal-theme.css leaves room). Starlight's scroll spy sets aria-current; this
- * script only draws. The mobile dropdown (<mobile-starlight-toc>) has no rail.
+ * (the link padding in portal-theme.css leaves room). A section runs from its heading to the next one;
+ * with none on screen (in the footer), the dash follows Starlight's aria-current. The mobile dropdown
+ * (<mobile-starlight-toc>) has no rail.
  */
 import Default from '@astrojs/starlight/components/TableOfContents.astro';
 ---
@@ -33,6 +34,8 @@ import Default from '@astrojs/starlight/components/TableOfContents.astro';
     svg.append(track, marker);
     nav.append(svg);
     const links = [...list.querySelectorAll('a')];
+    const headings = links.map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))));
+    const content = document.querySelector('.sl-markdown-content');
     let spans: { start: number; end: number }[] = [];
 
     const depthOf = (a: Element) => {
@@ -73,15 +76,33 @@ import Default from '@astrojs/starlight/components/TableOfContents.astro';
       return marker.getTotalLength();
     };
 
+    // Indexes of the first and last entries whose sections overlap the view below the header.
+    const inView = () => {
+      const viewTop = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
+      const tops = headings.map((h) => h?.getBoundingClientRect().top ?? NaN);
+      const end = content?.getBoundingClientRect().bottom ?? Infinity;
+      const visible = tops.flatMap((top, i) => {
+        const next = tops.slice(i + 1).find((t) => !Number.isNaN(t)) ?? end;
+        return top < innerHeight && next > viewTop ? [i] : [];
+      });
+      if (visible.length) return [visible[0], visible.at(-1)!];
+      const current = links.findIndex((a) => a.getAttribute('aria-current') === 'true');
+      return current < 0 ? [] : [current, current];
+    };
+
     const highlight = () => {
-      const span = spans[links.findIndex((a) => a.getAttribute('aria-current') === 'true')];
+      const [first, last] = inView();
       const total = spans.at(-1)?.end ?? 0;
-      marker.style.strokeDasharray = span ? `0 ${span.start} ${span.end - span.start} ${total}` : `0 ${total} 0 ${total}`;
+      const from = spans[first!]?.start;
+      const to = spans[last!]?.end;
+      marker.style.strokeDasharray = from === undefined || to === undefined ? `0 ${total} 0 ${total}` : `0 ${from} ${to - from} ${total}`;
     };
 
     layout();
     new ResizeObserver(layout).observe(list);
     new MutationObserver(highlight).observe(list, { subtree: true, attributeFilter: ['aria-current'] });
+    let frame = 0;
+    addEventListener('scroll', () => (frame ||= requestAnimationFrame(() => ((frame = 0), highlight()))), { passive: true });
     // Glide only after the first paint, so the marker does not grow in on page load.
     requestAnimationFrame(() => requestAnimationFrame(() => svg.classList.add('ready')));
   }
