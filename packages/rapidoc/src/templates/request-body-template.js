@@ -31,6 +31,7 @@ import {
   renderExample,
 } from "~/templates/request-params-template";
 import { multipartPartContentType } from "~/utils/request-utils";
+import { schemaTabButtons } from "~/templates/schema-tabs-template";
 
 export function formDataParamAsObjectTemplate(
   fieldName,
@@ -87,8 +88,7 @@ export function formDataParamAsObjectTemplate(
             }
           }}"
         >
-          <button class="v-tab-btn ${this.activeSchemaTab === "example" ? "active" : ""}" data-tab="example">EXAMPLE</button>
-          <button class="v-tab-btn ${this.activeSchemaTab !== "example" ? "active" : ""}" data-tab="schema">SCHEMA</button>
+          ${schemaTabButtons(this.config?.defaultSchemaTab, this.activeSchemaTab, { cls: "v-tab-btn", part: false })}
         </div>
       </div>
       ${html` <div
@@ -648,12 +648,7 @@ ${v.exampleFormat === "text" ? v.exampleValue : JSON.stringify(v.exampleValue, n
                   }
                 }}"
               >
-                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === "example" ? "active" : ""}" data-tab="example">
-                  EXAMPLE
-                </button>
-                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== "example" ? "active" : ""}" data-tab="schema">
-                  SCHEMA
-                </button>
+                ${schemaTabButtons(this.config?.defaultSchemaTab, this.activeSchemaTab)}
               </div>
               ${html`<div
                 part="tab-content"

@@ -344,7 +344,7 @@ Attributes:
           - schema
           - example
         description: >
-          Selects which tab is active by default for request and response payloads: 'schema' (data contract model) or 'example' (sample JSON payload).
+          Selects which tab is active by default, and listed first, for request bodies, responses and object parameters: 'schema' (data contract model) or 'example' (sample JSON payload).
         default: example
 
   - API Server Attributes:

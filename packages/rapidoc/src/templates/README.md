@@ -26,6 +26,9 @@ Default exports are section templates; named exports are helpers used by other t
   `recoverPersistedApiKeys` (`security-scheme-template.js`); `expandedEndpointBodyTemplate`
   (static renderer); navbar helpers such as `expandCollapseNavBarTag` (`utils/bind-navbar.js`).
 - Inside `<api-request>`: `inputParametersTemplate`, `requestBodyTemplate`, `apiCallTemplate`.
+- `schemaTabButtons` (`schema-tabs-template.js`): the EXAMPLE / SCHEMA buttons of request bodies,
+  responses (`<api-response>`) and object parameters, the `default-schema-tab` tab first; the
+  order follows that setting, never the selected tab.
 - Events (all `bubbles`, `composed`): `api-server-change` (`[server-template.js:setApiServer]`);
   `before-authorize`, cancelable, for `authorizationCode` and `implicit` flows; and
   `before-token-request`, cancelable, before each token fetch (listeners may edit

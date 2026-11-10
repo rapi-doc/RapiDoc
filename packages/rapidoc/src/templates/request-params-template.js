@@ -19,6 +19,7 @@ import {
 } from "~/utils/schema-utils";
 import "~/components/schema-tree";
 import "~/components/tag-input";
+import { schemaTabButtons } from "~/templates/schema-tabs-template";
 
 /**
  * A label followed by a wrapping list of values (Allowed values, Examples).
@@ -189,6 +190,9 @@ export function inputParametersTemplate(paramType) {
     const paramLabel = typeLabel(paramSchema.baseType, paramSchema.format, paramSchema.type);
     paramSchema.formatNote = paramLabel.formatNote;
     const schemaAsObj = schemaToAST(declaredParamSchema);
+    // An object parameter's EXAMPLE / SCHEMA tab: the reader's choice, else default-schema-tab
+    const paramActiveTab =
+      this.activeParameterSchemaTabs?.[param.name] || this.config?.defaultSchemaTab || "example";
     let paramStyle = "form";
     let paramExplode = true;
     let paramAllowReserved = false;
@@ -322,20 +326,7 @@ export function inputParametersTemplate(paramType) {
                               }
                             }}"
                           >
-                            <button
-                              part="tab-btn"
-                              class="tab-btn ${this.activeParameterSchemaTabs[param.name] === "example" ? "active" : ""}"
-                              data-tab="example"
-                            >
-                              EXAMPLE
-                            </button>
-                            <button
-                              part="tab-btn"
-                              class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== "example" ? "active" : ""}"
-                              data-tab="schema"
-                            >
-                              SCHEMA
-                            </button>
+                            ${schemaTabButtons(this.config?.defaultSchemaTab, paramActiveTab)}
                           </div>
 
                           ${html`<div
@@ -343,9 +334,7 @@ export function inputParametersTemplate(paramType) {
                             class="tab-content col"
                             data-tab="example"
                             style="display:${
-                              this.activeParameterSchemaTabs[param.name] === "example"
-                                ? "block"
-                                : "none"
+                              paramActiveTab === "example" ? "block" : "none"
                             }; padding-left:5px; width:100%"
                           >
                             <textarea
@@ -387,9 +376,7 @@ export function inputParametersTemplate(paramType) {
                             class="tab-content col"
                             data-tab="schema"
                             style="display:${
-                              this.activeParameterSchemaTabs[param.name] !== "example"
-                                ? "block"
-                                : "none"
+                              paramActiveTab !== "example" ? "block" : "none"
                             }; padding-left:5px; width:100%;"
                           >
                             <schema-tree

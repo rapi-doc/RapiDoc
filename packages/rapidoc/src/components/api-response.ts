@@ -5,6 +5,7 @@ import { sanitizeHTML } from "../utils/sanitize.js";
 import { marked } from "marked";
 import { prepareResponseDefinitions } from "../utils/response-utils.js";
 import { exampleLabel } from "~/utils/schema-utils";
+import { schemaTabButtons } from "~/templates/schema-tabs-template";
 import FontStyles from "~/styles/font-styles";
 import FlexStyles from "~/styles/flex-styles";
 import ParamListStyles from "~/styles/param-list-styles";
@@ -309,12 +310,7 @@ export default class ApiResponse extends LitElement {
                         }
                       }}"
                     >
-                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === "example" ? "active" : ""}" data-tab="example">
-                        EXAMPLE
-                      </button>
-                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== "example" ? "active" : ""}" data-tab="schema">
-                        SCHEMA
-                      </button>
+                      ${schemaTabButtons(this.config?.defaultSchemaTab, this.activeSchemaTab)}
                       ${
                         Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
                           ? html`<span class="tab-bar-end">${Object.keys(this.mimeResponsesForEachStatus[status])[0]}</span>`
