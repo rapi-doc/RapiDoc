@@ -187,7 +187,10 @@ export function inputParametersTemplate(paramType) {
     let paramExplode = true;
     let paramAllowReserved = false;
     if (paramType === "query" || paramType === "header" || paramType === "path") {
-      if (param.style && "form spaceDelimited pipeDelimited".includes(param.style)) {
+      if (
+        param.style &&
+        ["form", "spaceDelimited", "pipeDelimited", "deepObject"].includes(param.style)
+      ) {
         paramStyle = param.style;
       } else if (serializeStyle) {
         paramStyle = serializeStyle;

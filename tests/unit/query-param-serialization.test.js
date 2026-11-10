@@ -189,7 +189,7 @@ describe("URL Utils & Query Parameter Serialization", () => {
   });
 
   describe("serializeQueryParam - Objects", () => {
-    it("should serialize object using deepObject brackets", () => {
+    it("should serialize object as exploded form by default (one parameter per property)", () => {
       const qs = buildQueryString([
         {
           name: "filter",
@@ -197,7 +197,83 @@ describe("URL Utils & Query Parameter Serialization", () => {
           isObject: true,
         },
       ]);
+      assert.equal(qs, "status=active&limit=10");
+    });
+
+    it("should serialize object as exploded form when style is form and explode is true", () => {
+      const qs = buildQueryString([
+        {
+          name: "request",
+          value: { pageNo: 1, pageSize: 20 },
+          style: "form",
+          explode: true,
+          isObject: true,
+        },
+      ]);
+      assert.equal(qs, "pageNo=1&pageSize=20");
+    });
+
+    it("should serialize object as one comma-separated parameter when explode is false", () => {
+      const qs = buildQueryString([
+        {
+          name: "color",
+          value: { R: 100, G: 200, B: 150 },
+          style: "form",
+          explode: false,
+          isObject: true,
+        },
+      ]);
+      assert.equal(qs, "color=R%2C100%2CG%2C200%2CB%2C150");
+    });
+
+    it("should serialize object using brackets when style is deepObject", () => {
+      const qs = buildQueryString([
+        {
+          name: "filter",
+          value: { status: "active", limit: 10 },
+          style: "deepObject",
+          explode: true,
+          isObject: true,
+        },
+      ]);
       assert.equal(qs, "filter%5Bstatus%5D=active&filter%5Blimit%5D=10");
+    });
+
+    it("should repeat the bracketed key for an array property when style is deepObject", () => {
+      const entries = serializeQueryParam(
+        "filter",
+        { tags: ["a", "b"], q: "x" },
+        { style: "deepObject", isObject: true },
+      );
+      assert.deepEqual(entries, [
+        ["filter[tags]", "a"],
+        ["filter[tags]", "b"],
+        ["filter[q]", "x"],
+      ]);
+    });
+
+    it("should join object properties with space or pipe for spaceDelimited and pipeDelimited", () => {
+      const value = { R: 100, G: 200 };
+      assert.deepEqual(
+        serializeQueryParam("color", value, { style: "spaceDelimited", isObject: true }),
+        [["color", "R 100 G 200"]],
+      );
+      assert.deepEqual(
+        serializeQueryParam("color", value, { style: "pipeDelimited", isObject: true }),
+        [["color", "R|100|G|200"]],
+      );
+    });
+
+    it("should skip null properties and send nested objects as JSON in exploded form", () => {
+      const entries = serializeQueryParam(
+        "q",
+        { a: null, b: { c: 1 }, d: "x" },
+        { style: "form", explode: true, isObject: true },
+      );
+      assert.deepEqual(entries, [
+        ["b", '{"c":1}'],
+        ["d", "x"],
+      ]);
     });
 
     it("should serialize object from raw JSON string", () => {
@@ -208,7 +284,7 @@ describe("URL Utils & Query Parameter Serialization", () => {
           isObject: true,
         },
       ]);
-      assert.equal(qs, "filter%5Bcategory%5D=books&filter%5BinStock%5D=true");
+      assert.equal(qs, "category=books&inStock=true");
     });
 
     it("should serialize object with style json", () => {

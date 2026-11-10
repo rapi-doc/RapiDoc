@@ -81,33 +81,39 @@ export function serializeQueryParam(name, rawValue, options = {}) {
       return [[name, json2xml(obj)]];
     }
 
-    const result = [];
+    // Each property as [key, values]: an array property keeps its items, a nested object is sent as JSON
+    const props = [];
     for (const key of Object.keys(obj)) {
-      const pKey = `${name}[${key}]`;
       const val = obj[key];
-
-      if (val !== undefined && val !== null) {
-        if (typeof val === "object" && Array.isArray(val)) {
-          const filtered = val.filter((v) => v !== "" && v !== undefined && v !== null);
-          if (filtered.length > 0) {
-            if (style === "spaceDelimited") {
-              result.push([pKey, filtered.join(" ")]);
-            } else if (style === "pipeDelimited") {
-              result.push([pKey, filtered.join("|")]);
-            } else if (explode) {
-              filtered.forEach((v) => result.push([pKey, String(v)]));
-            } else {
-              result.push([pKey, filtered.join(",")]);
-            }
-          }
-        } else if (typeof val === "object") {
-          result.push([pKey, JSON.stringify(val)]);
-        } else {
-          result.push([pKey, String(val)]);
+      if (val === undefined || val === null) {
+        continue;
+      }
+      if (Array.isArray(val)) {
+        const filtered = val.filter((v) => v !== "" && v !== undefined && v !== null);
+        if (filtered.length > 0) {
+          props.push([key, filtered.map(String)]);
         }
+      } else {
+        props.push([key, [typeof val === "object" ? JSON.stringify(val) : String(val)]]);
       }
     }
-    return result;
+
+    // deepObject: filter[status]=active&filter[limit]=10
+    if (style === "deepObject") {
+      return props.flatMap(([key, vals]) => vals.map((v) => [`${name}[${key}]`, v]));
+    }
+    // Unexploded form, spaceDelimited, pipeDelimited: filter=status,active,limit,10 (or joined by space or pipe)
+    if (!explode || style === "spaceDelimited" || style === "pipeDelimited") {
+      if (props.length === 0) {
+        return [];
+      }
+      const delimiter = style === "spaceDelimited" ? " " : style === "pipeDelimited" ? "|" : ",";
+      return [
+        [name, props.map(([key, vals]) => [key, vals.join(",")].join(delimiter)).join(delimiter)],
+      ];
+    }
+    // Exploded form (the default): each property is its own parameter, status=active&limit=10
+    return props.flatMap(([key, vals]) => vals.map((v) => [key, v]));
   }
 
   // Handle Array types
