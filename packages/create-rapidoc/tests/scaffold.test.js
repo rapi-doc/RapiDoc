@@ -51,8 +51,16 @@ test("create-rapidoc Scaffolding CLI (Milestone 6)", async (t) => {
     // The portal engine is a direct dev dependency, so the config's $schema path resolves
     // The @rapidoc packages release with create-rapidoc as one fixed group: same version.
     const own = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
-    assert.equal(pkg.devDependencies["@rapidoc/cli"], `^${own.version}`);
+    assert.equal(pkg.dependencies["@rapidoc/cli"], `^${own.version}`);
+    assert.equal(pkg.dependencies["@rapidoc/server"], `^${own.version}`);
     assert.equal(pkg.devDependencies["@rapidoc/portal"], `^${own.version}`);
+    // Node hosts run `npm run build` then `npm start`; Render reads render.yaml
+    assert.strictEqual(pkg.scripts.start, "rapidoc serve");
+    assert.strictEqual(pkg.engines.node, ">=22.12.0");
+    const blueprint = fs.readFileSync(path.join(projectDir, "render.yaml"), "utf8");
+    assert.match(blueprint, /name: galaxy-docs\n/);
+    assert.match(blueprint, /startCommand: npm start\n/);
+    assert.match(blueprint, /healthCheckPath: \/_rapidoc\/health\n/);
     assert.ok(
       fs
         .readFileSync(path.join(projectDir, "rapidoc.config.yaml"), "utf8")

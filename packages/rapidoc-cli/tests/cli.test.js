@@ -123,10 +123,8 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
         );
         assert.equal(result.status, 0, result.stderr);
         const pkg = JSON.parse(fs.readFileSync(path.join(projectDir, "package.json"), "utf8"));
-        assert.deepEqual(Object.keys(pkg.devDependencies).sort(), [
-          "@rapidoc/cli",
-          "@rapidoc/portal",
-        ]);
+        assert.deepEqual(Object.keys(pkg.dependencies).sort(), ["@rapidoc/cli", "@rapidoc/server"]);
+        assert.deepEqual(Object.keys(pkg.devDependencies), ["@rapidoc/portal"]);
         assert.equal(pkg.scripts.dev, "rapidoc dev");
         const config = fs.readFileSync(path.join(projectDir, "rapidoc.config.yaml"), "utf8");
         assert.ok(config.includes('title: "Acme Docs"'));

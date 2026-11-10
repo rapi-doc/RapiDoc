@@ -346,19 +346,44 @@ const STARTER_PACKAGE_JSON = (projectName) =>
       scripts: {
         dev: "rapidoc dev",
         build: "rapidoc build",
+        start: "rapidoc serve",
         validate: "rapidoc validate",
         preview: "npx serve dist",
+      },
+      // Hosts (Render, DigitalOcean, Railway) pick the Node version from here.
+      engines: { node: ">=22.12.0" },
+      // `npm start` (rapidoc serve) needs only the CLI and the server. They are dependencies, not dev
+      // dependencies, because some hosts (DigitalOcean) remove dev dependencies after the build.
+      dependencies: {
+        "@rapidoc/cli": RAPIDOC_PACKAGES_RANGE,
+        "@rapidoc/server": RAPIDOC_PACKAGES_RANGE,
       },
       // The CLI loads the portal engine for dev/build; listing it here also makes the config's
       // $schema path (node_modules/@rapidoc/portal/schema.json) resolve.
       devDependencies: {
-        "@rapidoc/cli": RAPIDOC_PACKAGES_RANGE,
         "@rapidoc/portal": RAPIDOC_PACKAGES_RANGE,
       },
     },
     null,
     2,
   );
+
+// Render reads this Blueprint (Dashboard → New → Blueprint, or a Deploy to Render button). DigitalOcean
+// App Platform and Railway need no file: they run `npm run build` and `npm start` from package.json.
+const STARTER_RENDER_YAML = (
+  projectName,
+) => `# Render Blueprint: Render Dashboard → New → Blueprint → this repository.
+# rapidoc serve listens on $PORT, which Render sets. Sign-in secrets (RAPIDOC_SESSION_SECRET, ...)
+# go in the service's Environment settings, never in this file.
+services:
+  - type: web
+    name: ${projectName}
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /_rapidoc/health
+`;
 
 const STARTER_GITIGNORE = `node_modules/
 dist/
@@ -386,6 +411,15 @@ npm run preview
 
 Run \`npm run validate\` (for example in CI) to check every spec in \`apis:\` against the OpenAPI schema. It also warns about operations without an \`operationId\`, whose links change when their summary is edited.
 
+## Deploy
+
+\`npm run build\` then \`npm start\` (\`rapidoc serve\`) runs the portal on \`$PORT\`, which is what Node hosts expect:
+
+- **Render**: Dashboard → New → Blueprint → this repository (\`render.yaml\`).
+- **DigitalOcean App Platform** or **Railway**: create an app from this repository; both detect the build and start scripts.
+
+\`dist/\` is also a plain static site: any static host (GitHub Pages, Netlify, Cloudflare Pages) can serve it until you add sign-in.
+
 ## Project Structure
 
 \`\`\`text
@@ -394,6 +428,7 @@ Run \`npm run validate\` (for example in CI) to check every spec in \`apis:\` ag
 ├── public/               # Static files (logo, favicon, images), served from /
 ├── rapidoc.config.yaml   # Portal header, navigation tabs, theme and APIs
 ├── package.json
+├── render.yaml           # Render Blueprint (see Deploy)
 └── README.md
 \`\`\`
 `;
@@ -510,6 +545,7 @@ export function planScaffold(targetDir, options = {}) {
       content: STARTER_CONFIG(siteTitle, apis),
     },
     { path: path.join(resolvedDir, "package.json"), content: STARTER_PACKAGE_JSON(projectName) },
+    { path: path.join(resolvedDir, "render.yaml"), content: STARTER_RENDER_YAML(projectName) },
     { path: path.join(resolvedDir, ".gitignore"), content: STARTER_GITIGNORE },
     { path: path.join(resolvedDir, "README.md"), content: STARTER_README(siteTitle) },
     ...(withStarterSpec ? [{ path: path.join(specsDir, "api.yaml"), content: STARTER_SPEC }] : []),

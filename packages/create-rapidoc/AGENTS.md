@@ -15,7 +15,8 @@
 
 1. Scaffolds new portals with a single command:
    - `rapidoc.config.yaml` (v2: site, theme, header links, navigation tabs, apis)
-   - `package.json` with `@rapidoc/cli` and `@rapidoc/portal` as dev dependencies (the portal is listed directly so the config's `$schema` path `node_modules/@rapidoc/portal/schema.json` resolves) and `dev`/`build`/`validate`/`preview` scripts
+   - `package.json` with `dev`/`build`/`start`/`validate`/`preview` scripts and `engines.node`. `@rapidoc/cli` and `@rapidoc/server` are dependencies, because `npm start` (`rapidoc serve`) needs them and DigitalOcean App Platform removes dev dependencies after the build; `@rapidoc/portal` is a dev dependency (build only; listed directly so the config's `$schema` path `node_modules/@rapidoc/portal/schema.json` resolves)
+   - `render.yaml`, a Render Blueprint (a web service running `npm run build` and `npm start`, health check `/_rapidoc/health`). DigitalOcean App Platform and Railway need no file: they detect the build and start scripts. The public starter repository with the Deploy buttons (`rapi-doc/rapidoc-portal-starter`) is generated from this scaffold, so keep the two in step
    - `.gitignore`
    - `README.md`
    - Valid OpenAPI 3.1 sample specification in `specs/api.yaml`
