@@ -60,6 +60,7 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 
 - `PortalPageFrame.astro` (`PageFrame`): sticky header, then a grid of [sticky full-height sidebar | content], then the full-width `PortalFooter`. The page scrolls; at the end the footer pushes the sidebar up. Below 50rem the sidebar is Starlight's popover, opened by the header's menu button.
 - `PortalTwoColumnContent.astro` (`TwoColumnContent`): sticky "On this page" column.
+- `PortalTableOfContents.astro` (`TableOfContents`): Starlight's "On this page" with its rail drawn as one SVG path (rounded S-curves between depths); the current entry's stretch is a `stroke-dasharray` dash that glides when Starlight's scroll spy moves `aria-current` (no transition under `prefers-reduced-motion`).
 - `PortalThemeProvider.astro` (`ThemeProvider`): applies `theme.mode` for visitors who have not picked a theme (same script as `PortalLayout`, from `components/theme-script.js`).
 - `PortalSidebar.astro` (`Sidebar`): Starlight's sidebar, with the header links above it on narrow screens.
 - `PortalHero.astro` (`Hero`): Starlight's hero inside `<div class="portal-hero" data-layout>`, from the page's `hero.layout` (`split` or `stacked`). `engine/frontmatter.js` adds that key to Starlight's frontmatter through the workspace content config; the layouts are styled in `portal-theme.css`.

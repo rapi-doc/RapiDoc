@@ -1,0 +1,90 @@
+---
+/**
+ * Starlight TableOfContents override: Starlight's "On this page", with its rail drawn as one SVG path.
+ *
+ *   │ Overview
+ *   ╰╮  Page size        the rail bends with an S-curve where the depth changes;
+ *    │  The next page    the current entry's stretch of it is drawn again on top, with a dash
+ *   ╭╯ Walking …         that glides along the path when the current heading changes
+ *
+ * The rail runs at x = 0.75rem × depth, the bends take the first 0.75rem of the entry they lead into
+ * (the link padding in portal-theme.css leaves room). Starlight's scroll spy sets aria-current; this
+ * script only draws. The mobile dropdown (<mobile-starlight-toc>) has no rail.
+ */
+import Default from '@astrojs/starlight/components/TableOfContents.astro';
+---
+
+<Default />
+
+<script>
+  const SVG = 'http://www.w3.org/2000/svg';
+  const STEP_REM = 0.75; // matches the link padding in portal-theme.css
+
+  function drawRail(nav: HTMLElement) {
+    const list = nav.querySelector(':scope > ul');
+    if (!list) return;
+    const svg = document.createElementNS(SVG, 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.classList.add('portal-toc-rail');
+    const track = document.createElementNS(SVG, 'path');
+    const marker = document.createElementNS(SVG, 'path');
+    track.classList.add('track');
+    marker.classList.add('marker');
+    svg.append(track, marker);
+    nav.append(svg);
+    const links = [...list.querySelectorAll('a')];
+    let spans: { start: number; end: number }[] = [];
+
+    const depthOf = (a: Element) => {
+      let depth = 0;
+      for (let el = a.parentElement?.parentElement; el && el !== list; el = el.parentElement) if (el.tagName === 'UL') depth++;
+      return depth;
+    };
+
+    const layout = () => {
+      const box = nav.getBoundingClientRect();
+      if (!box.height) return;
+      const step = STEP_REM * parseFloat(getComputedStyle(document.documentElement).fontSize);
+      let d = '';
+      let lastX: number | undefined;
+      spans = links.map((a) => {
+        const r = a.getBoundingClientRect();
+        const x = step * depthOf(a) + 0.5;
+        const top = r.top - box.top;
+        const bottom = r.bottom - box.top;
+        if (lastX === undefined) d = `M${x} ${top}`;
+        const start = measure(d);
+        if (lastX !== undefined && lastX !== x) {
+          const mid = top + step / 2;
+          d += `L${lastX} ${top}C${lastX} ${mid} ${x} ${mid} ${x} ${top + step}`;
+        }
+        d += `L${x} ${bottom}`;
+        lastX = x;
+        return { start, end: measure(d) };
+      });
+      track.setAttribute('d', d);
+      marker.setAttribute('d', d);
+      highlight();
+    };
+
+    // Path length up to here, measured on the marker path (it is redrawn right after).
+    const measure = (d: string) => {
+      marker.setAttribute('d', d);
+      return marker.getTotalLength();
+    };
+
+    const highlight = () => {
+      const span = spans[links.findIndex((a) => a.getAttribute('aria-current') === 'true')];
+      const total = spans.at(-1)?.end ?? 0;
+      marker.style.strokeDasharray = span ? `0 ${span.start} ${span.end - span.start} ${total}` : `0 ${total} 0 ${total}`;
+    };
+
+    layout();
+    new ResizeObserver(layout).observe(list);
+    new MutationObserver(highlight).observe(list, { subtree: true, attributeFilter: ['aria-current'] });
+    // Glide only after the first paint, so the marker does not grow in on page load.
+    requestAnimationFrame(() => requestAnimationFrame(() => svg.classList.add('ready')));
+  }
+
+  document.querySelectorAll<HTMLElement>('starlight-toc nav').forEach(drawRail);
+</script>

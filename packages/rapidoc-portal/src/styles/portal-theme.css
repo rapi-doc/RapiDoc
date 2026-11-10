@@ -192,68 +192,48 @@ body {
   letter-spacing: -0.015em;
 }
 
-/* "On this page": a hairline rail that steps right, with a diagonal, at each nested level. Every link
-   draws its own piece (::before vertical, ::after diagonal) at its --depth, so nothing is measured;
-   the current link's piece is drawn in the heading color. The mobile dropdown (.isMobile) keeps its look. */
-starlight-toc ul {
-  --toc-step: 0.75rem;
+/* "On this page": a hairline rail that steps right at each nested level with a rounded S-curve, and the
+   current entry's stretch of it in the heading color, gliding as the current heading changes. One SVG path
+   (components/PortalTableOfContents.astro) runs at x = 0.75rem × --depth; the link padding leaves room
+   for it. The mobile dropdown (<mobile-starlight-toc>) keeps its look. */
+starlight-toc nav {
+  position: relative;
 }
 starlight-toc a {
-  --toc-rail: color-mix(in oklab, var(--portal-border) 70%, var(--portal-fg));
-  position: relative;
   padding-block: 0.375rem;
-  padding-inline: calc(var(--toc-step) * var(--depth) + 1.25rem) 0.5rem;
+  padding-inline: calc(0.75rem * var(--depth) + 1.25rem) 0.5rem;
   border-radius: 0;
   font-size: 0.8125rem;
   line-height: 1rem;
   color: var(--portal-muted);
 }
-starlight-toc a:hover {
-  color: var(--sl-color-white);
-}
+starlight-toc a:hover,
 starlight-toc a[aria-current="true"] {
-  --toc-rail: var(--sl-color-white);
   color: var(--sl-color-white);
 }
-starlight-toc a::before {
-  content: "";
+.portal-toc-rail {
   position: absolute;
-  inset-block: 0;
-  left: calc(var(--toc-step) * var(--depth));
-  width: 1px;
-  background: var(--toc-rail);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  fill: none;
+  stroke-width: 1px;
 }
-starlight-toc li > ul > li:first-child > a::before,
-starlight-toc li:has(> ul) + li > a::before {
-  top: var(--toc-step);
+.portal-toc-rail .track {
+  stroke: color-mix(in oklab, var(--portal-border) 70%, var(--portal-fg));
 }
-starlight-toc li > ul > li:first-child > a::after,
-starlight-toc li:has(> ul) + li > a::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: var(--toc-step);
-  height: var(--toc-step);
+.portal-toc-rail .marker {
+  stroke: var(--sl-color-white);
 }
-/* Into a nested list: from the parent's rail down-right to this one. */
-starlight-toc li > ul > li:first-child > a::after {
-  left: calc(var(--toc-step) * (var(--depth) - 1));
-  background: linear-gradient(
-    to top right,
-    transparent calc(50% - 0.5px),
-    var(--toc-rail) 0 calc(50% + 0.5px),
-    transparent 0
-  );
+.portal-toc-rail.ready .marker {
+  transition: stroke-dasharray 0.3s ease;
 }
-/* Out of it: from the nested rail down-left to this one. */
-starlight-toc li:has(> ul) + li > a::after {
-  left: calc(var(--toc-step) * var(--depth));
-  background: linear-gradient(
-    to bottom right,
-    transparent calc(50% - 0.5px),
-    var(--toc-rail) 0 calc(50% + 0.5px),
-    transparent 0
-  );
+@media (prefers-reduced-motion: reduce) {
+  .portal-toc-rail.ready .marker {
+    transition: none;
+  }
 }
 
 /* Cards: Markdoc {% card %}, MDX <Card> and the API catalog. A hairline ring and a soft shadow, a grey
