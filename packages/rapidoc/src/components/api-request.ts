@@ -595,6 +595,12 @@ export default class ApiRequest extends LitElement {
               name: el.dataset.pname,
               value: el.value,
               isArray: el.dataset.array !== "false",
+              isObject: el.dataset.object === "true",
+              style: el.dataset.paramSerializeStyle,
+              explode:
+                el.dataset.paramSerializeExplode === undefined
+                  ? undefined
+                  : el.dataset.paramSerializeExplode === "true",
             }));
           fetchOptions.body = buildUrlEncodedBody(fields);
         }

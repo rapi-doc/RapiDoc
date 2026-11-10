@@ -141,4 +141,41 @@ describe("multipart part content types", () => {
       xmlPart: "",
     });
   });
+
+  it("url-encoded fields carry their encoding style and explode (#747, #881)", () => {
+    const doc = { allowTry: "true", fileInputKeys: {}, fillRequestFieldsWithExample: "true" };
+    const schema = {
+      type: "object",
+      properties: {
+        tags: { type: "array", items: { type: "string" } },
+        csv: { type: "array", items: { type: "string" } },
+        meta: { type: "object", properties: { a: { type: "integer" } } },
+        name: { type: "string" },
+      },
+    };
+    const encoding = {
+      csv: { explode: false },
+      meta: { contentType: "application/json" },
+    };
+    const render = (mimeType) =>
+      renderTemplateToString(formDataTemplate.call(doc, schema, mimeType, "", encoding));
+    const attrs = (html) =>
+      Object.fromEntries(
+        [
+          ...html.matchAll(
+            /data-pname="([^"]+)"[^>]*?data-param-serialize-style="([^"]*)"\s+data-param-serialize-explode="([^"]*)"/g,
+          ),
+        ].map((m) => [m[1], `${m[2]}/${m[3]}`]),
+      );
+
+    assert.deepEqual(attrs(render("application/x-www-form-urlencoded")), {
+      tags: "form/true",
+      csv: "form/false",
+      meta: "json/false",
+      name: "form/true",
+    });
+    assert.match(render("application/x-www-form-urlencoded"), /data-object="true"/);
+    // multipart parts are serialized by their content type, not by style
+    assert.deepEqual(attrs(render("multipart/form-data")), {});
+  });
 });

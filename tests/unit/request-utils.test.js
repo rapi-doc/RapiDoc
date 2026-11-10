@@ -86,7 +86,29 @@ describe("request-utils", () => {
       ]);
 
       assert.equal(params.get("username"), "alice");
-      assert.equal(params.get("roles"), "admin,editor");
+      // style form, explode true by default: an array repeats its name (#747)
+      assert.deepEqual(params.getAll("roles"), ["admin", "editor"]);
+    });
+
+    it("follows each field's encoding style and explode", () => {
+      const body = (field) => buildUrlEncodedBody([field]).toString();
+      assert.equal(
+        body({ name: "tag", value: ["a", "b"], isArray: true, explode: false }),
+        "tag=a%2Cb",
+      );
+      assert.equal(
+        body({ name: "tag", value: ["a", "b"], isArray: true, style: "pipeDelimited" }),
+        "tag=a%7Cb",
+      );
+      assert.equal(body({ name: "meta", value: '{"a":1,"b":"x"}', isObject: true }), "a=1&b=x");
+      assert.equal(
+        body({ name: "meta", value: '{"a":1}', isObject: true, style: "deepObject" }),
+        "meta%5Ba%5D=1",
+      );
+      assert.equal(
+        body({ name: "meta", value: '{\n  "a": 1\n}', isObject: true, style: "json" }),
+        "meta=%7B%22a%22%3A1%7D",
+      );
     });
 
     it("should build params from dynamic JSON template", () => {

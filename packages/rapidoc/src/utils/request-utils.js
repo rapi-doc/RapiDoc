@@ -1,3 +1,5 @@
+import { serializeQueryParam } from "./url-utils.js";
+
 /**
  * Serializes a header parameter value according to OpenAPI 3 rules.
  * Objects can be serialized exploded (key=value,key2=value2) or unexploded (key,value,key2,value2).
@@ -105,9 +107,13 @@ export function constructFetchHeaders({
 }
 
 /**
- * Builds a URLSearchParams body from field entries or a dynamic JSON template.
+ * Builds a URLSearchParams body from field entries or a dynamic JSON template. Each field is serialized like a
+ * query parameter, by its encoding entry's `style` and `explode` (default form, exploded): an array repeats its
+ * name (`tag=a&tag=b`), an object sends one field per property (`a=1`); `style: "json"` (an encoding contentType
+ * of application/json) sends the value as JSON.
  *
- * @param {Array<{ name: string, value: any, isArray?: boolean }>} fields
+ * @param {Array<{ name: string, value: any, isArray?: boolean, isObject?: boolean, style?: string,
+ *   explode?: boolean }>} fields
  * @param {string} [dynamicJson] - Raw JSON string for dynamic forms
  * @returns {URLSearchParams}
  */
@@ -142,15 +148,14 @@ export function buildUrlEncodedBody(fields = [], dynamicJson = "") {
       ) {
         return;
       }
-      if (field.isArray) {
-        const arr = Array.isArray(field.value) ? field.value : [field.value];
-        const filtered = arr.filter((v) => v !== "" && v !== undefined && v !== null);
-        if (filtered.length > 0) {
-          params.append(field.name, filtered.join(","));
-        }
-      } else {
-        params.append(field.name, String(field.value));
-      }
+      const style = field.style || "form";
+      const entries = serializeQueryParam(field.name, field.value, {
+        style,
+        explode: typeof field.explode === "boolean" ? field.explode : style === "form",
+        isArray: Boolean(field.isArray),
+        isObject: Boolean(field.isObject),
+      });
+      entries.forEach(([k, v]) => params.append(k, v));
     });
   }
 

@@ -33,12 +33,32 @@ import {
 import { multipartPartContentType } from "~/utils/request-utils";
 import { schemaTabButtons } from "~/templates/schema-tabs-template";
 
+/**
+ * How a url-encoded field is serialized, from its encoding entry: `style` and `explode` (default form, exploded);
+ * a contentType of application/json sends the value as JSON. Nothing for multipart, whose parts use contentType.
+ */
+function urlEncodedFieldEncoding(mimeType, fieldEncoding) {
+  if (!mimeType.includes("form-urlencode")) {
+    return { style: undefined, explode: undefined };
+  }
+  const style = /json/i.test(fieldEncoding?.contentType || "")
+    ? "json"
+    : ["form", "spaceDelimited", "pipeDelimited", "deepObject"].includes(fieldEncoding?.style)
+      ? fieldEncoding.style
+      : "form";
+  const explode =
+    typeof fieldEncoding?.explode === "boolean" ? fieldEncoding.explode : style === "form";
+  return { style, explode: String(explode) };
+}
+
 export function formDataParamAsObjectTemplate(
   fieldName,
   fieldSchema,
   mimeType,
   partContentType = "",
+  fieldEncoding = undefined,
 ) {
+  const urlEncoding = urlEncodedFieldEncoding(mimeType, fieldEncoding);
   // This template is used when form-data param should be send as a object (application/json, application/xml)
   const formdataPartSchema = schemaToAST(fieldSchema);
   const formdataPartExample = generateExample(
@@ -104,6 +124,9 @@ export function formDataParamAsObjectTemplate(
           data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
           data-pname="${fieldName}"
           data-content-type="${partContentType}"
+          data-object="true"
+          data-param-serialize-style="${ifDefined(urlEncoding.style)}"
+          data-param-serialize-explode="${ifDefined(urlEncoding.explode)}"
           data-example="${formdataPartExample[0]?.exampleValue || ""}"
           .value="${live(this.fillRequestFieldsWithExample === "true" ? formdataPartExample[0]?.exampleValue || "" : "")}"
           spellcheck="false"
@@ -158,6 +181,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = "", encoding =
       const partContentType = mimeType.includes("form-data")
         ? multipartPartContentType(fieldSchema, encoding?.[fieldName])
         : "";
+      const urlEncoding = urlEncodedFieldEncoding(mimeType, encoding?.[fieldName]);
       const paramSchema = getTypeInfo(fieldSchema);
       const fieldLabel = typeLabel(paramSchema.baseType, paramSchema.format, paramSchema.type);
       paramSchema.formatNote = fieldLabel.formatNote;
@@ -244,6 +268,8 @@ export function formDataTemplate(schema, mimeType, exampleValue = "", encoding =
                               data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
                               data-pname="${fieldName}"
                               data-content-type="${partContentType}"
+                              data-param-serialize-style="${ifDefined(urlEncoding.style)}"
+                              data-param-serialize-explode="${ifDefined(urlEncoding.explode)}"
                               data-example="${Array.isArray(fieldExamples) ? fieldExamples.join("~|~") : fieldExamples}"
                               data-array="true"
                               placeholder="add-multiple &#x21a9;"
@@ -265,6 +291,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = "", encoding =
                                 fieldSchema,
                                 mimeType,
                                 partContentType,
+                                encoding?.[fieldName],
                               )
                             : html`
                                 ${
@@ -278,6 +305,8 @@ export function formDataTemplate(schema, mimeType, exampleValue = "", encoding =
                                         data-ptype="${mimeType.includes("form-urlencode") ? "form-urlencode" : "form-data"}"
                                         data-pname="${fieldName}"
                                         data-content-type="${partContentType}"
+                                        data-param-serialize-style="${ifDefined(urlEncoding.style)}"
+                                        data-param-serialize-explode="${ifDefined(urlEncoding.explode)}"
                                         data-example="${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
                                         data-array="false"
                                       />`
