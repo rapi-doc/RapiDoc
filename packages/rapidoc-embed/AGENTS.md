@@ -9,14 +9,15 @@
 - **Dependencies**: `rapidoc` only (its `dist/integration.json` and bundle files)
 - **Versioning**: its own semver, outside the fixed group (root `AGENTS.md` §6)
 
-| File                                  | Role                                                                                                                         |
-| :------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------- |
-| `src/core.js` (`@rapidoc/embed/core`) | The contract: `renderHostPage`, `renderOAuthReceiverPage`, `embedRoutes`, `embedUrls`, `toAttributes`. Pure string functions |
-| `src/index.js`                        | The same functions with `manifest` defaulted to `rapidoc/integration.json` (JSON import)                                     |
-| `src/node.js` (`@rapidoc/embed/node`) | Paths and contents of rapidoc's `dist/` files                                                                                |
-| `conformance/README.md`               | The contract in words: options, routes, rendering rules                                                                      |
-| `conformance/fixtures/<case>/`        | `input.json` and `expected.html` or `expected.json`                                                                          |
-| `examples/node-server.js`             | A whole integration on `node:http` (launch config `embed-example`, port 4400)                                                |
+| File                                  | Role                                                                                                                                                                                          |
+| :------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core.js` (`@rapidoc/embed/core`) | The contract: `renderHostPage`, `renderOAuthReceiverPage`, `embedRoutes`, `embedUrls`, `toAttributes`. Pure string functions                                                                  |
+| `src/index.js`                        | The same functions with `manifest` defaulted to `rapidoc/integration.json` (JSON import)                                                                                                      |
+| `src/responder.js`                    | `createResponder(options, { readAsset })`: matches a request against the routes and returns status, headers and body. What the JavaScript server integrations share; not part of the contract |
+| `src/node.js` (`@rapidoc/embed/node`) | Paths and contents of rapidoc's `dist/` files                                                                                                                                                 |
+| `conformance/README.md`               | The contract in words: options, routes, rendering rules                                                                                                                                       |
+| `conformance/fixtures/<case>/`        | `input.json` and `expected.html` or `expected.json`                                                                                                                                           |
+| `examples/node-server.js`             | A whole integration on `node:http` (launch config `embed-example`, port 4400)                                                                                                                 |
 
 ---
 

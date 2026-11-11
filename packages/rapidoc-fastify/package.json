@@ -1,0 +1,56 @@
+{
+  "name": "@rapidoc/fastify",
+  "version": "0.0.0",
+  "description": "RapiDoc for Fastify: serves an interactive OpenAPI reference (<rapi-doc>) from your Fastify app",
+  "keywords": [
+    "api documentation",
+    "fastify",
+    "fastify-plugin",
+    "openapi",
+    "rapidoc",
+    "rapidoc-integration",
+    "swagger ui"
+  ],
+  "homepage": "https://rapidocui.com",
+  "bugs": {
+    "url": "https://github.com/rapi-doc/RapiDoc/issues"
+  },
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/rapidoc-fastify"
+  },
+  "files": [
+    "src",
+    "examples"
+  ],
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test tests/**/*.test.js"
+  },
+  "dependencies": {
+    "@rapidoc/embed": "^0.1.0"
+  },
+  "devDependencies": {
+    "fastify": "^5.12.8"
+  },
+  "peerDependencies": {
+    "fastify": ">=4.0.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

@@ -9,7 +9,7 @@ import { createRapidocMiddleware } from "./middleware.js";
  * It answers GET and HEAD on `path` (default `/docs`) and the files under it, and passes on the rest.
  */
 export function rapidoc(options = {}) {
-  return createRapidocMiddleware(options, { embed, readAsset, defaultAssets: "bundled" });
+  return createRapidocMiddleware(options, { embed, readAsset });
 }
 
 /** The version of rapidoc this package serves. */

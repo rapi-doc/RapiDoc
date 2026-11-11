@@ -1,0 +1,3 @@
+# VitePress writes these when the example is built or served
+example/.vitepress/cache/
+example/.vitepress/dist/

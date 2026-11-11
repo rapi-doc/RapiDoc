@@ -6,6 +6,6 @@ Versioning (`config.json`):
 
 - `rapidoc` (the web component) has its own version.
 - `@rapidoc/cli`, `portal`, `server`, `mock`, `prerender`, `mcp` and `create-rapidoc` are one `fixed` group: they always release together, with the same version.
-- `@rapidoc/embed` (the integration contract) and each integration (`@rapidoc/hono`, `@rapidoc/starlight`) have their own versions.
+- `@rapidoc/embed` (the integration contract) and each integration (`@rapidoc/hono`, `@rapidoc/express`, `@rapidoc/fastify`, `@rapidoc/starlight`, `@rapidoc/vitepress`) have their own versions.
 
 Releasing: [AGENTS.md](../AGENTS.md), "Releasing".

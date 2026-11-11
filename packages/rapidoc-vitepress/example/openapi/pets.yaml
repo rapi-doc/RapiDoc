@@ -1,0 +1,69 @@
+openapi: 3.1.0
+info:
+  title: Pets API
+  version: 1.0.0
+  description: A small API for the `@rapidoc/starlight` example.
+servers:
+  - url: https://api.example.com
+tags:
+  - name: Pets
+    description: Everything about pets.
+  - name: Owners
+paths:
+  /pets:
+    get:
+      tags: [Pets]
+      summary: List pets
+      operationId: listPets
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, example: 10 }
+      responses:
+        "200":
+          description: The pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Pet" }
+    post:
+      tags: [Pets]
+      summary: Add a pet
+      operationId: addPet
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Pet" }
+      responses:
+        "201":
+          description: Created
+  /pets/{petId}:
+    delete:
+      tags: [Pets]
+      summary: Remove a pet
+      deprecated: true
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Removed
+  /owners:
+    get:
+      tags: [Owners]
+      summary: List owners
+      responses:
+        "200":
+          description: The owners
+components:
+  schemas:
+    Pet:
+      type: object
+      required: [name]
+      properties:
+        id: { type: string, readOnly: true }
+        name: { type: string, example: Rex }
+        tag: { type: string, enum: [dog, cat, bird] }

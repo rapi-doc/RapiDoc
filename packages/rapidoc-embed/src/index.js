@@ -2,6 +2,7 @@
 // on, so `assets: "cdn"` loads that exact version with its SRI hash. JSON import: Node 22 and bundlers.
 import manifest from "rapidoc/integration.json" with { type: "json" };
 import * as core from "./core.js";
+import { createResponder as createUnboundResponder } from "./responder.js";
 
 export * from "./core.js";
 
@@ -15,3 +16,7 @@ export const toAttributes = (options) => core.toAttributes(bound(options));
 export const renderHostPage = (options) => core.renderHostPage(bound(options));
 export const renderOAuthReceiverPage = (options) => core.renderOAuthReceiverPage(bound(options));
 export const embedRoutes = (options) => core.embedRoutes(bound(options));
+
+/** `createResponder` of ./responder.js, with the manifest of the installed rapidoc. */
+export const createResponder = (options, runtime) =>
+  createUnboundResponder(bound(options), runtime);

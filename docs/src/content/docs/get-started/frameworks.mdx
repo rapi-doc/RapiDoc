@@ -1,6 +1,6 @@
 ---
 title: Framework Integration
-description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular, serve it from a Hono or FastAPI app, or add it to a Starlight site.
+description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular, serve it from a Hono, Express, Fastify or FastAPI app, or add it to a Starlight or VitePress site.
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -38,27 +38,22 @@ The element renders once it is defined; until then the browser shows it as an em
 
 ### TypeScript
 
-TypeScript doesn't know `<rapi-doc>` and reports `Property 'rapi-doc' does not exist on type 'JSX.IntrinsicElements'`. Declare it once, for example in `src/rapidoc.d.ts`:
+TypeScript doesn't know `<rapi-doc>` and reports `Property 'rapi-doc' does not exist on type 'JSX.IntrinsicElements'`. `rapidoc` ships the types; reference them once, for example in `src/rapidoc.d.ts`:
 
 ```typescript title="src/rapidoc.d.ts"
-import type { DetailedHTMLProps, HTMLAttributes } from 'react';
-
-declare module 'react' {
-  namespace JSX {
-    interface IntrinsicElements {
-      'rapi-doc': DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement> & {
-        'spec-url'?: string;
-        theme?: string;
-        'color-scheme'?: 'light' | 'dark' | 'system';
-        'render-style'?: 'read' | 'view' | 'focused';
-        'show-header'?: 'true' | 'false';
-        'allow-try'?: 'true' | 'false';
-        [attribute: string]: unknown;
-      };
-    }
-  }
-}
+/// <reference types="rapidoc/react" />
 ```
+
+Every attribute is then checked and completed in JSX: `render-style="nope"` is an error. For a typed ref, import the element's type:
+
+```tsx
+import type { RapiDocElement } from 'rapidoc';
+
+const ref = useRef<RapiDocElement>(null);
+// ref.current?.loadSpec('/openapi.json');
+```
+
+The types need `rapidoc` 12.2 or later. `<rapi-doc-mini>` and `<rapi-flow>` are typed from 12.2.1.
 
 ## Vue and Nuxt
 
@@ -95,6 +90,12 @@ export default defineNuxtConfig({
 ```
   </TabItem>
 </Tabs>
+
+For attribute checking in templates (with Volar), add the types once, for example in `src/rapidoc.d.ts`:
+
+```typescript title="src/rapidoc.d.ts"
+/// <reference types="rapidoc/vue" />
+```
 
 Then import RapiDoc when the component mounts:
 
@@ -165,6 +166,38 @@ app.use(rapidoc({ specUrl: '/openapi.json', options: { renderStyle: 'focused' } 
 
 The reference is at `/docs`; change it with `path`. `options` takes any [attribute of `<rapi-doc>`](/api/). On Cloudflare Workers, import from `@rapidoc/hono/edge`, which loads the bundle from a CDN instead of reading it from disk.
 
+### Express and Fastify
+
+:::note[Coming in the next release]
+`@rapidoc/express` and `@rapidoc/fastify` are not published on npm yet. This section describes them ahead of their first release.
+:::
+
+<Tabs>
+  <TabItem label="Express">
+```javascript
+import express from 'express';
+import { rapidoc } from '@rapidoc/express';
+
+const app = express();
+
+app.get('/openapi.json', (req, res) => res.json(openApiDocument));
+app.use(rapidoc({ specUrl: '/openapi.json' }));
+```
+  </TabItem>
+  <TabItem label="Fastify">
+```javascript
+import Fastify from 'fastify';
+import { rapidoc } from '@rapidoc/fastify';
+
+const fastify = Fastify();
+
+await fastify.register(rapidoc, { specUrl: '/openapi.json' });
+```
+  </TabItem>
+</Tabs>
+
+Both serve the reference at `/docs` and take the same options as the Hono package. Mounted under a prefix (`app.use('/api', …)`, or Fastify's `prefix`), the page's links include it.
+
 ### FastAPI
 
 ```bash
@@ -208,5 +241,39 @@ export default defineConfig({
 ```
 
 `spec` is a file, a URL or an object, read when the site is built. For several APIs pass `{ apis: [...] }`.
+
+### VitePress
+
+:::note[Coming in the next release]
+`@rapidoc/vitepress` is not published on npm yet. This section describes it ahead of its first release.
+:::
+
+VitePress has no plugin system, so there are two steps: wrap the config, and put the component on a page.
+
+```javascript title=".vitepress/config.mjs"
+import { defineConfig } from 'vitepress';
+import { withRapidoc, rapidocSidebar } from '@rapidoc/vitepress';
+
+export default withRapidoc(
+  defineConfig({
+    themeConfig: {
+      sidebar: [{ text: 'Pets API', items: await rapidocSidebar('./openapi.yaml', '/api') }],
+    },
+  }),
+  { apis: { pets: './openapi.yaml' } },
+);
+```
+
+```md title="api.md"
+---
+layout: page
+---
+
+<script setup>
+import { RapidocReference } from '@rapidoc/vitepress/client';
+</script>
+
+<RapidocReference api="pets" />
+```
 
 For another framework or site generator, see [Build an Integration](/docs/get-started/build-an-integration/).

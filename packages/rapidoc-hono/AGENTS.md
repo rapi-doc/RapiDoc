@@ -9,12 +9,12 @@
 - **Dependencies**: `@rapidoc/embed`; `hono` is a peer (`>=4`)
 - **Versioning**: its own semver, outside the fixed group (root `AGENTS.md` §6)
 
-| File                                 | Role                                                                                                                                      |
-| :----------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/middleware.js`                  | `createRapidocMiddleware(options, runtime)`: matches the request path against the route table of `@rapidoc/embed` and answers. No imports |
-| `src/index.js`                       | `rapidoc()` for Node, Bun and Deno: reads the bundle with `@rapidoc/embed/node`; `assets` defaults to `bundled`                           |
-| `src/edge.js` (`@rapidoc/hono/edge`) | `rapidoc()` for runtimes without a file system; `assets` defaults to `cdn`, `bundled` throws                                              |
-| `examples/server.js`                 | A Hono app with the middleware (launch config `hono-example`, port 4401)                                                                  |
+| File                                 | Role                                                                                                                                                          |
+| :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/middleware.js`                  | `createRapidocMiddleware(options, runtime)`: hands the request to `createResponder` of `@rapidoc/embed` and turns its answer into a Hono response. No imports |
+| `src/index.js`                       | `rapidoc()` for Node, Bun and Deno: reads the bundle with `@rapidoc/embed/node`; `assets` defaults to `bundled`                                               |
+| `src/edge.js` (`@rapidoc/hono/edge`) | `rapidoc()` for runtimes without a file system; `assets` defaults to `cdn`, `bundled` throws                                                                  |
+| `examples/server.js`                 | A Hono app with the middleware (launch config `hono-example`, port 4401)                                                                                      |
 
 ---
 

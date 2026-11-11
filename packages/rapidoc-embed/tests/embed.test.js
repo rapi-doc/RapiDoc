@@ -109,3 +109,48 @@ describe("@rapidoc/embed/node", () => {
     assert.throws(() => assetPath("../package.json"), TypeError);
   });
 });
+
+describe("createResponder", () => {
+  const respond = embed.createResponder({ specUrl: "/openapi.json" }, { readAsset });
+
+  it("answers the page, the OAuth return page and the bundle, and nothing else", async () => {
+    const page = await respond({ path: "/docs/" });
+    assert.equal(page.status, 200);
+    assert.equal(page.body, embed.renderHostPage({ specUrl: "/openapi.json" }));
+    assert.equal((await respond({ path: "/docs/oauth-receiver.html" })).status, 200);
+    const bundle = await respond({ path: "/docs/rapidoc-min.js" });
+    assert.equal(bundle.body.length, embed.rapidocManifest.files["rapidoc-min.js"].bytes);
+    assert.equal(await respond({ path: "/docs/other" }), null);
+    assert.equal(await respond({ path: "/docs", method: "POST" }), null);
+    assert.equal((await respond({ path: "/docs", method: "HEAD" })).status, 200);
+  });
+
+  it("answers 304 for a bundle the browser already has", async () => {
+    const { headers } = await respond({ path: "/docs/rapidoc-min.js" });
+    const again = await respond({ path: "/docs/rapidoc-min.js", ifNoneMatch: headers.etag });
+    assert.equal(again.status, 304);
+    assert.equal(again.body, null);
+  });
+
+  it("writes the public path and the nonce of the request into the page", async () => {
+    const page = await respond({ path: "/docs", publicPath: "/api/docs", nonce: "n1" });
+    assert.match(page.body, /src="\/api\/docs\/rapidoc-min\.js" nonce="n1"/);
+    const fixed = embed.createResponder({ publicPath: "/gw/docs", nonce: "n0" }, { readAsset });
+    assert.match(
+      (await fixed({ path: "/docs" })).body,
+      /src="\/gw\/docs\/rapidoc-min\.js" nonce="n0"/,
+    );
+  });
+
+  it("loads from the CDN without a file reader, and refuses to serve the bundle", async () => {
+    const cdn = embed.createResponder({ specUrl: "/openapi.json" });
+    assert.match((await cdn({ path: "/docs" })).body, /cdn\.jsdelivr\.net/);
+    assert.equal(await cdn({ path: "/docs/rapidoc-min.js" }), null);
+    assert.throws(() => embed.createResponder({ assets: "bundled" }), /cannot serve the bundle/);
+  });
+
+  it("answers nothing when disabled", async () => {
+    const off = embed.createResponder({ enabled: false }, { readAsset });
+    assert.equal(await off({ path: "/docs" }), null);
+  });
+});

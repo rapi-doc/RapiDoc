@@ -4,7 +4,7 @@ import * as embed from "@rapidoc/embed";
 import { createRapidocMiddleware } from "./middleware.js";
 
 export function rapidoc(options = {}) {
-  return createRapidocMiddleware(options, { embed, readAsset: null, defaultAssets: "cdn" });
+  return createRapidocMiddleware(options, { embed, readAsset: null });
 }
 
 export const rapidocVersion = embed.rapidocManifest.version;

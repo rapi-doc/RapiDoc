@@ -21,6 +21,17 @@ for (const route of embedRoutes(options)) {
 }
 ```
 
+For a server framework there is a shorter way: `createResponder` matches the request and produces the response, so the integration only passes values in and out.
+
+```js
+import { createResponder } from "@rapidoc/embed";
+import { readAsset } from "@rapidoc/embed/node";
+
+const respond = createResponder(options, { readAsset });
+const response = await respond({ method, path, ifNoneMatch }); // null: not for RapiDoc
+// otherwise { status, headers, body }
+```
+
 [`examples/node-server.js`](./examples/node-server.js) is a complete integration on `node:http`.
 
 ## Options
