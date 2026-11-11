@@ -1,5 +1,11 @@
 # rapidoc
 
+## 12.2.1
+
+### Patch Changes
+
+- e5cd554: `<rapi-doc-mini>` and `<rapi-flow>` are now in the published types and the Custom Elements Manifest: `RapiDocMiniElement` and `RapiDocMiniAttributes` from `rapidoc`, `RapiFlowElement` and `RapiFlowAttributes` from `rapidoc/flow`, and both elements in `rapidoc/react` and `rapidoc/vue`.
+
 ## 12.2.0
 
 ### Minor Changes

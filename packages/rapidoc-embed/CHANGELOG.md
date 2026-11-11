@@ -1,5 +1,16 @@
 # @rapidoc/embed
 
+## 0.2.0
+
+### Minor Changes
+
+- 4aaf108: `@rapidoc/embed` adds `createResponder(options, { readAsset })`: it matches a request against the routes and returns the status, headers and body, so a server integration only passes the request in and the response out. `@rapidoc/hono` now runs on it, with no change in behaviour.
+
+### Patch Changes
+
+- Updated dependencies [e5cd554]
+  - rapidoc@12.2.1
+
 ## 0.1.0
 
 ### Minor Changes
