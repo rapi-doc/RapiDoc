@@ -1,0 +1,224 @@
+// The public API of <rapi-doc> as data, read from packages/rapidoc/src/rapidoc.ts: each `@property`
+// declaration (attribute name, union type, initial value) with its doc comment, the documented methods
+// (`@public`), and the `@fires`, `@slot` and `@deprecatedAttr` tags of the class comment. Nothing is written
+// to disk: the docs /api page and scripts/rapidoc-metadata.js call readApiManifest() and so cannot differ
+// from the source. The tags are described in the class comment of rapidoc.ts.
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import ts from "typescript";
+
+const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const RAPIDOC_SOURCE = path.join(rootDir, "packages/rapidoc/src/rapidoc.ts");
+
+const TAGS = new Set([
+  "summary",
+  "group",
+  "default",
+  "allowedNote",
+  "example",
+  "hidden",
+  "internal",
+  "public",
+  "code",
+  "deprecated",
+  "fires",
+  "slot",
+  "deprecatedAttr",
+]);
+
+/**
+ * A doc comment as `{ description, tags: [{ name, text }] }`. A line starts a tag only when it begins with
+ * one of TAGS, so an `@` elsewhere (an email address, `@rapidoc/prerender`) is text. Lines are joined with
+ * newlines: descriptions are HTML, where that only matters inside <pre>, and `@code` is code.
+ */
+export function parseDocComment(raw = "") {
+  const lines = raw
+    .replace(/^\/\*\*/, "")
+    .replace(/\*\/$/, "")
+    .split("\n")
+    .map((line) => line.replace(/^\s*\* ?/, "").trimEnd());
+  const doc = { description: "", tags: [] };
+  let current = null;
+  const body = [];
+  const flush = () => {
+    const text = body.join("\n").trim();
+    if (current) doc.tags.push({ name: current, text });
+    else doc.description = text;
+    body.length = 0;
+  };
+  for (const line of lines) {
+    const match = /^@(\w+)\s?(.*)$/.exec(line.trimStart());
+    if (match && TAGS.has(match[1])) {
+      flush();
+      current = match[1];
+      body.push(match[2]);
+    } else {
+      body.push(line);
+    }
+  }
+  flush();
+  return doc;
+}
+
+const tagText = (doc, name) => doc.tags.find((tag) => tag.name === name)?.text;
+const tagTexts = (doc, name) => doc.tags.filter((tag) => tag.name === name).map((tag) => tag.text);
+const hasTag = (doc, name) => doc.tags.some((tag) => tag.name === name);
+
+function docOf(node, sourceFile) {
+  const comments = node.jsDoc ?? [];
+  return parseDocComment(comments.at(-1)?.getText(sourceFile));
+}
+
+/** The object literal passed to `@property(...)`, as `{ key: source text }`; null without the decorator. */
+function propertyOptions(node, sourceFile) {
+  for (const decorator of ts.getDecorators(node) ?? []) {
+    const call = decorator.expression;
+    if (!ts.isCallExpression(call) || call.expression.getText(sourceFile) !== "property") continue;
+    const options = {};
+    const [literal] = call.arguments;
+    if (literal && ts.isObjectLiteralExpression(literal)) {
+      for (const entry of literal.properties) {
+        if (ts.isPropertyAssignment(entry)) {
+          options[entry.name.getText(sourceFile)] = entry.initializer.getText(sourceFile);
+        }
+      }
+    }
+    return options;
+  }
+  return null;
+}
+
+/** The string literals of a union type ("" aside: unset, not a value to document); null when the type is not a list of values. */
+function allowedValues(typeNode) {
+  if (!typeNode) return null;
+  const members = ts.isUnionTypeNode(typeNode) ? typeNode.types : [typeNode];
+  const values = members
+    .filter((member) => ts.isLiteralTypeNode(member) && ts.isStringLiteral(member.literal))
+    .map((member) => member.literal.text)
+    .filter((value) => value !== "");
+  return values.length ? values : null;
+}
+
+function initialValue(initializer) {
+  if (!initializer) return undefined;
+  if (ts.isStringLiteral(initializer) || ts.isNoSubstitutionTemplateLiteral(initializer)) {
+    return initializer.text === "" ? "(empty)" : initializer.text;
+  }
+  if (ts.isNumericLiteral(initializer)) return Number(initializer.text);
+  return undefined;
+}
+
+function attributeEntry(member, options, doc, sourceFile) {
+  const propertyName = member.name.getText(sourceFile);
+  const name = options.attribute ? JSON.parse(options.attribute) : propertyName.toLowerCase();
+  const group = tagText(doc, "group");
+  if (!doc.description || !group) {
+    throw new Error(
+      `rapidoc.ts: attribute "${name}" (${propertyName}) needs a doc comment with a description and @group, or @internal`,
+    );
+  }
+  const entry = { name };
+  const values = allowedValues(member.type);
+  const notes = tagTexts(doc, "allowedNote");
+  if (values) entry.allowed = [...values, ...notes];
+  entry.description = doc.description;
+  const summary = tagText(doc, "summary");
+  if (summary) entry.summary = summary;
+  if (options.type === "Number") entry.type = "number";
+  const documented = tagText(doc, "default");
+  const value = documented ?? initialValue(member.initializer);
+  if (value !== undefined) entry.default = value;
+  const example = tagText(doc, "example");
+  if (example) entry.example = example;
+  if (hasTag(doc, "hidden")) entry.hidden = true;
+  return { group, entry };
+}
+
+/** `name - description`, or `- description` for the default slot. */
+function namedTag(text, what) {
+  const match = /^(?:(\S+)\s+)?-\s+([\s\S]+)$/.exec(text);
+  if (!match)
+    throw new Error(`rapidoc.ts: ${what} "${text.slice(0, 40)}" is not "name - description"`);
+  return { name: match[1] ?? "", description: match[2].trim() };
+}
+
+/**
+ * `{ Attributes: [{ "<group> Attributes": [...] }], Methods, Events, Slots }`, each of the last three
+ * as `{ items }`. Attributes and methods are in source order; groups in order of first use.
+ */
+export function readApiManifest(file = RAPIDOC_SOURCE) {
+  const sourceFile = ts.createSourceFile(
+    file,
+    fs.readFileSync(file, "utf8"),
+    ts.ScriptTarget.ES2022,
+    true,
+    ts.ScriptKind.TS,
+  );
+  const element = sourceFile.statements.find(
+    (statement) => ts.isClassDeclaration(statement) && statement.name?.text === "RapiDoc",
+  );
+  if (!element) throw new Error(`class RapiDoc not found in ${file}`);
+
+  const groups = new Map();
+  const addAttribute = (group, entry) => {
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group).push(entry);
+  };
+  const methods = [];
+
+  for (const member of element.members) {
+    if (ts.isPropertyDeclaration(member)) {
+      const options = propertyOptions(member, sourceFile);
+      if (!options || options.attribute === "false") continue;
+      const doc = docOf(member, sourceFile);
+      if (hasTag(doc, "internal")) continue;
+      const { group, entry } = attributeEntry(member, options, doc, sourceFile);
+      addAttribute(group, entry);
+    } else if (ts.isMethodDeclaration(member)) {
+      const doc = docOf(member, sourceFile);
+      if (!hasTag(doc, "public")) continue;
+      // `@public name(args)` documents that signature; otherwise the declared parameters
+      const parameters = member.parameters.map((parameter) => parameter.name.getText(sourceFile));
+      const entry = {
+        name:
+          tagText(doc, "public") || `${member.name.getText(sourceFile)}(${parameters.join(", ")})`,
+        description: doc.description,
+      };
+      const example = tagText(doc, "example");
+      if (example) entry.example = example;
+      const code = tagText(doc, "code");
+      if (code) entry.code = `${code}\n`;
+      methods.push(entry);
+    }
+  }
+
+  const classDoc = docOf(element, sourceFile);
+  for (const text of tagTexts(classDoc, "deprecatedAttr")) {
+    const [name, group, allowed, defaultValue, ...description] = text
+      .split("|")
+      .map((part) => part.replace(/\s+/g, " ").trim());
+    if (!description.length) {
+      throw new Error(`rapidoc.ts: @deprecatedAttr ${name} needs five fields separated by |`);
+    }
+    addAttribute(group, {
+      name,
+      deprecated: true,
+      allowed: allowed.split(",").map((value) => value.trim()),
+      description: description.join(" | "),
+      default: defaultValue,
+    });
+  }
+
+  return {
+    Attributes: [...groups].map(([group, items]) => ({ [`${group} Attributes`]: items })),
+    Methods: { items: methods },
+    Events: { items: tagTexts(classDoc, "fires").map((text) => namedTag(text, "@fires")) },
+    Slots: {
+      items: tagTexts(classDoc, "slot").map((text) => {
+        const slot = namedTag(text, "@slot");
+        return { ...slot, name: slot.name || "(default)" };
+      }),
+    },
+  };
+}

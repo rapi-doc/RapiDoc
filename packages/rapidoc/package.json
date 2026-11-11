@@ -43,15 +43,26 @@
   "type": "module",
   "main": "dist/rapidoc-min.js",
   "module": "dist/rapidoc-min.js",
+  "types": "dist/rapidoc.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/rapidoc.d.ts",
       "browser": "./dist/rapidoc-min.js",
       "default": "./dist/rapidoc-min.js"
     },
     "./flow": {
       "browser": "./dist/rapidoc-flow-min.js",
       "default": "./dist/rapidoc-flow-min.js"
-    }
+    },
+    "./react": {
+      "types": "./dist/react.d.ts"
+    },
+    "./vue": {
+      "types": "./dist/vue.d.ts"
+    },
+    "./integration.json": "./dist/integration.json",
+    "./options.schema.json": "./dist/rapidoc-options.schema.json",
+    "./custom-elements.json": "./dist/custom-elements.json"
   },
   "scripts": {
     "build": "vite build && vite build --config vite.config.flow.mjs && node ../../scripts/capture-build-info.js",
@@ -74,8 +85,10 @@
     "marked": "^18.1.3",
     "microlighter": "^2.2.0",
     "rollup-plugin-visualizer": "^7.1.2",
+    "typescript": "^5.9.3",
     "vite": "^8.3.6",
     "vite-plugin-banner": "^0.8.1",
     "yaml": "^2.9.1"
-  }
+  },
+  "customElements": "dist/custom-elements.json"
 }

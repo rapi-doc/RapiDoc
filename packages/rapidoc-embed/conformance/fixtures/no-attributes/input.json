@@ -1,0 +1,9 @@
+{
+  "description": "No attributes and no spec: the element on one line.",
+  "page": "host",
+  "options": {
+    "options": {
+      "oauth-receiver": null
+    }
+  }
+}

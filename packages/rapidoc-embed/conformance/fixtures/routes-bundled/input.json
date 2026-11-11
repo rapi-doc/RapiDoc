@@ -1,0 +1,7 @@
+{
+  "description": "Routes when the integration serves the bundle: the page, the OAuth return page, the bundle and its license file.",
+  "page": "routes",
+  "options": {
+    "path": "/reference"
+  }
+}

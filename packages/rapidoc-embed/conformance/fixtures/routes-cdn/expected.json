@@ -1,0 +1,12 @@
+[
+  {
+    "path": "/docs",
+    "kind": "page",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "path": "/docs/oauth-receiver.html",
+    "kind": "oauth-receiver",
+    "contentType": "text/html; charset=utf-8"
+  }
+]

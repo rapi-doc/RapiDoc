@@ -1,0 +1,17 @@
+{
+  "description": "An inline spec and no attributes at all.",
+  "page": "host",
+  "options": {
+    "spec": {
+      "openapi": "3.1.0",
+      "info": {
+        "title": "Pets",
+        "version": "1.0.0"
+      },
+      "paths": {}
+    },
+    "options": {
+      "oauth-receiver": null
+    }
+  }
+}

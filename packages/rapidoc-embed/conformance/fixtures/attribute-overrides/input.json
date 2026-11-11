@@ -1,0 +1,11 @@
+{
+  "description": "An attribute in options wins over the one the embed options produce.",
+  "page": "host",
+  "options": {
+    "specUrl": "/openapi.json",
+    "options": {
+      "spec-url": "/other.json",
+      "oauthReceiver": "/auth/callback.html"
+    }
+  }
+}

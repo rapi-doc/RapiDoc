@@ -1,0 +1,27 @@
+{
+  "description": "The bundle from the CDN at the manifest's version, with its SRI hash. The OAuth return page stays on the site.",
+  "page": "host",
+  "options": {
+    "specUrl": "/openapi.json",
+    "assets": "cdn",
+    "manifest": {
+      "contract": 1,
+      "name": "rapidoc",
+      "version": "0.0.0",
+      "elements": [
+        "rapi-doc",
+        "rapi-doc-mini",
+        "oauth-receiver"
+      ],
+      "cdn": "https://cdn.jsdelivr.net/npm/rapidoc@0.0.0/dist/",
+      "files": {
+        "rapidoc-min.js": {
+          "role": "script",
+          "contentType": "text/javascript; charset=utf-8",
+          "bytes": 0,
+          "integrity": "sha384-CONFORMANCE"
+        }
+      }
+    }
+  }
+}

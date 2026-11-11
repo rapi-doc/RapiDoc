@@ -1,0 +1,11 @@
+{
+  "description": "The bundle from a URL the developer gives, with an optional SRI hash.",
+  "page": "host",
+  "options": {
+    "specUrl": "/openapi.json",
+    "assets": {
+      "scriptUrl": "https://static.example.com/js/rapidoc-min.js?v=1&x=2",
+      "integrity": "sha384-CUSTOM"
+    }
+  }
+}

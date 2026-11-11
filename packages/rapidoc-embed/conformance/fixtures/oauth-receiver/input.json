@@ -1,0 +1,7 @@
+{
+  "description": "The OAuth return page, bundle served next to it.",
+  "page": "oauth-receiver",
+  "options": {
+    "path": "/reference"
+  }
+}

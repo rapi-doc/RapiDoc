@@ -1,0 +1,7 @@
+{
+  "description": "The usual case: a spec URL.",
+  "page": "host",
+  "options": {
+    "specUrl": "/openapi.json"
+  }
+}

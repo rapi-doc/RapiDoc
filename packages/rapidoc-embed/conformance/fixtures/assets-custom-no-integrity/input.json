@@ -1,0 +1,9 @@
+{
+  "description": "A custom URL without a hash: no integrity or crossorigin attribute.",
+  "page": "host",
+  "options": {
+    "assets": {
+      "scriptUrl": "/static/rapidoc-min.js"
+    }
+  }
+}

@@ -17,6 +17,7 @@ rapidoc/
 │   ├── rapidoc-server/   # Serves a built portal with OIDC sign-in and access rules (@rapidoc/server, `rapidoc serve`)
 │   ├── rapidoc-mock/     # Mock server for the portal's APIs, with OAuth scope checks (@rapidoc/mock, `rapidoc mock`)
 │   ├── rapidoc-prerender/ # Build-time renderer: pre-rendered <rapi-doc>, sidebar HTML, Arazzo SVG (@rapidoc/prerender)
+│   ├── rapidoc-embed/    # Integration contract: standard host page for <rapi-doc>, routes, conformance fixtures (@rapidoc/embed)
 │   ├── rapidoc-mcp/      # MCP manifest builder, runtime and project writer for Node (@rapidoc/mcp), built from rapidoc/src
 │   └── create-rapidoc/   # Scaffolding CLI for new portals (npm create rapidoc)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
@@ -52,6 +53,10 @@ All agents must strictly adhere to the following system boundaries:
   - `rapidoc` is published to npm as standalone browser bundles (`dist/rapidoc-min.js`, `dist/rapidoc-flow-min.js`) with an empty `dependencies` list: its libraries are `devDependencies`, bundled by Vite. Which ones are bundled: `dist/<bundle>.LICENSE.txt`, written by every build with each bundled package's version, license and notice. Copies of a bundle (the portal's `public/assets/`, the docs site's `dist/rapidoc/`) take that file along. Never add a runtime dependency or a Node-only export to it; Node entry points are separate packages (`@rapidoc/prerender`, `@rapidoc/mcp`).
   - Third-party runtime dependencies (e.g., `lit`, `@scalar/openapi-parser`, `marked`, `microlighter`, `github-slugger`) are bundled directly into `dist/rapidoc-min.js` via Vite.
   - Never import code from `docs/` or other sub-packages into `packages/rapidoc`.
+  - Its public API reference is written once, in `src/rapidoc.ts`: each attribute is a `@property` declaration with a union type for its allowed values, its initial value as the default, and a doc comment (`@group`, and optionally `@default`, `@example`, `@hidden`); public methods have a doc comment with `@public`; events, slots and removed attributes are `@fires`, `@slot` and `@deprecatedAttr` tags on the class. `scripts/rapidoc-api.js` reads that with the TypeScript parser. The docs `/api` page renders the result, and every build turns it into `dist/` metadata (`scripts/rapidoc-metadata.js`): `rapidoc-options.schema.json`, `custom-elements.json`, `rapidoc.d.ts` (+ `react.d.ts`, `vue.d.ts`), `oauth-receiver.html` and `integration.json` (version, files, SRI hashes). An attribute without a description and `@group` (or `@internal`) fails the build and `tests/unit/api-manifest.test.js`.
+- **Integrations (`packages/rapidoc-embed` [@rapidoc/embed])**:
+  - The contract every RapiDoc integration (framework middleware, docs-site plugin, tool extension) implements: options, routes and the host page's HTML. `src/core.js` has no imports; its output is fixed by `conformance/fixtures/`, which ports in other languages also run. Changing that output needs a new contract version.
+  - Depends only on `rapidoc` (`integration.json` and the bundle files). Framework-specific integrations are separate packages that depend on it.
 - **Node packages built from the core source (`packages/rapidoc-prerender`, `packages/rapidoc-mcp`)**:
   - `@rapidoc/prerender` owns its renderer (`src/`) and renders the templates, components and styles of `packages/rapidoc/src`; `@rapidoc/mcp` is only an entry over the MCP code there. Both bundle that source by relative path and publish `dist/` plus types only. The dependency runs one way: nothing in `packages/rapidoc/src` imports them.
   - Both must be built before the portal, server or `prerender:demo` use them in the monorepo: `npm run build:prerender`, `npm run build:mcp` (`pretest:portal`, `build` and `build:demo` run them).
@@ -119,7 +124,7 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run test:component` | Monorepo   | Runs `tests/component/*.test.js`.                                                                                                                          |
 | `npm run test:e2e`       | Monorepo   | Runs `tests/e2e/*.test.js`.                                                                                                                                |
 | `npm run test:all`       | Monorepo   | Runs `test:unit`, `test:component` and `test:e2e` in sequence.                                                                                             |
-| `npm run test:portal`    | Portal/CLI | Runs `tests/**/*.test.js` in `rapidoc-portal`, `rapidoc-cli`, `rapidoc-server`, `rapidoc-mock`, and `create-rapidoc` (serially, `--test-concurrency=1`).   |
+| `npm run test:portal`    | Portal/CLI | Runs `tests/**/*.test.js` in `rapidoc-portal`, `rapidoc-cli`, `rapidoc-server`, `rapidoc-mock`, `create-rapidoc` and `rapidoc-embed` (serially, `--test-concurrency=1`).   |
 | `npm run test:parser`    | Monorepo   | Runs `tests/perf/benchmark.js` to measure OpenAPI spec parsing, circular ref handling, and dereferencing times across Bookstore, Stripe, and GitHub specs. |
 | `npm run test:perf`      | Monorepo   | Runs `tests/perf/render-benchmark.js` measuring headless browser rendering performance across Focused, View, and Read modes.                               |
 
@@ -157,7 +162,7 @@ Both tools run with their defaults. oxlint has no config file; oxfmt's `.oxfmtrc
 - Built with **Astro 7** and **Starlight**.
 - Documentation content resides in `src/content/docs/`.
 - Dynamic and interactive demo pages reside in `src/pages/` and `src/pages/examples/`.
-- YAML configuration for attributes and methods lives in `src/page-data/`.
+- YAML page data lives in `src/page-data/`. The attribute, method, event and slot reference is not there: it is read from the doc comments of `packages/rapidoc/src/rapidoc.ts`.
 - Ensure redirects in `docs/astro.config.mjs` are maintained when reorganizing routes.
 
 ---
@@ -180,6 +185,7 @@ When executing tasks in this repository, follow these rules:
      - [`packages/rapidoc-mcp/AGENTS.md`](packages/rapidoc-mcp/AGENTS.md)
      - [`packages/rapidoc-portal/AGENTS.md`](packages/rapidoc-portal/AGENTS.md)
      - [`packages/create-rapidoc/AGENTS.md`](packages/create-rapidoc/AGENTS.md)
+     - [`packages/rapidoc-embed/AGENTS.md`](packages/rapidoc-embed/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.
 3. **No Unsolicited File Deletions**:
    - Preserve existing public specs (`docs/public/specs/`)
@@ -193,9 +199,10 @@ When executing tasks in this repository, follow these rules:
 
 Versions and npm publishing go through [Changesets](https://changesets.dev) (`.changeset/config.json`) and `.github/workflows/release.yml`. Never run `npm publish` by hand.
 
-- **Two version tracks**:
+- **Version tracks**:
   - `rapidoc` (the web component) has its own semver: a major means `<rapi-doc>` changed in a way its users see.
   - `@rapidoc/cli`, `portal`, `server`, `mock`, `prerender`, `mcp` and `create-rapidoc` are one `fixed` group: every release bumps all seven to the same version. While they are 0.x, a minor (0.2.0) is breaking and a patch is a fix or an addition; they go to 1.0.0 together.
+  - `@rapidoc/embed` has its own semver, outside the group: integrations should not re-release with every portal release. A change to the output of its `src/core.js` is a new contract version and a breaking release.
 - **Every pull request that changes a published package adds a changeset**: `npm run changeset`, pick the packages and the bump, write one changelog line in the user's terms. Changes that release nothing (docs site, tests, tooling) need none.
 - **`rapidoc` source is also in `@rapidoc/prerender` and `@rapidoc/mcp`**: both bundle `packages/rapidoc/src` at build time, which Changesets can't see. A change to its templates, components or styles (prerender) or to `utils/mcp/` and `utils/arazzo/` (mcp) needs those packages in its changeset too, so the portal's pre-rendered HTML and the `rapidoc-min.js` that takes it over come from the same source.
 - **The flow**: changesets merged to `master` → the workflow opens or updates the "chore: release packages" pull request (`npm run version-packages`: versions, changelogs, internal ranges, lockfile). Merging it → the workflow builds (`npm run build:packages`), runs `test:unit`, packs, publishes with npm trusted publishing (no token), and creates git tags and GitHub releases.

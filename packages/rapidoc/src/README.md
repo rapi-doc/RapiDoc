@@ -18,11 +18,13 @@ It does not own parsing, rendering or styling: a spec goes through `ProcessSpec`
 
 Dependents: page authors (attributes, methods, events), `@rapidoc/portal` and
 `utils/bind-navbar.js` (navigation hooks), and the docs site, which renders the attribute, method
-and event reference from `docs/src/page-data/rapidoc-api.yaml`.
+and event reference from the doc comments of `rapidoc.ts` (`scripts/rapidoc-api.js`), which the
+build also turns into `dist/` metadata (`scripts/rapidoc-metadata.js`).
 
 ## Interface
 
-What `rapidoc-api.yaml` documents is the supported API, plus the portal hooks listed below. Every
+What the doc comments of `rapidoc.ts` document (attributes with `@group`, methods with `@public`,
+`@fires`, `@slot`) is the supported API, plus the portal hooks listed below. Every
 other member is internal; templates call internal members freely through `this`.
 
 - `index.js`: default export is the object `{ RapiDoc }` (not the class); named exports

@@ -1,0 +1,95 @@
+# What the /api page shows that is not declared in the element: the section introductions and the spec
+# extensions (x-*) RapiDoc reads. Attributes, methods, events and slots come from the doc comments of
+# packages/rapidoc/src/rapidoc.ts (scripts/rapidoc-api.js).
+Methods:
+  description: JavaScript methods exposed directly on the `<rapi-doc>` DOM element for programmatic control.
+Events:
+  description: Custom DOM events dispatched by `<rapi-doc>` to intercept requests, handle lifecycle transitions, and customize runtime behavior.
+Slots:
+  description: Standard HTML Web Component placeholders inside `<rapi-doc>` allowing seamless injection of custom markup, branding, and navigation elements.
+Extensions:
+  description: Vendor extensions (x-* attributes) supported in your OpenAPI specifications to enrich RapiDoc presentations.
+  items:
+    - name: x-code-sample
+      description: Provides multi-language code snippets (cURL, Python, JavaScript, Go, etc.) for an endpoint.
+    - name: x-codeSample
+      description: Alternative camelCase syntax for x-code-sample. Provides multi-language code snippets for an endpoint.
+    - name: x-badges
+      description: |
+        Annotates endpoints with short, color-coded badges (e.g., "Internal", "Beta", "v2"). Combine with the <span class="mono yellow">remove-endpoints-with-badge-label-as</span> attribute to filter out restricted or internal APIs from public documentation.
+    - name: x-tagGroups
+      description: |
+        Top-level vendor extension defining a 3-tier navigation hierarchy (compatible with ReDoc / Zudoku). Organizes API tags into higher-level groups in the sidebar navigation, read mode sections, and view mode accordions. Takes an array of group objects, each with <code>name</code>, optional <code>description</code>, and a <code>tags</code> list of tag names.
+      example: /examples/arrange-by-tags
+    - name: x-tag-groups
+      description: Alternative kebab-case syntax for <span class="mono yellow">x-tagGroups</span>.
+    - name: x-tag-expanded
+      allowed:
+        - "true"
+        - "false"
+      description: |
+        Controls initial expansion state. Can be configured on individual tags or on top-level <span class="mono yellow">x-tagGroups</span> items to start sections expanded or collapsed.
+      default: "true"
+    - name: x-fill-example
+      allowed:
+        - yes
+        - no
+      description: |
+        Specifies whether a parameter's example value should be automatically populated in the interactive console input. To configure this behavior globally for all parameters, see <span class="mono yellow">fill-request-fields-with-example</span>.
+    - name: x-example-show-value
+      allowed:
+        - "true"
+        - "false"
+      description: Specifies whether parameter example values should be visibly rendered on the documentation card.
+    - name: x-client-id
+      description: Pre-fills the OAuth2 client ID in authentication modals.
+    - name: x-client-secret
+      description: Pre-fills the OAuth2 client secret in authentication modals.
+    - name: x-default-scopes
+      description: Pre-fills default OAuth2 permission scopes in authentication modals.
+    - name: x-receive-token-in
+      default: request-body
+      allowed:
+        - request-body
+        - header
+      description: Defines whether client credentials (client_id / client_secret) are sent via request body or HTTP Authorization header (<span class="yellow mono">request-body</span> or <span class="yellow mono">header</span>). Default is <span class="yellow mono">request-body</span>.
+    - name: x-receive-token-in-options
+      description: Restricts the client authentication options available in the UI dropdown (e.g. <code>["request-body", "header"]</code>).
+    - name: x-pkce-only
+      allowed:
+        - "true"
+        - "false"
+      description: When set to "true", enforces Proof Key for Code Exchange (PKCE) flow and prevents client secrets from being transmitted from the browser.
+    - name: x-authorize-params
+      description: |
+        Object or query string defining custom parameters appended to the OAuth2 authorizationUrl query string (e.g. proxy launch tokens, prompt, audience). Supported at both security scheme and individual flow levels.<br/><br/> <span class="yellow">Example:</span> <pre><code class="language-yaml"> components:
+          securitySchemes:
+            oauth-flow:
+              type: oauth2
+              flows:
+                authorizationCode:
+                  authorizationUrl: https://auth.example.com/oauth2/authorize
+                  tokenUrl: https://auth.example.com/oauth2/token
+                  x-authorize-params:
+                    launch: xyz123
+                    prompt: consent
+                    audience: https://api.mycompany.com
+                  scopes:
+                    read: Read access
+        </code></pre>
+    - name: x-token-params
+      description: |
+        Object or form parameters sent in the POST request body to the OAuth2 tokenUrl (e.g. custom proxy fields, resource, audience). Supported at both security scheme and individual flow levels.<br/><br/> <span class="yellow">Example:</span> <pre><code class="language-yaml"> components:
+          securitySchemes:
+            oauth-flow:
+              type: oauth2
+              flows:
+                authorizationCode:
+                  authorizationUrl: https://auth.example.com/oauth2/authorize
+                  tokenUrl: https://auth.example.com/oauth2/token
+                  x-token-params:
+                    audience: https://api.mycompany.com
+                    resource: urn:my:resource:server
+                  scopes:
+                    read: Read access
+        </code></pre>

@@ -7,6 +7,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { transform } from "esbuild";
 import pkg from "./package.json" with { type: "json" };
 import { thirdPartyLicenses, LICENSE_FILE_SUFFIX } from "../../scripts/third-party-licenses.js";
+import { rapidocMetadata } from "../../scripts/rapidoc-metadata.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,6 +37,8 @@ export default defineConfig(({ mode }) => {
       ),
       // <bundle>.LICENSE.txt: notices of the npm packages bundled in, which minification strips.
       thirdPartyLicenses({ owner: `${pkg.name} ${pkg.version}` }),
+      // Schema, custom elements manifest, types, oauth-receiver.html and integration.json (after the bundle is written).
+      rapidocMetadata(),
       ...(!isDev
         ? [
             {

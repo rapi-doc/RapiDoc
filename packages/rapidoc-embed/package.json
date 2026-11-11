@@ -1,0 +1,59 @@
+{
+  "name": "@rapidoc/embed",
+  "version": "0.0.0",
+  "description": "The RapiDoc integration contract: renders the standard host page for <rapi-doc>, with conformance fixtures for integrations in any language",
+  "keywords": [
+    "api documentation",
+    "embed",
+    "integration",
+    "middleware",
+    "openapi",
+    "rapidoc"
+  ],
+  "homepage": "https://rapidocui.com",
+  "bugs": {
+    "url": "https://github.com/rapi-doc/RapiDoc/issues"
+  },
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/rapidoc-embed"
+  },
+  "files": [
+    "src",
+    "conformance",
+    "examples"
+  ],
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./core": {
+      "types": "./src/core.d.ts",
+      "default": "./src/core.js"
+    },
+    "./node": {
+      "types": "./src/node.d.ts",
+      "default": "./src/node.js"
+    },
+    "./conformance/*": "./conformance/*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test tests/**/*.test.js"
+  },
+  "dependencies": {
+    "rapidoc": "^12.1.2"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

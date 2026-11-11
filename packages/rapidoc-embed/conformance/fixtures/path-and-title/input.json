@@ -1,0 +1,9 @@
+{
+  "description": "A path with a prefix and a trailing slash (removed); the title is escaped.",
+  "page": "host",
+  "options": {
+    "path": "/api/v2/reference/",
+    "title": "Orders & Returns <internal>",
+    "specUrl": "/api/v2/openapi.json"
+  }
+}

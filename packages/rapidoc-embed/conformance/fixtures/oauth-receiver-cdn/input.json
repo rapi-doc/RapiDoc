@@ -1,0 +1,27 @@
+{
+  "description": "The OAuth return page loading the bundle from the CDN, with a nonce.",
+  "page": "oauth-receiver",
+  "options": {
+    "assets": "cdn",
+    "nonce": "r4nd0m",
+    "manifest": {
+      "contract": 1,
+      "name": "rapidoc",
+      "version": "0.0.0",
+      "elements": [
+        "rapi-doc",
+        "rapi-doc-mini",
+        "oauth-receiver"
+      ],
+      "cdn": "https://cdn.jsdelivr.net/npm/rapidoc@0.0.0/dist/",
+      "files": {
+        "rapidoc-min.js": {
+          "role": "script",
+          "contentType": "text/javascript; charset=utf-8",
+          "bytes": 0,
+          "integrity": "sha384-CONFORMANCE"
+        }
+      }
+    }
+  }
+}

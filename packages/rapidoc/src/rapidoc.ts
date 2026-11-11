@@ -76,6 +76,128 @@ const paramsConverter = {
 // Input that marks the reader's first interaction with the page (see getContentScrollBehavior)
 const INTERACTION_EVENTS = ["pointerdown", "keydown", "wheel", "touchstart"];
 
+/**
+ * `<rapi-doc>`: an OpenAPI reference with a built-in console.
+ *
+ * The doc comments in this class are the element's public API reference. `scripts/rapidoc-api.js` reads
+ * them, with each attribute's type and initial value, into the manifest that the docs /api page and the
+ * metadata in dist/ (schema, custom elements manifest, types) are built from. Descriptions are HTML.
+ *
+ * On an attribute: `@summary` (one line, for places too small for the description, such as the tuner),
+ * `@group` (heading on /api), `@default` (when it is not the initial value),
+ * `@allowedNote`, `@example` (a page showing it), `@hidden` (kept off /api), `@internal` (not an
+ * attribute for page authors). On a method: `@public` (followed by the signature to document, when the
+ * method takes internal arguments too), `@example`, `@code`. On the class: `@fires`,
+ * `@slot`, and `@deprecatedAttr name | group | allowed values | default | description` for an attribute
+ * the element no longer reads.
+ *
+ * @fires before-render - Dispatched before rendering starts. Provides the parsed OpenAPI
+ * specification object via <span class="mono yellow">e.detail.spec</span>, allowing programmatic
+ * modifications before the UI tree is built.
+ * @fires spec-loaded - Dispatched after the OpenAPI specification has been fully fetched, parsed,
+ * resolved, and rendered into the DOM. Provides the resolved spec object in <span class="mono
+ * yellow">e.detail</span>.
+ * @fires nav-active-change - Dispatched when the active section changes, either through
+ * programmatic navigation (<span class="mono yellow">scrollToPath</span>, a hash change) or because
+ * scrolling brought a different operation or tag into view. Bubbles and is composed, so a
+ * page-level listener outside the shadow DOM receives it. <span class="mono
+ * yellow">e.detail.id</span> and <span class="mono yellow">e.detail.elementId</span> carry the
+ * section's element id; <span class="mono yellow">e.detail.operationId</span> is set when the
+ * section is an operation. Static sidebars rendered with <span class="mono
+ * yellow">@rapidoc/prerender</span> and <span class="mono yellow">bindNavBar</span> use it to
+ * highlight the current item.
+ * @fires before-try - Dispatched when a user clicks "TRY" before the network request is initiated.
+ * Provides a mutable <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request"
+ * target="_blank" rel="noopener">Request-like object</a> via <span class="mono
+ * yellow">e.detail.request</span> to append headers, rewrite parameters, or modify payloads, along
+ * with an <a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController"
+ * target="_blank" rel="noopener">AbortController</a> via <span class="mono
+ * yellow">e.detail.controller</span> to abort requests conditionally. <br/><br/> <span
+ * class="yellow">Example:</span> Append custom authorization headers before sending:
+ * <pre><code class="language-js"> rapidocEl.addEventListener('before-try', (e) => {
+ *   if (e.detail.request.method === 'POST') {
+ *     e.detail.request.headers.append('X-Tenant-ID', 'corp-acme-123');
+ *   }
+ * }); </code></pre>
+ * <span class="yellow">Example:</span> Append query parameters to all GET requests:
+ * <pre><code class="language-js"> rapidocEl.addEventListener('before-try', (e) => {
+ *   if (e.detail.request.method === 'GET') {
+ *     const url = new URL(e.detail.request.url);
+ *     url.searchParams.append('client_version', '2.4.0');
+ *     e.detail.request.url = url.toString();
+ *   }
+ * }); </code></pre>
+ * <span class="yellow">Example:</span> Abort specific requests conditionally:
+ * <pre><code class="language-js"> rapidocEl.addEventListener('before-try', (e) => {
+ *   if (e.detail.request.method === 'DELETE') {
+ *     alert('DELETE operations are disabled in this sandbox environment.');
+ *     e.detail.controller.abort();
+ *   }
+ * }); </code></pre>
+ * @fires after-try - Dispatched after a try request completes. Provides <span class="mono
+ * yellow">e.detail.request</span> and <span class="mono yellow">e.detail.response</span>. In the
+ * event of a network or protocol error, provides request and error objects.
+ * @fires request-aborted - Dispatched when an in-flight API try request is aborted by the user or
+ * programmatically via AbortController.
+ * @fires api-server-change - Dispatched when the active target API server is modified in the
+ * dropdown.
+ * @fires before-authorize - Dispatched immediately before opening the OAuth authorization popup
+ * window. Provides <span class="mono yellow">e.detail.securitySchemeId</span>, <span class="mono
+ * yellow">e.detail.flowType</span>, <span class="mono yellow">e.detail.authUrl</span>, and mutable
+ * <span class="mono yellow">e.detail.authParams</span> (<a
+ * href="https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams" target="_blank"
+ * rel="noopener">URLSearchParams</a>). Calling <span class="mono yellow">e.preventDefault()</span>
+ * cancels opening the authorization window. <br/><br/> <span class="yellow">Example:</span>
+ * Dynamically inject a launch token or proxy parameter:
+ * <pre><code class="language-js"> rapidocEl.addEventListener('before-authorize', (e) => {
+ *   e.detail.authParams.set('launch', 'xyz123');
+ * }); </code></pre>
+ * @fires before-token-request - Dispatched immediately before sending the POST request to the
+ * OAuth2 token endpoint. Provides <span class="mono yellow">e.detail.securitySchemeId</span>, <span
+ * class="mono yellow">e.detail.grantType</span>, <span class="mono
+ * yellow">e.detail.tokenUrl</span>, mutable <span class="mono yellow">e.detail.params</span> (<a
+ * href="https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams" target="_blank"
+ * rel="noopener">URLSearchParams</a>), <span class="mono yellow">e.detail.headers</span> (<a
+ * href="https://developer.mozilla.org/en-US/docs/Web/API/Headers" target="_blank"
+ * rel="noopener">Headers</a>), and mutable <span class="mono yellow">e.detail.request</span>.
+ * Calling <span class="mono yellow">e.preventDefault()</span> cancels the token request. <br/><br/>
+ * <span class="yellow">Example:</span> Add a custom token audience or header:
+ * <pre><code class="language-js"> rapidocEl.addEventListener('before-token-request', (e) => {
+ *   e.detail.params.set('audience', 'https://api.mycompany.com');
+ *   e.detail.headers.set('X-Client-Version', '1.0.0');
+ * }); </code></pre>
+ *
+ * @slot - Any standard markup placed directly inside the `<rapi-doc>` tag renders immediately below
+ * the header bar and above the specification info overview.
+ * @slot logo - Custom HTML or image markup to replace the default brand logo in the top header bar.
+ * @slot header - Custom HTML elements rendered in the top header bar following the spec URL input
+ * controls.
+ * @slot footer - Custom HTML elements rendered at the bottom of the documentation canvas.
+ * @slot nav-logo - Custom image or branding markup placed at the top of the sidebar navigation
+ * panel (available in read mode).
+ * @slot overview - Custom HTML rendered inside the overview section at the top of the document.
+ * Link directly to this anchor using <span class="mono yellow">#overview</span>.
+ * @slot servers - Custom HTML rendered inside the server configuration section located under the
+ * overview container. Link directly using <span class="mono yellow">#servers</span>.
+ * @slot auth - Custom HTML rendered inside the authentication controls panel under the overview
+ * section. Link directly using <span class="mono yellow">#auth</span>.
+ * @slot operations-top - Custom HTML displayed directly above the operations list. Use this slot to
+ * provide global announcements, common headers, or usage instructions applicable across all API
+ * calls. Link directly using <span class="mono yellow">#operations-top</span>.
+ * @slot tag--{tag-name} - Inserts custom HTML content underneath a specific tag grouping identified
+ * by tag name.
+ * @slot {method}-{path} - Inserts custom HTML into a specific endpoint section. Identified by <span
+ * class="mono yellow">{method}-{path}</span>, where special characters such as brackets, spaces,
+ * and hashes are replaced by hyphens (e.g. <span class="mono yellow">get-/pet/-petId-</span>).
+ *
+ * @deprecatedAttr nav-active-item-marker | Sidebar & Navigation | left-bar, colored-block |
+ * left-bar | <span class="red bold">[DEPRECATED]</span> RapiDoc now standardizes on the modern
+ * left-bar active indicator across all modes.
+ * @deprecatedAttr on-nav-tag-click | Sidebar & Navigation | expand-collapse, show-description |
+ * expand-collapse | <span class="red bold">[DEPRECATED]</span> A click on a tag's name shows the
+ * tag's description; a click on its arrow expands or collapses it.<br/> Previously configured
+ * sidebar tag click behavior in focused mode.
+ */
 @customElement("rapi-doc")
 export default class RapiDoc extends LitElement {
   constructor() {
@@ -102,122 +224,708 @@ export default class RapiDoc extends LitElement {
     this.initIntersectionObserver();
   }
 
-  // Heading
-  @property({ type: String, attribute: "heading-text" }) headingText = "";
-  @property({ type: String, attribute: "goto-path" }) gotoPath = "";
+  // Spec & Content
+  /**
+   * URL of the OpenAPI specification file (JSON or YAML) to load and render.
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "spec-url" })
+  specUrl = "";
 
-  // Spec
-  @property({ type: String, attribute: "update-route" }) updateRoute = "true";
-  @property({ type: String, attribute: "spec-url" }) specUrl = "";
-  @property({ type: String, attribute: "sort-tags" }) sortTags = "false";
-  @property({ type: String, attribute: "sort-schemas" }) sortSchemas = "false";
-  @property({ type: String, attribute: "generate-missing-tags" }) generateMissingTags = "false";
-  @property({ type: String, attribute: "show-unused-tags" }) showUnusedTags = "false";
-  @property({ type: String, attribute: "sort-endpoints-by" }) sortEndpointsBy = "path";
-  @property({ type: String, attribute: false }) specFile: any;
+  /**
+   * Sorts tags in alphabetical order. When set to "false", preserves the tag order defined in the
+   * OpenAPI specification.
+   * @summary Alphabetically sort tag sections in sidebar
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "sort-tags" })
+  sortTags: "true" | "false" = "false";
 
-  // UI Layouts
-  @property({ type: String, reflect: true }) layout = "row";
-  @property({ type: String, attribute: "render-style" }) renderStyle = "read";
-  @property({ type: String, attribute: "default-schema-tab" }) defaultSchemaTab = "example";
-  @property({ type: String, attribute: "response-area-height" }) responseAreaHeight = "400px";
+  /**
+   * Sorts component schemas alphabetically. When set to "false", preserves the order defined in the
+   * spec. <span class="orange bold">Note:</span> Only has an effect if <span class="mono
+   * yellow">render-style="focused"</span> and <span class="mono
+   * yellow">show-components="true"</span>.
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "sort-schemas" })
+  sortSchemas: "true" | "false" = "false";
+
+  /**
+   * Sorts endpoints within each tag group by path, HTTP method, or summary. 'none' leaves the sort
+   * order unmodified.<br/> <span class="green">ⓘ This is a static initialization attribute. It will
+   * not have any effect if modified using JavaScript after the spec is rendered.</span>
+   * @group Spec & Content
+   * @example /examples/arrange-by-tags
+   */
+  @property({ type: String, attribute: "sort-endpoints-by" })
+  sortEndpointsBy: "path" | "method" | "summary" | "none" = "path";
+
+  /**
+   * Shows tags that no operation uses, as long as they have a <span class="mono
+   * fg-color">description</span>, so a tag can hold a guide or concepts section (written in
+   * markdown) next to the operations. Each such tag gets a section and a sidebar link. When
+   * "false", tags without operations are left out, except those the spec lists in <span class="mono
+   * fg-color">x-tagGroups</span>, which show either way.<br/> <span class="green">ⓘ This is a
+   * static initialization attribute. It will not have any effect if modified using JavaScript after
+   * the spec is rendered.</span>
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "show-unused-tags" })
+  showUnusedTags: "true" | "false" = "false";
+
+  /**
+   * Groups operations that have no tag under a tag made from the first segment of their path.
+   * @group Spec & Content
+   * @hidden
+   */
+  @property({ type: String, attribute: "generate-missing-tags" })
+  generateMissingTags: "true" | "false" = "false";
+
+  /**
+   * Filters and renders only endpoints matching a specific substring or regular expression,
+   * enabling audience segmentation (e.g., showing only public endpoints). The matching strategy is
+   * configured via <span class="mono yellow">match-type</span>.
+   * @group Spec & Content
+   * @example /examples/search
+   */
+  @property({ type: String, attribute: "match-paths" })
+  matchPaths = "";
+
+  /**
+   * Defines whether match-paths filters by simple substring inclusion or regular expression pattern
+   * matching.
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "match-type" })
+  matchType: "includes" | "regex" = "includes";
+
+  /**
+   * Comma-separated badge labels to exclude from the rendered documentation. Works in tandem with
+   * the <span class="mono yellow">x-badges</span> vendor extension to filter out internal, beta, or
+   * deprecated endpoints from customer-facing views.
+   * @group Spec & Content
+   * @example /examples/badges
+   */
+  @property({ type: String, attribute: "remove-endpoints-with-badge-label-as" })
+  removeEndpointsWithBadgeLabelAs = "";
+
+  // Layout & Scrolling
+  /**
+   * Controls the overall documentation presentation layout. Three distinct modes are supported:
+   * <ul> <li> <span class="yellow">view</span>: Optimized for interactive exploration with
+   * collapsible operations | <a href="/examples/render-view">Example</a> </li> <li> <span
+   * class="yellow">read</span>: Continuous narrative page layout, ideal for reading through API
+   * specifications from top to bottom | <a href="/examples/render-read">Example</a> </li> <li>
+   * <span class="yellow">focused</span>: Displays a single endpoint at a time with a dedicated
+   * sidebar, ideal for large enterprise schemas | <a href="/examples/render-focused">Example</a>
+   * </li> </ul>
+   * @summary Display mode: Read for docs, View with tabs, Focused for single endpoint
+   * @group Layout & Scrolling
+   */
+  @property({ type: String, attribute: "render-style" })
+  renderStyle: "read" | "view" | "focused" = "read";
+
+  /**
+   * Controls the multi-column orientation of request parameters and response panels on desktop
+   * screens (>768px). In 'row' layout, request and response sections sit side-by-side; in 'column'
+   * layout, they stack vertically. Defaults to 'column' when render-style is 'read' or 'focused',
+   * and 'row' when render-style is 'view'.
+   * @summary Request and response layout: row (side-by-side) or column (stacked)
+   * @group Layout & Scrolling
+   * @default column (read, focused) / row (view)
+   */
+  @property({ type: String, reflect: true })
+  layout: "row" | "column" = "row";
+
+  /**
+   * <span class="yellow-dim">Allowed: </span>Any valid CSS height value (e.g. 400px, 50%,
+   * 60vh).<br/> Controls the vertical height of the interactive response payload viewer.
+   * @group Layout & Scrolling
+   */
+  @property({ type: String, attribute: "response-area-height" })
+  responseAreaHeight = "400px";
+
+  /**
+   * Text direction of the page.
+   * @group Layout & Scrolling
+   * @hidden
+   */
+  @property({ type: String, attribute: "page-direction" })
+  pageDirection: "ltr" | "rtl" = "ltr";
+
+  /**
+   * <span class="yellow-dim">Allowed: </span>A number of pixels (e.g. 96).<br/> With
+   * <code>auto-height="true"</code>, where the page scrolls instead of RapiDoc, this is the height
+   * of a sticky or fixed page header. Navigation scrolls a section to just below it, and the active
+   * navigation item ignores sections hidden under it. When not set, RapiDoc uses the scroll root's
+   * <code>scroll-padding-top</code>, so a page that already sets it needs no extra configuration.
+   * @group Layout & Scrolling
+   * @default (scroll-padding-top of the page)
+   */
+  @property({ type: String, attribute: "scroll-offset" })
+  scrollOffset = "";
+
+  /**
+   * How the page scrolls when a navigation item is clicked.
+   * @group Layout & Scrolling
+   * @hidden
+   */
+  @property({ type: String, attribute: "scroll-behavior" })
+  scrollBehavior: "smooth" | "auto" = "smooth";
+
+  /**
+   * CSS selector of the ancestor element that scrolls, when it cannot be detected.
+   * @group Layout & Scrolling
+   * @hidden
+   */
+  @property({ type: String, attribute: "scroll-container" })
+  scrollContainer = "";
+
+  /**
+   * Lets the element grow to the height of its content, so the host page scrolls instead of the
+   * element.
+   * @group Layout & Scrolling
+   * @hidden
+   */
+  @property({ type: String, attribute: "auto-height" })
+  autoHeight: "true" | "false" = "false";
+
+  // Theme
+  /**
+   * Brand color preset, or a custom brand color as a hex code. Each preset defines a dark and a
+   * light palette.
+   * @summary Color palette preset
+   * @group Theme
+   * @allowedNote (or custom hex color e.g. #2563eb)
+   * @default ember
+   * @example /examples/themes
+   */
+  @property({ type: String, reflect: true })
+  theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | (string & {}) = DEFAULT_THEME;
+
+  /**
+   * Base color scheme mode. 'system' automatically matches the user's OS preference. 'auto' follows
+   * the host page: it reads the page's CSS <code>color-scheme</code> (for example
+   * <code>:root[data-theme='light'] { color-scheme: light }</code>, as Starlight sets it) and
+   * updates when the page switches theme; when the page declares none, it falls back to the OS
+   * preference.
+   * @summary Dark, light, or follow the system or the page
+   * @group Theme
+   */
+  @property({ type: String, attribute: "color-scheme", reflect: true })
+  colorScheme: "dark" | "light" | "system" | "auto" = "dark";
+
+  /**
+   * Corner radius scale applied across cards, buttons, badges, inputs, and dialogs.
+   * @summary Border radius for cards, inputs, and buttons
+   * @group Theme
+   */
+  @property({ type: String, reflect: true })
+  radius: "none" | "sm" | "md" | "lg" | "full" = "sm";
+
+  /**
+   * Relative scale factor for typography and UI elements across the documentation portal.
+   * @summary Global scale for typography and spacing
+   * @group Theme
+   */
+  @property({ type: String, reflect: true })
+  scale: "sm" | "default" | "lg" = "default";
+
+  /**
+   * A custom brand color as a hex code. Same as passing the hex code to <span class="mono
+   * yellow">theme</span>.
+   * @group Theme
+   * @hidden
+   */
+  @property({ type: String, attribute: "primary-color" })
+  primaryColor = "";
+
+  /**
+   * File name of a stylesheet the page already loads with a <span class="yellow
+   * mono">&lt;link&gt;</span> tag. Its rules are copied into the shadow DOM.
+   * @group Theme
+   * @hidden
+   */
+  @property({ type: String, attribute: "css-file" })
+  cssFile = "";
+
+  /**
+   * Space-separated CSS class names, defined in <span class="yellow mono">css-file</span>, to add
+   * to the element's root.
+   * @group Theme
+   * @hidden
+   */
+  @property({ type: String, attribute: "css-classes" })
+  cssClasses = "";
+
+  // Sidebar & Navigation
+  /**
+   * Toggles the navigation sidebar.
+   * @group Sidebar & Navigation
+   * @hidden
+   */
+  @property({ type: String, attribute: "show-side-nav" })
+  showSideNav: "true" | "false" = "true";
+
+  /**
+   * Displays HTTP methods (GET, POST, etc.) alongside endpoint items in the navigation sidebar.
+   * Ensure sufficient contrast if customizing nav-bg-color.
+   * @summary Sidebar HTTP method badge presentation style
+   * @group Sidebar & Navigation
+   * @example /examples/nav-item-with-method
+   */
+  @property({ type: String, attribute: "show-method-in-nav-bar" })
+  showMethodInNavBar: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block" = "false";
+
+  /**
+   * Displays raw API URL paths in the navigation bar instead of operation summaries. <div
+   * class="orange"> <span class="bold yellow-dim">NOTE: </span> Setting this to <span class="mono
+   * yellow">true</span> displays the path only. To display the HTTP method alongside the path, also
+   * configure <span class="mono yellow">show-method-in-nav-bar</span>. </div>
+   * @summary Show URL paths instead of summaries in the sidebar
+   * @group Sidebar & Navigation
+   * @example /examples/nav-item-as-path
+   */
+  @property({ type: String, attribute: "use-path-in-nav-bar" })
+  usePathInNavBar: "true" | "false" = "false";
+
+  /**
+   * Controls vertical density and padding between sidebar navigation items.
+   * @summary Vertical spacing between sidebar navigation items
+   * @group Sidebar & Navigation
+   * @example /examples/navbar-spacing
+   */
+  @property({ type: String, attribute: "nav-item-spacing", reflect: true })
+  navItemSpacing: "default" | "compact" | "relaxed" = "default";
+
+  /**
+   * Controls text truncation behavior for long endpoint paths and operation summaries in the
+   * navigation sidebar. When set to <span class="mono yellow">ellipsis</span> (default), long paths
+   * truncate with a clean ellipsis. When set to <span class="mono yellow">wrap</span>, long items
+   * wrap across multiple lines without clipping.
+   * @group Sidebar & Navigation
+   */
+  @property({ type: String, attribute: "nav-item-overflow", reflect: true })
+  navItemOverflow: "ellipsis" | "wrap" = "ellipsis";
+
+  /**
+   * Extracts Markdown headings (H1 and H2) from the specification's info description and adds them
+   * to the sidebar navigation menu (read mode only).
+   * @summary Extract H1 and H2 markdown headings into sidebar navigation
+   * @group Sidebar & Navigation
+   * @example /examples/markdown-headings
+   */
+  @property({ type: String, attribute: "info-description-headings-in-navbar" })
+  infoDescriptionHeadingsInNavBar: "true" | "false" = "false";
+
+  /**
+   * When set to "true", automatically updates the browser's URL address hash as the user scrolls
+   * through or clicks on different sections.
+   * @summary Update browser URL hash when navigating endpoints
+   * @group Sidebar & Navigation
+   */
+  @property({ type: String, attribute: "update-route" })
+  updateRoute: "true" | "false" = "true";
+
+  /**
+   * Target endpoint location to navigate to automatically after the specification finishes loading.
+   * Must be provided in the format of <span class="mono fg-color">{method}-{path}</span> (e.g., to
+   * focus on <span class="mono fg-color">GET /user/login</span>, provide <span class="mono
+   * fg-color">get-/user/login</span>).
+   * @group Sidebar & Navigation
+   */
+  @property({ type: String, attribute: "goto-path" })
+  gotoPath = "";
+
+  // Header & Sections
+  /**
+   * Toggles the top navigation header bar. Set to <span class="mono fg-color">false</span> to
+   * prevent users from loading alternative spec URLs or to seamlessly embed inside existing
+   * layouts.
+   * @summary Display the top navbar header
+   * @group Header & Sections
+   */
+  @property({ type: String, attribute: "show-header" })
+  showHeader: "true" | "false" = "true";
+
+  /**
+   * Custom title text displayed on the top-left corner of the header.
+   * @summary Top header title text
+   * @group Header & Sections
+   */
+  @property({ type: String, attribute: "heading-text" })
+  headingText = "";
+
+  /**
+   * Toggles visibility of the OpenAPI document info section (title, description, version, terms of
+   * service). Useful when embedding `<rapi-doc>` into an existing developer portal or knowledge
+   * base that already contains its own header.
+   * @summary Display OpenAPI document title and overview info
+   * @group Header & Sections
+   */
+  @property({ type: String, attribute: "show-info" })
+  showInfo: "true" | "false" = "true";
+
+  /**
+   * Toggles the components section (schemas, responses, examples, request bodies, headers, security
+   * schemes) in both the document body and sidebar menu (available in focused render-style).
+   * @summary Show the components section
+   * @group Header & Sections
+   */
+  @property({ type: String, attribute: "show-components" })
+  showComponents: "true" | "false" = "false";
+
+  /**
+   * Enables the instant search and filtering input in the navigation sidebar.
+   * @summary Enable quick endpoint search bar
+   * @group Header & Sections
+   */
+  @property({ type: String, attribute: "allow-search" })
+  allowSearch: "true" | "false" = "true";
+
+  /**
+   * Enables deep multi-property search modal, indexing paths, descriptions, parameter names, and
+   * response schemas.
+   * @summary Enable advanced full-text schema and parameter search
+   * @group Header & Sections
+   * @example /examples/search
+   */
+  @property({ type: String, attribute: "allow-advanced-search" })
+  allowAdvancedSearch: "true" | "false" = "true";
+
+  /**
+   * When set to <span class="mono fg-color">false</span>, disables the input field allowing users
+   * to load arbitrary external OpenAPI specification URLs.
+   * @summary Allow loading arbitrary OpenAPI spec by URL
+   * @group Header & Sections
+   */
+  @property({ type: String, attribute: "allow-spec-url-load" })
+  allowSpecUrlLoad: "true" | "false" = "true";
+
+  /**
+   * When set to <span class="mono fg-color">false</span>, hides the file picker allowing users to
+   * upload and preview local OpenAPI spec files (desktop viewports >768px).
+   * @summary Allow uploading and viewing local OpenAPI spec file
+   * @group Header & Sections
+   */
+  @property({ type: String, attribute: "allow-spec-file-load" })
+  allowSpecFileLoad: "true" | "false" = "true";
+
+  /**
+   * When set to <span class="mono fg-color">true</span>, displays convenient buttons in the
+   * overview section to download the raw OpenAPI specification file or view it in a new tab.
+   * @summary Show download button for the active OpenAPI spec
+   * @group Header & Sections
+   */
+  @property({ type: String, attribute: "allow-spec-file-download" })
+  allowSpecFileDownload: "true" | "false" = "false";
+
+  // Schemas
+  /**
+   * Controls the visual representation of complex JSON schemas in request and response panels.
+   * 'tree' provides an interactive collapsible tree view; 'table' renders structured tabular rows.
+   * @summary Display schemas as visual table or tree hierarchy
+   * @group Schemas
+   * @example /examples/schema-styles
+   */
+  @property({ type: String, attribute: "schema-style" })
+  schemaStyle: "tree" | "table" = "tree";
+
+  /**
+   * Initial depth level for auto-expanding complex nested schema properties and sub-objects (the
+   * default expands all levels).
+   * @summary Initial expansion depth for nested schemas
+   * @group Schemas
+   * @example /examples/schema-expand-level
+   */
+  @property({ type: Number, attribute: "schema-expand-level" })
+  schemaExpandLevel = 99999;
+
+  /**
+   * Controls whether schema field constraints, validation rules, and descriptions are fully
+   * expanded by default or collapsed to a single line.
+   * @summary Display full multiline schema property descriptions by default
+   * @group Schemas
+   */
+  @property({ type: String, attribute: "schema-description-expanded" })
+  schemaDescriptionExpanded: "true" | "false" = "false";
+
+  /**
+   * Shows or hides the button allowing users to toggle between single-line summary and multi-line
+   * detailed schema property descriptions.
+   * @summary Show toggle button for multiline schema descriptions
+   * @group Schemas
+   */
+  @property({ type: String, attribute: "allow-schema-description-expand-toggle" })
+  allowSchemaDescriptionExpandToggle: "true" | "false" = "true";
+
+  /**
+   * 'default' hides read-only properties in request bodies while displaying them in response models
+   * and webhook callbacks. Set to 'never' to always display read-only fields across all payloads.
+   * <span class="orange">Note: This does not affect example generation.</span>
+   * @summary Hide read-only fields from request body schemas
+   * @group Schemas
+   * @example /examples/hide-read-only-write-only
+   */
+  @property({ type: String, attribute: "schema-hide-read-only" })
+  schemaHideReadOnly: "default" | "never" = "default";
+
+  /**
+   * 'default' hides write-only properties in response bodies while displaying them in request
+   * payloads. Set to 'never' to always display write-only fields across all payloads. <span
+   * class="orange">Note: This does not affect example generation.</span>
+   * @summary Hide write-only fields from response body schemas
+   * @group Schemas
+   * @example /examples/hide-read-only-write-only
+   */
+  @property({ type: String, attribute: "schema-hide-write-only" })
+  schemaHideWriteOnly: "default" | "never" = "default";
+
+  /**
+   * Selects which tab is active by default, and listed first, for request bodies, responses and
+   * object parameters: 'schema' (data contract model) or 'example' (sample JSON payload).
+   * @summary Default active tab in request and response bodies
+   * @group Schemas
+   */
+  @property({ type: String, attribute: "default-schema-tab" })
+  defaultSchemaTab: "schema" | "example" = "example";
+
+  // Try & Servers
+  /**
+   * Enables the interactive "TRY" console allowing users to test live API calls directly from their
+   * browser.
+   * @summary Live interactive endpoint testing console
+   * @group Try & Servers
+   * @example /examples/try
+   */
+  @property({ type: String, attribute: "allow-try" })
+  allowTry: "true" | "false" = "true";
+
+  /**
+   * When set to <span class="mono fg-color">true</span>, generates and displays copyable cURL
+   * commands directly within the endpoint documentation prior to clicking "TRY".
+   * @summary Display cURL command before invoking API
+   * @group Try & Servers
+   * @example /examples/show-curl-before-try
+   */
+  @property({ type: String, attribute: "show-curl-before-try" })
+  showCurlBeforeTry: "true" | "false" = "false";
+
+  /**
+   * Pre-populates interactive request parameter inputs and request body fields using example values
+   * defined in the OpenAPI spec.
+   * @summary Pre-populate "Try" console parameters with sample values
+   * @group Try & Servers
+   */
   @property({ type: String, attribute: "fill-request-fields-with-example" })
-  fillRequestFieldsWithExample = "true";
-  @property({ type: String, attribute: "persist-auth" }) persistAuth = "false";
+  fillRequestFieldsWithExample: "true" | "false" = "true";
 
-  // Schema Styles
-  @property({ type: String, attribute: "schema-style" }) schemaStyle = "tree";
-  @property({ type: Number, attribute: "schema-expand-level" }) schemaExpandLevel = 99999;
-  @property({ type: String, attribute: "schema-description-expanded" }) schemaDescriptionExpanded =
-    "false";
-  @property({ type: String, attribute: "schema-hide-read-only" }) schemaHideReadOnly = "true";
-  @property({ type: String, attribute: "schema-hide-write-only" }) schemaHideWriteOnly = "true";
+  /**
+   * Enables the dropdown allowing users to switch between target servers declared in the OpenAPI
+   * spec.
+   * @summary Allow switching between configured API server URLs
+   * @group Try & Servers
+   */
+  @property({ type: String, attribute: "allow-server-selection" })
+  allowServerSelection: "true" | "false" = "true";
 
-  // API Server
-  @property({ type: String, attribute: "api-key-name" }) apiKeyName = "";
-  @property({ type: String, attribute: "api-key-location" }) apiKeyLocation = "header";
-  @property({ type: String, attribute: "api-key-value" }) apiKeyValue = "-";
-  @property({ type: String, attribute: "default-api-server" }) defaultApiServerUrl = "";
-  @property({ type: String, attribute: "server-url" }) serverUrl = "";
-  @property({ type: String, attribute: "oauth-receiver" }) oauthReceiver = "oauth-receiver.html";
+  /**
+   * Custom API server base URL. Overrides the servers array defined in the OpenAPI specification.
+   * Particularly useful when sharing a single spec across development, staging, and production
+   * environments.
+   * @group Try & Servers
+   */
+  @property({ type: String, attribute: "server-url" })
+  serverUrl = "";
+
+  /**
+   * Selects which server URL from the spec's servers list should be selected by default.
+   * @group Try & Servers
+   */
+  @property({ type: String, attribute: "default-api-server" })
+  defaultApiServerUrl = "";
+
+  /**
+   * Configures credentials mode for cross-origin browser Fetch requests as defined in the <a
+   * href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials" target="_blank"
+   * rel="noopener">Fetch Standard</a>, enabling transmission of cookies and Authorization headers
+   * in CORS requests.
+   * @group Try & Servers
+   */
+  @property({ type: String, attribute: "fetch-credentials" })
+  fetchCredentials: "" | "omit" | "same-origin" | "include" = "";
+
+  // Authentication
+  /**
+   * Controls the display of interactive authentication controls (HTTP Basic, Bearer Token, API Key,
+   * OAuth2). Disable to hide authentication dialogs when using hardcoded or pre-authenticated API
+   * keys.
+   * @summary Show the authentication controls
+   * @group Authentication
+   */
+  @property({ type: String, attribute: "allow-authentication" })
+  allowAuthentication: "true" | "false" = "true";
+
+  /**
+   * Keeps API keys, bearer tokens and OAuth access tokens in localStorage across page reloads; an
+   * OAuth token is dropped once it expires. Basic credentials and OAuth client secrets are never
+   * stored.
+   * @summary Persist API keys and tokens in browser localStorage
+   * @group Authentication
+   */
+  @property({ type: String, attribute: "persist-auth" })
+  persistAuth: "true" | "false" = "false";
+
+  /**
+   * Name of the header or query parameter used when transmitting the API key in interactive console
+   * requests.
+   * @group Authentication
+   */
+  @property({ type: String, attribute: "api-key-name" })
+  apiKeyName = "";
+
+  /**
+   * Specifies whether the API key is passed as an HTTP request header or query parameter.
+   * @group Authentication
+   */
+  @property({ type: String, attribute: "api-key-location" })
+  apiKeyLocation: "header" | "query" = "header";
+
+  /**
+   * Pre-configured API key value sent during interactive console requests. Can also be set or
+   * overwritten directly in the UI.
+   * @group Authentication
+   * @default (empty)
+   */
+  @property({ type: String, attribute: "api-key-value" })
+  apiKeyValue = "-";
+
+  /**
+   * Relative or absolute path to the OAuth receiver HTML file for handling authorization
+   * redirection callbacks.
+   * @group Authentication
+   */
+  @property({ type: String, attribute: "oauth-receiver" })
+  oauthReceiver = "oauth-receiver.html";
+
+  /**
+   * Custom query parameters appended to the OAuth2 authorization URL query string (e.g. proxy
+   * launch tokens, prompt, audience).<br/><br/> <strong>Supported Formats:</strong> <ul>
+   * <li><strong>JSON String</strong> (recommended for HTML
+   * attributes):<br/><code>additional-authorize-params='{"launch": "xyz123", "prompt":
+   * "consent"}'</code></li> <li><strong>URL Query
+   * String</strong>:<br/><code>additional-authorize-params="launch=xyz123&amp;prompt=consent"</code></li>
+   * <li><strong>JavaScript Object</strong> (via
+   * property):<br/><code>rapidocEl.additionalAuthorizeParams = { launch: 'xyz123', prompt:
+   * 'consent' };</code></li> </ul>
+   * @group Authentication
+   * @default (empty)
+   */
   @property({ type: Object, attribute: "additional-authorize-params", converter: paramsConverter })
   additionalAuthorizeParams: any;
-  _lastSpecUrlRequested: string | null;
-  _lastLoadedSpec: any;
+
+  /**
+   * Custom parameters included in the POST request body sent to the OAuth2 token endpoint (e.g.
+   * custom proxy parameters, resource, audience).<br/><br/> <strong>Supported Formats:</strong>
+   * <ul> <li><strong>JSON String</strong> (recommended for HTML
+   * attributes):<br/><code>additional-token-params='{"audience": "https://api.example.com",
+   * "resource": "urn:my:api"}'</code></li> <li><strong>URL-Encoded
+   * String</strong>:<br/><code>additional-token-params="audience=https%3A%2F%2Fapi.example.com"</code></li>
+   * <li><strong>JavaScript Object</strong> (via
+   * property):<br/><code>rapidocEl.additionalTokenParams = { audience: 'https://api.example.com'
+   * };</code></li> </ul>
+   * @group Authentication
+   * @default (empty)
+   */
   @property({ type: Object, attribute: "additional-token-params", converter: paramsConverter })
   additionalTokenParams: any;
 
   // Mock Server
-  @property({ type: String, attribute: "mock-server" }) mockServer = "false";
+  /**
+   * Enables the built-in, zero-dependency in-browser mock server. Transparently intercepts outgoing
+   * network requests (both RapiDoc's Try console and host application fetch/XHR calls) and serves
+   * mock responses based on OpenAPI examples or generated from schemas.
+   * @summary Answer Try requests from the in-browser mock server
+   * @group Mock Server
+   */
+  @property({ type: String, attribute: "mock-server" })
+  mockServer: "true" | "false" = "false";
+
   // A string of codes for every operation, or a map by operation (`{ "POST /orders": "503, 200", "*": "200" }`)
-  @property({ type: String, attribute: "mock-server-status-code" }) mockServerStatusCode:
-    | string
-    | Record<string, string> = "200";
-  @property({ type: String, attribute: "mock-server-status-strategy" }) mockServerStatusStrategy =
-    "example";
-  @property({ type: Number, attribute: "mock-server-delay" }) mockServerDelay = 0;
-  @property({ type: String, attribute: "mock-server-log" }) mockServerLog = "false";
+  /**
+   * HTTP status code (or comma-separated list of codes, e.g. "200, 404, 500") to answer with, or a
+   * JSON map by operation (<span class="mono yellow">{ "POST /orders": "503, 200", "*": "200"
+   * }</span>). Set it to an empty string to use the first 2xx response in the spec.
+   * @group Mock Server
+   */
+  @property({ type: String, attribute: "mock-server-status-code" })
+  mockServerStatusCode: string | Record<string, string> = "200";
 
-  // Hide/Show Sections & Enable Disable actions
-  @property({ type: String, attribute: "show-header" }) showHeader = "true";
-  @property({ type: String, attribute: "show-side-nav" }) showSideNav = "true";
-  @property({ type: String, attribute: "show-info" }) showInfo = "true";
-  @property({ type: String, attribute: "allow-authentication" }) allowAuthentication = "true";
-  @property({ type: String, attribute: "allow-try" }) allowTry = "true";
-  @property({ type: String, attribute: "show-curl-before-try" }) showCurlBeforeTry = "false";
-  @property({ type: String, attribute: "allow-spec-url-load" }) allowSpecUrlLoad = "true";
-  @property({ type: String, attribute: "allow-spec-file-load" }) allowSpecFileLoad = "true";
-  @property({ type: String, attribute: "allow-spec-file-download" }) allowSpecFileDownload =
-    "false";
-  @property({ type: String, attribute: "allow-search" }) allowSearch = "true";
-  @property({ type: String, attribute: "allow-advanced-search" }) allowAdvancedSearch = "true";
-  @property({ type: String, attribute: "allow-server-selection" }) allowServerSelection = "true";
-  @property({ type: String, attribute: "allow-schema-description-expand-toggle" })
-  allowSchemaDescriptionExpandToggle = "true";
+  /**
+   * Selection strategy when multiple status codes are specified in <span class="mono
+   * yellow">mock-server-status-code</span>. 'first' always returns the first code; 'cycle'
+   * round-robins sequentially per endpoint (ideal for testing retry and backoff logic); 'random'
+   * selects a code randomly for chaos and resilience testing.
+   * @group Mock Server
+   */
+  @property({ type: String, attribute: "mock-server-status-strategy" })
+  mockServerStatusStrategy: "first" | "cycle" | "random" = "first";
+
+  /**
+   * Simulated network latency in milliseconds before resolving mock responses. Useful for testing
+   * client loading spinners and optimistic UI updates.
+   * @group Mock Server
+   */
+  @property({ type: Number, attribute: "mock-server-delay" })
+  mockServerDelay = 0;
+
+  /**
+   * Logs one line per answered request (method, path and status code) to the browser console.
+   * @group Mock Server
+   */
+  @property({ type: String, attribute: "mock-server-log" })
+  mockServerLog: "true" | "false" = "false";
+
+  // MCP
   // "true" shows the Export MCP Server button; "none" or "false" hides it
-  @property({ type: String, attribute: "mcp" }) mcp = "false";
-  @property({ type: String, attribute: "mcp-server-name" }) mcpServerName = "";
-  @property({ type: String, attribute: "show-components" }) showComponents = "false";
-  @property({ type: String, attribute: "page-direction" }) pageDirection = "ltr";
-  @property({ type: String, attribute: "scroll-behavior" }) scrollBehavior = "smooth";
-  @property({ type: String, attribute: "auto-height" }) autoHeight = "false";
-  @property({ type: String, attribute: "scroll-container" }) scrollContainer = "";
-  @property({ type: String, attribute: "scroll-offset" }) scrollOffset = "";
+  /**
+   * Enables Model Context Protocol (MCP) server export for AI agents. <span class="mono
+   * fg-color">true</span> renders an <span class="mono fg-color">Export MCP Server</span> button in
+   * the overview section that downloads a zip with the MCP manifest (<span class="mono
+   * fg-color">manifest.json</span>), a fixed runtime (<span class="mono
+   * fg-color">runtime.js</span>) and a stdio TypeScript server (<span class="mono
+   * fg-color">server.ts</span>). <span class="mono fg-color">false</span>, <span class="mono
+   * fg-color">none</span> or an empty value hides the button.
+   * @summary Shows the Export MCP Server button
+   * @group MCP
+   * @example /examples/mcp-server
+   */
+  @property({ type: String, attribute: "mcp" })
+  mcp: "true" | "false" | "none" = "false";
 
-  // Main Colors and Font
-  @property({ type: String, reflect: true }) theme = DEFAULT_THEME;
-  @property({ type: String, attribute: "primary-color" }) primaryColor = "";
-  @property({ type: String, attribute: "color-scheme", reflect: true }) colorScheme = "dark";
+  /**
+   * Custom name for the generated MCP server. Defaults to the API specification title.
+   * @group MCP
+   */
+  @property({ type: String, attribute: "mcp-server-name" })
+  mcpServerName = "";
+
+  // Not attributes
+  @property({ type: String, attribute: false }) specFile: any;
+  _lastSpecUrlRequested: string | null;
+  _lastLoadedSpec: any;
   // color-scheme="auto": follows the page's theme (see utils/auto-color-scheme.js)
   _autoColorScheme = new AutoColorSchemeController(this);
-  @property({ type: String, reflect: true }) radius = "sm";
-  @property({ type: String, reflect: true }) scale = "default";
-  @property({ type: String, attribute: "css-file" }) cssFile = "";
-  @property({ type: String, attribute: "css-classes" }) cssClasses = "";
 
-  // Nav Bar
-  @property({ type: String, attribute: "nav-item-spacing", reflect: true }) navItemSpacing =
-    "default";
-  @property({ type: String, attribute: "nav-item-overflow", reflect: true }) navItemOverflow =
-    "ellipsis";
-  @property({ type: String, attribute: "show-method-in-nav-bar" }) showMethodInNavBar = "false";
-  @property({ type: String, attribute: "use-path-in-nav-bar" }) usePathInNavBar = "false";
-  @property({ type: String, attribute: "info-description-headings-in-navbar" })
-  infoDescriptionHeadingsInNavBar = "false";
-
-  // Fetch Options
-  @property({ type: String, attribute: "fetch-credentials" }) fetchCredentials = "";
-
-  // Filters
-  @property({ type: String, attribute: "match-paths" }) matchPaths = "";
-  @property({ type: String, attribute: "match-type" }) matchType = "includes";
-  @property({ type: String, attribute: "remove-endpoints-with-badge-label-as" })
-  removeEndpointsWithBadgeLabelAs = "";
-
-  // Internal Properties
+  // Internal state, reactive so a change re-renders
+  /** @internal */
   @property({ type: Boolean }) loading = false;
+  /** @internal */
   @property({ type: String }) focusedElementId = "";
+  /** @internal */
   @property({ type: Object }) advancedSearchMatches: any;
+  /** @internal */
   @property({ type: String }) searchVal = "";
 
   static get styles() {
@@ -275,7 +983,7 @@ export default class RapiDoc extends LitElement {
     if (this.hasAttribute("layout")) {
       const attrLayout = this.getAttribute("layout");
       if ("row, column,".includes(`${attrLayout},`)) {
-        this.layout = attrLayout;
+        this.layout = attrLayout as "row" | "column";
         this._userSetLayout = true;
       }
     }
@@ -296,7 +1004,7 @@ export default class RapiDoc extends LitElement {
       this.schemaStyle = "tree";
     }
     if (this.theme === "light" || this.theme === "dark") {
-      this.colorScheme = this.theme;
+      this.colorScheme = this.theme as "light" | "dark";
       this.theme = DEFAULT_THEME;
     }
     if (this.primaryColor && isValidHexColor(this.primaryColor)) {
@@ -335,7 +1043,7 @@ export default class RapiDoc extends LitElement {
       !"example, schema, model,".includes(`${this.defaultSchemaTab},`)
     ) {
       this.defaultSchemaTab = "example";
-    } else if (this.defaultSchemaTab === "model") {
+    } else if ((this.defaultSchemaTab as string) === "model") {
       this.defaultSchemaTab = "schema";
     }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
@@ -587,7 +1295,7 @@ export default class RapiDoc extends LitElement {
 
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
-    if (this.defaultSchemaTab === "model") {
+    if ((this.defaultSchemaTab as string) === "model") {
       this.defaultSchemaTab = "schema";
     }
     if (changedProperties.has("layout") && !this._isDefaultingLayout) {
@@ -654,7 +1362,7 @@ export default class RapiDoc extends LitElement {
 
     if (changedProperties.has("theme")) {
       if (this.theme === "light" || this.theme === "dark") {
-        this.colorScheme = this.theme;
+        this.colorScheme = this.theme as "light" | "dark";
         this.setAttribute("color-scheme", this.colorScheme);
         this.theme = DEFAULT_THEME;
         this.setAttribute("theme", DEFAULT_THEME);
@@ -922,7 +1630,14 @@ export default class RapiDoc extends LitElement {
     this.shadowRoot.getElementById("advanced-search-dialog").close();
   }
 
-  // Public Method
+  /**
+   * Programmatically loads a new OpenAPI specification. Accepts either a string URL or a valid
+   * in-memory JSON/JavaScript spec object. The download and view buttons and the header's spec URL
+   * box follow the spec loaded: its URL, or none for a spec object (the spec download buttons are
+   * then hidden).
+   * @public loadSpec(spec)
+   * @example https://github.com/rapi-doc/RapiDoc/blob/master/docs/examples/example9.html
+   */
   async loadSpec(specUrl) {
     if (!specUrl) {
       return;
@@ -1647,7 +2362,19 @@ export default class RapiDoc extends LitElement {
     return elementId;
   }
 
-  // Public Method - Binds an external navbar to this <rapi-doc> element
+  /**
+   * Connects a sidebar rendered outside the component (for example the static HTML from <span
+   * class="mono fg-color">getNavBarHtml</span> in <span class="mono
+   * fg-color">@rapidoc/prerender</span>) to this element: clicks navigate with <span class="mono
+   * fg-color">scrollToPath</span>, the active item follows <span class="mono
+   * fg-color">nav-active-change</span>, and the filter box filters the sidebar. <span class="mono
+   * fg-color">sidebar</span> is an element or a CSS selector; <span class="mono
+   * fg-color">options</span> accepts <span class="mono fg-color">activeClass</span> (default <span
+   * class="mono fg-color">active</span>) and <span class="mono fg-color">updateHistory</span>
+   * (default <span class="mono fg-color">true</span>). Returns a function that removes the
+   * bindings.
+   * @public
+   */
   bindNavBar(sidebar: HTMLElement | string, options?: any) {
     return bindNavBar(sidebar, this, options);
   }
@@ -1657,7 +2384,15 @@ export default class RapiDoc extends LitElement {
     return this.scrollToPath(elementId);
   }
 
-  // Public Method (scrolls to a given path and highlights the left-nav selection)
+  /**
+   * Programmatically scrolls the viewport to focus on a specific endpoint section. The <span
+   * class="mono fg-color">path</span> argument is the operation's element ID (e.g., <span
+   * class="mono fg-color">login-user</span>) or its method + path anchor (e.g., <span class="mono
+   * fg-color">get-user-login</span>; the older <span class="mono fg-color">get-/user/login</span>
+   * format also works).
+   * @public scrollToPath(path)
+   * @example /tests/collapsable
+   */
   async scrollToPath(
     elementId,
     expandPath = true,
@@ -1772,13 +2507,29 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  // Public Method - to update security-scheme of type http
+  /**
+   * Programmatically supplies username and password credentials for an HTTP Basic security scheme
+   * declared in the spec.
+   * @public
+   */
   setHttpUserNameAndPassword(securitySchemeId, username, password) {
     return applyApiKey.call(this, securitySchemeId, username, password);
   }
 
-  // Public Method - to update security-scheme of type apiKey or OAuth.
-  // options.note: where the key came from (e.g. "Using your sign-in"), shown in place of the scheme's form
+  /**
+   * Programmatically provides the token or key for a declared API Key, Bearer Token or OAuth
+   * security scheme. Optional <span class="mono fg-color">options.note</span> says where the key
+   * came from (for example the reader's sign-in); the Authentication section shows it in place of
+   * that scheme's form, with a link to open the form. Changing or removing the key drops the note.
+   * @public setApiKey(securitySchemeId, token, options)
+   * @code
+   * <script>
+   *   const rapidocEl = document.getElementById('the-doc');
+   *   rapidocEl.addEventListener('spec-loaded', () => {
+   *     rapidocEl.setApiKey('oauth2', 'Bearer ' + token, { note: 'Using your sign-in (ann@example.com).' });
+   *   });
+   * </script>
+   */
   setApiKey(securitySchemeId, apiKeyValue, options: { note?: string } = {}) {
     return applyApiKey.call(this, securitySchemeId, "", "", apiKeyValue, options?.note || "");
   }
@@ -1788,7 +2539,24 @@ export default class RapiDoc extends LitElement {
     return onClearAllApiKeys.call(this);
   }
 
-  // Public Method
+  /**
+   * Programmatically switches the active target API server URL.
+   * @public
+   * @code
+   * <html>
+   *   ...
+   *   <rapi-doc id="the-doc" spec-url="https://.../spec.yaml"></rapi-doc>
+   *   <script>
+   *     window.addEventListener('DOMContentLoaded', () => {
+   *       const rapidocEl = document.getElementById('the-doc');
+   *       rapidocEl.addEventListener('spec-loaded', () => {
+   *         rapidocEl.setApiServer(window.location.origin + "/api");
+   *       });
+   *     });
+   *   </script>
+   *   ...
+   * </html>
+   */
   setApiServer(apiServerUrl) {
     // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
@@ -1824,14 +2592,35 @@ export default class RapiDoc extends LitElement {
     };
   }
 
-  // Public Method - Builds the MCP manifest and the files of the exported project in memory
+  /**
+   * Builds the MCP manifest and the exported project in memory. Returns <span class="mono
+   * fg-color">{ manifest, files, budget, hostConfig }</span>: <span class="mono
+   * fg-color">manifest</span> is the plain JSON description of the server (one tool per operation
+   * with a JSON Schema <span class="mono fg-color">inputSchema</span>, MCP <span class="mono
+   * fg-color">annotations</span> and the <span class="mono fg-color">operation</span> the runtime
+   * executes), <span class="mono fg-color">files</span> maps every file of the zip to its text
+   * (<span class="mono fg-color">manifest.json</span>, <span class="mono
+   * fg-color">server.ts</span>, <span class="mono fg-color">runtime.js</span>, <span class="mono
+   * fg-color">package.json</span>, <span class="mono fg-color">README.md</span>, <span class="mono
+   * fg-color">claude_desktop_config.json</span>), <span class="mono fg-color">budget</span> is the
+   * token diagnostics and <span class="mono fg-color">hostConfig</span> the Claude Desktop / Cursor
+   * config JSON. <span class="mono fg-color">options</span>: <span class="mono
+   * fg-color">serverName</span>, <span class="mono fg-color">includeInternal</span>, <span
+   * class="mono fg-color">includeDeprecated</span>.
+   * @public
+   */
   generateMcpServer(options = {}) {
     const spec = this.resolvedSpec || this.openApiSpec;
     if (!spec) return null;
     return mcpServerGenerator(spec, this.mcpOptions(options));
   }
 
-  // Public Method - Downloads the exported MCP project as a zip
+  /**
+   * Downloads the exported project as <span class="mono
+   * fg-color">&lt;server-name&gt;-mcp.zip</span>. Same <span class="mono fg-color">options</span>
+   * as <span class="mono fg-color">generateMcpServer</span>.
+   * @public
+   */
   downloadMcpServer(options = {}) {
     const result = this.generateMcpServer(options);
     if (!result) return;
@@ -1845,7 +2634,14 @@ export default class RapiDoc extends LitElement {
     URL.revokeObjectURL(link.href);
   }
 
-  // Public Method - Returns token budget diagnostics for MCP tooling
+  /**
+   * Returns prompt token overhead diagnostics for the current OpenAPI specification: <span
+   * class="mono fg-color">{ totalTools, totalResources, estimatedTokens, consequentialCount,
+   * warnings }</span>, where <span class="mono fg-color">consequentialCount</span> is the number of
+   * tools that are not read-only and <span class="mono fg-color">warnings</span> lists context
+   * footprint warnings (over 30 tools or 5,000 tokens).
+   * @public
+   */
   getMcpBudget(options = {}) {
     const spec = this.resolvedSpec || this.openApiSpec;
     if (!spec) return null;

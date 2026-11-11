@@ -130,6 +130,7 @@ export default defineConfig({
             { label: 'Quickstart', slug: 'docs/get-started/quickstart' },
             { label: 'Packages', slug: 'docs/get-started/packages' },
             { label: 'Framework Integration', slug: 'docs/get-started/frameworks' },
+            { label: 'Build an Integration', slug: 'docs/get-started/build-an-integration' },
             { label: 'Loading Your Spec', slug: 'docs/get-started/openapi-support' },
           ],
         },
@@ -299,7 +300,11 @@ export default defineConfig({
           });
 
           // Watch yaml changes and trigger reload
-          const yamlFiles = globSync(resolve(__dirname, './src/page-data/**/*.yaml'));
+          // rapidoc.ts is here too: the /api page is built from its declarations and doc comments
+          const yamlFiles = [
+            ...globSync(resolve(__dirname, './src/page-data/**/*.yaml')),
+            resolve(rapidocSrcPath, 'rapidoc.ts'),
+          ];
           yamlFiles.forEach((file) => {
             watch(file, (eventType) => {
               if (eventType === 'change') {

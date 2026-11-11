@@ -1,0 +1,24 @@
+[
+  {
+    "path": "/reference",
+    "kind": "page",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "path": "/reference/oauth-receiver.html",
+    "kind": "oauth-receiver",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "path": "/reference/rapidoc-min.js",
+    "kind": "file",
+    "file": "rapidoc-min.js",
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "path": "/reference/rapidoc-min.js.LICENSE.txt",
+    "kind": "file",
+    "file": "rapidoc-min.js.LICENSE.txt",
+    "contentType": "text/plain; charset=utf-8"
+  }
+]

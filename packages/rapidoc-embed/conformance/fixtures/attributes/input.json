@@ -1,0 +1,19 @@
+{
+  "description": "Attributes in camelCase and kebab-case, sorted by name; booleans, numbers and objects become strings; null removes an attribute (here the default oauth-receiver); values are escaped.",
+  "page": "host",
+  "options": {
+    "specUrl": "/openapi.json",
+    "options": {
+      "renderStyle": "focused",
+      "allow-try": false,
+      "schemaExpandLevel": 2,
+      "theme": "cobalt",
+      "heading-text": "Say \"hi\" <now> & then",
+      "additionalAuthorizeParams": {
+        "audience": "https://api.example.com"
+      },
+      "oauth-receiver": null,
+      "goto-path": null
+    }
+  }
+}

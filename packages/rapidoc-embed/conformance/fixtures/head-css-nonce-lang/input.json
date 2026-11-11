@@ -1,0 +1,11 @@
+{
+  "description": "head and css are written as given (a </style in css is neutralised); the nonce goes on every script and style element.",
+  "page": "host",
+  "options": {
+    "specUrl": "/openapi.json",
+    "lang": "de",
+    "nonce": "r4nd0m",
+    "css": "rapi-doc::part(section-navbar){background:#123}/* </style> */",
+    "head": "<link rel=\"icon\" href=\"/favicon.svg\">"
+  }
+}

@@ -1,0 +1,77 @@
+---
+title: Build an Integration
+description: Write a RapiDoc plugin for a web framework, a documentation site or another tool, in any language.
+---
+
+An integration adds a `<rapi-doc>` API reference to something else: a web framework (Hono, FastAPI, Spring Boot, ASP.NET Core), a documentation site (Starlight, VitePress) or a tool (VS Code, Confluence). To put `<rapi-doc>` on a page of your own app, you don't need one: see [Framework Integration](/docs/get-started/frameworks/).
+
+All integrations follow one contract, so they take the same options, serve the same routes and send the same HTML. This page describes it.
+
+## What an integration does
+
+1. **Takes the standard options** (below), under the names its language prefers.
+2. **Serves the routes**: the docs page, the OAuth return page and, unless the bundle comes from a CDN, `rapidoc-min.js` with its license file.
+3. **Finds the spec**: defaults `specUrl` to the framework's own OpenAPI endpoint, for example `/openapi.json` in FastAPI or `/v3/api-docs` with springdoc.
+4. **Ships one `rapidoc` release**: the bundle, its license file and `integration.json`, embedded in the integration's package.
+
+## Options
+
+| Option | Default | Meaning |
+| :--- | :--- | :--- |
+| `path` | `/docs` | Public URL path of the docs page, including any prefix the app is mounted under. |
+| `specUrl` | the framework's endpoint | URL of the OpenAPI document. |
+| `spec` | | The OpenAPI document itself, written into the page. |
+| `title` | `API Reference` | Page title. |
+| `assets` | `bundled` | `bundled`: the integration serves the bundle. `cdn`: jsDelivr, at the pinned version with its SRI hash. Or a URL of your own. |
+| `options` | | [Attributes of `<rapi-doc>`](/api/), in kebab-case or camelCase. |
+| `head`, `css` | | Markup and CSS added to the page as given. |
+| `lang`, `nonce` | `en`, none | Page language; Content-Security-Policy nonce. |
+| `enabled` | `true` | When false, the integration registers no routes. |
+
+## In JavaScript
+
+`@rapidoc/embed` implements the contract. An integration maps its routes to the framework:
+
+```js
+import { embedRoutes, renderHostPage, renderOAuthReceiverPage } from '@rapidoc/embed';
+import { readAsset } from '@rapidoc/embed/node';
+
+export function rapidoc(app, options) {
+  for (const route of embedRoutes(options)) {
+    app.get(route.path, (c) => {
+      const body =
+        route.kind === 'page' ? renderHostPage(options)
+        : route.kind === 'oauth-receiver' ? renderOAuthReceiverPage(options)
+        : readAsset(route.file);
+      return c.body(body, 200, { 'content-type': route.contentType });
+    });
+  }
+}
+```
+
+In runtimes without a file system, use `assets: 'cdn'`: the page then loads the exact `rapidoc` version `@rapidoc/embed` depends on, checked against its SRI hash. A complete example on `node:http` is in the package (`examples/node-server.js`).
+
+## In other languages
+
+Port the reference implementation, `src/core.js` of `@rapidoc/embed`: about 150 lines of string functions with no imports. The package has the rules in words (`conformance/README.md`) and fixtures (`conformance/fixtures/`): each has an `input.json` and the expected HTML or route table. Your port conforms when its output equals every fixture, byte for byte for the pages.
+
+## Files `rapidoc` publishes for integrations
+
+Every `rapidoc` release has these in `dist/`, next to the bundles:
+
+| File | Import | Use |
+| :--- | :--- | :--- |
+| `integration.json` | `rapidoc/integration.json` | Version, CDN base URL, and each file's role, content type, size and SRI hash. |
+| `rapidoc-options.schema.json` | `rapidoc/options.schema.json` | JSON Schema of every attribute: validate configuration, or generate typed options in your language. |
+| `custom-elements.json` | `rapidoc/custom-elements.json` | [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest): attributes, events, slots and methods for editors and tooling. |
+| `rapidoc.d.ts`, `react.d.ts`, `vue.d.ts` | `rapidoc`, `rapidoc/react`, `rapidoc/vue` | TypeScript types of the element and its attributes. |
+| `oauth-receiver.html` | | The OAuth return page, for serving next to `rapidoc-min.js`. |
+
+## Checklist
+
+- The docs page works at `path` with and without a trailing slash, and under a path prefix or reverse proxy.
+- `rapidoc-min.js.LICENSE.txt` is served or shipped wherever the bundle is.
+- The OAuth return page is on the same origin as the docs page.
+- With a Content-Security-Policy, the page gets a `nonce` and the policy allows the script's origin.
+- The integration states which `rapidoc` version it ships, and passes the fixtures of the contract version it implements.
+- Name it `@rapidoc/<host>` on npm or `rapidoc-<host>` elsewhere only for official packages; community packages use their own scope.
