@@ -54,3 +54,24 @@ When a proxy strips a path prefix, run the app with that prefix as its `root_pat
 - The package itself requires no framework; `rapidoc.fastapi` uses the Starlette that FastAPI installs. `rapidoc.contract` is the RapiDoc integration contract in plain Python, for building an integration for another framework.
 
 Python 3.10 or later; Starlette 0.27 or later. MIT.
+
+## Releasing (for maintainers)
+
+Releases go to PyPI from GitHub Actions, through a trusted publisher. There is no token and nothing to upload by hand.
+
+1. **Set the version.** Raise `version` in `pyproject.toml`. PyPI refuses a version number that already exists.
+2. **Choose the bundle.** To ship a newer RapiDoc, put its npm version in `RAPIDOC_VERSION`. The wheel carries exactly that release of `rapidoc-min.js`. Leave the file alone for a release that only changes the Python code.
+3. **Check locally** (optional; the workflow runs the same steps):
+
+   ```bash
+   python scripts/sync_assets.py --npm
+   python -m pytest
+   ```
+
+4. **Merge to `master`.** The "Python package" workflow runs the tests on the oldest and newest supported Python.
+5. **Publish.** On GitHub, open Actions, choose **Python package**, click **Run workflow**, tick **Publish the version in pyproject.toml to PyPI**, and run it on `master`. It tests, builds, checks that the wheel contains the bundle, and uploads.
+6. **Verify.** `pip install rapidoc==<version>` in a clean environment, and check https://pypi.org/project/rapidoc/.
+
+Which number to raise: a fix or a newer bundle is a patch (0.1.1); a new option or a new framework module is a minor (0.2.0). While the version is 0.x, a change that breaks existing code is also a minor, and is called out in the release notes.
+
+The trusted publisher on PyPI is tied to the workflow file `.github/workflows/publish-python.yml` and the GitHub environment `pypi`. Renaming either stops publishing until the publisher is updated under the project's Publishing settings on PyPI.

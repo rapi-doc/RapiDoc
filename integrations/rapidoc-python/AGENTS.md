@@ -41,4 +41,4 @@ RapiDoc for Python web frameworks (FastAPI and Starlette so far), and the refere
 | `.venv/bin/python -m uvicorn examples.app:app --port 4403` | Run the example |
 | `uv build` | Build the sdist and wheel (run `sync_assets.py` first) |
 
-**Releasing**: set `version` in `pyproject.toml` (and `RAPIDOC_VERSION` when shipping a newer bundle), merge to `master`, then run the "Python package" workflow from the Actions tab with "publish" ticked. PyPI refuses a version that already exists.
+**Releasing**: the steps are in `README.md`, "Releasing (for maintainers)". In short: raise `version` in `pyproject.toml` (and `RAPIDOC_VERSION` for a newer bundle), merge, then run the "Python package" workflow with "publish" ticked.
