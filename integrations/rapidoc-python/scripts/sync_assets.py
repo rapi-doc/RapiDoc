@@ -18,7 +18,7 @@ import urllib.request
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[1]
-ASSETS = PROJECT / "src/rapidoc_fastapi/assets"
+ASSETS = PROJECT / "src/rapidoc/assets"
 FILES = ["rapidoc-min.js", "rapidoc-min.js.LICENSE.txt", "integration.json"]
 
 

@@ -1,4 +1,4 @@
-# CLAUDE.md — `integrations/rapidoc-fastapi`
+# CLAUDE.md — `integrations/rapidoc-python`
 
 Package guidance lives in `AGENTS.md` (shared with other coding agents) and is imported below. Edit `AGENTS.md`, not this file.
 

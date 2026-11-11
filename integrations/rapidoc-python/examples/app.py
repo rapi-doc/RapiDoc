@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 
-from rapidoc_fastapi import setup_rapidoc
+from rapidoc.fastapi import setup_rapidoc
 
 app = FastAPI(title="FastAPI example", version="1.0.0", docs_url=None, redoc_url=None)
 

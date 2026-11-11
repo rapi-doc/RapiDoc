@@ -3,7 +3,9 @@ from fastapi import FastAPI
 from starlette.applications import Starlette
 from starlette.testclient import TestClient
 
-from rapidoc_fastapi import contract, rapidoc_manifest, rapidoc_version, setup_rapidoc
+from rapidoc import contract, rapidoc_manifest, rapidoc_version
+from rapidoc.fastapi import setup_rapidoc
+from rapidoc.starlette import setup_rapidoc as setup_starlette
 
 
 def make_app(**kwargs):
@@ -114,8 +116,9 @@ def test_takes_a_script_url_an_inline_spec_and_a_nonce_from_the_request():
 
 
 def test_works_on_a_starlette_app():
+    assert setup_starlette is setup_rapidoc
     app = Starlette()
-    setup_rapidoc(app, spec_url="https://example.com/openapi.yaml", title="Reference")
+    setup_starlette(app, spec_url="https://example.com/openapi.yaml", title="Reference")
     page = TestClient(app).get("/docs").text
     assert 'spec-url="https://example.com/openapi.yaml"' in page
     assert "<title>Reference</title>" in page

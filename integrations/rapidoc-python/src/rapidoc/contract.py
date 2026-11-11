@@ -5,7 +5,7 @@ that hosts ``<rapi-doc>``. Pure string functions with no framework import. The o
 conformance fixtures of ``@rapidoc/embed`` (``conformance/fixtures``), which ``tests/test_conformance.py``
 runs; change it only together with the reference implementation and a new contract version.
 
-Option names are the contract's (``specUrl``, ``scriptUrl``), as in the fixtures. ``rapidoc_fastapi.setup_rapidoc``
+Option names are the contract's (``specUrl``, ``scriptUrl``), as in the fixtures. ``rapidoc.starlette.setup_rapidoc``
 is the Python-style front end.
 """
 

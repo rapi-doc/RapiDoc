@@ -21,7 +21,7 @@
 | `packages/rapidoc-embed` | `@rapidoc/embed` | `src/index.js` (+ `./core`, `./node`): `renderHostPage`, `renderOAuthReceiverPage`, `embedRoutes`; the integration contract, with `conformance/fixtures/` for ports in other languages |
 | `packages/rapidoc-hono` | `@rapidoc/hono` | `src/index.js` (+ `./edge`): `rapidoc(options)`, a Hono middleware over `@rapidoc/embed`; `hono` is a peer |
 | `packages/rapidoc-starlight` | `@rapidoc/starlight` | `src/index.js`: `starlightRapidoc(options)`, a Starlight plugin; `src/apis.js` (`resolveApis`), `src/ApiPage.astro`; `example/` is the site its tests build |
-| `integrations/rapidoc-fastapi` | `rapidoc-fastapi` (PyPI) | `src/rapidoc_fastapi/__init__.py` (`setup_rapidoc`), `contract.py` (the contract in Python); own toolchain (uv, pytest), not an npm workspace |
+| `integrations/rapidoc-python` | `rapidoc` (PyPI) | `src/rapidoc/fastapi.py` and `starlette.py` (`setup_rapidoc`), `contract.py` (the contract in Python); own toolchain (uv, pytest), not an npm workspace |
 | `packages/rapidoc-mock` | `@rapidoc/mock` | `src/index.js` (`createMockApp`, `startMockServer`): mocks the portal's APIs under `/<api id>` (default port 4010); examples, generated data, request validation, JWT scope checks; libraries behind `src/engine/` |
 | `packages/create-rapidoc` | `create-rapidoc` | `src/index.js` (bin `create-rapidoc`); `src/scaffold.js` (`scaffoldProject`, `findOpenApiSpecs`, also used by `rapidoc init`) |
 | `docs` | `docs` (private) | `astro.config.mjs`; content in `src/content/docs/`, pages in `src/pages/` |

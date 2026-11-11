@@ -8,6 +8,7 @@
     "middleware",
     "openapi",
     "rapidoc",
+    "rapidoc-integration",
     "swagger ui"
   ],
   "homepage": "https://rapidocui.com",

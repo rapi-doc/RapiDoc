@@ -7,6 +7,7 @@
     "astro",
     "openapi",
     "rapidoc",
+    "rapidoc-integration",
     "starlight",
     "starlight-plugin"
   ],

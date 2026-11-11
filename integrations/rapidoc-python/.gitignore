@@ -4,4 +4,4 @@ __pycache__/
 dist/
 .pytest_cache/
 # One rapidoc release, copied in by scripts/sync_assets.py (build output of packages/rapidoc)
-src/rapidoc_fastapi/assets/
+src/rapidoc/assets/

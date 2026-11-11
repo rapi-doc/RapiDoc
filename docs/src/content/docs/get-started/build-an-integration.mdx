@@ -59,7 +59,7 @@ In runtimes without a file system, use `assets: 'cdn'`: the page then loads the 
 
 Port the reference implementation, `src/core.js` of `@rapidoc/embed`: about 150 lines of string functions with no imports. The package has the rules in words (`conformance/README.md`) and fixtures (`conformance/fixtures/`): each has an `input.json` and the expected HTML or route table. Your port conforms when its output equals every fixture, byte for byte for the pages.
 
-`rapidoc-fastapi` is the reference for other languages: its [`contract.py`](https://github.com/rapi-doc/RapiDoc/blob/master/integrations/rapidoc-fastapi/src/rapidoc_fastapi/contract.py) is the port, and its `setup_rapidoc()` shows the framework side: option names in the language's style, the framework's own OpenAPI URL as the default, and its path-prefix setting (`root_path`) in the page's URLs.
+The Python package `rapidoc` is the reference for other languages: its [`contract.py`](https://github.com/rapi-doc/RapiDoc/blob/master/integrations/rapidoc-python/src/rapidoc/contract.py) is the port, and its `setup_rapidoc()` shows the framework side: option names in the language's style, the framework's own OpenAPI URL as the default, and its path-prefix setting (`root_path`) in the page's URLs.
 
 ## Files `rapidoc` publishes for integrations
 
@@ -80,4 +80,4 @@ Every `rapidoc` release has these in `dist/`, next to the bundles:
 - The OAuth return page is on the same origin as the docs page.
 - With a Content-Security-Policy, the page gets a `nonce` and the policy allows the script's origin.
 - The integration states which `rapidoc` version it ships, and passes the fixtures of the contract version it implements.
-- Name it `@rapidoc/<host>` on npm or `rapidoc-<host>` elsewhere only for official packages; community packages use their own scope.
+- Add the keyword `rapidoc-integration` and start the description with "RapiDoc for …", so the package is listed with the others. `@rapidoc/<host>` on npm and `rapidoc` on other registries are the official packages; a community package uses its own scope or name.

@@ -67,5 +67,5 @@ npm package (`@rapidoc/embed/conformance/...`); copy them into the port's tests 
 contract version changes. Language-specific behaviour (error types, how options are declared) is not
 covered.
 
-`integrations/rapidoc-fastapi/src/rapidoc_fastapi/contract.py` in the RapiDoc repository is a complete port
+`integrations/rapidoc-python/src/rapidoc/contract.py` in the RapiDoc repository is a complete port
 (Python, about 200 lines) that passes every fixture, with `tests/test_conformance.py` as its runner.

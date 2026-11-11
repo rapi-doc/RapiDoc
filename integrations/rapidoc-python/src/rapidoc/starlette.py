@@ -1,47 +1,21 @@
-"""RapiDoc for FastAPI and Starlette.
+"""RapiDoc for Starlette apps, FastAPI included (``rapidoc.fastapi`` re-exports this).
 
-    from fastapi import FastAPI
-    from rapidoc_fastapi import setup_rapidoc
-
-    app = FastAPI(docs_url=None, redoc_url=None)
-    setup_rapidoc(app)          # the reference at /docs, reading the app's /openapi.json
-
-The page, the routes and the attributes follow the RapiDoc integration contract (``contract.py``, a port
-of ``@rapidoc/embed``); this module only maps them to Starlette routes.
+Maps the routes and pages of ``rapidoc.contract`` to Starlette routes, and takes the app's own settings
+as defaults: its ``openapi_url``, its title and, per request, its ``root_path``.
 """
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from typing import Any, Callable, Mapping, Union
 
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, Response
 
-from . import contract
+from . import ASSETS, contract, rapidoc_manifest
 
-__all__ = ["setup_rapidoc", "rapidoc_version", "rapidoc_manifest", "contract"]
-
-_ASSETS = Path(__file__).parent / "assets"
+__all__ = ["setup_rapidoc"]
 
 Nonce = Union[str, Callable[[Request], Union[str, None]], None]
-
-
-def rapidoc_manifest() -> dict[str, Any]:
-    """``integration.json`` of the rapidoc release this package ships: version, files, SRI hashes."""
-    file = _ASSETS / "integration.json"
-    if not file.exists():
-        raise RuntimeError(
-            "rapidoc-fastapi: the rapidoc bundle is missing from this installation "
-            "(in a source checkout, run scripts/sync_assets.py)"
-        )
-    return json.loads(file.read_text(encoding="utf-8"))
-
-
-def rapidoc_version() -> str:
-    """The version of rapidoc this package serves."""
-    return rapidoc_manifest()["version"]
 
 
 def _attributes(options: Mapping[str, Any] | None) -> dict[str, Any]:
@@ -109,7 +83,7 @@ def setup_rapidoc(
     clash = next((route["path"] for route in routes if route["path"] in taken), None)
     if clash:
         raise RuntimeError(
-            f"rapidoc-fastapi: the app already has a route at {clash}. FastAPI serves Swagger UI at "
+            f"rapidoc: the app already has a route at {clash}. FastAPI serves Swagger UI at "
             "/docs unless created with FastAPI(docs_url=None); or pass another path to setup_rapidoc()."
         )
 
@@ -145,7 +119,7 @@ def setup_rapidoc(
                 if request.headers.get("if-none-match") == etag:
                     return Response(status_code=304, headers=headers)
                 if name not in files:
-                    files[name] = (_ASSETS / name).read_bytes()
+                    files[name] = (ASSETS / name).read_bytes()
                 return Response(files[name], media_type=route["contentType"], headers=headers)
 
             return serve_file

@@ -3,23 +3,27 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "rapidoc-fastapi"
+name = "rapidoc"
 version = "0.1.0"
-description = "RapiDoc for FastAPI and Starlette: serves an interactive OpenAPI reference (<rapi-doc>) from your app"
+description = "RapiDoc for Python web frameworks: serves an interactive OpenAPI reference (<rapi-doc>) from a FastAPI or Starlette app"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.txt"]
 requires-python = ">=3.9"
 authors = [{ name = "Mrinmoy Majumdar", email = "mrin9@yahoo.com" }]
-keywords = ["fastapi", "starlette", "openapi", "rapidoc", "api documentation", "swagger ui"]
+keywords = ["fastapi", "starlette", "openapi", "rapidoc", "rapidoc-integration", "api documentation", "swagger ui"]
 classifiers = [
   "Framework :: FastAPI",
   "Programming Language :: Python :: 3",
   "Topic :: Software Development :: Documentation",
 ]
-dependencies = ["starlette>=0.27"]
+# No framework is required to install: rapidoc.contract is plain Python, and rapidoc.fastapi uses the
+# Starlette that FastAPI already brings.
+dependencies = []
 
 [project.optional-dependencies]
+starlette = ["starlette>=0.27"]
+fastapi = ["fastapi>=0.100"]
 dev = ["fastapi>=0.100", "httpx>=0.24", "pytest>=7", "uvicorn>=0.23"]
 
 [project.urls]
@@ -28,13 +32,13 @@ Repository = "https://github.com/rapi-doc/RapiDoc"
 Issues = "https://github.com/rapi-doc/RapiDoc/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/rapidoc_fastapi"]
+packages = ["src/rapidoc"]
 # The rapidoc bundle is copied in by scripts/sync_assets.py and is not in git
-artifacts = ["src/rapidoc_fastapi/assets/*"]
+artifacts = ["src/rapidoc/assets/*"]
 
 [tool.hatch.build.targets.sdist]
 include = ["src", "tests", "scripts", "examples", "README.md", "LICENSE.txt"]
-artifacts = ["src/rapidoc_fastapi/assets/*"]
+artifacts = ["src/rapidoc/assets/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

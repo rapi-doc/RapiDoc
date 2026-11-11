@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from rapidoc_fastapi import contract
+from rapidoc import contract
 
 # In the monorepo the fixtures are next door; in a repository of its own, point this at a copy of
 # node_modules/@rapidoc/embed/conformance/fixtures.
