@@ -1,12 +1,14 @@
-// The RapiDoc integration contract, version 1: how an integration turns its options into the page that
+// The RapiDoc integration contract, version 2: how an integration turns its options into the page that
 // hosts <rapi-doc>. Pure string functions, no Node or DOM APIs and no imports, so this file runs in any
 // JavaScript runtime and is short enough to port to another language. Ports are checked against
-// conformance/fixtures/, which this file's tests also run. Change the output only with a new contract
-// version.
+// conformance/fixtures/, which this file's tests also run. Change the output or an option's name only
+// with a new contract version. Version 2 renamed the option `path` to `uiPath`; `path` is still read.
 
-export const CONTRACT_VERSION = 1;
+export const CONTRACT_VERSION = 2;
 
-export const DEFAULT_PATH = "/docs";
+export const DEFAULT_UI_PATH = "/docs";
+/** @deprecated Use DEFAULT_UI_PATH. */
+export const DEFAULT_PATH = DEFAULT_UI_PATH;
 export const DEFAULT_TITLE = "API Reference";
 
 /** File names under the page's path. The bundle keeps its name so the copied license file still matches. */
@@ -34,8 +36,15 @@ export function inlineJson(spec) {
     .replace(/\u2029/g, "\\u2029");
 }
 
-/** The page's public URL path without a trailing slash; the site root is the empty string. */
-export function normalizePath(path = DEFAULT_PATH) {
+/**
+ * The `uiPath` option: where the reference is served. `path`, its name in contract version 1, is still read.
+ */
+export function uiPathOf(options = {}) {
+  return options.uiPath ?? options.path ?? DEFAULT_UI_PATH;
+}
+
+/** A public URL path without a trailing slash; the site root is the empty string. */
+export function normalizePath(path = DEFAULT_UI_PATH) {
   const trimmed = String(path).trim().replace(/\/+$/, "");
   if (trimmed === "") return "";
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
@@ -57,7 +66,7 @@ function attributeValue(value) {
 
 /** Where the page, the bundle and the OAuth return page are, and how the bundle is loaded. */
 export function embedUrls(options = {}) {
-  const path = normalizePath(options.path);
+  const path = normalizePath(uiPathOf(options));
   const assets = options.assets ?? "bundled";
   const urls = {
     page: path === "" ? "/" : path,
@@ -180,7 +189,7 @@ const HTML_TYPE = "text/html; charset=utf-8";
  * renderOAuthReceiverPage); `file` is a file of rapidoc's dist/, served only when assets are "bundled".
  */
 export function embedRoutes(options = {}) {
-  const path = normalizePath(options.path);
+  const path = normalizePath(uiPathOf(options));
   const urls = embedUrls(options);
   const routes = [
     { path: urls.page, kind: "page", contentType: HTML_TYPE },

@@ -19,7 +19,7 @@ import { ELEMENTS, readApiManifest } from "./rapidoc-api.js";
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const rapidocDir = path.join(rootDir, "packages/rapidoc");
 
-/** Version of the integration contract (integration.json and the host page of @rapidoc/embed). */
+/** Version of the format of integration.json. (The contract of @rapidoc/embed has its own version.) */
 export const CONTRACT_VERSION = 1;
 
 const GENERATED = "Generated from the element sources by scripts/rapidoc-metadata.js. Do not edit.";

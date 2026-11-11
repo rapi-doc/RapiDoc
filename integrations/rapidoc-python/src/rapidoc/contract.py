@@ -15,9 +15,11 @@ import json
 import re
 from typing import Any, Mapping
 
-CONTRACT_VERSION = 1
+CONTRACT_VERSION = 2
 
-DEFAULT_PATH = "/docs"
+DEFAULT_UI_PATH = "/docs"
+# The name DEFAULT_UI_PATH had in version 0.1
+DEFAULT_PATH = DEFAULT_UI_PATH
 DEFAULT_TITLE = "API Reference"
 
 SCRIPT_FILE = "rapidoc-min.js"
@@ -54,9 +56,9 @@ def inline_json(spec: Any) -> str:
     )
 
 
-def normalize_path(path: str | None = DEFAULT_PATH) -> str:
+def normalize_path(path: str | None = DEFAULT_UI_PATH) -> str:
     """The page's public URL path without a trailing slash; the site root is the empty string."""
-    trimmed = (DEFAULT_PATH if path is None else str(path)).strip().rstrip("/")
+    trimmed = (DEFAULT_UI_PATH if path is None else str(path)).strip().rstrip("/")
     if trimmed == "":
         return ""
     return trimmed if trimmed.startswith("/") else f"/{trimmed}"
@@ -80,10 +82,19 @@ def _attribute_value(value: Any) -> str:
     return str(value)
 
 
+def ui_path_of(options: Mapping[str, Any] | None = None) -> str:
+    """The URL path the page is served at: ``uiPath``, or ``path``, its name in contract version 1."""
+    options = options or {}
+    for key in ("uiPath", "path"):
+        if options.get(key) is not None:
+            return options[key]
+    return DEFAULT_UI_PATH
+
+
 def embed_urls(options: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """Where the page, the bundle and the OAuth return page are, and how the bundle is loaded."""
     options = options or {}
-    path = normalize_path(options.get("path", DEFAULT_PATH))
+    path = normalize_path(ui_path_of(options))
     assets = options.get("assets") or "bundled"
     urls: dict[str, Any] = {
         "page": path or "/",
@@ -205,7 +216,7 @@ def render_oauth_receiver_page(options: Mapping[str, Any] | None = None) -> str:
 def embed_routes(options: Mapping[str, Any] | None = None) -> list[dict[str, str]]:
     """The routes an integration serves: the two pages, and the bundle's files when assets are bundled."""
     options = options or {}
-    path = normalize_path(options.get("path", DEFAULT_PATH))
+    path = normalize_path(ui_path_of(options))
     urls = embed_urls(options)
     routes = [
         {"path": urls["page"], "kind": "page", "contentType": _HTML_TYPE},

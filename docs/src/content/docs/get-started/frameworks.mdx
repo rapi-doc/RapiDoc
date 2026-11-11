@@ -1,6 +1,6 @@
 ---
 title: Framework Integration
-description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular, serve it from a Hono, Express, Fastify or FastAPI app, or add it to a Starlight or VitePress site.
+description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular, serve it from a Hono, Express, Fastify or FastAPI app, or add it to a Starlight, VitePress or Docusaurus site.
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -164,7 +164,7 @@ app.get('/openapi.json', (c) => c.json(openApiDocument));
 app.use(rapidoc({ specUrl: '/openapi.json', options: { renderStyle: 'focused' } }));
 ```
 
-The reference is at `/docs`; change it with `path`. `options` takes any [attribute of `<rapi-doc>`](/api/). On Cloudflare Workers, import from `@rapidoc/hono/edge`, which loads the bundle from a CDN instead of reading it from disk.
+The reference is at `/docs`; change it with `uiPath`. `options` takes any [attribute of `<rapi-doc>`](/api/). On Cloudflare Workers, import from `@rapidoc/hono/edge`, which loads the bundle from a CDN instead of reading it from disk.
 
 ### Express and Fastify
 
@@ -209,7 +209,7 @@ app = FastAPI(docs_url=None, redoc_url=None)
 setup_rapidoc(app, options={"render_style": "focused"})
 ```
 
-The reference is at `/docs` and reads the app's own `/openapi.json`. `docs_url=None` turns off FastAPI's Swagger UI, which uses the same path; to keep both, pass `path="/reference"`. For a plain Starlette app, import it from `rapidoc.starlette` and pass `spec_url`.
+The reference is at `/docs` and reads the app's own `/openapi.json`. `docs_url=None` turns off FastAPI's Swagger UI, which uses the same path; to keep both, pass `ui_path="/reference"`. For a plain Starlette app, import it from `rapidoc.starlette` and pass `spec_url`.
 
 ## Documentation sites
 
@@ -230,7 +230,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'My docs',
-      plugins: [starlightRapidoc({ path: '/api', spec: './openapi.yaml' })],
+      plugins: [starlightRapidoc({ uiPath: '/api', spec: './openapi.yaml' })],
     }),
   ],
 });
@@ -249,7 +249,7 @@ import { withRapidoc, rapidocSidebar } from '@rapidoc/vitepress';
 export default withRapidoc(
   defineConfig({
     themeConfig: {
-      sidebar: [{ text: 'Pets API', items: await rapidocSidebar('./openapi.yaml', '/api') }],
+      sidebar: [{ text: 'Pets API', items: await rapidocSidebar({ spec: './openapi.yaml', uiPath: '/api' }) }],
     },
   }),
   { apis: { pets: './openapi.yaml' } },
@@ -266,6 +266,44 @@ import { RapidocReference } from '@rapidoc/vitepress/client';
 </script>
 
 <RapidocReference api="pets" />
+```
+
+### Docusaurus
+
+:::note[Coming in the next release]
+`@rapidoc/docusaurus` is not published on npm yet. This section describes it ahead of its first release.
+:::
+
+Three steps: the plugin, a doc page, and the sidebar.
+
+```javascript title="docusaurus.config.js"
+export default {
+  plugins: [['@rapidoc/docusaurus', { apis: { pets: './openapi.yaml' } }]],
+};
+```
+
+```mdx title="docs/api.mdx"
+---
+hide_table_of_contents: true
+---
+
+import RapidocReference from '@rapidoc/docusaurus/client';
+
+<RapidocReference api="pets" />
+```
+
+```javascript title="sidebars.js"
+import { rapidocSidebarSync } from '@rapidoc/docusaurus';
+
+export default {
+  docs: [
+    {
+      type: 'category',
+      label: 'Pets API',
+      items: rapidocSidebarSync({ spec: './openapi.yaml', uiPath: '/docs/api', docId: 'api' }),
+    },
+  ],
+};
 ```
 
 For another framework or site generator, see [Build an Integration](/docs/get-started/build-an-integration/).

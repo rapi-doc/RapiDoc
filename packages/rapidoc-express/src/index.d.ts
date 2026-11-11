@@ -11,7 +11,7 @@ export interface RapidocExpressOptions extends Omit<ResponderOptions, "nonce"> {
 }
 
 /**
- * Express middleware that serves an API reference at `path` (default `/docs`):
+ * Express middleware that serves an API reference at `uiPath` (default `/docs`):
  * `app.use(rapidoc({ specUrl: "/openapi.json" }))`.
  */
 export declare function rapidoc(

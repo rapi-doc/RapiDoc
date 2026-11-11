@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { parse } from "yaml";
 import { normalizePath, toAttributes, inlineJson } from "@rapidoc/embed/core";
+import { operationClass, sidebarCss, sidebarMethods } from "@rapidoc/embed/sidebar";
 import { getSpecNavigation } from "@rapidoc/prerender";
 
 /**
@@ -50,11 +51,12 @@ export async function loadSpec(spec, root) {
   return document;
 }
 
-/** `/docs/api/` → `/docs/api`; a path is required, and the site root is not allowed (Starlight owns it). */
-function apiPath(value) {
-  const normalized = normalizePath(value ?? "");
+/** `/docs/api/` → `/docs/api`; `uiPath` is required, and the site root is not allowed (Starlight owns it). */
+function apiUiPath(api) {
+  // `path` was this option's name in 0.1
+  const normalized = normalizePath(api.uiPath ?? api.path ?? "");
   if (normalized === "") {
-    throw new TypeError('@rapidoc/starlight: each API needs `path`, for example "/api"');
+    throw new TypeError('@rapidoc/starlight: each API needs `uiPath`, for example "/api"');
   }
   return normalized;
 }
@@ -65,14 +67,28 @@ export function pageUrl(base, pagePath, trailingSlash = "ignore") {
   return `${prefix}${pagePath}${trailingSlash === "never" ? "" : "/"}`;
 }
 
+/** The method in front of each operation link, in RapiDoc's colours, and deprecated ones struck through. */
+export const SIDEBAR_CSS = sidebarCss({
+  label: (className) => `a.${className}::before`,
+  text: (className) => `a.${className} > span`,
+  dark: ":root[data-theme='dark']",
+  // Starlight fills the current item with its accent colour
+  active: "a.rapidoc-op[aria-current='page']::before",
+});
+
 const operationLabel = (operation) => operation.summary || `${operation.method} ${operation.path}`;
 
-function tagItems(tag, href) {
+function tagItems(tag, href, methods) {
   return tag.paths.map((operation) => ({
     label: operationLabel(operation),
     link: `${href}#${operation.elementId}`,
-    ...(operation.deprecated ? { badge: { text: "deprecated", variant: "caution" } } : {}),
-    attrs: { "data-rapidoc-op": operation.elementId, "data-method": operation.method },
+    attrs: {
+      "data-rapidoc-op": operation.elementId,
+      "data-method": operation.method,
+      // the method label and the deprecated mark are drawn by SIDEBAR_CSS from these classes
+      class: operationClass(operation, methods),
+      ...(operation.deprecated ? { title: "Deprecated" } : {}),
+    },
   }));
 }
 
@@ -90,7 +106,7 @@ export function sidebarGroup(api, navigation, href) {
     items.push({
       label: tag.displayName || tag.name,
       collapsed: api.sidebar?.collapsed ?? false,
-      items: tagItems(tag, href),
+      items: tagItems(tag, href, api.sidebar?.methods),
     });
   }
   return { label: api.label ?? api.title, collapsed: false, items };
@@ -108,16 +124,18 @@ export async function resolveApis(userOptions, site) {
       ? [userOptions]
       : [];
   if (list.length === 0) {
-    throw new TypeError("@rapidoc/starlight: give at least one API: { path, spec }");
+    throw new TypeError("@rapidoc/starlight: give at least one API: { uiPath, spec }");
   }
   const apis = [];
   const sidebar = [];
   const seen = new Set();
   for (const given of list) {
-    const pagePath = apiPath(given.path);
-    if (seen.has(pagePath))
-      throw new TypeError(`@rapidoc/starlight: two APIs use the path ${pagePath}`);
+    const pagePath = apiUiPath(given);
+    if (seen.has(pagePath)) {
+      throw new TypeError(`@rapidoc/starlight: two APIs use the uiPath ${pagePath}`);
+    }
     seen.add(pagePath);
+    if (given.sidebar) sidebarMethods(given.sidebar.methods); // fail on a wrong value before building
 
     const spec = await loadSpec(given.spec, site.root);
     const navigation = await getSpecNavigation(structuredClone(spec));
@@ -128,7 +146,7 @@ export async function resolveApis(userOptions, site) {
     // The contract's attribute rules (names, booleans, sorting); the page defaults first, the user's last
     const attributes = Object.fromEntries(
       toAttributes({
-        path: pagePath,
+        uiPath: pagePath,
         options: {
           ...PAGE_ATTRIBUTES,
           "oauth-receiver": receiver,
@@ -138,7 +156,7 @@ export async function resolveApis(userOptions, site) {
       }),
     );
 
-    const api = { path: pagePath, title, attributes, specJson: inlineJson(spec) };
+    const api = { uiPath: pagePath, title, attributes, specJson: inlineJson(spec) };
     apis.push(api);
     if (given.sidebar !== false) {
       sidebar.push(sidebarGroup({ ...given, title }, navigation, href));

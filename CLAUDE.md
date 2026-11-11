@@ -22,6 +22,7 @@
 | `packages/rapidoc-hono` | `@rapidoc/hono` | `src/index.js` (+ `./edge`): `rapidoc(options)`, a Hono middleware over `@rapidoc/embed`; `hono` is a peer |
 | `packages/rapidoc-express`, `packages/rapidoc-fastify` | `@rapidoc/express`, `@rapidoc/fastify` | `src/index.js`: `rapidoc(options)` middleware, and a Fastify plugin, over `createResponder` of `@rapidoc/embed` |
 | `packages/rapidoc-vitepress` | `@rapidoc/vitepress` | `src/index.js` (`withRapidoc`, `rapidocSidebar`), `src/client.js` (`RapidocReference`); `example/` is the site its tests build |
+| `packages/rapidoc-docusaurus` | `@rapidoc/docusaurus` | `src/index.js` (plugin, `rapidocSidebarSync`), `src/client.js` (`RapidocReference`, React); Docusaurus is not installed here, the component is checked by hand |
 | `packages/rapidoc-starlight` | `@rapidoc/starlight` | `src/index.js`: `starlightRapidoc(options)`, a Starlight plugin; `src/apis.js` (`resolveApis`), `src/ApiPage.astro`; `example/` is the site its tests build |
 | `integrations/rapidoc-python` | `rapidoc` (PyPI) | `src/rapidoc/fastapi.py` and `starlette.py` (`setup_rapidoc`), `contract.py` (the contract in Python); own toolchain (uv, pytest), not an npm workspace |
 | `packages/rapidoc-mock` | `@rapidoc/mock` | `src/index.js` (`createMockApp`, `startMockServer`): mocks the portal's APIs under `/<api id>` (default port 4010); examples, generated data, request validation, JWT scope checks; libraries behind `src/engine/` |

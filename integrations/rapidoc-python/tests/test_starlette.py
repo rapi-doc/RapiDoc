@@ -65,7 +65,7 @@ def test_refuses_the_path_swagger_ui_already_has():
     with pytest.raises(RuntimeError, match=r"docs_url=None"):
         setup_rapidoc(FastAPI())
     app = FastAPI()
-    setup_rapidoc(app, path="/reference")
+    setup_rapidoc(app, ui_path="/reference")
     assert TestClient(app).get("/reference").status_code == 200
     assert "swagger" in TestClient(app).get("/docs").text.lower(), "Swagger UI is left alone"
 
@@ -122,3 +122,9 @@ def test_works_on_a_starlette_app():
     page = TestClient(app).get("/docs").text
     assert 'spec-url="https://example.com/openapi.yaml"' in page
     assert "<title>Reference</title>" in page
+
+
+def test_still_takes_path_the_name_ui_path_had():
+    app = FastAPI(docs_url=None)
+    setup_rapidoc(app, path="/old")
+    assert TestClient(app).get("/old").status_code == 200

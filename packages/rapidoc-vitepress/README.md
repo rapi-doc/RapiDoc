@@ -19,7 +19,7 @@ export default withRapidoc(
     themeConfig: {
       sidebar: [
         { text: "Guide", items: [{ text: "Getting started", link: "/" }] },
-        { text: "Pets API", items: await rapidocSidebar("./openapi.yaml", "/api") },
+        { text: "Pets API", items: await rapidocSidebar({ spec: "./openapi.yaml", uiPath: "/api" }) },
       ],
     },
   }),
@@ -47,7 +47,7 @@ The reference is at `/api`. `layout: page` gives it the full content width.
 ## What you get
 
 - **Your theme's layout**: its nav, sidebar and dark-mode switch stay; RapiDoc's own header and sidebar are off, and the reference follows the theme's light and dark modes.
-- **Operations in the sidebar**: `rapidocSidebar(spec, link)` returns an overview link and a group per tag with a link per operation. An operation link is a section of the page (`/api#list-pets`), so moving between operations does not reload it.
+- **Operations in the sidebar**: `rapidocSidebar({ spec, uiPath })` returns an overview link and a group per tag with a link per operation. Each shows its HTTP method (GET, POST, DEL) in RapiDoc's colours, and deprecated operations are struck through. An operation link is a section of the page (`/api#list-pets`), so moving between operations does not reload it.
 - **No request for the spec**: the documents in `apis` are read at build time and shipped with the page's script.
 - **Try it and OAuth**: the console works as in RapiDoc; the OAuth return page is written to `rapidoc/oauth-receiver.html`.
 
@@ -55,14 +55,24 @@ The reference is at `/api`. `layout: page` gives it the full content width.
 
 **`withRapidoc(config, { apis, root? })`** wraps the VitePress config. `apis` maps a name to an OpenAPI document: a JSON or YAML file (relative to `root`, default the working directory), a URL or an object. It also lets you write `<rapi-doc-mini>` directly in Markdown.
 
-**`rapidocSidebar(spec, link, { collapsed?, root? })`** returns sidebar items for one API.
+**`rapidocSidebar({ spec, uiPath, ... })`** returns sidebar items for one API.
+
+| Option      | Default               |                                                                                                                                                                                        |
+| :---------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `spec`      | required              | The OpenAPI document: a JSON or YAML file (relative to `root`), a URL, or the object. It is read when the site is built                                                                |
+| `uiPath`    | required              | URL path of the page that shows the reference, for example `/api`. Operation links point to sections of it                                                                             |
+| `methods`   | `"as-colored-text"`   | How each operation's HTTP method is shown: `"as-colored-text"`, `"as-plain-text"`, `"as-colored-block"`, or `false` for no method. Deprecated operations are struck through either way |
+| `collapsed` |                       | `true` starts the tag groups collapsed                                                                                                                                                 |
+| `root`      | the working directory | Folder a relative `spec` file is resolved from                                                                                                                                         |
+
+The form of version 0.1, `rapidocSidebar(spec, link, options)`, still works.
 
 **`<RapidocReference>`** props:
 
 | Prop      |                                                                                                                                                                          |
 | :-------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `api`     | A name from `apis`                                                                                                                                                       |
-| `spec`    | The OpenAPI document itself, instead of `api`                                                                                                                            |
+| `spec`    | The OpenAPI document as an object, instead of `api`                                                                                                                      |
 | `options` | [Attributes of `<rapi-doc>`](https://rapidocui.com/api/), in kebab-case or camelCase: `:options="{ allowTry: false, theme: 'jade' }"`. They win over the component's own |
 
 ## Notes

@@ -71,19 +71,25 @@ describe("@rapidoc/hono", () => {
   });
 
   it("serves at another path, and at the site root", async () => {
-    const custom = appWith(rapidoc({ ...options, path: "/api/reference/" }));
+    const custom = appWith(rapidoc({ ...options, uiPath: "/api/reference/" }));
     const page = await (await custom.request("/api/reference")).text();
     assert.match(page, /src="\/api\/reference\/rapidoc-min\.js"/);
     assert.equal((await custom.request("/api/reference/rapidoc-min.js")).status, 200);
     assert.equal(await (await custom.request("/docs")).text(), "passed on");
 
-    const root = appWith(rapidoc({ ...options, path: "/" }));
+    const root = appWith(rapidoc({ ...options, uiPath: "/" }));
     assert.match(await (await root.request("/")).text(), /src="\/rapidoc-min\.js"/);
     assert.equal((await root.request("/oauth-receiver.html")).status, 200);
   });
 
-  it("writes publicPath into the page when a proxy strips a prefix", async () => {
-    const proxied = appWith(rapidoc({ ...options, publicPath: "/gateway/docs" }));
+  it("still takes the option names of version 0.1", async () => {
+    const old = appWith(rapidoc({ ...options, path: "/ref", publicPath: "/gw/ref" }));
+    assert.match(await (await old.request("/ref")).text(), /src="\/gw\/ref\/rapidoc-min\.js"/);
+    assert.equal(await (await old.request("/docs")).text(), "passed on");
+  });
+
+  it("writes publicUiPath into the page when a proxy strips a prefix", async () => {
+    const proxied = appWith(rapidoc({ ...options, publicUiPath: "/gateway/docs" }));
     const page = await (await proxied.request("/docs")).text();
     assert.match(page, /src="\/gateway\/docs\/rapidoc-min\.js"/);
     assert.match(page, /oauth-receiver="\/gateway\/docs\/oauth-receiver\.html"/);
@@ -92,7 +98,7 @@ describe("@rapidoc/hono", () => {
 
   it("works in an app mounted under a base path", async () => {
     const mounted = new Hono().basePath("/v1");
-    mounted.use(rapidoc({ ...options, path: "/v1/docs" }));
+    mounted.use(rapidoc({ ...options, uiPath: "/v1/docs" }));
     const res = await mounted.request("/v1/docs");
     assert.equal(res.status, 200);
     assert.match(await res.text(), /src="\/v1\/docs\/rapidoc-min\.js"/);

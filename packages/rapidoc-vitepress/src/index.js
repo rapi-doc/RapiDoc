@@ -4,7 +4,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parse } from "yaml";
-import { renderOAuthReceiverPage } from "@rapidoc/embed";
+import {
+  escapeHtml,
+  methodLabel,
+  operationClass,
+  renderOAuthReceiverPage,
+  sidebarCss,
+  sidebarMethods,
+} from "@rapidoc/embed";
 import { getSpecNavigation } from "@rapidoc/prerender";
 
 const VIRTUAL_ID = "virtual:rapidoc-vitepress";
@@ -39,13 +46,59 @@ export async function loadSpec(spec, root = process.cwd()) {
 const operationLabel = (operation) => operation.summary || `${operation.method} ${operation.path}`;
 
 /**
- * Sidebar items for one API, for `themeConfig.sidebar`: an overview link, then a group per tag with a
- * link per operation. Links point into the API's page (`<link>#<operation id>`).
- * @param {string | object} spec a file (relative to `options.root`, default the working directory), a URL or the document
- * @param {string} link the page that shows the API, for example `/api`
- * @param {{ root?: string, collapsed?: boolean }} [options]
+ * VitePress writes a sidebar item's text as HTML and offers no class for the item, so the method label
+ * is an element inside the text, and the text itself is escaped here.
  */
-export async function rapidocSidebar(spec, link, options = {}) {
+function operationText(operation, methods) {
+  const method = methods === "false" ? "" : methodLabel(operation.method);
+  const label = method
+    ? `<span class="${operationClass(operation, methods)}">${method}</span>`
+    : "";
+  const text = escapeHtml(operationLabel(operation));
+  return operation.deprecated
+    ? `${label}<span class="rapidoc-op-text--deprecated" title="Deprecated">${text}</span>`
+    : `${label}${text}`;
+}
+
+/** The method in front of each operation link, in RapiDoc's colours, and deprecated ones struck through. */
+export const SIDEBAR_CSS = sidebarCss({
+  label: (className) => `.VPSidebar .${className}`,
+  text: () => ".VPSidebar .rapidoc-op-text--deprecated",
+  dark: ".dark",
+});
+
+/**
+ * Sidebar items for one API, for `themeConfig.sidebar`: an overview link, then a group per tag with a
+ * link per operation. Links point into the API's page (`<uiPath>#<operation id>`).
+ *
+ *     await rapidocSidebar({ spec: "./openapi.yaml", uiPath: "/api" })
+ *
+ * @param {object} options
+ * @param {string | object} options.spec a file (relative to `root`, default the working directory), a URL
+ *   or the document. Read when the site is built.
+ * @param {string} options.uiPath the URL path of the page that shows the API, for example `/api`
+ * @param {boolean | string} [options.methods] how each operation's HTTP method is shown:
+ *   "as-colored-text" (default), "as-plain-text", "as-colored-block", or false for none
+ * @param {boolean} [options.collapsed] start the tag groups collapsed
+ * @param {string} [options.root]
+ *
+ * Version 0.1 took `(spec, link, options)`; that form still works.
+ */
+export async function rapidocSidebar(first, second, third = {}) {
+  // One options object has `spec` and no `openapi` key; an OpenAPI document given positionally has the latter
+  const named =
+    second === undefined &&
+    first &&
+    typeof first === "object" &&
+    "spec" in first &&
+    !("openapi" in first);
+  const options = named ? first : { ...third, spec: first, uiPath: second };
+  const { spec } = options;
+  const link = options.uiPath ?? options.path;
+  if (typeof link !== "string" || link === "") {
+    throw new TypeError('@rapidoc/vitepress: rapidocSidebar needs `uiPath`, for example "/api"');
+  }
+  const methods = sidebarMethods(options.methods);
   const document = await loadSpec(spec, options.root);
   const navigation = await getSpecNavigation(structuredClone(document));
   const tags = navigation.tagGroups.length
@@ -56,10 +109,10 @@ export async function rapidocSidebar(spec, link, options = {}) {
   for (const tag of tags) {
     if (tag.paths.length === 0) continue;
     items.push({
-      text: tag.displayName || tag.name,
+      text: escapeHtml(tag.displayName || tag.name),
       ...(options.collapsed === undefined ? {} : { collapsed: options.collapsed }),
       items: tag.paths.map((operation) => ({
-        text: operationLabel(operation),
+        text: operationText(operation, methods),
         link: `${link}#${operation.elementId}`,
       })),
     });
@@ -110,6 +163,8 @@ export function withRapidoc(config = {}, options = {}) {
   const noExternal = config.vite?.ssr?.noExternal;
   return {
     ...config,
+    // the sidebar is on every page, so the styles of its method labels are too
+    head: [...(config.head ?? []), ["style", {}, SIDEBAR_CSS]],
     vue: {
       ...config.vue,
       template: {

@@ -10,7 +10,7 @@ const port = Number(process.env.PORT ?? 4400);
 
 /** The options every integration takes (docs: "Build an integration"). */
 const options = {
-  path: "/docs",
+  uiPath: "/docs",
   specUrl: "/openapi.json",
   title: "Example API",
   assets: process.env.ASSETS === "cdn" ? "cdn" : "bundled",
@@ -73,4 +73,4 @@ http
     }
     return send(route.contentType, readAsset(route.file));
   })
-  .listen(port, () => console.log(`RapiDoc at http://localhost:${port}${options.path}`));
+  .listen(port, () => console.log(`RapiDoc at http://localhost:${port}${options.uiPath}`));

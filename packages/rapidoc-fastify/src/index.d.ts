@@ -11,7 +11,7 @@ export interface RapidocFastifyOptions extends Omit<ResponderOptions, "nonce"> {
 }
 
 /**
- * Fastify plugin that serves an API reference at `path` (default `/docs`):
+ * Fastify plugin that serves an API reference at `uiPath` (default `/docs`):
  * `fastify.register(rapidoc, { specUrl: "/openapi.json" })`.
  */
 export declare const rapidoc: FastifyPluginAsync<RapidocFastifyOptions>;

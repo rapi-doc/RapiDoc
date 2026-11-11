@@ -6,7 +6,7 @@ import { apis } from 'virtual:rapidoc-starlight';
 
 const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
 const pathname = Astro.url.pathname.slice(base.length).replace(/\/+$/, '');
-const api = apis.find((candidate) => candidate.path === pathname);
+const api = apis.find((candidate) => candidate.uiPath === pathname);
 if (!api) throw new Error(`@rapidoc/starlight: no API is configured at ${Astro.url.pathname}`);
 ---
 

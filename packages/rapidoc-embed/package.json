@@ -42,6 +42,10 @@
       "types": "./src/node.d.ts",
       "default": "./src/node.js"
     },
+    "./sidebar": {
+      "types": "./src/index.d.ts",
+      "default": "./src/sidebar.js"
+    },
     "./conformance/*": "./conformance/*"
   },
   "publishConfig": {

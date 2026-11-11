@@ -35,7 +35,7 @@ def _assets(assets: Any) -> Any:
 def setup_rapidoc(
     app: Any,
     *,
-    path: str = contract.DEFAULT_PATH,
+    ui_path: str | None = None,
     spec_url: str | None = None,
     spec: Any = None,
     title: str | None = None,
@@ -46,10 +46,11 @@ def setup_rapidoc(
     lang: str = "en",
     nonce: Nonce = None,
     enabled: bool = True,
+    path: str | None = None,
 ) -> None:
     """Adds an API reference to a FastAPI or Starlette app.
 
-    :param path: where the reference is served, within the app. Default ``/docs``.
+    :param ui_path: the URL path the reference page is served at, within the app. Default ``/docs``.
     :param spec_url: URL of the OpenAPI document. Default: the app's ``openapi_url``. A path starting
         with ``/`` is taken as a path of the app, so the app's ``root_path`` is put in front of it.
     :param spec: the OpenAPI document itself (a dict or JSON text), written into the page.
@@ -62,13 +63,16 @@ def setup_rapidoc(
     :param lang: language of the page.
     :param nonce: Content-Security-Policy nonce, or a function that reads it from the request.
     :param enabled: ``False`` adds nothing, for example outside development.
+    :param path: deprecated, the name ``ui_path`` had in version 0.1.
     """
     if not enabled:
         return
+    if ui_path is None:
+        ui_path = contract.DEFAULT_UI_PATH if path is None else path
 
     manifest = rapidoc_manifest()
     base = {
-        "path": path,
+        "uiPath": ui_path,
         "assets": _assets(assets),
         "manifest": manifest,
         "spec": spec,
@@ -84,7 +88,7 @@ def setup_rapidoc(
     if clash:
         raise RuntimeError(
             f"rapidoc: the app already has a route at {clash}. FastAPI serves Swagger UI at "
-            "/docs unless created with FastAPI(docs_url=None); or pass another path to setup_rapidoc()."
+            "/docs unless created with FastAPI(docs_url=None); or pass another ui_path to setup_rapidoc()."
         )
 
     if spec_url is None and spec is None:
@@ -101,7 +105,7 @@ def setup_rapidoc(
             url = f"{root_path}{url}"
         return {
             **base,
-            "path": f"{root_path}{contract.normalize_path(path)}",
+            "uiPath": f"{root_path}{contract.normalize_path(ui_path)}",
             "specUrl": url,
             "title": title,
             "nonce": nonce(request) if callable(nonce) else nonce,

@@ -1,10 +1,10 @@
 // @rapidoc/express: an Express middleware over the responder of @rapidoc/embed. It also runs under Connect
 // and a plain node:http server, since it only reads `req.method`, `req.url` and the request headers.
-import { createResponder, rapidocManifest } from "@rapidoc/embed";
+import { createResponder, rapidocManifest, uiPathOf } from "@rapidoc/embed";
 import { readAsset } from "@rapidoc/embed/node";
 
 /**
- * `app.use(rapidoc({ specUrl: "/openapi.json" }))` serves an API reference at `path` (default `/docs`).
+ * `app.use(rapidoc({ specUrl: "/openapi.json" }))` serves an API reference at `uiPath` (default `/docs`).
  * It answers GET and HEAD on that path and the files under it, and calls `next()` for everything else.
  * Mounted under a prefix, `app.use("/api", rapidoc())`, the page's URLs include the prefix.
  */
@@ -20,7 +20,10 @@ export function rapidoc(options = {}) {
       method: req.method,
       path,
       ifNoneMatch: req.headers["if-none-match"],
-      publicPath: mount && !options.publicPath ? `${mount}${options.path ?? "/docs"}` : undefined,
+      publicUiPath:
+        mount && !(options.publicUiPath ?? options.publicPath)
+          ? `${mount}${uiPathOf(options)}`
+          : undefined,
       nonce: typeof nonce === "function" ? nonce(req, res) : undefined,
     })
       .then((response) => {

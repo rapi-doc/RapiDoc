@@ -13,7 +13,7 @@ export default defineConfig({
       sidebar: [{ label: "Guides", items: [{ label: "Welcome", link: "/" }] }],
       plugins: [
         starlightRapidoc({
-          path: "/api",
+          uiPath: "/api",
           spec: "./openapi/pets.yaml",
           options: { allowTry: false },
         }),

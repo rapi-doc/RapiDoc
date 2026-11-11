@@ -1,17 +1,17 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
-import { resolveApis, loadSpec, pageUrl, PAGE_ATTRIBUTES } from "../src/apis.js";
+import { resolveApis, loadSpec, pageUrl, PAGE_ATTRIBUTES, SIDEBAR_CSS } from "../src/apis.js";
 
 const root = fileURLToPath(new URL("../example/", import.meta.url));
 const site = { root, base: "/", trailingSlash: "ignore" };
-const pets = { path: "/api", spec: "./openapi/pets.yaml" };
+const pets = { uiPath: "/api", spec: "./openapi/pets.yaml" };
 
 describe("@rapidoc/starlight options", () => {
   it("reads a YAML spec from the project root and writes it into the page data", async () => {
     const { apis } = await resolveApis(pets, site);
     assert.equal(apis.length, 1);
-    assert.equal(apis[0].path, "/api");
+    assert.equal(apis[0].uiPath, "/api");
     assert.equal(apis[0].title, "Pets API", "the document's title");
     const spec = JSON.parse(apis[0].specJson);
     assert.equal(spec.info.title, "Pets API");
@@ -55,9 +55,17 @@ describe("@rapidoc/starlight options", () => {
     assert.deepEqual(group.items[1].items[0], {
       label: "List pets",
       link: "/api/#list-pets",
-      attrs: { "data-rapidoc-op": "list-pets", "data-method": "get" },
+      attrs: {
+        "data-rapidoc-op": "list-pets",
+        "data-method": "get",
+        class: "rapidoc-op rapidoc-op--get",
+      },
     });
-    assert.deepEqual(group.items[1].items[2].badge, { text: "deprecated", variant: "caution" });
+    const removed = group.items[1].items[2].attrs;
+    assert.equal(removed.class, "rapidoc-op rapidoc-op--delete rapidoc-op--deprecated");
+    assert.equal(removed.title, "Deprecated");
+    assert.match(SIDEBAR_CSS, /a\.rapidoc-op--delete::before\{content:"DEL";/);
+    assert.match(SIDEBAR_CSS, /a\.rapidoc-op--deprecated > span\{text-decoration:line-through/);
   });
 
   it("takes label, title and sidebar settings", async () => {
@@ -82,7 +90,7 @@ describe("@rapidoc/starlight options", () => {
     assert.equal(sidebar[0].items[0].link, "/docs/api");
     assert.equal(sidebar[0].items[1].items[0].link, "/docs/api#list-pets");
     assert.equal(apis[0].attributes["oauth-receiver"], "/docs/api/oauth-receiver");
-    assert.equal(apis[0].path, "/api", "routes are relative to the base");
+    assert.equal(apis[0].uiPath, "/api", "routes are relative to the base");
     assert.equal(pageUrl("/", "/api", "always"), "/api/");
   });
 
@@ -93,11 +101,11 @@ describe("@rapidoc/starlight options", () => {
       paths: { "/ping": { get: { summary: "Ping", responses: { 200: { description: "ok" } } } } },
     };
     const { apis, sidebar } = await resolveApis(
-      { apis: [pets, { path: "internal/api/", spec }] },
+      { apis: [pets, { uiPath: "internal/api/", spec }] },
       site,
     );
     assert.deepEqual(
-      apis.map((api) => api.path),
+      apis.map((api) => api.uiPath),
       ["/api", "/internal/api"],
     );
     assert.equal(sidebar[1].label, "Inline");
@@ -106,13 +114,46 @@ describe("@rapidoc/starlight options", () => {
 
   it("explains what is wrong with the options", async () => {
     await assert.rejects(resolveApis(undefined, site), /at least one API/);
-    await assert.rejects(resolveApis({ spec: "./openapi/pets.yaml" }, site), /needs `path`/);
+    await assert.rejects(resolveApis({ spec: "./openapi/pets.yaml" }, site), /needs `uiPath`/);
     await assert.rejects(
-      resolveApis({ path: "/", spec: "./openapi/pets.yaml" }, site),
-      /needs `path`/,
+      resolveApis({ uiPath: "/", spec: "./openapi/pets.yaml" }, site),
+      /needs `uiPath`/,
     );
-    await assert.rejects(resolveApis({ path: "/api" }, site), /needs `spec`/);
-    await assert.rejects(resolveApis({ path: "/api", spec: "./nope.yaml" }, site), /not found/);
-    await assert.rejects(resolveApis({ apis: [pets, pets] }, site), /two APIs use the path \/api/);
+    await assert.rejects(resolveApis({ uiPath: "/api" }, site), /needs `spec`/);
+    await assert.rejects(resolveApis({ uiPath: "/api", spec: "./nope.yaml" }, site), /not found/);
+    await assert.rejects(
+      resolveApis({ apis: [pets, pets] }, site),
+      /two APIs use the uiPath \/api/,
+    );
+    await assert.rejects(
+      resolveApis({ ...pets, sidebar: { methods: "loud" } }, site),
+      /"methods" is "false"/,
+    );
+  });
+
+  it("shows the method as asked, or not at all", async () => {
+    const classOf = async (methods) =>
+      (await resolveApis({ ...pets, sidebar: { methods } }, site)).sidebar[0].items[1].items[2]
+        .attrs.class;
+    assert.equal(await classOf(undefined), "rapidoc-op rapidoc-op--delete rapidoc-op--deprecated");
+    assert.equal(
+      await classOf(false),
+      "rapidoc-op rapidoc-op--deprecated",
+      "deprecated still marked",
+    );
+    assert.equal(
+      await classOf("as-colored-block"),
+      "rapidoc-op rapidoc-op--delete rapidoc-op--block rapidoc-op--deprecated",
+    );
+    assert.equal(
+      await classOf("as-plain-text"),
+      "rapidoc-op rapidoc-op--delete rapidoc-op--plain rapidoc-op--deprecated",
+    );
+  });
+
+  it("still takes path, the name uiPath had in version 0.1", async () => {
+    const { apis, sidebar } = await resolveApis({ path: "/old", spec: pets.spec }, site);
+    assert.equal(apis[0].uiPath, "/old");
+    assert.equal(sidebar[0].items[0].link, "/old/");
   });
 });

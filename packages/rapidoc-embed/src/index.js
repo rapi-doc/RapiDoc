@@ -5,6 +5,7 @@ import * as core from "./core.js";
 import { createResponder as createUnboundResponder } from "./responder.js";
 
 export * from "./core.js";
+export * from "./sidebar.js";
 
 /** The integration manifest of the installed rapidoc: version, CDN base URL, files with SRI hashes. */
 export const rapidocManifest = manifest;

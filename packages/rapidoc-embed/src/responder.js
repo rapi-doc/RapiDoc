@@ -2,21 +2,27 @@
 // the path against the contract's routes and produce the status, headers and body. @rapidoc/hono,
 // @rapidoc/express and @rapidoc/fastify are this function plus a few lines each. Not part of the contract:
 // ports in other languages write their own (the routes and pages they serve are the contract).
-import { embedRoutes, renderHostPage, renderOAuthReceiverPage } from "./core.js";
+import { embedRoutes, renderHostPage, renderOAuthReceiverPage, uiPathOf } from "./core.js";
 
 /**
- * @param {object} options the contract's options, plus `enabled` (false: answer nothing), `publicPath`
- *   (the path as the browser sees it, when it differs from `path`) and `nonce`
+ * @param {object} options the contract's options, plus `enabled` (false: answer nothing), `publicUiPath`
+ *   (the path as the browser sees it, when it differs from `uiPath`) and `nonce`
  * @param {{ readAsset?: (file: string) => Uint8Array | Promise<Uint8Array> }} [runtime] how to read a file
  *   of rapidoc's dist folder. Without it the bundle cannot be served, and `assets` defaults to "cdn".
- * @returns {(request: { method?: string, path: string, ifNoneMatch?: string, publicPath?: string,
+ * @returns {(request: { method?: string, path: string, ifNoneMatch?: string, publicUiPath?: string,
  *   nonce?: string }) => Promise<null | { status: number, headers: Record<string, string>,
  *   body: string | Uint8Array | null }>} null when the request is not for RapiDoc
  */
 export function createResponder(options = {}, runtime = {}) {
-  const { enabled = true, publicPath, nonce, ...rest } = options;
+  // `path` and `publicPath` are the names these two options had before contract version 2
+  const { enabled = true, publicUiPath, publicPath, nonce, path, uiPath, ...rest } = options;
   const readAsset = runtime.readAsset ?? null;
-  const embedOptions = { assets: readAsset ? "bundled" : "cdn", ...rest };
+  const embedOptions = {
+    assets: readAsset ? "bundled" : "cdn",
+    ...rest,
+    uiPath: uiPathOf({ uiPath, path }),
+  };
+  const fixedPublicPath = publicUiPath ?? publicPath;
   if (embedOptions.assets === "bundled" && !readAsset) {
     throw new TypeError(
       '@rapidoc/embed: cannot serve the bundle without a file system: use assets "cdn" or { scriptUrl }',
@@ -45,12 +51,12 @@ export function createResponder(options = {}, runtime = {}) {
       return { status: 200, headers, body: files.get(route.file) };
     }
 
-    // Requests are matched on `path`; the URLs written into the pages use the public path, which differs
+    // Requests are matched on `uiPath`; the URLs written into the pages use the public path, which differs
     // behind a proxy that strips a prefix or under a router mounted at a prefix.
     const render = route.kind === "page" ? renderHostPage : renderOAuthReceiverPage;
     const body = render({
       ...embedOptions,
-      path: request.publicPath ?? publicPath ?? embedOptions.path,
+      uiPath: request.publicUiPath ?? request.publicPath ?? fixedPublicPath ?? embedOptions.uiPath,
       nonce: request.nonce ?? nonce,
     });
     return {

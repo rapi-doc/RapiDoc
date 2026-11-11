@@ -22,8 +22,8 @@
 
 - **No HTML here.** Pages and the route table come from `@rapidoc/embed`; `tests/hono.test.js` compares the responses with its `renderHostPage` and `renderOAuthReceiverPage`. A change to the page belongs in the contract, not in this package.
 - **`src/edge.js` and `src/middleware.js` import no Node module**, directly or through `@rapidoc/embed/node` (a test checks the source), so a Workers bundle needs no Node compatibility.
-- **Options are the contract's** (`@rapidoc/embed`'s `EmbedOptions`). Hono-specific ones are `enabled`, `publicPath` and a `nonce` function; add another only when it has no meaning outside Hono.
-- **Requests are matched on `path`; pages are written with `publicPath`.** They differ only behind a proxy that strips a prefix.
+- **Options are the contract's** (`@rapidoc/embed`'s `EmbedOptions`). Hono-specific ones are `enabled`, `publicUiPath` and a `nonce` function; add another only when it has no meaning outside Hono.
+- **Requests are matched on `uiPath`; pages are written with `publicUiPath`.** They differ only behind a proxy that strips a prefix.
 
 ---
 

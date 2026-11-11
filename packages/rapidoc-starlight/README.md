@@ -16,13 +16,13 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "My docs",
-      plugins: [starlightRapidoc({ path: "/api", spec: "./openapi.yaml" })],
+      plugins: [starlightRapidoc({ uiPath: "/api", spec: "./openapi.yaml" })],
     }),
   ],
 });
 ```
 
-The reference is at `/api`. The sidebar gets a group named after the API, with an overview link and a link for every operation, grouped by tag.
+The reference is at `/api`. The sidebar gets a group named after the API, with an overview link and a link for every operation, grouped by tag. Each operation shows its HTTP method (GET, POST, DEL) in RapiDoc's colours, and deprecated operations are struck through.
 
 ## What you get
 
@@ -30,20 +30,20 @@ The reference is at `/api`. The sidebar gets a group named after the API, with a
 - **The site's colours**: the reference follows Starlight's light and dark themes and sits on its background.
 - **One page per API**: an operation link is a section of that page (`/api/#list-pets`), so moving between operations does not reload it.
 - **No request for the spec**: the document is read at build time and written into the page.
-- **Try it and OAuth**: the console works as in RapiDoc; the OAuth return page is built at `{path}/oauth-receiver/`.
+- **Try it and OAuth**: the console works as in RapiDoc; the OAuth return page is built at `{uiPath}/oauth-receiver/`.
 
 ## Options
 
-| Option    | Default                     |                                                                                                                                                            |
-| :-------- | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `path`    | required                    | Where the reference page is served, for example `/api`                                                                                                     |
-| `spec`    | required                    | The OpenAPI document: a JSON or YAML file (relative to the project root), a URL, or the object. It is read when the site is built                          |
-| `title`   | the document's `info.title` | Page title                                                                                                                                                 |
-| `label`   | the title                   | Sidebar group label                                                                                                                                        |
-| `options` |                             | [Attributes of `<rapi-doc>`](https://rapidocui.com/api/), in kebab-case or camelCase: `{ allowTry: false, theme: "jade" }`. They win over the plugin's own |
-| `sidebar` |                             | `false` adds nothing to the sidebar (link to the page yourself); `{ collapsed: true }` starts the tag groups collapsed                                     |
+| Option    | Default                     |                                                                                                                                                                                                                                                                                                                                             |
+| :-------- | :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `uiPath`  | required                    | URL path of the reference page within the site, for example `/api`. `path` is its old name, still read                                                                                                                                                                                                                                      |
+| `spec`    | required                    | The OpenAPI document: a JSON or YAML file (relative to the project root), a URL, or the object. Whichever it is, it is read when the site is built and written into the page; the browser makes no request for it                                                                                                                           |
+| `title`   | the document's `info.title` | Page title                                                                                                                                                                                                                                                                                                                                  |
+| `label`   | the title                   | Sidebar group label                                                                                                                                                                                                                                                                                                                         |
+| `options` |                             | [Attributes of `<rapi-doc>`](https://rapidocui.com/api/), in kebab-case or camelCase: `{ allowTry: false, theme: "jade" }`. They win over the plugin's own                                                                                                                                                                                  |
+| `sidebar` |                             | `false` adds nothing to the sidebar (link to the page yourself). `{ collapsed: true }` starts the tag groups collapsed. `{ methods }` sets how each operation's HTTP method is shown: `"as-colored-text"` (default), `"as-plain-text"`, `"as-colored-block"`, or `false` for no method. Deprecated operations are struck through either way |
 
-For several APIs, pass `{ apis: [{ path, spec }, { path, spec }] }`.
+For several APIs, pass `{ apis: [{ uiPath, spec }, { uiPath, spec }] }`.
 
 The sidebar group is added after your own `sidebar` entries. If your config has no `sidebar`, Starlight generates one from your files; adding the API group replaces that generated sidebar, so list your pages in `sidebar` too, for example with `{ label: "Guides", autogenerate: { directory: "guides" } }`.
 

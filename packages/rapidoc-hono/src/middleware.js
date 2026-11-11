@@ -3,7 +3,7 @@
 // bundle from disk) and ./edge.js (no file system; the bundle comes from the CDN or a URL of your own).
 
 /**
- * @param {object} options the options of the integration contract, plus `enabled`, `publicPath` and a
+ * @param {object} options the options of the integration contract, plus `enabled`, `publicUiPath` and a
  *   `nonce` that may be a function of the request
  * @param {object} runtime `{ embed, readAsset }`: @rapidoc/embed, and how to read a bundled file (null
  *   where there is no file system)

@@ -1,0 +1,68 @@
+{
+  "name": "@rapidoc/docusaurus",
+  "version": "0.0.0",
+  "description": "RapiDoc for Docusaurus: OpenAPI reference pages inside your Docusaurus docs, with the operations in the sidebar",
+  "keywords": [
+    "api documentation",
+    "docusaurus",
+    "docusaurus-plugin",
+    "openapi",
+    "rapidoc",
+    "rapidoc-integration"
+  ],
+  "homepage": "https://rapidocui.com",
+  "bugs": {
+    "url": "https://github.com/rapi-doc/RapiDoc/issues"
+  },
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/rapidoc-docusaurus"
+  },
+  "files": [
+    "src"
+  ],
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./client": {
+      "types": "./src/client.d.ts",
+      "default": "./src/client.js"
+    },
+    "./oauth-receiver": "./src/oauth-receiver.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test tests/**/*.test.js"
+  },
+  "dependencies": {
+    "@rapidoc/embed": "^0.2.0",
+    "@rapidoc/prerender": "^0.1.5",
+    "rapidoc": "^12.2.1",
+    "yaml": "^2.9.1"
+  },
+  "peerDependencies": {
+    "@docusaurus/core": ">=3.0.0",
+    "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@docusaurus/core": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

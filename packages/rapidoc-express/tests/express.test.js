@@ -22,7 +22,8 @@ describe("@rapidoc/express", () => {
   before(async () => {
     const app = express();
     app.use(rapidoc(options));
-    app.use("/api", rapidoc({ ...options, path: "/reference" }));
+    app.use("/api", rapidoc({ ...options, uiPath: "/reference" }));
+    app.use("/old", rapidoc({ ...options, path: "/ref" }));
     app.use((req, res) => res.status(404).send("passed on"));
     site = await serve(app);
   });
@@ -72,6 +73,11 @@ describe("@rapidoc/express", () => {
     assert.match(page, /src="\/api\/reference\/rapidoc-min\.js"/);
     assert.match(page, /oauth-receiver="\/api\/reference\/oauth-receiver\.html"/);
     assert.equal((await fetch(`${site.url}/api/reference/rapidoc-min.js`)).status, 200);
+  });
+
+  it("still takes path, the name uiPath had in version 0.1", async () => {
+    const page = await (await fetch(`${site.url}/old/ref`)).text();
+    assert.match(page, /src="\/old\/ref\/rapidoc-min\.js"/);
   });
 
   it("takes the nonce from the request, loads from the CDN when asked, and can be disabled", async () => {

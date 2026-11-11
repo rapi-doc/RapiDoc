@@ -54,12 +54,18 @@ describe("@rapidoc/fastify", () => {
   });
 
   it("includes the plugin's prefix in the routes and in the page", async () => {
-    const app = await appWith({ ...options, path: "/reference" }, { prefix: "/api" });
+    const app = await appWith({ ...options, uiPath: "/reference" }, { prefix: "/api" });
     const page = (await app.inject({ url: "/api/reference" })).body;
     assert.match(page, /src="\/api\/reference\/rapidoc-min\.js"/);
     assert.match(page, /oauth-receiver="\/api\/reference\/oauth-receiver\.html"/);
     assert.equal((await app.inject({ url: "/api/reference/rapidoc-min.js" })).statusCode, 200);
     assert.equal((await app.inject({ url: "/reference" })).statusCode, 404);
+  });
+
+  it("still takes path, the name uiPath had in version 0.1", async () => {
+    const app = await appWith({ ...options, path: "/ref" }, { prefix: "/old" });
+    const page = (await app.inject({ url: "/old/ref" })).body;
+    assert.match(page, /src="\/old\/ref\/rapidoc-min\.js"/);
   });
 
   it("takes the nonce from the request, loads from the CDN when asked, and can be disabled", async () => {

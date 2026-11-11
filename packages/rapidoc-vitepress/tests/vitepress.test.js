@@ -11,14 +11,23 @@ import { withRapidoc, rapidocSidebar, loadSpec, OAUTH_RECEIVER_PATH } from "../s
 const example = fileURLToPath(new URL("../example/", import.meta.url));
 
 describe("rapidocSidebar", () => {
+  const pets = { spec: "./openapi/pets.yaml", uiPath: "/api", root: example };
+
   it("lists an overview link and a group per tag with a link per operation", async () => {
-    const items = await rapidocSidebar("./openapi/pets.yaml", "/api", { root: example });
+    const items = await rapidocSidebar(pets);
     assert.deepEqual(items[0], { text: "Overview", link: "/api#overview" });
     assert.deepEqual(
       items.slice(1).map((group) => group.text),
       ["Pets", "Owners"],
     );
-    assert.deepEqual(items[1].items[0], { text: "List pets", link: "/api#list-pets" });
+    assert.deepEqual(items[1].items[0], {
+      text: '<span class="rapidoc-op rapidoc-op--get">GET</span>List pets',
+      link: "/api#list-pets",
+    });
+    assert.equal(
+      items[1].items[2].text,
+      '<span class="rapidoc-op rapidoc-op--delete rapidoc-op--deprecated">DEL</span><span class="rapidoc-op-text--deprecated" title="Deprecated">Remove a pet</span>',
+    );
     assert.equal(items[1].collapsed, undefined);
   });
 
@@ -26,16 +35,38 @@ describe("rapidocSidebar", () => {
     const spec = {
       openapi: "3.1.0",
       info: { title: "Inline", version: "1" },
-      paths: { "/ping": { get: { tags: ["Health"], summary: "Ping", responses: {} } } },
+      paths: { "/ping": { get: { tags: ["Health <b>"], summary: "Ping <img>", responses: {} } } },
     };
-    const items = await rapidocSidebar(spec, "/reference/", { collapsed: true });
-    assert.deepEqual(items[1], {
-      text: "Health",
-      collapsed: true,
-      items: [{ text: "Ping", link: "/reference/#ping" }],
-    });
+    const items = await rapidocSidebar({ spec, uiPath: "/reference/", collapsed: true });
+    // VitePress writes sidebar text as HTML, so text from the spec is escaped
+    assert.equal(items[1].text, "Health &lt;b&gt;");
+    assert.equal(items[1].collapsed, true);
+    assert.match(items[1].items[0].text, /<\/span>Ping &lt;img&gt;$/);
+    assert.equal(items[1].items[0].link, "/reference/#ping-img");
     assert.equal(await loadSpec(spec), spec);
-    await assert.rejects(rapidocSidebar("./nope.yaml", "/api", { root: example }), /not found/);
+    await assert.rejects(rapidocSidebar({ ...pets, spec: "./nope.yaml" }), /not found/);
+    await assert.rejects(rapidocSidebar({ spec }), /needs `uiPath`/);
+  });
+
+  it("shows the method as asked, or not at all", async () => {
+    const text = async (methods) => (await rapidocSidebar({ ...pets, methods }))[1].items[0].text;
+    assert.equal(await text(false), "List pets");
+    assert.equal(
+      await text("as-colored-block"),
+      '<span class="rapidoc-op rapidoc-op--get rapidoc-op--block">GET</span>List pets',
+    );
+    await assert.rejects(text("loud"), /"methods" is "false"/);
+  });
+
+  it("still takes (spec, link, options), the form of version 0.1", async () => {
+    const named = await rapidocSidebar(pets);
+    assert.deepEqual(await rapidocSidebar("./openapi/pets.yaml", "/api", { root: example }), named);
+    const document = await loadSpec("./openapi/pets.yaml", example);
+    assert.deepEqual(
+      await rapidocSidebar(document, "/api"),
+      named,
+      "a document given positionally",
+    );
   });
 });
 
@@ -51,6 +82,11 @@ describe("withRapidoc", () => {
       { apis: { pets: "./openapi/pets.yaml" }, root: example },
     );
     assert.equal(config.title, "Docs");
+    assert.equal(config.head.at(-1)[0], "style");
+    assert.match(
+      config.head.at(-1)[2],
+      /\.VPSidebar \.rapidoc-op--get\{--rapidoc-m:var\(--rapidoc-method-get\);color:var\(--rapidoc-m\)\}/,
+    );
     const { isCustomElement } = config.vue.template.compilerOptions;
     assert.equal(isCustomElement("rapi-doc-mini"), true);
     assert.equal(isCustomElement("my-el"), true, "the site's own rule still applies");

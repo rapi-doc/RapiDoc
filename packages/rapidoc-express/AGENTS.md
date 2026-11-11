@@ -16,8 +16,8 @@
 ## 2. Boundaries
 
 - **No HTML and no route matching here.** Both come from `createResponder` of `@rapidoc/embed` (as in `@rapidoc/hono`, the reference for JavaScript server integrations); this package turns the framework's request into the responder's and writes its answer back. The tests compare the responses with `renderHostPage` and `renderOAuthReceiverPage`.
-- **Options are the contract's**, plus `enabled`, `publicPath` and a `nonce` function. Add another only when it has no meaning outside Express.
-- **Reads only `req.method`, `req.url`, `req.path`, `req.baseUrl` and the headers**, so it also runs under Connect and plain `node:http` (a test covers the latter). Under a mount point (`req.baseUrl`), that prefix goes into the page's URLs unless `publicPath` is set.
+- **Options are the contract's**, plus `enabled`, `publicUiPath` and a `nonce` function. Add another only when it has no meaning outside Express.
+- **Reads only `req.method`, `req.url`, `req.path`, `req.baseUrl` and the headers**, so it also runs under Connect and plain `node:http` (a test covers the latter). Under a mount point (`req.baseUrl`), that prefix goes into the page's URLs unless `publicUiPath` is set.
 
 ---
 

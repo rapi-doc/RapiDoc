@@ -1,7 +1,7 @@
 // @rapidoc/starlight: a Starlight plugin that adds an API reference page per OpenAPI document, drawn by
 // <rapi-doc> inside Starlight's layout, with the API's tags and operations in Starlight's sidebar.
 import { fileURLToPath } from "node:url";
-import { resolveApis } from "./apis.js";
+import { resolveApis, SIDEBAR_CSS } from "./apis.js";
 
 const VIRTUAL_ID = "virtual:rapidoc-starlight";
 const entry = (file) => fileURLToPath(new URL(file, import.meta.url));
@@ -13,9 +13,13 @@ function rapidocIntegration(apis) {
     hooks: {
       "astro:config:setup"({ injectRoute, updateConfig }) {
         for (const api of apis) {
-          injectRoute({ pattern: api.path, entrypoint: entry("./ApiPage.astro"), prerender: true });
           injectRoute({
-            pattern: `${api.path}/oauth-receiver`,
+            pattern: api.uiPath,
+            entrypoint: entry("./ApiPage.astro"),
+            prerender: true,
+          });
+          injectRoute({
+            pattern: `${api.uiPath}/oauth-receiver`,
             entrypoint: entry("./OAuthReceiver.astro"),
             prerender: true,
           });
@@ -40,7 +44,7 @@ function rapidocIntegration(apis) {
 }
 
 /**
- * `starlight({ plugins: [starlightRapidoc({ path: "/api", spec: "./openapi.yaml" })] })`, or
+ * `starlight({ plugins: [starlightRapidoc({ uiPath: "/api", spec: "./openapi.yaml" })] })`, or
  * `starlightRapidoc({ apis: [...] })` for several APIs.
  */
 export default function starlightRapidoc(userOptions) {
@@ -54,7 +58,11 @@ export default function starlightRapidoc(userOptions) {
           trailingSlash: astroConfig.trailingSlash,
         });
         if (sidebar.length > 0) {
-          updateConfig({ sidebar: [...(config.sidebar ?? []), ...sidebar] });
+          updateConfig({
+            sidebar: [...(config.sidebar ?? []), ...sidebar],
+            // the sidebar is on every page, so its styles are too
+            head: [...(config.head ?? []), { tag: "style", content: SIDEBAR_CSS }],
+          });
         }
         addIntegration(rapidocIntegration(apis));
       },

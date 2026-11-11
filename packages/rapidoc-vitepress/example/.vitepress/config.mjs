@@ -12,7 +12,7 @@ export default withRapidoc(
         { text: "Guides", items: [{ text: "Welcome", link: "/" }] },
         {
           text: "Pets API",
-          items: await rapidocSidebar("./openapi/pets.yaml", "/api", { root }),
+          items: await rapidocSidebar({ spec: "./openapi/pets.yaml", uiPath: "/api", root }),
         },
       ],
     },

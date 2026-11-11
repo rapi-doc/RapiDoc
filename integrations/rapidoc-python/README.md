@@ -17,15 +17,15 @@ setup_rapidoc(app)
 
 Open `/docs`. The page reads the app's own `/openapi.json`, and nothing is loaded from another site: the package carries the RapiDoc bundle.
 
-FastAPI serves Swagger UI at `/docs` unless you create the app with `docs_url=None`. To keep Swagger UI, give RapiDoc another path: `setup_rapidoc(app, path="/reference")`.
+FastAPI serves Swagger UI at `/docs` unless you create the app with `docs_url=None`. To keep Swagger UI, give RapiDoc another path: `setup_rapidoc(app, ui_path="/reference")`.
 
 ## Options
 
 | Option | Default | |
 | :--- | :--- | :--- |
-| `path` | `/docs` | Where the reference is served, within the app |
-| `spec_url` | the app's `openapi_url` | URL of the OpenAPI document. A path starting with `/` is a path of the app |
-| `spec` | | The OpenAPI document itself (a dict or JSON text), written into the page |
+| `ui_path` | `/docs` | URL path the reference page is served at, within the app. `path` is its old name, still read |
+| `spec_url` | the app's `openapi_url` | URL of the OpenAPI document, which the browser fetches when the page opens. A path starting with `/` is a path of the app |
+| `spec` | | The OpenAPI document itself (a dict or JSON text), written into the page so the browser makes no request for it. With both, `spec` is shown and `spec_url` is the download link |
 | `title` | the app's title + "API Reference" | Page title |
 | `assets` | `"bundled"` | `"bundled"`: the app serves `rapidoc-min.js`. `"cdn"`: the browser loads the same version from jsDelivr, checked against its SRI hash. `{"script_url": ..., "integrity": ...}`: a URL of your own |
 | `options` | | [Attributes of `<rapi-doc>`](https://rapidocui.com/api/): `{"render_style": "focused", "allow_try": False}`. Names can be written with underscores, hyphens or in camelCase |
@@ -48,7 +48,7 @@ When a proxy strips a path prefix, run the app with that prefix as its `root_pat
 
 - Each release ships one version of `rapidoc`: `rapidoc.rapidoc_version()`.
 - The routes are left out of the app's OpenAPI document.
-- OAuth sign-in returns to `{path}/oauth-receiver.html`, which the app serves on its own origin, also with `assets="cdn"`.
+- OAuth sign-in returns to `{ui_path}/oauth-receiver.html`, which the app serves on its own origin, also with `assets="cdn"`.
 - [`examples/app.py`](./examples/app.py) is a complete app.
 
 - The package itself requires no framework; `rapidoc.fastapi` uses the Starlette that FastAPI installs. `rapidoc.contract` is the RapiDoc integration contract in plain Python, for building an integration for another framework.

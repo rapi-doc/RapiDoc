@@ -1,8 +1,8 @@
 {
-  "description": "A path with a prefix and a trailing slash (removed); the title is escaped.",
+  "description": "A uiPath with a prefix and a trailing slash (removed); the title is escaped.",
   "page": "host",
   "options": {
-    "path": "/api/v2/reference/",
+    "uiPath": "/api/v2/reference/",
     "title": "Orders & Returns <internal>",
     "specUrl": "/api/v2/openapi.json"
   }

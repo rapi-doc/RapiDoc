@@ -46,15 +46,18 @@ describe("a Starlight site with @rapidoc/starlight", () => {
     assert.equal(JSON.parse(spec[1]).info.title, "Pets API");
   });
 
-  it("lists the API's operations in the sidebar of every page", () => {
+  it("lists the API's operations in the sidebar of every page, with their method", () => {
     for (const file of ["index.html", "api/index.html"]) {
       const html = read(file);
+      const link = /<a [^>]*data-rapidoc-op="list-pets"[^>]*>/.exec(html)?.[0] ?? "";
+      assert.match(link, /href="\/api\/#list-pets"/, file);
+      assert.match(link, /class="[^"]*rapidoc-op rapidoc-op--get/, file);
+      assert.match(html, /Remove a pet/);
       assert.match(
         html,
-        /href="\/api\/#list-pets"[^>]*data-rapidoc-op="list-pets"|data-rapidoc-op="list-pets"[^>]*href="\/api\/#list-pets"/,
-        file,
+        /a\.rapidoc-op--get::before\{content:"GET";/,
+        "the label styles are on every page",
       );
-      assert.match(html, /Remove a pet/);
     }
   });
 

@@ -2,6 +2,6 @@
   "description": "Routes at the site root.",
   "page": "routes",
   "options": {
-    "path": "/"
+    "uiPath": "/"
   }
 }

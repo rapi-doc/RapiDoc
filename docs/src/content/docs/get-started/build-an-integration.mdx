@@ -19,7 +19,7 @@ All integrations follow one contract, so they take the same options, serve the s
 
 | Option | Default | Meaning |
 | :--- | :--- | :--- |
-| `path` | `/docs` | Public URL path of the docs page, including any prefix the app is mounted under. |
+| `uiPath` | `/docs` | URL path the docs page is served at, including any prefix the app is mounted under. Contract version 1 called it `path`, which is still read. |
 | `specUrl` | the framework's endpoint | URL of the OpenAPI document. |
 | `spec` | | The OpenAPI document itself, written into the page. |
 | `title` | `API Reference` | Page title. |
@@ -52,7 +52,7 @@ export function rapidoc(app, options) {
 
 `@rapidoc/hono` is the reference integration for JavaScript server frameworks: about 80 lines over these functions, with a second entry for runtimes without a file system.
 
-A documentation-site plugin is a different shape: the site has its own layout, bundler and sidebar, so there is no host page to serve. `@rapidoc/starlight` is the reference: it takes the same `path`, `spec`, `title` and `options`, uses `toAttributes` for the element's attributes, imports the bundle through the site's bundler, and adds the operations to the site's sidebar.
+A documentation-site plugin is a different shape: the site has its own layout, bundler and sidebar, so there is no host page to serve. `@rapidoc/starlight` is the reference: it takes the same `uiPath`, `spec`, `title` and `options`, uses `toAttributes` for the element's attributes, imports the bundle through the site's bundler, and adds the operations to the site's sidebar.
 
 In runtimes without a file system, use `assets: 'cdn'`: the page then loads the exact `rapidoc` version `@rapidoc/embed` depends on, checked against its SRI hash. A complete example on `node:http` is in the package (`examples/node-server.js`).
 
@@ -76,7 +76,7 @@ Every `rapidoc` release has these in `dist/`, next to the bundles:
 
 ## Checklist
 
-- The docs page works at `path` with and without a trailing slash, and under a path prefix or reverse proxy.
+- The docs page works at `uiPath` with and without a trailing slash, and under a path prefix or reverse proxy.
 - `rapidoc-min.js.LICENSE.txt` is served or shipped wherever the bundle is.
 - The OAuth return page is on the same origin as the docs page.
 - With a Content-Security-Policy, the page gets a `nonce` and the policy allows the script's origin.

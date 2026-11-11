@@ -12,7 +12,7 @@ npm install @rapidoc/embed
 import { embedRoutes, renderHostPage, renderOAuthReceiverPage } from "@rapidoc/embed";
 import { readAsset } from "@rapidoc/embed/node";
 
-const options = { path: "/docs", specUrl: "/openapi.json", options: { renderStyle: "focused" } };
+const options = { uiPath: "/docs", specUrl: "/openapi.json", options: { renderStyle: "focused" } };
 
 for (const route of embedRoutes(options)) {
   // route.kind: "page" → renderHostPage(options)
@@ -36,16 +36,16 @@ const response = await respond({ method, path, ifNoneMatch }); // null: not for 
 
 ## Options
 
-| Option          | Default         |                                                                                                                     |
-| :-------------- | :-------------- | :------------------------------------------------------------------------------------------------------------------ |
-| `path`          | `/docs`         | Public URL path of the docs page, including any prefix the app is mounted under                                     |
-| `specUrl`       |                 | URL of the OpenAPI document                                                                                         |
-| `spec`          |                 | The OpenAPI document itself (object or JSON text), written into the page                                            |
-| `title`         | `API Reference` | Page title                                                                                                          |
-| `assets`        | `"bundled"`     | `"bundled"` (you serve the bundle), `"cdn"` (jsDelivr, pinned version with SRI hash) or `{ scriptUrl, integrity? }` |
-| `options`       |                 | Attributes of `<rapi-doc>`, in kebab-case or camelCase                                                              |
-| `head`, `css`   |                 | Markup and CSS added to the page as given                                                                           |
-| `lang`, `nonce` | `en`, none      | Page language; Content-Security-Policy nonce                                                                        |
+| Option          | Default         |                                                                                                                                                                                |
+| :-------------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `uiPath`        | `/docs`         | URL path the reference page is served at, including any prefix the app is mounted under. `path` is its old name, still read                                                    |
+| `specUrl`       |                 | URL of the OpenAPI document, which the browser fetches when the page opens                                                                                                     |
+| `spec`          |                 | The OpenAPI document itself (object or JSON text), written into the page so the browser makes no request for it. With both, `spec` is shown and `specUrl` is the download link |
+| `title`         | `API Reference` | Page title                                                                                                                                                                     |
+| `assets`        | `"bundled"`     | `"bundled"` (you serve the bundle), `"cdn"` (jsDelivr, pinned version with SRI hash) or `{ scriptUrl, integrity? }`                                                            |
+| `options`       |                 | Attributes of `<rapi-doc>`, in kebab-case or camelCase                                                                                                                         |
+| `head`, `css`   |                 | Markup and CSS added to the page as given                                                                                                                                      |
+| `lang`, `nonce` | `en`, none      | Page language; Content-Security-Policy nonce                                                                                                                                   |
 
 ## Entry points
 

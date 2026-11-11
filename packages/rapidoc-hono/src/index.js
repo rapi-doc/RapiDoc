@@ -6,7 +6,7 @@ import { createRapidocMiddleware } from "./middleware.js";
 
 /**
  * Hono middleware that serves an API reference: `app.use(rapidoc({ specUrl: "/openapi.json" }))`.
- * It answers GET and HEAD on `path` (default `/docs`) and the files under it, and passes on the rest.
+ * It answers GET and HEAD on `uiPath` (default `/docs`) and the files under it, and passes on the rest.
  */
 export function rapidoc(options = {}) {
   return createRapidocMiddleware(options, { embed, readAsset });

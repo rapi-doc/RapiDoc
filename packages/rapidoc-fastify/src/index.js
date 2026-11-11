@@ -1,9 +1,9 @@
 // @rapidoc/fastify: a Fastify plugin over the responder of @rapidoc/embed.
-import { createResponder, embedRoutes, rapidocManifest } from "@rapidoc/embed";
+import { createResponder, embedRoutes, rapidocManifest, uiPathOf } from "@rapidoc/embed";
 import { readAsset } from "@rapidoc/embed/node";
 
 /**
- * `fastify.register(rapidoc, { specUrl: "/openapi.json" })` serves an API reference at `path` (default
+ * `fastify.register(rapidoc, { specUrl: "/openapi.json" })` serves an API reference at `uiPath` (default
  * `/docs`). Registered with a `prefix`, the routes and the page's URLs include it. The routes are hidden
  * from @fastify/swagger.
  */
@@ -12,7 +12,7 @@ export async function rapidoc(fastify, options = {}) {
   if (rest.enabled === false) return;
   const respond = createResponder(rest, { readAsset });
   const prefix = (fastify.prefix ?? "").replace(/\/+$/, "");
-  const publicPath = rest.publicPath ?? `${prefix}${rest.path ?? "/docs"}`;
+  const publicUiPath = rest.publicUiPath ?? rest.publicPath ?? `${prefix}${uiPathOf(rest)}`;
 
   for (const route of embedRoutes(rest)) {
     fastify.route({
@@ -24,7 +24,7 @@ export async function rapidoc(fastify, options = {}) {
           method: request.method,
           path: route.path,
           ifNoneMatch: request.headers["if-none-match"],
-          publicPath,
+          publicUiPath,
           nonce: typeof nonce === "function" ? nonce(request, reply) : nonce,
         });
         reply.code(response.status).headers(response.headers);

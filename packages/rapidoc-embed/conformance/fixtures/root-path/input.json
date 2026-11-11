@@ -2,7 +2,7 @@
   "description": "Served at the site root: file URLs start at /.",
   "page": "host",
   "options": {
-    "path": "/",
+    "uiPath": "/",
     "specUrl": "/openapi.json"
   }
 }

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rapidoc"
-version = "0.1.0"
+version = "0.1.1"
 description = "RapiDoc for Python web frameworks: serves an interactive OpenAPI reference (<rapi-doc>) from a FastAPI or Starlette app"
 readme = "README.md"
 license = "MIT"

@@ -26,7 +26,12 @@ export type RapiDocOptions = {
 
 /** The options every RapiDoc integration takes, under these names. */
 export interface EmbedOptions {
-  /** Public URL path of the docs page, including any prefix the app is mounted under. Default `/docs`. */
+  /**
+   * Where the reference is served: the public URL path of its page, including any prefix the app is mounted
+   * under. The bundle and the OAuth return page are served under it. Default `/docs`.
+   */
+  uiPath?: string;
+  /** @deprecated Renamed to `uiPath`. */
   path?: string;
   /** URL of the OpenAPI document. Integrations default it to the framework's own endpoint. */
   specUrl?: string;
@@ -65,7 +70,11 @@ export type EmbedRoute =
   | { path: string; kind: "file"; file: string; contentType: string };
 
 export declare const CONTRACT_VERSION: number;
+export declare const DEFAULT_UI_PATH: string;
+/** @deprecated Use `DEFAULT_UI_PATH`. */
 export declare const DEFAULT_PATH: string;
+/** The `uiPath` option of `options`, or `path`, its name before contract version 2, or the default. */
+export declare function uiPathOf(options?: EmbedOptions): string;
 export declare const DEFAULT_TITLE: string;
 export declare const SCRIPT_FILE: string;
 export declare const LICENSE_FILE: string;
