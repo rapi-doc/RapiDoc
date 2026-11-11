@@ -1,0 +1,106 @@
+name: Python package
+
+# The Python integration (integrations/rapidoc-python, `rapidoc` on PyPI) has its own toolchain, so the npm
+# scripts and release.yml do not cover it.
+# - push or pull request touching it or the conformance fixtures: run its tests
+# - "Run workflow" with "publish" ticked: test, build and publish to PyPI with trusted publishing
+#   (OIDC, no token). The PyPI project trusts this file name and the `pypi` environment; renaming either
+#   breaks publishing until PyPI is updated.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'integrations/rapidoc-python/**'
+      - 'packages/rapidoc-embed/conformance/**'
+      - '.github/workflows/publish-python.yml'
+  pull_request:
+    paths:
+      - 'integrations/rapidoc-python/**'
+      - 'packages/rapidoc-embed/conformance/**'
+      - '.github/workflows/publish-python.yml'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the version in pyproject.toml to PyPI
+        type: boolean
+        default: false
+
+permissions: {}
+
+defaults:
+  run:
+    working-directory: integrations/rapidoc-python
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.13']
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # The rapidoc release named in RAPIDOC_VERSION, from npm: the bundle is not in git
+      - run: python scripts/sync_assets.py --npm
+
+      - run: python -m pip install -e ".[dev]"
+
+      # Includes the conformance fixtures of @rapidoc/embed, read from packages/rapidoc-embed
+      - run: python -m pytest
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - run: python scripts/sync_assets.py --npm
+
+      - run: python -m pip install build
+
+      - run: python -m build
+
+      - name: Check the wheel carries the bundle
+        run: python -m zipfile --list dist/*.whl | grep -q "rapidoc/assets/rapidoc-min.js"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: integrations/rapidoc-python/dist/
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write # PyPI trusted publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

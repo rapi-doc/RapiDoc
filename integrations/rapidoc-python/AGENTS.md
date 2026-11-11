@@ -5,7 +5,7 @@
 RapiDoc for Python web frameworks (FastAPI and Starlette so far), and the reference integration for languages other than JavaScript: it shows that the contract of `@rapidoc/embed` can be ported and checked with the shared fixtures.
 
 - **Distribution**: `rapidoc`; module `rapidoc`, with one submodule per framework (`rapidoc.fastapi`, `rapidoc.starlette`). No required dependency: a framework module imports the framework the app already has. The name `rapidoc_fastapi` is avoided on purpose: another PyPI package (`fastapi-rapidoc-router`) installs a module of that name
-- **Not an npm workspace.** It lives under `integrations/`, outside `packages/`, with its own toolchain (uv or pip, pytest, hatchling) and its own version in `pyproject.toml`. Changesets and the npm release workflow do not see it; `npm run lint`, `format` and the `test:*` scripts do not cover it.
+- **Not an npm workspace.** It lives under `integrations/`, outside `packages/`, with its own toolchain (uv or pip, pytest, hatchling) and its own version in `pyproject.toml`. Changesets and the npm release workflow do not see it; `npm run lint`, `format` and the `test:*` scripts do not cover it. `.github/workflows/publish-python.yml` runs its tests (Python 3.9 and 3.13) on changes, and publishes to PyPI with trusted publishing when run by hand with "publish" ticked; PyPI trusts that file name and the `pypi` environment.
 - **Meant to be able to move to a repository of its own.** The only links to the monorepo are the two defaults noted below.
 
 | File | Role |
@@ -15,7 +15,8 @@ RapiDoc for Python web frameworks (FastAPI and Starlette so far), and the refere
 | `src/rapidoc/starlette.py` | `setup_rapidoc(app, ...)`: Python-style options, the app's `openapi_url` and `root_path`, Starlette routes |
 | `src/rapidoc/fastapi.py` | Re-exports `setup_rapidoc` (a FastAPI app is a Starlette app) |
 | `src/rapidoc/assets/` | One rapidoc release: `rapidoc-min.js`, its license file, `integration.json`. Not in git; in the wheel |
-| `scripts/sync_assets.py` | Fills `assets/` from `packages/rapidoc/dist` (default), another folder, or the npm registry (`--npm VERSION`) |
+| `RAPIDOC_VERSION` | The rapidoc release a published wheel carries. Raise it, and the package version in `pyproject.toml`, to ship a newer bundle |
+| `scripts/sync_assets.py` | Fills `assets/` from `packages/rapidoc/dist` (default), another folder, or the npm registry (`--npm`, the version in `RAPIDOC_VERSION`) |
 | `examples/app.py` | A FastAPI app (launch config `fastapi-example`, port 4403) |
 
 ---
@@ -39,3 +40,5 @@ RapiDoc for Python web frameworks (FastAPI and Starlette so far), and the refere
 | `.venv/bin/python -m pytest` | Conformance fixtures and the adapter tests |
 | `.venv/bin/python -m uvicorn examples.app:app --port 4403` | Run the example |
 | `uv build` | Build the sdist and wheel (run `sync_assets.py` first) |
+
+**Releasing**: set `version` in `pyproject.toml` (and `RAPIDOC_VERSION` when shipping a newer bundle), merge to `master`, then run the "Python package" workflow from the Actions tab with "publish" ticked. PyPI refuses a version that already exists.

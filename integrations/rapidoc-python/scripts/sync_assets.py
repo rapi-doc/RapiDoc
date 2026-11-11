@@ -3,7 +3,8 @@
 
     python scripts/sync_assets.py                 # from the monorepo's packages/rapidoc/dist
     python scripts/sync_assets.py --from DIR      # from another dist folder
-    python scripts/sync_assets.py --npm 12.2.0    # from the npm registry
+    python scripts/sync_assets.py --npm           # from the npm registry, the version in RAPIDOC_VERSION
+    python scripts/sync_assets.py --npm 12.2.0    # from the npm registry, another version
 
 The three files must come from the same release: integration.json carries the SRI hash of the bundle.
 """
@@ -12,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import json
 import shutil
 import tarfile
 import urllib.request
@@ -44,14 +46,21 @@ def from_npm(version: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--from", dest="source", type=Path, default=PROJECT.parents[1] / "packages/rapidoc/dist")
-    parser.add_argument("--npm", metavar="VERSION")
+    parser.add_argument(
+        "--npm",
+        metavar="VERSION",
+        nargs="?",
+        const=(PROJECT / "RAPIDOC_VERSION").read_text(encoding="utf-8").strip(),
+        help="download this rapidoc release from npm (default: the version in RAPIDOC_VERSION)",
+    )
     args = parser.parse_args()
     ASSETS.mkdir(parents=True, exist_ok=True)
     if args.npm:
         from_npm(args.npm)
     else:
         from_directory(args.source)
-    print(f"rapidoc assets in {ASSETS.relative_to(PROJECT)}:", ", ".join(FILES))
+    version = json.loads((ASSETS / "integration.json").read_text(encoding="utf-8"))["version"]
+    print(f"rapidoc {version} in {ASSETS.relative_to(PROJECT)}:", ", ".join(FILES))
 
 
 if __name__ == "__main__":
