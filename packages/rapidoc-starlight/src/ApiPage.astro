@@ -1,0 +1,87 @@
+---
+// One API's reference: <rapi-doc> in Starlight's page layout. The spec is written into the page, so the
+// reference renders without a second request.
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { apis } from 'virtual:rapidoc-starlight';
+
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+const pathname = Astro.url.pathname.slice(base.length).replace(/\/+$/, '');
+const api = apis.find((candidate) => candidate.path === pathname);
+if (!api) throw new Error(`@rapidoc/starlight: no API is configured at ${Astro.url.pathname}`);
+---
+
+<StarlightPage
+  frontmatter={{
+    title: api.title,
+    tableOfContents: false,
+    // the sidebar's operation links are sections of this page, not pages to step through
+    prev: false,
+    next: false,
+    pagefind: false,
+  }}
+>
+  <rapi-doc class="rapidoc-starlight not-content" {...api.attributes}>
+    <script is:inline type="application/json" slot="rapidoc-spec" set:html={api.specJson} />
+  </rapi-doc>
+</StarlightPage>
+
+<script>
+  import 'rapidoc';
+
+  // The sidebar's operation links all point into this page, so Starlight marks none or all of them as
+  // current. <rapi-doc> says which section is showing; mark that one.
+  const element = document.querySelector('rapi-doc.rapidoc-starlight');
+  const links = () => document.querySelectorAll<HTMLAnchorElement>('a[data-rapidoc-op]');
+
+  function markCurrent(id: string) {
+    let found = false;
+    for (const link of links()) {
+      const isCurrent = link.dataset.rapidocOp === id;
+      if (isCurrent) {
+        link.setAttribute('aria-current', 'page');
+        found = true;
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    }
+    return found;
+  }
+
+  const fromHash = () => decodeURIComponent(window.location.hash.slice(1)) || 'overview';
+  markCurrent(fromHash());
+  window.addEventListener('hashchange', () => markCurrent(fromHash()));
+  element?.addEventListener('nav-active-change', (event) => {
+    const { elementId, id } = (event as CustomEvent).detail ?? {};
+    if (!markCurrent(elementId ?? id)) markCurrent('overview');
+  });
+</script>
+
+<style is:global>
+  /* The reference needs more room than prose; only pages with <rapi-doc> load this rule. */
+  :root:has(rapi-doc.rapidoc-starlight) {
+    --sl-content-width: 72rem;
+  }
+
+  rapi-doc.rapidoc-starlight {
+    display: block;
+    width: 100%;
+    min-height: 60vh;
+    /* sit on the site's own background, in both of its themes */
+    --background: var(--sl-color-bg);
+  }
+
+  /* The reference opens with the API's title, so Starlight's page title is kept for assistive technology only */
+  :root:has(rapi-doc.rapidoc-starlight) .content-panel:has(h1#_top) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    border: 0;
+  }
+
+  :root:has(rapi-doc.rapidoc-starlight) .content-panel + .content-panel {
+    border-top: 0;
+  }
+</style>

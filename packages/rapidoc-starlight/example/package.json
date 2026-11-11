@@ -1,0 +1,10 @@
+{
+  "name": "rapidoc-starlight-example",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astrojs/starlight": "*",
+    "@rapidoc/starlight": "*",
+    "astro": "*"
+  }
+}
