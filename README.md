@@ -57,6 +57,35 @@ Include the script in your HTML page and use the `<rapi-doc>` custom element:
 
 ---
 
+## Integrations
+
+Official packages that add a RapiDoc reference to your app or docs site. Each one ships a pinned RapiDoc bundle (nothing is loaded from another site unless you ask for a CDN), takes the same options, and serves the OAuth sign-in return page for you.
+
+**Server frameworks**: the reference at `/docs`, reading your app's OpenAPI document.
+
+| Framework | Install | Use |
+| :--- | :--- | :--- |
+| [Hono](packages/rapidoc-hono) | `npm i @rapidoc/hono` | `app.use(rapidoc({ specUrl: "/openapi.json" }))` |
+| [Express](packages/rapidoc-express) | `npm i @rapidoc/express` | `app.use(rapidoc({ specUrl: "/openapi.json" }))` |
+| [Fastify](packages/rapidoc-fastify) | `npm i @rapidoc/fastify` | `await fastify.register(rapidoc, { specUrl: "/openapi.json" })` |
+| [FastAPI, Starlette](integrations/rapidoc-python) | `pip install rapidoc` | `setup_rapidoc(app)` |
+| [ASP.NET Core](integrations/rapidoc-dotnet) | `dotnet add package RapiDoc.AspNetCore` | `app.MapRapiDoc();` |
+| [Go (`net/http`, chi, Gin, Echo, Fiber, Huma)](https://github.com/rapi-doc/rapidoc-go) | `go get github.com/rapi-doc/rapidoc-go` | `rapidoc.Handler(rapidoc.Options{SpecURL: "/openapi.json"})` |
+
+**Documentation sites**: API reference pages in your site's own layout, with the operations in its sidebar.
+
+| Site generator | Install |
+| :--- | :--- |
+| [Starlight](packages/rapidoc-starlight) | `npm i @rapidoc/starlight` |
+| [VitePress](packages/rapidoc-vitepress) | `npm i @rapidoc/vitepress` |
+| [Docusaurus](packages/rapidoc-docusaurus) | `npm i @rapidoc/docusaurus` |
+
+React, Next.js, Vue, Nuxt, Angular and Svelte need no package: `<rapi-doc>` is a standard custom element. Setup for all of the above is in the [framework integration guide](https://rapidocui.com/docs/get-started/frameworks/).
+
+Building one for another framework or language? Start from [`@rapidoc/embed`](packages/rapidoc-embed) and the [integration guide](https://rapidocui.com/docs/get-started/build-an-integration/): it defines the options, routes and HTML every integration shares, with fixtures to test a port against.
+
+---
+
 ## Generating a Developer Portal with RapiDoc Portal
 
 Beyond embedding `<rapi-doc>` in a page, this repository ships **RapiDoc Portal**: a docs-as-code engine that turns a folder of OpenAPI specs and guides into a complete static developer portal (home page, API catalog, interactive API references, guides and full-text search).
