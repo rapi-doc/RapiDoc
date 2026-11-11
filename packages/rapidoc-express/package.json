@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/express",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "RapiDoc for Express: serves an interactive OpenAPI reference (<rapi-doc>) from your Express app",
   "keywords": [
     "api documentation",
@@ -42,7 +42,7 @@
     "test": "node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "@rapidoc/embed": "^0.1.0"
+    "@rapidoc/embed": "^0.2.0"
   },
   "devDependencies": {
     "express": "^5.3.0"

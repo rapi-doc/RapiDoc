@@ -1,5 +1,14 @@
 # @rapidoc/starlight
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [e5cd554]
+- Updated dependencies [4aaf108]
+  - rapidoc@12.2.1
+  - @rapidoc/embed@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes
