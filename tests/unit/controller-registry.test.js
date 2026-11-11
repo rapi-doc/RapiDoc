@@ -1,3 +1,5 @@
+// The tuner's controls. Attribute controls are derived from the element's declarations
+// (packages/rapidoc/src/rapidoc.ts), so these tests compare them with the manifest read from there.
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -8,30 +10,100 @@ import {
   resolveControlKeys,
   resolveActiveSlots,
   groupControlsByCategory,
+  TUNER_SECTIONS,
 } from "../../docs/src/components/controller-registry.ts";
+import { readApiManifest, listAttributes } from "../../scripts/rapidoc-metadata.js";
+
+const attributes = Object.fromEntries(listAttributes(readApiManifest()).map((a) => [a.name, a]));
+const TUNER_ONLY = [
+  "regular-font",
+  "mono-font",
+  "slot-nav-logo",
+  "slot-fixed-header",
+  "slot-default",
+];
 
 test("controller-registry", async (t) => {
-  await t.test("CONTROL_REGISTRY contains core controls and valid attributes", () => {
-    assert.ok(CONTROL_REGISTRY["render-style"]);
-    assert.ok(CONTROL_REGISTRY["theme"]);
-    assert.ok(CONTROL_REGISTRY["color-scheme"]);
-    assert.ok(CONTROL_REGISTRY["radius"]);
-    assert.ok(CONTROL_REGISTRY["scale"]);
-    assert.ok(CONTROL_REGISTRY["schema-style"]);
-    assert.ok(CONTROL_REGISTRY["allow-try"]);
+  await t.test("every control but the font and slot ones is an attribute of <rapi-doc>", () => {
+    for (const [key, control] of Object.entries(CONTROL_REGISTRY)) {
+      if (TUNER_ONLY.includes(key)) continue;
+      const attribute = attributes[control.attr];
+      assert.ok(attribute && !attribute.deprecated, `${key} is not an attribute the element reads`);
+      assert.equal(control.label, attribute.name, "the label is the attribute name");
+      assert.equal(control.category, attribute.group, "the section is the attribute's group");
+      assert.ok(control.tip, `${key} has a tip`);
+    }
+  });
 
-    // Check properties of render-style
-    const renderStyle = CONTROL_REGISTRY["render-style"];
-    assert.equal(renderStyle.type, "segmented");
-    assert.equal(renderStyle.category, "appearance");
-    assert.ok(renderStyle.options.length >= 3);
-    assert.ok(renderStyle.tip);
-
-    // Check properties of a toggle control
+  await t.test("a true/false attribute is a toggle starting at the element's default", () => {
     const allowTry = CONTROL_REGISTRY["allow-try"];
     assert.equal(allowTry.type, "toggle");
-    assert.equal(allowTry.category, "sections");
-    assert.ok(allowTry.tip);
+    assert.equal(allowTry.defaultOn, true);
+    assert.equal(CONTROL_REGISTRY["show-components"].defaultOn, false);
+    for (const control of Object.values(CONTROL_REGISTRY)) {
+      if (control.type !== "toggle" || !attributes[control.attr]) continue;
+      assert.equal(attributes[control.attr].kind, "boolean", control.attr);
+      assert.equal(String(control.defaultOn), attributes[control.attr].default, control.attr);
+    }
+  });
+
+  await t.test("a list attribute offers the element's values, labelled as written in HTML", () => {
+    const renderStyle = CONTROL_REGISTRY["render-style"];
+    assert.equal(renderStyle.type, "segmented");
+    assert.deepEqual(renderStyle.options, [
+      { label: "read", rawVal: "read", isDefault: true },
+      { label: "view", rawVal: "view" },
+      { label: "focused", rawVal: "focused" },
+    ]);
+    assert.deepEqual(
+      CONTROL_REGISTRY.mcp.options.map((option) => option.rawVal),
+      ["true", "false", "none"],
+    );
+    for (const control of Object.values(CONTROL_REGISTRY)) {
+      const attribute = attributes[control.attr];
+      if (control.type !== "segmented" || !attribute?.values || attribute.open) continue;
+      assert.deepEqual(
+        control.options.map((option) => option.rawVal),
+        attribute.values,
+        control.attr,
+      );
+      const initial = control.options.find((option) => option.isDefault)?.rawVal;
+      assert.equal(initial, attribute.default, `default of ${control.attr}`);
+    }
+  });
+
+  await t.test(
+    "the tip is the attribute's summary; the description is kept when it says more",
+    () => {
+      const renderStyle = CONTROL_REGISTRY["render-style"];
+      assert.equal(renderStyle.tip, attributes["render-style"].summary);
+      assert.match(renderStyle.description, /Three distinct modes/);
+      assert.equal(renderStyle.defaultText, "read");
+      assert.equal(CONTROL_REGISTRY["allow-try"].defaultText, "true");
+      assert.equal(CONTROL_REGISTRY["heading-text"].defaultText, "(empty)");
+      assert.match(CONTROL_REGISTRY.layout.defaultText, /column \(read, focused\)/);
+      assert.equal(CONTROL_REGISTRY["regular-font"].defaultText, undefined, "not an attribute");
+      for (const control of Object.values(CONTROL_REGISTRY)) {
+        const attribute = attributes[control.attr];
+        if (attribute?.summary) assert.equal(control.tip, attribute.summary, control.attr);
+      }
+    },
+  );
+
+  await t.test("free-form attributes offer sample values, swatches come with the theme", () => {
+    assert.deepEqual(CONTROL_REGISTRY["heading-text"].options[0], {
+      label: "default",
+      rawVal: "",
+      isDefault: true,
+    });
+    const levels = CONTROL_REGISTRY["schema-expand-level"].options;
+    assert.equal(levels.find((option) => option.isDefault).rawVal, "99999");
+    assert.ok(CONTROL_REGISTRY.theme.options.every((option) => option.dotColor));
+    // the element's presets, then a custom hex colour as an example of the open list
+    assert.deepEqual(
+      CONTROL_REGISTRY.theme.options.map((option) => option.rawVal),
+      [...attributes.theme.values, "#f4bf32"],
+    );
   });
 
   await t.test("PRESETS map to valid controls in CONTROL_REGISTRY", () => {
@@ -50,15 +122,7 @@ test("controller-registry", async (t) => {
     }
   });
 
-  await t.test("CATEGORY_TITLES has human-readable titles for all categories", () => {
-    const categories = ["appearance", "theming", "navigation", "schema", "sections"];
-    for (const cat of categories) {
-      assert.ok(CATEGORY_TITLES[cat], `Missing category title for ${cat}`);
-    }
-  });
-
   await t.test("resolveActiveControls resolves presets and custom control lists correctly", () => {
-    // Preset minimal
     const minimal = resolveActiveControls(undefined, "minimal");
     assert.ok(minimal.length >= 3);
     assert.ok(minimal.some((c) => c.attr === "render-style"));
@@ -78,89 +142,52 @@ test("controller-registry", async (t) => {
     );
   });
 
-  await t.test("groupControlsByCategory groups controls into categorized sections", () => {
-    const controls = resolveActiveControls(PRESETS.all);
-    const groups = groupControlsByCategory(controls);
-
-    assert.ok(groups.length > 0);
-    for (const group of groups) {
-      assert.ok(group.id);
-      assert.ok(group.title);
-      assert.ok(group.controls.length > 0);
-      for (const ctrl of group.controls) {
-        assert.equal(ctrl.category, group.id);
-      }
+  await t.test("sections come in the tuner's own order, least used last", () => {
+    const groups = groupControlsByCategory(resolveActiveControls(PRESETS.all), true);
+    const titles = groups.map((group) => group.title);
+    assert.deepEqual(titles, [
+      "Theme",
+      "Layout & Scrolling",
+      "Schemas",
+      "Authentication",
+      "Try & Servers",
+      "Mock Server",
+      "MCP",
+      "Sidebar & Navigation",
+      "Header & Sections",
+      "Fonts",
+      "Slots",
+      "Spec & Content",
+    ]);
+    // every group of the element has a place, also one added later
+    for (const group of new Set(Object.values(attributes).map((a) => a.group))) {
+      assert.ok(TUNER_SECTIONS.includes(group), group);
     }
+    assert.ok(TUNER_SECTIONS.indexOf("Methods & Actions") > TUNER_SECTIONS.indexOf("Slots"));
+    for (const group of groups) {
+      assert.equal(CATEGORY_TITLES[group.id], group.title);
+      assert.ok(group.controls.length > 0);
+      for (const ctrl of group.controls) assert.equal(ctrl.category, group.id);
+    }
+    const withoutSlots = groupControlsByCategory(resolveActiveControls(PRESETS.all));
+    assert.ok(!withoutSlots.some((group) => group.id === "Slots"));
   });
 
-  await t.test(
-    "slots preset includes slot controls and color preset excludes slot controls",
-    () => {
-      // PRESETS.slots and PRESETS.slot include slot controls
-      assert.deepEqual(PRESETS.slots, ["slot-nav-logo", "slot-fixed-header", "slot-default"]);
-      assert.deepEqual(PRESETS.slot, ["slot-nav-logo", "slot-fixed-header", "slot-default"]);
+  await t.test("slot and colour presets", () => {
+    assert.deepEqual(PRESETS.slots, ["slot-nav-logo", "slot-fixed-header", "slot-default"]);
+    assert.deepEqual(PRESETS.slot, PRESETS.slots);
+    for (const ctrl of PRESETS.colors) {
+      assert.ok(["Theme", "Fonts"].includes(CONTROL_REGISTRY[ctrl].category), ctrl);
+    }
+    assert.deepEqual(resolveActiveSlots(undefined, "slots"), [
+      "nav-logo",
+      "fixed-header",
+      "default",
+    ]);
+    assert.deepEqual(resolveActiveSlots(["theme"]), []);
+  });
 
-      // Color presets do NOT contain slot controls
-      for (const ctrl of PRESETS.colors) {
-        assert.equal(CONTROL_REGISTRY[ctrl].category, "theming");
-        assert.ok(!ctrl.startsWith("slot-"));
-      }
-      for (const ctrl of PRESETS.color) {
-        assert.equal(CONTROL_REGISTRY[ctrl].category, "theming");
-        assert.ok(!ctrl.startsWith("slot-"));
-      }
-
-      // resolveActiveSlots on color preset is empty
-      assert.deepEqual(resolveActiveSlots(undefined, "color"), []);
-      assert.deepEqual(resolveActiveSlots(undefined, ["color"]), []);
-      assert.deepEqual(resolveActiveSlots(undefined, "colors"), []);
-      assert.deepEqual(resolveActiveSlots(undefined, ["colors"]), []);
-
-      // resolveActiveSlots on slot preset returns all 3 slots
-      assert.deepEqual(resolveActiveSlots(undefined, "slot"), [
-        "nav-logo",
-        "fixed-header",
-        "default",
-      ]);
-      assert.deepEqual(resolveActiveSlots(undefined, ["slot"]), [
-        "nav-logo",
-        "fixed-header",
-        "default",
-      ]);
-      assert.deepEqual(resolveActiveSlots(undefined, "slots"), [
-        "nav-logo",
-        "fixed-header",
-        "default",
-      ]);
-      assert.deepEqual(resolveActiveSlots(undefined, ["slots"]), [
-        "nav-logo",
-        "fixed-header",
-        "default",
-      ]);
-    },
-  );
-
-  await t.test("array presets calculate unique set of controls", () => {
-    // Array of presets ['color', 'slot']
-    const colorAndSlot = resolveControlKeys(undefined, ["color", "slot"]);
-    assert.ok(colorAndSlot.includes("theme"));
-    assert.ok(colorAndSlot.includes("slot-nav-logo"));
-    assert.ok(colorAndSlot.includes("slot-fixed-header"));
-    assert.ok(colorAndSlot.includes("slot-default"));
-    assert.equal(resolveActiveSlots(undefined, ["color", "slot"]).length, 3);
-
-    // Array of overlapping presets calculate unique set
-    const minimalAndSchema = resolveControlKeys(undefined, ["minimal", "schema"]);
-    const schemaStyleCount = minimalAndSchema.filter((k) => k === "schema-style").length;
-    assert.equal(schemaStyleCount, 1, "schema-style should only appear once");
-
-    // Multi-preset controls resolution
-    const activeControls = resolveActiveControls(undefined, ["color", "slot"]);
-    assert.ok(activeControls.some((c) => c.attr === "theme"));
-    assert.ok(activeControls.some((c) => c.attr === "slot-nav-logo"));
-
-    // Unique count matches set size
-    const uniqueAttrs = new Set(activeControls.map((c) => c.attr));
-    assert.equal(uniqueAttrs.size, activeControls.length);
+  await t.test("aliases resolve to their control", () => {
+    assert.deepEqual(resolveControlKeys(["primary-color", "nav-logo"]), ["theme", "slot-nav-logo"]);
   });
 });

@@ -1,13 +1,10 @@
 ---
 import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
-import PrettyRapidocTuner from '../../components/PrettyRapidocTuner.astro';
 ---
 
 <TestCaseLayout
   specUrl="/specs-test/demo-shipment.yaml"
   preset={['all']}
-  tuckedRight={false}
-  controller={PrettyRapidocTuner}
   controllerSize="large"
   rapidocProps={{
     'color-scheme': 'light',

@@ -2,7 +2,6 @@
 import '../styles/examples.css';
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import RapidocTuner from '../components/RapidocTuner.astro';
-import PrettyRapidocTuner from '../components/PrettyRapidocTuner.astro';
 import { getSpecUrl, isTestPath } from '../utils/getSpecUrl';
 import { findTestBySlug, findExampleBySlug } from '../utils/pageMeta';
 import type { ControllerPreset } from '../components/controller-registry';
@@ -16,13 +15,11 @@ interface Props {
   controls?: string[];
   rapidocProps?: Record<string, any>;
   autoRenderRapiDoc?: boolean;
-  tuckedRight?: boolean;
   controllerTitle?: string;
   showController?: boolean;
   controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
   showMethods?: boolean;
   showSlots?: boolean;
-  controller?: 'default' | 'pretty' | 'hud' | 'drawer' | ((_props: any) => any);
 }
 
 const {
@@ -34,21 +31,12 @@ const {
   controls: propControls,
   rapidocProps = {},
   autoRenderRapiDoc = false,
-  tuckedRight,
   controllerTitle,
   showController,
   controllerSize = 'medium',
   showMethods,
   showSlots,
-  controller = 'default',
 } = Astro.props;
-
-let ControllerComponent: any = RapidocTuner;
-if (controller === 'pretty' || controller === 'drawer') {
-  ControllerComponent = PrettyRapidocTuner;
-} else if (typeof controller !== 'string' && controller) {
-  ControllerComponent = controller;
-}
 
 const pathname = Astro.url.pathname;
 const isTest = isTestPath(pathname);
@@ -127,20 +115,19 @@ if (isAuto || (!propPreset && shouldShowController)) {
 
   {
     shouldShowController && (
-      <ControllerComponent
+      <RapidocTuner
         targetId={rapidocProps?.id || 'thedoc'}
         preset={effectivePreset as any}
         controls={effectiveControls}
         initialAttrs={rapidocProps}
         specUrl={finalSpecUrl}
-        tuckedRight={tuckedRight}
         title={controllerTitle || 'OPTIONS'}
         size={controllerSize}
         showMethods={showMethods}
         showSlots={showSlots}
       >
         <slot name="controller" slot="default" />
-      </ControllerComponent>
+      </RapidocTuner>
     )
   }
 </GlobalLayout>

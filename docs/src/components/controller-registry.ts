@@ -1,4 +1,12 @@
+// The controls of the tuner (RapidocTuner.astro). A control for an attribute takes its name, values, default,
+// kind (toggle or list), group and tip from the element's own declaration (packages/rapidoc/src/rapidoc.ts,
+// read through page-data/rapidoc-api). Written here is only what the element does not declare: which
+// attributes get a control, the presets, sample values for free-form attributes, swatch colours, and the
+// controls that are not attributes (fonts, slots).
+import { rapidocApiData, type RapidocAttribute } from "../page-data/rapidoc-api";
+
 export interface ControlOption {
+  /** The value as written in HTML; `default` for the empty value. Font options show the family name. */
   label: string;
   rawVal: string;
   dotColor?: string;
@@ -11,19 +19,20 @@ export interface ControlOption {
 const googleFontCss = (family: string) =>
   `https://fonts.googleapis.com/css2?family=${family.replace(/ /g, "+")}:wght@400;500;600;700&display=swap`;
 
-export type ControlCategory =
-  | "appearance"
-  | "theming"
-  | "navigation"
-  | "schema"
-  | "sections"
-  | "slots";
+/** An attribute group of the element (its `@group`), or one of the tuner's own: `Fonts`, `Slots`. */
+export type ControlCategory = string;
 
 export interface SegmentedControl {
   type: "segmented";
   attr: string;
+  /** The API name: the attribute, CSS variable or slot. */
   label: string;
+  /** One line under the label: the attribute's `@summary`, else the first sentence of its description. */
   tip?: string;
+  /** The attribute's full description (HTML), when it says more than the tip. */
+  description?: string;
+  /** The attribute's default as documented: a value, or a note such as `(empty)`. */
+  defaultText?: string;
   info?: string;
   category: ControlCategory;
   options: ControlOption[];
@@ -34,6 +43,8 @@ export interface ToggleControl {
   attr: string;
   label: string;
   tip?: string;
+  description?: string;
+  defaultText?: string;
   info?: string;
   category: ControlCategory;
   defaultOn?: boolean;
@@ -56,115 +67,78 @@ export type ControllerPreset =
   | "none"
   | "auto";
 
-export const CONTROL_REGISTRY: Record<string, ControlDef> = {
-  // Appearance & Layout
-  "render-style": {
-    type: "segmented",
-    attr: "render-style",
-    label: "Render Style",
-    tip: "Display mode: Read for docs, View with tabs, Focused for single endpoint",
-    category: "appearance",
-    options: [
-      { label: "Read", rawVal: "read" },
-      { label: "View", rawVal: "view", isDefault: true },
-      { label: "Focused", rawVal: "focused" },
-    ],
-  },
-  "schema-style": {
-    type: "segmented",
-    attr: "schema-style",
-    label: "Schema Style",
-    tip: "Display schemas as visual table or tree hierarchy",
-    category: "appearance",
-    options: [
-      { label: "Table", rawVal: "table", isDefault: true },
-      { label: "Tree", rawVal: "tree" },
-    ],
-  },
-  scale: {
-    type: "segmented",
-    attr: "scale",
-    label: "UI Scale",
-    tip: "Global scale for typography and spacing",
-    category: "theming",
-    options: [
-      { label: "Compact", rawVal: "sm" },
-      { label: "Default", rawVal: "default", isDefault: true },
-      { label: "Large", rawVal: "lg" },
-    ],
-  },
-  layout: {
-    type: "segmented",
-    attr: "layout",
-    label: "Req/Res Layout",
-    tip: "Request and response layout: row (side-by-side) or column (stacked)",
-    category: "appearance",
-    options: [
-      { label: "Row", rawVal: "row", isDefault: true },
-      { label: "Column", rawVal: "column" },
-    ],
-  },
-  "heading-text": {
-    type: "segmented",
-    attr: "heading-text",
-    label: "Heading Text",
-    tip: "Top header title text",
-    category: "appearance",
-    options: [
-      { label: "Default", rawVal: "", isDefault: true },
-      { label: "API Explorer", rawVal: "API Explorer" },
-    ],
-  },
+/** What a control adds to the element's declaration of its attribute. */
+interface AttributeControl {
+  /** Values to offer for an attribute that takes any string or number. */
+  values?: string[];
+  /** Values to offer after the element's own list, for an attribute that also takes other values. */
+  extraValues?: string[];
+  /** A colour to show next to a value. */
+  swatches?: Record<string, string>;
+  info?: string;
+}
 
-  // Colors & Fonts
+/** The attributes the tuner has a control for, in display order within each group. */
+const ATTRIBUTE_CONTROLS: Record<string, AttributeControl> = {
+  "render-style": {},
+  "schema-style": {},
+  layout: {},
+  "heading-text": { values: ["", "API Explorer"] },
+  "color-scheme": {},
   theme: {
-    type: "segmented",
-    attr: "theme",
-    label: "Theme",
-    tip: "Color palette preset",
-    category: "theming",
-    options: [
-      { label: "Ember", rawVal: "ember", isDefault: true, dotColor: "#f76b39" },
-      { label: "Carbon", rawVal: "carbon", dotColor: "#a1a1aa" },
-      { label: "Cobalt", rawVal: "cobalt", dotColor: "#7aa2d6" },
-      { label: "Jade", rawVal: "jade", dotColor: "#00d390" },
-      { label: "Indigo", rawVal: "indigo", dotColor: "#818cf8" },
-    ],
+    swatches: {
+      ember: "#f76b39",
+      carbon: "#a1a1aa",
+      cobalt: "#7aa2d6",
+      jade: "#00d390",
+      indigo: "#818cf8",
+      "#f4bf32": "#f4bf32",
+    },
+    // theme also takes any hex colour: one example
+    extraValues: ["#f4bf32"],
   },
-  "color-scheme": {
-    type: "segmented",
-    attr: "color-scheme",
-    label: "Color Scheme",
-    tip: "Light or dark luminance scheme",
-    category: "theming",
-    options: [
-      { label: "Dark", rawVal: "dark", isDefault: true },
-      { label: "Light", rawVal: "light" },
-      { label: "System", rawVal: "system" },
-    ],
-  },
-  radius: {
-    type: "segmented",
-    attr: "radius",
-    label: "Radius",
-    tip: "Border radius for cards, inputs, and buttons",
-    category: "theming",
-    options: [
-      { label: "None", rawVal: "none" },
-      { label: "Small", rawVal: "sm", isDefault: true },
-      { label: "Medium", rawVal: "md" },
-      { label: "Large", rawVal: "lg" },
-      { label: "Full", rawVal: "full" },
-    ],
-  },
+  radius: {},
+  scale: {},
+  "use-path-in-nav-bar": {},
+  "show-method-in-nav-bar": {},
+  "nav-item-spacing": {},
+  "sort-tags": {},
+  "info-description-headings-in-navbar": {},
+  "update-route": {},
+  "default-schema-tab": {},
+  "schema-expand-level": { values: ["1", "2", "3", "99999"] },
+  "schema-hide-read-only": {},
+  "schema-hide-write-only": {},
+  "schema-description-expanded": {},
+  "allow-schema-description-expand-toggle": {},
+  "fill-request-fields-with-example": {},
+  "show-header": {},
+  "show-info": {},
+  "allow-try": {},
+  "show-curl-before-try": {},
+  "allow-server-selection": {},
+  "allow-authentication": {},
+  "persist-auth": {},
+  "allow-search": {},
+  "allow-advanced-search": {},
+  "show-components": {},
+  "allow-spec-url-load": {},
+  "allow-spec-file-load": {},
+  "allow-spec-file-download": {},
+  mcp: {},
+  "mock-server": {},
+};
+
+/** Controls that are not attributes: the font CSS variables and the demo slots. */
+const TUNER_CONTROLS: Record<string, ControlDef> = {
   "regular-font": {
     type: "segmented",
     attr: "regular-font",
-    label: "Regular Font",
+    label: "--font-sans",
     tip: "Main document body and heading font family",
-    category: "theming",
+    category: "Fonts",
     options: [
-      { label: "Default", rawVal: "", isDefault: true },
+      { label: "default", rawVal: "", isDefault: true },
       { label: "Inter", rawVal: "Inter, sans-serif", fontCss: googleFontCss("Inter") },
       {
         label: "IBM Plex Sans",
@@ -183,11 +157,11 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
   "mono-font": {
     type: "segmented",
     attr: "mono-font",
-    label: "Mono Font",
+    label: "--font-mono",
     tip: "Monospace font family for code blocks and schema types",
-    category: "theming",
+    category: "Fonts",
     options: [
-      { label: "Default", rawVal: "", isDefault: true },
+      { label: "default", rawVal: "", isDefault: true },
       {
         label: "JetBrains Mono",
         rawVal: "'JetBrains Mono', monospace",
@@ -206,321 +180,146 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
       { label: "Courier", rawVal: "Courier" },
     ],
   },
-
-  // Navigation & Methods
-  "use-path-in-nav-bar": {
-    type: "segmented",
-    attr: "use-path-in-nav-bar",
-    label: "Nav Text",
-    tip: "Display endpoint URL path or summary in sidebar",
-    category: "navigation",
-    options: [
-      { label: "Path", rawVal: "true" },
-      { label: "Summary", rawVal: "false", isDefault: true },
-    ],
-  },
-  "show-method-in-nav-bar": {
-    type: "segmented",
-    attr: "show-method-in-nav-bar",
-    label: "Method Display",
-    tip: "Sidebar HTTP method badge presentation style",
-    category: "navigation",
-    options: [
-      { label: "None", rawVal: "false", isDefault: true },
-      { label: "Plain", rawVal: "as-plain-text" },
-      { label: "Colored", rawVal: "as-colored-text" },
-      { label: "Block", rawVal: "as-colored-block" },
-    ],
-  },
-  "nav-active-item-marker": {
-    type: "segmented",
-    attr: "nav-active-item-marker",
-    label: "Nav Marker",
-    tip: "Visual marker indicating active endpoint in sidebar",
-    category: "navigation",
-    options: [
-      { label: "Left Bar", rawVal: "left-bar", isDefault: true },
-      { label: "Block", rawVal: "colored-block" },
-    ],
-  },
-  "nav-item-spacing": {
-    type: "segmented",
-    attr: "nav-item-spacing",
-    label: "Nav Spacing",
-    tip: "Vertical spacing between sidebar navigation items",
-    category: "navigation",
-    options: [
-      { label: "Compact", rawVal: "compact" },
-      { label: "Default", rawVal: "default", isDefault: true },
-      { label: "Relaxed", rawVal: "relaxed" },
-    ],
-  },
-
-  "sort-tags": {
-    type: "segmented",
-    attr: "sort-tags",
-    label: "Sort Tags",
-    tip: "Alphabetically sort tag sections in sidebar",
-    category: "navigation",
-    options: [
-      { label: "False", rawVal: "false", isDefault: true },
-      { label: "True", rawVal: "true" },
-    ],
-  },
-  "info-description-headings-in-navbar": {
-    type: "segmented",
-    attr: "info-description-headings-in-navbar",
-    label: "Nav Headings",
-    tip: "Extract H1 and H2 markdown headings into sidebar navigation",
-    category: "navigation",
-    options: [
-      { label: "True", rawVal: "true" },
-      { label: "False", rawVal: "false", isDefault: true },
-    ],
-  },
-  "update-route": {
-    type: "segmented",
-    attr: "update-route",
-    label: "Update Route",
-    tip: "Update browser URL hash when navigating endpoints",
-    category: "navigation",
-    options: [
-      { label: "True", rawVal: "true", isDefault: true },
-      { label: "False", rawVal: "false" },
-    ],
-  },
-  "on-nav-tag-click": {
-    type: "segmented",
-    attr: "on-nav-tag-click",
-    label: "Tag Click",
-    tip: "Behavior when clicking a tag header in the sidebar",
-    info: "Works only when render-style = focused",
-    category: "navigation",
-    options: [
-      { label: "Expand", rawVal: "expand-collapse", isDefault: true },
-      { label: "Description", rawVal: "show-description" },
-    ],
-  },
-
-  // Schema & Models
-  "default-schema-tab": {
-    type: "segmented",
-    attr: "default-schema-tab",
-    label: "Schema Tab",
-    tip: "Default active tab in request and response bodies",
-    category: "schema",
-    options: [
-      { label: "Schema", rawVal: "schema" },
-      { label: "Example", rawVal: "example", isDefault: true },
-    ],
-  },
-  "schema-expand-level": {
-    type: "segmented",
-    attr: "schema-expand-level",
-    label: "Expand Level",
-    tip: "Initial expansion depth for nested schemas (max 999)",
-    category: "schema",
-    options: [
-      { label: "1", rawVal: "1" },
-      { label: "2", rawVal: "2" },
-      { label: "3", rawVal: "3" },
-      { label: "9", rawVal: "9", isDefault: true },
-    ],
-  },
-  "schema-hide-read-only": {
-    type: "segmented",
-    attr: "schema-hide-read-only",
-    label: "Hide Read-Only",
-    tip: "Hide read-only fields from request body schemas",
-    category: "schema",
-    options: [
-      { label: "Default", rawVal: "default", isDefault: true },
-      { label: "Never", rawVal: "never" },
-    ],
-  },
-  "schema-hide-write-only": {
-    type: "segmented",
-    attr: "schema-hide-write-only",
-    label: "Hide Write-Only",
-    tip: "Hide write-only fields from response body schemas",
-    category: "schema",
-    options: [
-      { label: "Default", rawVal: "default", isDefault: true },
-      { label: "Never", rawVal: "never" },
-    ],
-  },
-  "schema-description-expanded": {
-    type: "toggle",
-    attr: "schema-description-expanded",
-    label: "Desc Expanded",
-    tip: "Display full multiline schema property descriptions by default",
-    category: "schema",
-  },
-  "allow-schema-description-expand-toggle": {
-    type: "toggle",
-    attr: "allow-schema-description-expand-toggle",
-    label: "Desc Toggle",
-    tip: "Show toggle button for multiline schema descriptions",
-    category: "schema",
-    defaultOn: true,
-  },
-  "fill-request-fields-with-example": {
-    type: "toggle",
-    attr: "fill-request-fields-with-example",
-    label: "Fill Examples",
-    tip: 'Pre-populate "Try" console parameters with sample values',
-    category: "schema",
-    defaultOn: true,
-  },
-
-  // Sections & Toggles
-  "show-header": {
-    type: "toggle",
-    attr: "show-header",
-    label: "Header",
-    tip: "Display the top navbar header",
-    category: "sections",
-    defaultOn: true,
-  },
-  "show-info": {
-    type: "toggle",
-    attr: "show-info",
-    label: "Info Section",
-    tip: "Display OpenAPI document title and overview info",
-    category: "sections",
-    defaultOn: true,
-  },
-  "allow-try": {
-    type: "toggle",
-    attr: "allow-try",
-    label: "Try Console",
-    tip: "Live interactive endpoint testing console",
-    category: "sections",
-    defaultOn: true,
-  },
-  "show-curl-before-try": {
-    type: "toggle",
-    attr: "show-curl-before-try",
-    label: "Show cURL",
-    tip: "Display cURL command before invoking API",
-    category: "sections",
-  },
-  "allow-server-selection": {
-    type: "toggle",
-    attr: "allow-server-selection",
-    label: "Servers",
-    tip: "Allow switching between configured API server URLs",
-    category: "sections",
-    defaultOn: true,
-  },
-  "allow-authentication": {
-    type: "toggle",
-    attr: "allow-authentication",
-    label: "Auth Section",
-    tip: "Display authentication button and credential modal",
-    category: "sections",
-    defaultOn: true,
-  },
-  "persist-auth": {
-    type: "toggle",
-    attr: "persist-auth",
-    label: "Persist Auth",
-    tip: "Persist API keys and tokens in browser localStorage",
-    category: "sections",
-  },
-  "allow-search": {
-    type: "toggle",
-    attr: "allow-search",
-    label: "Search",
-    tip: "Enable quick endpoint search bar",
-    category: "sections",
-    defaultOn: true,
-  },
-  "allow-advanced-search": {
-    type: "toggle",
-    attr: "allow-advanced-search",
-    label: "Adv Search",
-    tip: "Enable advanced full-text schema and parameter search",
-    category: "sections",
-    defaultOn: true,
-  },
-  "show-components": {
-    type: "toggle",
-    attr: "show-components",
-    label: "Components",
-    tip: "Display Schemas and Models in navigation",
-    category: "sections",
-  },
-  "allow-spec-url-load": {
-    type: "toggle",
-    attr: "allow-spec-url-load",
-    label: "Spec URL Load",
-    tip: "Allow loading arbitrary OpenAPI spec by URL",
-    category: "sections",
-    defaultOn: true,
-  },
-  "allow-spec-file-load": {
-    type: "toggle",
-    attr: "allow-spec-file-load",
-    label: "Spec File Load",
-    tip: "Allow uploading and viewing local OpenAPI spec file",
-    category: "sections",
-    defaultOn: true,
-  },
-  "allow-spec-file-download": {
-    type: "toggle",
-    attr: "allow-spec-file-download",
-    label: "Spec Download",
-    tip: "Show download button for the active OpenAPI spec",
-    category: "sections",
-  },
-  mcp: {
-    type: "toggle",
-    attr: "mcp",
-    label: "MCP Export",
-    tip: "Shows the Export MCP Server button (a manifest-driven TypeScript project as a zip)",
-    category: "sections",
-  },
-  "mock-server": {
-    type: "toggle",
-    attr: "mock-server",
-    label: "Mock Server",
-    tip: "Route requests through local or hosted mock server",
-    category: "sections",
-  },
-
-  // Slots
   "slot-nav-logo": {
     type: "toggle",
     attr: "slot-nav-logo",
-    label: "Nav Logo Slot",
+    label: 'slot="nav-logo"',
     tip: "Inject custom logo & text HTML into sidebar navigation",
-    category: "slots",
+    category: "Slots",
   },
   "slot-fixed-header": {
     type: "toggle",
     attr: "slot-fixed-header",
-    label: "Fixed Header Slot",
+    label: 'slot="fixed-header"',
     tip: "Inject custom sticky top banner HTML above documentation",
-    category: "slots",
+    category: "Slots",
   },
   "slot-default": {
     type: "toggle",
     attr: "slot-default",
-    label: "Default Slot",
+    label: 'slot="(default)"',
     tip: "Inject custom content and disclaimer cards into main body",
-    category: "slots",
+    category: "Slots",
   },
 };
 
-export const CATEGORY_TITLES: Record<ControlCategory, string> = {
-  appearance: "Display & Layout",
-  theming: "Colors & Fonts",
-  navigation: "Sidebar & Navigation",
-  schema: "Schema",
-  sections: "Interactive Sections",
-  slots: "Slots",
+const isNote = (value: unknown) => /^\(.*\)$/s.test(String(value).trim());
+
+/** The element's attributes by name, each with its group. */
+const ATTRIBUTES = new Map<string, RapidocAttribute & { group: string }>();
+/** The element's attribute groups, in the order of the /api page. */
+const ATTRIBUTE_GROUPS: string[] = [];
+for (const entry of rapidocApiData.Attributes) {
+  const [title, items] = Object.entries(entry)[0];
+  const group = title.replace(/ Attributes$/, "");
+  ATTRIBUTE_GROUPS.push(group);
+  for (const item of items) ATTRIBUTES.set(item.name, { ...item, group });
+}
+
+const plainText = (html: string) =>
+  html
+    .replace(/<[^>]+>/g, "")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** The first sentence of a description, as plain text. */
+function firstSentence(html: string): string {
+  const text = plainText(html);
+  return /^(.*?[^.])\.(?=\s+[A-Z(]|$)/.exec(text)?.[1] ?? text;
+}
+
+function attributeControl(attr: string, extra: AttributeControl): ControlDef {
+  const declared = ATTRIBUTES.get(attr);
+  if (!declared || declared.deprecated) {
+    throw new Error(`controller-registry: <rapi-doc> has no attribute "${attr}"`);
+  }
+  const allowed = (declared.allowed ?? []).map(String).filter((value) => !isNote(value));
+  const initial =
+    declared.default === undefined
+      ? undefined
+      : isNote(declared.default)
+        ? declared.default === "(empty)"
+          ? ""
+          : undefined
+        : String(declared.default);
+  const tip = declared.summary ?? firstSentence(declared.description);
+  const saysMore = plainText(declared.description).replace(/\.$/, "") !== tip;
+  const common = {
+    attr,
+    label: attr,
+    tip,
+    ...(saysMore ? { description: declared.description.trim() } : {}),
+    ...(declared.default === undefined ? {} : { defaultText: String(declared.default) }),
+    ...(extra.info ? { info: extra.info } : {}),
+    category: declared.group,
+  };
+  const isBoolean =
+    !extra.values && allowed.length === 2 && allowed.includes("true") && allowed.includes("false");
+  if (isBoolean) return { type: "toggle", ...common, defaultOn: initial === "true" };
+
+  const values = extra.values ?? [...allowed, ...(extra.extraValues ?? [])];
+  if (values.length === 0) {
+    throw new Error(
+      `controller-registry: "${attr}" takes any value, so its control needs \`values\``,
+    );
+  }
+  return {
+    type: "segmented",
+    ...common,
+    options: values.map((value) => ({
+      label: value === "" ? "default" : value,
+      rawVal: value,
+      ...(extra.swatches?.[value] ? { dotColor: extra.swatches[value] } : {}),
+      ...(value === initial ? { isDefault: true } : {}),
+    })),
+  };
+}
+
+export const CONTROL_REGISTRY: Record<string, ControlDef> = {
+  ...Object.fromEntries(
+    Object.entries(ATTRIBUTE_CONTROLS).map(([attr, extra]) => [
+      attr,
+      attributeControl(attr, extra),
+    ]),
+  ),
+  ...TUNER_CONTROLS,
 };
+
+/**
+ * The tuner's sections, most used first. This order is the tuner's own; the /api page keeps the element's.
+ * `Slots` and `Methods & Actions` have no controls here: the tuner draws them itself.
+ */
+const SECTION_ORDER: ControlCategory[] = [
+  "Theme",
+  "Layout & Scrolling",
+  "Schemas",
+  "Authentication",
+  "Try & Servers",
+  "Mock Server",
+  "MCP",
+  "Sidebar & Navigation",
+  "Header & Sections",
+  "Fonts",
+  "Slots",
+  "Methods & Actions",
+  "Spec & Content",
+];
+
+/** SECTION_ORDER, with any group of the element it does not list placed before `Fonts`. */
+export const TUNER_SECTIONS: ControlCategory[] = SECTION_ORDER.flatMap((section) =>
+  section === "Fonts"
+    ? [...ATTRIBUTE_GROUPS.filter((group) => !SECTION_ORDER.includes(group)), section]
+    : [section],
+);
+const CATEGORIES = TUNER_SECTIONS;
+
+/** Section headings; a group's name is its heading. */
+export const CATEGORY_TITLES: Record<ControlCategory, string> = Object.fromEntries(
+  CATEGORIES.map((category) => [category, category]),
+);
 
 export const PRESET_ALIASES: Record<string, string> = {
   color: "colors",
@@ -549,8 +348,6 @@ export const PRESETS: Record<string, string[]> = {
   nav: [
     "use-path-in-nav-bar",
     "show-method-in-nav-bar",
-    "on-nav-tag-click",
-    "nav-active-item-marker",
     "nav-item-spacing",
     "sort-tags",
     "update-route",
@@ -648,9 +445,7 @@ export function groupControlsByCategory(
   controls: ControlDef[],
   includeSlots: boolean = false,
 ): { id: ControlCategory; title: string; controls: ControlDef[] }[] {
-  const categories: ControlCategory[] = includeSlots
-    ? ["appearance", "theming", "navigation", "schema", "sections", "slots"]
-    : ["appearance", "theming", "navigation", "schema", "sections"];
+  const categories = includeSlots ? CATEGORIES : CATEGORIES.filter((c) => c !== "Slots");
   return categories
     .map((cat) => ({
       id: cat,

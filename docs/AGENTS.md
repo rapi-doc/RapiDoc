@@ -30,7 +30,7 @@ The `docs/astro.config.mjs` integrates Vite plugins that bridge `docs` and `pack
    - Dev middleware dynamically serves live unminified ESM directly from `packages/rapidoc/src/index.js` at `/rapidoc/rapidoc-min.js` and `/rapidoc/rapidoc.js`.
    - Preserves all `console.*` outputs, `debugger` breakpoints, and sourcemaps with exact line numbers for effortless debugging.
    - Watches `packages/rapidoc/src/` and triggers instant browser reload upon changes without needing slow bundle recompilation.
-   - Watches `src/page-data/**/*.yaml` and triggers module cache invalidation and reload upon change.
+   - Watches `src/page-data/**/*.yaml` and `packages/rapidoc/src/rapidoc.ts` (the `/api` page is built from its doc comments), and triggers module cache invalidation and reload upon change.
 3. **Aliases**:
    - `~` resolves to `packages/rapidoc/src`
    - `~/rapidoc` resolves to `packages/rapidoc/src/rapidoc.js`
@@ -63,7 +63,7 @@ docs/
 │   │   └── docs/            # Starlight Markdown/MDX documentation pages
 │   ├── content.config.ts    # Content collection schema loader
 │   ├── layouts/             # Astro page layouts (e.g., example, full-screen, showcase)
-│   ├── page-data/           # YAML data files for attributes, methods, slots, and events
+│   ├── page-data/           # YAML data files and their loaders (attributes, methods, slots and events come from packages/rapidoc/src/rapidoc.ts)
 │   ├── pages/
 │   │   ├── examples/        # Dedicated theme, contrast, and feature demo pages
 │   │   ├── sandbox.astro    # Interactive API sandbox
@@ -119,7 +119,10 @@ one of them stops being true, and update this list in the same change.
    missing, so run `npm run build:rapidoc` first when the component changed.
 2. **Page data loaders**: each `src/page-data/*.ts` loads its sibling YAML with `readDataYaml`
    (resolved from `process.cwd()`, trying `src/page-data/` then `docs/src/page-data/`, throwing
-   otherwise) and casts it without validation, so a wrong shape fails where a page reads it, not at
+   otherwise; `rapidoc-api.ts` instead calls `readApiManifest()` of `scripts/rapidoc-api.js`, which reads
+   the attributes, methods, events and slots from the declarations and doc comments of
+   `packages/rapidoc/src/rapidoc.ts`, and adds the section introductions and spec extensions of
+   `rapidoc-api-extras.yaml`) and casts it without validation, so a wrong shape fails where a page reads it, not at
    import. `example-list.ts` and `tests.ts` are also read by `layouts/ExampleLayout.astro` and
    `utils/pageMeta.ts`. An entry with `hidden: true` is left out of `/api` (every section) and
    `/tests`.
@@ -139,6 +142,12 @@ one of them stops being true, and update this list in the same change.
    `showController` and `preset=['auto']` on. The tuner targets `rapidocProps.id || 'thedoc'` even
    when the page writes its own `<rapi-doc>`, so keep that id. Unknown preset names are skipped
    silently (`components/controller-registry.ts:resolveControlKeys`).
+   There is one tuner, `components/RapidocTuner.astro` (a drawer), and its labels are the API names
+   (attribute, value, method, slot). `controller-registry.ts` takes each attribute control's values,
+   default, kind (toggle or list), section and tip from the element's declaration in
+   `packages/rapidoc/src/rapidoc.ts`; it lists only which attributes get a control, the presets,
+   sample values for free-form attributes, swatch colours, and the font and slot controls. A
+   control for an attribute the element lacks fails the build and `tests/unit/controller-registry.test.js`.
 5. **Routes**: every `.md` / `.astro` under `src/pages/` is a route unless its name starts with
    `_`. Moving a page needs a redirect in `astro.config.mjs` and an update to whatever links it:
    `example-list.yaml`, `tests.yaml`, the `guides` array in `pages/guides/index.astro`,

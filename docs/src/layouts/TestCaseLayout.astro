@@ -11,13 +11,11 @@ interface Props {
   controls?: string[];
   rapidocProps?: Record<string, any>;
   autoRenderRapiDoc?: boolean;
-  tuckedRight?: boolean;
   controllerTitle?: string;
   showController?: boolean;
   controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
   showMethods?: boolean;
   showSlots?: boolean;
-  controller?: 'default' | 'pretty' | 'hud' | 'drawer' | ((_props: any) => any);
 }
 
 const {
@@ -29,13 +27,11 @@ const {
   controls,
   rapidocProps = {},
   autoRenderRapiDoc = true,
-  tuckedRight,
   controllerTitle,
   showController = true,
   controllerSize,
   showMethods,
   showSlots,
-  controller,
 } = Astro.props;
 ---
 
@@ -48,13 +44,11 @@ const {
   controls={controls}
   rapidocProps={rapidocProps}
   autoRenderRapiDoc={autoRenderRapiDoc}
-  tuckedRight={tuckedRight}
   controllerTitle={controllerTitle}
   showController={showController}
   controllerSize={controllerSize}
   showMethods={showMethods}
   showSlots={showSlots}
-  controller={controller}
 >
   <slot name="head" slot="head" />
   <slot name="script" slot="script" />

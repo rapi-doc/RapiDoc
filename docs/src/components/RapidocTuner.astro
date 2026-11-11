@@ -3,6 +3,7 @@ import {
   CONTROL_REGISTRY,
   CATEGORY_TITLES,
   PRESETS,
+  TUNER_SECTIONS,
   resolveActiveControls,
   resolveActiveSlots,
   normalizePresets,
@@ -15,10 +16,10 @@ import {
   type ControllerPreset,
 } from './controller-registry';
 import {
+  IconAdjustmentsHorizontal,
   IconFileCode,
-  IconLayoutSidebarRight,
-  IconLayoutBottombar,
-  IconMinus,
+  IconRotate,
+  IconX,
   IconInfoCircle,
 } from '@tabler/icons-astro';
 
@@ -29,13 +30,14 @@ interface Props {
   preset?: ControllerPreset[] | ControllerPreset;
   controls?: string[];
   initialAttrs?: Record<string, string | boolean | number>;
-  position?: 'bottom' | 'top';
-  tuckedRight?: boolean;
   specUrl?: string;
   title?: string;
-  size?: 'small' | 'medium' | 'large' | (string & {}) | number;
+  subtitle?: string;
   showMethods?: boolean;
   showSlots?: boolean;
+  defaultOpen?: boolean;
+  size?: 'small' | 'medium' | 'large' | (string & {}) | number;
+  showEdgeTab?: boolean;
 }
 
 const {
@@ -43,21 +45,22 @@ const {
   preset = ['minimal'],
   controls: propControls,
   initialAttrs = {},
-  position = 'bottom',
-  tuckedRight = false,
   specUrl,
-  title = 'OPTIONS',
-  size = 'medium',
+  title = 'Options',
+  subtitle = 'RapiDoc properties',
   showMethods,
   showSlots,
+  defaultOpen = false,
+  size = 'medium',
+  showEdgeTab = true,
 } = Astro.props;
 
-let baseFontSize = '12px';
+let baseFontSize = '13px';
 if (size != null) {
   const s = String(size).trim();
-  if (s === 'small') baseFontSize = '11px';
+  if (s === 'small') baseFontSize = '12px';
   else if (s === 'large') baseFontSize = '14px';
-  else if (s === 'medium') baseFontSize = '12px';
+  else if (s === 'medium') baseFontSize = '13px';
   else if (/^\d+(\.\d+)?$/.test(s)) baseFontSize = `${s}px`;
   else if (s) baseFontSize = s;
 }
@@ -78,364 +81,428 @@ const effectiveShowSlots = showSlots !== undefined
 
 const slotsToRender = activeSlots.length > 0 ? activeSlots : ['nav-logo', 'fixed-header', 'default'];
 
+// The sections in the tuner's order: attribute groups, plus the slot and method sections drawn below
+type TunerSection =
+  | { kind: 'group'; group: (typeof groupedControls)[number] }
+  | { kind: 'slots' }
+  | { kind: 'methods' };
+const tunerSections: TunerSection[] = TUNER_SECTIONS.flatMap((name): TunerSection[] => {
+  if (name === 'Slots') return [{ kind: 'slots' }];
+  if (name === 'Methods & Actions') return [{ kind: 'methods' }];
+  const group = groupedControls.find((g) => g.id === name);
+  return group ? [{ kind: 'group', group }] : [];
+});
+
+// Black or white text, whichever contrasts more with a colour chip's background (WCAG relative luminance)
+function textOn(hex: string): '#000' | '#fff' {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const channel = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return 1.05 / (luminance + 0.05) >= (luminance + 0.05) / 0.05 ? '#fff' : '#000';
+}
+
 const initialAttrsJson = JSON.stringify(initialAttrs);
+const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 7)}`;
 ---
 
-<aside
-  class={`rd-controller-hud position-${position}${tuckedRight ? ' is-tucked-right' : ''}`}
-  id={`rd-hud-${targetId}`}
+<div
+  class="rd-pretty-controller-root"
+  id={instanceId}
   data-target={targetId}
   data-initial-attrs={initialAttrsJson}
+  data-default-open={defaultOpen ? 'true' : 'false'}
   style={`--rd-ctrl-font-size: ${baseFontSize};`}
-  aria-label="Options Interactive Controller"
 >
-  <!-- Collapsed badge / Expand trigger -->
-  <button type="button" class="rd-hud-trigger" aria-expanded="false" title={`Open ${title}`}>
-    <span class="rd-hud-status-dot" aria-hidden="true"></span>
-    <span class="rd-hud-trigger-title">{title}</span>
-  </button>
+  <!-- Docked Right Edge Tab Button -->
+  {
+    showEdgeTab && (
+      <button
+        type="button"
+        class="rd-pretty-edge-tab"
+        aria-label="Open RapiDoc Options Drawer"
+        title={`Open ${title} (Cmd+K)`}
+      >
+        <IconAdjustmentsHorizontal size={15} stroke={2.2} aria-hidden="true" />
+        <span class="rd-tab-label">{title}</span>
+      </button>
+    )
+  }
 
-  <!-- Expanded controls drawer / panel -->
-  <div class="rd-hud-panel">
-    <!-- Header with Title, Spec link, API mode toggle, Tuck Right (Icons only), and Minimize -->
-    <div class="rd-hud-header">
-      <div class="rd-hud-title-group">
-        <span class="rd-hud-status-dot" aria-hidden="true"></span>
-        <span class="rd-hud-badge">{title}</span>
-        {specUrl && (
-          <a href={specUrl} target="_blank" rel="noopener noreferrer" class="rd-spec-link" title="Open active OpenAPI spec file">
-            <IconFileCode size={11} stroke={2.2} />
-            <span>Spec</span>
-          </a>
-        )}
+  <!-- Modern Overlapping Layer Drawer with Frosted Glass -->
+  <aside class="rd-pretty-drawer" aria-label={title} aria-hidden="true">
+    <div class="rd-pretty-wrapper">
+      <!-- Section Header -->
+      <div class="rd-pretty-header">
+        <div class="rd-pretty-title-wrap">
+          <div>
+            <div class="rd-title-with-badge">
+              <h3 class="rd-pretty-title">{title}</h3>
+            </div>
+            {subtitle && <p class="rd-pretty-subtitle">{subtitle}</p>}
+          </div>
+        </div>
+
+        <div class="rd-pretty-header-actions">
+          {specUrl && (
+            <a
+              href={specUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="rd-pretty-action-btn rd-pretty-spec-btn"
+              title="Open active OpenAPI spec file"
+            >
+              <IconFileCode size={12} stroke={2.2} />
+              <span>Spec</span>
+            </a>
+          )}
+
+          <!-- Reset Button -->
+          <button
+            type="button"
+            class="rd-pretty-action-btn rd-pretty-reset-btn"
+            title="Reset all options to default"
+          >
+            <IconRotate size={13} stroke={2.2} />
+            <span>Reset</span>
+          </button>
+
+          <!-- Close Drawer Button -->
+          <button
+            type="button"
+            class="rd-pretty-action-btn rd-pretty-close-btn"
+            aria-label="Close Controls Drawer"
+            title="Close Drawer (Esc)"
+          >
+            <IconX size={15} stroke={2.2} />
+          </button>
+        </div>
       </div>
 
-      <div class="rd-hud-actions-group">
-        <!-- Raw / Human Labels Switcher (Just "API", dimmed when human mode, highlighted in raw label mode) -->
-        <button
-          type="button"
-          class="rd-hud-action-btn rd-hud-label-mode-btn"
-          title="Toggle between Human-Friendly Labels and Raw OpenAPI Attributes"
-          aria-label="Toggle Raw OpenAPI Attributes Mode"
-        >
-          <span class="rd-label-btn-text">API</span>
-        </button>
+      <!-- Scrollable Drawer Body with Fluid Cards -->
+      <div class="rd-pretty-body">
+        {tunerSections.map(section => {
+          if (section.kind === 'methods') {
+            return effectiveShowMethods && (
+              <div class="rd-pretty-category-section rd-pretty-methods-section" data-category="methods">
+                <div class="rd-pretty-category-divider">
+                  <span class="rd-pretty-category-tag">Methods & Actions</span>
+                </div>
 
-        <!-- Tuck to Right Drawer Button (Icon only, no text words) -->
-        <button
-          type="button"
-          class="rd-hud-action-btn rd-hud-tuck-btn"
-          title="Tuck to Right Side Drawer"
-          aria-label="Tuck to Right Side Drawer"
-        >
-          <IconLayoutSidebarRight class="icon-tuck-right" size={13} stroke={2.2} />
-          <IconLayoutBottombar class="icon-float-bottom" size={13} stroke={2.2} />
-        </button>
-
-        <!-- Minimize Button -->
-        <button
-          type="button"
-          class="rd-hud-action-btn rd-hud-minimize-btn"
-          title="Minimize controller (Cmd+K)"
-          aria-label="Minimize controller"
-        >
-          <IconMinus size={12} stroke={2.5} />
-        </button>
-      </div>
-    </div>
-
-    <!-- Scrollable Fluid Controls Container with Scrollbar -->
-    <div class="rd-hud-body">
-      {groupedControls.map(group => {
-        const segmentedControls = group.controls.filter(c => c.type === 'segmented');
-        const toggleControls = group.controls.filter(c => c.type === 'toggle');
-        return (
-          <div class="rd-hud-section" data-section={group.id}>
-            <div class="rd-hud-category-title">{group.title}</div>
-            <div class="rd-hud-section-content">
-              {segmentedControls.map(ctrl => (
-                <div class="rd-hud-link-row" data-control-attr={ctrl.attr}>
-                  <span class="rd-control-label-wrap">
-                    <span
-                      class="rd-control-label"
-                      data-human={`${ctrl.label} :`}
-                      data-raw={`${ctrl.attr} :`}
-                      data-tooltip={ctrl.tip || `Attribute: ${ctrl.attr}`}
-                      tabindex="0"
-                    >{ctrl.label} :</span>
-                    {ctrl.info && (
+                <div class="rd-pretty-settings-list">
+                  <!-- loadSpec -->
+                  <div class="rd-option-card rd-option-card--multi" data-method="loadSpec">
+                    <div class="rd-option-info">
+                      <div class="rd-option-label">loadSpec(spec)</div>
+                      <div class="rd-option-tip">Switch the active OpenAPI specification document</div>
+                    </div>
+                    <div class="rd-control-wrapper rd-chip-group">
                       <button
                         type="button"
-                        class="rd-control-info-icon"
-                        aria-label={`Info: ${ctrl.info}`}
-                        data-tooltip={ctrl.info}
-                        data-tooltip-type="info"
-                        tabindex="0"
+                        class="rd-chip rd-method-spec-btn is-active"
+                        data-spec-url="/specs/petstore.yaml"
+                        title="loadSpec('/specs/petstore.yaml')"
                       >
-                        <IconInfoCircle size={11} stroke={2.2} />
+                        <span class="chip-text">petstore.yaml</span>
                       </button>
-                    )}
-                  </span>
+                      <button
+                        type="button"
+                        class="rd-chip rd-method-spec-btn"
+                        data-spec-url="/specs/open-api-3-1.yaml"
+                        title="loadSpec('/specs/open-api-3-1.yaml')"
+                      >
+                        <span class="chip-text">open-api-3-1.yaml</span>
+                      </button>
+                    </div>
+                  </div>
 
-                  <span class="rd-link-options" role="radiogroup" aria-label={ctrl.label}>
-                    {ctrl.options.map((opt, idx) => (
-                      <span class="rd-link-item">
-                        {idx > 0 && <span class="rd-link-sep" aria-hidden="true">|</span>}
-                        <span
-                          role="button"
-                          tabindex="0"
-                          class="rd-link-btn"
-                          data-attr={ctrl.attr}
-                          data-val={opt.rawVal}
-                          data-is-default={opt.isDefault ? 'true' : undefined}
-                          data-font-css={opt.fontCss}
-                          data-tooltip={`${ctrl.attr}="${opt.rawVal}"`}
-                        >
-                          {opt.dotColor && (
-                            <span class="rd-color-dot" style={`background-color: ${opt.dotColor};`} aria-hidden="true" />
+                  <!-- scrollTo -->
+                  <div class="rd-option-card rd-option-card--multi" data-method="scrollTo">
+                    <div class="rd-option-info">
+                      <div class="rd-option-label">scrollToPath(path)</div>
+                      <div class="rd-option-tip">Smoothly scroll to an endpoint or section ID</div>
+                    </div>
+                    <div class="rd-method-input-row">
+                      <input
+                        type="text"
+                        class="rd-method-input rd-scroll-path-input"
+                        value="get-/user/login"
+                        placeholder="e.g. get-/user/login"
+                        aria-label="Path to scroll to"
+                        spellcheck="false"
+                      />
+                      <button type="button" class="rd-pretty-action-btn rd-scroll-exec-btn">
+                        <span>Call</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- downloadMcpServer -->
+                  <div class="rd-option-card rd-option-card--multi" data-method="downloadMcpServer">
+                    <div class="rd-option-info">
+                      <div class="rd-option-label">downloadMcpServer()</div>
+                      <div class="rd-option-tip">Download the MCP server project (manifest, runtime and stdio server) as a zip</div>
+                    </div>
+                    <button type="button" class="rd-pretty-action-btn rd-mcp-exec-btn" style="margin-left: auto;">
+                      <span>Call</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          if (section.kind === 'slots') {
+            return effectiveShowSlots && (
+              <div class="rd-pretty-category-section rd-pretty-slots-section" data-category="slots">
+                <div class="rd-pretty-category-divider">
+                  <span class="rd-pretty-category-tag">Slots</span>
+                </div>
+
+                <div class="rd-pretty-settings-list">
+                  {/* Nav Logo Slot */}
+                  {slotsToRender.includes('nav-logo') && (
+                    <div class="rd-option-card rd-option-card--boolean" data-control-slot="nav-logo">
+                      <div class="rd-option-info">
+                        <div class="rd-option-label-row">
+                          <div
+                            class="rd-option-label"
+                          >
+                            slot="nav-logo"
+                          </div>
+                        </div>
+                        <div class="rd-option-tip">Inject custom logo & text HTML into sidebar navigation</div>
+                      </div>
+
+                      <div class="rd-control-wrapper">
+                        <label class="rd-switch">
+                          <input
+                            type="checkbox"
+                            class="rd-pretty-slot-input"
+                            data-slot="nav-logo"
+                          />
+                          <span class="rd-slider"></span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Fixed Header Slot */}
+                  {slotsToRender.includes('fixed-header') && (
+                    <div class="rd-option-card rd-option-card--boolean" data-control-slot="fixed-header">
+                      <div class="rd-option-info">
+                        <div class="rd-option-label-row">
+                          <div
+                            class="rd-option-label"
+                          >
+                            slot="fixed-header"
+                          </div>
+                        </div>
+                        <div class="rd-option-tip">Inject custom sticky announcement or banner HTML above content</div>
+                      </div>
+
+                      <div class="rd-control-wrapper">
+                        <label class="rd-switch">
+                          <input
+                            type="checkbox"
+                            class="rd-pretty-slot-input"
+                            data-slot="fixed-header"
+                          />
+                          <span class="rd-slider"></span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Default Slot */}
+                  {slotsToRender.includes('default') && (
+                    <div class="rd-option-card rd-option-card--boolean" data-control-slot="default">
+                      <div class="rd-option-info">
+                        <div class="rd-option-label-row">
+                          <div
+                            class="rd-option-label"
+                          >
+                            slot="(default)"
+                          </div>
+                        </div>
+                        <div class="rd-option-tip">Inject custom top-level announcement HTML into main content body</div>
+                      </div>
+
+                      <div class="rd-control-wrapper">
+                        <label class="rd-switch">
+                          <input
+                            type="checkbox"
+                            class="rd-pretty-slot-input"
+                            data-slot="default"
+                          />
+                          <span class="rd-slider"></span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          }
+          const group = section.group;
+          const segmentedControls = group.controls.filter((c): c is SegmentedControl => c.type === 'segmented');
+          const toggleControls = group.controls.filter((c): c is ToggleControl => c.type === 'toggle');
+
+          return (
+            <div class="rd-pretty-category-section" data-category={group.id}>
+              <div class="rd-pretty-category-divider">
+                <span class="rd-pretty-category-tag">{group.title}</span>
+              </div>
+
+              <div class="rd-pretty-settings-list">
+                {/* Segmented Controls (multi-choice chips; a theme chip is filled with its colour) */}
+                {segmentedControls.map(ctrl => {
+                  return (
+                    <div class="rd-option-card rd-option-card--multi" data-control-attr={ctrl.attr}>
+                      <div class="rd-option-info">
+                        <div class="rd-option-label-row">
+                          <div
+                            class="rd-option-label"
+                          >
+                            {ctrl.label}
+                          </div>
+                          {(ctrl.description || ctrl.defaultText) && (
+                            <span class="rd-option-help" tabindex="0" role="button" aria-label={`About ${ctrl.label}`}>
+                              <IconInfoCircle size={13} stroke={2} aria-hidden="true" />
+                              <span class="rd-option-help-pop" role="tooltip">
+                                {ctrl.description && <span class="rd-option-help-text" set:html={ctrl.description} />}
+                                {ctrl.defaultText && (
+                                  <span class="rd-option-help-default">
+                                    <span class="rd-default-mark" aria-hidden="true" />
+                                    Default: <code>{ctrl.defaultText}</code>
+                                  </span>
+                                )}
+                              </span>
+                            </span>
                           )}
-                          <span
-                            class="rd-link-text"
-                            data-human={opt.label}
-                            data-raw={opt.rawVal || 'default'}
-                          >{opt.label}</span>
-                        </span>
-                      </span>
-                    ))}
-                  </span>
-                </div>
-              ))}
+                          {ctrl.info && (
+                            <span class="rd-option-info-badge">
+                              <IconInfoCircle size={12} stroke={2.2} aria-hidden="true" />
+                              <span class="rd-option-info-text">{ctrl.info}</span>
+                            </span>
+                          )}
+                        </div>
+                        {ctrl.tip && <div class="rd-option-tip">{ctrl.tip}</div>}
+                      </div>
 
-              {toggleControls.length > 0 && (
-                <div class="rd-toggles-wrap">
-                  {toggleControls.map(ctrl => (
-                    <span
-                      role="button"
-                      tabindex="0"
-                      class="rd-toggle-chip"
-                      data-attr={ctrl.attr}
-                      data-default-on={ctrl.defaultOn ? 'true' : undefined}
-                      data-tooltip={ctrl.tip || `Toggle ${ctrl.attr}`}
-                    >
-                      <span class="rd-toggle-check" aria-hidden="true">✓</span>
-                      <span
-                        class="rd-toggle-text"
-                        data-human={ctrl.label}
-                        data-raw={ctrl.attr}
-                      >{ctrl.label}</span>
-                      {ctrl.info && (
-                        <button
-                          type="button"
-                          class="rd-control-info-icon rd-toggle-info-btn"
-                          aria-label={`Info: ${ctrl.info}`}
-                          data-tooltip={ctrl.info}
-                          data-tooltip-type="info"
-                          tabindex="0"
-                          onclick="event.stopPropagation();"
+                      <div
+                        class="rd-control-wrapper rd-chip-group"
+                        role="radiogroup"
+                        aria-label={ctrl.label}
+                      >
+                        {ctrl.options.map(opt => {
+                          return (
+                            <label
+                              class:list={['rd-chip', opt.dotColor && 'rd-chip--color', opt.isDefault && 'rd-chip--default']}
+                              style={opt.dotColor ? `--chip-color: ${opt.dotColor}; --chip-text: ${textOn(opt.dotColor)};` : undefined}
+                            >
+                              <input
+                                type="radio"
+                                name={`rd_${instanceId}_${ctrl.attr}`}
+                                class="rd-radio-input"
+                                data-attr={ctrl.attr}
+                                value={opt.rawVal}
+                                data-is-default={opt.isDefault ? 'true' : undefined}
+                                data-font-css={opt.fontCss}
+                              />
+                              <span class="chip-text">{opt.label}</span>
+                              {opt.isDefault && <span class="rd-sr-only"> (default)</span>}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Boolean / Toggle Controls */}
+                {toggleControls.map(ctrl => (
+                  <div class="rd-option-card rd-option-card--boolean" data-control-attr={ctrl.attr}>
+                    <div class="rd-option-info">
+                      <div class="rd-option-label-row">
+                        <div
+                          class="rd-option-label"
                         >
-                          <IconInfoCircle size={10} stroke={2.2} />
-                        </button>
-                      )}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })}
+                          {ctrl.label}
+                        </div>
+                        {(ctrl.description || ctrl.defaultText) && (
+                          <span class="rd-option-help" tabindex="0" role="button" aria-label={`About ${ctrl.label}`}>
+                            <IconInfoCircle size={13} stroke={2} aria-hidden="true" />
+                            <span class="rd-option-help-pop" role="tooltip">
+                              {ctrl.description && <span class="rd-option-help-text" set:html={ctrl.description} />}
+                              {ctrl.defaultText && (
+                                <span class="rd-option-help-default">
+                                  <span class="rd-default-mark" aria-hidden="true" />
+                                  Default: <code>{ctrl.defaultText}</code>
+                                </span>
+                              )}
+                            </span>
+                          </span>
+                        )}
+                        {ctrl.info && (
+                          <span class="rd-option-info-badge">
+                            <IconInfoCircle size={12} stroke={2.2} aria-hidden="true" />
+                            <span class="rd-option-info-text">{ctrl.info}</span>
+                          </span>
+                        )}
+                      </div>
+                      {ctrl.tip && <div class="rd-option-tip">{ctrl.tip}</div>}
+                    </div>
 
-      {effectiveShowMethods && (
-        <div class="rd-hud-section rd-hud-methods-section" data-section="methods">
-          <div class="rd-section-header">
-            <span class="rd-section-title" data-human="Methods" data-raw="Methods">
-              Methods
-            </span>
-          </div>
-          <div class="rd-section-content">
-            <!-- loadSpec() -->
-            <div class="rd-control-row" data-method="loadSpec">
-              <span
-                class="rd-control-label"
-                data-human="Load Spec"
-                data-raw="loadSpec(url)"
-              >Load Spec</span>
-              <span class="rd-segmented-btn-group" role="group" aria-label="Load Spec">
-                <span class="rd-link-item">
-                  <span
-                    role="button"
-                    tabindex="0"
-                    class="rd-link-btn rd-method-spec-btn is-active"
-                    data-spec-url="/specs/petstore.yaml"
-                    title="loadSpec('/specs/petstore.yaml')"
-                  >
-                    <span class="rd-link-text" data-human="Petstore" data-raw="petstore.yaml">Petstore</span>
-                  </span>
-                </span>
-                <span class="rd-link-item">
-                  <span class="rd-link-sep" aria-hidden="true">|</span>
-                  <span
-                    role="button"
-                    tabindex="0"
-                    class="rd-link-btn rd-method-spec-btn"
-                    data-spec-url="/specs/open-api-3-1.yaml"
-                    title="loadSpec('/specs/open-api-3-1.yaml')"
-                  >
-                    <span class="rd-link-text" data-human="OpenAPI 3.1" data-raw="open-api-3-1.yaml">OpenAPI 3.1</span>
-                  </span>
-                </span>
-              </span>
-            </div>
-
-            <!-- scrollTo(path) -->
-            <div class="rd-control-row rd-method-scroll-row" data-method="scrollTo">
-              <span
-                class="rd-control-label"
-                data-human="Scroll To"
-                data-raw="scrollTo(path)"
-              >Scroll To</span>
-              <div class="rd-method-input-wrap">
-                <input
-                  type="text"
-                  class="rd-method-input rd-scroll-path-input"
-                  value="get-/user/login"
-                  placeholder="e.g. get-/user/login"
-                  aria-label="Path to scroll to"
-                  spellcheck="false"
-                />
-                <button
-                  type="button"
-                  class="rd-method-exec-btn rd-scroll-exec-btn"
-                  title="Execute scrollTo(path)"
-                >
-                  <span data-human="Scroll" data-raw="Call">Scroll</span>
-                </button>
+                    <div class="rd-control-wrapper">
+                      <label class="rd-switch">
+                        <input
+                          type="checkbox"
+                          class="rd-toggle-input"
+                          data-attr={ctrl.attr}
+                          data-default-on={ctrl.defaultOn ? 'true' : undefined}
+                        />
+                        <span class="rd-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
+          );
+        })}
 
-            <!-- downloadMcpServer() -->
-            <div class="rd-control-row" data-method="downloadMcpServer">
-              <span
-                class="rd-control-label"
-                data-human="MCP Server"
-                data-raw="downloadMcpServer()"
-              >MCP Server</span>
-              <button
-                type="button"
-                class="rd-method-exec-btn rd-method-mcp-btn"
-                title="Execute downloadMcpServer()"
-                style="padding: 2px 8px;"
-              >
-                <span data-human="Download Server" data-raw="Call">Download Server</span>
-              </button>
-            </div>
-          </div>
+        <!-- Slot for custom, test-specific action buttons or inputs -->
+        <div class="rd-pretty-slot-container">
+          <slot />
         </div>
-      )}
-
-      {effectiveShowSlots && (
-        <div class="rd-hud-section rd-hud-slots-section" data-section="slots">
-          <div class="rd-hud-category-title" data-human="Slots" data-raw="Slots">Slots</div>
-          <div class="rd-hud-section-content">
-            <div class="rd-toggles-wrap">
-              {slotsToRender.includes('nav-logo') && (
-                <span
-                  role="button"
-                  tabindex="0"
-                  class="rd-toggle-chip rd-slot-toggle"
-                  data-slot="nav-logo"
-                  data-tooltip='Toggle slot="nav-logo" HTML in sidebar'
-                >
-                  <span class="rd-toggle-check" aria-hidden="true">✓</span>
-                  <span
-                    class="rd-toggle-text"
-                    data-human="Nav Logo"
-                    data-raw='slot="nav-logo"'
-                  >Nav Logo</span>
-                </span>
-              )}
-
-              {slotsToRender.includes('fixed-header') && (
-                <span
-                  role="button"
-                  tabindex="0"
-                  class="rd-toggle-chip rd-slot-toggle"
-                  data-slot="fixed-header"
-                  data-tooltip='Toggle slot="fixed-header" HTML at top'
-                >
-                  <span class="rd-toggle-check" aria-hidden="true">✓</span>
-                  <span
-                    class="rd-toggle-text"
-                    data-human="Fixed Header"
-                    data-raw='slot="fixed-header"'
-                  >Fixed Header</span>
-                </span>
-              )}
-
-              {slotsToRender.includes('default') && (
-                <span
-                  role="button"
-                  tabindex="0"
-                  class="rd-toggle-chip rd-slot-toggle"
-                  data-slot="default"
-                  data-tooltip='Toggle default slot HTML in content area'
-                >
-                  <span class="rd-toggle-check" aria-hidden="true">✓</span>
-                  <span
-                    class="rd-toggle-text"
-                    data-human="Default"
-                    data-raw='slot="(default)"'
-                  >Default</span>
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <!-- Slot for custom, test-specific action buttons or inputs -->
-      <slot />
+      </div>
     </div>
-  </div>
-
-  <!-- Single CSS Anchor Positioning Tooltip -->
-  <div
-    id={`rd-tooltip-${targetId}`}
-    class="rd-hud-tooltip"
-    role="tooltip"
-    aria-hidden="true"
-  >
-    <div class="rd-tooltip-inner">
-      <span class="rd-tooltip-badge" aria-hidden="true"></span>
-      <span class="rd-tooltip-text"></span>
-    </div>
-  </div>
-</aside>
+  </aside>
+</div>
 
 <script is:inline>
-  (function initRapidocTuner() {
-    function setupController(hud) {
-      if (hud.__rdInitialized) return;
-      hud.__rdInitialized = true;
+  (function initRapidocTuners() {
+    function setupController(root) {
+      if (root.__rdPrettyInitialized) return;
+      root.__rdPrettyInitialized = true;
 
-      const targetId = hud.getAttribute('data-target') || 'thedoc';
+      const targetId = root.getAttribute('data-target') || 'thedoc';
       let initialAttrs = {};
       try {
-        const rawInitial = hud.getAttribute('data-initial-attrs');
+        const rawInitial = root.getAttribute('data-initial-attrs');
         if (rawInitial) {
           initialAttrs = JSON.parse(rawInitial);
         }
       } catch (_) {}
 
-      const triggerBtn = hud.querySelector('.rd-hud-trigger');
-      const minimizeBtn = hud.querySelector('.rd-hud-minimize-btn');
-      const tuckBtn = hud.querySelector('.rd-hud-tuck-btn');
-      const labelModeBtn = hud.querySelector('.rd-hud-label-mode-btn');
-      const labelModeText = labelModeBtn?.querySelector('.rd-label-btn-text');
-      const labelModeIcon = labelModeBtn?.querySelector('.rd-label-btn-icon');
-      const statusDots = hud.querySelectorAll('.rd-hud-status-dot');
+      const edgeTab = root.querySelector('.rd-pretty-edge-tab');
+      const drawer = root.querySelector('.rd-pretty-drawer');
+      const closeBtn = root.querySelector('.rd-pretty-close-btn');
+      const resetBtn = root.querySelector('.rd-pretty-reset-btn');
+      const statusDots = root.querySelectorAll('.rd-pretty-status-dot');
 
-      const storageKeyTuck = `rd_ctrl_tucked_${window.location.pathname}`;
+      const storageKeyOpen = `rd_pretty_open_${window.location.pathname}`;
 
       // Font controls set --font-sans / --font-mono. An option with data-font-css also loads its stylesheet,
       // since RapiDoc loads no fonts itself.
@@ -446,7 +513,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
           target.style.removeProperty(cssVar);
           return;
         }
-        const optionEl = Array.from(hud.querySelectorAll(`[data-attr="${attr}"][data-font-css]`)).find(
+        const optionEl = Array.from(root.querySelectorAll(`[data-attr="${attr}"][data-font-css]`)).find(
           (el) => (el.getAttribute('value') ?? el.getAttribute('data-val')) === val
         );
         const fontCss = optionEl?.getAttribute('data-font-css');
@@ -459,206 +526,67 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
         }
         target.style.setProperty(cssVar, val);
       }
-      const storageKeyRaw = `rd_ctrl_raw_labels`;
 
-      function setCollapsed(collapsed) {
-        if (collapsed) {
-          hud.classList.add('is-collapsed');
-          triggerBtn?.setAttribute('aria-expanded', 'false');
+      function openDrawer() {
+        if (!drawer) return;
+        drawer.classList.add('is-open');
+        drawer.setAttribute('aria-hidden', 'false');
+        root.classList.add('is-drawer-open');
+        edgeTab?.setAttribute('aria-expanded', 'true');
+        sessionStorage.setItem(storageKeyOpen, 'true');
+        window.dispatchEvent(new CustomEvent('rapidoc-tuner:opened'));
+      }
+
+      function closeDrawer() {
+        if (!drawer) return;
+        drawer.classList.remove('is-open');
+        drawer.setAttribute('aria-hidden', 'true');
+        root.classList.remove('is-drawer-open');
+        edgeTab?.setAttribute('aria-expanded', 'false');
+        sessionStorage.setItem(storageKeyOpen, 'false');
+        window.dispatchEvent(new CustomEvent('rapidoc-tuner:closed'));
+      }
+
+      function toggleDrawer() {
+        if (drawer?.classList.contains('is-open')) {
+          closeDrawer();
         } else {
-          hud.classList.remove('is-collapsed');
-          triggerBtn?.setAttribute('aria-expanded', 'true');
+          openDrawer();
         }
       }
 
-      triggerBtn?.addEventListener('click', e => {
+      edgeTab?.addEventListener('click', (e) => {
         e.stopPropagation();
-        setCollapsed(false);
+        openDrawer();
       });
 
-      minimizeBtn?.addEventListener('click', e => {
+      window.addEventListener('rapidoc-tuner:open', openDrawer);
+      window.addEventListener('rapidoc-tuner:close', closeDrawer);
+      window.addEventListener('rapidoc-tuner:toggle', toggleDrawer);
+
+      window.rapidocTuner = {
+        open: openDrawer,
+        close: closeDrawer,
+        toggle: toggleDrawer,
+        isOpen: () => Boolean(drawer?.classList.contains('is-open')),
+      };
+
+      closeBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
-        setCollapsed(true);
+        closeDrawer();
       });
 
-      function syncTuckUi() {
-        const isTucked = hud.classList.contains('is-tucked-right');
-        tuckBtn?.setAttribute('title', isTucked ? 'Tuck to Bottom Right' : 'Tuck to Right Side Drawer');
-        tuckBtn?.setAttribute('aria-label', isTucked ? 'Tuck to Bottom Right' : 'Tuck to Right Side Drawer');
-      }
-
-      tuckBtn?.addEventListener('click', e => {
-        e.stopPropagation();
-        const isTucked = hud.classList.toggle('is-tucked-right');
-        localStorage.setItem(storageKeyTuck, String(isTucked));
-        syncTuckUi();
-        setCollapsed(false);
-      });
-
-      function setLabelMode(isRaw) {
-        if (isRaw) {
-          hud.classList.add('is-raw-labels');
-          labelModeBtn?.setAttribute('aria-pressed', 'true');
-        } else {
-          hud.classList.remove('is-raw-labels');
-          labelModeBtn?.setAttribute('aria-pressed', 'false');
-        }
-
-        // Cleanly set single text node to prevent any double-label rendering
-        hud.querySelectorAll('[data-human][data-raw]').forEach(el => {
-          el.textContent = isRaw ? el.getAttribute('data-raw') : el.getAttribute('data-human');
-        });
-      }
-
-      labelModeBtn?.addEventListener('click', e => {
-        e.stopPropagation();
-        const nowRaw = !hud.classList.contains('is-raw-labels');
-        localStorage.setItem(storageKeyRaw, String(nowRaw));
-        setLabelMode(nowRaw);
-      });
-
-      const savedTuck = localStorage.getItem(storageKeyTuck);
-      if (savedTuck === 'true') {
-        hud.classList.add('is-tucked-right');
-      } else if (savedTuck === 'false') {
-        hud.classList.remove('is-tucked-right');
-      }
-      syncTuckUi();
-
-      if (localStorage.getItem(storageKeyRaw) === 'true') {
-        setLabelMode(true);
-      } else {
-        setLabelMode(false);
-      }
-
-      // =========================================================================
-      // Single Viewport-Safe Tooltip Engine
-      // =========================================================================
-      const tooltipEl = hud.querySelector('.rd-hud-tooltip');
-      const tooltipInner = tooltipEl?.querySelector('.rd-tooltip-inner');
-      const tooltipText = tooltipEl?.querySelector('.rd-tooltip-text');
-      const tooltipBadge = tooltipEl?.querySelector('.rd-tooltip-badge');
-
-      // Hoist tooltip to document.body so it is never clipped by transforms or overflow
-      if (tooltipEl && tooltipEl.parentElement !== document.body) {
-        document.body.appendChild(tooltipEl);
-      }
-
-      let currentAnchorEl = null;
-
-      function updateTooltipPosition(targetEl) {
-        if (!tooltipEl || !targetEl) return;
-        const rect = targetEl.getBoundingClientRect();
-        const tooltipWidth = tooltipInner?.offsetWidth || 220;
-        const tooltipHeight = tooltipInner?.offsetHeight || 30;
-
-        // Center horizontally over target
-        let left = rect.left + rect.width / 2 - tooltipWidth / 2;
-        // Default position: ABOVE the trigger with an 8px gap (never cuts off at bottom of screen!)
-        let top = rect.top - tooltipHeight - 8;
-
-        // If too close to viewport top, flip below the trigger
-        if (top < 8) {
-          top = rect.bottom + 8;
-        }
-
-        // Viewport horizontal boundary constraints
-        if (left < 12) left = 12;
-        if (left + tooltipWidth > window.innerWidth - 12) {
-          left = window.innerWidth - tooltipWidth - 12;
-        }
-
-        tooltipEl.style.setProperty('left', `${Math.round(left)}px`, 'important');
-        tooltipEl.style.setProperty('top', `${Math.round(top)}px`, 'important');
-      }
-
-      function showTooltip(targetEl) {
-        if (!tooltipEl || !targetEl) return;
-        const text = targetEl.getAttribute('data-tooltip');
-        if (!text) return;
-
-        const type = targetEl.getAttribute('data-tooltip-type') || 'default';
-        tooltipEl.setAttribute('data-type', type);
-        if (tooltipBadge) {
-          tooltipBadge.textContent = type === 'info' ? 'Info' : 'Tip';
-        }
-        if (tooltipText) {
-          tooltipText.textContent = text;
-        }
-
-        currentAnchorEl = targetEl;
-        tooltipEl.classList.add('is-visible');
-        tooltipEl.setAttribute('aria-hidden', 'false');
-
-        updateTooltipPosition(targetEl);
-      }
-
-      function hideTooltip(targetEl) {
-        if (!tooltipEl) return;
-        if (targetEl && targetEl === currentAnchorEl) {
-          currentAnchorEl = null;
-        }
-        tooltipEl.classList.remove('is-visible');
-        tooltipEl.setAttribute('aria-hidden', 'true');
-      }
-
-      hud.addEventListener('pointerover', e => {
-        const trigger = e.target.closest('[data-tooltip]');
-        if (trigger && hud.contains(trigger)) {
-          showTooltip(trigger);
-        }
-      });
-
-      hud.addEventListener('pointerout', e => {
-        const trigger = e.target.closest('[data-tooltip]');
-        if (trigger && (!e.relatedTarget || !trigger.contains(e.relatedTarget))) {
-          hideTooltip(trigger);
-        }
-      });
-
-      hud.addEventListener('focusin', e => {
-        const trigger = e.target.closest('[data-tooltip]');
-        if (trigger && hud.contains(trigger)) {
-          showTooltip(trigger);
-        }
-      });
-
-      hud.addEventListener('focusout', e => {
-        const trigger = e.target.closest('[data-tooltip]');
-        if (trigger) {
-          hideTooltip(trigger);
-        }
-      });
-
-      // Keep position updated if the controller body or page scrolls
-      const hudBody = hud.querySelector('.rd-hud-body');
-      hudBody?.addEventListener('scroll', () => {
-        if (currentAnchorEl) {
-          updateTooltipPosition(currentAnchorEl);
-        }
-      }, { passive: true });
-
-      window.addEventListener('scroll', () => {
-        if (currentAnchorEl) {
-          updateTooltipPosition(currentAnchorEl);
-        }
-      }, { passive: true });
-
-      window.addEventListener('keydown', e => {
+      // Keyboard shortcuts: Cmd+K / Ctrl+K toggles, Escape closes
+      window.addEventListener('keydown', (e) => {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
           e.preventDefault();
-          setCollapsed(!hud.classList.contains('is-collapsed'));
-        }
-      });
-
-      hud.addEventListener('keydown', e => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-        if (e.key === 'Enter' || e.key === ' ') {
-          const interactive = e.target.closest('.rd-link-btn, .rd-toggle-chip');
-          if (interactive) {
-            e.preventDefault();
-            interactive.click();
+          if (drawer?.classList.contains('is-open')) {
+            closeDrawer();
+          } else {
+            openDrawer();
           }
+        } else if (e.key === 'Escape' && drawer?.classList.contains('is-open')) {
+          closeDrawer();
         }
       });
 
@@ -669,7 +597,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
       function executeScrollTo() {
         const target = getTarget();
         if (!target) return;
-        const input = hud.querySelector('.rd-scroll-path-input');
+        const input = root.querySelector('.rd-scroll-path-input');
         if (!input) return;
         let path = input.value.trim();
         if (!path) return;
@@ -703,8 +631,8 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
         }
       }
 
-      const scrollInput = hud.querySelector('.rd-scroll-path-input');
-      scrollInput?.addEventListener('keydown', e => {
+      const scrollInput = root.querySelector('.rd-scroll-path-input');
+      scrollInput?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
           e.stopPropagation();
@@ -749,7 +677,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
           const tunerEl = target.querySelector(':scope > [data-tuner-slot="default"]');
           if (tunerEl) return tunerEl;
           return Array.from(target.children).find(
-            c => !c.hasAttribute('slot') && c.tagName !== 'SCRIPT' && c.tagName !== 'STYLE'
+            (c) => !c.hasAttribute('slot') && c.tagName !== 'SCRIPT' && c.tagName !== 'STYLE'
           );
         }
         return null;
@@ -774,18 +702,15 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
         }
       }
 
-      function toggleSlot(target, slotName) {
-        const existing = getSlotElement(target, slotName);
-        setSlotState(target, slotName, !existing);
-      }
-
+      // Synchronize controller UI from the target element attributes
       function syncControllerState() {
         const target = getTarget();
         if (!target) return;
 
-        hud.querySelectorAll('.rd-link-btn:not(.rd-method-spec-btn)').forEach(btn => {
-          const attr = btn.getAttribute('data-attr');
-          const val = btn.getAttribute('data-val') ?? '';
+        // Sync radio chips & color chips
+        root.querySelectorAll('.rd-radio-input').forEach((input) => {
+          const attr = input.getAttribute('data-attr');
+          const val = input.value ?? '';
           if (!attr) return;
 
           let currentVal = target.getAttribute(attr);
@@ -798,22 +723,42 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
           if (currentVal !== null && currentVal !== '') {
             isMatching = String(currentVal).toLowerCase() === String(val).toLowerCase();
           } else {
-            // When attribute is not explicitly set on <rapi-doc>, match the default option
-            isMatching = btn.getAttribute('data-is-default') === 'true';
+            isMatching = input.getAttribute('data-is-default') === 'true';
           }
 
-          if (isMatching) {
-            btn.classList.add('is-active');
-            btn.setAttribute('aria-checked', 'true');
-          } else {
-            btn.classList.remove('is-active');
-            btn.setAttribute('aria-checked', 'false');
+          input.checked = isMatching;
+          const parentLabel = input.closest('.rd-chip');
+          if (parentLabel) {
+            if (isMatching) {
+              parentLabel.classList.add('active');
+            } else {
+              parentLabel.classList.remove('active');
+            }
           }
+        });
+
+        // Sync boolean toggle inputs
+        root.querySelectorAll('.rd-toggle-input').forEach((input) => {
+          const attr = input.getAttribute('data-attr');
+          if (!attr) return;
+          const currentVal = target.getAttribute(attr);
+          const defaultOn = input.getAttribute('data-default-on') === 'true';
+          const isActive = currentVal === 'true' || (currentVal !== 'false' && (currentVal !== null ? true : defaultOn));
+
+          input.checked = isActive;
+        });
+
+        // Sync slot inputs
+        root.querySelectorAll('.rd-pretty-slot-input').forEach((input) => {
+          const slotName = input.getAttribute('data-slot');
+          if (!slotName) return;
+          const isPresent = Boolean(getSlotElement(target, slotName));
+          input.checked = isPresent;
         });
 
         // Sync active spec option if present
         const currentSpecUrl = target.getAttribute('spec-url') || '';
-        hud.querySelectorAll('.rd-method-spec-btn').forEach(btn => {
+        root.querySelectorAll('.rd-method-spec-btn').forEach((btn) => {
           const btnSpec = btn.getAttribute('data-spec-url') || '';
           const isActive = Boolean(
             btnSpec &&
@@ -832,37 +777,71 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
             btn.setAttribute('aria-checked', 'false');
           }
         });
-
-        hud.querySelectorAll('.rd-toggle-chip').forEach(btn => {
-          const attr = btn.getAttribute('data-attr');
-          if (!attr) return;
-          const currentVal = target.getAttribute(attr);
-          const defaultOn = btn.getAttribute('data-default-on') === 'true';
-          const isActive = currentVal === 'true' || (currentVal !== 'false' && (currentVal !== null ? true : defaultOn));
-          if (isActive) {
-            btn.classList.add('is-active');
-            btn.setAttribute('aria-pressed', 'true');
-          } else {
-            btn.classList.remove('is-active');
-            btn.setAttribute('aria-pressed', 'false');
-          }
-        });
-
-        hud.querySelectorAll('.rd-slot-toggle').forEach(btn => {
-          const slotName = btn.getAttribute('data-slot');
-          if (!slotName) return;
-          const isPresent = Boolean(getSlotElement(target, slotName));
-          if (isPresent) {
-            btn.classList.add('is-active');
-            btn.setAttribute('aria-pressed', 'true');
-          } else {
-            btn.classList.remove('is-active');
-            btn.setAttribute('aria-pressed', 'false');
-          }
-        });
       }
 
-      hud.addEventListener('click', e => {
+      // Handle user interactions inside controller
+      root.addEventListener('change', (e) => {
+        const target = getTarget();
+        if (!target) return;
+
+        // Radio change
+        if (e.target.matches('.rd-radio-input')) {
+          const attr = e.target.getAttribute('data-attr');
+          const val = e.target.value ?? '';
+          if (attr) {
+            applyFont(target, attr, val);
+            if (val === '') {
+              target.removeAttribute(attr);
+            } else {
+              target.setAttribute(attr, val);
+            }
+            const camelProp = attr.replace(/-([a-z])/g, (_, g) => g.toUpperCase());
+            if (camelProp in target) {
+              try {
+                target[camelProp] = val;
+              } catch (_) {}
+            }
+            if (attr === 'render-style') {
+              const syncLayout = val === 'read' || val === 'focused' ? 'column' : 'row';
+              target.setAttribute('layout', syncLayout);
+              if ('layout' in target) {
+                target.layout = syncLayout;
+              }
+            }
+            syncControllerState();
+          }
+          return;
+        }
+
+        // Toggle change
+        if (e.target.matches('.rd-toggle-input')) {
+          const attr = e.target.getAttribute('data-attr');
+          if (attr) {
+            const newVal = e.target.checked ? 'true' : 'false';
+            target.setAttribute(attr, newVal);
+            const camelProp = attr.replace(/-([a-z])/g, (_, g) => g.toUpperCase());
+            if (camelProp in target) {
+              try {
+                target[camelProp] = newVal;
+              } catch (_) {}
+            }
+            syncControllerState();
+          }
+          return;
+        }
+
+        // Slot toggle change
+        if (e.target.matches('.rd-pretty-slot-input')) {
+          const slotName = e.target.getAttribute('data-slot');
+          if (slotName) {
+            setSlotState(target, slotName, e.target.checked);
+            syncControllerState();
+          }
+          return;
+        }
+      });
+
+      root.addEventListener('click', (e) => {
         const methodSpecBtn = e.target.closest('.rd-method-spec-btn');
         if (methodSpecBtn) {
           const specToLoad = methodSpecBtn.getAttribute('data-spec-url');
@@ -883,7 +862,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
           return;
         }
 
-        const mcpExecBtn = e.target.closest('.rd-method-mcp-btn');
+        const mcpExecBtn = e.target.closest('.rd-mcp-exec-btn');
         if (mcpExecBtn) {
           const target = getTarget();
           if (target && typeof target.downloadMcpServer === 'function') {
@@ -891,57 +870,44 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
           }
           return;
         }
-
-        const linkBtn = e.target.closest('.rd-link-btn');
-        if (linkBtn) {
-          const attr = linkBtn.getAttribute('data-attr');
-          const val = linkBtn.getAttribute('data-val') ?? '';
-          const target = getTarget();
-          if (target && attr) {
-            applyFont(target, attr, val);
-            if (val === '') {
-              target.removeAttribute(attr);
-            } else {
-              target.setAttribute(attr, val);
-            }
-            if (attr === 'render-style') {
-              const syncLayout = val === 'read' || val === 'focused' ? 'column' : 'row';
-              target.setAttribute('layout', syncLayout);
-              if ('layout' in target) {
-                target.layout = syncLayout;
-              }
-            }
-            syncControllerState();
-          }
-          return;
-        }
-
-        const toggleBtn = e.target.closest('.rd-toggle-chip:not(.rd-slot-toggle)');
-        if (toggleBtn) {
-          const attr = toggleBtn.getAttribute('data-attr');
-          const target = getTarget();
-          if (target && attr) {
-            const currentVal = target.getAttribute(attr);
-            const defaultOn = toggleBtn.getAttribute('data-default-on') === 'true';
-            const isCurrentlyActive = currentVal === 'true' || (currentVal === null && defaultOn);
-            const newVal = isCurrentlyActive ? 'false' : 'true';
-            target.setAttribute(attr, newVal);
-            syncControllerState();
-          }
-          return;
-        }
-
-        const slotBtn = e.target.closest('.rd-slot-toggle');
-        if (slotBtn) {
-          const slotName = slotBtn.getAttribute('data-slot');
-          const target = getTarget();
-          if (target && slotName) {
-            toggleSlot(target, slotName);
-            syncControllerState();
-          }
-          return;
-        }
       });
+
+      // Reset functionality
+      resetBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const target = getTarget();
+        if (!target) return;
+
+        // Reset to initialAttrs or clear attributes
+        root.querySelectorAll('.rd-radio-input, .rd-toggle-input').forEach((input) => {
+          const attr = input.getAttribute('data-attr');
+          if (!attr) return;
+
+          if (initialAttrs && Object.prototype.hasOwnProperty.call(initialAttrs, attr)) {
+            const initialVal = String(initialAttrs[attr]);
+            target.setAttribute(attr, initialVal);
+            applyFont(target, attr, initialVal);
+          } else {
+            target.removeAttribute(attr);
+            applyFont(target, attr, '');
+          }
+        });
+
+        // Reset slot states to initial
+        ['nav-logo', 'fixed-header', 'default'].forEach((slotName) => {
+          const wasInitial = initialSlots[slotName];
+          const current = getSlotElement(target, slotName);
+          if (!wasInitial && current) {
+            current.remove();
+          } else if (wasInitial && !current) {
+            setSlotState(target, slotName, true);
+          }
+        });
+
+        syncControllerState();
+      });
+
+      let initialSlots = {};
 
       function attachToTarget() {
         const target = getTarget();
@@ -949,6 +915,12 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
           setTimeout(attachToTarget, 100);
           return;
         }
+
+        initialSlots = {
+          'nav-logo': Boolean(getSlotElement(target, 'nav-logo')),
+          'fixed-header': Boolean(getSlotElement(target, 'fixed-header')),
+          default: Boolean(getSlotElement(target, 'default')),
+        };
 
         try {
           if (initialAttrs) {
@@ -963,11 +935,11 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
         } catch (_) {}
 
         target.addEventListener('spec-loaded', () => {
-          statusDots.forEach(dot => dot.classList.add('is-loaded'));
+          statusDots.forEach((dot) => dot.classList.add('is-loaded'));
         });
 
         target.addEventListener('after-render', () => {
-          statusDots.forEach(dot => dot.classList.add('is-ready'));
+          statusDots.forEach((dot) => dot.classList.add('is-ready'));
           syncControllerState();
         });
 
@@ -989,740 +961,688 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
       } else {
         attachToTarget();
       }
+
+      // Check default open preference or session persistence
+      const isDefaultOpen = root.getAttribute('data-default-open') === 'true';
+      const sessionState = sessionStorage.getItem(storageKeyOpen);
+      if (sessionState === 'true' || (sessionState === null && isDefaultOpen)) {
+        openDrawer();
+      }
     }
 
-    document.querySelectorAll('.rd-controller-hud').forEach(setupController);
+    document.querySelectorAll('.rd-pretty-controller-root').forEach(setupController);
   })();
 </script>
 
 <style is:global>
   /* ==========================================================================
-     Global Scoped Reset & Base Styles for RapiDoc Controller
-     Using is:global scoped under .rd-controller-hud prevents Astro fragment bugs
+     PrettyRapidocTuner Component Styling
+     Scoped to .rd-pretty-controller-root and .rd-pretty-drawer
      ========================================================================== */
-  .rd-controller-hud {
-    --rd-ctrl-font-size: 12px;
-    position: fixed !important;
-    z-index: 99990 !important;
+
+  .rd-pretty-controller-root {
+    --rd-ctrl-font-size: 13px;
     font-family: var(--rd-font-sans);
-    font-size: var(--rd-ctrl-font-size) !important;
-    line-height: 1.4;
+    font-size: var(--rd-ctrl-font-size);
+    box-sizing: border-box;
+  }
+
+  .rd-pretty-controller-root *,
+  .rd-pretty-drawer * {
+    box-sizing: border-box;
+  }
+
+  /* Docked Right Edge Tab Button - Matches rapidoc-demo.astro .rd-edge-tab */
+  .rd-pretty-edge-tab {
+    position: fixed !important;
+    right: 0 !important;
+    top: 96px !important;
+    z-index: 99990 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    height: 38px !important;
+    padding: 0 16px 0 14px !important;
+    background: rgba(15, 23, 42, 0.92) !important;
+    backdrop-filter: blur(14px) !important;
+    color: var(--rd-text-bright) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    border-radius: 30px 0 0 var(--rd-radius-md) !important;
+    border: 1px solid color-mix(in srgb, var(--rd-amber) 35%, transparent) !important;
+    border-right: none !important;
+    box-shadow: -2px 0 14px color-mix(in srgb, var(--rd-amber) 18%, transparent) !important;
+    font-family: inherit !important;
+    transition:
+      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease !important;
     user-select: none;
     -webkit-user-select: none;
-    box-sizing: border-box;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, width 0.25s ease;
+    outline: none !important;
   }
 
-  .rd-controller-hud * {
-    box-sizing: border-box;
-  }
-
-  /* Universal reset for all buttons inside the controller to avoid browser 3D beveled borders */
-  .rd-controller-hud button {
-    all: unset;
-    box-sizing: border-box;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: normal;
-  }
-
-  /* Scalable SVG icons based on controller font-size */
-  .rd-controller-hud .rd-hud-action-btn svg,
-  .rd-controller-hud .rd-spec-link svg {
-    width: 1.1em;
-    height: 1.1em;
+  .rd-pretty-edge-tab svg {
+    color: var(--rd-amber-light) !important;
+    transition: transform 0.2s ease !important;
     flex-shrink: 0;
   }
 
-  /* Floating Bottom Mode (docked towards bottom right) */
-  .rd-controller-hud:not(.is-tucked-right) {
-    bottom: 1.2em !important;
-    right: 1.2em !important;
-    left: auto !important;
-    transform: none !important;
-    width: auto !important;
-    max-width: min(700px, 92vw) !important;
+  .rd-pretty-edge-tab:hover {
+    transform: translateX(-3px) !important;
+    background: rgba(22, 34, 60, 0.96) !important;
+    border-color: color-mix(in srgb, var(--rd-amber) 60%, transparent) !important;
+    box-shadow: -4px 0 20px color-mix(in srgb, var(--rd-amber) 28%, transparent) !important;
   }
 
-  /* Trigger pill shown when collapsed */
-  .rd-controller-hud .rd-hud-trigger {
-    display: none;
-    align-items: center;
-    gap: 0.6em;
-    padding: 0.55em 1.25em;
-    border-radius: var(--rd-radius-md) var(--rd-radius-md) var(--rd-radius-xs) var(--rd-radius-xs);
-    background: rgba(15, 23, 42, 0.94);
-    border: 1px solid var(--rd-border-hover);
-    backdrop-filter: blur(20px);
-    color: var(--rd-text);
-    font-size: 1em;
-    font-weight: 700;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
-    transition: all 0.2s ease;
+  .rd-pretty-edge-tab:hover svg {
+    transform: rotate(45deg);
   }
 
-  .rd-controller-hud .rd-hud-trigger:hover {
-    background: rgba(15, 23, 42, 0.98);
-    border-color: color-mix(in srgb, var(--rd-accent-hover) 60%, transparent);
-    color: var(--rd-text-bright);
-    transform: translateY(-1px);
-    box-shadow: 0 10px 30px color-mix(in srgb, var(--rd-accent-hover) 30%, transparent);
-  }
-
-  .rd-controller-hud .rd-hud-trigger-title {
-    letter-spacing: 0.04em;
-  }
-
-  /* Status indicator dot */
-  .rd-controller-hud .rd-hud-status-dot {
-    width: 0.65em;
-    height: 0.65em;
-    border-radius: 50%;
-    background: var(--rd-text-dim);
-    display: inline-block;
-    transition: background 0.3s ease;
-  }
-
-  .rd-controller-hud .rd-hud-status-dot.is-loaded {
-    background: var(--rd-sky);
-    box-shadow: 0 0 8px var(--rd-sky);
-  }
-
-  .rd-controller-hud .rd-hud-status-dot.is-ready {
-    background: var(--rd-green);
-    box-shadow: 0 0 8px var(--rd-green);
-  }
-
-  /* Main HUD panel */
-  .rd-controller-hud .rd-hud-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6em;
-    padding: 0.75em 1.1em;
-    border-radius: 1.1em;
-    background: rgba(15, 23, 42, 0.92);
-    border: 1px solid var(--rd-border-hover);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
-    max-width: 95vw;
-  }
-
-  .rd-controller-hud:not(.is-tucked-right) .rd-hud-panel {
-    max-height: 72vh;
-    max-width: min(700px, 92vw);
-  }
-
-  /* Collapsed state behavior (Floating mode) */
-  .rd-controller-hud.is-collapsed:not(.is-tucked-right) .rd-hud-panel {
-    display: none !important;
-  }
-
-  .rd-controller-hud.is-collapsed:not(.is-tucked-right) .rd-hud-trigger {
-    display: inline-flex !important;
-  }
-
-  /* Header inside HUD panel */
-  .rd-controller-hud .rd-hud-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1em;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 0.6em;
-    flex-shrink: 0;
-  }
-
-  .rd-controller-hud .rd-hud-title-group {
-    display: flex;
-    align-items: center;
-    gap: 0.6em;
-  }
-
-  .rd-controller-hud .rd-hud-badge {
-    font-size: 0.92em;
-    font-weight: 800;
-    color: var(--rd-text);
-    letter-spacing: 0.07em;
-  }
-
-  .rd-controller-hud .rd-spec-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35em;
-    padding: 0.2em 0.55em;
-    border-radius: 0.35em;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid var(--rd-border-hover);
-    color: var(--rd-text-soft);
-    font-size: 0.88em;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.15s ease;
-  }
-
-  .rd-controller-hud .rd-spec-link:hover {
-    color: var(--rd-text-bright);
-    background: color-mix(in srgb, var(--rd-accent-hover) 25%, transparent);
-    border-color: color-mix(in srgb, var(--rd-accent-hover) 50%, transparent);
-  }
-
-  .rd-controller-hud .rd-hud-actions-group {
-    display: flex;
-    align-items: center;
-    gap: 0.45em;
-  }
-
-  .rd-controller-hud .rd-hud-action-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.35em !important;
-    background: var(--rd-wash) !important;
-    border: 1px solid var(--rd-border-hover) !important;
-    color: var(--rd-text-soft) !important;
-    padding: 0.28em 0.65em !important;
-    border-radius: 0.4em !important;
-    corner-shape: squircle !important;
-    font-size: 0.9em !important;
-    font-weight: 600 !important;
-    transition: all 0.15s ease !important;
-  }
-
-  .rd-controller-hud .rd-hud-action-btn:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    color: var(--rd-text-bright) !important;
-    border-color: rgba(255, 255, 255, 0.28) !important;
-  }
-
-  /* API Label Mode Button: Dimmed when toggled off (human mode), highlighted in raw label mode */
-  .rd-controller-hud .rd-hud-label-mode-btn {
-    font-family: var(--rd-font-mono) !important;
-    font-size: 0.88em !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.05em !important;
-    color: var(--rd-text-dim) !important;
-    background: var(--rd-wash) !important;
-    border-color: var(--rd-border) !important;
-    opacity: 0.65 !important;
-  }
-
-  .rd-controller-hud .rd-hud-label-mode-btn:hover {
-    color: var(--rd-text) !important;
-    opacity: 1 !important;
-    border-color: var(--rd-border-hover) !important;
-  }
-
-  .rd-controller-hud.is-raw-labels .rd-hud-label-mode-btn {
-    color: var(--rd-sky) !important;
-    background: color-mix(in srgb, var(--rd-sky) 20%, transparent) !important;
-    border-color: color-mix(in srgb, var(--rd-sky) 55%, transparent) !important;
-    opacity: 1 !important;
-    box-shadow: 0 0 10px color-mix(in srgb, var(--rd-sky) 25%, transparent) !important;
-  }
-
-  /* Tuck Button: Icon only */
-  .rd-controller-hud .rd-hud-tuck-btn {
-    padding: 0.28em 0.55em !important;
-  }
-
-  .rd-controller-hud .icon-float-bottom {
-    display: none !important;
-  }
-  .rd-controller-hud .icon-tuck-right {
-    display: inline-block !important;
-  }
-  .rd-controller-hud.is-tucked-right .icon-tuck-right {
-    display: none !important;
-  }
-  .rd-controller-hud.is-tucked-right .icon-float-bottom {
-    display: inline-block !important;
-  }
-
-  /* Scrollable Fluid Body with Sleek Scrollbar */
-  .rd-controller-hud .rd-hud-body {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    max-height: calc(72vh - 4.5em);
-    display: flex;
-    flex-direction: column;
-    gap: 0.9em;
-    padding-right: 0.35em;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.35) rgba(255, 255, 255, 0.05);
-  }
-
-  .rd-controller-hud .rd-hud-body::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .rd-controller-hud .rd-hud-body::-webkit-scrollbar-track {
-    background: var(--rd-wash);
-    border-radius: var(--rd-radius-pill);
-  }
-
-  .rd-controller-hud .rd-hud-body::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.28);
-    border-radius: var(--rd-radius-pill);
-  }
-
-  .rd-controller-hud .rd-hud-body::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
-  }
-
-  /* Categories */
-  .rd-controller-hud .rd-hud-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
-  }
-
-  .rd-controller-hud .rd-hud-category-title {
-    font-size: 0.82em;
-    font-weight: 800;
-    color: var(--rd-sky);
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-    padding-bottom: 0.2em;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  }
-
-  .rd-controller-hud .rd-hud-section-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.45em;
-  }
-
-  /* ==========================================================================
-     Link-Style Controls: Pure text links without any button borders
-     ========================================================================== */
-  .rd-controller-hud .rd-hud-link-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.35em 0.5em;
-    font-size: 1em;
-    line-height: 1.4;
-  }
-
-  .rd-controller-hud .rd-control-label-wrap {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.35em !important;
-  }
-
-  .rd-controller-hud .rd-control-label {
-    font-size: 0.88em;
-    font-weight: 700;
-    color: var(--rd-text-muted);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+  .rd-tab-label {
     white-space: nowrap;
-    cursor: default;
-    outline: none;
   }
 
-  .rd-controller-hud .rd-control-label:focus-visible {
-    color: var(--rd-text-primary);
+  /* Status Dot */
+  .rd-pretty-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--rd-text-dim);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
   }
 
-  /* Info Icon beside label */
-  .rd-controller-hud .rd-control-info-icon {
-    all: unset !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    color: var(--rd-sky) !important;
-    opacity: 0.75 !important;
-    padding: 0.1em !important;
-    border-radius: 50% !important;
-    line-height: 1 !important;
-    outline: none !important;
-    transition: opacity 0.15s ease, color 0.15s ease, transform 0.15s ease !important;
+  .rd-pretty-status-dot.is-loaded {
+    background-color: var(--rd-sky);
+    box-shadow: 0 0 6px var(--rd-sky);
   }
 
-  .rd-controller-hud .rd-control-info-icon:hover,
-  .rd-controller-hud .rd-control-info-icon:focus-visible {
-    opacity: 1 !important;
-    color: var(--rd-sky-light) !important;
-    transform: scale(1.15) !important;
+  .rd-pretty-status-dot.is-ready {
+    background-color: var(--rd-green);
+    box-shadow: 0 0 6px var(--rd-green);
   }
 
-  .rd-controller-hud .rd-control-info-icon svg {
-    pointer-events: none !important;
-  }
-
-  .rd-controller-hud .rd-toggle-info-btn {
-    margin-left: 0.2em !important;
-    padding: 0 !important;
-  }
-
-  /* ==========================================================================
-     Single Viewport-Safe Floating Tooltip Styles
-     ========================================================================== */
-  .rd-hud-tooltip {
-    all: unset !important;
+  /* Overlapping Drawer Layer - Non-modal side drawer with frosted glass */
+  .rd-pretty-drawer {
     position: fixed !important;
-    z-index: 1000000 !important;
-    pointer-events: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateY(2px) !important;
-    transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s !important;
-    box-sizing: border-box !important;
-    width: max-content !important;
-    max-width: 340px !important;
-  }
-
-  .rd-hud-tooltip.is-visible {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-  }
-
-  .rd-hud-tooltip .rd-tooltip-inner {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.45em !important;
-    padding: 0.35em 0.7em !important;
-    border-radius: 0.45em !important;
-    background: rgba(15, 23, 42, 0.96) !important;
-    border: 1px solid var(--rd-border-hover) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    color: var(--rd-text-primary) !important;
-    font-size: 11px !important;
-    font-weight: 500 !important;
-    line-height: 1.35 !important;
-    white-space: nowrap !important;
-    max-width: 320px !important;
-  }
-
-  /* Info Notice Tooltip Variant */
-  .rd-hud-tooltip[data-type="info"] .rd-tooltip-inner {
-    border-color: color-mix(in srgb, var(--rd-sky) 45%, transparent) !important;
-    background: rgba(12, 28, 48, 0.96) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), 0 0 12px color-mix(in srgb, var(--rd-sky) 20%, transparent) !important;
-  }
-
-  .rd-hud-tooltip .rd-tooltip-badge {
-    display: none !important;
-    font-size: 9.5px !important;
-    font-weight: 800 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    padding: 0.1em 0.4em !important;
-    border-radius: 0.25em !important;
-    background: color-mix(in srgb, var(--rd-sky) 25%, transparent) !important;
-    color: var(--rd-sky-light) !important;
-    border: 1px solid color-mix(in srgb, var(--rd-sky) 40%, transparent) !important;
-    flex-shrink: 0 !important;
-    line-height: 1.2 !important;
-  }
-
-  .rd-hud-tooltip[data-type="info"] .rd-tooltip-badge {
-    display: inline-block !important;
-  }
-
-  .rd-controller-hud .rd-link-options {
-    display: inline-flex;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .rd-controller-hud .rd-link-item {
-    display: inline-flex;
-    align-items: center;
-  }
-
-  .rd-controller-hud .rd-link-sep {
-    color: rgba(255, 255, 255, 0.22);
-    font-size: 0.88em;
-    margin: 0 0.35em;
-    user-select: none;
-  }
-
-  /* Clickable Text Link: Pure text links, no borders, no boxes, no button styling */
-  .rd-controller-hud .rd-link-btn {
-    all: unset !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0.05em 0.25em !important;
-    color: var(--rd-text-muted) !important;
-    font-size: 1em !important;
-    font-weight: 500 !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
-    white-space: nowrap !important;
-    line-height: normal !important;
-    transition: color 0.15s ease !important;
-  }
-
-  .rd-controller-hud .rd-link-btn:hover {
-    color: var(--rd-text-bright) !important;
-    text-decoration: none !important; /* No text-decoration on hover */
-  }
-
-  /* Color preview swatch: Borderless filled circle, larger size */
-  .rd-controller-hud .rd-color-dot {
-    display: inline-block;
-    width: 1.15em;
-    height: 1.15em;
-    border-radius: 50% !important;
-    border: none !important;
-    outline: none !important;
-    margin-right: 0.38em;
-    flex-shrink: 0;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-    transition: transform 0.15s ease;
-  }
-
-  .rd-controller-hud .rd-link-btn:hover .rd-color-dot {
-    transform: scale(1.1);
-  }
-
-  .rd-controller-hud .rd-link-btn.is-active .rd-color-dot {
-    transform: scale(1.1);
-  }
-
-  /* Active Link: Highlighted in vibrant RapiDoc Orange without bold font */
-  .rd-controller-hud .rd-link-btn.is-active {
-    color: var(--rd-accent) !important;
-    font-weight: 500 !important; /* NOT bold, same normal weight */
-    text-decoration: none !important; /* No underline */
-    background: transparent !important;
-  }
-
-  .rd-controller-hud .rd-link-btn.is-active:hover {
-    color: var(--rd-accent-light) !important;
-    text-decoration: none !important;
-  }
-
-  /* Toggles wrapper: laid out row-wise, wrapping naturally across multiple lines */
-  .rd-controller-hud .rd-toggles-wrap {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    gap: 0.45em !important;
-    align-items: center !important;
-    width: 100% !important;
-  }
-
-  /* Toggle chips: Clickable compact flat tags */
-  .rd-controller-hud .rd-toggle-chip {
-    all: unset !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    width: auto !important;
-    flex-shrink: 0 !important;
-    gap: 0.35em !important;
-    padding: 0.22em 0.65em !important;
-    border-radius: 0.35em !important;
-    background: var(--rd-wash) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    color: var(--rd-text-muted) !important;
-    font-size: 0.92em !important;
-    font-weight: 500 !important;
-    cursor: pointer !important;
-    line-height: normal !important;
-    box-sizing: border-box !important;
-    transition: all 0.15s ease !important;
-    white-space: nowrap !important;
-  }
-
-  .rd-controller-hud .rd-toggle-chip:hover {
-    background: var(--rd-wash-strong) !important;
-    color: var(--rd-text-primary) !important;
-    border-color: rgba(255, 255, 255, 0.22) !important;
-  }
-
-  .rd-controller-hud .rd-toggle-chip.is-active {
-    background: color-mix(in srgb, var(--rd-accent) 18%, transparent) !important;
-    border-color: color-mix(in srgb, var(--rd-accent) 45%, transparent) !important;
-    color: var(--rd-accent-light) !important;
-    font-weight: 500 !important;
-  }
-
-  .rd-controller-hud .rd-toggle-check {
-    font-size: 0.85em;
-    opacity: 0.3;
-    transition: opacity 0.15s ease;
-  }
-
-  .rd-controller-hud .rd-toggle-chip.is-active .rd-toggle-check {
-    opacity: 1;
-  }
-
-  /* ==========================================================================
-     Programmatic Methods Controls (loadSpec, scrollTo)
-     ========================================================================== */
-  .rd-controller-hud .rd-method-input-wrap {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.4em !important;
-    flex: 1 1 0% !important;
-    min-width: 0 !important;
-    margin-inline-start: 6px !important;
-  }
-
-  .rd-controller-hud .rd-method-input {
-    flex: 1 1 0% !important;
-    min-width: 0 !important;
-    background: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid var(--rd-border-hover) !important;
-    border-radius: var(--rd-radius-sm) !important;
-    corner-shape:squircle !important;
-    color: var(--rd-text-primary) !important;
-    font-size: 0.9em !important;
-    font-family: var(--rd-font-mono) !important;
-    padding: 0.22em 0.55em !important;
-    outline: none !important;
-    box-sizing: border-box !important;
-    transition: border-color 0.15s ease, background 0.15s ease !important;
-  }
-
-  .rd-controller-hud .rd-method-input:focus {
-    border-color: var(--rd-accent) !important;
-    background: rgba(15, 23, 42, 0.9) !important;
-  }
-
-  .rd-controller-hud .rd-method-exec-btn {
-    all: unset !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0.22em 0.65em !important;
-    font-size: 0.88em !important;
-    font-weight: 600 !important;
-    color: var(--rd-on-accent) !important;
-    background: var(--rd-accent) !important;
-    border-radius: var(--rd-radius-sm) !important;
-    corner-shape:squircle !important;
-    border: 1px solid var(--rd-border-hover) !important;
-    cursor: pointer !important;
-    white-space: nowrap !important;
-    line-height: normal !important;
-    box-sizing: border-box !important;
-    transition: background 0.15s ease, transform 0.1s ease !important;
-    flex-shrink: 0 !important;
-  }
-
-  .rd-controller-hud .rd-method-exec-btn:hover {
-    background: var(--rd-accent-hover) !important;
-  }
-
-  .rd-controller-hud .rd-method-exec-btn:active {
-    transform: scale(0.96) !important;
-  }
-
-  /* ==========================================================================
-     Raw Labels Mode (Monospace, clean attribute names)
-     ========================================================================== */
-  .rd-controller-hud.is-raw-labels .rd-control-label,
-  .rd-controller-hud.is-raw-labels .rd-link-btn,
-  .rd-controller-hud.is-raw-labels .rd-method-exec-btn,
-  .rd-controller-hud.is-raw-labels .rd-toggle-text {
-    font-family: var(--rd-font-mono) !important;
-    font-size: 0.88em !important;
-    letter-spacing: -0.01em !important;
-    text-transform: none !important;
-  }
-
-  /* ==========================================================================
-     Tucked to Right (Fluid Side Drawer Mode)
-     When tucked to right, the left top and bottom borders have ZERO radius
-     ========================================================================== */
-  .rd-controller-hud.is-tucked-right,
-  .rd-controller-hud.is-tucked-right .rd-hud-panel,
-  .rd-controller-hud.is-tucked-right .rd-hud-header,
-  .rd-controller-hud.is-tucked-right .rd-hud-body {
-    border-radius: 0 !important;
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-  }
-
-  .rd-controller-hud.is-tucked-right {
     top: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
     left: auto !important;
-    width: 30em !important;
-    max-width: 90vw !important;
-    height: 100vh !important;
-    transform: none !important;
-  }
-
-  .rd-controller-hud.is-tucked-right .rd-hud-panel {
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-    width: 100% !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    border-right: none !important;
-    border-top: none !important;
-    border-bottom: none !important;
-    border-left: 1px solid var(--rd-border-hover) !important;
-    background: rgba(15, 23, 42, 0.96) !important;
+    margin: 0 !important;
     padding: 0 !important;
-    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.7) !important;
+    width: 420px !important;
+    max-width: calc(100vw - 20px) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border: none !important;
+    border-left: 1px solid var(--rd-border-hover) !important;
+    background: rgba(8, 13, 26, 0.82) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    box-shadow:
+      -12px 0 40px rgba(0, 0, 0, 0.55),
+      inset 1px 0 0 rgba(255, 255, 255, 0.08) !important;
+    color: var(--rd-text-primary) !important;
+    font-family: var(--rd-font-sans) !important;
+    outline: none !important;
+    z-index: 100000 !important;
+    overflow: hidden !important;
+    transform: translateX(100%);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0.28s ease;
   }
 
-  .rd-controller-hud.is-tucked-right .rd-hud-header {
-    flex-shrink: 0 !important;
-    padding: 1em 1.25em !important;
-    background: rgba(15, 23, 42, 0.98) !important;
+  .rd-pretty-drawer.is-open {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
   }
 
-  .rd-controller-hud.is-tucked-right .rd-hud-body {
-    flex: 1 1 0% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow-y: auto !important;
-    padding: 1.1em 1.25em !important;
-    gap: 1.1em !important;
+  .rd-pretty-controller-root.is-drawer-open .rd-pretty-edge-tab {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(20px) !important;
   }
 
-  /* Collapsed trigger when Tucked to Right (Docked Edge Tab on Right edge) */
-  .rd-controller-hud.is-tucked-right.is-collapsed {
-    top: 96px !important;
-    right: 0 !important;
-    left: auto !important;
-    bottom: auto !important;
-    width: auto !important;
-    height: auto !important;
-    transform: none !important;
+  /* Inner Drawer Structure */
+  .rd-pretty-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
   }
 
-  .rd-controller-hud.is-tucked-right.is-collapsed .rd-hud-panel {
-    display: none !important;
+  /* Header */
+  .rd-pretty-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--rd-border);
+    background: rgba(15, 23, 42, 0.45);
+    flex-shrink: 0;
   }
 
-  .rd-controller-hud.is-tucked-right.is-collapsed .rd-hud-trigger {
+  .rd-pretty-title-wrap {
+    display: flex;
+    align-items: center;
+  }
+
+  .rd-title-with-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rd-pretty-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--rd-text-primary);
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .rd-pretty-subtitle {
+    font-size: 11.5px;
+    color: var(--rd-text-dim);
+    margin-top: 2px;
+    margin-bottom: 0;
+  }
+
+  .rd-pretty-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  /* Header action buttons */
+  .rd-pretty-action-btn {
     display: inline-flex !important;
-    border-radius: var(--rd-radius-pill) 0 0 var(--rd-radius-pill) !important;
-    border-right: none !important;
-    border-color: color-mix(in srgb, var(--rd-amber) 40%, transparent) !important;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.6) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    height: 30px !important;
+    box-sizing: border-box !important;
+    background: var(--rd-wash) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: var(--rd-text-soft) !important;
+    padding: 0 10px !important;
+    border-radius: var(--rd-radius-sm) !important;
+    corner-shape:squircle !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    font-family: inherit !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
   }
 
-  /* Mobile responsiveness */
-  @media (max-width: 768px) {
-    .rd-controller-hud:not(.is-tucked-right) {
-      width: calc(100vw - 20px) !important;
-      left: 10px !important;
-      transform: none !important;
-    }
+  .rd-pretty-action-btn:hover {
+    color: var(--rd-text-bright) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.28) !important;
+  }
+
+  .rd-pretty-action-btn.rd-pretty-reset-btn:hover {
+    color: var(--rd-accent-light) !important;
+    border-color: color-mix(in srgb, var(--rd-accent) 50%, transparent) !important;
+    background: color-mix(in srgb, var(--rd-accent) 14%, transparent) !important;
+  }
+
+  .rd-pretty-action-btn.rd-pretty-close-btn {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 0 !important;
+    font-size: 14px !important;
+  }
+
+  .rd-pretty-action-btn.rd-pretty-close-btn:hover {
+    color: var(--rd-red-light) !important;
+    border-color: color-mix(in srgb, var(--rd-red) 40%, transparent) !important;
+    background: color-mix(in srgb, var(--rd-red) 15%, transparent) !important;
+  }
+
+  /* Body */
+  .rd-pretty-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 32px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+
+  .rd-pretty-body::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .rd-pretty-body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .rd-pretty-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: var(--rd-radius-pill);
+  }
+
+  .rd-pretty-body::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--rd-accent) 40%, transparent);
+  }
+
+  /* Category Section & Dividers */
+  .rd-pretty-category-section {
+    margin-bottom: 30px;
+  }
+
+  .rd-pretty-category-divider {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .rd-pretty-category-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--rd-text-muted);
+    padding: 3px 8px;
+  }
+
+  .rd-pretty-settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  /* Option Cards */
+  .rd-option-card {
+    padding: 11px 13px;
+    border-radius: var(--rd-radius-md);
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s ease;
+  }
+
+  .rd-option-card:hover {
+    background: var(--rd-wash);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .rd-option-card--boolean {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .rd-option-card--multi {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rd-option-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rd-option-label-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rd-option-info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--rd-sky);
+    background: color-mix(in srgb, var(--rd-sky) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-sky) 20%, transparent);
+    padding: 1px 6px;
+    border-radius: var(--rd-radius-xs);
+    line-height: 1.35;
+  }
+
+  .rd-option-info-badge svg {
+    flex-shrink: 0;
+    color: var(--rd-sky);
+  }
+
+  .rd-option-info-text {
+    white-space: normal;
+  }
+
+  /* Info icon next to a label: the attribute's full description on hover or keyboard focus */
+  .rd-option-card {
+    position: relative;
+  }
+
+  .rd-option-help {
+    display: inline-flex;
+    align-items: center;
+    color: var(--rd-text-dim);
+    cursor: help;
+    border-radius: 50%;
+    outline: none;
+  }
+
+  .rd-option-help:hover,
+  .rd-option-help:focus-visible {
+    color: var(--rd-sky);
+  }
+
+  .rd-option-help-pop {
+    display: none;
+    position: absolute;
+    z-index: 5;
+    left: 8px;
+    right: 8px;
+    top: 24px;
+    /* the transparent top edge keeps the pointer inside on its way down from the icon */
+    border-top: 8px solid transparent;
+    background-clip: padding-box;
+    background-color: #0f172a;
+    padding: 10px 12px;
+    border-radius: var(--rd-radius-md);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--rd-sky) 30%, transparent),
+      0 12px 28px rgba(0, 0, 0, 0.5);
+    font-family: var(--rd-font-sans, inherit);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0;
+    color: var(--rd-text);
+    white-space: normal;
+    cursor: default;
+  }
+
+  .rd-option-help:hover .rd-option-help-pop,
+  .rd-option-help:focus .rd-option-help-pop,
+  .rd-option-help:focus-within .rd-option-help-pop {
+    display: block;
+  }
+
+  .rd-option-help-text {
+    display: block;
+  }
+
+  /* Last line of the popover: the element's default, with the mark its chip carries */
+  .rd-option-help-default {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--rd-text-dim);
+  }
+
+  .rd-option-help-text + .rd-option-help-default {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .rd-default-mark {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* The chip of the element's default value: a dot in its corner, whatever is selected */
+  .rd-chip--default::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--rd-text-dim);
+  }
+
+  .rd-chip--default.active::after {
+    background: var(--rd-accent-light);
+  }
+
+  .rd-chip--color.rd-chip--default::after,
+  .rd-chip--color.rd-chip--default.active::after {
+    background: var(--chip-text);
+  }
+
+  .rd-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .rd-option-help-pop ul {
+    margin: 4px 0;
+    padding-left: 18px;
+  }
+
+  .rd-option-help-pop code,
+  .rd-option-help-pop .mono {
+    font-family: var(--rd-font-mono);
+    font-size: 11px;
+    color: var(--rd-sky);
+  }
+
+  .rd-option-help-pop a {
+    color: var(--rd-accent-light);
+  }
+
+  /* Labels are the API names (attribute, method, slot), so they are set in the mono font */
+  .rd-option-label {
+    font-family: var(--rd-font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--rd-sky);
+    letter-spacing: -0.01em;
+  }
+
+  .rd-option-tip {
+    font-size: 11px;
+    color: var(--rd-text-dim);
+    margin-top: 2px;
+    line-height: 1.35;
+  }
+
+  /* Modern iOS Switch Toggle */
+  .rd-switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 22px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .rd-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .rd-slider {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--rd-border-hover);
+    border-radius: var(--rd-radius-pill);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .rd-slider::before {
+    position: absolute;
+    content: '';
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: var(--rd-text-primary);
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    transition:
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.2s ease;
+  }
+
+  .rd-switch input:checked + .rd-slider {
+    background: linear-gradient(135deg, var(--rd-accent) 0%, var(--rd-accent-hover) 100%);
+    border-color: color-mix(in srgb, var(--rd-accent) 60%, transparent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--rd-accent) 40%, transparent);
+  }
+
+  .rd-switch input:checked + .rd-slider::before {
+    transform: translateX(20px);
+    background-color: var(--rd-text-bright);
+  }
+
+  .rd-switch:hover .rd-slider {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Segmented Pill Chips for Multi-choice */
+  .rd-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rd-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: var(--rd-radius-sm);
+    corner-shape:squircle;
+    background: var(--rd-wash);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    font-family: inherit;
+    line-height: normal;
+  }
+
+  .rd-chip input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+
+  .rd-chip .chip-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--rd-text-muted);
+    transition: color 0.2s ease;
+  }
+
+  .rd-chip:hover {
+    background: var(--rd-wash-strong);
+    border-color: var(--rd-border-hover);
+  }
+
+  .rd-chip:hover .chip-text {
+    color: var(--rd-text-primary);
+  }
+
+  .rd-chip.active,
+  .rd-chip.is-active {
+    background: color-mix(in srgb, var(--rd-accent) 16%, transparent) !important;
+    border-color: color-mix(in srgb, var(--rd-accent) 55%, transparent) !important;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--rd-accent) 20%, transparent) !important;
+  }
+
+  .rd-chip.active .chip-text,
+  .rd-chip.is-active .chip-text {
+    color: var(--rd-accent-light) !important;
+    font-weight: 600;
+  }
+
+  /* A value that is a colour (theme): the chip is filled with it, the name in black or white */
+  /* tighter than other chips, so the presets and a custom colour share one line of the 420px drawer */
+  .rd-chip-group:has(.rd-chip--color) {
+    gap: 4px;
+  }
+
+  .rd-chip.rd-chip--color,
+  .rd-chip.rd-chip--color:hover {
+    padding: 5px 7px;
+    background: var(--chip-color) !important;
+    border-color: transparent !important;
+  }
+
+  .rd-chip.rd-chip--color .chip-text,
+  .rd-chip.rd-chip--color:hover .chip-text,
+  .rd-chip.rd-chip--color.active .chip-text {
+    color: var(--chip-text) !important;
+    font-weight: 600;
+  }
+
+  .rd-chip.rd-chip--color:hover {
+    filter: brightness(1.1);
+  }
+
+  /* selected: a ring, since the fill is already taken by the colour */
+  .rd-chip.rd-chip--color.active {
+    box-shadow:
+      0 0 0 2px #0b1120,
+      0 0 0 4px var(--chip-color) !important;
+  }
+
+  /* Method inputs */
+  .rd-method-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .rd-method-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--rd-radius-sm);
+    padding: 6px 10px;
+    color: var(--rd-text);
+    font-size: 12px;
+    font-family: var(--rd-font-mono);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .rd-method-input:focus {
+    border-color: var(--rd-sky);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--rd-sky) 25%, transparent);
+  }
+
+  .rd-pretty-slot-container {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rd-pretty-slot-container:empty {
+    display: none;
   }
 </style>

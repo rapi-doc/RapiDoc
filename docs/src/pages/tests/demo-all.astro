@@ -1,13 +1,10 @@
 ---
 import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
-import PrettyRapidocTuner from '../../components/PrettyRapidocTuner.astro';
 ---
 
 <TestCaseLayout
   specUrl="/specs-test/petstore.yaml"
   preset={['all']}
-  tuckedRight={false}
-  controller={PrettyRapidocTuner}
   controllerSize="large"
   rapidocProps={{
     'render-style': 'read',
@@ -15,7 +12,7 @@ import PrettyRapidocTuner from '../../components/PrettyRapidocTuner.astro';
     'show-header': 'false',
   }}
 >
-  <!-- Custom test action button injected into the PrettyRapidocTuner via slot="controller" -->
+  <!-- Custom test action button injected into the RapidocTuner via slot="controller" -->
   <button
     slot="controller"
     type="button"
