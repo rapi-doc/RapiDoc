@@ -9,7 +9,7 @@ description = "RapiDoc for Python web frameworks: serves an interactive OpenAPI 
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.txt"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [{ name = "Mrinmoy Majumdar", email = "mrin9@yahoo.com" }]
 keywords = ["fastapi", "starlette", "openapi", "rapidoc", "rapidoc-integration", "api documentation", "swagger ui"]
 classifiers = [

@@ -53,4 +53,4 @@ When a proxy strips a path prefix, run the app with that prefix as its `root_pat
 
 - The package itself requires no framework; `rapidoc.fastapi` uses the Starlette that FastAPI installs. `rapidoc.contract` is the RapiDoc integration contract in plain Python, for building an integration for another framework.
 
-Python 3.9 or later; Starlette 0.27 or later. MIT.
+Python 3.10 or later; Starlette 0.27 or later. MIT.

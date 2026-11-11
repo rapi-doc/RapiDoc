@@ -5,7 +5,7 @@
 RapiDoc for Python web frameworks (FastAPI and Starlette so far), and the reference integration for languages other than JavaScript: it shows that the contract of `@rapidoc/embed` can be ported and checked with the shared fixtures.
 
 - **Distribution**: `rapidoc`; module `rapidoc`, with one submodule per framework (`rapidoc.fastapi`, `rapidoc.starlette`). No required dependency: a framework module imports the framework the app already has. The name `rapidoc_fastapi` is avoided on purpose: another PyPI package (`fastapi-rapidoc-router`) installs a module of that name
-- **Not an npm workspace.** It lives under `integrations/`, outside `packages/`, with its own toolchain (uv or pip, pytest, hatchling) and its own version in `pyproject.toml`. Changesets and the npm release workflow do not see it; `npm run lint`, `format` and the `test:*` scripts do not cover it. `.github/workflows/publish-python.yml` runs its tests (Python 3.9 and 3.13) on changes, and publishes to PyPI with trusted publishing when run by hand with "publish" ticked; PyPI trusts that file name and the `pypi` environment.
+- **Not an npm workspace.** It lives under `integrations/`, outside `packages/`, with its own toolchain (uv or pip, pytest, hatchling) and its own version in `pyproject.toml`. Changesets and the npm release workflow do not see it; `npm run lint`, `format` and the `test:*` scripts do not cover it. `.github/workflows/publish-python.yml` runs its tests (Python 3.10 and 3.14) on changes, and publishes to PyPI with trusted publishing when run by hand with "publish" ticked; PyPI trusts that file name and the `pypi` environment.
 - **Meant to be able to move to a repository of its own.** The only links to the monorepo are the two defaults noted below.
 
 | File | Role |
