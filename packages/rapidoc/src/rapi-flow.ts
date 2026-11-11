@@ -25,26 +25,100 @@ import { createMcpWorkflowRuntime } from "~/utils/mcp/workflow-runtime.js";
 let instanceCount = 0;
 
 /**
- * <rapi-flow>: draws the workflows of an Arazzo document. Display only; it calls no API.
+ * `<rapi-flow>`: draws the workflows of an Arazzo document and can run them. Its doc comments are
+ * read like those of `<rapi-doc>` (see the class comment in rapidoc.ts) into the custom elements
+ * manifest and the types in dist/.
+ *
+ * @fires flow-loaded - The Arazzo document and its sources are loaded. <span class="mono
+ * yellow">e.detail</span> is <span class="mono yellow">{ doc, problems }</span>; <span class="mono
+ * yellow">problems</span> lists validation findings.
+ * @fires step-click - A step box is clicked or activated with the keyboard. <span class="mono
+ * yellow">e.detail</span> is <span class="mono yellow">{ workflowId, stepId, operation, workflowRef
+ * }</span>.
+ * @fires view-change - The reader switched between compact and expanded. <span class="mono
+ * yellow">e.detail</span> is <span class="mono yellow">{ view }</span>.
+ * @fires workflow-run - A run finished. <span class="mono yellow">e.detail</span> is <span
+ * class="mono yellow">{ workflowId, inputs, result, trace }</span>: <span class="mono
+ * yellow">result</span> is the MCP tool result, and <span class="mono yellow">trace</span> has one
+ * entry per step attempt with its request and response.
  */
 @customElement("rapi-flow")
 export default class RapiFlow extends LitElement {
-  @property({ type: String, attribute: "arazzo-url" }) arazzoUrl = "";
-  // Replaces the URL of the first OpenAPI source description
-  @property({ type: String, attribute: "spec-url" }) specUrl = "";
-  @property({ type: String, attribute: "workflow-id" }) workflowId = "";
-  // id of a <rapi-doc> on the same page; clicking a step scrolls it to the operation
-  @property({ type: String, attribute: "for" }) for = "";
-  @property({ type: String, reflect: true }) theme = DEFAULT_THEME;
-  @property({ type: String, attribute: "color-scheme", reflect: true }) colorScheme = "dark";
-  // "expanded" shows each step's inputs and actions in its box; "compact" only the operation
-  @property({ type: String, reflect: true }) view = "expanded";
-  // "false" hides the Compact / Expanded switch
-  @property({ type: String, attribute: "show-view-toggle" }) showViewToggle = "true";
-  // "false" hides the Run button
-  @property({ type: String, attribute: "allow-run" }) allowRun = "true";
-  // Base URL the run sends requests to, instead of the server a tied <rapi-doc> selected or the spec's
-  @property({ type: String, attribute: "server-url" }) serverUrl = "";
+  /**
+   * URL of the Arazzo 1.x document, YAML or JSON.
+   * @group Workflow
+   */
+  @property({ type: String, attribute: "arazzo-url" })
+  arazzoUrl = "";
+  /**
+   * Replaces the URL of the first OpenAPI source description. Other sources are fetched relative to
+   * the Arazzo file.
+   * @group Workflow
+   */
+  @property({ type: String, attribute: "spec-url" })
+  specUrl = "";
+  /**
+   * The workflow to show. With several workflows, a picker in the header switches between them.
+   * @group Workflow
+   * @default (the first workflow)
+   */
+  @property({ type: String, attribute: "workflow-id" })
+  workflowId = "";
+  /**
+   * <span class="mono yellow">id</span> of a <span class="mono yellow">&lt;rapi-doc&gt;</span> on
+   * the page to take the spec, server, credentials and mock from. Clicking a step scrolls that
+   * reference to the step's operation.
+   * @group Workflow
+   */
+  @property({ type: String, attribute: "for" })
+  for = "";
+  /**
+   * Brand color preset, or a custom brand color as a hex code. Each preset defines a dark and a
+   * light palette.
+   * @summary Color palette preset
+   * @group Theme
+   * @allowedNote (or custom hex color e.g. #2563eb)
+   * @default ember
+   */
+  @property({ type: String, reflect: true })
+  theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | (string & {}) = DEFAULT_THEME;
+  /**
+   * Base color scheme mode. 'system' automatically matches the user's OS preference. 'auto' follows
+   * the host page: it reads the page's CSS <code>color-scheme</code> (for example
+   * <code>:root[data-theme='light'] { color-scheme: light }</code>, as Starlight sets it) and
+   * updates when the page switches theme; when the page declares none, it falls back to the OS
+   * preference.
+   * @summary Dark, light, or follow the system or the page
+   * @group Theme
+   */
+  @property({ type: String, attribute: "color-scheme", reflect: true })
+  colorScheme: "dark" | "light" | "system" | "auto" = "dark";
+  /**
+   * <span class="mono yellow">expanded</span> shows each step's inputs and actions in its box;
+   * <span class="mono yellow">compact</span> shows only the operation.
+   * @group Workflow
+   */
+  @property({ type: String, reflect: true })
+  view: "expanded" | "compact" = "expanded";
+  /**
+   * <span class="mono yellow">false</span> hides the Compact / Expanded switch.
+   * @group Workflow
+   */
+  @property({ type: String, attribute: "show-view-toggle" })
+  showViewToggle: "true" | "false" = "true";
+  /**
+   * <span class="mono yellow">false</span> hides the run panel: the diagram only.
+   * @group Run
+   */
+  @property({ type: String, attribute: "allow-run" })
+  allowRun: "true" | "false" = "true";
+  /**
+   * Base URL runs send requests to, instead of the server the tied <span class="mono
+   * yellow">&lt;rapi-doc&gt;</span> selected or the spec's first server.
+   * @group Run
+   */
+  @property({ type: String, attribute: "server-url" })
+  serverUrl = "";
 
   @state() private doc: any = null;
   @state() private sources: Map<string, any> = new Map();
@@ -445,7 +519,11 @@ export default class RapiFlow extends LitElement {
     this.linkedStepId = "";
   }
 
-  /** Loads the Arazzo document and its OpenAPI sources. Fires `flow-loaded` when done. */
+  /**
+   * Loads the Arazzo document and its OpenAPI sources. Fires <span class="mono
+   * yellow">flow-loaded</span> when done.
+   * @public
+   */
   async load() {
     const id = ++this.loadId;
     if (!this.arazzoUrl) {
@@ -662,7 +740,7 @@ export default class RapiFlow extends LitElement {
 
   private setView(view: string) {
     if (view === this.view) return;
-    this.view = view;
+    this.view = view as "expanded" | "compact";
     this.dispatchEvent(
       new CustomEvent("view-change", { detail: { view }, bubbles: true, composed: true }),
     );

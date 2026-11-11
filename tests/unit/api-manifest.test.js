@@ -9,15 +9,20 @@ import path from "node:path";
 import { parseDocComment } from "../../scripts/rapidoc-api.js";
 import {
   readApiManifest,
+  readElementManifests,
   listAttributes,
   buildOptionsSchema,
   buildCustomElementsManifest,
   buildTypes,
+  buildFlowTypes,
+  buildReactTypes,
+  buildVueTypes,
   buildIntegrationManifest,
   plainText,
 } from "../../scripts/rapidoc-metadata.js";
 
 const manifest = readApiManifest();
+const elements = readElementManifests();
 const attributes = listAttributes(manifest);
 const pkg = { name: "rapidoc", version: "0.0.0" };
 
@@ -276,26 +281,77 @@ describe("rapidoc metadata", () => {
     assert.equal(schema.properties["on-nav-tag-click"].deprecated, true);
   });
 
-  it("builds a custom elements manifest for <rapi-doc>", () => {
-    const cem = buildCustomElementsManifest(manifest);
-    const [declaration] = cem.modules[0].declarations;
-    assert.equal(declaration.tagName, "rapi-doc");
-    assert.equal(declaration.attributes.length, attributes.length);
-    assert.ok(declaration.events.some((event) => event.name === "spec-loaded"));
+  it("builds a custom elements manifest with every element, by bundle", () => {
+    const cem = buildCustomElementsManifest(elements);
+    assert.deepEqual(
+      cem.modules.map((module) => module.path),
+      ["dist/rapidoc-min.js", "dist/rapidoc-flow-min.js"],
+    );
+    const [main, mini] = cem.modules[0].declarations;
+    assert.equal(main.tagName, "rapi-doc");
+    assert.equal(main.attributes.length, attributes.length);
+    assert.ok(main.events.some((event) => event.name === "spec-loaded"));
     assert.ok(
-      declaration.slots.some((slot) => slot.name === ""),
+      main.slots.some((slot) => slot.name === ""),
       "the default slot",
     );
-    const loadSpec = declaration.members.find((member) => member.name === "loadSpec");
+    const loadSpec = main.members.find((member) => member.name === "loadSpec");
     assert.deepEqual(loadSpec.parameters, [{ name: "spec" }]);
+
+    assert.equal(mini.tagName, "rapi-doc-mini");
+    assert.ok(mini.attributes.some((attribute) => attribute.name === "paths-expanded"));
+    assert.ok(mini.members.some((member) => member.name === "removeAllSecurityKeys"));
+
+    const [flow] = cem.modules[1].declarations;
+    assert.equal(flow.tagName, "rapi-flow");
+    assert.deepEqual(
+      flow.events.map((event) => event.name),
+      ["flow-loaded", "step-click", "view-change", "workflow-run"],
+    );
+    assert.deepEqual(cem.modules[1].exports[0].declaration, {
+      name: "RapiFlow",
+      module: "dist/rapidoc-flow-min.js",
+    });
   });
 
-  it("builds types with every attribute, event and method", () => {
-    const types = buildTypes(manifest);
+  it("builds types with every attribute, event and method of each element", () => {
+    const types = buildTypes(elements);
     assert.match(types, /"allow-try"\?: "true" \| "false";/);
     assert.match(types, /"spec-loaded": CustomEvent;/);
     assert.match(types, /loadSpec\(spec\?: any\): any;/);
     assert.match(types, /"rapi-doc": RapiDocElement;/);
+    assert.match(types, /export interface RapiDocMiniAttributes \{/);
+    assert.match(types, /"paths-expanded"\?: "true" \| "false";/);
+    assert.match(types, /"rapi-doc-mini": RapiDocMiniElement;/);
+    assert.doesNotMatch(types, /RapiFlow/, "the flow element is in its own bundle");
+
+    const flow = buildFlowTypes(elements);
+    assert.match(flow, /export interface RapiFlowAttributes \{/);
+    assert.match(flow, /"view"\?: "expanded" \| "compact";/);
+    assert.match(flow, /"workflow-run": CustomEvent;/);
+    assert.match(flow, /"rapi-flow": RapiFlowElement;/);
+
+    for (const text of [buildReactTypes(), buildVueTypes()]) {
+      for (const tag of ["rapi-doc", "rapi-doc-mini", "rapi-flow"])
+        assert.ok(text.includes(`"${tag}"`));
+    }
+  });
+
+  it("reads the mini and flow elements from their own sources", () => {
+    const byTag = Object.fromEntries(elements.map((element) => [element.tag, element]));
+    const mini = Object.fromEntries(
+      listAttributes(byTag["rapi-doc-mini"].manifest).map((a) => [a.name, a]),
+    );
+    assert.equal(mini.layout.default, "row", "its own default, not <rapi-doc>'s");
+    assert.equal(mini["response-area-height"].default, "300px");
+    assert.equal(mini["show-header"], undefined, "it has no header");
+    // every attribute of the mini element that <rapi-doc> also has takes the same values
+    for (const attribute of Object.values(mini)) {
+      const same = attributes.find((a) => a.name === attribute.name);
+      if (same?.values) assert.deepEqual(attribute.values, same.values, attribute.name);
+    }
+    const flow = listAttributes(byTag["rapi-flow"].manifest).map((a) => a.name);
+    assert.deepEqual(flow.slice(0, 4), ["arazzo-url", "spec-url", "workflow-id", "for"]);
   });
 
   it("lists the files of a build with size and SRI hash", () => {

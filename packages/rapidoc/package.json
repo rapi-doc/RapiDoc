@@ -51,6 +51,7 @@
       "default": "./dist/rapidoc-min.js"
     },
     "./flow": {
+      "types": "./dist/flow.d.ts",
       "browser": "./dist/rapidoc-flow-min.js",
       "default": "./dist/rapidoc-flow-min.js"
     },

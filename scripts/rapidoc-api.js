@@ -9,7 +9,30 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const RAPIDOC_SOURCE = path.join(rootDir, "packages/rapidoc/src/rapidoc.ts");
+const sourceFile = (name) => path.join(rootDir, "packages/rapidoc/src", name);
+const RAPIDOC_SOURCE = sourceFile("rapidoc.ts");
+
+/** The elements `rapidoc` publishes, each read from its own class. `<rapi-flow>` is in the flow bundle. */
+export const ELEMENTS = [
+  {
+    tag: "rapi-doc",
+    className: "RapiDoc",
+    file: sourceFile("rapidoc.ts"),
+    bundle: "rapidoc-min.js",
+  },
+  {
+    tag: "rapi-doc-mini",
+    className: "RapiDocMini",
+    file: sourceFile("rapidoc-mini.ts"),
+    bundle: "rapidoc-min.js",
+  },
+  {
+    tag: "rapi-flow",
+    className: "RapiFlow",
+    file: sourceFile("rapi-flow.ts"),
+    bundle: "rapidoc-flow-min.js",
+  },
+];
 
 const TAGS = new Set([
   "summary",
@@ -109,13 +132,13 @@ function initialValue(initializer) {
   return undefined;
 }
 
-function attributeEntry(member, options, doc, sourceFile) {
+function attributeEntry(member, options, doc, sourceFile, fileName) {
   const propertyName = member.name.getText(sourceFile);
   const name = options.attribute ? JSON.parse(options.attribute) : propertyName.toLowerCase();
   const group = tagText(doc, "group");
   if (!doc.description || !group) {
     throw new Error(
-      `rapidoc.ts: attribute "${name}" (${propertyName}) needs a doc comment with a description and @group, or @internal`,
+      `${fileName}: attribute "${name}" (${propertyName}) needs a doc comment with a description and @group, or @internal`,
     );
   }
   const entry = { name };
@@ -146,8 +169,9 @@ function namedTag(text, what) {
 /**
  * `{ Attributes: [{ "<group> Attributes": [...] }], Methods, Events, Slots }`, each of the last three
  * as `{ items }`. Attributes and methods are in source order; groups in order of first use.
+ * By default the manifest of `<rapi-doc>`; pass a file and class name for another element (see ELEMENTS).
  */
-export function readApiManifest(file = RAPIDOC_SOURCE) {
+export function readApiManifest(file = RAPIDOC_SOURCE, className = "RapiDoc") {
   const sourceFile = ts.createSourceFile(
     file,
     fs.readFileSync(file, "utf8"),
@@ -156,9 +180,10 @@ export function readApiManifest(file = RAPIDOC_SOURCE) {
     ts.ScriptKind.TS,
   );
   const element = sourceFile.statements.find(
-    (statement) => ts.isClassDeclaration(statement) && statement.name?.text === "RapiDoc",
+    (statement) => ts.isClassDeclaration(statement) && statement.name?.text === className,
   );
-  if (!element) throw new Error(`class RapiDoc not found in ${file}`);
+  if (!element) throw new Error(`class ${className} not found in ${file}`);
+  const fileName = path.basename(file);
 
   const groups = new Map();
   const addAttribute = (group, entry) => {
@@ -173,7 +198,7 @@ export function readApiManifest(file = RAPIDOC_SOURCE) {
       if (!options || options.attribute === "false") continue;
       const doc = docOf(member, sourceFile);
       if (hasTag(doc, "internal")) continue;
-      const { group, entry } = attributeEntry(member, options, doc, sourceFile);
+      const { group, entry } = attributeEntry(member, options, doc, sourceFile, fileName);
       addAttribute(group, entry);
     } else if (ts.isMethodDeclaration(member)) {
       const doc = docOf(member, sourceFile);

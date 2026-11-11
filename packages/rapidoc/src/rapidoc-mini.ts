@@ -52,74 +52,321 @@ const paramsConverter = {
   },
 };
 
+/**
+ * `<rapi-doc-mini>`: the operations you pick from an OpenAPI document, with their parameters,
+ * schemas and Try console, without navigation or search. Its doc comments are read like those of
+ * `<rapi-doc>` (see the class comment in rapidoc.ts) into the custom elements manifest and the
+ * types in dist/.
+ *
+ * @fires spec-loaded - Dispatched after the OpenAPI specification has been fully fetched, parsed,
+ * resolved, and rendered into the DOM. Provides the resolved spec object in <span class="mono
+ * yellow">e.detail</span>.
+ */
 @customElement("rapi-doc-mini")
 export default class RapiDocMini extends LitElement {
-  // Spec
-  @property({ type: String, attribute: "spec-url" }) specUrl = "";
-  @property({ type: String, attribute: "sort-endpoints-by" }) sortEndpointsBy = "path";
+  /**
+   * URL of the OpenAPI specification file (JSON or YAML) to load and render.
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "spec-url" })
+  specUrl = "";
+  /**
+   * Sorts endpoints within each tag group by path, HTTP method, or summary. 'none' leaves the sort
+   * order unmodified.<br/> <span class="green">ⓘ This is a static initialization attribute. It will
+   * not have any effect if modified using JavaScript after the spec is rendered.</span>
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "sort-endpoints-by" })
+  sortEndpointsBy: "path" | "method" | "summary" | "none" = "path";
 
-  // UI Layouts
-  @property({ type: String }) layout = "row";
-  @property({ type: String, attribute: "paths-expanded" }) pathsExpanded: any = "false";
-  @property({ type: String, attribute: "default-schema-tab" }) defaultSchemaTab = "example";
-  @property({ type: String, attribute: "response-area-height" }) responseAreaHeight = "300px";
-  @property({ type: String, attribute: "show-summary-when-collapsed" }) showSummaryWhenCollapsed =
-    "true";
+  /**
+   * Request and response side by side (<span class="mono yellow">row</span>), or one above the
+   * other (<span class="mono yellow">column</span>).
+   * @group Layout & Scrolling
+   */
+  @property({ type: String })
+  layout: "row" | "column" = "row";
+  /**
+   * Shows operations open instead of collapsed.
+   * @group Layout & Scrolling
+   */
+  @property({ type: String, attribute: "paths-expanded" })
+  pathsExpanded: "true" | "false" | boolean = "false";
+  /**
+   * Selects which tab is active by default, and listed first, for request bodies, responses and
+   * object parameters: 'schema' (data contract model) or 'example' (sample JSON payload).
+   * @summary Default active tab in request and response bodies
+   * @group Schemas
+   */
+  @property({ type: String, attribute: "default-schema-tab" })
+  defaultSchemaTab: "schema" | "example" = "example";
+  /**
+   * Height of the response panel, as a CSS length.
+   * @group Layout & Scrolling
+   */
+  @property({ type: String, attribute: "response-area-height" })
+  responseAreaHeight = "300px";
+  /**
+   * Shows the summary on a collapsed operation.
+   * @group Layout & Scrolling
+   */
+  @property({ type: String, attribute: "show-summary-when-collapsed" })
+  showSummaryWhenCollapsed: "true" | "false" = "true";
+  /**
+   * Pre-populates interactive request parameter inputs and request body fields using example values
+   * defined in the OpenAPI spec.
+   * @summary Pre-populate "Try" console parameters with sample values
+   * @group Try & Servers
+   */
   @property({ type: String, attribute: "fill-request-fields-with-example" })
-  fillRequestFieldsWithExample = "true";
-  @property({ type: String, attribute: "persist-auth" }) persistAuth = "false";
+  fillRequestFieldsWithExample: "true" | "false" = "true";
+  /**
+   * Keeps API keys, bearer tokens and OAuth access tokens in localStorage across page reloads; an
+   * OAuth token is dropped once it expires. Basic credentials and OAuth client secrets are never
+   * stored.
+   * @summary Persist API keys and tokens in browser localStorage
+   * @group Authentication
+   */
+  @property({ type: String, attribute: "persist-auth" })
+  persistAuth: "true" | "false" = "false";
 
-  // Schema Styles
-  @property({ type: String, attribute: "schema-style" }) schemaStyle = "tree";
-  @property({ type: Number, attribute: "schema-expand-level" }) schemaExpandLevel = 99999;
-  @property({ type: String, attribute: "schema-description-expanded" }) schemaDescriptionExpanded =
-    "false";
+  /**
+   * Controls the visual representation of complex JSON schemas in request and response panels.
+   * 'tree' provides an interactive collapsible tree view; 'table' renders structured tabular rows.
+   * @summary Display schemas as visual table or tree hierarchy
+   * @group Schemas
+   */
+  @property({ type: String, attribute: "schema-style" })
+  schemaStyle: "tree" | "table" = "tree";
+  /**
+   * Initial depth level for auto-expanding complex nested schema properties and sub-objects (the
+   * default expands all levels).
+   * @summary Initial expansion depth for nested schemas
+   * @group Schemas
+   */
+  @property({ type: Number, attribute: "schema-expand-level" })
+  schemaExpandLevel = 99999;
+  /**
+   * Controls whether schema field constraints, validation rules, and descriptions are fully
+   * expanded by default or collapsed to a single line.
+   * @summary Display full multiline schema property descriptions by default
+   * @group Schemas
+   */
+  @property({ type: String, attribute: "schema-description-expanded" })
+  schemaDescriptionExpanded: "true" | "false" = "false";
 
-  // API Server
-  @property({ type: String, attribute: "api-key-name" }) apiKeyName = "";
-  @property({ type: String, attribute: "api-key-location" }) apiKeyLocation = "header";
-  @property({ type: String, attribute: "api-key-value" }) apiKeyValue = "-";
-  @property({ type: String, attribute: "default-api-server" }) defaultApiServerUrl = "";
-  @property({ type: String, attribute: "server-url" }) serverUrl = "";
-  @property({ type: String, attribute: "oauth-receiver" }) oauthReceiver = "oauth-receiver.html";
+  /**
+   * Name of the header or query parameter used when transmitting the API key in interactive console
+   * requests.
+   * @group Authentication
+   */
+  @property({ type: String, attribute: "api-key-name" })
+  apiKeyName = "";
+  /**
+   * Specifies whether the API key is passed as an HTTP request header or query parameter.
+   * @group Authentication
+   */
+  @property({ type: String, attribute: "api-key-location" })
+  apiKeyLocation: "header" | "query" = "header";
+  /**
+   * Pre-configured API key value sent during interactive console requests. Can also be set or
+   * overwritten directly in the UI.
+   * @group Authentication
+   * @default (empty)
+   */
+  @property({ type: String, attribute: "api-key-value" })
+  apiKeyValue = "-";
+  /**
+   * Selects which server URL from the spec's servers list should be selected by default.
+   * @group Try & Servers
+   */
+  @property({ type: String, attribute: "default-api-server" })
+  defaultApiServerUrl = "";
+  /**
+   * Custom API server base URL. Overrides the servers array defined in the OpenAPI specification.
+   * Particularly useful when sharing a single spec across development, staging, and production
+   * environments.
+   * @group Try & Servers
+   */
+  @property({ type: String, attribute: "server-url" })
+  serverUrl = "";
+  /**
+   * Relative or absolute path to the OAuth receiver HTML file for handling authorization
+   * redirection callbacks.
+   * @group Authentication
+   */
+  @property({ type: String, attribute: "oauth-receiver" })
+  oauthReceiver = "oauth-receiver.html";
+  /**
+   * Custom query parameters appended to the OAuth2 authorization URL query string (e.g. proxy
+   * launch tokens, prompt, audience).<br/><br/> <strong>Supported Formats:</strong> <ul>
+   * <li><strong>JSON String</strong> (recommended for HTML
+   * attributes):<br/><code>additional-authorize-params='{"launch": "xyz123", "prompt":
+   * "consent"}'</code></li> <li><strong>URL Query
+   * String</strong>:<br/><code>additional-authorize-params="launch=xyz123&amp;prompt=consent"</code></li>
+   * <li><strong>JavaScript Object</strong> (via
+   * property):<br/><code>rapidocEl.additionalAuthorizeParams = { launch: 'xyz123', prompt:
+   * 'consent' };</code></li> </ul>
+   * @group Authentication
+   * @default (empty)
+   */
   @property({ type: Object, attribute: "additional-authorize-params", converter: paramsConverter })
   additionalAuthorizeParams: any;
+  /**
+   * Custom parameters included in the POST request body sent to the OAuth2 token endpoint (e.g.
+   * custom proxy parameters, resource, audience).<br/><br/> <strong>Supported Formats:</strong>
+   * <ul> <li><strong>JSON String</strong> (recommended for HTML
+   * attributes):<br/><code>additional-token-params='{"audience": "https://api.example.com",
+   * "resource": "urn:my:api"}'</code></li> <li><strong>URL-Encoded
+   * String</strong>:<br/><code>additional-token-params="audience=https%3A%2F%2Fapi.example.com"</code></li>
+   * <li><strong>JavaScript Object</strong> (via
+   * property):<br/><code>rapidocEl.additionalTokenParams = { audience: 'https://api.example.com'
+   * };</code></li> </ul>
+   * @group Authentication
+   * @default (empty)
+   */
   @property({ type: Object, attribute: "additional-token-params", converter: paramsConverter })
   additionalTokenParams: any;
 
-  // Mock Server
-  @property({ type: String, attribute: "mock-server" }) mockServer = "false";
+  /**
+   * Enables the built-in, zero-dependency in-browser mock server. Transparently intercepts outgoing
+   * network requests (both RapiDoc's Try console and host application fetch/XHR calls) and serves
+   * mock responses based on OpenAPI examples or generated from schemas.
+   * @summary Answer Try requests from the in-browser mock server
+   * @group Mock Server
+   */
+  @property({ type: String, attribute: "mock-server" })
+  mockServer: "true" | "false" = "false";
   // A string of codes for every operation, or a map by operation (`{ "POST /orders": "503, 200", "*": "200" }`)
-  @property({ type: String, attribute: "mock-server-status-code" }) mockServerStatusCode:
-    | string
-    | Record<string, string> = "200";
-  @property({ type: String, attribute: "mock-server-status-strategy" }) mockServerStatusStrategy =
-    "example";
-  @property({ type: Number, attribute: "mock-server-delay" }) mockServerDelay = 0;
-  @property({ type: String, attribute: "mock-server-log" }) mockServerLog = "false";
+  /**
+   * HTTP status code (or comma-separated list of codes, e.g. "200, 404, 500") to answer with, or a
+   * JSON map by operation (<span class="mono yellow">{ "POST /orders": "503, 200", "*": "200"
+   * }</span>). Set it to an empty string to use the first 2xx response in the spec.
+   * @group Mock Server
+   */
+  @property({ type: String, attribute: "mock-server-status-code" })
+  mockServerStatusCode: string | Record<string, string> = "200";
+  /**
+   * Selection strategy when multiple status codes are specified in <span class="mono
+   * yellow">mock-server-status-code</span>. 'first' always returns the first code; 'cycle'
+   * round-robins sequentially per endpoint (ideal for testing retry and backoff logic); 'random'
+   * selects a code randomly for chaos and resilience testing.
+   * @group Mock Server
+   */
+  @property({ type: String, attribute: "mock-server-status-strategy" })
+  mockServerStatusStrategy: "first" | "cycle" | "random" = "first";
+  /**
+   * Simulated network latency in milliseconds before resolving mock responses. Useful for testing
+   * client loading spinners and optimistic UI updates.
+   * @group Mock Server
+   */
+  @property({ type: Number, attribute: "mock-server-delay" })
+  mockServerDelay = 0;
+  /**
+   * Logs one line per answered request (method, path and status code) to the browser console.
+   * @group Mock Server
+   */
+  @property({ type: String, attribute: "mock-server-log" })
+  mockServerLog: "true" | "false" = "false";
 
-  @property({ type: String, attribute: "allow-try" }) allowTry = "true";
-  @property({ type: String, attribute: "show-curl-before-try" }) showCurlBeforeTry = "false";
+  /**
+   * Enables the interactive "TRY" console allowing users to test live API calls directly from their
+   * browser.
+   * @summary Live interactive endpoint testing console
+   * @group Try & Servers
+   */
+  @property({ type: String, attribute: "allow-try" })
+  allowTry: "true" | "false" = "true";
+  /**
+   * When set to <span class="mono fg-color">true</span>, generates and displays copyable cURL
+   * commands directly within the endpoint documentation prior to clicking "TRY".
+   * @summary Display cURL command before invoking API
+   * @group Try & Servers
+   */
+  @property({ type: String, attribute: "show-curl-before-try" })
+  showCurlBeforeTry: "true" | "false" = "false";
 
-  // Main Colors and Font
-  @property({ type: String, reflect: true }) theme = DEFAULT_THEME;
-  @property({ type: String, attribute: "primary-color" }) primaryColor = "";
-  @property({ type: String, attribute: "color-scheme", reflect: true }) colorScheme = "dark";
+  /**
+   * Brand color preset, or a custom brand color as a hex code. Each preset defines a dark and a
+   * light palette.
+   * @summary Color palette preset
+   * @group Theme
+   * @allowedNote (or custom hex color e.g. #2563eb)
+   * @default ember
+   */
+  @property({ type: String, reflect: true })
+  theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | (string & {}) = DEFAULT_THEME;
+  /**
+   * A custom brand color as a hex code. Same as passing the hex code to <span class="mono
+   * yellow">theme</span>.
+   * @group Theme
+   * @hidden
+   */
+  @property({ type: String, attribute: "primary-color" })
+  primaryColor = "";
+  /**
+   * Base color scheme mode. 'system' automatically matches the user's OS preference. 'auto' follows
+   * the host page: it reads the page's CSS <code>color-scheme</code> (for example
+   * <code>:root[data-theme='light'] { color-scheme: light }</code>, as Starlight sets it) and
+   * updates when the page switches theme; when the page declares none, it falls back to the OS
+   * preference.
+   * @summary Dark, light, or follow the system or the page
+   * @group Theme
+   */
+  @property({ type: String, attribute: "color-scheme", reflect: true })
+  colorScheme: "dark" | "light" | "system" | "auto" = "dark";
   // color-scheme="auto": follows the page's theme (see utils/auto-color-scheme.js)
   _autoColorScheme = new AutoColorSchemeController(this);
-  @property({ type: String, reflect: true }) radius = "sm";
-  @property({ type: String, reflect: true }) scale = "default";
+  /**
+   * Corner radius scale applied across cards, buttons, badges, inputs, and dialogs.
+   * @summary Border radius for cards, inputs, and buttons
+   * @group Theme
+   */
+  @property({ type: String, reflect: true })
+  radius: "none" | "sm" | "md" | "lg" | "full" = "sm";
+  /**
+   * Relative scale factor for typography and UI elements across the documentation portal.
+   * @summary Global scale for typography and spacing
+   * @group Theme
+   */
+  @property({ type: String, reflect: true })
+  scale: "sm" | "default" | "lg" = "default";
 
-  // Fetch Options
-  @property({ type: String, attribute: "fetch-credentials" }) fetchCredentials = "";
+  /**
+   * Configures credentials mode for cross-origin browser Fetch requests as defined in the <a
+   * href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials" target="_blank"
+   * rel="noopener">Fetch Standard</a>, enabling transmission of cookies and Authorization headers
+   * in CORS requests.
+   * @group Try & Servers
+   */
+  @property({ type: String, attribute: "fetch-credentials" })
+  fetchCredentials: "" | "omit" | "same-origin" | "include" = "";
 
-  // Filters
-  @property({ type: String, attribute: "match-paths" }) matchPaths = "";
-  @property({ type: String, attribute: "match-type" }) matchType = "includes";
+  /**
+   * Filters and renders only endpoints matching a specific substring or regular expression,
+   * enabling audience segmentation (e.g., showing only public endpoints). The matching strategy is
+   * configured via <span class="mono yellow">match-type</span>.
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "match-paths" })
+  matchPaths = "";
+  /**
+   * Defines whether match-paths filters by simple substring inclusion or regular expression pattern
+   * matching.
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "match-type" })
+  matchType: "includes" | "regex" = "includes";
+  /**
+   * Comma-separated badge labels to exclude from the rendered documentation. Works in tandem with
+   * the <span class="mono yellow">x-badges</span> vendor extension to filter out internal, beta, or
+   * deprecated endpoints from customer-facing views.
+   * @group Spec & Content
+   */
   @property({ type: String, attribute: "remove-endpoints-with-badge-label-as" })
   removeEndpointsWithBadgeLabelAs = "";
 
-  // Internal Properties
+  /** @internal */
   @property({ type: Boolean }) loading = false;
 
   isMini: boolean;
@@ -244,7 +491,7 @@ export default class RapiDocMini extends LitElement {
       !"example, schema, model,".includes(`${this.defaultSchemaTab},`)
     ) {
       this.defaultSchemaTab = "example";
-    } else if (this.defaultSchemaTab === "model") {
+    } else if ((this.defaultSchemaTab as string) === "model") {
       this.defaultSchemaTab = "schema";
     }
     this.pathsExpanded = this.pathsExpanded === "true";
@@ -479,7 +726,13 @@ export default class RapiDocMini extends LitElement {
     this.setAttribute("spec-url", (this.shadowRoot.getElementById("spec-url") as any).value);
   }
 
-  // Public Method
+  /**
+   * Programmatically loads a new OpenAPI specification. Accepts either a string URL or a valid
+   * in-memory JSON/JavaScript spec object. The download and view buttons and the header's spec URL
+   * box follow the spec loaded: its URL, or none for a spec object (the spec download buttons are
+   * then hidden).
+   * @public loadSpec(spec)
+   */
   async loadSpec(specUrl) {
     if (!specUrl) {
       return;
@@ -528,23 +781,38 @@ export default class RapiDocMini extends LitElement {
     }
   }
 
-  // Public Method - to update security-scheme of type http
+  /**
+   * Programmatically supplies username and password credentials for an HTTP Basic security scheme
+   * declared in the spec.
+   * @public
+   */
   setHttpUserNameAndPassword(securitySchemeId, username, password) {
     return applyApiKey.call(this, securitySchemeId, username, password);
   }
 
-  // Public Method - to update security-scheme of type apiKey or OAuth.
-  // options.note: where the key came from (e.g. "Using your sign-in"), shown in place of the scheme's form
+  /**
+   * Programmatically provides the token or key for a declared API Key, Bearer Token or OAuth
+   * security scheme. Optional <span class="mono fg-color">options.note</span> says where the key
+   * came from (for example the reader's sign-in); the Authentication section shows it in place of
+   * that scheme's form, with a link to open the form. Changing or removing the key drops the note.
+   * @public setApiKey(securitySchemeId, token, options)
+   */
   setApiKey(securitySchemeId, apiKeyValue, options: { note?: string } = {}) {
     return applyApiKey.call(this, securitySchemeId, "", "", apiKeyValue, options?.note || "");
   }
 
-  // Public Method
+  /**
+   * Removes every API key, token and credential set on the element.
+   * @public
+   */
   removeAllSecurityKeys() {
     return onClearAllApiKeys.call(this);
   }
 
-  // Public Method
+  /**
+   * Programmatically switches the active target API server URL.
+   * @public
+   */
   setApiServer(apiServerUrl) {
     // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
