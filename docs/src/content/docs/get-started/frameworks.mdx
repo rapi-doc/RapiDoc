@@ -1,6 +1,6 @@
 ---
 title: Framework Integration
-description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular, serve it from a Hono, Express, Fastify, FastAPI or ASP.NET Core app, or add it to a Starlight, VitePress or Docusaurus site.
+description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular, serve it from a Hono, Express, Fastify, FastAPI, ASP.NET Core or Go app, or add it to a Starlight, VitePress or Docusaurus site.
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -232,6 +232,27 @@ app.Run();
 ```
 
 The reference is at `/docs` and reads the document `MapOpenApi()` serves at `/openapi/v1.json`. With Swashbuckle or NSwag, set `options.SpecUrl` to their document. `MapRapiDoc` returns an endpoint builder, so `.RequireAuthorization()` protects the reference, and `MapRapiDoc("/reference")` moves it. Needs .NET 8 or later.
+
+### Go
+
+```bash
+go get github.com/rapi-doc/rapidoc-go
+```
+
+```go
+import rapidoc "github.com/rapi-doc/rapidoc-go"
+
+mux := http.NewServeMux()
+
+docs := rapidoc.Handler(rapidoc.Options{
+	SpecURL:    "/openapi.json",
+	Attributes: map[string]any{"render-style": "focused"},
+})
+mux.Handle("/docs", docs)
+mux.Handle("/docs/", docs)
+```
+
+The reference is at `/docs`. It is a plain `net/http` handler with no dependencies, so it also mounts on chi, Gin, Echo and Fiber, and next to [Huma](https://huma.rocks), whose `/openapi.json` it can read; the [README](https://github.com/rapi-doc/rapidoc-go#with-a-router-or-framework) has each of them. It does not generate the OpenAPI document: point `SpecURL` at the one your app serves, or pass the JSON as `Spec`. Needs Go 1.22 or later.
 
 ## Documentation sites
 
