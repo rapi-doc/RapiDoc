@@ -324,7 +324,8 @@ OpenAPI specs are organized inside `docs/public/` based on their visibility and 
 
 ## Sponsors
 
-Hosting sponsored by [Simafri](https://www.simafri.com/en/managed-vps/) (managed VPS)
+- Hosting sponsored by [Simafri](https://www.simafri.com/en/managed-vps/) (managed VPS)
+- AI coding tools sponsored by [Anthropic](https://www.anthropic.com) (Claude)
 
 ---
 
