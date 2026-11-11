@@ -46,7 +46,9 @@ version, the CDN base URL and each file's size and SRI hash.
    and `&quot;`. `head` and `css` are the developer's own markup and are not escaped, except that `</style`
    in `css` becomes `<\/style`.
 3. **Inline spec**: compact JSON (no whitespace, keys in input order), then `<`, `>`, `&`, U+2028 and
-   U+2029 written as `<`, `>`, `&`, ` ` and ` `.
+   U+2029 written as `\u003c`, `\u003e`, `\u0026`, `\u2028` and `\u2029`. Other non-ASCII
+   characters are written as they are, not as `\u` escapes (in Python: `ensure_ascii=False`). The same
+   holds for an object written as an attribute value.
 4. **Layout**: two-space indentation, `\n` line endings, a final newline, and the element order of the
    fixtures. `integrity` is followed by `crossorigin="anonymous"`; `nonce` comes last.
 
@@ -64,3 +66,6 @@ Each folder of `fixtures/` has an `input.json` (`description`, `page`, `options`
 npm package (`@rapidoc/embed/conformance/...`); copy them into the port's tests and update them when the
 contract version changes. Language-specific behaviour (error types, how options are declared) is not
 covered.
+
+`integrations/rapidoc-fastapi/src/rapidoc_fastapi/contract.py` in the RapiDoc repository is a complete port
+(Python, about 200 lines) that passes every fixture, with `tests/test_conformance.py` as its runner.

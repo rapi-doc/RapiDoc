@@ -49,11 +49,17 @@ export function rapidoc(app, options) {
 }
 ```
 
+`@rapidoc/hono` is the reference integration for JavaScript server frameworks: about 80 lines over these functions, with a second entry for runtimes without a file system.
+
+A documentation-site plugin is a different shape: the site has its own layout, bundler and sidebar, so there is no host page to serve. `@rapidoc/starlight` is the reference: it takes the same `path`, `spec`, `title` and `options`, uses `toAttributes` for the element's attributes, imports the bundle through the site's bundler, and adds the operations to the site's sidebar.
+
 In runtimes without a file system, use `assets: 'cdn'`: the page then loads the exact `rapidoc` version `@rapidoc/embed` depends on, checked against its SRI hash. A complete example on `node:http` is in the package (`examples/node-server.js`).
 
 ## In other languages
 
 Port the reference implementation, `src/core.js` of `@rapidoc/embed`: about 150 lines of string functions with no imports. The package has the rules in words (`conformance/README.md`) and fixtures (`conformance/fixtures/`): each has an `input.json` and the expected HTML or route table. Your port conforms when its output equals every fixture, byte for byte for the pages.
+
+`rapidoc-fastapi` is the reference for other languages: its [`contract.py`](https://github.com/rapi-doc/RapiDoc/blob/master/integrations/rapidoc-fastapi/src/rapidoc_fastapi/contract.py) is the port, and its `setup_rapidoc()` shows the framework side: option names in the language's style, the framework's own OpenAPI URL as the default, and its path-prefix setting (`root_path`) in the page's URLs.
 
 ## Files `rapidoc` publishes for integrations
 

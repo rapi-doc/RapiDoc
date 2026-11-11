@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rapidoc-fastapi"
+version = "0.1.0"
+description = "RapiDoc for FastAPI and Starlette: serves an interactive OpenAPI reference (<rapi-doc>) from your app"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+requires-python = ">=3.9"
+authors = [{ name = "Mrinmoy Majumdar", email = "mrin9@yahoo.com" }]
+keywords = ["fastapi", "starlette", "openapi", "rapidoc", "api documentation", "swagger ui"]
+classifiers = [
+  "Framework :: FastAPI",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Documentation",
+]
+dependencies = ["starlette>=0.27"]
+
+[project.optional-dependencies]
+dev = ["fastapi>=0.100", "httpx>=0.24", "pytest>=7", "uvicorn>=0.23"]
+
+[project.urls]
+Homepage = "https://rapidocui.com"
+Repository = "https://github.com/rapi-doc/RapiDoc"
+Issues = "https://github.com/rapi-doc/RapiDoc/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rapidoc_fastapi"]
+# The rapidoc bundle is copied in by scripts/sync_assets.py and is not in git
+artifacts = ["src/rapidoc_fastapi/assets/*"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "scripts", "examples", "README.md", "LICENSE.txt"]
+artifacts = ["src/rapidoc_fastapi/assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

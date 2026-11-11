@@ -1,6 +1,6 @@
 ---
 title: Framework Integration
-description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular.
+description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular, serve it from a Hono or FastAPI app, or add it to a Starlight site.
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -142,3 +142,71 @@ With Angular SSR, move the import into `afterNextRender` so it runs in the brows
 ## Svelte, Astro and plain bundlers
 
 No configuration is needed. Import `rapidoc` in a client-side script and use the element in your markup. In Astro, a `<script>import 'rapidoc';</script>` tag in the page is enough.
+
+## Server frameworks
+
+A server can serve the API reference itself, next to the API. These packages add the page, the bundle and the OAuth return page to your app, so there is no HTML to write.
+
+### Hono
+
+```bash
+npm install @rapidoc/hono
+```
+
+```javascript
+import { Hono } from 'hono';
+import { rapidoc } from '@rapidoc/hono';
+
+const app = new Hono();
+
+app.get('/openapi.json', (c) => c.json(openApiDocument));
+app.use(rapidoc({ specUrl: '/openapi.json', options: { renderStyle: 'focused' } }));
+```
+
+The reference is at `/docs`; change it with `path`. `options` takes any [attribute of `<rapi-doc>`](/api/). On Cloudflare Workers, import from `@rapidoc/hono/edge`, which loads the bundle from a CDN instead of reading it from disk.
+
+### FastAPI
+
+```bash
+pip install rapidoc-fastapi
+```
+
+```python
+from fastapi import FastAPI
+from rapidoc_fastapi import setup_rapidoc
+
+app = FastAPI(docs_url=None, redoc_url=None)
+
+setup_rapidoc(app, options={"render_style": "focused"})
+```
+
+The reference is at `/docs` and reads the app's own `/openapi.json`. `docs_url=None` turns off FastAPI's Swagger UI, which uses the same path; to keep both, pass `path="/reference"`. It also works on a plain Starlette app, with `spec_url`.
+
+## Documentation sites
+
+### Starlight
+
+`@rapidoc/starlight` adds an API reference page per OpenAPI document to a [Starlight](https://starlight.astro.build) site. The page uses Starlight's layout and themes, and the API's operations appear in Starlight's sidebar.
+
+```bash
+npm install @rapidoc/starlight
+```
+
+```javascript title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import starlightRapidoc from '@rapidoc/starlight';
+
+export default defineConfig({
+  integrations: [
+    starlight({
+      title: 'My docs',
+      plugins: [starlightRapidoc({ path: '/api', spec: './openapi.yaml' })],
+    }),
+  ],
+});
+```
+
+`spec` is a file, a URL or an object, read when the site is built. For several APIs pass `{ apis: [...] }`.
+
+For another framework or site generator, see [Build an Integration](/docs/get-started/build-an-integration/).

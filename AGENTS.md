@@ -18,8 +18,12 @@ rapidoc/
 │   ├── rapidoc-mock/     # Mock server for the portal's APIs, with OAuth scope checks (@rapidoc/mock, `rapidoc mock`)
 │   ├── rapidoc-prerender/ # Build-time renderer: pre-rendered <rapi-doc>, sidebar HTML, Arazzo SVG (@rapidoc/prerender)
 │   ├── rapidoc-embed/    # Integration contract: standard host page for <rapi-doc>, routes, conformance fixtures (@rapidoc/embed)
+│   ├── rapidoc-hono/     # RapiDoc for Hono: middleware over @rapidoc/embed (@rapidoc/hono)
+│   ├── rapidoc-starlight/ # RapiDoc for Starlight: API reference pages in the site's layout and sidebar (@rapidoc/starlight)
 │   ├── rapidoc-mcp/      # MCP manifest builder, runtime and project writer for Node (@rapidoc/mcp), built from rapidoc/src
 │   └── create-rapidoc/   # Scaffolding CLI for new portals (npm create rapidoc)
+├── integrations/         # RapiDoc integrations in other languages, each with its own toolchain; not npm workspaces
+│   └── rapidoc-fastapi/  # RapiDoc for FastAPI and Starlette (Python, PyPI: rapidoc-fastapi)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── tests/
 │   ├── unit/             # Node.js built-in test runner unit tests (*.test.js)
@@ -57,6 +61,9 @@ All agents must strictly adhere to the following system boundaries:
 - **Integrations (`packages/rapidoc-embed` [@rapidoc/embed])**:
   - The contract every RapiDoc integration (framework middleware, docs-site plugin, tool extension) implements: options, routes and the host page's HTML. `src/core.js` has no imports; its output is fixed by `conformance/fixtures/`, which ports in other languages also run. Changing that output needs a new contract version.
   - Depends only on `rapidoc` (`integration.json` and the bundle files). Framework-specific integrations are separate packages that depend on it.
+  - `packages/rapidoc-hono` [@rapidoc/hono] is the reference integration for JavaScript server frameworks: a middleware that maps the contract's routes to Hono, with `hono` as a peer. It writes no HTML of its own, and its `./edge` entry imports no Node module.
+  - `packages/rapidoc-starlight` [@rapidoc/starlight] is the reference integration for documentation sites: a Starlight plugin that injects one page per API (`<rapi-doc>` in Starlight's layout, the spec inlined) and adds the API's tags and operations to Starlight's sidebar, from `@rapidoc/prerender`'s `getSpecNavigation`. `@astrojs/starlight` and `astro` are peers. Its tests build `example/`, so `@rapidoc/prerender` must be built first.
+  - `integrations/rapidoc-fastapi` (Python, `rapidoc-fastapi` on PyPI) is the reference integration for other languages: `contract.py` is a port of `@rapidoc/embed`'s `core.js` and passes the same fixtures. It is not an npm workspace: the npm scripts (`lint`, `format`, `test:*`), Changesets and the release workflow do not cover it; its commands are in its own `AGENTS.md`. A change to the contract's output is made in `@rapidoc/embed` first, then ported.
 - **Node packages built from the core source (`packages/rapidoc-prerender`, `packages/rapidoc-mcp`)**:
   - `@rapidoc/prerender` owns its renderer (`src/`) and renders the templates, components and styles of `packages/rapidoc/src`; `@rapidoc/mcp` is only an entry over the MCP code there. Both bundle that source by relative path and publish `dist/` plus types only. The dependency runs one way: nothing in `packages/rapidoc/src` imports them.
   - Both must be built before the portal, server or `prerender:demo` use them in the monorepo: `npm run build:prerender`, `npm run build:mcp` (`pretest:portal`, `build` and `build:demo` run them).
@@ -124,7 +131,7 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run test:component` | Monorepo   | Runs `tests/component/*.test.js`.                                                                                                                          |
 | `npm run test:e2e`       | Monorepo   | Runs `tests/e2e/*.test.js`.                                                                                                                                |
 | `npm run test:all`       | Monorepo   | Runs `test:unit`, `test:component` and `test:e2e` in sequence.                                                                                             |
-| `npm run test:portal`    | Portal/CLI | Runs `tests/**/*.test.js` in `rapidoc-portal`, `rapidoc-cli`, `rapidoc-server`, `rapidoc-mock`, `create-rapidoc` and `rapidoc-embed` (serially, `--test-concurrency=1`).   |
+| `npm run test:portal`    | Portal/CLI | Runs `tests/**/*.test.js` in `rapidoc-portal`, `rapidoc-cli`, `rapidoc-server`, `rapidoc-mock`, `create-rapidoc`, `rapidoc-embed`, `rapidoc-hono` and `rapidoc-starlight` (serially, `--test-concurrency=1`).   |
 | `npm run test:parser`    | Monorepo   | Runs `tests/perf/benchmark.js` to measure OpenAPI spec parsing, circular ref handling, and dereferencing times across Bookstore, Stripe, and GitHub specs. |
 | `npm run test:perf`      | Monorepo   | Runs `tests/perf/render-benchmark.js` measuring headless browser rendering performance across Focused, View, and Read modes.                               |
 
@@ -186,6 +193,9 @@ When executing tasks in this repository, follow these rules:
      - [`packages/rapidoc-portal/AGENTS.md`](packages/rapidoc-portal/AGENTS.md)
      - [`packages/create-rapidoc/AGENTS.md`](packages/create-rapidoc/AGENTS.md)
      - [`packages/rapidoc-embed/AGENTS.md`](packages/rapidoc-embed/AGENTS.md)
+     - [`packages/rapidoc-hono/AGENTS.md`](packages/rapidoc-hono/AGENTS.md)
+     - [`packages/rapidoc-starlight/AGENTS.md`](packages/rapidoc-starlight/AGENTS.md)
+     - [`integrations/rapidoc-fastapi/AGENTS.md`](integrations/rapidoc-fastapi/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.
 3. **No Unsolicited File Deletions**:
    - Preserve existing public specs (`docs/public/specs/`)
@@ -202,7 +212,7 @@ Versions and npm publishing go through [Changesets](https://changesets.dev) (`.c
 - **Version tracks**:
   - `rapidoc` (the web component) has its own semver: a major means `<rapi-doc>` changed in a way its users see.
   - `@rapidoc/cli`, `portal`, `server`, `mock`, `prerender`, `mcp` and `create-rapidoc` are one `fixed` group: every release bumps all seven to the same version. While they are 0.x, a minor (0.2.0) is breaking and a patch is a fix or an addition; they go to 1.0.0 together.
-  - `@rapidoc/embed` has its own semver, outside the group: integrations should not re-release with every portal release. A change to the output of its `src/core.js` is a new contract version and a breaking release.
+  - `@rapidoc/embed` and each integration (`@rapidoc/hono`, `@rapidoc/starlight`) have their own semver, outside the group: integrations should not re-release with every portal release. A change to the output of its `src/core.js` is a new contract version and a breaking release.
 - **Every pull request that changes a published package adds a changeset**: `npm run changeset`, pick the packages and the bump, write one changelog line in the user's terms. Changes that release nothing (docs site, tests, tooling) need none.
 - **`rapidoc` source is also in `@rapidoc/prerender` and `@rapidoc/mcp`**: both bundle `packages/rapidoc/src` at build time, which Changesets can't see. A change to its templates, components or styles (prerender) or to `utils/mcp/` and `utils/arazzo/` (mcp) needs those packages in its changeset too, so the portal's pre-rendered HTML and the `rapidoc-min.js` that takes it over come from the same source.
 - **The flow**: changesets merged to `master` → the workflow opens or updates the "chore: release packages" pull request (`npm run version-packages`: versions, changelogs, internal ranges, lockfile). Merging it → the workflow builds (`npm run build:packages`), runs `test:unit`, packs, publishes with npm trusted publishing (no token), and creates git tags and GitHub releases.

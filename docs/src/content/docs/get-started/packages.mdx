@@ -28,6 +28,8 @@ npm install rapidoc
 | `@rapidoc/mock` | The [mock server](/docs/mocking/mock-server/) behind `rapidoc mock`: answers every operation over HTTP from examples or generated data, validates requests and checks OAuth tokens. Also usable as a library. |
 | `@rapidoc/mcp` | Turns OpenAPI and Arazzo documents into [MCP tools](/docs/ai/mcp-server/#in-node-rapidocmcp): manifest builder, runtime and server project writer. The same code `<rapi-doc>` uses in the browser. |
 | `@rapidoc/embed` | The shared core of integrations (plugins and middleware for frameworks, docs sites and tools): renders the standard host page for `<rapi-doc>` and lists the routes to serve. See [Build an Integration](/docs/get-started/build-an-integration/). |
+| `@rapidoc/hono` | Serves the API reference from a [Hono](https://hono.dev) app: `app.use(rapidoc({ specUrl }))`. See [Server frameworks](/docs/get-started/frameworks/#server-frameworks). |
+| `@rapidoc/starlight` | Adds API reference pages to a [Starlight](https://starlight.astro.build) site, in its layout and sidebar. See [Documentation sites](/docs/get-started/frameworks/#documentation-sites). |
 | `@rapidoc/prerender` | Renders `<rapi-doc>` to HTML at build time (Declarative Shadow DOM or light DOM), plus a static sidebar and Arazzo diagrams as SVG. Good for SEO and first paint. See the [pre-rendering guide](/guides/prerender/). |
 
 ## Developer portals
@@ -46,5 +48,7 @@ A developer portal puts your API references next to Markdown guides, with search
 - **A mock API your frontend or tests can call**: `@rapidoc/cli` and `@rapidoc/mock`.
 - **An MCP server for AI agents**: the Export button in `<rapi-doc>`, `rapidoc mcp`, or `@rapidoc/mcp` in your own code.
 - **Static HTML of your reference at build time**: `@rapidoc/prerender`.
-- **A RapiDoc plugin for a framework or tool**: `@rapidoc/embed`.
+- **An API reference served by your Hono app**: `@rapidoc/hono`.
+- **An API reference inside your Starlight docs**: `@rapidoc/starlight`.
+- **A RapiDoc plugin for another framework or tool**: `@rapidoc/embed`.
 - **A whole developer portal**: `create-rapidoc`, which installs `@rapidoc/cli` and `@rapidoc/portal`.
