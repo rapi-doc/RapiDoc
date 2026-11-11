@@ -1,6 +1,6 @@
 ---
 title: Framework Integration
-description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular, serve it from a Hono, Express, Fastify or FastAPI app, or add it to a Starlight, VitePress or Docusaurus site.
+description: Use the <rapi-doc> web component in React, Next.js, Vue, Nuxt and Angular, serve it from a Hono, Express, Fastify, FastAPI or ASP.NET Core app, or add it to a Starlight, VitePress or Docusaurus site.
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -210,6 +210,32 @@ setup_rapidoc(app, options={"render_style": "focused"})
 ```
 
 The reference is at `/docs` and reads the app's own `/openapi.json`. `docs_url=None` turns off FastAPI's Swagger UI, which uses the same path; to keep both, pass `ui_path="/reference"`. For a plain Starlette app, import it from `rapidoc.starlette` and pass `spec_url`.
+
+### ASP.NET Core
+
+:::note[Coming in the next release]
+`RapiDoc.AspNetCore` is not published on NuGet yet. This section describes it ahead of its first release.
+:::
+
+```bash
+dotnet add package RapiDoc.AspNetCore
+```
+
+```csharp
+using RapiDoc.AspNetCore;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+app.MapOpenApi();
+app.MapRapiDoc(options => options.Attributes["render-style"] = "focused");
+
+app.Run();
+```
+
+The reference is at `/docs` and reads the document `MapOpenApi()` serves at `/openapi/v1.json`. With Swashbuckle or NSwag, set `options.SpecUrl` to their document. `MapRapiDoc` returns an endpoint builder, so `.RequireAuthorization()` protects the reference, and `MapRapiDoc("/reference")` moves it. Needs .NET 8 or later.
 
 ## Documentation sites
 

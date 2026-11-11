@@ -1,0 +1,123 @@
+name: .NET package
+
+# The ASP.NET Core integration (integrations/rapidoc-dotnet, `RapiDoc.AspNetCore` on NuGet) has its own
+# toolchain, so the npm scripts and release.yml do not cover it.
+# - push or pull request touching it or the conformance fixtures: run its tests
+# - "Run workflow" with "publish" ticked: test, pack and publish to nuget.org with trusted publishing
+#   (OIDC, no stored API key). The nuget.org policy trusts this file name and the `nuget` environment;
+#   renaming either breaks publishing until the policy is updated. The nuget.org user name is the
+#   repository secret NUGET_USER.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'integrations/rapidoc-dotnet/**'
+      - 'packages/rapidoc-embed/conformance/**'
+      - '.github/workflows/publish-dotnet.yml'
+  pull_request:
+    paths:
+      - 'integrations/rapidoc-dotnet/**'
+      - 'packages/rapidoc-embed/conformance/**'
+      - '.github/workflows/publish-dotnet.yml'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the version in the project file to nuget.org
+        type: boolean
+        default: false
+
+permissions: {}
+
+defaults:
+  run:
+    working-directory: integrations/rapidoc-dotnet
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # The oldest and newest .NET the package supports; the tests run on both
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      # The rapidoc release named in RAPIDOC_VERSION, from npm: the bundle is not in git
+      - run: scripts/sync-assets.sh --npm
+
+      # Includes the conformance fixtures of @rapidoc/embed, read from packages/rapidoc-embed
+      - run: dotnet test
+
+  pack:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - run: scripts/sync-assets.sh --npm
+
+      - run: dotnet pack src/RapiDoc.AspNetCore -c Release -o artifacts
+
+      - name: Check the package carries the bundle's notices and the assembly the bundle
+        run: |
+          unzip -l artifacts/*.nupkg | grep -q "THIRD-PARTY-NOTICES.txt"
+          unzip -p artifacts/*.nupkg lib/net8.0/RapiDoc.AspNetCore.dll | grep -a -q "rapi-doc"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: integrations/rapidoc-dotnet/artifacts/*.nupkg
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    needs: pack
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      id-token: write # nuget.org trusted publishing
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      # Exchanges the workflow's OIDC token for an API key that lasts an hour
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push to nuget.org
+        run: dotnet nuget push artifacts/*.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}

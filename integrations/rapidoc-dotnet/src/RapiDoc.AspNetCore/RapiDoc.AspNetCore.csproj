@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- The oldest supported LTS; it runs on every later ASP.NET Core -->
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>RapiDoc.AspNetCore</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>RapiDoc.AspNetCore</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Mrinmoy Majumdar</Authors>
+    <Description>RapiDoc for ASP.NET Core: serves an interactive OpenAPI reference (&lt;rapi-doc&gt;) from your app, with the bundle inside the package.</Description>
+    <PackageTags>rapidoc;rapidoc-integration;openapi;swagger;api-reference;documentation;aspnetcore</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://rapidocui.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rapi-doc/RapiDoc</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <InternalsVisibleTo Include="RapiDoc.AspNetCore.Tests" />
+  </ItemGroup>
+
+  <!-- One rapidoc release, copied in by scripts/sync-assets.sh. Not in git; inside the assembly. -->
+  <ItemGroup>
+    <EmbeddedResource Include="assets/rapidoc-min.js" LogicalName="rapidoc/rapidoc-min.js" />
+    <EmbeddedResource Include="assets/rapidoc-min.js.LICENSE.txt" LogicalName="rapidoc/rapidoc-min.js.LICENSE.txt" />
+    <EmbeddedResource Include="assets/integration.json" LogicalName="rapidoc/integration.json" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <!-- The bundle's third-party notices also travel as a file of the package -->
+    <None Include="assets/rapidoc-min.js.LICENSE.txt" Pack="true" PackagePath="/THIRD-PARTY-NOTICES.txt" />
+  </ItemGroup>
+
+  <Target Name="CheckRapiDocAssets" BeforeTargets="BeforeBuild">
+    <Error
+      Condition="!Exists('assets/rapidoc-min.js') Or !Exists('assets/rapidoc-min.js.LICENSE.txt') Or !Exists('assets/integration.json')"
+      Text="The rapidoc bundle is missing from src/RapiDoc.AspNetCore/assets. Run scripts/sync-assets.sh (see AGENTS.md)." />
+  </Target>
+
+</Project>

@@ -1,0 +1,6 @@
+bin/
+obj/
+*.nupkg
+artifacts/
+# One rapidoc release, copied in by scripts/sync-assets.sh (build output of packages/rapidoc)
+src/RapiDoc.AspNetCore/assets/

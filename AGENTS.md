@@ -27,7 +27,8 @@ rapidoc/
 │   ├── rapidoc-mcp/      # MCP manifest builder, runtime and project writer for Node (@rapidoc/mcp), built from rapidoc/src
 │   └── create-rapidoc/   # Scaffolding CLI for new portals (npm create rapidoc)
 ├── integrations/         # RapiDoc integrations in other languages, each with its own toolchain; not npm workspaces
-│   └── rapidoc-python/   # RapiDoc for Python web frameworks: FastAPI and Starlette (PyPI: rapidoc)
+│   ├── rapidoc-python/   # RapiDoc for Python web frameworks: FastAPI and Starlette (PyPI: rapidoc)
+│   └── rapidoc-dotnet/   # RapiDoc for ASP.NET Core (NuGet: RapiDoc.AspNetCore)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── tests/
 │   ├── unit/             # Node.js built-in test runner unit tests (*.test.js)
@@ -69,6 +70,7 @@ All agents must strictly adhere to the following system boundaries:
   - `packages/rapidoc-hono` [@rapidoc/hono] is the reference integration for JavaScript server frameworks: a middleware that maps the contract's routes to Hono, with `hono` as a peer. It writes no HTML of its own, and its `./edge` entry imports no Node module. `@rapidoc/express` and `@rapidoc/fastify` are the same shape: each hands the request to `createResponder` of `@rapidoc/embed`, which matches the routes and produces status, headers and body, so a JavaScript server integration is a few dozen lines.
   - `packages/rapidoc-starlight` [@rapidoc/starlight] is the reference integration for documentation sites: a Starlight plugin that injects one page per API (`<rapi-doc>` in Starlight's layout, the spec inlined) and adds the API's tags and operations to Starlight's sidebar, from `@rapidoc/prerender`'s `getSpecNavigation`. `@astrojs/starlight` and `astro` are peers. Its tests build `example/`, so `@rapidoc/prerender` must be built first. `packages/rapidoc-vitepress` [@rapidoc/vitepress] does the same for VitePress, which has no plugin API: the user wraps the config (`withRapidoc`), builds the sidebar (`rapidocSidebar`) and puts the `RapidocReference` component on a page. `packages/rapidoc-docusaurus` [@rapidoc/docusaurus] is the same idea for Docusaurus: a plugin for the specs, `rapidocSidebarSync` for `sidebars.js`, and a React `RapidocReference`. Docusaurus is an optional peer and is not installed in the monorepo, so its component is checked by hand in a real site (its `AGENTS.md` says how). All three put the HTTP method in front of each operation link and strike deprecated ones through, with the classes and CSS of `@rapidoc/embed/sidebar`; the theme still draws the sidebar, so each plugin passes that theme's selectors.
   - `integrations/rapidoc-python` (Python, `rapidoc` on PyPI; `rapidoc.fastapi`, `rapidoc.starlette`) is the reference integration for other languages: `contract.py` is a port of `@rapidoc/embed`'s `core.js` and passes the same fixtures. It is not an npm workspace: the npm scripts (`lint`, `format`, `test:*`), Changesets and the release workflow do not cover it; its commands are in its own `AGENTS.md`, and `.github/workflows/publish-python.yml` tests it and publishes it to PyPI. A change to the contract's output is made in `@rapidoc/embed` first, then ported.
+  - `integrations/rapidoc-dotnet` (C#, `RapiDoc.AspNetCore` on NuGet; `app.MapRapiDoc()`) is the same for ASP.NET Core: `RapiDocContract.cs` is the port and passes the same fixtures, the bundle is embedded in the assembly, and `.github/workflows/publish-dotnet.yml` tests it (.NET 8 and 10) and publishes it to nuget.org. Not an npm workspace either; its commands are in its own `AGENTS.md`.
 - **Node packages built from the core source (`packages/rapidoc-prerender`, `packages/rapidoc-mcp`)**:
   - `@rapidoc/prerender` owns its renderer (`src/`) and renders the templates, components and styles of `packages/rapidoc/src`; `@rapidoc/mcp` is only an entry over the MCP code there. Both bundle that source by relative path and publish `dist/` plus types only. The dependency runs one way: nothing in `packages/rapidoc/src` imports them.
   - Both must be built before the portal, server or `prerender:demo` use them in the monorepo: `npm run build:prerender`, `npm run build:mcp` (`pretest:portal`, `build` and `build:demo` run them).
@@ -205,6 +207,7 @@ When executing tasks in this repository, follow these rules:
      - [`packages/rapidoc-vitepress/AGENTS.md`](packages/rapidoc-vitepress/AGENTS.md)
      - [`packages/rapidoc-docusaurus/AGENTS.md`](packages/rapidoc-docusaurus/AGENTS.md)
      - [`integrations/rapidoc-python/AGENTS.md`](integrations/rapidoc-python/AGENTS.md)
+     - [`integrations/rapidoc-dotnet/AGENTS.md`](integrations/rapidoc-dotnet/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.
 3. **No Unsolicited File Deletions**:
    - Preserve existing public specs (`docs/public/specs/`)

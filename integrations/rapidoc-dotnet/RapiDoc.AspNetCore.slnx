@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/examples/">
+    <Project Path="examples/Example/Example.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RapiDoc.AspNetCore/RapiDoc.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RapiDoc.AspNetCore.Tests/RapiDoc.AspNetCore.Tests.csproj" />
+  </Folder>
+</Solution>

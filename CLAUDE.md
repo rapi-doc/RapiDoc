@@ -25,6 +25,7 @@
 | `packages/rapidoc-docusaurus` | `@rapidoc/docusaurus` | `src/index.js` (plugin, `rapidocSidebarSync`), `src/client.js` (`RapidocReference`, React); Docusaurus is not installed here, the component is checked by hand |
 | `packages/rapidoc-starlight` | `@rapidoc/starlight` | `src/index.js`: `starlightRapidoc(options)`, a Starlight plugin; `src/apis.js` (`resolveApis`), `src/ApiPage.astro`; `example/` is the site its tests build |
 | `integrations/rapidoc-python` | `rapidoc` (PyPI) | `src/rapidoc/fastapi.py` and `starlette.py` (`setup_rapidoc`), `contract.py` (the contract in Python); own toolchain (uv, pytest), not an npm workspace |
+| `integrations/rapidoc-dotnet` | `RapiDoc.AspNetCore` (NuGet) | `src/RapiDoc.AspNetCore/RapiDocEndpointRouteBuilderExtensions.cs` (`MapRapiDoc`), `RapiDocContract.cs` (the contract in C#); own toolchain (.NET SDK, xunit), not an npm workspace |
 | `packages/rapidoc-mock` | `@rapidoc/mock` | `src/index.js` (`createMockApp`, `startMockServer`): mocks the portal's APIs under `/<api id>` (default port 4010); examples, generated data, request validation, JWT scope checks; libraries behind `src/engine/` |
 | `packages/create-rapidoc` | `create-rapidoc` | `src/index.js` (bin `create-rapidoc`); `src/scaffold.js` (`scaffoldProject`, `findOpenApiSpecs`, also used by `rapidoc init`) |
 | `docs` | `docs` (private) | `astro.config.mjs`; content in `src/content/docs/`, pages in `src/pages/` |
