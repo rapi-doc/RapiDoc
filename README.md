@@ -322,6 +322,12 @@ OpenAPI specs are organized inside `docs/public/` based on their visibility and 
 
 ---
 
+## Sponsors
+
+Hosting sponsored by [Simafri](https://www.simafri.com/en/managed-vps/) (managed VPS)
+
+---
+
 ## License
 
 MIT © [Mrinmoy Majumdar](https://github.com/mrin9)
