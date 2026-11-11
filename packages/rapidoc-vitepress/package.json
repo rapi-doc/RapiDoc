@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/vitepress",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "RapiDoc for VitePress: OpenAPI reference pages inside your VitePress site, with the operations in the sidebar",
   "keywords": [
     "api documentation",
@@ -44,7 +44,7 @@
     "test": "node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "@rapidoc/embed": "^0.2.0",
+    "@rapidoc/embed": "^0.3.0",
     "@rapidoc/prerender": "^0.1.5",
     "rapidoc": "^12.2.1",
     "yaml": "^2.9.1"

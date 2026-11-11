@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/embed",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The RapiDoc integration contract: renders the standard host page for <rapi-doc>, with conformance fixtures for integrations in any language",
   "keywords": [
     "api documentation",
