@@ -147,6 +147,10 @@ No configuration is needed. Import `rapidoc` in a client-side script and use the
 
 A server can serve the API reference itself, next to the API. These packages add the page, the bundle and the OAuth return page to your app, so there is no HTML to write.
 
+:::note[Coming in the next release]
+`@rapidoc/hono` (npm) and `rapidoc` (PyPI) are not published yet. This section describes them ahead of their first release.
+:::
+
 ### Hono
 
 ```bash
@@ -183,6 +187,10 @@ setup_rapidoc(app, options={"render_style": "focused"})
 The reference is at `/docs` and reads the app's own `/openapi.json`. `docs_url=None` turns off FastAPI's Swagger UI, which uses the same path; to keep both, pass `path="/reference"`. For a plain Starlette app, import it from `rapidoc.starlette` and pass `spec_url`.
 
 ## Documentation sites
+
+:::note[Coming in the next release]
+`@rapidoc/starlight` is not published on npm yet. This section describes it ahead of its first release.
+:::
 
 ### Starlight
 
