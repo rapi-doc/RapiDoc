@@ -6,7 +6,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import ts from "typescript";
+import { API } from "typescript/unstable/sync";
+import * as ts from "typescript/unstable/ast";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourceFile = (name) => path.join(rootDir, "packages/rapidoc/src", name);
@@ -88,22 +89,29 @@ const tagText = (doc, name) => doc.tags.find((tag) => tag.name === name)?.text;
 const tagTexts = (doc, name) => doc.tags.filter((tag) => tag.name === name).map((tag) => tag.text);
 const hasTag = (doc, name) => doc.tags.some((tag) => tag.name === name);
 
+/** A node's source text, without the comments and whitespace before it. */
+const textOf = (node, sourceFile) =>
+  sourceFile.text.slice(ts.getTokenPosOfNode(node, sourceFile), node.end);
+
 function docOf(node, sourceFile) {
-  const comments = node.jsDoc ?? [];
-  return parseDocComment(comments.at(-1)?.getText(sourceFile));
+  const comment = (node.jsDoc ?? []).at(-1);
+  if (!comment) return parseDocComment();
+  // A JSDoc node starts at the trivia before it (other comments, blank lines)
+  const raw = sourceFile.text.slice(comment.pos, comment.end);
+  return parseDocComment(raw.slice(raw.indexOf("/**")));
 }
 
 /** The object literal passed to `@property(...)`, as `{ key: source text }`; null without the decorator. */
 function propertyOptions(node, sourceFile) {
-  for (const decorator of ts.getDecorators(node) ?? []) {
+  for (const decorator of (node.modifiers ?? []).filter(ts.isDecorator)) {
     const call = decorator.expression;
-    if (!ts.isCallExpression(call) || call.expression.getText(sourceFile) !== "property") continue;
+    if (!ts.isCallExpression(call) || textOf(call.expression, sourceFile) !== "property") continue;
     const options = {};
     const [literal] = call.arguments;
     if (literal && ts.isObjectLiteralExpression(literal)) {
       for (const entry of literal.properties) {
         if (ts.isPropertyAssignment(entry)) {
-          options[entry.name.getText(sourceFile)] = entry.initializer.getText(sourceFile);
+          options[textOf(entry.name, sourceFile)] = textOf(entry.initializer, sourceFile);
         }
       }
     }
@@ -133,7 +141,7 @@ function initialValue(initializer) {
 }
 
 function attributeEntry(member, options, doc, sourceFile, fileName) {
-  const propertyName = member.name.getText(sourceFile);
+  const propertyName = textOf(member.name, sourceFile);
   const name = options.attribute ? JSON.parse(options.attribute) : propertyName.toLowerCase();
   const group = tagText(doc, "group");
   if (!doc.description || !group) {
@@ -158,6 +166,30 @@ function attributeEntry(member, options, doc, sourceFile, fileName) {
   return { group, entry };
 }
 
+/*
+ * TypeScript 7 parses in its native compiler, a separate process that the API talks to. Each parse opens
+ * one session for the file (its tsconfig project, or an inferred project for a file outside one) and
+ * closes it: the AST stays readable afterwards, and no process is left running to keep Node alive.
+ * Results are kept per file and modification time, so the docs site and a build parse each file once.
+ */
+const parsed = new Map();
+
+function parseSourceFile(file) {
+  const { mtimeMs } = fs.statSync(file);
+  const cached = parsed.get(file);
+  if (cached?.mtimeMs === mtimeMs) return cached.sourceFile;
+  const api = new API({ cwd: path.dirname(file) });
+  try {
+    const snapshot = api.updateSnapshot({ openFiles: [file] });
+    const sourceFile = snapshot.getDefaultProjectForFile(file)?.program.getSourceFile(file);
+    if (!sourceFile) throw new Error(`TypeScript could not parse ${file}`);
+    parsed.set(file, { mtimeMs, sourceFile });
+    return sourceFile;
+  } finally {
+    api.close();
+  }
+}
+
 /** `name - description`, or `- description` for the default slot. */
 function namedTag(text, what) {
   const match = /^(?:(\S+)\s+)?-\s+([\s\S]+)$/.exec(text);
@@ -172,13 +204,7 @@ function namedTag(text, what) {
  * By default the manifest of `<rapi-doc>`; pass a file and class name for another element (see ELEMENTS).
  */
 export function readApiManifest(file = RAPIDOC_SOURCE, className = "RapiDoc") {
-  const sourceFile = ts.createSourceFile(
-    file,
-    fs.readFileSync(file, "utf8"),
-    ts.ScriptTarget.ES2022,
-    true,
-    ts.ScriptKind.TS,
-  );
+  const sourceFile = parseSourceFile(file);
   const element = sourceFile.statements.find(
     (statement) => ts.isClassDeclaration(statement) && statement.name?.text === className,
   );
@@ -204,10 +230,10 @@ export function readApiManifest(file = RAPIDOC_SOURCE, className = "RapiDoc") {
       const doc = docOf(member, sourceFile);
       if (!hasTag(doc, "public")) continue;
       // `@public name(args)` documents that signature; otherwise the declared parameters
-      const parameters = member.parameters.map((parameter) => parameter.name.getText(sourceFile));
+      const parameters = member.parameters.map((parameter) => textOf(parameter.name, sourceFile));
       const entry = {
         name:
-          tagText(doc, "public") || `${member.name.getText(sourceFile)}(${parameters.join(", ")})`,
+          tagText(doc, "public") || `${textOf(member.name, sourceFile)}(${parameters.join(", ")})`,
         description: doc.description,
       };
       const example = tagText(doc, "example");
