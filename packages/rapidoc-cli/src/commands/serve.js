@@ -61,7 +61,8 @@ export default {
     const { settings } = server;
     info(`\n${icon("🌐")}Serving ${distDir}`);
     info(`   • URL:      ${server.url}`);
-    if (server.mcp?.count)
+    if (server.mcp?.off) info(`   • MCP:      off (RAPIDOC_MCP=off)`);
+    else if (server.mcp?.count)
       info(`   • MCP:      ${server.url.replace(/\/$/, "")}/mcp  (${server.mcp.count} tools)`);
     if (settings.mountPath !== settings.basePath) {
       info(

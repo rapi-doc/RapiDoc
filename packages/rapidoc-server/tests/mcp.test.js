@@ -111,6 +111,20 @@ function writeMcpManifests(distDir, apiUrl, { section = true } = {}) {
 }
 
 /** One JSON-RPC request to /mcp, as an MCP client sends it; returns the parsed answer. */
+/** A plain MCP request, for a server that may not serve /mcp (no JSON answer to parse). */
+function postMcp(app) {
+  return app.fetch(
+    new Request(`${PORTAL_ORIGIN}/mcp`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json, text/event-stream",
+      },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+    }),
+  );
+}
+
 async function rpc(app, method, params = {}, { token, origin = PORTAL_ORIGIN } = {}) {
   const res = await app.fetch(
     new Request(`${origin}/mcp`, {
@@ -250,6 +264,52 @@ describe("rapidoc serve: /mcp", () => {
     const session = browser.cookies().get("rapidoc-session");
     const asBearer = await rpc(app, "tools/list", {}, { token: session });
     assert.equal(asBearer.status, 401, "the session cookie is not an MCP token");
+  });
+
+  it("serves no /mcp and no agent tokens with RAPIDOC_MCP=off", async () => {
+    const { app: off, mcp } = await createApp({
+      distDir,
+      env: testEnv(issuer.issuer, { RAPIDOC_MCP: "off" }),
+      log: quiet,
+    });
+    assert.equal(mcp.off, true);
+    assert.equal(mcp.count, 0);
+    assert.notEqual((await postMcp(off)).status, 200);
+
+    const browser = createBrowser(off);
+    issuer.signInAs("ann");
+    await browser.visit("/_rapidoc/auth/login?returnTo=/");
+    const token = await browser.send("/_rapidoc/mcp/token", {
+      method: "POST",
+      headers: { "sec-fetch-site": "same-origin" },
+    });
+    assert.notEqual(token.status, 200, "no agent tokens either");
+    const me = await (await browser.send("/_rapidoc/auth/me")).json();
+    assert.equal(me.mcp, false, "the user menu hides its agent section");
+    const { browser: onBrowser } = await mcpToken("bob");
+    const onMe = await (await onBrowser.send("/_rapidoc/auth/me")).json();
+    assert.equal(onMe.mcp, true, "on by default");
+
+    const staticDir = writeFixtureBuild();
+    fs.rmSync(path.join(staticDir, "rapidoc-server.json"));
+    writeMcpManifests(staticDir, api.url, { section: false });
+    try {
+      const { app: staticOff } = await createApp({
+        distDir: staticDir,
+        env: { RAPIDOC_MCP: "OFF" },
+        log: quiet,
+      });
+      assert.notEqual((await postMcp(staticOff)).status, 200, "a static build too");
+    } finally {
+      fs.rmSync(staticDir, { recursive: true, force: true });
+    }
+  });
+
+  it("stops at a RAPIDOC_MCP value other than on or off", async () => {
+    await assert.rejects(
+      createApp({ distDir, env: testEnv(issuer.issuer, { RAPIDOC_MCP: "false" }), log: quiet }),
+      /RAPIDOC_MCP: "false" is not on or off/,
+    );
   });
 
   it("serves the manifests' tools of a static build as public", async () => {
