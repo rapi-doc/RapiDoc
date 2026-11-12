@@ -29,7 +29,7 @@
 - Responses that depend on the session: `Cache-Control: private, no-store` and `Vary: Cookie`.
 - `returnTo` stays on this site (`safeReturnTo`); sign-out is same-origin only (`isSameOrigin`).
 - The ID and refresh tokens never reach the browser or a cookie. The access token does only with `auth.tryIt`: in its own encrypted cookie (`rapidoc-api-token`), and to the page only through `GET /_rapidoc/auth/token` (same-origin, no-store). Only groups named by some rule go into the session.
-- MCP tokens (`POST /_rapidoc/mcp/token`, same-origin, signed in) are sealed with the session key and marked `mcp: true`, so a session cookie is never accepted as a bearer token and an MCP token never as a cookie. `/mcp` answers a bad token with 401, lists only the tools of zones the reader may see, and calls the API with the embedded access token for bearer-style schemes only.
+- MCP tokens (`POST /_rapidoc/mcp/token`, same-origin, signed in) are sealed with the session key and marked `mcp: true`, so a session cookie is never accepted as a bearer token and an MCP token never as a cookie. `/mcp` answers a bad token with 401, lists only the tools of zones the reader may see, and calls the API with the embedded access token for bearer-style schemes only. `RAPIDOC_MCP=off` registers neither `/mcp` nor the token route, and `/_rapidoc/auth/me` says `mcp: false` so the user menu hides its agent section; any value other than `on`/`off` is a settings error.
 
 ---
 

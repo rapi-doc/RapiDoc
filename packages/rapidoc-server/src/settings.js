@@ -11,6 +11,7 @@ import path from "node:path";
  *   RAPIDOC_PUBLIC_URL          external origin (redirect URL, Secure cookies); default site.url
  *   RAPIDOC_MOUNT_PATH          path the server receives requests under, when a proxy strips part of the
  *                               portal's path (default: the portal's base path, the path of site.url)
+ *   RAPIDOC_MCP                 `off` serves no /mcp endpoint and no agent tokens; `on` (default) serves them
  *
  * A build without rapidoc-server.json is served as plain static files.
  */
@@ -67,6 +68,16 @@ function publicUrlOf(value, problems) {
  * @param {Record<string, string | undefined>} [env]
  * @param {{ mountPath?: string }} [options] - mountPath: `--mount-path`, wins over RAPIDOC_MOUNT_PATH
  */
+/** RAPIDOC_MCP: `on` (default) or `off`; anything else is a problem, so a typo can't leave /mcp on. */
+export function mcpEnabled(value, problems) {
+  if (value === undefined || value === "") return true;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "on") return true;
+  if (normalized === "off") return false;
+  problems.push(`RAPIDOC_MCP: "${value}" is not on or off`);
+  return true;
+}
+
 export function loadSettings(distDir, env = process.env, options = {}) {
   const root = path.resolve(distDir);
   if (!fs.existsSync(root) || !fs.statSync(root).isDirectory())
@@ -78,8 +89,12 @@ export function loadSettings(distDir, env = process.env, options = {}) {
   const mountOption = options.mountPath ?? env.RAPIDOC_MOUNT_PATH;
   if (!manifest) {
     const mountPath = normalizePath(mountOption);
+    const staticProblems = [];
+    const mcp = mcpEnabled(env.RAPIDOC_MCP, staticProblems);
+    if (staticProblems.length) throw new SettingsError(staticProblems);
     return {
       mode: "static",
+      mcp,
       distDir: root,
       publicDir: root,
       protectedDir: null,
@@ -130,10 +145,12 @@ export function loadSettings(distDir, env = process.env, options = {}) {
   }
 
   const publicUrl = publicUrlOf(env.RAPIDOC_PUBLIC_URL || manifest.site?.url, problems);
+  const mcp = mcpEnabled(env.RAPIDOC_MCP, problems);
   if (problems.length) throw new SettingsError(problems);
 
   return {
     mode: "portal",
+    mcp,
     distDir: root,
     publicDir,
     protectedDir,

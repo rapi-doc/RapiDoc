@@ -46,7 +46,7 @@ const MAX_CHECK_BODY = 64 * 1024;
  * @param {Record<string, string | undefined>} [options.env] - Default process.env
  * @param {(line: string) => void} [options.log] - Default console.log with a [rapidoc serve] prefix
  * @param {string} [options.mountPath] - Path requests arrive under (default $RAPIDOC_MOUNT_PATH, else the base path)
- * @returns {Promise<{app: Hono, settings: object, mcp: {count: number}}>} `mcp.count`: tools served at /mcp
+ * @returns {Promise<{app: Hono, settings: object, mcp: {count: number, off?: boolean}}>} `mcp.count`: tools served at /mcp; `mcp.off`: RAPIDOC_MCP=off
  */
 export async function createApp({
   distDir,
@@ -60,15 +60,17 @@ export async function createApp({
   app.get("/_rapidoc/health", (c) => c.json({ ok: true }));
 
   if (settings.mode === "static") {
-    const mcp = registerMcpRoutes(app, {
-      settings,
-      sealer: null,
-      userOf: async () => null,
-      originOf: (c) => new URL(c.req.url).origin,
-      base,
-      env,
-      log,
-    });
+    const mcp = settings.mcp
+      ? registerMcpRoutes(app, {
+          settings,
+          sealer: null,
+          userOf: async () => null,
+          originOf: (c) => new URL(c.req.url).origin,
+          base,
+          env,
+          log,
+        })
+      : { count: 0, off: true };
     app.on(["GET", "HEAD"], "*", (c) => {
       const candidates = candidateFiles(new URL(c.req.url).pathname);
       if (!candidates) return textResponse(400, "Bad request");
@@ -110,7 +112,10 @@ export async function createApp({
   if (settings.auth)
     registerAuthRoutes(app, { settings, provider, sealer, userOf, originOf, base, log });
 
-  const mcp = registerMcpRoutes(app, { settings, zones, sealer, userOf, originOf, base, env, log });
+  // RAPIDOC_MCP=off: no /mcp and no agent tokens (both routes are then unknown, 404)
+  const mcp = settings.mcp
+    ? registerMcpRoutes(app, { settings, zones, sealer, userOf, originOf, base, env, log })
+    : { count: 0, off: true };
 
   // Which of these paths would the reader be refused? (lock icons on links; PortalUserMenu.astro)
   app.post("/_rapidoc/access/check", async (c) => {

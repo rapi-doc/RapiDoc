@@ -194,6 +194,8 @@ export function registerAuthRoutes(
     return c.json({
       user: { name: user.name, email: user.email, picture: user.picture },
       zones: visibleZones(manifest.access.zones, user),
+      // The user menu offers agent tokens only when /mcp is served
+      mcp: settings.mcp !== false,
     });
   });
 

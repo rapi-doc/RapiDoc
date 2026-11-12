@@ -7,6 +7,7 @@
  *   POST /_rapidoc/access/check   { paths } → { locked }: links to pages the reader can't open get a lock
  *   GET  /_rapidoc/auth/token     with auth.tryIt: the reader's access token, filled into RapiDoc's Try
  *   POST /_rapidoc/mcp/token      a token for the reader's agents, with the command that connects one to /mcp
+ *                                 (the section is hidden when /me says `mcp: false`: RAPIDOC_MCP=off)
  *
  * The slot has a fixed size, so filling it in moves nothing (the header height is CSS-only).
  */
@@ -311,8 +312,11 @@ const tryIt = portalConfig.auth?.tryIt === true;
     fetch(endpoint('/_rapidoc/auth/me'), { headers: { accept: 'application/json' } })
       .then(async (res) => {
         if (res.ok) {
-          const user = (await res.json()).user || {};
+          const me = await res.json();
+          const user = me.user || {};
           showUser(user);
+          // RAPIDOC_MCP=off on the server: no agent tokens to offer
+          if (me.mcp === false) root.querySelector('.portal-user-mcp').hidden = true;
           root.dataset.state = 'signed-in';
           if (root.hasAttribute('data-try-it')) applySignInToken(user).catch(() => {});
         } else {
