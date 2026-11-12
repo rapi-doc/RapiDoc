@@ -166,50 +166,44 @@ export default css`
   }
 
   /*
-   * Clickable values (allowed values, examples): small mono chips that fill the parameter's input.
-   * Buttons, not links: a tinted hover instead of an underline. Read-only (disabled) when try-it is off.
+   * Clickable values (allowed values, examples) fill the parameter's input. They are buttons drawn as compact
+   * links, so a list of 20+ values stays as small as plain text: accent text with a dotted underline (an
+   * action, where a link that goes somewhere has a solid one), solid on hover and focus. With try-it off they
+   * are disabled and drawn as plain text, so only what can be clicked looks clickable.
    */
-  .value-chip {
-    display: inline-block;
-    max-width: 100%;
+  .value-link {
+    display: inline;
     margin: 0;
-    padding: 0 0.4em;
+    padding: 0;
     font: inherit;
     font-family: var(--font-mono);
     line-height: inherit;
     text-align: start;
     overflow-wrap: anywhere;
-    color: var(--foreground);
-    background: color-mix(in srgb, var(--foreground) 6%, transparent);
+    color: var(--primary-text);
+    background: none;
     border: none;
-    border-radius: var(--radius);
+    text-decoration: underline dotted;
+    text-decoration-color: color-mix(in srgb, var(--primary-text) 55%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
     cursor: pointer;
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
 
-    &:hover {
-      color: var(--primary);
-      background: color-mix(in srgb, var(--primary) 14%, transparent);
+    &:hover,
+    &:focus-visible {
+      text-decoration-style: solid;
+      text-decoration-color: var(--primary-text);
     }
     &:focus-visible {
       outline: none;
+      border-radius: 2px;
       box-shadow: var(--focus-shadow);
     }
     &:disabled {
       color: var(--foreground);
-      background: color-mix(in srgb, var(--foreground) 6%, transparent);
+      text-decoration: none;
       cursor: text;
       user-select: text;
-    }
-  }
-
-  /* A list of chips is spaced apart instead of using the ┃ separators */
-  .value-list-items:has(> li > .value-chip) {
-    column-gap: 0.375em;
-
-    & > li::after {
-      content: none;
     }
   }
 

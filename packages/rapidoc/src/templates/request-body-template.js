@@ -329,7 +329,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = "", encoding =
                           html`<button
                             type="button"
                             part="anchor anchor-param-constraint"
-                            class="value-chip"
+                            class="value-link"
                             ?disabled="${this.allowTry !== "true"}"
                             data-type="${paramSchema.type === "array" ? paramSchema.type : "string"}"
                             data-enum="${v.trim()}"

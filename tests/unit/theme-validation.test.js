@@ -2,10 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import themeTokens, {
   THEME_PRESETS,
+  THEMES,
   isValidHexColor,
   isValidTheme,
   normalizeTheme,
   applyCustomTheme,
+  contrastRatio,
+  readableAccent,
 } from "../../packages/rapidoc/src/styles/theme-tokens.js";
 import navStyles from "../../packages/rapidoc/src/styles/nav-styles.js";
 
@@ -178,12 +181,50 @@ test("theme-validation", async (t) => {
     };
     assert.doesNotThrow(() => applyCustomTheme(element, 42));
     assert.doesNotThrow(() => applyCustomTheme(element, { theme: "#ff0000" }));
-    assert.deepEqual(removed, [
+    const cleared = [
       "--primary",
       "--primary-foreground",
-      "--primary",
-      "--primary-foreground",
-    ]);
+      "--primary-text-dark",
+      "--primary-text-light",
+    ];
+    assert.deepEqual(removed, [...cleared, ...cleared]);
+  });
+
+  await t.test("--primary-text is readable (4.5:1) in every preset and color scheme", () => {
+    const css = themeTokens.cssText;
+    for (const [name, schemes] of Object.entries(THEMES)) {
+      for (const scheme of ["dark", "light"]) {
+        const declared = (token) =>
+          new RegExp(`--${token}:\\s*(#[0-9a-f]{6});`).exec(schemes[scheme])?.[1];
+        const value = readableAccent(declared("primary"), scheme, {
+          background: declared("background"),
+          foreground: declared("foreground"),
+          card: declared("card"),
+        });
+        assert.ok(css.includes(`--primary-text-${scheme}: ${value};`), `${name} ${scheme}`);
+        const background = declared("background") || (scheme === "dark" ? "#1f1f23" : "#ffffff");
+        assert.ok(contrastRatio(value, background) >= 4.5, `${name} ${scheme}: ${value}`);
+      }
+    }
+    assert.match(css, /--primary-text: var\(--primary-text-dark\);/);
+    assert.equal(css.match(/--primary-text: var\(--primary-text-light\);/g).length, 2);
+  });
+
+  await t.test("readableAccent darkens or lightens a custom accent just enough", () => {
+    const samples = ["#f76b39", "#ff791a", "#f59e0b", "#2563eb", "#16a34a", "#0ea5e9", "#ffff00"];
+    for (const hex of samples) {
+      const dark = readableAccent(hex, "dark");
+      const light = readableAccent(hex, "light");
+      assert.ok(contrastRatio(dark, "#1f1f23") >= 4.5, `${hex} dark: ${dark}`);
+      assert.ok(contrastRatio(light, "#ffffff") >= 4.5, `${hex} light: ${light}`);
+    }
+    assert.equal(readableAccent("#f76b39", "dark"), "#f76b39", "already readable: unchanged");
+    assert.equal(readableAccent("var(--x)", "light"), "var(--x)", "not hex: as given");
+
+    const set = {};
+    applyCustomTheme({ style: { setProperty: (n, v) => (set[n] = v) } }, "#2563eb");
+    assert.equal(set["--primary-text-dark"], readableAccent("#2563eb", "dark"));
+    assert.equal(set["--primary-text-light"], readableAccent("#2563eb", "light"));
   });
 
   await t.test("color-scheme system under a light OS uses the light --code-bg", () => {

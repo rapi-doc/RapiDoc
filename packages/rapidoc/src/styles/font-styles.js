@@ -194,12 +194,17 @@ export default css`
   p {
     margin-block-start: 0.5em;
   }
+  /* Standalone links (contact, license, external docs): accent text, underlined on hover and focus.
+     Links inside text (.m-markdown) always carry a quiet underline, below. */
   a {
-    color: var(--blue);
+    color: var(--primary-text);
     text-decoration: none;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
     cursor: pointer;
   }
-  a:hover {
+  a:hover,
+  a:focus-visible {
     text-decoration: underline;
   }
 
@@ -349,9 +354,19 @@ export default css`
     padding-inline-start: 20px;
   }
 
+  /* A link inside text must not rely on color alone (WCAG 1.4.1): a quiet underline that turns solid
+     accent on hover and focus. */
   .m-markdown-small a,
   .m-markdown a {
-    color: var(--blue);
+    color: var(--primary-text);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--primary-text) 40%, transparent);
+  }
+  .m-markdown-small a:hover,
+  .m-markdown-small a:focus-visible,
+  .m-markdown a:hover,
+  .m-markdown a:focus-visible {
+    text-decoration-color: var(--primary-text);
   }
 
   .m-markdown-small img,

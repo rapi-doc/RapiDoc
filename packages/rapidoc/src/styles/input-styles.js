@@ -145,10 +145,20 @@ export default css`
   .btn.link {
     border-color: transparent;
     background: transparent;
-    color: var(--blue);
+    color: var(--primary-text);
     box-shadow: none;
     text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--primary-text) 40%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
     padding: 0;
+  }
+  .btn-link:hover,
+  .btn-link:focus-visible,
+  .btn.link:hover,
+  .btn.link:focus-visible {
+    background: transparent;
+    text-decoration-color: var(--primary-text);
   }
 
   /* Sizes */
@@ -486,7 +496,9 @@ export default css`
   .link {
     font-size: var(--font-size-small);
     text-decoration: underline;
-    color: var(--blue);
+    text-decoration-color: color-mix(in srgb, var(--primary-text) 40%, transparent);
+    text-underline-offset: 0.2em;
+    color: var(--primary-text);
     font-family: var(--font-mono);
     margin-bottom: 2px;
   }

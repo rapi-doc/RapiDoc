@@ -31,8 +31,12 @@ re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `@rapidoc/pre
 - `isValidHexColor`, `isValidTheme`, `isCustomColor`, `isLightColor`: theme value checks.
 - `normalizeTheme(theme) -> { theme }`: presets lower-cased, hex kept, anything else becomes
   `DEFAULT_THEME`.
-- `applyCustomTheme(element, themeVal)`: sets inline `--primary` and `--primary-foreground` on
-  the host for a valid hex string, and removes them for anything else (presets, non-strings).
+- `applyCustomTheme(element, themeVal)`: sets inline `--primary`, `--primary-foreground`,
+  `--primary-text-dark` and `--primary-text-light` on the host for a valid hex string, and removes
+  them for anything else (presets, non-strings).
+- `readableAccent(primary, scheme, surfaces?)`: the accent mixed toward white (dark) or black (light)
+  until it reaches 4.5:1 on the background, the card and a 12% accent tint; `contrastRatio(a, b)`.
+  The portal's `engine/accent-colors.js` does the same for its own surfaces.
 - default export: the token stylesheet (defaults, geometry switches, color schemes, presets).
 
 `css-bundle.js`:
@@ -71,6 +75,9 @@ rule 6).
   `@media (prefers-color-scheme: light)`. `DEFAULT_THEME` also applies with no `theme` attribute.
 - `--primary` and `--primary-foreground` have no `:host` default; they come from a preset rule or
   from `applyCustomTheme`. `--ring` follows `--primary`.
+- `--primary-text` (accent as text: links, clickable values) is `--primary-text-dark` or
+  `--primary-text-light`, picked by the color-scheme block. Every preset gets both from
+  `readableAccent` when the stylesheet is built (`withPrimaryText`); a hex theme gets them inline.
 - The `:host(...)` selector shapes written by `presetCss` and the color-scheme block are exactly
   what `getThemeTokensCss` and `getNavCss` match with regular expressions; change both together.
   `getThemeTokensCss` rewrites only `theme` / `color-scheme` rules, so the `radius`, `scale` and
