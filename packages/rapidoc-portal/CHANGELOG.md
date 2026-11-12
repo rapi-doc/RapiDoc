@@ -1,5 +1,17 @@
 # @rapidoc/portal
 
+## 0.1.7
+
+### Patch Changes
+
+- 3927554: `rapidoc dev` and `rapidoc build` no longer print `The collection "i18n" does not exist or is empty` on every run. The portal now defines Starlight's i18n collection, with an empty English entry that changes no interface text.
+- 53ac5d2: Links and clickable values follow one style. Links in descriptions use the theme's accent instead of blue, with a quiet underline that turns solid on hover and focus; other links (contact, license, external docs) are underlined on hover. Allowed values and examples that fill a parameter are compact accent links with a dotted underline, and plain text when Try is off. A new `--primary-text` token (`--primary-text-dark`, `--primary-text-light`) is the accent as readable text, computed for every theme and for a hex `primary-color`. In the portal, links in guides keep an underline, but a quiet one that turns solid on hover.
+- 20cd0f1: `RAPIDOC_MCP=off` turns off the MCP endpoint of `rapidoc serve`: no `/mcp` and no agent tokens, and the user menu hides its "connect an AI agent" section. `on` is the default; any other value stops the server, so a typo can't leave `/mcp` on. `rapidoc serve` says `MCP: off` when it starts.
+- Updated dependencies [53ac5d2]
+  - rapidoc@12.3.0
+  - @rapidoc/prerender@0.1.7
+  - @rapidoc/mcp@0.1.7
+
 ## 0.1.6
 
 ### Patch Changes

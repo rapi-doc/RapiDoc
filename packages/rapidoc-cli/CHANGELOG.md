@@ -1,5 +1,21 @@
 # @rapidoc/cli
 
+## 0.1.7
+
+### Patch Changes
+
+- 20cd0f1: `RAPIDOC_MCP=off` turns off the MCP endpoint of `rapidoc serve`: no `/mcp` and no agent tokens, and the user menu hides its "connect an AI agent" section. `on` is the default; any other value stops the server, so a typo can't leave `/mcp` on. `rapidoc serve` says `MCP: off` when it starts.
+- Updated dependencies [3927554]
+- Updated dependencies [53ac5d2]
+- Updated dependencies [20cd0f1]
+- Updated dependencies [7cbc0b6]
+  - @rapidoc/portal@0.1.7
+  - rapidoc@12.3.0
+  - @rapidoc/server@0.1.7
+  - create-rapidoc@0.1.7
+  - @rapidoc/mcp@0.1.7
+  - @rapidoc/mock@0.1.7
+
 ## 0.1.6
 
 ### Patch Changes
