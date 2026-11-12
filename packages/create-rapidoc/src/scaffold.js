@@ -389,6 +389,9 @@ const STARTER_GITIGNORE = `node_modules/
 dist/
 .rapidoc-temp/
 .DS_Store
+# Secrets for rapidoc serve (RAPIDOC_SESSION_SECRET, ...): never commit them
+.env
+.env.*
 `;
 
 const STARTER_README = (title) => `# ${title}

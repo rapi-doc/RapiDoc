@@ -36,6 +36,11 @@ test("create-rapidoc Scaffolding CLI (Milestone 6)", async (t) => {
     assert.ok(fs.existsSync(path.join(projectDir, "rapidoc.config.yaml")));
     assert.ok(fs.existsSync(path.join(projectDir, "package.json")));
     assert.ok(fs.existsSync(path.join(projectDir, ".gitignore")));
+    assert.match(
+      fs.readFileSync(path.join(projectDir, ".gitignore"), "utf8"),
+      /^\.env$/m,
+      ".env (sign-in secrets) is never committed",
+    );
     assert.ok(fs.existsSync(path.join(projectDir, "README.md")));
     assert.ok(fs.existsSync(path.join(projectDir, "specs/api.yaml")));
     assert.ok(fs.existsSync(path.join(projectDir, "docs/index.markdoc")));
