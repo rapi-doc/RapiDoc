@@ -1,5 +1,17 @@
 # @rapidoc/cli
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [3d9a081]
+- Updated dependencies [ae8e490]
+  - @rapidoc/portal@0.1.6
+  - @rapidoc/server@0.1.6
+  - create-rapidoc@0.1.6
+  - @rapidoc/mcp@0.1.6
+  - @rapidoc/mock@0.1.6
+
 ## 0.1.5
 
 ### Patch Changes
