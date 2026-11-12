@@ -1,5 +1,11 @@
 # create-rapidoc
 
+## 0.1.7
+
+### Patch Changes
+
+- 7cbc0b6: The starter's `.gitignore` (from `npm create rapidoc` and `rapidoc init`) lists `.env` and `.env.*`, where the docs put the secrets of `rapidoc serve` for local testing.
+
 ## 0.1.6
 
 No changes in this release.

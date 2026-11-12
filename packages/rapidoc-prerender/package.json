@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/prerender",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Renders RapiDoc API documentation to HTML at build time: pre-rendered <rapi-doc> (Declarative Shadow DOM or light DOM), sidebar navigation, Arazzo diagrams",
   "keywords": [
     "api-documentation",

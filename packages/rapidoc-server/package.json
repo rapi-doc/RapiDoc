@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/server",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Serves a built RapiDoc portal with OpenID Connect sign-in and access rules (rapidoc serve)",
   "keywords": [
     "access-control",
@@ -37,7 +37,7 @@
   "dependencies": {
     "@hono/node-server": "^2.1.6",
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "@rapidoc/mcp": "^0.1.6",
+    "@rapidoc/mcp": "^0.1.7",
     "hono": "^4.13.16",
     "jose": "^6.2.15",
     "openid-client": "^6.8.9"
