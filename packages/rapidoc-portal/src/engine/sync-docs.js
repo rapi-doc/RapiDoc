@@ -167,6 +167,86 @@ function injectComponentImports(content) {
   return importStmt + content;
 }
 
+/** Components of UI frameworks the portal has no renderer for. */
+const FRAMEWORK_COMPONENT = /\.(jsx|tsx|vue|svelte)$/i;
+
+/** An `import`/`export … from` statement with a relative path, at the start of a line. */
+const RELATIVE_IMPORT =
+  /^([ \t]*(?:import|export)\b(?:[^'"`;]*?\bfrom)?[ \t]*)(['"])(\.\.?\/[^'"\n]+)\2/gm;
+
+/** Applies `transform` to the parts of an MDX page outside fenced code blocks. */
+function outsideCodeFences(content, transform) {
+  const segments = [];
+  let current = { code: false, lines: [] };
+  let fence = null;
+  for (const line of content.split("\n")) {
+    const marker = line.match(/^[ \t]*(`{3,}|~{3,})/)?.[1];
+    if (!fence && marker) {
+      segments.push(current);
+      current = { code: true, lines: [line] };
+      fence = marker;
+    } else if (fence) {
+      current.lines.push(line);
+      const closes =
+        marker && marker[0] === fence[0] && marker.length >= fence.length && line.trim() === marker;
+      if (closes) {
+        segments.push(current);
+        current = { code: false, lines: [] };
+        fence = null;
+      }
+    } else {
+      current.lines.push(line);
+    }
+  }
+  segments.push(current);
+  return segments
+    .filter((segment) => segment.lines.length)
+    .map(({ code, lines }) => (code ? lines.join("\n") : transform(lines.join("\n"))))
+    .join("\n");
+}
+
+/** Where a file of the project's docs/ lands in the content folder (docs/index.* at its root). */
+function workspaceRelPath(relPath) {
+  return workspaceDocPath(HOME_DOC.test(relPath) ? relPath : path.join("docs", relPath));
+}
+
+const toImportPath = (filePath) => filePath.split(path.sep).join("/");
+
+/**
+ * Keeps an MDX page's relative imports working from the content folder, where the page is copied to.
+ * Files inside docs/ are copied too, so their imports point at the copies (an imported .mdx is then
+ * normalized like any page); files outside docs/ (`../components/Hello.astro`) are imported from the
+ * project by absolute path. React, Vue and Svelte components stop the build: the portal renders
+ * Astro components only.
+ *
+ * @param {string} content
+ * @param {{ srcDir: string, relPath: string }} source - The project's docs/ folder, the page's path in it
+ */
+export function rewriteRelativeImports(content, { srcDir, relPath }) {
+  const pageDir = path.dirname(path.join(srcDir, relPath));
+  const destDir = path.dirname(workspaceRelPath(relPath));
+  return outsideCodeFences(content, (part) =>
+    part.replace(RELATIVE_IMPORT, (statement, head, quote, specifier) => {
+      const target = path.resolve(pageDir, specifier);
+      if (FRAMEWORK_COMPONENT.test(specifier)) {
+        throw new Error(
+          `docs/${toImportPath(relPath)} imports "${specifier}": React, Vue and Svelte components are not supported. Write it as an Astro component (.astro) instead.`,
+        );
+      }
+      const targetRel = path.relative(srcDir, target);
+      const insideDocs = !targetRel.startsWith("..") && !path.isAbsolute(targetRel);
+      let rewritten;
+      if (insideDocs) {
+        const relative = toImportPath(path.relative(destDir, workspaceRelPath(targetRel)));
+        rewritten = relative.startsWith(".") ? relative : `./${relative}`;
+      } else {
+        rewritten = toImportPath(target);
+      }
+      return `${head}${quote}${rewritten}${quote}`;
+    }),
+  );
+}
+
 /**
  * Turns a raw doc file into content Starlight accepts. Markdoc has no imports, so only MDX and
  * Markdown get component imports.
@@ -226,6 +306,7 @@ function collectDesiredDocs(srcDir, { editUrl } = {}) {
     const destRel = HOME_DOC.test(relPath) ? relPath : path.join("docs", relPath);
     if (isDocFile(entry.name)) {
       let content = normalizeDocContent(fs.readFileSync(srcPath, "utf8"), entry.name);
+      if (ext === ".mdx") content = rewriteRelativeImports(content, { srcDir, relPath });
       if (editUrl)
         content = addFrontmatterField(
           content,
