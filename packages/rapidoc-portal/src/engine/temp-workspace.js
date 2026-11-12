@@ -88,8 +88,8 @@ export default defineMarkdocConfig(portalMarkdocConfig(${JSON.stringify({ base }
 `;
 
 const CONTENT_CONFIG_TS = `import { defineCollection } from 'astro:content';
-import { docsLoader } from '@astrojs/starlight/loaders';
-import { docsSchema } from '@astrojs/starlight/schema';
+import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders';
+import { docsSchema, i18nSchema } from '@astrojs/starlight/schema';
 import { portalFrontmatterSchema } from '@rapidoc/portal/frontmatter';
 
 export const collections = {
@@ -97,6 +97,8 @@ export const collections = {
     loader: docsLoader(),
     schema: docsSchema({ extend: portalFrontmatterSchema }),
   }),
+  // Starlight reads UI translations from it; without it, every page logs "collection i18n does not exist".
+  i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
 };
 `;
 
@@ -169,6 +171,9 @@ export async function createPortalWorkspace(projectDir = process.cwd(), { kind =
       "utf8",
     );
     fs.writeFileSync(path.join(root, "src", "content.config.ts"), CONTENT_CONFIG_TS, "utf8");
+    // One entry, for Starlight's default locale, so the i18n collection exists; `{}` changes no UI string.
+    fs.mkdirSync(path.join(root, "src", "content", "i18n"), { recursive: true });
+    fs.writeFileSync(path.join(root, "src", "content", "i18n", "en.json"), "{}\n", "utf8");
     fs.writeFileSync(workspace.themeCssPath, renderThemeCss(config), "utf8");
     fs.writeFileSync(
       path.join(root, "markdoc.config.mjs"),

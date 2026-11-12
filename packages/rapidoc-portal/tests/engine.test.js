@@ -138,6 +138,7 @@ describe("RapiDoc Portal build engine", () => {
         "package.json",
         "markdoc.config.mjs",
         "src/content.config.ts",
+        "src/content/i18n/en.json",
         "public/assets/rapidoc-min.js",
         "public/assets/rapidoc-min.js.LICENSE.txt",
         "public/search-index.json",
