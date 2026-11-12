@@ -1,5 +1,13 @@
 # @rapidoc/portal
 
+## 0.1.6
+
+### Patch Changes
+
+- 3d9a081: `.mdx` pages can import your own Astro components and modules from the project with a relative path, such as `import Hello from '../components/Hello.astro'`. These imports failed before, because the portal builds from a copy of `docs/`. Importing a React, Vue or Svelte component stops the build with an error that names the page and the import.
+- @rapidoc/mcp@0.1.6
+  - @rapidoc/prerender@0.1.6
+
 ## 0.1.5
 
 ### Patch Changes
