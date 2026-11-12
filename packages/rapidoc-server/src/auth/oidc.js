@@ -92,6 +92,18 @@ export function endSessionUrl(config, { postLogoutRedirectUri, clientId }) {
   });
 }
 
+const isTrue = (value) => value === true || value === "true" || value === 1;
+
+/**
+ * Whether the provider vouches for the email, so email rules may match it. Only an explicit
+ * `email_verified: true` counts, or Microsoft Entra ID's `xms_edov: true` (the email's domain is verified
+ * by the user's tenant): Entra ID sends no `email_verified`, and its `email` is editable by the tenant's
+ * administrators, so in a multi-tenant app another organization could claim any address.
+ */
+export function emailVerified(claims) {
+  return isTrue(claims.email_verified) || isTrue(claims.xms_edov);
+}
+
 /** Value at a dotted claim path (`realm_access.roles`), as a list of strings. */
 export function claimList(claims, claimPath) {
   const value = claimPath

@@ -1,5 +1,5 @@
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
-import { claimList, endSessionUrl, finishSignIn, startSignIn } from "./oidc.js";
+import { claimList, emailVerified, endSessionUrl, finishSignIn, startSignIn } from "./oidc.js";
 import { cookieNames, SIGN_IN_MAX_AGE } from "./session.js";
 import { visibleZones } from "../access.js";
 import { NO_STORE } from "../static.js";
@@ -62,6 +62,9 @@ export function registerAuthRoutes(
 ) {
   const { auth, manifest } = settings;
   const ruleGroups = new Set(manifest.access.groups || []);
+  const hasEmailRules = Object.values(manifest.access.zones || {}).some(
+    (allow) => allow?.emails?.length,
+  );
   const cookieOptions = (c, maxAge) => ({
     path: "/",
     httpOnly: true,
@@ -120,7 +123,7 @@ export function registerAuthRoutes(
       sub: claims.sub,
       name: typeof claims.name === "string" ? claims.name : "",
       email: typeof claims.email === "string" ? claims.email : "",
-      emailVerified: claims.email_verified !== false && claims.email_verified !== "false",
+      emailVerified: emailVerified(claims),
       picture: typeof claims.picture === "string" ? claims.picture : "",
       // Only groups that some access rule names: keeps the cookie small and other group names out of it.
       groups: claimList(claims, auth.claims.groups).filter((group) => ruleGroups.has(group)),
@@ -156,6 +159,11 @@ export function registerAuthRoutes(
     if (ruleGroups.size && !claimList(claims, auth.claims.groups).length) {
       log(
         `no "${auth.claims.groups}" claim for ${user.sub}: group rules can't match. Check auth.claims.groups, and auth.scopes if the provider needs a scope for groups.`,
+      );
+    }
+    if (hasEmailRules && user.email && !user.emailVerified) {
+      log(
+        `email of ${user.sub} is not marked verified (email_verified, or xms_edov on Microsoft Entra ID): email rules can't match it.`,
       );
     }
     c.header("cache-control", NO_STORE);
