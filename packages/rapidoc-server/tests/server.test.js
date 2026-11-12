@@ -43,6 +43,11 @@ describe("rapidoc serve: sign-in and access rules", () => {
       email_verified: false,
       groups: [],
     });
+    issuer.addUser("uma", {
+      name: "Uma Unstated",
+      email: "uma@finance.example.com",
+      groups: [],
+    });
     distDir = writeFixtureBuild();
     ({ app } = await createApp({ distDir, env: testEnv(issuer.issuer), log: quiet }));
   });
@@ -145,6 +150,13 @@ describe("rapidoc serve: sign-in and access rules", () => {
       (await ned.send("/docs/billing/invoices/")).status,
       403,
       "unverified email does not count",
+    );
+
+    const uma = await signedInBrowser("uma");
+    assert.equal(
+      (await uma.send("/docs/billing/invoices/")).status,
+      403,
+      "an email the provider doesn't mark verified does not count",
     );
   });
 

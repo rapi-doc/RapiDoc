@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { allows, decide, emailMatches } from "../src/access.js";
-import { claimList } from "../src/auth/oidc.js";
+import { claimList, emailVerified } from "../src/auth/oidc.js";
 import { safeReturnTo } from "../src/auth/routes.js";
 import { createSealer } from "../src/auth/session.js";
 import { normalizePath, parseDuration } from "../src/settings.js";
@@ -36,6 +36,17 @@ describe("rapidoc serve helpers", () => {
     ]);
     assert.deepEqual(claimList({ groups: "a b,c" }, "groups"), ["a", "b", "c"]);
     assert.deepEqual(claimList({}, "groups"), []);
+  });
+
+  it("counts an email as verified only when the provider says so", () => {
+    assert.ok(emailVerified({ email_verified: true }));
+    assert.ok(emailVerified({ email_verified: "true" }), "Cognito sends a string");
+    assert.ok(emailVerified({ xms_edov: true }), "Entra ID: domain verified by the tenant");
+    assert.ok(emailVerified({ xms_edov: 1 }));
+    assert.ok(!emailVerified({}), "no claim: not verified (Entra ID without xms_edov)");
+    assert.ok(!emailVerified({ email_verified: false }));
+    assert.ok(!emailVerified({ email_verified: "false" }));
+    assert.ok(!emailVerified({ xms_edov: false }));
   });
 
   it("parses session lengths", () => {
