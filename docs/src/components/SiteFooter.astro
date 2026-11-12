@@ -18,6 +18,9 @@ const { currentPath = '' } = Astro.props;
       <div class="rd-footer-meta">
         {rapidocBuildInfo.versionTag} • MIT License © {new Date().getFullYear()} Mrinmoy Majumdar
       </div>
+      <div class="rd-footer-meta">
+        Hosting sponsored by <a href="https://www.simafri.com/en/managed-vps/" target="_blank" rel="sponsored noopener">Simafri</a> (managed VPS)
+      </div>
     </div>
 
     <div class="rd-footer-links-group">
@@ -97,6 +100,15 @@ const { currentPath = '' } = Astro.props;
   .rd-footer-meta {
     color: var(--rd-text-dim);
     font-size: 12px;
+  }
+  .rd-footer-meta a {
+    color: var(--rd-text-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s ease;
+  }
+  .rd-footer-meta a:hover {
+    color: var(--rd-accent);
   }
   .rd-footer-links-group {
     display: grid;
