@@ -136,6 +136,16 @@ header.header {
   line-height: 1.75rem;
   letter-spacing: -0.015em;
 }
+/* Links inside text: a quiet underline, solid accent on hover and focus (as in the portal). */
+.sl-markdown-content a:not(:where(.not-content *)) {
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+.sl-markdown-content a:not(:where(.not-content *)):hover,
+.sl-markdown-content a:not(:where(.not-content *)):focus-visible {
+  text-decoration-color: currentColor;
+}
 
 /* -------------------------------------------------------------------------- Sidebar */
 

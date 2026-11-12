@@ -183,6 +183,18 @@ body {
   line-height: 2.5rem;
   letter-spacing: -0.015em;
 }
+/* Links inside guide text keep an underline (color alone doesn't set them apart from the text, WCAG 1.4.1),
+   but a quiet one that turns solid accent on hover and focus. <rapi-doc> draws its description links the
+   same way. */
+.sl-markdown-content a:not(:where(.not-content *)) {
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+.sl-markdown-content a:not(:where(.not-content *)):hover,
+.sl-markdown-content a:not(:where(.not-content *)):focus-visible {
+  text-decoration-color: currentColor;
+}
 .sl-markdown-content h2 {
   line-height: 2rem;
   letter-spacing: -0.025em;

@@ -86,7 +86,7 @@ export function renderExample(example, paramType, paramName) {
     <button
       type="button"
       part="anchor anchor-param-example"
-      class="value-chip"
+      class="value-link"
       ?disabled="${this.allowTry !== "true"}"
       data-example-type="${paramType === "array" ? paramType : "string"}"
       data-example="${
@@ -438,7 +438,7 @@ export function inputParametersTemplate(paramType) {
                         html`<button
                           type="button"
                           part="anchor anchor-param-constraint"
-                          class="value-chip"
+                          class="value-link"
                           ?disabled="${this.allowTry !== "true"}"
                           data-type="${paramSchema.type === "array" ? paramSchema.type : "string"}"
                           data-enum="${v.trim()}"

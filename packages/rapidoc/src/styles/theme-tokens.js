@@ -95,6 +95,86 @@ export const THEMES = {
 
 export const THEME_PRESETS = Object.keys(THEMES);
 
+/*
+ * Accent as text (`--primary-text`): `--primary` is made for fills and can be too faint as text (orange on
+ * white is about 3:1). The readable variant is the primary mixed toward white (dark scheme) or black (light
+ * scheme) in 2% steps until it reaches 4.5:1 on the page, on cards and on a 12% primary tint. The portal's
+ * accent-colors.js does the same for its own surfaces; keep the two in step.
+ */
+const MIN_TEXT_CONTRAST = 4.5;
+const ACCENT_TINT = 0.12;
+/** The surfaces of section 3, and how much foreground the card mixes in. */
+const SCHEME_SURFACES = {
+  dark: { background: "#1f1f23", foreground: "#d4d4d8", card: 0.08 },
+  light: { background: "#ffffff", foreground: "#27272a", card: 0.06 },
+};
+
+function parseHexColor(color) {
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{6})([0-9a-f]{2})?$/i.exec(String(color || "").trim());
+  if (!m) return null;
+  const hex = m[1].length === 3 ? [...m[1]].map((c) => c + c).join("") : m[1];
+  return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+}
+
+const toHexColor = (rgb) =>
+  `#${rgb.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")}`;
+const mixRgb = (a, b, amountOfB) => a.map((v, i) => v + (b[i] - v) * amountOfB);
+
+function relativeLuminance(rgb) {
+  const [r, g, b] = rgb.map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** WCAG contrast ratio of two hex colors (1 when one can't be parsed). */
+export function contrastRatio(a, b) {
+  const [x, y] = [parseHexColor(a), parseHexColor(b)];
+  if (!x || !y) return 1;
+  const [hi, lo] = [relativeLuminance(x), relativeLuminance(y)].sort((p, q) => q - p);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * The accent as a text color for one color scheme: readable (4.5:1) on the background, on the card and on
+ * a 12% accent tint. Non-hex colors are returned as they are.
+ * @param {string} primary - Hex accent color.
+ * @param {'dark' | 'light'} scheme
+ * @param {{ background?: string, foreground?: string, card?: string }} [surfaces] - Hex surfaces of a theme
+ *   that sets its own; the card defaults to the background mixed with the foreground, as in section 3.
+ * @returns {string}
+ */
+export function readableAccent(primary, scheme, surfaces = {}) {
+  const accent = parseHexColor(primary);
+  if (!accent) return primary;
+  const defaults = SCHEME_SURFACES[scheme] || SCHEME_SURFACES.dark;
+  const background = parseHexColor(surfaces.background) || parseHexColor(defaults.background);
+  const foreground = parseHexColor(surfaces.foreground) || parseHexColor(defaults.foreground);
+  const card = parseHexColor(surfaces.card) || mixRgb(background, foreground, defaults.card);
+  const backgrounds = [background, card, mixRgb(background, accent, ACCENT_TINT)].map(toHexColor);
+  const target = scheme === "light" ? [0, 0, 0] : [255, 255, 255];
+  for (let step = 0; step <= 50; step++) {
+    const shade = toHexColor(mixRgb(accent, target, step / 50));
+    if (backgrounds.every((bg) => contrastRatio(shade, bg) >= MIN_TEXT_CONTRAST)) return shade;
+  }
+  return toHexColor(target);
+}
+
+/** `--name: value;` of a preset's declaration list, or undefined. */
+const declaredValue = (declarations, name) =>
+  new RegExp(`--${name}:\\s*([^;]+);`).exec(declarations)?.[1].trim();
+
+/** A preset's declarations for one scheme, plus its `--primary-text-dark` or `--primary-text-light`. */
+function withPrimaryText(declarations, scheme) {
+  const primaryText = readableAccent(declaredValue(declarations, "primary"), scheme, {
+    background: declaredValue(declarations, "background"),
+    foreground: declaredValue(declarations, "foreground"),
+    card: declaredValue(declarations, "card"),
+  });
+  return `${declarations}  --primary-text-${scheme}: ${primaryText};\n    `;
+}
+
 /**
  * The :host rules for one preset: dark (the default scheme), light, and light again for
  * color-scheme="system" when the OS prefers light. The default preset also applies without a theme attribute.
@@ -119,7 +199,12 @@ function presetCss(name, { dark, light }) {
 
 const presetsCss = unsafeCSS(
   Object.entries(THEMES)
-    .map(([name, schemes]) => presetCss(name, schemes))
+    .map(([name, { dark, light }]) =>
+      presetCss(name, {
+        dark: withPrimaryText(dark, "dark"),
+        light: withPrimaryText(light, "light"),
+      }),
+    )
     .join(""),
 );
 
@@ -207,7 +292,8 @@ export function isLightColor(color) {
 
 /**
  * Dynamically applies custom corporate brand hex colors to the host element.
- * Calculates luminance and injects `--primary` and `--primary-foreground` (`--ring` follows `--primary`).
+ * Calculates luminance and injects `--primary` and `--primary-foreground` (`--ring` follows `--primary`),
+ * and `--primary-text-dark` / `--primary-text-light`, the accent as readable text in each color scheme.
  * @param {HTMLElement} element - Custom element host target.
  * @param {string} themeVal - User-supplied theme attribute value.
  */
@@ -220,12 +306,17 @@ export function applyCustomTheme(element, themeVal) {
   ) {
     element.style.removeProperty("--primary");
     element.style.removeProperty("--primary-foreground");
+    element.style.removeProperty("--primary-text-dark");
+    element.style.removeProperty("--primary-text-light");
     return;
   }
   const hex = themeVal.trim();
   element.style.setProperty("--primary", hex);
   const fg = isLightColor(hex) ? "#000000" : "#ffffff";
   element.style.setProperty("--primary-foreground", fg);
+  // The color-scheme rules (section 3) pick one as --primary-text.
+  element.style.setProperty("--primary-text-dark", readableAccent(hex, "dark"));
+  element.style.setProperty("--primary-text-light", readableAccent(hex, "light"));
 }
 
 export default css`
@@ -281,6 +372,12 @@ export default css`
     --value-list-gap: 0.375rem;
     --value-list-row-gap: 0.125rem;
     --value-list-label-gap: 0.25rem;
+
+    /* --- Accent as text (links, clickable values) ---
+       Every preset sets both, computed by readableAccent(); a hex theme sets them inline (applyCustomTheme).
+       The color-scheme rules (section 3) pick one as --primary-text. */
+    --primary-text-dark: var(--primary);
+    --primary-text-light: var(--primary);
 
     /* --- Focus Ring & Selection --- */
     --ring: var(--primary);
@@ -387,6 +484,7 @@ export default css`
     */
     --muted: color-mix(in srgb, var(--background) 86%, var(--foreground));
     --muted-foreground: color-mix(in srgb, var(--foreground) 65%, var(--background));
+    --primary-text: var(--primary-text-dark);
 
     /* Border Vars:
       border: dividing lines for tables, cards, sections, and panels
@@ -462,6 +560,7 @@ export default css`
     */
     --muted: color-mix(in srgb, var(--background) 94%, var(--foreground));
     --muted-foreground: color-mix(in srgb, var(--foreground) 60%, var(--background));
+    --primary-text: var(--primary-text-light);
 
     /* Border Vars:
       border: dividing lines for tables, cards, sections, and panels
@@ -529,6 +628,7 @@ export default css`
       --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
       --muted: color-mix(in srgb, var(--background) 94%, var(--foreground));
       --muted-foreground: color-mix(in srgb, var(--foreground) 60%, var(--background));
+      --primary-text: var(--primary-text-light);
       --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
       --sidebar-accent: color-mix(in srgb, var(--background) 92%, var(--foreground));
       --input: color-mix(in srgb, var(--border) 75%, var(--foreground));
