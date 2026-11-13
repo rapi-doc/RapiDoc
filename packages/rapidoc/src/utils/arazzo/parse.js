@@ -4,10 +4,10 @@
 import { parse as parseYaml } from "yaml";
 import { collectRefs } from "./refs.js";
 import { resolveComponentRef } from "./components.js";
+import { ACTION_TYPES } from "./actions.js";
 
 export { resolveComponentRef };
 
-const ACTION_TYPES = new Set(["end", "goto", "retry"]);
 const SOURCE_TYPES = new Set(["openapi", "arazzo", "asyncapi"]);
 
 /**

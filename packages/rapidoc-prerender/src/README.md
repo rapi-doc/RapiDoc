@@ -34,10 +34,10 @@ typed contract (option types, navigation types, signatures) and declares no defa
 - `renderTemplateToString(result, options?)`, `escapeHtml(str)` [serializer.js] — DOM-free
   serializer for Lit `TemplateResult` values.
 - Re-exports: `bindNavBar` (browser-side, `../../rapidoc/src/utils/bind-navbar.js`); `getBundledCss`,
-  `getNavCss`, `getThemeTokensCss` (`../../rapidoc/src/styles/css-bundle.js`); `toKebabCase`, `methodPathSlug`,
+  `getNavCss`, `getThemeTokensCss`, `getFlowCss` (`../../rapidoc/src/styles/css-bundle.js`); `toKebabCase`, `methodPathSlug`,
   `operationAnchorSource` (`../../rapidoc/src/utils/slugger.js`); `renderArazzoWorkflow`
-  (`../../rapidoc/src/utils/arazzo/index.js`: one Arazzo workflow as an SVG string) and `getFlowCss` (its
-  stylesheet, `../../rapidoc/src/styles/flow-styles.js`; the page also needs `getThemeTokensCss`).
+  (`../../rapidoc/src/utils/arazzo/index.js`: one Arazzo workflow as an SVG string, and its legend);
+  `getFlowCss` is that diagram's and legend's stylesheet (the page also needs `getThemeTokensCss`).
 
 ## Invariants
 

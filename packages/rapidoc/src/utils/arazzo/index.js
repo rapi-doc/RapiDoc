@@ -30,8 +30,9 @@ export {
  * @param {'expanded'|'compact'} [options.view] defaults to expanded
  * @param {string} [options.idPrefix]
  * @param {boolean} [options.interactive]
- * @returns {{ svg: string, legend: string[], graph: object|null, problems: object[],
- *   workflowIds: string[] }} `legend` names the kinds of lines drawn (see renderFlowDiagram)
+ * @returns {{ svg: string, legend: string[], legendHtml: string, graph: object|null,
+ *   problems: object[], workflowIds: string[] }} `legend` names the kinds of lines drawn and
+ *   `legendHtml` is their legend (see renderFlowDiagram)
  */
 export function renderArazzoWorkflow(arazzo, options = {}) {
   const doc = parseDocument(arazzo);
@@ -41,10 +42,11 @@ export function renderArazzoWorkflow(arazzo, options = {}) {
     sources.set(name, indexOperations(parseDocument(openapi)));
   }
   const graph = buildFlowGraph(doc, options.workflowId, { sources });
-  const { svg, legend } = renderFlowDiagram(graph, options);
+  const { svg, legend, legendHtml } = renderFlowDiagram(graph, options);
   return {
     svg,
     legend,
+    legendHtml,
     graph,
     problems,
     workflowIds: (doc.workflows || []).map((w) => w?.workflowId).filter(Boolean),
