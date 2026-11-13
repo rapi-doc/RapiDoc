@@ -14,6 +14,7 @@ import LayoutStyles from "./layout-styles.js";
 import BorderStyles from "./border-styles.js";
 import SchemaStyles from "./schema-styles.js";
 import CustomStyles from "./custom-styles.js";
+import FlowStyles from "./flow-styles.js";
 
 export const allStyles = [
   ThemeTokens,
@@ -57,6 +58,16 @@ export function getBundledCss(options = {}) {
   }
 
   return combinedCss;
+}
+
+/**
+ * CSS for the Arazzo diagrams of `renderArazzoWorkflow` and their legend; the page also needs the
+ * theme tokens (`getThemeTokensCss`).
+ *
+ * @returns {string} Flow CSS string
+ */
+export function getFlowCss() {
+  return FlowStyles.cssText;
 }
 
 /**

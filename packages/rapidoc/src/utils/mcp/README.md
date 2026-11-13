@@ -114,6 +114,7 @@ methods, and the network calls themselves (the runtime only builds and sends req
   seconds) with simple criteria, and `$inputs` / `$steps` expressions. Steps that call another
   workflow, actions that go to one, and `$workflows` expressions are reported. A step's actions
   are its own `onSuccess` / `onFailure` followed by the workflow's it does not override by name.
+  Criteria and actions are read with `../arazzo/actions.js`, as the diagram reads them.
 - **Running a workflow** (`[workflow-runtime.js:runWorkflow]`): required inputs are checked first.
   Each step's parameters and payload are evaluated against `$inputs` and earlier steps' outputs
   (`resolveValue`: a whole-string expression keeps its type, `{$expr}` inside text is

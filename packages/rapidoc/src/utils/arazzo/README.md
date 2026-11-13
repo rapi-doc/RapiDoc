@@ -6,17 +6,25 @@ Reads Arazzo 1.x documents and draws one workflow as an SVG string: the workflow
 outputs, its steps in order, the values passed between steps, and each step's success and failure
 actions. The inputs box (each input's type, required flag, default and enum values; a string enum's type
 reads `enum`, as `<rapi-doc>` labels it) and the
-outputs table are the same in both views, which differ in the step boxes: `expanded` (the
-default) lists each step's values with a keyword for where they come from (`input`, `step`,
-`fixed`, `expr`), its checks (the success criteria, unnumbered), its actions as "condition →
-what happens" under "On success · first match runs" / "On failure · first match runs", and the
-outputs something reads; `compact` shows each step's name, method, path and number of checks,
-with labelled value lines and no actions. Used by `<rapi-flow>` (`src/rapi-flow.ts`, bundled as `dist/rapidoc-flow-min.js`) and by
+outputs box are the same in both views, which differ in the step boxes: `expanded` (the
+default) lists each step's values under a heading per location (Path params, Query params,
+Header params, Cookie params, Request body with its content type; body fields without their `body.` prefix) with a keyword for
+where they come from (`input`, `← from` for a step's output, `fixed`, `expr`; the `←` in a column
+of its own, so values passed in from an earlier step stand apart), its checks (the success criteria,
+unnumbered), its actions that draw no line as "condition → what happens" under "On success" /
+"On failure", each heading saying when it applies ("· if all checks pass" / "· if any check fails", or "the check" with one check; a step succeeds only when all its checks pass), with "· first match runs" when the step has more than one action for that outcome; an action
+without criteria that comes first has no condition (the heading says when it applies), and an
+`end` reads as an END pill (red on failure, green on success); a step with no failure action
+(its own or inherited) gets an "On failure" section with an outlined END pill and "(default)",
+Arazzo's default being to end the workflow (no success action shows nothing: the next-step arrow
+says it), and the outputs something reads; `compact` shows each step's name, method, path, number of checks
+and the same value sections, without checks, actions or outputs. Neither view draws lines for
+values passed between steps: each value names the step it comes from. Used by `<rapi-flow>` (`src/rapi-flow.ts`, bundled as `dist/rapidoc-flow-min.js`) and by
 the build-time renderer (`@rapidoc/prerender`: `renderArazzoWorkflow`, `getFlowCss`).
 
 Not owned here: running workflows (nothing here makes a request), the element's loading and
 events (`src/rapi-flow.ts`), and the diagram's look (`src/styles/flow-styles.js`). `dist/rapidoc-min.js`
-imports only the YAML-free modules `components.js`, `operations.js` and `refs.js`, through
+imports only the YAML-free modules `actions.js`, `components.js`, `operations.js` and `refs.js`, through
 `utils/mcp/workflows.js`, which compiles workflows into the MCP manifest; `parse.js` (the `yaml`
 package) stays out of it.
 
@@ -28,6 +36,14 @@ package) stays out of it.
   relies on; an empty list means valid.
 - `resolveComponentRef(doc, obj, kind)` [components.js, re-exported by parse.js]: `{ reference: "$components.<kind>.<name>" }`
   to the component, or null.
+- `readCriteria(list)`, `readActions(doc, list, kind)`, `mergeActions(own, inherited)`,
+  `ACTION_TYPES` [actions.js]: criteria and actions as written, read once for the diagram
+  (`graph.js`, which adds `outcome`, `conditional`, `inherited` and `shadowed`) and the MCP
+  compiler (`utils/mcp/workflows.js`, which reports what its runtime cannot run and defaults the
+  retry fields). References are resolved, unknown action types and criteria without a condition
+  left out, criterion `type` defaulted to "simple", and each entry keeps its `index` in the list
+  as written, for problem paths. `mergeActions` is the order a runner checks: the step's own, then
+  the workflow's it does not override by `name`.
 - `collectRefs(value)` [refs.js]: `$inputs`, `$steps` and `$workflows` expressions anywhere in a
   JSON value, distinct, in first-seen order.
 - `indexOperations(openapi)`, `indexResolvedSpec(resolvedSpec)` (the same index from
@@ -36,15 +52,19 @@ package) stays out of it.
   by operationId (plain or `$sourceDescriptions.<name>.` qualified) and by `operationPath`.
 - `buildFlowGraph(doc, workflowId?, { sources })` [graph.js]: the graph the SVG draws; null when
   the workflow does not exist.
-- `renderFlowDiagram(graph, { view, idPrefix, interactive }) -> { svg, legend }` [svg.js]:
-  `legend` names the kinds of lines drawn (`seq`, `data`, `output`, `success`, `failure`);
+- `renderFlowDiagram(graph, { view, idPrefix, interactive, stepClasses }) -> { svg, legend, legendHtml }` [svg.js]:
+  `stepClasses` adds classes to step boxes by step id (`<rapi-flow>` marks the selected step and
+  the running one, `rf-selected` / `rf-running`, this way);
+  `legend` names the kinds of lines drawn (`seq`, `success`, `failure`, `retry`), and `legendHtml`
+  is their legend, a `<ul class="flow-legend" part="legend">` styled by `flow-styles.js`, the one
+  legend `<rapi-flow>` and the portal's `{% workflow %}` tag both show ("" when nothing is drawn);
   `renderFlowSvg` returns only the SVG. `actionLabel` (short: "✗ retry 3× after 2s (if)"),
   `actionSentence` (with criteria), `describeAction(action, checks, index)` (`{ when, does, name, tag }`, the
   wording of the expanded boxes; an action without criteria reads "checks
   fail" / "check fails" / "request fails" by the step's number of checks, or "otherwise" after
   other actions) and `escapeXml` are exported too.
 - `renderArazzoWorkflow(arazzo, options)` [index.js]: parse, validate, index `options.sources`,
-  build and draw in one call; returns `{ svg, legend, graph, problems, workflowIds }`.
+  build and draw in one call; returns `{ svg, legend, legendHtml, graph, problems, workflowIds }`.
 
 ## Invariants
 
@@ -56,41 +76,43 @@ package) stays out of it.
   `operationId` / `operationPath` / `workflowId` per step, action types (retry only on failure),
   goto and `dependsOn` targets, and `$steps.<id>` references. It does not check expression syntax,
   `inputs` JSON Schema, or criteria.
-- **Edges.** A data edge goes from a step to a later step (or to the outputs box) whenever a
-  `$steps.<id>.outputs.<name>` expression appears in the later step's `parameters` or
-  `requestBody` (or a workflow output). References to the same or an earlier step are not drawn.
-  Edges into the outputs box are drawn gray, the others in the primary color. Compact: edges from
-  one step with the same labels share a lane and arrive at the middle of the target step; edges
-  into the outputs box carry no label and arrive at the step's group, as in expanded. Expanded: one lane per source step, starting at each of its Outputs rows
-  that is read and branching to each line (a step binding, or the step's group heading in the
-  outputs box) that reads one; no labels, since the lines name the value.
+- **Edges.** The graph's `dataEdges` go from a step to a later step (or to the outputs box)
+  whenever a `$steps.<id>.outputs.<name>` expression appears in the later step's `parameters` or
+  `requestBody` (or a workflow output), for callers. The diagram draws none: each value line in a
+  step box or the outputs box names the step it comes from (`← from <step>.<output>`).
 - **Step outputs.** Each step's `usedOutputs` are its outputs that a later step or the workflow
   reads. Expanded boxes end with an Outputs section listing them, the source shortened
   (`$response.body#/status` reads `response body /status`, the full expression a tooltip), and
   "+N unused" for the rest.
-- **Outputs box.** A table in both views: the output names in one flat column (the workflow's
-  result is a flat object), and on the right, under "From step", the step each group comes from,
-  once per group, with a rule between groups. Groups follow the order each step first appears;
-  outputs not taken from a step come last, their source kind (`input`, `fixed`, `expr`) in the
-  step column. A step output whose name differs from the workflow output's follows as
-  `← <name>`. A step's line arrives at its group's first row, beside the step name.
-- **Step names** (box titles, the step in `step` value lines, the From step column) share one
+- **Outputs box.** The same in both views: one row per output, read as a step's value lines are:
+  the output's name, then `← <step>.<output>` for a step's output (the step in the step color,
+  no `from` keyword, no step column), or the source keyword and value (`input`, `fixed`, `expr`)
+  with the `←` column blank. Rows are grouped by step, in the order each step first appears, with
+  a rule between groups; outputs not taken from a step come last.
+- **Step names** (box titles, the step in `←` value lines in step boxes and the outputs box) share one
   color, `--primary` mixed toward the text color so it passes 4.5:1 on light cards; variable
   names keep the text color.
 - **Linking.** Step boxes carry `data-step-id`; output rows and value lines carry
   `data-from-step`, so a caller can highlight a step with everything it feeds (`<rapi-flow>` does
   on hover, with the `rf-linked` class). With `interactive`, those rows are also `rf-jump` links
-  (the outputs box's step names focusable, `role="link"`) for a caller to scroll to the step.
+  (the outputs box's rows focusable, `role="link"`) for a caller to scroll to the step.
 - **Actions.** A step's actions are its own `onSuccess` / `onFailure`, then the workflow's
   `successActions` / `failureActions` (marked `inherited`) minus any the step overrides by `name`.
   The graph also lists the workflow's actions once as `workflowActions`. Compact shows no
   actions; expanded lists a step's own actions and the inherited ones in one list per outcome, in merge order, each with its name in parentheses after
-  what it does; inherited ones also carry a `workflow` tag on the right. A runner takes the first action whose criteria match, so every action after
+  what it does; inherited ones also carry an `Inherited` tag on the right (`rf-tag rf-inherited`, a light violet: `--purple` mixed with `--foreground`). A runner takes the first action whose criteria match, so every action after
   one without criteria is marked `shadowed` (it never runs). Shadowed actions are left out of the
   boxes and draw no goto line; the graph's `warnings` (`{ level, path,
   message }`, one per step and outcome) name them, for author tooling;
-  `<rapi-flow>` does not show them. Only `goto` with a `stepId` in the same workflow draws a line, from its action line
-  (expanded) or the box's left edge (compact); `end`, `retry` and goto to a workflow draw none.
+  `<rapi-flow>` does not show them. A `goto` with a `stepId` in the same workflow and a `retry` (into its
+  own step, or its `stepId`) draw a line from their action line (expanded) or the box's left edge
+  (compact), a loop when a retry retries its own step. A goto's line reads "→ goto <step>" (the
+  step in the step color) and its line is labelled with the action's name, which the box does not
+  repeat; a retry's line reads "→ retry 3×, 2s apart (<name>)" and its line is labelled
+  "retry 3× @ 2s". Each label's tooltip is the whole action. Both views draw inherited actions' lines too. In compact, a retry
+  into its own step leaves near the bottom of the box, so the loop spans the box with its label on
+  the line, as in expanded. All lines between boxes have rounded corners (`roundedPath`).
+  `end` and goto to a workflow draw none.
 - **Details.** The graph carries more than the boxes show, for callers that render their own
   documentation: `inputDetails` (type,
   format, required, default, enum, description, from `inputs` or a `$ref` to

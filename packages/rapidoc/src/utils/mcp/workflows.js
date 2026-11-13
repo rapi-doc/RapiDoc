@@ -10,18 +10,16 @@ import { toJsonSchema } from "./schema.js";
 import { resolveComponentRef } from "../arazzo/components.js";
 import { resolveOperation } from "../arazzo/operations.js";
 import { collectRefs } from "../arazzo/refs.js";
+import { mergeActions, readActions, readCriteria } from "../arazzo/actions.js";
 
 const PARAM_LOCATIONS = new Set(["path", "query", "header", "cookie"]);
-const ACTION_TYPES = new Set(["end", "goto", "retry"]);
-
-function criteria(list, where, problems) {
+/** Criteria from readCriteria the runtime evaluates: simple conditions only, the rest reported. */
+function criteria(read, where, problems) {
   const out = [];
-  for (const [i, c] of (Array.isArray(list) ? list : []).entries()) {
-    if (!c || typeof c.condition !== "string") continue;
-    const type = typeof c.type === "string" ? c.type : c.type?.type || "simple";
-    if (type !== "simple") {
+  for (const c of read) {
+    if (c.type !== "simple") {
       problems.push(
-        `${where}[${i}]: criterion type ${type} is not supported, only simple conditions`,
+        `${where}[${c.index}]: criterion type ${c.type} is not supported, only simple conditions`,
       );
       continue;
     }
@@ -30,12 +28,14 @@ function criteria(list, where, problems) {
   return out;
 }
 
+/**
+ * Actions from readActions as the runtime takes them: no goto or retry into another workflow, no
+ * unknown step, retry limits defaulted (once, no wait).
+ */
 function actions(doc, list, kind, where, stepIds, problems) {
   const out = [];
-  for (const [i, raw] of (Array.isArray(list) ? list : []).entries()) {
-    const a = resolveComponentRef(doc, raw, kind);
-    if (!a || !ACTION_TYPES.has(a.type)) continue;
-    const p = `${where}[${i}]`;
+  for (const a of readActions(doc, list, kind)) {
+    const p = `${where}[${a.index}]`;
     if (a.workflowId) {
       problems.push(`${p}: ${a.type} to another workflow is not supported`);
       continue;
@@ -44,11 +44,7 @@ function actions(doc, list, kind, where, stepIds, problems) {
       problems.push(`${p}: no step "${a.stepId}"`);
       continue;
     }
-    const action = {
-      name: a.name || "",
-      type: a.type,
-      criteria: criteria(a.criteria, p, problems),
-    };
+    const action = { name: a.name, type: a.type, criteria: criteria(a.criteria, p, problems) };
     if (a.stepId) action.stepId = a.stepId;
     if (a.type === "retry") {
       action.retryLimit = Number.isFinite(a.retryLimit) ? a.retryLimit : 1;
@@ -57,12 +53,6 @@ function actions(doc, list, kind, where, stepIds, problems) {
     out.push(action);
   }
   return out;
-}
-
-/** The step's own actions, then the workflow's minus those the step overrides by name. */
-function merge(own, inherited) {
-  const names = new Set(own.map((a) => a.name).filter(Boolean));
-  return [...own, ...inherited.filter((a) => !a.name || !names.has(a.name))];
 }
 
 function unsupportedRefs(value, where, problems) {
@@ -147,9 +137,13 @@ function compileStep(doc, step, workflow, sources, stepIds, problems) {
     },
     parameters,
     requestBody,
-    successCriteria: criteria(step.successCriteria, `${where}.successCriteria`, problems),
-    onSuccess: merge(onSuccess, workflow.successActions),
-    onFailure: merge(onFailure, workflow.failureActions),
+    successCriteria: criteria(
+      readCriteria(step.successCriteria),
+      `${where}.successCriteria`,
+      problems,
+    ),
+    onSuccess: mergeActions(onSuccess, workflow.successActions),
+    onFailure: mergeActions(onFailure, workflow.failureActions),
     outputs,
   };
 }

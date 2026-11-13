@@ -3,50 +3,39 @@
  * between them, and each step's success and failure actions.
  */
 import { collectRefs } from "./refs.js";
-import { resolveComponentRef } from "./parse.js";
+import { resolveComponentRef } from "./components.js";
+import { mergeActions, readActions, readCriteria } from "./actions.js";
 import { resolveOperation } from "./operations.js";
 
-function normalizeCriteria(list) {
-  return (Array.isArray(list) ? list : [])
-    .filter((c) => c && typeof c.condition === "string")
-    .map((c) => ({
-      condition: c.condition,
-      context: c.context || "",
-      type: typeof c.type === "string" ? c.type : c.type?.type || "simple",
-    }));
-}
+// The diagram's criteria: as read, without the list position the MCP compiler reports by
+const withoutIndex = ({ index: _index, ...rest }) => rest;
+const normalizeCriteria = (list) => readCriteria(list).map(withoutIndex);
 
 function normalizeActions(doc, list, kind, outcome, inherited) {
-  return (Array.isArray(list) ? list : [])
-    .map((raw) => resolveComponentRef(doc, raw, kind))
-    .filter((a) => a && ["end", "goto", "retry"].includes(a.type))
-    .map((a) => {
-      const criteria = normalizeCriteria(a.criteria);
-      return {
-        outcome,
-        type: a.type,
-        name: a.name || "",
-        stepId: a.stepId || "",
-        workflowId: a.workflowId || "",
-        retryAfter: a.retryAfter,
-        retryLimit: a.retryLimit,
-        criteria,
-        conditional: criteria.length > 0,
-        inherited,
-      };
-    });
+  return readActions(doc, list, kind).map((a) => {
+    const plain = a.criteria.map(withoutIndex);
+    return {
+      outcome,
+      type: a.type,
+      name: a.name,
+      stepId: a.stepId,
+      workflowId: a.workflowId,
+      retryAfter: a.retryAfter,
+      retryLimit: a.retryLimit,
+      criteria: plain,
+      conditional: plain.length > 0,
+      inherited,
+    };
+  });
 }
 
 /**
- * A step's own actions, then the workflow's, minus those the step overrides by name. A runner
- * takes the first action whose criteria match, so every action after one without criteria is
- * marked `shadowed`: it can never run.
+ * The actions a runner checks for a step (mergeActions). It takes the first whose criteria match,
+ * so every action after one without criteria is marked `shadowed`: it can never run.
  */
-function mergeActions(own, inherited) {
-  const names = new Set(own.map((a) => a.name).filter(Boolean));
-  const merged = [...own, ...inherited.filter((a) => !a.name || !names.has(a.name))];
-  const first = merged.findIndex((a) => !a.conditional);
-  return merged.map((a, i) => ({ ...a, shadowed: first >= 0 && i > first }));
+function markShadowed(actions) {
+  const first = actions.findIndex((a) => !a.conditional);
+  return actions.map((a, i) => ({ ...a, shadowed: first >= 0 && i > first }));
 }
 
 /** The workflow's `inputs` JSON Schema (or a `$ref` to `#/components/inputs/<name>`) as rows. */
@@ -221,8 +210,8 @@ export function buildFlowGraph(doc, workflowId, options = {}) {
       criteria,
       successCriteria: criteria.length,
       actions: [
-        ...mergeActions(onSuccess, workflowSuccess),
-        ...mergeActions(onFailure, workflowFailure),
+        ...markShadowed(mergeActions(onSuccess, workflowSuccess)),
+        ...markShadowed(mergeActions(onFailure, workflowFailure)),
       ],
     };
   });

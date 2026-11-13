@@ -2,19 +2,18 @@
  * Lays out a flow graph (see graph.js) and draws it as an SVG string. No DOM: text widths are
  * estimated from character counts, so the same code runs in Node and the browser.
  *
- * Steps are stacked top to bottom between the workflow's inputs and outputs. Values passed between
- * steps run in lanes on the right, and a goto draws a line through the lanes on the left to its
- * target step. The inputs box (each input's type, required flag, default and enum values) and
- * the outputs table are the same in both views; the views differ in the step boxes:
+ * Steps are stacked top to bottom between the workflow's inputs and outputs. A goto or retry
+ * draws a line through the lanes on the left to its target step; lines have rounded corners.
+ * Values passed between steps draw no lines: each value names the step it comes from
+ * ("← from <step>.<output>"). The inputs box (each input's type, required flag, default and enum
+ * values) and the outputs box are the same in both views; the views differ in the step boxes:
  * - "expanded" (default): each step lists the values it sends and where they come from (input,
- *   step, fixed or expr), its checks, its actions as "condition → what happens", and the outputs
- *   something reads. Value lines run from the output row to the line that reads it, unlabelled.
- * - "compact": each step shows only its name, method, path and number of checks; values passed
- *   to steps are labelled lines.
+ *   from a step, fixed or expr), its checks, its actions as "condition → what happens", and the
+ *   outputs something reads.
+ * - "compact": each step shows its name, method, path, number of checks and the values it sends.
  */
 
-const BOX_W = 320; // compact
-const BOX_MIN = 360; // expanded, grows with its longest line up to BOX_MAX
+const BOX_MIN = 360; // both views; boxes grow with their longest line up to BOX_MAX
 const BOX_MAX = 560;
 const PAD = 16;
 const ROW = 18;
@@ -24,10 +23,13 @@ const LANE = 20;
 const MARGIN = 16;
 const COMPACT_GOTO_Y = 30; // compact: first goto line leaves the box's left edge this far down
 const ARRIVAL_ZONE = 18; // top strip of a step's left edge where goto lines arrive
+const ACTION_LINE_GAP = 10; // expanded: between action lines leaving a box's left edge
 const MAX_BINDINGS = 10; // more are summed up in one line; the step details list them all
 const CHAR_W = 7.2; // average advance of a 12-13px sans character
 const MONO_W = 7.4; // 12px monospace
 const PILL_CHAR_W = 6.4; // 11px sans
+const END_CHAR_W = 8; // 11px bold upper case, for the END pill
+const PILL_PAD = 5; // an in-row pill's padding on each side
 
 export function escapeXml(text) {
   return String(text ?? "")
@@ -76,8 +78,8 @@ function shortCondition(condition) {
 /**
  * An action in words, for a step box.
  * `{ when: "status 503", does: "retry 3×, 1s apart", name: "retryOnServiceUnavailable",
- * tag: "workflow" }`; `name` is the action's own name ("" when the file gives none), `tag` is
- * "workflow" for an action the step inherits and "" for the step's own. An action without criteria applies whenever the
+ * tag: "Inherited" }`; `name` is the action's own name ("" when the file gives none), `tag` is
+ * "Inherited" for an action the step inherits and "" for the step's own. An action without criteria applies whenever the
  * step's checks fail (or pass); `checks` is how many the step has, for the wording. After other
  * actions (`index` > 0 in its outcome's list) it reads "otherwise".
  */
@@ -91,15 +93,14 @@ export function describeAction(a, checks = 0, index = 0) {
   } else when = checks > 1 ? "checks pass" : checks ? "check passes" : "request succeeds";
   let does;
   if (a.type === "end") does = "stop the workflow";
-  else if (a.type === "goto")
-    does = a.stepId ? `go to ${a.stepId}` : `run workflow ${a.workflowId}`;
+  else if (a.type === "goto") does = a.stepId ? `goto ${a.stepId}` : `run workflow ${a.workflowId}`;
   else {
     does = "retry";
     if (a.retryLimit) does += ` ${a.retryLimit}×`;
     if (a.retryAfter) does += `, ${a.retryAfter}s apart`;
     if (a.stepId) does += ` from ${a.stepId}`;
   }
-  return { when, does, name: a.name || "", tag: a.inherited ? "workflow" : "" };
+  return { when, does, name: a.name || "", tag: a.inherited ? "Inherited" : "" };
 }
 
 /** Greedy lane assignment: edges whose spans overlap get different lanes. */
@@ -146,6 +147,10 @@ function fitRow(row, boxW) {
   last.text = truncate(last.text, Math.floor(room / last.w));
 }
 
+/** A pill's rounded rect: END in a step box, a line's label. */
+const pillRect = (x, y, width, height, cls = "") =>
+  `<rect${cls ? ` class="${cls}"` : ""} x="${x}" y="${y}" width="${width}" height="${height}" rx="3"/>`;
+
 /**
  * One row as SVG text. A row with `fromStep` (an output row, or a value line that reads a step)
  * carries `data-from-step`; with `interactive` it is also an `rf-jump` link to that step, and the
@@ -155,6 +160,21 @@ function renderRow(row, boxX, boxW, baseline, interactive = false) {
   const jump = interactive && row.fromStep;
   const from = row.fromStep ? ` data-from-step="${escapeXml(row.fromStep)}"` : "";
   const rowCls = jump ? "rf-row rf-jump" : "rf-row";
+  // A part with `pill` gets a rounded rect behind it, PILL_PAD wider on each side
+  const { starts } = rowExtent(row);
+  const pills = row.parts
+    .map((p, i) =>
+      p.pill
+        ? pillRect(
+            boxX + starts[i] - PILL_PAD,
+            baseline - 12,
+            textWidth(p.text, p.w) + PILL_PAD * 2,
+            16,
+            p.pill,
+          )
+        : "",
+    )
+    .join("");
   const tspans = row.parts
     .map((p) => {
       const place = p.x !== undefined ? ` x="${boxX + p.x}"` : p.dx ? ` dx="${p.dx}"` : "";
@@ -168,24 +188,39 @@ function renderRow(row, boxX, boxW, baseline, interactive = false) {
   const rule = row.rule
     ? `<path class="rf-sep" d="M${boxX} ${baseline - 13}H${boxX + boxW}"/>`
     : "";
-  return `${rule}<text class="${rowCls}" y="${baseline}"${from}>${tip}${tspans}</text>${tag}`;
+  // An output row is a link to its step: focusable, named for screen readers
+  const link =
+    jump && row.focusable
+      ? ` tabindex="0" role="link" aria-label="${escapeXml(`Go to step ${row.fromStep}`)}"`
+      : "";
+  return `${rule}${pills}<text class="${rowCls}" y="${baseline}"${from}${link}>${tip}${tspans}</text>${tag}`;
 }
 
 // The word before each value in a step box or the outputs box, by source kind
-const KEYWORDS = { input: "input", step: "step", value: "fixed", expression: "expr" };
+// The word before each value in a step box or the outputs box, by source kind
+const KEYWORDS = { input: "input", step: "from", value: "fixed", expression: "expr" };
+// A one-character column before the keyword holds "←" for a value read from an earlier step, so
+// values passed in from another step stand apart from those the step sets itself
+const ARROW_W = 2 * MONO_W; // "←" plus a space
 const KEYWORD_W = 6 * MONO_W; // "input" plus a space
 
-function sourceParts(source, col) {
-  const keyword = part(KEYWORDS[source.kind], `rf-kw rf-kw-${source.kind}`, MONO_W, { x: col });
-  // A step output reads "<step>.<output>": the step name in the step color, the output plain
+function sourceParts(source, col, { fromKeyword = true } = {}) {
+  const keyword = part(KEYWORDS[source.kind], `rf-kw rf-kw-${source.kind}`, MONO_W, {
+    x: col + ARROW_W,
+  });
+  const valueX = col + ARROW_W + KEYWORD_W;
+  // A step output reads "← from <step>.<output>" ("← <step>.<output>" in the outputs box): the
+  // step name in the step color, the output plain
   if (source.kind === "step") {
     return [
-      keyword,
-      part(source.stepId, "rf-step-name", MONO_W, { x: col + KEYWORD_W }),
+      // The same arrow, in the same font and color, as an action's "→ goto"
+      part("←", "rf-from-arrow", CHAR_W, { x: col }),
+      ...(fromKeyword ? [keyword] : []),
+      part(source.stepId, "rf-step-name", MONO_W, { x: fromKeyword ? valueX : col + ARROW_W }),
       part(`.${source.name}`, "rf-bind-val", MONO_W),
     ];
   }
-  return [keyword, part(source.text, "rf-bind-val", MONO_W, { x: col + KEYWORD_W })];
+  return [keyword, part(source.text, "rf-bind-val", MONO_W, { x: valueX })];
 }
 
 /** "$response.body#/status" as "response body /status", for a step output's source. */
@@ -198,8 +233,8 @@ function shortExpression(expr) {
 }
 
 /**
- * The step's own outputs that something later reads, with where they come from. Lines to the
- * steps and outputs that read them start at these rows. Unused outputs are counted on one line.
+ * The step's own outputs that something later reads, with where they come from. Unused outputs
+ * are counted on one line.
  */
 function stepOutputRows(step) {
   if (!step.usedOutputs.length) return [];
@@ -208,7 +243,6 @@ function stepOutputRows(step) {
   const rows = [
     { parts: [part("Outputs", "rf-sec-title", PILL_CHAR_W, { x: PAD })] },
     ...step.usedOutputs.map((o) => ({
-      departs: o.name,
       tip: typeof o.expr === "string" ? o.expr : JSON.stringify(o.expr),
       parts: [
         part(truncate(o.name, nameChars), "rf-bind-name", MONO_W, { x: PAD }),
@@ -246,36 +280,185 @@ function checkRows(step) {
   ];
 }
 
+/** A step's actions for one outcome that can run, each with its wording (describeAction). */
+function describedActions(step, outcome) {
+  return step.actions
+    .filter((a) => a.outcome === outcome && !a.shadowed)
+    .map((a, i) => ({ a, d: describeAction(a, step.criteria.length, i) }));
+}
+
+/**
+ * The step an action draws a line to: a goto's step, or a retry's (its own step unless it names
+ * one). "" when the action draws none (end, goto to a workflow, a step not in this workflow).
+ */
+function actionTarget(a, step, stepIds) {
+  if (a.type === "goto") return a.stepId && stepIds.has(a.stepId) ? a.stepId : "";
+  if (a.type === "retry") return !a.stepId || stepIds.has(a.stepId) ? a.stepId || step.stepId : "";
+  return "";
+}
+
+const EDGE_LABEL_CHARS = 20;
+
+/**
+ * The actions a step draws as lines, the whole action in the label's tooltip: "status 503 →
+ * retry 3×, 2s apart (storeBusy)". A goto's label is the action's name (or where it goes); a
+ * retry's is how many times and how far apart, "retry 3× @ 2s", its name being on its action line.
+ */
+/** Corner radius of the lines between boxes. */
+const CORNER_R = 6;
+const num = (v) => String(Math.round(v * 100) / 100);
+
+/**
+ * An SVG path through `points` ([x, y] pairs joined by straight segments) with each corner
+ * rounded: a quadratic curve of up to `CORNER_R`, less where a segment is too short for it.
+ */
+function roundedPath(points) {
+  const pts = points.filter(
+    (p, i) => i === 0 || p[0] !== points[i - 1][0] || p[1] !== points[i - 1][1],
+  );
+  let d = `M${num(pts[0][0])} ${num(pts[0][1])}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [px, py] = pts[i - 1];
+    const [cx, cy] = pts[i];
+    const [nx, ny] = pts[i + 1];
+    const l1 = Math.hypot(cx - px, cy - py);
+    const l2 = Math.hypot(nx - cx, ny - cy);
+    const r = Math.min(CORNER_R, l1 / 2, l2 / 2);
+    const ax = cx - ((cx - px) / l1) * r;
+    const ay = cy - ((cy - py) / l1) * r;
+    const bx = cx + ((nx - cx) / l2) * r;
+    const by = cy + ((ny - cy) / l2) * r;
+    d += `L${num(ax)} ${num(ay)}Q${num(cx)} ${num(cy)} ${num(bx)} ${num(by)}`;
+  }
+  const last = pts.at(-1);
+  return `${d}L${num(last[0])} ${num(last[1])}`;
+}
+
+/** A retry line's label: "retry 3× @ 2s" ("retry 3×", "retry @ 2s", "retry"). */
+function retryLabel(a) {
+  return `retry${a.retryLimit ? ` ${a.retryLimit}×` : ""}${a.retryAfter ? ` @ ${a.retryAfter}s` : ""}`;
+}
+
+function actionLines(step, stepIds) {
+  return ["success", "failure"].flatMap((outcome) =>
+    describedActions(step, outcome)
+      .filter(({ a }) => actionTarget(a, step, stepIds))
+      .map(({ a, d }) => ({
+        action: a,
+        target: actionTarget(a, step, stepIds),
+        kind: a.type === "retry" ? "retry" : outcome,
+        label: truncate(a.type === "retry" ? retryLabel(a) : d.name || d.does, EDGE_LABEL_CHARS),
+        tip: `${d.when} → ${d.does}${d.name ? ` (${d.name})` : ""}${d.tag ? ", inherited from the workflow" : ""}`,
+      })),
+  );
+}
+
 /**
  * "On success" and "On failure" sections: one line per action, in the order a runner checks.
- * Actions that can never run (`shadowed`) are left out; the graph's `warnings` name them.
+ * Actions that can never run (`shadowed`) are left out; the graph's `warnings` name them. A goto
+ * to a step and a retry also draw a line, which starts at their action line.
  */
-function actionSections(step) {
+function actionSections(step, stepIds) {
   return ["success", "failure"]
     .map((outcome) => {
-      const actions = step.actions.filter((a) => a.outcome === outcome && !a.shadowed);
-      if (!actions.length) return [];
-      const described = actions.map((a, i) => describeAction(a, step.criteria.length, i));
-      const whenChars = Math.min(34, Math.max(...described.map((d) => d.when.length)));
-      const col = PAD + whenChars * CHAR_W + 12;
+      const listed = describedActions(step, outcome);
+      // When the section applies: a step succeeds only when all its checks pass
+      const checks = step.successCriteria;
+      const applies =
+        checks > 1
+          ? { success: "if all checks pass", failure: "if any check fails" }[outcome]
+          : checks === 1
+            ? { success: "if the check passes", failure: "if the check fails" }[outcome]
+            : "";
+      const heading = (note) => ({
+        parts: [
+          part(`On ${outcome}`, "rf-sec-title", PILL_CHAR_W, { x: PAD }),
+          ...(note.length
+            ? [part(`· ${note.join(" · ")}`, "rf-sec-note", PILL_CHAR_W, { dx: 6 })]
+            : []),
+        ],
+      });
+      if (!listed.length) {
+        // No action on success: the next-step arrow says it. No action on failure: Arazzo ends
+        // the workflow, shown as a faded END pill so every step says what a failure does
+        if (outcome === "success") return [];
+        return [
+          heading(applies ? [applies] : []),
+          {
+            tip: "No failure action: the workflow ends",
+            parts: [
+              part("END", "rf-end rf-failure rf-default", END_CHAR_W, {
+                x: PAD + PILL_PAD,
+                pill: "rf-end-pill rf-failure rf-default",
+              }),
+              part("(default)", "rf-act-name", CHAR_W, { dx: 8 + PILL_PAD }),
+            ],
+          },
+        ];
+      }
+      const actions = listed.map(({ a }) => a);
+      // An action without criteria that comes first applies whenever the step fails (or
+      // succeeds), which the heading already says: no condition, no arrow. It is then the only
+      // action that runs; the ones after it are shadowed.
+      const whens = listed.map(({ a, d }, i) =>
+        !(a.criteria || []).length && i === 0 ? "" : d.when,
+      );
+      const described = listed.map(({ d }) => d);
+      const whenChars = Math.min(34, Math.max(...whens.map((w) => w.length)));
+      const col = whenChars ? PAD + whenChars * CHAR_W + 12 : PAD;
+      // The order of the actions matters only when there is a choice
       return [
-        {
-          parts: [
-            part(`On ${outcome} · first match runs`, "rf-sec-title", PILL_CHAR_W, { x: PAD }),
-          ],
-        },
-        ...actions.map((a, i) => ({
-          action: a,
-          tag: described[i].tag,
-          parts: [
-            part(truncate(described[i].when, whenChars), "rf-act-when", CHAR_W, { x: PAD }),
-            part(`→ ${described[i].does}`, "rf-act-then", CHAR_W, { x: col }),
-            // The name often says what the action is for; it is cut first when the line is long
-            ...(described[i].name
-              ? [part(`(${described[i].name})`, "rf-act-name", CHAR_W, { dx: 8 })]
-              : []),
-          ],
-        })),
+        heading([applies, listed.length > 1 ? "first match runs" : ""].filter(Boolean)),
+        ...actions.map((a, i) => {
+          const when = whens[i]
+            ? [part(truncate(whens[i], whenChars), "rf-act-when", CHAR_W, { x: PAD })]
+            : [];
+          const arrow = whens[i] ? "→ " : "";
+          // A goto with a line: "→ goto <step>", the step in the step color; its name labels
+          // the line
+          if (a.type === "goto" && actionTarget(a, step, stepIds)) {
+            return {
+              action: a,
+              tag: described[i].tag,
+              tagCls: "rf-tag rf-inherited",
+              parts: [
+                ...when,
+                part(`${arrow}goto `, "rf-act-then", CHAR_W, { x: col }),
+                part(a.stepId, "rf-step-name", CHAR_W),
+              ],
+            };
+          }
+          // An end reads as an END pill
+          const does =
+            a.type === "end"
+              ? [
+                  ...(arrow ? [part("→", "rf-act-then", CHAR_W, { x: col })] : []),
+                  // Red on failure, green on success, as the goto lines
+                  part("END", `rf-end rf-${outcome}`, END_CHAR_W, {
+                    ...(arrow ? { dx: 8 + PILL_PAD } : { x: col + PILL_PAD }),
+                    pill: `rf-end-pill rf-${outcome}`,
+                  }),
+                ]
+              : [part(`${arrow}${described[i].does}`, "rf-act-then", CHAR_W, { x: col })];
+          return {
+            // A retry's line starts here; it is labelled with how many times and how far apart
+            ...(a.type === "retry" && actionTarget(a, step, stepIds) ? { action: a } : {}),
+            tag: described[i].tag,
+            tagCls: "rf-tag rf-inherited",
+            parts: [
+              ...when,
+              ...does,
+              // The name often says what the action is for; it is cut first when the line is long
+              ...(described[i].name
+                ? [
+                    part(`(${described[i].name})`, "rf-act-name", CHAR_W, {
+                      dx: a.type === "end" ? 8 + PILL_PAD : 8,
+                    }),
+                  ]
+                : []),
+            ],
+          };
+        }),
       ];
     })
     .filter((rows) => rows.length);
@@ -305,72 +488,96 @@ function inputRows(graph) {
   return rows;
 }
 
-function bindingRows(step) {
-  const shown = step.bindings.slice(0, MAX_BINDINGS);
-  const nameChars = Math.min(18, Math.max(4, ...shown.map((b) => b.name.length)));
-  const col = PAD + nameChars * MONO_W + 12;
-  const rows = shown.map((b) => ({
-    arrivals: b.fromOutputs,
-    fromStep: b.fromSteps[0],
-    parts: [
-      part(truncate(b.name, nameChars), "rf-bind-name", MONO_W, { x: PAD }),
-      ...sourceParts(b.source, col),
-    ],
+// Binding sections, in request order; parameters without `in` (a workflow step's) come before the body
+const BINDING_GROUPS = [
+  ["path", "Path params"],
+  ["query", "Query params"],
+  ["header", "Header params"],
+  ["cookie", "Cookie params"],
+  ["", "Parameters"],
+  ["body", "Request body"],
+];
+
+/** A request body field's name without the `body.` prefix: `body.petId` reads `petId`. */
+function bodyFieldName(name) {
+  if (name === "body") return "payload";
+  if (name.startsWith("body.")) return name.slice(5);
+  if (name.startsWith("body ")) return name.slice(5); // a replacement's target
+  return name;
+}
+
+/**
+ * The values a step sends, one section per location (Path, Query, Header, Cookie, Request body
+ * with its content type), request body fields without their `body.` prefix. At most
+ * MAX_BINDINGS are listed; the rest are counted at the end of the last section.
+ */
+function bindingSections(step) {
+  const shown = step.bindings.slice(0, MAX_BINDINGS).map((b) => ({
+    ...b,
+    label: b.in === "body" ? bodyFieldName(b.name) : b.name,
+    group: BINDING_GROUPS.some(([key]) => key === b.in) ? b.in : "",
   }));
+  if (!shown.length) return [];
+  const nameChars = Math.min(18, Math.max(4, ...shown.map((b) => b.label.length)));
+  const col = PAD + nameChars * MONO_W + 12;
+  const sections = BINDING_GROUPS.map(([key, title]) => {
+    const items = shown.filter((b) => b.group === key);
+    if (!items.length) return [];
+    const type = key === "body" ? step.requestBody?.contentType : "";
+    return [
+      {
+        parts: [
+          part(title, "rf-sec-title", PILL_CHAR_W, { x: PAD }),
+          ...(type ? [part(`(${type})`, "rf-sec-note", PILL_CHAR_W, { dx: 6 })] : []),
+        ],
+      },
+      ...items.map((b) => ({
+        fromStep: b.fromSteps[0],
+        parts: [
+          part(truncate(b.label, nameChars), "rf-bind-name", MONO_W, { x: PAD }),
+          ...sourceParts(b.source, col),
+        ],
+      })),
+    ];
+  }).filter((rows) => rows.length);
   const hidden = step.bindings.slice(MAX_BINDINGS);
   if (hidden.length) {
-    rows.push({
-      arrivals: hidden.flatMap((b) => b.fromOutputs),
+    sections.at(-1).push({
       parts: [
         part(`+${hidden.length} more in the step details`, "rf-more", PILL_CHAR_W, { x: PAD }),
       ],
     });
   }
-  return rows;
+  return sections;
 }
 
 /**
- * The outputs box as a table: one flat column of output names (the workflow's result is a flat
- * object), and on the right the step each group comes from, shown once per group, with a rule
- * between groups. Groups follow the order each step first appears; outputs not taken from a step
- * come last, their source kind in the step column. A step output with another name follows the
- * output's name as "← <name>". A step's line arrives at its group's first row, beside the name.
+ * The outputs box: one row per output, as a step's value lines read: the output's name, then
+ * "← <step>.<output>" for a step's output (the step in the step color), or the source keyword and
+ * value (`input`, `fixed`, `expr`). Rows are grouped by step, in the order each step first
+ * appears, with a rule between groups; outputs not taken from a step come last.
  */
 function outputRows(graph) {
   const groups = new Map();
   for (const o of graph.outputs) {
     const source = o.source || { kind: "expression", text: o.expr };
     const key = o.stepId ? `step:${o.stepId}` : `kind:${source.kind}`;
-    if (!groups.has(key)) {
-      groups.set(key, { stepId: o.stepId, title: o.stepId || KEYWORDS[source.kind], items: [] });
-    }
+    if (!groups.has(key)) groups.set(key, { stepId: o.stepId, items: [] });
     groups.get(key).items.push({ ...o, source });
   }
   const ordered = [...groups.values()].sort((x, y) => Number(!x.stepId) - Number(!y.stepId));
+  const nameChars = Math.min(22, Math.max(4, ...graph.outputs.map((o) => o.name.length)));
+  const col = PAD + nameChars * CHAR_W + 12;
   return ordered.flatMap((g, gi) =>
-    g.items.map((o, i) => {
-      let from = "";
-      if (o.source.kind === "step") from = o.output && o.output !== o.name ? `← ${o.output}` : "";
-      else from = `${o.source.kind === "value" ? "=" : "←"} ${o.source.text}`;
-      return {
-        fromStep: g.stepId,
-        rule: gi > 0 && i === 0,
-        ...(i === 0
-          ? {
-              tag: g.title,
-              tagCls: g.stepId ? "rf-tag rf-out-step" : "rf-tag",
-              tagW: g.stepId ? CHAR_W : PILL_CHAR_W,
-              arrivals: g.items
-                .filter((x) => x.stepId && x.output)
-                .map((x) => ({ stepId: x.stepId, name: x.output })),
-            }
-          : {}),
-        parts: [
-          part(o.name, "rf-out-name", CHAR_W, { x: PAD }),
-          ...(from ? [part(from, "rf-out-from", MONO_W, { dx: 8 })] : []),
-        ],
-      };
-    }),
+    g.items.map((o, i) => ({
+      fromStep: g.stepId,
+      focusable: Boolean(g.stepId),
+      rule: gi > 0 && i === 0,
+      parts: [
+        part(truncate(o.name, nameChars), "rf-out-name", CHAR_W, { x: PAD }),
+        ...sourceParts(o.source, col, { fromKeyword: false }),
+      ],
+    })),
   );
 }
 
@@ -390,13 +597,15 @@ function headerWidth(step) {
  * @param {'expanded'|'compact'} [options.view='expanded']
  * @param {string} [options.idPrefix='rf'] prefix for marker ids, unique per page
  * @param {boolean} [options.interactive=false] make operation steps focusable buttons
- * @returns {{ svg: string, legend: string[] }} legend entries in drawing order, from
- *   `seq` (next step), `data` (value to a later step), `output` (value to the outputs box),
- *   `success` / `failure` (goto lines)
+ * @param {Record<string, string[]>} [options.stepClasses] more classes on a step's box, by step
+ *   id (`<rapi-flow>`: `rf-selected`, `rf-running`)
+ * @returns {{ svg: string, legend: string[], legendHtml: string }} `legend` names the kinds of
+ *   lines drawn, in this order: `seq` (next step), `success` / `failure` (goto lines), `retry`;
+ *   `legendHtml` is a `<ul class="flow-legend">` for them (styled by the flow CSS), "" when none
  */
 export function renderFlowDiagram(graph, options = {}) {
-  if (!graph) return { svg: "", legend: [] };
-  const { idPrefix = "rf", interactive = false } = options;
+  if (!graph) return { svg: "", legend: [], legendHtml: "" };
+  const { idPrefix = "rf", interactive = false, stepClasses = {} } = options;
   const expanded = options.view !== "compact";
   const drawn = new Set();
 
@@ -406,26 +615,25 @@ export function renderFlowDiagram(graph, options = {}) {
   if (graph.inputs.length) {
     nodes.push({ key: "inputs", kind: "io", title: "Inputs", rows: inputRows(graph) });
   }
+  const stepIds = new Set(graph.steps.map((s) => s.stepId));
   for (const step of graph.steps) {
-    if (expanded) {
-      nodes.push({
-        key: step.stepId,
-        kind: "step",
-        step,
-        sections: [
-          bindingRows(step),
+    // Gotos to a step and retries are labelled lines. Compact boxes list only the values a
+    // step sends (no checks, actions or outputs), so where data comes from shows in both views.
+    const sections = expanded
+      ? [
+          ...bindingSections(step),
           checkRows(step),
-          ...actionSections(step),
+          ...actionSections(step, stepIds),
           stepOutputRows(step),
-        ].filter((rows) => rows.length),
-      });
-    } else {
-      // Compact boxes show no actions; a step's own gotos still draw their lines
-      const gotos = step.actions.filter(
-        (a) => !a.inherited && !a.shadowed && a.type === "goto" && a.stepId,
-      );
-      nodes.push({ key: step.stepId, kind: "step", step, gotos, sections: [] });
-    }
+        ]
+      : bindingSections(step);
+    nodes.push({
+      key: step.stepId,
+      kind: "step",
+      step,
+      lines: actionLines(step, stepIds),
+      sections: sections.filter((rows) => rows.length),
+    });
   }
   if (graph.outputs.length) {
     nodes.push({ key: "outputs", kind: "io", title: "Outputs", rows: outputRows(graph) });
@@ -433,12 +641,12 @@ export function renderFlowDiagram(graph, options = {}) {
   const index = new Map(nodes.map((n, i) => [n.key, i]));
   const rowsOf = (n) => (n.kind === "io" ? n.rows : n.sections.flat());
 
-  // ---- Box width: the longest line, at least BOX_MIN (expanded) or BOX_W (compact) ----
+  // ---- Box width: the longest line, at least BOX_MIN ----
   const widths = nodes.flatMap((n) => [
     ...rowsOf(n).map((r) => rowExtent(r).end + tagWidth(r) + PAD),
-    n.kind === "step" && expanded ? headerWidth(n.step) : 0,
+    n.kind === "step" ? headerWidth(n.step) : 0,
   ]);
-  const boxW = Math.min(BOX_MAX, Math.max(expanded ? BOX_MIN : BOX_W, ...widths));
+  const boxW = Math.min(BOX_MAX, Math.max(BOX_MIN, ...widths));
   for (const n of nodes) for (const r of rowsOf(n)) fitRow(r, boxW);
   const boxChars = Math.floor((boxW - 32) / CHAR_W);
 
@@ -449,10 +657,6 @@ export function renderFlowDiagram(graph, options = {}) {
       n.h = 34 + n.rows.length * ROW;
       continue;
     }
-    if (!expanded) {
-      n.h = Math.max(60, COMPACT_GOTO_Y + n.gotos.length * 8 + 4);
-      continue;
-    }
     let bottom = HEADER_H;
     n.separators = [];
     for (const rows of n.sections) {
@@ -461,87 +665,48 @@ export function renderFlowDiagram(graph, options = {}) {
       rows.forEach((r, ri) => (r.by = sepY + 18 + ri * ROW));
       bottom = sepY + 18 + (rows.length - 1) * ROW + 6;
     }
-    n.h = Math.max(60, bottom + 8);
+    n.h = expanded
+      ? Math.max(60, bottom + 8, HEADER_H + n.lines.length * ACTION_LINE_GAP + 12)
+      : Math.max(60, bottom + 8, COMPACT_GOTO_Y + n.lines.length * 8 + 4);
   }
 
-  // ---- Right-hand data edges ----
-  // Compact: one lane per source step and label, branching to the middle of each target.
-  // Expanded: one lane per source step, branching to each line that uses one of its outputs.
-  const groups = new Map();
-  const addTarget = (fromIdx, toIdx, label, rowBy, outputName) => {
-    const output = nodes[toIdx].key === "outputs";
-    const key = `${fromIdx}\u0000${output}\u0000${label}`;
-    const group = groups.get(key) || {
-      from: fromIdx,
-      label,
-      output,
-      targets: [],
-      departs: new Set(),
-    };
-    if (!group.targets.some((t) => t.node === toIdx && t.by === rowBy)) {
-      group.targets.push({ node: toIdx, by: rowBy });
-    }
-    if (outputName) group.departs.add(outputName);
-    groups.set(key, group);
-  };
-  if (expanded) {
-    // Lines start at each output row of the source step that is read
-    nodes.forEach((n, j) => {
-      for (const r of rowsOf(n)) {
-        for (const ref of r.arrivals || []) {
-          const i = index.get(ref.stepId);
-          if (i !== undefined && i < j) addTarget(i, j, "", r.by, ref.name);
-        }
-      }
-    });
-  } else {
-    for (const e of graph.dataEdges) {
-      if (!index.has(e.from) || !index.has(e.to) || index.get(e.from) >= index.get(e.to)) continue;
-      if (e.to === "outputs") {
-        // Into the outputs table: arrive at the step's group, as in the expanded view
-        const row = rowsOf(nodes[index.get("outputs")]).find((r) =>
-          r.arrivals?.some((ref) => ref.stepId === e.from),
-        );
-        addTarget(index.get(e.from), index.get(e.to), "", row?.by);
-        continue;
-      }
-      addTarget(index.get(e.from), index.get(e.to), truncate(e.labels.join(", "), 28), undefined);
-    }
-  }
-  const dataEdges = [...groups.values()].map((g) => {
-    const targets = g.targets.sort((a, b) => a.node - b.node || (a.by ?? 0) - (b.by ?? 0));
-    return { ...g, targets, span: [g.from, targets.at(-1).node] };
-  });
-  const dataLaneCount = assignLanes(dataEdges);
-
-  // ---- Left-hand goto edges, from the box's left edge (compact) or an action line (expanded) ----
+  // ---- Left-hand action lines (gotos and retries), from the box's left edge ----
+  // Compact: below the title. Expanded: a goto from its action line; a retry near the bottom of
+  // the box, under its last section, looping back into the top of the box for its own step.
   const gotoEdges = [];
   nodes.forEach((n, i) => {
     if (n.kind !== "step") return;
-    const sources = expanded
-      ? rowsOf(n)
-          .filter((r) => r.action)
-          .map((r) => ({ action: r.action, by: r.by }))
-      : n.gotos.map((a, gi) => ({ action: a, by: COMPACT_GOTO_Y + gi * 8 + 4 }));
-    for (const src of sources) {
-      const target = src.action.type === "goto" ? src.action.stepId : "";
-      if (!target || !index.has(target) || target === n.key) continue;
-      const j = index.get(target);
-      gotoEdges.push({ ...src, from: i, to: j, span: [Math.min(i, j), Math.max(i, j)] });
-    }
+    const rows = rowsOf(n);
+    const bottom = n.lines.filter((line) => !rows.some((r) => r.action === line.action));
+    n.lines.forEach((line, li) => {
+      const j = index.get(line.target);
+      if (j === undefined) return;
+      const row = rows.find((r) => r.action === line.action);
+      // Compact: a loop into its own step leaves near the bottom of the box, so it spans the box
+      // with its label on the line, in the middle; other lines leave below the title
+      let by = COMPACT_GOTO_Y + li * 8 + 4;
+      if (!expanded && j === i) {
+        const loops = n.lines.filter((l) => index.get(l.target) === i);
+        by = n.h - 10 - (loops.length - 1 - loops.indexOf(line)) * 8;
+      }
+      if (expanded) {
+        by = row ? row.by : n.h - 12 - (bottom.length - 1 - bottom.indexOf(line)) * ACTION_LINE_GAP;
+      }
+      // Half a node more on the side the line leaves from, so lines that meet at a box get
+      // different lanes, a loop included
+      const span = [Math.min(i, j), Math.max(i, j) + 0.5];
+      gotoEdges.push({ ...line, by, from: i, to: j, span });
+    });
   });
   const gotoLaneCount = assignLanes(gotoEdges);
 
   // ---- Horizontal geometry ----
-  const gotoW = gotoLaneCount ? gotoLaneCount * LANE + 8 : 0;
+  // Labels sit on the lines, centred, so the gutter holds half a label each side of the lanes
+  const gotoLabelW = Math.max(0, ...gotoEdges.map((e) => textWidth(e.label, PILL_CHAR_W) + 14));
+  const gotoW = gotoLaneCount ? (gotoLaneCount - 1) * LANE + gotoLabelW + 12 : 0;
   const boxX = MARGIN + gotoW;
   const boxR = boxX + boxW;
-  const laneX = (lane) => boxR + 20 + lane * LANE;
-  const labelW = Math.max(
-    8,
-    ...dataEdges.map((e) => (e.label ? textWidth(e.label, PILL_CHAR_W) + 14 : 0)),
-  );
-  const width = (dataLaneCount ? laneX(dataLaneCount - 1) + labelW : boxR) + MARGIN;
+  const width = boxR + MARGIN;
 
   // ---- Vertical geometry ----
   let y = MARGIN;
@@ -552,25 +717,12 @@ export function renderFlowDiagram(graph, options = {}) {
   }
   const height = y - GAP + MARGIN;
 
-  // Connection points on the right edge. Compact: arrivals above the middle, departures below.
-  // Expanded: departures beside the header, arrivals at the line that uses the value.
-  const ports = new Map();
-  const portY = (nodeIdx, dir, by) => {
-    const n = nodes[nodeIdx];
-    if (dir === "in" && by !== undefined) return n.y + by - 4;
-    const key = `${nodeIdx}:${dir}`;
-    const used = ports.get(key) || 0;
-    ports.set(key, used + 1);
-    if (expanded && dir === "out") return n.y + 18 + used * 8;
-    return dir === "in" ? n.cy - 6 - used * 8 : n.cy + 6 + used * 8;
-  };
-
   const out = [];
   const marker = (id, cls) =>
     `<marker id="${idPrefix}-${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="${cls}"/></marker>`;
   out.push(
     `<svg xmlns="http://www.w3.org/2000/svg" class="rf-svg rf-${expanded ? "expanded" : "compact"}" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="group" aria-label="${escapeXml(`Workflow ${graph.workflowId}`)}">`,
-    `<defs>${marker("seq", "rf-head-seq")}${marker("data", "rf-head-data")}${marker("output", "rf-head-output")}${marker("success", "rf-head-success")}${marker("failure", "rf-head-failure")}</defs>`,
+    `<defs>${marker("seq", "rf-head-seq")}${["success", "failure", "retry"].map((k) => marker(k, `rf-head rf-${k}`)).join("")}</defs>`,
   );
 
   // Sequence arrows. A step whose success always ends or jumps never falls through to the next
@@ -589,52 +741,35 @@ export function renderFlowDiagram(graph, options = {}) {
     );
   }
 
-  // Data edges and their labels
-  const placedLabels = [];
-  for (const e of dataEdges) {
-    const x = laneX(e.lane);
-    const cls = e.output ? "rf-data rf-to-output" : "rf-data";
-    const head = e.output ? "output" : "data";
-    drawn.add(head);
-    const ys = e.targets.map((t) => portY(t.node, "in", t.by));
-    const source = nodes[e.from];
-    const departs = expanded
-      ? rowsOf(source)
-          .filter((r) => r.departs && e.departs.has(r.departs))
-          .map((r) => source.y + r.by - 4)
-      : [];
-    if (!departs.length) departs.push(portY(e.from, "out"));
-    const y1 = Math.min(...departs);
-    const from = ` data-from-step="${escapeXml(source.key)}"`;
-    for (const dy of departs) out.push(`<path class="${cls}"${from} d="M${boxR} ${dy}H${x}"/>`);
-    out.push(`<path class="${cls}"${from} d="M${x} ${y1}V${Math.max(...ys)}"/>`);
-    for (const ty of ys) {
-      out.push(
-        `<path class="${cls}"${from} d="M${x} ${ty}H${boxR + 2}" marker-end="url(#${idPrefix}-${head})"/>`,
-      );
-    }
-    if (!e.label) continue;
-    const w = textWidth(e.label, PILL_CHAR_W) + 12;
-    let ly = (y1 + ys[0]) / 2 - 9;
-    while (placedLabels.some((l) => x < l.x + l.w && l.x < x + w && ly < l.y + 20 && l.y < ly + 20))
-      ly += 20;
-    placedLabels.push({ x, y: ly, w });
-    out.push(
-      `<g class="rf-data-label"><rect x="${x + 4}" y="${ly}" width="${w}" height="18" rx="9"/><text x="${x + 10}" y="${ly + 13}">${escapeXml(e.label)}</text></g>`,
-    );
-  }
-
-  // Goto edges
+  // Action lines (gotos and retries), each with its label on the line, centred
+  const placedGotoLabels = [];
   for (const e of gotoEdges) {
     const from = nodes[e.from];
     const to = nodes[e.to];
-    const x = MARGIN + (gotoLaneCount - 1 - e.lane) * LANE + 4;
+    const x = boxX - 12 - gotoLabelW / 2 - e.lane * LANE;
     const py = from.y + e.by - 4;
-    const start = boxX;
     const ty = to.y + ARRIVAL_ZONE / 2;
-    drawn.add(e.action.outcome);
+    drawn.add(e.kind);
     out.push(
-      `<path class="rf-goto rf-${e.action.outcome}" d="M${start} ${py}H${x}V${ty}H${boxX - 2}" marker-end="url(#${idPrefix}-${e.action.outcome})"/>`,
+      `<path class="rf-goto rf-${e.kind}" data-from-step="${escapeXml(from.key)}" d="${roundedPath([
+        [boxX, py],
+        [x, py],
+        [x, ty],
+        [boxX - 2, ty],
+      ])}" marker-end="url(#${idPrefix}-${e.kind})"/>`,
+    );
+    const w = textWidth(e.label, PILL_CHAR_W) + 14;
+    const cx = x;
+    let ly = (py + ty) / 2 - 9;
+    while (
+      placedGotoLabels.some(
+        (l) => cx - w / 2 < l.x + l.w && l.x < cx + w / 2 && ly < l.y + 20 && l.y < ly + 20,
+      )
+    )
+      ly += 20;
+    placedGotoLabels.push({ x: cx - w / 2, y: ly, w });
+    out.push(
+      `<g class="rf-goto-label rf-${e.kind}"><title>${escapeXml(e.tip)}</title>${pillRect(cx - w / 2, ly, w, 18)}<text x="${cx}" y="${ly + 13}" text-anchor="middle">${escapeXml(e.label)}</text></g>`,
     );
   }
 
@@ -644,9 +779,6 @@ export function renderFlowDiagram(graph, options = {}) {
       out.push(
         `<g class="rf-node rf-io rf-${n.key}"><rect x="${boxX}" y="${n.y}" width="${boxW}" height="${n.h}" rx="8"/>`,
         `<text class="rf-io-title" x="${boxX + PAD}" y="${n.y + 20}">${n.title}</text>`,
-        n.key === "outputs" && graph.outputs.some((o) => o.stepId)
-          ? `<text class="rf-io-title" x="${boxX + boxW - PAD}" y="${n.y + 20}" text-anchor="end">From step</text>`
-          : "",
         ...n.rows.map((r) => renderRow(r, boxX, boxW, n.y + r.by, interactive)),
         `</g>`,
       );
@@ -680,7 +812,7 @@ export function renderFlowDiagram(graph, options = {}) {
     const label = op ? `${s.stepId}: ${op.method.toUpperCase()} ${op.path}` : s.stepId;
     const attrs = clickable ? ` tabindex="0" role="button" aria-label="${escapeXml(label)}"` : "";
     out.push(
-      `<g class="rf-node rf-step${clickable ? " rf-clickable" : ""}" data-step-id="${escapeXml(s.stepId)}"${attrs}>`,
+      `<g class="${["rf-node rf-step", clickable ? "rf-clickable" : "", ...(stepClasses[s.stepId] || [])].filter(Boolean).join(" ")}" data-step-id="${escapeXml(s.stepId)}"${attrs}>`,
       tip ? `<title>${escapeXml(tip)}</title>` : "",
       `<rect x="${boxX}" y="${n.y}" width="${boxW}" height="${n.h}" rx="8"/>`,
       `<text class="rf-title" x="${boxX + PAD}" y="${n.y + 24}">${escapeXml(truncate(s.stepId, boxChars - 10))}</text>`,
@@ -697,8 +829,29 @@ export function renderFlowDiagram(graph, options = {}) {
   }
 
   out.push("</svg>");
-  const order = ["seq", "data", "output", "success", "failure"];
-  return { svg: out.join(""), legend: order.filter((k) => drawn.has(k)) };
+  const legend = Object.keys(LEGEND).filter((k) => drawn.has(k));
+  return { svg: out.join(""), legend, legendHtml: legendHtml(legend) };
+}
+
+/** Each kind of line a diagram can draw: its classes and its words in the legend, in order. */
+const LEGEND = {
+  seq: ["rf-seq", "rf-head-seq", "next step"],
+  success: ["rf-goto rf-success", "rf-head rf-success", "goto on success"],
+  failure: ["rf-goto rf-failure", "rf-head rf-failure", "goto on failure"],
+  retry: ["rf-goto rf-retry", "rf-head rf-retry", "retry"],
+};
+
+/**
+ * The legend for the kinds of lines a diagram drew, as HTML: each a short line in that line's
+ * classes (the flow CSS colors and dashes it) and its words. Shared by <rapi-flow> and pages
+ * that show the diagram drawn at build time.
+ */
+function legendHtml(kinds) {
+  const items = kinds.filter((k) => LEGEND[k]);
+  if (!items.length) return "";
+  const li = (k) =>
+    `<li><svg width="28" height="10" aria-hidden="true"><path class="${LEGEND[k][0]}" d="M1 5H23"/><path class="${LEGEND[k][1]}" d="M22 1L28 5L22 9z"/></svg>${LEGEND[k][2]}</li>`;
+  return `<ul class="flow-legend" part="legend" aria-label="Legend">${items.map(li).join("")}</ul>`;
 }
 
 /** The diagram as an SVG string; see renderFlowDiagram for the options. */

@@ -47,6 +47,9 @@ re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `@rapidoc/pre
   `X`. Only `scope` is read, although the JSDoc also lists `theme` and `colorScheme`.
 - `getNavCss(scope)`: `nav-styles.js` with the same rewrites, wrapped in a `<scope> { ... }` block
   that also sets a compact `--sidebar-item-padding`, for the portal sidebar.
+- `getFlowCss()`: `flow-styles.js` as a string (Arazzo diagrams drawn at build time and their
+  legend), for `@rapidoc/prerender`. Only prerender imports this file, so the flow CSS stays out
+  of `rapidoc-min.js`.
 - `getThemeTokensCss(theme, scope = ":root")`: the token stylesheet with `theme` / `color-scheme`
   host rules rewritten to `[data-theme='dark'|'light'|'system']` selectors (other presets keyed by
   `[data-theme-preset='<name>']`).
@@ -54,7 +57,10 @@ re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `@rapidoc/pre
 Every other file default-exports one stylesheet named after what it styles (`nav-styles.js`,
 `endpoint-styles.js`, `schema-styles.js`, ...); `custom-styles.js` is an empty slot kept last.
 `flow-styles.js` styles the Arazzo diagram for `<rapi-flow>` and `@rapidoc/prerender` `getFlowCss()`; it
-uses plain class selectors (no `:host`) and is not part of `allStyles`.
+uses plain class selectors (no `:host`) and is not part of `allStyles`. It sets a few private
+variables of its own, not theme tokens and not documented: `--rf-step` (the step color) and, from a
+kind class (`rf-success`, `rf-failure`, `rf-retry`), `--rf-kind` / `--rf-on-kind` (a line's color and
+the text on it), so lines, arrowheads, line labels and END pills share one rule each.
 
 The custom properties themselves are not listed here: `theme-tokens.js` is the source of truth and
 `docs/src/page-data/styling-data.yaml` is the documented list (`packages/rapidoc/AGENTS.md` §5,

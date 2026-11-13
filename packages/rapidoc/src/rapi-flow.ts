@@ -1,5 +1,6 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 
 import ThemeTokens, {
@@ -8,6 +9,7 @@ import ThemeTokens, {
   normalizeTheme,
 } from "~/styles/theme-tokens";
 import FlowStyles from "~/styles/flow-styles";
+import InputStyles from "~/styles/input-styles";
 import { AutoColorSchemeController } from "~/utils/auto-color-scheme";
 import workflowRuntimeSource from "~/utils/mcp/workflow-runtime.js?raw";
 import {
@@ -17,12 +19,17 @@ import {
   indexResolvedSpec,
   buildFlowGraph,
   renderFlowDiagram,
-  escapeXml,
 } from "~/utils/arazzo/index.js";
 import { buildMcpManifest } from "~/utils/mcp/manifest.js";
 import { createMcpWorkflowRuntime } from "~/utils/mcp/workflow-runtime.js";
 
 let instanceCount = 0;
+
+/** The OpenAPI source descriptions of an Arazzo document that can be loaded, in order. */
+const openapiSources = (doc): any[] =>
+  (doc?.sourceDescriptions || []).filter(
+    (s) => s?.name && s?.url && (!s.type || s.type === "openapi"),
+  );
 
 /**
  * `<rapi-flow>`: draws the workflows of an Arazzo document and can run them. Its doc comments are
@@ -156,6 +163,8 @@ export default class RapiFlow extends LitElement {
 
   static styles = [
     ThemeTokens,
+    // Buttons, inputs and selects as in <rapi-doc>: .btn and its variants, one height per size
+    InputStyles,
     FlowStyles,
     css`
       /* The element paints its own background, so it keeps its content off the edges; a page
@@ -194,40 +203,24 @@ export default class RapiFlow extends LitElement {
         gap: 0.5rem;
         margin-left: auto;
       }
+      /* Two outline buttons joined into one control; the pressed one is filled */
       .view-toggle {
         display: inline-flex;
-        border: 1px solid var(--input);
-        border-radius: var(--radius);
-        overflow: hidden;
       }
-      .view-toggle button {
-        font: inherit;
-        font-size: var(--font-size-small);
-        color: var(--muted-foreground);
-        background: var(--input-background);
-        border: 0;
-        padding: 0.25rem 0.625rem;
-        cursor: pointer;
+      .view-toggle .btn {
+        font-weight: 400;
       }
-      .view-toggle button + button {
-        border-left: 1px solid var(--input);
+      .view-toggle .btn:first-child {
+        border-radius: var(--radius) 0 0 var(--radius);
       }
-      .view-toggle button[aria-pressed="true"] {
+      .view-toggle .btn + .btn {
+        margin-left: -1px;
+        border-radius: 0 var(--radius) var(--radius) 0;
+      }
+      .view-toggle .btn[aria-pressed="true"] {
         color: var(--primary-foreground);
         background: var(--primary);
-      }
-      .view-toggle button:focus-visible {
-        outline: 2px solid var(--ring);
-        outline-offset: -2px;
-      }
-      select {
-        font: inherit;
-        font-size: var(--font-size-small);
-        color: var(--foreground);
-        background: var(--input-background);
-        border: 1px solid var(--input);
-        border-radius: var(--radius);
-        padding: 0.25rem 0.5rem;
+        border-color: var(--primary);
       }
       .flow-description {
         margin: 0 0 0.75rem;
@@ -247,30 +240,6 @@ export default class RapiFlow extends LitElement {
         font-size: var(--font-size-small);
         color: var(--destructive);
       }
-      .run-button {
-        font: inherit;
-        font-size: var(--font-size-small);
-        color: var(--primary-foreground);
-        background: var(--primary);
-        border: 1px solid var(--primary);
-        border-radius: var(--radius);
-        padding: 0.25rem 0.75rem;
-        cursor: pointer;
-      }
-      .run-button:disabled {
-        opacity: 0.6;
-        cursor: default;
-      }
-      .run-clear {
-        font: inherit;
-        font-size: var(--font-size-small);
-        color: var(--muted-foreground);
-        background: var(--input-background);
-        border: 1px solid var(--input);
-        border-radius: var(--radius);
-        padding: 0.25rem 0.75rem;
-        cursor: pointer;
-      }
       .flow-run {
         margin-top: 1rem;
         font-size: var(--font-size-description);
@@ -289,6 +258,7 @@ export default class RapiFlow extends LitElement {
       }
       .flow-run pre {
         margin: 0;
+        border: 0;
         padding: 0.5rem;
         overflow-x: auto;
         background: var(--muted);
@@ -353,10 +323,12 @@ export default class RapiFlow extends LitElement {
       .run-field-required {
         color: var(--destructive);
       }
+      /* The "Param" control size of the shared input styles, as tall as the two-line label */
       .run-inputs .run-field :is(input, select) {
         font-family: var(--font-mono);
         line-height: 1.25;
         padding: 0.75em;
+        min-width: 0;
       }
       @container (max-width: 28rem) {
         .run-field {
@@ -369,17 +341,6 @@ export default class RapiFlow extends LitElement {
           gap: 0.5rem;
           text-align: start;
         }
-      }
-      .run-inputs input,
-      .run-inputs select {
-        font: inherit;
-        font-size: var(--font-size-small);
-        color: var(--foreground);
-        background: var(--input-background);
-        border: 1px solid var(--input);
-        border-radius: var(--radius);
-        padding: 0.25rem 0.5rem;
-        min-width: 0;
       }
       .run-mock {
         margin-top: 0.75rem;
@@ -467,24 +428,6 @@ export default class RapiFlow extends LitElement {
         font-family: var(--font-mono);
         font-size: var(--font-size-small);
       }
-      .flow-legend {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.25rem 1rem;
-        margin: 0.75rem 0 0;
-        padding: 0;
-        list-style: none;
-        font-size: var(--font-size-xs);
-        color: var(--muted-foreground);
-      }
-      .flow-legend li {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-      }
-      .flow-legend svg {
-        overflow: visible;
-      }
     `,
   ];
 
@@ -540,11 +483,8 @@ export default class RapiFlow extends LitElement {
       const problems = validateArazzo(doc);
       const sources = new Map();
       const specObjects = new Map();
-      const openapiSources = (doc.sourceDescriptions || []).filter(
-        (s) => s?.name && s?.url && (!s.type || s.type === "openapi"),
-      );
       await Promise.all(
-        openapiSources.map(async (s, i) => {
+        openapiSources(doc).map(async (s, i) => {
           if (i === 0 && this.specDoc) return;
           const url = i === 0 && this.specUrl ? this.specUrl : s.url;
           try {
@@ -570,13 +510,7 @@ export default class RapiFlow extends LitElement {
       this.problems = problems;
       this.resetRun();
       this.useRapiDocSpec();
-      this.dispatchEvent(
-        new CustomEvent("flow-loaded", {
-          detail: { doc, problems },
-          bubbles: true,
-          composed: true,
-        }),
-      );
+      this.emit("flow-loaded", { doc, problems });
     } catch (err) {
       if (id !== this.loadId) return;
       this.doc = null;
@@ -628,9 +562,7 @@ export default class RapiFlow extends LitElement {
    * steps of that source show their operationId.
    */
   private useRapiDocSpec() {
-    const first = (this.doc?.sourceDescriptions || []).find(
-      (s) => s?.name && s?.url && (!s.type || s.type === "openapi"),
-    );
+    const first = openapiSources(this.doc)[0];
     const spec = this.specDoc?.resolvedSpec;
     if (!first || !spec) return;
     this.sources = new Map(this.sources).set(first.name, indexResolvedSpec(spec));
@@ -648,18 +580,12 @@ export default class RapiFlow extends LitElement {
     if (!step) return;
     this.selectedStepId = stepId;
     const op = step.operation;
-    this.dispatchEvent(
-      new CustomEvent("step-click", {
-        detail: {
-          workflowId: graph.workflowId,
-          stepId,
-          operation: op,
-          workflowRef: step.workflowId,
-        },
-        bubbles: true,
-        composed: true,
-      }),
-    );
+    this.emit("step-click", {
+      workflowId: graph.workflowId,
+      stepId,
+      operation: op,
+      workflowRef: step.workflowId,
+    });
     if (step.kind === "workflow" && this.workflowIds.includes(step.workflowId)) {
       this.workflowId = step.workflowId;
       return;
@@ -697,8 +623,8 @@ export default class RapiFlow extends LitElement {
   }
 
   /**
-   * Highlights the step under the pointer together with its value lines and its rows in the
-   * outputs box (or, from an output row, the step it comes from). The diagram is an SVG string,
+   * Highlights the step under the pointer together with its goto and retry lines, the value lines
+   * that read it and its rows in the outputs box (or, from an output row, the step it comes from). The diagram is an SVG string,
    * so the classes are set on its elements directly.
    */
   private onDiagramHover(e: Event) {
@@ -741,9 +667,7 @@ export default class RapiFlow extends LitElement {
   private setView(view: string) {
     if (view === this.view) return;
     this.view = view as "expanded" | "compact";
-    this.dispatchEvent(
-      new CustomEvent("view-change", { detail: { view }, bubbles: true, composed: true }),
-    );
+    this.emit("view-change", { view });
   }
 
   /** Back to the form, with the shown workflow's input defaults filled in. */
@@ -783,9 +707,7 @@ export default class RapiFlow extends LitElement {
    */
   private prepareRun(graph) {
     const rapiDoc = this.findRapiDoc();
-    const first = (this.doc.sourceDescriptions || []).find(
-      (s) => s?.name && (!s.type || s.type === "openapi"),
-    );
+    const first = openapiSources(this.doc)[0];
     const spec = this.specDoc?.resolvedSpec || this.specObjects.get(first?.name);
     if (!spec) return { problem: "the OpenAPI document of the first source is not loaded" };
     const problems = [];
@@ -899,13 +821,12 @@ export default class RapiFlow extends LitElement {
     }
     this.runResult = result;
     this.runState = "done";
-    this.dispatchEvent(
-      new CustomEvent("workflow-run", {
-        detail: { workflowId: graph.workflowId, inputs, result, trace: this.trace },
-        bubbles: true,
-        composed: true,
-      }),
-    );
+    this.emit("workflow-run", { workflowId: graph.workflowId, inputs, result, trace: this.trace });
+  }
+
+  /** Fires one of the element's events, out of its shadow root. */
+  private emit(name: string, detail: object) {
+    this.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true }));
   }
 
   /**
@@ -930,9 +851,10 @@ export default class RapiFlow extends LitElement {
   /** The typed credentials as the runtime takes them: a string ("user:password" for Basic). */
   private typedCredentials() {
     const credentials = {};
+    const schemes = this.standaloneSchemes();
     for (const [id, value] of Object.entries(this.manualCredentials)) {
       if (!value) continue;
-      const scheme = this.standaloneSchemes().find((s) => s.id === id);
+      const scheme = schemes.find((s) => s.id === id);
       const basic = scheme?.type === "http" && String(scheme.scheme).toLowerCase() === "basic";
       credentials[id] = basic ? value : value.replace(/^bearer\s+/i, "");
     }
@@ -1009,6 +931,7 @@ export default class RapiFlow extends LitElement {
           "Every step",
           "empty: success response",
           html`<input
+            type="text"
             name="mock-status"
             inputmode="numeric"
             .value=${this.statusCodes?.["*"] ?? ""}
@@ -1022,6 +945,7 @@ export default class RapiFlow extends LitElement {
             s.stepId,
             `${s.operation.method.toUpperCase()} ${s.operation.path}`,
             html`<input
+              type="text"
               name=${`mock-status-${s.stepId}`}
               inputmode="numeric"
               .value=${this.statusCodes?.[s.stepId] ?? ""}
@@ -1071,6 +995,7 @@ export default class RapiFlow extends LitElement {
                 )}
               </select>`
             : html`<input
+                type="text"
                 name=${i.name}
                 .value=${this.runInputs[i.name] ?? ""}
                 placeholder=${i.description || ""}
@@ -1082,10 +1007,10 @@ export default class RapiFlow extends LitElement {
       )}
       ${this.renderStatusCodes(graph)}
       <div class="run-actions">
-        <button type="submit" class="run-button" part="run-button" ?disabled=${running}>
+        <button type="submit" class="btn btn-primary run-button" part="run-button" ?disabled=${running}>
           ${running ? "Running…" : "▶ Run workflow"}
         </button>
-        ${this.runState === "done" ? html`<button type="button" class="run-clear" @click=${() => this.resetRun()}>Clear</button>` : nothing}
+        ${this.runState === "done" ? html`<button type="button" class="btn btn-outline run-clear" @click=${() => this.resetRun()}>Clear</button>` : nothing}
       </div>
     </form>`;
   }
@@ -1140,27 +1065,10 @@ export default class RapiFlow extends LitElement {
     if (this.showViewToggle === "false") return nothing;
     const current = this.view === "compact" ? "compact" : "expanded";
     const button = (view, label) =>
-      html`<button type="button" aria-pressed=${current === view ? "true" : "false"} @click=${() => this.setView(view)}>${label}</button>`;
+      html`<button type="button" class="btn btn-outline" aria-pressed=${current === view ? "true" : "false"} @click=${() => this.setView(view)}>${label}</button>`;
     return html`<div class="view-toggle" part="view-toggle" role="group" aria-label="Diagram view">
       ${button("compact", "Compact")}${button("expanded", "Expanded")}
     </div>`;
-  }
-
-  /** Lists only the kinds of lines the diagram drew. */
-  private renderLegend(kinds: string[]) {
-    if (!kinds.length) return nothing;
-    const line = (cls, head, dashed = false) =>
-      html`<svg width="28" height="10" aria-hidden="true"><path class=${cls} d="M1 5H23" stroke-dasharray=${dashed ? "5 4" : "none"}/><path class="rf-head-${head}" d="M22 1L28 5L22 9z"/></svg>`;
-    const entries = {
-      seq: html`${line("rf-seq", "seq")}next step`,
-      data: html`${line("rf-data", "data", true)}value passed to a later step`,
-      output: html`${line("rf-data rf-to-output", "output", true)}value passed to the outputs`,
-      success: html`${line("rf-goto rf-success", "success")}goto on success`,
-      failure: html`${line("rf-goto rf-failure", "failure")}goto on failure`,
-    };
-    return html`<ul class="flow-legend" part="legend" aria-label="Legend">
-      ${kinds.map((k) => html`<li>${entries[k]}</li>`)}
-    </ul>`;
   }
 
   render() {
@@ -1175,29 +1083,18 @@ export default class RapiFlow extends LitElement {
     const graph = this.graph;
     const ids = this.workflowIds;
     const view = this.view === "compact" ? "compact" : "expanded";
+    // The selected step and, during a run, the step whose request is in flight, as box classes
+    const stepClasses: Record<string, string[]> = {};
+    const mark = (id: string, cls: string) =>
+      id && (stepClasses[id] = [...(stepClasses[id] || []), cls]);
+    mark(this.selectedStepId, "rf-selected");
+    mark(this.runningStepId, "rf-running");
     const diagram = renderFlowDiagram(graph, {
       view,
       idPrefix: this.idPrefix,
       interactive: true,
+      stepClasses,
     });
-    let svg = diagram.svg;
-    // The selected step and, during a run, the step whose request is in flight, as box classes
-    const extraClasses = new Map<string, string[]>();
-    if (this.selectedStepId) extraClasses.set(this.selectedStepId, ["rf-selected"]);
-    if (this.runningStepId) {
-      extraClasses.set(this.runningStepId, [
-        ...(extraClasses.get(this.runningStepId) || []),
-        "rf-running",
-      ]);
-    }
-    for (const [id, classes] of extraClasses) {
-      const stepId = escapeXml(id).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      svg = svg.replace(
-        new RegExp(`class="rf-node rf-step( rf-clickable)?" data-step-id="${stepId}"`),
-        (_, clickable) =>
-          `class="rf-node rf-step${clickable || ""} ${classes.join(" ")}" data-step-id="${escapeXml(id)}"`,
-      );
-    }
     // Only problems a reader can't miss; the graph's authoring warnings are left to tooling
     const shown = this.problems.filter(
       (p) => p.level === "error" || p.path.startsWith("sourceDescriptions"),
@@ -1234,9 +1131,9 @@ export default class RapiFlow extends LitElement {
                 : nothing
             }
             <div class="flow-diagram" part="diagram" @click=${this.onDiagramEvent} @keydown=${this.onDiagramEvent} @mouseover=${this.onDiagramHover} @mouseleave=${this.onDiagramHover}>
-              ${unsafeSVG(svg)}
+              ${unsafeSVG(diagram.svg)}
             </div>
-            ${this.renderLegend(diagram.legend)}
+            ${diagram.legendHtml ? unsafeHTML(diagram.legendHtml) : nothing}
             ${this.renderRun(graph)}
 `
           : html`<p class="flow-message" part="message">No workflow to show.</p>`

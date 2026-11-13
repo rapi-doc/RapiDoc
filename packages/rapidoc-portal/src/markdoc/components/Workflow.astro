@@ -27,7 +27,7 @@ const entry = workflows.find((w: any) => w.id === file);
 const apis = portalConfig.apis || [];
 
 let svg = '';
-let legend: string[] = [];
+let legendHtml = '';
 let workflowId = id || '';
 let problem = '';
 if (!entry) {
@@ -50,7 +50,7 @@ if (!entry) {
     idPrefix: `rf-${file}-${id || 'first'}`,
   });
   svg = drawn.svg;
-  legend = drawn.legend;
+  legendHtml = drawn.legendHtml;
   workflowId = drawn.graph?.workflowId || id || '';
 }
 
@@ -59,13 +59,6 @@ const themePreset = portalConfig.rapidoc?.theme || 'ember';
 const tokensCss = getThemeTokensCss(themePreset);
 const flowCss = getFlowCss();
 const firstApi = entry && apis.find((a: any) => a.id === entry.apiIds[0]);
-const LEGEND: Record<string, [string, string]> = {
-  seq: ['rf-seq', 'next step'],
-  data: ['rf-data', 'value passed to a later step'],
-  output: ['rf-data rf-to-output', 'value passed to the outputs'],
-  success: ['rf-goto rf-success', 'goto on success'],
-  failure: ['rf-goto rf-failure', 'goto on failure'],
-};
 ---
 
 {
@@ -83,19 +76,11 @@ const LEGEND: Record<string, [string, string]> = {
         <div class="portal-workflow-diagram">
           <Fragment set:html={svg} />
         </div>
-        <div class="portal-workflow-footer">
-          <ul class="portal-workflow-legend" aria-label="Legend">
-            {legend.map((kind) => (
-              <li>
-                <svg width="28" height="10" aria-hidden="true">
-                  <path class={LEGEND[kind][0]} d="M1 5H23" stroke-dasharray={kind === 'data' || kind === 'output' ? '5 4' : 'none'} />
-                  <path class={`rf-head-${kind}`} d="M22 1L28 5L22 9z" />
-                </svg>
-                {LEGEND[kind][1]}
-              </li>
-            ))}
-          </ul>
-        </div>
+        {legendHtml && (
+          <div class="portal-workflow-footer">
+            <Fragment set:html={legendHtml} />
+          </div>
+        )}
       </rapi-flow>
       {/* A module script: one load per page however many workflows it has. Inline, so Astro leaves the
           static file's URL alone (Vite's dev server does not serve public/ files to import()). */}
@@ -143,23 +128,9 @@ const LEGEND: Record<string, [string, string]> = {
     padding: 0.5rem 1rem;
     border-top: 1px solid var(--sl-color-hairline);
   }
-  .portal-workflow-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 1rem;
+  /* The legend's own styles come with the flow CSS; it sits in the footer, so no top margin */
+  .portal-workflow-footer :global(.flow-legend) {
     margin: 0;
-    padding: 0;
-    list-style: none;
-    font-size: 0.75rem;
-    color: var(--sl-color-gray-3);
-  }
-  .portal-workflow-legend li {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
-  .portal-workflow-legend svg {
-    overflow: visible;
   }
   /* The page's fonts, no second border */
   .portal-workflow rapi-flow {

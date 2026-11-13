@@ -18,6 +18,7 @@ import {
 } from "./navigation.js";
 import {
   getBundledCss,
+  getFlowCss,
   getNavCss,
   getThemeTokensCss,
 } from "../../rapidoc/src/styles/css-bundle.js";
@@ -27,12 +28,6 @@ import {
   operationAnchorSource,
 } from "../../rapidoc/src/utils/slugger.js";
 import { renderArazzoWorkflow } from "../../rapidoc/src/utils/arazzo/index.js";
-import FlowStyles from "../../rapidoc/src/styles/flow-styles.js";
-
-/** CSS for diagrams from `renderArazzoWorkflow`; the page also needs the theme tokens (`getThemeTokensCss`). */
-function getFlowCss() {
-  return FlowStyles.cssText;
-}
 
 export {
   renderRapiDoc,
