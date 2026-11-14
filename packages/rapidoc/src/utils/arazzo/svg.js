@@ -471,6 +471,24 @@ function actionSections(step, stepIds) {
     .filter((rows) => rows.length);
 }
 
+/**
+ * The first box: the document's API sources (name, type, URL), then the workflow's inputs under an
+ * "Inputs" heading. Without sources it is the inputs alone, under the box's own "Inputs" title.
+ */
+function sourceRows(graph) {
+  const sources = graph.sources || [];
+  const nameChars = Math.min(22, Math.max(4, ...sources.map((s) => s.name.length)));
+  const col = PAD + nameChars * CHAR_W + 16;
+  return sources.map((s) => ({
+    tip: `${s.name}: ${s.type} source at ${s.url}`,
+    parts: [
+      part(truncate(s.name, nameChars), "rf-in-name", CHAR_W, { x: PAD }),
+      part(s.type, "rf-src-type", MONO_W, { x: col }),
+      part(s.url, "rf-src-url", MONO_W, { dx: 8 }),
+    ],
+  }));
+}
+
 function inputRows(graph) {
   const nameChars = Math.min(22, Math.max(4, ...graph.inputDetails.map((i) => i.name.length)));
   const col = PAD + nameChars * CHAR_W + 16;
@@ -606,20 +624,33 @@ function headerWidth(step) {
  * @param {boolean} [options.interactive=false] make operation steps focusable buttons
  * @param {Record<string, string[]>} [options.stepClasses] more classes on a step's box, by step
  *   id (`<rapi-flow>`: `rf-selected`, `rf-running`)
+ * @param {number} [options.minScale=0] how far the diagram may shrink to fit a narrower
+ *   container (the flow CSS sets max-width: 100%), 0.85 for 85%; below that, the container
+ *   scrolls. 0 lets it shrink to any size.
  * @returns {{ svg: string, legend: string[] }} `legend` names the kinds of lines drawn, in this
  *   order: `seq` (next step), `success` / `failure` (goto lines), `retry`. The diagram shows no
  *   legend: the lines are green, red and orange, and each goto or retry line is labelled.
  */
 export function renderFlowDiagram(graph, options = {}) {
   if (!graph) return { svg: "", legend: [] };
-  const { idPrefix = "rf", interactive = false, stepClasses = {} } = options;
+  const { idPrefix = "rf", interactive = false, stepClasses = {}, minScale = 0 } = options;
   const expanded = options.view !== "compact";
   const drawn = new Set();
 
   // ---- Nodes, top to bottom, with their rows ----
   const nodes = [];
   // The inputs and outputs boxes are the same in both views; only step boxes are compacted
-  if (graph.inputs.length) {
+  const sources = sourceRows(graph);
+  if (sources.length) {
+    // API sources first, then the inputs under a heading of their own, below a rule
+    const inputs = inputRows(graph);
+    const rows = [...sources];
+    if (inputs.length) {
+      rows.push({ rule: true, parts: [part("Inputs", "rf-io-title", PILL_CHAR_W, { x: PAD })] });
+      rows.push(...inputs);
+    }
+    nodes.push({ key: "inputs", kind: "io", title: "API sources", rows });
+  } else if (graph.inputs.length) {
     nodes.push({ key: "inputs", kind: "io", title: "Inputs", rows: inputRows(graph) });
   }
   const stepIds = new Set(graph.steps.map((s) => s.stepId));
@@ -728,7 +759,7 @@ export function renderFlowDiagram(graph, options = {}) {
   const marker = (id, cls) =>
     `<marker id="${idPrefix}-${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="${cls}"/></marker>`;
   out.push(
-    `<svg xmlns="http://www.w3.org/2000/svg" class="rf-svg rf-${expanded ? "expanded" : "compact"}" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="group" aria-label="${escapeXml(`Workflow ${graph.workflowId}`)}">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" class="rf-svg rf-${expanded ? "expanded" : "compact"}" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}"${minScale > 0 ? ` style="min-width:${num(width * Math.min(minScale, 1))}px"` : ""} role="group" aria-label="${escapeXml(`Workflow ${graph.workflowId}`)}">`,
     `<defs>${marker("seq", "rf-head-seq")}${["success", "failure", "retry"].map((k) => marker(k, `rf-head rf-${k}`)).join("")}</defs>`,
   );
 

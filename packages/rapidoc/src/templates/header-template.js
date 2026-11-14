@@ -24,6 +24,7 @@ export default function headerTemplate() {
                 style="font-size:var(--font-size-small)"
                 class="header-input mono-font"
                 part="textbox textbox-spec-url"
+                autocomplete="off"
                 placeholder="Spec URL"
                 value="${this.specUrl || ""}"
                 @change="${this.onSpecUrlChange}"
@@ -63,6 +64,7 @@ export default function headerTemplate() {
               <input
                 id="search"
                 class="header-input"
+                autocomplete="off"
                 type="text"
                 part="textbox textbox-header-filter"
                 placeholder="Filter"

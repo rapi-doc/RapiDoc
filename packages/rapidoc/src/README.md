@@ -51,7 +51,12 @@ other member is internal; templates call internal members freely through `this`.
   switch), `theme`, `color-scheme`; method `load`; events `flow-loaded` (`detail: { doc,
   problems }`), `step-click` (`detail: { workflowId, stepId, operation, workflowRef }`) and
   `view-change` (`detail: { view }`, fired only by the switch), all bubbling and composed;
-  getter `arazzoDocument` (the parsed document, null until loaded). The
+  getter `arazzoDocument` (the parsed document, null until loaded). With `allow-arazzo-url-load="true"` a box above the
+  diagram loads any Arazzo document by URL; loading one from it resets the workflow, drops a
+  page-set `spec-url`, fetches the first OpenAPI source itself and has a tied `<rapi-doc>`
+  `loadSpec` it (its `spec-loaded` then indexes the processed copy). A box load that fails keeps
+  the document shown (and so the `<rapi-doc>`, which only follows one that loaded), puts the
+  previous `arazzo-url` back, and says why under the box. Without the box, the URL shows as text. The
   element does not store the chosen view; a page that wants it remembered listens for
   `view-change`. There is no legend: next-step arrows and gotos on success are green, gotos on
   failure red, retries orange, and every goto or retry line carries a label. Hovering a step, one of its value lines or its rows in the outputs box highlights all of

@@ -9,7 +9,7 @@
  */
 import { Aside } from '@astrojs/starlight/components';
 import portalConfig from 'virtual:rapidoc-portal/config';
-import { operationMatchPattern } from '../operation.js';
+import { operationFilter } from '../operation.js';
 import { OAUTH_RECEIVER_PATH } from '../../engine/sync-assets.js';
 import { withBase } from '../../components/base-path.js';
 
@@ -34,7 +34,7 @@ if (!api) {
 }
 
 const specUrl = withBase(apiVersion?.specUrl);
-const matchPaths = operationMatchPattern(method, path);
+const filterOperations = operationFilter(method, path);
 const rapidoc = portalConfig.rapidoc || {};
 ---
 
@@ -44,8 +44,7 @@ const rapidoc = portalConfig.rapidoc || {};
       {title && <figcaption>{title}</figcaption>}
       <rapi-doc-mini
         spec-url={specUrl}
-        match-paths={matchPaths}
-        match-type="regex"
+        filter-operations={filterOperations}
         paths-expanded={collapsed ? 'false' : 'true'}
         layout="column"
         color-scheme="auto"

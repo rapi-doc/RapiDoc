@@ -389,7 +389,7 @@ describe("RapiDoc Portal build engine", () => {
         read("apis/shipments").includes('oauth-receiver="/oauth-receiver.html"'),
         "API pages too",
       );
-      assert.ok(firstShipment.includes('match-paths="^post /shipments$"'));
+      assert.ok(firstShipment.includes('filter-operations="POST /shipments"'));
       assert.equal(
         firstShipment.match(/paths-expanded="false"/g)?.length,
         1,

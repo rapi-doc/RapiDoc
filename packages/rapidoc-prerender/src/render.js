@@ -126,11 +126,7 @@ export async function resolveSpecInput(specInput, options = {}) {
     options.apiKeyLocation ?? options["api-key-location"] ?? "",
     options.apiKeyValue ?? options["api-key-value"] ?? "",
     options.serverUrl ?? options["server-url"] ?? "",
-    options.matchPaths ?? options["match-paths"] ?? "",
-    options.matchType ?? options["match-type"] ?? "",
-    options.removeEndpointsWithBadgeLabelAs ??
-      options["remove-endpoints-with-badge-label-as"] ??
-      "",
+    options.filterOperations ?? options["filter-operations"] ?? "",
     String(options.showUnusedTags ?? options["show-unused-tags"] ?? false) === "true",
   );
 }
@@ -238,7 +234,6 @@ export async function renderRapiDoc(options = {}) {
       defaultSchemaTab,
       allowTry: String(allowTry),
     },
-    matchPaths: normalized.matchPaths || "",
     selectedServer: resolvedSpec.servers?.[0],
     focusedElementId:
       options.focusedElementId ||

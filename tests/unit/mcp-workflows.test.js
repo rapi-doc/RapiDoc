@@ -55,12 +55,16 @@ describe("mcp: workflows compiled into the manifest", () => {
     const wf = manifest.tools.filter((t) => t.workflow);
     assert.deepEqual(
       wf.map((t) => t.name),
-      ["adopt_pet", "order_or_reserve"],
+      ["adopt_pet", "order_or_reserve", "authenticate_and_order_pet"],
     );
     assert.equal(problems.length, 1);
     assert.equal(problems[0].path, "workflows[2]");
     assert.match(problems[0].message, /registerUser.*jsonpath is not supported/);
-    assert.deepEqual(Object.keys(manifest.workflows), ["adoptPet", "orderOrReserve"]);
+    assert.deepEqual(Object.keys(manifest.workflows), [
+      "adoptPet",
+      "orderOrReserve",
+      "authenticateAndOrderPet",
+    ]);
     // the manifest's source is named after the Arazzo source, so steps resolve
     assert.deepEqual(Object.keys(manifest.sources), ["petstore"]);
     assert.equal(
@@ -518,6 +522,20 @@ describe("mcp: the runtime runs workflows", () => {
     assert.match(result.content[0].text, /failed at step readPet: HTTP 404\nHTTP 404/);
   });
 
+  it("fills in inputs the caller left out from their defaults", async () => {
+    const answers = {
+      "GET /pet/findByStatus": [{ id: 7 }],
+      "GET /pet/7": { name: "Rex" },
+      "POST /store/order": { id: 5 },
+      "GET /store/order/5": { status: "placed" },
+    };
+    // adoptPet's quantity defaults to 1; an explicit value still wins
+    const left = await run(answers, "adopt_pet", {});
+    assert.equal(left.calls.find((c) => c.method === "POST").body.quantity, 1);
+    const given = await run(answers, "adopt_pet", { quantity: 3 });
+    assert.equal(given.calls.find((c) => c.method === "POST").body.quantity, 3);
+  });
+
   it("ends the workflow on a failure action and checks required inputs", async () => {
     const { result, steps } = await run({ "GET /pet/findByStatus": [] }, "adopt_pet", {});
     assert.equal(result.isError, true);
@@ -546,8 +564,12 @@ describe("mcp: the runtime runs workflows", () => {
   it("writes the workflows into the exported manifest", () => {
     const { files, problems } = generateMcpServer(petstore, { arazzo, serverName: "petstore" });
     const written = JSON.parse(files["manifest.json"]);
-    assert.deepEqual(Object.keys(written.workflows), ["adoptPet", "orderOrReserve"]);
-    assert.ok(files["README.md"].includes("21 tools (2 of them workflows)"));
+    assert.deepEqual(Object.keys(written.workflows), [
+      "adoptPet",
+      "orderOrReserve",
+      "authenticateAndOrderPet",
+    ]);
+    assert.ok(files["README.md"].includes("22 tools (3 of them workflows)"));
     assert.equal(problems.length, 1);
   });
 });

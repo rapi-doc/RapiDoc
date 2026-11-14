@@ -73,7 +73,7 @@ describe("mcp: the exported project runs against @rapidoc/mock", () => {
   it("lists the manifest's tools and calls the API with the credential from the environment", async () => {
     const client = await connect({ API_KEY: "test-key" });
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 21); // 19 operations and 2 workflows
+    assert.equal(tools.length, 22); // 19 operations and 3 workflows (registerUser cannot run)
     const get = tools.find((t) => t.name === "get_pet_by_id");
     assert.deepEqual(get.annotations, {
       readOnlyHint: true,

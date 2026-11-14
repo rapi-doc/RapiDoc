@@ -119,6 +119,13 @@ UI helpers:
   responses carry `X-Mock-Server: RapiDoc`.
 - **Highlighter** (`[highlighter.js]`): `highlightAllCode` and `scheduleHighlight` are no-ops
   without `window` and `CSS.highlights`; highlighting never mutates the DOM.
+- **Operation filter** (`[filter-operations.js]`): `parseOperationFilter(text)` reads
+  `filter-operations` (operationIds, `METHOD /path`, paths, `*` / `**` globs, `tag:`, `badge:`,
+  `deprecated`, `!` to exclude; null when it filters nothing), `operationFacts(method, path, op)`
+  what the terms look at, `operationRank(filter, facts)` the first include term matched (-1: left
+  out). `ProcessSpec` drops left-out operations, and orders each tag's operations, and the tags,
+  by that rank unless `sort-endpoints-by` / `sort-tags` is set. Covered by
+  `tests/unit/filter-operations.test.js`.
 - **Headless boundary**: `spec-parser.js`, `schema-utils.js`, `slugger.js`, `mcp-generator.js`,
   `mcp/`, `arazzo/` and everything they import are shared with the Node builds (`@rapidoc/prerender`,
   `@rapidoc/mcp`). They never import Lit, elements, `components/`, `templates/`, `styles/` or
@@ -128,7 +135,7 @@ UI helpers:
 ## Side Effects
 
 - `ProcessSpec` fetches the spec and external `$ref`s, logs load errors with `console.info`, and
-  mutates the spec it processes: `x-ref` during dereference, `paths` replaced by `filterPaths`,
+  mutates the spec it processes: `x-ref` during dereference, `paths` replaced by `filterPaths` (the operations `filter-operations` shows, `[filter-operations.js]`),
   `callbacks` filtered, relative `servers[*].url` prefixed with `location.origin`,
   `computedUrl` added.
 - `mock-interceptor.js` replaces `window.fetch` and `XMLHttpRequest.prototype` methods while

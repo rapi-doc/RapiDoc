@@ -46,8 +46,8 @@ describe("RapiDoc Portal Markdoc Engine (Milestone 3)", () => {
     assert.ok(result.html.includes('data-path="/containers/book"'));
     assert.ok(result.html.includes('data-method="POST"'));
     assert.ok(result.html.includes("<rapi-doc-mini"));
-    assert.ok(result.html.includes('match-paths="^post /containers/book$"'));
-    assert.ok(result.html.includes('match-type="regex"'));
+    assert.ok(result.html.includes('filter-operations="POST /containers/book"'));
+    assert.ok(!result.html.includes("match-paths"));
     assert.ok(!result.html.includes("spec-url="), "no spec-url without a specUrls variable");
 
     // 2. Verify Table of Contents (TOC)
@@ -97,7 +97,7 @@ describe("RapiDoc Portal Markdoc Engine (Milestone 3)", () => {
     );
     assert.ok(result.html.includes('spec-url="/specs/shipments.json"'));
     assert.ok(
-      result.html.includes('match-paths="^get /shipments/\\{trackingNumber\\}$"'),
+      result.html.includes('filter-operations="GET /shipments/{trackingNumber}"'),
       result.html,
     );
   });

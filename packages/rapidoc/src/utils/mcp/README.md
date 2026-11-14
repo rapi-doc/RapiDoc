@@ -121,7 +121,8 @@ methods, and the network calls themselves (the runtime only builds and sends req
   interpolated), the request is sent, and every criterion must hold (`evaluateCondition`: `==`,
   `!=`, `<`, `>`, `<=`, `>=`, `&&`, `||`, `!`, parentheses, quoted strings, numbers, `true`,
   `false`, `null`; `==` compares numbers and strings as text and treats a missing value as
-  `null`). A step without criteria succeeds on a 2xx response. The first action whose criteria all hold runs: on success
+  `null`). Inputs the caller leaves out get their `default` from the workflow's `inputs`
+  schema, as a form would fill them; `required` is checked after that. A step without criteria succeeds on a 2xx response. The first action whose criteria all hold runs: on success
   `end` finishes, `goto` jumps, none falls through; on failure none or `end` fails the workflow
   (the result names the step, the criterion and the response), `goto` jumps, `retry` re-runs the
   step (or `stepId`) after `retryAfter` seconds up to `retryLimit` times. A transport error is a

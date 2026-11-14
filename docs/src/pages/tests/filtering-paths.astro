@@ -1,81 +1,49 @@
 ---
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
-import { getSpecUrl } from '../../utils/getSpecUrl';
-
-const specUrl = getSpecUrl(Astro.url);
 ---
 
 <ExampleLayout>
-  <rapi-doc 
-    id = "thedoc"
-    spec-url = "/specs-test/filtering-paths.yaml"
-    show-header = "false"
-    show-info = "true"
+  <rapi-doc
+    id="thedoc"
+    spec-url="/specs-test/filtering-paths.yaml"
+    show-header="false"
+    show-info="true"
     allow-server-selection="false"
-    allow-authentication = "false"
-    render-style = "read"
-    use-path-in-nav-bar = "true"
-    show-method-in-nav-bar = "as-colored-text"
-    match-paths=""
-    match-type="includes"
-    remove-endpoints-with-badge-label-as=""
-  > 
-
-
-    <div slot="operations-top" style="display: flex;justify-content: center; margin: 16px">
-      <table style="margin:16px">
-        <tr>
-          <td>
-            complete or partial paths eg: <span class="nono bold">public-path</span>
-          </td>
-          <td>
-            <input id='match-by-path' 
-              class='txt' 
-              value="/public" 
-              type='text' 
-              placeholder='get /public' 
-              spellcheck= "false"
-              style="width:100px"
-            > 
-          </td>
-          <td>
-            <button class='btn' style="width:190px" onclick='applyFilter("match-by-path")'>Show Only Matching Paths</button>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span>Comma separated badge labels to remove eg: <span class="nono bold">internal,admin-use-only</span></span>
-          </td>
-          <td>
-            <input id='remove-by-badge' 
-              class='txt' 
-              value="internal" 
-              type='text' 
-              placeholder= "internal,admin-use-only"
-              spellcheck="false"
-              style="width:100px"
-            > 
-          </td>
-          <td>
-            <button class='btn' style="width:190px" onclick='applyFilter("remove-by-badge")'>Remove Matching Badges</button>
-          </td>
-        </tr>
-      </table>
+    allow-authentication="false"
+    render-style="read"
+    use-path-in-nav-bar="true"
+    show-method-in-nav-bar="as-colored-text"
+    filter-operations=""
+  >
+    <div slot="operations-top" style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 16px">
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center">
+        <label for="filter-operations">filter-operations</label>
+        <input
+          id="filter-operations"
+          class="txt"
+          value="/public-* !badge:Preffered"
+          type="text"
+          placeholder="!badge:Internal !badge:admin-use-only"
+          spellcheck="false"
+          style="width: 320px"
+        />
+        <button class="btn" onclick="applyFilter()">Apply</button>
+      </div>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center">
+        <button class="btn" onclick="applyFilter('/public-*')">/public-*</button>
+        <button class="btn" onclick="applyFilter('GET /internal-path-1')">GET /internal-path-1</button>
+        <button class="btn" onclick="applyFilter('badge:Core')">badge:Core</button>
+        <button class="btn" onclick="applyFilter('!badge:Internal !badge:admin-use-only')">!badge:Internal !badge:admin-use-only</button>
+        <button class="btn" onclick="applyFilter('')">(all)</button>
+      </div>
     </div>
   </rapi-doc>
 
   <script is:inline>
-    function applyFilter(filterType) {
-      const docEl = document.getElementById('thedoc');
-      const filterText = document.getElementById(filterType).value || "";
-      if (filterType === 'match-by-path') {
-        docEl.setAttribute('remove-endpoints-with-badge-label-as', "");
-        docEl.setAttribute('match-paths', filterText);
-      } else {
-        docEl.setAttribute('remove-endpoints-with-badge-label-as', filterText);
-        docEl.setAttribute('match-paths', "");
-      }
+    function applyFilter(value) {
+      const input = document.getElementById('filter-operations');
+      if (typeof value === 'string') input.value = value;
+      document.getElementById('thedoc').setAttribute('filter-operations', input.value || '');
     }
-  </script>  
-
+  </script>
 </ExampleLayout>

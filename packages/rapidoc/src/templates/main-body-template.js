@@ -46,11 +46,11 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
     <!-- Advanced Search -->
     ${this.allowAdvancedSearch === "false" ? "" : advancedSearchDialogTemplate.call(this)}
 
-    <div id="the-main-body" class="body ${this.cssClasses}" dir="${this.pageDirection}">
+    <div id="the-main-body" class="body ${this.showSideNav === "floating" ? "nav-floating" : ""} ${this.cssClasses}" dir="${this.pageDirection}">
       <!-- Side Nav -->
       ${
         (this.renderStyle === "read" || this.renderStyle === "focused") &&
-        this.showSideNav === "true" &&
+        (this.showSideNav === "true" || this.showSideNav === "floating") &&
         this.resolvedSpec
           ? navbarTemplate.call(this)
           : ""
