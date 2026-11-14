@@ -42,6 +42,7 @@ With a bundler, `import 'rapidoc/flow';` registers the element. It carries its o
 | `show-view-toggle` | `true` | `false` hides the Compact / Expanded switch. |
 | `allow-run` | `true` | `false` hides the run panel: the diagram only. |
 | `server-url` | | Base URL runs send requests to, instead of the server the tied `<rapi-doc>` selected or the spec's first server. |
+| `server-is-mock` | `false` | `true` says that server is a mock that picks its response status from a `Prefer: code=` header (`rapidoc mock`, Prism): the run panel shows **Mock Response Status** and the button reads "Run workflow (Mock)". Not needed when the tied `<rapi-doc>` has `mock-server="true"`. |
 | `theme` | `ember` | One of RapiDoc's theme presets, or a custom accent; same values as on `<rapi-doc>`. |
 | `color-scheme` | `dark` | `dark`, `light`, `system`, or `auto` (follows the page's `data-theme`). |
 
@@ -91,12 +92,12 @@ To run against a mock that behaves more like the real API (request validation, g
 
 ```html
 <rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" spec-url="/specs/petstore.yaml"
-           server-url="http://localhost:4010/petstore"></rapi-flow>
+           server-url="http://localhost:4010/petstore" server-is-mock="true"></rapi-flow>
 ```
 
 Or list the mock as a server in the spec and pick it in the tied `<rapi-doc>`'s server list. With OAuth, sign in through **Authorize** in `<rapi-doc>`, or paste a token into the standalone credentials field; the mock checks it like the real API would.
 
-The same **Mock Response Status** table works here: each step's codes are sent as `Prefer: code=<status>`, which `rapidoc mock` honors (a real API ignores the header). The table is folded by default when no in-browser mock is tied, since it does nothing against a real API.
+With `server-is-mock="true"`, the same **Mock Response Status** table works here: each step's codes are sent as `Prefer: code=<status>`, which `rapidoc mock` honors. Without it, and with no in-browser mock tied, the table is not shown, since a real API ignores the header.
 
 ## What runs
 
@@ -114,7 +115,7 @@ A step without `successCriteria` succeeds on a 2xx status; the first matching ac
 
 ## Styling
 
-`theme` and `color-scheme` work as on `<rapi-doc>`, and the element reads the same [CSS custom properties](/docs/theming/overview). Its CSS parts: `header`, `title`, `select`, `description`, `view-toggle`, `diagram`, `legend`, `run`, `run-inputs`, `run-button`, `message`, `problems`.
+`theme` and `color-scheme` work as on `<rapi-doc>`, and the element reads the same [CSS custom properties](/docs/theming/overview). Its CSS parts: `header`, `title`, `select`, `description`, `view-toggle`, `diagram`, `run`, `run-inputs`, `run-button`, `run-stop`, `message`, `problems`.
 
 ```css
 rapi-flow::part(diagram) {

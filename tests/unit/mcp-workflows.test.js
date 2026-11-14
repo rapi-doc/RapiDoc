@@ -468,6 +468,46 @@ describe("mcp: the runtime runs workflows", () => {
     assert.ok(soldOut.calls[2].url.endsWith("/pet/11?status=wanted"));
   });
 
+  it("stops a goto loop after maxStepRuns, naming the jump back, and stops on a signal", async () => {
+    // checkPet always fails, and its pickAnother goes back to findAvailable: a loop with no end
+    const answers = {
+      "GET /pet/findByStatus": [{ id: 7 }],
+      "GET /pet/7": fail(404, { error: "gone" }),
+    };
+    const steps = [];
+    const runtime = createMcpRuntime(manifest, {
+      fetch: apiStub(answers).impl,
+      credentials: { api_key: "k" },
+    });
+    const looped = await runtime.callTool(
+      "adopt_pet",
+      {},
+      { maxStepRuns: 6, onStep: (e) => steps.push(e.stepId) },
+    );
+    assert.equal(looped.isError, true);
+    assert.equal(
+      looped.content[0].text,
+      "Workflow adoptPet stopped after 6 steps: it kept going back from checkPet to findAvailable (pickAnother)",
+    );
+    assert.deepEqual(steps, [
+      "findAvailable",
+      "checkPet",
+      "findAvailable",
+      "checkPet",
+      "findAvailable",
+      "checkPet",
+    ]);
+
+    // a signal stops the run before its next step
+    const abort = new AbortController();
+    const stopped = await runtime.callTool(
+      "adopt_pet",
+      {},
+      { signal: abort.signal, onStep: () => abort.abort() },
+    );
+    assert.equal(stopped.content[0].text, "Workflow adoptPet was stopped before step checkPet");
+  });
+
   it("treats a non-2xx response as a failure when a step has no criteria", async () => {
     const { result, steps } = await run(
       { "GET /store/inventory": { available: 3 }, "GET /pet/4": fail(404, { message: "no pet" }) },

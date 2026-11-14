@@ -1,7 +1,7 @@
 import { css } from "lit";
 
 /**
- * Styles for the workflow diagram and its legend drawn by utils/arazzo/svg.js. Shared by <rapi-flow> and by
+ * Styles for the workflow diagram drawn by utils/arazzo/svg.js. Shared by <rapi-flow> and by
  * build-time pages (@rapidoc/prerender `getFlowCss()`), so selectors are plain classes, not :host.
  */
 export default css`
@@ -99,13 +99,15 @@ export default css`
       stroke-dashoffset: -20;
     }
   }
+  /* Next step: green, as success; the lines of actions are green, red or orange too, so the
+     colors explain themselves and the diagram needs no legend */
   .rf-seq {
     fill: none;
-    stroke: var(--muted-foreground);
+    stroke: var(--green);
     stroke-width: 1.25;
   }
   .rf-head-seq {
-    fill: var(--muted-foreground);
+    fill: var(--green);
   }
   .rf-sep {
     fill: none;
@@ -117,7 +119,6 @@ export default css`
   }
   .rf-in-name,
   .rf-out-name,
-  .rf-from-arrow,
   .rf-bind-name,
   .rf-bind-val,
   .rf-act-when,
@@ -145,10 +146,12 @@ export default css`
   .rf-kw {
     font-weight: 600;
   }
-  /* Step names are the step color wherever they appear: box titles, value lines, outputs */
+  /* Step names are the step color wherever they appear (box titles, value lines, outputs), and
+     so is the "←" before a value from a step */
   /* --primary mixed toward the text color keeps the hue and reads at 4.5:1 on light cards */
   .rf-step-name,
   .rf-kw-step,
+  .rf-from-arrow,
   .rf-row.rf-linked .rf-out-name {
     fill: var(--rf-step);
   }
@@ -215,8 +218,16 @@ export default css`
   .rf-goto.rf-retry {
     stroke-dasharray: 5 4;
   }
-  .rf-head {
+  .rf-head,
+  .rf-act-arrow,
+  .rf-line-start {
     fill: var(--rf-kind);
+  }
+  /* The dot where an action line leaves its box: ringed in the card color so it stands off the
+     box's border */
+  .rf-line-start {
+    stroke: var(--card);
+    stroke-width: 1.5;
   }
   /* An action line's name, on the line, in the line's color */
   .rf-goto-label rect {
@@ -249,25 +260,6 @@ export default css`
   }
   .rf-end.rf-default {
     fill: var(--rf-kind);
-  }
-  /* The legend (legendHtml): one short line per kind of line drawn, with its words */
-  .flow-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 1rem;
-    margin: 0.75rem 0 0;
-    padding: 0;
-    list-style: none;
-    font-size: var(--font-size-xs);
-    color: var(--muted-foreground);
-  }
-  .flow-legend li {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
-  .flow-legend svg {
-    overflow: visible;
   }
   .rf-sec-note {
     fill: var(--muted-foreground);

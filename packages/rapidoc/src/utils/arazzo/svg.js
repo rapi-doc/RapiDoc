@@ -8,7 +8,7 @@
  * ("← from <step>.<output>"). The inputs box (each input's type, required flag, default and enum
  * values) and the outputs box are the same in both views; the views differ in the step boxes:
  * - "expanded" (default): each step lists the values it sends and where they come from (input,
- *   from a step, fixed or expr), its checks, its actions as "condition → what happens", and the
+ *   from a step, const or expr), its checks, its actions as "condition → what happens", and the
  *   outputs something reads.
  * - "compact": each step shows its name, method, path, number of checks and the values it sends.
  */
@@ -198,7 +198,7 @@ function renderRow(row, boxX, boxW, baseline, interactive = false) {
 
 // The word before each value in a step box or the outputs box, by source kind
 // The word before each value in a step box or the outputs box, by source kind
-const KEYWORDS = { input: "input", step: "from", value: "fixed", expression: "expr" };
+const KEYWORDS = { input: "input", step: "from", value: "const", expression: "expr" };
 // A one-character column before the keyword holds "←" for a value read from an earlier step, so
 // values passed in from another step stand apart from those the step sets itself
 const ARROW_W = 2 * MONO_W; // "←" plus a space
@@ -413,7 +413,11 @@ function actionSections(step, stepIds) {
           const when = whens[i]
             ? [part(truncate(whens[i], whenChars), "rf-act-when", CHAR_W, { x: PAD })]
             : [];
-          const arrow = whens[i] ? "→ " : "";
+          // After a condition, "→" in the color of what it leads to, as the action's line or END
+          // pill: orange for a retry, else green on success and red on failure
+          const arrowCls = `rf-act-arrow rf-${a.type === "retry" ? "retry" : outcome}`;
+          const arrow = whens[i] ? [part("→ ", arrowCls, CHAR_W, { x: col })] : [];
+          const then = arrow.length ? {} : { x: col };
           // A goto with a line: "→ goto <step>", the step in the step color; its name labels
           // the line
           if (a.type === "goto" && actionTarget(a, step, stepIds)) {
@@ -423,7 +427,8 @@ function actionSections(step, stepIds) {
               tagCls: "rf-tag rf-inherited",
               parts: [
                 ...when,
-                part(`${arrow}goto `, "rf-act-then", CHAR_W, { x: col }),
+                ...arrow,
+                part("goto ", "rf-act-then", CHAR_W, then),
                 part(a.stepId, "rf-step-name", CHAR_W),
               ],
             };
@@ -432,14 +437,16 @@ function actionSections(step, stepIds) {
           const does =
             a.type === "end"
               ? [
-                  ...(arrow ? [part("→", "rf-act-then", CHAR_W, { x: col })] : []),
-                  // Red on failure, green on success, as the goto lines
+                  ...(arrow.length ? [part("→", arrowCls, CHAR_W, { x: col })] : []),
+                  // Red on failure, green on success, as the goto lines. Placed at a fixed x, as
+                  // its pill is: after "→" by the arrow's estimated width, since a dx would follow
+                  // the arrow's real width and shift the word off its pill's center
                   part("END", `rf-end rf-${outcome}`, END_CHAR_W, {
-                    ...(arrow ? { dx: 8 + PILL_PAD } : { x: col + PILL_PAD }),
+                    x: col + (arrow.length ? textWidth("→", CHAR_W) + 8 : 0) + PILL_PAD,
                     pill: `rf-end-pill rf-${outcome}`,
                   }),
                 ]
-              : [part(`${arrow}${described[i].does}`, "rf-act-then", CHAR_W, { x: col })];
+              : [...arrow, part(described[i].does, "rf-act-then", CHAR_W, then)];
           return {
             // A retry's line starts here; it is labelled with how many times and how far apart
             ...(a.type === "retry" && actionTarget(a, step, stepIds) ? { action: a } : {}),
@@ -554,7 +561,7 @@ function bindingSections(step) {
 /**
  * The outputs box: one row per output, as a step's value lines read: the output's name, then
  * "← <step>.<output>" for a step's output (the step in the step color), or the source keyword and
- * value (`input`, `fixed`, `expr`). Rows are grouped by step, in the order each step first
+ * value (`input`, `const`, `expr`). Rows are grouped by step, in the order each step first
  * appears, with a rule between groups; outputs not taken from a step come last.
  */
 function outputRows(graph) {
@@ -590,7 +597,7 @@ function headerWidth(step) {
 }
 
 /**
- * Draws the diagram and reports which kinds of lines it drew, for a legend.
+ * Draws the diagram and reports which kinds of lines it drew.
  *
  * @param {object} graph from buildFlowGraph()
  * @param {object} [options]
@@ -599,12 +606,12 @@ function headerWidth(step) {
  * @param {boolean} [options.interactive=false] make operation steps focusable buttons
  * @param {Record<string, string[]>} [options.stepClasses] more classes on a step's box, by step
  *   id (`<rapi-flow>`: `rf-selected`, `rf-running`)
- * @returns {{ svg: string, legend: string[], legendHtml: string }} `legend` names the kinds of
- *   lines drawn, in this order: `seq` (next step), `success` / `failure` (goto lines), `retry`;
- *   `legendHtml` is a `<ul class="flow-legend">` for them (styled by the flow CSS), "" when none
+ * @returns {{ svg: string, legend: string[] }} `legend` names the kinds of lines drawn, in this
+ *   order: `seq` (next step), `success` / `failure` (goto lines), `retry`. The diagram shows no
+ *   legend: the lines are green, red and orange, and each goto or retry line is labelled.
  */
 export function renderFlowDiagram(graph, options = {}) {
-  if (!graph) return { svg: "", legend: [], legendHtml: "" };
+  if (!graph) return { svg: "", legend: [] };
   const { idPrefix = "rf", interactive = false, stepClasses = {} } = options;
   const expanded = options.view !== "compact";
   const drawn = new Set();
@@ -743,11 +750,16 @@ export function renderFlowDiagram(graph, options = {}) {
 
   // Action lines (gotos and retries), each with its label on the line, centred
   const placedGotoLabels = [];
+  // Where each line leaves its box, drawn after the boxes so the dot sits on the border
+  const lineStarts = [];
   for (const e of gotoEdges) {
     const from = nodes[e.from];
     const to = nodes[e.to];
     const x = boxX - 12 - gotoLabelW / 2 - e.lane * LANE;
     const py = from.y + e.by - 4;
+    lineStarts.push(
+      `<circle class="rf-line-start rf-${e.kind}" data-from-step="${escapeXml(from.key)}" cx="${boxX + 6}" cy="${py}" r="4"/>`,
+    );
     const ty = to.y + ARRIVAL_ZONE / 2;
     drawn.add(e.kind);
     out.push(
@@ -828,30 +840,11 @@ export function renderFlowDiagram(graph, options = {}) {
     );
   }
 
+  // A dot in the line's color just inside the box's left edge, at the action line it leaves from
+  out.push(...lineStarts);
   out.push("</svg>");
-  const legend = Object.keys(LEGEND).filter((k) => drawn.has(k));
-  return { svg: out.join(""), legend, legendHtml: legendHtml(legend) };
-}
-
-/** Each kind of line a diagram can draw: its classes and its words in the legend, in order. */
-const LEGEND = {
-  seq: ["rf-seq", "rf-head-seq", "next step"],
-  success: ["rf-goto rf-success", "rf-head rf-success", "goto on success"],
-  failure: ["rf-goto rf-failure", "rf-head rf-failure", "goto on failure"],
-  retry: ["rf-goto rf-retry", "rf-head rf-retry", "retry"],
-};
-
-/**
- * The legend for the kinds of lines a diagram drew, as HTML: each a short line in that line's
- * classes (the flow CSS colors and dashes it) and its words. Shared by <rapi-flow> and pages
- * that show the diagram drawn at build time.
- */
-function legendHtml(kinds) {
-  const items = kinds.filter((k) => LEGEND[k]);
-  if (!items.length) return "";
-  const li = (k) =>
-    `<li><svg width="28" height="10" aria-hidden="true"><path class="${LEGEND[k][0]}" d="M1 5H23"/><path class="${LEGEND[k][1]}" d="M22 1L28 5L22 9z"/></svg>${LEGEND[k][2]}</li>`;
-  return `<ul class="flow-legend" part="legend" aria-label="Legend">${items.map(li).join("")}</ul>`;
+  const legend = ["seq", "success", "failure", "retry"].filter((k) => drawn.has(k));
+  return { svg: out.join(""), legend };
 }
 
 /** The diagram as an SVG string; see renderFlowDiagram for the options. */

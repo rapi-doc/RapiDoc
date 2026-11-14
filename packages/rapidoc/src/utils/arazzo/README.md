@@ -9,7 +9,7 @@ reads `enum`, as `<rapi-doc>` labels it) and the
 outputs box are the same in both views, which differ in the step boxes: `expanded` (the
 default) lists each step's values under a heading per location (Path params, Query params,
 Header params, Cookie params, Request body with its content type; body fields without their `body.` prefix) with a keyword for
-where they come from (`input`, `← from` for a step's output, `fixed`, `expr`; the `←` in a column
+where they come from (`input`, `← from` for a step's output, `const` for a literal, `expr`; the `←` in a column
 of its own, so values passed in from an earlier step stand apart), its checks (the success criteria,
 unnumbered), its actions that draw no line as "condition → what happens" under "On success" /
 "On failure", each heading saying when it applies ("· if all checks pass" / "· if any check fails", or "the check" with one check; a step succeeds only when all its checks pass), with "· first match runs" when the step has more than one action for that outcome; an action
@@ -52,19 +52,19 @@ package) stays out of it.
   by operationId (plain or `$sourceDescriptions.<name>.` qualified) and by `operationPath`.
 - `buildFlowGraph(doc, workflowId?, { sources })` [graph.js]: the graph the SVG draws; null when
   the workflow does not exist.
-- `renderFlowDiagram(graph, { view, idPrefix, interactive, stepClasses }) -> { svg, legend, legendHtml }` [svg.js]:
+- `renderFlowDiagram(graph, { view, idPrefix, interactive, stepClasses }) -> { svg, legend }` [svg.js]:
   `stepClasses` adds classes to step boxes by step id (`<rapi-flow>` marks the selected step and
   the running one, `rf-selected` / `rf-running`, this way);
-  `legend` names the kinds of lines drawn (`seq`, `success`, `failure`, `retry`), and `legendHtml`
-  is their legend, a `<ul class="flow-legend" part="legend">` styled by `flow-styles.js`, the one
-  legend `<rapi-flow>` and the portal's `{% workflow %}` tag both show ("" when nothing is drawn);
+  `legend` names the kinds of lines drawn (`seq`, `success`, `failure`, `retry`). Neither
+  `<rapi-flow>` nor the portal shows a legend: the colors (next step and goto on success green, goto
+  on failure red, retry orange) and the line labels say it;
   `renderFlowSvg` returns only the SVG. `actionLabel` (short: "✗ retry 3× after 2s (if)"),
   `actionSentence` (with criteria), `describeAction(action, checks, index)` (`{ when, does, name, tag }`, the
   wording of the expanded boxes; an action without criteria reads "checks
   fail" / "check fails" / "request fails" by the step's number of checks, or "otherwise" after
   other actions) and `escapeXml` are exported too.
 - `renderArazzoWorkflow(arazzo, options)` [index.js]: parse, validate, index `options.sources`,
-  build and draw in one call; returns `{ svg, legend, legendHtml, graph, problems, workflowIds }`.
+  build and draw in one call; returns `{ svg, legend, graph, problems, workflowIds }`.
 
 ## Invariants
 
@@ -86,9 +86,12 @@ package) stays out of it.
   "+N unused" for the rest.
 - **Outputs box.** The same in both views: one row per output, read as a step's value lines are:
   the output's name, then `← <step>.<output>` for a step's output (the step in the step color,
-  no `from` keyword, no step column), or the source keyword and value (`input`, `fixed`, `expr`)
+  no `from` keyword, no step column), or the source keyword and value (`input`, `const`, `expr`)
   with the `←` column blank. Rows are grouped by step, in the order each step first appears, with
   a rule between groups; outputs not taken from a step come last.
+- **Arrows in rows.** The `←` before a value from a step is in the step color. The `→` after an
+  action's condition is in the color of what it leads to, as the action's line or END pill:
+  orange for a retry, green on success, red on failure (`rf-act-arrow rf-<kind>`).
 - **Step names** (box titles, the step in `←` value lines in step boxes and the outputs box) share one
   color, `--primary` mixed toward the text color so it passes 4.5:1 on light cards; variable
   names keep the text color.
@@ -109,7 +112,8 @@ package) stays out of it.
   (compact), a loop when a retry retries its own step. A goto's line reads "→ goto <step>" (the
   step in the step color) and its line is labelled with the action's name, which the box does not
   repeat; a retry's line reads "→ retry 3×, 2s apart (<name>)" and its line is labelled
-  "retry 3× @ 2s". Each label's tooltip is the whole action. Both views draw inherited actions' lines too. In compact, a retry
+  "retry 3× @ 2s". Each label's tooltip is the whole action. A dot in the line's color
+  (`rf-line-start`) marks where each line leaves its box, just inside the box's left edge. Both views draw inherited actions' lines too. In compact, a retry
   into its own step leaves near the bottom of the box, so the loop spans the box with its label on
   the line, as in expanded. All lines between boxes have rounded corners (`roundedPath`).
   `end` and goto to a workflow draw none.

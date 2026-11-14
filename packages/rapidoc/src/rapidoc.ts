@@ -1353,6 +1353,7 @@ export default class RapiDoc extends LitElement {
       allowTry: this.allowTry,
       showCurlBeforeTry: this.showCurlBeforeTry,
       fetchCredentials: this.fetchCredentials,
+      mockServer: this.mockServer,
     };
   }
 

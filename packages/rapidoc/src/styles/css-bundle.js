@@ -61,7 +61,7 @@ export function getBundledCss(options = {}) {
 }
 
 /**
- * CSS for the Arazzo diagrams of `renderArazzoWorkflow` and their legend; the page also needs the
+ * CSS for the Arazzo diagrams of `renderArazzoWorkflow`; the page also needs the
  * theme tokens (`getThemeTokensCss`).
  *
  * @returns {string} Flow CSS string

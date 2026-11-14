@@ -47,8 +47,7 @@ re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `@rapidoc/pre
   `X`. Only `scope` is read, although the JSDoc also lists `theme` and `colorScheme`.
 - `getNavCss(scope)`: `nav-styles.js` with the same rewrites, wrapped in a `<scope> { ... }` block
   that also sets a compact `--sidebar-item-padding`, for the portal sidebar.
-- `getFlowCss()`: `flow-styles.js` as a string (Arazzo diagrams drawn at build time and their
-  legend), for `@rapidoc/prerender`. Only prerender imports this file, so the flow CSS stays out
+- `getFlowCss()`: `flow-styles.js` as a string (Arazzo diagrams drawn at build time), for `@rapidoc/prerender`. Only prerender imports this file, so the flow CSS stays out
   of `rapidoc-min.js`.
 - `getThemeTokensCss(theme, scope = ":root")`: the token stylesheet with `theme` / `color-scheme`
   host rules rewritten to `[data-theme='dark'|'light'|'system']` selectors (other presets keyed by

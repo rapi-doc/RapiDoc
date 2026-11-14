@@ -177,6 +177,20 @@ export interface McpRunHooks {
   onStep?: (event: McpStepEvent) => void;
   /** Waits between retries; defaults to setTimeout. */
   sleep?: (ms: number) => Promise<void>;
+  /** Extra headers for a step's request (a mock's `Prefer: code=503`, say), or nothing. */
+  requestHeaders?: (event: {
+    workflowId: string;
+    stepId: string;
+    attempt: number;
+    operation: object;
+  }) => Record<string, string> | undefined;
+  /**
+   * Steps a run may take, retries and gotos included, before it stops with an error naming the
+   * last jump back to an earlier step. Default 1000.
+   */
+  maxStepRuns?: number;
+  /** Stops the run before its next step, or during a retry's wait; the request in flight finishes. */
+  signal?: AbortSignal;
 }
 
 /** What a workflow run reports after each step. */

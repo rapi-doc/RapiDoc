@@ -228,6 +228,11 @@ function evaluateAll(criteria, ctx) {
  * @param {(ms: number) => Promise<void>} [hooks.sleep] waits between retries (default setTimeout)
  * @param {Function} [hooks.requestHeaders] gets `{ workflowId, stepId, attempt, operation }` and
  *   returns extra headers for that request (a mock's `Prefer: code=503`, say), or nothing
+ * @param {number} [hooks.maxStepRuns=1000] how many steps a run may take, retries and gotos
+ *   included, before it stops; a goto back to an earlier step can otherwise loop for ever (a mock
+ *   that always answers the same, say). The error names the last jump back.
+ * @param {AbortSignal} [hooks.signal] stops the run before its next step (or during a retry's
+ *   wait); the request in flight finishes first
  * @returns {Promise<object>} the MCP result: the workflow's outputs as `structuredContent`, or an
  *   error result naming the step, the failed criterion and the response
  */
@@ -235,6 +240,9 @@ export async function runWorkflow(runtime, tool, args, hooks = {}) {
   const workflow = runtime.manifest.workflows?.[tool.workflow];
   if (!workflow) return errorResult(`Workflow "${tool.workflow}" is not in the manifest`);
   const sleep = hooks.sleep || ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
+  const maxRuns = hooks.maxStepRuns || MAX_STEP_RUNS;
+  const { signal } = hooks;
+  const stopped = signal && new Promise((resolve) => signal.addEventListener("abort", resolve));
   const inputs = args || {};
   const required = (workflow.inputs?.required || []).filter((name) => inputs[name] === undefined);
   if (required.length) return errorResult(`Missing input ${required.join(", ")}`);
@@ -245,11 +253,26 @@ export async function runWorkflow(runtime, tool, args, hooks = {}) {
   const attempts = new Map();
   let index = 0;
   let runs = 0;
+  // The last goto to the same or an earlier step, to say where a run that never ends went round
+  let jumpBack = null;
   while (index >= 0 && index < steps.length) {
-    if (++runs > MAX_STEP_RUNS) {
-      return errorResult(`Workflow ${workflow.workflowId} ran more than ${MAX_STEP_RUNS} steps`);
+    if (signal?.aborted) {
+      return errorResult(
+        `Workflow ${workflow.workflowId} was stopped before step ${steps[index].stepId}`,
+      );
+    }
+    if (++runs > maxRuns) {
+      const loop = jumpBack
+        ? `: it kept going back from ${jumpBack.from} to ${jumpBack.to}${jumpBack.name ? ` (${jumpBack.name})` : ""}`
+        : "";
+      return errorResult(`Workflow ${workflow.workflowId} stopped after ${maxRuns} steps${loop}`);
     }
     const step = steps[index];
+    const goto = (action) => {
+      const to = indexOf(action.stepId);
+      if (to <= index) jumpBack = { from: step.stepId, to: action.stepId, name: action.name };
+      return to;
+    };
     const attempt = (attempts.get(step.stepId) || 0) + 1;
     attempts.set(step.stepId, attempt);
     const ctx = { inputs, steps: stepsCtx };
@@ -333,13 +356,13 @@ export async function runWorkflow(runtime, tool, args, hooks = {}) {
     if (outcome === "success") {
       if (!action) index++;
       else if (action.type === "end") break;
-      else if (action.type === "goto") index = indexOf(action.stepId);
+      else if (action.type === "goto") index = goto(action);
       else index++;
       continue;
     }
     if (!action || action.type === "end") return failure(failedCriterion);
     if (action.type === "goto") {
-      index = indexOf(action.stepId);
+      index = goto(action);
       continue;
     }
     // retry
@@ -350,7 +373,10 @@ export async function runWorkflow(runtime, tool, args, hooks = {}) {
     if (tried > (action.retryLimit ?? 1)) {
       return failure(`${failedCriterion} (after ${action.retryLimit ?? 1} retries)`);
     }
-    if (action.retryAfter) await sleep(action.retryAfter * 1000);
+    if (action.retryAfter) {
+      const wait = sleep(action.retryAfter * 1000);
+      await (stopped ? Promise.race([wait, stopped]) : wait);
+    }
     index = target;
   }
 

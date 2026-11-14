@@ -53,7 +53,8 @@ other member is internal; templates call internal members freely through `this`.
   `view-change` (`detail: { view }`, fired only by the switch), all bubbling and composed;
   getter `arazzoDocument` (the parsed document, null until loaded). The
   element does not store the chosen view; a page that wants it remembered listens for
-  `view-change`. The legend lists only the kinds of lines the current diagram draws. Hovering a step, one of its value lines or its rows in the outputs box highlights all of
+  `view-change`. There is no legend: next-step arrows and gotos on success are green, gotos on
+  failure red, retries orange, and every goto or retry line carries a label. Hovering a step, one of its value lines or its rows in the outputs box highlights all of
   them. Clicking a step name in the outputs box (focusable, Enter works too) or a value line that
   reads a step selects that step and scrolls its nearest scrolling ancestor (or the window) to
   center it. Clicking a step selects it; clicking a step that calls another workflow of the same document switches to
@@ -61,13 +62,16 @@ other member is internal; templates call internal members freely through `this`.
   warnings are not shown. **Run** builds the MCP manifest for the shown workflow
   (`utils/mcp/manifest.js` with the tied `<rapi-doc>`'s processed spec, else the first source this
   element loaded) and runs it in the browser with `utils/mcp/workflow-runtime.js`. The run panel
-  under the legend is always open: the inputs form (defaults filled, values coerced by type), the
-  Run workflow button, then a log of every step's request, response and outputs and the
-  workflow's outputs or the error. While a step's request is out its box carries `rf-running`;
-  results are not drawn on the diagram. When the tied `<rapi-doc>` has `mock-server="true"`, the
-  form also takes the status codes its in-browser mock answers with (`503`, or a list used in
-  turn or at random): they are set on the `<rapi-doc>`'s `mock-server-status-code` /
-  `-strategy` for the run and restored after, and log lines say `mocked`. Credentials are the tied `<rapi-doc>`'s
+  under the diagram is always open: the inputs form (defaults filled, values coerced by type), the
+  Run workflow button (a Stop button while it runs), then the inputs the run was given, a log of every step's request,
+  response and outputs (each entry folds, with a bordered + / − in its corner) and the workflow's outputs or the error. A run in the page stops after 50 steps (`MAX_RUN_STEPS`), so a goto loop a
+  mock never breaks ends with a message saying where it went round. While a step's request is out its box carries `rf-running`;
+  results are not drawn on the diagram. A Mock Response Status section (folded until a status is set)
+  takes the status codes a mock answers with (`503`, or a list used in turn or at random), and is
+  shown only when a mock answers: with the tied `<rapi-doc>`'s `mock-server="true"` the codes are
+  set on its `mock-server-status-code` / `-strategy` for the run and restored after; with
+  `server-is-mock="true"` (a mock server such as `rapidoc mock`) they go out as `Prefer: code=`.
+  Either way the button reads "Run workflow (Mock) →" and log lines say `mocked`. Credentials are the tied `<rapi-doc>`'s
   entered ones (API keys, Basic, Bearer and OAuth tokens); a standalone element shows one
   password field per security scheme of the first source instead (kept in memory only).
   A workflow the runtime cannot run says why instead of a form.

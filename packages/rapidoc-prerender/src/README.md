@@ -36,8 +36,8 @@ typed contract (option types, navigation types, signatures) and declares no defa
 - Re-exports: `bindNavBar` (browser-side, `../../rapidoc/src/utils/bind-navbar.js`); `getBundledCss`,
   `getNavCss`, `getThemeTokensCss`, `getFlowCss` (`../../rapidoc/src/styles/css-bundle.js`); `toKebabCase`, `methodPathSlug`,
   `operationAnchorSource` (`../../rapidoc/src/utils/slugger.js`); `renderArazzoWorkflow`
-  (`../../rapidoc/src/utils/arazzo/index.js`: one Arazzo workflow as an SVG string, and its legend);
-  `getFlowCss` is that diagram's and legend's stylesheet (the page also needs `getThemeTokensCss`).
+  (`../../rapidoc/src/utils/arazzo/index.js`: one Arazzo workflow as an SVG string);
+  `getFlowCss` is that diagram's stylesheet (the page also needs `getThemeTokensCss`).
 
 ## Invariants
 
