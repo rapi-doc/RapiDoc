@@ -203,6 +203,8 @@ export default class RapiFlow extends LitElement {
   private loadId = 0;
   /** The next load comes from the URL box: the tied <rapi-doc> follows its first OpenAPI source. */
   private followArazzo = false;
+  /** The first source's URL the tied <rapi-doc> was asked to show; its other specs are ignored. */
+  private awaitedSpecUrl = "";
   /** What the box showed before a load from it, put back if that load fails. */
   private beforeBoxLoad: { arazzoUrl: string; workflowId: string; specUrl: string } | null = null;
   /** Put back after a failed box load: set the properties without loading again. */
@@ -630,8 +632,8 @@ export default class RapiFlow extends LitElement {
       const sources = new Map();
       const specObjects = new Map();
       // With the URL box, this element manages the document: on any load (from the box, or the
-      // page setting arazzo-url), fetch the first source here too and have the tied <rapi-doc>
-      // load it when it shows another spec (its spec-loaded then indexes its processed copy).
+      // page setting arazzo-url), the tied <rapi-doc> loads the first source when it shows
+      // another spec (or none); its spec-loaded then indexes its processed copy.
       // Without the box the page decides what the <rapi-doc> shows.
       const following = (fromBox || this.allowArazzoUrlLoad === "true") && Boolean(this.specDoc);
       const first = openapiSources(doc)[0];
@@ -642,11 +644,14 @@ export default class RapiFlow extends LitElement {
         const current =
           this.specDoc.specUrl && new URL(this.specDoc.specUrl, document.baseURI).href;
         switching = current !== firstUrl;
+        this.awaitedSpecUrl = firstUrl;
         if (switching) this.specDoc.loadSpec(firstUrl);
       }
       await Promise.all(
         openapiSources(doc).map(async (s, i) => {
-          if (i === 0 && this.specDoc && !switching) return;
+          // Tied: the first source is the <rapi-doc>'s (loaded already, or loading now at our
+          // request; its spec-loaded indexes it), so it is fetched once
+          if (i === 0 && this.specDoc) return;
           const url = i === 0 && this.specUrl ? this.specUrl : s.url;
           try {
             const text = await this.fetchText(
@@ -673,8 +678,9 @@ export default class RapiFlow extends LitElement {
       this.specObjects = specObjects;
       this.problems = problems;
       this.resetRun();
-      // Switching: the <rapi-doc> still holds the previous spec until its spec-loaded
-      if (!switching) this.useRapiDocSpec();
+      // The <rapi-doc>'s copy of the first source: now, if it holds it already (it may have finished
+      // loading while the other sources were fetched); else its spec-loaded indexes it
+      this.useRapiDocSpec();
       this.emit("flow-loaded", { doc, problems });
     } catch (err) {
       if (id !== this.loadId) return;
@@ -748,7 +754,12 @@ export default class RapiFlow extends LitElement {
   private useRapiDocSpec() {
     const first = openapiSources(this.doc)[0];
     const spec = this.specDoc?.resolvedSpec;
-    if (!first || !spec) return;
+    if (!first || !spec || spec.isSpecLoading || spec.specLoadError) return;
+    // Asked to load another spec (the URL box): not until it holds that one
+    if (this.awaitedSpecUrl) {
+      const current = this.specDoc.specUrl && new URL(this.specDoc.specUrl, document.baseURI).href;
+      if (current !== this.awaitedSpecUrl || this.specDoc.loading) return;
+    }
     this.sources = new Map(this.sources).set(first.name, indexResolvedSpec(spec));
   }
 
