@@ -20,6 +20,13 @@ import downloadsTemplate from "~/templates/downloads-template";
 
 export default function mainBodyTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
+    // Nothing given to show: say how to give it. Delayed by CSS, so a page that loads the spec
+    // from script (a <rapi-flow> with its URL box, say) never shows it
+    if (!this.specUrl && !this.loading) {
+      return html`<p class="no-spec" part="no-spec" role="status">
+        No API spec to show. Set <code>spec-url</code>, or call <code>loadSpec()</code>.
+      </p>`;
+    }
     return "";
   }
   if (this.persistAuth === "true") {

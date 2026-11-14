@@ -33,4 +33,31 @@ export default css`
     content: '';
     width: 0px;
   }
+
+  /* An element without a spec (no spec-url, nothing loading): fades in after a moment, so a page
+     that loads the spec from script never shows it */
+  .no-spec {
+    margin: 1rem;
+    padding: 12px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--muted-foreground);
+    font-size: var(--font-size-small);
+    opacity: 0;
+    animation: no-spec-show 0.2s ease-in 1.5s forwards;
+  }
+  .no-spec code {
+    font-family: var(--font-mono);
+    color: var(--foreground);
+  }
+  @keyframes no-spec-show {
+    to {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .no-spec {
+      animation-duration: 0s;
+    }
+  }
 `;
