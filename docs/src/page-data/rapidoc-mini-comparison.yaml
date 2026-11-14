@@ -8,6 +8,9 @@ comparison:
   - feature: "URL hash routing"
     rapidoc: "Yes (update-route)"
     rapidocMini: "No: never changes the page URL"
+  - feature: "Tag names and descriptions"
+    rapidoc: "Always: tags are its sections and sidebar groups"
+    rapidocMini: 'Off by default (show-tags="true" turns them on)'
   - feature: "Try console"
     rapidoc: "Yes"
     rapidocMini: "Yes"

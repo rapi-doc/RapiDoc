@@ -39,7 +39,8 @@ The `before-try`, `after-try`, `request-aborted`, `change` and `input` events ar
   `allowTry = "false"` after every update while `webhook === "true"`
   [api-request.ts:ApiRequest.updated].
 - `<api-request>` labels its button "TRY (Mock)" while `config.mockServer` is `"true"`:
-  `<rapi-doc>` passes its `mock-server` in the config it hands every request panel.
+  `<rapi-doc>` and `<rapi-doc-mini>` pass their `mock-server` in the config they hand every
+  request panel.
 - Config sync runs in `willUpdate` only when `config` is set and changed. `<api-request>` and
   `<api-response>` map a defined `config.schemaHide*` of `"never"` to `"false"` and any other value
   to the direction default (requests hide read-only, responses hide write-only; webhooks invert

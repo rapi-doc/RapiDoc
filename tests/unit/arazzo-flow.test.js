@@ -452,10 +452,37 @@ describe("arazzo: SVG rendering", () => {
         '>findAvailablePets</tspan><tspan class="rf-bind-val">.bestMatchPetId</tspan>',
       ),
     );
-    // still no checks, actions or outputs in a compact box
-    assert.ok(!place.includes(">Checks</tspan>") && !place.includes(">On failure"));
-    assert.ok(!place.includes(">Outputs</tspan>"));
+    // no checks or outputs in a compact box, but the actions that draw a line: placeOrder's retry,
+    // under its On failure heading, and no END pills (ends draw no line)
+    assert.ok(!place.includes(">Checks</tspan>") && !place.includes(">Outputs</tspan>"));
+    assert.ok(place.includes(">On failure</tspan>"));
+    assert.ok(/retry \d+×/.test(place));
+    assert.ok(!svg.includes("rf-end-pill"));
     assert.ok(place.includes("2 checks"));
+    // values that carry data stay (from a step above); constants fold into one line, which the
+    // expanded view lists one by one
+    assert.ok(!place.includes(">const</tspan>"));
+    assert.match(place, />\+\d+ const values? in the expanded view</);
+    const expandedSvg = renderArazzoWorkflow(arazzoText, {
+      workflowId: ORDER,
+      sources: { petstore: petstoreText },
+    }).svg;
+    const expandedPlace = expandedSvg.slice(
+      expandedSvg.indexOf('data-step-id="placeOrder"'),
+      expandedSvg.indexOf('data-step-id="retrieveOrderedPetDetails"'),
+    );
+    assert.ok(expandedPlace.includes(">const</tspan>"));
+    assert.ok(!expandedPlace.includes("in the expanded view"));
+    // the retry's line leaves from its action row: its dot is on that row's baseline - 4
+    const rowY = Number(
+      place.match(/<text class="rf-row" y="([\d.]+)">(?:(?!<\/text>).)*retry \d+×/)[1],
+    );
+    const dotY = Number(
+      svg.match(
+        /<circle class="rf-line-start rf-retry" data-from-step="placeOrder"[^>]*cy="([\d.]+)"/,
+      )[1],
+    );
+    assert.equal(dotY, rowY - 4);
     assert.equal(graph.steps.length, 5);
   });
 
@@ -812,6 +839,10 @@ describe("arazzo: SVG rendering", () => {
       ],
     }).svg;
     assert.ok(plain.includes(">Inputs</text>") && !plain.includes("API sources"));
+    // showSources: false (<rapi-flow>, which lists them in its document card) leaves them out
+    const hidden = renderArazzoWorkflow(arazzoText, { workflowId: ORDER, showSources: false }).svg;
+    assert.ok(hidden.includes(">Inputs</text>") && !hidden.includes("API sources"));
+    assert.ok(!hidden.includes("rf-src-url"));
   });
 
   it("lets the diagram shrink only down to minScale, then scroll", () => {

@@ -52,8 +52,14 @@ examples:
 
   - Arazzo Workflows:
       img: /assets/images/terminal.png
-      href: /examples/arazzo-flow
-      description: Draw the workflows of an Arazzo document with the rapi-flow element, next to the API reference; click a step to open its operation, or run the workflow against the API.
+      href: /examples/arazzo
+      description: Draw the workflows of an Arazzo document with the rapi-flow element, next to the rapi-doc reference; click a step to open its operation, run the workflow against the real Petstore API or the in-browser mock, or load any Arazzo document by URL.
+      category: Console & Interactive
+
+  - Arazzo Workflow Across APIs:
+      img: /assets/images/terminal.png
+      href: /examples/arazzo-multi
+      description: One Arazzo workflow using three different OpenAPI specs - Rapid Parcels' ship-a-parcel gets a quote, books a shipment, fetches its label and subscribes to tracking. rapi-flow pairs each spec with its own rapi-doc-mini, showing only the operations the workflow calls in it, and runs end to end against the in-browser mock.
       category: Console & Interactive
 
   - Schema Styles:

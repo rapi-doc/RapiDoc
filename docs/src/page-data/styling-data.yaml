@@ -157,6 +157,9 @@ parts:
       - name: "label-tag-title"
         target: "<h2>"
         description: "Text label for the tag title."
+      - name: "section-tag-description"
+        target: "<div>"
+        description: 'A tag''s description in <rapi-doc-mini> with show-tags="true", indented to line up with the method badges.'
       - name: "section-operations-in-tag"
         target: "<section>"
         description: "Container wrapping all operations belonging to a tag."

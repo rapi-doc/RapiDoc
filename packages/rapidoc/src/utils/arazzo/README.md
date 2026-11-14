@@ -18,7 +18,10 @@ without criteria that comes first has no condition (the heading says when it app
 (its own or inherited) gets an "On failure" section with an outlined END pill and "(default)",
 Arazzo's default being to end the workflow (no success action shows nothing: the next-step arrow
 says it), and the outputs something reads; `compact` shows each step's name, method, path, number of checks
-and the same value sections, without checks, actions or outputs. Neither view draws lines for
+and the values that carry data into the step (from an input or an earlier step, an expression
+reading `$inputs` or `$steps` included; constants are counted in one "+N const values" line), plus
+the actions that draw a line (gotos and retries) under their On
+success / On failure heading; no checks, ends or outputs. Neither view draws lines for
 values passed between steps: each value names the step it comes from. Used by `<rapi-flow>` (`src/rapi-flow.ts`, bundled as `dist/rapidoc-flow-min.js`) and by
 the build-time renderer (`@rapidoc/prerender`: `renderArazzoWorkflow`, `getFlowCss`).
 
@@ -85,7 +88,9 @@ package) stays out of it.
 - **API sources.** The graph's `sources` are the document's `sourceDescriptions` as written
   (`{ name, type, url }`, type defaulting to `openapi`). The first box lists them under "API
   sources" (`rf-src-type`, `rf-src-url`), with the inputs below a rule under an "Inputs" heading;
-  without sources the box is the inputs under its own "Inputs" title.
+  without sources the box is the inputs under its own "Inputs" title. `showSources: false`
+  (`[svg.js:renderFlowDiagram]`) leaves them out: `<rapi-flow>` lists them in its document card,
+  under the Arazzo URL, instead.
 - **Step outputs.** Each step's `usedOutputs` are its outputs that a later step or the workflow
   reads. Expanded boxes end with an Outputs section listing them, the source shortened
   (`$response.body#/status` reads `response body /status`, the full expression a tooltip), and
@@ -107,21 +112,19 @@ package) stays out of it.
   (the outputs box's rows focusable, `role="link"`) for a caller to scroll to the step.
 - **Actions.** A step's actions are its own `onSuccess` / `onFailure`, then the workflow's
   `successActions` / `failureActions` (marked `inherited`) minus any the step overrides by `name`.
-  The graph also lists the workflow's actions once as `workflowActions`. Compact shows no
-  actions; expanded lists a step's own actions and the inherited ones in one list per outcome, in merge order, each with its name in parentheses after
+  The graph also lists the workflow's actions once as `workflowActions`. Compact shows only
+  the actions that draw a line (`[svg.js:lineActionSections]`); expanded lists a step's own actions and the inherited ones in one list per outcome, in merge order, each with its name in parentheses after
   what it does; inherited ones also carry an `Inherited` tag on the right (`rf-tag rf-inherited`, a light violet: `--purple` mixed with `--foreground`). A runner takes the first action whose criteria match, so every action after
   one without criteria is marked `shadowed` (it never runs). Shadowed actions are left out of the
   boxes and draw no goto line; the graph's `warnings` (`{ level, path,
   message }`, one per step and outcome) name them, for author tooling;
   `<rapi-flow>` does not show them. A `goto` with a `stepId` in the same workflow and a `retry` (into its
-  own step, or its `stepId`) draw a line from their action line (expanded) or the box's left edge
-  (compact), a loop when a retry retries its own step. A goto's line reads "→ goto <step>" (the
+  own step, or its `stepId`) draw a line from their action line, in both views, a loop when a retry
+  retries its own step. A goto's line reads "→ goto <step>" (the
   step in the step color) and its line is labelled with the action's name, which the box does not
   repeat; a retry's line reads "→ retry 3×, 2s apart (<name>)" and its line is labelled
   "retry 3× @ 2s". Each label's tooltip is the whole action. A dot in the line's color
-  (`rf-line-start`) marks where each line leaves its box, just inside the box's left edge. Both views draw inherited actions' lines too. In compact, a retry
-  into its own step leaves near the bottom of the box, so the loop spans the box with its label on
-  the line, as in expanded. All lines between boxes have rounded corners (`roundedPath`).
+  (`rf-line-start`) marks where each line leaves its box, just inside the box's left edge. Both views draw inherited actions' lines too, with their action rows. All lines between boxes have rounded corners (`roundedPath`).
   `end` and goto to a workflow draw none.
 - **Details.** The graph carries more than the boxes show, for callers that render their own
   documentation: `inputDetails` (type,

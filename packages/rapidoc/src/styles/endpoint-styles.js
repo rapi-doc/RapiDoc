@@ -123,6 +123,17 @@ export default css`
     color: var(--muted-foreground);
   }
 
+  /* The mini element has no padding of its own: a tag's description lines up with the method
+     badges below it (5px row border + 16px row padding) */
+  /* show-tags: a tag's name, smaller than the full reference's section headings and lined up with the
+     method badges; two classes, to win over the shared .rapidoc-heading:is(h2) sizes */
+  .rapidoc-heading.mini-tag-title {
+    margin: 12px 16px 4px 21px;
+    font-size: var(--h4-font-size);
+  }
+  .mini-tag-descr {
+    padding: 0 16px 12px 21px;
+  }
   .m-endpoint {
     border-radius: min(var(--radius), 1rem);
     --method-color: var(--method-default);

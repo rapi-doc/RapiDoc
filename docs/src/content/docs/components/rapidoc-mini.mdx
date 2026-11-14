@@ -109,6 +109,24 @@ The operations are shown in the order of the first term they match, so a list of
 
 If the spec can't be loaded, the element renders nothing and logs the error to the browser console.
 
+## Show an operation from a script
+
+`showOperation(operation)` expands one operation and scrolls it into view. Pass its `operationId` or its method and path; it resolves to `false` when the element does not show that operation (the spec is not loaded yet, or `filter-operations` leaves it out).
+
+```js
+await document.querySelector('rapi-doc-mini').showOperation('GET /pet/{petId}');
+```
+
+## Next to a workflow
+
+[`<rapi-flow>`](/docs/components/workflows/#one-element-per-api) pairs with one `<rapi-doc-mini>` per API its Arazzo workflow calls. Name the API with `arazzo-source`; `<rapi-flow>` then sets the mini's `filter-operations` to the workflow's calls to that API, in step order, and clicking a step shows its operation in the mini.
+
+```html
+<rapi-flow arazzo-url="/workflows/ship-a-parcel.arazzo.yaml" for="rates-api shipments-api"></rapi-flow>
+<rapi-doc-mini id="rates-api" arazzo-source="rates" spec-url="/specs/rates.yaml"></rapi-doc-mini>
+<rapi-doc-mini id="shipments-api" arazzo-source="shipments" spec-url="/specs/shipments.yaml"></rapi-doc-mini>
+```
+
 ## Attributes
 
 All attributes can be changed at runtime with `setAttribute`.
@@ -119,6 +137,7 @@ All attributes can be changed at runtime with `setAttribute`.
 | :--- | :--- | :--- | :--- |
 | `spec-url` | URL | | The OpenAPI spec, JSON or YAML. |
 | `filter-operations` | terms | | Which operations to show (see [Choose operations](#choose-operations)). All of them when empty. |
+| `show-tags` | `true`, `false` | `false` | `true` shows each tag's name and description above its operations. Off by default, since a mini usually shows only some of a tag's operations. |
 | `sort-endpoints-by` | `path`, `method`, `summary` | `path` | Order of the operations shown. |
 
 ### Layout

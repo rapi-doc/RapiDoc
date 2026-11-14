@@ -56,6 +56,10 @@ const openapiSources = (doc): any[] =>
  * class="mono yellow">{ workflowId, inputs, result, trace }</span>: <span class="mono
  * yellow">result</span> is the MCP tool result, and <span class="mono yellow">trace</span> has one
  * entry per step attempt with its request and response.
+ * @slot header - Markup shown at the top, above the Arazzo document card: a logo, a title, or
+ * controls such as a mock / real server switch. It stays in the page's DOM, so page styles and
+ * scripts reach it.
+ * @slot footer - Markup shown at the bottom, below the run panel: links, notes, or legal text.
  */
 @customElement("rapi-flow")
 export default class RapiFlow extends LitElement {
@@ -80,9 +84,14 @@ export default class RapiFlow extends LitElement {
   @property({ type: String, attribute: "workflow-id" })
   workflowId = "";
   /**
-   * <span class="mono yellow">id</span> of a <span class="mono yellow">&lt;rapi-doc&gt;</span> on
-   * the page to take the spec, server, credentials and mock from. Clicking a step scrolls that
-   * reference to the step's operation.
+   * <span class="mono yellow">id</span> of a <span class="mono yellow">&lt;rapi-doc&gt;</span> or
+   * <span class="mono yellow">&lt;rapi-doc-mini&gt;</span> on the page, or several ids separated by
+   * spaces, one element per OpenAPI source of the Arazzo document. Each element supplies its source's
+   * spec, server, credentials and mock; clicking a step shows its operation in the element of its
+   * source. An element is paired with the source its <span class="mono yellow">arazzo-source</span>
+   * attribute names, else the source whose URL it has loaded, else the next source not paired yet.
+   * A paired <span class="mono yellow">&lt;rapi-doc-mini&gt;</span> gets <span class="mono
+   * yellow">filter-operations</span>: the shown workflow's operations of its source, in step order.
    * @group Workflow
    */
   @property({ type: String, attribute: "for" })
@@ -110,7 +119,8 @@ export default class RapiFlow extends LitElement {
   colorScheme: "dark" | "light" | "system" | "auto" = "dark";
   /**
    * <span class="mono yellow">expanded</span> shows each step's inputs and actions in its box;
-   * <span class="mono yellow">compact</span> shows only the operation.
+   * <span class="mono yellow">compact</span> shows the operation, the values that come from the
+   * inputs or earlier steps, and the gotos and retries whose lines leave the box.
    * @group Workflow
    */
   @property({ type: String, reflect: true })
@@ -126,13 +136,23 @@ export default class RapiFlow extends LitElement {
    * document by URL (YAML or JSON; the server must allow cross-origin requests). Loading one shows
    * its first workflow. The element then manages the document: with <span class="mono
    * yellow">for</span>, whenever the document changes (from the box or <span class="mono
-   * yellow">arazzo-url</span>), the tied <span class="mono yellow">&lt;rapi-doc&gt;</span> loads its
-   * first OpenAPI source, unless it already shows that spec, so steps resolve and runs go to that
-   * API.
+   * yellow">arazzo-url</span>), each paired element loads its OpenAPI source, unless it already
+   * shows that spec, so steps resolve and runs go to that API.
    * @group Workflow
    */
   @property({ type: String, attribute: "allow-arazzo-url-load" })
   allowArazzoUrlLoad: "true" | "false" = "false";
+  /**
+   * <span class="mono yellow">true</span> keeps the shown workflow and the selected step in the
+   * page's address as query parameters, <span class="mono yellow">?workflow=&lt;id&gt;&amp;step=&lt;id&gt;</span>,
+   * so a link opens that workflow with that step selected and scrolled into view. It uses the query
+   * string, not the hash, which <span class="mono yellow">&lt;rapi-doc&gt;</span> keeps for its
+   * operations; the address is replaced (no history entries) and <span class="mono
+   * yellow">history.state</span> is kept for the page's router. Set it on one element per page.
+   * @group Workflow
+   */
+  @property({ type: String, attribute: "update-route" })
+  updateRoute: "true" | "false" = "false";
   /**
    * <span class="mono yellow">false</span> hides the run panel: the diagram only.
    * @group Run
@@ -140,8 +160,8 @@ export default class RapiFlow extends LitElement {
   @property({ type: String, attribute: "allow-run" })
   allowRun: "true" | "false" = "true";
   /**
-   * Base URL runs send requests to, instead of the server the tied <span class="mono
-   * yellow">&lt;rapi-doc&gt;</span> selected or the spec's first server.
+   * Base URL the first OpenAPI source's requests go to in runs, instead of the server its paired
+   * element selected or the spec's first server.
    * @group Run
    */
   @property({ type: String, attribute: "server-url" })
@@ -151,8 +171,7 @@ export default class RapiFlow extends LitElement {
    * response status from a <span class="mono yellow">Prefer: code=</span> header, such as
    * <span class="mono yellow">rapidoc mock</span> or Prism. The run panel then shows Mock Response
    * Status, sent with each step's request, and the button reads "Run workflow (Mock)". Not needed
-   * when the tied <span class="mono yellow">&lt;rapi-doc&gt;</span> has <span class="mono
-   * yellow">mock-server="true"</span>; against a real API, leave it off: the header is ignored.
+   * when the paired elements have <span class="mono yellow">mock-server="true"</span>; against a real API, leave it off: the header is ignored.
    * @group Run
    */
   @property({ type: String, attribute: "server-is-mock" })
@@ -179,19 +198,19 @@ export default class RapiFlow extends LitElement {
   @state() private loading = false;
   @state() private loadError = "";
   @state() private selectedStepId = "";
-  // The OpenAPI documents this element loaded itself, by source name, for runs without a <rapi-doc>
+  // The OpenAPI documents this element loaded itself, by source name (sources with no paired element)
   private specObjects: Map<string, any> = new Map();
   // Running a workflow: the inputs form, the step whose request is in flight, and a log
   @state() private runState: "idle" | "running" | "done" = "idle";
   @state() private runInputs: Record<string, string> = {};
   /**
    * Status codes a mock answers with during a run, by step id, `*` for every other step; each a
-   * list such as "503, 200". A tied <rapi-doc>'s in-browser mock gets them per operation; any other
+   * list such as "503, 200". A paired element's in-browser mock gets them per operation; any other
    * server gets `Prefer: code=<status>` on the request, which `rapidoc mock` honours.
    */
   @property({ type: Object, attribute: false }) statusCodes: Record<string, string> = {};
   @state() private mockStrategy = "cycle";
-  // Credentials typed into the run panel, by security scheme id, when no <rapi-doc> supplies them
+  // Credentials typed into the run panel, by security scheme id, for sources with no paired element
   @state() private manualCredentials: Record<string, string> = {};
   @state() private runningStepId = "";
   @state() private trace: any[] = [];
@@ -201,10 +220,10 @@ export default class RapiFlow extends LitElement {
   @state() private runProblem = "";
 
   private loadId = 0;
-  /** The next load comes from the URL box: the tied <rapi-doc> follows its first OpenAPI source. */
+  /** The next load comes from the URL box: the paired elements follow their sources. */
   private followArazzo = false;
-  /** The first source's URL the tied <rapi-doc> was asked to show; its other specs are ignored. */
-  private awaitedSpecUrl = "";
+  /** The source URL each paired element was asked to show; its other specs are ignored. */
+  private awaited: Map<any, string> = new Map();
   /** What the box showed before a load from it, put back if that load fails. */
   private beforeBoxLoad: { arazzoUrl: string; workflowId: string; specUrl: string } | null = null;
   /** Put back after a failed box load: set the properties without loading again. */
@@ -214,10 +233,21 @@ export default class RapiFlow extends LitElement {
   @state() private boxValue: string | null = null;
   /** Stops the run in progress (the Stop button, another workflow, Clear, disconnect). */
   private runAbort: AbortController | null = null;
-  // The <rapi-doc> named by `for` while it supplies the first OpenAPI source (no spec-url)
-  private specDoc: any = null;
-  private onSpecLoaded = () => this.useRapiDocSpec();
-  /** Redraws when the tied <rapi-doc>'s mock-server attribute changes, for the MOCK badge. */
+  /** The elements named by `for`, listened to for spec-loaded and mock-server changes. */
+  private watched: any[] = [];
+  /** OpenAPI source name -> the element paired with it (see `for`). */
+  private paired: Map<string, any> = new Map();
+  /** OpenAPI source name -> the processed spec its paired <rapi-doc> loaded, and its index. */
+  private pairedSpecs: Map<string, { el: any; url: string; spec: any; index: any }> = new Map();
+  /** Sources being fetched by repair(), so a second call does not fetch them again. */
+  private fetching: Set<string> = new Set();
+  private onSpecLoaded = (e: Event) => {
+    this.useElementSpecs(e.currentTarget);
+    if (this.linkedFocus) this.showLinkedOperation(e.currentTarget);
+  };
+  /** A linked step (update-route) whose operation waits for its element's spec. */
+  private linkedFocus = "";
+  /** Redraws when a paired element's mock-server attribute changes, for the "(Mock)" labels. */
   private mockObserver: MutationObserver | null = null;
   // Step whose box, lines and output rows are highlighted while the pointer is over one of them
   private linkedStepId = "";
@@ -241,10 +271,61 @@ export default class RapiFlow extends LitElement {
         font-size: var(--font-size-regular);
         line-height: var(--line-height);
       }
+      /* The page's own markup at the top and bottom; its spacing is the page's */
+      slot[name="header"],
+      slot[name="footer"] {
+        display: block;
+      }
+      /* The document card: the Arazzo URL (box or text) above the API sources it names */
+      .flow-doc {
+        margin-bottom: 1rem;
+        background: var(--muted);
+        border: 3px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      /* The URL row: darker than the card, so the box and the Load button stand out */
+      .flow-doc-url {
+        padding: 0.5rem;
+        background: var(--background);
+      }
+      .flow-doc-url + .flow-sources {
+        border-top: 1px solid var(--border);
+      }
       .flow-url {
         display: flex;
         gap: 0.5rem;
-        margin-bottom: 1rem;
+      }
+      .flow-sources {
+        padding: 0.5rem 0.75rem;
+        font-size: var(--font-size-small);
+      }
+      .flow-doc-title {
+        margin: 0 0 0.375rem;
+        font-size: var(--font-size-small);
+        font-weight: 400;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted-foreground);
+      }
+      .flow-sources dl {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.125rem 1.25rem;
+        margin: 0;
+      }
+      .flow-sources dt {
+        color: var(--foreground);
+      }
+      .flow-sources dd {
+        margin: 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        color: var(--muted-foreground);
+        font-family: var(--font-mono);
+      }
+      .flow-src-type {
+        margin-right: 0.5rem;
       }
       .flow-url input {
         flex: 1 1 auto;
@@ -260,12 +341,12 @@ export default class RapiFlow extends LitElement {
         transition: background-color 9999s;
       }
       .flow-url-error {
-        margin: -0.5rem 0 1rem;
+        margin: 0.5rem 0 0;
         color: var(--destructive);
         font-size: var(--font-size-small);
       }
       .flow-source {
-        margin: 0 0 0.75rem;
+        margin: 0;
         color: var(--muted-foreground);
         font-size: var(--font-size-small);
         overflow-wrap: anywhere;
@@ -360,6 +441,9 @@ export default class RapiFlow extends LitElement {
         font-weight: var(--heading-weight);
         color: var(--muted-foreground);
       }
+      .run-log-note {
+        font-weight: 400;
+      }
       .flow-run pre {
         margin: 0;
         border: 0;
@@ -446,23 +530,41 @@ export default class RapiFlow extends LitElement {
           text-align: start;
         }
       }
+      /* A bordered box with the log's + / − toggle, so it reads as something to open */
       .run-mock {
         margin-top: 0.75rem;
+        border: 1px solid var(--input);
+        border-radius: var(--radius);
+        background: var(--card);
       }
-      .run-mock summary {
-        cursor: pointer;
+      .run-mock > summary {
         font-weight: 600;
+        border-radius: var(--radius);
+      }
+      .run-mock > summary:hover {
+        background: color-mix(in srgb, var(--card) 88%, var(--foreground));
+      }
+      .run-mock[open] > summary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
       }
       .run-mock summary .muted {
         font-weight: 400;
         margin-left: 0.5rem;
+      }
+      .run-mock > :not(summary) {
+        margin-left: 0.75rem;
+        margin-right: 0.75rem;
+      }
+      .run-mock > :last-child {
+        margin-bottom: 0.75rem;
       }
       .run-mock-rows {
         margin-top: 0.25rem;
       }
       .run-inputs p.run-mock-help {
         max-width: 48rem;
-        margin: 0.5rem 0 0.25rem;
+        margin: 0.5rem 0.75rem 0.25rem;
         font-size: var(--font-size-small);
       }
       .run-inputs .run-mock-strategy {
@@ -494,7 +596,8 @@ export default class RapiFlow extends LitElement {
       .run-trace li.trace-failure {
         border-color: var(--destructive);
       }
-      .run-trace summary {
+      .run-trace summary,
+      .run-mock > summary {
         display: flex;
         flex-wrap: wrap;
         gap: 0.25rem 0.75rem;
@@ -504,12 +607,14 @@ export default class RapiFlow extends LitElement {
         cursor: pointer;
         list-style: none;
       }
-      .run-trace summary::-webkit-details-marker {
+      .run-trace summary::-webkit-details-marker,
+      .run-mock > summary::-webkit-details-marker {
         display: none;
       }
       /* A bordered + in each entry's top-right corner, − when it is open; out of the flow, so a
          wrapping line never leaves it on a line of its own */
-      .run-trace summary::after {
+      .run-trace summary::after,
+      .run-mock > summary::after {
         content: "+";
         position: absolute;
         top: 0.5rem;
@@ -526,14 +631,17 @@ export default class RapiFlow extends LitElement {
         font-size: var(--font-size-small);
         line-height: 1;
       }
-      .run-trace details[open] summary::after {
+      .run-trace details[open] summary::after,
+      .run-mock[open] > summary::after {
         content: "−";
       }
-      .run-trace summary:hover::after {
+      .run-trace summary:hover::after,
+      .run-mock > summary:hover::after {
         color: var(--foreground);
         border-color: var(--muted-foreground);
       }
-      .run-trace details[open] summary {
+      .run-trace details[open] summary,
+      .run-mock[open] > summary {
         border-bottom: 1px solid var(--border);
       }
       .run-trace details > :not(summary) {
@@ -578,20 +686,17 @@ export default class RapiFlow extends LitElement {
     if (!"dark, light, system, auto,".includes(`${this.colorScheme},`)) this.colorScheme = "dark";
     if (!this.getAttribute("color-scheme")) this.setAttribute("color-scheme", this.colorScheme);
     applyCustomTheme(this, this.theme);
-    // Reconnected after a load: listen to the <rapi-doc> again
+    // Reconnected after a load: listen to the paired elements again
     if (this.doc) {
-      this.watchRapiDoc();
-      this.useRapiDocSpec();
+      this.watchElements();
+      this.useElementSpecs();
     }
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     this.runAbort?.abort();
-    this.specDoc?.removeEventListener("spec-loaded", this.onSpecLoaded);
-    this.specDoc = null;
-    this.mockObserver?.disconnect();
-    this.mockObserver = null;
+    this.unwatchElements();
   }
 
   updated(changed) {
@@ -600,9 +705,17 @@ export default class RapiFlow extends LitElement {
       if (normalized !== this.theme) this.theme = normalized;
       applyCustomTheme(this, this.theme);
     }
-    if (changed.has("arazzoUrl") || changed.has("specUrl") || changed.has("for")) {
+    if (changed.has("arazzoUrl") || changed.has("specUrl")) {
       if (this.skipLoad) this.skipLoad = false;
       else this.load();
+    } else if (changed.has("for")) {
+      // Other elements to pair with: the document and the specs this element loaded stay. While
+      // the first document loads, that load pairs them when it is done.
+      if (this.doc) this.repair(this.allowArazzoUrlLoad === "true");
+      else if (!this.loading) this.load();
+    }
+    if (changed.has("sources") || changed.has("doc") || changed.has("workflowId")) {
+      this.applyFilters();
     }
     // A redrawn diagram has lost the highlight classes
     this.linkedStepId = "";
@@ -626,37 +739,22 @@ export default class RapiFlow extends LitElement {
     try {
       const arazzoUrl = new URL(this.arazzoUrl, document.baseURI).href;
       const doc = parseDocument(await this.fetchText(arazzoUrl));
-      // With `for` and no spec-url, the first OpenAPI source is the spec <rapi-doc> loads
-      this.watchRapiDoc();
       const problems = validateArazzo(doc);
       const sources = new Map();
       const specObjects = new Map();
       // With the URL box, this element manages the document: on any load (from the box, or the
-      // page setting arazzo-url), the tied <rapi-doc> loads the first source when it shows
-      // another spec (or none); its spec-loaded then indexes its processed copy.
-      // Without the box the page decides what the <rapi-doc> shows.
-      const following = (fromBox || this.allowArazzoUrlLoad === "true") && Boolean(this.specDoc);
-      const first = openapiSources(doc)[0];
-      // The tied <rapi-doc> shows the first source already: use its copy, as without the box
-      let switching = false;
-      if (following && first) {
-        const firstUrl = new URL(first.url, arazzoUrl).href;
-        const current =
-          this.specDoc.specUrl && new URL(this.specDoc.specUrl, document.baseURI).href;
-        switching = current !== firstUrl;
-        this.awaitedSpecUrl = firstUrl;
-        if (switching) this.specDoc.loadSpec(firstUrl);
-      }
+      // page setting arazzo-url), each paired element loads its source when it shows another spec
+      // (or none). Without the box the page decides what the elements show.
+      const following = fromBox || this.allowArazzoUrlLoad === "true";
+      const pairs = this.pairElements(doc, arazzoUrl);
       await Promise.all(
         openapiSources(doc).map(async (s, i) => {
-          // Tied: the first source is the <rapi-doc>'s (loaded already, or loading now at our
-          // request; its spec-loaded indexes it), so it is fetched once
-          if (i === 0 && this.specDoc) return;
+          // A <rapi-doc>'s source is its own (loaded already, or loaded once this load is done;
+          // its spec-loaded indexes it), so it is fetched once
+          if (this.suppliesSpec(doc, s.name, pairs.get(s.name))) return;
           const url = i === 0 && this.specUrl ? this.specUrl : s.url;
           try {
-            const text = await this.fetchText(
-              new URL(url, i === 0 && this.specUrl ? document.baseURI : arazzoUrl).href,
-            );
+            const text = await this.fetchText(this.sourceUrl(doc, s, arazzoUrl));
             const openapi = parseDocument(text);
             sources.set(s.name, indexOperations(openapi));
             specObjects.set(s.name, openapi);
@@ -677,14 +775,26 @@ export default class RapiFlow extends LitElement {
       this.sources = sources;
       this.specObjects = specObjects;
       this.problems = problems;
+      // A link's workflow (update-route), unless this document came from the URL box: the link
+      // was to the one before
+      const linked = this.updateRoute === "true" && !fromBox ? this.readRoute() : null;
+      if (linked?.workflow && this.workflowIds.includes(linked.workflow)) {
+        this.workflowId = linked.workflow;
+      }
       this.resetRun();
-      // The <rapi-doc>'s copy of the first source: now, if it holds it already (it may have finished
-      // loading while the other sources were fetched); else its spec-loaded indexes it
-      this.useRapiDocSpec();
+      if (fromBox) {
+        this.selectedStepId = "";
+        this.writeRoute();
+      }
       this.emit("flow-loaded", { doc, problems });
+      // Then the elements, as `for` names them now (a flow-loaded listener may have changed it):
+      // paired, told to load their sources, and the specs they hold already indexed
+      await this.repair(following);
+      // A link's step: selected (its operation shown in its element) and scrolled into view
+      if (linked?.step && id === this.loadId) await this.showLinkedStep(linked.step);
     } catch (err) {
       if (id !== this.loadId) return;
-      // From the URL box with a document already shown: keep it, and the <rapi-doc> that goes with
+      // From the URL box with a document already shown: keep it, and the elements that go with
       // it (it only follows a document that loaded), say why next to the box, and keep the typed URL
       const before = this.beforeBoxLoad;
       this.beforeBoxLoad = null;
@@ -715,7 +825,7 @@ export default class RapiFlow extends LitElement {
     return this.doc;
   }
 
-  /** The text of workflow-runtime.js, for the project a tied <rapi-doc> exports. */
+  /** The text of workflow-runtime.js, for the project a paired <rapi-doc> exports. */
   get workflowRuntimeSource(): string {
     return workflowRuntimeSource;
   }
@@ -731,52 +841,265 @@ export default class RapiFlow extends LitElement {
     return buildFlowGraph(this.doc, wanted, { sources: this.sources });
   }
 
-  /** Follows the <rapi-doc> named by `for`, unless spec-url names the spec to load instead. */
-  private watchRapiDoc() {
-    const rapiDoc = this.specUrl ? null : this.findRapiDoc();
-    if (rapiDoc === this.specDoc) return;
-    this.specDoc?.removeEventListener("spec-loaded", this.onSpecLoaded);
-    this.specDoc = rapiDoc;
-    rapiDoc?.addEventListener("spec-loaded", this.onSpecLoaded);
+  /** The elements `for` names, in order (ids separated by spaces). */
+  private forElements(): any[] {
+    const root = this.getRootNode() as Document | ShadowRoot;
+    return String(this.for || "")
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((id) => root.getElementById?.(id) || document.getElementById(id))
+      .filter(Boolean);
+  }
+
+  /** Listens to the elements `for` names: spec-loaded indexes their spec, mock-server redraws. */
+  private watchElements() {
+    const elements = this.forElements();
+    if (
+      elements.length === this.watched.length &&
+      elements.every((el, i) => el === this.watched[i])
+    )
+      return;
+    this.unwatchElements();
+    this.watched = elements;
+    this.mockObserver = new MutationObserver(() => this.requestUpdate());
+    for (const el of elements) {
+      el.addEventListener("spec-loaded", this.onSpecLoaded);
+      this.mockObserver.observe(el, { attributes: true, attributeFilter: ["mock-server"] });
+    }
+  }
+
+  private unwatchElements() {
+    for (const el of this.watched) el.removeEventListener("spec-loaded", this.onSpecLoaded);
+    this.watched = [];
     this.mockObserver?.disconnect();
     this.mockObserver = null;
-    if (rapiDoc) {
-      this.mockObserver = new MutationObserver(() => this.requestUpdate());
-      this.mockObserver.observe(rapiDoc, { attributes: true, attributeFilter: ["mock-server"] });
-    }
+  }
+
+  /** Where an OpenAPI source is fetched from: spec-url for the first, else its URL. */
+  private sourceUrl(doc, source, arazzoUrl: string) {
+    if (this.specUrl && openapiSources(doc)[0] === source)
+      return new URL(this.specUrl, document.baseURI).href;
+    return new URL(source.url, arazzoUrl).href;
   }
 
   /**
-   * Indexes the spec the <rapi-doc> has processed as the first OpenAPI source. Runs after a load
-   * and on each `spec-loaded`, since <rapi-doc> often finishes after <rapi-flow>. Until then,
-   * steps of that source show their operationId.
+   * Whether a paired element supplies its source's spec: a <rapi-doc> does, unless spec-url names
+   * the first source's. A <rapi-doc-mini> does not, since it is filtered to the shown workflow:
+   * this element loads that source itself.
    */
-  private useRapiDocSpec() {
-    const first = openapiSources(this.doc)[0];
-    const spec = this.specDoc?.resolvedSpec;
-    if (!first || !spec || spec.isSpecLoading || spec.specLoadError) return;
-    // Asked to load another spec (the URL box): not until it holds that one
-    if (this.awaitedSpecUrl) {
-      const current = this.specDoc.specUrl && new URL(this.specDoc.specUrl, document.baseURI).href;
-      if (current !== this.awaitedSpecUrl || this.specDoc.loading) return;
+  private suppliesSpec(doc, name: string, el: any) {
+    if (!el || el.tagName === "RAPI-DOC-MINI") return false;
+    return !(this.specUrl && openapiSources(doc)[0]?.name === name);
+  }
+
+  /** The URL of the spec an element shows, absolute; "" for none or a spec object. */
+  private elementSpecUrl(el): string {
+    return el?.specUrl ? new URL(el.specUrl, document.baseURI).href : "";
+  }
+
+  /** Which element `for` names goes with which OpenAPI source, by source name (see `for`). */
+  private pairElements(doc, arazzoUrl: string): Map<string, any> {
+    const list = openapiSources(doc);
+    const elements = this.forElements();
+    const pairs = new Map();
+    const unnamed = [];
+    for (const el of elements) {
+      const name = el.getAttribute("arazzo-source");
+      if (!name) unnamed.push(el);
+      else if (list.some((s) => s.name === name) && !pairs.has(name)) pairs.set(name, el);
     }
-    this.sources = new Map(this.sources).set(first.name, indexResolvedSpec(spec));
+    const rest = [];
+    for (const el of unnamed) {
+      const url = this.elementSpecUrl(el);
+      const match =
+        url && list.find((s) => !pairs.has(s.name) && this.sourceUrl(doc, s, arazzoUrl) === url);
+      if (match) pairs.set(match.name, el);
+      else rest.push(el);
+    }
+    for (const el of rest) {
+      const free = list.find((s) => !pairs.has(s.name));
+      if (!free) break;
+      pairs.set(free.name, el);
+    }
+    return pairs;
   }
 
-  /** The tied <rapi-doc>'s in-browser mock answers runs. */
+  /**
+   * Pairs the elements `for` names with the document's OpenAPI sources and, when `following`, has
+   * each <rapi-doc> load its source unless it shows it already (a mini loads its source once its
+   * filter is set, see applyFilters). Specs a <rapi-doc> loaded before stay while it keeps its source.
+   */
+  private pairUp(doc, arazzoUrl: string, following: boolean) {
+    this.watchElements();
+    const list = openapiSources(doc);
+    const pairs = this.pairElements(doc, arazzoUrl);
+    this.awaited = new Map();
+    for (const [name, el] of pairs) {
+      const source = list.find((s) => s.name === name);
+      if (!following || (this.specUrl && source === list[0])) continue;
+      const url = this.sourceUrl(doc, source, arazzoUrl);
+      this.awaited.set(el, url);
+      if (el.tagName !== "RAPI-DOC-MINI" && this.elementSpecUrl(el) !== url) el.loadSpec?.(url);
+    }
+    const kept = new Map();
+    for (const [name, entry] of this.pairedSpecs) {
+      if (pairs.get(name) === entry.el) kept.set(name, entry);
+    }
+    this.paired = pairs;
+    this.pairedSpecs = kept;
+  }
+
+  /**
+   * Pairs the elements `for` names again, indexes the specs they hold, and loads the sources that
+   * no element supplies and this element has not loaded yet (one that a mini took over from a
+   * <rapi-doc>, say).
+   */
+  private async repair(following: boolean) {
+    const doc = this.doc;
+    if (!doc) return;
+    const arazzoUrl = new URL(this.arazzoUrl, document.baseURI).href;
+    this.pairUp(doc, arazzoUrl, following);
+    this.useElementSpecs();
+    this.applyFilters();
+    const missing = openapiSources(doc).filter(
+      (s) =>
+        !this.specObjects.has(s.name) &&
+        !this.fetching.has(s.name) &&
+        !this.suppliesSpec(doc, s.name, this.paired.get(s.name)),
+    );
+    await Promise.all(
+      missing.map(async (s) => {
+        this.fetching.add(s.name);
+        try {
+          const openapi = parseDocument(await this.fetchText(this.sourceUrl(doc, s, arazzoUrl)));
+          if (this.doc !== doc) return;
+          this.specObjects = new Map(this.specObjects).set(s.name, openapi);
+          this.sources = new Map(this.sources).set(s.name, indexOperations(openapi));
+        } catch (err) {
+          if (this.doc !== doc) return;
+          this.problems = [
+            ...this.problems,
+            {
+              level: "warning",
+              path: `sourceDescriptions.${s.name}`,
+              message: `could not load ${s.url}: ${err.message}`,
+            },
+          ];
+        } finally {
+          this.fetching.delete(s.name);
+        }
+      }),
+    );
+  }
+
+  /**
+   * Indexes the specs the paired <rapi-doc> elements have processed, each as its source. Runs
+   * after a load and on each `spec-loaded`, since they often finish after <rapi-flow>. Until then,
+   * steps of those sources show their operationId. `only` limits it to one element.
+   */
+  private useElementSpecs(only?: any) {
+    if (!this.doc) return;
+    const sources = new Map(this.sources);
+    const specs = new Map(this.pairedSpecs);
+    let changed = false;
+    for (const [name, el] of this.paired) {
+      if (!this.suppliesSpec(this.doc, name, el) || (only && el !== only)) continue;
+      const spec = el.resolvedSpec;
+      if (!spec || spec.isSpecLoading || spec.specLoadError || el.loading) continue;
+      // Asked to load its source (the URL box): not until it holds that one
+      const awaited = this.awaited.get(el);
+      if (awaited && this.elementSpecUrl(el) !== awaited) continue;
+      const held = specs.get(name);
+      const index = held?.spec === spec ? held.index : indexResolvedSpec(spec);
+      if (sources.get(name) === index) continue;
+      specs.set(name, { el, url: this.elementSpecUrl(el), spec, index });
+      sources.set(name, index);
+      changed = true;
+    }
+    if (!changed) return;
+    this.pairedSpecs = specs;
+    this.sources = sources;
+  }
+
+  /**
+   * Shows each paired <rapi-doc-mini> the shown workflow's operations of its source, in step order
+   * (filter-operations; a source the workflow does not call shows none), once this element has
+   * loaded that source; then, when it follows the document, has the mini load its source, filtered
+   * from its first load.
+   */
+  private applyFilters() {
+    const graph = this.graph;
+    if (!graph) return;
+    for (const [name, el] of this.paired) {
+      if (el.tagName !== "RAPI-DOC-MINI" || !this.specObjects.has(name)) continue;
+      const terms = graph.steps
+        .map((s) => s.operation)
+        .filter((op) => op?.source === name)
+        .map((op) => `${op.method.toUpperCase()} ${op.path}`);
+      const text = [...new Set(terms)].join(" ") || "!/**";
+      if (el.getAttribute("filter-operations") !== text) el.setAttribute("filter-operations", text);
+      const url = this.awaited.get(el);
+      if (url && this.elementSpecUrl(el) !== url) el.setAttribute("spec-url", url);
+    }
+  }
+
+  /** The OpenAPI document of the first source and every source's, by name, for the runtime. */
+  private specInputs() {
+    const first = openapiSources(this.doc)[0];
+    const sources = Object.fromEntries(this.specObjects);
+    for (const [name, entry] of this.pairedSpecs) sources[name] = entry.spec;
+    return { first, spec: first ? sources[first.name] : null, sources };
+  }
+
+  /** The paired elements whose in-browser mock is on, by source name. */
+  private get mockedSources(): Set<string> {
+    const names = new Set<string>();
+    for (const [name, el] of this.paired) if (el.mockServer === "true") names.add(name);
+    return names;
+  }
+
+  /** A paired element's in-browser mock answers runs (all of them, or the steps on its source). */
   private get inBrowserMock(): boolean {
-    return this.findRapiDoc()?.mockServer === "true";
+    return this.mockedSources.size > 0;
   }
 
-  /** A mock answers runs: the tied <rapi-doc>'s in the browser, or a mock server (server-is-mock). */
+  /** A mock answers runs: a paired element's in the browser, or a mock server (server-is-mock). */
   private get runsMocked(): boolean {
     return this.inBrowserMock || this.serverIsMock === "true";
   }
 
-  private findRapiDoc(): any {
-    if (!this.for) return null;
-    const root = this.getRootNode() as Document | ShadowRoot;
-    return root.getElementById?.(this.for) || document.getElementById(this.for);
+  /** The workflow and step a link names (update-route): `?workflow=` and `?step=`. */
+  private readRoute() {
+    const params = new URLSearchParams(window.location.search);
+    return { workflow: params.get("workflow") || "", step: params.get("step") || "" };
+  }
+
+  /**
+   * Puts the shown workflow and the selected step in the address (update-route), replacing the
+   * entry and keeping history.state, which a router may hold. The hash stays <rapi-doc>'s.
+   */
+  private writeRoute() {
+    const graph = this.graph;
+    if (this.updateRoute !== "true" || !graph) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("workflow", graph.workflowId);
+    if (graph.steps.some((s) => s.stepId === this.selectedStepId))
+      url.searchParams.set("step", this.selectedStepId);
+    else url.searchParams.delete("step");
+    if (url.href !== window.location.href)
+      window.history.replaceState(window.history.state, "", url.href);
+  }
+
+  /** Selects a step from a link and scrolls its box into view, once the diagram is drawn. */
+  private async showLinkedStep(stepId: string) {
+    const step = this.graph?.steps.find((s) => s.stepId === stepId);
+    if (!step) return;
+    this.selectStep(stepId);
+    // Its element may still be loading its spec: show the operation on its spec-loaded then
+    if (!(await this.showOperation(step))) this.linkedFocus = stepId;
+    await this.updateComplete;
+    const box = this.renderRoot.querySelector(`.rf-step[data-step-id="${CSS.escape(stepId)}"]`);
+    if (box) this.scrollToCenter(box.getBoundingClientRect());
   }
 
   private selectStep(stepId: string) {
@@ -793,18 +1116,51 @@ export default class RapiFlow extends LitElement {
     });
     if (step.kind === "workflow" && this.workflowIds.includes(step.workflowId)) {
       this.workflowId = step.workflowId;
+      this.selectedStepId = "";
+      this.writeRoute();
       return;
     }
-    const rapiDoc = this.findRapiDoc();
-    if (!op || !rapiDoc?.resolvedSpec) return;
-    const target = (rapiDoc.resolvedSpec.tags || [])
+    this.writeRoute();
+    this.linkedFocus = "";
+    this.showOperation(step);
+  }
+
+  /**
+   * Shows a step's operation in the element paired with its source: a mini expands it in place,
+   * <rapi-doc> scrolls its reference to it. False when that element does not have it (yet).
+   */
+  private async showOperation(step): Promise<boolean> {
+    const op = step?.operation;
+    const el = op && this.paired.get(op.source);
+    if (!el) return false;
+    if (typeof el.showOperation === "function") {
+      return el.showOperation(`${op.method.toUpperCase()} ${op.path}`);
+    }
+    const target = (el.resolvedSpec?.tags || [])
       .flatMap((t) => t.paths || [])
       .find(
         (p) =>
           (op.operationId && p.operationId === op.operationId) ||
           (p.method === op.method && p.path === op.path),
       );
-    if (target?.elementId) rapiDoc.scrollToPath(target.elementId);
+    if (!target?.elementId) return false;
+    el.scrollToPath(target.elementId);
+    return true;
+  }
+
+  /**
+   * A linked step whose operation's element had not loaded its spec yet: shown on that element's
+   * spec-loaded, after <rapi-doc> has gone to its own hash or first section (it does right after
+   * the event, or 100ms later in read mode).
+   */
+  private showLinkedOperation(el) {
+    const step = this.graph?.steps.find((s) => s.stepId === this.linkedFocus);
+    if (!step || this.paired.get(step.operation?.source) !== el) return;
+    const stepId = this.linkedFocus;
+    window.setTimeout(async () => {
+      if (this.linkedFocus !== stepId) return;
+      if (await this.showOperation(step)) this.linkedFocus = "";
+    }, 150);
   }
 
   private onDiagramEvent(e: Event) {
@@ -893,10 +1249,10 @@ export default class RapiFlow extends LitElement {
     this.runInputs = defaults;
   }
 
-  /** The credentials a tied <rapi-doc> holds, by security scheme id, as the runtime takes them. */
-  private credentialsFromRapiDoc(rapiDoc) {
+  /** The credentials a paired element holds, by security scheme id, as the runtime takes them. */
+  private credentialsFromElement(el) {
     const credentials = {};
-    for (const s of rapiDoc?.resolvedSpec?.securitySchemes || []) {
+    for (const s of el?.resolvedSpec?.securitySchemes || []) {
       const value = s?.finalKeyValue;
       if (!value || !s.securitySchemeId) continue;
       if (s.type === "apiKey") credentials[s.securitySchemeId] = value;
@@ -907,20 +1263,18 @@ export default class RapiFlow extends LitElement {
   }
 
   /**
-   * The runtime and tool that run the shown workflow, or why it cannot run. The OpenAPI document
-   * is the tied <rapi-doc>'s, else the first source this element loaded; requests go to
-   * `server-url`, else the server the <rapi-doc> selected, else the spec's; credentials are the
-   * <rapi-doc>'s.
+   * The runtime and tool that run the shown workflow, or why it cannot run. Each source's OpenAPI
+   * document is its paired element's, else the one this element loaded; its requests go to the
+   * server its element selected, else the spec's (`server-url` replaces the first source's);
+   * credentials are the typed ones and the paired elements'.
    */
   private prepareRun(graph) {
-    const rapiDoc = this.findRapiDoc();
-    const first = openapiSources(this.doc)[0];
-    const spec = this.specDoc?.resolvedSpec || this.specObjects.get(first?.name);
+    const { first, spec, sources } = this.specInputs();
     if (!spec) return { problem: "the OpenAPI document of the first source is not loaded" };
     const problems = [];
     const manifest = buildMcpManifest(spec, {
       arazzo: this.doc,
-      sources: Object.fromEntries(this.specObjects),
+      sources,
       onProblem: (p) => problems.push(p),
     });
     const tool = manifest.tools.find((t) => t.workflow === graph.workflowId);
@@ -932,11 +1286,14 @@ export default class RapiFlow extends LitElement {
           : "this workflow cannot be run",
       };
     }
-    const baseUrl = this.serverUrl || rapiDoc?.selectedServer?.computedUrl;
-    const runtime = createMcpWorkflowRuntime(manifest, {
-      credentials: { ...this.typedCredentials(), ...this.credentialsFromRapiDoc(rapiDoc) },
-      baseUrls: baseUrl ? { [first.name]: baseUrl } : {},
-    });
+    const baseUrls = {};
+    let credentials = this.typedCredentials();
+    for (const [name, el] of this.paired) {
+      if (el.selectedServer?.computedUrl) baseUrls[name] = el.selectedServer.computedUrl;
+      credentials = { ...credentials, ...this.credentialsFromElement(el) };
+    }
+    if (this.serverUrl) baseUrls[first.name] = this.serverUrl;
+    const runtime = createMcpWorkflowRuntime(manifest, { credentials, baseUrls });
     return { runtime, tool };
   }
 
@@ -978,28 +1335,28 @@ export default class RapiFlow extends LitElement {
     const inputs = this.coerceInputs(graph);
     this.runSentInputs = inputs;
     this.runState = "running";
-    // Status codes for this run: the in-browser mock reads them from the <rapi-doc> (set for the
-    // run only), any other server gets them as Prefer: code=
-    const rapiDoc = this.findRapiDoc();
-    const mocked = rapiDoc?.mockServer === "true";
+    // Status codes for this run: an in-browser mock reads them from its element (set for the run
+    // only, for the steps on its source), any other server gets them as Prefer: code=
+    const mockedSources = this.mockedSources;
+    const sourceOfStep = new Map(graph.steps.map((st) => [st.stepId, st.operation?.source]));
     const codes = this.statusCodesByStep(graph);
     const anyList = Object.values(codes).some((c) => c.includes(","));
-    const previous = mocked &&
-      Object.keys(codes).length && {
-        code: rapiDoc.mockServerStatusCode,
-        strategy: rapiDoc.mockServerStatusStrategy,
-      };
-    if (previous) {
-      const byOperation = {};
-      for (const step of graph.steps) {
-        const op = step.operation;
-        if (op && codes[step.stepId])
-          byOperation[`${op.method.toUpperCase()} ${op.path}`] = codes[step.stepId];
+    const restore = [];
+    if (Object.keys(codes).length) {
+      for (const name of mockedSources) {
+        const el = this.paired.get(name);
+        const byOperation = {};
+        for (const step of graph.steps) {
+          const op = step.operation;
+          if (op?.source === name && codes[step.stepId])
+            byOperation[`${op.method.toUpperCase()} ${op.path}`] = codes[step.stepId];
+        }
+        if (codes["*"]) byOperation["*"] = codes["*"];
+        restore.push({ el, code: el.mockServerStatusCode, strategy: el.mockServerStatusStrategy });
+        el.mockServerStatusCode = byOperation;
+        el.mockServerStatusStrategy = anyList ? this.mockStrategy : "first";
       }
-      if (codes["*"]) byOperation["*"] = codes["*"];
-      rapiDoc.mockServerStatusCode = byOperation;
-      rapiDoc.mockServerStatusStrategy = anyList ? this.mockStrategy : "first";
-      await rapiDoc.updateComplete;
+      await Promise.all(restore.map((r) => r.el.updateComplete));
     }
     const pick = (list: string, attempt: number) => {
       const items = list
@@ -1023,18 +1380,19 @@ export default class RapiFlow extends LitElement {
         // A step that finishes after Clear or a switch belongs to no log any more
         if (this.runAbort !== abort) return;
         this.runningStepId = "";
-        this.trace = [...this.trace, { ...e, mocked: mocked || this.serverIsMock === "true" }];
+        const inBrowser = mockedSources.has(sourceOfStep.get(e.stepId));
+        this.trace = [...this.trace, { ...e, mocked: inBrowser || this.serverIsMock === "true" }];
       },
-      requestHeaders: mocked
-        ? undefined
-        : (e) => {
-            const code = pick(codes[e.stepId] || codes["*"] || "", e.attempt);
-            return code ? { Prefer: `code=${code}` } : undefined;
-          },
+      // Steps answered in the browser take their codes from the element's mock instead
+      requestHeaders: (e) => {
+        if (mockedSources.has(sourceOfStep.get(e.stepId))) return undefined;
+        const code = pick(codes[e.stepId] || codes["*"] || "", e.attempt);
+        return code ? { Prefer: `code=${code}` } : undefined;
+      },
     });
-    if (previous) {
-      rapiDoc.mockServerStatusCode = previous.code;
-      rapiDoc.mockServerStatusStrategy = previous.strategy;
+    for (const r of restore) {
+      r.el.mockServerStatusCode = r.code;
+      r.el.mockServerStatusStrategy = r.strategy;
     }
     // Cleared or switched to another workflow while it ran: that view has moved on
     if (this.runAbort !== abort) return;
@@ -1053,12 +1411,12 @@ export default class RapiFlow extends LitElement {
   /**
    * The security schemes of the loaded OpenAPI sources, for the credentials fields of a standalone
    * element: `{ id, type, scheme, in, name }` each, one per scheme id (a credential applies to every
-   * source that names the scheme). Empty with a tied <rapi-doc>, which has its own.
+   * source that names the scheme). Sources with a paired element are left out: it has its own.
    */
   private standaloneSchemes() {
-    if (this.findRapiDoc()) return [];
     const byId = new Map();
-    for (const spec of this.specObjects.values()) {
+    for (const [name, spec] of this.specObjects) {
+      if (this.paired.has(name)) continue;
       const schemes = spec?.components?.securitySchemes || spec?.securityDefinitions || {};
       for (const [id, s] of Object.entries(schemes) as [string, any][]) {
         if (s && typeof s === "object" && s.type && !byId.has(id)) {
@@ -1133,13 +1491,13 @@ export default class RapiFlow extends LitElement {
   }
 
   /**
-   * Status codes to answer with, one row per step plus a default: for a tied <rapi-doc>'s
+   * Status codes to answer with, one row per step plus a default: for a paired element's
    * in-browser mock, or for a mock server that honours Prefer: code= (server-is-mock); not shown
    * otherwise, since a real API ignores it. Folded until a
    * status is set (statusCodes, or typed in it), so the inputs and the Run button come first.
    */
   private renderStatusCodes(graph) {
-    // Only where a mock reads it: the tied <rapi-doc>'s in the browser, or a mock server
+    // Only where a mock reads it: a paired element's in the browser, or a mock server
     if (!this.runsMocked) return nothing;
     const mocked = this.inBrowserMock;
     const set = (key, value) => (this.statusCodes = { ...this.statusCodes, [key]: value });
@@ -1202,10 +1560,10 @@ export default class RapiFlow extends LitElement {
   private renderInputsForm(graph) {
     const set = (name, value) => (this.runInputs = { ...this.runInputs, [name]: value });
     const running = this.runState === "running";
-    // Answered by a mock (the tied <rapi-doc>'s in the browser, or a mock server): said on the button
+    // Answered by a mock (a paired element's in the browser, or a mock server): said on the button
     const mocked = this.runsMocked;
     const mockTitle = this.inBrowserMock
-      ? "The in-browser mock of the tied <rapi-doc> answers this run's requests; they do not reach the server"
+      ? "The in-browser mock of the paired elements answers this run's requests to their APIs; they do not reach the server"
       : "Runs go to a mock server (server-is-mock)";
     return html`<form
       class="run-inputs"
@@ -1251,7 +1609,8 @@ export default class RapiFlow extends LitElement {
     </form>`;
   }
 
-  private renderTraceEntry(e, n) {
+  /** One log entry; `showMocked` tags a mocked response (when the heading does not say all are). */
+  private renderTraceEntry(e, n, showMocked = true) {
     const pretty = (v) => {
       const text = typeof v === "string" ? v : JSON.stringify(v, null, 2);
       return text && text.length > 4000 ? `${text.slice(0, 4000)}…` : text;
@@ -1262,7 +1621,7 @@ export default class RapiFlow extends LitElement {
           <span class="trace-step">${n + 1}. ${e.stepId}</span>
           ${e.attempt > 1 ? html`<span class="muted">attempt ${e.attempt}</span>` : nothing}
           <span class="trace-request">${e.request?.method} ${e.request?.url}</span>
-          <span class="trace-status">${e.response ? `HTTP ${e.response.status}` : "no response"}${e.mocked ? html` <span class="muted">mocked</span>` : nothing}</span>
+          <span class="trace-status">${e.response ? `HTTP ${e.response.status}` : "no response"}${e.mocked && showMocked ? html` <span class="muted">mocked</span>` : nothing}</span>
           <span class="trace-outcome">${e.outcome === "success" ? "✓" : "✗"}</span>
           ${e.failedCriterion ? html`<code>${e.failedCriterion}</code>` : nothing}
           ${e.action ? html`<span class="muted">→ ${e.action.type}${e.action.stepId ? ` ${e.action.stepId}` : ""}</span>` : nothing}
@@ -1277,6 +1636,8 @@ export default class RapiFlow extends LitElement {
   /** The run panel under the diagram: the inputs form and button, then the log and the result. */
   private renderRun(graph) {
     if (this.allowRun === "false") return nothing;
+    // Every response mocked: the Log heading says so once, instead of each entry
+    const allMocked = this.trace.length > 0 && this.trace.every((e) => e.mocked);
     return html`<section class="flow-run" part="run">
       <h3>Run</h3>
       ${this.renderInputsForm(graph)}
@@ -1287,8 +1648,10 @@ export default class RapiFlow extends LitElement {
       }
       ${
         this.trace.length
-          ? html`<h4>Log</h4>
-            <ol class="run-trace">${this.trace.map((e, n) => this.renderTraceEntry(e, n))}</ol>`
+          ? html`<h4>
+              Log${allMocked ? html` <span class="run-log-note">(mocked responses)</span>` : nothing}
+            </h4>
+            <ol class="run-trace">${this.trace.map((e, n) => this.renderTraceEntry(e, n, !allMocked))}</ol>`
           : nothing
       }
       ${this.runProblem ? html`<p class="run-problem">Cannot run this workflow: ${this.runProblem}</p>` : nothing}
@@ -1313,18 +1676,17 @@ export default class RapiFlow extends LitElement {
   }
 
   /**
-   * What an MCP export builds on: the first OpenAPI source's spec (the tied <rapi-doc>'s, else the
-   * one this element loaded) and every loaded source by name. Null until they are loaded.
+   * What an MCP export builds on: the first OpenAPI source's spec and every loaded source by name
+   * (each paired element's, else the one this element loaded). Null until they are loaded.
    */
   private mcpExportInput() {
-    const first = openapiSources(this.doc)[0];
-    const spec = this.specDoc?.resolvedSpec || this.specObjects.get(first?.name);
+    const { spec, sources } = this.specInputs();
     if (!this.doc || !spec) return null;
     return {
       spec,
       options: {
         arazzo: this.doc,
-        sources: Object.fromEntries(this.specObjects),
+        sources,
         includeOperations: false,
         serverName: this.mcpServerName || this.doc.info?.title || "workflows",
         workflowRuntime: workflowRuntimeSource,
@@ -1333,7 +1695,7 @@ export default class RapiFlow extends LitElement {
   }
 
   // The last count of exportable workflows, by the documents it was built from
-  private mcpCount: { doc: any; spec: any; sources: any; count: number } | null = null;
+  private mcpCount: { doc: any; loaded: any; paired: any; count: number } | null = null;
 
   /** How many workflows the export would have; 0 hides the button. */
   private get mcpWorkflowCount(): number {
@@ -1342,8 +1704,8 @@ export default class RapiFlow extends LitElement {
     const cached = this.mcpCount;
     if (
       cached?.doc === this.doc &&
-      cached.spec === input.spec &&
-      cached.sources === this.specObjects
+      cached.loaded === this.specObjects &&
+      cached.paired === this.pairedSpecs
     )
       return cached.count;
     let count = 0;
@@ -1352,7 +1714,12 @@ export default class RapiFlow extends LitElement {
     } catch {
       count = 0;
     }
-    this.mcpCount = { doc: this.doc, spec: input.spec, sources: this.specObjects, count };
+    this.mcpCount = {
+      doc: this.doc,
+      loaded: this.specObjects,
+      paired: this.pairedSpecs,
+      count,
+    };
     return count;
   }
 
@@ -1385,6 +1752,39 @@ export default class RapiFlow extends LitElement {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
+  }
+
+  /**
+   * The document card: the Arazzo document's URL (the box that loads one by URL, with
+   * allow-arazzo-url-load, else the URL as text), then the API sources it names.
+   */
+  private renderDocCard() {
+    const url = this.renderUrlBox();
+    const sources = (this.doc?.sourceDescriptions || []).filter((s) => s?.name);
+    if (url === nothing && !sources.length) return nothing;
+    return html`<section class="flow-doc" part="document">
+      ${url === nothing ? nothing : html`<div class="flow-doc-url">${url}</div>`}
+      ${
+        sources.length
+          ? html`<div class="flow-sources" part="sources">
+              <h3 class="flow-doc-title">API sources</h3>
+              <dl>
+                ${sources.map(
+                  (s) => html`<dt>${s.name}</dt>
+                    <dd>
+                      ${
+                        // Only a type other than openapi (another Arazzo document) is worth saying
+                        s.type && s.type !== "openapi"
+                          ? html`<span class="flow-src-type">${s.type}</span> `
+                          : nothing
+                      }${s.url}
+                    </dd>`,
+                )}
+              </dl>
+            </div>`
+          : nothing
+      }
+    </section>`;
   }
 
   /** The box that loads an Arazzo document by URL (allow-arazzo-url-load). */
@@ -1431,7 +1831,9 @@ export default class RapiFlow extends LitElement {
   }
 
   render() {
-    return html`${this.renderUrlBox()}${this.renderBody()}`;
+    return html`<slot name="header"></slot>${this.renderDocCard()}${this.renderBody()}<slot
+        name="footer"
+      ></slot>`;
   }
 
   private renderBody() {
@@ -1459,6 +1861,8 @@ export default class RapiFlow extends LitElement {
       stepClasses,
       // Shrink to fit the pane down to 85%, so the text stays readable; past that, scroll
       minScale: 0.85,
+      // In the document card above, with the URL
+      showSources: false,
     });
     // Only problems a reader can't miss; the graph's authoring warnings are left to tooling
     const shown = this.problems.filter(
@@ -1480,7 +1884,9 @@ export default class RapiFlow extends LitElement {
                       @change=${(e) => {
                         this.workflowId = e.target.value;
                         this.selectedStepId = "";
+                        this.linkedFocus = "";
                         this.resetRun();
+                        this.writeRoute();
                       }}
                     >
                       ${ids.map((id) => html`<option value=${id} ?selected=${id === graph.workflowId}>${id}</option>`)}

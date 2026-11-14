@@ -6,6 +6,8 @@ The RapiDoc logo for every RapiDoc product: the component, the portal, the CLI, 
 | :--- | :--- | :--- |
 | `rapidoc-lockup-light.svg` | 642 × 108 | Leaves and `<rapi-doc>` on light backgrounds. The leaves are outlined. |
 | `rapidoc-lockup-dark.svg` | 642 × 108 | Leaves and `<rapi-doc>` on dark backgrounds. The leaves are filled. |
+| `rapi-flow-lockup-light.svg` | 707 × 108 | Leaves and `<rapi-flow>`, the Arazzo workflow element, on light backgrounds. |
+| `rapi-flow-lockup-dark.svg` | 707 × 108 | Leaves and `<rapi-flow>` on dark backgrounds. |
 | `rapidoc-leaves.svg` | 64 × 64 | Favicon, app icon, avatar: anywhere the full logo is too small. Works on light and dark. |
 
 Each file is self-contained: no fonts, scripts or external references. The letters are outlines, so nothing has to load.
@@ -51,6 +53,7 @@ Each file is self-contained: no fonts, scripts or external references. The lette
 
 - **Letters**: [Sono](https://github.com/sursly/sono) by Tyler Finck (SIL Open Font License 1.1), Bold (700) with the `MONO` axis at 1, converted to outlines and spaced by hand.
 - **Brackets**: drawn, not taken from the font: round-capped strokes opening at 105°, 23% taller than Sono's own bracket, centred on the lowercase letters.
+- **`<rapi-flow>` lockups**: the `<rapi-doc>` lockups with `doc` replaced by `flow`, set in the same Sono Bold at the same size (100px, 0.05 per font unit) and baseline (y 79.5), spaced like `doc` (about 57px apart), and the closing bracket moved to keep its gap; `rapi-` and the leaves are unchanged.
 - **Leaves**: the original RapiDoc mark (`packages/rapidoc/src/templates/logo-template.js`, outlined version in `docs/public/assets/images/logo-outline.svg`), with the orange leaf recoloured to `#ff791a`.
 
 The SVGs open in Figma, Illustrator or Inkscape for later changes. The `<rapi-doc>` component's built-in logo (`logo-template.js`) still uses the earlier leaf orange (`#ff903e`).

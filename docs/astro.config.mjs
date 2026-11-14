@@ -29,6 +29,9 @@ export default defineConfig({
     enabled: false,
   },
   redirects: {
+    // The Arazzo examples, renamed
+    '/examples/arazzo-flow': '/examples/arazzo',
+    '/examples/arazzo-flow-multi': '/examples/arazzo-multi',
     '/css': '/guides/css',
     '/slots': '/guides/slots',
     '/mini': '/guides/mini',

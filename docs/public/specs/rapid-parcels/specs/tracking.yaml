@@ -1,0 +1,248 @@
+openapi: 3.0.3
+info:
+  title: Tracking API
+  version: 1.9.2
+  description: |
+    Where a parcel is and what happened to it, by tracking number, plus subscriptions that push every new event to your server.
+
+    **Authorization.** Two ways, either is enough:
+
+    - an access token for `https://api.rapidocui.com` with the `tracking:read` permission (`oauth2`, or paste it as `bearerAuth`);
+    - an API key in the `X-Api-Key` header (`apiKey`), for server-to-server integrations without user sign-in.
+
+    This spec is OpenAPI **3.0** on purpose (the other Rapid Parcels APIs are 3.1).
+  contact:
+    name: Rapid Parcels Developer Support
+    email: developers@rapidparcels.example
+servers:
+  - url: https://mock.rapidocui.com/tracking
+    description: Live mock server (the hosted demo's)
+  - url: http://localhost:4010/tracking
+    description: Local mock server (npm run mock)
+  - url: https://api.rapidparcels.example/v1
+    description: Production (documentation only)
+security:
+  - oauth2: ['tracking:read']
+  - bearerAuth: []
+  - apiKey: []
+tags:
+  - name: Tracking
+    description: Status and events of one parcel.
+  - name: Subscriptions
+    description: Event pushes to your server.
+paths:
+  /tracking/{trackingNumber}:
+    get:
+      operationId: getTracking
+      tags: [Tracking]
+      summary: Track a parcel
+      parameters:
+        - $ref: '#/components/parameters/TrackingNumber'
+      responses:
+        '200':
+          description: The parcel's current status and estimated delivery.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TrackingSummary' }
+              example:
+                tracking_number: RP123456789FR
+                status: out_for_delivery
+                estimated_delivery: '2026-11-03'
+                last_event:
+                  code: OFD
+                  description: Out for delivery
+                  location: { city: Paris, country: FR }
+                  occurred_at: '2026-11-03T06:40:00Z'
+                signed_by: null
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /tracking/{trackingNumber}/events:
+    get:
+      operationId: listTrackingEvents
+      tags: [Tracking]
+      summary: List a parcel's events
+      description: Oldest first.
+      parameters:
+        - $ref: '#/components/parameters/TrackingNumber'
+      responses:
+        '200':
+          description: Every scan and status change.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/TrackingEvent' }
+              example:
+                data:
+                  - { code: BKD, description: Shipment booked, location: { city: Berlin, country: DE }, occurred_at: '2026-11-02T08:15:00Z' }
+                  - { code: PCK, description: Picked up, location: { city: Berlin, country: DE }, occurred_at: '2026-11-02T16:02:00Z' }
+                  - { code: HUB, description: Arrived at hub, location: { city: Lille, country: FR }, occurred_at: '2026-11-03T01:20:00Z' }
+                  - { code: OFD, description: Out for delivery, location: { city: Paris, country: FR }, occurred_at: '2026-11-03T06:40:00Z' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /subscriptions:
+    post:
+      operationId: createSubscription
+      tags: [Subscriptions]
+      summary: Subscribe to a parcel's events
+      description: Rapid Parcels POSTs every new event to `callback_url` until the parcel is delivered or you delete the subscription.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SubscriptionRequest' }
+            example:
+              tracking_number: RP123456789FR
+              callback_url: https://shop.rapidparcels.example/hooks/tracking
+              events: [HUB, OFD, DLV]
+      responses:
+        '201':
+          description: The subscription.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Subscription' }
+              example:
+                id: sub_91KD2A
+                tracking_number: RP123456789FR
+                callback_url: https://shop.rapidparcels.example/hooks/tracking
+                events: [HUB, OFD, DLV]
+                created_at: '2026-11-02T08:20:00Z'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+      callbacks:
+        trackingEvent:
+          '{$request.body#/callback_url}':
+            post:
+              summary: A new tracking event
+              description: Sent for each event in `events`. Answer `2xx`; failed deliveries are retried for 24 hours.
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        subscription_id: { type: string }
+                        tracking_number: { type: string }
+                        event: { $ref: '#/components/schemas/TrackingEvent' }
+                    example:
+                      subscription_id: sub_91KD2A
+                      tracking_number: RP123456789FR
+                      event: { code: OFD, description: Out for delivery, location: { city: Paris, country: FR }, occurred_at: '2026-11-03T06:40:00Z' }
+              responses:
+                '200': { description: Received. }
+  /subscriptions/{subscriptionId}:
+    delete:
+      operationId: deleteSubscription
+      tags: [Subscriptions]
+      summary: Delete a subscription
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          schema: { type: string }
+          example: sub_91KD2A
+      responses:
+        '204': { description: Deleted. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: Sign in with your Rapid Parcels account (Auth0). Tokens are issued for `https://api.rapidocui.com`.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://rapidocui.us.auth0.com/authorize
+          tokenUrl: https://rapidocui.us.auth0.com/oauth/token
+          scopes:
+            tracking:read: Read tracking events and manage subscriptions
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Paste an access token for `https://api.rapidocui.com` with the `tracking:read` permission.
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: A tracking API key, for server-to-server use.
+  parameters:
+    TrackingNumber:
+      name: trackingNumber
+      in: path
+      required: true
+      schema: { type: string, pattern: '^RP\d{9}[A-Z]{2}$' }
+      example: RP123456789FR
+  schemas:
+    Location:
+      type: object
+      properties:
+        city: { type: string }
+        country: { type: string }
+    TrackingEvent:
+      type: object
+      required: [code, description, occurred_at]
+      properties:
+        code:
+          type: string
+          enum: [BKD, PCK, HUB, CUS, OFD, DLV, EXC, RTS]
+          description: 'BKD booked, PCK picked up, HUB at a hub, CUS customs, OFD out for delivery, DLV delivered, EXC exception, RTS return to sender.'
+        description: { type: string }
+        location: { $ref: '#/components/schemas/Location' }
+        occurred_at: { type: string, format: date-time }
+    TrackingSummary:
+      type: object
+      required: [tracking_number, status]
+      properties:
+        tracking_number: { type: string }
+        status: { type: string, enum: [booked, in_transit, out_for_delivery, delivered, exception, returned] }
+        estimated_delivery: { type: string, format: date, nullable: true }
+        last_event: { $ref: '#/components/schemas/TrackingEvent' }
+        signed_by: { type: string, nullable: true }
+    SubscriptionRequest:
+      type: object
+      required: [tracking_number, callback_url]
+      properties:
+        tracking_number: { type: string }
+        callback_url: { type: string, format: uri }
+        events:
+          type: array
+          items: { type: string }
+    Subscription:
+      allOf:
+        - $ref: '#/components/schemas/SubscriptionRequest'
+        - type: object
+          properties:
+            id: { type: string }
+            created_at: { type: string, format: date-time }
+    Error:
+      type: object
+      properties:
+        code: { type: string }
+        message: { type: string }
+  responses:
+    Unauthorized:
+      description: No token or API key, or it is invalid.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { code: unauthorized, message: Send an access token or an X-Api-Key header. }
+    Forbidden:
+      description: The token lacks `tracking:read`.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { code: forbidden, message: This operation needs tracking:read. }
+    NotFound:
+      description: Unknown tracking number or subscription.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { code: not_found, message: No parcel with tracking number RP000000000XX. }

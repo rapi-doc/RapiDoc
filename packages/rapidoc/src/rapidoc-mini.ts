@@ -368,6 +368,16 @@ export default class RapiDocMini extends LitElement {
    */
   @property({ type: String, attribute: "filter-operations" })
   filterOperations = "";
+  /**
+   * <span class="mono yellow">true</span> shows each tag's name and description above its
+   * operations. Off by default: a mini usually shows a few of a tag's operations, which its
+   * description would not match. <span class="mono yellow">&lt;rapi-doc&gt;</span> always shows
+   * tags.
+   * @summary Show tag names and descriptions
+   * @group Spec & Content
+   */
+  @property({ type: String, attribute: "show-tags" })
+  showTags: "true" | "false" = "false";
 
   /** @internal */
   @property({ type: Boolean }) loading = false;
@@ -582,6 +592,8 @@ export default class RapiDocMini extends LitElement {
       allowTry: this.allowTry,
       showCurlBeforeTry: this.showCurlBeforeTry,
       fetchCredentials: this.fetchCredentials,
+      // The Try button reads "TRY (Mock)" while the in-browser mock answers
+      mockServer: this.mockServer,
     };
   }
 
@@ -638,20 +650,11 @@ export default class RapiDocMini extends LitElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    if (name === "spec-url") {
-      if (oldVal !== newVal) {
-        // put it at the end of event-loop to load all the attributes
-        window.setTimeout(async () => {
-          await this.loadSpec(newVal);
-        }, 0);
-      }
+    if (name === "spec-url" && oldVal !== newVal) {
+      this.queueLoad({ spec: newVal });
     }
-    if (name === "filter-operations") {
-      if (oldVal !== newVal) {
-        window.setTimeout(async () => {
-          await this.loadSpec(this._lastLoadedSpec || this.specUrl);
-        }, 0);
-      }
+    if (name === "filter-operations" && oldVal !== newVal) {
+      this.queueLoad();
     }
     if (name === "api-key-name" || name === "api-key-location" || name === "api-key-value") {
       let updateSelectedApiKey = false;
@@ -768,6 +771,27 @@ export default class RapiDocMini extends LitElement {
     }
   }
 
+  // A load queued for the end of the event loop, after the other attributes are set
+  private _loadQueued = false;
+  private _queuedSpec: { spec: any } | null = null;
+
+  /**
+   * Loads at the end of the event loop, once for any number of attribute changes in one go
+   * (filter-operations and spec-url set together load the new spec, filtered, once): the spec a
+   * spec-url change names, else the one loaded last.
+   */
+  private queueLoad(next?: { spec: any }) {
+    if (next) this._queuedSpec = next;
+    if (this._loadQueued) return;
+    this._loadQueued = true;
+    window.setTimeout(async () => {
+      this._loadQueued = false;
+      const queued = this._queuedSpec;
+      this._queuedSpec = null;
+      await this.loadSpec(queued ? queued.spec : this._lastLoadedSpec || this.specUrl);
+    }, 0);
+  }
+
   /**
    * Programmatically supplies username and password credentials for an HTTP Basic security scheme
    * declared in the spec.
@@ -794,6 +818,32 @@ export default class RapiDocMini extends LitElement {
    */
   removeAllSecurityKeys() {
     return onClearAllApiKeys.call(this);
+  }
+
+  /**
+   * Expands one operation and scrolls it into view. <span class="mono fg-color">operation</span> is
+   * its operationId (<span class="mono fg-color">getPetById</span>) or its method and path (<span
+   * class="mono fg-color">GET /pet/{petId}</span>). Resolves to <span class="mono
+   * fg-color">false</span> when the element shows no such operation (not loaded yet, or left out by
+   * <span class="mono fg-color">filter-operations</span>).
+   * @public
+   */
+  async showOperation(operation: string) {
+    const text = String(operation || "").trim();
+    const [method, ...rest] = text.split(/\s+/);
+    const path = rest.join(" ");
+    const target = (this.resolvedSpec?.tags || [])
+      .flatMap((t) => t.paths || [])
+      .find((p) =>
+        path ? p.method === method.toLowerCase() && p.path === path : p.operationId === text,
+      );
+    if (!target) return false;
+    target.expanded = true;
+    this.requestUpdate();
+    await this.updateComplete;
+    const el = this.shadowRoot?.getElementById(target.elementId);
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    return true;
   }
 
   /**
