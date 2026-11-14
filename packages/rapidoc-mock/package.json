@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/mock",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Mock server for the APIs of a RapiDoc portal: examples and generated data, request validation, OAuth scope checks (rapidoc mock)",
   "keywords": [
     "developer-portal",
