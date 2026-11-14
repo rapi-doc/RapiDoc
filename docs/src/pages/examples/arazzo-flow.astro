@@ -1,7 +1,6 @@
 ---
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
 
-const specUrl = '/specs/petstore.yaml';
 // The sample Arazzo file (four Petstore workflows); `?arazzo=<url>` loads any other, and the old
 // `?arazzo=petstore-order` opens its workflow, now in the same file
 const sampleUrl = '/specs/petstore.arazzo.yaml';
@@ -62,10 +61,11 @@ const sampleUrl = '/specs/petstore.arazzo.yaml';
       </p>
       <rapi-flow for="thedoc" allow-arazzo-url-load="true" mcp="true" data-sample={sampleUrl}></rapi-flow>
     </div>
+    {/* No spec-url: <rapi-flow> (it has the URL box) loads the Arazzo file's first OpenAPI source
+         into it, so a ?arazzo= link to another API fetches only that API's spec */}
     <rapi-doc
       id="thedoc"
       class="doc-pane"
-      spec-url={specUrl}
       show-header="false"
       render-style="focused"
       show-side-nav="floating"

@@ -53,9 +53,11 @@ other member is internal; templates call internal members freely through `this`.
   `view-change` (`detail: { view }`, fired only by the switch), all bubbling and composed;
   getter `arazzoDocument` (the parsed document, null until loaded). With `allow-arazzo-url-load="true"` a box above the
   diagram loads any Arazzo document by URL; loading one from it resets the workflow and drops a
-  page-set `spec-url`. With the box on, every document load (from the box or `arazzo-url`) fetches
-  the first OpenAPI source itself and has a tied `<rapi-doc>` `loadSpec` it unless it already shows
-  that URL (its `spec-loaded` then indexes the processed copy); without the box the page decides. A box load that fails keeps
+  page-set `spec-url`. With the box on, every document load (from the box or `arazzo-url`) has a
+  tied `<rapi-doc>` `loadSpec` the first OpenAPI source unless it already shows that URL, and the
+  first source is then taken only from the `<rapi-doc>` (indexed once it holds that spec, on its
+  `spec-loaded` or right away), so each spec is fetched once; the `<rapi-doc>` can start without a
+  `spec-url`. Without the box the page decides what the `<rapi-doc>` shows. A box load that fails keeps
   the document shown (and so the `<rapi-doc>`, which only follows one that loaded), puts the
   previous `arazzo-url` back, and says why under the box. Without the box, the URL shows as text. The
   element does not store the chosen view; a page that wants it remembered listens for
