@@ -189,10 +189,8 @@ export function renderArazzoWorkflow(
   },
 ): {
   svg: string;
-  /** Kinds of lines drawn, for a legend, in this order when present. */
+  /** Kinds of lines drawn, in this order when present. */
   legend: ("seq" | "success" | "failure" | "retry")[];
-  /** The legend for those lines, a `<ul class="flow-legend">` styled by `getFlowCss()`; "" when none. */
-  legendHtml: string;
   graph: object | null;
   problems: ArazzoProblem[];
   workflowIds: string[];

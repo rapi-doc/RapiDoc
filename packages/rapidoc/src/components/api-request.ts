@@ -62,6 +62,8 @@ export default class ApiRequest extends LitElement {
   @property({ type: String, attribute: "schema-hide-read-only" }) schemaHideReadOnly = "true";
   @property({ type: String, attribute: "schema-hide-write-only" }) schemaHideWriteOnly = "false";
   @property({ type: String, attribute: "fetch-credentials" }) fetchCredentials = "";
+  // "true" when the host <rapi-doc>'s in-browser mock answers Try (from its config): a MOCK badge
+  @property({ type: String, attribute: "mock-server" }) mockServer = "false";
 
   // Internal reactive state
   @state() responseMessage: any = "";
@@ -898,6 +900,7 @@ export default class ApiRequest extends LitElement {
         this.showCurlBeforeTry = this.config.showCurlBeforeTry;
       if (this.config.fetchCredentials !== undefined)
         this.fetchCredentials = this.config.fetchCredentials;
+      if (this.config.mockServer !== undefined) this.mockServer = this.config.mockServer;
       if (this.config.defaultSchemaTab) this.activeSchemaTab = this.config.defaultSchemaTab;
     }
   }

@@ -207,9 +207,10 @@ export function apiCallTemplate() {
             part="btn btn-try"
             ?disabled="${this.loading}"
             aria-busy="${this.loading}"
+            title="${this.mockServer === "true" ? "The in-browser mock answers this request; it does not reach the server" : ""}"
             @click="${this.onTryClick}"
           >
-            ${this.loading ? "TRYING..." : "TRY"}
+            ${this.loading ? "TRYING..." : this.mockServer === "true" ? "TRY (Mock)" : "TRY"}
           </button>
         </div>
       </div>

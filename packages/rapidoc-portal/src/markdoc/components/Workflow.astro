@@ -27,7 +27,6 @@ const entry = workflows.find((w: any) => w.id === file);
 const apis = portalConfig.apis || [];
 
 let svg = '';
-let legendHtml = '';
 let workflowId = id || '';
 let problem = '';
 if (!entry) {
@@ -50,7 +49,6 @@ if (!entry) {
     idPrefix: `rf-${file}-${id || 'first'}`,
   });
   svg = drawn.svg;
-  legendHtml = drawn.legendHtml;
   workflowId = drawn.graph?.workflowId || id || '';
 }
 
@@ -76,11 +74,6 @@ const firstApi = entry && apis.find((a: any) => a.id === entry.apiIds[0]);
         <div class="portal-workflow-diagram">
           <Fragment set:html={svg} />
         </div>
-        {legendHtml && (
-          <div class="portal-workflow-footer">
-            <Fragment set:html={legendHtml} />
-          </div>
-        )}
       </rapi-flow>
       {/* A module script: one load per page however many workflows it has. Inline, so Astro leaves the
           static file's URL alone (Vite's dev server does not serve public/ files to import()). */}
@@ -118,19 +111,6 @@ const firstApi = entry && apis.find((a: any) => a.id === entry.apiIds[0]);
   .portal-workflow-diagram {
     padding: 1rem;
     overflow-x: auto;
-  }
-  .portal-workflow-footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem 1rem;
-    padding: 0.5rem 1rem;
-    border-top: 1px solid var(--sl-color-hairline);
-  }
-  /* The legend's own styles come with the flow CSS; it sits in the footer, so no top margin */
-  .portal-workflow-footer :global(.flow-legend) {
-    margin: 0;
   }
   /* The page's fonts, no second border */
   .portal-workflow rapi-flow {

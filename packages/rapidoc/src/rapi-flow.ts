@@ -1,6 +1,5 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 
 import ThemeTokens, {
@@ -24,6 +23,13 @@ import { buildMcpManifest } from "~/utils/mcp/manifest.js";
 import { createMcpWorkflowRuntime } from "~/utils/mcp/workflow-runtime.js";
 
 let instanceCount = 0;
+
+/**
+ * Steps a run in the page may take before it stops, retries and gotos included. A goto back to an
+ * earlier step loops for as long as its condition holds, which with a mock that always answers the
+ * same is for ever; the runtime's own limit (1000) is meant for servers.
+ */
+const MAX_RUN_STEPS = 50;
 
 /** The OpenAPI source descriptions of an Arazzo document that can be loaded, in order. */
 const openapiSources = (doc): any[] =>
@@ -126,6 +132,17 @@ export default class RapiFlow extends LitElement {
    */
   @property({ type: String, attribute: "server-url" })
   serverUrl = "";
+  /**
+   * <span class="mono yellow">true</span> says the server runs go to is a mock that picks its
+   * response status from a <span class="mono yellow">Prefer: code=</span> header, such as
+   * <span class="mono yellow">rapidoc mock</span> or Prism. The run panel then shows Mock Response
+   * Status, sent with each step's request, and the button reads "Run workflow (Mock)". Not needed
+   * when the tied <span class="mono yellow">&lt;rapi-doc&gt;</span> has <span class="mono
+   * yellow">mock-server="true"</span>; against a real API, leave it off: the header is ignored.
+   * @group Run
+   */
+  @property({ type: String, attribute: "server-is-mock" })
+  serverIsMock: "true" | "false" = "false";
 
   @state() private doc: any = null;
   @state() private sources: Map<string, any> = new Map();
@@ -150,12 +167,18 @@ export default class RapiFlow extends LitElement {
   @state() private runningStepId = "";
   @state() private trace: any[] = [];
   @state() private runResult: any = null;
+  /** The inputs the last run was given, as the workflow got them: the start of its log. */
+  @state() private runSentInputs: Record<string, unknown> | null = null;
   @state() private runProblem = "";
 
   private loadId = 0;
+  /** Stops the run in progress (the Stop button, another workflow, Clear, disconnect). */
+  private runAbort: AbortController | null = null;
   // The <rapi-doc> named by `for` while it supplies the first OpenAPI source (no spec-url)
   private specDoc: any = null;
   private onSpecLoaded = () => this.useRapiDocSpec();
+  /** Redraws when the tied <rapi-doc>'s mock-server attribute changes, for the MOCK badge. */
+  private mockObserver: MutationObserver | null = null;
   // Step whose box, lines and output rows are highlighted while the pointer is over one of them
   private linkedStepId = "";
   private idPrefix = `rf${++instanceCount}`;
@@ -356,6 +379,11 @@ export default class RapiFlow extends LitElement {
       .run-mock-rows {
         margin-top: 0.25rem;
       }
+      .run-inputs p.run-mock-help {
+        max-width: 48rem;
+        margin: 0.5rem 0 0.25rem;
+        font-size: var(--font-size-small);
+      }
       .run-inputs .run-mock-strategy {
         display: flex;
         align-items: center;
@@ -390,8 +418,39 @@ export default class RapiFlow extends LitElement {
         flex-wrap: wrap;
         gap: 0.25rem 0.75rem;
         align-items: baseline;
-        padding: 0.375rem 0.75rem;
+        position: relative;
+        padding: 0.375rem 2.75rem 0.375rem 0.75rem;
         cursor: pointer;
+        list-style: none;
+      }
+      .run-trace summary::-webkit-details-marker {
+        display: none;
+      }
+      /* A bordered + in each entry's top-right corner, − when it is open; out of the flow, so a
+         wrapping line never leaves it on a line of its own */
+      .run-trace summary::after {
+        content: "+";
+        position: absolute;
+        top: 0.5rem;
+        right: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.25em;
+        height: 1.25em;
+        border: 1px solid var(--input);
+        border-radius: 3px;
+        color: var(--muted-foreground);
+        font-family: var(--font-mono);
+        font-size: var(--font-size-small);
+        line-height: 1;
+      }
+      .run-trace details[open] summary::after {
+        content: "−";
+      }
+      .run-trace summary:hover::after {
+        color: var(--foreground);
+        border-color: var(--muted-foreground);
       }
       .run-trace details[open] summary {
         border-bottom: 1px solid var(--border);
@@ -447,8 +506,11 @@ export default class RapiFlow extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    this.runAbort?.abort();
     this.specDoc?.removeEventListener("spec-loaded", this.onSpecLoaded);
     this.specDoc = null;
+    this.mockObserver?.disconnect();
+    this.mockObserver = null;
   }
 
   updated(changed) {
@@ -554,6 +616,12 @@ export default class RapiFlow extends LitElement {
     this.specDoc?.removeEventListener("spec-loaded", this.onSpecLoaded);
     this.specDoc = rapiDoc;
     rapiDoc?.addEventListener("spec-loaded", this.onSpecLoaded);
+    this.mockObserver?.disconnect();
+    this.mockObserver = null;
+    if (rapiDoc) {
+      this.mockObserver = new MutationObserver(() => this.requestUpdate());
+      this.mockObserver.observe(rapiDoc, { attributes: true, attributeFilter: ["mock-server"] });
+    }
   }
 
   /**
@@ -566,6 +634,16 @@ export default class RapiFlow extends LitElement {
     const spec = this.specDoc?.resolvedSpec;
     if (!first || !spec) return;
     this.sources = new Map(this.sources).set(first.name, indexResolvedSpec(spec));
+  }
+
+  /** The tied <rapi-doc>'s in-browser mock answers runs. */
+  private get inBrowserMock(): boolean {
+    return this.findRapiDoc()?.mockServer === "true";
+  }
+
+  /** A mock answers runs: the tied <rapi-doc>'s in the browser, or a mock server (server-is-mock). */
+  private get runsMocked(): boolean {
+    return this.inBrowserMock || this.serverIsMock === "true";
   }
 
   private findRapiDoc(): any {
@@ -672,10 +750,12 @@ export default class RapiFlow extends LitElement {
 
   /** Back to the form, with the shown workflow's input defaults filled in. */
   private resetRun() {
+    this.runAbort?.abort();
     this.runState = "idle";
     this.runningStepId = "";
     this.trace = [];
     this.runResult = null;
+    this.runSentInputs = null;
     this.runProblem = "";
     const defaults = {};
     for (const i of this.graph?.inputDetails || []) {
@@ -761,6 +841,7 @@ export default class RapiFlow extends LitElement {
     this.runningStepId = "";
     this.trace = [];
     this.runResult = null;
+    this.runSentInputs = null;
     this.runProblem = "";
     if (!prepared.runtime) {
       this.runProblem = prepared.problem;
@@ -768,6 +849,7 @@ export default class RapiFlow extends LitElement {
       return;
     }
     const inputs = this.coerceInputs(graph);
+    this.runSentInputs = inputs;
     this.runState = "running";
     // Status codes for this run: the in-browser mock reads them from the <rapi-doc> (set for the
     // run only), any other server gets them as Prefer: code=
@@ -802,11 +884,19 @@ export default class RapiFlow extends LitElement {
         return items[Math.floor(Math.random() * items.length)];
       return items[(attempt - 1) % items.length];
     };
+    const abort = new AbortController();
+    this.runAbort = abort;
     const result = await prepared.runtime.callTool(prepared.tool.name, inputs, {
-      onStepStart: (e) => (this.runningStepId = e.stepId),
+      signal: abort.signal,
+      maxStepRuns: MAX_RUN_STEPS,
+      onStepStart: (e) => {
+        if (this.runAbort === abort) this.runningStepId = e.stepId;
+      },
       onStep: (e) => {
+        // A step that finishes after Clear or a switch belongs to no log any more
+        if (this.runAbort !== abort) return;
         this.runningStepId = "";
-        this.trace = [...this.trace, { ...e, mocked }];
+        this.trace = [...this.trace, { ...e, mocked: mocked || this.serverIsMock === "true" }];
       },
       requestHeaders: mocked
         ? undefined
@@ -819,6 +909,10 @@ export default class RapiFlow extends LitElement {
       rapiDoc.mockServerStatusCode = previous.code;
       rapiDoc.mockServerStatusStrategy = previous.strategy;
     }
+    // Cleared or switched to another workflow while it ran: that view has moved on
+    if (this.runAbort !== abort) return;
+    this.runAbort = null;
+    this.runningStepId = "";
     this.runResult = result;
     this.runState = "done";
     this.emit("workflow-run", { workflowId: graph.workflowId, inputs, result, trace: this.trace });
@@ -913,19 +1007,28 @@ export default class RapiFlow extends LitElement {
 
   /**
    * Status codes to answer with, one row per step plus a default: for a tied <rapi-doc>'s
-   * in-browser mock, or for a server that honours Prefer: code= (rapidoc mock). Open when the
-   * in-browser mock is on; otherwise folded, since a real API ignores it.
+   * in-browser mock, or for a mock server that honours Prefer: code= (server-is-mock); not shown
+   * otherwise, since a real API ignores it. Folded until a
+   * status is set (statusCodes, or typed in it), so the inputs and the Run button come first.
    */
   private renderStatusCodes(graph) {
-    const mocked = this.findRapiDoc()?.mockServer === "true";
+    // Only where a mock reads it: the tied <rapi-doc>'s in the browser, or a mock server
+    if (!this.runsMocked) return nothing;
+    const mocked = this.inBrowserMock;
     const set = (key, value) => (this.statusCodes = { ...this.statusCodes, [key]: value });
     const anyList = Object.values(this.statusCodes || {}).some((c) => String(c).includes(","));
     const steps = graph.steps.filter((s) => s.operation);
-    return html`<details class="run-mock" ?open=${mocked || Object.keys(this.statusCodesByStep(graph)).length > 0}>
+    return html`<details class="run-mock" ?open=${Object.keys(this.statusCodesByStep(graph)).length > 0}>
       <summary>
         Mock Response Status
-        <span class="muted">${mocked ? "the in-browser mock answers with" : "sent as Prefer: code= (rapidoc mock)"}</span>
+        <span class="muted">${mocked ? "the in-browser mock answers with" : "the mock server answers with (sent as Prefer: code=)"}</span>
       </summary>
+      <p class="muted run-mock-help">
+        Make the mock answer with an HTTP status, to try the workflow's failure paths: its
+        retries, gotos and ends. Enter one code (<code>404</code>), or several separated by
+        commas (<code>503, 200</code>) to give a step's attempts one each. Leave a field empty
+        for the success response; a step's own field overrides Every step.
+      </p>
       <div class="run-mock-rows">
         ${this.field(
           "Every step",
@@ -958,8 +1061,8 @@ export default class RapiFlow extends LitElement {
       ${
         anyList
           ? html`<label class="run-mock-strategy">
-              <span class="muted">Several codes are used</span>
-              <select aria-label="How the codes are used" @change=${(e) => (this.mockStrategy = e.target.value)}>
+              <span class="muted">Multiple mock response statuses provided: use them</span>
+              <select aria-label="How to use the mock response statuses" @change=${(e) => (this.mockStrategy = e.target.value)}>
                 <option value="cycle" ?selected=${this.mockStrategy === "cycle"}>in turn, per step</option>
                 <option value="random" ?selected=${this.mockStrategy === "random"}>at random</option>
               </select>
@@ -972,6 +1075,11 @@ export default class RapiFlow extends LitElement {
   private renderInputsForm(graph) {
     const set = (name, value) => (this.runInputs = { ...this.runInputs, [name]: value });
     const running = this.runState === "running";
+    // Answered by a mock (the tied <rapi-doc>'s in the browser, or a mock server): said on the button
+    const mocked = this.runsMocked;
+    const mockTitle = this.inBrowserMock
+      ? "The in-browser mock of the tied <rapi-doc> answers this run's requests; they do not reach the server"
+      : "Runs go to a mock server (server-is-mock)";
     return html`<form
       class="run-inputs"
       part="run-inputs"
@@ -1007,9 +1115,10 @@ export default class RapiFlow extends LitElement {
       )}
       ${this.renderStatusCodes(graph)}
       <div class="run-actions">
-        <button type="submit" class="btn btn-primary run-button" part="run-button" ?disabled=${running}>
-          ${running ? "Running…" : "▶ Run workflow"}
+        <button type="submit" class="btn btn-primary run-button" part="run-button" ?disabled=${running} title=${mocked ? mockTitle : nothing}>
+          ${running ? "Running…" : `Run workflow${mocked ? " (Mock)" : ""} →`}
         </button>
+        ${running ? html`<button type="button" class="btn btn-outline run-stop" part="run-stop" @click=${() => this.runAbort?.abort()}>Stop</button>` : nothing}
         ${this.runState === "done" ? html`<button type="button" class="btn btn-outline run-clear" @click=${() => this.resetRun()}>Clear</button>` : nothing}
       </div>
     </form>`;
@@ -1044,6 +1153,11 @@ export default class RapiFlow extends LitElement {
     return html`<section class="flow-run" part="run">
       <h3>Run</h3>
       ${this.renderInputsForm(graph)}
+      ${
+        this.runSentInputs
+          ? html`<h4>Inputs</h4><pre class="run-sent-inputs">${JSON.stringify(this.runSentInputs, null, 2)}</pre>`
+          : nothing
+      }
       ${
         this.trace.length
           ? html`<h4>Log</h4>
@@ -1133,7 +1247,6 @@ export default class RapiFlow extends LitElement {
             <div class="flow-diagram" part="diagram" @click=${this.onDiagramEvent} @keydown=${this.onDiagramEvent} @mouseover=${this.onDiagramHover} @mouseleave=${this.onDiagramHover}>
               ${unsafeSVG(diagram.svg)}
             </div>
-            ${diagram.legendHtml ? unsafeHTML(diagram.legendHtml) : nothing}
             ${this.renderRun(graph)}
 `
           : html`<p class="flow-message" part="message">No workflow to show.</p>`

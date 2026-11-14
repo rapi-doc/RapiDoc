@@ -473,7 +473,7 @@ describe("arazzo: SVG rendering", () => {
       ],
     );
     assert.deepEqual(place.bindings[0].fromSteps, ["findAvailablePets"]);
-    // every value has a keyword: input, step, fixed or expr
+    // every value has a keyword: input, step, const or expr
     // a step's output reads "← from <step>.<output>", the arrow in a column of its own
     assert.ok(svg.includes('<tspan class="rf-kw rf-kw-step" x="'));
     assert.ok(
@@ -515,12 +515,23 @@ describe("arazzo: SVG rendering", () => {
     );
     // an action without criteria that comes first has no condition: the heading says it
     assert.ok(!svg.includes(">checks fail</tspan>"));
-    assert.ok(svg.includes('>status 500</tspan><tspan class="rf-act-then" x="'));
+    // after a condition, "→" in the color of what it leads to: red to an END on failure
+    assert.ok(svg.includes('>status 500</tspan><tspan class="rf-act-arrow rf-failure" x="'));
     // the checks, numbered, in place of the count in the header
     assert.equal((svg.match(/>Checks<\/tspan>/g) || []).length, 5);
     assert.ok(svg.includes(">$response.body#/0 != null</tspan>"));
     assert.ok(!svg.includes("2 checks"));
     assert.ok(!svg.includes("rf-check-num"));
+    // END sits at a fixed x inside its pill, 5 from the rect's left edge, after an arrow too (a dx
+    // would follow the arrow's drawn width, not the pill's)
+    const endPairs = [
+      ...svg.matchAll(
+        /<rect class="rf-end-pill rf-failure" x="([\d.]+)"[^>]*\/><text(?:(?!<\/text>).)*?<tspan class="rf-end rf-failure" x="([\d.]+)"/g,
+      ),
+    ];
+    assert.ok(endPairs.length >= 2);
+    for (const m of endPairs) assert.equal(Number(m[2]) - Number(m[1]), 5);
+    assert.ok(!/<tspan class="rf-end[^"]*" dx=/.test(svg));
     // an end is a red END pill, not words
     assert.ok(!svg.includes("stop the workflow</tspan>"));
     assert.ok(svg.includes('<tspan class="rf-end rf-failure" x="'));
@@ -531,15 +542,19 @@ describe("arazzo: SVG rendering", () => {
     );
     // a retry is an action line under "On failure" (condition, what it does, its name) and a
     // line from there back into the step, labelled with how many times and how far apart
-    assert.ok(svg.includes('>status 503</tspan><tspan class="rf-act-then"'));
-    assert.ok(svg.includes(">→ retry 3×, 1s apart</tspan>"));
+    assert.ok(svg.includes('>status 503</tspan><tspan class="rf-act-arrow rf-retry"'));
+    // a retry's arrow is orange, as its line
+    assert.ok(
+      svg.includes('<tspan class="rf-act-arrow rf-retry" x="') &&
+        svg.includes('>→ </tspan><tspan class="rf-act-then">retry 3×, 1s apart</tspan>'),
+    );
     assert.ok(svg.includes(">(retryOnServiceUnavailable)</tspan>"));
     assert.ok(svg.includes('class="rf-goto rf-retry"'));
     assert.ok(svg.includes("<title>status 503 → retry 3×, 1s apart (retryOnServiceUnavailable)"));
     assert.ok(svg.includes('text-anchor="middle">retry 3× @ 1s</text>'));
     // the retry line leaves the box at the height of its action line
     const retryRowY = Number(
-      svg.match(/<text class="rf-row" y="([\d.]+)">(?:(?!<\/text>).)*→ retry 3×/)[1],
+      svg.match(/<text class="rf-row" y="([\d.]+)">(?:(?!<\/text>).)*>retry 3×/)[1],
     );
     const retryLineYs = [...svg.matchAll(/class="rf-goto rf-retry"[^>]*d="M[\d.]+ ([\d.]+)L/g)].map(
       (m) => Number(m[1]),
@@ -665,7 +680,7 @@ describe("arazzo: SVG rendering", () => {
   });
 
   it("starts goto lines at their action line, labelled with the action's name (expanded)", () => {
-    const { svg, legend, legendHtml } = renderArazzoWorkflow(arazzoText, {
+    const { svg, legend } = renderArazzoWorkflow(arazzoText, {
       workflowId: "orderOrReserve",
       sources: { petstore: petstoreText },
     });
@@ -673,7 +688,12 @@ describe("arazzo: SVG rendering", () => {
     // each goto has its line in the box, "→ goto <step>" with the step in the step color, and
     // its line starts there, labelled with the action's name (not repeated in the box)
     assert.ok(svg.includes(">$response.body#/available &gt; 0</tspan>"));
-    assert.ok(svg.includes('>→ goto </tspan><tspan class="rf-step-name">readPet</tspan></text>'));
+    assert.ok(
+      svg.includes('<tspan class="rf-act-arrow rf-success" x="') &&
+        svg.includes(
+          '>→ </tspan><tspan class="rf-act-then">goto </tspan><tspan class="rf-step-name">readPet</tspan></text>',
+        ),
+    );
     assert.ok(!svg.includes("(inStock)</tspan>"));
     assert.ok(
       svg.includes("<title>$response.body#/available &gt; 0 → goto readPet (inStock)</title>"),
@@ -688,17 +708,32 @@ describe("arazzo: SVG rendering", () => {
     const lineY = Number(svg.match(/class="rf-goto rf-success"[^>]*d="M[\d.]+ ([\d.]+)L/)[1]);
     assert.equal(lineY, rowY - 4);
     assert.ok(legend.includes("success") && !legend.includes("failure"));
-    // one legend for <rapi-flow> and build-time pages: an entry per kind drawn, retry included,
-    // each line in the classes the flow CSS colors and dashes
+    // the kinds of lines drawn, retry included; the diagram shows no legend, its lines being
+    // green (next step, goto on success), red (goto on failure) and orange (retry)
     assert.deepEqual(legend, ["seq", "success", "retry"]);
-    assert.equal((legendHtml.match(/<li>/g) || []).length, 3);
-    assert.ok(legendHtml.startsWith('<ul class="flow-legend" part="legend" aria-label="Legend">'));
-    assert.ok(legendHtml.includes('<path class="rf-goto rf-retry" d="M1 5H23"/>'));
-    assert.ok(
-      legendHtml.includes('<path class="rf-head rf-retry" d="M22 1L28 5L22 9z"/></svg>retry</li>'),
-    );
-    assert.ok(!legendHtml.includes("stroke-dasharray"));
-    assert.ok(getFlowCss().includes(".flow-legend"));
+    assert.ok(!svg.includes("flow-legend") && !getFlowCss().includes(".flow-legend"));
+    assert.ok(/\.rf-seq \{[^}]*stroke: var\(--green\)/.test(getFlowCss()));
+    // "const" for a literal value, as Arazzo calls it
+    assert.ok(svg.includes('<tspan class="rf-kw rf-kw-value" x="'));
+    assert.ok(/class="rf-kw rf-kw-value" x="[\d.]+">const</.test(svg));
+    assert.ok(!svg.includes(">fixed<"));
+    // "→" takes its kind's color, "←" the step color
+    assert.ok(/\.rf-act-arrow,[^{]*\{\s*fill: var\(--rf-kind\)/.test(getFlowCss()));
+    // a dot in the line's color marks where each action line leaves its box
+    const lineStarts = [
+      ...svg.matchAll(
+        /<path class="rf-goto rf-(\w+)" data-from-step="([^"]+)" d="M([\d.]+) ([\d.]+)L/g,
+      ),
+    ].map((m) => `${m[1]} ${m[2]} ${m[3]} ${m[4]}`);
+    const dots = [
+      ...svg.matchAll(
+        /<circle class="rf-line-start rf-(\w+)" data-from-step="([^"]+)" cx="([\d.]+)" cy="([\d.]+)" r="4"\/>/g,
+      ),
+      // just inside the box: 6 to the right of where the line meets its edge
+    ].map((m) => `${m[1]} ${m[2]} ${Number(m[3]) - 6} ${m[4]}`);
+    assert.ok(lineStarts.length >= 2);
+    assert.deepEqual(dots, lineStarts);
+    assert.ok(/\.rf-from-arrow,[^{]*\{\s*fill: var\(--rf-step\)/.test(getFlowCss()));
     // arrowheads take their kind's color from the same class as the line
     assert.ok(svg.includes('<path d="M0 0L10 5L0 10z" class="rf-head rf-retry"/>'));
     assert.ok(getFlowCss().includes("--rf-kind") && !getFlowCss().includes("rf-head-success"));

@@ -92,26 +92,80 @@ export default css`
     opacity: 1;
     color: var(--foreground);
   }
+  /* The menu button of narrow layouts: three lines that turn into an × while the menu is open */
   #nav-bar-btn {
     position: absolute;
     top: 16px;
     right: 16px;
-    font-size: 36px;
-    line-height: 30px;
-    width: 50px;
-    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
     background: var(--card);
-    color: var(--foreground);
+    color: var(--muted-foreground);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     cursor: pointer;
     z-index: 10;
     box-shadow:
-      0 12px 16px 0 rgba(0, 0, 0, 0.24),
-      0 17px 50px 0 rgba(0, 0, 0, 0.19);
+      0 1px 2px rgba(0, 0, 0, 0.12),
+      0 4px 12px rgba(0, 0, 0, 0.16);
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+    & svg {
+      width: 20px;
+      height: 20px;
+      overflow: visible;
+    }
     &:hover {
-      border-color: var(--primary);
+      color: var(--foreground);
+      border-color: var(--muted-foreground);
+    }
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-shadow);
+    }
+    &:has(+ .nav-bar.floating-nav) {
       color: var(--primary);
+      border-color: var(--primary);
+    }
+  }
+  .nav-bar-btn-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      transform 0.2s ease,
+      opacity 0.15s ease;
+  }
+  #nav-bar-btn:has(+ .nav-bar.floating-nav) .nav-bar-btn-line {
+    &:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+    }
+    &:nth-child(2) {
+      opacity: 0;
+    }
+    &:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-bar-btn-line,
+    .nav-bar.floating-nav {
+      transition: none;
+      animation: none;
+    }
+  }
+  @keyframes nav-slide-in {
+    from {
+      transform: translateX(-12px);
+      opacity: 0;
     }
   }
   .nav-bar {
@@ -129,6 +183,7 @@ export default css`
     flex-direction: column;
     flex-wrap: nowrap;
     word-break: break-word;
+    /* Open over the content on narrow layouts: lifted by a shadow on its open side, sliding in */
     &.floating-nav {
       position: absolute;
       top: 0;
@@ -136,6 +191,10 @@ export default css`
       width: 330px;
       overflow: scroll;
       z-index: 5;
+      box-shadow:
+        8px 0 24px -6px rgba(0, 0, 0, 0.45),
+        2px 0 6px -2px rgba(0, 0, 0, 0.25);
+      animation: nav-slide-in 0.18s ease-out;
     }
   }
 

@@ -36,7 +36,7 @@ methods, and the network calls themselves (the runtime only builds and sends req
   isError? }`, `execute(operation, args, { headers? })` (one request, for workflow runners; the
   headers are added to the request). A workflow tool is handed to `runWorkflow`; without it the
   call is an error result. `callTool`'s hooks reach the workflow runner: `onStepStart`, `onStep`,
-  `sleep`, and `requestHeaders({ workflowId, stepId, attempt, operation })`, whose result is sent
+  `sleep`, `maxStepRuns`, `signal` (an `AbortSignal`), and `requestHeaders({ workflowId, stepId, attempt, operation })`, whose result is sent
   with that step's request (how `<rapi-flow>` asks `rapidoc mock` for a status with
   `Prefer: code=`).
 - `runWorkflow(runtime, tool, args, { onStepStart, onStep, sleep })` and
@@ -125,7 +125,10 @@ methods, and the network calls themselves (the runtime only builds and sends req
   `end` finishes, `goto` jumps, none falls through; on failure none or `end` fails the workflow
   (the result names the step, the criterion and the response), `goto` jumps, `retry` re-runs the
   step (or `stepId`) after `retryAfter` seconds up to `retryLimit` times. A transport error is a
-  failure with no response. More than 1000 step runs is an error. The result is the workflow's
+  failure with no response. More step runs than `maxStepRuns` (1000 by default) is an error naming the last goto
+  back to an earlier step, the usual cause ("it kept going back from checkPet to findAvailable
+  (pickAnother)"); an aborted `signal` ends the run with an error before the next step, or cuts a
+  retry's wait short. The result is the workflow's
   `outputs` as `structuredContent`; `onStepStart` gets `{ workflowId, stepId, attempt }` before
   each request and `onStep` gets `{ workflowId, stepId, attempt, outcome, request, response,
   outputs, failedCriterion, action }` after it.

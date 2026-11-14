@@ -149,7 +149,13 @@ export default function navbarTemplate() {
     </nav>`;
   }
   return html`
-    <button id="nav-bar-btn" part="btn-navbar" class="btn" @click="${this.onOpenNavBarToggle}">☰</button>
+    <button id="nav-bar-btn" part="btn-navbar" type="button" aria-label="Menu" aria-controls="nav-bar" @click="${this.onOpenNavBarToggle}">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path class="nav-bar-btn-line" d="M5 7h14" />
+        <path class="nav-bar-btn-line" d="M5 12h14" />
+        <path class="nav-bar-btn-line" d="M5 17h14" />
+      </svg>
+    </button>
     <nav id="nav-bar" class="nav-bar ${this.renderStyle} overflow-${this.navItemOverflow || "ellipsis"}" part="section-navbar">
       <div
         class="nav-scroll"
