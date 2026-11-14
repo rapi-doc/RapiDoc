@@ -201,18 +201,25 @@ export default class RapiFlow extends LitElement {
         font-size: var(--font-size-regular);
         line-height: var(--line-height);
       }
+      /* Which workflow (picker or id) and the view switch on one row, then the summary and the
+         description */
       .flow-header {
+        margin-bottom: 0.75rem;
+      }
+      .flow-toolbar {
         display: flex;
         flex-wrap: wrap;
-        align-items: baseline;
+        align-items: center;
         gap: 0.5rem 1rem;
-        margin-bottom: 0.25rem;
       }
       .flow-title {
-        margin: 0;
+        margin: 0.75rem 0 0;
         font-size: var(--h4-font-size);
         font-weight: var(--heading-weight);
         color: var(--heading-color);
+      }
+      .flow-toolbar .flow-title {
+        margin: 0;
       }
       .flow-id {
         font-family: var(--font-mono);
@@ -246,7 +253,7 @@ export default class RapiFlow extends LitElement {
         border-color: var(--primary);
       }
       .flow-description {
-        margin: 0 0 0.75rem;
+        margin: 0.25rem 0 0;
         color: var(--muted-foreground);
         font-size: var(--font-size-description);
       }
@@ -1217,33 +1224,41 @@ export default class RapiFlow extends LitElement {
       ${
         graph
           ? html`<div class="flow-header" part="header">
-              <h2 class="flow-title" part="title">${graph.summary || graph.workflowId}</h2>
-              ${graph.summary ? html`<span class="flow-id">${graph.workflowId}</span>` : nothing}
-              <div class="flow-controls">
+              <div class="flow-toolbar">
+                ${
+                  // Which workflow: the picker when there are several (it shows the id), else the id;
+                  // the id is the title when the workflow has no summary
+                  ids.length > 1
+                    ? html`<select
+                      part="select"
+                      aria-label="Workflow"
+                      .value=${graph.workflowId}
+                      @change=${(e) => {
+                        this.workflowId = e.target.value;
+                        this.selectedStepId = "";
+                        this.resetRun();
+                      }}
+                    >
+                      ${ids.map((id) => html`<option value=${id} ?selected=${id === graph.workflowId}>${id}</option>`)}
+                    </select>`
+                    : graph.summary
+                      ? html`<span class="flow-id">${graph.workflowId}</span>`
+                      : nothing
+                }
+                ${
+                  graph.summary
+                    ? nothing
+                    : html`<h2 class="flow-title" part="title">${graph.workflowId}</h2>`
+                }
+                <div class="flow-controls">${this.renderViewToggle()}</div>
+              </div>
+              ${graph.summary ? html`<h2 class="flow-title" part="title">${graph.summary}</h2>` : nothing}
               ${
-                ids.length > 1
-                  ? html`<select
-                    part="select"
-                    aria-label="Workflow"
-                    .value=${graph.workflowId}
-                    @change=${(e) => {
-                      this.workflowId = e.target.value;
-                      this.selectedStepId = "";
-                      this.resetRun();
-                    }}
-                  >
-                    ${ids.map((id) => html`<option value=${id} ?selected=${id === graph.workflowId}>${id}</option>`)}
-                  </select>`
+                graph.description
+                  ? html`<p class="flow-description" part="description">${graph.description}</p>`
                   : nothing
               }
-              ${this.renderViewToggle()}
-              </div>
             </div>
-            ${
-              graph.description
-                ? html`<p class="flow-description" part="description">${graph.description}</p>`
-                : nothing
-            }
             <div class="flow-diagram" part="diagram" @click=${this.onDiagramEvent} @keydown=${this.onDiagramEvent} @mouseover=${this.onDiagramHover} @mouseleave=${this.onDiagramHover}>
               ${unsafeSVG(diagram.svg)}
             </div>
