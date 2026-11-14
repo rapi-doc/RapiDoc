@@ -143,7 +143,8 @@ UI helpers:
 - `markdown-utils.js` configures the global `marked` at import time.
 - `highlighter.js` writes the global `CSS.highlights` registry and schedules
   `requestAnimationFrame`.
-- `bind-navbar.js` adds DOM and `window` listeners, writes `history`; some timers and the
+- `bind-navbar.js` adds DOM and `window` listeners, writes `history` (`replaceState`, keeping
+  `history.state` for routers); some timers and the
   `spec-loaded` listener outlive `unbind()`.
 - `auto-color-scheme.js` observes `<html>`/`<body>` attributes and `prefers-color-scheme`.
 - `response-utils.js` creates object URLs it does not revoke; `common-utils.js` clipboard and

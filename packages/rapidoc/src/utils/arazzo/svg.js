@@ -10,7 +10,10 @@
  * - "expanded" (default): each step lists the values it sends and where they come from (input,
  *   from a step, const or expr), its checks, its actions as "condition → what happens", and the
  *   outputs something reads.
- * - "compact": each step shows its name, method, path, number of checks and the values it sends.
+ * - "compact": each step shows its name, method, path, number of checks, the values that carry
+ *   data into it (from an input or an earlier step; constants are counted in one line), and
+ *   its actions that draw a line (gotos and retries) under their On success / On failure heading,
+ *   so every line leaves from the action it belongs to.
  */
 
 const BOX_MIN = 360; // both views; boxes grow with their longest line up to BOX_MAX
@@ -354,6 +357,24 @@ function actionLines(step, stepIds) {
 }
 
 /**
+ * The compact view's action sections: of each On success / On failure section, its heading and the
+ * actions that draw a line (a goto to a step, a retry). Ends, the default END and the order note's
+ * context are left to the expanded view.
+ */
+function lineActionSections(step, stepIds) {
+  return actionSections(step, stepIds).map((rows) => {
+    const lines = rows.filter((r) => r.action);
+    if (!lines.length) return [];
+    // "first match runs" is about the order of the listed actions: with one listed, drop it
+    if (lines.length > 1) return [rows[0], ...lines];
+    const parts = rows[0].parts
+      .map((p) => ({ ...p, text: p.text.replace(/ · first match runs$|^· first match runs$/, "") }))
+      .filter((p) => p.text);
+    return [{ ...rows[0], parts }, ...lines];
+  });
+}
+
+/**
  * "On success" and "On failure" sections: one line per action, in the order a runner checks.
  * Actions that can never run (`shadowed`) are left out; the graph's `warnings` name them. A goto
  * to a step and a retry also draw a line, which starts at their action line.
@@ -536,13 +557,37 @@ function bodyFieldName(name) {
  * with its content type), request body fields without their `body.` prefix. At most
  * MAX_BINDINGS are listed; the rest are counted at the end of the last section.
  */
-function bindingSections(step) {
-  const shown = step.bindings.slice(0, MAX_BINDINGS).map((b) => ({
+/**
+ * Whether a value carries data into the step: from the workflow's inputs or an earlier step (an
+ * expression that reads `$inputs` or `$steps` too). The others are constants.
+ */
+const carriesData = (b) =>
+  b.source.kind === "input" ||
+  b.source.kind === "step" ||
+  (b.source.kind === "expression" && /\$(inputs|steps)\./.test(b.source.text));
+
+function bindingSections(step, { compact = false } = {}) {
+  // Compact: only the values that carry data; the constants are summed up in one line
+  const listed = compact ? step.bindings.filter(carriesData) : step.bindings;
+  const folded = step.bindings.length - listed.length;
+  const shown = listed.slice(0, MAX_BINDINGS).map((b) => ({
     ...b,
     label: b.in === "body" ? bodyFieldName(b.name) : b.name,
     group: BINDING_GROUPS.some(([key]) => key === b.in) ? b.in : "",
   }));
-  if (!shown.length) return [];
+  const constRow = folded
+    ? {
+        parts: [
+          part(
+            `+${folded} const value${folded > 1 ? "s" : ""} in the expanded view`,
+            "rf-more",
+            PILL_CHAR_W,
+            { x: PAD },
+          ),
+        ],
+      }
+    : null;
+  if (!shown.length) return constRow ? [[constRow]] : [];
   const nameChars = Math.min(18, Math.max(4, ...shown.map((b) => b.label.length)));
   const col = PAD + nameChars * MONO_W + 12;
   const sections = BINDING_GROUPS.map(([key, title]) => {
@@ -565,7 +610,7 @@ function bindingSections(step) {
       })),
     ];
   }).filter((rows) => rows.length);
-  const hidden = step.bindings.slice(MAX_BINDINGS);
+  const hidden = listed.slice(MAX_BINDINGS);
   if (hidden.length) {
     sections.at(-1).push({
       parts: [
@@ -573,6 +618,7 @@ function bindingSections(step) {
       ],
     });
   }
+  if (constRow) sections.at(-1).push(constRow);
   return sections;
 }
 
@@ -627,6 +673,8 @@ function headerWidth(step) {
  * @param {number} [options.minScale=0] how far the diagram may shrink to fit a narrower
  *   container (the flow CSS sets max-width: 100%), 0.85 for 85%; below that, the container
  *   scrolls. 0 lets it shrink to any size.
+ * @param {boolean} [options.showSources=true] list the document's API sources in the first box;
+ *   `false` leaves them out (`<rapi-flow>` shows them in its document card instead)
  * @returns {{ svg: string, legend: string[] }} `legend` names the kinds of lines drawn, in this
  *   order: `seq` (next step), `success` / `failure` (goto lines), `retry`. The diagram shows no
  *   legend: the lines are green, red and orange, and each goto or retry line is labelled.
@@ -640,7 +688,7 @@ export function renderFlowDiagram(graph, options = {}) {
   // ---- Nodes, top to bottom, with their rows ----
   const nodes = [];
   // The inputs and outputs boxes are the same in both views; only step boxes are compacted
-  const sources = sourceRows(graph);
+  const sources = options.showSources === false ? [] : sourceRows(graph);
   if (sources.length) {
     // API sources first, then the inputs under a heading of their own, below a rule
     const inputs = inputRows(graph);
@@ -655,8 +703,9 @@ export function renderFlowDiagram(graph, options = {}) {
   }
   const stepIds = new Set(graph.steps.map((s) => s.stepId));
   for (const step of graph.steps) {
-    // Gotos to a step and retries are labelled lines. Compact boxes list only the values a
-    // step sends (no checks, actions or outputs), so where data comes from shows in both views.
+    // Gotos to a step and retries are labelled lines. Compact boxes list the values a step sends
+    // and the actions that draw those lines (no checks, ends or outputs), so where data comes
+    // from and when a line is taken show in both views.
     const sections = expanded
       ? [
           ...bindingSections(step),
@@ -664,7 +713,7 @@ export function renderFlowDiagram(graph, options = {}) {
           ...actionSections(step, stepIds),
           stepOutputRows(step),
         ]
-      : bindingSections(step);
+      : [...bindingSections(step, { compact: true }), ...lineActionSections(step, stepIds)];
     nodes.push({
       key: step.stepId,
       kind: "step",
@@ -720,15 +769,16 @@ export function renderFlowDiagram(graph, options = {}) {
       const j = index.get(line.target);
       if (j === undefined) return;
       const row = rows.find((r) => r.action === line.action);
-      // Compact: a loop into its own step leaves near the bottom of the box, so it spans the box
-      // with its label on the line, in the middle; other lines leave below the title
+      // From its action line, in both views. Without one (an action the boxes do not list):
+      // compact, a loop into its own step near the bottom of the box, other lines below the
+      // title; expanded, near the bottom of the box
       let by = COMPACT_GOTO_Y + li * 8 + 4;
-      if (!expanded && j === i) {
+      if (row) by = row.by;
+      else if (expanded) {
+        by = n.h - 12 - (bottom.length - 1 - bottom.indexOf(line)) * ACTION_LINE_GAP;
+      } else if (j === i) {
         const loops = n.lines.filter((l) => index.get(l.target) === i);
         by = n.h - 10 - (loops.length - 1 - loops.indexOf(line)) * 8;
-      }
-      if (expanded) {
-        by = row ? row.by : n.h - 12 - (bottom.length - 1 - bottom.indexOf(line)) * ACTION_LINE_GAP;
       }
       // Half a node more on the side the line leaves from, so lines that meet at a box get
       // different lanes, a loop included

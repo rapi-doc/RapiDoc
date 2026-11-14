@@ -52,7 +52,8 @@ export function bindNavBar(sidebar, rapiDoc, options = {}) {
 
     if (shouldUpdateHistory && updateHistory) {
       const href = link.getAttribute("href");
-      if (href) window.history.replaceState(null, "", href);
+      // Keep history.state: routers (Vue Router, React Router) store their own data there
+      if (href) window.history.replaceState(window.history.state, "", href);
     }
 
     // Scroll active item into view inside the sidebar container

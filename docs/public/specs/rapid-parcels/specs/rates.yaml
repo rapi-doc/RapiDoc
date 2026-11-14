@@ -1,0 +1,307 @@
+openapi: 3.1.0
+info:
+  title: Rates API
+  version: 1.4.0
+  summary: Shipping prices and service levels, open to everyone.
+  description: |
+    Quote what a parcel costs to ship with **Rapid Parcels** before you create a shipment.
+
+    The Rates API is public: no sign-in, no token. Every operation has examples, so the mock server answers with them.
+  contact:
+    name: Rapid Parcels Developer Support
+    email: developers@rapidparcels.example
+    url: https://developers.rapidparcels.example
+  license:
+    name: CC BY 4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+servers:
+  - url: https://mock.rapidocui.com/rates
+    description: Live mock server (the hosted demo's)
+  - url: http://localhost:4010/rates
+    description: Local mock server (npm run mock)
+  - url: https://api.rapidparcels.example/v1
+    description: Production (documentation only)
+security: []
+tags:
+  - name: Quotes
+    description: Prices for a parcel between two places.
+  - name: Services
+    description: Service levels and where they are available.
+paths:
+  /rates:
+    get:
+      operationId: listRates
+      tags: [Quotes]
+      summary: List rates for a parcel
+      description: Prices for every service level that covers the route, cheapest first.
+      parameters:
+        - name: from
+          in: query
+          required: true
+          description: Origin postal code and country, `<postal code>,<ISO country>`.
+          schema: { type: string, examples: ['10115,DE'] }
+          example: 10115,DE
+        - name: to
+          in: query
+          required: true
+          description: Destination postal code and country.
+          schema: { type: string }
+          example: 75001,FR
+        - name: weight_kg
+          in: query
+          required: true
+          schema: { type: number, minimum: 0.01, maximum: 70 }
+          example: 2.5
+        - name: service
+          in: query
+          description: Only this service level.
+          schema: { $ref: '#/components/schemas/ServiceCode' }
+      responses:
+        '200':
+          description: Rates, cheapest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Rate' }
+              example:
+                data:
+                  - service: economy
+                    price: { amount: '7.90', currency: EUR }
+                    estimated_days: { min: 3, max: 5 }
+                  - service: express
+                    price: { amount: '14.50', currency: EUR }
+                    estimated_days: { min: 1, max: 2 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /rates/quote:
+    post:
+      operationId: createQuote
+      tags: [Quotes]
+      summary: Quote a multi-parcel shipment
+      description: A binding quote for several parcels, valid for 30 minutes. Pass its `id` when you create the shipment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/QuoteRequest' }
+            example:
+              from: { postal_code: '10115', country: DE }
+              to: { postal_code: '75001', country: FR }
+              service: express
+              parcels:
+                - { weight_kg: 2.5, length_cm: 30, width_cm: 20, height_cm: 15 }
+                - { weight_kg: 1.2, length_cm: 20, width_cm: 15, height_cm: 10 }
+      responses:
+        '201':
+          description: The quote.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Quote' }
+              example:
+                id: quo_01HZX4M8Q2
+                service: express
+                total: { amount: '26.30', currency: EUR }
+                breakdown:
+                  - { label: Base price, amount: { amount: '22.00', currency: EUR } }
+                  - { label: Fuel surcharge, amount: { amount: '2.10', currency: EUR } }
+                  - { label: Second parcel, amount: { amount: '2.20', currency: EUR } }
+                expires_at: '2026-11-02T10:30:00Z'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '422':
+          description: The route or a parcel can't be shipped with that service.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+              example:
+                type: https://developers.rapidparcels.example/problems/not-serviceable
+                title: Route not serviceable
+                status: 422
+                detail: Express is not available to postal code 98000 (MC).
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /services:
+    get:
+      operationId: listServices
+      tags: [Services]
+      summary: List service levels
+      responses:
+        '200':
+          description: All service levels.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Service' }
+              example:
+                data:
+                  - code: economy
+                    name: Economy
+                    description: Ground delivery in 3–5 working days.
+                    max_weight_kg: 31.5
+                  - code: express
+                    name: Express
+                    description: Next-day delivery to most addresses.
+                    max_weight_kg: 31.5
+                  - code: freight
+                    name: Freight
+                    description: Pallets and heavy parcels, delivery by appointment.
+                    max_weight_kg: 70
+  /coverage/{country}:
+    get:
+      operationId: getCoverage
+      tags: [Services]
+      summary: Service coverage for a country
+      parameters:
+        - name: country
+          in: path
+          required: true
+          description: ISO 3166-1 alpha-2 country code.
+          schema: { type: string, pattern: '^[A-Z]{2}$' }
+          example: FR
+      responses:
+        '200':
+          description: Which services reach the country, and how fast.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Coverage' }
+              example:
+                country: FR
+                services:
+                  - { service: economy, estimated_days: { min: 2, max: 4 } }
+                  - { service: express, estimated_days: { min: 1, max: 1 } }
+                remote_postal_codes: ['20000-20999']
+        '404':
+          description: Rapid Parcels doesn't deliver to that country.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+              example:
+                type: https://developers.rapidparcels.example/problems/no-coverage
+                title: No coverage
+                status: 404
+                detail: Rapid Parcels does not deliver to AQ.
+components:
+  schemas:
+    ServiceCode:
+      type: string
+      enum: [economy, express, freight]
+    Money:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount: { type: string, pattern: '^-?\d+\.\d{2}$', description: Decimal amount as a string. }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: ISO 4217 currency code. }
+    DayRange:
+      type: object
+      properties:
+        min: { type: integer, minimum: 0 }
+        max: { type: integer, minimum: 0 }
+    Rate:
+      type: object
+      required: [service, price]
+      properties:
+        service: { $ref: '#/components/schemas/ServiceCode' }
+        price: { $ref: '#/components/schemas/Money' }
+        estimated_days: { $ref: '#/components/schemas/DayRange' }
+    Place:
+      type: object
+      required: [postal_code, country]
+      properties:
+        postal_code: { type: string }
+        country: { type: string, pattern: '^[A-Z]{2}$' }
+    ParcelSize:
+      type: object
+      required: [weight_kg]
+      properties:
+        weight_kg: { type: number, minimum: 0.01, maximum: 70 }
+        length_cm: { type: number, minimum: 1 }
+        width_cm: { type: number, minimum: 1 }
+        height_cm: { type: number, minimum: 1 }
+    QuoteRequest:
+      type: object
+      required: [from, to, parcels]
+      properties:
+        from: { $ref: '#/components/schemas/Place' }
+        to: { $ref: '#/components/schemas/Place' }
+        service: { $ref: '#/components/schemas/ServiceCode' }
+        parcels:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items: { $ref: '#/components/schemas/ParcelSize' }
+    Quote:
+      type: object
+      required: [id, service, total, expires_at]
+      properties:
+        id: { type: string }
+        service: { $ref: '#/components/schemas/ServiceCode' }
+        total: { $ref: '#/components/schemas/Money' }
+        breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              label: { type: string }
+              amount: { $ref: '#/components/schemas/Money' }
+        expires_at: { type: string, format: date-time }
+    Service:
+      type: object
+      properties:
+        code: { $ref: '#/components/schemas/ServiceCode' }
+        name: { type: string }
+        description: { type: string }
+        max_weight_kg: { type: number }
+    Coverage:
+      type: object
+      properties:
+        country: { type: string }
+        services:
+          type: array
+          items:
+            type: object
+            properties:
+              service: { $ref: '#/components/schemas/ServiceCode' }
+              estimated_days: { $ref: '#/components/schemas/DayRange' }
+        remote_postal_codes:
+          type: array
+          items: { type: string }
+    Problem:
+      type: object
+      description: RFC 9457 problem details.
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+  responses:
+    BadRequest:
+      description: A parameter is missing or invalid.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://developers.rapidparcels.example/problems/invalid-request
+            title: Invalid request
+            status: 400
+            detail: weight_kg must be at most 70.
+    TooManyRequests:
+      description: Too many requests; retry after the time in `Retry-After`.
+      headers:
+        Retry-After:
+          schema: { type: integer }
+          example: 30
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://developers.rapidparcels.example/problems/rate-limited
+            title: Too many requests
+            status: 429

@@ -194,6 +194,8 @@ export function renderArazzoWorkflow(
      * container scrolls (give it overflow-x: auto). Default 0: shrinks to any size.
      */
     minScale?: number;
+    /** false leaves the API sources out of the first box (default: listed above the inputs). */
+    showSources?: boolean;
   },
 ): {
   svg: string;

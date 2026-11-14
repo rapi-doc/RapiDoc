@@ -1787,7 +1787,12 @@ export default class RapiDoc extends LitElement {
 
   replaceHistoryState(hashId) {
     const baseURL = this.getComponentBaseURL();
-    window.history.replaceState(null, null, hashId ? `${baseURL}#${hashId}` : baseURL);
+    // Keep history.state: routers (Vue Router, React Router) store their own data there
+    window.history.replaceState(
+      window.history.state,
+      "",
+      hashId ? `${baseURL}#${hashId}` : baseURL,
+    );
   }
 
   expandAndGotoOperation(elementId, scrollToElement = true) {

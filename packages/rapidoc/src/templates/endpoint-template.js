@@ -239,10 +239,18 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
         ? html`
             <div class="section-tag-body">
               ${
-                tag.description
-                  ? html`<div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
-                      ${unsafeHTML(sanitizeHTML(marked(tag.description || "")))}
-                    </div>`
+                // show-tags: the tag's name and description above its operations
+                this.showTags === "true"
+                  ? html`<h2 class="rapidoc-heading mini-tag-title" part="section-tag-title heading heading-2">
+                        ${tag.displayName || tag.name}
+                      </h2>
+                      ${
+                        tag.description
+                          ? html`<div class="regular-font regular-font-size m-markdown mini-tag-descr" part="section-tag-description">
+                              ${unsafeHTML(sanitizeHTML(marked(tag.description || "")))}
+                            </div>`
+                          : ""
+                      }`
                   : ""
               }
               ${tag.paths

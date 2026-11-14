@@ -130,4 +130,51 @@ describe("<rapi-doc-mini> spec load sequence", () => {
     assert.deepEqual(loaded, ["second"]);
     assert.equal(el.resolvedSpec.info.title, "second");
   });
+
+  // <rapi-flow> sets a paired mini's filter-operations, then its spec-url: one fetch, filtered
+  it("filter-operations and spec-url set together load the new spec once", async () => {
+    fetches.length = 0;
+    const el = new RapiDocMini();
+    const loaded = stubElement(el);
+    el.attributeChangedCallback("filter-operations", null, "GET /a");
+    el.attributeChangedCallback("spec-url", null, "http://x/mini.json");
+    await settle();
+    assert.deepEqual(fetches, ["http://x/mini.json"]);
+    assert.deepEqual(loaded, ["from http://x/mini.json"]);
+  });
+
+  it("a filter-operations change alone reloads the spec loaded last", async () => {
+    const el = new RapiDocMini();
+    stubElement(el);
+    el.attributeChangedCallback("spec-url", null, "http://x/m2.json");
+    await settle();
+    fetches.length = 0;
+    el.attributeChangedCallback("filter-operations", null, "GET /b");
+    await settle();
+    assert.deepEqual(fetches, ["http://x/m2.json"]);
+  });
+});
+
+describe("<rapi-doc> address updates", () => {
+  // Routers (Vue Router, React Router) keep their data in history.state; rewriting the hash must
+  // not drop it
+  it("replaceHistoryState keeps history.state and the query string", () => {
+    const calls = [];
+    const saved = { history: globalThis.window.history, href: globalThis.window.location.href };
+    globalThis.window.history = {
+      state: { back: "/a", position: 3 },
+      replaceState: (...args) => calls.push(args),
+    };
+    globalThis.window.location.href = "http://localhost/docs?step=book#old";
+    try {
+      const el = new RapiDoc();
+      el.replaceHistoryState("get-/pets");
+      assert.deepEqual(calls, [
+        [{ back: "/a", position: 3 }, "", "http://localhost/docs?step=book#get-/pets"],
+      ]);
+    } finally {
+      globalThis.window.history = saved.history;
+      globalThis.window.location.href = saved.href;
+    }
+  });
 });

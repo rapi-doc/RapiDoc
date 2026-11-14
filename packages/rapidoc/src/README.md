@@ -39,27 +39,53 @@ other member is internal; templates call internal members freely through `this`.
     the live `resolvedSpec`; not bubbling); `nav-active-change` (`detail: { id, elementId,
     operationId? }`; bubbles, composed).
 - `<rapi-doc-mini>` (`[rapidoc-mini.ts:RapiDocMini]`): `loadSpec`, `setApiKey`,
-  `setHttpUserNameAndPassword`, `removeAllSecurityKeys`, `setApiServer`; event `spec-loaded`.
+  `setHttpUserNameAndPassword`, `removeAllSecurityKeys`, `setApiServer`, `showOperation`
+  (operationId or `METHOD /path`: expands it and scrolls it into view; resolves false when the
+  element does not show it); event `spec-loaded`. `spec-url` and `filter-operations` changes
+  queue one load for the end of the event loop (`[rapidoc-mini.ts:RapiDocMini.queueLoad]`), so
+  both set together fetch the new spec once, filtered; a filter change alone reloads the spec
+  loaded last.
 - `<oauth-receiver>` (`[oauth-receiver.ts:OauthReceiver]`): plain `HTMLElement` for the page named
   by the `oauth-receiver` attribute; relays the provider's reply to the opener.
 - `<rapi-flow>` (`[rapi-flow.ts:RapiFlow]`): attributes `arazzo-url`, `spec-url` (replaces the
   first OpenAPI source's URL, resolved against the page), `workflow-id` (defaults to the first
-  workflow), `for` (id of a `<rapi-doc>`: clicking a step calls its `scrollToPath`; without
-  `spec-url`, that `<rapi-doc>`'s processed spec stands in for the first OpenAPI source, read
-  again on each of its `spec-loaded` events), `view` (`expanded`, the default, or `compact`;
+  workflow), `for` (ids of `<rapi-doc>` or `<rapi-doc-mini>` elements, separated by spaces, paired
+  one per OpenAPI source by `[rapi-flow.ts:RapiFlow.pairElements]`: the source an element's
+  `arazzo-source` attribute names, else the source whose URL it shows, else the next free source.
+  Clicking a step calls `showOperation` on a mini, `scrollToPath` on a `<rapi-doc>`. A paired
+  `<rapi-doc>`'s processed spec stands in for its source, read again on each of its `spec-loaded`
+  events (not the first source's when `spec-url` is set). A paired mini gets `filter-operations`
+  (the shown workflow's operations of its source as `METHOD /path`, in step order, `!/**` for
+  none), and its source is loaded by `<rapi-flow>` itself, since the mini's spec is filtered.
+  Runs send each source's requests to its element's selected server (`server-url` replaces the
+  first source's), merge every element's credentials, set the per-operation mock status codes on
+  each element whose `mock-server` is on for the steps of its source only (put back afterwards),
+  and mark a step mocked when its source's element mocks it), `view` (`expanded`, the default, or `compact`;
   the header's Compact / Expanded switch sets it), `show-view-toggle` (`"false"` hides that
   switch), `theme`, `color-scheme`; method `load`; events `flow-loaded` (`detail: { doc,
   problems }`), `step-click` (`detail: { workflowId, stepId, operation, workflowRef }`) and
   `view-change` (`detail: { view }`, fired only by the switch), all bubbling and composed;
-  getter `arazzoDocument` (the parsed document, null until loaded). With `allow-arazzo-url-load="true"` a box above the
+  getter `arazzoDocument` (the parsed document, null until loaded); slots `header` (above the
+  document card) and `footer` (below the run panel), both `display: block` with no spacing of
+  their own. With `update-route="true"` the
+  shown workflow and selected step are kept in the query string (`?workflow=&step=`, never the
+  hash, which `<rapi-doc>` owns) by `history.replaceState(history.state, …)` on a pick or a step
+  click; a load not from the box applies them (`[rapi-flow.ts:RapiFlow.readRoute]`), and a linked
+  step whose element has not loaded yet shows its operation on that element's `spec-loaded`, 150ms
+  later, after `<rapi-doc>` has gone to its own hash. With `allow-arazzo-url-load="true"` a box above the
   diagram loads any Arazzo document by URL; loading one from it resets the workflow and drops a
-  page-set `spec-url`. With the box on, every document load (from the box or `arazzo-url`) has a
-  tied `<rapi-doc>` `loadSpec` the first OpenAPI source unless it already shows that URL, and the
-  first source is then taken only from the `<rapi-doc>` (indexed once it holds that spec, on its
-  `spec-loaded` or right away), so each spec is fetched once; the `<rapi-doc>` can start without a
-  `spec-url`. Without the box the page decides what the `<rapi-doc>` shows. A box load that fails keeps
+  page-set `spec-url`. With the box on, every document load (from the box or `arazzo-url`) has each
+  paired element load its source unless it already shows that URL: a `<rapi-doc>` by `loadSpec`,
+  a mini by `spec-url` once its filter is set. The elements are paired after `flow-loaded` is
+  fired, so a listener can change `for` first (the docs example adds one mini per API), and a
+  `for` change after a load pairs again and fetches only sources no element supplies and not
+  loaded yet. A `<rapi-doc>`'s source is then taken only from it (indexed once it holds that spec,
+  on its `spec-loaded` or right away), so it is fetched once; it can start without a `spec-url`.
+  Without the box the page decides what the elements show. A box load that fails keeps
   the document shown (and so the `<rapi-doc>`, which only follows one that loaded), puts the
   previous `arazzo-url` back, and says why under the box. Without the box, the URL shows as text. The
+  box (or that text) sits in a card above the diagram (part `document`) with the document's API
+  sources below it (part `sources`; the diagram is drawn with `showSources: false`). The
   element does not store the chosen view; a page that wants it remembered listens for
   `view-change`. There is no legend: next-step arrows and gotos on success are green, gotos on
   failure red, retries orange, and every goto or retry line carries a label. Hovering a step, one of its value lines or its rows in the outputs box highlights all of
@@ -79,7 +105,7 @@ other member is internal; templates call internal members freely through `this`.
   shown only when a mock answers: with the tied `<rapi-doc>`'s `mock-server="true"` the codes are
   set on its `mock-server-status-code` / `-strategy` for the run and restored after; with
   `server-is-mock="true"` (a mock server such as `rapidoc mock`) they go out as `Prefer: code=`.
-  Either way the button reads "Run workflow (Mock) →" and log lines say `mocked`. Credentials are the tied `<rapi-doc>`'s
+  Either way the button reads "Run workflow (Mock) →" and the log heading says "(mocked responses)" when every entry was mocked, else each mocked entry says `mocked`. Credentials are the tied `<rapi-doc>`'s
   entered ones (API keys, Basic, Bearer and OAuth tokens); a standalone element shows one
   password field per security scheme of the first source instead (kept in memory only).
   A workflow the runtime cannot run says why instead of a form.
@@ -134,7 +160,8 @@ other member is internal; templates call internal members freely through `this`.
   disconnect). Programmatic scrolls add temporary `scroll` / `scrollend` listeners.
 - `[rapidoc.ts:render]` clones the page `<link>` whose `href` contains `css-file` (passed through
   `CSS.escape`) into the shadow root on each render.
-- `history.replaceState` rewrites the hash on navigation only when `update-route="true"`.
+- `history.replaceState` rewrites the hash on navigation only when `update-route="true"`, passing
+  the current `history.state` on, so a router's data there (Vue Router's position and scroll) stays.
 - `mock-server="true"` makes `utils/mock-interceptor.js` replace `window.fetch` and
   `XMLHttpRequest` methods page-wide; disconnect restores them only when the flag is still `"true"`.
 - `AutoColorSchemeController` observes `<html>`/`<body>` and a `matchMedia` query while
@@ -146,9 +173,10 @@ other member is internal; templates call internal members freely through `this`.
 - `<rapi-flow>` fetches `arazzo-url` and each OpenAPI source description (relative to the Arazzo
   URL); a source that fails to load becomes a warning, not an error. A run sends the workflow's
   requests from the browser with `fetch`, as Try-it does, so the API must allow cross-origin
-  requests. The first OpenAPI source is
-  not fetched while `for` names a `<rapi-doc>` and `spec-url` is unset; `<rapi-flow>` listens to
-  that element's `spec-loaded` until it disconnects.
+  requests. A source paired with a `<rapi-doc>` is not fetched (unless it is the first and
+  `spec-url` is set); `<rapi-flow>` listens to the `spec-loaded` events and `mock-server` attribute
+  of every element `for` names until it disconnects, and sets `filter-operations` and `spec-url`
+  on paired minis.
 - `<oauth-receiver>` clears its URL with `history.replaceState`, posts the reply to
   `window.opener` (when set) with `location.origin` as target, and to
   `BroadcastChannel("rapidoc-oauth")` when that global exists.
