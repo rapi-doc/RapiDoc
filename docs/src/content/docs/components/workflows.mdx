@@ -30,6 +30,18 @@ With a bundler, `import 'rapidoc/flow';` registers the element. It carries its o
 - **Tied** (`for="<rapi-doc id>"`): the element uses that `<rapi-doc>`'s spec, its selected server and the credentials entered in its Authentication section. Clicking a step scrolls the reference to the step's operation. If the `<rapi-doc>` has `mock-server="true"`, runs go to the in-browser mock.
 - **Standalone**: the element loads each OpenAPI source of the Arazzo file itself (`spec-url` replaces the first one's URL) and shows its own credentials fields, one per security scheme of the loaded specs. Values typed there stay in the page.
 
+## API sources
+
+An Arazzo document names the APIs its steps call in `sourceDescriptions`. The diagram lists them at the top of its first box, under **API sources** (name, type, URL), with the workflow's **Inputs** below.
+
+A document can name several sources (Rapid Parcels' `ship-a-parcel` uses `rates`, `shipments` and `tracking`). Then:
+
+- **Loading**: `<rapi-flow>` fetches every `openapi` source, its URL taken relative to the Arazzo file. `arazzo` sources (other Arazzo documents) are listed but not loaded. A source that fails to load is listed under the diagram, and the steps on it show their `operationId` with "(not found)".
+- **Finding a step's operation**: an `operationId` is looked up in the sources in order, and the first that has it wins. When two APIs share an id, qualify it: `$sourceDescriptions.shipments.createShipment`. An `operationPath` (`{$sourceDescriptions.<name>.url}#/paths/...`) names its source.
+- **The tied `<rapi-doc>`** shows one API: the **first** source. `<rapi-flow>` takes that source from it (its processed spec, its selected server, its credentials) and loads the others itself. Clicking a step on another source does not scroll the reference, which does not have that operation. A file loaded from the URL box makes the `<rapi-doc>` load the new file's first source.
+- **Runs**: requests to the first source go to `server-url`, else the server selected in the tied `<rapi-doc>`; requests to the others go to the first server of their own spec. Credentials apply by security scheme id, across sources. The in-browser mock answers only the first source's operations, the ones `<rapi-doc>` knows; steps on other sources go to their real servers. With `server-is-mock="true"`, every request carries `Prefer: code=`, so a mock server that serves all the APIs (`rapidoc mock` serves a portal's APIs side by side) answers them all.
+- **MCP export**: one manifest source per loaded API; a workflow tool's steps call each one at its own server.
+
 ## Attributes
 
 | Attribute | Default | Meaning |
@@ -40,8 +52,11 @@ With a bundler, `import 'rapidoc/flow';` registers the element. It carries its o
 | `for` | | `id` of a `<rapi-doc>` on the page to take the spec, server, credentials and mock from. |
 | `view` | `expanded` | `expanded` shows each step's inputs and actions in its box; `compact` shows only the operation. |
 | `show-view-toggle` | `true` | `false` hides the Compact / Expanded switch. |
+| `allow-arazzo-url-load` | `false` | `true` shows a box above the diagram to load any Arazzo document by URL (the server must allow cross-origin requests). With `for`, the tied `<rapi-doc>` also loads the document's first OpenAPI source. A URL that fails to load leaves the current document and `<rapi-doc>` as they were, with the error under the box. Without the box, the document's URL shows as text (part `url`). |
 | `allow-run` | `true` | `false` hides the run panel: the diagram only. |
 | `server-url` | | Base URL runs send requests to, instead of the server the tied `<rapi-doc>` selected or the spec's first server. |
+| `mcp` | `false` | `true` shows an **Export MCP Server** button: an MCP server with one tool per workflow of the document (each one the runtime can run) and none per operation, calling every API source. |
+| `mcp-server-name` | | The exported server's name; defaults to the Arazzo document's title. |
 | `server-is-mock` | `false` | `true` says that server is a mock that picks its response status from a `Prefer: code=` header (`rapidoc mock`, Prism): the run panel shows **Mock Response Status** and the button reads "Run workflow (Mock)". Not needed when the tied `<rapi-doc>` has `mock-server="true"`. |
 | `theme` | `ember` | One of RapiDoc's theme presets, or a custom accent; same values as on `<rapi-doc>`. |
 | `color-scheme` | `dark` | `dark`, `light`, `system`, or `auto` (follows the page's `data-theme`). |
@@ -115,7 +130,7 @@ A step without `successCriteria` succeeds on a 2xx status; the first matching ac
 
 ## Styling
 
-`theme` and `color-scheme` work as on `<rapi-doc>`, and the element reads the same [CSS custom properties](/docs/theming/overview). Its CSS parts: `header`, `title`, `select`, `description`, `view-toggle`, `diagram`, `run`, `run-inputs`, `run-button`, `run-stop`, `message`, `problems`.
+`theme` and `color-scheme` work as on `<rapi-doc>`, and the element reads the same [CSS custom properties](/docs/theming/overview). Its CSS parts: `mcp-export`, `url`, `url-form`, `url-input`, `url-load`, `url-error`, `header`, `title`, `select`, `description`, `view-toggle`, `diagram`, `run`, `run-inputs`, `run-button`, `run-stop`, `message`, `problems`.
 
 ```css
 rapi-flow::part(diagram) {

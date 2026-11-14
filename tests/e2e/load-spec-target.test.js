@@ -2,7 +2,7 @@ import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { createTestServer, launchTestBrowser, loadHarness } from "../helpers/test-harness.js";
 
-// After loadSpec(), the download / view buttons, the Spec URL box and a match-paths reload follow
+// After loadSpec(), the download / view buttons, the Spec URL box and a filter-operations reload follow
 // the spec loaded last, not the spec-url attribute (#891)
 
 describe("E2E: loadSpec() updates the spec target", () => {
@@ -66,9 +66,9 @@ describe("E2E: loadSpec() updates the spec target", () => {
     assert.notEqual(after.title, before.title);
   });
 
-  it("a match-paths change re-filters the spec loaded last", async () => {
+  it("a filter-operations change re-filters the spec loaded last", async () => {
     await page.evaluate(() =>
-      document.getElementById("thedoc").setAttribute("match-paths", "zzz-no-match"),
+      document.getElementById("thedoc").setAttribute("filter-operations", "zzz-no-match"),
     );
     await page.waitForTimeout(100);
     await waitLoaded();

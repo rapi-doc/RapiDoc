@@ -1,6 +1,6 @@
 import Markdoc from "@markdoc/markdoc";
 import GithubSlugger from "github-slugger";
-import { operationMatchPattern } from "./operation.js";
+import { operationFilter } from "./operation.js";
 import { renderArazzoWorkflow } from "@rapidoc/prerender";
 import { CALLOUT_TYPES } from "../components/callout-types.js";
 
@@ -315,8 +315,7 @@ export const apiOperation = {
             new Markdoc.Tag("rapi-doc-mini", {
               ...(specUrl ? { "spec-url": specUrl } : {}),
               ...(oauthReceiver ? { "oauth-receiver": oauthReceiver } : {}),
-              "match-paths": operationMatchPattern(methodLower, attributes.path),
-              "match-type": "regex",
+              "filter-operations": operationFilter(methodLower, attributes.path),
               // Collapsed: only the method and path show, a click on them opens the operation
               "paths-expanded": attributes.collapsed ? "false" : "true",
               layout: "column",

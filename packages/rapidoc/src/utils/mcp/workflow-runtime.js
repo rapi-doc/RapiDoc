@@ -243,7 +243,15 @@ export async function runWorkflow(runtime, tool, args, hooks = {}) {
   const maxRuns = hooks.maxStepRuns || MAX_STEP_RUNS;
   const { signal } = hooks;
   const stopped = signal && new Promise((resolve) => signal.addEventListener("abort", resolve));
-  const inputs = args || {};
+  // A caller (an AI agent, say) may leave out inputs that have a default: fill those in, as a
+  // form would
+  const inputs = {};
+  for (const [name, schema] of Object.entries(workflow.inputs?.properties || {})) {
+    if (schema && schema.default !== undefined) inputs[name] = schema.default;
+  }
+  for (const [name, value] of Object.entries(args || {})) {
+    if (value !== undefined) inputs[name] = value;
+  }
   const required = (workflow.inputs?.required || []).filter((name) => inputs[name] === undefined);
   if (required.length) return errorResult(`Missing input ${required.join(", ")}`);
 

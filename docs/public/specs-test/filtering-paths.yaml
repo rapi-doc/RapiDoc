@@ -2,21 +2,22 @@ openapi: 3.0.0
 info:
   title: Filtering Endpoints
   description: |
-    Test case to check if the Endpoints are removed using `match-paths` and `remove-endpoints-with-badge-label-as` attributes
+    Test case for the `filter-operations` attribute: space- or comma-separated terms. An operation is
+    shown when it matches any include term (all are, without one) and no `!` term.
 
     ```html
-      <!-- Only loads the paths which has `users` in it -->
-      <rapi-doc spec-url = "..." match-paths = "users" />
+      <!-- Only the operations on paths that start with /public- -->
+      <rapi-doc spec-url = "..." filter-operations = "/public-*" />
 
-      <!-- Only loads the paths that matches `get /users` so `post /users` wont be loaded -->
-      <rapi-doc spec-url = "..." match-paths = "get /users" />
+      <!-- Only GET /internal-path-1, not PUT /internal-path-1 -->
+      <rapi-doc spec-url = "..." filter-operations = "GET /internal-path-1" />
 
-      <!-- loads the paths using regex matches `^get /users/|^put /users/$` (starts with 'get /users' or 'put /users') -->
-      <rapi-doc spec-url = "..." match-paths = "^get /users|^put /users" match-type = "regex"/>
+      <!-- Only the operations with the badge label Core -->
+      <rapi-doc spec-url = "..." filter-operations = "badge:Core" />
 
-      <!-- Removes the paths which has badge lable `internal` or `admin-use-only` -->
-      <rapi-doc spec-url = "..." remove-endpoints-with-badge-label-as = "internal,admin-use-only"/>
-    ```   
+      <!-- Leaves out the operations with the badge label Internal or admin-use-only -->
+      <rapi-doc spec-url = "..." filter-operations = "!badge:Internal !badge:admin-use-only" />
+    ```
 paths:
   /internal-path-1:
     get:

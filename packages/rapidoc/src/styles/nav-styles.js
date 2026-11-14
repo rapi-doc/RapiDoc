@@ -162,6 +162,16 @@ export default css`
       animation: none;
     }
   }
+  /* show-side-nav="floating": the menu button and slide-over menu at every width. These beat the
+     wide-layout rules of layout-styles.js (which dock the sidebar and hide the button) by
+     specificity, so the order of the style sheets does not matter */
+  .body.nav-floating #nav-bar-btn {
+    display: flex;
+  }
+  .body.nav-floating .nav-bar:not(.floating-nav) {
+    width: 0;
+    border-right: 0;
+  }
   @keyframes nav-slide-in {
     from {
       transform: translateX(-12px);

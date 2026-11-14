@@ -16,7 +16,7 @@ Extensions:
       description: Alternative camelCase syntax for x-code-sample. Provides multi-language code snippets for an endpoint.
     - name: x-badges
       description: |
-        Annotates endpoints with short, color-coded badges (e.g., "Internal", "Beta", "v2"). Combine with the <span class="mono yellow">remove-endpoints-with-badge-label-as</span> attribute to filter out restricted or internal APIs from public documentation.
+        Annotates endpoints with short, color-coded badges (e.g., "Internal", "Beta", "v2"). Combine with <span class="mono yellow">filter-operations="!badge:Internal"</span> to filter out restricted or internal APIs from public documentation.
     - name: x-tagGroups
       description: |
         Top-level vendor extension defining a 3-tier navigation hierarchy (compatible with ReDoc / Zudoku). Organizes API tags into higher-level groups in the sidebar navigation, read mode sections, and view mode accordions. Takes an array of group objects, each with <code>name</code>, optional <code>description</code>, and a <code>tags</code> list of tag names.

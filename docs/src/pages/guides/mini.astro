@@ -14,21 +14,31 @@ const basicMiniCode = `<script type="module" src="https://unpkg.com/rapidoc/dist
   paths-expanded="false"
 > </rapi-doc-mini>`;
 
-const matchPathsCode = `<rapi-doc-mini
+const filterOperationsCode = `<rapi-doc-mini
   spec-url="/specs/reqres.yaml"
   color-scheme="dark"
   paths-expanded="false"
-  match-paths="post /users"
+  filter-operations="POST /users"
 > </rapi-doc-mini>`;
 
-const regexMatchCode = `<rapi-doc-mini
+const filterTermsCode = `<!-- A list of operations, shown in this order -->
+<rapi-doc-mini
   spec-url="/specs/reqres.yaml"
-  color-scheme="dark"
   schema-style="table"
-  paths-expanded="false"
-  match-paths="^get /users/{userId}$|^post /users$"
-  match-type="regex"
-> </rapi-doc-mini>`;
+  filter-operations="GET /users/{userId} POST /users"
+> </rapi-doc-mini>
+
+<!-- A glob: every operation under /pet -->
+<rapi-doc-mini spec-url="/specs/petstore.json" filter-operations="/pet/**"> </rapi-doc-mini>
+
+<!-- A tag, without one of its operations -->
+<rapi-doc-mini
+  spec-url="/specs/petstore.json"
+  filter-operations="tag:store !DELETE /store/order/{orderId}"
+> </rapi-doc-mini>
+
+<!-- Everything except operations badged Internal, and deprecated ones -->
+<rapi-doc-mini spec-url="/specs/api.yaml" filter-operations="!badge:Internal !deprecated"> </rapi-doc-mini>`;
 
 const expandedCode = `<rapi-doc-mini
   spec-url="/specs/reqres.yaml"
@@ -36,14 +46,14 @@ const expandedCode = `<rapi-doc-mini
   schema-style="table"
   layout="column"
   paths-expanded="true"
-  match-paths="post /users"
+  filter-operations="POST /users"
 > </rapi-doc-mini>`;
 
 const microservicesCode = `<!-- Service A: Code Highlighting Service -->
 <rapi-doc-mini
   spec-url="/specs/code-highlight.yaml"
   color-scheme="dark"
-  match-paths="get /code"
+  filter-operations="GET /code"
   paths-expanded="false"
 > </rapi-doc-mini>
 
@@ -51,7 +61,7 @@ const microservicesCode = `<!-- Service A: Code Highlighting Service -->
 <rapi-doc-mini
   spec-url="/specs/petstore.json"
   color-scheme="dark"
-  match-paths="/store"
+  filter-operations="/store/**"
   paths-expanded="false"
 > </rapi-doc-mini>`;
 
@@ -76,7 +86,7 @@ const customStylingCode = `<!-- Custom width, golden border, table schema, and p
   style="max-width: 650px; width: 100%; border: 1px solid #f87171; border-radius: 6px; padding: 8px; margin: 16px 0;"
   spec-url="/specs/reqres.yaml"
   color-scheme="dark"
-  match-paths="post /users"
+  filter-operations="POST /users"
   paths-expanded="false"
 > </rapi-doc-mini>`;
 
@@ -88,16 +98,10 @@ const attributes = [
     desc: 'URL of the OpenAPI specification file (JSON or YAML) to load and render.',
   },
   {
-    name: 'match-paths',
+    name: 'filter-operations',
     type: 'String',
     default: '(empty)',
-    desc: 'Target path and HTTP method filter to selectively render specific endpoints (e.g. "post /users" or "/store").',
-  },
-  {
-    name: 'match-type',
-    type: 'includes | regex',
-    default: 'includes',
-    desc: 'Matching strategy for match-paths. Set to "regex" for regular expression matching.',
+    desc: 'Which operations to show: space- or comma-separated terms. An operationId, "GET /users", a path, a glob ("/store/**"), "tag:store", "badge:Beta" or "deprecated"; "!" before a term leaves it out. Empty shows every operation.',
   },
   {
     name: 'paths-expanded',
@@ -239,7 +243,7 @@ const attributes = [
         </div>
         <div class="rd-stat-card">
           <span class="rd-stat-value">Granular</span>
-          <span class="rd-stat-label">Path & RegEx Filtering</span>
+          <span class="rd-stat-label">Operation Filtering</span>
         </div>
         <div class="rd-stat-card">
           <span class="rd-stat-value">Live TRY</span>
@@ -375,7 +379,7 @@ const attributes = [
             style="max-width: 650px; width: 100%; border: 1px solid #f87171; border-radius: 6px; padding: 8px; margin: 0 0 24px 0;"
             spec-url="/specs/reqres.yaml"
             color-scheme="dark"
-            match-paths="post /users"
+            filter-operations="POST /users"
             paths-expanded="false"
           >
           </rapi-doc-mini>
@@ -387,16 +391,16 @@ const attributes = [
     <section class="rd-section" id="path-filtering">
       <div class="rd-section-header">
         <div class="rd-section-badge">Interactive Demo 3</div>
-        <h2 class="rd-section-title">Selective Endpoint Filtering with <code>match-paths</code></h2>
+        <h2 class="rd-section-title">Selective Endpoint Filtering with <code>filter-operations</code></h2>
       </div>
 
       <p class="rd-section-desc">
-        Instead of rendering an entire specification, use <code>match-paths</code> to extract and display only the exact endpoint needed for your
-        narrative (e.g. <code>match-paths="post /users"</code>):
+        Instead of rendering an entire specification, use <code>filter-operations</code> to display only the exact endpoint needed for your
+        narrative (e.g. <code>filter-operations="POST /users"</code>). A method and path matches that path exactly, not the paths below it:
       </p>
 
       <div class="rd-single-col-demo">
-        <CodeBlock code={matchPathsCode} lang="html" filename="filter-endpoint.html" />
+        <CodeBlock code={filterOperationsCode} lang="html" filename="filter-endpoint.html" />
 
         <div class="rd-live-wrapper">
           <div class="rd-live-indicator">
@@ -409,33 +413,34 @@ const attributes = [
             spec-url="/specs/reqres.yaml"
             color-scheme="dark"
             paths-expanded="false"
-            match-paths="post /users"
+            filter-operations="POST /users"
           >
           </rapi-doc-mini>
         </div>
       </div>
     </section>
 
-    <!-- ================= DEMO 4: REGEX FILTERING ================= -->
-    <section class="rd-section" id="regex-filtering">
+    <!-- ================= DEMO 4: FILTER TERMS ================= -->
+    <section class="rd-section" id="filter-terms">
       <div class="rd-section-header">
         <div class="rd-section-badge">Interactive Demo 4</div>
-        <h2 class="rd-section-title">Multi-Endpoint Selection with RegEx</h2>
+        <h2 class="rd-section-title">Several Operations, Globs, Tags and Exclusions</h2>
       </div>
 
       <p class="rd-section-desc">
-        Set <code>match-type="regex"</code> to craft powerful regular expression filters. Below, we match both <code
-          >GET /users/{'{userId}'}</code
-        > and <code>POST /users</code> simultaneously while rendering schemas as clean data tables:
+        <code>filter-operations</code> takes several terms, separated by spaces or commas. An operation is shown when it matches any term and
+        no term that starts with <code>!</code>. A term is an operationId, a method and path, a path, a glob (<code>*</code> is one path
+        segment, <code>**</code> any number), <code>tag:name</code>, <code>badge:label</code> or <code>deprecated</code>. Operations keep the
+        order of the terms they match:
       </p>
 
       <div class="rd-single-col-demo">
-        <CodeBlock code={regexMatchCode} lang="html" filename="regex-filter.html" />
+        <CodeBlock code={filterTermsCode} lang="html" filename="filter-terms.html" />
 
         <div class="rd-live-wrapper">
           <div class="rd-live-indicator">
             <span class="rd-live-dot"></span>
-            <span>RegEx Match: GET /users/{'{userId}'} &amp; POST /users</span>
+            <span>A list: GET /users/{'{userId}'}, then POST /users</span>
           </div>
 
           <rapi-doc-mini
@@ -444,8 +449,35 @@ const attributes = [
             color-scheme="dark"
             schema-style="table"
             paths-expanded="false"
-            match-paths={`^get /users/{userId}$|^post /users$`}
-            match-type="regex"
+            filter-operations="GET /users/{userId} POST /users"
+          >
+          </rapi-doc-mini>
+
+          <div class="rd-live-indicator" style="margin-top: 24px;">
+            <span class="rd-live-dot"></span>
+            <span>A glob: /pet/**</span>
+          </div>
+
+          <rapi-doc-mini
+            class="rd-mini-element"
+            spec-url="/specs/petstore.json"
+            color-scheme="dark"
+            paths-expanded="false"
+            filter-operations="/pet/**"
+          >
+          </rapi-doc-mini>
+
+          <div class="rd-live-indicator" style="margin-top: 24px;">
+            <span class="rd-live-dot"></span>
+            <span>A tag and an exclusion: tag:store !DELETE /store/order/{'{orderId}'}</span>
+          </div>
+
+          <rapi-doc-mini
+            class="rd-mini-element"
+            spec-url="/specs/petstore.json"
+            color-scheme="dark"
+            paths-expanded="false"
+            filter-operations="tag:store !DELETE /store/order/{orderId}"
           >
           </rapi-doc-mini>
         </div>
@@ -481,7 +513,7 @@ const attributes = [
             sort-endpoints-by="method"
             layout="column"
             paths-expanded="true"
-            match-paths="post /users"
+            filter-operations="POST /users"
           >
           </rapi-doc-mini>
         </div>
@@ -515,7 +547,7 @@ const attributes = [
             color-scheme="dark"
             schema-style="table"
             layout="column"
-            match-paths="get /code"
+            filter-operations="GET /code"
             paths-expanded="false"
           >
           </rapi-doc-mini>
@@ -531,7 +563,7 @@ const attributes = [
             color-scheme="dark"
             schema-style="table"
             layout="column"
-            match-paths="/store"
+            filter-operations="/store/**"
             paths-expanded="false"
           >
           </rapi-doc-mini>

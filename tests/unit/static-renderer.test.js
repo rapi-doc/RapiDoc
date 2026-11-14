@@ -466,6 +466,25 @@ describe("Static Document Pre-Rendering (renderRapiDoc)", () => {
     );
   });
 
+  it('keeps the navbar markup with showSideNav "floating" and marks the body for it', async () => {
+    const htmlOutput = await renderRapiDoc({
+      spec: sampleSpec,
+      renderStyle: "focused",
+      showSideNav: "floating",
+    });
+    const attrs = htmlOutput.match(/<rapi-doc\s+([^>]+)>/)[1];
+    assert.ok(
+      attrs.includes('show-side-nav="floating"'),
+      'Must serialize show-side-nav="floating"',
+    );
+    assert.ok(htmlOutput.includes('id="nav-bar-btn"'), "The menu button is rendered");
+    assert.ok(htmlOutput.includes('class="nav-bar '), "The navbar is rendered");
+    assert.ok(
+      /id="the-main-body" class="body nav-floating /.test(htmlOutput),
+      "The body is marked",
+    );
+  });
+
   it("should support both camelCase and kebab-case options and forward custom RapiDoc attributes", async () => {
     const specWithComponents = {
       ...sampleSpec,
@@ -532,7 +551,7 @@ describe("Static Document Pre-Rendering (renderRapiDoc)", () => {
       specUrl: remoteUrl,
       sortEndpointsBy: "method",
       serverUrl: "https://staging.cosmocargo.dev",
-      matchPaths: "/v1/shipments",
+      filterOperations: "/v1/shipments/**",
     });
 
     const openingTagMatch = htmlOutput.match(/<rapi-doc\s+([^>]+)>/);
@@ -545,7 +564,10 @@ describe("Static Document Pre-Rendering (renderRapiDoc)", () => {
       attrs.includes('server-url="https://staging.cosmocargo.dev"'),
       "Must serialize server-url",
     );
-    assert.ok(attrs.includes('match-paths="/v1/shipments"'), "Must serialize match-paths");
+    assert.ok(
+      attrs.includes('filter-operations="/v1/shipments/**"'),
+      "Must serialize filter-operations",
+    );
   });
 });
 

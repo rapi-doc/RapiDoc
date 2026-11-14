@@ -21,7 +21,8 @@ export interface RenderRapiDocOptions {
   defaultSchemaTab?: "example" | "schema";
   outputMode?: "dsd" | "html" | "light";
   includeStyles?: boolean;
-  matchPaths?: string;
+  /** Which operations to render, as `filter-operations` of `<rapi-doc>`: operationIds, `GET /path`, path globs, `tag:`, `badge:`, `deprecated`, `!` to leave out. */
+  filterOperations?: string;
   pageDirection?: "ltr" | "rtl";
   /** Keep tags that no operation uses when they have a description, as `show-unused-tags` of `<rapi-doc>`. */
   showUnusedTags?: boolean | "true" | "false";
@@ -186,6 +187,13 @@ export function renderArazzoWorkflow(
     view?: "expanded" | "compact";
     idPrefix?: string;
     interactive?: boolean;
+    /** Classes to add to step boxes, by step id. */
+    stepClasses?: Record<string, string[]>;
+    /**
+     * How far the diagram may shrink to fit a narrower container, 0.85 for 85%; below that the
+     * container scrolls (give it overflow-x: auto). Default 0: shrinks to any size.
+     */
+    minScale?: number;
   },
 ): {
   svg: string;

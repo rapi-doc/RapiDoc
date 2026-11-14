@@ -61,6 +61,15 @@ const paramsConverter = {
  * @fires spec-loaded - Dispatched after the OpenAPI specification has been fully fetched, parsed,
  * resolved, and rendered into the DOM. Provides the resolved spec object in <span class="mono
  * yellow">e.detail</span>.
+ *
+ * @deprecatedAttr match-paths | Spec & Content | | | <span class="red bold">[REMOVED]</span> Use
+ * <span class="mono yellow">filter-operations</span>: a path glob (<span class="mono
+ * yellow">/pet/**</span>), a method and path, or operationIds.
+ * @deprecatedAttr match-type | Spec & Content | includes, regex | includes | <span class="red
+ * bold">[REMOVED]</span> <span class="mono yellow">filter-operations</span> matches exact terms and
+ * path globs, not substrings or regular expressions.
+ * @deprecatedAttr remove-endpoints-with-badge-label-as | Spec & Content | | | <span class="red
+ * bold">[REMOVED]</span> Use <span class="mono yellow">filter-operations="!badge:Beta"</span>.
  */
 @customElement("rapi-doc-mini")
 export default class RapiDocMini extends LitElement {
@@ -343,28 +352,22 @@ export default class RapiDocMini extends LitElement {
   fetchCredentials: "" | "omit" | "same-origin" | "include" = "";
 
   /**
-   * Filters and renders only endpoints matching a specific substring or regular expression,
-   * enabling audience segmentation (e.g., showing only public endpoints). The matching strategy is
-   * configured via <span class="mono yellow">match-type</span>.
+   * Which operations to show: a space- or comma-separated list of terms. An operation is shown when
+   * it matches any include term (every one is, without one) and no <span class="mono
+   * yellow">!</span> term. A term is an operationId (<span class="mono yellow">getPetById</span>), a
+   * method and path (<span class="mono yellow">GET /pet/{petId}</span>), a path for all its methods,
+   * a path glob (<span class="mono yellow">/pet/**</span>; <span class="mono yellow">*</span> is one
+   * segment, <span class="mono yellow">**</span> any number), <span class="mono
+   * yellow">tag:store</span>, <span class="mono yellow">badge:Beta</span> (an x-badges label) or
+   * <span class="mono yellow">deprecated</span>; <span class="mono yellow">!</span> before a term
+   * leaves out what it matches (<span class="mono yellow">!badge:Internal</span>). Shown operations
+   * keep the order of the first term they match, so a list of operationIds shows them in that
+   * order (unless sort-endpoints-by is set).
+   * @summary Show only some operations
    * @group Spec & Content
    */
-  @property({ type: String, attribute: "match-paths" })
-  matchPaths = "";
-  /**
-   * Defines whether match-paths filters by simple substring inclusion or regular expression pattern
-   * matching.
-   * @group Spec & Content
-   */
-  @property({ type: String, attribute: "match-type" })
-  matchType: "includes" | "regex" = "includes";
-  /**
-   * Comma-separated badge labels to exclude from the rendered documentation. Works in tandem with
-   * the <span class="mono yellow">x-badges</span> vendor extension to filter out internal, beta, or
-   * deprecated endpoints from customer-facing views.
-   * @group Spec & Content
-   */
-  @property({ type: String, attribute: "remove-endpoints-with-badge-label-as" })
-  removeEndpointsWithBadgeLabelAs = "";
+  @property({ type: String, attribute: "filter-operations" })
+  filterOperations = "";
 
   /** @internal */
   @property({ type: Boolean }) loading = false;
@@ -540,16 +543,6 @@ export default class RapiDocMini extends LitElement {
       this.sortEndpointsBy = "path";
     }
 
-    if (!this.matchType || !"includes regex".includes(this.matchType)) {
-      this.matchType = "includes";
-    }
-    if (!this.matchPaths) {
-      this.matchPaths = "";
-    }
-    if (!this.removeEndpointsWithBadgeLabelAs) {
-      this.removeEndpointsWithBadgeLabelAs = "";
-    }
-
     if (
       !this.allowSchemaDescriptionExpandToggle ||
       !"true, false,".includes(`${this.allowSchemaDescriptionExpandToggle},`)
@@ -653,11 +646,7 @@ export default class RapiDocMini extends LitElement {
         }, 0);
       }
     }
-    if (
-      name === "match-paths" ||
-      name === "match-type" ||
-      name === "remove-endpoints-with-badge-label-as"
-    ) {
+    if (name === "filter-operations") {
       if (oldVal !== newVal) {
         window.setTimeout(async () => {
           await this.loadSpec(this._lastLoadedSpec || this.specUrl);
@@ -737,7 +726,7 @@ export default class RapiDocMini extends LitElement {
     if (!specUrl) {
       return;
     }
-    // The spec (URL or object) of the latest load: a match-paths change re-filters this one
+    // The spec (URL or object) of the latest load: a filter-operations change re-filters this one
     this._lastLoadedSpec = specUrl;
     // Each load gets a token; a load whose token is no longer current never applies its result
     const token = ++this._specLoadSeq;
@@ -761,9 +750,7 @@ export default class RapiDocMini extends LitElement {
         this.getAttribute("api-key-location"),
         this.getAttribute("api-key-value"),
         this.getAttribute("server-url"),
-        this.matchPaths,
-        this.matchType,
-        this.removeEndpointsWithBadgeLabelAs,
+        this.filterOperations,
       );
       if (token !== this._specLoadSeq) {
         return; // a newer load started while this one was parsing

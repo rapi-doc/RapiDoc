@@ -53,7 +53,9 @@ package) stays out of it.
 - `buildFlowGraph(doc, workflowId?, { sources })` [graph.js]: the graph the SVG draws; null when
   the workflow does not exist.
 - `renderFlowDiagram(graph, { view, idPrefix, interactive, stepClasses }) -> { svg, legend }` [svg.js]:
-  `stepClasses` adds classes to step boxes by step id (`<rapi-flow>` marks the selected step and
+  `minScale` (0.85 for 85%) sets the SVG's `min-width`, so with the flow CSS's `max-width: 100%`
+  it shrinks to fit a narrower container only that far and the container scrolls past it
+  (`<rapi-flow>` uses 0.85); `stepClasses` adds classes to step boxes by step id (`<rapi-flow>` marks the selected step and
   the running one, `rf-selected` / `rf-running`, this way);
   `legend` names the kinds of lines drawn (`seq`, `success`, `failure`, `retry`). Neither
   `<rapi-flow>` nor the portal shows a legend: the colors (next step and goto on success green, goto
@@ -80,6 +82,10 @@ package) stays out of it.
   whenever a `$steps.<id>.outputs.<name>` expression appears in the later step's `parameters` or
   `requestBody` (or a workflow output), for callers. The diagram draws none: each value line in a
   step box or the outputs box names the step it comes from (`← from <step>.<output>`).
+- **API sources.** The graph's `sources` are the document's `sourceDescriptions` as written
+  (`{ name, type, url }`, type defaulting to `openapi`). The first box lists them under "API
+  sources" (`rf-src-type`, `rf-src-url`), with the inputs below a rule under an "Inputs" heading;
+  without sources the box is the inputs under its own "Inputs" title.
 - **Step outputs.** Each step's `usedOutputs` are its outputs that a later step or the workflow
   reads. Expanded boxes end with an Outputs section listing them, the source shortened
   (`$response.body#/status` reads `response body /status`, the full expression a tooltip), and

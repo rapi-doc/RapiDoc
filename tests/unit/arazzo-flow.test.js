@@ -28,7 +28,8 @@ const specsDir = path.resolve(
 );
 const arazzoText = fs.readFileSync(path.join(specsDir, "petstore.arazzo.yaml"), "utf8");
 const petstoreText = fs.readFileSync(path.join(specsDir, "petstore.yaml"), "utf8");
-const orderText = fs.readFileSync(path.join(specsDir, "petstore-order.arazzo.yaml"), "utf8");
+// The authenticated order workflow: workflow-level failure actions, required and enum inputs
+const ORDER = "authenticateAndOrderPet";
 // The outputs box of a rendered diagram
 const outputsBox = (svg) => svg.slice(svg.indexOf('class="rf-node rf-io rf-outputs"'));
 
@@ -318,8 +319,8 @@ describe("arazzo: flow graph", () => {
   });
 
   it("describes inputs, step parameters, criteria and outputs for the docs", () => {
-    const order = parseDocument(orderText);
-    const graph = buildFlowGraph(order);
+    const order = parseDocument(arazzoText);
+    const graph = buildFlowGraph(order, ORDER);
     assert.deepEqual(
       graph.inputDetails.map((i) => [i.name, i.type, i.required, i.default]),
       [
@@ -392,7 +393,7 @@ describe("arazzo: SVG rendering", () => {
       sources: { petstore: petstoreText },
     });
     assert.deepEqual(problems, []);
-    assert.deepEqual(workflowIds, ["adoptPet", "orderOrReserve", "registerUser"]);
+    assert.deepEqual(workflowIds, ["adoptPet", "orderOrReserve", "registerUser", ORDER]);
     assert.ok(svg.startsWith("<svg"));
     for (const id of ["findAvailable", "checkPet", "placeOrder", "confirmOrder"]) {
       assert.ok(svg.includes(`data-step-id="${id}"`), id);
@@ -427,9 +428,10 @@ describe("arazzo: SVG rendering", () => {
   });
 
   it("lists each step's values, and draws no value lines (compact)", () => {
-    const { svg, graph, legend } = renderArazzoWorkflow(orderText, {
+    const { svg, graph, legend } = renderArazzoWorkflow(arazzoText, {
+      workflowId: ORDER,
       view: "compact",
-      sources: { petstoreAPI: petstoreText },
+      sources: { petstore: petstoreText },
     });
     assert.ok(svg.includes(">required</tspan>"));
     assert.ok(!svg.includes(">From step</text>"));
@@ -458,8 +460,9 @@ describe("arazzo: SVG rendering", () => {
   });
 
   it("lists step bindings, actions and typed inputs in the expanded view", () => {
-    const { svg, graph, legend } = renderArazzoWorkflow(orderText, {
-      sources: { petstoreAPI: petstoreText },
+    const { svg, graph, legend } = renderArazzoWorkflow(arazzoText, {
+      workflowId: ORDER,
+      sources: { petstore: petstoreText },
     });
     assert.ok(svg.includes('class="rf-svg rf-expanded"'));
     const place = graph.steps.find((s) => s.stepId === "placeOrder");
@@ -581,7 +584,7 @@ describe("arazzo: SVG rendering", () => {
       8,
     );
     // the compact view draws the inherited retry loops too, one per step that inherits it
-    const compact = renderArazzoWorkflow(orderText, { view: "compact" }).svg;
+    const compact = renderArazzoWorkflow(arazzoText, { workflowId: ORDER, view: "compact" }).svg;
     assert.equal(
       (compact.match(/<path class="rf-goto rf-retry"/g) || []).length,
       (svg.match(/<path class="rf-goto rf-retry"/g) || []).length,
@@ -590,7 +593,7 @@ describe("arazzo: SVG rendering", () => {
     assert.deepEqual(graph.warnings, [
       {
         level: "warning",
-        path: "workflows[0].steps[1].onFailure",
+        path: "workflows[3].steps[1].onFailure",
         message:
           "findAvailablePets: the workflow's orderFailed and retryOnServiceUnavailable never run, because noPetsAvailable has no criteria and always matches first",
       },
@@ -607,7 +610,7 @@ describe("arazzo: SVG rendering", () => {
     assert.ok(svg.includes('<tspan class="rf-step-name" x="'));
     assert.ok(svg.includes('data-from-step="placeOrder" d="M'));
     // with interactive, step names in the outputs box and value lines link to the step
-    const live = renderArazzoWorkflow(orderText, { interactive: true }).svg;
+    const live = renderArazzoWorkflow(arazzoText, { workflowId: ORDER, interactive: true }).svg;
     // output rows are focusable links; value lines in step boxes are not
     assert.ok(
       /<text class="rf-row rf-jump" y="[\d.]+" data-from-step="loginUser" tabindex="0" role="link" aria-label="Go to step loginUser">/.test(
@@ -750,8 +753,14 @@ describe("arazzo: SVG rendering", () => {
     assert.ok(svg.includes('<rect class="rf-end-pill rf-success"'));
     assert.ok(svg.includes('<tspan class="rf-end rf-success" x="'));
     // a step with no failure action shows Arazzo's default, an outlined END pill: the workflow
-    // ends; placeOrder has its own failure action, so only the other four steps get one
-    assert.equal((svg.match(/<rect class="rf-end-pill rf-failure rf-default"/g) || []).length, 4);
+    // ends; placeOrder and findPending have their own failure actions, so the other three get one
+    assert.equal((svg.match(/<rect class="rf-end-pill rf-failure rf-default"/g) || []).length, 3);
+    // findPending ends on its own when no pet is pending (noPending), a filled END
+    const pending = svg.slice(
+      svg.indexOf('data-step-id="findPending"'),
+      svg.indexOf('data-step-id="markWanted"'),
+    );
+    assert.ok(pending.includes(">(noPending)</tspan>") && !pending.includes("rf-default"));
     const mark = svg.slice(svg.indexOf('data-step-id="markWanted"'));
     assert.ok(
       mark.includes(
@@ -768,6 +777,51 @@ describe("arazzo: SVG rendering", () => {
       view: "compact",
     });
     assert.ok(!compact.svg.includes("rf-default"));
+  });
+
+  it("lists the API sources above the inputs in the first box", () => {
+    const { svg, graph } = renderArazzoWorkflow(arazzoText, { workflowId: ORDER });
+    assert.deepEqual(graph.sources, [
+      { name: "petstore", type: "openapi", url: "./petstore.yaml" },
+    ]);
+    const box = svg.slice(
+      svg.indexOf('class="rf-node rf-io rf-inputs"'),
+      svg.indexOf("</g>", svg.indexOf('class="rf-node rf-io rf-inputs"')),
+    );
+    assert.ok(box.includes('class="rf-io-title"') && box.includes(">API sources</text>"));
+    assert.ok(box.includes('<tspan class="rf-src-type" x="'));
+    assert.ok(
+      box.includes('>openapi</tspan><tspan class="rf-src-url" dx="8">./petstore.yaml</tspan>'),
+    );
+    // the inputs follow under a heading of their own, below a rule
+    assert.ok(
+      /<path class="rf-sep"[^>]*\/><text class="rf-row" y="[\d.]+"><tspan class="rf-io-title" x="[\d.]+">Inputs<\/tspan>/.test(
+        box,
+      ),
+    );
+    assert.ok(box.indexOf(">username</tspan>") > box.indexOf(">Inputs</tspan>"));
+    // a document without sources keeps the plain Inputs box
+    const plain = renderArazzoWorkflow({
+      arazzo: "1.0.1",
+      workflows: [
+        {
+          workflowId: "w",
+          inputs: { type: "object", properties: { a: { type: "string" } } },
+          steps: [{ stepId: "s", operationId: "x" }],
+        },
+      ],
+    }).svg;
+    assert.ok(plain.includes(">Inputs</text>") && !plain.includes("API sources"));
+  });
+
+  it("lets the diagram shrink only down to minScale, then scroll", () => {
+    const plain = renderArazzoWorkflow(arazzoText).svg;
+    assert.ok(!plain.slice(0, plain.indexOf(">")).includes("style="));
+    const svg = renderArazzoWorkflow(arazzoText, { minScale: 0.85 }).svg;
+    const tag = svg.slice(0, svg.indexOf(">"));
+    const width = Number(tag.match(/ width="([\d.]+)"/)[1]);
+    const min = Number(tag.match(/style="min-width:([\d.]+)px"/)[1]);
+    assert.ok(Math.abs(min - width * 0.85) < 0.01);
   });
 
   it("marks steps whose operation is missing only when sources were loaded", () => {

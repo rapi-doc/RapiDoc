@@ -173,9 +173,9 @@ advanced:
   - filtering-paths:
       title: Dynamic Path Matching & Endpoint Filtering
       validates:
-        - match-paths regex and glob filtering
-        - match-type inclusion/exclusion rules
-        - remove-endpoints-with-badge-label-as tagging filters
+        - "filter-operations terms: operationId, method and path, path, glob (/pet/*, /pet/**), tag:, badge:, deprecated"
+        - "! terms exclude operations (e.g. !badge:Internal), on top of any include terms"
+        - Changing filter-operations at runtime re-filters the rendered operations
   - collapsable:
       title: Collapsible Tag Groups & Programmatic Navigation (scrollToPath)
       description: Validates Collapsed Tags and scrollToPath() Method in RapiDoc

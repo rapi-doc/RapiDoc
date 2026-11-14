@@ -248,6 +248,10 @@ export function buildFlowGraph(doc, workflowId, options = {}) {
     description: workflow.description || "",
     inputs: inputDetails.map((i) => i.name),
     inputDetails,
+    // The document's API sources (sourceDescriptions), as written: name, type and URL
+    sources: (Array.isArray(doc?.sourceDescriptions) ? doc.sourceDescriptions : [])
+      .filter((s) => s && typeof s.name === "string")
+      .map((s) => ({ name: s.name, type: s.type || "openapi", url: s.url || "" })),
     workflowActions: [...workflowSuccess, ...workflowFailure],
     operationsKnown: Boolean(options.sources?.size),
     outputs,

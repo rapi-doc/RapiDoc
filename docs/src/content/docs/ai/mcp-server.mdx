@@ -197,7 +197,9 @@ Credentials are read from environment variables named after the security schemes
 
 ### Workflows as tools
 
-When the page also has a [`<rapi-flow>`](/docs/components/workflows/) element tied to the `<rapi-doc>` (or you pass `--arazzo` to `rapidoc mcp`), the export adds one tool per Arazzo workflow. The manifest's `workflows` holds each workflow's steps with their operations resolved, and the runtime runs them: inputs become the tool's arguments, every step's parameters and body are filled from `$inputs` and earlier steps' outputs, success criteria are checked (a step without criteria succeeds on a 2xx response), `onSuccess` / `onFailure` actions (`end`, `goto`, `retry`) are followed, and the workflow's `outputs` are the result. The same runtime powers the **Run** button of `<rapi-flow>`, which runs a workflow in the browser with the credentials entered in the tied `<rapi-doc>` and lights up each step. A workflow that uses something the runtime does not run yet (a step that calls another workflow, `regex` / `jsonpath` / `xpath` criteria) is left out, and `generateMcpServer().problems` says why.
+When the page also has a [`<rapi-flow>`](/docs/components/workflows/) element tied to the `<rapi-doc>` (or you pass `--arazzo` to `rapidoc mcp`), the export adds one tool per Arazzo workflow. The manifest's `workflows` holds each workflow's steps with their operations resolved, and the runtime runs them: inputs become the tool's arguments (one left out gets its `default` from the workflow's `inputs` schema), every step's parameters and body are filled from `$inputs` and earlier steps' outputs, success criteria are checked (a step without criteria succeeds on a 2xx response), `onSuccess` / `onFailure` actions (`end`, `goto`, `retry`) are followed, and the workflow's `outputs` are the result. The same runtime powers the **Run** button of `<rapi-flow>`, which runs a workflow in the browser with the credentials entered in the tied `<rapi-doc>` and lights up each step. A workflow that uses something the runtime does not run yet (a step that calls another workflow, `regex` / `jsonpath` / `xpath` criteria) is left out, and `generateMcpServer().problems` says why.
+
+For a server with only the workflow tools, and no tool per operation, export from `<rapi-flow>` itself: with `mcp="true"` it shows its own **Export MCP Server** button (see [Workflows](/docs/components/workflows/)). Its steps call every API source of the Arazzo document, where `<rapi-doc>` knows one. A short list of task-sized tools is often easier for a model to use, and cheaper in tokens. From `<rapi-doc>`'s code, `downloadMcpServer({ includeOperations: false })` builds the same for its one API (`<server-name>-workflows-mcp.zip`).
 
 ```javascript
 import { buildMcpManifest, createMcpRuntime, parseArazzo } from '@rapidoc/mcp';
@@ -229,7 +231,7 @@ Set the `mcp` attribute:
 
 ### From JavaScript
 
-You can build the manifest, trigger the download, or check the token budget from code. Every method accepts an `options` object with `serverName`, `includeInternal` and `includeDeprecated`:
+You can build the manifest, trigger the download, or check the token budget from code. Every method accepts an `options` object with `serverName`, `includeInternal`, `includeDeprecated` and `includeOperations` (`false` keeps only the workflow tools):
 
 ```javascript
 const doc = document.querySelector('rapi-doc');

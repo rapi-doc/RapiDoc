@@ -2,11 +2,9 @@
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
 
 const specUrl = '/specs/petstore.yaml';
-// Sample Arazzo files; `?arazzo=<key>` picks one
-const arazzoFiles = [
-  { key: 'petstore', url: '/specs/petstore.arazzo.yaml', label: 'Petstore workflows (3)' },
-  { key: 'petstore-order', url: '/specs/petstore-order.arazzo.yaml', label: 'Petstore order workflow' },
-];
+// The sample Arazzo file (four Petstore workflows); `?arazzo=<url>` loads any other, and the old
+// `?arazzo=petstore-order` opens its workflow, now in the same file
+const sampleUrl = '/specs/petstore.arazzo.yaml';
 ---
 
 <ExampleLayout
@@ -16,30 +14,53 @@ const arazzoFiles = [
   <script>
     import 'rapidoc/flow';
 
-    const flow = document.querySelector('rapi-flow');
-    const picker = document.querySelector<HTMLSelectElement>('#arazzo-file');
-    const show = (key: string) => {
-      const option = [...picker.options].find((o) => o.dataset.key === key) || picker.options[0];
-      picker.value = option.value;
-      flow.removeAttribute('workflow-id');
-      flow.setAttribute('arazzo-url', option.value);
+    const flow = document.querySelector('rapi-flow') as HTMLElement & { arazzoUrl: string };
+    const sample = flow.dataset.sample;
+    // ?arazzo= is any URL; without it, or with an old sample key, the sample file
+    const param = new URLSearchParams(location.search).get('arazzo') || '';
+    const isKey = param === '' || param === 'petstore' || param === 'petstore-order';
+    if (param === 'petstore-order') flow.setAttribute('workflow-id', 'authenticateAndOrderPet');
+    flow.setAttribute('arazzo-url', isKey ? sample : param);
+    // The address keeps what is shown: ?arazzo= and, for the real server, ?server=real
+    const setParam = (name: string, value: string | null) => {
+      const params = new URLSearchParams(location.search);
+      if (value === null) params.delete(name);
+      else params.set(name, value);
+      history.replaceState(null, '', `?${params}`);
     };
-    show(new URLSearchParams(location.search).get('arazzo') || '');
-    picker.addEventListener('change', () => {
-      const key = picker.selectedOptions[0].dataset.key;
-      history.replaceState(null, '', `?arazzo=${key}`);
-      show(key);
+    // Whatever was loaded (a sample, or a URL typed into the element's box) goes into the address
+    flow.addEventListener('flow-loaded', () => {
+      setParam('arazzo', flow.arazzoUrl === sample ? null : flow.arazzoUrl);
     });
+
+    // Mock or real server: the in-browser mock of <rapi-doc>, or the public Petstore. <rapi-flow>
+    // follows the <rapi-doc>'s mock-server attribute (its button label, Mock Response Status)
+    const doc = document.querySelector('rapi-doc');
+    const serverButtons = [...document.querySelectorAll<HTMLButtonElement>('.server-switch button')];
+    const note = document.querySelector<HTMLElement>('.server-note');
+    const useServer = (server: 'mock' | 'real') => {
+      doc.setAttribute('mock-server', server === 'mock' ? 'true' : 'false');
+      for (const b of serverButtons) b.setAttribute('aria-pressed', String(b.dataset.server === server));
+      note.hidden = server === 'mock';
+      setParam('server', server === 'real' ? 'real' : null);
+    };
+    useServer(new URLSearchParams(location.search).get('server') === 'real' ? 'real' : 'mock');
+    for (const b of serverButtons) b.addEventListener('click', () => useServer(b.dataset.server as 'mock' | 'real'));
   </script>
   <div class="flow-example">
     <div class="flow-pane">
-      <label class="file-picker">
-        Arazzo file
-        <select id="arazzo-file">
-          {arazzoFiles.map((f) => <option value={f.url} data-key={f.key}>{f.label}</option>)}
-        </select>
-      </label>
-      <rapi-flow for="thedoc"></rapi-flow>
+      <div class="flow-pane-bar">
+        <span class="flow-pane-label">Server</span>
+        <div class="server-switch" role="group" aria-label="Server">
+          <button type="button" data-server="mock" aria-pressed="true">Mock</button>
+          <button type="button" data-server="real" aria-pressed="false">Real server</button>
+        </div>
+      </div>
+      <p class="server-note" hidden>
+        Requests go to <code>petstore3.swagger.io</code>, a public demo anyone can change: runs place real
+        orders and update pets, and results vary. Failure paths need the mock.
+      </p>
+      <rapi-flow for="thedoc" allow-arazzo-url-load="true" mcp="true" data-sample={sampleUrl}></rapi-flow>
     </div>
     <rapi-doc
       id="thedoc"
@@ -47,6 +68,7 @@ const arazzoFiles = [
       spec-url={specUrl}
       show-header="false"
       render-style="focused"
+      show-side-nav="floating"
       mcp="true"
       mcp-server-name="petstore"
       mock-server="true"
@@ -55,37 +77,71 @@ const arazzoFiles = [
 </ExampleLayout>
 
 <style>
+  /* The divider, then 16px on the <rapi-doc> side, in the panes' own background */
   .flow-example {
     display: flex;
+    gap: 16px;
     height: 100vh;
     width: 100%;
+    background: rgb(31, 31, 35);
   }
   /* The pane is the elements' own background (the ember theme's dark --background), with no padding,
      so <rapi-flow> meets <rapi-doc> at the divider as one surface */
   .flow-pane {
     flex: 0 0 auto;
-    width: min(46rem, 50%);
+    /* 45% of the page, <rapi-doc> the other 55%; never under 30rem, where the diagrams (about
+       400-700px wide) would shrink too much, nor over 56rem, more than any diagram needs */
+    width: clamp(30rem, 45%, 56rem);
     padding: 0;
     overflow: auto;
     background: rgb(31, 31, 35);
-    border-right: 1px solid var(--rd-border);
+    border-right: 1px solid var(--rd-border-hover);
   }
-  /* Same side spacing as <rapi-flow>'s own padding, so the picker lines up with the diagram's title */
-  .file-picker {
+  /* Above <rapi-flow>, with its side spacing: where requests go (the element has the URL box for
+     other Arazzo files) */
+  .flow-pane-bar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
-    padding: 16px 20px 0;
+    justify-content: flex-end;
+    gap: 0.5rem 0.75rem;
+    padding: 12px 20px 0;
+  }
+  .flow-pane-label {
     font-size: 0.8125rem;
     color: #a1a1aa;
   }
-  .file-picker select {
+  .server-switch {
+    display: inline-flex;
+  }
+  .server-switch button {
     font: inherit;
+    font-size: 0.8125rem;
+    padding: 0.25rem 0.75rem;
+    color: #a1a1aa;
+    background: transparent;
+    border: 1px solid var(--rd-border-hover);
+    cursor: pointer;
+  }
+  .server-switch button:first-child {
+    border-radius: var(--rd-radius-xs) 0 0 var(--rd-radius-xs);
+  }
+  .server-switch button + button {
+    margin-left: -1px;
+    border-radius: 0 var(--rd-radius-xs) var(--rd-radius-xs) 0;
+  }
+  .server-switch button[aria-pressed='true'] {
+    color: var(--rd-accent);
+    border-color: var(--rd-accent-border);
+    background: var(--rd-accent-dim);
+  }
+  .server-note {
+    margin: 8px 20px 0;
+    font-size: 0.8125rem;
+    color: #a1a1aa;
+  }
+  .server-note code {
     color: #e4e4e7;
-    background: #18181b;
-    border: 1px solid #3f3f46;
-    border-radius: var(--rd-radius-xs);
-    padding: 0.25rem 0.5rem;
   }
   .doc-pane {
     flex: 1 1 auto;
@@ -99,7 +155,7 @@ const arazzoFiles = [
     .flow-pane {
       width: auto;
       border-right: 0;
-      border-bottom: 1px solid var(--rd-border);
+      border-bottom: 1px solid var(--rd-border-hover);
     }
     .doc-pane {
       height: 100vh;

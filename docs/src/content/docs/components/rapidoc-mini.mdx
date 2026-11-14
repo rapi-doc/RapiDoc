@@ -14,24 +14,48 @@ import RapidocMiniComparisonTable from '../../../components/RapidocMiniCompariso
 
 ## Show one endpoint
 
-Point `spec-url` at your spec and choose operations with `match-paths`:
+Point `spec-url` at your spec and choose operations with `filter-operations`:
 
 ```html
 <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 
 <rapi-doc-mini
   spec-url="https://petstore.swagger.io/v2/swagger.json"
-  match-paths="get /pet/{petId}"
+  filter-operations="GET /pet/{petId}"
 ></rapi-doc-mini>
 ```
 
-`match-paths` is compared with `"<method> <path>"` of every operation, ignoring case. By default (`match-type="includes"`) an operation matches when that text **contains** the value, so `post /user` also matches `post /user/createWithList`. For an exact match, use a regular expression:
+## Choose operations
+
+`filter-operations` is a list of terms, separated by spaces or commas. An operation is shown when it matches any term (every operation is, when there is none) and no term that starts with `!`.
+
+| Term | Shows |
+| :--- | :--- |
+| `getPetById` | The operation with that `operationId` (exact, case-sensitive). |
+| `GET /pet/{petId}` | That method and path. |
+| `/pet/{petId}` | Every method on that path. |
+| `/pet/*`, `/pet/**` | Paths matching the glob: `*` is one path segment, `**` any number of segments, `/pet` itself included. |
+| `tag:store` | Operations with that tag. Quote a name with spaces: `tag:"Pet Store"`. |
+| `badge:Beta` | Operations with that `x-badges` label. |
+| `deprecated` | Deprecated operations. |
+| `!<term>` | Leaves out what the term matches, as in `!badge:Internal` or `!deprecated`. |
+
+Methods, paths, tags and badge labels are compared without case. Paths are matched whole, never as part of a longer path: `POST /user` does not show `POST /user/createWithList`; use `/user/**` for everything under `/user`.
+
+An `operationId` is matched only when the term is none of the other kinds: an id that starts with `tag:` or `badge:`, or is the word `deprecated`, is read as that kind instead. Select such an operation by its method and path (`GET /path`).
+
+The operations are shown in the order of the first term they match, so a list of operationIds keeps its order, unless `sort-endpoints-by` is set:
 
 ```html
 <rapi-doc-mini
   spec-url="https://petstore.swagger.io/v2/swagger.json"
-  match-paths="^post /user$"
-  match-type="regex"
+  filter-operations="placeOrder getOrderById"
+></rapi-doc-mini>
+
+<!-- Everything tagged store, except the delete -->
+<rapi-doc-mini
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  filter-operations="tag:store !DELETE /store/order/{orderId}"
 ></rapi-doc-mini>
 ```
 
@@ -42,8 +66,7 @@ Point `spec-url` at your spec and choose operations with `match-paths`:
     ```html
     <rapi-doc-mini
       spec-url="/specs/reqres.yaml"
-      match-paths="^get /users/\{userId\}$|^post /users$"
-      match-type="regex"
+      filter-operations="GET /users/{userId} POST /users"
       schema-style="table"
     ></rapi-doc-mini>
     ```
@@ -53,7 +76,7 @@ Point `spec-url` at your spec and choose operations with `match-paths`:
     ```html
     <rapi-doc-mini
       spec-url="/specs/reqres.yaml"
-      match-paths="post /users"
+      filter-operations="POST /users"
       paths-expanded="true"
       layout="column"
     ></rapi-doc-mini>
@@ -64,8 +87,8 @@ Point `spec-url` at your spec and choose operations with `match-paths`:
     Each element loads its own spec, so one page can walk through a flow that spans services:
 
     ```html
-    <rapi-doc-mini spec-url="https://api.example.com/auth/openapi.yaml" match-paths="post /oauth/token"></rapi-doc-mini>
-    <rapi-doc-mini spec-url="https://api.example.com/billing/openapi.yaml" match-paths="post /charges"></rapi-doc-mini>
+    <rapi-doc-mini spec-url="https://api.example.com/auth/openapi.yaml" filter-operations="POST /oauth/token"></rapi-doc-mini>
+    <rapi-doc-mini spec-url="https://api.example.com/billing/openapi.yaml" filter-operations="POST /charges"></rapi-doc-mini>
     ```
   </TabItem>
 
@@ -75,7 +98,7 @@ Point `spec-url` at your spec and choose operations with `match-paths`:
     ```html
     <rapi-doc-mini
       spec-url="/specs/api.yaml"
-      match-paths="get /orders"
+      filter-operations="GET /orders"
       api-key-name="X-API-Key"
       api-key-location="header"
       api-key-value="test-key-123"
@@ -95,9 +118,7 @@ All attributes can be changed at runtime with `setAttribute`.
 | Attribute | Values | Default | Meaning |
 | :--- | :--- | :--- | :--- |
 | `spec-url` | URL | | The OpenAPI spec, JSON or YAML. |
-| `match-paths` | text | | Which operations to show (see above). |
-| `match-type` | `includes`, `regex` | `includes` | How `match-paths` is compared. |
-| `remove-endpoints-with-badge-label-as` | text | | Hides operations that have an `x-badges` label with this text. |
+| `filter-operations` | terms | | Which operations to show (see [Choose operations](#choose-operations)). All of them when empty. |
 | `sort-endpoints-by` | `path`, `method`, `summary` | `path` | Order of the operations shown. |
 
 ### Layout

@@ -1,0 +1,48 @@
+---
+title: Migrating from RapiDoc v12 to v13
+description: Upgrade guide for RapiDoc v13. One filter-operations attribute replaces match-paths, match-type and remove-endpoints-with-badge-label-as on rapi-doc and rapi-doc-mini.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+RapiDoc **v13** replaces the three attributes that chose which operations to show with one, `filter-operations`, on both `<rapi-doc>` and `<rapi-doc-mini>`. It names operations exactly (by operationId, or by method and path), takes path globs, tags and badges, and can exclude.
+
+v13 has no compatibility aliases: the old attributes are ignored. Replace them when you upgrade.
+
+---
+
+## 1. Removed attributes
+
+| v12 | v13 |
+| :-- | :-- |
+| `match-paths="get /pet/{petId}"` | `filter-operations="GET /pet/{petId}"` |
+| `match-paths="/store"` (every path containing `/store`) | `filter-operations="/store/**"` (the path and everything under it) |
+| `match-paths="^post /users$\|^get /users/\{id\}$"` with `match-type="regex"` | `filter-operations="POST /users GET /users/{id}"` |
+| `match-type` | removed: no substring or regular expression matching |
+| `remove-endpoints-with-badge-label-as="Beta, Internal"` | `filter-operations="!badge:Beta !badge:Internal"` |
+
+<Aside type="caution">
+`match-paths` matched a **substring** of `"<method> <path>"`: `match-paths="get /pet"` also showed `GET /pet/findByStatus` and `GET /petition`. `filter-operations` matches **exactly**. To keep a prefix match, use a glob: `/pet/**`.
+</Aside>
+
+## 2. What a term can be
+
+A space- or comma-separated list. An operation is shown when it matches any include term (every operation is, without one) and no `!` term.
+
+| Term | Matches |
+| :-- | :-- |
+| `getPetById` | the operation with that operationId |
+| `GET /pet/{petId}` | that method and path |
+| `/pet/{petId}` | every method on that path |
+| `/pet/*`, `/pet/**` | `*` is one path segment, `**` any number (the path itself too) |
+| `tag:store` | operations tagged `store` (`tag:"Pet Store"` for a name with spaces) |
+| `badge:Beta` | operations with that `x-badges` label |
+| `deprecated` | deprecated operations |
+| `!<term>` | leaves out what the term matches |
+
+Paths, methods, tags and badges compare without case; operationIds exactly. An `operationId` is matched only when the term is none of the other kinds: an id that starts with `tag:` or `badge:`, or is the word `deprecated`, is read as that kind instead. Select such an operation by its method and path (`GET /path`). Operations are listed in the order of the first term they match, so `filter-operations="placeOrder getPetById"` shows `placeOrder` first. `sort-endpoints-by`, when set, decides the order instead.
+
+## 3. Build-time rendering and the portal
+
+- **`@rapidoc/prerender`**: `renderRapiDoc({ filterOperations })` (or `"filter-operations"`) replaces `matchPaths`, `matchType` and `removeEndpointsWithBadgeLabelAs`.
+- **`@rapidoc/portal`**: the `{% api-operation %}` tag sets `filter-operations="<METHOD> <path>"` on its `<rapi-doc-mini>`; nothing changes in your Markdoc.

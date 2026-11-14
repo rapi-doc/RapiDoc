@@ -197,6 +197,15 @@ const INTERACTION_EVENTS = ["pointerdown", "keydown", "wheel", "touchstart"];
  * expand-collapse | <span class="red bold">[DEPRECATED]</span> A click on a tag's name shows the
  * tag's description; a click on its arrow expands or collapses it.<br/> Previously configured
  * sidebar tag click behavior in focused mode.
+ *
+ * @deprecatedAttr match-paths | Spec & Content | | | <span class="red bold">[REMOVED]</span> Use
+ * <span class="mono yellow">filter-operations</span>: a path glob (<span class="mono
+ * yellow">/pet/**</span>), a method and path, or operationIds.
+ * @deprecatedAttr match-type | Spec & Content | includes, regex | includes | <span class="red
+ * bold">[REMOVED]</span> <span class="mono yellow">filter-operations</span> matches exact terms and
+ * path globs, not substrings or regular expressions.
+ * @deprecatedAttr remove-endpoints-with-badge-label-as | Spec & Content | | | <span class="red
+ * bold">[REMOVED]</span> Use <span class="mono yellow">filter-operations="!badge:Beta"</span>.
  */
 @customElement("rapi-doc")
 export default class RapiDoc extends LitElement {
@@ -219,7 +228,7 @@ export default class RapiDoc extends LitElement {
     this._specLoadSeq = 0;
     // The spec-url attribute value whose load has been handled, or that an inlined spec superseded
     this._lastSpecUrlRequested = null;
-    // The spec (URL or object) of the latest load: a match-paths change re-filters this one
+    // The spec (URL or object) of the latest load: a filter-operations change re-filters this one
     this._lastLoadedSpec = null;
     this.initIntersectionObserver();
   }
@@ -283,32 +292,23 @@ export default class RapiDoc extends LitElement {
   generateMissingTags: "true" | "false" = "false";
 
   /**
-   * Filters and renders only endpoints matching a specific substring or regular expression,
-   * enabling audience segmentation (e.g., showing only public endpoints). The matching strategy is
-   * configured via <span class="mono yellow">match-type</span>.
+   * Which operations to show: a space- or comma-separated list of terms. An operation is shown when
+   * it matches any include term (every one is, without one) and no <span class="mono
+   * yellow">!</span> term. A term is an operationId (<span class="mono yellow">getPetById</span>), a
+   * method and path (<span class="mono yellow">GET /pet/{petId}</span>), a path for all its methods,
+   * a path glob (<span class="mono yellow">/pet/**</span>; <span class="mono yellow">*</span> is one
+   * segment, <span class="mono yellow">**</span> any number), <span class="mono
+   * yellow">tag:store</span>, <span class="mono yellow">badge:Beta</span> (an x-badges label) or
+   * <span class="mono yellow">deprecated</span>; <span class="mono yellow">!</span> before a term
+   * leaves out what it matches (<span class="mono yellow">!badge:Internal</span>). Shown operations
+   * keep the order of the first term they match, so a list of operationIds shows them in that
+   * order (unless sort-endpoints-by is set).
+   * @summary Show only some operations
    * @group Spec & Content
    * @example /examples/search
    */
-  @property({ type: String, attribute: "match-paths" })
-  matchPaths = "";
-
-  /**
-   * Defines whether match-paths filters by simple substring inclusion or regular expression pattern
-   * matching.
-   * @group Spec & Content
-   */
-  @property({ type: String, attribute: "match-type" })
-  matchType: "includes" | "regex" = "includes";
-
-  /**
-   * Comma-separated badge labels to exclude from the rendered documentation. Works in tandem with
-   * the <span class="mono yellow">x-badges</span> vendor extension to filter out internal, beta, or
-   * deprecated endpoints from customer-facing views.
-   * @group Spec & Content
-   * @example /examples/badges
-   */
-  @property({ type: String, attribute: "remove-endpoints-with-badge-label-as" })
-  removeEndpointsWithBadgeLabelAs = "";
+  @property({ type: String, attribute: "filter-operations" })
+  filterOperations = "";
 
   // Layout & Scrolling
   /**
@@ -461,12 +461,16 @@ export default class RapiDoc extends LitElement {
 
   // Sidebar & Navigation
   /**
-   * Toggles the navigation sidebar.
+   * The navigation sidebar (read and focused modes). <span class="mono yellow">true</span> docks
+   * it beside the content on wide layouts and turns it into a menu button with a slide-over menu
+   * when the element is narrower than 768px; <span class="mono yellow">floating</span> uses the
+   * menu button and slide-over menu at every width, so the content takes the whole width;
+   * <span class="mono yellow">false</span> shows no sidebar.
+   * @summary Docked, floating or no navigation sidebar
    * @group Sidebar & Navigation
-   * @hidden
    */
   @property({ type: String, attribute: "show-side-nav" })
-  showSideNav: "true" | "false" = "true";
+  showSideNav: "true" | "false" | "floating" = "true";
 
   /**
    * Displays HTTP methods (GET, POST, etc.) alongside endpoint items in the navigation sidebar.
@@ -1157,7 +1161,7 @@ export default class RapiDoc extends LitElement {
       this.allowSchemaDescriptionExpandToggle = "true";
     }
 
-    if (!this.showSideNav || !"true false".includes(this.showSideNav)) {
+    if (!["true", "false", "floating"].includes(this.showSideNav)) {
       this.showSideNav = "true";
     }
     if (!this.showComponents || !"true false".includes(this.showComponents)) {
@@ -1179,15 +1183,6 @@ export default class RapiDoc extends LitElement {
       this.scrollBehavior = "auto";
     }
 
-    if (!this.matchType || !"includes regex".includes(this.matchType)) {
-      this.matchType = "includes";
-    }
-    if (!this.matchPaths) {
-      this.matchPaths = "";
-    }
-    if (!this.removeEndpointsWithBadgeLabelAs) {
-      this.removeEndpointsWithBadgeLabelAs = "";
-    }
     if (!this.cssFile) {
       this.cssFile = null;
     }
@@ -1452,11 +1447,7 @@ export default class RapiDoc extends LitElement {
         }, 0);
       }
     }
-    if (
-      name === "match-paths" ||
-      name === "match-type" ||
-      name === "remove-endpoints-with-badge-label-as"
-    ) {
+    if (name === "filter-operations") {
       if (oldVal !== newVal) {
         window.setTimeout(async () => {
           await this._loadSpec(this._lastLoadedSpec || this.specUrl);
@@ -1681,9 +1672,7 @@ export default class RapiDoc extends LitElement {
         this.getAttribute("api-key-location"),
         this.getAttribute("api-key-value"),
         this.getAttribute("server-url"),
-        this.matchPaths,
-        this.matchType,
-        this.removeEndpointsWithBadgeLabelAs,
+        this.filterOperations,
         this.showUnusedTags === "true",
       );
       if (token !== this._specLoadSeq) {
@@ -2071,7 +2060,7 @@ export default class RapiDoc extends LitElement {
         this.replaceHistoryState(targetId);
       }
 
-      // 2. If internal navbar is active (show-side-nav="true"), update Shadow DOM elements
+      // 2. If internal navbar is active (show-side-nav="true" or "floating"), update Shadow DOM elements
       const newNavEl = this.shadowRoot.getElementById(`link-${targetId}`);
       if (newNavEl) {
         const oldNavEl = this.shadowRoot.querySelector(
@@ -2607,7 +2596,9 @@ export default class RapiDoc extends LitElement {
    * token diagnostics and <span class="mono fg-color">hostConfig</span> the Claude Desktop / Cursor
    * config JSON. <span class="mono fg-color">options</span>: <span class="mono
    * fg-color">serverName</span>, <span class="mono fg-color">includeInternal</span>, <span
-   * class="mono fg-color">includeDeprecated</span>.
+   * class="mono fg-color">includeDeprecated</span>, <span class="mono
+   * fg-color">includeOperations</span> (<span class="mono fg-color">false</span>: only the workflow
+   * tools of a paired <span class="mono fg-color">&lt;rapi-flow&gt;</span>).
    * @public
    */
   generateMcpServer(options = {}) {
@@ -2618,7 +2609,9 @@ export default class RapiDoc extends LitElement {
 
   /**
    * Downloads the exported project as <span class="mono
-   * fg-color">&lt;server-name&gt;-mcp.zip</span>. Same <span class="mono fg-color">options</span>
+   * fg-color">&lt;server-name&gt;-mcp.zip</span> (<span class="mono
+   * fg-color">&lt;server-name&gt;-workflows-mcp.zip</span> with <span class="mono
+   * fg-color">includeOperations: false</span>). Same <span class="mono fg-color">options</span>
    * as <span class="mono fg-color">generateMcpServer</span>.
    * @public
    */
@@ -2628,7 +2621,10 @@ export default class RapiDoc extends LitElement {
     const blob = new Blob([createZip(result.files)], { type: "application/zip" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${result.manifest.server.name.replace(/_/g, "-")}-mcp.zip`;
+    // A workflows-only export gets a name of its own, so the two downloads do not overwrite
+    const kind =
+      (options as { includeOperations?: boolean }).includeOperations === false ? "-workflows" : "";
+    link.download = `${result.manifest.server.name.replace(/_/g, "-")}${kind}-mcp.zip`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

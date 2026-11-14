@@ -127,6 +127,8 @@ export default css`
   }
   .rf-bind-name,
   .rf-bind-val,
+  .rf-src-type,
+  .rf-src-url,
   .rf-kw,
   .rf-in-type,
   .rf-in-default,
@@ -136,6 +138,8 @@ export default css`
   .rf-in-type,
   .rf-in-default,
   .rf-in-enum,
+  .rf-src-type,
+  .rf-src-url,
   .rf-out-from,
   .rf-act-name,
   .rf-more,

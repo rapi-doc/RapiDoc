@@ -1,4 +1,5 @@
 import { dereference, load, upgrade } from "@scalar/openapi-parser";
+import { operationFacts, operationRank, parseOperationFilter } from "./filter-operations.js";
 import { parse as parseYaml } from "yaml";
 import { marked } from "marked";
 import { invalidCharsRegEx, rapidocApiKey, sleep } from "./common-utils.js";
@@ -166,12 +167,12 @@ export default async function ProcessSpec(
   attrApiKeyLocation = "",
   attrApiKeyValue = "",
   serverUrl = "",
-  matchPaths = "",
-  matchType = "",
-  removeEndpointsWithBadgeLabelAs = "",
+  filterOperations = "",
   showUnusedTags = false,
 ) {
   let jsonParsedSpec;
+  // filter-operations: each shown operation's place, for ordering them within their tag
+  let operationRanks = new Map();
   try {
     this?.requestUpdate?.(); // important to show the initial loader
 
@@ -231,7 +232,8 @@ export default async function ProcessSpec(
       schema &&
       (schema.components || schema.info || schema.servers || schema.tags || schema.paths)
     ) {
-      jsonParsedSpec = filterPaths(schema, matchPaths, matchType, removeEndpointsWithBadgeLabelAs);
+      operationRanks = filterPaths(schema, filterOperations);
+      jsonParsedSpec = schema;
       this?.dispatchEvent?.(new CustomEvent("before-render", { detail: { spec: jsonParsedSpec } }));
     } else {
       console.info("RapiDoc: %c Invalid Spec Definition %o ", "color:orangered", schema);
@@ -291,6 +293,7 @@ export default async function ProcessSpec(
       sortTags,
       hasTagGroups,
       showUnusedTags,
+      operationRanks,
     );
 
     // 3-Level Tag Groups (x-tagGroups / x-tag-groups)
@@ -434,95 +437,49 @@ export default async function ProcessSpec(
   }
 }
 
-function filterPaths(
-  openApiObject,
-  matchPaths = "",
-  matchType = "",
-  removeEndpointsWithBadgeLabelAs = "",
-) {
+/**
+ * Leaves out the operations `filter-operations` does not show (filter-operations.js), in place, and
+ * returns where each shown operation goes: its rank (the first include term it matches) by
+ * "<method> <path>", for groupByTags to order them. A path keeps its path-level fields
+ * (`parameters`, `servers`, ...) while it has an operation left; webhooks are not filtered.
+ */
+function filterPaths(openApiObject, filterText = "") {
+  const filter = parseOperationFilter(filterText);
+  const ranks = new Map();
+  if (!filter || !openApiObject.paths) return ranks;
   const filteredPaths = {};
-
-  // Convert the removePathsWithBadgeLabeledAs to an array if provided
-  const labelsToRemove = removeEndpointsWithBadgeLabelAs
-    .split(",")
-    .map((label) => label.trim().toLowerCase())
-    .filter(Boolean);
-
-  // Helper function to check if a path should be included based on matchPaths
-  function pathMatches(pathsKey, httpMethod) {
-    if (!matchPaths) {
-      return true; // If no matchPaths provided, include everything
-    }
-    const fullPath = `${httpMethod} ${pathsKey}`.toLowerCase(); // Construct "method path" string
-    if (matchType === "regex") {
-      const matchPathsRegex = new RegExp(matchPaths, "i");
-      return matchPathsRegex.test(fullPath);
-    }
-    return fullPath.includes(matchPaths.toLowerCase());
-  }
-
-  // Helper function to check if the badges contain any label that needs to be removed
-  function containsLabelToRemove(badges) {
-    return badges.some((badge) => labelsToRemove.includes(badge?.label.toLowerCase()));
-  }
-
-  // Loop through the paths in the openApiObject
-  Object.entries(openApiObject.paths).forEach(([pathsKey, methods]) => {
-    const filteredMethods = {};
-
-    Object.entries(methods).forEach(([httpMethod, methodDetails]) => {
-      if (
-        httpMethod === "additionalOperations" &&
-        typeof methodDetails === "object" &&
-        methodDetails !== null
-      ) {
-        const filteredAdditional = {};
-        Object.entries(methodDetails).forEach(([customMethod, customDetails]) => {
-          const badges = customDetails?.["x-badges"];
-          if (pathMatches(pathsKey, customMethod)) {
-            if (badges && Array.isArray(badges)) {
-              if (!containsLabelToRemove(badges)) {
-                filteredAdditional[customMethod] = customDetails;
-              }
-            } else {
-              filteredAdditional[customMethod] = customDetails;
-            }
-          }
-        });
-        if (Object.keys(filteredAdditional).length > 0) {
-          filteredMethods.additionalOperations = filteredAdditional;
+  const keep = (method, path, operation) => {
+    const rank = operationRank(filter, operationFacts(method, path, operation));
+    if (rank < 0) return false;
+    ranks.set(`${method.toLowerCase()} ${path}`, rank);
+    return true;
+  };
+  for (const [path, item] of Object.entries(openApiObject.paths)) {
+    const kept = {};
+    let operations = 0;
+    for (const [key, value] of Object.entries(item || {})) {
+      if (key === "additionalOperations" && value && typeof value === "object") {
+        const additional = {};
+        for (const [method, operation] of Object.entries(value)) {
+          if (keep(method, path, operation)) additional[method] = operation;
         }
-        return;
-      }
-
-      if (["parameters", "servers", "summary", "description"].includes(httpMethod)) {
-        filteredMethods[httpMethod] = methodDetails;
-        return;
-      }
-
-      const badges = methodDetails?.["x-badges"];
-
-      // Filter by matchPaths
-      if (pathMatches(pathsKey, httpMethod)) {
-        if (badges && Array.isArray(badges)) {
-          // Filter out based on removePathsWithBadgeLabeledAs
-          if (!containsLabelToRemove(badges)) {
-            filteredMethods[httpMethod] = methodDetails;
-          }
-        } else {
-          // No badges present, include the method
-          filteredMethods[httpMethod] = methodDetails;
+        if (Object.keys(additional).length) {
+          kept.additionalOperations = additional;
+          operations += 1;
         }
+      } else if (!["parameters", "servers", "summary", "description"].includes(key)) {
+        if (keep(key, path, value)) {
+          kept[key] = value;
+          operations += 1;
+        }
+      } else {
+        kept[key] = value;
       }
-    });
-
-    if (Object.keys(filteredMethods).length > 0) {
-      filteredPaths[pathsKey] = filteredMethods;
     }
-  });
-
+    if (operations) filteredPaths[path] = kept;
+  }
   openApiObject.paths = filteredPaths;
-  return openApiObject;
+  return ranks;
 }
 
 function getHeadersFromMarkdown(markdownContent) {
@@ -641,6 +598,7 @@ function groupByTags(
   sortTags = false,
   hasTagGroups = false,
   showUnusedTags = false,
+  operationRanks = new Map(),
 ) {
   const supportedMethods = [
     "get",
@@ -859,7 +817,14 @@ function groupByTags(
     }
     return false;
   });
+  // filter-operations: operations in the order of the first term they match, and tags in the order
+  // of their first operation; sort-endpoints-by and sort-tags, when set, decide instead
+  const rankOf = (p) => operationRanks.get(`${String(p.method).toLowerCase()} ${p.path}`) ?? 0;
+  const byFilter = operationRanks.size > 0;
   tagsWithSortedPaths.forEach((tag) => {
+    if (byFilter && (!sortEndpointsBy || sortEndpointsBy === "none")) {
+      tag.paths.sort((a, b) => rankOf(a) - rankOf(b));
+    }
     if (sortEndpointsBy !== "none") {
       if (sortEndpointsBy === "method") {
         tag.paths.sort((a, b) => {
@@ -884,9 +849,12 @@ function groupByTags(
     }
     tag.firstPathId = tag.paths[0]?.elementId || "";
   });
-  return sortTags
-    ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name))
-    : tagsWithSortedPaths;
+  if (sortTags) return tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name));
+  if (byFilter) {
+    const first = (tag) => Math.min(Infinity, ...tag.paths.map(rankOf));
+    return tagsWithSortedPaths.sort((a, b) => first(a) - first(b));
+  }
+  return tagsWithSortedPaths;
 }
 
 /**

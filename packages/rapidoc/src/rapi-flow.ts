@@ -20,6 +20,8 @@ import {
   renderFlowDiagram,
 } from "~/utils/arazzo/index.js";
 import { buildMcpManifest } from "~/utils/mcp/manifest.js";
+import { generateMcpServer } from "~/utils/mcp-generator.js";
+import { createZip } from "~/utils/mcp/zip.js";
 import { createMcpWorkflowRuntime } from "~/utils/mcp/workflow-runtime.js";
 
 let instanceCount = 0;
@@ -120,6 +122,16 @@ export default class RapiFlow extends LitElement {
   @property({ type: String, attribute: "show-view-toggle" })
   showViewToggle: "true" | "false" = "true";
   /**
+   * <span class="mono yellow">true</span> shows a box above the diagram to load any Arazzo
+   * document by URL (YAML or JSON; the server must allow cross-origin requests). Loading one shows
+   * its first workflow; with <span class="mono yellow">for</span>, the tied <span class="mono
+   * yellow">&lt;rapi-doc&gt;</span> also loads the document's first OpenAPI source, so steps
+   * resolve and runs go to that API.
+   * @group Workflow
+   */
+  @property({ type: String, attribute: "allow-arazzo-url-load" })
+  allowArazzoUrlLoad: "true" | "false" = "false";
+  /**
    * <span class="mono yellow">false</span> hides the run panel: the diagram only.
    * @group Run
    */
@@ -143,6 +155,21 @@ export default class RapiFlow extends LitElement {
    */
   @property({ type: String, attribute: "server-is-mock" })
   serverIsMock: "true" | "false" = "false";
+  /**
+   * <span class="mono yellow">true</span> shows an Export MCP Server button that downloads an MCP
+   * server with one tool per workflow of the Arazzo document (every one the runtime can run), and
+   * no tool per operation. Its steps call every API source of the document; <span class="mono
+   * yellow">&lt;rapi-doc&gt;</span>'s own export covers one API's operations.
+   * @group MCP
+   */
+  @property({ type: String, attribute: "mcp" })
+  mcp: "true" | "false" = "false";
+  /**
+   * Name of the exported MCP server. Defaults to the Arazzo document's title.
+   * @group MCP
+   */
+  @property({ type: String, attribute: "mcp-server-name" })
+  mcpServerName = "";
 
   @state() private doc: any = null;
   @state() private sources: Map<string, any> = new Map();
@@ -172,6 +199,15 @@ export default class RapiFlow extends LitElement {
   @state() private runProblem = "";
 
   private loadId = 0;
+  /** The next load comes from the URL box: the tied <rapi-doc> follows its first OpenAPI source. */
+  private followArazzo = false;
+  /** What the box showed before a load from it, put back if that load fails. */
+  private beforeBoxLoad: { arazzoUrl: string; workflowId: string; specUrl: string } | null = null;
+  /** Put back after a failed box load: set the properties without loading again. */
+  private skipLoad = false;
+  /** Why the last load from the URL box failed, and the URL that was typed; the diagram stays. */
+  @state() private boxError = "";
+  @state() private boxValue: string | null = null;
   /** Stops the run in progress (the Stop button, another workflow, Clear, disconnect). */
   private runAbort: AbortController | null = null;
   // The <rapi-doc> named by `for` while it supplies the first OpenAPI source (no spec-url)
@@ -200,6 +236,40 @@ export default class RapiFlow extends LitElement {
         font-family: var(--font-sans);
         font-size: var(--font-size-regular);
         line-height: var(--line-height);
+      }
+      .flow-url {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      .flow-url input {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      /* No browser history list for the box (autocomplete="off"); and if a browser fills it anyway,
+         keep the field's own colors instead of its light autofill background */
+      .flow-url input:autofill,
+      .flow-url input:-webkit-autofill {
+        -webkit-text-fill-color: var(--foreground);
+        caret-color: var(--foreground);
+        box-shadow: 0 0 0 100vmax var(--input-background) inset;
+        transition: background-color 9999s;
+      }
+      .flow-url-error {
+        margin: -0.5rem 0 1rem;
+        color: var(--destructive);
+        font-size: var(--font-size-small);
+      }
+      .flow-source {
+        margin: 0 0 0.75rem;
+        color: var(--muted-foreground);
+        font-size: var(--font-size-small);
+        overflow-wrap: anywhere;
+      }
+      .flow-source-url {
+        margin-left: 0.375rem;
+        color: var(--foreground);
+        font-family: var(--font-mono);
       }
       /* Which workflow (picker or id) and the view switch on one row, then the summary and the
          description */
@@ -526,7 +596,10 @@ export default class RapiFlow extends LitElement {
       if (normalized !== this.theme) this.theme = normalized;
       applyCustomTheme(this, this.theme);
     }
-    if (changed.has("arazzoUrl") || changed.has("specUrl") || changed.has("for")) this.load();
+    if (changed.has("arazzoUrl") || changed.has("specUrl") || changed.has("for")) {
+      if (this.skipLoad) this.skipLoad = false;
+      else this.load();
+    }
     // A redrawn diagram has lost the highlight classes
     this.linkedStepId = "";
   }
@@ -544,6 +617,8 @@ export default class RapiFlow extends LitElement {
     }
     this.loading = true;
     this.loadError = "";
+    const fromBox = this.followArazzo;
+    this.followArazzo = false;
     try {
       const arazzoUrl = new URL(this.arazzoUrl, document.baseURI).href;
       const doc = parseDocument(await this.fetchText(arazzoUrl));
@@ -552,9 +627,19 @@ export default class RapiFlow extends LitElement {
       const problems = validateArazzo(doc);
       const sources = new Map();
       const specObjects = new Map();
+      // Loaded from the URL box: fetch the first source here too, and have the tied <rapi-doc>
+      // load it (its spec-loaded event then indexes its processed copy)
+      const following = fromBox && Boolean(this.specDoc);
+      const first = openapiSources(doc)[0];
+      if (following && first) {
+        const firstUrl = new URL(first.url, arazzoUrl).href;
+        const current =
+          this.specDoc.specUrl && new URL(this.specDoc.specUrl, document.baseURI).href;
+        if (current !== firstUrl) this.specDoc.loadSpec(firstUrl);
+      }
       await Promise.all(
         openapiSources(doc).map(async (s, i) => {
-          if (i === 0 && this.specDoc) return;
+          if (i === 0 && this.specDoc && !following) return;
           const url = i === 0 && this.specUrl ? this.specUrl : s.url;
           try {
             const text = await this.fetchText(
@@ -573,15 +658,32 @@ export default class RapiFlow extends LitElement {
         }),
       );
       if (id !== this.loadId) return;
+      this.boxError = "";
+      this.boxValue = null;
+      this.beforeBoxLoad = null;
       this.doc = doc;
       this.sources = sources;
       this.specObjects = specObjects;
       this.problems = problems;
       this.resetRun();
-      this.useRapiDocSpec();
+      // Following: the <rapi-doc> still holds the previous spec until its spec-loaded
+      if (!following) this.useRapiDocSpec();
       this.emit("flow-loaded", { doc, problems });
     } catch (err) {
       if (id !== this.loadId) return;
+      // From the URL box with a document already shown: keep it, and the <rapi-doc> that goes with
+      // it (it only follows a document that loaded), say why next to the box, and keep the typed URL
+      const before = this.beforeBoxLoad;
+      this.beforeBoxLoad = null;
+      if (fromBox && this.doc && before) {
+        this.boxValue = this.arazzoUrl;
+        this.boxError = `Could not load ${this.arazzoUrl}: ${err.message}. Still showing ${before.arazzoUrl}.`;
+        this.skipLoad = before.arazzoUrl !== this.arazzoUrl || before.specUrl !== this.specUrl;
+        this.arazzoUrl = before.arazzoUrl;
+        this.workflowId = before.workflowId;
+        this.specUrl = before.specUrl;
+        return;
+      }
       this.doc = null;
       this.loadError = err.message;
     } finally {
@@ -1192,7 +1294,129 @@ export default class RapiFlow extends LitElement {
     </div>`;
   }
 
+  /**
+   * What an MCP export builds on: the first OpenAPI source's spec (the tied <rapi-doc>'s, else the
+   * one this element loaded) and every loaded source by name. Null until they are loaded.
+   */
+  private mcpExportInput() {
+    const first = openapiSources(this.doc)[0];
+    const spec = this.specDoc?.resolvedSpec || this.specObjects.get(first?.name);
+    if (!this.doc || !spec) return null;
+    return {
+      spec,
+      options: {
+        arazzo: this.doc,
+        sources: Object.fromEntries(this.specObjects),
+        includeOperations: false,
+        serverName: this.mcpServerName || this.doc.info?.title || "workflows",
+        workflowRuntime: workflowRuntimeSource,
+      },
+    };
+  }
+
+  // The last count of exportable workflows, by the documents it was built from
+  private mcpCount: { doc: any; spec: any; sources: any; count: number } | null = null;
+
+  /** How many workflows the export would have; 0 hides the button. */
+  private get mcpWorkflowCount(): number {
+    const input = this.mcpExportInput();
+    if (!input) return 0;
+    const cached = this.mcpCount;
+    if (
+      cached?.doc === this.doc &&
+      cached.spec === input.spec &&
+      cached.sources === this.specObjects
+    )
+      return cached.count;
+    let count = 0;
+    try {
+      count = buildMcpManifest(input.spec, input.options).tools.length;
+    } catch {
+      count = 0;
+    }
+    this.mcpCount = { doc: this.doc, spec: input.spec, sources: this.specObjects, count };
+    return count;
+  }
+
+  /**
+   * Builds the MCP server of the document's workflows: <span class="mono fg-color">{ manifest,
+   * files, budget, hostConfig, problems }</span>, as <span class="mono
+   * fg-color">&lt;rapi-doc&gt;</span>'s <span class="mono fg-color">generateMcpServer</span>, with
+   * one tool per workflow the runtime can run and none per operation; <span class="mono
+   * fg-color">problems</span> says why a workflow was left out. Null until the document and its
+   * first source are loaded.
+   * @public
+   */
+  generateMcpServer() {
+    const input = this.mcpExportInput();
+    return input ? generateMcpServer(input.spec, input.options) : null;
+  }
+
+  /**
+   * Downloads that server as <span class="mono fg-color">&lt;server-name&gt;-mcp.zip</span>.
+   * @public
+   */
+  downloadMcpServer() {
+    const result = this.generateMcpServer();
+    if (!result) return;
+    const blob = new Blob([createZip(result.files)], { type: "application/zip" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${result.manifest.server.name.replace(/_/g, "-")}-mcp.zip`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  }
+
+  /** The box that loads an Arazzo document by URL (allow-arazzo-url-load). */
+  private renderUrlBox() {
+    // Without the box, the document's URL as text, so a reader knows what is drawn
+    if (this.allowArazzoUrlLoad !== "true") {
+      return this.arazzoUrl
+        ? html`<p class="flow-source" part="url">Arazzo <span class="flow-source-url">${this.arazzoUrl}</span></p>`
+        : nothing;
+    }
+    const submit = (e: Event) => {
+      e.preventDefault();
+      const input = (e.target as HTMLFormElement).querySelector("input");
+      const url = input?.value.trim();
+      if (!url) return;
+      this.beforeBoxLoad = {
+        arazzoUrl: this.arazzoUrl,
+        workflowId: this.workflowId,
+        specUrl: this.specUrl,
+      };
+      this.boxError = "";
+      this.followArazzo = true;
+      this.workflowId = "";
+      // A page's spec-url belonged to the previous document
+      this.specUrl = "";
+      if (url === this.arazzoUrl) this.load();
+      else this.arazzoUrl = url;
+    };
+    return html`<form class="flow-url" part="url-form" @submit=${submit}>
+      <input
+        type="text"
+        name="arazzo-url"
+        part="url-input"
+        autocomplete="off"
+        aria-label="Arazzo document URL"
+        placeholder="Arazzo document URL (YAML or JSON)"
+        spellcheck="false"
+        .value=${this.boxValue ?? this.arazzoUrl}
+        @input=${() => (this.boxError = "")}
+      />
+      <button type="submit" class="btn btn-outline" part="url-load" ?disabled=${this.loading}>Load</button>
+    </form>
+    ${this.boxError ? html`<p class="flow-url-error" part="url-error" role="alert">${this.boxError}</p>` : nothing}`;
+  }
+
   render() {
+    return html`${this.renderUrlBox()}${this.renderBody()}`;
+  }
+
+  private renderBody() {
     if (this.loadError) {
       return html`<p class="flow-message" part="message">Could not load the workflows: ${this.loadError}</p>`;
     }
@@ -1215,6 +1439,8 @@ export default class RapiFlow extends LitElement {
       idPrefix: this.idPrefix,
       interactive: true,
       stepClasses,
+      // Shrink to fit the pane down to 85%, so the text stays readable; past that, scroll
+      minScale: 0.85,
     });
     // Only problems a reader can't miss; the graph's authoring warnings are left to tooling
     const shown = this.problems.filter(
@@ -1250,7 +1476,22 @@ export default class RapiFlow extends LitElement {
                     ? nothing
                     : html`<h2 class="flow-title" part="title">${graph.workflowId}</h2>`
                 }
-                <div class="flow-controls">${this.renderViewToggle()}</div>
+                <div class="flow-controls">
+                  ${
+                    this.mcp === "true" && this.mcpWorkflowCount > 0
+                      ? html`<button
+                          type="button"
+                          class="btn btn-outline"
+                          part="mcp-export"
+                          title="Download an MCP server with one tool per workflow of this document"
+                          @click=${() => this.downloadMcpServer()}
+                        >
+                          Export MCP Server
+                        </button>`
+                      : nothing
+                  }
+                  ${this.renderViewToggle()}
+                </div>
               </div>
               ${graph.summary ? html`<h2 class="flow-title" part="title">${graph.summary}</h2>` : nothing}
               ${

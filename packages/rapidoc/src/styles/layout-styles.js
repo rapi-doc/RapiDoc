@@ -237,6 +237,15 @@ export default css`
   input.header-input::placeholder {
     opacity: 0.4;
   }
+  /* No browser history list (autocomplete="off"); and if a browser fills the box anyway, keep its
+     own colors instead of the light autofill background */
+  input.header-input:autofill,
+  input.header-input:-webkit-autofill {
+    -webkit-text-fill-color: var(--foreground);
+    caret-color: var(--foreground);
+    box-shadow: 0 0 0 100vmax var(--input-background) inset;
+    transition: background-color 9999s;
+  }
   .loader {
     margin: 16px auto 16px auto;
     border: 4px solid var(--muted);

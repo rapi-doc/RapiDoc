@@ -34,8 +34,8 @@ const perOperationCode = `<!-- Only the order call fails, once: first 503, then 
 > </rapi-doc>`;
 
 const twoMocksCode = `<!-- Two APIs mocked on one page, each with its own codes and delay -->
-<rapi-doc-mini spec-url="/specs/orders.yaml"   match-paths="post /orders" mock-server="true"></rapi-doc-mini>
-<rapi-doc-mini spec-url="/specs/payments.yaml" match-paths="post /charges" mock-server="true"
+<rapi-doc-mini spec-url="/specs/orders.yaml"   filter-operations="POST /orders" mock-server="true"></rapi-doc-mini>
+<rapi-doc-mini spec-url="/specs/payments.yaml" filter-operations="POST /charges" mock-server="true"
                mock-server-status-code="402" mock-server-delay="800"></rapi-doc-mini>`;
 
 const reactViteCode = `// src/App.jsx - Seamless frontend prototyping without waiting for backend
