@@ -1,5 +1,13 @@
 # @rapidoc/embed
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated dependencies [5066e13]
+- Updated dependencies [3777ceb]
+  - rapidoc@13.0.0
+
 ## 0.3.0
 
 ### Minor Changes

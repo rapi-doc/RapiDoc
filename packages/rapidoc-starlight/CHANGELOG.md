@@ -1,5 +1,15 @@
 # @rapidoc/starlight
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [5066e13]
+- Updated dependencies [3777ceb]
+  - rapidoc@13.0.0
+  - @rapidoc/prerender@0.2.0
+  - @rapidoc/embed@0.3.1
+
 ## 0.1.2
 
 ### Patch Changes
