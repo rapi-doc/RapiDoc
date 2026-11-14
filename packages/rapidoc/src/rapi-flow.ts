@@ -124,9 +124,11 @@ export default class RapiFlow extends LitElement {
   /**
    * <span class="mono yellow">true</span> shows a box above the diagram to load any Arazzo
    * document by URL (YAML or JSON; the server must allow cross-origin requests). Loading one shows
-   * its first workflow; with <span class="mono yellow">for</span>, the tied <span class="mono
-   * yellow">&lt;rapi-doc&gt;</span> also loads the document's first OpenAPI source, so steps
-   * resolve and runs go to that API.
+   * its first workflow. The element then manages the document: with <span class="mono
+   * yellow">for</span>, whenever the document changes (from the box or <span class="mono
+   * yellow">arazzo-url</span>), the tied <span class="mono yellow">&lt;rapi-doc&gt;</span> loads its
+   * first OpenAPI source, unless it already shows that spec, so steps resolve and runs go to that
+   * API.
    * @group Workflow
    */
   @property({ type: String, attribute: "allow-arazzo-url-load" })
@@ -627,19 +629,24 @@ export default class RapiFlow extends LitElement {
       const problems = validateArazzo(doc);
       const sources = new Map();
       const specObjects = new Map();
-      // Loaded from the URL box: fetch the first source here too, and have the tied <rapi-doc>
-      // load it (its spec-loaded event then indexes its processed copy)
-      const following = fromBox && Boolean(this.specDoc);
+      // With the URL box, this element manages the document: on any load (from the box, or the
+      // page setting arazzo-url), fetch the first source here too and have the tied <rapi-doc>
+      // load it when it shows another spec (its spec-loaded then indexes its processed copy).
+      // Without the box the page decides what the <rapi-doc> shows.
+      const following = (fromBox || this.allowArazzoUrlLoad === "true") && Boolean(this.specDoc);
       const first = openapiSources(doc)[0];
+      // The tied <rapi-doc> shows the first source already: use its copy, as without the box
+      let switching = false;
       if (following && first) {
         const firstUrl = new URL(first.url, arazzoUrl).href;
         const current =
           this.specDoc.specUrl && new URL(this.specDoc.specUrl, document.baseURI).href;
-        if (current !== firstUrl) this.specDoc.loadSpec(firstUrl);
+        switching = current !== firstUrl;
+        if (switching) this.specDoc.loadSpec(firstUrl);
       }
       await Promise.all(
         openapiSources(doc).map(async (s, i) => {
-          if (i === 0 && this.specDoc && !following) return;
+          if (i === 0 && this.specDoc && !switching) return;
           const url = i === 0 && this.specUrl ? this.specUrl : s.url;
           try {
             const text = await this.fetchText(
@@ -666,8 +673,8 @@ export default class RapiFlow extends LitElement {
       this.specObjects = specObjects;
       this.problems = problems;
       this.resetRun();
-      // Following: the <rapi-doc> still holds the previous spec until its spec-loaded
-      if (!following) this.useRapiDocSpec();
+      // Switching: the <rapi-doc> still holds the previous spec until its spec-loaded
+      if (!switching) this.useRapiDocSpec();
       this.emit("flow-loaded", { doc, problems });
     } catch (err) {
       if (id !== this.loadId) return;

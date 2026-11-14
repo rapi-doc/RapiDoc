@@ -52,7 +52,7 @@ A document can name several sources (Rapid Parcels' `ship-a-parcel` uses `rates`
 | `for` | | `id` of a `<rapi-doc>` on the page to take the spec, server, credentials and mock from. |
 | `view` | `expanded` | `expanded` shows each step's inputs and actions in its box; `compact` shows only the operation. |
 | `show-view-toggle` | `true` | `false` hides the Compact / Expanded switch. |
-| `allow-arazzo-url-load` | `false` | `true` shows a box above the diagram to load any Arazzo document by URL (the server must allow cross-origin requests). With `for`, the tied `<rapi-doc>` also loads the document's first OpenAPI source. A URL that fails to load leaves the current document and `<rapi-doc>` as they were, with the error under the box. Without the box, the document's URL shows as text (part `url`). |
+| `allow-arazzo-url-load` | `false` | `true` shows a box above the diagram to load any Arazzo document by URL (the server must allow cross-origin requests). With `for`, the tied `<rapi-doc>` follows the document: whenever it changes (from the box or `arazzo-url`), it loads the document's first OpenAPI source, unless it already shows that spec. A URL that fails to load leaves the current document and `<rapi-doc>` as they were, with the error under the box. Without the box, the document's URL shows as text (part `url`). |
 | `allow-run` | `true` | `false` hides the run panel: the diagram only. |
 | `server-url` | | Base URL runs send requests to, instead of the server the tied `<rapi-doc>` selected or the spec's first server. |
 | `mcp` | `false` | `true` shows an **Export MCP Server** button: an MCP server with one tool per workflow of the document (each one the runtime can run) and none per operation, calling every API source. |
