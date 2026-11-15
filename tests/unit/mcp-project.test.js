@@ -106,7 +106,8 @@ describe("mcp: the exported project runs against @rapidoc/mock", () => {
   });
 
   it("runs a workflow tool end to end against the mock", async () => {
-    const client = await connect({ API_KEY: "test-key" });
+    // Two schemes, so each has its own variable: API_KEY is not sent as petstore_auth's token
+    const client = await connect({ API_KEY: "test-key", PETSTORE_AUTH: "test-key" });
     const result = await client.callTool({ name: "adopt_pet", arguments: { quantity: 1 } });
     assert.equal(result.isError ?? false, false, result.content?.[0]?.text);
     const outputs = result.structuredContent;

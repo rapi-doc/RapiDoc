@@ -85,7 +85,6 @@ describe("mcp: workflows compiled into the manifest", () => {
     });
     assert.deepEqual(adopt.annotations, {
       readOnlyHint: false,
-      destructiveHint: false,
       idempotentHint: false,
     });
     assert.equal(adopt.operation, undefined);

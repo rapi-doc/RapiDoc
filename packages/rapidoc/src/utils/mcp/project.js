@@ -10,6 +10,8 @@ import { envNameFor, generateHostConfigs, toSnakeCase } from "./common.js";
  * @param {object} manifest from buildMcpManifest()
  * @param {object} [options]
  * @param {string} [options.serverName] the package name; defaults to the manifest's server name
+ * @param {string} [options.serverPath] absolute path of the written `server.ts`, for the host
+ *   configuration (a caller that knows where the project goes, such as `rapidoc mcp export`)
  * @param {string} [options.workflowRuntime] the text of workflow-runtime.js, written as
  *   `workflow-runtime.js` when the manifest has workflows (@rapidoc/mcp and <rapi-flow> supply it;
  *   dist/rapidoc-min.js does not carry it)
@@ -21,7 +23,10 @@ export function writeMcpProject(manifest, options = {}) {
   const schemeIds = Object.values(manifest.sources || {}).flatMap((s) =>
     Object.keys(s.securitySchemes || {}),
   );
-  const hostConfigs = generateHostConfigs(options.serverName || name, { schemes: schemeIds });
+  const hostConfigs = generateHostConfigs(options.serverName || name, {
+    schemes: schemeIds,
+    serverPath: options.serverPath,
+  });
   const packageJson = {
     name: toSnakeCase(options.serverName || name).replace(/_/g, "-"),
     version: manifest.server.version || "1.0.0",
@@ -69,10 +74,18 @@ ${envLines.join("\n")}
     Object.values(manifest.sources)[0]?.baseUrl || ""
   })
 
-## Use with Claude Desktop or Cursor
+## Use with an AI app
 
-Copy the \`mcpServers\` entry from \`claude_desktop_config.json\` into your host's configuration
-and fill in the credentials.
+Any app that can start a local MCP server works: Claude Desktop, Cursor, Claude Code, Codex and
+others. Copy the \`mcpServers\` entry from \`mcp.json\` into the app's MCP configuration (apps
+with another file format take the same command, arguments and variables),
+${
+  options.serverPath
+    ? ""
+    : "replace the path in `args` with the absolute path of this folder's `server.ts`, "
+}and fill in the credentials. The host starts the server itself, as a child process that talks over
+stdin and stdout: it listens on no port, and \`npm start\` is only for trying it out. Run
+\`npm install\` here first.
 `;
   return {
     "manifest.json": JSON.stringify(manifest, null, 2),
@@ -83,6 +96,6 @@ and fill in the credentials.
       : {}),
     "package.json": JSON.stringify(packageJson, null, 2),
     "README.md": readme,
-    "claude_desktop_config.json": hostConfigs.claudeDesktopConfig,
+    "mcp.json": hostConfigs.claudeDesktopConfig,
   };
 }

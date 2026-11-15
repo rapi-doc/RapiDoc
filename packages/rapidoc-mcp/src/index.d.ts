@@ -287,12 +287,12 @@ export function envNameFor(schemeId: string): string;
 
 /**
  * The exported project's files: manifest.json, server.ts, runtime.js, package.json, README.md,
- * claude_desktop_config.json, and workflow-runtime.js when the manifest has workflows (`@rapidoc/mcp`
+ * mcp.json, and workflow-runtime.js when the manifest has workflows (`@rapidoc/mcp`
  * supplies its text; pass `workflowRuntime` to override).
  */
 export function writeMcpProject(
   manifest: McpManifest,
-  options?: { serverName?: string; workflowRuntime?: string },
+  options?: { serverName?: string; workflowRuntime?: string; serverPath?: string },
 ): Record<string, string>;
 
 /** A stored (uncompressed) ZIP of text files. */
@@ -311,7 +311,7 @@ export function estimateTokenCost(manifest: McpManifest): McpBudget;
 
 export function generateHostConfigs(
   serverName: string,
-  options?: { schemes?: string[] },
+  options?: { schemes?: string[]; serverPath?: string },
 ): { claudeDesktopConfig: string; cursorConfig: string };
 
 export interface GenerateMcpServerResult {
@@ -353,10 +353,10 @@ export function indexResolvedSpec(resolvedSpec: object): {
 export function parseArazzo(input: string | object): object;
 export function validateArazzo(doc: object): McpProblem[];
 
-/** The manifest, the project files, the budget and the Claude Desktop config in one call. */
+/** The manifest, the project files, the budget and the host configuration (mcp.json) in one call. */
 export function generateMcpServer(
   spec: object,
-  options?: BuildManifestOptions & { workflowRuntime?: string },
+  options?: BuildManifestOptions & { workflowRuntime?: string; serverPath?: string },
 ): GenerateMcpServerResult;
 
 /** Reads `<rapi-doc>`'s `mcp` attribute: off for empty, `false` or `none`. */

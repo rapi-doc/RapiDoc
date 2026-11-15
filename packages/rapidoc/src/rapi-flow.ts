@@ -1747,7 +1747,8 @@ export default class RapiFlow extends LitElement {
     const blob = new Blob([createZip(result.files)], { type: "application/zip" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${result.manifest.server.name.replace(/_/g, "-")}-mcp.zip`;
+    const base = result.manifest.server.name.replace(/_/g, "-").replace(/-mcp$/, "");
+    link.download = `${base}-mcp.zip`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -3,7 +3,7 @@
  *
  * The tools, resources and the API's base URL come from the manifest and the requests are made
  * by runtime.js, so this file is the same for every API. Credentials come from environment
- * variables named after the API's security schemes (see claude_desktop_config.json);
+ * variables named after the API's security schemes (see mcp.json);
  * API_BASE_URL overrides the base URL.
  */
 import { readFileSync } from "node:fs";

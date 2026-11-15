@@ -165,9 +165,9 @@ describe("mcp: manifest from a raw OpenAPI document", () => {
       destructiveHint: false,
       idempotentHint: true,
     });
+    // A POST may add or undo: no destructiveHint, so hosts assume it may be destructive
     assert.deepEqual(hints("add_pet"), {
       readOnlyHint: false,
-      destructiveHint: false,
       idempotentHint: false,
     });
     assert.deepEqual(hints("delete_pet"), {
@@ -281,6 +281,24 @@ describe("mcp: manifest rules", () => {
     assert.equal(resources[0].operation.path, "/currencies");
   });
 
+  it("lets x-mcp-resource decide between a resource and a tool, and keeps /status a tool", () => {
+    const { tools, resources } = buildMcpManifest(
+      minimal({
+        "/currencies": { get: { operationId: "getCurrencies", "x-mcp-resource": false } },
+        "/plans": { get: { operationId: "getPlans", "x-mcp-resource": true } },
+        "/status": { get: { operationId: "getStatus" } },
+      }),
+    );
+    assert.deepEqual(
+      tools.map((t) => t.name),
+      ["get_currencies", "get_status"],
+    );
+    assert.deepEqual(
+      resources.map((r) => r.uri),
+      ["reference://plans"],
+    );
+  });
+
   it("substitutes server variables and numbers duplicate tool names", () => {
     const m = buildMcpManifest(
       minimal({
@@ -392,6 +410,13 @@ describe("mcp: the runtime builds and sends requests", () => {
       { credentials: { api_key: "k1" } },
     );
     assert.equal(req.url, "https://petstore3.swagger.io/api/v3/pet/a%2Fb");
+    // "." and ".." would be resolved as dot segments ("/pet/.." is "/"): rejected
+    for (const petId of [".", ".."]) {
+      assert.throws(
+        () => buildRequest(manifest, op("get_pet_by_id"), { petId }, {}),
+        /Path parameter petId can't be/,
+      );
+    }
     assert.deepEqual(req.headers, { api_key: "k1", Accept: "application/json" });
     // only petstore_auth known: the second alternative, as a bearer token
     const bearer = buildRequest(
@@ -511,17 +536,19 @@ describe("mcp: the runtime builds and sends requests", () => {
     await assert.rejects(runtime.readResource("reference://none"), /Unknown resource/);
   });
 
-  it("reads credentials from the environment by scheme name, with API_KEY as the fallback", () => {
+  it("reads credentials from the environment by scheme name; API_KEY is a fallback for one scheme only", () => {
     assert.equal(envNameFor("petstore_auth"), "PETSTORE_AUTH");
     assert.equal(envNameFor("myApiKey"), "MY_API_KEY");
     assert.deepEqual(credentialsFromEnv(manifest, { PETSTORE_AUTH: "t", API_KEY: "k" }), {
       petstore_auth: "t",
       api_key: "k",
     });
-    assert.deepEqual(credentialsFromEnv(manifest, { API_KEY: "k" }), {
-      petstore_auth: "k",
-      api_key: "k",
-    });
+    // Two schemes: API_KEY is api_key's own variable, never petstore_auth's credential too
+    assert.deepEqual(credentialsFromEnv(manifest, { API_KEY: "k" }), { api_key: "k" });
+    const one = {
+      sources: { api: { securitySchemes: { token: { type: "http", scheme: "bearer" } } } },
+    };
+    assert.deepEqual(credentialsFromEnv(one, { API_KEY: "k" }), { token: "k" });
     const basic = {
       sources: { api: { securitySchemes: { basic: { type: "http", scheme: "basic" } } } },
     };
@@ -543,7 +570,7 @@ describe("mcp: the exported project", () => {
       "runtime.js",
       "package.json",
       "README.md",
-      "claude_desktop_config.json",
+      "mcp.json",
     ]);
     assert.deepEqual(JSON.parse(files["manifest.json"]), manifest);
     assert.equal(files["runtime.js"], runtimeSource);
@@ -560,12 +587,25 @@ describe("mcp: the exported project", () => {
 
   it("writes host configuration with one env entry per security scheme", () => {
     const config = JSON.parse(hostConfig);
-    assert.deepEqual(config.mcpServers.pet_store.args, ["-y", "tsx", "server.ts"]);
+    // A host starts the server from its own directory: the path is absolute (a placeholder here)
+    assert.deepEqual(config.mcpServers.pet_store.args, [
+      "-y",
+      "tsx",
+      "/absolute/path/to/pet-store/server.ts",
+    ]);
+    assert.ok(files["README.md"].includes("replace the path in `args`"));
+    const placed = generateMcpServer(petstore, { serverPath: "/srv/pets/server.ts" });
+    assert.equal(
+      Object.values(JSON.parse(placed.hostConfig).mcpServers)[0].args[2],
+      "/srv/pets/server.ts",
+    );
+    assert.equal(placed.files["mcp.json"], placed.hostConfig);
+    assert.ok(!placed.files["README.md"].includes("replace the path in `args`"));
     assert.deepEqual(Object.keys(config.mcpServers.pet_store.env), ["PETSTORE_AUTH", "API_KEY"]);
     assert.deepEqual(JSON.parse(generateHostConfigs("x").claudeDesktopConfig).mcpServers.x.env, {
       API_KEY: "your-api-key-here",
     });
-    assert.equal(files["claude_desktop_config.json"], hostConfig);
+    assert.equal(files["mcp.json"], hostConfig);
   });
 
   it("estimates the token budget from the manifest", () => {

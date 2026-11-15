@@ -26,7 +26,7 @@ import { NO_STORE } from "./static.js";
  * the tools of the zones the reader may see, and operations secured with oauth2, openIdConnect or a
  * bearer scheme are called with the reader's access token (auth.tryIt) when the portal has one. Other
  * schemes (API keys, HTTP Basic) take the server's environment, named as in the exported project:
- * `<SCHEME>` (scheme id in upper snake case) or `API_KEY`.
+ * `<SCHEME>` (scheme id in upper snake case), or `API_KEY` when the API has one scheme.
  */
 
 export const MCP_PATH = "/mcp";

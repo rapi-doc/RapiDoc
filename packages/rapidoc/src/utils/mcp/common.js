@@ -134,11 +134,28 @@ export function estimateTokenCost(manifest) {
 }
 
 /**
- * Generates Claude Desktop and Cursor JSON configuration snippets for the exported project.
+ * `destructiveHint` for a tool that makes requests with these methods: true with a PUT, PATCH or
+ * DELETE, false when every request is a read. Left out with a POST (or another write) and nothing
+ * more: a POST may add (`POST /orders`) or undo (`POST /orders/{id}/cancel`), and without the hint
+ * MCP hosts assume the tool may be destructive, so they can ask first.
+ */
+export function destructiveHintFor(methods) {
+  const all = methods.map((m) => String(m).toLowerCase());
+  if (all.some((m) => ["put", "patch", "delete"].includes(m))) return { destructiveHint: true };
+  if (all.every((m) => ["get", "head", "options"].includes(m))) return { destructiveHint: false };
+  return {};
+}
+
+/**
+ * Generates the `mcpServers` configuration entry for the exported project (`mcp.json`): the format
+ * Claude Desktop, Cursor, Claude Code and most other MCP hosts read.
  *
  * @param {string} serverName
  * @param {object} [options]
  * @param {string[]} [options.schemes] security scheme ids; one `env` entry each (`API_KEY` when none)
+ * @param {string} [options.serverPath] absolute path of the project's `server.ts`. A host starts
+ *   the server from its own working directory, so a relative path would not be found; without
+ *   this, the entry carries a placeholder path the user replaces.
  */
 export function generateHostConfigs(serverName, options = {}) {
   const safeName = toSnakeCase(serverName || "api_mcp_server");
@@ -151,7 +168,11 @@ export function generateHostConfigs(serverName, options = {}) {
     mcpServers: {
       [safeName]: {
         command: "npx",
-        args: ["-y", "tsx", "server.ts"],
+        args: [
+          "-y",
+          "tsx",
+          options.serverPath || `/absolute/path/to/${safeName.replace(/_/g, "-")}/server.ts`,
+        ],
         env,
       },
     },

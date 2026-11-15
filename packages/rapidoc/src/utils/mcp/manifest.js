@@ -6,6 +6,7 @@
 import {
   AUTH_TRANSPORT_HEADERS,
   deriveToolName,
+  destructiveHintFor,
   sanitizeDescription,
   toSnakeCase,
 } from "./common.js";
@@ -24,7 +25,6 @@ const RESOURCE_PATH_HINTS = [
   "/countries",
   "/tiers",
   "/categories",
-  "/status",
   "/schema",
 ];
 const SECURITY_KEYS = [
@@ -81,6 +81,7 @@ function collectOperations(spec, processed) {
           deprecated: p.deprecated === true,
           isWebhook: p.isWebhook === true,
           internal: p.xInternal === true || p.xHidden === true,
+          resource: p.rawOperation?.["x-mcp-resource"],
           parameters: Array.isArray(p.parameters) ? p.parameters : [],
           requestBody: p.requestBody || null,
           security: p.security,
@@ -116,6 +117,7 @@ function collectOperations(spec, processed) {
           op["x-hidden"] === true ||
           item["x-internal"] === true ||
           item["x-hidden"] === true,
+        resource: op["x-mcp-resource"],
         parameters,
         requestBody: follow(op.requestBody, spec) || null,
         security: op.security ?? spec.security,
@@ -314,8 +316,13 @@ export function buildMcpManifest(spec, options = {}) {
         : [],
     };
     const isGet = op.method === "get";
+    // `x-mcp-resource` on the operation decides; without it, the path does. Hosts often leave
+    // resources for the user to attach, so `false` keeps an operation the agent must call a tool.
     const isResource =
-      isGet && !required.length && RESOURCE_PATH_HINTS.some((hint) => op.path.includes(hint));
+      isGet &&
+      !required.length &&
+      op.resource !== false &&
+      (op.resource === true || RESOURCE_PATH_HINTS.some((hint) => op.path.includes(hint)));
     if (isResource) {
       resources.push({
         name,
@@ -332,8 +339,7 @@ export function buildMcpManifest(spec, options = {}) {
       inputSchema,
       annotations: {
         readOnlyHint: isGet,
-        // POST adds; PUT, PATCH and DELETE change or remove what is there
-        destructiveHint: ["put", "patch", "delete"].includes(op.method),
+        ...destructiveHintFor([op.method]),
         idempotentHint: ["get", "put", "delete"].includes(op.method),
       },
       operation,
