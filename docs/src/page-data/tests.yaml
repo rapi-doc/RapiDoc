@@ -170,12 +170,6 @@ advanced:
       title: Serialized JSON Object in HTTP Request Headers
       validates:
         - Serializing and transmitting structured JSON objects directly in custom headers
-  - filtering-paths:
-      title: Dynamic Path Matching & Endpoint Filtering
-      validates:
-        - "filter-operations terms: operationId, method and path, path, glob (/pet/*, /pet/**), tag:, badge:, deprecated"
-        - "! terms exclude operations (e.g. !badge:Internal), on top of any include terms"
-        - Changing filter-operations at runtime re-filters the rendered operations
   - collapsable:
       title: Collapsible Tag Groups & Programmatic Navigation (scrollToPath)
       description: Validates Collapsed Tags and scrollToPath() Method in RapiDoc

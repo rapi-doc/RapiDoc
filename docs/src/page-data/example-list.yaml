@@ -108,6 +108,12 @@ examples:
       description: Annotate operations with custom color-coded status badges (Beta, Deprecated, Internal) using x-badges.
       category: Layouts & Views
 
+  - Filter Operations:
+      img: /assets/images/badge.png
+      href: /examples/filter-operations
+      description: Show only some of a spec's operations with filter-operations, by operationId, method and path, path glob, tag or badge, and leave others out with ! terms.
+      category: Layouts & Views
+
   - Syntax Highlighting:
       img: /assets/images/code-highlight.png
       href: /examples/code-highlight
