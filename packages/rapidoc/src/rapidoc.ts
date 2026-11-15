@@ -2597,9 +2597,9 @@ export default class RapiDoc extends LitElement {
    * (<span class="mono fg-color">manifest.json</span>, <span class="mono
    * fg-color">server.ts</span>, <span class="mono fg-color">runtime.js</span>, <span class="mono
    * fg-color">package.json</span>, <span class="mono fg-color">README.md</span>, <span class="mono
-   * fg-color">claude_desktop_config.json</span>), <span class="mono fg-color">budget</span> is the
-   * token diagnostics and <span class="mono fg-color">hostConfig</span> the Claude Desktop / Cursor
-   * config JSON. <span class="mono fg-color">options</span>: <span class="mono
+   * fg-color">mcp.json</span>), <span class="mono fg-color">budget</span> is the
+   * token diagnostics and <span class="mono fg-color">hostConfig</span> the text of
+   * <span class="mono fg-color">mcp.json</span>, the entry for an AI app's MCP configuration. <span class="mono fg-color">options</span>: <span class="mono
    * fg-color">serverName</span>, <span class="mono fg-color">includeInternal</span>, <span
    * class="mono fg-color">includeDeprecated</span>, <span class="mono
    * fg-color">includeOperations</span> (<span class="mono fg-color">false</span>: only the workflow
@@ -2629,7 +2629,9 @@ export default class RapiDoc extends LitElement {
     // A workflows-only export gets a name of its own, so the two downloads do not overwrite
     const kind =
       (options as { includeOperations?: boolean }).includeOperations === false ? "-workflows" : "";
-    link.download = `${result.manifest.server.name.replace(/_/g, "-")}${kind}-mcp.zip`;
+    // A name that already ends in "mcp" (mcp-server-name="my-api-mcp") is not suffixed twice
+    const base = result.manifest.server.name.replace(/_/g, "-").replace(/-mcp$/, "");
+    link.download = `${base}${kind}-mcp.zip`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

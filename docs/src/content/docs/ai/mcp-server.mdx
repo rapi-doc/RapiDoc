@@ -28,9 +28,9 @@ No extra annotations are needed. Every tool and resource comes from standard Ope
 1. **Tool names**: The tool name is the snake_case form of the `operationId` (`placeOrder` becomes `place_order`). Operations without an `operationId` get a name derived from the HTTP method and path. Duplicate names get a `_2`, `_3` suffix.
 2. **Tool descriptions**: The operation `summary` is used, else its `description`, else `METHOD /path`. HTML and Markdown are stripped and the text is truncated to 300 characters.
 3. **Left out**: Operations marked `x-internal: true` or `x-hidden: true`, operations marked `deprecated: true`, and webhooks are left out.
-4. **Headers**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, `User-Agent` and other transport metadata are stripped from LLM tool arguments, as is any parameter that carries an API key named in the spec's `securitySchemes`. The runtime applies the right scheme itself, from environment variables, and reads the base URL from `servers[0]` (overridable with `API_BASE_URL`).
-5. **Resources**: A `GET` with no required parameters whose path contains a reference-data word (`/reference`, `/currencies`, `/countries`, `/tiers`, `/categories`, `/status`, `/schema`) becomes an **MCP resource** instead of a tool. Its URI is `reference://` and the tool name without `get_`, with dashes (`getCurrencies` becomes `reference://currencies`).
-6. **Safety annotations**: Every tool carries MCP annotations: `readOnlyHint` for `GET` only, `destructiveHint` for `PUT`, `PATCH` and `DELETE`, `idempotentHint` for `GET`, `PUT` and `DELETE`. Hosts use them to ask the user before running a consequential tool.
+4. **Headers**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, `User-Agent` and other transport metadata are stripped from LLM tool arguments, as is any parameter that carries an API key named in the spec's `securitySchemes`. The runtime applies the right scheme itself, from environment variables, and reads the base URL from `servers[0]`. The exported server runs outside the documentation page, so it needs a full URL: when the spec has no `servers`, or a relative one such as `/api/v1`, set `API_BASE_URL`, which also overrides a full URL.
+5. **Resources**: A `GET` with no required parameters whose path contains a reference-data word (`/reference`, `/currencies`, `/countries`, `/tiers`, `/categories`, `/schema`) becomes an **MCP resource** instead of a tool. Many hosts leave resources for the user to attach, so set `x-mcp-resource: false` on an operation the agent must be able to call itself; `x-mcp-resource: true` makes any `GET` with no required parameters a resource. Its URI is `reference://` and the tool name without `get_`, with dashes (`getCurrencies` becomes `reference://currencies`).
+6. **Safety annotations**: Every tool carries MCP annotations: `readOnlyHint` for `GET` only, `idempotentHint` for `GET`, `PUT` and `DELETE`, and `destructiveHint`: `true` for `PUT`, `PATCH` and `DELETE`, `false` for `GET`, and left out for `POST`, which may add (`POST /orders`) or undo (`POST /orders/{id}/cancel`). Without the hint, hosts assume a tool may be destructive. Hosts use the annotations to ask the user before running a consequential tool; they are hints, not enforcement.
 7. **Token budget**: RapiDoc estimates how many tokens the tool list adds to every turn, and warns above 30 tools or 5,000 tokens.
 
 ---
@@ -50,7 +50,7 @@ security:
   - api_key: []                         # Applied by the runtime from API_KEY
 
 paths:
-  # 1. Tool "place_order" (POST: readOnlyHint false)
+  # 1. Tool "place_order" (POST: readOnlyHint false, no destructiveHint)
   /orders:
     post:
       summary: Place a new order
@@ -143,7 +143,7 @@ The `place_order` tool from the example above:
     },
     "required": ["body"]
   },
-  "annotations": { "readOnlyHint": false, "destructiveHint": false, "idempotentHint": false },
+  "annotations": { "readOnlyHint": false, "idempotentHint": false },
   "operation": {
     "source": "api",
     "method": "POST",
@@ -154,7 +154,7 @@ The `place_order` tool from the example above:
 }
 ```
 
-`operation.params` records where each argument goes (`path`, `query`, `header`, `cookie` or `body`), and `operation.security` is the operation's security requirement, else the spec's. Because the manifest holds everything a server needs, servers in other languages can read the same `manifest.json` later without regenerating anything.
+`operation.params` records where each argument goes (`path`, `query`, `header`, `cookie` or `body`), and `operation.security` is the operation's security requirement, else the spec's. Only a TypeScript server is exported today. Because the manifest holds everything a server needs, a server in another language would only have to read the same `manifest.json`; nothing would need to be regenerated.
 
 ---
 
@@ -164,13 +164,13 @@ The `place_order` tool from the example above:
 
 `runtime.js` executes any tool in the manifest with `fetch`, so the same file runs in Node, browsers and edge workers. `createMcpRuntime(manifest, { fetch, credentials, baseUrls })` returns `listTools()`, `listResources()`, `callTool(name, args)` and `readResource(uri)`. A tool call:
 
-1. Puts each argument where `operation.params` says, percent-encoding path parameters and serializing arrays as repeated query parameters.
-2. Applies the security scheme: an API key in a header, query parameter or cookie; HTTP Basic; a Bearer token for HTTP bearer, OAuth 2 and OpenID Connect.
+1. Puts each argument where `operation.params` says, percent-encoding path parameters and serializing arrays as repeated query parameters. A path argument of `.` or `..` is an error, because a URL would resolve it to another path.
+2. Applies the security scheme: an API key in a header, query parameter or cookie; HTTP Basic; a Bearer token for HTTP bearer, OAuth 2 and OpenID Connect. For OAuth 2 and OpenID Connect you supply an access token you already have: the runtime does not sign in or refresh a token.
 3. Sends the request and returns an MCP result: `content` with the JSON response pretty-printed, `structuredContent` when the response is a JSON object, and `isError` with the HTTP status and body on a 4xx or 5xx.
 
 ### What is in the zip
 
-**Export MCP Server** downloads `<server-name>-mcp.zip`:
+**Export MCP Server** downloads `<server-name>-mcp.zip` (a server name that already ends in `-mcp` is not suffixed again):
 
 | File | Purpose |
 | :--- | :--- |
@@ -180,7 +180,7 @@ The `place_order` tool from the example above:
 | `server.ts` | A stdio server on `@modelcontextprotocol/sdk` that registers the manifest's tools and resources and hands every call to the runtime; identical for every API |
 | `package.json` | Depends on `@modelcontextprotocol/sdk`; `tsx` as a dev dependency; `npm start` runs `tsx server.ts` |
 | `README.md` | How to run it and which environment variables it reads |
-| `claude_desktop_config.json` | A ready-made `mcpServers` entry for Claude Desktop and Cursor |
+| `mcp.json` | A ready-made `mcpServers` entry for Claude Desktop, Cursor and other MCP hosts |
 
 ### Running it
 
@@ -193,7 +193,7 @@ API_KEY="your-key" npm start
 
 ### Environment variables
 
-Credentials are read from environment variables named after the security schemes in the spec, in upper snake case: the scheme `petstore_auth` reads `PETSTORE_AUTH`, `api_key` reads `API_KEY`. `API_KEY` is also the fallback for any scheme without its own variable. HTTP Basic takes `user:password` in the scheme's variable, or `<NAME>_USERNAME` and `<NAME>_PASSWORD`. `API_BASE_URL` overrides the manifest's base URL for every source.
+Credentials are read from environment variables named after the security schemes in the spec, in upper snake case: the scheme `petstore_auth` reads `PETSTORE_AUTH`, `api_key` reads `API_KEY`. When the spec has one scheme, `API_KEY` also works as its variable; with several schemes, each needs its own variable, so one key is never sent as another scheme's credential. HTTP Basic takes `user:password` in the scheme's variable, or `<NAME>_USERNAME` and `<NAME>_PASSWORD`. `API_BASE_URL` overrides the manifest's base URL for every source.
 
 ### Workflows as tools
 
@@ -222,12 +222,12 @@ Set the `mcp` attribute:
 <rapi-doc
   spec-url="/specs/my-api.yaml"
   mcp="true"
-  mcp-server-name="my-api-mcp"
+  mcp-server-name="my-api"
 > </rapi-doc>
 ```
 
 - **`mcp`** (default `"false"`): `"true"` shows an **Export MCP Server** button in the API overview that downloads the project as a zip. `"false"`, `"none"` or an empty value hides it.
-- **`mcp-server-name`** (optional): the server's name. Defaults to the spec's title.
+- **`mcp-server-name`** (optional): the server's name. Defaults to the spec's title. It is only a name, not a running service: it becomes the download's name (`my-api-mcp.zip`), the package name (`my-api`) and the key of the `mcpServers` entry (`my_api`).
 
 ### From JavaScript
 
@@ -237,11 +237,11 @@ You can build the manifest, trigger the download, or check the token budget from
 const doc = document.querySelector('rapi-doc');
 
 // 1. Build the manifest, the project files and the token diagnostics in memory
-const result = doc.generateMcpServer({ serverName: 'my_store_mcp' });
+const result = doc.generateMcpServer({ serverName: 'my-api' });
 console.log(result.manifest.tools.map((t) => t.name)); // ['place_order', 'get_order', ...]
 console.log(result.files['server.ts']);                 // every file of the zip, path → text
 console.log(result.budget);                             // { totalTools: 5, estimatedTokens: 850, ... }
-console.log(result.hostConfig);                         // Claude Desktop / Cursor config JSON
+console.log(result.hostConfig);                         // the text of mcp.json
 
 // 2. Download the project as <server-name>-mcp.zip
 doc.downloadMcpServer();
@@ -251,7 +251,7 @@ const budget = doc.getMcpBudget();
 console.log(`Overhead: ~${budget.estimatedTokens} tokens/turn across ${budget.totalTools} tools.`);
 ```
 
-`result.files` has the keys `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md` and `claude_desktop_config.json`, plus `workflow-runtime.js` when there are workflows. `getMcpBudget()` returns `{ totalTools, totalResources, estimatedTokens, consequentialCount, warnings }`, where `consequentialCount` is the number of tools that are not read-only.
+`result.files` has the keys `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md` and `mcp.json`, plus `workflow-runtime.js` when there are workflows. `getMcpBudget()` returns `{ totalTools, totalResources, estimatedTokens, consequentialCount, warnings }`, where `consequentialCount` is the number of tools that are not read-only.
 
 ### From the command line
 
@@ -279,20 +279,32 @@ const result = await runtime.callTool('get_pet_by_id', { petId: 1 });
 
 // Or write the same project the Export button downloads
 const files = writeMcpProject(manifest); // path → text
+
+// When you know where the project will live, put the real path in mcp.json
+writeMcpProject(manifest, { serverPath: '/srv/petstore-mcp/server.ts' });
 ```
 
 `@rapidoc/mcp` ships TypeScript types (`McpManifest`, `McpRuntime`, ...). Its only dependency is `yaml` (for Arazzo documents); requests use Node's `fetch`.
 
 ---
 
-## 6. Connecting Claude Desktop and Cursor
+## 6. Connecting an AI App
 
-Every exported project includes a ready-to-use configuration for **Claude Desktop** and **Cursor**, with one `env` entry per security scheme in the spec (`API_KEY` alone when the spec declares none):
+Every exported project includes `mcp.json`, a ready-to-use `mcpServers` entry. Any app that can start a local MCP server over stdio can use the server: **Claude Desktop**, **Cursor**, Claude Code, Codex and others. Most read this JSON format; an app with another format (Codex uses TOML) takes the same command, arguments and variables. The entry has one `env` entry per security scheme in the spec (`API_KEY` alone when the spec declares none).
 
-### Claude Desktop Configuration
-Copy the generated snippet to your `claude_desktop_config.json`, and run the host from the unzipped folder or make the `server.ts` path absolute:
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+Add the entry to the `mcpServers` object of the app's own configuration file, keeping the entries already there, and replace the placeholder path in `args` with the absolute path of the unzipped folder's `server.ts` (`rapidoc mcp export` writes the real path). Run `npm install` in that folder first. The app starts the server itself, as a child process that talks over stdin and stdout; it listens on no port, and `npm start` is only for trying it out.
+
+| App | Configuration file |
+| :--- | :--- |
+| Claude Desktop, macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Desktop, Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Cursor | `~/.cursor/mcp.json`, or `.cursor/mcp.json` in a project |
+| Claude Code | `.mcp.json` in a project |
+| Codex | `~/.codex/config.toml`: a `[mcp_servers.<name>]` section with the same `command`, `args` and `env`, written as TOML |
+
+<Aside type="caution">
+  Every tool call is a real request to your API, made with the credentials you set. Use a key with only the permissions the agent should have, or point `API_BASE_URL` at a staging server. Leaving an operation out of the export keeps it off the tool list; it is not access control.
+</Aside>
 
 For the Swagger Petstore, which declares the schemes `api_key` and `petstore_auth`:
 
@@ -301,7 +313,7 @@ For the Swagger Petstore, which declares the schemes `api_key` and `petstore_aut
   "mcpServers": {
     "petstore_mcp": {
       "command": "npx",
-      "args": ["-y", "tsx", "server.ts"],
+      "args": ["-y", "tsx", "/absolute/path/to/petstore-mcp/server.ts"],
       "env": {
         "API_KEY": "your-api-key",
         "PETSTORE_AUTH": "your-petstore-auth"

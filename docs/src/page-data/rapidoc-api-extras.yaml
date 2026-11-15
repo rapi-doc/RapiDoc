@@ -17,6 +17,13 @@ Extensions:
     - name: x-badges
       description: |
         Annotates endpoints with short, color-coded badges (e.g., "Internal", "Beta", "v2"). Combine with <span class="mono yellow">filter-operations="!badge:Internal"</span> to filter out restricted or internal APIs from public documentation.
+    - name: x-mcp-resource
+      allowed:
+        - "true"
+        - "false"
+      description: |
+        On an operation, decides whether the MCP export makes it a resource or a tool. <span class="mono yellow">false</span> keeps a reference-data <code>GET</code> (such as <code>/currencies</code>) a tool the agent can call; <span class="mono yellow">true</span> makes any <code>GET</code> with no required parameters a resource. Without it, the path decides.
+      example: /examples/mcp-server
     - name: x-tagGroups
       description: |
         Top-level vendor extension defining a 3-tier navigation hierarchy (compatible with ReDoc / Zudoku). Organizes API tags into higher-level groups in the sidebar navigation, read mode sections, and view mode accordions. Takes an array of group objects, each with <code>name</code>, optional <code>description</code>, and a <code>tags</code> list of tag names.

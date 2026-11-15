@@ -49,7 +49,7 @@ methods, and the network calls themselves (the runtime only builds and sends req
   security schemes to environment variables.
 - `writeMcpProject(manifest, { serverName, workflowRuntime }) -> { [path]: text }` [project.js]:
   `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md`,
-  `claude_desktop_config.json`, and `workflow-runtime.js` when the manifest has workflows and
+  `mcp.json`, and `workflow-runtime.js` when the manifest has workflows and
   `workflowRuntime` (its text) is given: `@rapidoc/mcp` and `<rapi-flow>` supply it,
   `dist/rapidoc-min.js` does not carry it. `server.ts` imports it dynamically when present.
 - `createZip(files) -> Uint8Array` [zip.js]: a stored (uncompressed) ZIP of text files.
@@ -89,12 +89,17 @@ methods, and the network calls themselves (the runtime only builds and sends req
 - **Naming**: `toSnakeCase(operationId)`, else `deriveToolName(method, path)`; workflow tools are
   `toSnakeCase(workflowId)`, after the operations; a repeated name gets `_2`, `_3`, ... in that
   order. `sanitizeDescription` deletes every `_`.
-- **Annotations**: `readOnlyHint` for GET; `destructiveHint` for PUT, PATCH and DELETE;
-  `idempotentHint` for GET, PUT and DELETE. A workflow tool is read-only when every step is a
-  GET, destructive when any step is PUT, PATCH or DELETE, never idempotent. `estimateTokenCost.consequentialCount` counts tools
+- **Annotations**: `readOnlyHint` for GET; `idempotentHint` for GET, PUT and DELETE;
+  `destructiveHint` (`destructiveHintFor`) true for PUT, PATCH and DELETE, false for GET, and left
+  out for POST, which may add or undo: hosts then assume it may be destructive. A workflow tool is
+  read-only when every step is a GET, destructive when any step is PUT, PATCH or DELETE (hint left
+  out with a POST and none of those), never idempotent. `estimateTokenCost.consequentialCount` counts tools
   without `readOnlyHint`.
 - **Resources**: a GET with no required argument whose path contains one of `/reference`,
-  `/currencies`, `/countries`, `/tiers`, `/categories`, `/status`, `/schema`.
+  `/currencies`, `/countries`, `/tiers`, `/categories`, `/schema`. `x-mcp-resource` on the
+  operation overrides the path: `false` keeps it a tool, `true` makes any such GET a resource.
+- **Path arguments**: `buildRequest` percent-encodes them and rejects `.` and `..`, which URL
+  parsing would resolve as dot segments.
 - **Security.** `securitySchemes` keeps `type, description, in, name, scheme, bearerFormat,
   openIdConnectUrl` and OAuth 2 `flows`; `<rapi-doc>`'s injected `_rapidoc_api_key` scheme is
   left out. A tool's `security` is the operation's, else the document's. The runtime uses the
@@ -134,10 +139,10 @@ methods, and the network calls themselves (the runtime only builds and sends req
   each request and `onStep` gets `{ workflowId, stepId, attempt, outcome, request, response,
   outputs, failedCriterion, action }` after it.
 - **Environment.** `envNameFor("petstore_auth")` is `PETSTORE_AUTH`; `API_KEY` is the fallback
-  for every scheme; HTTP Basic reads `<NAME>` as `user:password` or `<NAME>_USERNAME` /
+  only when the manifest has one scheme (never one key for several schemes); HTTP Basic reads `<NAME>` as `user:password` or `<NAME>_USERNAME` /
   `<NAME>_PASSWORD`. `API_BASE_URL` in `server.ts` overrides every source's base URL.
 - **Project.** `server.ts` and `runtime.js` are identical for every API; only `manifest.json`,
-  `package.json`, `README.md` and `claude_desktop_config.json` vary. The zip stores entries
+  `package.json`, `README.md` and `mcp.json` vary. The zip stores entries
   uncompressed with a fixed 1980-01-01 timestamp and UTF-8 names.
 
 ## Side Effects

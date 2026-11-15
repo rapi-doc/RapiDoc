@@ -42,6 +42,9 @@ export function generateMcpServer(spec, options = {}) {
   const files = writeMcpProject(manifest, options);
   const budget = estimateTokenCost(manifest);
   const schemes = Object.values(manifest.sources).flatMap((s) => Object.keys(s.securitySchemes));
-  const hostConfig = generateHostConfigs(manifest.server.name, { schemes }).claudeDesktopConfig;
+  const hostConfig = generateHostConfigs(manifest.server.name, {
+    schemes,
+    serverPath: options.serverPath,
+  }).claudeDesktopConfig;
   return { manifest, files, budget, hostConfig, problems };
 }

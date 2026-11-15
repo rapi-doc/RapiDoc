@@ -5,7 +5,7 @@
  * (another workflow, non-simple criteria, `$workflows` or `$components` expressions) is reported
  * through `onProblem` and left out.
  */
-import { sanitizeDescription, toSnakeCase } from "./common.js";
+import { destructiveHintFor, sanitizeDescription, toSnakeCase } from "./common.js";
 import { toJsonSchema } from "./schema.js";
 import { resolveComponentRef } from "../arazzo/components.js";
 import { resolveOperation } from "../arazzo/operations.js";
@@ -216,7 +216,7 @@ export function compileWorkflows(arazzo, options = {}) {
       inputSchema: inputs,
       annotations: {
         readOnlyHint: methods.every((m) => m === "GET"),
-        destructiveHint: methods.some((m) => ["PUT", "PATCH", "DELETE"].includes(m)),
+        ...destructiveHintFor(methods),
         idempotentHint: false,
       },
       workflow: w.workflowId,

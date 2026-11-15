@@ -42,7 +42,8 @@ export function envNameFor(schemeId) {
 
 /**
  * Credentials for every security scheme in the manifest, read from environment variables:
- * `<SCHEME>` (the scheme id in upper snake case), else `API_KEY` for any scheme. HTTP Basic takes
+ * `<SCHEME>` (the scheme id in upper snake case). `API_KEY` is a fallback only when the manifest
+ * has one scheme: with several, one key would be sent as every scheme's credential. HTTP Basic takes
  * `<SCHEME>` as `user:password`, or `<SCHEME>_USERNAME` and `<SCHEME>_PASSWORD`.
  *
  * @param {object} manifest
@@ -51,6 +52,10 @@ export function envNameFor(schemeId) {
  */
 export function credentialsFromEnv(manifest, env = {}) {
   const credentials = {};
+  const schemeIds = new Set(
+    Object.values(manifest.sources || {}).flatMap((s) => Object.keys(s.securitySchemes || {})),
+  );
+  const fallback = schemeIds.size === 1 ? env.API_KEY : undefined;
   for (const source of Object.values(manifest.sources || {})) {
     for (const [id, scheme] of Object.entries(source.securitySchemes || {})) {
       const key = envNameFor(id);
@@ -63,7 +68,7 @@ export function credentialsFromEnv(manifest, env = {}) {
           continue;
         }
       }
-      const value = env[key] ?? env.API_KEY;
+      const value = env[key] ?? fallback;
       if (value !== undefined && value !== "") credentials[id] = value;
     }
   }
@@ -135,7 +140,13 @@ export function buildRequest(manifest, operation, args = {}, options = {}) {
     const value = args[p.arg || p.name];
     if (value === undefined || value === null) continue;
     if (p.in === "path") {
-      path = path.split(`{${p.name}}`).join(encodeURIComponent(serialize(value)));
+      const segment = serialize(value);
+      // Percent-encoding keeps "/" inside the segment, but "." and ".." are dot segments that URL
+      // parsing resolves: "/orders/../items" would call "/items"
+      if (segment === "." || segment === "..") {
+        throw new Error(`Path parameter ${p.name} can't be "${segment}"`);
+      }
+      path = path.split(`{${p.name}}`).join(encodeURIComponent(segment));
     } else if (p.in === "query") {
       for (const v of Array.isArray(value) ? value : [value]) query.append(p.name, serialize(v));
     } else if (p.in === "header") {

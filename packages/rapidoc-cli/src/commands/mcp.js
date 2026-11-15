@@ -9,7 +9,7 @@ import { canAsk, confirm } from "../lib/prompt.js";
 /*
  * rapidoc mcp export <spec>: writes the MCP server project for a spec (the same files as <rapi-doc>'s
  * Export MCP Server button: manifest.json, server.ts, runtime.js, package.json, README.md,
- * claude_desktop_config.json). rapidoc mcp serve <spec>: runs that server over stdio right away, for an
+ * mcp.json). rapidoc mcp serve <spec>: runs that server over stdio right away, for an
  * AI agent's config, without writing files. Both use @rapidoc/mcp; serve also needs the MCP SDK.
  */
 
@@ -17,7 +17,7 @@ const isUrl = (target) => /^https?:\/\//i.test(target);
 const relative = (file) => path.relative(process.cwd(), file) || ".";
 
 /** The manifest (and the rest of generateMcpServer's result) for a spec file or URL. */
-async function generate(specTarget, values) {
+async function generate(specTarget, values, extra = {}) {
   const { bundleSpec } = await import("../validate/bundle.js");
   const { generateMcpServer, parseArazzo } = await import("@rapidoc/mcp");
   const location = isUrl(specTarget) ? specTarget : path.resolve(specTarget);
@@ -44,6 +44,7 @@ async function generate(specTarget, values) {
     return generateMcpServer(spec, {
       ...(values["server-name"] && { serverName: values["server-name"] }),
       ...(arazzo && { arazzo }),
+      ...extra,
     });
   } catch (err) {
     throw new ProblemError(`Can't build MCP tools from ${specTarget}: ${err.message}`);
@@ -66,7 +67,9 @@ async function exportProject(specTarget, values) {
     }
   }
 
-  const result = await generate(specTarget, values);
+  const result = await generate(specTarget, values, {
+    serverPath: path.join(outDir, "server.ts"),
+  });
   for (const [file, content] of Object.entries(result.files)) {
     const target = path.join(outDir, file);
     fs.mkdirSync(path.dirname(target), { recursive: true });
@@ -85,7 +88,7 @@ async function exportProject(specTarget, values) {
   info(`\nNext steps:`);
   info(`   cd ${relative(outDir)}`);
   info(`   npm install`);
-  info(`   npm start          # or add claude_desktop_config.json's entry to your agent\n`);
+  info(`   npm start          # or add mcp.json's entry to your AI app\n`);
 }
 
 async function serve(specTarget, values) {
