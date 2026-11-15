@@ -1,0 +1,189 @@
+openapi: 3.0.0
+info:
+  title: Filter Operations
+  version: 1.0.0
+  description: |
+    The `filter-operations` attribute of `<rapi-doc>` and `<rapi-doc-mini>` chooses which operations of
+    the spec are shown. Try the presets in the box below, or type your own terms.
+
+    ### How it works
+    The value is a list of **terms**, separated by spaces or commas. An operation is shown when it
+    matches **any** term (every operation does, when there is none) and **no** term that starts with `!`.
+
+    | Term | Shows |
+    | :--- | :--- |
+    | `getPublicPath1` | The operation with that `operationId` (exact, case-sensitive). |
+    | `GET /internal-path-1` | That method and path. |
+    | `/internal-path-1` | Every method on that path. |
+    | `/public-*` | Paths matching the glob: `*` matches within one path segment. |
+    | `/reports/**` | `**` matches any number of segments, `/reports` itself included. |
+    | `tag:Reports` | Operations with that tag. Quote a name with spaces: `tag:"Admin Tools"`. |
+    | `badge:Core` | Operations with that `x-badges` label. |
+    | `deprecated` | Deprecated operations. |
+    | `!<term>` | Leaves out what the term matches, as in `!badge:Internal` or `!deprecated`. |
+
+    - Methods, paths, tags and badge labels are compared without case; operationIds exactly.
+    - A path is matched whole, never as part of a longer path: `/reports` does not match `/reports/{reportId}`.
+    - Operations are listed in the order of the first term they match, so a list of operationIds keeps its order.
+    - Changing the attribute at runtime re-filters the rendered operations.
+
+    ### Examples
+
+    ```html
+    <!-- Operations on the paths that start with /public- -->
+    <rapi-doc spec-url="..." filter-operations="/public-*"></rapi-doc>
+
+    <!-- GET /internal-path-1 only, not PUT /internal-path-1 -->
+    <rapi-doc spec-url="..." filter-operations="GET /internal-path-1"></rapi-doc>
+
+    <!-- Two operations, by method and path -->
+    <rapi-doc spec-url="..." filter-operations="GET /public-path-1, POST /internal-path-2"></rapi-doc>
+
+    <!-- Two operations, by operationId, in this order -->
+    <rapi-doc spec-url="..." filter-operations="getPublicPath2 updateInternalPath1"></rapi-doc>
+
+    <!-- Operations tagged "Admin Tools" (quoted, as the name has a space) -->
+    <rapi-doc spec-url="..." filter-operations='tag:"Admin Tools"'></rapi-doc>
+
+    <!-- /reports and everything under it, at any depth -->
+    <rapi-doc spec-url="..." filter-operations="/reports/**"></rapi-doc>
+
+    <!-- Only one level below /reports: /reports/{reportId}, not /reports or deeper paths -->
+    <rapi-doc spec-url="..." filter-operations="/reports/*"></rapi-doc>
+
+    <!-- Operations with the badge label Core -->
+    <rapi-doc spec-url="..." filter-operations="badge:Core"></rapi-doc>
+
+    <!-- Everything except the operations with the badge label Internal or admin-use-only -->
+    <rapi-doc spec-url="..." filter-operations="!badge:Internal !badge:admin-use-only"></rapi-doc>
+
+    <!-- Include and exclude together: the Public operations, but not the deprecated ones -->
+    <rapi-doc spec-url="..." filter-operations="tag:Public !deprecated"></rapi-doc>
+    ```
+tags:
+  - name: Public
+    description: Operations for every API user.
+  - name: Internal
+    description: Operations for internal services, marked with the `Internal` badge.
+  - name: Admin Tools
+    description: Operations for administrators, labelled with the `admin-use-only` badge, which is not shown (`color` is `none`).
+  - name: Reports
+    description: A nested path tree, to try the `*` and `**` globs.
+paths:
+  /internal-path-1:
+    get:
+      operationId: getInternalPath1
+      summary: Internal operation, Beta
+      tags: [Internal]
+      x-badges:
+        - color: red
+          label: Internal
+        - color: blue
+          label: Beta
+    put:
+      operationId: updateInternalPath1
+      summary: Internal operation, Core
+      tags: [Internal]
+      x-badges:
+        - color: red
+          label: Internal
+        - color: green
+          label: Core
+  /internal-path-2:
+    get:
+      operationId: getInternalPath2
+      summary: Internal operation
+      tags: [Internal]
+      x-badges:
+        - color: red
+          label: Internal
+    post:
+      operationId: createInternalPath2
+      summary: Internal operation, Core
+      tags: [Internal]
+      x-badges:
+        - color: red
+          label: Internal
+        - color: green
+          label: Core
+  /public-path-1:
+    get:
+      operationId: getPublicPath1
+      summary: Public operation with no badge
+      tags: [Public]
+  /public-path-2:
+    get:
+      operationId: getPublicPath2
+      summary: Public operation, Preferred
+      tags: [Public]
+      x-badges:
+        - color: green
+          label: Preferred
+  /public-path-3:
+    get:
+      operationId: getPublicPath3
+      summary: Public operation, deprecated
+      tags: [Public]
+      deprecated: true
+  /admin-use-only-path-1:
+    get:
+      operationId: getAdminPath1
+      summary: Slow admin operation
+      description: Has the badges `admin-use-only` and `Slow`. Only `Slow` is shown, as the color of `admin-use-only` is `none`; `filter-operations` still matches both.
+      tags: [Admin Tools]
+      x-badges:
+        - color: none
+          label: admin-use-only
+        - color: orange
+          label: Slow
+  /admin-use-only-path-2:
+    get:
+      operationId: getAdminPath2
+      summary: Another slow admin operation
+      description: Has the badges `admin-use-only` and `Slow`. Only `Slow` is shown, as the color of `admin-use-only` is `none`; `filter-operations` still matches both.
+      tags: [Admin Tools]
+      x-badges:
+        - color: none
+          label: admin-use-only
+        - color: orange
+          label: Slow
+  /no-badges-path:
+    get:
+      operationId: getNoBadgesPath
+      summary: Public operation with no badge
+      tags: [Public]
+  /reports:
+    get:
+      operationId: listReports
+      summary: List reports
+      description: Matched by `/reports/**` (zero segments below), not by `/reports/*`.
+      tags: [Reports]
+  /reports/{reportId}:
+    get:
+      operationId: getReport
+      summary: Get a report
+      description: One segment below `/reports`, so matched by both `/reports/*` and `/reports/**`.
+      tags: [Reports]
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+  /reports/{reportId}/files/{fileId}:
+    get:
+      operationId: getReportFile
+      summary: Get a file of a report
+      description: Three segments below `/reports`, so matched by `/reports/**` only.
+      tags: [Reports]
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string

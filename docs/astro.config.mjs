@@ -40,6 +40,8 @@ export default defineConfig({
     '/theme': '/guides/theme',
     '/workflows': '/guides/workflows',
     '/perf': '/tests/performance',
+    '/tests/filtering-paths': '/examples/filter-operations',
+    '/examples/filtering-paths': '/examples/filter-operations',
     '/guide/prerender': '/guides/prerender',
     '/prerender': '/guides/prerender',
     '/docs/advanced/mock-server': '/docs/mocking/in-browser/',
