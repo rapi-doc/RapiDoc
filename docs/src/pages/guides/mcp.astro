@@ -3,62 +3,40 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
 import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
-import {
-  IconCheck,
-  IconCopy,
-  IconArrowRight,
-  IconArrowUpRight,
-  IconBolt,
-  IconTarget,
-  IconFileCode,
-  IconPlayerPlay,
-  IconShieldCheck,
-  IconLock,
-} from '@tabler/icons-astro';
+import { IconArrowRight, IconArrowUpRight, IconFileCode, IconPlayerPlay } from '@tabler/icons-astro';
 
-const manifestToolSnippet = `{
-  "name": "place_order",
-  "description": "Place a new order",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "body": {
-        "type": "object",
-        "required": ["customerId", "items"],
-        "properties": {
-          "customerId": { "type": "string" },
-          "items": { "type": "array", "items": { "type": "string" } },
-          "shippingMethod": { "type": "string", "enum": ["standard", "express", "overnight"] }
-        }
-      }
-    },
-    "required": ["body"]
-  },
-  "annotations": { "readOnlyHint": false, "destructiveHint": false, "idempotentHint": false },
-  "operation": {
-    "source": "api",
-    "method": "POST",
-    "path": "/orders",
-    "params": [{ "name": "body", "in": "body", "contentType": "application/json" }],
-    "security": [{ "api_key": [] }]
-  }
-}`;
+const enableSnippet = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 
-const runProjectSnippet = `# The zip: manifest.json, runtime.js, server.ts, package.json, README.md, claude_desktop_config.json
-# (and workflow-runtime.js when the page has a <rapi-flow> with workflows)
-unzip my-api-mcp.zip -d my-api-mcp
+<rapi-doc
+  spec-url="/specs/my-api.yaml"
+  mcp="true"
+  mcp-server-name="my-api"
+></rapi-doc>`;
+
+const trySnippet = `unzip my-api-mcp.zip -d my-api-mcp
 cd my-api-mcp
 npm install
 
-# One environment variable per security scheme (upper snake case); API_KEY is the fallback
-API_KEY="your-key" npm start        # runs: tsx server.ts
+# Optional: start it once to check it. It prints "[MCP] my_api: 2 tools on stdio" and waits.
+PARTNER_KEY="your-key" npm start`;
 
-# Point the server at another environment
-API_BASE_URL="https://staging.example.com/v2" API_KEY="your-key" npm start`;
+const hostConfigSnippet = `{
+  "mcpServers": {
+    "my_api": {
+      "command": "npx",
+      "args": ["-y", "tsx", "/Users/you/my-api-mcp/server.ts"],
+      "env": {
+        "PARTNER_KEY": "your-key"
+      }
+    }
+  }
+}`;
 
-const openApiToMcpSnippet = `# Plain OpenAPI: no extra annotations needed
-security:
-  - api_key: []                      # Applied by the runtime from API_KEY
+const cliSnippet = `npm install -D @rapidoc/cli
+npx rapidoc mcp export my-api.yaml --out-dir my-api-mcp --server-name my-api`;
+
+const openApiToMcpSnippet = `security:
+  - partner_key: []                  # Sent by the server, from the PARTNER_KEY variable
 
 paths:
   /orders:
@@ -66,534 +44,479 @@ paths:
       operationId: placeOrder        # Tool "place_order"
       summary: Place a new order     # Tool description
       parameters:
-        - name: Authorization        # Stripped: never a tool argument
+        - name: Authorization        # Left out: never a tool argument
           in: header
           schema: { type: string }
-      requestBody:                   # Tool argument "body", full JSON Schema
+      requestBody:                   # Tool argument "body", with its full JSON Schema
         required: true
         content:
           application/json:
             schema: { $ref: "#/components/schemas/NewOrder" }
-      # POST: readOnlyHint false, so hosts can ask before running it
 
   /orders/{orderId}:
     get:
-      operationId: getOrder          # Read-only tool "get_order"
+      operationId: getOrder          # Tool "get_order", marked read-only
       summary: Get an order
+      parameters:
+        - name: orderId              # Tool argument "orderId"
+          in: path
+          required: true
+          schema: { type: string }
 
   /currencies:
     get:
-      operationId: getCurrencies     # Resource "reference://currencies"
+      operationId: getCurrencies     # Resource "reference://currencies", not a tool
       summary: List supported currencies
 
   /admin/database/vacuum:
     post:
       summary: Trigger internal database maintenance
-      x-internal: true               # Excluded
+      x-internal: true               # Left out
 
   /orders/legacy:
     get:
       summary: Legacy order list
-      deprecated: true               # Excluded
+      deprecated: true               # Left out
 
 components:
   securitySchemes:
-    api_key:                         # Copied into the manifest's sources
+    partner_key:                     # The scheme's name decides the variable's name
       type: apiKey
       in: header
       name: X-API-Key`;
 
-const rapiDocTagSnippet = `<!-- 1. Enable the Export MCP Server button in the API overview -->
-<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+const optionsSnippet = `const doc = document.querySelector('rapi-doc');
 
-<rapi-doc
-  spec-url="/specs/my-api.yaml"
-  mcp="true"
-  mcp-server-name="my-api-mcp"
-  theme="slate"
-> </rapi-doc>`;
+// The same export as the button, with options
+doc.downloadMcpServer({
+  includeInternal: true,     // keep x-internal and x-hidden operations
+  includeDeprecated: true,   // keep deprecated operations
+});
 
-const programmaticApiSnippet = `// Access the RapiDoc custom element in JavaScript
-const doc = document.querySelector('rapi-doc');
-
-// 1. Build the manifest, the project files and the host configuration in memory
-const result = doc.generateMcpServer({ serverName: 'my_api_mcp' });
-console.log(result.manifest.tools);       // [{ name, description, inputSchema, annotations, operation }]
-console.log(result.files['server.ts']);   // also manifest.json, runtime.js, package.json, README.md, ...
-console.log(result.hostConfig);           // Claude Desktop / Cursor JSON config
-console.log(result.budget);               // { totalTools: 5, estimatedTokens: 850, ... }
-
-// 2. Download the project as <server-name>-mcp.zip
-doc.downloadMcpServer();
-
-// 3. Inspect token budget overhead before exporting
-const budget = doc.getMcpBudget();
-console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget.totalTools} tools\`);`;
+// Or build it in memory and look before you download
+const result = doc.generateMcpServer();
+console.log(result.manifest.tools);   // each: name, description, inputSchema, annotations (the safety hints), operation (the request)
+console.log(result.budget);           // { totalTools, totalResources, estimatedTokens, warnings, ... }`;
 ---
 
 <GlobalLayout
-  title="Curated MCP Server Guide | RapiDoc"
-  description="Learn how to shape token-efficient, agent-first Model Context Protocol (MCP) servers from plain OpenAPI specs using smart heuristics."
+  title="MCP Server Guide | RapiDoc"
+  description="Export an MCP server from an OpenAPI spec with RapiDoc: turn on the export, run the server, connect Claude Desktop, Cursor or another AI app, and know what the agent can call."
   keywords="Model Context Protocol, MCP, OpenAPI to MCP, MCP manifest, Claude Desktop, Cursor, AI agents, RapiDoc MCP"
 >
-  <!-- Ambient background glow elements -->
   <div class="ambient-glow glow-emerald"></div>
   <div class="ambient-glow glow-indigo"></div>
   <div class="ambient-glow glow-cyan"></div>
 
-  <!-- Reusable Frosted Glass Navigation -->
   <SiteNavbar activePage="guides" />
 
   <main class="mcp-guide-main">
-    <!-- Hero Header -->
     <header class="rd-hero-header">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
-        <span class="rd-badge-text">Model Context Protocol • AI Agent Engineering</span>
+        <span class="rd-badge-text">Guide • Model Context Protocol</span>
       </div>
 
       <h1 class="rd-page-title">
-        Shaping Curated <span class="text-gradient">MCP Servers</span>
+        Export an <span class="text-gradient">MCP Server</span> from Your OpenAPI Spec
       </h1>
 
       <p class="rd-page-subtitle">
-        How RapiDoc applies smart heuristics to a plain OpenAPI spec to cut prompt token tax, keep internal endpoints
-        away from agents, and build an MCP manifest with a runnable TypeScript server directly in the browser.
+        The Model Context Protocol (MCP) is how AI apps such as Claude Desktop, Cursor, Claude Code and Codex call outside tools. RapiDoc
+        turns the API it documents into an MCP server project, so an AI assistant can call that API.
       </p>
 
       <div class="mcp-cta-row">
         <a href="/examples/mcp-server" class="rd-btn rd-btn-primary">
           <IconPlayerPlay size={18} stroke={2} />
-          <span>Interactive Showcase Demo</span>
+          <span>Try the demo</span>
         </a>
         <a href="/docs/ai/mcp-server/" class="rd-btn rd-btn-secondary">
           <IconFileCode size={18} stroke={2} />
-          <span>Technical Reference Docs</span>
+          <span>Reference docs</span>
           <IconArrowUpRight size={16} stroke={2} />
         </a>
       </div>
-
-      <div class="rd-stats-bar rd-stats-bar--words">
-        <div class="rd-stat-card">
-          <span class="rd-stat-value">Zero Config</span>
-          <span class="rd-stat-label">Works on Plain OpenAPI</span>
-        </div>
-        <div class="rd-stat-card">
-          <span class="rd-stat-value">One Manifest</span>
-          <span class="rd-stat-label">JSON Schema Tools & Annotations</span>
-        </div>
-        <div class="rd-stat-card">
-          <span class="rd-stat-value">Zero Backend</span>
-          <span class="rd-stat-label">Runs 100% in Browser</span>
-        </div>
-        <div class="rd-stat-card">
-          <span class="rd-stat-value">npm start</span>
-          <span class="rd-stat-label">Runnable TypeScript Project</span>
-        </div>
-      </div>
     </header>
 
-    <!-- Content Sections -->
     <div class="mcp-guide-content">
-      <!-- Section 1: The Core Philosophy -->
+      <!-- 1. How it works -->
       <section class="rd-section">
-        <div class="rd-section-badge">Philosophy</div>
-        <h2 class="rd-section-title">Why Naive 1:1 REST-to-MCP Fails</h2>
+        <div class="rd-section-badge">Overview</div>
+        <h2 class="rd-section-title">How It Works</h2>
         <p class="rd-section-desc">
-          When teams first connect OpenAPI to AI agents, their initial instinct is to convert every REST endpoint into an individual MCP tool.
-          As Jeremiah Lowin explains in <em>"Stop Converting Your REST APIs to MCP"</em>, this naive approach severely degrades LLM performance:
+          Three things happen, in three places. The documentation page only builds a download: the server never runs there, and there is no service to host.
         </p>
 
-        <div class="comparison-grid">
-          <div class="comparison-card naive">
-            <div class="card-status-badge badge-danger">Naive 1:1 Conversion</div>
-            <h3 class="card-title">Endpoint-as-a-Tool Trap</h3>
-            <ul class="comparison-list">
-              <li><strong>Token Window Bloat:</strong> 30–50 raw JSON schemas consume 4,000–8,000 tokens on <em>every conversation turn</em>.</li>
-              <li><strong>Internal Leaks:</strong> Infrastructure endpoints (<code>/healthz</code>, <code>/metrics</code>, <code>/admin/debug</code>) confuse the model.</li>
-              <li><strong>Transport Pollution:</strong> Headers like <code>Authorization</code>, <code>Cookie</code>, and <code>X-Api-Key</code> pollute tool parameters.</li>
-            </ul>
-          </div>
+        <ol class="where-grid">
+          <li class="where-card">
+            <span class="where-place">In the browser</span>
+            <h3>RapiDoc builds a zip</h3>
+            <p>
+              With <code>mcp="true"</code>, the API overview shows an <strong>Export MCP Server</strong> button. A click
+              builds a small Node.js project from the loaded spec and downloads it. No request leaves the page.
+            </p>
+          </li>
+          <li class="where-card">
+            <span class="where-place">On your machine</span>
+            <h3>You unzip and install it</h3>
+            <p>
+              The project is a list of the API's tools (<code>manifest.json</code>) plus a server that is the same for
+              every API. <code>npm install</code> gets its two dependencies.
+            </p>
+          </li>
+          <li class="where-card">
+            <span class="where-place">In the AI app</span>
+            <h3>The app starts the server</h3>
+            <p>
+              The app (Claude Desktop, Cursor, or any other that can start a local MCP server) starts the server as a child process and talks to it over stdin and stdout. It
+              listens on no port. When the assistant calls a tool, the server calls your API.
+            </p>
+          </li>
+        </ol>
 
-          <div class="comparison-card curated">
-            <div class="card-status-badge badge-success">RapiDoc Curated MCP</div>
-            <h3 class="card-title">Agent-First Tool Design</h3>
-            <ul class="comparison-list">
-              <li><strong>Lean Token Footprint:</strong> Reference lookups become MCP Resources, and a live token budget warns before the tool catalog saturates the context.</li>
-              <li><strong>Safety Annotations:</strong> every tool carries MCP <code>readOnlyHint</code>, <code>destructiveHint</code> and <code>idempotentHint</code>, so hosts can ask before a <code>POST</code>, <code>PUT</code>, <code>PATCH</code> or <code>DELETE</code>.</li>
-              <li><strong>Zero Admin Leaks:</strong> Automatic filtering via <code>x-internal</code>, <code>x-hidden</code>, and <code>deprecated: true</code>.</li>
-              <li><strong>Clean Auth Separation:</strong> Transport headers are stripped; the runtime applies the spec's <code>securitySchemes</code> from environment variables.</li>
-            </ul>
-          </div>
-        </div>
+        <p class="note">
+          Who does what: the person who publishes the documentation adds <code>mcp="true"</code>. Anyone reading the
+          documentation can then export the server and run it with their own API credentials.
+        </p>
       </section>
 
-      <!-- Section 2: Key Performance Indicators (KPIs) & Production Benchmarks -->
+      <!-- 2. Quick start -->
       <section class="rd-section">
-        <div class="rd-section-badge">Performance & ROI</div>
-        <h2 class="rd-section-title">Key Performance Indicators (KPIs)</h2>
-        <p class="rd-section-desc">
-          Unlike generic converters that blindly dump hundreds of endpoints into an agent's context, RapiDoc is engineered to meet strict, quantifiable enterprise production benchmarks:
-        </p>
+        <div class="rd-section-badge">Quick start</div>
+        <h2 class="rd-section-title">From Spec to a Tool in Claude or Cursor</h2>
+        <p class="rd-section-desc">You need Node.js 18 or later for steps 3 and 4.</p>
 
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-badge">Token Budget KPI</div>
-            <div class="kpi-metric-row">
-              <span class="kpi-value">5,000</span>
-              <span class="kpi-unit">token guardrail</span>
+        <ol class="steps">
+          <li>
+            <h3>Turn on the export</h3>
+            <p>Add <code>mcp="true"</code> to <code>&lt;rapi-doc&gt;</code>. The spec needs no changes.</p>
+            <CodeBlock code={enableSnippet} lang="html" filename="index.html" />
+            <p>
+              <code>mcp-server-name</code> is only a name. It is not a server that is running somewhere. It becomes
+              the name of the download (<code>my-api-mcp.zip</code>), the package name (<code>my-api</code>), and the name the AI app lists
+              the server under (<code>my_api</code>). Without it, the name comes from the spec's title.
+            </p>
+          </li>
+          <li>
+            <h3>Export</h3>
+            <p>
+              Open the page and click <strong>Export MCP Server</strong> in the API overview. The browser downloads <code>my-api-mcp.zip</code>.
+            </p>
+          </li>
+          <li>
+            <h3>Unzip and install</h3>
+            <CodeBlock code={trySnippet} lang="bash" filename="terminal" />
+            <p>
+              <code>npm install</code> is needed even though the AI app starts the server: it gets the MCP library that <code>server.ts</code> imports. <code>npm start</code> is only a check. The server waits on stdin for an AI app, so it prints one line and then nothing; stop it with Ctrl+C. It starts without credentials too, and a tool call then returns the API's own error. Credentials are environment variables named after the spec's security schemes. This guide's example API has one scheme, <code>partner_key</code>, so its variable is <code>PARTNER_KEY</code>; the <code>README.md</code> in your zip lists the names for your API (see <a href="#credentials">Credentials</a>).
+            </p>
+          </li>
+          <li>
+            <h3>Connect the AI app</h3>
+            <p>
+              Any AI app that can start a local MCP server works: Claude Desktop, Cursor, Claude Code, Codex and others. The zip has a file named <code>mcp.json</code> with one ready <code>mcpServers</code> entry. It is a template: nothing is installed into your AI app yet. Add that entry to the <code>mcpServers</code> object of your app's own configuration file (keep the entries already there), replace the placeholder path <code>/absolute/path/to/my-api/server.ts</code> with the real absolute path of your <code>server.ts</code>, and fill in the credentials:
+            </p>
+            <CodeBlock code={hostConfigSnippet} lang="json" filename="your AI app's configuration file" />
+            <div class="rd-table-container">
+              <table class="mcp-spec-table">
+                <thead>
+                  <tr>
+                    <th>App</th>
+                    <th>Configuration file</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Claude Desktop, macOS</td>
+                    <td><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></td>
+                  </tr>
+                  <tr>
+                    <td>Claude Desktop, Windows</td>
+                    <td><code>%APPDATA%\Claude\claude_desktop_config.json</code></td>
+                  </tr>
+                  <tr>
+                    <td>Cursor</td>
+                    <td><code>~/.cursor/mcp.json</code>, or <code>.cursor/mcp.json</code> in a project</td>
+                  </tr>
+                  <tr>
+                    <td>Claude Code</td>
+                    <td><code>.mcp.json</code> in a project</td>
+                  </tr>
+                  <tr>
+                    <td>Codex</td>
+                    <td><code>~/.codex/config.toml</code>: a <code>[mcp_servers.my_api]</code> section with the same <code>command</code>, <code>args</code> and <code>env</code>, written as TOML</td>
+                  </tr>
+                  <tr>
+                    <td>Another app</td>
+                    <td>Its MCP settings. Most read the same <code>mcpServers</code> JSON; the rest take the same command, arguments and variables in their own format.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <h4>Context Overhead Control</h4>
-            <p>Skips internal, hidden, deprecated and webhook operations, strips transport headers and moves reference lookups into resources. <code>getMcpBudget()</code> estimates the per-turn overhead and warns above <strong>5,000 tokens</strong> or <strong>30 tools</strong>.</p>
-            <div class="kpi-bar-track">
-              <div class="kpi-bar-fill" style="width: 80%;"></div>
-            </div>
-            <div class="kpi-meta">Estimated live from your spec</div>
-          </div>
+            <p>
+              Restart the app. It starts the server itself, and the API's tools appear in its tool list. The path must be absolute because the app starts the server from its own folder, not from yours. If the tools do not appear, check that the path is right and that <code>npm install</code> ran in that folder, then look at the app's MCP log.
+            </p>
+          </li>
+        </ol>
 
-          <div class="kpi-card">
-            <div class="kpi-badge">Security Scorecard</div>
-            <div class="kpi-metric-row">
-              <span class="kpi-value">0</span>
-              <span class="kpi-unit">credentials in tool arguments</span>
-            </div>
-            <h4>Auth Stays Out of the Model's Hands</h4>
-            <p>Auth headers and API-key parameters are never tool arguments. The runtime applies the spec's <code>securitySchemes</code> from environment variables and percent-encodes every path parameter it substitutes.</p>
-            <div class="kpi-bar-track">
-              <div class="kpi-bar-fill" style="width: 100%; background: var(--rd-green);"></div>
-            </div>
-            <div class="kpi-meta">API key, HTTP Basic, Bearer, OAuth 2, OpenID Connect</div>
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-badge">Data, Not Code</div>
-            <div class="kpi-metric-row">
-              <span class="kpi-value">1</span>
-              <span class="kpi-unit">manifest, one runtime</span>
-            </div>
-            <h4>One Manifest Drives Everything</h4>
-            <p><code>manifest.json</code> holds every tool with real JSON Schema arguments and MCP annotations. <code>runtime.js</code> executes it with <code>fetch</code> in Node, browsers and edge workers, and <code>server.ts</code> is the same file for every API.</p>
-            <div class="kpi-bar-track">
-              <div class="kpi-bar-fill" style="width: 100%; background: var(--rd-amber);"></div>
-            </div>
-            <div class="kpi-meta">Servers in other languages can read the same manifest</div>
-          </div>
-        </div>
-
-        <!-- Comparative KPI Matrix Table -->
         <div class="sub-topic">
-          <h3>Competitive KPI Matrix: RapiDoc vs. Generic MCP Generators</h3>
+          <h3>From the command line</h3>
           <p>
-            How RapiDoc stacks up against raw 1:1 endpoint wrappers and generic cloud CLI tools:
+            The <code>rapidoc</code> command writes the same project from a spec file, without a browser, and puts the real path of <code>server.ts</code> in the configuration entry. It comes with the <code>@rapidoc/cli</code> package (see <a href="/docs/tools/command-line/">Command line</a>):
           </p>
-          <div class="rd-table-container">
-            <table class="mcp-spec-table">
-              <thead>
-                <tr>
-                  <th>Performance Dimension / KPI</th>
-                  <th>Generic 1:1 Converters</th>
-                  <th>Generic Cloud CLI Generators</th>
-                  <th>RapiDoc Curated Generator</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Internal & Deprecated Endpoints</strong></td>
-                  <td>Exposed as tools</td>
-                  <td>Partially filtered</td>
-                  <td><strong style="color: var(--rd-accent-light);">Skips <code>x-internal</code>, <code>x-hidden</code>, <code>deprecated</code> and webhooks</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Output</strong></td>
-                  <td>Generated code per API</td>
-                  <td>Hosted proxy or heavy CLI</td>
-                  <td><strong style="color: var(--rd-accent-light);">One JSON manifest, one fixed runtime, a runnable TypeScript project</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Tool Arguments</strong></td>
-                  <td>Flat string bags</td>
-                  <td>Partial schemas</td>
-                  <td><strong style="color: var(--rd-accent-light);">Real JSON Schema: nested bodies, arrays, enums, <code>required</code></strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Safety Annotations</strong></td>
-                  <td>None</td>
-                  <td>None</td>
-                  <td><strong style="color: var(--rd-accent-light);">MCP <code>readOnlyHint</code>, <code>destructiveHint</code>, <code>idempotentHint</code></strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Authentication</strong></td>
-                  <td>Keys as tool arguments</td>
-                  <td>Hardcoded static credentials</td>
-                  <td><strong style="color: var(--rd-accent-light);">From <code>securitySchemes</code>, via environment variables</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Backend / Cloud Dependency</strong></td>
-                  <td>External Node server required</td>
-                  <td>Paid cloud SaaS or heavy CLI</td>
-                  <td><strong style="color: var(--rd-accent-light);">Zero Backend (100% In-Browser & Air-Gapped)</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Real-Time Token Budget Warnings</strong></td>
-                  <td>None (Blind to token saturation)</td>
-                  <td>None</td>
-                  <td><strong style="color: var(--rd-accent-light);">Built-in turn budget & token saturation guards</strong></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <CodeBlock code={cliSnippet} lang="bash" filename="terminal" />
         </div>
       </section>
 
-      <!-- Section 3: Zero-Config Smart Heuristics -->
-      <section class="rd-section">
-        <div class="rd-section-badge">Zero Configuration</div>
-        <h2 class="rd-section-title">Smart Heuristics (Out of the Box)</h2>
-        <p class="rd-section-desc">
-          RapiDoc needs no extra annotations. It derives every tool and resource from standard OpenAPI fields during export:
-        </p>
-
-        <div class="heuristics-cards">
-          <div class="heuristic-card">
-            <div class="heuristic-icon"><IconCheck size={20} /></div>
-            <div>
-              <h4>Tool Names & Descriptions</h4>
-              <p>Tool names are the snake_case form of each <code>operationId</code>, or derived from method and path when it is missing. Descriptions come from the <code>summary</code>, else the <code>description</code>, else <code>METHOD /path</code>.</p>
-            </div>
-          </div>
-          <div class="heuristic-card">
-            <div class="heuristic-icon"><IconCheck size={20} /></div>
-            <div>
-              <h4>Header & Transport Sanitization</h4>
-              <p>Headers like <code>Authorization</code>, <code>Cookie</code>, <code>X-Api-Key</code>, <code>User-Agent</code>, and <code>Accept</code> are stripped from LLM parameter schemas, as is any parameter that carries an API key named in <code>securitySchemes</code>. The runtime applies the scheme itself, from an environment variable named after it, against the base URL from <code>servers[0]</code> (or <code>API_BASE_URL</code>).</p>
-            </div>
-          </div>
-          <div class="heuristic-card">
-            <div class="heuristic-icon"><IconCheck size={20} /></div>
-            <div>
-              <h4>Internal & Deprecated Route Exclusion</h4>
-              <p>Operations marked <code>x-internal: true</code>, <code>x-hidden: true</code> or <code>deprecated: true</code>, and webhooks, are omitted from generated agent tools so models never see admin or stale APIs.</p>
-            </div>
-          </div>
-          <div class="heuristic-card">
-            <div class="heuristic-icon"><IconCheck size={20} /></div>
-            <div>
-              <h4>Static Resource Classification</h4>
-              <p>A <code>GET</code> with no required parameters on a reference-data path (<code>/reference</code>, <code>/currencies</code>, <code>/countries</code>, <code>/tiers</code>, <code>/categories</code>, <code>/status</code>, <code>/schema</code>) becomes an <strong>MCP Resource</strong> (<code>reference://&lt;name&gt;</code>), preserving tool calling budgets.</p>
-            </div>
-          </div>
-          <div class="heuristic-card">
-            <div class="heuristic-icon"><IconCheck size={20} /></div>
-            <div>
-              <h4>Safety Annotations</h4>
-              <p>Every tool carries MCP annotations: <code>readOnlyHint</code> for <code>GET</code>, <code>destructiveHint</code> for <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code>, <code>idempotentHint</code> for <code>GET</code>, <code>PUT</code> and <code>DELETE</code>, so agent hosts can ask the user before running a consequential tool.</p>
-            </div>
-          </div>
-          <div class="heuristic-card">
-            <div class="heuristic-icon"><IconCheck size={20} /></div>
-            <div>
-              <h4>Token Budget Diagnostics</h4>
-              <p>RapiDoc dynamically estimates prompt context tokens per conversation turn and generates warnings if tool count exceeds 30 or context exceeds 5,000 tokens.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Section 4: From OpenAPI to MCP -->
+      <!-- 3. What gets exported -->
       <section class="rd-section">
         <div class="rd-section-badge">Mapping</div>
-        <h2 class="rd-section-title">From OpenAPI to MCP</h2>
+        <h2 class="rd-section-title">What Gets Exported</h2>
         <p class="rd-section-desc">
-          In the Model Context Protocol, <strong>Tools</strong> represent executable actions, while <strong>Resources</strong>
-          represent contextual reference data the model can inspect without function calling. Here is how each operation in a plain spec is treated:
+          MCP has two kinds of things a server offers. A <strong>tool</strong> is an action the assistant can call. A <strong>resource</strong> is data the AI app can attach to a conversation. Each operation in the spec becomes
+          one tool, with these exceptions: operations marked internal, hidden or deprecated are left out, and lookups
+          of reference data become resources.
         </p>
 
         <div class="sub-topic">
-          <CodeBlock code={openApiToMcpSnippet} lang="yaml" filename="openapi.yaml" />
+          <CodeBlock code={openApiToMcpSnippet} lang="yaml" filename="my-api.yaml" />
         </div>
 
         <div class="sub-topic">
-          <h3>OpenAPI Field Reference</h3>
+          <h3>The rules</h3>
           <div class="rd-table-container">
             <table class="mcp-spec-table">
               <thead>
                 <tr>
-                  <th>OpenAPI Field</th>
-                  <th>Applies To</th>
-                  <th>Effect on the Manifest</th>
+                  <th>In the spec</th>
+                  <th>In the export</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td><code>operationId</code></td>
-                  <td>Operation</td>
-                  <td>Tool name in snake_case (<code>placeOrder</code> &rarr; <code>place_order</code>); derived from method and path when missing.</td>
+                  <td>
+                    The tool's name, in snake_case (<code>placeOrder</code> &rarr; <code>place_order</code>). Without
+                    one, the name comes from the method and path.
+                  </td>
                 </tr>
                 <tr>
-                  <td><code>summary</code> / <code>description</code></td>
-                  <td>Operation</td>
-                  <td>Tool description (<code>summary</code> first), stripped of HTML and Markdown and truncated to 300 characters.</td>
+                  <td><code>summary</code>, <code>description</code></td>
+                  <td>The tool's description (<code>summary</code> first), as plain text of up to 300 characters.</td>
                 </tr>
                 <tr>
-                  <td><code>x-internal</code> / <code>x-hidden</code></td>
-                  <td>Operation</td>
-                  <td>When <code>true</code>, the operation is left out.</td>
+                  <td>Parameters, <code>requestBody</code></td>
+                  <td>
+                    The tool's arguments: each path, query, header and cookie parameter by name, and a <code>body</code> argument with the request body's full JSON Schema.
+                  </td>
                 </tr>
                 <tr>
-                  <td><code>deprecated</code></td>
-                  <td>Operation</td>
-                  <td>When <code>true</code>, the operation is left out.</td>
+                  <td>Auth and transport headers</td>
+                  <td>
+                    Never tool arguments: <code>Authorization</code>, <code>Cookie</code>, <code>X-API-Key</code>, <code>User-Agent</code>, <code>Accept</code>, and any parameter that carries an API key declared
+                    in <code>securitySchemes</code>. A secret passed in a parameter the spec does not declare as a
+                    security scheme stays an argument.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>x-internal</code>, <code>x-hidden</code>, <code>deprecated</code></td>
+                  <td>When <code>true</code>, the operation is left out. So are webhooks.</td>
                 </tr>
                 <tr>
                   <td>HTTP method</td>
-                  <td>Operation</td>
-                  <td>Sets the tool's <code>annotations</code>: <code>readOnlyHint</code> for <code>GET</code>, <code>destructiveHint</code> for <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code>, <code>idempotentHint</code> for <code>GET</code>, <code>PUT</code> and <code>DELETE</code>.</td>
+                  <td>
+                    The tool's safety hints. <code>GET</code> is marked read-only. <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code> are marked destructive. <code>POST</code> gets neither mark, because a <code>POST</code> can create something or cancel something. AI apps treat a tool without the mark as possibly destructive.
+                  </td>
                 </tr>
                 <tr>
-                  <td>Parameters and <code>requestBody</code></td>
-                  <td>Operation</td>
-                  <td>The tool's <code>inputSchema</code>: path, query, header and cookie parameters by name, plus a <code>body</code> property with the request body's full schema (<code>$ref</code>s inlined, read-only properties dropped).</td>
+                  <td>Reference-data paths</td>
+                  <td>
+                    A <code>GET</code> with no required parameters whose path contains <code>/reference</code>, <code>/currencies</code>, <code>/countries</code>, <code>/tiers</code>, <code>/categories</code> or <code>/schema</code> becomes a resource (<code>reference://currencies</code>), not a tool.
+                  </td>
                 </tr>
                 <tr>
-                  <td>Path</td>
-                  <td>Operation</td>
-                  <td>A parameterless <code>GET</code> on a reference-data path becomes a <code>reference://</code> resource.</td>
-                </tr>
-                <tr>
-                  <td>Header parameters</td>
-                  <td>Parameter</td>
-                  <td>Auth and transport headers (<code>Authorization</code>, <code>Cookie</code>, <code>X-API-Key</code>, <code>User-Agent</code>, ...) are not exposed as tool arguments.</td>
+                  <td><code>x-mcp-resource</code></td>
+                  <td>
+                    On an operation, overrides the row above: <code>false</code> keeps it a tool, <code>true</code> makes any <code>GET</code> with no required parameters a resource.
+                  </td>
                 </tr>
                 <tr>
                   <td><code>servers</code></td>
-                  <td>Root Spec</td>
-                  <td>Default base URL, overridable with the <code>API_BASE_URL</code> environment variable.</td>
+                  <td>
+                    The first server's URL is the base URL the tools call, with each server variable at its default. The exported server runs outside the documentation page, so it needs a full URL: when the spec has no <code>servers</code>, or a relative one such as <code>/api/v1</code>, set the <code>API_BASE_URL</code> variable. It also overrides a full URL, for example to point at staging.
+                  </td>
                 </tr>
                 <tr>
-                  <td><code>securitySchemes</code> / <code>security</code></td>
-                  <td>Root Spec / Operation</td>
-                  <td>Copied into the manifest; the runtime reads each scheme's credential from an environment variable named after it (<code>petstore_auth</code> &rarr; <code>PETSTORE_AUTH</code>).</td>
+                  <td><code>securitySchemes</code>, <code>security</code></td>
+                  <td>
+                    Copied into the manifest. The server sends each scheme's credential itself, from an environment
+                    variable (see <a href="#credentials">Credentials</a>).
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
+
+        <div class="sub-topic">
+          <h3>Changing what is exported</h3>
+          <p>
+            Most control is in the spec: mark an operation <code>x-internal: true</code> to leave it out, or set <code>x-mcp-resource</code>. From JavaScript, <code>downloadMcpServer()</code> and <code>generateMcpServer()</code> take the same options, to keep internal or deprecated operations. Both work whether or not the button is shown. The path list for resources and the names of tools are not configurable.
+          </p>
+          <CodeBlock code={optionsSnippet} lang="javascript" filename="app.js" />
+          <p>
+            The list of tools is sent to the model on every turn, so a long list costs tokens. <code>result.budget</code> (also <code>doc.getMcpBudget()</code>) estimates that cost and carries a warning
+            above 30 tools or about 5,000 tokens. It only warns: nothing is cut. If the page also shows workflows (sequences of API calls, drawn by the <code>&lt;rapi-flow&gt;</code> element), each workflow is exported as one more tool that runs its calls in order. The <a href="/docs/components/workflows/">Workflows</a> page explains them; this guide does not need them.
+          </p>
+        </div>
       </section>
 
-      <!-- Section 5: The Manifest -->
-      <section class="rd-section">
-        <div class="rd-section-badge">Data, Not Code</div>
-        <h2 class="rd-section-title">The Manifest</h2>
+      <!-- 4. Credentials -->
+      <section class="rd-section" id="credentials">
+        <div class="rd-section-badge">Running it</div>
+        <h2 class="rd-section-title">Credentials</h2>
         <p class="rd-section-desc">
-          The export is a plain JSON <code>manifest.json</code>, not generated code. It holds the <code>server</code> (name, version, description),
-          one entry in <code>sources</code> (the base URL from <code>servers[0]</code> and the spec's <code>securitySchemes</code>),
-          the <code>tools</code>, the <code>resources</code> and the <code>workflows</code> of a tied <a href="/guides/workflows"><code>&lt;rapi-flow&gt;</code></a>, each one a tool of its own. Each operation tool has a real JSON Schema
-          <code>inputSchema</code>, MCP <code>annotations</code> and an <code>operation</code> block that tells the runtime where every argument goes:
+          The assistant never sees or supplies a credential. The server reads each one from an environment variable and
+          adds it to the request, the way the spec's security scheme says. Set the variables in the <code>env</code> block of the app's configuration entry.
         </p>
 
-        <div class="sub-topic">
-          <CodeBlock code={manifestToolSnippet} lang="json" filename="manifest.json (one tool)" />
-        </div>
-
-        <div class="targets-grid">
-          <div class="target-card">
-            <div class="target-badge">inputSchema</div>
-            <h4>Real JSON Schema arguments</h4>
-            <p>Path, query, header and cookie parameters by name, plus a <code>body</code> property with the request body's full schema: nested objects, arrays, enums and <code>required</code>. <code>$ref</code>s are inlined, cycles cut, read-only properties dropped.</p>
-          </div>
-
-          <div class="target-card">
-            <div class="target-badge">annotations</div>
-            <h4>MCP safety hints</h4>
-            <p><code>readOnlyHint</code> for <code>GET</code>, <code>destructiveHint</code> for <code>PUT</code>, <code>PATCH</code> and <code>DELETE</code>, <code>idempotentHint</code> for <code>GET</code>, <code>PUT</code> and <code>DELETE</code>.</p>
-          </div>
-
-          <div class="target-card">
-            <div class="target-badge">operation</div>
-            <h4>How to make the call</h4>
-            <p><code>source</code>, <code>method</code>, <code>path</code>, <code>params</code> with each argument's location, and the operation's <code>security</code> requirement (else the spec's).</p>
-          </div>
+        <div class="rd-table-container">
+          <table class="mcp-spec-table">
+            <thead>
+              <tr>
+                <th>Security scheme</th>
+                <th>What to set</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Any scheme</td>
+                <td>
+                  A variable named after the scheme, in upper snake case: <code>partner_key</code> &rarr; <code>PARTNER_KEY</code>, <code>petstoreAuth</code> &rarr; <code>PETSTORE_AUTH</code>. The exported
+                  README and configuration entry list the names for your API.
+                </td>
+              </tr>
+              <tr>
+                <td>API key</td>
+                <td>The key. It is sent in the header, query parameter or cookie the scheme names.</td>
+              </tr>
+              <tr>
+                <td>HTTP Basic</td>
+                <td>
+                  <code>user:password</code> in the scheme's variable, or <code>&lt;NAME&gt;_USERNAME</code> and <code>&lt;NAME&gt;_PASSWORD</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>HTTP bearer, OAuth 2, OpenID Connect</td>
+                <td>
+                  An access token you already have. It is sent as a <code>Bearer</code> token. The server does not
+                  sign in, and does not refresh a token that expires.
+                </td>
+              </tr>
+              <tr>
+                <td>An API with one scheme</td>
+                <td>
+                  <code>API_KEY</code> also works as the variable. With several schemes, each needs its own.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      <!-- Section 6: The Runtime and the Project -->
+      <!-- 5. Safety and limits -->
       <section class="rd-section">
-        <div class="rd-section-badge">Run It</div>
-        <h2 class="rd-section-title">One Runtime, One TypeScript Project</h2>
-        <p class="rd-section-desc">
-          <strong>Export MCP Server</strong> downloads <code>&lt;server-name&gt;-mcp.zip</code>: the manifest plus files that are identical for every API.
-          Run it with <code>npm install</code> and <code>npm start</code>, or copy the <code>mcpServers</code> entry from <code>claude_desktop_config.json</code> into Claude Desktop or Cursor:
-        </p>
-
-        <div class="sub-topic">
-          <CodeBlock code={runProjectSnippet} lang="bash" filename="terminal" />
-        </div>
-
-        <div class="standards-grid">
-          <div class="standard-card">
-            <div class="standard-badge">runtime.js</div>
-            <h4>1. Executes any tool with <code>fetch</code></h4>
-            <p>
-              <code>createMcpRuntime(manifest, &#123; fetch, credentials, baseUrls &#125;)</code> puts each argument where <code>operation.params</code> says, percent-encodes path parameters, applies the security scheme (API key in header, query or cookie; HTTP Basic; Bearer tokens for HTTP bearer, OAuth 2 and OpenID Connect) and returns the MCP result: pretty-printed <code>content</code>, <code>structuredContent</code> for JSON objects, <code>isError</code> with the HTTP status and body on 4xx and 5xx. The same file runs in Node, browsers and edge workers.
-            </p>
-          </div>
-
-          <div class="standard-card">
-            <div class="standard-badge">server.ts</div>
-            <h4>2. A fixed stdio server</h4>
-            <p>
-              Built on <code>@modelcontextprotocol/sdk</code>, it reads <code>manifest.json</code>, registers its tools and resources and hands every call to the runtime. It is the same file for every API, so there is nothing API-specific to review. <code>package.json</code> depends on <code>@modelcontextprotocol/sdk</code> and <code>tsx</code>.
-            </p>
-          </div>
-
-          <div class="standard-card">
-            <div class="standard-badge">Environment</div>
-            <h4>3. Credentials by security scheme</h4>
-            <p>
-              Each scheme reads an environment variable named after it in upper snake case (<code>petstore_auth</code> &rarr; <code>PETSTORE_AUTH</code>), with <code>API_KEY</code> as the fallback for any scheme. HTTP Basic takes <code>user:password</code> or <code>&lt;NAME&gt;_USERNAME</code> / <code>&lt;NAME&gt;_PASSWORD</code>. <code>API_BASE_URL</code> overrides the base URL. The Claude Desktop and Cursor config has one <code>env</code> entry per scheme.
-            </p>
-          </div>
-
-          <div class="standard-card">
-            <div class="standard-badge">Portable</div>
-            <h4>4. Other languages read the same manifest</h4>
-            <p>
-              Only TypeScript is exported today. Because the manifest holds everything a server needs, a server in another language is a fixed file reading the same <code>manifest.json</code>, not another code generator.
-            </p>
-          </div>
-        </div>
+        <div class="rd-section-badge">Before you rely on it</div>
+        <h2 class="rd-section-title">Safety and Limits</h2>
+        <ul class="limits">
+          <li>
+            <strong>The assistant calls your real API.</strong> Every tool call is a real request, made with the
+            credentials you set. Use a key with only the permissions the assistant should have, or point <code>API_BASE_URL</code> at a staging server.
+          </li>
+          <li>
+            <strong>Safety hints are hints.</strong> An AI app may use them to ask before a tool that changes data,
+            but the server runs whatever it is asked to run. It has no confirmation step of its own.
+          </li>
+          <li>
+            <strong>Leaving an operation out is not access control.</strong> It keeps the operation off the tool
+            list. Only the API's own permissions stop a key from reaching it.
+          </li>
+          <li>
+            <strong>The spec's text and the API's responses reach the model as they are.</strong> Export only from
+            specs you trust, and keep in mind that a response can be large.
+          </li>
+          <li>
+            <strong>Local AI apps only.</strong> The exported server talks over stdin and stdout, and it is a
+            TypeScript project for Node.js. It is not an HTTP server, so a hosted or remote AI app cannot reach it.
+          </li>
+        </ul>
       </section>
-      <!-- Section 7: Integration & API -->
+
+      <!-- 6. The files -->
       <section class="rd-section">
-        <div class="rd-section-badge">Integration</div>
-        <h2 class="rd-section-title">Using MCP in Your Documentation</h2>
+        <div class="rd-section-badge">Reference</div>
+        <h2 class="rd-section-title">What Is in the Zip</h2>
         <p class="rd-section-desc">
-          Enable the MCP generator in your documentation portal with a single attribute, or trigger it programmatically:
+          Only <code>manifest.json</code> is specific to your API. It is data, not generated code, so it is the one
+          file to review. The rest is the same in every export.
         </p>
-
-        <div class="sub-topic">
-          <h3>Declarative HTML Setup</h3>
-          <CodeBlock code={rapiDocTagSnippet} lang="html" filename="index.html" />
-        </div>
-
-        <div class="sub-topic">
-          <h3>Programmatic JavaScript API</h3>
-          <CodeBlock code={programmaticApiSnippet} lang="javascript" filename="app.js" />
+        <div class="rd-table-container">
+          <table class="mcp-spec-table">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>What it is</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>manifest.json</code></td>
+                <td>
+                  The server's name, the API's base URL and security schemes, and every tool and resource: its name,
+                  description, arguments, safety hints, and the request to make.
+                </td>
+              </tr>
+              <tr>
+                <td><code>server.ts</code></td>
+                <td>The MCP server. It reads the manifest and offers its tools and resources over stdin and stdout.</td>
+              </tr>
+              <tr>
+                <td><code>runtime.js</code></td>
+                <td>Turns a tool call into an HTTP request to the API and the response into the tool's result.</td>
+              </tr>
+              <tr>
+                <td><code>package.json</code></td>
+                <td>
+                  Two dependencies: <code>@modelcontextprotocol/sdk</code> and <code>tsx</code>, which runs <code>server.ts</code> without a build step.
+                </td>
+              </tr>
+              <tr>
+                <td><code>mcp.json</code></td>
+                <td>The <code>mcpServers</code> entry to copy into an AI app's configuration, with one variable per security scheme.</td>
+              </tr>
+              <tr>
+                <td><code>README.md</code></td>
+                <td>How to run this export, with the variable names for this API.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      <!-- Section 8: Next Steps Callout -->
       <section class="mcp-cta-box">
         <div class="mcp-cta-content">
-          <h3>Ready to test the Curated MCP Generator?</h3>
-          <p>Explore our live interactive demo with side-by-side token diagnostics, tuner options, and the exported manifest, server and runtime to inspect.</p>
+          <h2>Next</h2>
+          <p>
+            The demo shows the export for a sample API: its tools, the token estimate and every file in the zip. The
+            reference docs cover the manifest format, the runtime and the JavaScript API.
+          </p>
           <div class="cta-actions">
             <a href="/examples/mcp-server" class="rd-btn rd-btn-primary">
-              <span>Open MCP Showcase Demo</span>
+              <span>Try the demo</span>
               <IconArrowRight size={18} stroke={2} />
             </a>
             <a href="/docs/ai/mcp-server/" class="rd-btn rd-btn-secondary">
-              <span>View Technical Docs</span>
+              <span>Reference docs</span>
             </a>
           </div>
         </div>
@@ -605,9 +528,6 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
 </GlobalLayout>
 
 <style>
-  /* --------------------------------------------------
-   * Main Layout
-   * -------------------------------------------------- */
   .mcp-guide-main {
     position: relative;
     z-index: 1;
@@ -615,22 +535,27 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
     margin: 0 auto;
     padding: var(--rd-page-top) 24px 96px;
   }
-
-  /* The hero's call-to-action buttons */
   .mcp-cta-row {
     display: flex;
     justify-content: center;
     gap: 16px;
-    margin-bottom: 40px;
     flex-wrap: wrap;
   }
 
-  /* --------------------------------------------------
-   * Section Styling
-   * -------------------------------------------------- */
   /* The lead paragraph sits directly above the section's content, without a header wrapper */
   .rd-section > .rd-section-desc {
     margin-bottom: 28px;
+  }
+  .rd-section a:not(.rd-btn) {
+    color: var(--rd-accent-light);
+  }
+  .rd-section code {
+    background: var(--rd-wash-strong);
+    padding: 2px 6px;
+    border-radius: var(--rd-radius-xs);
+    font-size: 0.92em;
+    color: var(--rd-sky);
+    font-family: var(--rd-font-mono);
   }
   .sub-topic {
     margin-top: 36px;
@@ -641,134 +566,117 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
     color: var(--rd-text-primary);
     margin: 0 0 10px;
   }
-  .sub-topic p {
+  .sub-topic p,
+  .note {
     font-size: 14px;
     line-height: 1.6;
     color: var(--rd-text-muted);
-    margin: 0 0 16px;
+    margin: 14px 0;
   }
 
-  /* --------------------------------------------------
-   * Comparison Cards (Naive vs Curated)
-   * -------------------------------------------------- */
-  .comparison-grid {
+  /* Where each part runs: three cards in order */
+  .where-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
-    margin-top: 24px;
-  }
-  .comparison-card {
-    padding: 24px;
-    border-radius: var(--rd-radius-md);
-    background: var(--rd-surface);
-    border: 1px solid var(--rd-border);
-    position: relative;
-    backdrop-filter: blur(8px);
-  }
-  .comparison-card.naive {
-    border-color: color-mix(in srgb, var(--rd-red) 30%, transparent);
-    background: color-mix(in srgb, var(--rd-red) 2%, transparent);
-  }
-  .comparison-card.curated {
-    border-color: color-mix(in srgb, var(--rd-green) 30%, transparent);
-    background: color-mix(in srgb, var(--rd-green) 3%, transparent);
-  }
-  .card-status-badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: var(--rd-radius-pill);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  .badge-danger {
-    background: color-mix(in srgb, var(--rd-red) 15%, transparent);
-    color: var(--rd-red);
-  }
-  .badge-success {
-    background: color-mix(in srgb, var(--rd-green) 15%, transparent);
-    color: var(--rd-green);
-  }
-  .card-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--rd-text-bright);
-    margin: 0 0 16px;
-  }
-  .comparison-list {
-    list-style: none;
-    padding: 0;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
     margin: 0;
-    font-size: 13px;
-    line-height: 1.7;
-    color: var(--rd-text-soft);
+    padding: 0;
+    list-style: none;
   }
-  .comparison-list li {
-    margin-bottom: 10px;
-    padding-left: 20px;
-    position: relative;
-  }
-  .comparison-card.naive .comparison-list li::before {
-    content: "✕";
-    position: absolute;
-    left: 0;
-    color: var(--rd-red);
-    font-weight: 700;
-  }
-  .comparison-card.curated .comparison-list li::before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    color: var(--rd-green);
-    font-weight: 700;
-  }
-
-  /* --------------------------------------------------
-   * Heuristics Cards
-   * -------------------------------------------------- */
-  .heuristics-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 18px;
-  }
-  .heuristic-card {
-    display: flex;
-    gap: 14px;
-    padding: 18px;
+  .where-card {
+    padding: 22px;
     background: var(--rd-surface);
     border: 1px solid var(--rd-border);
-    border-radius: var(--rd-radius-md);
+    border-radius: var(--rd-radius-lg);
   }
-  .heuristic-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--rd-radius-md);
-    background: color-mix(in srgb, var(--rd-green) 15%, transparent);
-    color: var(--rd-green);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .heuristic-card h4 {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--rd-text-bright);
-    margin: 0 0 6px;
-  }
-  .heuristic-card p {
+  .where-place {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 3px 10px;
+    border: 1px solid var(--rd-accent-border);
+    border-radius: var(--rd-radius-pill);
+    background: var(--rd-accent-dim);
+    color: var(--rd-accent-light);
     font-size: 12px;
-    line-height: 1.5;
+    font-weight: 600;
+  }
+  .where-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--rd-text-bright);
+    margin: 0 0 8px;
+  }
+  .where-card p {
+    font-size: 13.5px;
+    line-height: 1.6;
     color: var(--rd-text-muted);
     margin: 0;
   }
 
-  /* --------------------------------------------------
-   * Table Styling
-   * -------------------------------------------------- */
+  /* Numbered steps */
+  .steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .steps > li {
+    position: relative;
+    padding: 0 0 28px 48px;
+    counter-increment: step;
+  }
+  .steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--rd-accent-border);
+    border-radius: 50%;
+    background: var(--rd-accent-dim);
+    color: var(--rd-accent-light);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .steps h3 {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 30px;
+    color: var(--rd-text-primary);
+    margin: 0 0 6px;
+  }
+  .steps p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--rd-text-muted);
+    margin: 10px 0 14px;
+  }
+
+  .limits {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .limits li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rd-wash);
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--rd-text-muted);
+  }
+  .limits li:last-child {
+    border-bottom: none;
+  }
+  .limits strong {
+    color: var(--rd-text-bright);
+  }
+
   .rd-table-container {
-    margin-top: 14px;
+    margin: 14px 0;
+    overflow-x: auto;
   }
   .mcp-spec-table {
     width: 100%;
@@ -780,6 +688,7 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   .mcp-spec-table td {
     padding: 12px 16px;
     border-bottom: 1px solid var(--rd-wash);
+    vertical-align: top;
   }
   .mcp-spec-table th {
     background: var(--rd-bg-input);
@@ -791,172 +700,12 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   }
   .mcp-spec-table td {
     color: var(--rd-text-soft);
-    line-height: 1.5;
+    line-height: 1.55;
   }
-  .mcp-spec-table code {
-    background: var(--rd-wash-strong);
-    padding: 2px 6px;
-    border-radius: var(--rd-radius-xs);
-    font-size: 12px;
-    color: var(--rd-sky);
-    font-family: var(--rd-font-mono);
+  .mcp-spec-table td:first-child {
+    min-width: 180px;
   }
 
-  /* --------------------------------------------------
-   * Target Cards
-   * -------------------------------------------------- */
-  .targets-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-  }
-  .target-card {
-    padding: 20px;
-    background: var(--rd-surface);
-    border: 1px solid var(--rd-border);
-    border-radius: var(--rd-radius-md);
-  }
-  .target-badge,
-  .standard-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: var(--rd-radius-xs);
-    background: color-mix(in srgb, var(--rd-sky) 15%, transparent);
-    color: var(--rd-sky);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .target-card h4 {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--rd-text-bright);
-    margin: 0 0 8px;
-  }
-  .target-card p {
-    font-size: 12px;
-    line-height: 1.5;
-    color: var(--rd-text-muted);
-    margin: 0 0 14px;
-  }
-
-  /* --------------------------------------------------
-   * KPI Cards & Grid
-   * -------------------------------------------------- */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-    margin-bottom: 32px;
-  }
-  .kpi-card {
-    padding: 24px;
-    background: var(--rd-surface);
-    border: 1px solid var(--rd-border);
-    border-radius: var(--rd-radius-lg);
-    backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: column;
-    transition: var(--rd-transition);
-  }
-  .kpi-card:hover {
-    border-color: var(--rd-card-border-hover);
-    background: var(--rd-card-bg-hover);
-  }
-  .kpi-badge {
-    display: inline-block;
-    align-self: flex-start;
-    padding: 2px 8px;
-    border-radius: var(--rd-radius-xs);
-    background: var(--rd-accent-dim);
-    color: var(--rd-accent-light);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 12px;
-  }
-  .kpi-metric-row {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .kpi-value {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--rd-text-bright);
-    letter-spacing: -0.02em;
-  }
-  .kpi-unit {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--rd-sky);
-    text-transform: uppercase;
-  }
-  .kpi-card h4 {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--rd-text-primary);
-    margin: 0 0 8px;
-  }
-  .kpi-card p {
-    font-size: 12.5px;
-    line-height: 1.6;
-    color: var(--rd-text-muted);
-    margin: 0 0 16px;
-    flex-grow: 1;
-  }
-  .kpi-bar-track {
-    height: 6px;
-    background: var(--rd-wash-strong);
-    border-radius: var(--rd-radius-pill);
-    overflow: hidden;
-    margin-bottom: 10px;
-  }
-  .kpi-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--rd-accent) 0%, var(--rd-accent-light) 100%);
-    border-radius: var(--rd-radius-pill);
-  }
-  .kpi-meta {
-    font-size: 11px;
-    color: var(--rd-text-dim);
-  }
-
-  /* --------------------------------------------------
-   * Standards Grid
-   * -------------------------------------------------- */
-  .standards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
-    margin-top: 20px;
-  }
-  .standard-card {
-    padding: 24px;
-    background: var(--rd-surface);
-    border: 1px solid var(--rd-border);
-    border-radius: var(--rd-radius-lg);
-    backdrop-filter: blur(8px);
-  }
-  .standard-card h4 {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--rd-text-bright);
-    margin: 0 0 10px;
-  }
-  .standard-card p {
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--rd-text-muted);
-    margin: 0 0 16px;
-  }
-
-  /* --------------------------------------------------
-   * Callout CTA Box
-   * -------------------------------------------------- */
   .mcp-cta-box {
     padding: 40px;
     background: linear-gradient(
@@ -967,9 +716,8 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
     border: 1px solid var(--rd-accent-border);
     border-radius: var(--rd-radius-lg);
     text-align: center;
-    backdrop-filter: blur(10px);
   }
-  .mcp-cta-content h3 {
+  .mcp-cta-content h2 {
     font-size: 24px;
     font-weight: 700;
     color: var(--rd-text-bright);
@@ -977,9 +725,10 @@ console.log(\`Overhead: ~\${budget.estimatedTokens} tokens/turn across \${budget
   }
   .mcp-cta-content p {
     font-size: 15px;
+    line-height: 1.6;
     color: var(--rd-text-muted);
     margin: 0 auto 24px;
-    max-width: 600px;
+    max-width: 640px;
   }
   .cta-actions {
     display: flex;
