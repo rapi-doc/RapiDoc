@@ -10,7 +10,7 @@ import "~/components/api-response";
 import codeSamplesTemplate from "~/templates/code-samples-template";
 import callbackTemplate from "~/templates/callback-template";
 import { pathSecurityTemplate } from "~/templates/security-scheme-template";
-import { getMatchedPaths, rapidocApiKey } from "~/utils/common-utils";
+import { badgeColorVar, getMatchedPaths, rapidocApiKey } from "~/utils/common-utils";
 
 function toggleExpand(path) {
   if (path.expanded) {
@@ -129,7 +129,7 @@ function endpointBodyTemplate(path) {
                     ? ""
                     : html`<span
                         part="endpoint-badge"
-                        style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:var(--radius);  background: color-mix(in srgb, var(--${v.color}) 20%, transparent); color:var(--${v.color}); border:1px solid var(--${v.color})"
+                        style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:var(--radius);  background: color-mix(in srgb, ${badgeColorVar(v.color)} 20%, transparent); color:${badgeColorVar(v.color)}; border:1px solid ${badgeColorVar(v.color)}"
                         >${v.label}</span
                       >`,
                 )}

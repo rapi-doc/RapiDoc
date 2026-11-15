@@ -7,7 +7,7 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHTML } from "../utils/sanitize.js";
 import { marked } from "marked";
 import Slugger from "github-slugger";
-import { rapidocApiKey } from "~/utils/common-utils";
+import { badgeColorVar, rapidocApiKey } from "~/utils/common-utils";
 import { pathSecurityTemplate } from "~/templates/security-scheme-template";
 import codeSamplesTemplate from "~/templates/code-samples-template";
 import callbackTemplate from "~/templates/callback-template";
@@ -93,7 +93,7 @@ export function expandedEndpointBodyTemplate(
                     v.color === "none"
                       ? ""
                       : html`<span
-                          style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:var(--radius); background: color-mix(in srgb, var(--${v.color}) 10%, transparent); color:var(--${v.color}); border:1px solid var(--${v.color})"
+                          style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:var(--radius); background: color-mix(in srgb, ${badgeColorVar(v.color)} 10%, transparent); color:${badgeColorVar(v.color)}; border:1px solid ${badgeColorVar(v.color)}"
                           >${v.label}</span
                         >`,
                   )}

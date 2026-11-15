@@ -189,3 +189,11 @@ export function viewResource(url) {
     a.remove();
   }
 }
+
+/**
+ * The CSS custom property an `x-badges` `color` names: `red` → `var(--red)`. `primary-color`, the
+ * documented name of the theme's accent, is `--primary` since the v12 theme tokens.
+ */
+export function badgeColorVar(color) {
+  return `var(--${color === "primary-color" ? "primary" : color})`;
+}
