@@ -366,7 +366,7 @@ console.log(result.budget);           // { totalTools, totalResources, estimated
           <CodeBlock code={optionsSnippet} lang="javascript" filename="app.js" />
           <p>
             The list of tools is sent to the model on every turn, so a long list costs tokens. <code>result.budget</code> (also <code>doc.getMcpBudget()</code>) estimates that cost and carries a warning
-            above 30 tools or about 5,000 tokens. It only warns: nothing is cut. If the page also shows workflows (sequences of API calls, drawn by the <code>&lt;rapi-flow&gt;</code> element), each workflow is exported as one more tool that runs its calls in order. The <a href="/docs/components/workflows/">Workflows</a> page explains them; this guide does not need them.
+            above 30 tools or about 5,000 tokens. It only warns: nothing is cut. If the page also shows workflows (sequences of API calls, drawn by the <code>&lt;rapi-flow&gt;</code> element), each workflow is exported as one more tool that runs its calls in order. The <a href="/docs/rapi-flow/">Workflows</a> page explains them; this guide does not need them.
           </p>
         </div>
       </section>

@@ -47,8 +47,11 @@ export default defineConfig({
     '/docs/advanced/mock-server': '/docs/mocking/in-browser/',
     '/docs/advanced/oauth-setup': '/docs/authentication/oauth/',
     '/docs/advanced/mcp-server': '/docs/ai/mcp-server/',
-    '/docs/advanced/workflows': '/docs/components/workflows/',
-    '/docs/advanced/rapidoc-mini': '/docs/components/rapidoc-mini/',
+    '/docs/advanced/workflows': '/docs/rapi-flow/',
+    '/docs/advanced/rapidoc-mini': '/docs/rapidoc-mini/',
+    // The Components group, split into a group per element
+    '/docs/components/workflows': '/docs/rapi-flow/',
+    '/docs/components/rapidoc-mini': '/docs/rapidoc-mini/',
     '/docs/advanced/command-line': '/docs/tools/command-line/',
     '/docs/advanced/slots-and-markdown': '/docs/customizing/slots/',
     '/docs/advanced/markdown-headings': '/docs/customizing/markdown-headings/',
@@ -174,10 +177,20 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Components',
+          label: 'RapiDoc Mini',
           items: [
-            { label: 'RapiDoc Mini', slug: 'docs/components/rapidoc-mini' },
-            { label: 'Arazzo Workflows', slug: 'docs/components/workflows' },
+            { label: 'Overview', slug: 'docs/rapidoc-mini' },
+            { label: 'Attributes', slug: 'docs/rapidoc-mini/attributes' },
+          ],
+        },
+        {
+          label: 'RapiFlow',
+          items: [
+            { label: 'Overview', slug: 'docs/rapi-flow' },
+            { label: 'Pairing with <rapi-doc>', slug: 'docs/rapi-flow/pairing' },
+            { label: 'Running Workflows', slug: 'docs/rapi-flow/running' },
+            { label: 'Arazzo Extensions', slug: 'docs/rapi-flow/extensions' },
+            { label: 'Reference', slug: 'docs/rapi-flow/reference' },
           ],
         },
         {

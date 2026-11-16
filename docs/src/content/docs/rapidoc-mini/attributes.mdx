@@ -1,0 +1,59 @@
+---
+title: RapiDoc Mini Attributes
+description: Every attribute of <rapi-doc-mini>, grouped by what it changes - what to show, layout, Try and authentication, look and mocking.
+---
+
+All attributes can be changed at runtime with `setAttribute`.
+
+## What to show
+
+| Attribute | Values | Default | Meaning |
+| :--- | :--- | :--- | :--- |
+| `spec-url` | URL | | The OpenAPI spec, JSON or YAML. |
+| `filter-operations` | terms | | Which operations to show (see [Choose operations](/docs/rapidoc-mini/#choose-operations)). All of them when empty. |
+| `show-tags` | `true`, `false` | `false` | `true` shows each tag's name and description above its operations. Off by default, since a mini usually shows only some of a tag's operations. |
+| `sort-endpoints-by` | `path`, `method`, `summary` | `path` | Order of the operations shown. |
+
+## Layout
+
+| Attribute | Values | Default | Meaning |
+| :--- | :--- | :--- | :--- |
+| `paths-expanded` | `true`, `false` | `false` | Shows operations open instead of collapsed. |
+| `layout` | `row`, `column` | `row` | Request and response side by side, or one above the other. |
+| `show-summary-when-collapsed` | `true`, `false` | `true` | Shows the summary on a collapsed operation. |
+| `schema-style` | `tree`, `table` | `tree` | How schemas are drawn. |
+| `schema-expand-level` | number | `99999` | How many schema levels start expanded. |
+| `schema-description-expanded` | `true`, `false` | `false` | Shows schema descriptions in full. |
+| `default-schema-tab` | `example`, `schema` | `example` | The tab selected and listed first for request bodies, responses and object parameters. |
+| `response-area-height` | CSS height | `300px` | Height of the response panel. |
+
+## Try and authentication
+
+| Attribute | Values | Default | Meaning |
+| :--- | :--- | :--- | :--- |
+| `allow-try` | `true`, `false` | `true` | Shows the **Try** console. |
+| `show-curl-before-try` | `true`, `false` | `false` | Shows the curl command before the request is sent. |
+| `fill-request-fields-with-example` | `true`, `false` | `true` | Pre-fills request fields with examples. |
+| `server-url` | URL | | The server **Try** sends requests to, instead of the spec's. |
+| `default-api-server` | URL | | The spec server selected first. |
+| `fetch-credentials` | `omit`, `same-origin`, `include` | | The `credentials` mode of **Try** requests. |
+| `api-key-name` | text | | Name of the header, query parameter or cookie that carries the key. |
+| `api-key-location` | `header`, `query` | `header` | Where the key is sent. |
+| `api-key-value` | text | | The key. |
+| `persist-auth` | `true`, `false` | `false` | Keeps API keys, bearer tokens and OAuth access tokens across page loads (never Basic credentials). |
+| `oauth-receiver` | URL | `oauth-receiver.html` | The OAuth callback page; see [OAuth 2.0](/docs/authentication/oauth/). |
+| `additional-authorize-params`, `additional-token-params` | JSON or query string | | Extra OAuth parameters. |
+
+## Look
+
+| Attribute | Values | Default |
+| :--- | :--- | :--- |
+| `theme` | `ember`, `carbon`, `cobalt`, `jade`, `indigo`, or a `#hex` color | `ember` |
+| `color-scheme` | `dark`, `light`, `system`, `auto` | `dark` |
+| `radius` | `none`, `sm`, `md`, `lg`, `full` | `sm` |
+| `scale` | `sm`, `default`, `lg` | `default` |
+| `primary-color` | `#hex`: replaces the theme's accent | |
+
+## Mocking
+
+`<rapi-doc-mini>` takes the same `mock-server`, `mock-server-status-code`, `mock-server-status-strategy`, `mock-server-delay` and `mock-server-log` attributes as `<rapi-doc>`; see [In-Browser Mock](/docs/mocking/in-browser/). Only the operations it shows are mocked.

@@ -1,0 +1,67 @@
+---
+title: Reference
+description: The attributes, events, properties, slots and CSS parts of <rapi-flow>.
+---
+
+## Attributes
+
+| Attribute | Default | Meaning |
+| :--- | :--- | :--- |
+| `arazzo-url` | | URL of the Arazzo 1.x document, YAML or JSON. |
+| `spec-url` | | Replaces the URL of the first OpenAPI source description. Other sources are fetched relative to the Arazzo file. |
+| `workflow-id` | first workflow | The workflow to show. With several workflows, a picker in the header switches between them. |
+| `for` | | `id` of a `<rapi-doc>` or `<rapi-doc-mini>` on the page to take the spec, server, credentials and mock from, or several ids separated by spaces, one per OpenAPI source (see [one element per API](/docs/rapi-flow/pairing/#one-element-per-api)). |
+| `view` | `expanded` | `expanded` shows each step's inputs and actions in its box; `compact` shows the operation, the values that come from the workflow's inputs or earlier steps (constants are counted in one line), and the gotos and retries whose lines leave the box, each line starting at its action. |
+| `show-view-toggle` | `true` | `false` hides the Compact / Expanded switch. |
+| `allow-arazzo-url-load` | `false` | `true` shows a box above the diagram to load any Arazzo document by URL (the server must allow cross-origin requests). With `for`, the paired elements follow the document: whenever it changes (from the box or `arazzo-url`), each one loads its OpenAPI source, unless it already shows that spec. A URL that fails to load leaves the current document and the elements as they were, with the error under the box. Without the box, the document's URL shows as text (part `url`). Either way it sits in a card above the diagram, with the document's API sources below it. |
+| `update-route` | `false` | `true` keeps the shown workflow and the selected step in the page's address, `?workflow=<id>&step=<id>`, so a link opens that workflow with that step selected, scrolled into view and its operation shown in the paired element (see [Links to a step](/docs/rapi-flow/pairing/#links-to-a-step)). |
+| `allow-run` | `true` | `false` hides the run panel: the diagram only. |
+| `server-url` | | Base URL the first OpenAPI source's requests go to in runs, instead of the server its paired element selected or the spec's first server. |
+| `mcp` | `false` | `true` shows an **Export MCP Server** button: an MCP server with one tool per workflow of the document (each one the runtime can run) and none per operation, calling every API source. |
+| `mcp-server-name` | | The exported server's name; defaults to the Arazzo document's title. |
+| `server-is-mock` | `false` | `true` says that server is a mock that picks its response status from a `Prefer: code=` header (`rapidoc mock`, Prism): the run panel shows **Mock Response Status** and the button reads "Run workflow (Mock)". Not needed when the paired elements have `mock-server="true"`. |
+| `theme` | `ember` | One of RapiDoc's theme presets, or a custom accent; same values as on `<rapi-doc>`. |
+| `color-scheme` | `dark` | `dark`, `light`, `system`, or `auto` (follows the page's `data-theme`). |
+
+## Events
+
+All events bubble and cross the shadow boundary (`composed`).
+
+| Event | `detail` | When |
+| :--- | :--- | :--- |
+| `flow-loaded` | `{ doc, problems }` | The Arazzo document and its sources are loaded. `problems` lists validation findings. |
+| `step-click` | `{ workflowId, stepId, operation, workflowRef }` | A step box is clicked or activated with the keyboard. |
+| `view-change` | `{ view }` | The reader switched between compact and expanded. |
+| `workflow-run` | `{ workflowId, inputs, result, trace }` | A run finished. `result` is the MCP tool result; `trace` has one entry per step attempt with its request and response. |
+
+The element also exposes `arazzoDocument` (the parsed document), `workflowRuntimeSource`, which a paired `<rapi-doc>` uses to add workflow tools to its [MCP export](/docs/ai/mcp-server/#workflows-as-tools), and the `statusCodes` property that fills the Mock Response Status table (see [Running against a mock](/docs/rapi-flow/running/#running-against-a-mock)).
+
+## Slots
+
+Put your own markup at the top or bottom of the element with `slot="header"` or `slot="footer"`: a logo, a title, a server switch, links. It stays in the page's DOM, so the page's CSS styles it and its scripts find it, and it scrolls with the diagram. Its spacing is yours: the element adds none around it.
+
+```html
+<rapi-flow arazzo-url="/workflows/ship-a-parcel.arazzo.yaml" for="thedoc">
+  <div slot="header">
+    <img src="/logo.svg" alt="Rapid Parcels" height="28">
+  </div>
+  <p slot="footer">Questions? <a href="/support">Contact support</a>.</p>
+</rapi-flow>
+```
+
+| Slot | Where |
+| :--- | :--- |
+| `header` | At the top, above the card with the Arazzo document's URL and API sources. |
+| `footer` | At the bottom, below the run panel. |
+
+The [rapi-flow example](/examples/arazzo) puts the `<rapi-flow>` logo and its Real / Mock server switch in the header slot; the [multi-API example](/examples/arazzo-multi), the Rapid Parcels logo.
+
+## Styling
+
+`theme` and `color-scheme` work as on `<rapi-doc>`, and the element reads the same [CSS custom properties](/docs/theming/overview). Its CSS parts: `mcp-export`, `document` (the card with the URL and the API sources), `sources`, `url`, `url-form`, `url-input`, `url-load`, `url-error`, `header`, `title`, `select`, `description`, `view-toggle`, `diagram`, `run`, `run-inputs`, `run-button`, `run-stop`, `message`, `problems`.
+
+```css
+rapi-flow::part(diagram) {
+  max-height: 32rem;
+}
+```

@@ -3,7 +3,7 @@ title: Mock Server (rapidoc mock)
 description: Run a real HTTP mock of your API from its OpenAPI spec, with request validation, generated data and OAuth token checks, using rapidoc mock or @rapidoc/mock.
 ---
 
-`rapidoc mock` starts an HTTP server that answers every operation in your OpenAPI spec. Unlike the [in-browser mock](/docs/mocking/in-browser/), it is a real server: curl, your frontend, your tests, [`<rapi-flow>`](/docs/components/workflows/) and an MCP server can all call it. It validates requests against the spec and can check OAuth tokens, so `400`, `401` and `403` responses behave as they will in production.
+`rapidoc mock` starts an HTTP server that answers every operation in your OpenAPI spec. Unlike the [in-browser mock](/docs/mocking/in-browser/), it is a real server: curl, your frontend, your tests, [`<rapi-flow>`](/docs/rapi-flow/) and an MCP server can all call it. It validates requests against the spec and can check OAuth tokens, so `400`, `401` and `403` responses behave as they will in production.
 
 ## Start it
 
@@ -71,7 +71,7 @@ servers:
 
 With OAuth, sign in through **Authorize** in `<rapi-doc>` as usual: the mock checks the token like the real API would.
 
-To run [Arazzo workflows](/docs/components/workflows/#a-mock-server) against it, set `server-url` on `<rapi-flow>`. To point an [MCP server](/docs/ai/mcp-server/) at it, use `rapidoc mcp serve openapi.yaml --base-url http://localhost:4010/openapi`.
+To run [Arazzo workflows](/docs/rapi-flow/running/#a-mock-server) against it, set `server-url` on `<rapi-flow>`. To point an [MCP server](/docs/ai/mcp-server/) at it, use `rapidoc mcp serve openapi.yaml --base-url http://localhost:4010/openapi`.
 
 ## Use it as a library
 
