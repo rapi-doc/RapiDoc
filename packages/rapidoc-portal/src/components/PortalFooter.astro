@@ -134,8 +134,9 @@ const newsletter = footer.newsletter;
 </footer>
 
 <style is:global>
+  /* The header rows' color, solid (no frosted glass). */
   .portal-footer-root {
-    background-color: var(--portal-bg);
+    background-color: var(--portal-header-bg, var(--portal-bg));
     border-top: 1px solid var(--portal-border);
     color: var(--portal-muted);
     font-family: var(--font-sans);

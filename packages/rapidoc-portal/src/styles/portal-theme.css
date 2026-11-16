@@ -18,6 +18,9 @@
   --portal-bg: oklch(0.2613 0.0134 272.84);
   --portal-surface: oklch(0.2613 0.0134 272.84);
   --portal-card: oklch(0.2613 0.0134 272.84);
+  /* The header rows' color (frosted, PortalHeader) and the footer's (solid); the sidebars take the page's (--portal-bg). */
+  --portal-header-bg: var(--portal-bg);
+  --portal-header-border: var(--portal-border-subtle);
   /* Borders, muted text and code take the background's blue-grey hue instead of a neutral grey. */
   --portal-border: oklch(0.36 0.018 272.84);
   --portal-border-subtle: rgba(255, 255, 255, 0.06);
@@ -43,7 +46,8 @@
   --sl-color-bg: var(--portal-bg);
   --sl-color-bg-nav: color-mix(in srgb, var(--portal-bg) 92%, transparent);
   --sl-color-bg-sidebar: var(--portal-bg);
-  --sl-color-bg-inline-code: oklch(0.33 0.018 272.84);
+  /* A step lighter than the page, whatever --portal-bg a site sets (about oklch(0.33) on the default). */
+  --sl-color-bg-inline-code: color-mix(in oklab, var(--portal-fg) 12%, var(--portal-bg));
   --sl-color-black: var(--portal-bg);
   --sl-color-gray-6: oklch(0.235 0.0134 272.84);
   --sl-color-gray-7: var(--portal-bg);
@@ -68,6 +72,8 @@
   --portal-bg: #ffffff;
   --portal-surface: #f4f4f5;
   --portal-card: #f4f4f5;
+  --portal-header-bg: #f4f4f5;
+  --portal-header-border: var(--portal-border);
   --portal-border: #e4e4e7;
   --portal-border-subtle: #f4f4f5;
   --portal-fg: #555555;
@@ -86,7 +92,7 @@
 
   --sl-color-bg: #ffffff;
   --sl-color-bg-nav: rgba(255, 255, 255, 0.95);
-  --sl-color-bg-sidebar: #f4f4f5;
+  --sl-color-bg-sidebar: var(--portal-bg);
   --sl-color-bg-inline-code: #e2e8f0;
   --sl-color-black: #ffffff;
   --sl-color-white: var(--portal-heading);

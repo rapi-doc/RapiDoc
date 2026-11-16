@@ -258,7 +258,7 @@ const currentTab = activeTab(tabs, currentPath);
 
   /* Header Container */
   .portal-header-root {
-    --ph-bg: var(--portal-bg, oklch(0.2613 0.0134 272.84));
+    --ph-bg: var(--portal-header-bg, var(--portal-bg, oklch(0.2613 0.0134 272.84)));
     --ph-surface: var(--portal-surface, oklch(0.2613 0.0134 272.84));
     --ph-fg: var(--portal-fg, #cccccc);
     --ph-muted: var(--portal-muted, #8b949e);
@@ -275,7 +275,7 @@ const currentTab = activeTab(tabs, currentPath);
     line-height: 1.4;
   }
 
-  /* Frosted glass for all three header rows: a translucent tint of the page background over a blur,
+  /* Frosted glass for all three header rows: a translucent tint of --portal-header-bg over a blur,
      so content scrolling underneath stays legible but muted. A banner with a configured `background`
      keeps that colour (its inline style outranks the tint). The rows are positioned with descending
      z-index because the blur makes each one a stacking context: without it, the tabs row would paint
@@ -287,7 +287,7 @@ const currentTab = activeTab(tabs, currentPath);
     background-color: color-mix(in srgb, var(--ph-bg) 72%, transparent);
     -webkit-backdrop-filter: blur(16px) saturate(1.6);
     backdrop-filter: blur(16px) saturate(1.6);
-    border-bottom: 1px solid var(--ph-border-subtle);
+    border-bottom: 1px solid var(--portal-header-border, var(--ph-border-subtle));
   }
   .portal-announcement-bar {
     z-index: 3;
