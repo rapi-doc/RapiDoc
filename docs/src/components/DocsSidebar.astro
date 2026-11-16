@@ -23,7 +23,7 @@ const { isPageWithTopic, topics } = Astro.locals.starlightSidebarTopics;
             <a {...attrs} href={topic.link} class:list={[{ 'starlight-sidebar-topics-current': topic.isCurrent }, className]}>
               {topic.icon && (
                 <span class="starlight-sidebar-topics-icon">
-                  <Icon name={topic.icon} size={20} />
+                  <Icon name={topic.icon} size={16} weight="regular" />
                 </span>
               )}
               <span>{topic.label}</span>

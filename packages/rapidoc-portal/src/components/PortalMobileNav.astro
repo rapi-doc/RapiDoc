@@ -26,7 +26,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
       <nav class="portal-mobile-tabs" aria-label="Sections">
         {tabs.map((tab: any) => (
           <a href={withBase(tab.href)} class="portal-mobile-tab" aria-current={tab === currentTab ? 'page' : undefined} {...external(tab.href)}>
-            {tab.icon && <Icon name={tab.icon} size={20} />}
+            {tab.icon && <Icon name={tab.icon} size={16} weight="regular" />}
             <span>{tab.label}</span>
           </a>
         ))}
@@ -43,7 +43,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
               <div class="portal-mobile-links">
                 {link.items.map((item: any) => (
                   <a href={withBase(item.href)} class="portal-mobile-item" {...external(item.href)}>
-                    <Icon name={item.icon || 'lightning'} size={20} class="portal-mobile-icon" />
+                    <Icon name={item.icon || 'lightning'} size={16} weight="regular" class="portal-mobile-icon" />
                     <span>{item.label}</span>
                   </a>
                 ))}
