@@ -1,5 +1,24 @@
 # @rapidoc/portal
 
+## 0.2.3
+
+### Patch Changes
+
+- 0bf29c6: Navigation icons (sidebar items, header and mobile tabs) use Phosphor's regular weight at 16px, a lighter 1px line, instead of bold. `Icon` takes a `weight` prop to choose it.
+- 94dccbd: `rapidoc.theme` with a RapiDoc preset (`amber`, `jade`, ...) now applies to the API reference pages: the page, its sidebar, header and footer take the preset's background, border, sidebar color and accent instead of `theme.primary` and the portal's background. Without it the pages look as before; a `#hex` value still sets only the accent.
+
+  The header rows and the footer now share a color, `--portal-header-bg` (the header frosted, the footer solid), and the sidebars take the page's background: in the light theme the header and footer are the light grey the docs sidebar used to be, and the sidebar is white. Set `--portal-header-bg` in a `theme.css` stylesheet to change it.
+
+  The "On this page" column keeps the width of the left sidebar (18.75rem, `--portal-toc-width` to change it) instead of growing with the screen; the page text stays centered in the space between them.
+
+  The header's dropdown menus are lighter: duotone icons without a colored box, grey and the accent on hover; smaller titles (0.85rem, weight 500) and descriptions (0.75rem); no border on a hovered item.
+
+- Updated dependencies [98324b0]
+- Updated dependencies [c291fe9]
+  - rapidoc@14.1.0
+  - @rapidoc/prerender@0.2.3
+  - @rapidoc/mcp@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes
