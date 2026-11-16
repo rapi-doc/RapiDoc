@@ -22,6 +22,9 @@ Spec pipeline:
 
 - `spec-parser.js`: default `ProcessSpec` (spec URL, text or object to the render model of
   tags, tag groups, components, security schemes, servers); `isTagExpanded`, `groupByTagGroups`.
+- `spec-loader.js`: `createBrowserFetchPlugin` (the fetch plugin for the parser's `load()`),
+  `breakCircularRefs`, `isUrlLike`, `pageUrl`. No imports but `yaml`; `spec-parser.js` uses it, and
+  `rapipdf` (`packages/rapipdf`) bundles it by relative path, with `schema-utils.js`.
 - `slugger.js`: `OperationSlugger` (`slug`, `slugOp`, `slugTag`, `slugTagGroup`, `reset`),
   `operationAnchorSource`, `methodPathSlug`, `toKebabCase`, `clampWordBoundary`, `createSlugger`.
 - `common-utils.js`: search (`advancedSearch`, `getMatchedPaths`), `debounce`, `sleep`,
@@ -84,9 +87,11 @@ UI helpers:
   - Tag and tag-group ids (`tag--<kebab>`, `tag-group--<kebab>`) are not deduplicated.
   - The portal links to these ids and checks them with `operationAnchorSource`/`methodPathSlug`;
     changing any rule above is a breaking change for published portals.
-- **Circular references** (`[spec-parser.js:breakCircularRefs]`): after dereferencing, the tree
+- **Circular references** (`[spec-loader.js:breakCircularRefs]`): after dereferencing, the tree
   is cloned without `x-ref` keys and each cycle becomes `{ $ref }` (fallback
-  `#/components/schemas/Circular`); shared non-cyclic nodes stay shared. Schema code treats a
+  `#/components/schemas/Circular`); shared non-cyclic nodes stay shared. The `{ $ref }` takes the
+  place of the schema that contains itself, also when the dereferenced copy is a different object
+  with the same children (never `properties: { $ref }`). Schema code treats a
   remaining `$ref` as the cycle marker, so renderers must not recurse into it.
 - **allOf** (`[schema-utils.js:flattenAllOf]`): the schema table/tree, object notation and
   `getMergedProperties`/`getMergedRequired` read one merged schema: members in order, the
@@ -126,9 +131,9 @@ UI helpers:
   out). `ProcessSpec` drops left-out operations, and orders each tag's operations, and the tags,
   by that rank unless `sort-endpoints-by` / `sort-tags` is set. Covered by
   `tests/unit/filter-operations.test.js`.
-- **Headless boundary**: `spec-parser.js`, `schema-utils.js`, `slugger.js`, `mcp-generator.js`,
+- **Headless boundary**: `spec-parser.js`, `spec-loader.js`, `schema-utils.js`, `slugger.js`, `mcp-generator.js`,
   `mcp/`, `arazzo/` and everything they import are shared with the Node builds (`@rapidoc/prerender`,
-  `@rapidoc/mcp`). They never import Lit, elements, `components/`, `templates/`, `styles/` or
+  `@rapidoc/mcp`) and, for `spec-loader.js` and `schema-utils.js`, with `rapipdf`. They never import Lit, elements, `components/`, `templates/`, `styles/` or
   `static/`, and use only the third-party packages allowed in `tests/unit/headless-boundary.test.js`.
   DOM calls inside functions are allowed (Node never calls them); DOM access at import time is not.
 
@@ -157,6 +162,7 @@ Run `npm run test:unit` from the repo root before and after changing `spec-parse
 
 - `spec-parser.js`: `spec-parser-relative-url`, `spec-parser-security`,
   `spec-parser-tag-groups`, `spec-parser-webhooks`, `unused-tags`, `openapi-3-2-bookstore`.
+- `spec-loader.js`: `spec-loader`.
 - `slugger.js`: `slugger`.
 - `schema-utils.js`: `schema-utils`, `schema-ast`, `schema-in-object-notation`,
   `schema-nullable`, `schema-modernization`, `multipart-form-curl`, `type-format-label`.

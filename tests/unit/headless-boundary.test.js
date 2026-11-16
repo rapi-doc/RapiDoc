@@ -26,6 +26,7 @@ const ROOTS = [
   MCP_ENTRY,
   "utils/mcp-generator.js",
   "utils/spec-parser.js",
+  "utils/spec-loader.js",
   "utils/schema-utils.js",
   "utils/slugger.js",
   "utils/arazzo/index.js",
