@@ -87,7 +87,7 @@ npx rapidoc mcp export openapi.yaml --out-dir orders-mcp   # the server project
 npx rapidoc mcp serve openapi.yaml                         # run it over stdio, no files
 ```
 
-`mcp export` writes the same project as `<rapi-doc>`'s [Export MCP Server](/docs/ai/mcp-server/) button. `mcp serve` runs it directly, so an agent's config can start it with `npx rapidoc mcp serve <spec>` (it needs `@modelcontextprotocol/sdk` installed). Credentials come from the environment, one variable per security scheme; `--base-url` points the calls at `rapidoc mock`, and `--arazzo` adds workflows as tools. `EXTERNAL_HOSTS` (comma-separated, `*` for any) lists the hosts a workflow step's [`x-operation`](/docs/components/workflows/#calls-outside-the-api-sources-x-operation) URL computed at run time may go to, besides those the workflow names.
+`mcp export` writes the same project as `<rapi-doc>`'s [Export MCP Server](/docs/ai/mcp-server/) button. `mcp serve` runs it directly, so an agent's config can start it with `npx rapidoc mcp serve <spec>` (it needs `@modelcontextprotocol/sdk` installed). Credentials come from the environment, one variable per security scheme; `--base-url` points the calls at `rapidoc mock`, and `--arazzo` adds workflows as tools. `EXTERNAL_HOSTS` (comma-separated, `*` for any) lists the hosts a workflow step's [`x-operation`](/docs/rapi-flow/extensions/#calls-outside-the-api-sources-x-operation) URL computed at run time may go to, besides those the workflow names.
 
 ## Everything else
 
