@@ -620,34 +620,18 @@ const currentTab = activeTab(tabs, currentPath);
   }
   .portal-megamenu-card:hover {
     background-color: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.06);
   }
 
-  /* Icon box: the accent for the first item, then four more tones in turn */
+  /* A plain duotone icon (24px, no box): grey, the accent on hover. */
   .portal-card-icon-box {
-    --icon-tone: var(--ph-primary);
-    width: 42px;
-    height: 42px;
-    border-radius: var(--portal-radius);
     display: flex;
-    align-items: center;
-    justify-content: center;
     flex-shrink: 0;
-    background: color-mix(in srgb, var(--icon-tone) 14%, transparent);
-    color: var(--icon-tone);
-    border: 1px solid color-mix(in srgb, var(--icon-tone) 26%, transparent);
+    padding-top: 0.125rem;
+    color: var(--ph-muted);
+    transition: color 0.15s ease;
   }
-  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 2) .portal-card-icon-box {
-    --icon-tone: #f59e0b;
-  }
-  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 3) .portal-card-icon-box {
-    --icon-tone: #34d399;
-  }
-  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 4) .portal-card-icon-box {
-    --icon-tone: #38bdf8;
-  }
-  :is(.portal-megamenu-section, .portal-megamenu-card):nth-child(5n + 5) .portal-card-icon-box {
-    --icon-tone: #a78bfa;
+  :is(.portal-megamenu-hero-card, .portal-megamenu-card):is(:hover, :focus-visible) .portal-card-icon-box {
+    color: var(--ph-primary);
   }
 
   .portal-card-body {
@@ -661,8 +645,8 @@ const currentTab = activeTab(tabs, currentPath);
     margin-bottom: 0.25rem;
   }
   .portal-card-title {
-    font-size: 1.05rem;
-    font-weight: 700;
+    font-size: 0.85rem;
+    font-weight: 500;
     color: var(--ph-fg);
     letter-spacing: -0.01em;
   }
@@ -678,7 +662,8 @@ const currentTab = activeTab(tabs, currentPath);
     color: var(--ph-fg);
   }
   .portal-card-desc {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 400;
     color: var(--ph-muted);
     margin: 0.25rem 0 0;
     line-height: 1.45;
