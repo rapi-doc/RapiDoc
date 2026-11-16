@@ -1,5 +1,17 @@
 # rapidoc
 
+## 14.1.0
+
+### Minor Changes
+
+- 98324b0: New `amber` theme preset: an amber accent (`#f6a821`) over slate-grey surfaces, with lighter cards, a darker sidebar and white headings in dark mode, for a higher-contrast look; in light mode the accent is the orange `#ff791a`. Set it with `theme="amber"`.
+
+### Patch Changes
+
+- c291fe9: Describe the tag and operation slot names as they are: `tag--` and the tag name in kebab-case, and the operation's element ID (its operationId in kebab-case), in the API reference and the published types.
+
+  Point the live-demo links of `filter-operations`, `allow-advanced-search`, `show-method-in-nav-bar`, `use-path-in-nav-bar` and `nav-item-spacing` at pages that exist.
+
 ## 14.0.0
 
 ### Major Changes
