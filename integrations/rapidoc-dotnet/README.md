@@ -63,6 +63,10 @@ These are the options of every RapiDoc integration, in .NET naming.
 
 .NET 8 or later. MIT.
 
+## Upgrading to 0.2.0
+
+0.2.0 ships rapidoc 13, which changed one set of attributes: `filter-operations` replaces `match-paths`, `match-type` and `remove-endpoints-with-badge-label-as`, and rapidoc 13 ignores those three. If your `Attributes` set any of them, set `filter-operations` instead. Matching is exact, so a v12 `match-paths` prefix becomes a glob: `options.Attributes["filter-operations"] = "/pets/**";`. The [v12 to v13 migration guide](https://rapidocui.com/migration/v12-to-v13/) has the other terms (`tag:`, `badge:`, `deprecated`, `!` to leave out).
+
 ## Releasing (for maintainers)
 
 Releases go to nuget.org from GitHub Actions, through a trusted publishing policy. There is no stored API key and nothing to upload by hand.
