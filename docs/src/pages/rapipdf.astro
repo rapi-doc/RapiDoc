@@ -162,12 +162,12 @@ const contents = [
           contents.map((item) => (
             <div class="rd-feature-card">
               <span class="rd-feature-icon">
-                {item.icon === 'list' && <Icon name="list-bullets" size={24} weight="regular" />}
-                {item.icon === 'lock' && <Icon name="lock" size={24} weight="regular" />}
-                {item.icon === 'braces' && <Icon name="brackets-curly" size={24} weight="regular" />}
-                {item.icon === 'table' && <Icon name="table" size={24} weight="regular" />}
-                {item.icon === 'palette' && <Icon name="palette" size={24} weight="regular" />}
-                {item.icon === 'language' && <Icon name="translate" size={24} weight="regular" />}
+                {item.icon === 'list' && <Icon name="list-bullets" size={24} weight="duotone" />}
+                {item.icon === 'lock' && <Icon name="lock" size={24} weight="duotone" />}
+                {item.icon === 'braces' && <Icon name="brackets-curly" size={24} weight="duotone" />}
+                {item.icon === 'table' && <Icon name="table" size={24} weight="duotone" />}
+                {item.icon === 'palette' && <Icon name="palette" size={24} weight="duotone" />}
+                {item.icon === 'language' && <Icon name="translate" size={24} weight="duotone" />}
               </span>
               <h3 class="rd-feature-title">{item.title}</h3>
               <p class="rd-feature-text" set:html={item.text} />
