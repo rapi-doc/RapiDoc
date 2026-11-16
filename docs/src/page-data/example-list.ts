@@ -12,6 +12,8 @@ interface ExampleItem {
   category?: string;
   /** The web components the example shows (rapi-doc when left out), for the gallery's product tabs */
   elements?: string[];
+  /** The card's Phosphor icon; picked from the title or category when left out */
+  icon?: string;
 }
 
 interface SubExampleList {

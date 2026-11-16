@@ -516,7 +516,7 @@ const compareProducts = [
       <div class="rd-bento-card rd-col-span-2">
         <div class="rd-bento-badge">Framework Agnostic</div>
         <div class="rd-bento-icon-box">
-          <Icon name="globe" size={24} />
+          <Icon name="globe" size={24} weight="regular" />
         </div>
         <h3 class="rd-bento-title">Native W3C Web Component Standard</h3>
         <p class="rd-bento-text">
@@ -536,7 +536,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Real DX</div>
         <div class="rd-bento-icon-box">
-          <Icon name="terminal-window" size={24} />
+          <Icon name="terminal-window" size={24} weight="regular" />
         </div>
         <h3 class="rd-bento-title">Built-in Console with Negative Testing</h3>
         <p class="rd-bento-text">
@@ -549,7 +549,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Zero Setup</div>
         <div class="rd-bento-icon-box">
-          <Icon name="sparkle" size={24} />
+          <Icon name="sparkle" size={24} weight="regular" />
         </div>
         <h3 class="rd-bento-title">In-Browser Mock Server</h3>
         <p class="rd-bento-text">
@@ -569,7 +569,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Agent Ready</div>
         <div class="rd-bento-icon-box">
-          <Icon name="lightning" size={24} />
+          <Icon name="lightning" size={24} weight="regular" />
         </div>
         <h3 class="rd-bento-title">Curated MCP Server Generator</h3>
         <p class="rd-bento-text">
@@ -588,7 +588,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Microservices & Edge</div>
         <div class="rd-bento-icon-box">
-          <Icon name="cube" size={24} />
+          <Icon name="cube" size={24} weight="regular" />
         </div>
         <h3 class="rd-bento-title">Embedded in Micro-Servers & Containers</h3>
         <p class="rd-bento-text">
@@ -601,7 +601,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Ergonomics</div>
         <div class="rd-bento-icon-box">
-          <Icon name="tree-structure" size={24} />
+          <Icon name="tree-structure" size={24} weight="regular" />
         </div>
         <h3 class="rd-bento-title">Tree & Tabular Schema Folding</h3>
         <p class="rd-bento-text">
@@ -614,7 +614,7 @@ const compareProducts = [
       <div class="rd-bento-card rd-col-span-2">
         <div class="rd-bento-badge">Enterprise Ready</div>
         <div class="rd-bento-icon-box">
-          <Icon name="shield-check" size={24} />
+          <Icon name="shield-check" size={24} weight="regular" />
         </div>
         <h3 class="rd-bento-title">100% Self-Hosted & Air-Gapped Security</h3>
         <p class="rd-bento-text">
@@ -1198,14 +1198,9 @@ const compareProducts = [
     color: var(--rd-accent);
     margin-bottom: 12px;
   }
+  /* The card's icon on its own, no box (the site's card standard: 24px regular) */
   .rd-bento-icon-box {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--rd-radius-sm);
-    background: var(--rd-icon-bg);
     display: flex;
-    align-items: center;
-    justify-content: center;
     color: var(--rd-accent);
     margin-bottom: 16px;
   }

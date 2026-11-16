@@ -282,7 +282,7 @@ export default defineConfig({
           {
             label: 'RapiDoc CLI',
             link: '/docs/cli/',
-            icon: 'terminal-window',
+            icon: 'terminal',
             items: [
               { label: 'Overview', slug: 'docs/cli' },
               {

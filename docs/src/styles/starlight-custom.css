@@ -341,7 +341,7 @@ starlight-toc li:has(> ul) + li > a::after {
   opacity: 1;
 }
 .sl-markdown-content .card .icon {
-  color: var(--rd-docs-muted);
+  color: var(--sl-color-accent);
 }
 
 /* -------------------------------------------------------------------------- Buttons */

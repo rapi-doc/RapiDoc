@@ -633,20 +633,15 @@ a.rd-feature-card:hover {
   background: var(--rd-card-bg-hover);
   border-color: var(--rd-card-border-hover);
 }
+/* A card's icon on its own, no box: 24px in the regular weight, a 1.5px line (the site's card standard) */
 .rd-feature-icon {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--rd-radius-sm);
-  background: var(--rd-icon-bg);
   color: var(--rd-accent);
   margin-bottom: 6px;
   transition: var(--rd-transition);
 }
 a.rd-feature-card:hover .rd-feature-icon {
-  background: var(--rd-icon-bg-hover);
+  color: var(--rd-accent-light);
 }
 .rd-feature-title {
   display: flex;
