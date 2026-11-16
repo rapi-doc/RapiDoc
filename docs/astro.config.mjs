@@ -217,6 +217,7 @@ export default defineConfig({
           label: 'Migration Guides',
           collapsed: true,
           items: [
+            { label: 'v13 to v14', slug: 'docs/migration/v13-to-v14' },
             { label: 'v12 to v13', slug: 'docs/migration/v12-to-v13' },
             { label: 'v11 to v12', slug: 'docs/migration/v11-to-v12' },
             { label: 'v10 to v11', slug: 'docs/migration/v10-to-v11' },

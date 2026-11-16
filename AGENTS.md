@@ -94,7 +94,7 @@ All agents must strictly adhere to the following system boundaries:
   - `rapipdf` (behind `rapidoc pdf`) is the CLI's fifth optional peer, imported lazily as `rapipdf/node`. It reads only the spec; `--api <id>` takes the spec's location from the portal config.
   - `@modelcontextprotocol/sdk` is the CLI's fourth optional peer, for `rapidoc mcp serve` only (imported lazily). The CLI's own dependencies stay light: `@rapidoc/mcp`, `rapidoc` (the browser bundle `preview` serves), `@scalar/openapi-validator`, `yaml`, `@clack/prompts`, `create-rapidoc`.
   - `@rapidoc/mcp` is RapiDoc's MCP code built for Node (the portal build and `@rapidoc/server` use it). Its source stays in `packages/rapidoc/src` (`utils/mcp-generator.js`, `utils/mcp/`, `utils/arazzo/`), shared with `<rapi-doc>`'s Export MCP Server button and `<rapi-flow>`; `packages/rapidoc-mcp` holds only the entry and build. That shared code is headless: `tests/unit/headless-boundary.test.js` fails if it imports Lit, elements, templates, styles or an unlisted package.
-  - Internal dependency ranges are pinned (`rapidoc ^12.1.0`, `@rapidoc/prerender ^0.1.0` and `@rapidoc/mcp ^0.1.0` in the portal, `@rapidoc/mcp ^0.1.0` in the server, `@rapidoc/portal ^0.1.0`, `@rapidoc/server ^0.1.0` and `@rapidoc/mock ^0.1.0` as the CLI's peers, `rapidoc ^12.1.0` and `@rapidoc/mcp ^0.1.0` as its dependencies), never `*`.
+  - Internal dependency ranges are caret ranges on the current release (`rapidoc ^14.0.0` in the portal, the CLI, `@rapidoc/embed` and the docs-site integrations; the fixed group's own version between its packages; `rapipdf ^3.0.0` as the CLI's peer), never `*`. `changeset version` writes them (§6); the manifests hold the exact values.
 
 ### Build Artifact Hygiene
 
