@@ -7,3 +7,5 @@
 The header rows and the footer now share a color, `--portal-header-bg` (the header frosted, the footer solid), and the sidebars take the page's background: in the light theme the header and footer are the light grey the docs sidebar used to be, and the sidebar is white. Set `--portal-header-bg` in a `theme.css` stylesheet to change it.
 
 The "On this page" column keeps the width of the left sidebar (18.75rem, `--portal-toc-width` to change it) instead of growing with the screen; the page text stays centered in the space between them.
+
+The header's dropdown menus are lighter: duotone icons without a colored box, grey and the accent on hover; smaller titles (0.85rem, weight 500) and descriptions (0.75rem); no border on a hovered item.
