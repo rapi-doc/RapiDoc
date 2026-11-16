@@ -31,6 +31,7 @@ Node.js 22.12 or later.
 | `rapidoc validate [spec\|dir]`       | Validates one OpenAPI 2.0 / 3.x spec, or every spec in the portal             |
 | `rapidoc lint [spec\|dir]`           | Checks what a spec needs for a good portal: operationIds, summaries, examples |
 | `rapidoc bundle <spec>`              | Joins a spec split over several files into one                                |
+| `rapidoc pdf <spec>`                 | Writes the API reference of a spec as a PDF (needs `rapipdf`)                 |
 | `rapidoc mcp <export\|serve> <spec>` | Turns a spec into MCP tools: export a server project, or serve over stdio     |
 | `rapidoc migrate`                    | Converts a Redocly or Zudoku project to `rapidoc.config.yaml`                 |
 | `rapidoc doctor [dir]`               | Checks Node, package versions, the portal config and the browser bundle       |

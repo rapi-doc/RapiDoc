@@ -2,7 +2,7 @@
 
 ## 1. Package Scope & Identity
 
-`packages/rapidoc-cli` provides the `rapidoc` command, the one tool users run: `rapidoc init` (scaffold a portal, optionally around existing OpenAPI files), `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc serve` (serve a build with sign-in and access rules), `rapidoc mock` (mock server for the portal's APIs), `rapidoc validate` (OpenAPI validation), `rapidoc lint` (what a portal needs beyond valid OpenAPI), `rapidoc bundle` (one file from a spec split over several), `rapidoc preview` (one spec in `<rapi-doc>`, reloading on save), `rapidoc mcp export|serve` (a spec as MCP tools), `rapidoc doctor` (setup check), `rapidoc migrate` (config migration from Redocly or Zudoku) and `rapidoc completion` (shell completion scripts). Future spec tools belong here too.
+`packages/rapidoc-cli` provides the `rapidoc` command, the one tool users run: `rapidoc init` (scaffold a portal, optionally around existing OpenAPI files), `rapidoc dev` (local preview), `rapidoc build` (static portal build), `rapidoc serve` (serve a build with sign-in and access rules), `rapidoc mock` (mock server for the portal's APIs), `rapidoc validate` (OpenAPI validation), `rapidoc lint` (what a portal needs beyond valid OpenAPI), `rapidoc bundle` (one file from a spec split over several), `rapidoc pdf` (a spec's reference as a PDF), `rapidoc preview` (one spec in `<rapi-doc>`, reloading on save), `rapidoc mcp export|serve` (a spec as MCP tools), `rapidoc doctor` (setup check), `rapidoc migrate` (config migration from Redocly or Zudoku) and `rapidoc completion` (shell completion scripts). Future spec tools belong here too.
 
 - **Package Name**: `@rapidoc/cli`
 - **Binary Name**: `rapidoc`
@@ -22,7 +22,7 @@ src/
     ├── errors.js   # UsageError (exit 2), ProblemError (exit 1)
     ├── help.js     # overview and per-command help, generated from the command declarations
     ├── output.js   # info / success / warn / error; icons only on a terminal without NO_COLOR; --quiet
-    ├── engines.js  # loadPortal / tryLoadPortal / loadServer / loadMock (lazy imports)
+    ├── engines.js  # loadPortal / tryLoadPortal / loadServer / loadMock / loadPdf (lazy imports)
     ├── prompt.js   # questions (@clack/prompts, imported lazily): canAsk, text, confirm, select, multiselect
     ├── ports.js    # startOnFreePort (serve, mock, preview), choosePort (dev): offer the next free port
     ├── open.js     # openBrowser (--open on dev and preview); RAPIDOC_OPEN_COMMAND swaps the opener in tests
@@ -77,6 +77,7 @@ lint/               # rapidoc lint's engine (imported only by that command)
 
 - **Runtime**: Node.js >= 22.12.0
 - **`rapidoc` and `@rapidoc/mcp`** (dependencies): `preview` serves `rapidoc`'s `dist/rapidoc-min.js`; `mcp` builds manifests and projects with `@rapidoc/mcp`, from the spec loaded by `validate/bundle.js` (other-file `$ref`s inlined).
+- **RapiPdf**: `rapipdf`, a fifth **optional peer**, behind `rapidoc pdf` only. Load it only through `loadPdf()` (`rapipdf/node`), which also says so when the installed `rapipdf` is a 2.x without that entry. The command passes its flags as `generatePdf` options and writes the Buffer it gets back; all PDF logic stays in `packages/rapipdf`. `tests/pdf.test.js` needs `rapipdf` built (`pretest:portal` does it).
 - **MCP SDK**: `@modelcontextprotocol/sdk`, a fourth **optional peer**, for `mcp serve` only, through `loadMcpSdk()`. `mcp serve` writes the MCP protocol on stdout, so it sets quiet and reports on stderr. Tests simulate a missing SDK with `RAPIDOC_MCP_SDK_MODULE`.
 - **Validation**: `@scalar/openapi-validator` (strict: the official OpenAPI 2.0–3.2 schemas, path and cookie parameter rules) and `yaml` (parsing with line and column numbers). Not `@scalar/openapi-parser`'s `validate`: it fills in defaults first, so a missing `info.version` passes. In-file `$ref`s stay `$ref`s when validating: dereferencing recursive schemas overflows the stack on OpenAPI 3.0.
 - **Scaffolding**: `create-rapidoc` (`create-rapidoc/scaffold`: `scaffoldProject`, `findOpenApiSpecs`), imported lazily by `init`

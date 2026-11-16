@@ -20,6 +20,7 @@ import serve from "./commands/serve.js";
 import mock from "./commands/mock.js";
 import validate from "./commands/validate.js";
 import bundle from "./commands/bundle.js";
+import pdf from "./commands/pdf.js";
 import lint from "./commands/lint.js";
 import migrate from "./commands/migrate.js";
 import preview from "./commands/preview.js";
@@ -37,6 +38,7 @@ const COMMANDS = [
   validate,
   lint,
   bundle,
+  pdf,
   mcp,
   migrate,
   doctor,

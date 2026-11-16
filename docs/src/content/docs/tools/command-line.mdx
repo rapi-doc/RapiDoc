@@ -1,6 +1,6 @@
 ---
 title: Command Line
-description: Preview, validate, lint, bundle and mock OpenAPI specs, and turn them into MCP servers, with the rapidoc command (@rapidoc/cli).
+description: Preview, validate, lint, bundle and mock OpenAPI specs, write them as PDFs, and turn them into MCP servers, with the rapidoc command (@rapidoc/cli).
 ---
 
 `@rapidoc/cli` gives you the `rapidoc` command. It builds and runs [developer portals](https://portal.rapidocui.com/), and the commands on this page also work on plain OpenAPI files, wherever you use `<rapi-doc>`:
@@ -8,6 +8,7 @@ description: Preview, validate, lint, bundle and mock OpenAPI specs, and turn th
 - **`preview`** shows a spec as you edit it.
 - **`validate`** and **`lint`** check it.
 - **`bundle`** joins a spec split over several files into one.
+- **`pdf`** writes its reference as a PDF.
 - **`mock`** serves its API with example responses.
 - **`mcp`** turns it into tools for AI agents.
 
@@ -70,6 +71,24 @@ npx rapidoc bundle openapi.yaml --dereference > flat.yaml
 ```
 
 `rapidoc bundle` writes a spec and every file its `$ref`s reach as one document, for tools that can't follow `$ref`s across files. A `$ref` to another file becomes a component (`./schemas/Order.yaml` → `#/components/schemas/Order`, holding a copy; `definitions` in Swagger 2.0), named after the file or the pointer's last part, and in-file `$ref`s stay. `--dereference` inlines everything instead, and stops on a recursive schema. The result is validated before it's written (`--no-validate` skips that); `-o` picks JSON or YAML by the extension, and without it the document goes to stdout.
+
+## Write the reference as a PDF
+
+```bash
+npm install -D rapipdf
+npx rapidoc pdf openapi.yaml
+npx rapidoc pdf openapi.yaml -o dist/reference.pdf --title "Orders API" --examples
+```
+
+`rapidoc pdf` writes the API reference of a spec as a PDF: a cover page, a table of contents, the security schemes, and every operation with its parameters, request bodies and responses. The spec can be a file or a URL, OpenAPI 3.x or Swagger 2.0, and `$ref`s to other files are followed. Without `-o` the file is named after the spec (`openapi.pdf`) and written to the current folder.
+
+- `--schema-style table` prints schemas as tables instead of indented object trees, `--examples` adds request and response examples, and `--api-list` adds a closing list of every operation.
+- `--no-info`, `--no-toc`, `--no-security` and `--no-api-details` leave a section out, and `--no-sort-tags` keeps the tags in the spec's order.
+- `--title`, `--footer`, `--primary-color` and `--alternate-color` set the cover title, the page footer and the two colors.
+- `--labels labels.json` replaces the labels printed in the PDF ("REQUEST", "RESPONSE", …), for a PDF in another language.
+- `--font file.ttf` uses your font in place of the built-in Roboto. Use it for text Roboto has no glyphs for, such as Chinese, Japanese or Korean (`--mono-font` does the same for code).
+
+The command needs the [`rapipdf`](https://www.npmjs.com/package/rapipdf) package next to the CLI, the same package whose `<rapi-pdf>` element makes this PDF in the browser.
 
 ## Mock the API
 

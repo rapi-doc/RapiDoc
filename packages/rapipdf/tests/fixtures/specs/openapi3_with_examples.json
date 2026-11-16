@@ -1,0 +1,211 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "API including examples",
+		"description": "The following describes a not real API.",
+		"contact": {
+			"name": "No One",
+			"url": "http://www.centauricorp.com"
+		},
+		"version": "0.0.0"
+	},
+	"servers": [
+		{
+			"url": "http://notreal.org/",
+			"description": "Not a real server",
+			"variables": {}
+		},
+		{
+			"url": "http://alsonotreal.org/",
+			"description": "Also not a real server",
+			"variables": {}
+		}
+	],
+	"paths": {
+		"/rest/first": {
+			"get": {
+				"tags": [
+					"First"
+				],
+				"summary": "The first REST-ful path.",
+				"operationId": "getFirst",
+				"parameters": [
+					{
+						"name": "paramOne",
+						"in": "query",
+						"description": "First parameter.",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "paramTwo",
+						"in": "query",
+						"description": "Second parameter.",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "paramThree",
+						"in": "query",
+						"description": "Third parameter.",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "paramFour",
+						"in": "query",
+						"description": "Fourth parameter.",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "paramFive",
+						"in": "query",
+						"description": "Fifth parameter.",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response.",
+						"content": {
+							"application/json": {
+								"example": {
+									"propertyOne": "Value15880",
+									"propertyTwo": "Value23718",
+									"propertyThree": [
+										{
+											"subpropertyOne": "Value3",
+											"subpropertyTwo": "Value4",
+											"subpropertyThree": "Value5",
+											"subpropertyFour": {
+												"subsubpropertyOne": "Value6",
+												"subsubpropertyTwo": "Value7"
+											},
+											"subproperyFive": null
+										}
+									]
+								}
+							}
+						}
+					},
+					"5XX": {
+						"description": "Internal Server Error"
+					}
+				}
+			}
+		},
+		"/rest/second": {
+			"put": {
+				"tags": [
+					"Second"
+				],
+				"summary": "The second REST-ful path.",
+				"operationId": "putSecond",
+				"requestBody": {
+					"description": "The second REST-ful path's request body.",
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object"
+							},
+							"example": {
+								"paramOne": "valueOne",
+								"paramTwo": "valueTwo",
+								"paramThree": [
+									{
+										"subparamOne": "valueThree",
+										"subparamTwo": "valueFour",
+										"subparamThree": "valueFive",
+										"subparamFour": "valueSix"
+									},
+									{
+										"subparamOne": "valueSeven",
+										"subparamTwo": "valueEight",
+										"subparamThree": "valueNine",
+										"subparamFour": "valueTen"
+									}
+								],
+								"paramFour": [
+									{
+										"subparamFive": [
+											{
+												"subsubparamOne": "valueTen",
+												"subsubparamTwo": "valueEleven",
+												"subsubparamThree": "valueTwelve",
+												"subsubparamFour": "valueThirteen"
+											}
+										],
+										"subparamSix": [
+											{
+												"subsubparamFive": "valueFourteen",
+												"subsubparamSix": "valueFifteen",
+												"subsubparamSeven": "valueSixteen",
+												"subsubparamEight": "valueSeventeen"
+											},
+											{
+												"subsubparamFive": "valueEighteen",
+												"subsubparamSix": "valueNineteen",
+												"subsubparamSeven": "valueTwenty",
+												"subsubparamEight": "valueTwentyOne"
+											}
+										],
+										"subparamSeven": {}
+									}
+								]
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Custom List Inserted/Updated",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								},
+								"examples": {
+									"First example": { "value": "More success" },
+									"Second example": { "value": "Even More success" },
+									"Third example": { "value": "All success" },
+									"Fourth example": { "value": "Less success" }
+								}
+							}
+						}
+					},
+					"5XX": {
+						"description": "Internal Server Error",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								},
+								"example": "Not so much"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"securitySchemes": {
+			"basic": {
+				"type": "http",
+				"description": "authentication needed to complete action",
+				"scheme": "basic"
+			}
+		}
+	}
+}

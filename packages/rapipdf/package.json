@@ -1,0 +1,71 @@
+{
+  "name": "rapipdf",
+  "version": "2.2.1",
+  "description": "RapiPdf - Generate PDF from an OpenAPI spec",
+  "keywords": [
+    "api",
+    "custom-element",
+    "documentation",
+    "openapi",
+    "openapi-pdf",
+    "pdf",
+    "rapidoc",
+    "rapipdf",
+    "swagger",
+    "swagger-pdf",
+    "web-component"
+  ],
+  "homepage": "https://rapidocui.com",
+  "bugs": {
+    "url": "https://github.com/rapi-doc/RapiDoc/issues"
+  },
+  "license": "MIT",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapi-doc/RapiDoc.git",
+    "directory": "packages/rapipdf"
+  },
+  "files": [
+    "dist",
+    "src/node.d.ts",
+    "src/rapipdf.d.ts"
+  ],
+  "type": "module",
+  "main": "./dist/rapipdf-min.js",
+  "module": "./dist/rapipdf.js",
+  "types": "./src/rapipdf.d.ts",
+  "unpkg": "./dist/rapipdf-min.js",
+  "jsdelivr": "./dist/rapipdf-min.js",
+  "exports": {
+    ".": {
+      "types": "./src/rapipdf.d.ts",
+      "import": "./dist/rapipdf.js",
+      "default": "./dist/rapipdf-min.js"
+    },
+    "./node": {
+      "types": "./src/node.d.ts",
+      "import": "./dist/node.js"
+    },
+    "./dist/*": "./dist/*"
+  },
+  "scripts": {
+    "build": "vite build && vite build --config vite.config.es.mjs && vite build --config vite.config.node.mjs && node ../../scripts/capture-build-info.js",
+    "build:dev": "vite build --mode development",
+    "dev": "vite",
+    "test": "node --test tests/*.test.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "pdfmake": "^0.3.14"
+  },
+  "devDependencies": {
+    "@scalar/openapi-parser": "^0.29.20",
+    "marked": "^18.1.3",
+    "vite": "^8.3.6",
+    "yaml": "^2.9.1"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

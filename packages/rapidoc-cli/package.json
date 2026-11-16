@@ -39,7 +39,8 @@
     "@modelcontextprotocol/sdk": "^1.32.2",
     "@rapidoc/mock": "^0.2.1",
     "@rapidoc/portal": "^0.2.1",
-    "@rapidoc/server": "^0.2.1"
+    "@rapidoc/server": "^0.2.1",
+    "rapipdf": "^2.2.1"
   },
   "peerDependenciesMeta": {
     "@modelcontextprotocol/sdk": {
@@ -52,6 +53,9 @@
       "optional": true
     },
     "@rapidoc/server": {
+      "optional": true
+    },
+    "rapipdf": {
       "optional": true
     }
   },

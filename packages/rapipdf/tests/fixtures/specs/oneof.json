@@ -1,0 +1,64 @@
+{
+	"swagger": "2.0",
+	"info": {
+    "title": "one-of Models", 
+    "description": "Spec containing model composition using one-of. Checkout the model definition under the RESPONSE section"
+	},
+	"consumes": [ "application/json" ],
+	"produces": [ "application/json" ],
+	"paths": {
+		"/api/employee": {
+			"get": {
+				"tags": [ "Employee Details"],
+				"summary": "List of employees",
+				"operationId": "empDetails",
+				"responses": {
+					"200": {
+						"description": "Checkout the model tab to view object schemas defined using one-of",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/employee"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"employee": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"Id": { "type": "string", "description": "Employee ID"},
+				"Employee": {
+					"description": "Employee Details (Worker or Manager)",
+					"oneOf": [
+						{ "$ref": "#/definitions/manager"},
+            { "$ref": "#/definitions/worker"}
+					]
+				}
+			}
+		},
+		"manager": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+        "name": { "type": "string", "description": "Name of employee" },
+        "directReports": { "type": "integer", "description": "Count of direct reports" }
+			}
+    },
+    "worker": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+        "name": { "type": "string", "description": "Name of employee" },
+        "managerName": { "type": "string", "description": "Name of manager" }
+			}
+    }
+	},
+	"tags": [
+		{ "name": "Employee Details", "description": "Employee Details" }
+	]
+}
