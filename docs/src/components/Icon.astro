@@ -4,8 +4,8 @@
  * the RapiDoc Portal. Every icon keeps a 1.5px line. Phosphor draws its weights on a 256 grid with lines
  * of 8 (thin), 12 (light), 16 (regular) and 24 (bold), so at each size the weight whose line comes
  * closest to 1.5px is used: bold up to 18px, regular at 20-26px, light at 28px and above. The docs product
- * switcher passes `weight="regular"` at 16px, a lighter 1px line, as in the RapiDoc Portal's navigation;
- * cards and the Products menu use 24px regular, a 1.5px line.
+ * switcher (20px) and the Products menu (24px) use duotone, the regular line with a 20% fill; cards use
+ * 24px regular, a 1.5px line.
  */
 import fs from 'node:fs';
 import { iconsDir } from 'virtual:docs-icons';
@@ -14,8 +14,8 @@ interface Props {
   /** A Phosphor icon name, e.g. `arrow-right`, `file-code`, `github-logo` */
   name: string;
   size?: number;
-  /** Overrides the weight the size picks, e.g. `regular` at 16px for a lighter 1px line */
-  weight?: 'thin' | 'light' | 'regular' | 'bold';
+  /** Overrides the weight the size picks, e.g. `duotone` (the regular line plus a 20% fill) */
+  weight?: 'thin' | 'light' | 'regular' | 'bold' | 'duotone';
   class?: string;
   [key: string]: any;
 }

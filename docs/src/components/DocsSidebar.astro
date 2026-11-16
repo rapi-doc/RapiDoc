@@ -23,7 +23,7 @@ const { isPageWithTopic, topics } = Astro.locals.starlightSidebarTopics;
             <a {...attrs} href={topic.link} class:list={[{ 'starlight-sidebar-topics-current': topic.isCurrent }, className]}>
               {topic.icon && (
                 <span class="starlight-sidebar-topics-icon">
-                  <Icon name={topic.icon} size={16} weight="regular" />
+                  <Icon name={topic.icon} size={20} weight="duotone" />
                 </span>
               )}
               <span>{topic.label}</span>
@@ -69,14 +69,10 @@ const { isPageWithTopic, topics } = Astro.locals.starlightSidebarTopics;
   a:is(.starlight-sidebar-topics-current, :hover, :focus-visible) {
     color: var(--sl-color-accent-high);
   }
+  /* A plain 20px duotone icon, no box; the accent for the current topic and on hover (styles/starlight-custom.css) */
   .starlight-sidebar-topics-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.25rem;
-    border: 1px solid var(--sl-color-gray-4);
-    border-radius: 0.25rem;
   }
-  /* The current topic, and hover: a tinted box with the icon in the accent (styles/starlight-custom.css
-     has the colours) */
 </style>
