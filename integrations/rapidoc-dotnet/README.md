@@ -63,6 +63,10 @@ These are the options of every RapiDoc integration, in .NET naming.
 
 .NET 8 or later. MIT.
 
+## Upgrading to 0.2.2
+
+0.2.2 ships rapidoc 14.1.0, which adds the `amber` theme (`options.Attributes["theme"] = "amber";`). Nothing else changes in the options or in what the page shows.
+
 ## Upgrading to 0.2.1
 
 0.2.1 ships rapidoc 14. Nothing changes in the options or in what the page shows: rapidoc 14 has no attribute changes ([v13 to v14](https://rapidocui.com/docs/migration/v13-to-v14/)).
