@@ -390,14 +390,28 @@ starlight-toc li:has(> ul) + li > a::after {
   text-align: center;
 }
 
-/* The product switcher at the top of the sidebar (starlight-sidebar-topics). The plugin fills the current
-   topic's icon box with the accent and draws the icon in --sl-color-text-invert, which Starlight sets to
-   --sl-color-accent-low: a transparent tint here, so the icon vanished into the box. Like the site's
-   cards: a tinted box, the icon in the accent, and colour only on hover. */
+/* The product switcher at the top of the sidebar (starlight-sidebar-topics, drawn by
+   components/DocsSidebar.astro): plain icons with no box, the icon in the accent for the current topic
+   and on hover, colour only. */
 .starlight-sidebar-topics
   a:is(.starlight-sidebar-topics-current, :hover, :focus-visible)
   .starlight-sidebar-topics-icon {
-  background-color: var(--sl-color-accent-low);
-  border-color: var(--sl-color-accent);
   color: var(--sl-color-accent);
+}
+
+/* "On this page" keeps the left sidebar's width, as in the RapiDoc Portal, where Starlight's grows with
+   the screen; the page's text stays at its width, centered in the rest. */
+@media (min-width: 72rem) {
+  .right-sidebar-container {
+    flex: none;
+    width: var(--sl-sidebar-width);
+  }
+  /* Fixed to the viewport, so Starlight's width: 100% is the screen's */
+  .right-sidebar {
+    width: var(--sl-sidebar-width);
+  }
+  [data-has-sidebar][data-has-toc] .main-pane {
+    --sl-content-margin-inline: auto;
+    width: calc(100% - var(--sl-sidebar-width));
+  }
 }
