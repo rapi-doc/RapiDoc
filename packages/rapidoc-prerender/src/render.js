@@ -142,7 +142,7 @@ export async function resolveSpecInput(specInput, options = {}) {
  * @param {Object} options
  * @param {string|Object} options.spec - Specification file path, URL, raw string, or parsed object
  * @param {'read'|'view'|'focused'} [options.renderStyle='read'] - Layout style
- * @param {string} [options.theme='ember'] - Theme preset ('ember', 'carbon', 'cobalt', 'jade', 'indigo') or hex
+ * @param {string} [options.theme='ember'] - Theme preset ('ember', 'carbon', 'cobalt', 'jade', 'indigo', 'amber') or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {'row'|'column'} [options.layout] - Layout orientation ('column' default for read/focused, 'row' for view)
  * @param {boolean|string} [options.showHeader=true] - Whether to render top header

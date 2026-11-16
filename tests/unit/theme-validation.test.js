@@ -123,7 +123,7 @@ test("theme-validation", async (t) => {
   });
 
   await t.test("the five presets each define dark, light and system-light rules", () => {
-    assert.deepEqual(THEME_PRESETS, ["ember", "carbon", "cobalt", "jade", "indigo"]);
+    assert.deepEqual(THEME_PRESETS, ["ember", "carbon", "cobalt", "jade", "indigo", "amber"]);
     for (const preset of THEME_PRESETS) {
       assert.match(
         themeTokens.cssText,

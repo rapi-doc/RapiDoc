@@ -92,6 +92,7 @@ const ATTRIBUTE_CONTROLS: Record<string, AttributeControl> = {
       cobalt: "#7aa2d6",
       jade: "#00d390",
       indigo: "#818cf8",
+      amber: "#f6a821",
       "#f4bf32": "#f4bf32",
     },
     // theme also takes any hex colour: one example

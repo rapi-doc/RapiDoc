@@ -105,7 +105,8 @@ export default class RapiFlow extends LitElement {
    * @default ember
    */
   @property({ type: String, reflect: true })
-  theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | (string & {}) = DEFAULT_THEME;
+  theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | "amber" | (string & {}) =
+    DEFAULT_THEME;
   /**
    * Base color scheme mode. 'system' automatically matches the user's OS preference. 'auto' follows
    * the host page: it reads the page's CSS <code>color-scheme</code> (for example
