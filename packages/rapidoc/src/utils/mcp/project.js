@@ -6,6 +6,13 @@ import runtimeSource from "./runtime.js?raw";
 import serverSource from "./project/server.ts?raw";
 import { envNameFor, generateHostConfigs, toSnakeCase } from "./common.js";
 
+/** Whether a workflow step calls an x-operation URL computed at run time (EXTERNAL_HOSTS applies). */
+function dynamicExternalUrls(manifest) {
+  return Object.values(manifest.workflows || {}).some((w) =>
+    (w?.steps || []).some((s) => String(s?.operation?.url || "").includes("$")),
+  );
+}
+
 /**
  * @param {object} manifest from buildMcpManifest()
  * @param {object} [options]
@@ -72,7 +79,11 @@ Environment variables:
 ${envLines.join("\n")}
 - \`API_BASE_URL\`: overrides the base URL in the manifest (${
     Object.values(manifest.sources)[0]?.baseUrl || ""
-  })
+  })${
+    dynamicExternalUrls(manifest)
+      ? "\n- `EXTERNAL_HOSTS`: hosts, separated by commas, that a workflow step's URL computed at run time (`x-operation`) may go to besides those the workflow names; `*` allows any"
+      : ""
+  }
 
 ## Use with an AI app
 

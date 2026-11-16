@@ -1293,7 +1293,13 @@ export default class RapiFlow extends LitElement {
       credentials = { ...credentials, ...this.credentialsFromElement(el) };
     }
     if (this.serverUrl) baseUrls[first.name] = this.serverUrl;
-    const runtime = createMcpWorkflowRuntime(manifest, { credentials, baseUrls });
+    // x-operation URLs computed at run time may go anywhere: the page's own fetch, which the
+    // browser limits (CORS), not a server's
+    const runtime = createMcpWorkflowRuntime(manifest, {
+      credentials,
+      baseUrls,
+      externalHosts: ["*"],
+    });
     return { runtime, tool };
   }
 
@@ -1339,6 +1345,10 @@ export default class RapiFlow extends LitElement {
     // only, for the steps on its source), any other server gets them as Prefer: code=
     const mockedSources = this.mockedSources;
     const sourceOfStep = new Map(graph.steps.map((st) => [st.stepId, st.operation?.source]));
+    // x-operation steps call endpoints outside the API sources: no mock answers them
+    const externalSteps = new Set(
+      graph.steps.filter((st) => st.kind === "external").map((st) => st.stepId),
+    );
     const codes = this.statusCodesByStep(graph);
     const anyList = Object.values(codes).some((c) => c.includes(","));
     const restore = [];
@@ -1380,12 +1390,15 @@ export default class RapiFlow extends LitElement {
         // A step that finishes after Clear or a switch belongs to no log any more
         if (this.runAbort !== abort) return;
         this.runningStepId = "";
+        const external = externalSteps.has(e.stepId);
         const inBrowser = mockedSources.has(sourceOfStep.get(e.stepId));
-        this.trace = [...this.trace, { ...e, mocked: inBrowser || this.serverIsMock === "true" }];
+        const mocked = !external && (inBrowser || this.serverIsMock === "true");
+        this.trace = [...this.trace, { ...e, mocked, external }];
       },
       // Steps answered in the browser take their codes from the element's mock instead
       requestHeaders: (e) => {
-        if (mockedSources.has(sourceOfStep.get(e.stepId))) return undefined;
+        if (mockedSources.has(sourceOfStep.get(e.stepId)) || externalSteps.has(e.stepId))
+          return undefined;
         const code = pick(codes[e.stepId] || codes["*"] || "", e.attempt);
         return code ? { Prefer: `code=${code}` } : undefined;
       },
@@ -1588,7 +1601,8 @@ export default class RapiFlow extends LitElement {
                 )}
               </select>`
             : html`<input
-                type="text"
+                type=${i.format === "password" ? "password" : "text"}
+                autocomplete=${i.format === "password" ? "off" : nothing}
                 name=${i.name}
                 .value=${this.runInputs[i.name] ?? ""}
                 placeholder=${i.description || ""}
@@ -1626,11 +1640,27 @@ export default class RapiFlow extends LitElement {
           ${e.failedCriterion ? html`<code>${e.failedCriterion}</code>` : nothing}
           ${e.action ? html`<span class="muted">→ ${e.action.type}${e.action.stepId ? ` ${e.action.stepId}` : ""}</span>` : nothing}
         </summary>
+        ${
+          e.external && !e.response && e.request
+            ? html`<p class="muted run-log-note">This step calls a URL outside the workflow's APIs (<code>x-operation</code>): that server must allow cross-origin requests from this page.</p>`
+            : nothing
+        }
         ${e.request?.body !== undefined ? html`<h4>Request body</h4><pre>${pretty(e.request.body)}</pre>` : nothing}
         ${e.response ? html`<h4>Response</h4><pre>${pretty(e.response.body)}</pre>` : nothing}
         ${e.outputs && Object.keys(e.outputs).length ? html`<h4>Outputs</h4><pre>${pretty(e.outputs)}</pre>` : nothing}
       </details>
     </li>`;
+  }
+
+  /** The inputs as the log shows them: those with `format: password` (secrets) read `••••••`. */
+  private maskSecrets(graph, inputs: Record<string, unknown>) {
+    const secret = new Set(
+      (graph.inputDetails || []).filter((i) => i.format === "password").map((i) => i.name),
+    );
+    if (!secret.size) return inputs;
+    return Object.fromEntries(
+      Object.entries(inputs).map(([k, v]) => [k, secret.has(k) ? "••••••" : v]),
+    );
   }
 
   /** The run panel under the diagram: the inputs form and button, then the log and the result. */
@@ -1643,7 +1673,7 @@ export default class RapiFlow extends LitElement {
       ${this.renderInputsForm(graph)}
       ${
         this.runSentInputs
-          ? html`<h4>Inputs</h4><pre class="run-sent-inputs">${JSON.stringify(this.runSentInputs, null, 2)}</pre>`
+          ? html`<h4>Inputs</h4><pre class="run-sent-inputs">${JSON.stringify(this.maskSecrets(graph, this.runSentInputs), null, 2)}</pre>`
           : nothing
       }
       ${

@@ -9,7 +9,7 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { createMcpRuntime, credentialsFromEnv } from "@rapidoc/mcp";
+import { createMcpRuntime, credentialsFromEnv, externalHostsFromEnv } from "@rapidoc/mcp";
 import { allows } from "./access.js";
 import { isSameOrigin } from "./auth/routes.js";
 import { cookieNames } from "./auth/session.js";
@@ -26,7 +26,9 @@ import { NO_STORE } from "./static.js";
  * the tools of the zones the reader may see, and operations secured with oauth2, openIdConnect or a
  * bearer scheme are called with the reader's access token (auth.tryIt) when the portal has one. Other
  * schemes (API keys, HTTP Basic) take the server's environment, named as in the exported project:
- * `<SCHEME>` (scheme id in upper snake case), or `API_KEY` when the API has one scheme.
+ * `<SCHEME>` (scheme id in upper snake case), or `API_KEY` when the API has one scheme. A workflow
+ * step's x-operation URL computed at run time goes only to a host the workflow names, or one
+ * `EXTERNAL_HOSTS` lists (comma-separated, `*` for any), also as in the exported project.
  */
 
 export const MCP_PATH = "/mcp";
@@ -144,6 +146,7 @@ export function registerMcpRoutes(
         manifest,
         createMcpRuntime(manifest, {
           credentials: credentialsFor(manifest, apiToken, env),
+          externalHosts: externalHostsFromEnv(env),
           ...(fetchImpl && { fetch: fetchImpl }),
         }),
       );

@@ -12,6 +12,7 @@ import {
   evaluateExpression,
   resolveValue,
   generateMcpServer,
+  externalHostsFromEnv,
 } from "@rapidoc/mcp";
 import { indexOperations } from "../../packages/rapidoc/src/utils/arazzo/operations.js";
 
@@ -570,5 +571,418 @@ describe("mcp: the runtime runs workflows", () => {
     ]);
     assert.ok(files["README.md"].includes("22 tools (3 of them workflows)"));
     assert.equal(problems.length, 1);
+  });
+});
+
+describe("mcp: x-security credentials of workflows and steps", () => {
+  /** An Arazzo document with one workflow of two steps on the petstore source. */
+  const doc = (workflowSecurity, stepSecurity, extraStep = {}) => ({
+    arazzo: "1.0.1",
+    info: { title: "Secure", version: "1" },
+    sourceDescriptions: [{ name: "petstore", url: "./petstore.yaml", type: "openapi" }],
+    workflows: [
+      {
+        workflowId: "secure",
+        inputs: {
+          type: "object",
+          properties: { key: { type: "string", format: "password" }, token: { type: "string" } },
+        },
+        ...(workflowSecurity && { "x-security": workflowSecurity }),
+        steps: [
+          {
+            stepId: "getPet",
+            operationId: "getPetById",
+            parameters: [{ name: "petId", in: "path", value: 1 }],
+            ...(stepSecurity && { "x-security": stepSecurity }),
+            outputs: { name: "$response.body#/name" },
+          },
+          { stepId: "inventory", operationId: "getInventory", ...extraStep },
+        ],
+      },
+    ],
+  });
+  const runDoc = async (arazzoDoc, args = {}, credentials = {}) => {
+    const problems = [];
+    const manifest = buildMcpManifest(petstore, {
+      arazzo: arazzoDoc,
+      onProblem: (p) => problems.push(p.message),
+    });
+    const stub = apiStub({ "GET /pet/1": { name: "Rex" }, "GET /store/inventory": {} });
+    const runtime = createMcpRuntime(manifest, { fetch: stub.impl, credentials });
+    const result = manifest.workflows.secure ? await runtime.callTool("secure", args) : null;
+    return { manifest, problems, result, calls: stub.calls };
+  };
+
+  it("compiles a named scheme and an inline one, the workflow's first, values kept as written", () => {
+    const { manifest, problems } = buildMcpManifestWithProblems(
+      doc(
+        [{ scheme: { type: "http", scheme: "bearer" }, values: { token: "$inputs.token" } }],
+        [{ schemeName: "api_key", values: { apiKey: "$inputs.key" } }],
+      ),
+    );
+    assert.deepEqual(problems, []);
+    assert.deepEqual(manifest.workflows.secure.steps[0].security, [
+      { scheme: { type: "http", scheme: "bearer" }, values: { token: "$inputs.token" } },
+      {
+        scheme: { type: "apiKey", in: "header", name: "api_key" },
+        values: { apiKey: "$inputs.key" },
+      },
+    ]);
+    assert.deepEqual(manifest.workflows.secure.steps[1].security, [
+      { scheme: { type: "http", scheme: "bearer" }, values: { token: "$inputs.token" } },
+    ]);
+  });
+
+  it("sends each scheme's credential, filled in from the inputs, on every step it applies to", async () => {
+    const { calls } = await runDoc(
+      doc(
+        [{ scheme: { type: "http", scheme: "bearer" }, values: { token: "$inputs.token" } }],
+        [{ schemeName: "api_key", values: { apiKey: "$inputs.key" } }],
+      ),
+      { key: "k-1", token: "t-1" },
+    );
+    assert.equal(calls[0].headers.api_key, "k-1");
+    assert.equal(calls[0].headers.Authorization, "Bearer t-1");
+    assert.equal(calls[1].headers.api_key, undefined);
+    assert.equal(calls[1].headers.Authorization, "Bearer t-1");
+  });
+
+  it("sends HTTP Basic, an API key in the query and in a cookie", async () => {
+    const { calls } = await runDoc(
+      doc(null, [
+        {
+          scheme: { type: "http", scheme: "basic" },
+          values: { username: "ann", password: "$inputs.key" },
+        },
+        { scheme: { type: "apiKey", in: "query", name: "key" }, values: { apiKey: "q:1" } },
+        { scheme: { type: "apiKey", in: "cookie", name: "sid" }, values: { apiKey: "c 1" } },
+      ]),
+      { key: "secret" },
+    );
+    assert.equal(calls[0].headers.Authorization, `Basic ${btoa("ann:secret")}`);
+    assert.ok(calls[0].url.endsWith("/pet/1?key=q%3A1"), calls[0].url);
+    assert.equal(calls[0].headers.Cookie, "sid=c%201");
+  });
+
+  it("lets the step's credential win over the workflow's and the typed credentials", async () => {
+    const { calls } = await runDoc(
+      doc(
+        [{ schemeName: "api_key", values: { apiKey: "from-workflow" } }],
+        [{ scheme: { type: "apiKey", in: "header", name: "API_KEY" }, values: { apiKey: "step" } }],
+      ),
+      {},
+      { api_key: "typed" },
+    );
+    const keys = Object.entries(calls[0].headers).filter(([h]) => h.toLowerCase() === "api_key");
+    assert.deepEqual(keys, [["API_KEY", "step"]]);
+    assert.equal(calls[1].headers.api_key, "from-workflow");
+  });
+
+  it("sends nothing for an input that was not given, keeping the typed credential", async () => {
+    const { calls } = await runDoc(
+      doc(null, [{ schemeName: "api_key", values: { apiKey: "$inputs.key" } }]),
+      {},
+      { api_key: "typed" },
+    );
+    assert.equal(calls[0].headers.api_key, "typed");
+  });
+
+  it("leaves out a workflow whose x-security cannot be sent, saying why", async () => {
+    const cases = [
+      [[{ schemeName: "nope", values: { apiKey: "x" } }], 'no security scheme "nope" in petstore'],
+      [
+        [{ scheme: { type: "http", scheme: "digest" }, values: { username: "a", password: "b" } }],
+        "digest security is not supported",
+      ],
+      [[{ schemeName: "api_key", values: { token: "x" } }], "values needs apiKey"],
+      [
+        [{ schemeName: "api_key", scheme: { type: "http", scheme: "bearer" }, values: {} }],
+        "needs exactly one of schemeName or scheme",
+      ],
+    ];
+    for (const [security, why] of cases) {
+      const { manifest, problems } = await runDoc(doc(null, security));
+      assert.equal(manifest.workflows.secure, undefined);
+      assert.ok(problems[0].includes(`steps.getPet.x-security[0]: ${why}`), problems[0]);
+    }
+  });
+});
+
+function buildMcpManifestWithProblems(arazzoDoc) {
+  const problems = [];
+  const manifest = buildMcpManifest(petstore, {
+    arazzo: arazzoDoc,
+    onProblem: (p) => problems.push(p.message),
+  });
+  return { manifest, problems };
+}
+
+describe("mcp: allowReserved and x-allowReserved query parameters", () => {
+  const VALUE = "https://example.com/path/to;x,y(z)a*b.c[1]@v";
+  /** The petstore with allowReserved on findPetsByStatus's status, through a component $ref. */
+  const reservedPetstore = () => {
+    const spec = structuredClone(petstore);
+    const op = spec.paths["/pet/findByStatus"].get;
+    spec.components.parameters = { Status: { ...op.parameters[0], allowReserved: true } };
+    op.parameters = [{ $ref: "#/components/parameters/Status" }];
+    return spec;
+  };
+  const workflowDoc = (param) => ({
+    arazzo: "1.0.1",
+    info: { title: "Reserved", version: "1" },
+    sourceDescriptions: [{ name: "petstore", url: "./petstore.yaml", type: "openapi" }],
+    workflows: [
+      {
+        workflowId: "filter",
+        steps: [
+          {
+            stepId: "find",
+            operationId: "findPetsByStatus",
+            parameters: [{ name: "status", in: "query", value: VALUE, ...param }],
+          },
+        ],
+      },
+    ],
+  });
+  const firstUrl = async (spec, doc) => {
+    const manifest = buildMcpManifest(spec, { arazzo: doc, includeOperations: false });
+    const stub = apiStub({ "GET /pet/findByStatus": [] });
+    await createMcpRuntime(manifest, { fetch: stub.impl }).callTool("filter", {});
+    return stub.calls[0].url;
+  };
+
+  it("percent-encodes reserved characters by default", async () => {
+    const url = await firstUrl(petstore, workflowDoc({}));
+    assert.ok(url.includes("status=https%3A%2F%2Fexample.com"), url);
+  });
+
+  it("keeps them with x-allowReserved: true on the step's parameter, all but #", async () => {
+    assert.ok(
+      (await firstUrl(petstore, workflowDoc({ "x-allowReserved": true }))).endsWith(
+        `?status=${VALUE}`,
+      ),
+    );
+    const doc = workflowDoc({ "x-allowReserved": true });
+    doc.workflows[0].steps[0].parameters[0].value = "a b#c&d=e";
+    assert.ok((await firstUrl(petstore, doc)).endsWith("?status=a%20b%23c&d=e"));
+  });
+
+  it("follows the OpenAPI parameter's allowReserved, which x-allowReserved: false turns off", async () => {
+    assert.ok((await firstUrl(reservedPetstore(), workflowDoc({}))).endsWith(`?status=${VALUE}`));
+    const url = await firstUrl(reservedPetstore(), workflowDoc({ "x-allowReserved": false }));
+    assert.ok(url.includes("status=https%3A%2F%2F"), url);
+  });
+
+  it("honors allowReserved in operation tools too", async () => {
+    const manifest = buildMcpManifest(reservedPetstore());
+    const tool = manifest.tools.find((t) => t.name === "find_pets_by_status");
+    assert.deepEqual(tool.operation.params[0], {
+      name: "status",
+      in: "query",
+      allowReserved: true,
+    });
+    const stub = apiStub({ "GET /pet/findByStatus": [] });
+    await createMcpRuntime(manifest, { fetch: stub.impl }).callTool(tool.name, { status: VALUE });
+    assert.ok(stub.calls[0].url.endsWith(`?status=${VALUE}`), stub.calls[0].url);
+  });
+});
+
+describe("mcp: x-operation steps", () => {
+  /** getPet on the petstore, then a call to a URL outside it; `ext` is the second step. */
+  const doc = (ext, first = {}) => ({
+    arazzo: "1.0.1",
+    info: { title: "External", version: "1" },
+    sourceDescriptions: [{ name: "petstore", url: "./petstore.yaml", type: "openapi" }],
+    workflows: [
+      {
+        workflowId: "ext",
+        inputs: { type: "object", properties: { token: { type: "string" } } },
+        steps: [
+          {
+            stepId: "getPet",
+            operationId: "getPetById",
+            parameters: [{ name: "petId", in: "path", value: 1 }],
+            outputs: { photo: "$response.body#/photoUrls/0" },
+            ...first,
+          },
+          { stepId: "fetchPhoto", ...ext, outputs: { size: "$response.body#/size" } },
+        ],
+        outputs: { size: "$steps.fetchPhoto.outputs.size" },
+      },
+    ],
+  });
+  const compile = (d) => {
+    const problems = [];
+    const manifest = buildMcpManifest(petstore, {
+      arazzo: d,
+      includeOperations: false,
+      onProblem: (p) => problems.push(p.message),
+    });
+    return { manifest, problems };
+  };
+  /** Runs the workflow; getPet answers with a photo at `photo`, anything else with `{ size: 9 }`. */
+  const run = async (d, photo, runtimeOptions = {}, args = {}) => {
+    const { manifest, problems } = compile(d);
+    const calls = [];
+    const fetchImpl = async (url, init) => {
+      calls.push({ url, method: init.method, headers: init.headers });
+      const body = url.includes("/api/v3/pet/1") ? { photoUrls: [photo] } : { size: 9 };
+      return {
+        ok: true,
+        status: 200,
+        headers: new Map([["content-type", "application/json"]]),
+        text: async () => JSON.stringify(body),
+      };
+    };
+    const runtime = createMcpRuntime(manifest, { fetch: fetchImpl, ...runtimeOptions });
+    const result = manifest.workflows.ext ? await runtime.callTool("ext", args) : null;
+    return { manifest, problems, result, calls };
+  };
+
+  it("compiles the step to its URL and method, with no source or path", () => {
+    const { manifest, problems } = compile(
+      doc({
+        "x-operation": { url: "https://cdn.example.com/photos/{id}", method: "get" },
+        parameters: [
+          { name: "id", in: "path", value: "$steps.getPet.outputs.photo" },
+          { name: "q", in: "query", value: "a:b", "x-allowReserved": true },
+        ],
+      }),
+    );
+    assert.deepEqual(problems, []);
+    assert.deepEqual(manifest.workflows.ext.steps[1].operation, {
+      source: "",
+      method: "GET",
+      url: "https://cdn.example.com/photos/{id}",
+      params: [
+        { name: "id", in: "path" },
+        { name: "q", in: "query", allowReserved: true },
+      ],
+      security: [],
+    });
+  });
+
+  it("calls a written-out URL with its parameters and inline x-security, no source credentials", async () => {
+    const { result, calls } = await run(
+      doc({
+        "x-operation": { url: "https://cdn.example.com/photos/{id}?v=2", method: "POST" },
+        parameters: [
+          { name: "id", in: "path", value: "a b" },
+          { name: "size", in: "query", value: "large" },
+        ],
+        "x-security": [
+          { scheme: { type: "http", scheme: "bearer" }, values: { token: "$inputs.token" } },
+        ],
+      }),
+      "",
+      { credentials: { api_key: "k" } },
+      { token: "t" },
+    );
+    assert.equal(result.isError, undefined, result.content[0].text);
+    assert.deepEqual(result.structuredContent, { size: 9 });
+    assert.equal(calls[1].method, "POST");
+    assert.equal(calls[1].url, "https://cdn.example.com/photos/a%20b?v=2&size=large");
+    assert.equal(calls[1].headers.Authorization, "Bearer t");
+    assert.equal(calls[1].headers.api_key, undefined);
+  });
+
+  it("calls a URL an earlier step returned, on a host the workflow names", async () => {
+    const ext = doc({ "x-operation": { url: "$steps.getPet.outputs.photo", method: "get" } });
+    const { result, calls } = await run(ext, "https://petstore3.swagger.io/photos/1.png");
+    assert.equal(result.isError, undefined, result.content[0].text);
+    assert.equal(calls[1].url, "https://petstore3.swagger.io/photos/1.png");
+  });
+
+  it("refuses a URL computed at run time on another host, unless externalHosts allows it", async () => {
+    const ext = doc({ "x-operation": { url: "$steps.getPet.outputs.photo", method: "get" } });
+    const photo = "http://169.254.169.254/latest/meta-data";
+    const refused = await run(ext, photo);
+    assert.equal(refused.calls.length, 1);
+    assert.ok(
+      refused.result.content[0].text.includes(
+        "x-operation URL host 169.254.169.254 is not allowed",
+      ),
+      refused.result.content[0].text,
+    );
+    const listed = await run(ext, "https://cdn.example.com/1.png", {
+      externalHosts: ["cdn.example.com"],
+    });
+    assert.equal(listed.calls[1].url, "https://cdn.example.com/1.png");
+    const any = await run(ext, photo, { externalHosts: ["*"] });
+    assert.equal(any.calls[1].url, photo);
+    // A written-out URL's host makes it known, for URLs computed later
+    const known = await run(
+      doc(
+        { "x-operation": { url: "$steps.getPet.outputs.photo", method: "get" } },
+        { "x-operation": { url: "https://cdn.example.com/pet/1", method: "get" }, parameters: [] },
+      ),
+      "",
+    );
+    assert.equal(known.calls[0].url, "https://cdn.example.com/pet/1");
+  });
+
+  it("fails the step on a URL that is not absolute once filled in", async () => {
+    const ext = doc({ "x-operation": { url: "$steps.getPet.outputs.photo", method: "get" } });
+    const { result, calls } = await run(ext, "/relative.png", { externalHosts: ["*"] });
+    assert.equal(calls.length, 1);
+    assert.ok(
+      result.content[0].text.includes('x-operation URL "/relative.png" is not an absolute'),
+    );
+  });
+
+  it("leaves out a workflow whose x-operation cannot run, saying why", () => {
+    const cases = [
+      [
+        { "x-operation": { url: "/relative", method: "get" } },
+        "must be an absolute http or https URL",
+      ],
+      [
+        { "x-operation": { url: "https://a.example", method: "fetch" } },
+        '"fetch" is not an HTTP method',
+      ],
+      [
+        {
+          "x-operation": { url: "https://a.example", method: "get" },
+          parameters: [{ name: "id", in: "path", value: 1 }],
+        },
+        "the x-operation URL has no {id}",
+      ],
+      [
+        {
+          "x-operation": { url: "https://a.example", method: "get" },
+          "x-security": [{ schemeName: "api_key", values: { apiKey: "k" } }],
+        },
+        "schemeName can't be used with x-operation",
+      ],
+    ];
+    for (const [ext, why] of cases) {
+      const { manifest, problems } = compile(doc(ext));
+      assert.equal(manifest.workflows.ext, undefined);
+      assert.ok(problems[0].includes(why), problems[0]);
+    }
+  });
+
+  it("documents EXTERNAL_HOSTS in the export when a URL is computed at run time", () => {
+    const dynamic = doc({ "x-operation": { url: "$steps.getPet.outputs.photo", method: "get" } });
+    const fixed = doc({ "x-operation": { url: "https://cdn.example.com/x", method: "get" } });
+    const readme = (d) => generateMcpServer(petstore, { arazzo: d }).files["README.md"];
+    assert.ok(readme(dynamic).includes("`EXTERNAL_HOSTS`"));
+    assert.ok(!readme(fixed).includes("EXTERNAL_HOSTS"));
+    assert.ok(
+      generateMcpServer(petstore, { arazzo: dynamic }).files["server.ts"].includes(
+        "externalHosts: externalHostsFromEnv(process.env)",
+      ),
+    );
+  });
+});
+
+describe("mcp: EXTERNAL_HOSTS", () => {
+  it("reads the comma-separated hosts, blanks dropped", () => {
+    assert.deepEqual(externalHostsFromEnv({}), []);
+    assert.deepEqual(externalHostsFromEnv({ EXTERNAL_HOSTS: " cdn.example.com, ,a.test:8443 " }), [
+      "cdn.example.com",
+      "a.test:8443",
+    ]);
+    assert.deepEqual(externalHostsFromEnv({ EXTERNAL_HOSTS: "*" }), ["*"]);
   });
 });

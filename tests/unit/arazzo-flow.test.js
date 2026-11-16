@@ -72,7 +72,7 @@ describe("arazzo: parsing and validation", () => {
     assert.ok(messages.includes("workflows[0].steps[1].stepId is a duplicate"));
     assert.equal(
       messages.filter((m) =>
-        m.endsWith("needs exactly one of operationId, operationPath or workflowId"),
+        m.endsWith("needs exactly one of operationId, operationPath, workflowId or x-operation"),
       ).length,
       2,
     );
@@ -882,5 +882,211 @@ describe("arazzo: SVG rendering", () => {
     assert.ok(!svg.includes('id="rf-seq"'));
     assert.ok(getFlowCss().includes(".rf-goto"));
     assert.ok(!getFlowCss().includes(".rf-data"));
+  });
+});
+
+describe("arazzo: x-security", () => {
+  const secured = (workflowSecurity, stepSecurity) =>
+    minimal({
+      workflows: [
+        {
+          workflowId: "w",
+          ...(workflowSecurity && { "x-security": workflowSecurity }),
+          steps: [
+            { stepId: "a", operationId: "getA", outputs: { t: "$response.body#/t" } },
+            {
+              stepId: "b",
+              operationId: "getA",
+              ...(stepSecurity && { "x-security": stepSecurity }),
+            },
+          ],
+        },
+      ],
+    });
+
+  it("validates each entry's shape and inline scheme", () => {
+    const doc = secured({ schemeName: "x" }, [
+      { schemeName: "k", scheme: { type: "apiKey" }, values: {} },
+      { scheme: { type: "http", scheme: "digest" }, values: {} },
+      { scheme: { type: "apiKey", in: "body", name: "k" }, values: {} },
+      { schemeName: "k", values: { apiKey: "$steps.nope.outputs.k" } },
+    ]);
+    const messages = validateArazzo(doc).map((p) => `${p.path} ${p.message}`);
+    assert.deepEqual(messages, [
+      "workflows[0].steps[1].x-security[0] needs exactly one of schemeName or scheme",
+      "workflows[0].steps[1].x-security[0].scheme an apiKey scheme needs a name and in: header, query or cookie",
+      "workflows[0].steps[1].x-security[1].scheme digest is not supported: use apiKey, http basic or http bearer",
+      "workflows[0].steps[1].x-security[2].scheme an apiKey scheme needs a name and in: header, query or cookie",
+      'workflows[0].steps[1] refers to unknown step "nope"',
+      "workflows[0].x-security must be a list",
+    ]);
+    const valid = secured(
+      [{ scheme: { type: "http", scheme: "bearer" }, values: { token: "$inputs.token" } }],
+      [{ schemeName: "k", values: { apiKey: "$steps.a.outputs.t" } }],
+    );
+    assert.deepEqual(validateArazzo(valid), []);
+  });
+
+  it("lists the workflow's entries then the step's, and their values as Security bindings", () => {
+    const graph = buildFlowGraph(
+      secured(
+        [{ scheme: { type: "http", scheme: "bearer" }, values: { token: "$inputs.token" } }],
+        [
+          { schemeName: "api_key", values: { apiKey: "$steps.a.outputs.t" } },
+          {
+            scheme: { type: "http", scheme: "basic" },
+            values: { username: "ann", password: "pw" },
+          },
+        ],
+      ),
+    );
+    const b = graph.steps[1];
+    assert.deepEqual(
+      b.security.map((s) => `${s.label}${s.inherited ? " (inherited)" : ""}`),
+      ["bearer (inherited)", "api_key", "basic"],
+    );
+    const rows = b.bindings.filter((x) => x.in === "security");
+    assert.deepEqual(
+      rows.map((r) => `${r.name} ${r.scheme} ${r.source.kind} ${r.source.text}`),
+      [
+        "token bearer input token",
+        "apiKey api_key step a.t",
+        "username basic value ••••••",
+        "password basic value ••••••",
+      ],
+    );
+    assert.deepEqual(graph.dataEdges, [{ from: "a", to: "b", labels: ["t"] }]);
+    assert.deepEqual(graph.steps[0].usedOutputs, [{ name: "t", expr: "$response.body#/t" }]);
+  });
+
+  it("draws a Security section with its schemes, never a secret written in the document", () => {
+    const { svg } = renderArazzoWorkflow(
+      secured(null, [
+        { scheme: { type: "http", scheme: "bearer" }, values: { token: "$inputs.token" } },
+        { scheme: { type: "apiKey", in: "header", name: "X-Key" }, values: { apiKey: "s3cret" } },
+      ]),
+    );
+    assert.ok(svg.includes(">Security<"));
+    assert.ok(svg.includes("(bearer, apiKey header X-Key)"));
+    assert.ok(!svg.includes("s3cret"));
+  });
+});
+
+describe("arazzo: x-allowReserved", () => {
+  it("must be a boolean", () => {
+    const doc = minimal({
+      workflows: [
+        {
+          workflowId: "w",
+          steps: [
+            {
+              stepId: "a",
+              operationId: "getA",
+              parameters: [
+                { name: "q", in: "query", value: "x", "x-allowReserved": "yes" },
+                { name: "r", in: "query", value: "x", "x-allowReserved": true },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    assert.deepEqual(
+      validateArazzo(doc).map((p) => `${p.path} ${p.message}`),
+      ["workflows[0].steps[0].parameters[0].x-allowReserved must be true or false"],
+    );
+  });
+
+  it("indexes the query parameters an operation allows reserved characters in", () => {
+    const { byId } = indexOperations({
+      components: { parameters: { F: { name: "filter", in: "query", allowReserved: true } } },
+      paths: {
+        "/a": {
+          parameters: [{ name: "p", in: "query", allowReserved: true }],
+          get: {
+            operationId: "getA",
+            parameters: [
+              { $ref: "#/components/parameters/F" },
+              { name: "h", in: "header", allowReserved: true },
+            ],
+          },
+          post: { operationId: "postA" },
+        },
+      },
+    });
+    assert.deepEqual(byId.get("getA").allowReserved, ["p", "filter"]);
+    assert.deepEqual(byId.get("postA").allowReserved, ["p"]);
+  });
+});
+
+describe("arazzo: x-operation", () => {
+  const withExternal = (ext, extra = {}) =>
+    minimal({
+      workflows: [
+        {
+          workflowId: "w",
+          steps: [
+            { stepId: "a", operationId: "getA", outputs: { link: "$response.body#/link" } },
+            { stepId: "b", "x-operation": ext, ...extra },
+          ],
+        },
+      ],
+    });
+  const messages = (doc) => validateArazzo(doc).map((p) => `${p.path} ${p.message}`);
+
+  it("accepts it as a step's target and checks its URL, method and security", () => {
+    assert.deepEqual(messages(withExternal({ url: "https://a.example/x", method: "get" })), []);
+    assert.deepEqual(messages(withExternal({ url: "$steps.a.outputs.link", method: "POST" })), []);
+    assert.deepEqual(
+      messages(
+        withExternal(
+          { url: "/relative", method: "fetch" },
+          { operationId: "getA", "x-security": [{ schemeName: "k", values: {} }] },
+        ),
+      ),
+      [
+        "workflows[0].steps[1] needs exactly one of operationId, operationPath, workflowId or x-operation",
+        "workflows[0].steps[1].x-operation.url must be an absolute http or https URL, or a runtime expression",
+        "workflows[0].steps[1].x-operation.method must be one of GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, CONNECT, TRACE",
+        "workflows[0].steps[1].x-security[0].schemeName can't be used with x-operation, which has no source: define the scheme inline",
+      ],
+    );
+    assert.deepEqual(messages(withExternal({})), [
+      "workflows[0].steps[1].x-operation.url is required",
+      "workflows[0].steps[1].x-operation.method is required",
+    ]);
+    assert.deepEqual(messages(withExternal({ url: "$steps.nope.outputs.x", method: "get" })), [
+      'workflows[0].steps[1] refers to unknown step "nope"',
+    ]);
+  });
+
+  it("is an external step, its computed URL a value from the step it reads", () => {
+    const graph = buildFlowGraph(withExternal({ url: "$steps.a.outputs.link", method: "GET" }));
+    const b = graph.steps[1];
+    assert.equal(b.kind, "external");
+    assert.deepEqual(b.external, { method: "get", url: "$steps.a.outputs.link" });
+    assert.equal(b.operation, null);
+    assert.equal(b.operationRef, "$steps.a.outputs.link");
+    assert.deepEqual(
+      b.bindings.map((x) => `${x.in} ${x.name} ${x.source.kind} ${x.source.text}`),
+      ["url url step a.link"],
+    );
+    assert.deepEqual(graph.dataEdges, [{ from: "a", to: "b", labels: ["link"] }]);
+    assert.deepEqual(graph.steps[0].usedOutputs, [{ name: "link", expr: "$response.body#/link" }]);
+    const fixed = buildFlowGraph(withExternal({ url: "https://a.example/x", method: "get" }));
+    assert.deepEqual(fixed.steps[1].bindings, []);
+  });
+
+  it("draws the step dashed, with its method, URL and an external tag, not clickable", () => {
+    const { svg } = renderArazzoWorkflow(
+      withExternal({ url: "https://files.example.com/report.pdf", method: "get" }),
+      { interactive: true },
+    );
+    const box = svg.slice(svg.indexOf('data-step-id="b"'));
+    assert.ok(svg.includes('class="rf-node rf-step rf-step-external" data-step-id="b"'));
+    assert.ok(box.includes(">files.example.com/report.pdf<"));
+    assert.ok(box.includes("<title>https://files.example.com/report.pdf</title>"));
+    assert.ok(box.includes('class="rf-tag rf-external"'));
+    assert.ok(getFlowCss().includes(".rf-step-external > rect:first-of-type"));
   });
 });

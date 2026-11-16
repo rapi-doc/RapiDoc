@@ -27,7 +27,8 @@ the build-time renderer (`@rapidoc/prerender`: `renderArazzoWorkflow`, `getFlowC
 
 Not owned here: running workflows (nothing here makes a request), the element's loading and
 events (`src/rapi-flow.ts`), and the diagram's look (`src/styles/flow-styles.js`). `dist/rapidoc-min.js`
-imports only the YAML-free modules `actions.js`, `components.js`, `operations.js` and `refs.js`, through
+imports only the YAML-free modules `actions.js`, `components.js`, `operations.js`, `refs.js` and
+`security.js`, through
 `utils/mcp/workflows.js`, which compiles workflows into the MCP manifest; `parse.js` (the `yaml`
 package) stays out of it.
 
@@ -47,18 +48,28 @@ package) stays out of it.
   left out, criterion `type` defaulted to "simple", and each entry keeps its `index` in the list
   as written, for problem paths. `mergeActions` is the order a runner checks: the step's own, then
   the workflow's it does not override by `name`.
+- `readExternalOperation(step)`, `externalProblems(step, path)`, `isDynamicUrl(url)`,
+  `isAbsoluteHttpUrl(text)`, `EXTERNAL_METHODS` [external.js]: the `x-operation` extension
+  (Redocly Respect), a step that calls `{ url, method }` outside the source descriptions.
+- `readSecurity(list)`, `stepSecurity(workflow, step)`, `securityProblems(list, path)`,
+  `securityKind(scheme)`, `securityLabel(scheme)` [security.js]: the `x-security` extension
+  (Redocly Respect), read once for the validator, the diagram and the MCP compiler. A step's
+  entries are the workflow's (`inherited`), then its own, the order a runner applies them.
 - `collectRefs(value)` [refs.js]: `$inputs`, `$steps` and `$workflows` expressions anywhere in a
   JSON value, distinct, in first-seen order.
 - `indexOperations(openapi)`, `indexResolvedSpec(resolvedSpec)` (the same index from
   `<rapi-doc>`'s processed `tags[].paths[]`, webhooks skipped, the first entry kept for an
   operation with several tags), `resolveOperation(step, sources)` [operations.js]: operation lookup
-  by operationId (plain or `$sourceDescriptions.<name>.` qualified) and by `operationPath`.
+  by operationId (plain or `$sourceDescriptions.<name>.` qualified) and by `operationPath`. An
+  entry's `allowReserved` names its query parameters with `allowReserved: true`, for the MCP
+  compiler.
 - `buildFlowGraph(doc, workflowId?, { sources })` [graph.js]: the graph the SVG draws; null when
   the workflow does not exist.
 - `renderFlowDiagram(graph, { view, idPrefix, interactive, stepClasses }) -> { svg, legend }` [svg.js]:
   `minScale` (0.85 for 85%) sets the SVG's `min-width`, so with the flow CSS's `max-width: 100%`
   it shrinks to fit a narrower container only that far and the container scrolls past it
-  (`<rapi-flow>` uses 0.85); `stepClasses` adds classes to step boxes by step id (`<rapi-flow>` marks the selected step and
+  (`<rapi-flow>` uses 0.85); step boxes list `x-security` values first, under "Security" with
+  their schemes (`bearer, apiKey header X-Key`); `stepClasses` adds classes to step boxes by step id (`<rapi-flow>` marks the selected step and
   the running one, `rf-selected` / `rf-running`, this way);
   `legend` names the kinds of lines drawn (`seq`, `success`, `failure`, `retry`). Neither
   `<rapi-flow>` nor the portal shows a legend: the colors (next step and goto on success green, goto
@@ -75,10 +86,23 @@ package) stays out of it.
 
 - **No DOM, no network.** Text widths are estimated from character counts, so output is the same
   in Node and the browser and long labels are cut with `…` rather than measured.
-- **OpenAPI is not dereferenced.** Only `paths.<path>.<method>.operationId` and `summary` are read,
-  so an operation reached through a path-item `$ref` is not found.
-- **Validation is structural.** It checks required fields, duplicate ids, exactly one of
-  `operationId` / `operationPath` / `workflowId` per step, action types (retry only on failure),
+- **OpenAPI is not dereferenced.** Only `paths.<path>.<method>.operationId`, `summary`,
+  `security` and its query parameters' `allowReserved` are read (a parameter's local `$ref` to
+  `#/components/parameters/` is followed), so an operation reached through a path-item `$ref` is
+  not found.
+- **External steps.** A step with `x-operation` has `kind: "external"`, `operation: null` and
+  `external: { method, url }` (`operationRef` is the URL). Its box is dashed
+  (`rf-step-external`), shows the method and the URL without `https://` (the full URL a
+  tooltip) with an `external` tag (`rf-tag rf-external`), and is never clickable. A URL with
+  expressions is also a binding (`in: "url"`, under "URL"), so the step it reads draws its
+  `← from` line and data edge.
+- **Validation is structural.** It checks required fields, that `x-operation` has a `url`
+  (absolute http(s) or an expression) and an HTTP `method` and is not combined with an
+  `x-security` `schemeName`, that a step parameter's
+  `x-allowReserved` is a boolean, duplicate ids, exactly one of
+  `operationId` / `operationPath` / `workflowId` / `x-operation` per step, the shape of `x-security` (a list;
+  each entry exactly one of `schemeName` / `scheme`, with `values`; an inline scheme apiKey with
+  `in` and `name`, http basic or bearer, oauth2 or openIdConnect), action types (retry only on failure),
   goto and `dependsOn` targets, and `$steps.<id>` references. It does not check expression syntax,
   `inputs` JSON Schema, or criteria.
 - **Edges.** The graph's `dataEdges` go from a step to a later step (or to the outputs box)
@@ -131,8 +155,10 @@ package) stays out of it.
   format, required, default, enum, description, from `inputs` or a `$ref` to
   `#/components/inputs/<name>`), each step's `parameters` (component references resolved, their
   `value` overriding), `requestBody`, `criteria` and `outputExprs`, and each output's `expr`.
-  Each step's `bindings` are the values it sends: parameters by name and request body fields as
-  `body.<path>` (objects flattened, arrays kept whole), each with a `source` (`input`, `step`,
+  Each step's `bindings` are the values it sends: parameters by name, request body fields as
+  `body.<path>` (objects flattened, arrays kept whole) and `x-security` values by key
+  (`in: "security"`, with the entry's `scheme` label; a value written into the document reads
+  `••••••`, so the diagram never shows a secret), each with a `source` (`input`, `step`,
   `expression` or `value`) and the steps it reads (`fromSteps`). Expanded boxes show at most ten.
   Input descriptions and step descriptions are tooltips (`<title>`) on their lines and boxes.
 - **Next-step arrows.** A step falls through to the next one unless it has a success action of type

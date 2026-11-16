@@ -5,6 +5,8 @@ import { parse as parseYaml } from "yaml";
 import { collectRefs } from "./refs.js";
 import { resolveComponentRef } from "./components.js";
 import { ACTION_TYPES } from "./actions.js";
+import { securityProblems } from "./security.js";
+import { externalProblems } from "./external.js";
 
 export { resolveComponentRef };
 
@@ -125,11 +127,20 @@ export function validateArazzo(doc) {
       else if (stepIds.has(s.stepId))
         problems.push(problem("error", `${sp}.stepId`, "is a duplicate"));
       else stepIds.add(s.stepId);
-      const targets = ["operationId", "operationPath", "workflowId"].filter((k) => s?.[k]);
+      const targets = ["operationId", "operationPath", "workflowId", "x-operation"].filter(
+        (k) => s?.[k],
+      );
       if (targets.length !== 1) {
         problems.push(
-          problem("error", sp, "needs exactly one of operationId, operationPath or workflowId"),
+          problem(
+            "error",
+            sp,
+            "needs exactly one of operationId, operationPath, workflowId or x-operation",
+          ),
         );
+      }
+      for (const ext of externalProblems(s, `${sp}.x-operation`)) {
+        problems.push(problem("error", ext.path, ext.message));
       }
       if (s?.workflowId && !s.workflowId.startsWith("$") && !workflowIds.has(s.workflowId)) {
         problems.push(problem("error", `${sp}.workflowId`, `no workflow "${s.workflowId}"`));
@@ -179,12 +190,27 @@ export function validateArazzo(doc) {
         workflowIds,
         problems,
       );
-      for (const ref of collectRefs([s?.parameters, s?.requestBody])) {
+      (Array.isArray(s?.parameters) ? s.parameters : []).forEach((param, pi) => {
+        const flag = param?.["x-allowReserved"];
+        if (flag !== undefined && typeof flag !== "boolean") {
+          problems.push(
+            problem("error", `${sp}.parameters[${pi}].x-allowReserved`, "must be true or false"),
+          );
+        }
+      });
+      for (const sec of securityProblems(s?.["x-security"], `${sp}.x-security`)) {
+        problems.push(problem("error", sec.path, sec.message));
+      }
+      const refsIn = [s?.parameters, s?.requestBody, s?.["x-security"], s?.["x-operation"]];
+      for (const ref of collectRefs(refsIn)) {
         if (ref.kind === "step" && !stepIds.has(ref.stepId)) {
           problems.push(problem("error", sp, `refers to unknown step "${ref.stepId}"`));
         }
       }
     });
+    for (const sec of securityProblems(w?.["x-security"], `${wp}.x-security`)) {
+      problems.push(problem("error", sec.path, sec.message));
+    }
     for (const ref of collectRefs(w?.outputs)) {
       if (ref.kind === "step" && !stepIds.has(ref.stepId)) {
         problems.push(problem("error", `${wp}.outputs`, `refers to unknown step "${ref.stepId}"`));

@@ -26,6 +26,7 @@ Configure `auth` and `access` in `rapidoc.config.yaml` (see the `@rapidoc/portal
 | `RAPIDOC_PUBLIC_URL`                                                     | recommended          | External URL: the redirect URL and whether cookies are `Secure`. Default `site.url`, else the request's host.                                                             |
 | `RAPIDOC_MOUNT_PATH`                                                     | no                   | Path requests arrive under, when a proxy strips part of the portal's path (`--mount-path` wins). Default: the path of `site.url`. Links and redirects keep the full path. |
 | `RAPIDOC_MCP`                                                            | no                   | `off` serves no `/mcp` and no agent tokens, and the user menu hides its agent section. Default `on`; any other value stops the server.                                    |
+| `EXTERNAL_HOSTS`                                                         | no                   | Hosts, comma-separated (`*` for any), that a workflow step's `x-operation` URL computed at run time may call from `/mcp`, besides those the workflow names.               |
 | `PORT`, `HOST`                                                           | no                   | Default `8080`, `0.0.0.0` (`--port`, `--host` win).                                                                                                                       |
 
 The server refuses to start, with the reason, when a required value is missing or the provider can't be discovered. A build without sign-in is served as plain static files.
@@ -86,6 +87,7 @@ The session cookie holds the user's id, name, email, picture and only the groups
 - **Without a token** an agent sees the public tools, and the API is called without credentials.
 - **With a token** (`Authorization: Bearer …`, from **Connect an AI agent** in the user menu, i.e. `POST /_rapidoc/mcp/token`) it sees the tools of every zone the reader may see. The token is the reader's session sealed like the cookies, plus, with `auth.tryIt`, their API access token: operations secured with `oauth2`, `openIdConnect` or an HTTP `bearer` scheme are called with it. It lasts as long as the session.
 - **API keys and HTTP Basic** come from the server's environment, named like the exported project's: `<SCHEME>` (the scheme id in upper snake case; `<SCHEME>_USERNAME` / `<SCHEME>_PASSWORD` for Basic) or `API_KEY` for any scheme.
+- **Workflow steps with `x-operation`** call the URL they name. A URL computed at run time (from the agent's input or a response) goes only to a host the workflow names (its APIs' servers, or a URL written out in another step), or to one listed in `EXTERNAL_HOSTS` (comma-separated, `*` for any), so an agent can't send the server to an internal address.
 - A build without `auth` serves every manifest in `dist/mcp/` as public.
 
 A client that speaks stdio only (Claude Desktop) connects through [mcp-remote](https://www.npmjs.com/package/mcp-remote):

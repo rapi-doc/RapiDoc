@@ -4,13 +4,35 @@
 
 const METHODS = ["get", "put", "post", "delete", "options", "head", "patch", "trace", "query"];
 
+/** A parameter, or the local `$ref` to one (`#/components/parameters/x`, Swagger's `#/parameters/x`). */
+function localParameter(openapi, p) {
+  const ref = typeof p?.$ref === "string" && p.$ref.match(/^#\/(?:components\/)?parameters\/(.+)$/);
+  if (!ref) return p;
+  const name = ref[1].replace(/~1/g, "/").replace(/~0/g, "~");
+  return openapi?.components?.parameters?.[name] ?? openapi?.parameters?.[name];
+}
+
+/** The names of the query parameters with `allowReserved: true`, among one or more lists. */
+function reservedQueryNames(lists, resolve = (p) => p) {
+  const names = new Set();
+  for (const list of lists) {
+    for (const raw of Array.isArray(list) ? list : []) {
+      const p = resolve(raw);
+      if (p?.in === "query" && p.allowReserved === true && p.name) names.add(p.name);
+    }
+  }
+  return [...names];
+}
+
 /**
  * Indexes an OpenAPI document's operations by operationId and by "<method> <path>".
  *
  * @param {object} openapi Raw OpenAPI 2.0, 3.x object
  * @returns {{ byId: Map<string, object>, byPath: Map<string, object> }} values are
- *   `{ operationId, method, path, summary, security }`, method lower-case; `security` is the
- *   operation's requirement, else the document's
+ *   `{ operationId, method, path, summary, security, allowReserved }`, method lower-case;
+ *   `security` is the operation's requirement, else the document's; `allowReserved` the names of
+ *   its query parameters (the path item's too, local `$ref`s followed) with `allowReserved: true`,
+ *   set only when there are any
  */
 export function indexOperations(openapi) {
   const byId = new Map();
@@ -28,6 +50,10 @@ export function indexOperations(openapi) {
       };
       const security = op.security ?? openapi.security;
       if (security !== undefined) entry.security = security;
+      const reserved = reservedQueryNames([item.parameters, op.parameters], (p) =>
+        localParameter(openapi, p),
+      );
+      if (reserved.length) entry.allowReserved = reserved;
       if (op.operationId) byId.set(op.operationId, entry);
       byPath.set(`${method} ${path}`, entry);
     }
@@ -58,6 +84,8 @@ export function indexResolvedSpec(resolvedSpec) {
         summary: p.summary || "",
       };
       if (p.security !== undefined) entry.security = p.security;
+      const reserved = reservedQueryNames([p.parameters]);
+      if (reserved.length) entry.allowReserved = reserved;
       // An operation with several tags is listed once per tag; the first entry is kept
       const key = `${method} ${p.path}`;
       if (byPath.has(key)) continue;

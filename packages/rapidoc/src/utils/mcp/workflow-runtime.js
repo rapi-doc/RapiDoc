@@ -1,7 +1,7 @@
 /**
  * RapiDoc MCP workflow runtime: runs the compiled Arazzo workflows of a manifest (see
  * workflows.js) on top of runtime.js: runtime expressions, success criteria, success and failure
- * actions (end, goto, retry) and outputs. Kept apart from runtime.js so dist/rapidoc-min.js,
+ * actions (end, goto, retry), `x-security` credentials, `x-operation` URLs and outputs. Kept apart from runtime.js so dist/rapidoc-min.js,
  * which exports operation tools only, carries no Arazzo code; dist/rapidoc-flow-min.js and
  * @rapidoc/mcp include it.
  *
@@ -296,7 +296,20 @@ export async function runWorkflow(runtime, tool, args, hooks = {}) {
     const event = { workflowId: workflow.workflowId, stepId: step.stepId, attempt };
     hooks.onStepStart?.(event);
     const headers = hooks.requestHeaders?.({ ...event, operation: step.operation });
-    const sent = await runtime.execute(step.operation, stepArgs, headers ? { headers } : {});
+    const extra = headers ? { headers } : {};
+    // x-operation: the URL with its expressions filled in (an earlier step's output, say)
+    if (step.operation.url) {
+      const url = resolveValue(step.operation.url, ctx);
+      extra.url = url === undefined || url === null ? "" : serialize(url);
+    }
+    // x-security: the step's credentials, their values filled in for this request
+    if (step.security?.length) {
+      extra.security = step.security.map((e) => ({
+        scheme: e.scheme,
+        values: resolveValue(e.values, ctx),
+      }));
+    }
+    const sent = await runtime.execute(step.operation, stepArgs, extra);
     const stepCtx = {
       ...ctx,
       request: sent.request && {

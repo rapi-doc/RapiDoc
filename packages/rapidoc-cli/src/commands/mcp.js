@@ -95,13 +95,15 @@ async function serve(specTarget, values) {
   // stdout carries the MCP protocol: nothing else may go there.
   setQuiet(true);
   const sdk = await loadMcpSdk();
-  const { createMcpRuntime, credentialsFromEnv } = await import("@rapidoc/mcp");
+  const { createMcpRuntime, credentialsFromEnv, externalHostsFromEnv } =
+    await import("@rapidoc/mcp");
   const { manifest, problems } = await generate(specTarget, values);
   const baseUrls = values["base-url"]
     ? Object.fromEntries(Object.keys(manifest.sources).map((name) => [name, values["base-url"]]))
     : undefined;
   const runtime = createMcpRuntime(manifest, {
     credentials: credentialsFromEnv(manifest, process.env),
+    externalHosts: externalHostsFromEnv(process.env),
     ...(baseUrls && { baseUrls }),
   });
 
@@ -136,7 +138,7 @@ export default {
   usage: "mcp <export|serve> <spec>",
   summary: "Turns an OpenAPI spec into MCP tools: export a server project, or serve it over stdio",
   description:
-    "export writes the MCP server project (the same files as <rapi-doc>'s Export MCP Server button).\nserve runs it over stdio for an AI agent, without files; it needs @modelcontextprotocol/sdk.\nCredentials come from the environment, one variable per security scheme (see the project's README).",
+    "export writes the MCP server project (the same files as <rapi-doc>'s Export MCP Server button).\nserve runs it over stdio for an AI agent, without files; it needs @modelcontextprotocol/sdk.\nCredentials come from the environment, one variable per security scheme (see the project's README).\nEXTERNAL_HOSTS (comma-separated, * for any) lists the hosts a workflow's x-operation URL computed at run time may go to, besides those the workflow names.",
   positionals: { name: "action", max: 2, choices: ["export", "serve"] },
   options: {
     "out-dir": {

@@ -15,7 +15,7 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { createMcpRuntime, credentialsFromEnv } from "./runtime.js";
+import { createMcpRuntime, credentialsFromEnv, externalHostsFromEnv } from "./runtime.js";
 
 // workflow-runtime.js is part of the export only when the manifest has workflow tools
 const { runWorkflow } = await import("./workflow-runtime.js").catch(() => ({
@@ -31,6 +31,8 @@ if (process.env.API_BASE_URL) {
 const runtime = createMcpRuntime(manifest, {
   credentials: credentialsFromEnv(manifest, process.env),
   baseUrls,
+  // Hosts a workflow's x-operation URL computed at run time may go to, besides those it names
+  externalHosts: externalHostsFromEnv(process.env),
   runWorkflow,
 });
 

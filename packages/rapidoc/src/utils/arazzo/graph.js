@@ -6,6 +6,8 @@ import { collectRefs } from "./refs.js";
 import { resolveComponentRef } from "./components.js";
 import { mergeActions, readActions, readCriteria } from "./actions.js";
 import { resolveOperation } from "./operations.js";
+import { securityLabel, stepSecurity } from "./security.js";
+import { isDynamicUrl, readExternalOperation } from "./external.js";
 
 // The diagram's criteria: as read, without the list position the MCP compiler reports by
 const withoutIndex = ({ index: _index, ...rest }) => rest;
@@ -88,9 +90,29 @@ function flattenPayload(obj, prefix, rows) {
   }
 }
 
-/** A step's parameters and request body fields, one row per value it sends. */
-function describeBindings(parameters, requestBody) {
-  const rows = parameters.map((p) => ({ name: p.name, in: p.in, value: p.value }));
+/**
+ * A step's `x-security` entries for the diagram: `{ schemeName, label, inherited, values }`, the
+ * label the inline scheme's kind (`bearer`, `apiKey header X-Key`) or the scheme name.
+ */
+function describeSecurity(entries) {
+  return entries.map((e) => ({
+    schemeName: e.schemeName || "",
+    label: e.scheme ? securityLabel(e.scheme) : e.schemeName || "",
+    inherited: e.inherited,
+    values: e.values,
+  }));
+}
+
+/**
+ * A step's parameters, request body fields and `x-security` values, one row per value it sends.
+ * A security value written into the document (not read from an input or a step) reads `••••••`:
+ * the diagram never shows a secret.
+ */
+function describeBindings(parameters, requestBody, security = [], external = null) {
+  // An x-operation URL computed from inputs or step outputs is a value the step reads too
+  const rows =
+    external && isDynamicUrl(external.url) ? [{ name: "url", in: "url", value: external.url }] : [];
+  rows.push(...parameters.map((p) => ({ name: p.name, in: p.in, value: p.value })));
   const payload = requestBody?.payload;
   if (payload && typeof payload === "object" && !Array.isArray(payload)) {
     flattenPayload(payload, "body", rows);
@@ -100,11 +122,18 @@ function describeBindings(parameters, requestBody) {
   for (const r of requestBody?.replacements || []) {
     if (r?.target) rows.push({ name: `body ${r.target}`, in: "body", value: r.value });
   }
+  for (const e of security) {
+    for (const [key, value] of Object.entries(e.values || {})) {
+      rows.push({ name: key, in: "security", value, scheme: e.label });
+    }
+  }
   return rows.map((r) => {
     const stepRefs = collectRefs(r.value).filter((x) => x.kind === "step");
+    let source = describeSource(r.value);
+    if (r.in === "security" && source.kind === "value") source = { kind: "value", text: "••••••" };
     return {
       ...r,
-      source: describeSource(r.value),
+      source,
       fromSteps: [...new Set(stepRefs.map((x) => x.stepId))],
       fromOutputs: stepRefs.filter((x) => x.name).map((x) => ({ stepId: x.stepId, name: x.name })),
     };
@@ -151,7 +180,9 @@ function pushEdge(edges, from, to, label) {
  * @param {object} [options]
  * @param {Map<string, {byId: Map, byPath: Map}>} [options.sources] operation indexes by source name
  * Each step's `bindings` list the values it sends (`{ name, in, value, source, fromSteps }`, with
- * body fields named `body.<path>`; `fromOutputs` the `{ stepId, name }` step outputs they read);
+ * body fields named `body.<path>` and `x-security` values `in: "security"` with their `scheme`
+ * label, and a URL computed from expressions `in: "url"`; `kind` is `operation`, `workflow` or
+ * `external` (an `x-operation` step, its `{ method, url }` in `external`); `security` lists the step's `x-security` entries, the workflow's first; `fromOutputs` the `{ stepId, name }` step outputs they read);
  * `usedOutputs` are the step's own outputs that a later step or the workflow reads; `source` is `{ kind: 'input'|'step'|'expression'|'value', text }`.
  *
  * @returns {object|null} `{ workflowId, summary, description, inputs, inputDetails, workflowActions,
@@ -185,8 +216,15 @@ export function buildFlowGraph(doc, workflowId, options = {}) {
   const steps = rawSteps.map((s) => {
     const onSuccess = normalizeActions(doc, s.onSuccess, "successActions", "success", false);
     const onFailure = normalizeActions(doc, s.onFailure, "failureActions", "failure", false);
-    const operation = s.workflowId ? null : resolveOperation(s, options.sources);
-    const refs = collectRefs([s.parameters, s.requestBody]);
+    const external = s.workflowId ? null : readExternalOperation(s);
+    const operation = s.workflowId || external ? null : resolveOperation(s, options.sources);
+    const security = stepSecurity(workflow, s);
+    const refs = collectRefs([
+      external?.url,
+      s.parameters,
+      s.requestBody,
+      security.map((e) => e.values),
+    ]);
     for (const ref of refs) {
       if (ref.kind === "step" && ref.name && ref.stepId !== s.stepId && stepIds.has(ref.stepId)) {
         pushEdge(dataEdges, ref.stepId, s.stepId, ref.name);
@@ -194,19 +232,22 @@ export function buildFlowGraph(doc, workflowId, options = {}) {
     }
     const criteria = normalizeCriteria(s.successCriteria);
     const parameters = describeParameters(doc, s.parameters);
+    const describedSecurity = describeSecurity(security);
     return {
       stepId: s.stepId || "",
       description: s.description || "",
-      kind: s.workflowId ? "workflow" : "operation",
+      kind: s.workflowId ? "workflow" : external ? "external" : "operation",
       workflowId: s.workflowId || "",
-      operationRef: s.operationId || s.operationPath || "",
+      operationRef: s.operationId || s.operationPath || external?.url || "",
       operation,
+      external,
       inputs: refs.filter((r) => r.kind === "input").map((r) => r.name),
       outputs: Object.keys(s.outputs || {}),
       outputExprs: Object.entries(s.outputs || {}).map(([name, expr]) => ({ name, expr })),
       parameters,
       requestBody: s.requestBody || null,
-      bindings: describeBindings(parameters, s.requestBody),
+      security: describedSecurity,
+      bindings: describeBindings(parameters, s.requestBody, describedSecurity, external),
       criteria,
       successCriteria: criteria.length,
       actions: [

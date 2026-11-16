@@ -187,6 +187,13 @@ export default css`
     fill: color-mix(in srgb, var(--purple) 65%, var(--foreground));
     font-weight: 600;
   }
+  /* An x-operation step calls an endpoint outside the API sources: dashed box, "external" tag */
+  .rf-tag.rf-external {
+    font-weight: 600;
+  }
+  .rf-step-external > rect:first-of-type {
+    stroke-dasharray: 5 3;
+  }
   .rf-sec-title {
     text-transform: uppercase;
     letter-spacing: 0.04em;
