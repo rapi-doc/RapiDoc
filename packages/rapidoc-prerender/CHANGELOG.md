@@ -1,5 +1,11 @@
 # @rapidoc/prerender
 
+## 0.2.2
+
+### Patch Changes
+
+- a6748e6: A schema that contains itself is marked as recursive at the property that refers back to it. In some specs the marker landed one level down, so the property was drawn as an object with a single `$ref` member.
+
 ## 0.2.1
 
 ### Patch Changes

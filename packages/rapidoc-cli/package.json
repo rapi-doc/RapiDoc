@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/cli",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "The rapidoc command: developer portal dev/build/serve/init, OpenAPI validation and config migration",
   "homepage": "https://portal.rapidocui.com",
   "bugs": {
@@ -29,18 +29,18 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.8.1",
-    "@rapidoc/mcp": "^0.2.1",
+    "@rapidoc/mcp": "^0.2.2",
     "@scalar/openapi-validator": "^0.1.18",
-    "create-rapidoc": "^0.2.1",
-    "rapidoc": "^13.1.0",
+    "create-rapidoc": "^0.2.2",
+    "rapidoc": "^14.0.0",
     "yaml": "^2.9.1"
   },
   "peerDependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "@rapidoc/mock": "^0.2.1",
-    "@rapidoc/portal": "^0.2.1",
-    "@rapidoc/server": "^0.2.1",
-    "rapipdf": "^2.2.1"
+    "@rapidoc/mock": "^0.2.2",
+    "@rapidoc/portal": "^0.2.2",
+    "@rapidoc/server": "^0.2.2",
+    "rapipdf": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "@modelcontextprotocol/sdk": {
