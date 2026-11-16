@@ -26,7 +26,7 @@ const hasCurrent = (entries: any[]): boolean =>
       <li>
         {entry.type === 'link' ? (
           <a href={entry.href} aria-current={entry.isCurrent ? 'page' : undefined} class:list={[{ large: !nested }, entry.attrs.class]} {...entry.attrs}>
-            {entry.icon && <Icon name={entry.icon} size={20} class="portal-sidebar-icon" />}
+            {entry.icon && <Icon name={entry.icon} size={16} weight="regular" class="portal-sidebar-icon" />}
             <span>{entry.label}</span>
             {entry.badge && <Badge variant={entry.badge.variant} class={entry.badge.class} text={entry.badge.text} />}
           </a>
@@ -34,7 +34,7 @@ const hasCurrent = (entries: any[]): boolean =>
           <details open={hasCurrent(entry.entries) || !entry.collapsed}>
             <summary>
               <span class="group-label">
-                {entry.icon && <Icon name={entry.icon} size={20} class="portal-sidebar-icon" />}
+                {entry.icon && <Icon name={entry.icon} size={16} weight="regular" class="portal-sidebar-icon" />}
                 <span class="large">{entry.label}</span>
                 {entry.badge && <Badge variant={entry.badge.variant} class={entry.badge.class} text={entry.badge.text} />}
               </span>
@@ -155,12 +155,11 @@ const hasCurrent = (entries: any[]): boolean =>
       margin-inline-end: 0.25em;
     }
 
-    /* The icon (20px) sits centred on the text's first line, in the text color (the accent on the
-       current page). */
+    /* The icon sits on the text's first line, in the text color (the accent on the current page). */
     a > .portal-sidebar-icon,
     .group-label > .portal-sidebar-icon {
       flex-shrink: 0;
-      vertical-align: -0.33em;
+      vertical-align: -0.15em;
       margin-inline-end: 0.5em;
     }
 
