@@ -12,7 +12,7 @@
 
   <PropertyGroup>
     <PackageId>RapiDoc.AspNetCore</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>Mrinmoy Majumdar</Authors>
     <Description>RapiDoc for ASP.NET Core: serves an interactive OpenAPI reference (&lt;rapi-doc&gt;) from your app, with the bundle inside the package.</Description>
     <PackageTags>rapidoc;rapidoc-integration;openapi;swagger;api-reference;documentation;aspnetcore</PackageTags>

@@ -55,6 +55,10 @@ When a proxy strips a path prefix, run the app with that prefix as its `root_pat
 
 Python 3.10 or later; Starlette 0.27 or later. MIT.
 
+## Upgrading to 0.2.0
+
+0.2.0 ships rapidoc 13, which changed one set of attributes: `filter-operations` replaces `match-paths`, `match-type` and `remove-endpoints-with-badge-label-as`, and rapidoc 13 ignores those three. If your `options` set any of them, set `filter_operations` instead. Matching is exact, so a v12 `match-paths` prefix becomes a glob: `{"filter_operations": "/pets/**"}`. The [v12 to v13 migration guide](https://rapidocui.com/migration/v12-to-v13/) has the other terms (`tag:`, `badge:`, `deprecated`, `!` to leave out).
+
 ## Releasing (for maintainers)
 
 Releases go to PyPI from GitHub Actions, through a trusted publisher. There is no token and nothing to upload by hand.
