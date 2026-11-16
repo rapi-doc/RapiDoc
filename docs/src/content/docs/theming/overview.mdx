@@ -5,6 +5,7 @@ description: Change RapiDoc's colors, light and dark mode, corner radius, size a
 
 import { Aside, Tabs, TabItem, CardGrid } from '@astrojs/starlight/components';
 import DocsCard from '../../../components/DocsCard.astro';
+import ThemeDemo from '../../../components/ThemeDemo.astro';
 
 RapiDoc renders inside a **Shadow DOM**, so your site's CSS (resets, Tailwind, component libraries) can't change it by accident, and its CSS can't leak into your site. You style it on purpose, in three layers:
 
@@ -20,18 +21,9 @@ RapiDoc renders inside a **Shadow DOM**, so your site's CSS (resets, Tailwind, c
 
 ## 1. Attributes
 
-Five attributes cover most visual changes:
+Five attributes cover most visual changes. Try them:
 
-```html
-<rapi-doc
-  spec-url="https://api.example.com/openapi.json"
-  theme="cobalt"
-  color-scheme="dark"
-  radius="md"
-  scale="default"
-  nav-item-spacing="default"
-></rapi-doc>
-```
+<ThemeDemo />
 
 ### Reference
 
