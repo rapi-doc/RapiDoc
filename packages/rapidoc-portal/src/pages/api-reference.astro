@@ -7,6 +7,7 @@ import portalConfig from 'virtual:rapidoc-portal/config';
 import { OAUTH_RECEIVER_PATH } from '../engine/sync-assets.js';
 import { apiReferencePaths, readVersionSpec } from '../engine/api-routes.js';
 import { withBase } from '../components/base-path.js';
+import { rapidocThemeAttributes } from '../components/rapidoc-theme.js';
 
 export async function getStaticPaths() {
   const paths = await apiReferencePaths(portalConfig.apis);
@@ -22,7 +23,10 @@ const specInput = redirectTo ? null : readVersionSpec(version) || version.spec;
 const defaultVersion = api.versions[0];
 const versionChoices = api.versions.map((v, i) => ({ ...v, tags: versionTags[i] || [] }));
 
-const themePreset = portalConfig.rapidoc.theme || 'ember';
+// A RapiDoc preset under `rapidoc.theme` keeps its own accent and surfaces; otherwise the portal's accent over
+// the portal's background and text colors (components/rapidoc-theme.js, and the rapi-doc:not([data-portal-preset])
+// rule below).
+const { preset: themePreset, usesPreset, attributes: themeAttributes } = rapidocThemeAttributes(portalConfig.rapidoc, portalConfig.theme.primary);
 
 // RapiDoc's own navigation is hidden (show-side-nav=false); the sidebar is @rapidoc/prerender's, so the navigation
 // attributes of `rapidoc:` are passed to it.
@@ -58,10 +62,9 @@ const rapidocAttributes = {
   'allow-try': 'true',
   'allow-authentication': 'true',
   'allow-server-selection': 'false',
-  theme: themePreset,
   ...portalConfig.rapidoc,
   ...navAttributes,
-  'primary-color': portalConfig.theme.primary,
+  ...themeAttributes,
   'spec-url': specUrl,
   'show-side-nav': 'false',
   'show-header': 'false',
@@ -94,7 +97,7 @@ const rapidocAttributes = {
     <script type="module" src={withBase('/assets/rapidoc-min.js')}></script>
   </Fragment>
 
-  <aside slot="sidebar" id="portal-api-sidebar" class="portal-layout-sidebar" popover="auto" data-portal-region="sidebar" aria-label="API navigation">
+  <aside slot="sidebar" id="portal-api-sidebar" class:list={['portal-layout-sidebar', { 'portal-api-preset': usesPreset }]} popover="auto" data-portal-region="sidebar" aria-label="API navigation">
     <div class="portal-api-header-links">
       <PortalMobileNav />
     </div>
@@ -137,10 +140,8 @@ const rapidocAttributes = {
     /* Keeps the footer below the fold while the spec loads, so it does not jump down after. */
     min-height: calc(100dvh - var(--sl-nav-height));
 
-    /* Portal colours and fonts. A rule on the element overrides RapiDoc's own :host defaults;
-       `inherit` takes the page's :root value (writing var(--font-sans) here would reference itself). */
-    --background: var(--portal-bg);
-    --foreground: var(--portal-fg);
+    /* Portal fonts. A rule on the element overrides RapiDoc's own :host defaults; `inherit` takes the
+       page's :root value (writing var(--font-sans) here would reference itself). */
     --font-sans: inherit;
     --font-mono: inherit;
     /* Same type scale as the guide pages (--sl-text-h* and the heading letter-spacing in
@@ -156,6 +157,11 @@ const rapidocAttributes = {
     --h4-font-size: 1.125rem;
     --h5-font-size: 1rem;
     --h6-font-size: 0.9375rem;
+  }
+  /* The portal's background and text colors, unless `rapidoc.theme` names a preset with its own */
+  rapi-doc:not([data-portal-preset]) {
+    --background: var(--portal-bg);
+    --foreground: var(--portal-fg);
   }
   @media (min-width: 50em) {
     rapi-doc {
@@ -174,12 +180,31 @@ const rapidocAttributes = {
      styles/portal-theme.css), tag and group headings in Starlight's group-label color. Accent text
      keeps WCAG AA contrast. Method colors are RapiDoc's own. */
   .portal-api-nav {
+    --sidebar: var(--portal-bg);
     --sidebar-primary: var(--portal-primary-text);
     --sidebar-foreground: var(--portal-muted);
     --sidebar-accent-foreground: var(--portal-fg);
   }
   .portal-api-nav.portal-sidebar :is(.nav-bar-tag:not(.active), .nav-bar-tag-group-header) {
     color: var(--sl-color-white);
+  }
+
+  /* A preset under `rapidoc.theme` also colors the page around <rapi-doc>: its background (the sidebar's
+     too), border, its sidebar color for the header rows, and its accent (as text) in the sidebar, with links
+     muted and headings in its heading color, as in the portal's own sidebar. The tokens are on :root
+     (getThemeTokensCss above). */
+  :root:has(#portal-api-sidebar.portal-api-preset) {
+    --portal-bg: var(--background);
+    --portal-border: var(--border);
+    --portal-header-bg: var(--sidebar);
+  }
+  .portal-api-preset .portal-api-nav {
+    --sidebar-primary: var(--primary-text, var(--primary));
+    --sidebar-foreground: color-mix(in srgb, var(--foreground) 72%, var(--sidebar));
+    --sidebar-accent-foreground: var(--foreground);
+  }
+  .portal-api-preset .portal-api-nav.portal-sidebar :is(.nav-bar-tag:not(.active), .nav-bar-tag-group-header) {
+    color: var(--heading-color, var(--foreground));
   }
 
   /* One weight for every sidebar level, as in the guides' sidebar (PortalSidebarSublist); RapiDoc's

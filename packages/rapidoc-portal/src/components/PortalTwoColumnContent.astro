@@ -1,7 +1,9 @@
 ---
 /**
  * Starlight TwoColumnContent override: the "On this page" column sticks below the header instead of
- * being fixed to the viewport, so the site footer can scroll in below it at the end of the page.
+ * being fixed to the viewport, so the site footer can scroll in below it at the end of the page. It keeps
+ * one width, the left sidebar's (--portal-toc-width to change it), where Starlight's grows with the
+ * screen; the page's text stays at its width, centered in the rest.
  */
 ---
 
@@ -27,10 +29,8 @@
     .right-sidebar-container {
       order: 2;
       position: relative;
-      width: max(
-        var(--sl-sidebar-width),
-        calc(var(--sl-sidebar-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2)
-      );
+      flex: none;
+      width: var(--portal-toc-width, var(--sl-sidebar-width));
     }
 
     .right-sidebar {
@@ -47,13 +47,8 @@
     }
 
     :global([data-has-sidebar][data-has-toc]) .main-pane {
-      --sl-content-margin-inline: auto 0;
-
       order: 1;
-      width: min(
-        calc(100% - var(--sl-sidebar-width)),
-        calc(var(--sl-content-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2)
-      );
+      width: calc(100% - var(--portal-toc-width, var(--sl-sidebar-width)));
     }
   }
 </style>
