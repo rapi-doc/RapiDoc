@@ -232,7 +232,7 @@ const currentTab = activeTab(tabs, currentPath);
             target={isExternal(tab.href) ? '_blank' : undefined}
             rel={isExternal(tab.href) ? 'noopener noreferrer' : undefined}
           >
-            {tab.icon && <Icon name={tab.icon} size={16} />}
+            {tab.icon && <Icon name={tab.icon} size={20} />}
             <span>{tab.label}</span>
             {tab.badge && <span class="portal-tab-badge">{typeof tab.badge === 'string' ? tab.badge : tab.badge.text}</span>}
           </a>

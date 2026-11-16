@@ -12,12 +12,7 @@ import {
   type RapidocAttribute,
 } from '../../page-data/rapidoc-api';
 import GithubSlugger from 'github-slugger';
-import {
-  IconSearch,
-  IconSearchOff,
-  IconX,
-  IconArrowUpRight,
-} from '@tabler/icons-astro';
+import Icon from '../../components/Icon.astro';
 
 export const getStaticPaths = (() =>
   API_ELEMENTS.map((element) => ({
@@ -165,7 +160,7 @@ const pageDescription = isRapiDoc
           rel={guideExternal ? 'noopener' : undefined}
         >
           {element.guide.label}
-          <IconArrowUpRight size={14} stroke={2} />
+          <Icon name="arrow-up-right" size={14} />
         </a>
       </div>
 
@@ -184,7 +179,7 @@ const pageDescription = isRapiDoc
       <!-- Live Search & Interactive Filter Bar -->
       <div class="rd-search-section">
         <div class="rd-search-wrapper">
-          <IconSearch size={20} class="rd-search-icon" stroke={2} />
+          <Icon name="magnifying-glass" size={20} class="rd-search-icon" />
           <input
             id="api-search"
             type="text"
@@ -193,7 +188,7 @@ const pageDescription = isRapiDoc
             class="rd-search-input"
           />
           <button id="clear-api-search" class="rd-clear-btn" aria-label="Clear search" style="display: none;">
-            <IconX size={16} stroke={2} />
+            <Icon name="x" size={16} />
           </button>
         </div>
 
@@ -214,7 +209,7 @@ const pageDescription = isRapiDoc
     <!-- Empty Search State -->
     <div id="api-empty-state" class="rd-empty-state" style="display: none;">
       <div class="rd-empty-icon">
-        <IconSearchOff size={36} stroke={1.75} />
+        <Icon name="magnifying-glass-minus" size={36} />
       </div>
       <h3 class="rd-empty-title">No matching API items found <span id="empty-query-text" class="text-gradient"></span></h3>
       <p class="rd-empty-desc">Try searching for a different attribute, method, or keyword, or reset the filter.</p>
@@ -277,7 +272,7 @@ const pageDescription = isRapiDoc
                               {attr.example && (
                                 <a href={attr.example} class="rd-example-badge" target="_blank" rel="noopener">
                                   <span>Live Demo</span>
-                                  <IconArrowUpRight size={11} stroke={2.5} />
+                                  <Icon name="arrow-up-right" size={11} />
                                 </a>
                               )}
 
@@ -375,7 +370,7 @@ const pageDescription = isRapiDoc
                       {method.example && (
                         <a href={method.example} class="rd-example-badge" target="_blank" rel="noopener">
                           <span>Example Code</span>
-                          <IconArrowUpRight size={11} stroke={2.5} />
+                          <Icon name="arrow-up-right" size={11} />
                         </a>
                       )}
                     </div>
@@ -504,7 +499,7 @@ const pageDescription = isRapiDoc
                       {slot.example && (
                         <a href={slot.example} class="rd-example-badge" target="_blank" rel="noopener">
                           <span>Example</span>
-                          <IconArrowUpRight size={11} stroke={2.5} />
+                          <Icon name="arrow-up-right" size={11} />
                         </a>
                       )}
                     </div>

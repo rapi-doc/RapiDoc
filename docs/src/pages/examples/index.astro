@@ -4,111 +4,67 @@ import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { exampleListData, SubExample } from '../../page-data/example-list';
 import { WEB_COMPONENTS } from '../../page-data/products';
-import {
-  IconSearch,
-  IconSearchOff,
-  IconX,
-  IconArrowRight,
-  IconApi,
-  IconPalette,
-  IconBrush,
-  IconLayout,
-  IconTerminal2,
-  IconSitemap,
-  IconComponents,
-  IconLayoutSidebar,
-  IconPuzzle,
-  IconMarkdown,
-  IconListTree,
-  IconTags,
-  IconLink,
-  IconCode,
-  IconSourceCode,
-  IconBadge,
-  IconCopy,
-  IconUpload,
-  IconFileTypePdf,
-  IconPaperclip,
-  IconStack2,
-  IconFolderCode,
-  IconVariable,
-  IconKey,
-  IconShieldCheck,
-  IconShieldLock,
-  IconBracketsContain,
-  IconBrowser,
-  IconBraces,
-  IconServer,
-  IconPhoneCall,
-  IconWebhook,
-  IconLayersLinked,
-  IconFiles,
-  IconGitMerge,
-  IconDatabase,
-  IconSparkles,
-  IconBook,
-  IconBolt,
-} from '@tabler/icons-astro';
+import Icon from '../../components/Icon.astro';
 
-function getCardIconComponent(title: string, category: string, isDoc?: boolean) {
+function getCardIconName(title: string, category: string, isDoc?: boolean) {
   const t = title.toLowerCase();
-  if (t.includes('how to use') || t.includes('quickstart')) return IconBook;
-  if (t.includes('pet store') || t.includes('open api')) return IconApi;
-  if (t.includes('theme') && t.includes('color')) return IconPalette;
-  if (t.includes('css styling')) return IconBrush;
-  if (t.includes('rendering mode') || t.includes('render styles')) return IconLayout;
-  if (t.includes('console') || t.includes('try')) return IconTerminal2;
-  if (t.includes('advance styling')) return IconSparkles;
-  if (t.includes('schema style')) return IconSitemap;
-  if (t.includes('show component')) return IconComponents;
-  if (t.includes('nav') && t.includes('style')) return IconLayoutSidebar;
-  if (t.includes('slot')) return IconPuzzle;
-  if (t.includes('markdown headings')) return IconListTree;
-  if (t.includes('markdown')) return IconMarkdown;
-  if (t.includes('tag-focused') || t.includes('tags with focused')) return IconTags;
-  if (t.includes('performance')) return IconBolt;
-  if (t.includes('link')) return IconLink;
-  if (t.includes('syntax highlight')) return IconCode;
-  if (t.includes('code sample')) return IconSourceCode;
-  if (t.includes('badge')) return IconBadge;
-  if (t.includes('add your example') || t.includes('examples-multiple')) return IconCopy;
-  if (t.includes('file upload')) return IconUpload;
-  if (t.includes('binary response')) return IconFileTypePdf;
-  if (t.includes('multipart')) return IconPaperclip;
-  if (t.includes('request body') || t.includes('multiple request')) return IconStack2;
-  if (t.includes('arrange') && t.includes('tag')) return IconFolderCode;
-  if (t.includes('parameter') || t.includes('dynamic param')) return IconVariable;
-  if (t.includes('search')) return IconSearch;
-  if (t.includes('oauth setup') || t.includes('oauth extension')) return IconShieldCheck;
-  if (t.includes('oauth')) return IconKey;
-  if (t.includes('auth') || t.includes('security')) return IconShieldLock;
-  if (t.includes('api key')) return IconKey;
-  if (t.includes('additional prop')) return IconBracketsContain;
-  if (t.includes('embed') && t.includes('html')) return IconBrowser;
-  if (t.includes('json') && t.includes('spec')) return IconBraces;
-  if (t.includes('server') && t.includes('template')) return IconServer;
-  if (t.includes('callback')) return IconPhoneCall;
-  if (t.includes('webhook')) return IconWebhook;
-  if (t.includes('datatype') || t.includes('multi-data')) return IconLayersLinked;
-  if (t.includes('split') || t.includes('multiple file') || t.includes('external-ref')) return IconFiles;
-  if (t.includes('mini')) return IconComponents;
-  if (t.includes('composition') || t.includes('one of') || t.includes('all of') || t.includes('any of')) return IconGitMerge;
+  if (t.includes('how to use') || t.includes('quickstart')) return 'book-open';
+  if (t.includes('pet store') || t.includes('open api')) return 'plugs-connected';
+  if (t.includes('theme') && t.includes('color')) return 'palette';
+  if (t.includes('css styling')) return 'paint-brush';
+  if (t.includes('rendering mode') || t.includes('render styles')) return 'layout';
+  if (t.includes('console') || t.includes('try')) return 'terminal-window';
+  if (t.includes('advance styling')) return 'sparkle';
+  if (t.includes('schema style')) return 'tree-structure';
+  if (t.includes('show component')) return 'squares-four';
+  if (t.includes('nav') && t.includes('style')) return 'sidebar';
+  if (t.includes('slot')) return 'puzzle-piece';
+  if (t.includes('markdown headings')) return 'tree-view';
+  if (t.includes('markdown')) return 'markdown-logo';
+  if (t.includes('tag-focused') || t.includes('tags with focused')) return 'tag';
+  if (t.includes('performance')) return 'lightning';
+  if (t.includes('link')) return 'link';
+  if (t.includes('syntax highlight')) return 'code';
+  if (t.includes('code sample')) return 'code-block';
+  if (t.includes('badge')) return 'seal';
+  if (t.includes('add your example') || t.includes('examples-multiple')) return 'copy';
+  if (t.includes('file upload')) return 'upload-simple';
+  if (t.includes('binary response')) return 'file-pdf';
+  if (t.includes('multipart')) return 'paperclip';
+  if (t.includes('request body') || t.includes('multiple request')) return 'stack';
+  if (t.includes('arrange') && t.includes('tag')) return 'folder-simple';
+  if (t.includes('parameter') || t.includes('dynamic param')) return 'brackets-angle';
+  if (t.includes('search')) return 'magnifying-glass';
+  if (t.includes('oauth setup') || t.includes('oauth extension')) return 'shield-check';
+  if (t.includes('oauth')) return 'key';
+  if (t.includes('auth') || t.includes('security')) return 'shield-checkered';
+  if (t.includes('api key')) return 'key';
+  if (t.includes('additional prop')) return 'brackets-square';
+  if (t.includes('embed') && t.includes('html')) return 'browser';
+  if (t.includes('json') && t.includes('spec')) return 'brackets-curly';
+  if (t.includes('server') && t.includes('template')) return 'hard-drives';
+  if (t.includes('callback')) return 'phone-call';
+  if (t.includes('webhook')) return 'webhooks-logo';
+  if (t.includes('datatype') || t.includes('multi-data')) return 'stack';
+  if (t.includes('split') || t.includes('multiple file') || t.includes('external-ref')) return 'files';
+  if (t.includes('mini')) return 'squares-four';
+  if (t.includes('composition') || t.includes('one of') || t.includes('all of') || t.includes('any of')) return 'git-merge';
 
   switch (category) {
     case 'Theming & Branding':
-      return IconPalette;
+      return 'palette';
     case 'Console & Interactive':
-      return IconTerminal2;
+      return 'terminal-window';
     case 'OpenAPI 3.1 & Schemas':
-      return IconDatabase;
+      return 'database';
     case 'Security & Auth':
-      return IconShieldLock;
+      return 'shield-checkered';
     case 'Advanced & Extensibility':
-      return IconSparkles;
+      return 'sparkle';
     case 'Guides & Docs':
-      return IconBook;
+      return 'book-open';
     default:
-      return isDoc ? IconBook : IconLayout;
+      return isDoc ? 'book-open' : 'layout';
   }
 }
 
@@ -196,7 +152,7 @@ const categories = [
       <div class="rd-controls-bar">
         <!-- Live Search Input -->
         <div class="rd-search-wrapper">
-          <IconSearch size={18} class="rd-search-icon" />
+          <Icon name="magnifying-glass" size={18} class="rd-search-icon" />
           <input
             type="text"
             id="example-search"
@@ -205,7 +161,7 @@ const categories = [
             aria-label="Search examples"
           />
           <button id="clear-search" class="rd-clear-btn" title="Clear search" aria-label="Clear search">
-            <IconX size={14} />
+            <Icon name="x" size={14} />
           </button>
         </div>
 
@@ -237,7 +193,7 @@ const categories = [
           const isDoc = item.isDoc ?? false;
           const isWide = item.isWide ?? false;
           const hasDirectLink = Boolean(item.href && !item.subExamples);
-          const CardIcon = getCardIconComponent(item.title, item.category, isDoc);
+          const cardIcon = getCardIconName(item.title, item.category, isDoc);
 
           return (
             <div
@@ -251,7 +207,7 @@ const categories = [
               <div class="rd-card-top">
                 <div class="rd-card-identity">
                   <div class="rd-card-icon-box" title={item.title}>
-                    <CardIcon size={18} stroke={2} />
+                    <Icon name={cardIcon} size={18} />
                   </div>
                   <span class="rd-card-cat-badge">{item.category}</span>
                   {item.elements.filter((el) => el !== 'rapi-doc').map((el) => (
@@ -286,7 +242,7 @@ const categories = [
                       return (
                         <a href={subObj.href} class="rd-sub-btn">
                           <span>{subTitle}</span>
-                          <IconArrowRight size={12} stroke={2} />
+                          <Icon name="arrow-right" size={12} />
                         </a>
                       );
                     })}
@@ -299,7 +255,7 @@ const categories = [
                 <div class="rd-card-footer">
                   <a href={item.href} class="rd-action-link">
                     <span>{isDoc ? 'Read Documentation' : 'View Live Demo'}</span>
-                    <IconArrowRight size={14} stroke={2} />
+                    <Icon name="arrow-right" size={14} />
                   </a>
                 </div>
               )}
@@ -312,7 +268,7 @@ const categories = [
     <!-- Empty Results Message -->
     <div id="empty-state" class="rd-empty-state">
       <div class="rd-empty-icon">
-        <IconSearchOff size={36} stroke={1.75} />
+        <Icon name="magnifying-glass-minus" size={36} />
       </div>
       <h3 class="rd-empty-title">No matching examples found</h3>
       <p class="rd-empty-desc">Try searching for a different keyword or reset the category filters.</p>

@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro';
 import {
   CONTROL_REGISTRY,
   CATEGORY_TITLES,
@@ -15,13 +16,6 @@ import {
   type ControlDef,
   type ControllerPreset,
 } from './controller-registry';
-import {
-  IconAdjustmentsHorizontal,
-  IconFileCode,
-  IconRotate,
-  IconX,
-  IconInfoCircle,
-} from '@tabler/icons-astro';
 
 export type { ControlOption, ControlCategory, SegmentedControl, ToggleControl, ControlDef, ControllerPreset };
 
@@ -124,7 +118,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
         aria-label="Open RapiDoc Options Drawer"
         title={`Open ${title} (Cmd+K)`}
       >
-        <IconAdjustmentsHorizontal size={15} stroke={2.2} aria-hidden="true" />
+        <Icon name="sliders-horizontal" size={15} aria-hidden="true" />
         <span class="rd-tab-label">{title}</span>
       </button>
     )
@@ -153,7 +147,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
               class="rd-pretty-action-btn rd-pretty-spec-btn"
               title="Open active OpenAPI spec file"
             >
-              <IconFileCode size={12} stroke={2.2} />
+              <Icon name="file-code" size={12} />
               <span>Spec</span>
             </a>
           )}
@@ -164,7 +158,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
             class="rd-pretty-action-btn rd-pretty-reset-btn"
             title="Reset all options to default"
           >
-            <IconRotate size={13} stroke={2.2} />
+            <Icon name="arrow-counter-clockwise" size={13} />
             <span>Reset</span>
           </button>
 
@@ -175,7 +169,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
             aria-label="Close Controls Drawer"
             title="Close Drawer (Esc)"
           >
-            <IconX size={15} stroke={2.2} />
+            <Icon name="x" size={15} />
           </button>
         </div>
       </div>
@@ -368,7 +362,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                           </div>
                           {(ctrl.description || ctrl.defaultText) && (
                             <span class="rd-option-help" tabindex="0" role="button" aria-label={`About ${ctrl.label}`}>
-                              <IconInfoCircle size={13} stroke={2} aria-hidden="true" />
+                              <Icon name="info" size={13} aria-hidden="true" />
                               <span class="rd-option-help-pop" role="tooltip">
                                 {ctrl.description && <span class="rd-option-help-text" set:html={ctrl.description} />}
                                 {ctrl.defaultText && (
@@ -382,7 +376,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                           )}
                           {ctrl.info && (
                             <span class="rd-option-info-badge">
-                              <IconInfoCircle size={12} stroke={2.2} aria-hidden="true" />
+                              <Icon name="info" size={12} aria-hidden="true" />
                               <span class="rd-option-info-text">{ctrl.info}</span>
                             </span>
                           )}
@@ -432,7 +426,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                         </div>
                         {(ctrl.description || ctrl.defaultText) && (
                           <span class="rd-option-help" tabindex="0" role="button" aria-label={`About ${ctrl.label}`}>
-                            <IconInfoCircle size={13} stroke={2} aria-hidden="true" />
+                            <Icon name="info" size={13} aria-hidden="true" />
                             <span class="rd-option-help-pop" role="tooltip">
                               {ctrl.description && <span class="rd-option-help-text" set:html={ctrl.description} />}
                               {ctrl.defaultText && (
@@ -446,7 +440,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                         )}
                         {ctrl.info && (
                           <span class="rd-option-info-badge">
-                            <IconInfoCircle size={12} stroke={2.2} aria-hidden="true" />
+                            <Icon name="info" size={12} aria-hidden="true" />
                             <span class="rd-option-info-text">{ctrl.info}</span>
                           </span>
                         )}

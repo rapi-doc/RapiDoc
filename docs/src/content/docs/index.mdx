@@ -3,7 +3,8 @@ title: RapiDoc Documentation
 description: Interactive OpenAPI documentation as a web component, plus mocks, MCP servers, workflows and developer portals built from the same spec.
 ---
 
-import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import DocsCard from '../../components/DocsCard.astro';
 
 **RapiDoc** turns an OpenAPI spec into interactive API documentation. At its core is `<rapi-doc>`, a single HTML element with no runtime dependencies: add one script tag and it works in any page or framework. Its Shadow DOM keeps your site's styles and RapiDoc's styles apart.
 
@@ -15,30 +16,30 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 ## What you can build
 
 <CardGrid>
-  <Card title="API reference" icon="open-book">
+  <DocsCard title="API reference" icon="book-open">
     `<rapi-doc>` renders navigation, search, schemas, examples, authentication and a **Try** console. Choose one long page, expandable sections, or one operation at a time. [Quickstart](/docs/get-started/quickstart/)
-  </Card>
-  <Card title="Your look" icon="pencil">
+  </DocsCard>
+  <DocsCard title="Your look" icon="pencil-simple">
     Five built-in themes, any brand color, light and dark, and full control through CSS custom properties and `::part()`. [Theming](/docs/theming/overview/)
-  </Card>
-  <Card title="Embedded endpoints and workflows" icon="puzzle">
+  </DocsCard>
+  <DocsCard title="Embedded endpoints and workflows" icon="puzzle-piece">
     `<rapi-doc-mini>` puts a single endpoint in a blog post; `<rapi-flow>` draws Arazzo workflows and runs them. [RapiDoc Mini](/docs/rapidoc-mini/) · [RapiFlow](/docs/rapi-flow/)
-  </Card>
-  <Card title="Mocks" icon="random">
+  </DocsCard>
+  <DocsCard title="Mocks" icon="hard-drives">
     Answer requests from the spec, in the page or as an HTTP server with request validation and token checks. [Mocking](/docs/mocking/overview/)
-  </Card>
-  <Card title="A PDF of the reference" icon="document">
+  </DocsCard>
+  <DocsCard title="A PDF of the reference" icon="file-pdf">
     `<rapi-pdf>` makes a PDF of the spec in the browser; `rapipdf/node` and `rapidoc pdf` make the same one in a build. [RapiPdf](/docs/rapipdf/)
-  </Card>
-  <Card title="Checks in CI" icon="approve-check">
+  </DocsCard>
+  <DocsCard title="Checks in CI" icon="check-circle">
     Validate, lint and bundle the spec with the `rapidoc` command, with errors shown on the pull request. [RapiDoc CLI](/docs/cli/)
-  </Card>
-  <Card title="Tools for AI agents" icon="rocket">
+  </DocsCard>
+  <DocsCard title="Tools for AI agents" icon="robot">
     Turn the spec into a curated MCP server, from a button in `<rapi-doc>`, the command line or Node. [MCP Server](/docs/ai/mcp-server/)
-  </Card>
-  <Card title="Developer portals" icon="laptop">
+  </DocsCard>
+  <DocsCard title="Developer portals" icon="layout">
     API references next to Markdown guides, with search and optional single sign-on (SSO), built with the `rapidoc` CLI. [Packages](/docs/get-started/packages/#developer-portals)
-  </Card>
+  </DocsCard>
 </CardGrid>
 
 ## How these docs are organized

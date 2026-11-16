@@ -4,16 +4,7 @@ import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import RapidocMiniComparisonTable from '../components/RapidocMiniComparisonTable.astro';
-import {
-  IconFileText,
-  IconLayersSubtract,
-  IconGitBranch,
-  IconBell,
-  IconArrowRight,
-  IconArrowUpRight,
-  IconPlayerPlay,
-  IconBook,
-} from '@tabler/icons-astro';
+import Icon from '../components/Icon.astro';
 
 const basicMiniCode = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 
@@ -246,16 +237,16 @@ const attributes = [
 
       <div class="rd-hero-actions">
         <a href="#blog-style" class="rd-btn rd-btn-primary">
-          <IconPlayerPlay size={18} stroke={2} />
+          <Icon name="play" size={18} />
           <span>See It Live</span>
         </a>
         <a href="/docs/rapidoc-mini/" class="rd-btn rd-btn-secondary">
-          <IconBook size={18} stroke={2} />
+          <Icon name="book-open" size={18} />
           <span>Docs</span>
         </a>
         <a href="/api/rapi-doc-mini/" class="rd-btn rd-btn-secondary">
           <span>API Reference</span>
-          <IconArrowRight size={16} stroke={2} />
+          <Icon name="arrow-right" size={16} />
         </a>
       </div>
 
@@ -290,7 +281,7 @@ const attributes = [
       <div class="rd-usecase-grid">
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <IconFileText size={22} stroke={2} />
+            <Icon name="file-text" size={22} />
           </div>
           <h3>Blog & Tutorial Writing</h3>
           <p>
@@ -301,7 +292,7 @@ const attributes = [
 
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <IconLayersSubtract size={22} stroke={2} />
+            <Icon name="stack-simple" size={22} />
           </div>
           <h3>Step-by-Step Onboarding</h3>
           <p>
@@ -312,7 +303,7 @@ const attributes = [
 
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <IconGitBranch size={22} stroke={2} />
+            <Icon name="git-branch" size={22} />
           </div>
           <h3>Microservice Storytelling</h3>
           <p>
@@ -323,7 +314,7 @@ const attributes = [
 
         <div class="rd-usecase-card">
           <div class="rd-card-icon">
-            <IconBell size={22} stroke={2} />
+            <Icon name="bell" size={22} />
           </div>
           <h3>Release Notes & Changelogs</h3>
           <p>
@@ -696,14 +687,14 @@ const attributes = [
         <div class="rd-callout-actions">
           <a href="/docs/rapidoc-mini/" class="rd-btn rd-btn-primary rd-btn-lg">
             <span>RapiDoc Mini Docs</span>
-            <IconArrowRight size={15} stroke={2.5} />
+            <Icon name="arrow-right" size={15} />
           </a>
           <a href="/api/rapi-doc-mini/" class="rd-btn rd-btn-secondary rd-btn-lg">
             <span>API Reference</span>
           </a>
           <a href="/docs/get-started/quickstart/" class="rd-btn rd-btn-ghost rd-btn-lg">
             <span>Quickstart</span>
-            <IconArrowUpRight size={15} stroke={2.5} />
+            <Icon name="arrow-up-right" size={15} />
           </a>
         </div>
       </div>

@@ -2,17 +2,8 @@
 // page's family section (ProductFamily) read this. Each product links to its page (src/pages/<page>.astro;
 // list new top-level ones in PRODUCT_PAGES of utils/pageTitle.ts), or to its docs where it has none.
 
-export type ProductIcon =
-  | "file-code"
-  | "puzzle"
-  | "route"
-  | "file-pdf"
-  | "dashboard"
-  | "terminal"
-  | "server"
-  | "robot"
-  | "bolt"
-  | "plug";
+/** A Phosphor icon name (https://phosphoricons.com), drawn by components/Icon.astro */
+export type ProductIcon = string;
 
 export interface ProductLink {
   label: string;
@@ -48,14 +39,14 @@ export const WEB_COMPONENTS: ProductGroup = {
       tag: "<rapi-doc-mini>",
       href: "/rapidoc-mini/",
       description: "A few endpoints, with Try, inside a post or guide",
-      icon: "puzzle",
+      icon: "puzzle-piece",
     },
     {
       label: "RapiFlow",
       tag: "<rapi-flow>",
       href: "/rapi-flow/",
       description: "Step through and run Arazzo workflows",
-      icon: "route",
+      icon: "path",
     },
     {
       label: "RapiPdf",
@@ -75,7 +66,7 @@ export const TOOLS: ProductGroup = {
       label: "Developer Portal",
       href: "https://portal.rapidocui.com/",
       description: "API references and guides as one site, with search and SSO",
-      icon: "dashboard",
+      icon: "layout",
       external: true,
     },
     {
@@ -83,13 +74,13 @@ export const TOOLS: ProductGroup = {
       tag: "rapidoc",
       href: "/cli/",
       description: "Preview, validate, lint, bundle and export specs",
-      icon: "terminal",
+      icon: "terminal-window",
     },
     {
       label: "Mock Server",
       href: "/docs/mocking/overview/",
       description: "Answer requests from your spec, in the page or as a server",
-      icon: "server",
+      icon: "hard-drives",
     },
     {
       label: "MCP Server",
@@ -101,7 +92,7 @@ export const TOOLS: ProductGroup = {
       label: "Pre-rendering",
       href: "/docs/performance/prerender/",
       description: "Server-rendered HTML for search engines and a fast first paint",
-      icon: "bolt",
+      icon: "lightning",
     },
   ],
 };

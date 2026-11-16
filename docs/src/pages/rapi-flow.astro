@@ -3,20 +3,7 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
-import {
-  IconArrowRight,
-  IconArrowUpRight,
-  IconFileCode,
-  IconPlayerPlay,
-  IconRoute,
-  IconArrowsSplit,
-  IconRepeat,
-  IconLayoutList,
-  IconTable,
-  IconBrowser,
-  IconRobot,
-  IconBook,
-} from '@tabler/icons-astro';
+import Icon from '../components/Icon.astro';
 
 const pageSnippet = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 <!-- A separate bundle: pages without workflows don't load it -->
@@ -116,16 +103,16 @@ const mockServerHtmlSnippet = `<rapi-flow
 
       <div class="wf-cta-row">
         <a href="#live-demo" class="rd-btn rd-btn-primary">
-          <IconPlayerPlay size={18} stroke={2} />
+          <Icon name="play" size={18} />
           <span>Run the Live Demo</span>
         </a>
         <a href="/docs/rapi-flow/" class="rd-btn rd-btn-secondary">
-          <IconFileCode size={18} stroke={2} />
+          <Icon name="file-code" size={18} />
           <span>Docs</span>
         </a>
         <a href="/api/rapi-flow/" class="rd-btn rd-btn-secondary">
           <span>API Reference</span>
-          <IconArrowUpRight size={16} stroke={2} />
+          <Icon name="arrow-up-right" size={16} />
         </a>
       </div>
 
@@ -259,35 +246,35 @@ const mockServerHtmlSnippet = `<rapi-flow
         </p>
         <div class="feature-grid">
           <div class="feature-card">
-            <div class="feature-icon"><IconRoute size={20} stroke={2} /></div>
+            <div class="feature-icon"><Icon name="path" size={20} /></div>
             <div>
               <h4>Steps linked to operations</h4>
               <p>Each box names its step, method and path. Clicking it scrolls a tied <code>&lt;rapi-doc&gt;</code> to the operation.</p>
             </div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon"><IconArrowsSplit size={20} stroke={2} /></div>
+            <div class="feature-icon"><Icon name="arrows-split" size={20} /></div>
             <div>
               <h4>Values passed between steps</h4>
               <p>A dashed line from <code>findAvailable</code> to <code>placeOrder</code>, labelled <code>petId</code>. Hover a value to see where it goes.</p>
             </div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon"><IconRepeat size={20} stroke={2} /></div>
+            <div class="feature-icon"><Icon name="repeat" size={20} /></div>
             <div>
               <h4>Success and failure branches</h4>
               <p><code>goto</code> and <code>retry</code> draw as arrows back or forward; <code>end</code> closes the run. Each action shows its criteria.</p>
             </div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon"><IconLayoutList size={20} stroke={2} /></div>
+            <div class="feature-icon"><Icon name="list-dashes" size={20} /></div>
             <div>
               <h4>Compact and expanded</h4>
               <p>Expanded shows each step's inputs and actions in its box; compact keeps only the operation, for long workflows.</p>
             </div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon"><IconTable size={20} stroke={2} /></div>
+            <div class="feature-icon"><Icon name="table" size={20} /></div>
             <div>
               <h4>Outputs at a glance</h4>
               <p>The workflow's outputs sit in a table under the steps, each with the step it comes from.</p>
@@ -314,7 +301,7 @@ const mockServerHtmlSnippet = `<rapi-flow
         </p>
         <div class="standards-grid">
           <div class="standard-card">
-            <div class="standard-badge"><IconBrowser size={14} stroke={2} /> Browser</div>
+            <div class="standard-badge"><Icon name="browser" size={14} /> Browser</div>
             <h4>The run panel</h4>
             <p>
               Inputs with their defaults, credentials from the tied <code>&lt;rapi-doc&gt;</code> (or a small form of its own),
@@ -323,7 +310,7 @@ const mockServerHtmlSnippet = `<rapi-flow
             </p>
           </div>
           <div class="standard-card">
-            <div class="standard-badge"><IconRobot size={14} stroke={2} /> AI agents</div>
+            <div class="standard-badge"><Icon name="robot" size={14} /> AI agents</div>
             <h4>One MCP tool per workflow</h4>
             <p>
               With a <code>&lt;rapi-flow for="…"&gt;</code> on the page, <strong>Export MCP Server</strong> adds a tool per
@@ -331,7 +318,7 @@ const mockServerHtmlSnippet = `<rapi-flow
             </p>
           </div>
           <div class="standard-card">
-            <div class="standard-badge"><IconBook size={14} stroke={2} /> Developer portal</div>
+            <div class="standard-badge"><Icon name="book-open" size={14} /> Developer portal</div>
             <h4>Drawn at build time</h4>
             <p>
               <code>@rapidoc/portal</code>'s <code>&#123;% workflow %&#125;</code> tag renders the diagram as static SVG, so
@@ -374,7 +361,7 @@ const mockServerHtmlSnippet = `<rapi-flow
           <div class="cta-actions">
             <a href="/examples/arazzo" class="rd-btn rd-btn-primary">
               <span>Open the rapi-flow Example</span>
-              <IconArrowRight size={18} stroke={2} />
+              <Icon name="arrow-right" size={18} />
             </a>
             <a href="/docs/rapi-flow/" class="rd-btn rd-btn-secondary">
               <span>RapiFlow Docs</span>

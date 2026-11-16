@@ -33,7 +33,7 @@ const current = resolveActiveNavKey(pathname, activePage);
           aria-controls="rd-products-panel"
         >
           <span>Products</span>
-          <Icon name="chevron-down" size={14} class="rd-products-chevron" />
+          <Icon name="caret-down" size={14} class="rd-products-chevron" />
         </button>
         <div id="rd-products-panel" class="rd-products-panel" hidden>
           <div class="rd-products-inner">
@@ -52,7 +52,7 @@ const current = resolveActiveNavKey(pathname, activePage);
                         >
                           {item.icon && (
                             <span class="rd-product-icon">
-                              <Icon name={item.icon} size={18} />
+                              <Icon name={item.icon} size={20} />
                             </span>
                           )}
                           <span class="rd-product-text">
@@ -99,7 +99,7 @@ const current = resolveActiveNavKey(pathname, activePage);
         <slot name="search" />
       </div>
       <a href="https://github.com/rapi-doc/RapiDoc" target="_blank" rel="noopener" class="rd-btn rd-btn-ghost rd-github-btn">
-        <Icon name="github" size={18} />
+        <Icon name="github-logo" size={18} />
         <span class="rd-github-label">GitHub</span>
       </a>
       <!-- Below 860px the links move into this menu (a disclosure: the script toggles aria-expanded and hidden) -->
@@ -111,8 +111,8 @@ const current = resolveActiveNavKey(pathname, activePage);
         aria-label="Site menu"
       >
         <!-- On /docs/ a grid, so it isn't confused with Starlight's sidebar menu (a hamburger) beside it -->
-        <span class="rd-menu-icon rd-menu-icon--open"><Icon name={activePage === 'docs' ? 'grid' : 'menu'} size={18} /></span>
-        <span class="rd-menu-icon rd-menu-icon--close"><Icon name="close" size={18} /></span>
+        <span class="rd-menu-icon rd-menu-icon--open"><Icon name={activePage === 'docs' ? 'squares-four' : 'list'} size={18} /></span>
+        <span class="rd-menu-icon rd-menu-icon--close"><Icon name="x" size={18} /></span>
       </button>
     </div>
   </div>
@@ -121,7 +121,7 @@ const current = resolveActiveNavKey(pathname, activePage);
     <details class="rd-site-menu-products">
       <summary class="rd-site-menu-link">
         <span>Products</span>
-        <Icon name="chevron-down" size={16} class="rd-products-chevron" />
+        <Icon name="caret-down" size={16} class="rd-products-chevron" />
       </summary>
       {
         PRODUCT_GROUPS.map((group) => (

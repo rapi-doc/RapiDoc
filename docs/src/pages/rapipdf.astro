@@ -6,21 +6,7 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
-import {
-  IconArrowRight,
-  IconArrowUpRight,
-  IconPlayerPlay,
-  IconBook,
-  IconListDetails,
-  IconLock,
-  IconBraces,
-  IconTable,
-  IconPalette,
-  IconLanguage,
-  IconWorld,
-  IconBrandNodejs,
-  IconTerminal2,
-} from '@tabler/icons-astro';
+import Icon from '../components/Icon.astro';
 
 const browserCode = `<script src="https://unpkg.com/rapipdf/dist/rapipdf-min.js"></script>
 
@@ -103,11 +89,11 @@ const contents = [
 
       <div class="rd-hero-actions">
         <a href="#demo" class="rd-btn rd-btn-primary">
-          <IconPlayerPlay size={18} stroke={2} />
+          <Icon name="play" size={18} />
           <span>Make a PDF</span>
         </a>
         <a href="/api/rapi-pdf/" class="rd-btn rd-btn-secondary">
-          <IconBook size={18} stroke={2} />
+          <Icon name="book-open" size={18} />
           <span>API Reference</span>
         </a>
         <a
@@ -117,7 +103,7 @@ const contents = [
           rel="noopener"
         >
           <span>README</span>
-          <IconArrowUpRight size={16} stroke={2} />
+          <Icon name="arrow-up-right" size={16} />
         </a>
       </div>
     </header>
@@ -176,12 +162,12 @@ const contents = [
           contents.map((item) => (
             <div class="rd-feature-card">
               <span class="rd-feature-icon">
-                {item.icon === 'list' && <IconListDetails size={20} stroke={2} />}
-                {item.icon === 'lock' && <IconLock size={20} stroke={2} />}
-                {item.icon === 'braces' && <IconBraces size={20} stroke={2} />}
-                {item.icon === 'table' && <IconTable size={20} stroke={2} />}
-                {item.icon === 'palette' && <IconPalette size={20} stroke={2} />}
-                {item.icon === 'language' && <IconLanguage size={20} stroke={2} />}
+                {item.icon === 'list' && <Icon name="list-bullets" size={20} />}
+                {item.icon === 'lock' && <Icon name="lock" size={20} />}
+                {item.icon === 'braces' && <Icon name="brackets-curly" size={20} />}
+                {item.icon === 'table' && <Icon name="table" size={20} />}
+                {item.icon === 'palette' && <Icon name="palette" size={20} />}
+                {item.icon === 'language' && <Icon name="translate" size={20} />}
               </span>
               <h3 class="rd-feature-title">{item.title}</h3>
               <p class="rd-feature-text" set:html={item.text} />
@@ -200,7 +186,7 @@ const contents = [
       <div class="rd-pdf-ways">
         <div class="rd-split">
           <div class="rd-split-text">
-            <h3 class="rd-feature-title"><IconWorld size={20} stroke={2} /> In the browser</h3>
+            <h3 class="rd-feature-title"><Icon name="globe" size={20} /> In the browser</h3>
             <p>
               One script tag. <code>rapipdf-min.js</code> is a classic script with everything in it; with a bundler,
               <code>import "rapipdf"</code> gives a few-kilobyte element that fetches the generator the first time a
@@ -216,7 +202,7 @@ const contents = [
 
         <div class="rd-split">
           <div class="rd-split-text">
-            <h3 class="rd-feature-title"><IconBrandNodejs size={20} stroke={2} /> In Node</h3>
+            <h3 class="rd-feature-title"><Icon name="file-js" size={20} /> In Node</h3>
             <p>
               <code>rapipdf/node</code> builds the same document from a file, a URL or a spec object and returns it as a
               Buffer: for a build step that publishes the PDF next to your docs.
@@ -227,7 +213,7 @@ const contents = [
 
         <div class="rd-split">
           <div class="rd-split-text">
-            <h3 class="rd-feature-title"><IconTerminal2 size={20} stroke={2} /> On the command line</h3>
+            <h3 class="rd-feature-title"><Icon name="terminal-window" size={20} /> On the command line</h3>
             <p>
               <code>rapidoc pdf</code> of the <a href="/cli/">RapiDoc CLI</a> writes the PDF from a spec, with an option
               for each attribute, plus your own fonts and labels.
@@ -249,11 +235,11 @@ const contents = [
       <div class="rd-hero-actions">
         <a href="/api/rapi-pdf/" class="rd-btn rd-btn-primary rd-btn-lg">
           <span>&lt;rapi-pdf&gt; API Reference</span>
-          <IconArrowRight size={15} stroke={2.5} />
+          <Icon name="arrow-right" size={15} />
         </a>
         <a href="https://www.npmjs.com/package/rapipdf" class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
           <span>rapipdf on npm</span>
-          <IconArrowUpRight size={15} stroke={2.5} />
+          <Icon name="arrow-up-right" size={15} />
         </a>
       </div>
     </section>
