@@ -1,5 +1,19 @@
 # @rapidoc/portal
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [69f5544]
+- Updated dependencies [69f5544]
+- Updated dependencies [69f5544]
+- Updated dependencies [bccc7a7]
+- Updated dependencies [69f5544]
+- Updated dependencies [d6837bc]
+  - rapidoc@13.1.0
+  - @rapidoc/mcp@0.2.1
+  - @rapidoc/prerender@0.2.1
+
 ## 0.2.0
 
 ### Patch Changes
