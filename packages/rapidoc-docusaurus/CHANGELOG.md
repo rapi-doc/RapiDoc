@@ -1,5 +1,15 @@
 # @rapidoc/docusaurus
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [43a6655]
+- Updated dependencies [a6748e6]
+  - rapidoc@14.0.0
+  - @rapidoc/prerender@0.2.2
+  - @rapidoc/embed@0.3.2
+
 ## 0.1.1
 
 ### Patch Changes
