@@ -17,7 +17,7 @@ const { icon, title } = Astro.props;
 
 <article class="card sl-flex">
   <p class="title sl-flex">
-    {icon && <Icon name={icon} class="icon" size={24} weight="regular" />}
+    {icon && <Icon name={icon} class="icon" size={24} weight="duotone" />}
     <span set:html={title} />
   </p>
   <div class="body"><slot /></div>
