@@ -1,6 +1,7 @@
 // The public API of <rapi-doc> as data, read from packages/rapidoc/src/rapidoc.ts: each `@property`
 // declaration (attribute name, union type, initial value) with its doc comment, the documented methods
-// (`@public`), and the `@fires`, `@slot` and `@deprecatedAttr` tags of the class comment. Nothing is written
+// (`@public`), and the `@fires`, `@slot`, `@attr` and `@deprecatedAttr` tags of the class comment. The
+// other elements are read the same way (ELEMENTS, DOCUMENTED_ELEMENTS). Nothing is written
 // to disk: the docs /api page and scripts/rapidoc-metadata.js call readApiManifest() and so cannot differ
 // from the source. The tags are described in the class comment of rapidoc.ts.
 import fs from "node:fs";
@@ -35,6 +36,21 @@ export const ELEMENTS = [
   },
 ];
 
+/**
+ * Every element the docs site has an API page for: ELEMENTS, and `<rapi-pdf>` of the `rapipdf` package. Not
+ * part of `rapidoc`'s metadata (scripts/rapidoc-metadata.js reads ELEMENTS only). `<rapi-pdf>` is a plain
+ * HTMLElement that reads its attributes when it makes a PDF, so it declares them as `@attr` tags.
+ */
+export const DOCUMENTED_ELEMENTS = [
+  ...ELEMENTS,
+  {
+    tag: "rapi-pdf",
+    className: "RapiPdf",
+    file: path.join(rootDir, "packages/rapipdf/src/rapipdf.js"),
+    bundle: "rapipdf-min.js",
+  },
+];
+
 const TAGS = new Set([
   "summary",
   "group",
@@ -48,7 +64,11 @@ const TAGS = new Set([
   "deprecated",
   "fires",
   "slot",
+  "attr",
   "deprecatedAttr",
+  // JSDoc's, read as tags so they end the text before them; the manifest does not use them
+  "param",
+  "returns",
 ]);
 
 /**
@@ -191,10 +211,10 @@ function parseSourceFile(file) {
 }
 
 /** `name - description`, or `- description` for the default slot. */
-function namedTag(text, what) {
+function namedTag(text, what, fileName = "rapidoc.ts") {
   const match = /^(?:(\S+)\s+)?-\s+([\s\S]+)$/.exec(text);
   if (!match)
-    throw new Error(`rapidoc.ts: ${what} "${text.slice(0, 40)}" is not "name - description"`);
+    throw new Error(`${fileName}: ${what} "${text.slice(0, 40)}" is not "name - description"`);
   return { name: match[1] ?? "", description: match[2].trim() };
 }
 
@@ -244,30 +264,39 @@ export function readApiManifest(file = RAPIDOC_SOURCE, className = "RapiDoc") {
     }
   }
 
+  // `@attr` and `@deprecatedAttr`: `name | group | allowed values (comma-separated) | default | description`,
+  // for attributes the class does not declare as properties. Allowed values and default may be empty.
   const classDoc = docOf(element, sourceFile);
-  for (const text of tagTexts(classDoc, "deprecatedAttr")) {
+  const pipeAttribute = (text, tag) => {
     const [name, group, allowed, defaultValue, ...description] = text
       .split("|")
       .map((part) => part.replace(/\s+/g, " ").trim());
-    if (!description.length) {
-      throw new Error(`rapidoc.ts: @deprecatedAttr ${name} needs five fields separated by |`);
+    if (!description.length || !group || !description.join("").trim()) {
+      throw new Error(`${fileName}: @${tag} ${name} needs five fields separated by |`);
     }
-    addAttribute(group, {
-      name,
-      deprecated: true,
-      allowed: allowed.split(",").map((value) => value.trim()),
-      description: description.join(" | "),
-      default: defaultValue,
-    });
-  }
+    const entry = { name };
+    if (tag === "deprecatedAttr") entry.deprecated = true;
+    const values = allowed
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    if (values.length) entry.allowed = values;
+    entry.description = description.join(" | ");
+    if (defaultValue) entry.default = defaultValue;
+    addAttribute(group, entry);
+  };
+  for (const text of tagTexts(classDoc, "attr")) pipeAttribute(text, "attr");
+  for (const text of tagTexts(classDoc, "deprecatedAttr")) pipeAttribute(text, "deprecatedAttr");
 
   return {
     Attributes: [...groups].map(([group, items]) => ({ [`${group} Attributes`]: items })),
     Methods: { items: methods },
-    Events: { items: tagTexts(classDoc, "fires").map((text) => namedTag(text, "@fires")) },
+    Events: {
+      items: tagTexts(classDoc, "fires").map((text) => namedTag(text, "@fires", fileName)),
+    },
     Slots: {
       items: tagTexts(classDoc, "slot").map((text) => {
-        const slot = namedTag(text, "@slot");
+        const slot = namedTag(text, "@slot", fileName);
         return { ...slot, name: slot.name || "(default)" };
       }),
     },

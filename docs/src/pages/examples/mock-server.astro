@@ -1,71 +1,10 @@
 ---
+// The in-browser mock, live: a testbed that sets the mock attributes and calls fetch(), which the mock
+// answers. The how-to is in content/docs/mocking/; this page was the Mock Server guide.
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
 import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
-import CodeBlock from '../../components/CodeBlock.astro';
-import { IconChevronDown, IconCheck, IconPlayerPlay, IconShieldOff, IconBox, IconBolt, IconTarget } from '@tabler/icons-astro';
-
-const basicMockCode = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-
-<!-- Enable the built-in mock server with a single attribute -->
-<rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
-  mock-server="true"
-  mock-server-delay="300"
-  mock-server-log="true"
-  theme="dark"
-> </rapi-doc>`;
-
-const multiStatusCode = `<!-- Cycle through 200, 429, and 500 to test retry logic and banners -->
-<rapi-doc
-  spec-url="/specs/reqres.yaml"
-  mock-server="true"
-  mock-server-status-code="200, 429, 500"
-  mock-server-status-strategy="cycle"
-  mock-server-delay="400"
-> </rapi-doc>`;
-
-const perOperationCode = `<!-- Only the order call fails, once: first 503, then 200 on the retry. Everything else answers 200. -->
-<rapi-doc
-  spec-url="/specs/petstore.yaml"
-  mock-server="true"
-  mock-server-status-code='{ "POST /store/order": "503, 200", "*": "200" }'
-  mock-server-status-strategy="cycle"
-> </rapi-doc>`;
-
-const twoMocksCode = `<!-- Two APIs mocked on one page, each with its own codes and delay -->
-<rapi-doc-mini spec-url="/specs/orders.yaml"   filter-operations="POST /orders" mock-server="true"></rapi-doc-mini>
-<rapi-doc-mini spec-url="/specs/payments.yaml" filter-operations="POST /charges" mock-server="true"
-               mock-server-status-code="402" mock-server-delay="800"></rapi-doc-mini>`;
-
-const reactViteCode = `// src/App.jsx - Seamless frontend prototyping without waiting for backend
-import React, { useEffect, useState } from 'react';
-
-export default function App() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Intercepted in-page by RapiDoc! Resolves instantly from OpenAPI spec
-    fetch('/api/users')
-      .then((res) => res.json())
-      .then((data) => {
-        setUsers(data.data || []);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div className="spinner">Simulating network latency...</div>;
-
-  return (
-    <div>
-      <h2>User Directory (Mocked from OpenAPI)</h2>
-      <ul>
-        {users.map(u => <li key={u.id}>{u.first_name} {u.last_name} ({u.email})</li>)}
-      </ul>
-    </div>
-  );
-}`;
+import { IconChevronDown, IconCheck, IconPlayerPlay } from '@tabler/icons-astro';
 
 const mockAttributes = [
   {
@@ -102,7 +41,7 @@ const mockAttributes = [
 ---
 
 <GlobalLayout
-  title="Guide | Mock Server for OpenAPI Specs | RapiDoc"
+  title="In-Browser Mock Server - Interactive OpenAPI Example | RapiDoc"
   description="Instantly simulate REST API endpoints directly in your browser with zero backend setup. Return realistic mock data synthesized from OpenAPI schema examples."
   keywords="OpenAPI mock server, in-browser mock server, mock REST API, Swagger mock server, client-side API simulation"
 >
@@ -115,14 +54,14 @@ const mockAttributes = [
   <div class="ambient-glow glow-indigo"></div>
 
   <!-- Reusable Navigation -->
-  <SiteNavbar activePage="guides" />
+  <SiteNavbar activePage="examples" />
 
   <main class="rd-mock-main">
     <!-- Hero Header -->
     <header class="rd-hero-header">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
-        <span class="rd-badge-text">Zero-Dependency In-Browser Mocking</span>
+        <span class="rd-badge-text">Example • mock-server</span>
       </div>
 
       <h1 class="rd-page-title">
@@ -130,29 +69,10 @@ const mockAttributes = [
       </h1>
 
       <p class="rd-page-subtitle">
-        Prototype client frontends, simulate multi-status responses, and test network latency before backend APIs exist. No Prism, no
-        Docker, zero external CLI processes — built directly into your single RapiDoc bundle.
+        With <code>mock-server="true"</code>, <code>&lt;rapi-doc&gt;</code> answers requests from the spec inside the page, for
+        Try and for the page's own <code>fetch()</code> calls. Pick a status code and a delay below and call the API.
       </p>
 
-      <!-- Key Metrics / Feature Badges -->
-      <div class="rd-stats-bar">
-        <div class="rd-stat-card">
-          <span class="rd-stat-value">100%</span>
-          <span class="rd-stat-label">In-Browser Interception</span>
-        </div>
-        <div class="rd-stat-card">
-          <span class="rd-stat-value">0</span>
-          <span class="rd-stat-label">External Dependencies</span>
-        </div>
-        <div class="rd-stat-card">
-          <span class="rd-stat-value">Multi-Code</span>
-          <span class="rd-stat-label">Cycle & Chaos Simulation</span>
-        </div>
-        <div class="rd-stat-card">
-          <span class="rd-stat-value">Zero CORS</span>
-          <span class="rd-stat-label">Origin Friction Eliminated</span>
-        </div>
-      </div>
     </header>
 
     <!-- ================= INTERACTIVE TESTBED & LIVE PLAYGROUND ================= -->
@@ -359,225 +279,15 @@ const mockAttributes = [
     </section>
 
     <!-- ================= WHY BUILT-IN MOCKING MATTERS ================= -->
-    <section class="rd-section">
-      <div class="rd-section-header">
-        <div class="rd-section-badge">Architecture & DX</div>
-        <h2 class="rd-section-title">The Problem with Traditional API Mocking</h2>
-      </div>
-
-      <div class="rd-usecase-grid">
-        <div class="rd-usecase-card">
-          <div class="rd-card-icon">
-            <IconShieldOff size={22} stroke={2} />
-          </div>
-          <h3>The Cross-Origin CORS Trap</h3>
-          <p>
-            External mock servers like Prism or WireMock listen on separate ports (e.g. <code>localhost:4010</code>). Frontend developers
-            spend hours debugging Preflight <code>OPTIONS</code> requests and CORS header misconfigurations instead of shipping features.
-          </p>
-        </div>
-
-        <div class="rd-usecase-card">
-          <div class="rd-card-icon">
-            <IconBox size={22} stroke={2} />
-          </div>
-          <h3>Heavy Containers & Node Services</h3>
-          <p>
-            Running Docker or dedicated CLI processes requires team-wide environment setup, npm package management, and port allocation
-            across multiple repositories.
-          </p>
-        </div>
-
-        <div class="rd-usecase-card">
-          <div class="rd-card-icon">
-            <IconBolt size={22} stroke={2} />
-          </div>
-          <h3>Zero-Dependency Native Interception</h3>
-          <p>
-            RapiDoc intercepts <code>window.fetch</code> and <code>XMLHttpRequest</code> directly inside the browser runtime. There is nothing
-            to install, compile, or boot.
-          </p>
-        </div>
-
-        <div class="rd-usecase-card">
-          <div class="rd-card-icon">
-            <IconTarget size={22} stroke={2} />
-          </div>
-          <h3>Unified Source of Truth</h3>
-          <p>
-            Mock data is generated on the fly from the exact same OpenAPI specification that powers your documentation. When the spec
-            evolves, the mock responses update instantly.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= COMPARISON MATRIX ================= -->
-    <section class="rd-section" id="comparison">
-      <div class="rd-section-header">
-        <div class="rd-section-badge">Tooling Comparison</div>
-        <h2 class="rd-section-title">RapiDoc vs Dedicated Mock Solutions</h2>
-      </div>
-
-      <div class="rd-table-container">
-        <table class="rd-compare-table">
-          <thead>
-            <tr>
-              <th>Feature</th>
-              <th class="col-highlight">RapiDoc Built-In</th>
-              <th>Prism (Stoplight)</th>
-              <th>MSW (Mock Service Worker)</th>
-              <th>WireMock / Docker</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="col-feature">Setup Complexity</td>
-              <td class="col-highlight"><span class="rd-check">✓</span> 1 HTML attribute</td>
-              <td>Node CLI / Docker container</td>
-              <td>Requires service worker script asset</td>
-              <td>Heavy JVM / Docker container</td>
-            </tr>
-            <tr>
-              <td class="col-feature">Single Bundle Distribution</td>
-              <td class="col-highlight"><span class="rd-check">✓</span> Included in rapidoc-min.js</td>
-              <td><span class="rd-cross">✕</span> Separate CLI</td>
-              <td><span class="rd-cross">✕</span> Separate SW worker file</td>
-              <td><span class="rd-cross">✕</span> Standalone container</td>
-            </tr>
-            <tr>
-              <td class="col-feature">CORS Issues</td>
-              <td class="col-highlight"><span class="rd-check">✓</span> Zero (In-browser intercept)</td>
-              <td><span class="rd-cross">✕</span> Cross-origin port headaches</td>
-              <td><span class="rd-check">✓</span> Handled by worker</td>
-              <td><span class="rd-cross">✕</span> Manual CORS headers required</td>
-            </tr>
-            <tr>
-              <td class="col-feature">Works via CDN Script</td>
-              <td class="col-highlight"><span class="rd-check">✓</span> Yes (unpkg / jsdelivr)</td>
-              <td><span class="rd-cross">✕</span> No</td>
-              <td><span class="rd-cross">✕</span> No (SW domain restriction)</td>
-              <td><span class="rd-cross">✕</span> No</td>
-            </tr>
-            <tr>
-              <td class="col-feature">Interactive API Docs Included</td>
-              <td class="col-highlight"><span class="rd-check">✓</span> Full RapiDoc UI</td>
-              <td><span class="rd-cross">✕</span> Mock only</td>
-              <td><span class="rd-cross">✕</span> Mock only</td>
-              <td><span class="rd-cross">✕</span> Mock only</td>
-            </tr>
-            <tr>
-              <td class="col-feature">Multi-Status & Chaos (Cycle/Random)</td>
-              <td class="col-highlight"><span class="rd-check">✓</span> Built-in strategies</td>
-              <td>Limited</td>
-              <td>Manual handler coding</td>
-              <td>Requires scenario rules</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ================= CODE RECIPES ================= -->
-    <section class="rd-section" id="recipes">
-      <div class="rd-section-header">
-        <div class="rd-section-badge">Integration Recipes</div>
-        <h2 class="rd-section-title">How to Use in Your Application</h2>
-      </div>
-
-      <div class="rd-recipe-card">
-        <h3>1. Standard HTML & Documentation Portals</h3>
-        <p>Drop the script tag onto your page and turn on mocking with <code>mock-server="true"</code>:</p>
-        <CodeBlock code={basicMockCode} lang="html" filename="index.html" />
-      </div>
-
-      <div class="rd-recipe-card" style="margin-top: 24px;">
-        <h3>2. Testing Resilience & Retry Logic with Multi-Status Codes</h3>
-        <p>Simulate intermittent failures or verify error notifications by cycling through multiple HTTP status codes:</p>
-        <CodeBlock code={multiStatusCode} lang="html" filename="chaos-testing.html" />
-      </div>
-
-      <div class="rd-recipe-card" style="margin-top: 24px;">
-        <h3>3. One Operation Fails, the Rest Succeed</h3>
-        <p>
-          A list of codes applies to every operation. To make a single call fail (a retry path, a 404 on one lookup), give
-          <code>mock-server-status-code</code> a map keyed by method and path template, with <code>"*"</code> as the default.
-          Each entry cycles on its own, so <code>"503, 200"</code> on the order call fails once and succeeds on the retry.
-          <a href="/guides/workflows">Arazzo workflows</a> use the same map, per step, from their run panel:
-        </p>
-        <CodeBlock code={perOperationCode} lang="html" filename="retry-path.html" />
-      </div>
-
-      <div class="rd-recipe-card" style="margin-top: 24px;">
-        <h3>4. Several APIs Mocked on One Page</h3>
-        <p>
-          Every <code>&lt;rapi-doc&gt;</code> and <code>&lt;rapi-doc-mini&gt;</code> with <code>mock-server="true"</code> mocks its own
-          spec with its own status codes and delay. A request is answered by the most specific match (the server's origin and base
-          path first), and the real <code>fetch</code> comes back when the last mocked element turns its mock off or leaves the page:
-        </p>
-        <CodeBlock code={twoMocksCode} lang="html" filename="two-apis.html" />
-      </div>
-
-      <div class="rd-recipe-card" style="margin-top: 24px;">
-        <h3>5. React, Vite, or Vue Frontend Prototyping</h3>
-        <p>Mount RapiDoc in your development environment to unblock UI components before backend development finishes:</p>
-        <CodeBlock code={reactViteCode} lang="jsx" filename="UserProfile.jsx" />
-      </div>
-    </section>
-
-    <!-- ================= ATTRIBUTES REFERENCE ================= -->
-    <section class="rd-section" id="attributes">
-      <div class="rd-section-header">
-        <div class="rd-section-badge">API Reference</div>
-        <h2 class="rd-section-title">Mock Server Attributes</h2>
-      </div>
-
-      <div class="rd-table-container">
-        <table class="rd-api-table">
-          <thead>
-            <tr>
-              <th class="col-name">Attribute</th>
-              <th class="col-type">Type / Allowed</th>
-              <th class="col-default">Default</th>
-              <th class="col-desc">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              mockAttributes.map((attr) => (
-                <tr class="rd-api-row">
-                  <td class="col-name">
-                    <code class="rd-attr-name">{attr.name}</code>
-                  </td>
-                  <td class="col-type">
-                    <span class="rd-type-tag">{attr.type}</span>
-                  </td>
-                  <td class="col-default">
-                    <span class="rd-default-tag">{attr.default}</span>
-                  </td>
-                  <td class="col-desc">
-                    <div class="rd-attr-desc">{attr.desc}</div>
-                  </td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ================= CALL TO ACTION ================= -->
-    <section class="rd-cta-section">
-      <div class="rd-cta-card">
-        <h2>Ready for In-Depth Technical Details?</h2>
-        <p>
-          Read our complete Starlight guide on mock response resolution hierarchies, write-only attribute omission, and programmatic
-          control.
-        </p>
-        <div class="rd-cta-buttons">
-          <a href="/docs/mocking/in-browser/" class="rd-btn rd-btn-primary"> Explore Detailed Guide &rarr; </a>
-          <a href="/api" class="rd-btn rd-btn-ghost"> View Complete API Reference </a>
-        </div>
+    <section class="rd-next-steps">
+      <h2 class="rd-section-title">In Your Own Pages</h2>
+      <p class="rd-section-desc">
+        The attributes, the per-operation status map, what the mock answers and how to use it while you build your app are in
+        the docs. For a mock that runs as an HTTP server, see <code>rapidoc mock</code>.
+      </p>
+      <div class="rd-hero-actions">
+        <a href="/docs/mocking/in-browser/" class="rd-btn rd-btn-primary rd-btn-lg">In-Browser Mock Docs</a>
+        <a href="/docs/mocking/mock-server/" class="rd-btn rd-btn-secondary rd-btn-lg">Mock Server Docs</a>
       </div>
     </section>
   </main>

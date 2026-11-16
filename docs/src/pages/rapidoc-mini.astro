@@ -1,10 +1,19 @@
 ---
-import GlobalLayout from '../../layouts/GlobalLayout.astro';
-import SiteNavbar from '../../components/SiteNavbar.astro';
-import SiteFooter from '../../components/SiteFooter.astro';
-import CodeBlock from '../../components/CodeBlock.astro';
-import RapidocMiniComparisonTable from '../../components/RapidocMiniComparisonTable.astro';
-import { IconFileText, IconLayersSubtract, IconGitBranch, IconBell, IconArrowRight } from '@tabler/icons-astro';
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import SiteNavbar from '../components/SiteNavbar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import RapidocMiniComparisonTable from '../components/RapidocMiniComparisonTable.astro';
+import {
+  IconFileText,
+  IconLayersSubtract,
+  IconGitBranch,
+  IconBell,
+  IconArrowRight,
+  IconArrowUpRight,
+  IconPlayerPlay,
+  IconBook,
+} from '@tabler/icons-astro';
 
 const basicMiniCode = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 
@@ -203,7 +212,7 @@ const attributes = [
 ---
 
 <GlobalLayout
-  title="Guide | RapiDoc Mini | RapiDoc"
+  title="RapiDoc Mini: Embed API Endpoints in Posts and Guides | RapiDoc"
   description="Embed lightweight, contextual OpenAPI documentation snippets and single endpoints directly inside blogs, tutorials, dashboards, and developer portals."
   keywords="RapiDoc Mini, rapi-doc-mini, OpenAPI widget, embed API docs, micro API documentation"
 >
@@ -216,7 +225,7 @@ const attributes = [
   <div class="ambient-glow glow-cyan"></div>
 
   <!-- Reusable Frosted Glass Navigation -->
-  <SiteNavbar activePage="guides" />
+  <SiteNavbar />
 
   <main class="rd-mini-main">
     <!-- Hero Header -->
@@ -234,6 +243,21 @@ const attributes = [
         <code>&lt;rapi-doc-mini&gt;</code> is a lightweight, zero-iframe Web Component designed to embed live, interactive OpenAPI endpoints directly
         into technical blog posts, markdown tutorials, changelogs, and microservice workflows without visual clutter.
       </p>
+
+      <div class="rd-hero-actions">
+        <a href="#blog-style" class="rd-btn rd-btn-primary">
+          <IconPlayerPlay size={18} stroke={2} />
+          <span>See It Live</span>
+        </a>
+        <a href="/docs/rapidoc-mini/" class="rd-btn rd-btn-secondary">
+          <IconBook size={18} stroke={2} />
+          <span>Docs</span>
+        </a>
+        <a href="/api/rapi-doc-mini/" class="rd-btn rd-btn-secondary">
+          <span>API Reference</span>
+          <IconArrowRight size={16} stroke={2} />
+        </a>
+      </div>
 
       <!-- Key Metrics / Feature Badges -->
       <div class="rd-stats-bar">
@@ -664,21 +688,22 @@ const attributes = [
       <div class="rd-callout-glow"></div>
       <div class="rd-callout-content">
         <div class="rd-callout-badge">Next Steps</div>
-        <h2 class="rd-callout-title">Ready to Integrate RapiDoc?</h2>
+        <h2 class="rd-callout-title">Put an Endpoint in Your Next Post</h2>
         <p class="rd-callout-desc">
-          Check out our Quick Start for copy-paste integration recipes, or explore the complete API reference for full-portal documentation
-          options.
+          <code>&lt;rapi-doc-mini&gt;</code> ships in the same bundle as <code>&lt;rapi-doc&gt;</code>. The docs cover choosing
+          operations and recipes; the API reference lists every attribute, method and event.
         </p>
         <div class="rd-callout-actions">
-          <a href="/quickstart" class="rd-btn rd-btn-primary rd-btn-lg">
-            <span>Quick Start Guide</span>
+          <a href="/docs/rapidoc-mini/" class="rd-btn rd-btn-primary rd-btn-lg">
+            <span>RapiDoc Mini Docs</span>
             <IconArrowRight size={15} stroke={2.5} />
           </a>
-          <a href="/api" class="rd-btn rd-btn-secondary rd-btn-lg">
-            <span>Full API Specification</span>
+          <a href="/api/rapi-doc-mini/" class="rd-btn rd-btn-secondary rd-btn-lg">
+            <span>API Reference</span>
           </a>
-          <a href="/docs/rapidoc-mini/" class="rd-btn rd-btn-ghost rd-btn-lg">
-            <span>Starlight Docs Guide ↗</span>
+          <a href="/docs/get-started/quickstart/" class="rd-btn rd-btn-ghost rd-btn-lg">
+            <span>Quickstart</span>
+            <IconArrowUpRight size={15} stroke={2.5} />
           </a>
         </div>
       </div>

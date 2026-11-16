@@ -3,6 +3,7 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 import { Code } from 'astro:components';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import ProductFamily from '../components/ProductFamily.astro';
 import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
 import {
   IconArrowRight,
@@ -25,7 +26,7 @@ import {
 } from '@tabler/icons-astro';
 
 // "Zero Config, Instant Integration": one sample per stack, checked against RapiDoc 12 and the
-// framework setups in content/docs/get-started/frameworks.mdx.
+// framework setups in content/docs/integrations/.
 const integrations = [
   {
     id: 'html',
@@ -70,7 +71,7 @@ export default function ApiDocs() {
   );
 }`,
     note: 'In Next.js, add \'use client\' at the top. With TypeScript, declare the element once.',
-    href: '/docs/get-started/frameworks/#react-and-nextjs',
+    href: '/docs/integrations/front-end/#react-and-nextjs',
   },
   {
     id: 'vue',
@@ -92,7 +93,7 @@ onMounted(() => import('rapidoc'));
   ></rapi-doc>
 </template>`,
     note: 'Tell the Vue compiler that rapi- tags are custom elements: one line in vite.config or nuxt.config.',
-    href: '/docs/get-started/frameworks/#vue-and-nuxt',
+    href: '/docs/integrations/front-end/#vue-and-nuxt',
   },
   {
     id: 'docker',
@@ -185,7 +186,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
       {
         name: 'Arazzo workflows',
         hint: 'Multi-step API journeys',
-        rapidoc: { status: 'yes', text: '<rapi-flow>', note: 'A diagram next to the reference, run step by step', href: '/guides/workflows' },
+        rapidoc: { status: 'yes', text: '<rapi-flow>', note: 'A diagram next to the reference, run step by step', href: '/rapi-flow/' },
         redocly: { status: 'yes', text: 'Respect, in Redocly CLI', note: 'Runs and lints them' },
         scalar: { status: 'no' },
         swagger: { status: 'no' },
@@ -241,7 +242,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
           status: 'yes',
           text: 'rapidoc CLI',
           note: 'validate, lint, bundle, mock, and migrate from Redocly or Zudoku',
-          href: '/docs/tools/command-line/',
+          href: '/docs/cli/',
         },
         redocly: { status: 'yes', text: 'Redocly CLI', note: 'lint, bundle' },
         scalar: { status: 'yes', text: 'Scalar CLI' },
@@ -488,6 +489,9 @@ const compareProducts = [
     </div>
   </section>
 
+  <!-- The other products and the integrations (page-data/products.ts) -->
+  <ProductFamily />
+
   <!-- Dark & Light Modes Showcase Section -->
   <section class="rd-theme-card-section">
     <div class="rd-theme-card">
@@ -571,7 +575,7 @@ const compareProducts = [
           mock responses from OpenAPI examples or schemas with multi-status and latency simulation.
         </p>
         <a
-          href="/guides/mock"
+          href="/examples/mock-server"
           style="color: var(--rd-accent); font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
         >
           Explore Mock Server
@@ -590,7 +594,7 @@ const compareProducts = [
           Convert OpenAPI specs into a Model Context Protocol manifest with JSON Schema tools, MCP safety annotations and a runnable TypeScript project. Skips internal and deprecated endpoints, strips transport headers and keeps a live budget of prompt context overhead.
         </p>
         <a
-          href="/guides/mcp"
+          href="/docs/ai/mcp-server/"
           style="color: var(--rd-accent); font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
         >
           Explore MCP Architecture

@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { parseDocComment } from "../../scripts/rapidoc-api.js";
+import { parseDocComment, DOCUMENTED_ELEMENTS } from "../../scripts/rapidoc-api.js";
 import {
   readApiManifest,
   readElementManifests,
@@ -213,6 +213,117 @@ describe("the manifest read from an element", () => {
         ],
       },
     ]);
+  });
+});
+
+describe("@attr tags", () => {
+  it("reads attributes the class does not declare, with values and default optional", () => {
+    const api = manifestOf(
+      `
+  /**
+   * Makes it.
+   * @public make(spec?)
+   * @param {string} [spec] the spec
+   * @returns {Promise<void>}
+   */
+  make(spec) {}`,
+      `/**
+ * An element.
+ *
+ * @attr spec-url | Spec | | | URL of the
+ *   spec.
+ * @attr output | Output | open, download | open | Where it goes.
+ * @deprecatedAttr old-one | Output | a, b | a | No longer read.
+ */`,
+    );
+    assert.deepEqual(api.Attributes, [
+      { "Spec Attributes": [{ name: "spec-url", description: "URL of the spec." }] },
+      {
+        "Output Attributes": [
+          {
+            name: "output",
+            allowed: ["open", "download"],
+            description: "Where it goes.",
+            default: "open",
+          },
+          {
+            name: "old-one",
+            deprecated: true,
+            allowed: ["a", "b"],
+            description: "No longer read.",
+            default: "a",
+          },
+        ],
+      },
+    ]);
+    // @param and @returns end the text before them, and are not part of the manifest
+    assert.deepEqual(api.Methods.items, [{ name: "make(spec?)", description: "Makes it." }]);
+  });
+
+  it("fails on an @attr without a group or description", () => {
+    assert.throws(
+      () => manifestOf("", "/**\n * @attr spec-url | Spec | | |\n */"),
+      /@attr spec-url/,
+    );
+  });
+});
+
+describe("the elements with a page on the docs site", () => {
+  it("are rapidoc's elements and <rapi-pdf>, each with attributes", () => {
+    assert.deepEqual(
+      DOCUMENTED_ELEMENTS.map((element) => element.tag),
+      ["rapi-doc", "rapi-doc-mini", "rapi-flow", "rapi-pdf"],
+    );
+    for (const element of DOCUMENTED_ELEMENTS) {
+      const api = readApiManifest(element.file, element.className);
+      assert.ok(listAttributes(api).length > 0, element.tag);
+    }
+  });
+});
+
+describe("rapipdf.js", () => {
+  const element = DOCUMENTED_ELEMENTS.find((e) => e.tag === "rapi-pdf");
+  const api = readApiManifest(element.file, element.className);
+  const documented = listAttributes(api).map((a) => a.name);
+  // Every attribute name the element reads: observedAttributes, getAttribute("x") and attr("x")
+  const source = fs.readFileSync(element.file, "utf8");
+  const observed = /observedAttributes\(\)\s*{\s*return\s*\[([^\]]*)\]/.exec(source)[1];
+  const read = new Set([
+    ...[...observed.matchAll(/"([a-z-]+)"/g)].map((m) => m[1]),
+    ...[...source.matchAll(/(?:getAttribute|attr)\("([a-z-]+)"\)/g)].map((m) => m[1]),
+  ]);
+  read.delete("generating"); // set by the element, not read
+
+  it("documents every attribute it reads, and only those", () => {
+    assert.deepEqual(
+      [...read].filter((name) => !documented.includes(name)),
+      [],
+    );
+    assert.deepEqual(
+      documented.filter((name) => !read.has(name)),
+      [],
+    );
+  });
+
+  it("gives every list of values a default from that list", () => {
+    const items = api.Attributes.flatMap((group) => Object.values(group)[0]);
+    assert.ok(items.some((item) => item.allowed));
+    for (const item of items) {
+      if (item.allowed && item.default !== undefined) {
+        assert.ok(item.allowed.includes(String(item.default)), item.name);
+      }
+    }
+  });
+
+  it("documents its methods and events", () => {
+    assert.deepEqual(
+      api.Methods.items.map((m) => m.name),
+      ["generatePdf(spec?)", "getPdfBlob(spec?)"],
+    );
+    assert.deepEqual(
+      api.Events.items.map((e) => e.name),
+      ["pdf-generated", "pdf-error"],
+    );
   });
 });
 

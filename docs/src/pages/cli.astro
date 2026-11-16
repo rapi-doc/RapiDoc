@@ -1,0 +1,239 @@
+---
+// The RapiDoc CLI product page: what the `rapidoc` command does for a plain spec, and for a portal. The
+// details are in the CLI section of the docs (content/docs/cli/, a page per command) and the portal docs.
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import SiteNavbar from '../components/SiteNavbar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import {
+  IconArrowRight,
+  IconArrowUpRight,
+  IconBook,
+  IconEye,
+  IconChecks,
+  IconWand,
+  IconStack2,
+  IconFileTypePdf,
+  IconServer,
+  IconRobot,
+  IconLayoutDashboard,
+} from '@tabler/icons-astro';
+
+const CLI_DOCS = '/docs/cli/';
+const PORTAL_CLI = 'https://portal.rapidocui.com/docs/reference/cli/';
+
+const installCode = `npm install -D @rapidoc/cli
+
+npx rapidoc --help            # every command
+npx rapidoc validate --help   # one command's options and examples`;
+
+const ciCode = `# .github/workflows/api.yml, in a job's steps
+- run: npx rapidoc lint openapi.yaml --format sarif > lint.sarif
+- run: npx rapidoc bundle openapi.yaml -o dist/openapi.json
+- run: npx rapidoc pdf openapi.yaml -o dist/reference.pdf`;
+
+const specCommands = [
+  {
+    name: 'preview',
+    icon: 'eye',
+    text: 'Shows a spec in <code>&lt;rapi-doc&gt;</code> and reloads it whenever a file in its folder changes.',
+    href: `${CLI_DOCS}preview/`,
+  },
+  {
+    name: 'validate',
+    icon: 'checks',
+    text: 'Checks a spec strictly against OpenAPI 2.0 to 3.2, with file, line and column for each error. JSON and SARIF output.',
+    href: `${CLI_DOCS}validate/`,
+  },
+  {
+    name: 'lint',
+    icon: 'wand',
+    text: 'Rules for what a good reference needs: operationIds, summaries, examples, declared tags, security on writes.',
+    href: `${CLI_DOCS}lint/`,
+  },
+  {
+    name: 'bundle',
+    icon: 'stack',
+    text: 'Joins a spec split over several files into one document, or dereferences it completely.',
+    href: `${CLI_DOCS}bundle/`,
+  },
+  {
+    name: 'pdf',
+    icon: 'pdf',
+    text: 'Writes the reference as a PDF, with RapiPdf: your title, colors, fonts and labels.',
+    href: `${CLI_DOCS}pdf/`,
+  },
+  {
+    name: 'mock',
+    icon: 'server',
+    text: 'Answers every operation over HTTP from examples or generated data, validates requests and checks OAuth tokens.',
+    href: `${CLI_DOCS}mock/`,
+  },
+  {
+    name: 'mcp',
+    icon: 'robot',
+    text: 'Turns the spec into an MCP server for AI agents: export the project, or serve it over stdio.',
+    href: `${CLI_DOCS}mcp/`,
+  },
+];
+
+const portalCommands = [
+  { name: 'init', text: 'Creates a portal from your OpenAPI files.' },
+  { name: 'dev', text: 'Runs it locally, reloading on every change.' },
+  { name: 'build', text: 'Builds the static site.' },
+  { name: 'serve', text: 'Serves the build with single sign-on and access rules.' },
+  { name: 'migrate', text: 'Updates a portal\'s config to the current version.' },
+  { name: 'doctor', text: 'Checks your setup and prints a report for bug reports.' },
+];
+---
+
+<GlobalLayout
+  title="RapiDoc CLI: Preview, Validate, Lint, Bundle and Mock OpenAPI Specs | RapiDoc"
+  description="The rapidoc command (@rapidoc/cli) previews, validates, lints and bundles OpenAPI specs, writes them as PDFs, mocks them and turns them into MCP servers, and builds developer portals."
+  keywords="RapiDoc CLI, rapidoc command, OpenAPI CLI, OpenAPI linter, OpenAPI validator, OpenAPI bundler, OpenAPI mock server"
+>
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+
+  <SiteNavbar />
+
+  <main class="rd-product-main">
+    <header class="rd-hero-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">rapidoc • @rapidoc/cli</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        RapiDoc <span class="text-gradient">CLI</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        One command for your OpenAPI spec, from the first edit to CI: preview it, check it, bundle it, print it, mock it and
+        hand it to AI agents. The same command builds and serves developer portals.
+      </p>
+
+      <div class="rd-hero-actions">
+        <a href={CLI_DOCS} class="rd-btn rd-btn-primary">
+          <IconBook size={18} stroke={2} />
+          <span>CLI Docs</span>
+        </a>
+        <a href="https://www.npmjs.com/package/@rapidoc/cli" class="rd-btn rd-btn-secondary" target="_blank" rel="noopener">
+          <span>@rapidoc/cli on npm</span>
+          <IconArrowUpRight size={16} stroke={2} />
+        </a>
+      </div>
+
+      <div class="rd-product-install">
+        <CodeBlock code={installCode} lang="bash" filename="terminal" />
+      </div>
+    </header>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">For Any Spec</div>
+        <h2 class="rd-section-title">Works on a Plain OpenAPI File</h2>
+        <p class="rd-section-desc">
+          No portal needed: these commands take a file or a URL, and relative <code>$ref</code>s to other files work.
+        </p>
+      </div>
+      <div class="rd-feature-grid">
+        {
+          specCommands.map((command) => (
+            <a href={command.href} class="rd-feature-card">
+              <span class="rd-feature-icon">
+                {command.icon === 'eye' && <IconEye size={20} stroke={2} />}
+                {command.icon === 'checks' && <IconChecks size={20} stroke={2} />}
+                {command.icon === 'wand' && <IconWand size={20} stroke={2} />}
+                {command.icon === 'stack' && <IconStack2 size={20} stroke={2} />}
+                {command.icon === 'pdf' && <IconFileTypePdf size={20} stroke={2} />}
+                {command.icon === 'server' && <IconServer size={20} stroke={2} />}
+                {command.icon === 'robot' && <IconRobot size={20} stroke={2} />}
+              </span>
+              <h3 class="rd-feature-title">
+                <code>rapidoc {command.name}</code>
+              </h3>
+              <p class="rd-feature-text" set:html={command.text} />
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-split">
+        <div class="rd-split-text">
+          <div class="rd-section-badge">In CI</div>
+          <h2 class="rd-section-title">Guard Every Pull Request</h2>
+          <p>
+            <code>validate</code> and <code>lint</code> exit with code 1 on problems, and write SARIF for GitHub code
+            scanning, so findings show up on the pull request. <code>bundle</code> and <code>pdf</code> produce files to
+            publish next to your docs.
+          </p>
+          <p>
+            Piped, in CI or with <code>--yes</code>, the command never asks a question. In a terminal it asks for what the
+            options don't say.
+          </p>
+        </div>
+        <CodeBlock code={ciCode} lang="yaml" filename="api.yml" />
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Developer Portals</div>
+        <h2 class="rd-section-title">The Same Command Runs Your Portal</h2>
+        <p class="rd-section-desc">
+          A <a href="https://portal.rapidocui.com/">RapiDoc Portal</a> puts your API references next to Markdown and
+          Markdoc guides, with search and optional single sign-on. These commands create, build and serve it.
+        </p>
+      </div>
+      <div class="rd-feature-grid rd-cli-portal-grid">
+        {
+          portalCommands.map((command) => (
+            <a href={PORTAL_CLI} class="rd-feature-card" target="_blank" rel="noopener">
+              <h3 class="rd-feature-title">
+                <code>rapidoc {command.name}</code>
+              </h3>
+              <p class="rd-feature-text">{command.text}</p>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="rd-next-steps">
+      <h2 class="rd-section-title">Every Option, Every Command</h2>
+      <p class="rd-section-desc">
+        The spec commands are documented here; the portal commands in the RapiDoc Portal docs.
+      </p>
+      <div class="rd-hero-actions">
+        <a href={CLI_DOCS} class="rd-btn rd-btn-primary rd-btn-lg">
+          <span>Command Line Docs</span>
+          <IconArrowRight size={15} stroke={2.5} />
+        </a>
+        <a href={PORTAL_CLI} class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
+          <IconLayoutDashboard size={16} stroke={2} />
+          <span>Portal CLI Reference</span>
+          <IconArrowUpRight size={15} stroke={2.5} />
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<style>
+  .rd-feature-title code {
+    font-family: var(--rd-font-mono);
+    font-size: 0.95rem;
+    color: var(--rd-text-bright);
+  }
+  .rd-section-desc a {
+    color: var(--rd-accent);
+  }
+  .rd-cli-portal-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+</style>

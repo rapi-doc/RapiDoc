@@ -22,41 +22,15 @@ export interface NavItem {
   matchPrefixes: string[];
 }
 
+// The header's links, after the Products menu (SiteNavbar). Home is the logo; Guides, Tests and the
+// Sandbox are in the footer (SiteFooter).
 export const NAV_LINKS: NavItem[] = [
   {
-    key: "home",
-    label: "Home",
-    href: "/",
-    matchKeys: ["home"],
-    matchPrefixes: ["/"],
-  },
-  {
     key: "quickstart",
-    label: "QuickStart",
-    href: "/quickstart",
+    label: "Quickstart",
+    href: "/docs/get-started/quickstart/",
     matchKeys: ["quickstart"],
-    matchPrefixes: ["/quickstart"],
-  },
-  {
-    key: "api",
-    label: "API",
-    href: "/api",
-    matchKeys: ["api"],
-    matchPrefixes: ["/api"],
-  },
-  {
-    key: "guides",
-    label: "Guides",
-    href: "/guides",
-    matchKeys: ["guides"],
-    matchPrefixes: ["/guides"],
-  },
-  {
-    key: "examples",
-    label: "Examples",
-    href: "/examples",
-    matchKeys: ["examples"],
-    matchPrefixes: ["/examples"],
+    matchPrefixes: ["/docs/get-started/quickstart"],
   },
   {
     key: "docs",
@@ -66,20 +40,18 @@ export const NAV_LINKS: NavItem[] = [
     matchPrefixes: ["/docs"],
   },
   {
-    key: "tests",
-    label: "Tests",
-    href: "/tests",
-    matchKeys: ["tests"],
-    matchPrefixes: ["/tests"],
+    key: "api",
+    label: "API",
+    href: "/api",
+    matchKeys: ["api"],
+    matchPrefixes: ["/api"],
   },
   {
-    key: "sandbox",
-    label: "Sandbox",
-    href: "/sandbox",
-    title: "Developer Spec Sandbox",
-    pill: "DEV",
-    matchKeys: ["sandbox"],
-    matchPrefixes: ["/sandbox"],
+    key: "examples",
+    label: "Examples",
+    href: "/examples",
+    matchKeys: ["examples"],
+    matchPrefixes: ["/examples"],
   },
 ];
 

@@ -1,0 +1,324 @@
+---
+// The RapiPdf product page: what <rapi-pdf> makes, a live demo, and the three ways to make the PDF
+// (the element, rapipdf/node and `rapidoc pdf`). The demo's element is bundled from
+// packages/rapipdf/src (the `rapipdf` alias in astro.config.mjs).
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import SiteNavbar from '../components/SiteNavbar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import {
+  IconArrowRight,
+  IconArrowUpRight,
+  IconPlayerPlay,
+  IconBook,
+  IconListDetails,
+  IconLock,
+  IconBraces,
+  IconTable,
+  IconPalette,
+  IconLanguage,
+  IconWorld,
+  IconBrandNodejs,
+  IconTerminal2,
+} from '@tabler/icons-astro';
+
+const browserCode = `<script src="https://unpkg.com/rapipdf/dist/rapipdf-min.js"></script>
+
+<rapi-pdf
+  spec-url="https://petstore3.swagger.io/api/v3/openapi.json"
+  pdf-title="Petstore API"
+  include-example="true"
+></rapi-pdf>`;
+
+const nodeCode = `import { writeFile } from "node:fs/promises";
+import { generatePdf } from "rapipdf/node";
+
+const pdf = await generatePdf("openapi.yaml", { pdfTitle: "Orders API" });
+await writeFile("reference.pdf", pdf);`;
+
+const cliCode = `npm install -D @rapidoc/cli rapipdf
+
+npx rapidoc pdf openapi.yaml
+npx rapidoc pdf openapi.yaml -o dist/reference.pdf --title "Orders API" --examples`;
+
+const contents = [
+  {
+    icon: 'list',
+    title: 'Cover and contents',
+    text: 'A cover page with the title you set, the API\'s description, version and contact, and a table of contents.',
+  },
+  {
+    icon: 'lock',
+    title: 'Security schemes',
+    text: 'API keys, HTTP auth, OAuth 2.0 flows and OpenID Connect, as the spec declares them.',
+  },
+  {
+    icon: 'braces',
+    title: 'Every operation',
+    text: 'Grouped by tag: parameters, request bodies and responses, with their schemas. Examples on request.',
+  },
+  {
+    icon: 'table',
+    title: 'Schemas as trees or tables',
+    text: '<code>pdf-schema-style</code> prints schemas as an indented object or as a table.',
+  },
+  {
+    icon: 'palette',
+    title: 'Your title and colors',
+    text: 'Set the cover title, a footer on every page, and the two colors used for headings and links.',
+  },
+  {
+    icon: 'language',
+    title: 'Any language',
+    text: 'Replace the printed labels with JSON. From the command line, add your own font for scripts Roboto lacks.',
+  },
+];
+---
+
+<GlobalLayout
+  title="RapiPdf: Turn an OpenAPI Spec into a PDF | RapiDoc"
+  description="<rapi-pdf> turns an OpenAPI 3.x or Swagger 2.0 spec into a PDF in the browser; rapipdf/node and rapidoc pdf make the same PDF in Node and on the command line."
+  keywords="RapiPdf, rapi-pdf, OpenAPI PDF, Swagger PDF, API documentation PDF, openapi to pdf"
+>
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+
+  <SiteNavbar />
+
+  <main class="rd-product-main">
+    <header class="rd-hero-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">&lt;rapi-pdf&gt; • rapipdf</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Rapi<span class="text-gradient">Pdf</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Turn an OpenAPI 3.x or Swagger 2.0 spec into a PDF reference: in the browser with <code>&lt;rapi-pdf&gt;</code>,
+        in Node with <code>rapipdf/node</code>, or in CI with <code>rapidoc pdf</code>. Same document every way.
+      </p>
+
+      <div class="rd-hero-actions">
+        <a href="#demo" class="rd-btn rd-btn-primary">
+          <IconPlayerPlay size={18} stroke={2} />
+          <span>Make a PDF</span>
+        </a>
+        <a href="/api/rapi-pdf/" class="rd-btn rd-btn-secondary">
+          <IconBook size={18} stroke={2} />
+          <span>API Reference</span>
+        </a>
+        <a
+          href="https://github.com/rapi-doc/RapiDoc/tree/master/packages/rapipdf#readme"
+          class="rd-btn rd-btn-secondary"
+          target="_blank"
+          rel="noopener"
+        >
+          <span>README</span>
+          <IconArrowUpRight size={16} stroke={2} />
+        </a>
+      </div>
+    </header>
+
+    <section class="rd-section" id="demo">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Live</div>
+        <h2 class="rd-section-title">Make One Now</h2>
+        <p class="rd-section-desc">
+          This is the element itself, pointed at the Petstore spec. Change the URL to any spec your browser can fetch,
+          and press the button: the PDF opens in a new tab. The generator, about two megabytes, loads on the first
+          click.
+        </p>
+      </div>
+      <div class="rd-pdf-demo">
+        <div class="rd-pdf-demo-row">
+          <span class="rd-pdf-demo-label">Default</span>
+          <rapi-pdf
+            spec-url="/specs/petstore.yaml"
+            pdf-title="Petstore API"
+            button-bg="#ff791a"
+            button-color="#060913"
+            input-bg="#0b1121"
+            input-color="#cbd5e1"
+          ></rapi-pdf>
+        </div>
+        <div class="rd-pdf-demo-row">
+          <span class="rd-pdf-demo-label">Schemas as tables, with examples, downloaded</span>
+          <rapi-pdf
+            spec-url="/specs/petstore.yaml"
+            pdf-title="Petstore API"
+            pdf-schema-style="table"
+            include-example="true"
+            output="download"
+            file-name="petstore-reference"
+            button-label="DOWNLOAD PDF"
+            hide-input="true"
+            button-bg="#ff791a"
+            button-color="#060913"
+          ></rapi-pdf>
+        </div>
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">The Document</div>
+        <h2 class="rd-section-title">What Goes in the PDF</h2>
+        <p class="rd-section-desc">
+          Each part can be left out with an attribute or a command-line option, so the PDF can be a full reference or a
+          short list of operations.
+        </p>
+      </div>
+      <div class="rd-feature-grid">
+        {
+          contents.map((item) => (
+            <div class="rd-feature-card">
+              <span class="rd-feature-icon">
+                {item.icon === 'list' && <IconListDetails size={20} stroke={2} />}
+                {item.icon === 'lock' && <IconLock size={20} stroke={2} />}
+                {item.icon === 'braces' && <IconBraces size={20} stroke={2} />}
+                {item.icon === 'table' && <IconTable size={20} stroke={2} />}
+                {item.icon === 'palette' && <IconPalette size={20} stroke={2} />}
+                {item.icon === 'language' && <IconLanguage size={20} stroke={2} />}
+              </span>
+              <h3 class="rd-feature-title">{item.title}</h3>
+              <p class="rd-feature-text" set:html={item.text} />
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Three Ways</div>
+        <h2 class="rd-section-title">In the Browser, in Node, in CI</h2>
+      </div>
+
+      <div class="rd-pdf-ways">
+        <div class="rd-split">
+          <div class="rd-split-text">
+            <h3 class="rd-feature-title"><IconWorld size={20} stroke={2} /> In the browser</h3>
+            <p>
+              One script tag. <code>rapipdf-min.js</code> is a classic script with everything in it; with a bundler,
+              <code>import "rapipdf"</code> gives a few-kilobyte element that fetches the generator the first time a
+              PDF is asked for.
+            </p>
+            <p>
+              Attributes choose what goes in the PDF; <code>generatePdf()</code> and <code>getPdfBlob()</code> make one
+              from a script. All of them are in the <a href="/api/rapi-pdf/">API reference</a>, and the <a href="/docs/rapipdf/">RapiPdf docs</a> walk through them.
+            </p>
+          </div>
+          <CodeBlock code={browserCode} lang="html" filename="index.html" />
+        </div>
+
+        <div class="rd-split">
+          <div class="rd-split-text">
+            <h3 class="rd-feature-title"><IconBrandNodejs size={20} stroke={2} /> In Node</h3>
+            <p>
+              <code>rapipdf/node</code> builds the same document from a file, a URL or a spec object and returns it as a
+              Buffer: for a build step that publishes the PDF next to your docs.
+            </p>
+          </div>
+          <CodeBlock code={nodeCode} lang="javascript" filename="make-pdf.mjs" />
+        </div>
+
+        <div class="rd-split">
+          <div class="rd-split-text">
+            <h3 class="rd-feature-title"><IconTerminal2 size={20} stroke={2} /> On the command line</h3>
+            <p>
+              <code>rapidoc pdf</code> of the <a href="/cli/">RapiDoc CLI</a> writes the PDF from a spec, with an option
+              for each attribute, plus your own fonts and labels.
+            </p>
+            <p>
+              <a href="/docs/cli/pdf/">Every option</a>
+            </p>
+          </div>
+          <CodeBlock code={cliCode} lang="bash" filename="terminal" />
+        </div>
+      </div>
+    </section>
+
+    <section class="rd-next-steps">
+      <h2 class="rd-section-title">Next to Your Reference</h2>
+      <p class="rd-section-desc">
+        Readers who want the reference offline can download it from the same page as <code>&lt;rapi-doc&gt;</code>.
+      </p>
+      <div class="rd-hero-actions">
+        <a href="/api/rapi-pdf/" class="rd-btn rd-btn-primary rd-btn-lg">
+          <span>&lt;rapi-pdf&gt; API Reference</span>
+          <IconArrowRight size={15} stroke={2.5} />
+        </a>
+        <a href="https://www.npmjs.com/package/rapipdf" class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
+          <span>rapipdf on npm</span>
+          <IconArrowUpRight size={15} stroke={2.5} />
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<script>
+  import 'rapipdf';
+</script>
+
+<style>
+  /* The demo: a column of <rapi-pdf> elements in a panel */
+  .rd-pdf-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
+  }
+  .rd-pdf-demo-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+  .rd-pdf-demo-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--rd-text-dim);
+  }
+  .rd-pdf-demo rapi-pdf {
+    width: 100%;
+    max-width: 480px;
+    --border-radius: 6px;
+    --font-size: 14px;
+  }
+  .rd-pdf-demo rapi-pdf[hide-input='true'] {
+    width: auto;
+  }
+  .rd-pdf-ways {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+  .rd-pdf-ways .rd-feature-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: var(--rd-text-bright);
+  }
+  .rd-pdf-ways .rd-feature-title :global(svg) {
+    color: var(--rd-accent);
+  }
+  .rd-pdf-ways a {
+    color: var(--rd-accent);
+  }
+</style>

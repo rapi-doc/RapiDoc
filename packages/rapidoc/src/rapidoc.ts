@@ -184,11 +184,12 @@ const INTERACTION_EVENTS = ["pointerdown", "keydown", "wheel", "touchstart"];
  * @slot operations-top - Custom HTML displayed directly above the operations list. Use this slot to
  * provide global announcements, common headers, or usage instructions applicable across all API
  * calls. Link directly using <span class="mono yellow">#operations-top</span>.
- * @slot tag--{tag-name} - Inserts custom HTML content underneath a specific tag grouping identified
- * by tag name.
- * @slot {method}-{path} - Inserts custom HTML into a specific endpoint section. Identified by <span
- * class="mono yellow">{method}-{path}</span>, where special characters such as brackets, spaces,
- * and hashes are replaced by hyphens (e.g. <span class="mono yellow">get-/pet/-petId-</span>).
+ * @slot tag--{tag-name} - Inserts custom HTML under a tag's heading, in read and view modes. The name
+ * is <span class="mono yellow">tag--</span> and the tag name in lowercase kebab-case (the tag
+ * <span class="mono yellow">User Management</span> is <span class="mono yellow">tag--user-management</span>).
+ * @slot {operation-id} - Inserts custom HTML inside one operation, in read and view modes. The name is
+ * the operation's element ID: its operationId in kebab-case (<span class="mono yellow">getPetById</span>
+ * is <span class="mono yellow">get-pet-by-id</span>), or without one its summary or method and path.
  *
  * @deprecatedAttr nav-active-item-marker | Sidebar & Navigation | left-bar, colored-block |
  * left-bar | <span class="red bold">[DEPRECATED]</span> RapiDoc now standardizes on the modern
@@ -305,7 +306,7 @@ export default class RapiDoc extends LitElement {
    * order (unless sort-endpoints-by is set).
    * @summary Show only some operations
    * @group Spec & Content
-   * @example /examples/search
+   * @example /examples/filter-operations
    */
   @property({ type: String, attribute: "filter-operations" })
   filterOperations = "";
@@ -477,7 +478,7 @@ export default class RapiDoc extends LitElement {
    * Ensure sufficient contrast if customizing nav-bg-color.
    * @summary Sidebar HTTP method badge presentation style
    * @group Sidebar & Navigation
-   * @example /examples/nav-item-with-method
+   * @example /examples/nav-styles
    */
   @property({ type: String, attribute: "show-method-in-nav-bar" })
   showMethodInNavBar: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block" = "false";
@@ -489,7 +490,7 @@ export default class RapiDoc extends LitElement {
    * configure <span class="mono yellow">show-method-in-nav-bar</span>. </div>
    * @summary Show URL paths instead of summaries in the sidebar
    * @group Sidebar & Navigation
-   * @example /examples/nav-item-as-path
+   * @example /examples/nav-styles
    */
   @property({ type: String, attribute: "use-path-in-nav-bar" })
   usePathInNavBar: "true" | "false" = "false";
@@ -498,7 +499,7 @@ export default class RapiDoc extends LitElement {
    * Controls vertical density and padding between sidebar navigation items.
    * @summary Vertical spacing between sidebar navigation items
    * @group Sidebar & Navigation
-   * @example /examples/navbar-spacing
+   * @example /examples/nav-styles
    */
   @property({ type: String, attribute: "nav-item-spacing", reflect: true })
   navItemSpacing: "default" | "compact" | "relaxed" = "default";
@@ -593,7 +594,7 @@ export default class RapiDoc extends LitElement {
    * response schemas.
    * @summary Enable advanced full-text schema and parameter search
    * @group Header & Sections
-   * @example /examples/search
+   * @example /tests/search
    */
   @property({ type: String, attribute: "allow-advanced-search" })
   allowAdvancedSearch: "true" | "false" = "true";

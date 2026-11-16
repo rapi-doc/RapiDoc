@@ -1,3 +1,4 @@
+# elements: the web components an example shows, for the gallery's product tabs; rapi-doc when left out.
 examples:
   - Open API Example:
       description: Interactive showcase demonstrating how RapiDoc renders a OpenAPI 3.1 and 3.2 specifications.
@@ -44,6 +45,26 @@ examples:
       description: Call and test live API endpoints directly within the documentation, with support for negative and edge-case testing.
       category: Console & Interactive
 
+  - In-Browser Mock Server:
+      img: /assets/images/terminal.png
+      href: /examples/mock-server
+      description: Answer requests from the spec inside the page. Pick a status code and a delay, then call the API with fetch() and see the mock's answer.
+      category: Console & Interactive
+
+  - Endpoints in a Blog Post:
+      img: /assets/images/terminal.png
+      href: /rapidoc-mini/#blog-style
+      description: rapi-doc-mini puts one endpoint, or a few chosen with filter-operations, with its Try console inside an article, a tutorial or a changelog. Live embeds, several APIs on one page, and the error state for a missing spec.
+      category: Layouts & Views
+      elements: [rapi-doc-mini]
+
+  - OpenAPI to PDF:
+      img: /assets/images/terminal.png
+      href: /rapipdf/#demo
+      description: rapi-pdf turns the Petstore spec into a PDF in the browser, as the default document or with schemas as tables and examples, downloaded.
+      category: Console & Interactive
+      elements: [rapi-pdf]
+
   - Model Context Protocol (MCP) Server:
       img: /assets/images/terminal.png
       href: /examples/mcp-server
@@ -55,12 +76,14 @@ examples:
       href: /examples/arazzo
       description: Draw the workflows of an Arazzo document with the rapi-flow element, next to the rapi-doc reference; click a step to open its operation, run the workflow against the real Petstore API or the in-browser mock, or load any Arazzo document by URL.
       category: Console & Interactive
+      elements: [rapi-flow, rapi-doc]
 
   - Arazzo Workflow Across APIs:
       img: /assets/images/terminal.png
       href: /examples/arazzo-multi
       description: One Arazzo workflow using three different OpenAPI specs - Rapid Parcels' ship-a-parcel gets a quote, books a shipment, fetches its label and subscribes to tracking. rapi-flow pairs each spec with its own rapi-doc-mini, showing only the operations the workflow calls in it, and runs end to end against the in-browser mock.
       category: Console & Interactive
+      elements: [rapi-flow, rapi-doc-mini]
 
   - Schema Styles:
       img: /assets/images/schema-style.png

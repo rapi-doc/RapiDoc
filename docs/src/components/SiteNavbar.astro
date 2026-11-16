@@ -2,6 +2,7 @@
 import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
 import { NAV_LINKS, resolveActiveNavKey, isNavActive, type NavPageKey } from '../page-data/nav';
 import Icon from './Icon.astro';
+import { PRODUCT_GROUPS, ALL_PACKAGES } from '../page-data/products';
 
 interface Props {
   activePage?: NavPageKey;
@@ -22,6 +23,62 @@ const current = resolveActiveNavKey(pathname, activePage);
     </a>
 
     <nav class="rd-nav-links">
+      <!-- The Products menu: a disclosure (button + panel), opened by a click, or by hovering with a
+           mouse. The panel spans the navbar's width, under it. -->
+      <div class="rd-products">
+        <button
+          type="button"
+          class="rd-nav-link rd-products-btn"
+          aria-expanded="false"
+          aria-controls="rd-products-panel"
+        >
+          <span>Products</span>
+          <Icon name="chevron-down" size={14} class="rd-products-chevron" />
+        </button>
+        <div id="rd-products-panel" class="rd-products-panel" hidden>
+          <div class="rd-products-inner">
+            {
+              PRODUCT_GROUPS.map((group) => (
+                <section class:list={['rd-products-col', `rd-products-col--${group.key}`]} aria-labelledby={`rd-products-h-${group.key}`}>
+                  <h2 class="rd-products-heading" id={`rd-products-h-${group.key}`}>{group.label}</h2>
+                  <ul class="rd-products-list">
+                    {group.items.map((item) => (
+                      <li>
+                        <a
+                          href={item.href}
+                          class:list={['rd-product', { 'rd-product--compact': !item.description }]}
+                          target={item.external ? '_blank' : undefined}
+                          rel={item.external ? 'noopener' : undefined}
+                        >
+                          {item.icon && (
+                            <span class="rd-product-icon">
+                              <Icon name={item.icon} size={18} />
+                            </span>
+                          )}
+                          <span class="rd-product-text">
+                            <span class="rd-product-name">
+                              {item.label}
+                              {item.tag && <code class="rd-product-tag">{item.tag}</code>}
+                              {item.external && <Icon name="arrow-up-right" size={12} class="rd-product-ext" />}
+                            </span>
+                            {item.description && <span class="rd-product-desc">{item.description}</span>}
+                          </span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))
+            }
+          </div>
+          <div class="rd-products-footer">
+            <a href={ALL_PACKAGES.href} class="rd-products-all">
+              {ALL_PACKAGES.label}
+              <Icon name="arrow-right" size={14} />
+            </a>
+          </div>
+        </div>
+      </div>
       {
         NAV_LINKS.map((item) => {
           const active = isNavActive(item, current, pathname);
@@ -61,6 +118,30 @@ const current = resolveActiveNavKey(pathname, activePage);
   </div>
 
   <nav id="rd-site-menu" class="rd-site-menu" aria-label="Site" hidden>
+    <details class="rd-site-menu-products">
+      <summary class="rd-site-menu-link">
+        <span>Products</span>
+        <Icon name="chevron-down" size={16} class="rd-products-chevron" />
+      </summary>
+      {
+        PRODUCT_GROUPS.map((group) => (
+          <div class="rd-site-menu-group">
+            <span class="rd-site-menu-heading">{group.label}</span>
+            {group.items.map((item) => (
+              <a
+                href={item.href}
+                class="rd-site-menu-sublink"
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noopener' : undefined}
+              >
+                {item.label}
+                {item.external && <Icon name="arrow-up-right" size={12} />}
+              </a>
+            ))}
+          </div>
+        ))
+      }
+    </details>
     {
       NAV_LINKS.map((item) => {
         const active = isNavActive(item, current, pathname);
@@ -76,6 +157,57 @@ const current = resolveActiveNavKey(pathname, activePage);
 </header>
 
 <script>
+  // The Products menu. A click toggles it; with a mouse, hovering opens it and leaving closes it
+  // after a short delay, unless it was clicked open. Escape closes it and returns focus to the
+  // button; so do a click outside, focus moving out of it, and shrinking the window below 860px.
+  for (const products of document.querySelectorAll<HTMLElement>('.rd-products')) {
+    const button = products.querySelector<HTMLButtonElement>('.rd-products-btn');
+    const panel = products.querySelector<HTMLElement>('.rd-products-panel');
+    if (!button || !panel) continue;
+    let byHover = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const setOpen = (open: boolean, hover = false) => {
+      clearTimeout(timer);
+      byHover = open && hover;
+      button.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
+    };
+    button.addEventListener('click', () => {
+      // Hovered open, then clicked: keep it open, as if clicked open
+      if (!panel.hidden && byHover) byHover = false;
+      else setOpen(panel.hidden);
+    });
+    products.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      clearTimeout(timer);
+      if (panel.hidden) timer = setTimeout(() => setOpen(true, true), 120);
+    });
+    products.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      clearTimeout(timer);
+      if (panel.hidden) return;
+      if (byHover) timer = setTimeout(() => setOpen(false), 200);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) {
+        setOpen(false);
+        button.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!panel.hidden && !products.contains(e.target as Node)) setOpen(false);
+    });
+    products.addEventListener('focusout', (e) => {
+      if (!panel.hidden && !products.contains(e.relatedTarget as Node | null) && e.relatedTarget) setOpen(false);
+    });
+    panel.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+    window.matchMedia('(min-width: 860px)').addEventListener('change', (e) => {
+      if (!e.matches) setOpen(false);
+    });
+  }
+
   // The site menu below 860px. Escape closes it and returns focus to the button; so do a click
   // outside, picking a link, and growing the window past the breakpoint.
   for (const navbar of document.querySelectorAll<HTMLElement>('.rd-navbar')) {
@@ -189,6 +321,208 @@ const current = resolveActiveNavKey(pathname, activePage);
     color: var(--rd-amber-light);
     box-shadow: 0 0 8px color-mix(in srgb, var(--rd-amber) 25%, transparent);
   }
+  /* The Products menu. The panel is positioned against .rd-navbar (sticky), so nothing between them
+     may be positioned. */
+  .rd-products-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .rd-products-btn[aria-expanded='true'] {
+    color: var(--rd-text-bright);
+  }
+  .rd-products-btn :global(.rd-products-chevron) {
+    transition: transform 0.15s ease;
+  }
+  .rd-products-btn[aria-expanded='true'] :global(.rd-products-chevron),
+  .rd-site-menu-products[open] :global(.rd-products-chevron) {
+    transform: rotate(180deg);
+  }
+  .rd-products-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--rd-menu-bg, var(--rd-bg));
+    border-bottom: 1px solid var(--rd-border);
+    box-shadow: var(--rd-shadow-panel);
+  }
+  .rd-products-panel[hidden] {
+    display: none;
+  }
+  .rd-products-inner {
+    max-width: var(--rd-max-width);
+    margin: 0 auto;
+    padding: 24px 24px 16px;
+    display: grid;
+    grid-template-columns: 1.15fr 1.15fr 0.85fr;
+    gap: 32px;
+  }
+  .rd-products-heading {
+    margin: 0 0 10px;
+    padding: 0 10px;
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--rd-text-dim);
+  }
+  .rd-products-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .rd-product {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: var(--rd-radius-lg);
+    text-decoration: none;
+    transition: background 0.15s ease;
+  }
+  .rd-product:hover,
+  .rd-product:focus-visible {
+    background: var(--rd-wash);
+  }
+  .rd-product--compact {
+    padding-block: 6px;
+  }
+  .rd-product-icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--rd-radius-lg);
+    background: var(--rd-wash);
+    border: 1px solid var(--rd-border);
+    color: var(--rd-accent);
+    transition: border-color 0.15s ease;
+  }
+  .rd-product:hover .rd-product-icon {
+    border-color: var(--rd-accent-border);
+  }
+  .rd-product-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .rd-product-name {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    color: var(--rd-text-bright);
+  }
+  .rd-product--compact .rd-product-name {
+    font-weight: 500;
+    color: var(--rd-text-muted);
+  }
+  .rd-product--compact:hover .rd-product-name {
+    color: var(--rd-text-bright);
+  }
+  .rd-product-tag {
+    font-family: var(--rd-font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 16px;
+    color: var(--rd-text-dim);
+    background: none;
+    padding: 0;
+  }
+  .rd-product-name :global(.rd-product-ext) {
+    color: var(--rd-text-dim);
+  }
+  .rd-product-desc {
+    font-size: 12.5px;
+    line-height: 18px;
+    color: var(--rd-text-muted);
+  }
+  .rd-products-footer {
+    max-width: var(--rd-max-width);
+    margin: 0 auto;
+    padding: 0 24px 18px;
+  }
+  .rd-products-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    line-height: 20px;
+    font-weight: 600;
+    color: var(--rd-accent);
+    text-decoration: none;
+  }
+  .rd-products-all:hover {
+    color: var(--rd-accent-light);
+  }
+  @media (max-width: 1100px) {
+    .rd-products-inner {
+      grid-template-columns: 1fr 1fr;
+    }
+    .rd-products-col--integrations {
+      grid-column: 1 / -1;
+    }
+    .rd-products-col--integrations .rd-products-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+  }
+
+  /* Products in the small-screen menu: a native disclosure */
+  .rd-site-menu-products > summary {
+    list-style: none;
+    cursor: pointer;
+    justify-content: space-between;
+  }
+  .rd-site-menu-products > summary::-webkit-details-marker {
+    display: none;
+  }
+  .rd-site-menu-group {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 0 8px 12px;
+  }
+  .rd-site-menu-heading {
+    padding: 6px 12px;
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--rd-text-dim);
+  }
+  .rd-site-menu-sublink {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: var(--rd-radius-sm);
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--rd-text-muted);
+    text-decoration: none;
+  }
+  .rd-site-menu-sublink:hover {
+    color: var(--rd-text-bright);
+    background: var(--rd-wash);
+  }
   .rd-nav-actions {
     display: flex;
     align-items: center;
@@ -257,6 +591,9 @@ const current = resolveActiveNavKey(pathname, activePage);
     display: flex;
     flex-direction: column;
     padding: 8px 16px 16px;
+    /* With Products open it can be taller than a phone's screen */
+    max-height: calc(100dvh - 64px);
+    overflow-y: auto;
     /* Opaque, so the page doesn't show through (the /docs/ pages set --rd-menu-bg) */
     background: var(--rd-menu-bg, var(--rd-bg));
     border-bottom: 1px solid var(--rd-border);

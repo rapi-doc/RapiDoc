@@ -8,12 +8,12 @@ import { Aside } from '@astrojs/starlight/components';
 When a spec declares an OAuth 2.0 security scheme, RapiDoc's Authentication section lets readers sign in with your identity provider (Okta, Auth0, Microsoft Entra ID, Keycloak and others). The access token is then sent with every **Try** request.
 
 <Aside type="tip">
-  Try it on the [OAuth 2.0 example](/examples/oauth-demo).
+  Try it on the [OAuth 2.0 example](/examples/oauth-demo). It signs in at Duende's public demo provider, `demo.duendesoftware.com`, which anyone can use for testing: client `interactive.public` (PKCE, no secret), or `interactive.confidential.short` with the secret `secret`.
 </Aside>
 
 ## Set it up in three steps
 
-1. **Register a client** with your identity provider, and add your receiver page as a redirect URI, for example `https://docs.example.com/oauth-receiver.html`.
+1. **Register a client** with your identity provider, and add your receiver page as a redirect URI, for example `https://docs.example.com/oauth-receiver.html`. Make it a single-page application (a public client) with the Authorization Code grant and PKCE, and allow your docs site's origin, so the browser can call the token endpoint.
 2. **Declare the scheme in your spec** (below), and show the spec with `<rapi-doc>` as usual.
 3. **Add `oauth-receiver.html`** next to the page with `<rapi-doc>`:
 
@@ -46,6 +46,8 @@ If the receiver page lives elsewhere, tell `<rapi-doc>` where:
 6. The token is kept in memory (never in `localStorage`) and sent with every **Try** request, using the token type from the provider's response (normally `Bearer`).
 
 PKCE (S256) is on by default and can be turned off in the form, unless the scheme sets `x-pkce-only: true`. The implicit flow is supported too: `<oauth-receiver>` reads the token from the URL fragment.
+
+To try it locally, serve the folder over HTTP (`npx serve`, Vite or any static server): a provider can't redirect to a `file://` page. After signing in, the scheme shows as authorized and **Try** sends the token.
 
 ## Declare the scheme
 
@@ -80,7 +82,7 @@ These extensions pre-fill the sign-in form, which is useful for sandboxes and pu
 | :--- | :--- | :--- |
 | `x-client-id` | `string` | Pre-fills the client ID. |
 | `x-client-secret` | `string` | Pre-fills the client secret. For sandboxes only: anyone can read the spec. |
-| `x-default-scopes` | `string` or `array` | Scopes selected by default. |
+| `x-default-scopes` | `string` or `array` | Scopes selected by default: a space-separated string or a list. |
 | `x-pkce-only` | `boolean` | Always uses PKCE and hides the client secret fields. Use it for public clients. |
 | `x-receive-token-in` | `request-body` or `header` | How the client credentials are sent to the token endpoint: in the body (`client_secret_post`, the default) or as HTTP Basic (`client_secret_basic`). |
 | `x-receive-token-in-options` | `array` | Limits the choices offered for the above. |
@@ -166,4 +168,7 @@ doc.addEventListener('before-token-request', (e) => {
 - **Redirect URI mismatch**: the redirect URI registered with the provider must match the receiver page's URL exactly, including protocol and port (for example `http://localhost:4321/oauth-receiver.html`).
 - **CORS on the token endpoint**: the browser calls the token endpoint directly, so it must allow requests from your docs site's origin.
 - **Client authentication**: if the provider requires HTTP Basic for client credentials, set `x-receive-token-in: header`, or pick it in the form.
+- **"Multiple client credentials cannot be specified"**: the provider received the client in the request body and in an `Authorization` header (RFC 6749 §2.3.1 allows only one). RapiDoc sends one or the other, and with no secret only `client_id` and the PKCE `code_verifier`, so check for a proxy or gateway that adds a header.
+- **The popup doesn't open**: browsers block popups that a click didn't open. Sign in from the **Authorize** button, not from a script.
+- **The receiver page isn't found**: the file name is case-sensitive on most servers; `oauth-receiver.html` must match the `oauth-receiver` attribute and the registered redirect URI.
 - **Secrets**: never put a production client secret in a spec. Use `x-pkce-only: true` for public docs and keep `x-client-secret` for sandboxes.

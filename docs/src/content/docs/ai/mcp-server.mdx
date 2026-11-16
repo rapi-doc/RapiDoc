@@ -16,7 +16,9 @@ You can create it three ways:
 - **In Node**: `@rapidoc/mcp`, for build scripts and your own servers.
 
 <Aside type="tip">
-  The [MCP guide](/guides/mcp) and the [MCP Server example](/examples/mcp-server) show the manifest, server and runtime for a real spec.
+  The [MCP Server example](/examples/mcp-server) shows the manifest, server and runtime for a real spec.
+
+  The export runs in the browser and sends nothing anywhere. You unzip and install the project on your machine, and your AI app starts it as a child process that talks over stdin and stdout, on no port.
 </Aside>
 
 ---
@@ -28,7 +30,7 @@ No extra annotations are needed. Every tool and resource comes from standard Ope
 1. **Tool names**: The tool name is the snake_case form of the `operationId` (`placeOrder` becomes `place_order`). Operations without an `operationId` get a name derived from the HTTP method and path. Duplicate names get a `_2`, `_3` suffix.
 2. **Tool descriptions**: The operation `summary` is used, else its `description`, else `METHOD /path`. HTML and Markdown are stripped and the text is truncated to 300 characters.
 3. **Left out**: Operations marked `x-internal: true` or `x-hidden: true`, operations marked `deprecated: true`, and webhooks are left out.
-4. **Headers**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, `User-Agent` and other transport metadata are stripped from LLM tool arguments, as is any parameter that carries an API key named in the spec's `securitySchemes`. The runtime applies the right scheme itself, from environment variables, and reads the base URL from `servers[0]`. The exported server runs outside the documentation page, so it needs a full URL: when the spec has no `servers`, or a relative one such as `/api/v1`, set `API_BASE_URL`, which also overrides a full URL.
+4. **Headers**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, `Accept`, `User-Agent` and other transport metadata are stripped from LLM tool arguments, as is any parameter that carries an API key named in the spec's `securitySchemes`. A secret passed in a parameter the spec does not declare as a security scheme stays an argument, so declare it. The runtime applies the right scheme itself, from environment variables, and reads the base URL from `servers[0]`. The exported server runs outside the documentation page, so it needs a full URL: when the spec has no `servers`, or a relative one such as `/api/v1`, set `API_BASE_URL`, which also overrides a full URL.
 5. **Resources**: A `GET` with no required parameters whose path contains a reference-data word (`/reference`, `/currencies`, `/countries`, `/tiers`, `/categories`, `/schema`) becomes an **MCP resource** instead of a tool. Many hosts leave resources for the user to attach, so set `x-mcp-resource: false` on an operation the agent must be able to call itself; `x-mcp-resource: true` makes any `GET` with no required parameters a resource. Its URI is `reference://` and the tool name without `get_`, with dashes (`getCurrencies` becomes `reference://currencies`).
 6. **Safety annotations**: Every tool carries MCP annotations: `readOnlyHint` for `GET` only, `idempotentHint` for `GET`, `PUT` and `DELETE`, and `destructiveHint`: `true` for `PUT`, `PATCH` and `DELETE`, `false` for `GET`, and left out for `POST`, which may add (`POST /orders`) or undo (`POST /orders/{id}/cancel`). Without the hint, hosts assume a tool may be destructive. Hosts use the annotations to ask the user before running a consequential tool; they are hints, not enforcement.
 7. **Token budget**: RapiDoc estimates how many tokens the tool list adds to every turn, and warns above 30 tools or 5,000 tokens.
@@ -191,9 +193,11 @@ npm install
 API_KEY="your-key" npm start
 ```
 
+When the server is up, `npm start` prints a line such as `[MCP] my_api: 2 tools on stdio`; stop it with Ctrl+C. It also starts without credentials, and calls then return the API's error. `server.ts` and the runtimes are the same for every API, so `manifest.json` is the one file to review.
+
 ### Environment variables
 
-Credentials are read from environment variables named after the security schemes in the spec, in upper snake case: the scheme `petstore_auth` reads `PETSTORE_AUTH`, `api_key` reads `API_KEY`. When the spec has one scheme, `API_KEY` also works as its variable; with several schemes, each needs its own variable, so one key is never sent as another scheme's credential. HTTP Basic takes `user:password` in the scheme's variable, or `<NAME>_USERNAME` and `<NAME>_PASSWORD`. `API_BASE_URL` overrides the manifest's base URL for every source. `EXTERNAL_HOSTS` (comma-separated, `*` for any) lists the hosts a workflow step's [`x-operation`](/docs/rapi-flow/extensions/#calls-outside-the-api-sources-x-operation) URL computed at run time may go to, besides those the workflow names. `rapidoc mcp serve` and `rapidoc serve` read the same variable.
+Credentials are read from environment variables named after the security schemes in the spec, in upper snake case: the scheme `petstore_auth` (or `petstoreAuth`) reads `PETSTORE_AUTH`, `api_key` reads `API_KEY`. The agent never sees or supplies a credential: the server adds it to each request. When the spec has one scheme, `API_KEY` also works as its variable; with several schemes, each needs its own variable, so one key is never sent as another scheme's credential. HTTP Basic takes `user:password` in the scheme's variable, or `<NAME>_USERNAME` and `<NAME>_PASSWORD`. `API_BASE_URL` overrides the manifest's base URL for every source. `EXTERNAL_HOSTS` (comma-separated, `*` for any) lists the hosts a workflow step's [`x-operation`](/docs/rapi-flow/extensions/#calls-outside-the-api-sources-x-operation) URL computed at run time may go to, besides those the workflow names. `rapidoc mcp serve` and `rapidoc serve` read the same variable.
 
 ### Workflows as tools
 
@@ -255,7 +259,11 @@ console.log(`Overhead: ~${budget.estimatedTokens} tokens/turn across ${budget.to
 
 ### From the command line
 
-`npx rapidoc mcp export openapi.yaml` writes the same project as the Export button, and `npx rapidoc mcp serve openapi.yaml` runs the server over stdio without writing files ([Command Line](/docs/tools/command-line/#turn-it-into-an-mcp-server)).
+`npx rapidoc mcp export openapi.yaml` writes the same project as the Export button, and `npx rapidoc mcp serve openapi.yaml` runs the server over stdio without writing files ([Command Line](/docs/cli/mcp/)):
+
+```bash
+npx rapidoc mcp export my-api.yaml --out-dir my-api-mcp --server-name my-api
+```
 
 ### In Node: `@rapidoc/mcp`
 
@@ -290,7 +298,7 @@ writeMcpProject(manifest, { serverPath: '/srv/petstore-mcp/server.ts' });
 
 ## 6. Connecting an AI App
 
-Every exported project includes `mcp.json`, a ready-to-use `mcpServers` entry. Any app that can start a local MCP server over stdio can use the server: **Claude Desktop**, **Cursor**, Claude Code, Codex and others. Most read this JSON format; an app with another format (Codex uses TOML) takes the same command, arguments and variables. The entry has one `env` entry per security scheme in the spec (`API_KEY` alone when the spec declares none).
+Every exported project includes `mcp.json`, a ready-to-use `mcpServers` entry. It is a template: nothing is added to your AI app until you copy it into the app's configuration. Any app that can start a local MCP server over stdio can use the server: **Claude Desktop**, **Cursor**, Claude Code, Codex and others. Most read this JSON format; an app with another format (Codex uses TOML) takes the same command, arguments and variables. The entry has one `env` entry per security scheme in the spec (`API_KEY` alone when the spec declares none).
 
 Add the entry to the `mcpServers` object of the app's own configuration file, keeping the entries already there, and replace the placeholder path in `args` with the absolute path of the unzipped folder's `server.ts` (`rapidoc mcp export` writes the real path). Run `npm install` in that folder first. The app starts the server itself, as a child process that talks over stdin and stdout; it listens on no port, and `npm start` is only for trying it out.
 
@@ -304,6 +312,10 @@ Add the entry to the `mcpServers` object of the app's own configuration file, ke
 
 <Aside type="caution">
   Every tool call is a real request to your API, made with the credentials you set. Use a key with only the permissions the agent should have, or point `API_BASE_URL` at a staging server. Leaving an operation out of the export keeps it off the tool list; it is not access control.
+
+  - The safety annotations are hints for the AI app; the server has no confirmation step of its own.
+  - The spec's text and the API's responses reach the model as they are. Export only from specs you trust.
+  - The server talks over stdio, so it works with AI apps on your machine. A hosted or remote AI app can't reach it.
 </Aside>
 
 For the Swagger Petstore, which declares the schemes `api_key` and `petstore_auth`:
@@ -322,3 +334,5 @@ For the Swagger Petstore, which declares the schemes `api_key` and `petstore_aut
   }
 }
 ```
+
+Restart the app after changing its configuration. If the tools don't appear, check that the path in `args` is absolute (the app starts the server from its own folder) and correct, and that `npm install` ran in the project; the app's MCP log shows why a server didn't start.

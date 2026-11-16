@@ -1,5 +1,43 @@
 ---
 import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
+import { WEB_COMPONENTS, TOOLS, INTEGRATIONS, type ProductLink } from '../page-data/products';
+
+// Products: the web components, then the CLI and the Portal (the other tools are in Resources)
+const productLinks: ProductLink[] = [
+  ...WEB_COMPONENTS.items,
+  ...TOOLS.items.filter((item) => item.label === 'RapiDoc CLI' || item.label === 'Developer Portal'),
+];
+
+const linkColumns: { heading: string; links: ProductLink[] }[] = [
+  { heading: 'Products', links: productLinks },
+  { heading: 'Integrations', links: INTEGRATIONS.items },
+  {
+    heading: 'Resources',
+    links: [
+      { label: 'Documentation', href: '/docs/' },
+      { label: 'Quickstart', href: '/docs/get-started/quickstart/' },
+      { label: 'API Reference', href: '/api' },
+      { label: 'Common Tasks', href: '/docs/guides/' },
+      { label: 'Examples', href: '/examples' },
+      { label: 'Mock Server', href: '/docs/mocking/overview/' },
+      { label: 'MCP Server', href: '/docs/ai/mcp-server/' },
+      { label: 'Migration Guides', href: '/docs/migration/v13-to-v14/' },
+    ],
+  },
+  {
+    heading: 'Developers',
+    links: [
+      { label: 'Spec Sandbox', href: '/sandbox' },
+      { label: 'Live Configurator', href: '/examples/controller-showcase' },
+      { label: 'Test Matrix', href: '/tests' },
+      { label: 'Performance', href: '/tests/performance' },
+      { label: 'GitHub', href: 'https://github.com/rapi-doc/RapiDoc', external: true },
+      { label: 'Releases', href: 'https://github.com/rapi-doc/RapiDoc/releases', external: true },
+      { label: 'Issues', href: 'https://github.com/rapi-doc/RapiDoc/issues', external: true },
+      { label: 'npm', href: 'https://www.npmjs.com/package/rapidoc', external: true },
+    ],
+  },
+];
 
 interface Props {
   currentPath?: string;
@@ -24,37 +62,18 @@ const { currentPath = '' } = Astro.props;
     </div>
 
     <div class="rd-footer-links-group">
-      <div class="rd-footer-link-col">
-        <span class="rd-footer-heading">Getting Started</span>
-        <a href="/quickstart">QuickStart</a>
-        <a href="/api">API Reference</a>
-        <a href="/docs">Documentation</a>
-        <a href="/guides">All Guides</a>
-      </div>
-      <div class="rd-footer-link-col">
-        <span class="rd-footer-heading">Guides & Recipes</span>
-        <a href="/guides/mock">Mock Server</a>
-        <a href="/guides/oauth">OAuth 2.0 Setup</a>
-        <a href="/guides/theme">Theme & Colors</a>
-        <a href="/guides/css">Custom CSS</a>
-        <a href="/guides/slots">Named HTML Slots</a>
-        <a href="/guides/mini">RapiDoc Mini</a>
-      </div>
-      <div class="rd-footer-link-col">
-        <span class="rd-footer-heading">Explore & Test</span>
-        <a href="/examples">Examples Gallery</a>
-        <a href="/examples/rapidoc-demo">Live Configurator</a>
-        <a href="/sandbox">Spec Sandbox</a>
-        <a href="/tests">Test Matrix</a>
-        <a href="/tests/performance">Performance</a>
-      </div>
-      <div class="rd-footer-link-col">
-        <span class="rd-footer-heading">Community</span>
-        <a href="https://github.com/rapi-doc/RapiDoc" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://www.npmjs.com/package/rapidoc" target="_blank" rel="noopener">NPM Package</a>
-        <a href="https://github.com/rapi-doc/RapiDoc/releases" target="_blank" rel="noopener">Releases</a>
-        <a href="https://github.com/rapi-doc/RapiDoc/issues" target="_blank" rel="noopener">Issues</a>
-      </div>
+      {
+        linkColumns.map((col) => (
+          <nav class="rd-footer-link-col" aria-label={col.heading}>
+            <span class="rd-footer-heading">{col.heading}</span>
+            {col.links.map((link) => (
+              <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener' : undefined}>
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        ))
+      }
     </div>
   </div>
 </footer>
@@ -140,7 +159,7 @@ const { currentPath = '' } = Astro.props;
 
   @media (min-width: 768px) {
     .rd-footer-container {
-      grid-template-columns: 1.3fr 2fr;
+      grid-template-columns: 1fr 2.6fr;
     }
   }
 </style>
