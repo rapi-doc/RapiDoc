@@ -68,6 +68,11 @@
   /* ------------------------------------------------------------------------ Shadows */
   --rd-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
   --rd-shadow-panel: 0 8px 30px -10px rgba(0, 0, 0, 0.5);
+  /* Menus that float over the page (the Products menu): a solid surface one step lighter than the page,
+     a deeper shadow, and the dim layer behind them */
+  --rd-bg-elevated: #0f1626;
+  --rd-shadow-popover: 0 24px 48px -12px rgba(0, 0, 0, 0.65);
+  --rd-scrim: rgba(2, 4, 10, 0.55);
   --rd-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px var(--rd-accent-glow);
   --rd-shadow-glow: 0 0 30px var(--rd-accent-glow);
 

@@ -14,6 +14,7 @@ const current = resolveActiveNavKey(pathname, activePage);
 ---
 
 <header class:list={['rd-navbar', { 'rd-navbar--docs': activePage === 'docs' }]}>
+  <div class="rd-products-scrim" hidden></div>
   <div class="rd-nav-container">
     <a href="/" class="rd-brand">
       <img src="/assets/images/rapidoc-lockup-dark.svg" alt="RapiDoc" class="rd-logo" width="167" height="28" />
@@ -52,7 +53,7 @@ const current = resolveActiveNavKey(pathname, activePage);
                         >
                           {item.icon && (
                             <span class="rd-product-icon">
-                              <Icon name={item.icon} size={16} weight="regular" />
+                              <Icon name={item.icon} size={24} weight="regular" />
                             </span>
                           )}
                           <span class="rd-product-text">
@@ -166,11 +167,13 @@ const current = resolveActiveNavKey(pathname, activePage);
     if (!button || !panel) continue;
     let byHover = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    const scrim = products.closest('.rd-navbar')?.querySelector<HTMLElement>('.rd-products-scrim');
     const setOpen = (open: boolean, hover = false) => {
       clearTimeout(timer);
       byHover = open && hover;
       button.setAttribute('aria-expanded', String(open));
       panel.hidden = !open;
+      if (scrim) scrim.hidden = !open;
     };
     button.addEventListener('click', () => {
       // Hovered open, then clicked: keep it open, as if clicked open
@@ -343,17 +346,44 @@ const current = resolveActiveNavKey(pathname, activePage);
   .rd-site-menu-products[open] :global(.rd-products-chevron) {
     transform: rotate(180deg);
   }
+  /* A card floating below the navbar: inset from the window's edges, on a surface one step lighter than
+     the page, with a border and a deep shadow, over a dimmed page (.rd-products-scrim) */
   .rd-products-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(calc(var(--rd-max-width) - 32px), calc(100% - 32px));
+    background: var(--rd-bg-elevated);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
+    box-shadow: var(--rd-shadow-popover);
+    overflow: hidden;
+  }
+  .rd-products-panel[hidden],
+  .rd-products-scrim[hidden] {
+    display: none;
+  }
+  /* Dims the page below the navbar while the Products menu is open; a click on it closes the menu. Absolute
+     in the navbar, not fixed: the navbar's backdrop-filter would make it the containing block anyway. */
+  .rd-products-scrim {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    background: var(--rd-menu-bg, var(--rd-bg));
-    border-bottom: 1px solid var(--rd-border);
-    box-shadow: var(--rd-shadow-panel);
+    height: 100vh;
+    background: var(--rd-scrim);
+    animation: rd-scrim-in 0.15s ease;
   }
-  .rd-products-panel[hidden] {
-    display: none;
+  @keyframes rd-scrim-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rd-products-scrim {
+      animation: none;
+    }
   }
   .rd-products-inner {
     max-width: var(--rd-max-width);
@@ -397,21 +427,15 @@ const current = resolveActiveNavKey(pathname, activePage);
   .rd-product--compact {
     padding-block: 6px;
   }
+  /* The icon on its own, no box: 24px regular, grey, the accent on hover and keyboard focus */
   .rd-product-icon {
     flex: none;
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--rd-radius-lg);
-    background: var(--rd-wash);
-    border: 1px solid var(--rd-border);
-    color: var(--rd-accent);
-    transition: border-color 0.15s ease;
+    color: var(--rd-text-muted);
+    transition: color 0.15s ease;
   }
-  .rd-product:hover .rd-product-icon {
-    border-color: var(--rd-accent-border);
+  .rd-product:is(:hover, :focus-visible) .rd-product-icon {
+    color: var(--rd-accent);
   }
   .rd-product-text {
     display: flex;
@@ -442,7 +466,10 @@ const current = resolveActiveNavKey(pathname, activePage);
     font-weight: 500;
     line-height: 16px;
     color: var(--rd-text-dim);
+    /* Plain text: the docs pages style every inline <code> with a box (styles/starlight-custom.css) */
     background: none;
+    border: none;
+    border-radius: 0;
     padding: 0;
   }
   .rd-product-name :global(.rd-product-ext) {

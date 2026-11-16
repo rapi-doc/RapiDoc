@@ -71,6 +71,7 @@
   /* The site navbar (components/SiteNavbar.astro) sits on the docs background here. */
   --rd-bg-glass: var(--sl-color-bg-nav);
   --rd-menu-bg: var(--rd-docs-bg);
+  --rd-bg-elevated: color-mix(in oklab, var(--rd-docs-fg) 7%, var(--rd-docs-bg));
 }
 
 /* -------------------------------------------------------------------------- Type and layout */
