@@ -3,7 +3,7 @@ import { ProblemError } from "./errors.js";
 /*
  * The engines behind the commands are optional peers, imported only by the commands that need them:
  * @rapidoc/portal (dev, build, migrate, folder-wide validate, mock of a portal folder), @rapidoc/server
- * (serve) and @rapidoc/mock (mock). Never import them at the top of a module.
+ * (serve), @rapidoc/mock (mock) and rapipdf (pdf). Never import them at the top of a module.
  * RAPIDOC_PORTAL_MODULE, RAPIDOC_SERVER_MODULE and RAPIDOC_MOCK_MODULE swap the module names (tests use
  * them to simulate a missing engine).
  */
@@ -53,6 +53,29 @@ export async function loadMock() {
     );
   }
   return mock;
+}
+
+// RapiPdf's Node entry, for `rapidoc pdf` only. RAPIDOC_PDF_MODULE swaps the module name (tests use
+// it to simulate a missing package).
+const PDF_MODULE = process.env.RAPIDOC_PDF_MODULE || "rapipdf";
+
+export async function loadPdf() {
+  let pdf;
+  try {
+    pdf = await tryImport(`${PDF_MODULE}/node`, PDF_MODULE);
+  } catch (err) {
+    // rapipdf 2.x is the browser element only: it has no ./node entry
+    if (err.code !== "ERR_PACKAGE_PATH_NOT_EXPORTED") throw err;
+    throw new ProblemError(
+      "`rapidoc pdf` needs rapipdf 3 or later. Update it next to the CLI:\n   npm install -D rapipdf@latest",
+    );
+  }
+  if (!pdf) {
+    throw new ProblemError(
+      "`rapidoc pdf` needs rapipdf. Install it next to the CLI:\n   npm install -D rapipdf",
+    );
+  }
+  return pdf;
 }
 
 // The MCP SDK, for `rapidoc mcp serve` only (export writes a project that installs it itself).

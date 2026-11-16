@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RapiPdf</title>
+    <style>
+      rapi-pdf {
+        margin: 2px;
+        width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Development page (npm run dev): <rapi-pdf> from src/ over the fixture specs. -->
+    <rapi-pdf spec-url="./tests/fixtures/specs/petstore.json" pdf-schema-style="table"></rapi-pdf>
+    <rapi-pdf spec-url="./tests/fixtures/specs/petstore.json" pdf-schema-style="object"></rapi-pdf>
+    <rapi-pdf spec-url="./tests/fixtures/specs/petstore_extended.yaml"></rapi-pdf>
+    <rapi-pdf spec-url="./tests/fixtures/specs/data-types.yaml"></rapi-pdf>
+    <rapi-pdf
+      spec-url="./tests/fixtures/specs/data-types.yaml"
+      include-example="true"
+      button-label="WITH EXAMPLE"
+    ></rapi-pdf>
+    <rapi-pdf spec-url="./tests/fixtures/specs/data-types.yaml" hide-input="true"></rapi-pdf>
+    <rapi-pdf
+      spec-url="./tests/fixtures/specs/anyof.json"
+      output="download"
+      file-name="employees"
+      button-label="DOWNLOAD"
+    ></rapi-pdf>
+    <script type="module" src="./src/index.js"></script>
+  </body>
+</html>
