@@ -1,4 +1,6 @@
 # elements: the web components an example shows, for the gallery's product tabs; rapi-doc when left out.
+# icon: the card's Phosphor icon (https://phosphoricons.com); without it, pages/examples/index.astro picks one
+# from the title or the category.
 examples:
   - Open API Example:
       description: Interactive showcase demonstrating how RapiDoc renders a OpenAPI 3.1 and 3.2 specifications.
@@ -50,12 +52,14 @@ examples:
       href: /examples/mock-server
       description: Answer requests from the spec inside the page. Pick a status code and a delay, then call the API with fetch() and see the mock's answer.
       category: Console & Interactive
+      icon: hard-drives
 
   - Endpoints in a Blog Post:
       img: /assets/images/terminal.png
       href: /rapidoc-mini/#blog-style
       description: rapi-doc-mini puts one endpoint, or a few chosen with filter-operations, with its Try console inside an article, a tutorial or a changelog. Live embeds, several APIs on one page, and the error state for a missing spec.
       category: Layouts & Views
+      icon: puzzle-piece
       elements: [rapi-doc-mini]
 
   - OpenAPI to PDF:
@@ -63,6 +67,7 @@ examples:
       href: /rapipdf/#demo
       description: rapi-pdf turns the Petstore spec into a PDF in the browser, as the default document or with schemas as tables and examples, downloaded.
       category: Console & Interactive
+      icon: file-pdf
       elements: [rapi-pdf]
 
   - Model Context Protocol (MCP) Server:
@@ -70,12 +75,14 @@ examples:
       href: /examples/mcp-server
       description: Generate token-efficient, agent-friendly MCP servers from OpenAPI specs. Contrasts curated agent tooling vs plain 1:1 conversion.
       category: Console & Interactive
+      icon: robot
 
   - Arazzo Workflows:
       img: /assets/images/terminal.png
       href: /examples/arazzo
       description: Draw the workflows of an Arazzo document with the rapi-flow element, next to the rapi-doc reference; click a step to open its operation, run the workflow against the real Petstore API or the in-browser mock, or load any Arazzo document by URL.
       category: Console & Interactive
+      icon: path
       elements: [rapi-flow, rapi-doc]
 
   - Arazzo Workflow Across APIs:
@@ -83,6 +90,7 @@ examples:
       href: /examples/arazzo-multi
       description: One Arazzo workflow using three different OpenAPI specs - Rapid Parcels' ship-a-parcel gets a quote, books a shipment, fetches its label and subscribes to tracking. rapi-flow pairs each spec with its own rapi-doc-mini, showing only the operations the workflow calls in it, and runs end to end against the in-browser mock.
       category: Console & Interactive
+      icon: flow-arrow
       elements: [rapi-flow, rapi-doc-mini]
 
   - Schema Styles:
@@ -136,6 +144,7 @@ examples:
       href: /examples/filter-operations
       description: Show only some of a spec's operations with filter-operations, by operationId, method and path, path glob, tag or badge, and leave others out with ! terms.
       category: Layouts & Views
+      icon: funnel
 
   - Syntax Highlighting:
       img: /assets/images/code-highlight.png
@@ -201,6 +210,7 @@ examples:
       href: /examples/api-key
       description: Declaratively set and programmatically update API keys via DOM attributes or JavaScript properties.
       category: Security & Auth
+      icon: password
 
   - Embed RapiDoc In HTML:
       href: /examples/embed-rapidoc-in-html
@@ -233,6 +243,7 @@ examples:
       href: /examples/multi-datatypes
       description: Utilize OpenAPI 3.1 multi-type declarations conforming to the latest JSON Schema specifications.
       category: OpenAPI 3.1 & Schemas
+      icon: shapes
 
   - Schema Composition:
       description: Model polymorphic inheritance and data variations using oneOf, anyOf, and allOf schema combinations.

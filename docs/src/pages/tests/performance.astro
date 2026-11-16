@@ -368,7 +368,7 @@ import 'rapidoc';
             <span class="rd-card-time">~{rapidocBuildInfo.bundle.gzip.formatted} gzipped</span>
           </div>
           <div class="rd-card-icon-wrap">
-            <Icon name="package" size={22} />
+            <Icon name="package" size={24} weight="regular" />
           </div>
           <h3 class="rd-card-title">Ultra-Lean Bundle by Design</h3>
           <p class="rd-card-desc">
@@ -390,7 +390,7 @@ import 'rapidoc';
             <span class="rd-card-time">Native ES Modules</span>
           </div>
           <div class="rd-card-icon-wrap">
-            <Icon name="lightning" size={22} />
+            <Icon name="lightning" size={24} weight="regular" />
           </div>
           <h3 class="rd-card-title">Native ESM Build (Modern JS)</h3>
           <p class="rd-card-desc">
@@ -411,7 +411,7 @@ import 'rapidoc';
             <span class="rd-card-time">0 ms VDOM Diffing</span>
           </div>
           <div class="rd-card-icon-wrap">
-            <Icon name="squares-four" size={22} />
+            <Icon name="squares-four" size={24} weight="regular" />
           </div>
           <h3 class="rd-card-title">Native Web Component</h3>
           <p class="rd-card-desc">
@@ -432,7 +432,7 @@ import 'rapidoc';
             <span class="rd-card-time">W3C Highlight API</span>
           </div>
           <div class="rd-card-icon-wrap">
-            <Icon name="paint-brush" size={22} />
+            <Icon name="paint-brush" size={24} weight="regular" />
           </div>
           <h3 class="rd-card-title">CSS Custom Highlight API</h3>
           <p class="rd-card-desc">
@@ -1334,21 +1334,15 @@ import 'rapidoc';
     color: var(--rd-text-dim);
   }
 
+  /* The card's icon on its own, no box (the site's card standard: 24px regular) */
   .rd-card-icon-wrap {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--rd-radius-sm);
-    background: var(--rd-icon-bg);
     display: flex;
-    align-items: center;
-    justify-content: center;
     color: var(--rd-accent);
     margin-bottom: 16px;
     transition: var(--rd-transition);
   }
 
   .rd-arch-card:hover .rd-card-icon-wrap {
-    background: var(--rd-icon-bg-hover);
     color: var(--rd-accent-light);
   }
 

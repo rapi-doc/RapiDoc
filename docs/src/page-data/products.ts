@@ -74,7 +74,7 @@ export const TOOLS: ProductGroup = {
       tag: "rapidoc",
       href: "/cli/",
       description: "Preview, validate, lint, bundle and export specs",
-      icon: "terminal-window",
+      icon: "terminal",
     },
     {
       label: "Mock Server",

@@ -162,12 +162,12 @@ const contents = [
           contents.map((item) => (
             <div class="rd-feature-card">
               <span class="rd-feature-icon">
-                {item.icon === 'list' && <Icon name="list-bullets" size={20} />}
-                {item.icon === 'lock' && <Icon name="lock" size={20} />}
-                {item.icon === 'braces' && <Icon name="brackets-curly" size={20} />}
-                {item.icon === 'table' && <Icon name="table" size={20} />}
-                {item.icon === 'palette' && <Icon name="palette" size={20} />}
-                {item.icon === 'language' && <Icon name="translate" size={20} />}
+                {item.icon === 'list' && <Icon name="list-bullets" size={24} weight="regular" />}
+                {item.icon === 'lock' && <Icon name="lock" size={24} weight="regular" />}
+                {item.icon === 'braces' && <Icon name="brackets-curly" size={24} weight="regular" />}
+                {item.icon === 'table' && <Icon name="table" size={24} weight="regular" />}
+                {item.icon === 'palette' && <Icon name="palette" size={24} weight="regular" />}
+                {item.icon === 'language' && <Icon name="translate" size={24} weight="regular" />}
               </span>
               <h3 class="rd-feature-title">{item.title}</h3>
               <p class="rd-feature-text" set:html={item.text} />
@@ -213,7 +213,7 @@ const contents = [
 
         <div class="rd-split">
           <div class="rd-split-text">
-            <h3 class="rd-feature-title"><Icon name="terminal-window" size={20} /> On the command line</h3>
+            <h3 class="rd-feature-title"><Icon name="terminal" size={20} /> On the command line</h3>
             <p>
               <code>rapidoc pdf</code> of the <a href="/cli/">RapiDoc CLI</a> writes the PDF from a spec, with an option
               for each attribute, plus your own fonts and labels.

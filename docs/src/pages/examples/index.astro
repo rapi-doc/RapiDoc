@@ -193,7 +193,7 @@ const categories = [
           const isDoc = item.isDoc ?? false;
           const isWide = item.isWide ?? false;
           const hasDirectLink = Boolean(item.href && !item.subExamples);
-          const cardIcon = getCardIconName(item.title, item.category, isDoc);
+          const cardIcon = item.icon ?? getCardIconName(item.title, item.category, isDoc);
 
           return (
             <div
@@ -207,7 +207,7 @@ const categories = [
               <div class="rd-card-top">
                 <div class="rd-card-identity">
                   <div class="rd-card-icon-box" title={item.title}>
-                    <Icon name={cardIcon} size={18} />
+                    <Icon name={cardIcon} size={24} weight="regular" />
                   </div>
                   <span class="rd-card-cat-badge">{item.category}</span>
                   {item.elements.filter((el) => el !== 'rapi-doc').map((el) => (
@@ -555,20 +555,15 @@ const categories = [
   flex-wrap: wrap;
   gap: 8px;
 }
+/* The card's icon on its own, no box: 24px in the regular weight, a 1.5px line */
 .rd-card-icon-box {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--rd-radius-sm);
-  background: var(--rd-icon-bg);
-  color: var(--rd-accent);
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-shrink: 0;
+  color: var(--rd-accent);
   transition: var(--rd-transition);
 }
 .rd-item-card:hover .rd-card-icon-box {
-  background: var(--rd-icon-bg-hover);
   color: var(--rd-accent-light);
 }
 .rd-card-icon {
