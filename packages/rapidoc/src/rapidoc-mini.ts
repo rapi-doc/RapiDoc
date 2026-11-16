@@ -304,7 +304,8 @@ export default class RapiDocMini extends LitElement {
    * @default ember
    */
   @property({ type: String, reflect: true })
-  theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | (string & {}) = DEFAULT_THEME;
+  theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | "amber" | (string & {}) =
+    DEFAULT_THEME;
   /**
    * A custom brand color as a hex code. Same as passing the hex code to <span class="mono
    * yellow">theme</span>.

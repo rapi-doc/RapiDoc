@@ -403,7 +403,8 @@ export default class RapiDoc extends LitElement {
    * @example /examples/themes
    */
   @property({ type: String, reflect: true })
-  theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | (string & {}) = DEFAULT_THEME;
+  theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | "amber" | (string & {}) =
+    DEFAULT_THEME;
 
   /**
    * Base color scheme mode. 'system' automatically matches the user's OS preference. 'auto' follows

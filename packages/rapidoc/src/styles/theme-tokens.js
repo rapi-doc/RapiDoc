@@ -13,6 +13,7 @@ export const DEFAULT_THEME = "ember";
  * - 'cobalt': matte steel-blue accent over grey-blue slate, with cards darker than the page
  * - 'jade':   daisyUI-style green accent over slate-navy, with cards darker than the page
  * - 'indigo': indigo accent over indigo-black
+ * - 'amber':  amber accent over slate grey, with lighter cards, a darker sidebar and white headings
  */
 export const THEMES = {
   ember: {
@@ -89,6 +90,28 @@ export const THEMES = {
       --primary-foreground: #ffffff;
       --background: #ffffff;
       --foreground: #1e1b3a;
+    `,
+  },
+  amber: {
+    dark: `
+      --primary: #f6a821;
+      --primary-foreground: #000000;
+      --background: #30333c;
+      --foreground: #dfe2e7;
+      --card: #383b43;
+      --border: #3f424b;
+      --sidebar: #2c2d35;
+      --heading-color: #ffffff;
+    `,
+    light: `
+      --primary: #d97706;
+      --primary-foreground: #000000;
+      --background: #ffffff;
+      --foreground: #2a2d35;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+      --sidebar: var(--background);
+      --heading-color: var(--foreground);
     `,
   },
 };
