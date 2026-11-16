@@ -534,8 +534,11 @@ function inputRows(graph) {
   return rows;
 }
 
-// Binding sections, in request order; parameters without `in` (a workflow step's) come before the body
+// Binding sections: the credentials (x-security), then request order; parameters without `in` (a
+// workflow step's) come before the body
 const BINDING_GROUPS = [
+  ["url", "URL"],
+  ["security", "Security"],
   ["path", "Path params"],
   ["query", "Query params"],
   ["header", "Header params"],
@@ -553,8 +556,8 @@ function bodyFieldName(name) {
 }
 
 /**
- * The values a step sends, one section per location (Path, Query, Header, Cookie, Request body
- * with its content type), request body fields without their `body.` prefix. At most
+ * The values a step sends, one section per location (Security with its schemes, Path, Query,
+ * Header, Cookie, Request body with its content type), request body fields without their `body.` prefix. At most
  * MAX_BINDINGS are listed; the rest are counted at the end of the last section.
  */
 /**
@@ -593,7 +596,13 @@ function bindingSections(step, { compact = false } = {}) {
   const sections = BINDING_GROUPS.map(([key, title]) => {
     const items = shown.filter((b) => b.group === key);
     if (!items.length) return [];
-    const type = key === "body" ? step.requestBody?.contentType : "";
+    // The note after the title: the body's content type, the security schemes the values are for
+    const type =
+      key === "body"
+        ? step.requestBody?.contentType
+        : key === "security"
+          ? [...new Set(items.map((b) => b.scheme).filter(Boolean))].join(", ")
+          : "";
     return [
       {
         parts: [
@@ -652,10 +661,19 @@ function outputRows(graph) {
   );
 }
 
+/** An x-operation URL as its step box shows it: without `https://`, the full URL a tooltip. */
+const shortUrl = (url) => String(url).replace(/^https?:\/\//, "");
+
+/** Room for the "external" tag at the end of an x-operation step's method line. */
+const EXTERNAL_TAG_W = 70;
+
 function headerWidth(step) {
-  const op = step.operation;
+  const op = step.operation || step.external;
   const sub = op
-    ? textWidth(op.method, MONO_W) + 8 + textWidth(op.path, MONO_W)
+    ? textWidth(op.method, MONO_W) +
+      8 +
+      textWidth(op.path ?? shortUrl(op.url), MONO_W) +
+      (step.external ? EXTERNAL_TAG_W : 0)
     : textWidth(step.workflowId || step.operationRef, MONO_W) + 90;
   return Math.max(textWidth(step.stepId, CHAR_W) + 90, sub) + PAD * 2;
 }
@@ -883,6 +901,16 @@ export function renderFlowDiagram(graph, options = {}) {
     let sub;
     if (s.kind === "workflow") {
       sub = `<text class="rf-sub" x="${boxX + PAD}" y="${n.y + 44}">workflow ▸ ${escapeXml(truncate(s.workflowId, boxChars - 11))}</text>`;
+    } else if (s.external) {
+      // x-operation: a call to an endpoint no source describes; not clickable, no operation to show
+      const ext = s.external;
+      const method = (ext.method || "?").toUpperCase();
+      const methodW = textWidth(method, MONO_W) + 8;
+      const urlChars = Math.floor((boxW - 32 - methodW - EXTERNAL_TAG_W) / MONO_W);
+      sub =
+        `<text class="rf-method rf-method-${escapeXml(ext.method)}" x="${boxX + PAD}" y="${n.y + 44}">${escapeXml(method)}</text>` +
+        `<text class="rf-path rf-url" x="${boxX + PAD + methodW}" y="${n.y + 44}"><title>${escapeXml(ext.url)}</title>${escapeXml(truncate(shortUrl(ext.url), urlChars))}</text>` +
+        `<text class="rf-tag rf-external" x="${boxR - 12}" y="${n.y + 44}" text-anchor="end">external</text>`;
     } else if (op) {
       const method = op.method.toUpperCase();
       const methodW = textWidth(method, MONO_W) + 8;
@@ -903,9 +931,10 @@ export function renderFlowDiagram(graph, options = {}) {
       .filter(Boolean)
       .join("\n");
     const label = op ? `${s.stepId}: ${op.method.toUpperCase()} ${op.path}` : s.stepId;
+    const kindCls = s.external ? "rf-step-external" : "";
     const attrs = clickable ? ` tabindex="0" role="button" aria-label="${escapeXml(label)}"` : "";
     out.push(
-      `<g class="${["rf-node rf-step", clickable ? "rf-clickable" : "", ...(stepClasses[s.stepId] || [])].filter(Boolean).join(" ")}" data-step-id="${escapeXml(s.stepId)}"${attrs}>`,
+      `<g class="${["rf-node rf-step", kindCls, clickable ? "rf-clickable" : "", ...(stepClasses[s.stepId] || [])].filter(Boolean).join(" ")}" data-step-id="${escapeXml(s.stepId)}"${attrs}>`,
       tip ? `<title>${escapeXml(tip)}</title>` : "",
       `<rect x="${boxX}" y="${n.y}" width="${boxW}" height="${n.h}" rx="8"/>`,
       `<text class="rf-title" x="${boxX + PAD}" y="${n.y + 24}">${escapeXml(truncate(s.stepId, boxChars - 10))}</text>`,

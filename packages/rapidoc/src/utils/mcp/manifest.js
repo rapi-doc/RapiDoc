@@ -283,7 +283,9 @@ export function buildMcpManifest(spec, options = {}) {
       if (p.description) schema.description = sanitizeDescription(p.description);
       properties[arg] = schema;
       if (p.required || where === "path") required.push(arg);
-      params.push(arg === p.name ? { name: p.name, in: where } : { name: p.name, in: where, arg });
+      const param = arg === p.name ? { name: p.name, in: where } : { name: p.name, in: where, arg };
+      if (where === "query" && p.allowReserved === true) param.allowReserved = true;
+      params.push(param);
     }
     const body = bodyContent(op.requestBody);
     if (body) {
@@ -363,6 +365,9 @@ export function buildMcpManifest(spec, options = {}) {
     }
     const compiled = compileWorkflows(arazzo, {
       sources: indexes,
+      schemes: Object.fromEntries(
+        Object.entries(sources).map(([name, s]) => [name, s.securitySchemes]),
+      ),
       onProblem: options.onProblem,
     });
     for (const tool of compiled.tools) {

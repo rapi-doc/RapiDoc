@@ -312,6 +312,80 @@ describe("rapidoc serve: /mcp", () => {
     );
   });
 
+  it("calls a workflow's x-operation URL computed at run time only on a host EXTERNAL_HOSTS allows", async () => {
+    const staticDir = writeFixtureBuild();
+    fs.rmSync(path.join(staticDir, "rapidoc-server.json"));
+    // The API is at 127.0.0.1:<port>, the workflow's source: the same server as localhost:<port>
+    // is another host
+    const target = api.url.replace("127.0.0.1", "localhost");
+    const file = path.join(staticDir, "mcp/workflows/fetch.json");
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(
+      file,
+      JSON.stringify({
+        manifestVersion: 1,
+        server: { name: "fetch", version: "1.0.0" },
+        sources: { pets: { baseUrl: api.url, securitySchemes: {} } },
+        tools: [
+          {
+            name: "fetch_pets",
+            description: "Fetch pets from a URL",
+            inputSchema: { type: "object", properties: { url: { type: "string" } } },
+            annotations: { readOnlyHint: true },
+            workflow: "fetchPets",
+          },
+        ],
+        resources: [],
+        workflows: {
+          fetchPets: {
+            workflowId: "fetchPets",
+            inputs: { type: "object", properties: { url: { type: "string" } } },
+            steps: [
+              {
+                stepId: "fetch",
+                operation: {
+                  source: "",
+                  method: "GET",
+                  url: "$inputs.url",
+                  params: [],
+                  security: [],
+                },
+                parameters: [],
+                requestBody: null,
+                security: [],
+                successCriteria: [],
+                onSuccess: [],
+                onFailure: [],
+                outputs: { name: "$response.body#/pets/0/name" },
+              },
+            ],
+            outputs: { name: "$steps.fetch.outputs.name" },
+          },
+        },
+      }),
+    );
+    const call = async (env, url) => {
+      const { app: staticApp } = await createApp({ distDir: staticDir, env, log: quiet });
+      const answer = await rpc(staticApp, "tools/call", {
+        name: "fetch_pets",
+        arguments: { url },
+      });
+      return answer.body.result;
+    };
+    try {
+      const known = await call({}, `${api.url}/pets`);
+      assert.deepEqual(known.structuredContent, { name: "Rex" });
+      const refused = await call({}, `${target}/pets`);
+      assert.equal(refused.isError, true);
+      assert.match(refused.content[0].text, /x-operation URL host localhost:\d+ is not allowed/);
+      const host = new URL(target).host;
+      const allowed = await call({ EXTERNAL_HOSTS: `cdn.example.com, ${host}` }, `${target}/pets`);
+      assert.deepEqual(allowed.structuredContent, { name: "Rex" });
+    } finally {
+      fs.rmSync(staticDir, { recursive: true, force: true });
+    }
+  });
+
   it("serves the manifests' tools of a static build as public", async () => {
     const staticDir = writeFixtureBuild();
     fs.rmSync(path.join(staticDir, "rapidoc-server.json"));

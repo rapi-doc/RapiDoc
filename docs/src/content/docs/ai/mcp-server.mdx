@@ -193,7 +193,7 @@ API_KEY="your-key" npm start
 
 ### Environment variables
 
-Credentials are read from environment variables named after the security schemes in the spec, in upper snake case: the scheme `petstore_auth` reads `PETSTORE_AUTH`, `api_key` reads `API_KEY`. When the spec has one scheme, `API_KEY` also works as its variable; with several schemes, each needs its own variable, so one key is never sent as another scheme's credential. HTTP Basic takes `user:password` in the scheme's variable, or `<NAME>_USERNAME` and `<NAME>_PASSWORD`. `API_BASE_URL` overrides the manifest's base URL for every source.
+Credentials are read from environment variables named after the security schemes in the spec, in upper snake case: the scheme `petstore_auth` reads `PETSTORE_AUTH`, `api_key` reads `API_KEY`. When the spec has one scheme, `API_KEY` also works as its variable; with several schemes, each needs its own variable, so one key is never sent as another scheme's credential. HTTP Basic takes `user:password` in the scheme's variable, or `<NAME>_USERNAME` and `<NAME>_PASSWORD`. `API_BASE_URL` overrides the manifest's base URL for every source. `EXTERNAL_HOSTS` (comma-separated, `*` for any) lists the hosts a workflow step's [`x-operation`](/docs/components/workflows/#calls-outside-the-api-sources-x-operation) URL computed at run time may go to, besides those the workflow names. `rapidoc mcp serve` and `rapidoc serve` read the same variable.
 
 ### Workflows as tools
 

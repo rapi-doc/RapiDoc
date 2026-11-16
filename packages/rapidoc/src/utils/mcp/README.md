@@ -65,8 +65,10 @@ methods, and the network calls themselves (the runtime only builds and sends req
   { [name]: { baseUrl, securitySchemes } }, tools, resources, workflows }`. A workflow tool has
   `workflow` (its id) instead of `operation`; `workflows[id]` is `{ workflowId, summary,
   description, inputs, steps, outputs }`, each step `{ stepId, operation, parameters, requestBody,
-  successCriteria, onSuccess, onFailure, outputs }` with the operation resolved (source, method,
-  path, params from the step's parameters and body, security from the OpenAPI operation) and
+  security, successCriteria, onSuccess, onFailure, outputs }` with the operation resolved (source,
+  method, path, params from the step's parameters and body, security from the OpenAPI operation),
+  `security` its `x-security` entries (the workflow's, then its own) as `{ scheme: { type,
+  scheme?, in?, name? }, values }` with a `schemeName` resolved against its source's schemes, and
   values kept as Arazzo expressions. A tool is
   `{ name, description, inputSchema, annotations, operation }` with `operation = { source, method,
   path, params: [{ name, in, arg?, contentType? }], security }`; `arg` names the argument when it
@@ -104,12 +106,19 @@ methods, and the network calls themselves (the runtime only builds and sends req
   openIdConnectUrl` and OAuth 2 `flows`; `<rapi-doc>`'s injected `_rapidoc_api_key` scheme is
   left out. A tool's `security` is the operation's, else the document's. The runtime uses the
   first alternative all of whose credentials are known; with none, nothing is sent when an
-  alternative is empty, else the first alternative as far as credentials go.
+  alternative is empty, else the first alternative as far as credentials go. A workflow step's
+  `x-security` credentials (`[runtime.js:applyStepSecurity]`), their values filled in by
+  workflow-runtime.js for each request, are sent after those, in order, each replacing a header
+  (any case), query parameter or cookie of the same name; one whose values are missing sends
+  nothing. `[workflows.js:compileSecurity]` leaves out a workflow with an entry it cannot send
+  (an unknown scheme name, HTTP Digest, missing values).
 - **Runtime.** `runtime.js` imports nothing and uses only `fetch`, `URLSearchParams`,
   `TextEncoder` and `btoa`, and `workflow-runtime.js` imports only `./runtime.js`, because the
   project writer embeds their text (`?raw` imports, supported by Vite and
   `scripts/test-loader.mjs`). Path parameters are percent-encoded; array query values
-  repeat the key; objects elsewhere are JSON; `Accept: application/json` unless set; a missing path
+  repeat the key; a query parameter with `allowReserved: true` (the OpenAPI parameter's, or a
+  workflow step parameter's `x-allowReserved`, which overrides it) keeps RFC 3986 reserved
+  characters unencoded, all but `#`, and comes after the others; objects elsewhere are JSON; `Accept: application/json` unless set; a missing path
   parameter is an error result, as is a transport failure or a non-2xx status (text `HTTP <status>`
   plus the body). JSON responses are pretty-printed and, for objects, also `structuredContent`.
 - **Workflows the runtime runs** (`[workflows.js:compileWorkflows]`): steps that name an
@@ -117,7 +126,17 @@ methods, and the network calls themselves (the runtime only builds and sends req
   with `payload` and `replacements`, simple criteria only (`regex`, `jsonpath` and `xpath` are
   reported), actions `end`, `goto` to a step and `retry` (`retryLimit` default 1, `retryAfter`
   seconds) with simple criteria, and `$inputs` / `$steps` expressions. Steps that call another
-  workflow, actions that go to one, and `$workflows` expressions are reported. A step's actions
+  workflow, actions that go to one, and `$workflows` expressions are reported. An `x-operation`
+  step compiles to an operation with `url` (as written) and `source: ""` instead of a path; a
+  relative URL, an unknown method, a path parameter without its `{name}` in the URL and an
+  `x-security` `schemeName` are reported.
+- **x-operation URLs** (`[runtime.js:externalUrl]`): workflow-runtime.js fills in the URL's
+  expressions for each request; `buildRequest` sends to it (path parameters filled in, query
+  appended, no source credentials) only when it is absolute http(s), and, when it was computed
+  at run time, only on a host the workflow names (sources' base URLs, `baseUrls`, written-out
+  x-operation URLs) or `externalHosts` lists (`"*"` any). `<rapi-flow>` passes `["*"]`; the
+  exported `server.ts`, `rapidoc mcp serve` and `@rapidoc/server` read `EXTERNAL_HOSTS` through
+  `[runtime.js:externalHostsFromEnv]`. A step's actions
   are its own `onSuccess` / `onFailure` followed by the workflow's it does not override by name.
   Criteria and actions are read with `../arazzo/actions.js`, as the diagram reads them.
 - **Running a workflow** (`[workflow-runtime.js:runWorkflow]`): required inputs are checked first.

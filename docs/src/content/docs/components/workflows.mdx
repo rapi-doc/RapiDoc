@@ -158,9 +158,84 @@ With `server-is-mock="true"`, the same **Mock Response Status** table works here
 | `onSuccess` / `onFailure`: `end`, `goto`, `retry` with `retryAfter` and `retryLimit` | Yes |
 | `requestBody` with payload and replacements | Yes |
 | `regex`, `jsonpath` and `xpath` criteria | Not yet |
+| [`x-security`](#credentials-in-the-workflow-x-security) on a workflow or step: API key, HTTP Basic, bearer | Yes |
+| `x-security` with HTTP Digest | No |
+| `x-allowReserved` on a step's query parameter, and the OpenAPI parameter's `allowReserved` | Yes |
+| [`x-operation`](#calls-outside-the-api-sources-x-operation): a step that calls a URL outside the sources | Yes |
 | Steps that call another workflow, AsyncAPI sources | Not yet |
 
 A step without `successCriteria` succeeds on a 2xx status; the first matching action runs; a run stops after 1,000 steps. A workflow that uses something not supported yet is still drawn, with a note that explains why it can't run.
+
+## Credentials in the workflow (`x-security`)
+
+`<rapi-flow>` supports the `x-security` extension of [Redocly Respect](https://redocly.com/docs/respect/extensions/x-security), so an Arazzo file can say which credentials each request sends instead of relying on what the reader typed into the Authentication section. Put it on a step, or on the workflow for every step:
+
+```yaml
+workflows:
+  - workflowId: adoptPet
+    inputs:
+      type: object
+      properties:
+        apiKey: { type: string, format: password }
+        token: { type: string, format: password }
+    x-security:                      # every step
+      - scheme: { type: http, scheme: bearer }
+        values: { token: $inputs.token }
+    steps:
+      - stepId: checkPet
+        operationId: getPetById
+        x-security:                  # this step only
+          - schemeName: api_key      # a scheme of the step's OpenAPI source
+            values: { apiKey: $inputs.apiKey }
+```
+
+- Each entry has either `schemeName` (a scheme in the step's source's `components.securitySchemes`) or an inline `scheme`, plus `values`: `apiKey` for an API key (`in: header`, `query` or `cookie`), `username` and `password` for HTTP Basic, `token` for HTTP Bearer, OAuth 2 and OpenID Connect.
+- Values are usually `$inputs.<name>`, or `$steps.<id>.outputs.<name>` for a token an earlier step returned. An input that is not given sends nothing for that entry.
+- The workflow's entries are sent first, then the step's, after the credentials entered in the page. Where two set the same header, query parameter or cookie, the later one wins, so the step's override the workflow's.
+- Inputs with `format: password` get a password field in the run panel, and the log shows them as `••••••`. The diagram lists each step's credentials under **Security** with the scheme, and never shows a value written into the file itself.
+- HTTP Digest is not supported: a browser cannot read the API's challenge across origins. A workflow that uses it is drawn, with a note that it cannot run.
+
+In an [MCP export](/docs/ai/mcp-server/#workflows-as-tools), password inputs are arguments of the workflow's tool, so the agent supplies them. To keep a secret away from the agent, leave it out of `x-security` and set the scheme's environment variable instead.
+
+## Calls outside the API sources (`x-operation`)
+
+A step can call an endpoint that no source description describes, such as a file download link an earlier step returned, or a third-party API, with the `x-operation` extension of [Redocly Respect](https://redocly.com/docs/respect/extensions/x-operation). It takes the place of `operationId`:
+
+```yaml
+steps:
+  - stepId: upload
+    operationId: uploadFile
+    outputs:
+      fileUrl: $response.body#/url
+  - stepId: download
+    x-operation:
+      url: $steps.upload.outputs.fileUrl   # or an absolute URL: https://cdn.example.com/files/{id}
+      method: get
+    successCriteria:
+      - condition: $statusCode == 200
+```
+
+- `url` is an absolute `http` or `https` URL, or a runtime expression; `{$inputs.x}` can be interpolated into a URL too. `method` is any HTTP method, in any case.
+- `parameters` work as for other steps: query, header and cookie values are added, and a path parameter fills its `{name}` in the URL. `requestBody`, `successCriteria`, actions and `outputs` are the same.
+- No source credentials are sent, since the URL belongs to no source. To send some, add [`x-security`](#credentials-in-the-workflow-x-security) with an inline `scheme` (`schemeName` has no source to look in).
+- The diagram draws the step with a dashed border, its method and URL, and an **external** tag. A URL computed from an earlier step lists that step under **URL**, like any value passed between steps. The step does not open anything in the reference.
+- Runs call the URL from the reader's browser, so that server must allow cross-origin requests from the docs site; the log says so when the request fails. A mock does not answer these steps.
+
+In an [MCP export](/docs/ai/mcp-server/#workflows-as-tools), the server makes the request. A URL written into the Arazzo file is always called; a URL computed at run time (from an input or a response) is called only on a host the workflow names (its API sources' servers, or another step's written-out URL), so an agent or an API can't send the server to an address of its choosing. List more hosts in `EXTERNAL_HOSTS` (comma-separated, `*` for any), which the exported server, `rapidoc mcp serve` and `rapidoc serve` all read, or with the runtime's `externalHosts` option.
+
+## Reserved characters in query values (`x-allowReserved`)
+
+Query values are percent-encoded, so `https://a.example/x` is sent as `https%3A%2F%2Fa.example%2Fx`. When the API expects the value as is (a URL, a filter expression), set `x-allowReserved: true` on the step's parameter, the Arazzo counterpart of OpenAPI's `allowReserved`, as in [Redocly Respect](https://redocly.com/docs/respect/extensions/x-allow-reserved):
+
+```yaml
+parameters:
+  - name: filter
+    in: query
+    value: https://example.com/path/to;x,y
+    x-allowReserved: true        # ?filter=https://example.com/path/to;x,y
+```
+
+The reserved characters `: / ? [ ] @ ! $ & ' ( ) * + , ; =` are then sent unencoded; spaces and other characters are still encoded, and so is `#`, which would end the URL's query. A query parameter with `allowReserved: true` in the OpenAPI document is sent the same way without the extension; `x-allowReserved: false` turns that off for one step.
 
 ## Slots
 

@@ -29,12 +29,18 @@ export interface McpOperationParam {
   arg?: string;
   /** For `in: "body"`: the request body's media type. */
   contentType?: string;
+  /** For `in: "query"`: send RFC 3986 reserved characters unencoded (OpenAPI `allowReserved`). */
+  allowReserved?: boolean;
 }
 
 export interface McpOperation {
+  /** The source description's name; "" for an `x-operation` step. */
   source: string;
   method: string;
-  path: string;
+  /** The OpenAPI path; absent for an `x-operation` step, which has `url` instead. */
+  path?: string;
+  /** An `x-operation` step's URL as written: absolute, or a runtime expression. */
+  url?: string;
   params: McpOperationParam[];
   /** OpenAPI security requirement alternatives, `{ schemeId: scopes }` each. */
   security: Record<string, string[]>[];
@@ -82,6 +88,11 @@ export interface McpWorkflowStep {
     payload: unknown;
     replacements?: { target: string; value: unknown }[];
   } | null;
+  /** The step's `x-security` entries (the workflow's, then its own); values may be expressions. */
+  security: {
+    scheme: { type: string; scheme?: string; in?: string; name?: string };
+    values: Record<string, unknown>;
+  }[];
   successCriteria: McpCriterion[];
   /** The step's own actions, then the workflow's it does not override by name. */
   onSuccess: McpAction[];
@@ -159,6 +170,11 @@ export interface RuntimeOptions {
   credentials?: Record<string, McpCredential>;
   /** By source name, overriding the manifest's base URLs. */
   baseUrls?: Record<string, string>;
+  /**
+   * Hosts an `x-operation` URL computed at run time (from an input or a response) may go to,
+   * besides the hosts the workflow names; `["*"]` allows any.
+   */
+  externalHosts?: string[];
   /** Waits between retries; defaults to setTimeout. */
   sleep?: (ms: number) => Promise<void>;
   /** Runs workflow tools; `@rapidoc/mcp`'s createMcpRuntime sets it to `runWorkflow`. */
@@ -273,7 +289,12 @@ export function buildRequest(
   manifest: McpManifest,
   operation: McpOperation,
   args?: Record<string, unknown>,
-  options?: Pick<RuntimeOptions, "credentials" | "baseUrls">,
+  options?: Pick<RuntimeOptions, "credentials" | "baseUrls" | "externalHosts"> & {
+    /** An `x-operation` step's URL with its expressions filled in. */
+    url?: string;
+    /** A workflow step's `x-security` credentials, values filled in. */
+    security?: McpWorkflowStep["security"];
+  },
 ): BuiltRequest;
 
 /** Credentials for every security scheme, from variables such as `PETSTORE_AUTH` or `API_KEY`. */
@@ -281,6 +302,12 @@ export function credentialsFromEnv(
   manifest: McpManifest,
   env?: Record<string, string | undefined>,
 ): Record<string, McpCredential>;
+
+/**
+ * The hosts `EXTERNAL_HOSTS` lists (comma-separated, `*` for any), as RuntimeOptions'
+ * `externalHosts`.
+ */
+export function externalHostsFromEnv(env?: Record<string, string | undefined>): string[];
 
 /** `petstore_auth` → `PETSTORE_AUTH`. */
 export function envNameFor(schemeId: string): string;

@@ -19,7 +19,12 @@ export {
 } from "./mcp/common.js";
 export { buildMcpManifest, toJsonSchema, MANIFEST_VERSION } from "./mcp/manifest.js";
 export { compileWorkflows } from "./mcp/workflows.js";
-export { createMcpRuntime, buildRequest, credentialsFromEnv } from "./mcp/runtime.js";
+export {
+  createMcpRuntime,
+  buildRequest,
+  credentialsFromEnv,
+  externalHostsFromEnv,
+} from "./mcp/runtime.js";
 export { writeMcpProject } from "./mcp/project.js";
 export { createZip } from "./mcp/zip.js";
 
