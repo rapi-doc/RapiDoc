@@ -13,7 +13,7 @@ export const DEFAULT_THEME = "ember";
  * - 'cobalt': matte steel-blue accent over grey-blue slate, with cards darker than the page
  * - 'jade':   daisyUI-style green accent over slate-navy, with cards darker than the page
  * - 'indigo': indigo accent over indigo-black
- * - 'amber':  amber accent over slate grey, with lighter cards, a darker sidebar and white headings
+ * - 'amber':  amber accent over slate grey, with lighter cards, a darker sidebar and white headings (orange in light mode)
  */
 export const THEMES = {
   ember: {
@@ -104,7 +104,7 @@ export const THEMES = {
       --heading-color: #ffffff;
     `,
     light: `
-      --primary: #d97706;
+      --primary: #ff791a;
       --primary-foreground: #000000;
       --background: #ffffff;
       --foreground: #2a2d35;
