@@ -8,7 +8,7 @@ import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
 An API reference shows operations one at a time. Integrators also need the order: find a pet, check it, order it, read the order back. [Arazzo](https://spec.openapis.org/arazzo/latest.html) describes those sequences, and `<rapi-flow>` draws them: one box per step, linked to its operation, the values each step passes on, and the success and failure branches. Readers can run a workflow from the page and watch each step answer.
 
 <Aside type="tip" title="See it running">
-  The [Arazzo Workflows guide](/guides/workflows) runs a workflow against the in-browser mock, the [rapi-flow example](/examples/arazzo) puts the diagram next to a full API reference, and the [multi-API example](/examples/arazzo-multi) pairs it with one `<rapi-doc-mini>` per API.
+  The [RapiFlow page](/rapi-flow/) runs a workflow against the in-browser mock, the [rapi-flow example](/examples/arazzo) puts the diagram next to a full API reference, and the [multi-API example](/examples/arazzo-multi) pairs it with one `<rapi-doc-mini>` per API.
 </Aside>
 
 ## Load it
@@ -40,5 +40,6 @@ With a bundler, `import 'rapidoc/flow';` registers the element. It carries its o
   <LinkCard title="Pairing with <rapi-doc>" href="/docs/rapi-flow/pairing/" description="API sources, one element per API, and links to a step." />
   <LinkCard title="Running workflows" href="/docs/rapi-flow/running/" description="Run a workflow from the page, against the API or a mock, and what runs." />
   <LinkCard title="Arazzo extensions" href="/docs/rapi-flow/extensions/" description="x-security, x-operation and x-allowReserved." />
-  <LinkCard title="Reference" href="/docs/rapi-flow/reference/" description="Attributes, events, slots and CSS parts." />
+  <LinkCard title="API Reference" href="/api/rapi-flow/" description="Every attribute, method and event, read from the element's source." />
+  <LinkCard title="Slots & Styling" href="/docs/rapi-flow/styling/" description="Your own header and footer, CSS parts and properties." />
 </CardGrid>

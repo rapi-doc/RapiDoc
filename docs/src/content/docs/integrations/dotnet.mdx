@@ -1,0 +1,26 @@
+---
+title: ASP.NET Core
+description: Serve a RapiDoc API reference from an ASP.NET Core app with the RapiDoc.AspNetCore NuGet package.
+---
+
+```bash
+dotnet add package RapiDoc.AspNetCore
+```
+
+```csharp
+using RapiDoc.AspNetCore;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+app.MapOpenApi();
+app.MapRapiDoc(options => options.Attributes["render-style"] = "focused");
+
+app.Run();
+```
+
+The reference is at `/docs` and reads the document `MapOpenApi()` serves at `/openapi/v1.json`. With Swashbuckle or NSwag, set `options.SpecUrl` to their document. `MapRapiDoc` returns an endpoint builder, so `.RequireAuthorization()` protects the reference, and `MapRapiDoc("/reference")` moves it. Needs .NET 8 or later.
+
+The package and its options are described in its [README](https://github.com/rapi-doc/RapiDoc/tree/master/integrations/rapidoc-dotnet#readme).

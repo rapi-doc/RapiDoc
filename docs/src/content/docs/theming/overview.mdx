@@ -236,6 +236,11 @@ function toggleDarkMode() {
 function updateRadius(radiusValue) {
   doc.setAttribute('radius', radiusValue); // 'none', 'sm', 'md', 'lg', 'full'
 }
+
+// Make everything smaller or larger
+function setScale(size) {
+  doc.setAttribute('scale', size); // 'sm', 'default', 'lg'
+}
 ```
 
 ---

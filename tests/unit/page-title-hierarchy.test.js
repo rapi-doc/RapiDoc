@@ -129,3 +129,31 @@ describe("pageMeta auto-lookup from page-data", () => {
     assert.match(meta.description, /OpenAPI schema edge case/);
   });
 });
+
+describe("product pages", () => {
+  it("keep their own title and are grouped as Products", () => {
+    const info = computePageTitleInfo(
+      "/rapipdf/",
+      "RapiPdf: Turn an OpenAPI Spec into a PDF | RapiDoc",
+    );
+    assert.equal(info.seoTitle, "RapiPdf: Turn an OpenAPI Spec into a PDF | RapiDoc");
+    assert.equal(info.gaTitle, "Products / RapiPdf");
+    assert.equal(info.contentGroup, "Products");
+  });
+
+  it("are listed for every top-level product link of the Products menu", async () => {
+    const { PRODUCT_GROUPS } = await import("../../docs/src/page-data/products.ts");
+    for (const group of PRODUCT_GROUPS) {
+      for (const item of group.items) {
+        const segments = item.href.split("#")[0].split("/").filter(Boolean);
+        // Product pages are one segment deep; /docs/ (RapiDoc's link) is a section of the site
+        if (item.external || segments.length !== 1 || segments[0] === "docs") continue;
+        assert.equal(
+          computePageTitleInfo(item.href, `${item.label} | RapiDoc`).contentGroup,
+          "Products",
+          item.href,
+        );
+      }
+    }
+  });
+});

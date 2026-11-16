@@ -1,0 +1,152 @@
+---
+title: Pre-rendering
+description: "Render a RapiDoc API reference to HTML at build time with @rapidoc/prerender: Declarative Shadow DOM that shows before any JavaScript runs, and that search engines can read."
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import PrerenderEndpointDemo from '../../../components/PrerenderEndpointDemo.astro';
+
+`<rapi-doc>` renders in the browser, so until its script runs the page is empty, and a crawler that doesn't run JavaScript sees nothing. `@rapidoc/prerender` renders the same templates at build time, in Node or Bun, and returns HTML: the reference shows on the first paint, and search engines index it. Load `rapidoc` in the page too, and the element takes over the pre-rendered markup for **Try**, search and navigation.
+
+```bash
+npm install @rapidoc/prerender
+```
+
+It needs Node 22.12 or later.
+
+## Render the whole reference
+
+`renderRapiDoc` returns a `<rapi-doc>` element with its content inside, as [Declarative Shadow DOM](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template#shadowrootmode): the browser attaches the shadow root while parsing, before any script runs.
+
+<Tabs syncKey="prerender">
+  <TabItem label="Node or Bun">
+```javascript title="prerender.mjs"
+import fs from 'node:fs';
+import { renderRapiDoc } from '@rapidoc/prerender';
+
+const reference = await renderRapiDoc({
+  spec: './specs/petstore.yaml', // a file, a URL, spec text or a spec object
+  renderStyle: 'read',
+  theme: 'ember',
+  colorScheme: 'dark',
+});
+
+fs.writeFileSync('./dist/api.html', `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>API Reference</title>
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>${reference}</body>
+</html>`);
+```
+  </TabItem>
+  <TabItem label="Astro">
+```astro title="src/pages/api.astro"
+---
+import { renderRapiDoc } from '@rapidoc/prerender';
+
+const reference = await renderRapiDoc({ spec: './public/specs/petstore.json', renderStyle: 'read' });
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <Fragment set:html={reference} />
+  </body>
+</html>
+```
+  </TabItem>
+  <TabItem label="Next.js">
+```tsx title="app/api-reference/page.tsx"
+import { renderRapiDoc } from '@rapidoc/prerender';
+import Script from 'next/script';
+
+export default async function ApiReferencePage() {
+  const reference = await renderRapiDoc({ spec: 'https://api.example.com/openapi.json' });
+
+  return (
+    <main>
+      <Script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js" />
+      <div dangerouslySetInnerHTML={{ __html: reference }} />
+    </main>
+  );
+}
+```
+  </TabItem>
+</Tabs>
+
+The output looks like this:
+
+```html
+<rapi-doc theme="ember" color-scheme="dark" render-style="read" layout="column">
+  <template shadowrootmode="open">
+    <style>/* the element's styles */</style>
+    <!-- navigation, tags, operations and schemas, as the element renders them -->
+  </template>
+</rapi-doc>
+```
+
+With `outputMode: 'html'` (or `'light'`) you get plain light-DOM HTML in a `<div class="rapidoc-prerender-container">` with scoped styles instead: static, with nothing for the element to take over.
+
+## Render one endpoint or one schema
+
+`renderEndpoint` and `renderSchema` render a single operation or schema, for a guide or a blog post built at build time. Their output is light-DOM HTML with its own styles, so it needs no JavaScript at all. This card was rendered when this site was built:
+
+<PrerenderEndpointDemo />
+
+```javascript
+import { renderEndpoint, renderSchema } from '@rapidoc/prerender';
+
+const endpoint = await renderEndpoint({
+  spec: './specs/logistics.yaml',
+  path: '/shipments/{shipmentId}',
+  method: 'get',
+  allowTry: false,
+});
+
+const schema = await renderSchema({
+  spec: './specs/logistics.yaml',
+  schema: 'ShipmentResponse', // a name under components/schemas, or a schema object
+  style: 'table',             // or 'tree'
+});
+```
+
+For an interactive single endpoint in the browser instead, use [`<rapi-doc-mini>`](/docs/rapidoc-mini/).
+
+## Options
+
+`renderRapiDoc` takes the attributes of `<rapi-doc>` in camelCase. The main ones:
+
+| Option | Default | |
+| :--- | :--- | :--- |
+| `spec` | (required) | A file path, a URL, spec text (JSON or YAML) or a spec object. |
+| `renderStyle` | `'read'` | `'read'`, `'view'` or `'focused'`. |
+| `layout` | `'column'` for read and focused, `'row'` for view | Request and response side by side, or one above the other. |
+| `theme` | `'ember'` | A preset (`ember`, `carbon`, `cobalt`, `jade`, `indigo`) or a hex color. |
+| `colorScheme` | `'dark'` | `'dark'`, `'light'` or `'system'`. |
+| `schemaStyle` | `'table'` | `'table'` or `'tree'`. |
+| `schemaExpandLevel` | `99999` | How many schema levels start expanded. |
+| `defaultSchemaTab` | | `'example'` or `'schema'`. |
+| `filterOperations` | | Which operations to render, as [`filter-operations`](/api/#filter-operations). |
+| `showHeader`, `showSideNav`, `showInfo` | | Show or hide those parts, as on the element. |
+| `allowTry`, `allowSearch`, `allowAdvancedSearch`, `allowServerSelection`, `allowAuthentication` | | Include those features, as on the element. |
+| `focusedElementId` | `'overview'` | The operation shown first in focused mode. |
+| `pageDirection` | | `'ltr'` or `'rtl'`. |
+| `outputMode` | `'dsd'` | `'dsd'` (Declarative Shadow DOM), or `'html'` / `'light'` for plain light-DOM HTML. |
+| `includeStyles` | `true` | Inline the element's styles in the output. |
+| `inlineSpec` | `true` | With a spec object, inline it in the output, so the element doesn't fetch it again. |
+
+`renderEndpoint` takes `spec`, `path`, `method`, and `renderStyle`, `layout`, `theme`, `colorScheme`, `includeStyles`, `allowTry` and `schemaStyle`. `renderSchema` takes `schema`, `spec`, `style`, `schemaExpandLevel`, `theme`, `colorScheme` and `includeStyles`. The types are in the package's `index.d.ts`.
+
+## A static sidebar
+
+For a site that draws its own navigation beside a headless `<rapi-doc>`, as the [RapiDoc Portal](https://portal.rapidocui.com/) does, the package also renders the sidebar: `getNavBarHtml(spec, options)` returns its HTML, `getNavCss()` and `getThemeTokensCss(theme)` its styles, and `bindNavBar(sidebar, rapiDoc)` ties it to the element in the browser, so clicks scroll the reference and the current operation is highlighted. `getSpecNavigation(spec)` returns the same tags and operations as data, to build your own.
+
+<Aside>
+  The pre-rendered HTML comes from the same templates as the element, so the two match.
+</Aside>

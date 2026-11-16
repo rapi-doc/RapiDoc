@@ -65,19 +65,54 @@ tmpl.innerHTML = `
 `;
 
 /**
- * `<rapi-pdf>`: a spec URL field and a button that turns the spec into a PDF.
+ * `<rapi-pdf>`: a spec URL field and a button that turns the spec into a PDF. Labels come as JSON in a
+ * `<template>` child. While a PDF is being made the element has the `generating` attribute and its button
+ * is disabled.
  *
- * Attributes: `spec-url`; `output` (`open` in a new tab, the default, or `download`) and `file-name`
- * for downloads; what goes in the PDF (`include-info`, `include-toc`, `include-security`,
- * `include-api-details`, `include-api-list`, `include-example`, `pdf-sort-tags`,
- * `pdf-schema-style`, `pdf-title`, `pdf-footer-text`, `pdf-primary-color`, `pdf-alternate-color`);
- * and the element's own look (`button-label`, `button-bg`, `button-color`, `input-bg`,
- * `input-color`, `hide-input`). Labels come as JSON in a `<template>` child.
+ * The attributes are read when a PDF is made, so they are declared here rather than as properties:
+ * `@attr name | group | allowed values | default | description`. The docs site's /api/rapi-pdf/ page is
+ * built from these tags (scripts/rapidoc-api.js); keep them in step with pdfOptions() and
+ * observedAttributes.
  *
- * While a PDF is being made the element has the `generating` attribute and its button is disabled.
+ * @attr spec-url | Spec | | | URL of the spec: OpenAPI 3.x or Swagger 2.0, JSON or YAML. It fills the
+ *   input field, and the reader can change it there. <code>generatePdf(spec)</code> takes a spec object or
+ *   text instead.
+ * @attr output | Output | open, download | open | <span class="mono yellow">open</span> shows the PDF in a
+ *   new tab; <span class="mono yellow">download</span> saves it. If the browser blocks the new tab, the PDF
+ *   is downloaded instead.
+ * @attr file-name | Output | | api-reference | Name of the downloaded file; <code>.pdf</code> is added when
+ *   it is missing.
+ * @attr pdf-title | PDF Content | | API Reference | Title on the cover page.
+ * @attr pdf-footer-text | PDF Content | | | Text at the bottom of every page.
+ * @attr include-info | PDF Content | true, false | true | <span class="mono yellow">false</span> leaves out
+ *   the cover page with the API's title, version, description and contact.
+ * @attr include-toc | PDF Content | true, false | true | <span class="mono yellow">false</span> leaves out the
+ *   table of contents.
+ * @attr include-security | PDF Content | true, false | true | <span class="mono yellow">false</span> leaves
+ *   out the security schemes.
+ * @attr include-api-details | PDF Content | true, false | true | <span class="mono yellow">false</span> leaves
+ *   out the operations: their parameters, request bodies and responses.
+ * @attr include-example | PDF Content | true, false | false | <span class="mono yellow">true</span> adds the
+ *   request and response examples.
+ * @attr include-api-list | PDF Content | true, false | false | <span class="mono yellow">true</span> adds a
+ *   closing list of every operation.
+ * @attr pdf-sort-tags | PDF Content | true, false | true | <span class="mono yellow">false</span> keeps the
+ *   tags in the spec's order instead of sorting them by name.
+ * @attr pdf-schema-style | PDF Look | object, table | object | How schemas are drawn: as an indented
+ *   object, or as a table.
+ * @attr pdf-primary-color | PDF Look | | #b44646 | Color of headings and operation titles.
+ * @attr pdf-alternate-color | PDF Look | | #005b96 | Color of section labels and table headers.
+ * @attr button-label | Element Look | | GENERATE PDF | Text of the button.
+ * @attr button-bg | Element Look | | | Background color of the button (and the input's border).
+ * @attr button-color | Element Look | | | Text color of the button.
+ * @attr input-bg | Element Look | | | Background color of the spec URL field.
+ * @attr input-color | Element Look | | | Text color of the spec URL field.
+ * @attr hide-input | Element Look | true, false | false | <span class="mono yellow">true</span> hides the
+ *   spec URL field, leaving only the button.
  *
- * @fires pdf-generated - a PDF was made; `detail.output` is "open", "download" or "blob"
- * @fires pdf-error - it could not be made; `detail.error` is the Error
+ * @fires pdf-generated - A PDF was made. <span class="mono yellow">e.detail.output</span> is
+ *   <code>"open"</code>, <code>"download"</code> or <code>"blob"</code>.
+ * @fires pdf-error - The PDF could not be made. <span class="mono yellow">e.detail.error</span> is the Error.
  */
 export class RapiPdf extends HTMLElement {
   constructor() {
@@ -267,7 +302,10 @@ export class RapiPdf extends HTMLElement {
   }
 
   /**
-   * Makes the PDF and opens it in a new tab, or downloads it when `output="download"`.
+   * Makes the PDF and opens it in a new tab, or downloads it when <code>output="download"</code>. Takes a
+   * spec URL, spec text or a spec object; without one, the <code>spec-url</code> attribute. Resolves when
+   * the PDF is open or the download has started.
+   * @public generatePdf(spec?)
    * @param {string | object} [spec] a URL, spec text or a spec object; default: the `spec-url` attribute
    * @returns {Promise<void>} resolves when the PDF is open or the download has started
    */
@@ -291,8 +329,9 @@ export class RapiPdf extends HTMLElement {
   }
 
   /**
-   * Makes the PDF and returns it, without opening or downloading anything: for a page that shows
-   * or uploads the PDF itself, or where new tabs are not allowed.
+   * Makes the PDF and resolves with it as a <code>Blob</code>, without opening or downloading anything: for
+   * a page that shows or uploads the PDF itself, or where new tabs are not allowed.
+   * @public getPdfBlob(spec?)
    * @param {string | object} [spec] a URL, spec text or a spec object; default: the `spec-url` attribute
    * @returns {Promise<Blob>}
    */

@@ -33,6 +33,9 @@ export function cleanRawTitle(rawTitle: string): string {
   return clean;
 }
 
+/** Top-level product pages; keep in step with the hrefs in page-data/products.ts */
+const PRODUCT_PAGES = new Set(["rapidoc-mini", "rapi-flow", "rapipdf", "cli", "integrations"]);
+
 /**
  * Computes hierarchical page title info for both SEO (<title>) and Google Analytics.
  *
@@ -106,7 +109,20 @@ export function computePageTitleInfo(pathname: string, rawTitle?: string): PageT
     };
   }
 
-  // 4. Section Root pages (e.g. /examples, /tests, /api, /quickstart)
+  // 4. Product pages (/rapidoc-mini, /rapi-flow, /rapipdf, /cli, /integrations): the page's own title,
+  // grouped as Products in analytics
+  if (!secondSeg && PRODUCT_PAGES.has(firstSeg)) {
+    const subject = cleanSubject.split(":")[0].trim() || section;
+    return {
+      cleanTitle: subject,
+      hierarchyTitle: `Products / ${subject}`,
+      seoTitle: rawTitle || `${subject} | ${siteName}`,
+      gaTitle: `Products / ${subject}`,
+      contentGroup: "Products",
+    };
+  }
+
+  // 5. Section Root pages (e.g. /examples, /tests, /api, /quickstart)
   if (!secondSeg) {
     if (firstSeg === "api") {
       const seoTitle =
@@ -144,7 +160,7 @@ export function computePageTitleInfo(pathname: string, rawTitle?: string): PageT
     };
   }
 
-  // 5. Standard subpages (/examples/some-html, /tests/some-html, /guides/theme, etc.)
+  // 6. Standard subpages (/examples/some-html, /tests/some-html, /guides/theme, etc.)
   const hierarchyTitle = `${section} / ${cleanSubject}`;
   const seoTitle = `${hierarchyTitle} | ${siteName}`;
   const gaTitle = hierarchyTitle;

@@ -1,0 +1,54 @@
+---
+title: Hono, Express & Fastify
+description: Serve a RapiDoc API reference from a Hono, Express or Fastify app with @rapidoc/hono, @rapidoc/express and @rapidoc/fastify.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+A server can serve the API reference itself, next to the API. These packages add the page, the bundle and the OAuth return page to your app, so there is no HTML to write.
+
+## Hono
+
+```bash
+npm install @rapidoc/hono
+```
+
+```javascript
+import { Hono } from 'hono';
+import { rapidoc } from '@rapidoc/hono';
+
+const app = new Hono();
+
+app.get('/openapi.json', (c) => c.json(openApiDocument));
+app.use(rapidoc({ specUrl: '/openapi.json', options: { renderStyle: 'focused' } }));
+```
+
+The reference is at `/docs`; change it with `uiPath`. `options` takes any [attribute of `<rapi-doc>`](/api/). On Cloudflare Workers, import from `@rapidoc/hono/edge`, which loads the bundle from a CDN instead of reading it from disk.
+
+## Express and Fastify
+
+<Tabs>
+  <TabItem label="Express">
+```javascript
+import express from 'express';
+import { rapidoc } from '@rapidoc/express';
+
+const app = express();
+
+app.get('/openapi.json', (req, res) => res.json(openApiDocument));
+app.use(rapidoc({ specUrl: '/openapi.json' }));
+```
+  </TabItem>
+  <TabItem label="Fastify">
+```javascript
+import Fastify from 'fastify';
+import { rapidoc } from '@rapidoc/fastify';
+
+const fastify = Fastify();
+
+await fastify.register(rapidoc, { specUrl: '/openapi.json' });
+```
+  </TabItem>
+</Tabs>
+
+Both serve the reference at `/docs` and take the same options as the Hono package. Mounted under a prefix (`app.use('/api', …)`, or Fastify's `prefix`), the page's links include it.

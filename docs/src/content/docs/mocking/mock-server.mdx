@@ -25,9 +25,9 @@ When two files would get the same name, their parent folders are added until the
 ## What it answers
 
 - **Examples first.** An operation's response example is returned when the spec has one; otherwise data is generated from the schema, respecting formats, patterns, enums and ranges. Generated data is the same on every run (change it with `--seed`).
-- **Requests are validated.** Parameters and JSON, form and multipart bodies are checked against the spec. A bad request gets `400` with the list of problems.
+- **Requests are validated.** Parameters and JSON, form and multipart bodies are checked against the spec. A bad request gets `400` with the list of problems (`422` when the operation documents `422` and not `400`).
 - **Security is enforced** per operation:
-  - **OAuth 2, OpenID Connect and HTTP bearer**: with `--issuer`, the token must be a JWT signed by that issuer, unexpired and for the `--audience`, or the request gets `401`. It must also grant the operation's scopes in its `scope`, `scp` or `permissions` claim, or the request gets `403`. Without `--issuer`, any bearer token is accepted.
+  - **OAuth 2, OpenID Connect and HTTP bearer**: with `--issuer`, the token must be a JWT signed by that issuer, unexpired and for the `--audience`, or the request gets `401`. It must also grant the operation's scopes in its `scope`, `scp` or `permissions` claim, or the request gets `403` with `WWW-Authenticate: Bearer error="insufficient_scope"`. Without `--issuer`, any bearer token is accepted.
   - **API key** and **HTTP Basic**: the credential must be present.
   - `security: []`: open.
 - **CORS** is allowed for any origin.

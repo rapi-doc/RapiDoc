@@ -582,3 +582,150 @@ code {
   border-radius: var(--rd-radius-xs);
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   Product pages (/rapidoc-mini/, /rapi-flow/, /rapipdf/, /cli/, /integrations/)
+   and the product family on the home page
+   ========================================================================== */
+/* Buttons under a page hero's subtitle */
+.rd-hero-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 36px 0;
+}
+
+.rd-product-main {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--rd-page-top) 24px 96px 24px;
+}
+
+/* An install snippet under the hero, left-aligned inside a centered column */
+.rd-product-install {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.rd-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* A static card: icon, title, text. As a link (a.rd-feature-card), it reacts to hover. */
+.rd-feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--rd-surface);
+  border: 1px solid var(--rd-border);
+  border-radius: var(--rd-radius-lg);
+  padding: 22px;
+  text-decoration: none;
+  transition: var(--rd-transition);
+}
+a.rd-feature-card:hover {
+  background: var(--rd-card-bg-hover);
+  border-color: var(--rd-card-border-hover);
+}
+.rd-feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--rd-radius-sm);
+  background: var(--rd-icon-bg);
+  color: var(--rd-accent);
+  margin-bottom: 6px;
+  transition: var(--rd-transition);
+}
+a.rd-feature-card:hover .rd-feature-icon {
+  background: var(--rd-icon-bg-hover);
+}
+.rd-feature-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--rd-text-bright);
+}
+.rd-feature-tag {
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--rd-text-dim);
+}
+.rd-feature-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--rd-text-muted);
+}
+.rd-feature-text code {
+  font-family: var(--rd-font-mono);
+  font-size: 0.92em;
+  color: var(--rd-text-soft);
+}
+.rd-feature-more {
+  margin-top: auto;
+  padding-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rd-accent);
+}
+
+/* Two columns: text on one side, code on the other; stacked on small screens */
+.rd-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .rd-split {
+    grid-template-columns: 1fr 1.2fr;
+    gap: 40px;
+  }
+}
+.rd-split-text p {
+  margin: 0 0 14px 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--rd-text-muted);
+}
+.rd-split-text code {
+  font-family: var(--rd-font-mono);
+  font-size: 0.9em;
+  color: var(--rd-text-soft);
+}
+
+/* The closing box of a product page: where to go next */
+.rd-next-steps {
+  text-align: center;
+  background: var(--rd-surface);
+  border: 1px solid var(--rd-border);
+  border-radius: var(--rd-radius-lg);
+  padding: 40px 24px;
+}
+.rd-next-steps .rd-section-title {
+  margin-bottom: 10px;
+}
+.rd-next-steps .rd-section-desc {
+  margin: 0 auto 24px auto;
+  max-width: 600px;
+}
+.rd-next-steps .rd-hero-actions {
+  margin: 0;
+}

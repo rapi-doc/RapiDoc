@@ -77,19 +77,19 @@ const specUrl = getSpecUrl(Astro.url);
       </span>
     </p>
 
-    <p slot="tag--Create-User" style="margin-top:10px; padding:16px 36px; background-color:#ac7339; color:#fff; text-align:center;" > 
+    <p slot="tag--create-user" style="margin-top:10px; padding:16px 36px; background-color:#ac7339; color:#fff; text-align:center;" > 
       <b>dynamic slot</b> | 
       <span style="font-size:12px">
         The slot is created using tag name defined in the spec using the format: <span style="font-size:13px" class="mono">tag--&#123;tag-name&#125;</span><br/>
-        This slot name is <span style="font-size:13px" class="mono">tag--Create-User</span>
+        This slot name is <span style="font-size:13px" class="mono">tag--create-user</span> (the tag name in lowercase kebab-case)
       </span>
     </p>
 
-    <p slot="post-/users" style="margin-top:10px; padding:16px 36px; background-color:orangered; color:#fff; text-align:center;" > 
+    <p slot="create-a-user" style="margin-top:10px; padding:16px 36px; background-color:orangered; color:#fff; text-align:center;" > 
       <b>dynamic slot</b> | 
       <span style="font-size:12px">
-        The slot is created using method and path defined in the spec. <br/>
-        This slot name is <span style="font-size:13px" class="mono">post-/users</span>
+        The slot is named after the operation's element ID: its operationId in kebab-case or, without one, its summary. <br/>
+        This slot name is <span style="font-size:13px" class="mono">create-a-user</span>
       </span>
     </p>
 

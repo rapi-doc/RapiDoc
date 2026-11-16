@@ -10,6 +10,8 @@ interface ExampleItem {
   isWide?: boolean;
   isDoc?: boolean;
   category?: string;
+  /** The web components the example shows (rapi-doc when left out), for the gallery's product tabs */
+  elements?: string[];
 }
 
 interface SubExampleList {

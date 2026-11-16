@@ -1,9 +1,16 @@
 ---
-import GlobalLayout from '../layouts/GlobalLayout.astro';
-import SiteNavbar from '../components/SiteNavbar.astro';
-import SiteFooter from '../components/SiteFooter.astro';
-import CodeBlock from '../components/CodeBlock.astro';
-import { rapidocApiData, RapidocAttribute } from '../page-data/rapidoc-api';
+// One page per element under /api: /api/ for <rapi-doc>, /api/<tag>/ for the others (API_ELEMENTS).
+import type { GetStaticPaths } from 'astro';
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import {
+  API_ELEMENTS,
+  readElementApi,
+  type ApiElement,
+  type RapidocAttribute,
+} from '../../page-data/rapidoc-api';
 import GithubSlugger from 'github-slugger';
 import {
   IconSearch,
@@ -11,6 +18,19 @@ import {
   IconX,
   IconArrowUpRight,
 } from '@tabler/icons-astro';
+
+export const getStaticPaths = (() =>
+  API_ELEMENTS.map((element) => ({
+    params: { element: element.slug || undefined },
+    props: { element },
+  }))) satisfies GetStaticPaths;
+
+const { element } = Astro.props as { element: ApiElement };
+const isRapiDoc = element.tag === 'rapi-doc';
+const tagName = `<${element.tag}>`;
+const rapidocApiData = readElementApi(element);
+const apiHref = (el: ApiElement) => (el.slug ? `/api/${el.slug}/` : '/api/');
+const guideExternal = /^https?:/.test(element.guide.href);
 
 const slugger = new GithubSlugger();
 
@@ -28,8 +48,12 @@ const totalMethods = visibleMethods.length;
 const totalEvents = visibleEvents.length;
 const totalSlots = visibleSlots.length;
 const totalExtensions = visibleExtensions.length;
+const methodsCount = totalMethods;
+const eventsCount = totalEvents;
+const slotsCount = totalSlots;
+const extensionsCount = totalExtensions;
 
-const eventCodeExample = `// Intercept requests and add authentication or telemetry
+const rapidocEventCode = `// Intercept requests and add authentication or telemetry
 const rapidocEl = document.getElementById('the-doc');
 
 // Fires before the HTTP request is dispatched
@@ -44,7 +68,7 @@ rapidocEl.addEventListener('api-server-change', (e) => {
   console.log('Selected target server:', e.detail.selectedServer);
 });`;
 
-const slotCodeExample = `<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
+const rapidocSlotCode = `<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
   <!-- Default slot: Renders custom banner directly below top navigation -->
   <div class="custom-hero">
     <h1>Enterprise API Portal</h1>
@@ -59,7 +83,7 @@ const slotCodeExample = `<rapi-doc spec-url="https://petstore.swagger.io/v2/swag
   </div>
 </rapi-doc>`;
 
-const methodCodeExample = `// Programmatically control RapiDoc from your web app
+const rapidocMethodCode = `// Programmatically control RapiDoc from your web app
 const rapidoc = document.getElementById('the-doc');
 
 // Switch API server on runtime event
@@ -70,13 +94,32 @@ rapidoc.scrollToPath('get-/users/{id}');
 
 // Set credentials dynamically
 rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
+
+const methodCodeExample = isRapiDoc ? rapidocMethodCode : element.methodCode;
+const eventCodeExample = isRapiDoc ? rapidocEventCode : element.eventCode;
+const slotCodeExample = isRapiDoc ? rapidocSlotCode : undefined;
+
+const sections = [
+  { key: 'attributes', label: 'Attributes', stat: 'Attributes', count: totalAttributes },
+  { key: 'methods', label: 'Methods', stat: 'DOM Methods', count: totalMethods },
+  { key: 'events', label: 'Events', stat: 'Events', count: totalEvents },
+  { key: 'slots', label: 'Slots', stat: 'HTML Slots', count: totalSlots },
+  { key: 'extensions', label: 'Vendor Extensions', stat: 'Vendor Extensions', count: totalExtensions },
+].filter((section) => section.count > 0);
+
+const pageTitle = isRapiDoc
+  ? 'API Reference - Attributes, Methods, Events & Slots | RapiDoc'
+  : `${element.product} API Reference - ${tagName} Attributes, Methods & Events | RapiDoc`;
+const pageDescription = isRapiDoc
+  ? 'Comprehensive API reference for RapiDoc custom element (<rapi-doc>). Explore all configuration attributes, JavaScript methods, DOM events, and UI slots.'
+  : `Every attribute, method, event and slot of ${tagName} (${element.product}), read from its source.`;
 ---
 
 <GlobalLayout
   prism
-  title="API Reference - Attributes, Methods, Events & Slots | RapiDoc"
-  description="Comprehensive API reference for RapiDoc custom element (<rapi-doc>). Explore all configuration attributes, JavaScript methods, DOM events, and UI slots."
-  keywords="RapiDoc API, OpenAPI attributes, Swagger UI alternative API, rapi-doc methods, rapi-doc events, custom element slots"
+  title={pageTitle}
+  description={pageDescription}
+  keywords={`RapiDoc API, ${element.product}, ${element.tag} attributes, ${element.tag} methods, ${element.tag} events, custom element`}
 >
   <!-- Ambient background glow elements inspired by Nuxt.com -->
   <div class="ambient-glow glow-emerald"></div>
@@ -89,41 +132,53 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
   <main class="rd-api-main">
     <!-- Hero Header -->
     <header class="rd-api-header">
-      <div class="rd-badge-pill">
-        <span class="rd-badge-pulse"></span>
-        <span class="rd-badge-text">Web Component API Reference</span>
-      </div>
+      <!-- The element switcher: one page per web component -->
+      <nav class="rd-element-tabs" aria-label="Web components">
+        {
+          API_ELEMENTS.map((el) => (
+            <a
+              href={apiHref(el)}
+              class:list={['rd-element-tab', { active: el.tag === element.tag }]}
+              aria-current={el.tag === element.tag ? 'page' : undefined}
+            >
+              <span class="rd-element-tab-name">{el.product}</span>
+              <code class="rd-element-tab-tag">{`<${el.tag}>`}</code>
+            </a>
+          ))
+        }
+      </nav>
 
       <h1 class="rd-page-title">
-        RapiDoc <span class="text-gradient">API Specification</span>
+        <code class="rd-title-tag">{tagName}</code> <span class="text-gradient">API Reference</span>
       </h1>
 
       <p class="rd-page-subtitle">
-        Comprehensive reference for every HTML attribute, JavaScript DOM method, custom lifecycle event, slot placeholder, and vendor extension supported by <code>&lt;rapi-doc&gt;</code>.
+        {element.intro}
       </p>
+
+      <div class="rd-element-meta">
+        <code class="rd-element-install">{element.scriptTag}</code>
+        <a
+          href={element.guide.href}
+          class="rd-element-guide"
+          target={guideExternal ? '_blank' : undefined}
+          rel={guideExternal ? 'noopener' : undefined}
+        >
+          {element.guide.label}
+          <IconArrowUpRight size={14} stroke={2} />
+        </a>
+      </div>
 
       <!-- Key Metrics Counter Bar -->
       <div class="rd-stats-bar">
-        <a href="#attributes" class="rd-stat-card">
-          <span class="rd-stat-value">{totalAttributes}</span>
-          <span class="rd-stat-label">Attributes</span>
-        </a>
-        <a href="#methods" class="rd-stat-card">
-          <span class="rd-stat-value">{totalMethods}</span>
-          <span class="rd-stat-label">DOM Methods</span>
-        </a>
-        <a href="#events" class="rd-stat-card">
-          <span class="rd-stat-value">{totalEvents}</span>
-          <span class="rd-stat-label">Lifecycle Events</span>
-        </a>
-        <a href="#slots" class="rd-stat-card">
-          <span class="rd-stat-value">{totalSlots}</span>
-          <span class="rd-stat-label">HTML Slots</span>
-        </a>
-        <a href="#extensions" class="rd-stat-card">
-          <span class="rd-stat-value">{totalExtensions}</span>
-          <span class="rd-stat-label">Vendor Extensions</span>
-        </a>
+        {
+          sections.map((section) => (
+            <a href={`#${section.key}`} class="rd-stat-card">
+              <span class="rd-stat-value">{section.count}</span>
+              <span class="rd-stat-label">{section.stat}</span>
+            </a>
+          ))
+        }
       </div>
 
       <!-- Live Search & Interactive Filter Bar -->
@@ -133,7 +188,7 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
           <input
             id="api-search"
             type="text"
-            placeholder="Search attributes, methods, events, or keywords (e.g. render-style, before-try, theme, oauth)..."
+            placeholder={isRapiDoc ? 'Search attributes, methods, events, or keywords (e.g. render-style, before-try, theme, oauth)...' : `Search the attributes, methods and events of ${tagName}...`}
             autocomplete="off"
             class="rd-search-input"
           />
@@ -144,12 +199,14 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
 
         <!-- Section Navigation Pills -->
         <div class="rd-nav-pills">
-          <a href="#attributes" class="rd-pill active" data-section="all">All Specs</a>
-          <a href="#attributes" class="rd-pill" data-section="attributes">Attributes ({totalAttributes})</a>
-          <a href="#methods" class="rd-pill" data-section="methods">Methods ({totalMethods})</a>
-          <a href="#events" class="rd-pill" data-section="events">Events ({totalEvents})</a>
-          <a href="#slots" class="rd-pill" data-section="slots">Slots ({totalSlots})</a>
-          <a href="#extensions" class="rd-pill" data-section="extensions">Vendor Extensions ({totalExtensions})</a>
+          <a href="#attributes" class="rd-pill active" data-section="all">All</a>
+          {
+            sections.map((section) => (
+              <a href={`#${section.key}`} class="rd-pill" data-section={section.key}>
+                {section.label} ({section.count})
+              </a>
+            ))
+          }
         </div>
       </div>
     </header>
@@ -178,7 +235,7 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
             </a>
           </h2>
           <p class="rd-section-desc">
-            Declared directly on the <code>&lt;rapi-doc&gt;</code> web component element to customize styling, layout modes, feature visibility, routing, and authentication.
+            Set on the <code>{tagName}</code> element in HTML, or changed at runtime with <code>setAttribute</code>.
           </p>
         </div>
 
@@ -276,6 +333,7 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
       </section>
 
       <!-- ================= METHODS SECTION ================= -->
+      {methodsCount > 0 && (
       <section id="methods" class="rd-api-section" data-section-type="methods">
         <div class="rd-section-header">
           <div class="rd-section-badge">JavaScript API</div>
@@ -286,13 +344,15 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
             </a>
           </h2>
           <p class="rd-section-desc">
-            Methods accessible directly on the <code>&lt;rapi-doc&gt;</code> DOM element instance (e.g. <code>document.getElementById('doc').loadSpec(...)</code>) for seamless programmatic interaction.
+            Called on the <code>{tagName}</code> element, for example <code>document.querySelector('{element.tag}')</code>.
           </p>
         </div>
 
-        <div class="rd-feature-code-block">
-          <CodeBlock code={methodCodeExample} lang="javascript" filename="Programmatic Control Example" />
-        </div>
+        {methodCodeExample && (
+          <div class="rd-feature-code-block">
+            <CodeBlock code={methodCodeExample} lang="javascript" filename="Programmatic Control Example" />
+          </div>
+        )}
 
         <div class="rd-table-container">
           <table class="rd-api-table">
@@ -338,8 +398,10 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
           </table>
         </div>
       </section>
+      )}
 
       <!-- ================= EVENTS SECTION ================= -->
+      {eventsCount > 0 && (
       <section id="events" class="rd-api-section" data-section-type="events">
         <div class="rd-section-header">
           <div class="rd-section-badge">Runtime Hooks</div>
@@ -350,13 +412,15 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
             </a>
           </h2>
           <p class="rd-section-desc">
-            Standard CustomEvents dispatched by <code>&lt;rapi-doc&gt;</code> that allow you to intercept request pipelines, inject authorization headers, capture metrics, and respond to UI state changes.
+            CustomEvents dispatched by <code>{tagName}</code>. Listen to them with <code>addEventListener</code>; the payload is in <code>e.detail</code>.
           </p>
         </div>
 
-        <div class="rd-feature-code-block">
-          <CodeBlock code={eventCodeExample} lang="javascript" filename="Event Interceptor Example" />
-        </div>
+        {eventCodeExample && (
+          <div class="rd-feature-code-block">
+            <CodeBlock code={eventCodeExample} lang="javascript" filename="Event Interceptor Example" />
+          </div>
+        )}
 
         <div class="rd-table-container">
           <table class="rd-api-table">
@@ -395,8 +459,10 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
           </table>
         </div>
       </section>
+      )}
 
       <!-- ================= SLOTS SECTION ================= -->
+      {slotsCount > 0 && (
       <section id="slots" class="rd-api-section" data-section-type="slots">
         <div class="rd-section-header">
           <div class="rd-section-badge">Component Slots</div>
@@ -407,13 +473,15 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
             </a>
           </h2>
           <p class="rd-section-desc">
-            Standard Web Component slots that enable embedding your custom HTML, logos, corporate banners, and notices directly at specific locations within the RapiDoc UI canvas.
+            Put your own markup inside <code>{tagName}</code> with a <code>slot</code> attribute, and it shows at that place in the element.
           </p>
         </div>
 
-        <div class="rd-feature-code-block">
-          <CodeBlock code={slotCodeExample} lang="html" filename="Slot Injection Example" />
-        </div>
+        {slotCodeExample && (
+          <div class="rd-feature-code-block">
+            <CodeBlock code={slotCodeExample} lang="html" filename="Slot Injection Example" />
+          </div>
+        )}
 
         <div class="rd-table-container">
           <table class="rd-api-table">
@@ -459,8 +527,10 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
           </table>
         </div>
       </section>
+      )}
 
       <!-- ================= VENDOR EXTENSIONS SECTION ================= -->
+      {extensionsCount > 0 && (
       <section id="extensions" class="rd-api-section" data-section-type="extensions">
         <div class="rd-section-header">
           <div class="rd-section-badge">OpenAPI Spec Extensions</div>
@@ -525,6 +595,7 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
           </table>
         </div>
       </section>
+      )}
 
     </div>
   </main>
@@ -707,6 +778,102 @@ rapidoc.setApiKey('api_key_header', 'sk_live_9482910481029');`;
   max-width: var(--rd-max-width);
   margin: 0 auto;
   padding: var(--rd-page-top) 24px 96px 24px;
+}
+
+/* The element switcher above the title: one tab per web component */
+.rd-element-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 28px;
+  border: 1px solid var(--rd-border);
+  border-radius: var(--rd-radius-lg);
+  background: var(--rd-surface);
+}
+.rd-element-tab {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border-radius: var(--rd-radius-md);
+  text-decoration: none;
+  color: var(--rd-text-muted);
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+.rd-element-tab:hover {
+  color: var(--rd-text-bright);
+  background: var(--rd-wash);
+}
+.rd-element-tab.active {
+  color: var(--rd-accent-light);
+  background: var(--rd-accent-dim);
+}
+.rd-element-tab-name {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.rd-element-tab-tag {
+  font-family: var(--rd-font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--rd-text-dim);
+}
+.rd-element-tab.active .rd-element-tab-tag {
+  color: var(--rd-accent);
+}
+.rd-title-tag {
+  font-family: var(--rd-font-mono);
+  font-size: 0.85em;
+  letter-spacing: -0.02em;
+}
+
+/* How to load the element, and a link to its docs */
+.rd-element-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px 20px;
+  margin: -12px auto 32px;
+  max-width: 100%;
+}
+.rd-element-install {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-family: var(--rd-font-mono);
+  font-size: 12.5px;
+  color: var(--rd-text-muted);
+  background: var(--rd-wash);
+  border: 1px solid var(--rd-border);
+  border-radius: var(--rd-radius-sm);
+  padding: 6px 10px;
+}
+.rd-element-guide {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rd-accent);
+  text-decoration: none;
+}
+.rd-element-guide:hover {
+  color: var(--rd-accent-light);
+}
+@media (max-width: 640px) {
+  .rd-element-tab {
+    padding: 6px 10px;
+  }
+  .rd-element-tab-tag {
+    display: none;
+  }
 }
 
 /* The search section holds the search box and the section pills below it */

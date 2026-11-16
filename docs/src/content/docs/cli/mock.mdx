@@ -1,0 +1,11 @@
+---
+title: rapidoc mock
+description: Serve an API from its OpenAPI spec, with example or generated responses, request validation and token checks.
+---
+
+```bash
+npx rapidoc mock openapi.yaml                    # http://localhost:4010/openapi
+npx rapidoc mock ./specs --port 4011             # every OpenAPI file in the folder
+```
+
+`rapidoc mock` answers every operation of the spec over HTTP, from its examples or with generated data. It validates requests and can check OAuth tokens against your OpenID Connect issuer. It needs `@rapidoc/mock`. See [Mock Server](/docs/mocking/mock-server/) for the options, and the [overview](/docs/mocking/overview/) for how it compares with the in-browser mock.

@@ -388,3 +388,15 @@ starlight-toc li:has(> ul) + li > a::after {
   white-space: nowrap;
   text-align: center;
 }
+
+/* The product switcher at the top of the sidebar (starlight-sidebar-topics). The plugin fills the current
+   topic's icon box with the accent and draws the icon in --sl-color-text-invert, which Starlight sets to
+   --sl-color-accent-low: a transparent tint here, so the icon vanished into the box. Like the site's
+   cards: a tinted box, the icon in the accent, and colour only on hover. */
+.starlight-sidebar-topics
+  a:is(.starlight-sidebar-topics-current, :hover, :focus-visible)
+  .starlight-sidebar-topics-icon {
+  background-color: var(--sl-color-accent-low);
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-accent);
+}

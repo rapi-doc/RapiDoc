@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightSidebarTopics from 'starlight-sidebar-topics';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import fs from 'fs-extra';
@@ -32,18 +33,18 @@ export default defineConfig({
     // The Arazzo examples, renamed
     '/examples/arazzo-flow': '/examples/arazzo',
     '/examples/arazzo-flow-multi': '/examples/arazzo-multi',
-    '/css': '/guides/css',
-    '/slots': '/guides/slots',
-    '/mini': '/guides/mini',
-    '/mock': '/guides/mock',
-    '/oauth': '/guides/oauth',
-    '/theme': '/guides/theme',
-    '/workflows': '/guides/workflows',
+    '/css': '/docs/theming/css-parts/',
+    '/slots': '/docs/customizing/slots/',
+    '/mini': '/rapidoc-mini/',
+    '/mock': '/docs/mocking/in-browser/',
+    '/oauth': '/docs/authentication/oauth/',
+    '/theme': '/docs/theming/overview/',
+    '/workflows': '/rapi-flow/',
     '/perf': '/tests/performance',
     '/tests/filtering-paths': '/examples/filter-operations',
     '/examples/filtering-paths': '/examples/filter-operations',
-    '/guide/prerender': '/guides/prerender',
-    '/prerender': '/guides/prerender',
+    '/guide/prerender': '/docs/performance/prerender/',
+    '/prerender': '/docs/performance/prerender/',
     '/docs/advanced/mock-server': '/docs/mocking/in-browser/',
     '/docs/advanced/oauth-setup': '/docs/authentication/oauth/',
     '/docs/advanced/mcp-server': '/docs/ai/mcp-server/',
@@ -52,10 +53,30 @@ export default defineConfig({
     // The Components group, split into a group per element
     '/docs/components/workflows': '/docs/rapi-flow/',
     '/docs/components/rapidoc-mini': '/docs/rapidoc-mini/',
-    '/docs/advanced/command-line': '/docs/tools/command-line/',
+    '/docs/advanced/command-line': '/docs/cli/',
     '/docs/advanced/slots-and-markdown': '/docs/customizing/slots/',
     '/docs/advanced/markdown-headings': '/docs/customizing/markdown-headings/',
     '/docs/advanced/linking-and-navigation': '/docs/customizing/linking/',
+    // The framework, command-line and integration pages, split into the Integrations and CLI topics
+    '/docs/get-started/frameworks': '/docs/integrations/',
+    '/docs/get-started/build-an-integration': '/docs/integrations/build-your-own/',
+    '/docs/tools/command-line': '/docs/cli/',
+    // The guides, folded into the docs (Common Tasks lists them), and the custom Quickstart
+    '/guides': '/docs/guides/',
+    '/guides/theme': '/docs/theming/overview/',
+    '/guides/css': '/docs/theming/css-parts/',
+    '/guides/slots': '/docs/customizing/slots/',
+    '/guides/oauth': '/docs/authentication/oauth/',
+    '/guides/mock': '/docs/mocking/in-browser/',
+    '/guides/mcp': '/docs/ai/mcp-server/',
+    '/guides/prerender': '/docs/performance/prerender/',
+    '/quickstart': '/docs/get-started/quickstart/',
+    // The Mini and RapiFlow guides, now their product pages
+    '/guides/mini': '/rapidoc-mini/',
+    '/guides/workflows': '/rapi-flow/',
+    // The hand-written reference tables, replaced by pages generated from the elements' source
+    '/docs/rapidoc-mini/attributes': '/api/rapi-doc-mini/',
+    '/docs/rapi-flow/reference': '/api/rapi-flow/',
   },
   integrations: [
     starlight({
@@ -130,99 +151,182 @@ export default defineConfig({
           },
         },
       },
-      sidebar: [
-        {
-          label: 'Getting Started',
-          items: [
-            { label: 'Introduction', slug: 'docs' },
-            { label: 'Quickstart', slug: 'docs/get-started/quickstart' },
-            { label: 'Packages', slug: 'docs/get-started/packages' },
-            { label: 'Framework Integration', slug: 'docs/get-started/frameworks' },
-            { label: 'Build an Integration', slug: 'docs/get-started/build-an-integration' },
-            { label: 'Loading Your Spec', slug: 'docs/get-started/openapi-support' },
-          ],
-        },
-        {
-          label: 'Theming & Styling',
-          items: [
-            { label: 'Theming Overview', slug: 'docs/theming/overview' },
-            { label: 'Built-in Themes', slug: 'docs/theming/prebuilt-themes' },
-            { label: 'CSS Parts & Variables', slug: 'docs/theming/css-parts' },
-          ],
-        },
-        {
-          label: 'Customizing Content',
-          items: [
-            { label: 'HTML Slots', slug: 'docs/customizing/slots' },
-            { label: 'Markdown Headings in the Sidebar', slug: 'docs/customizing/markdown-headings' },
-            { label: 'Links & Navigation', slug: 'docs/customizing/linking' },
-          ],
-        },
-        {
-          label: 'Authentication',
-          items: [{ label: 'OAuth 2.0', slug: 'docs/authentication/oauth' }],
-        },
-        {
-          label: 'JavaScript API',
-          items: [
-            { label: 'Methods', slug: 'docs/programmatic-api/lifecycle-and-methods' },
-            { label: 'Events', slug: 'docs/programmatic-api/event-hooks' },
-          ],
-        },
-        {
-          label: 'Performance',
-          items: [
-            { label: 'Render Modes', slug: 'docs/performance/render-modes' },
-            { label: 'Large Specs', slug: 'docs/performance/large-specs' },
-          ],
-        },
-        {
-          label: 'RapiDoc Mini',
-          items: [
-            { label: 'Overview', slug: 'docs/rapidoc-mini' },
-            { label: 'Attributes', slug: 'docs/rapidoc-mini/attributes' },
-          ],
-        },
-        {
-          label: 'RapiFlow',
-          items: [
-            { label: 'Overview', slug: 'docs/rapi-flow' },
-            { label: 'Pairing with <rapi-doc>', slug: 'docs/rapi-flow/pairing' },
-            { label: 'Running Workflows', slug: 'docs/rapi-flow/running' },
-            { label: 'Arazzo Extensions', slug: 'docs/rapi-flow/extensions' },
-            { label: 'Reference', slug: 'docs/rapi-flow/reference' },
-          ],
-        },
-        {
-          label: 'Mocking',
-          items: [
-            { label: 'Overview', slug: 'docs/mocking/overview' },
-            { label: 'In-Browser Mock', slug: 'docs/mocking/in-browser' },
-            { label: 'Mock Server', slug: 'docs/mocking/mock-server' },
-          ],
-        },
-        {
-          label: 'AI & MCP',
-          items: [{ label: 'MCP Server', slug: 'docs/ai/mcp-server' }],
-        },
-        {
-          label: 'Tools',
-          items: [
-            { label: 'Command Line', slug: 'docs/tools/command-line' },
-            { label: 'Pre-rendering', link: '/guides/prerender/' },
-            { label: 'Developer Portal', link: 'https://portal.rapidocui.com/', attrs: { target: '_blank' } },
-          ],
-        },
-        {
-          label: 'Migration Guides',
-          collapsed: true,
-          items: [
-            { label: 'v13 to v14', slug: 'docs/migration/v13-to-v14' },
-            { label: 'v12 to v13', slug: 'docs/migration/v12-to-v13' },
-            { label: 'v11 to v12', slug: 'docs/migration/v11-to-v12' },
-            { label: 'v10 to v11', slug: 'docs/migration/v10-to-v11' },
-          ],
-        },
+      // A sidebar per product (starlight-sidebar-topics): the switcher at the top of the sidebar lists
+      // these topics, and each page shows the sidebar of the topic it belongs to. Every page under
+      // content/docs/ must be in one topic's items, or the build fails; a page listed in two topics shows
+      // the first one's sidebar, so list each page once.
+      plugins: [
+        starlightSidebarTopics([
+          {
+            label: 'RapiDoc',
+            link: '/docs/',
+            icon: 'open-book',
+            items: [
+              {
+                label: 'Getting Started',
+                items: [
+                  { label: 'Introduction', slug: 'docs' },
+                  { label: 'Quickstart', slug: 'docs/get-started/quickstart' },
+                  { label: 'Common Tasks', slug: 'docs/guides' },
+                  { label: 'Packages', slug: 'docs/get-started/packages' },
+                  { label: 'Loading Your Spec', slug: 'docs/get-started/openapi-support' },
+                ],
+              },
+              {
+                label: 'Theming & Styling',
+                items: [
+                  { label: 'Theming Overview', slug: 'docs/theming/overview' },
+                  { label: 'Built-in Themes', slug: 'docs/theming/prebuilt-themes' },
+                  { label: 'CSS Parts & Variables', slug: 'docs/theming/css-parts' },
+                ],
+              },
+              {
+                label: 'Customizing Content',
+                items: [
+                  { label: 'HTML Slots', slug: 'docs/customizing/slots' },
+                  { label: 'Markdown Headings in the Sidebar', slug: 'docs/customizing/markdown-headings' },
+                  { label: 'Links & Navigation', slug: 'docs/customizing/linking' },
+                ],
+              },
+              {
+                label: 'Authentication',
+                items: [{ label: 'OAuth 2.0', slug: 'docs/authentication/oauth' }],
+              },
+              {
+                label: 'JavaScript API',
+                items: [
+                  { label: 'Methods', slug: 'docs/programmatic-api/lifecycle-and-methods' },
+                  { label: 'Events', slug: 'docs/programmatic-api/event-hooks' },
+                ],
+              },
+              {
+                label: 'Performance',
+                items: [
+                  { label: 'Render Modes', slug: 'docs/performance/render-modes' },
+                  { label: 'Large Specs', slug: 'docs/performance/large-specs' },
+                  { label: 'Pre-rendering', slug: 'docs/performance/prerender' },
+                ],
+              },
+              {
+                label: 'Mocking',
+                items: [
+                  { label: 'Overview', slug: 'docs/mocking/overview' },
+                  { label: 'In-Browser Mock', slug: 'docs/mocking/in-browser' },
+                  { label: 'Mock Server', slug: 'docs/mocking/mock-server' },
+                ],
+              },
+              {
+                label: 'AI & MCP',
+                items: [{ label: 'MCP Server', slug: 'docs/ai/mcp-server' }],
+              },
+              {
+                label: 'Reference',
+                items: [
+                  { label: 'API Reference', link: '/api/' },
+                  { label: 'Examples', link: '/examples/' },
+                ],
+              },
+              {
+                label: 'Migration Guides',
+                collapsed: true,
+                items: [
+                  { label: 'v13 to v14', slug: 'docs/migration/v13-to-v14' },
+                  { label: 'v12 to v13', slug: 'docs/migration/v12-to-v13' },
+                  { label: 'v11 to v12', slug: 'docs/migration/v11-to-v12' },
+                  { label: 'v10 to v11', slug: 'docs/migration/v10-to-v11' },
+                ],
+              },
+            ],
+          },
+          {
+            label: 'RapiDoc Mini',
+            link: '/docs/rapidoc-mini/',
+            icon: 'puzzle',
+            items: [
+              { label: 'Overview', slug: 'docs/rapidoc-mini' },
+              { label: 'API Reference', link: '/api/rapi-doc-mini/' },
+              { label: 'Live Demos', link: '/rapidoc-mini/' },
+            ],
+          },
+          {
+            label: 'RapiFlow',
+            link: '/docs/rapi-flow/',
+            icon: 'seti:pipeline',
+            items: [
+              { label: 'Overview', slug: 'docs/rapi-flow' },
+              { label: 'Pairing with <rapi-doc>', slug: 'docs/rapi-flow/pairing' },
+              { label: 'Running Workflows', slug: 'docs/rapi-flow/running' },
+              { label: 'Arazzo Extensions', slug: 'docs/rapi-flow/extensions' },
+              { label: 'Slots & Styling', slug: 'docs/rapi-flow/styling' },
+              { label: 'API Reference', link: '/api/rapi-flow/' },
+              { label: 'Live Demo', link: '/rapi-flow/' },
+            ],
+          },
+          {
+            label: 'RapiPdf',
+            link: '/docs/rapipdf/',
+            icon: 'seti:pdf',
+            items: [
+              { label: 'Overview', slug: 'docs/rapipdf' },
+              { label: 'In Node', slug: 'docs/rapipdf/node' },
+              { label: 'API Reference', link: '/api/rapi-pdf/' },
+              { label: 'Live Demo', link: '/rapipdf/' },
+            ],
+          },
+          {
+            label: 'RapiDoc CLI',
+            link: '/docs/cli/',
+            // A >_ prompt: Starlight's 'seti:shell' is a $ sign, which reads as pricing
+            icon: 'seti:powershell',
+            items: [
+              { label: 'Overview', slug: 'docs/cli' },
+              {
+                label: 'Commands',
+                items: [
+                  { label: 'preview', slug: 'docs/cli/preview' },
+                  { label: 'validate', slug: 'docs/cli/validate' },
+                  { label: 'lint', slug: 'docs/cli/lint' },
+                  { label: 'bundle', slug: 'docs/cli/bundle' },
+                  { label: 'pdf', slug: 'docs/cli/pdf' },
+                  { label: 'mock', slug: 'docs/cli/mock' },
+                  { label: 'mcp', slug: 'docs/cli/mcp' },
+                ],
+              },
+              { label: 'All Commands & Options', slug: 'docs/cli/reference' },
+              {
+                label: 'Portal Commands',
+                link: 'https://portal.rapidocui.com/docs/reference/cli/',
+                attrs: { target: '_blank' },
+              },
+            ],
+          },
+          {
+            label: 'Integrations',
+            link: '/docs/integrations/',
+            icon: 'setting',
+            items: [
+              { label: 'Overview', slug: 'docs/integrations' },
+              { label: 'Front-End Frameworks', slug: 'docs/integrations/front-end' },
+              {
+                label: 'Server Frameworks',
+                items: [
+                  { label: 'Hono, Express & Fastify', slug: 'docs/integrations/node' },
+                  { label: 'FastAPI & Starlette', slug: 'docs/integrations/python' },
+                  { label: 'ASP.NET Core', slug: 'docs/integrations/dotnet' },
+                  { label: 'Go', slug: 'docs/integrations/go' },
+                ],
+              },
+              { label: 'Documentation Sites', slug: 'docs/integrations/docs-sites' },
+              { label: 'Build an Integration', slug: 'docs/integrations/build-your-own' },
+            ],
+          },
+          {
+            label: 'Developer Portal',
+            link: 'https://portal.rapidocui.com/',
+            icon: 'laptop',
+            attrs: { target: '_blank' },
+          },
+        ]),
       ],
     }),
   ],
@@ -235,6 +339,8 @@ export default defineConfig({
         '~/oauth-receiver': resolve(rapidocSrcPath, 'oauth-receiver.ts'),
         '@rapidoc/prerender': resolve(rapidocSrcPath, '../../rapidoc-prerender/src/index.js'),
         'rapidoc/flow': resolve(rapidocSrcPath, 'flow.js'),
+        // <rapi-pdf> from its source, like rapidoc: the /rapipdf page's demo (the generator is a lazy chunk)
+        rapipdf: resolve(__dirname, '../packages/rapipdf/src/index.js'),
         rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },
       // Starlight default-imports js-yaml 4; bundled, it resolves to Starlight's copy, not a hoisted js-yaml 5 (no default export).

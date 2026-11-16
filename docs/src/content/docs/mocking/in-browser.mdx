@@ -8,7 +8,7 @@ import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 Add `mock-server="true"` to `<rapi-doc>` or `<rapi-doc-mini>` and requests to your API are answered in the page, from the spec's examples and schemas. Nothing is deployed and nothing leaves the browser. Readers can press **Try** on a published page and get a sensible answer, and you can build and demo a frontend before the backend exists.
 
 <Aside type="tip" title="See it running">
-  The [Mock Server guide](/guides/mock) has a live testbed. For a real HTTP server that any client can call, with request validation and token checks, see [Mock Server](/docs/mocking/mock-server/); the [overview](/docs/mocking/overview/) compares the two.
+  The [in-browser mock example](/examples/mock-server) has a live testbed: pick a status code and a delay, and call the API. For a real HTTP server that any client can call, with request validation and token checks, see [Mock Server](/docs/mocking/mock-server/); the [overview](/docs/mocking/overview/) compares the two.
 </Aside>
 
 ## Turn it on
@@ -124,6 +124,13 @@ Requests made with `XMLHttpRequest` are tagged `[RapiDoc Mock (XHR)]`.
 
 ## Several mocks on one page
 
-Each element with `mock-server="true"` mocks its own spec with its own status codes and delay, so one page can mock two APIs. A request goes to the most specific match: a route under the request's server origin and base path wins over the same path under another API's base path, which wins over a bare path.
+Each element with `mock-server="true"` mocks its own spec with its own status codes and delay, so one page can mock two APIs:
+
+```html
+<rapi-doc-mini spec-url="/specs/orders.yaml" mock-server="true" filter-operations="POST /orders"></rapi-doc-mini>
+<rapi-doc-mini spec-url="/specs/payments.yaml" mock-server="true" mock-server-status-code="402"></rapi-doc-mini>
+```
+
+A request goes to the most specific match: a route under the request's server origin and base path wins over the same path under another API's base path, which wins over a bare path.
 
 When an element turns its mock off or is removed from the page, its routes stop being answered. The page's real `fetch` and `XMLHttpRequest` come back when no element is mocking any more.

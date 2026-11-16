@@ -1,8 +1,8 @@
 ---
-import GlobalLayout from '../../layouts/GlobalLayout.astro';
-import SiteNavbar from '../../components/SiteNavbar.astro';
-import SiteFooter from '../../components/SiteFooter.astro';
-import CodeBlock from '../../components/CodeBlock.astro';
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import SiteNavbar from '../components/SiteNavbar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CodeBlock from '../components/CodeBlock.astro';
 import {
   IconArrowRight,
   IconArrowUpRight,
@@ -85,7 +85,7 @@ const mockServerHtmlSnippet = `<rapi-flow
 ---
 
 <GlobalLayout
-  title="Arazzo Workflows Guide | RapiDoc"
+  title="RapiFlow: Draw and Run Arazzo Workflows | RapiDoc"
   description="Draw the multi-step journeys through your API from an Arazzo document, run them in the browser against a mock or the real API, and reuse them as MCP tools."
   keywords="Arazzo, API workflows, rapi-flow, OpenAPI workflows, workflow diagram, API mock, MCP tools, RapiDoc"
 >
@@ -95,21 +95,21 @@ const mockServerHtmlSnippet = `<rapi-flow
   <div class="ambient-glow glow-indigo"></div>
   <div class="ambient-glow glow-cyan"></div>
 
-  <SiteNavbar activePage="guides" />
+  <SiteNavbar />
 
   <main class="wf-guide-main">
     <header class="rd-hero-header">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
-        <span class="rd-badge-text">Arazzo • Workflows</span>
+        <span class="rd-badge-text">&lt;rapi-flow&gt; • Arazzo</span>
       </div>
 
       <h1 class="rd-page-title">
-        Show the <span class="text-gradient">sequence</span>, not just the endpoints
+        Rapi<span class="text-gradient">Flow</span>
       </h1>
 
       <p class="rd-page-subtitle">
-        <code>&lt;rapi-flow&gt;</code> draws the journeys an Arazzo document describes (find a pet, order it, read the order
+        Show the sequence, not just the endpoints. <code>&lt;rapi-flow&gt;</code> draws the journeys an Arazzo document describes (find a pet, order it, read the order
         back) right next to your API reference, and lets readers run them against a mock or the real API, one lit-up step
         at a time.
       </p>
@@ -121,7 +121,10 @@ const mockServerHtmlSnippet = `<rapi-flow
         </a>
         <a href="/docs/rapi-flow/" class="rd-btn rd-btn-secondary">
           <IconFileCode size={18} stroke={2} />
-          <span>Technical Reference Docs</span>
+          <span>Docs</span>
+        </a>
+        <a href="/api/rapi-flow/" class="rd-btn rd-btn-secondary">
+          <span>API Reference</span>
           <IconArrowUpRight size={16} stroke={2} />
         </a>
       </div>
@@ -324,7 +327,7 @@ const mockServerHtmlSnippet = `<rapi-flow
             <h4>One MCP tool per workflow</h4>
             <p>
               With a <code>&lt;rapi-flow for="…"&gt;</code> on the page, <strong>Export MCP Server</strong> adds a tool per
-              workflow: its inputs become the arguments, its outputs the result. See the <a href="/guides/mcp">MCP guide</a>.
+              workflow: its inputs become the arguments, its outputs the result. See <a href="/docs/ai/mcp-server/#workflows-as-tools">MCP Server</a>.
             </p>
           </div>
           <div class="standard-card">
@@ -344,7 +347,8 @@ const mockServerHtmlSnippet = `<rapi-flow
         <h2 class="rd-section-title">Add It to Your Docs</h2>
         <p class="rd-section-desc">
           Load the flow bundle next to RapiDoc, point the element at your Arazzo file and tie it to the reference. Its
-          attributes, events and CSS parts are in the <a href="/docs/rapi-flow/">reference docs</a>.
+          attributes and events are in the <a href="/api/rapi-flow/">API reference</a>, and its slots and CSS parts in
+          <a href="/docs/rapi-flow/styling/">Slots &amp; Styling</a>.
         </p>
         <div class="sub-topic">
           <CodeBlock code={pageSnippet} lang="html" filename="index.html" />
@@ -373,7 +377,7 @@ const mockServerHtmlSnippet = `<rapi-flow
               <IconArrowRight size={18} stroke={2} />
             </a>
             <a href="/docs/rapi-flow/" class="rd-btn rd-btn-secondary">
-              <span>View Technical Docs</span>
+              <span>RapiFlow Docs</span>
             </a>
           </div>
         </div>

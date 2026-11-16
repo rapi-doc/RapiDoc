@@ -81,7 +81,7 @@ docs/
 ## 5. Development Guidelines & Conventions
 
 1. **Routing & Redirects**:
-   - Maintain route redirects in `docs/astro.config.mjs` (e.g., `/mock-server` -> `/guides/mock`, `/styling` -> `/guides/theme`).
+   - Maintain route redirects in `docs/astro.config.mjs` (e.g., `/theme` -> `/docs/theming/overview/`, `/guides/mock` -> `/docs/mocking/in-browser/`).
    - If relocating an existing documentation page, ensure a redirect is added.
 2. **Page Aesthetics & Theming**:
    - The documentation and example pages are user-facing showcases for RapiDoc's capabilities.
@@ -150,8 +150,10 @@ one of them stops being true, and update this list in the same change.
    control for an attribute the element lacks fails the build and `tests/unit/controller-registry.test.js`.
 5. **Routes**: every `.md` / `.astro` under `src/pages/` is a route unless its name starts with
    `_`. Moving a page needs a redirect in `astro.config.mjs` and an update to whatever links it:
-   `example-list.yaml`, `tests.yaml`, the `guides` array in `pages/guides/index.astro`,
-   `page-data/nav.ts` for top-level routes, or the Starlight `sidebar` slug for an MDX page.
+   `example-list.yaml`, `tests.yaml`, the task tables of `content/docs/guides.mdx`,
+   `page-data/nav.ts` for top-level routes, `page-data/products.ts` for product pages, or the slug in
+   its topic's `items` (`starlightSidebarTopics` in `astro.config.mjs`) for an MDX page: a docs page in no
+   topic fails the build, and one listed in two topics shows the first topic's sidebar.
    `pages/sandbox.astro` is the one page outside `GlobalLayout`: it writes its own head, analytics
    and bundle tag, so the SEO rules in `GlobalLayout` do not apply to it.
 6. **`/api` anchors**: attribute, event and extension rows use the bare name as id; method rows
@@ -160,6 +162,8 @@ one of them stops being true, and update this list in the same change.
 7. **Browser side effects worth knowing**: every page, Starlight `/docs/` pages included, loads
    Google Analytics; `components/ForceDarkTheme.astro` writes `starlight-theme=dark` to
    `localStorage` on every `/docs/` page; the tuners persist UI state in `localStorage` and
-   `sessionStorage`; `pages/guides/mock.astro`'s testbed script calls `fetch` against the spec's
-   `reqres.in` server and relies on the component's mock interception; `pages/guides/mini.astro`
-   points a live `<rapi-doc-mini>` at a missing spec on purpose to show the error state.
+   `sessionStorage`; `pages/examples/mock-server.astro`'s testbed script calls `fetch` against the spec's
+   `reqres.in` server and relies on the component's mock interception; `pages/rapidoc-mini.astro`
+   points a live `<rapi-doc-mini>` at a missing spec on purpose to show the error state;
+   `pages/rapipdf.astro` bundles `<rapi-pdf>` from `packages/rapipdf/src` (the `rapipdf` alias in
+   `astro.config.mjs`) and its demo makes the PDF in the browser, fetching the generator on the first click.
