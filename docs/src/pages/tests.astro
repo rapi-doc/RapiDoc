@@ -3,12 +3,7 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { testListData, TestItem } from '../page-data/tests';
-import {
-  IconSearch,
-  IconSearchOff,
-  IconX,
-  IconArrowUpRight,
-} from '@tabler/icons-astro';
+import Icon from '../components/Icon.astro';
 
 // Extract visible test suites
 const basicTests = testListData.basic
@@ -85,7 +80,7 @@ let totalAssertions = 0;
       <!-- Live Search & Interactive Filter Bar -->
       <div class="rd-search-section">
         <div class="rd-search-wrapper">
-          <IconSearch size={20} class="rd-search-icon" stroke={2} />
+          <Icon name="magnifying-glass" size={20} class="rd-search-icon" />
           <input
             id="tests-search"
             type="text"
@@ -94,7 +89,7 @@ let totalAssertions = 0;
             class="rd-search-input"
           />
           <button id="clear-tests-search" class="rd-clear-btn" aria-label="Clear search" style="display: none;">
-            <IconX size={16} stroke={2} />
+            <Icon name="x" size={16} />
           </button>
         </div>
 
@@ -111,7 +106,7 @@ let totalAssertions = 0;
     <!-- Empty Search State -->
     <div id="tests-empty-state" class="rd-empty-state" style="display: none;">
       <div class="rd-empty-icon">
-        <IconSearchOff size={36} stroke={1.75} />
+        <Icon name="magnifying-glass-minus" size={36} />
       </div>
       <h3 class="rd-empty-title">No matching test suites found <span id="empty-query-text" class="text-gradient"></span></h3>
       <p class="rd-empty-desc">Try searching for a different keyword, feature, or reset the filter.</p>
@@ -157,7 +152,7 @@ let totalAssertions = 0;
                       <div class="rd-slug-row">
                         <a href={`/tests/${test.slug}`} class="rd-launch-badge" target="_blank" rel="noopener" title={`Launch live preview: /tests/${test.slug}`}>
                           <span>/tests/{test.slug}</span>
-                          <IconArrowUpRight size={12} stroke={2.5} />
+                          <Icon name="arrow-up-right" size={12} />
                         </a>
                       </div>
                     </div>
@@ -228,7 +223,7 @@ let totalAssertions = 0;
                         <div class="rd-slug-row">
                           <a href={`/tests/${test.slug}`} class="rd-launch-badge" target="_blank" rel="noopener" title={`Launch live preview: /tests/${test.slug}`}>
                             <span>/tests/{test.slug}</span>
-                            <IconArrowUpRight size={12} stroke={2.5} />
+                            <Icon name="arrow-up-right" size={12} />
                           </a>
                         </div>
                       </div>

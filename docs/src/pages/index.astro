@@ -4,26 +4,8 @@ import { Code } from 'astro:components';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import ProductFamily from '../components/ProductFamily.astro';
+import Icon from '../components/Icon.astro';
 import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
-import {
-  IconArrowRight,
-  IconCheck,
-  IconCloud,
-  IconMinus,
-  IconTilde,
-  IconCopy,
-  IconCode,
-  IconPencil,
-  IconMoon,
-  IconSun,
-  IconWorld,
-  IconTerminal2,
-  IconSparkles,
-  IconBox,
-  IconHierarchy,
-  IconShieldCheck,
-  IconBolt,
-} from '@tabler/icons-astro';
 
 // "Zero Config, Instant Integration": one sample per stack, checked against RapiDoc 12 and the
 // framework setups in content/docs/integrations/.
@@ -328,7 +310,7 @@ const compareProducts = [
         <div class="rd-hero-cta-group">
           <a href="/examples/petstore" class="rd-btn rd-btn-primary rd-btn-lg">
             <span>Explore Live Demos</span>
-            <IconArrowRight size={16} stroke={2.5} />
+            <Icon name="arrow-right" size={16} />
           </a>
           <a href="#quickstart" class="rd-btn rd-btn-glass rd-btn-lg">
             <span>Quick Start in 60s</span>
@@ -340,7 +322,7 @@ const compareProducts = [
           <span class="rd-terminal-prompt">$</span>
           <code class="rd-terminal-code">npm install rapidoc</code>
           <button class="rd-terminal-copy" id="hero-copy-btn" data-code="npm install rapidoc" title="Copy command">
-            <IconCopy size={14} stroke={2} />
+            <Icon name="copy" size={14} />
             <span class="rd-copy-label">Copy</span>
           </button>
         </div>
@@ -371,7 +353,7 @@ const compareProducts = [
         <div class="rd-persona-col">
           <div class="rd-persona-col-header">
             <div class="rd-persona-icon-wrap">
-              <IconCode size={16} stroke={2.2} />
+              <Icon name="code" size={16} />
             </div>
             <h2 class="rd-persona-title">For Developers</h2>
           </div>
@@ -417,7 +399,7 @@ const compareProducts = [
         <div class="rd-persona-col">
           <div class="rd-persona-col-header">
             <div class="rd-persona-icon-wrap">
-              <IconPencil size={16} stroke={2.2} />
+              <Icon name="pencil-simple" size={16} />
             </div>
             <h2 class="rd-persona-title">For Product Managers</h2>
           </div>
@@ -506,14 +488,14 @@ const compareProducts = [
       </p>
       <div class="rd-theme-card-actions">
         <a href="/examples/css-dark" target="_blank" class="rd-btn rd-btn-primary">
-          <IconMoon size={15} stroke={2} />
+          <Icon name="moon" size={15} />
           <span>High-Contrast Dark Demo</span>
-          <IconArrowRight size={14} stroke={2.5} />
+          <Icon name="arrow-right" size={14} />
         </a>
         <a href="/examples/css-light" target="_blank" class="rd-btn rd-btn-primary">
-          <IconSun size={15} stroke={2} />
+          <Icon name="sun" size={15} />
           <span>High-Contrast Light Demo</span>
-          <IconArrowRight size={14} stroke={2.5} />
+          <Icon name="arrow-right" size={14} />
         </a>
       </div>
     </div>
@@ -534,7 +516,7 @@ const compareProducts = [
       <div class="rd-bento-card rd-col-span-2">
         <div class="rd-bento-badge">Framework Agnostic</div>
         <div class="rd-bento-icon-box">
-          <IconWorld size={24} stroke={2} />
+          <Icon name="globe" size={24} />
         </div>
         <h3 class="rd-bento-title">Native W3C Web Component Standard</h3>
         <p class="rd-bento-text">
@@ -554,7 +536,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Real DX</div>
         <div class="rd-bento-icon-box">
-          <IconTerminal2 size={24} stroke={2} />
+          <Icon name="terminal-window" size={24} />
         </div>
         <h3 class="rd-bento-title">Built-in Console with Negative Testing</h3>
         <p class="rd-bento-text">
@@ -567,7 +549,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Zero Setup</div>
         <div class="rd-bento-icon-box">
-          <IconSparkles size={24} stroke={2} />
+          <Icon name="sparkle" size={24} />
         </div>
         <h3 class="rd-bento-title">In-Browser Mock Server</h3>
         <p class="rd-bento-text">
@@ -579,7 +561,7 @@ const compareProducts = [
           style="color: var(--rd-accent); font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
         >
           Explore Mock Server
-          <IconArrowRight size={14} stroke={2.5} />
+          <Icon name="arrow-right" size={14} />
         </a>
       </div>
 
@@ -587,7 +569,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Agent Ready</div>
         <div class="rd-bento-icon-box">
-          <IconBolt size={24} stroke={2} />
+          <Icon name="lightning" size={24} />
         </div>
         <h3 class="rd-bento-title">Curated MCP Server Generator</h3>
         <p class="rd-bento-text">
@@ -598,7 +580,7 @@ const compareProducts = [
           style="color: var(--rd-accent); font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
         >
           Explore MCP Architecture
-          <IconArrowRight size={14} stroke={2.5} />
+          <Icon name="arrow-right" size={14} />
         </a>
       </div>
 
@@ -606,7 +588,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Microservices & Edge</div>
         <div class="rd-bento-icon-box">
-          <IconBox size={24} stroke={2} />
+          <Icon name="cube" size={24} />
         </div>
         <h3 class="rd-bento-title">Embedded in Micro-Servers & Containers</h3>
         <p class="rd-bento-text">
@@ -619,7 +601,7 @@ const compareProducts = [
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Ergonomics</div>
         <div class="rd-bento-icon-box">
-          <IconHierarchy size={24} stroke={2} />
+          <Icon name="tree-structure" size={24} />
         </div>
         <h3 class="rd-bento-title">Tree & Tabular Schema Folding</h3>
         <p class="rd-bento-text">
@@ -632,7 +614,7 @@ const compareProducts = [
       <div class="rd-bento-card rd-col-span-2">
         <div class="rd-bento-badge">Enterprise Ready</div>
         <div class="rd-bento-icon-box">
-          <IconShieldCheck size={24} stroke={2} />
+          <Icon name="shield-check" size={24} />
         </div>
         <h3 class="rd-bento-title">100% Self-Hosted & Air-Gapped Security</h3>
         <p class="rd-bento-text">
@@ -699,7 +681,7 @@ const compareProducts = [
                   <td class="rd-col-rapidoc">
                     <div class="rd-cell">
                       <span class="rd-status rd-status--yes" aria-label="Included">
-                        <IconCheck size={14} stroke={3} />
+                        <Icon name="check" size={14} />
                       </span>
                       <div class="rd-cell-body">
                         <span class="rd-cell-text">
@@ -720,10 +702,10 @@ const compareProducts = [
                             role="img"
                             aria-label={statusLabel[cell.status]}
                           >
-                            {cell.status === 'yes' && <IconCheck size={14} stroke={3} />}
-                            {cell.status === 'partial' && <IconTilde size={14} stroke={3} />}
-                            {cell.status === 'hosted' && <IconCloud size={14} stroke={2.25} />}
-                            {cell.status === 'no' && <IconMinus size={14} stroke={3} />}
+                            {cell.status === 'yes' && <Icon name="check" size={14} />}
+                            {cell.status === 'partial' && <Icon name="tilde" size={14} />}
+                            {cell.status === 'hosted' && <Icon name="cloud" size={14} />}
+                            {cell.status === 'no' && <Icon name="minus" size={14} />}
                           </span>
                           {cell.text && (
                             <div class="rd-cell-body">
@@ -747,10 +729,10 @@ const compareProducts = [
     </div>
 
     <div class="rd-compare-legend">
-      <span><span class="rd-status rd-status--yes"><IconCheck size={12} stroke={3} /></span> Included, open source</span>
-      <span><span class="rd-status rd-status--partial"><IconTilde size={12} stroke={3} /></span> Limited, the rest is commercial</span>
-      <span><span class="rd-status rd-status--hosted"><IconCloud size={12} stroke={2.25} /></span> Needs a paid or hosted plan</span>
-      <span><span class="rd-status rd-status--no"><IconMinus size={12} stroke={3} /></span> Not offered</span>
+      <span><span class="rd-status rd-status--yes"><Icon name="check" size={12} /></span> Included, open source</span>
+      <span><span class="rd-status rd-status--partial"><Icon name="tilde" size={12} /></span> Limited, the rest is commercial</span>
+      <span><span class="rd-status rd-status--hosted"><Icon name="cloud" size={12} /></span> Needs a paid or hosted plan</span>
+      <span><span class="rd-status rd-status--no"><Icon name="minus" size={12} /></span> Not offered</span>
     </div>
     <p class="rd-compare-footnote">Other products as described in their public documentation, November 2026.</p>
   </section>
@@ -780,7 +762,7 @@ const compareProducts = [
           ))}
         </div>
         <button class="rd-code-copy" type="button" aria-label="Copy the code">
-          <IconCopy size={14} stroke={2} />
+          <Icon name="copy" size={14} />
           <span class="rd-code-copy-label">Copy</span>
         </button>
       </div>
@@ -820,7 +802,7 @@ const compareProducts = [
       <div class="rd-cta-actions">
         <a href="/examples/petstore" class="rd-btn rd-btn-primary rd-btn-lg">
           <span>View Live Petstore Demo</span>
-          <IconArrowRight size={16} stroke={2.5} />
+          <Icon name="arrow-right" size={16} />
         </a>
         <a href="/tests" class="rd-btn rd-btn-glass rd-btn-lg">
           <span>Explore Test Matrix →</span>

@@ -18,6 +18,10 @@ const rapidocDistFile = resolve(rapidocPkgPath, 'dist/rapidoc-min.js');
 
 let rapidocBuilt = false;
 
+// Phosphor's SVG folders (assets/<weight>/), read at build time by src/components/Icon.astro through the
+// virtual module below: a path resolved here, in Node, rather than in the bundled component.
+const phosphorIconsDir = fileURLToPath(new URL('../assets/', import.meta.resolve('@phosphor-icons/core')));
+
 export default defineConfig({
   srcDir: './src',
   outDir: './dist',
@@ -124,6 +128,8 @@ export default defineConfig({
       customCss: ['./src/styles/tokens.css', './src/styles/starlight-custom.css'],
       components: {
         Header: './src/components/DocsHeader.astro',
+        // The product switcher with Phosphor icons, above Starlight's sidebar (replaces the plugin's)
+        Sidebar: './src/components/DocsSidebar.astro',
         ThemeProvider: './src/components/ForceDarkTheme.astro',
         ThemeSelect: './src/components/EmptyComponent.astro',
       },
@@ -151,8 +157,8 @@ export default defineConfig({
           },
         },
       },
-      // A sidebar per product (starlight-sidebar-topics): the switcher at the top of the sidebar lists
-      // these topics, and each page shows the sidebar of the topic it belongs to. Every page under
+      // A sidebar per product (starlight-sidebar-topics): the switcher at the top of the sidebar
+      // (components/DocsSidebar.astro; icons are Phosphor names, as in page-data/products.ts) lists these topics, and each page shows the sidebar of the topic it belongs to. Every page under
       // content/docs/ must be in one topic's items, or the build fails; a page listed in two topics shows
       // the first one's sidebar, so list each page once.
       plugins: [
@@ -160,7 +166,7 @@ export default defineConfig({
           {
             label: 'RapiDoc',
             link: '/docs/',
-            icon: 'open-book',
+            icon: 'file-code',
             items: [
               {
                 label: 'Getting Started',
@@ -241,7 +247,7 @@ export default defineConfig({
           {
             label: 'RapiDoc Mini',
             link: '/docs/rapidoc-mini/',
-            icon: 'puzzle',
+            icon: 'puzzle-piece',
             items: [
               { label: 'Overview', slug: 'docs/rapidoc-mini' },
               { label: 'API Reference', link: '/api/rapi-doc-mini/' },
@@ -251,7 +257,7 @@ export default defineConfig({
           {
             label: 'RapiFlow',
             link: '/docs/rapi-flow/',
-            icon: 'seti:pipeline',
+            icon: 'path',
             items: [
               { label: 'Overview', slug: 'docs/rapi-flow' },
               { label: 'Pairing with <rapi-doc>', slug: 'docs/rapi-flow/pairing' },
@@ -265,7 +271,7 @@ export default defineConfig({
           {
             label: 'RapiPdf',
             link: '/docs/rapipdf/',
-            icon: 'seti:pdf',
+            icon: 'file-pdf',
             items: [
               { label: 'Overview', slug: 'docs/rapipdf' },
               { label: 'In Node', slug: 'docs/rapipdf/node' },
@@ -276,8 +282,7 @@ export default defineConfig({
           {
             label: 'RapiDoc CLI',
             link: '/docs/cli/',
-            // A >_ prompt: Starlight's 'seti:shell' is a $ sign, which reads as pricing
-            icon: 'seti:powershell',
+            icon: 'terminal-window',
             items: [
               { label: 'Overview', slug: 'docs/cli' },
               {
@@ -303,7 +308,7 @@ export default defineConfig({
           {
             label: 'Integrations',
             link: '/docs/integrations/',
-            icon: 'setting',
+            icon: 'plug',
             items: [
               { label: 'Overview', slug: 'docs/integrations' },
               { label: 'Front-End Frameworks', slug: 'docs/integrations/front-end' },
@@ -323,7 +328,7 @@ export default defineConfig({
           {
             label: 'Developer Portal',
             link: 'https://portal.rapidocui.com/',
-            icon: 'laptop',
+            icon: 'layout',
             attrs: { target: '_blank' },
           },
         ]),
@@ -354,6 +359,15 @@ export default defineConfig({
       },
     },
     plugins: [
+      {
+        name: 'docs-icons',
+        resolveId(id) {
+          return id === 'virtual:docs-icons' ? '\0virtual:docs-icons' : null;
+        },
+        load(id) {
+          return id === '\0virtual:docs-icons' ? `export const iconsDir = ${JSON.stringify(phosphorIconsDir)};` : null;
+        },
+      },
       {
         name: 'build-rapidoc',
         apply: 'build',

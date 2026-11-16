@@ -3,7 +3,8 @@ title: Theming Overview
 description: Change RapiDoc's colors, light and dark mode, corner radius, size and fonts with a few attributes and CSS variables.
 ---
 
-import { Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem, CardGrid } from '@astrojs/starlight/components';
+import DocsCard from '../../../components/DocsCard.astro';
 
 RapiDoc renders inside a **Shadow DOM**, so your site's CSS (resets, Tailwind, component libraries) can't change it by accident, and its CSS can't leak into your site. You style it on purpose, in three layers:
 
@@ -248,11 +249,11 @@ function setScale(size) {
 ## Next Steps
 
 <CardGrid>
-  <Card title="CSS Parts (::part)" icon="seti:css">
+  <DocsCard title="CSS Parts (::part)" icon="file-css">
     Pierce the Shadow DOM to customize sidebars, action buttons, and containers with gradients and backdrop filters. [Explore CSS Parts
     Guide](/docs/theming/css-parts/)
-  </Card>
-  <Card title="Pre-built Themes & Recipes" icon="palette">
+  </DocsCard>
+  <DocsCard title="Pre-built Themes & Recipes" icon="palette">
     The five built-in themes, each in dark and light, and custom brand colors. [See the themes](/docs/theming/prebuilt-themes/)
-  </Card>
+  </DocsCard>
 </CardGrid>

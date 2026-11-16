@@ -1,0 +1,82 @@
+---
+/**
+ * The docs sidebar: the product switcher of starlight-sidebar-topics, drawn here with Phosphor icons
+ * (components/Icon.astro) instead of the plugin's Starlight ones, above Starlight's own sidebar. Replaces
+ * the plugin's Sidebar override (astro.config.mjs, components.Sidebar); the topics, their links and the
+ * current one still come from the plugin. Keeps the plugin's class names, which styles/starlight-custom.css
+ * styles.
+ */
+import Default from '@astrojs/starlight/components/Sidebar.astro';
+import Icon from './Icon.astro';
+
+const { hasSidebar } = Astro.locals.starlightRoute;
+const { isPageWithTopic, topics } = Astro.locals.starlightSidebarTopics;
+---
+
+{
+  hasSidebar && isPageWithTopic && (
+    <ul class="starlight-sidebar-topics">
+      {topics.map((topic) => {
+        const { class: className, ...attrs } = topic.attrs || {};
+        return (
+          <li>
+            <a {...attrs} href={topic.link} class:list={[{ 'starlight-sidebar-topics-current': topic.isCurrent }, className]}>
+              {topic.icon && (
+                <span class="starlight-sidebar-topics-icon">
+                  <Icon name={topic.icon} size={20} />
+                </span>
+              )}
+              <span>{topic.label}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  )
+}
+<Default><slot /></Default>
+
+<style>
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  ul::after {
+    content: '';
+    display: block;
+    margin-top: 1rem;
+    height: 1px;
+    border-top: 1px solid var(--sl-color-hairline-light);
+  }
+  li {
+    overflow-wrap: anywhere;
+  }
+  li + li {
+    margin-top: 0.25rem;
+  }
+  a {
+    align-items: center;
+    color: var(--sl-color-white);
+    display: flex;
+    font-size: var(--sl-text-base);
+    font-weight: 600;
+    gap: 0.5rem;
+    line-height: 1.5;
+    padding: 0.3em 0.5rem;
+    text-decoration: none;
+  }
+  a:is(.starlight-sidebar-topics-current, :hover, :focus-visible) {
+    color: var(--sl-color-accent-high);
+  }
+  .starlight-sidebar-topics-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.25rem;
+  }
+  /* The current topic, and hover: a tinted box with the icon in the accent (styles/starlight-custom.css
+     has the colours) */
+</style>

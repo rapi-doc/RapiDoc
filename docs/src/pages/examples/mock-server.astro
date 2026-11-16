@@ -4,7 +4,7 @@
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
 import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
-import { IconChevronDown, IconCheck, IconPlayerPlay } from '@tabler/icons-astro';
+import Icon from '../../components/Icon.astro';
 
 const mockAttributes = [
   {
@@ -101,7 +101,7 @@ const mockAttributes = [
               <div class="rd-custom-select" id="endpoint-custom-select">
                 <button type="button" class="rd-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                   <span class="rd-select-value">GET https://reqres.in/api/users (List Paginated)</span>
-                  <IconChevronDown size={14} class="rd-select-chevron" stroke={2} />
+                  <Icon name="caret-down" size={14} class="rd-select-chevron" />
                 </button>
                 <div class="rd-select-menu" role="listbox">
                   <div
@@ -112,7 +112,7 @@ const mockAttributes = [
                     data-method="GET"
                   >
                     <span>GET https://reqres.in/api/users (List Paginated)</span>
-                    <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                    <Icon name="check" size={14} class="rd-option-check" />
                   </div>
                   <div
                     class="rd-select-option"
@@ -122,7 +122,7 @@ const mockAttributes = [
                     data-method="GET"
                   >
                     <span>GET https://reqres.in/api/users/2 (Single User)</span>
-                    <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                    <Icon name="check" size={14} class="rd-option-check" />
                   </div>
                   <div
                     class="rd-select-option"
@@ -132,7 +132,7 @@ const mockAttributes = [
                     data-method="POST"
                   >
                     <span>POST https://reqres.in/api/users (Create User)</span>
-                    <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                    <Icon name="check" size={14} class="rd-option-check" />
                   </div>
                 </div>
                 <!-- Native hidden select for DOM & script access -->
@@ -150,36 +150,36 @@ const mockAttributes = [
                 <div class="rd-custom-select" id="status-custom-select">
                   <button type="button" class="rd-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                     <span class="rd-select-value">Auto (First 2xx)</span>
-                    <IconChevronDown size={14} class="rd-select-chevron" stroke={2} />
+                    <Icon name="caret-down" size={14} class="rd-select-chevron" />
                   </button>
                   <div class="rd-select-menu" role="listbox">
                     <div class="rd-select-option selected" role="option" aria-selected="true" data-value="" data-strategy="first">
                       <span>Auto (First 2xx)</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="200">
                       <span>200 OK</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="400">
                       <span>400 Bad Request</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="404">
                       <span>404 Not Found</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="500">
                       <span>500 Server Error</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="200, 400, 500" data-strategy="cycle">
                       <span>Cycle (200 &rarr; 400 &rarr; 500)</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="200, 500" data-strategy="random">
                       <span>Random Chaos (200 / 500)</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                   </div>
                   <select id="status-select" class="rd-sr-select" tabindex="-1" aria-hidden="true">
@@ -199,24 +199,24 @@ const mockAttributes = [
                 <div class="rd-custom-select" id="delay-custom-select">
                   <button type="button" class="rd-select-trigger" aria-haspopup="listbox" aria-expanded="false">
                     <span class="rd-select-value">300ms (Fast 4G)</span>
-                    <IconChevronDown size={14} class="rd-select-chevron" stroke={2} />
+                    <Icon name="caret-down" size={14} class="rd-select-chevron" />
                   </button>
                   <div class="rd-select-menu" role="listbox">
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="0">
                       <span>0ms (Instant)</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                     <div class="rd-select-option selected" role="option" aria-selected="true" data-value="300">
                       <span>300ms (Fast 4G)</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="800">
                       <span>800ms (Slow Network)</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                     <div class="rd-select-option" role="option" aria-selected="false" data-value="1500">
                       <span>1500ms (High Latency)</span>
-                      <IconCheck size={14} class="rd-option-check" stroke={2.5} />
+                      <Icon name="check" size={14} class="rd-option-check" />
                     </div>
                   </div>
                   <select id="delay-select" class="rd-sr-select" tabindex="-1" aria-hidden="true">
@@ -230,7 +230,7 @@ const mockAttributes = [
             </div>
 
             <button id="send-fetch-btn" class="rd-fetch-btn">
-              <IconPlayerPlay size={15} stroke={2} />
+              <Icon name="play" size={15} />
               <span>Execute In-Page <code>fetch()</code></span>
             </button>
 

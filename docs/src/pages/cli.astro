@@ -5,19 +5,7 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
-import {
-  IconArrowRight,
-  IconArrowUpRight,
-  IconBook,
-  IconEye,
-  IconChecks,
-  IconWand,
-  IconStack2,
-  IconFileTypePdf,
-  IconServer,
-  IconRobot,
-  IconLayoutDashboard,
-} from '@tabler/icons-astro';
+import Icon from '../components/Icon.astro';
 
 const CLI_DOCS = '/docs/cli/';
 const PORTAL_CLI = 'https://portal.rapidocui.com/docs/reference/cli/';
@@ -115,12 +103,12 @@ const portalCommands = [
 
       <div class="rd-hero-actions">
         <a href={CLI_DOCS} class="rd-btn rd-btn-primary">
-          <IconBook size={18} stroke={2} />
+          <Icon name="book-open" size={18} />
           <span>CLI Docs</span>
         </a>
         <a href="https://www.npmjs.com/package/@rapidoc/cli" class="rd-btn rd-btn-secondary" target="_blank" rel="noopener">
           <span>@rapidoc/cli on npm</span>
-          <IconArrowUpRight size={16} stroke={2} />
+          <Icon name="arrow-up-right" size={16} />
         </a>
       </div>
 
@@ -142,13 +130,13 @@ const portalCommands = [
           specCommands.map((command) => (
             <a href={command.href} class="rd-feature-card">
               <span class="rd-feature-icon">
-                {command.icon === 'eye' && <IconEye size={20} stroke={2} />}
-                {command.icon === 'checks' && <IconChecks size={20} stroke={2} />}
-                {command.icon === 'wand' && <IconWand size={20} stroke={2} />}
-                {command.icon === 'stack' && <IconStack2 size={20} stroke={2} />}
-                {command.icon === 'pdf' && <IconFileTypePdf size={20} stroke={2} />}
-                {command.icon === 'server' && <IconServer size={20} stroke={2} />}
-                {command.icon === 'robot' && <IconRobot size={20} stroke={2} />}
+                {command.icon === 'eye' && <Icon name="eye" size={20} />}
+                {command.icon === 'checks' && <Icon name="checks" size={20} />}
+                {command.icon === 'wand' && <Icon name="magic-wand" size={20} />}
+                {command.icon === 'stack' && <Icon name="stack" size={20} />}
+                {command.icon === 'pdf' && <Icon name="file-pdf" size={20} />}
+                {command.icon === 'server' && <Icon name="hard-drives" size={20} />}
+                {command.icon === 'robot' && <Icon name="robot" size={20} />}
               </span>
               <h3 class="rd-feature-title">
                 <code>rapidoc {command.name}</code>
@@ -210,12 +198,12 @@ const portalCommands = [
       <div class="rd-hero-actions">
         <a href={CLI_DOCS} class="rd-btn rd-btn-primary rd-btn-lg">
           <span>Command Line Docs</span>
-          <IconArrowRight size={15} stroke={2.5} />
+          <Icon name="arrow-right" size={15} />
         </a>
         <a href={PORTAL_CLI} class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
-          <IconLayoutDashboard size={16} stroke={2} />
+          <Icon name="layout" size={16} />
           <span>Portal CLI Reference</span>
-          <IconArrowUpRight size={15} stroke={2.5} />
+          <Icon name="arrow-up-right" size={15} />
         </a>
       </div>
     </section>

@@ -3,18 +3,7 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
 import SiteNavbar from '../../components/SiteNavbar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
-import {
-  IconChevronDown,
-  IconCheck,
-  IconPlayerPlay,
-  IconBolt,
-  IconPackage,
-  IconComponents,
-  IconBrush,
-  IconCircleX,
-  IconCircleCheck,
-  IconAlertTriangle,
-} from '@tabler/icons-astro';
+import Icon from '../../components/Icon.astro';
 import { benchmarkData } from '../../page-data/performance-benchmarks';
 import { rapidocBuildInfo } from '../../page-data/rapidoc-build-info';
 
@@ -154,7 +143,7 @@ import 'rapidoc';
                 aria-labelledby="label-spec-select"
               >
                 <span class="rd-selected-text">GitHub Large (1,100+ Operations, 8.2 MB)</span>
-                <IconChevronDown class="rd-select-arrow" size={14} />
+                <Icon name="caret-down" class="rd-select-arrow" size={14} />
               </button>
               <div class="rd-custom-select-menu" role="listbox">
                 <div
@@ -171,7 +160,7 @@ import 'rapidoc';
                     <span class="rd-option-label">Bookstore</span>
                     <span class="rd-option-badge">Baseline, 13.8 KB</span>
                   </div>
-                  <IconCheck class="rd-option-check" size={16} />
+                  <Icon name="check" class="rd-option-check" size={16} />
                 </div>
 
                 <div
@@ -188,7 +177,7 @@ import 'rapidoc';
                     <span class="rd-option-label">Stripe Deep Schema</span>
                     <span class="rd-option-badge">Deep Schemas, 7.0 MB</span>
                   </div>
-                  <IconCheck class="rd-option-check" size={16} />
+                  <Icon name="check" class="rd-option-check" size={16} />
                 </div>
 
                 <div
@@ -206,7 +195,7 @@ import 'rapidoc';
                     <span class="rd-option-label">GitHub Large</span>
                     <span class="rd-option-badge">1,100+ Operations, 8.2 MB</span>
                   </div>
-                  <IconCheck class="rd-option-check" size={16} />
+                  <Icon name="check" class="rd-option-check" size={16} />
                 </div>
               </div>
             </div>
@@ -223,7 +212,7 @@ import 'rapidoc';
                 aria-labelledby="label-mode-select"
               >
                 <span class="rd-selected-text">Focused (Fastest - 1 active endpoint)</span>
-                <IconChevronDown class="rd-select-arrow" size={14} />
+                <Icon name="caret-down" class="rd-select-arrow" size={14} />
               </button>
               <div class="rd-custom-select-menu" role="listbox">
                 <div
@@ -238,7 +227,7 @@ import 'rapidoc';
                     <span class="rd-option-label">Focused</span>
                     <span class="rd-option-badge">Fastest - 1 active endpoint</span>
                   </div>
-                  <IconCheck class="rd-option-check" size={16} />
+                  <Icon name="check" class="rd-option-check" size={16} />
                 </div>
 
                 <div class="rd-select-option" data-value="view" data-label="View (Collapsible sections)" role="option" tabindex="0">
@@ -246,7 +235,7 @@ import 'rapidoc';
                     <span class="rd-option-label">View</span>
                     <span class="rd-option-badge">Collapsible sections</span>
                   </div>
-                  <IconCheck class="rd-option-check" size={16} />
+                  <Icon name="check" class="rd-option-check" size={16} />
                 </div>
 
                 <div class="rd-select-option" data-value="read" data-label="Read (Full linear document)" role="option" tabindex="0">
@@ -254,14 +243,14 @@ import 'rapidoc';
                     <span class="rd-option-label">Read</span>
                     <span class="rd-option-badge">Full linear document</span>
                   </div>
-                  <IconCheck class="rd-option-check" size={16} />
+                  <Icon name="check" class="rd-option-check" size={16} />
                 </div>
               </div>
             </div>
           </div>
 
           <button id="benchmark-run-btn" class="rd-btn rd-btn-primary">
-            <IconPlayerPlay size={15} />
+            <Icon name="play" size={15} />
             <span>Run Benchmark</span>
           </button>
         </div>
@@ -295,7 +284,7 @@ import 'rapidoc';
           <div class="rd-sandbox-viewport" id="benchmark-viewport">
             <div class="rd-placeholder-state" id="benchmark-placeholder">
               <div class="rd-placeholder-icon">
-                <IconBolt size={26} stroke={1.75} />
+                <Icon name="lightning" size={26} />
               </div>
               <h3>Interactive Performance Sandbox</h3>
               <p>Choose an enterprise specification above and click <strong>Run Benchmark</strong> to load and time RapiDoc live.</p>
@@ -379,7 +368,7 @@ import 'rapidoc';
             <span class="rd-card-time">~{rapidocBuildInfo.bundle.gzip.formatted} gzipped</span>
           </div>
           <div class="rd-card-icon-wrap">
-            <IconPackage size={22} stroke={1.75} />
+            <Icon name="package" size={22} />
           </div>
           <h3 class="rd-card-title">Ultra-Lean Bundle by Design</h3>
           <p class="rd-card-desc">
@@ -401,7 +390,7 @@ import 'rapidoc';
             <span class="rd-card-time">Native ES Modules</span>
           </div>
           <div class="rd-card-icon-wrap">
-            <IconBolt size={22} stroke={1.75} />
+            <Icon name="lightning" size={22} />
           </div>
           <h3 class="rd-card-title">Native ESM Build (Modern JS)</h3>
           <p class="rd-card-desc">
@@ -422,7 +411,7 @@ import 'rapidoc';
             <span class="rd-card-time">0 ms VDOM Diffing</span>
           </div>
           <div class="rd-card-icon-wrap">
-            <IconComponents size={22} stroke={1.75} />
+            <Icon name="squares-four" size={22} />
           </div>
           <h3 class="rd-card-title">Native Web Component</h3>
           <p class="rd-card-desc">
@@ -443,7 +432,7 @@ import 'rapidoc';
             <span class="rd-card-time">W3C Highlight API</span>
           </div>
           <div class="rd-card-icon-wrap">
-            <IconBrush size={22} stroke={1.75} />
+            <Icon name="paint-brush" size={22} />
           </div>
           <h3 class="rd-card-title">CSS Custom Highlight API</h3>
           <p class="rd-card-desc">
@@ -471,7 +460,7 @@ import 'rapidoc';
         <div class="rd-compare-col bad">
           <div class="rd-compare-head">
             <span class="rd-cross-icon">
-              <IconCircleX size={18} stroke={2} />
+              <Icon name="x-circle" size={18} />
             </span>
             <div>
               <h3>Traditional Highlighters (Prism / Highlight.js)</h3>
@@ -492,7 +481,7 @@ import 'rapidoc';
 </pre>`}</code></pre>
           </div>
           <p class="rd-compare-note">
-            <IconAlertTriangle class="rd-inline-icon text-amber" size={16} stroke={2} />
+            <Icon name="warning" class="rd-inline-icon text-amber" size={16} />
             <span
               >Each token creates a JavaScript DOM wrapper object, triggering high memory pressure, layout recalculations, and Garbage
               Collection freezes.</span
@@ -503,7 +492,7 @@ import 'rapidoc';
         <div class="rd-compare-col good">
           <div class="rd-compare-head">
             <span class="rd-check-icon">
-              <IconCircleCheck size={18} stroke={2} />
+              <Icon name="check-circle" size={18} />
             </span>
             <div>
               <h3>RapiDoc CSS Custom Highlight API</h3>
@@ -528,7 +517,7 @@ import 'rapidoc';
 ::highlight(string)   { color: #34d399; }`}</code></pre>
           </div>
           <p class="rd-compare-note">
-            <IconCircleCheck class="rd-inline-icon text-emerald" size={16} stroke={2} />
+            <Icon name="check-circle" class="rd-inline-icon text-emerald" size={16} />
             <span
               >The text is never shredded into HTML tags. The browser engine styles the text ranges natively at the compositor level with
               zero DOM overhead.</span

@@ -3,13 +3,7 @@ import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 import RapidocTuner from '../components/RapidocTuner.astro';
 import '../styles/global.css';
 import '../styles/sandbox.css';
-import {
-  IconEdit,
-  IconUpload,
-  IconAdjustmentsHorizontal,
-  IconHome,
-  IconRotate,
-} from '@tabler/icons-astro';
+import Icon from '../components/Icon.astro';
 
 const defaultSpec = '/specs/sandbox.yaml';
 const pageTitle = 'Interactive OpenAPI Spec Sandbox & Live Editor | RapiDoc';
@@ -43,26 +37,26 @@ const pageDescription =
     <nav class="dr-floating-bar" id="dr-floating-bar" aria-label="Sandbox controls">
       <!-- 1. Editor -->
       <button type="button" class="dr-btn dr-btn-accent" id="dr-btn-editor" title="Open Spec Editor (Shortcut: E)">
-        <IconEdit size={14} stroke={2} />
+        <Icon name="pencil-simple" size={14} />
         <span>Editor</span>
       </button>
 
       <!-- 2. Upload -->
       <label class="dr-btn" title="Upload local .yaml or .json spec file">
-        <IconUpload size={14} stroke={2} />
+        <Icon name="upload-simple" size={14} />
         <span>Upload</span>
         <input type="file" id="dr-file-input" accept=".yaml,.yml,.json" style="display: none;" />
       </label>
 
       <!-- 3. Tuner -->
       <button type="button" class="dr-btn" id="dr-btn-tuner" title="Open RapiDoc Tuner (Shortcut: Cmd+K)">
-        <IconAdjustmentsHorizontal size={14} stroke={2} />
+        <Icon name="sliders-horizontal" size={14} />
         <span>Tuner</span>
       </button>
 
       <!-- 4. Home -->
       <a href="/" class="dr-btn dr-btn-icon" title="Return to Home page">
-        <IconHome size={14} stroke={2} />
+        <Icon name="house" size={14} />
       </a>
     </nav>
 
@@ -130,7 +124,7 @@ const pageDescription =
         <div class="dr-drawer-actions">
           <button type="button" class="dr-btn" id="dr-btn-format-json" style="display: none;">Format JSON</button>
           <button type="button" class="dr-btn" id="dr-btn-reset-drawer" title="Reset editor to original spec text">
-            <IconRotate size={13} stroke={2} />
+            <Icon name="arrow-counter-clockwise" size={13} />
             <span>Reset</span>
           </button>
           <button type="button" class="dr-btn" id="dr-btn-cancel-drawer">Cancel</button>

@@ -4,20 +4,7 @@
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import {
-  IconArrowRight,
-  IconBook,
-  IconBrandNodejs,
-  IconBrandPython,
-  IconBrandCSharp,
-  IconBrandGolang,
-  IconBrandAstro,
-  IconBooks,
-  IconBrandReact,
-  IconBrandVue,
-  IconBrandAngular,
-  IconBrandSvelte,
-} from '@tabler/icons-astro';
+import Icon from '../components/Icon.astro';
 
 const DOCS = '/docs/integrations/';
 
@@ -221,16 +208,16 @@ const groups = [
             {group.items.map((item) => (
               <a href={item.href} class="rd-feature-card">
                 <span class="rd-feature-icon">
-                  {item.icon === 'node' && <IconBrandNodejs size={20} stroke={2} />}
-                  {item.icon === 'python' && <IconBrandPython size={20} stroke={2} />}
-                  {item.icon === 'csharp' && <IconBrandCSharp size={20} stroke={2} />}
-                  {item.icon === 'go' && <IconBrandGolang size={20} stroke={2} />}
-                  {item.icon === 'astro' && <IconBrandAstro size={20} stroke={2} />}
-                  {item.icon === 'books' && <IconBooks size={20} stroke={2} />}
-                  {item.icon === 'react' && <IconBrandReact size={20} stroke={2} />}
-                  {item.icon === 'vue' && <IconBrandVue size={20} stroke={2} />}
-                  {item.icon === 'angular' && <IconBrandAngular size={20} stroke={2} />}
-                  {item.icon === 'svelte' && <IconBrandSvelte size={20} stroke={2} />}
+                  {item.icon === 'node' && <Icon name="file-js" size={20} />}
+                  {item.icon === 'python' && <Icon name="file-py" size={20} />}
+                  {item.icon === 'csharp' && <Icon name="file-c-sharp" size={20} />}
+                  {item.icon === 'go' && <Icon name="file-code" size={20} />}
+                  {item.icon === 'astro' && <Icon name="star-four" size={20} />}
+                  {item.icon === 'books' && <Icon name="books" size={20} />}
+                  {item.icon === 'react' && <Icon name="atom" size={20} />}
+                  {item.icon === 'vue' && <Icon name="file-vue" size={20} />}
+                  {item.icon === 'angular' && <Icon name="angular-logo" size={20} />}
+                  {item.icon === 'svelte' && <Icon name="file-code" size={20} />}
                 </span>
                 <h3 class="rd-feature-title">
                   {item.name}
@@ -240,7 +227,7 @@ const groups = [
                 {item.install && <code class="rd-int-code">{item.install}</code>}
                 {item.usage && <code class="rd-int-code rd-int-code--usage">{item.usage}</code>}
                 <span class="rd-feature-more">
-                  Setup <IconArrowRight size={14} stroke={2.5} />
+                  Setup <Icon name="arrow-right" size={14} />
                 </span>
               </a>
             ))}
@@ -258,10 +245,10 @@ const groups = [
       <div class="rd-hero-actions">
         <a href="/docs/integrations/build-your-own/" class="rd-btn rd-btn-primary rd-btn-lg">
           <span>Build an Integration</span>
-          <IconArrowRight size={15} stroke={2.5} />
+          <Icon name="arrow-right" size={15} />
         </a>
         <a href={DOCS} class="rd-btn rd-btn-secondary rd-btn-lg">
-          <IconBook size={16} stroke={2} />
+          <Icon name="book-open" size={16} />
           <span>Integrations Docs</span>
         </a>
       </div>

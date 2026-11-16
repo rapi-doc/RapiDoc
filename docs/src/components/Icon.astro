@@ -1,86 +1,53 @@
 ---
-import {
-  IconBrandGithub,
-  IconArrowLeft,
-  IconArrowRight,
-  IconArrowUpRight,
-  IconArrowDown,
-  IconCopy,
-  IconSearch,
-  IconX,
-  IconCheck,
-  IconExternalLink,
-  IconInfoCircle,
-  IconMenu2,
-  IconLayoutGrid,
-  IconChevronDown,
-  IconFileCode,
-  IconPuzzle,
-  IconRoute,
-  IconFileTypePdf,
-  IconLayoutDashboard,
-  IconTerminal2,
-  IconServer,
-  IconRobot,
-  IconBolt,
-  IconPlug,
-} from '@tabler/icons-astro';
+/**
+ * A Phosphor icon (https://phosphoricons.com), inlined at build time: the one icon set of the site, as of
+ * the RapiDoc Portal. Every icon keeps a 1.5px line. Phosphor draws its weights on a 256 grid with lines
+ * of 8 (thin), 12 (light), 16 (regular) and 24 (bold), so at each size the weight whose line comes
+ * closest to 1.5px is used: bold up to 18px, regular at 20-26px, light at 28px and above. Navigation icons
+ * (the Products menu, the docs product switcher) are 20px: the regular weight, a lighter 1.25px line, as
+ * in the RapiDoc Portal's navigation.
+ */
+import fs from 'node:fs';
+import { iconsDir } from 'virtual:docs-icons';
 
 interface Props {
-  name:
-    | 'github'
-    | 'arrow-left'
-    | 'arrow-right'
-    | 'arrow-up-right'
-    | 'arrow-down'
-    | 'copy'
-    | 'search'
-    | 'close'
-    | 'check'
-    | 'external'
-    | 'info'
-    | 'menu'
-    | 'grid'
-    | 'chevron-down'
-    | 'file-code'
-    | 'puzzle'
-    | 'route'
-    | 'file-pdf'
-    | 'dashboard'
-    | 'terminal'
-    | 'server'
-    | 'robot'
-    | 'bolt'
-    | 'plug';
+  /** A Phosphor icon name, e.g. `arrow-right`, `file-code`, `github-logo` */
+  name: string;
   size?: number;
   class?: string;
-  stroke?: number;
+  [key: string]: any;
 }
 
-const { name, size = 18, class: className = '', stroke = 2 } = Astro.props;
+const { name, size = 18, class: className, stroke: _stroke, ...rest } = Astro.props;
+
+const WEIGHTS = [
+  { weight: 'thin', line: 8 },
+  { weight: 'light', line: 12 },
+  { weight: 'regular', line: 16 },
+  { weight: 'bold', line: 24 },
+] as const;
+const target = (1.5 * 256) / size;
+const { weight } = WEIGHTS.reduce((best, w) => (Math.abs(w.line - target) < Math.abs(best.line - target) ? w : best));
+
+const file = (icon: string) => `${iconsDir}${weight}/${icon}${weight === 'regular' ? '' : `-${weight}`}.svg`;
+let svg: string;
+try {
+  svg = fs.readFileSync(file(name), 'utf8');
+} catch {
+  console.warn(`[docs] Unknown icon "${name}": use a name from https://phosphoricons.com`);
+  svg = fs.readFileSync(file('question'), 'utf8');
+}
+const inner = svg.slice(svg.indexOf('>') + 1, svg.lastIndexOf('</svg>'));
 ---
 
-{name === 'github' && <IconBrandGithub size={size} class={className} stroke={stroke} />}
-{name === 'arrow-left' && <IconArrowLeft size={size} class={className} stroke={stroke} />}
-{name === 'arrow-right' && <IconArrowRight size={size} class={className} stroke={stroke} />}
-{name === 'arrow-up-right' && <IconArrowUpRight size={size} class={className} stroke={stroke} />}
-{name === 'arrow-down' && <IconArrowDown size={size} class={className} stroke={stroke} />}
-{name === 'copy' && <IconCopy size={size} class={className} stroke={stroke} />}
-{name === 'search' && <IconSearch size={size} class={className} stroke={stroke} />}
-{name === 'close' && <IconX size={size} class={className} stroke={stroke} />}
-{name === 'check' && <IconCheck size={size} class={className} stroke={stroke} />}
-{name === 'external' && <IconExternalLink size={size} class={className} stroke={stroke} />}
-{name === 'info' && <IconInfoCircle size={size} class={className} stroke={stroke} />}
-{name === 'menu' && <IconMenu2 size={size} class={className} stroke={stroke} />}
-{name === 'grid' && <IconLayoutGrid size={size} class={className} stroke={stroke} />}
-{name === 'chevron-down' && <IconChevronDown size={size} class={className} stroke={stroke} />}
-{name === 'file-code' && <IconFileCode size={size} class={className} stroke={stroke} />}
-{name === 'puzzle' && <IconPuzzle size={size} class={className} stroke={stroke} />}
-{name === 'route' && <IconRoute size={size} class={className} stroke={stroke} />}
-{name === 'file-pdf' && <IconFileTypePdf size={size} class={className} stroke={stroke} />}
-{name === 'dashboard' && <IconLayoutDashboard size={size} class={className} stroke={stroke} />}
-{name === 'terminal' && <IconTerminal2 size={size} class={className} stroke={stroke} />}
-{name === 'server' && <IconServer size={size} class={className} stroke={stroke} />}
-{name === 'robot' && <IconRobot size={size} class={className} stroke={stroke} />}
-{name === 'bolt' && <IconBolt size={size} class={className} stroke={stroke} />}
-{name === 'plug' && <IconPlug size={size} class={className} stroke={stroke} />}
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 256 256"
+  width={size}
+  height={size}
+  fill="currentColor"
+  aria-hidden="true"
+  class={className}
+  {...rest}
+  set:html={inner}
+/>
