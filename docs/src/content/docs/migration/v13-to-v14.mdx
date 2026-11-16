@@ -1,0 +1,28 @@
+---
+title: Migrating from RapiDoc v13 to v14
+description: Upgrade guide for RapiDoc v14. Nothing changes in how you use rapi-doc; v14 marks the spec loading and schema code now shared with RapiPdf.
+---
+
+RapiDoc **v14** needs no changes on your side. No attribute, method, event, slot, part or CSS variable of `<rapi-doc>`, `<rapi-doc-mini>` or `<rapi-flow>` was added, renamed or removed. Update the version and you are done.
+
+---
+
+## 1. Why a new major
+
+The code that loads a spec and reads its schemas is now shared between `<rapi-doc>` and **RapiPdf**. `rapipdf` 3 is built on the same loader and the same schema tree, so a PDF and the page read a spec the same way, and a fix to either reaches both.
+
+- The [`rapidoc pdf`](/docs/tools/command-line/#write-the-reference-as-a-pdf) command writes the API reference of a spec as a PDF.
+- The [`<rapi-pdf>`](https://www.npmjs.com/package/rapipdf) element does the same in the browser.
+
+## 2. What to update
+
+| You use | Do this |
+| :-- | :-- |
+| `<rapi-doc>` from a CDN or npm | Move to `rapidoc@14`. Nothing else. |
+| `@rapidoc/embed`, `@rapidoc/starlight`, `@rapidoc/vitepress` or `@rapidoc/docusaurus` | Update the integration too: its new release asks for `rapidoc ^14.0.0`. |
+| `@rapidoc/cli` and `@rapidoc/portal` | Update them together, as with every release. |
+| `rapipdf` 2 | See the [`rapipdf` changelog](https://www.npmjs.com/package/rapipdf) for what changed in 3. |
+
+## 3. One fix in this release
+
+A schema that contains itself is marked as recursive at the property that refers back to it. In some specs the marker landed one level down, and the property was drawn as an object with a single `$ref` member.
