@@ -16,7 +16,7 @@
 export function rapidocThemeAttributes(rapidocConfig, portalPrimary) {
   const configured = String(rapidocConfig?.theme ?? "").trim();
   const usesPreset = configured !== "" && !configured.startsWith("#");
-  const preset = configured || "ember";
+  const preset = configured || "amber";
   const attributes = usesPreset
     ? { theme: preset, "data-portal-preset": "" }
     : { theme: preset, "primary-color": configured || portalPrimary };

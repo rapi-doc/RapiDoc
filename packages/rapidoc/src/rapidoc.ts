@@ -402,7 +402,7 @@ export default class RapiDoc extends LitElement {
    * @summary Color palette preset
    * @group Theme
    * @allowedNote (or custom hex color e.g. #2563eb)
-   * @default ember
+   * @default amber
    * @example /examples/themes
    */
   @property({ type: String, reflect: true })

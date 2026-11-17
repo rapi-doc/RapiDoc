@@ -109,7 +109,7 @@ test("controller-registry", async (t) => {
     // the element's presets, then a custom hex colour as an example of the open list
     assert.deepEqual(
       CONTROL_REGISTRY.theme.options.map((option) => option.rawVal),
-      [...attributes.theme.values, "#f4bf32"],
+      [...attributes.theme.values, "#8EA66B"],
     );
   });
 

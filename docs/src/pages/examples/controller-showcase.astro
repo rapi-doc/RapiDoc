@@ -2,15 +2,15 @@
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
 ---
 
+<!-- Every tuner control: all attribute controls, the slot toggles and the methods -->
 <ExampleLayout
   specUrl="/specs/petstore.yaml"
   autoRenderRapiDoc={true}
-  preset={['minimal']}
-  controls={['render-style', 'schema-style', 'theme', 'show-header', 'allow-try']}
+  preset={['all']}
   rapidocProps={{
     'render-style': 'read',
     'schema-style': 'table',
-    'theme': 'dark',
+    'color-scheme': 'dark',
     'show-info': 'true',
     'show-header': 'false',
     'allow-try': 'true',

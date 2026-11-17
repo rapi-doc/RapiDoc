@@ -412,7 +412,7 @@ describe("Static Document Pre-Rendering (renderRapiDoc)", () => {
       'Must serialize render-style="read"',
     );
     assert.ok(openingTagAttrs.includes('layout="column"'), 'Must serialize layout="column"');
-    assert.ok(openingTagAttrs.includes('theme="ember"'), 'Must serialize theme="ember"');
+    assert.ok(openingTagAttrs.includes('theme="amber"'), 'Must serialize theme="amber"');
     assert.ok(
       openingTagAttrs.includes('color-scheme="dark"'),
       'Must serialize color-scheme="dark"',

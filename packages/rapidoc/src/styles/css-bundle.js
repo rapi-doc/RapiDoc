@@ -39,7 +39,7 @@ export const allStyles = [
  * Returns aggregated CSS text for Declarative Shadow DOM or Light DOM SSR/SSG pre-rendering.
  *
  * @param {Object} [options]
- * @param {string} [options.theme='ember'] - Theme preset name or valid hex color code
+ * @param {string} [options.theme='amber'] - Theme preset name or valid hex color code
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {string} [options.scope=''] - Optional outer selector (for Light DOM / non-shadow pre-rendering)
  * @returns {string} Fully concatenated CSS string
@@ -97,7 +97,7 @@ export function getNavCss(scope = "") {
  * Returns RapiDoc's design system & theme tokens CSS text for shared usage in @rapidoc/portal.
  * Converts Web Component :host rules into Light DOM portal selectors (:root, [data-theme='dark'], [data-theme='light']).
  *
- * @param {string} [theme='ember'] - Theme preset name (see THEME_PRESETS) or hex color
+ * @param {string} [theme='amber'] - Theme preset name (see THEME_PRESETS) or hex color
  * @param {string} [scope=':root'] - Scope selector
  * @returns {string} Theme tokens CSS string
  */

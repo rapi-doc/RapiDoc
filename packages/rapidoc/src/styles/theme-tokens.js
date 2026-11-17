@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from "lit";
 
-export const DEFAULT_THEME = "ember";
+export const DEFAULT_THEME = "amber";
 
 /**
  * Brand theme presets (the `theme` attribute), as CSS declaration lists. Each one sets the accent and, where the theme tints
@@ -8,12 +8,12 @@ export const DEFAULT_THEME = "ember";
  * token (card, muted, border, input, ...) is derived from those two in section 3. A theme rule outranks the
  * shared color-scheme rules, so a theme that sets a surface for one scheme must set it for the other too.
  *
- * - 'ember'  (default): orange-red accent over neutral charcoal
+ * - 'ember':  orange-red accent over neutral charcoal
  * - 'carbon': monochrome, near-black surfaces and a white accent
  * - 'cobalt': matte steel-blue accent over grey-blue slate, with cards darker than the page
  * - 'jade':   daisyUI-style green accent over slate-navy, with cards darker than the page
  * - 'indigo': indigo accent over indigo-black
- * - 'amber':  amber accent over slate grey, with lighter cards, a darker sidebar and white headings (orange in light mode)
+ * - 'amber'  (default): amber accent over slate grey, with lighter cards, a darker sidebar and white headings (orange in light mode)
  */
 export const THEMES = {
   ember: {

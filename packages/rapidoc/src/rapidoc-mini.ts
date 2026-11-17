@@ -313,7 +313,7 @@ export default class RapiDocMini extends LitElement {
    * @summary Color palette preset
    * @group Theme
    * @allowedNote (or custom hex color e.g. #2563eb)
-   * @default ember
+   * @default amber
    */
   @property({ type: String, reflect: true })
   theme: "ember" | "carbon" | "cobalt" | "jade" | "indigo" | "amber" | (string & {}) =

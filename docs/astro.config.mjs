@@ -39,6 +39,7 @@ export default defineConfig({
     '/examples/arazzo-flow-multi': '/examples/arazzo-multi',
     // The Bookstore example, replaced by the OpenAPI 3.2 Petstore
     '/examples/bookstore': '/examples/petstore-3-2',
+    '/examples/pretty-controller-showcase': '/examples/controller-showcase',
     '/css': '/docs/theming/css-parts/',
     '/slots': '/docs/customizing/slots/',
     '/mini': '/rapidoc-mini/',

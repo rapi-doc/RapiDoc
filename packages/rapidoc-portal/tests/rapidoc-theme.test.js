@@ -7,9 +7,9 @@ import { rapidocThemeAttributes } from "../src/components/rapidoc-theme.js";
 describe("rapidocThemeAttributes", () => {
   it("uses the portal's accent when rapidoc.theme is not set", () => {
     assert.deepEqual(rapidocThemeAttributes({ "render-style": "read" }, "#ff791a"), {
-      preset: "ember",
+      preset: "amber",
       usesPreset: false,
-      attributes: { theme: "ember", "primary-color": "#ff791a" },
+      attributes: { theme: "amber", "primary-color": "#ff791a" },
     });
   });
 
