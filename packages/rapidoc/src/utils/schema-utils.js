@@ -762,6 +762,14 @@ export function json2xml(obj, level = 1) {
       continue;
     }
     const val = obj[prop];
+    // An array property marked by xmlArrayValue: item elements, in a wrapper element or not
+    if (Array.isArray(val) && val["::XML_ITEM_TAG"]) {
+      const wrapper = val["::XML_WRAPPER"];
+      xmlText = wrapper
+        ? `${xmlText}\n${indent}<${wrapper}>${xmlArrayItems(val, level + 1)}\n${indent}</${wrapper}>`
+        : `${xmlText}${xmlArrayItems(val, level)}`;
+      continue;
+    }
     let tagName = prop;
     if (Array.isArray(val)) {
       tagName = val["::XML_TAG"] || val[0]?.["::XML_TAG"] || prop;
@@ -797,9 +805,47 @@ function addSchemaInfoToExample(schema, obj) {
   if (schema.xml?.name) {
     obj["::XML_TAG"] = schema.xml?.name;
   }
-  if (schema.xml?.wrapped) {
-    obj["::XML_WRAP"] = schema.xml?.wrapped.toString();
+  if (isXmlWrapped(schema.xml)) {
+    obj["::XML_WRAP"] = "true";
   }
+}
+
+/** An array's XML wrapper element: `wrapped: true` (3.0, 3.1), or OpenAPI 3.2's `nodeType: element` */
+function isXmlWrapped(xml) {
+  return Boolean(xml?.wrapped) || xml?.nodeType === "element";
+}
+
+/**
+ * An array property's sample for XML, marked for json2xml: each item is an element named by the
+ * items' `xml.name`, else the property's name; a wrapped array (`wrapped: true`, `nodeType:
+ * element`) puts them in an element named by the array's `xml.name`, else the property's name.
+ * Unwrapped, the item elements sit directly in the parent (the array's `xml.name` has no effect).
+ */
+function xmlArrayValue(values, arraySchema, propertyName) {
+  const arr = Array.isArray(values) ? [...values] : [values];
+  const itemsSchema = flattenAllOf(arraySchema.items) || {};
+  arr["::XML_ITEM_TAG"] = itemsSchema.xml?.name || propertyName;
+  if (isXmlWrapped(arraySchema.xml)) {
+    arr["::XML_WRAPPER"] = arraySchema.xml?.name || propertyName;
+  }
+  return arr;
+}
+
+/** The item elements of an array marked by xmlArrayValue, at the given indent */
+function xmlArrayItems(arr, level) {
+  const indent = "  ".repeat(level);
+  const tag = arr["::XML_ITEM_TAG"];
+  return arr
+    .map((item) => {
+      if (item === null || item === undefined) {
+        return `\n${indent}<${tag}></${tag}>`;
+      }
+      if (typeof item === "object") {
+        return `\n${indent}<${tag}>${json2xml(item, level + 1)}\n${indent}</${tag}>`;
+      }
+      return `\n${indent}<${tag}>${item.toString()}</${tag}>`;
+    })
+    .join("");
 }
 
 function removeTitlesAndDescriptions(obj) {
@@ -1120,24 +1166,20 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
 
         if (propSchema.type === "array" || propSchema.items) {
           const propExample = getFirstExample(propSchema);
+          const itemsExample =
+            propExample === undefined ? getFirstExample(propSchema.items) : undefined;
+          let values;
           if (propExample !== undefined) {
-            obj["example-0"][propertyName] = propExample;
-          } else if (getFirstExample(propSchema.items) !== undefined) {
-            obj["example-0"][propertyName] = [getFirstExample(propSchema.items)];
+            values = propExample;
+          } else if (itemsExample !== undefined) {
+            values = [itemsExample];
           } else {
             const itemSamples = schemaToSampleObj(propSchema.items, config, level + 1);
-            const itemSampleVal = itemSamples?.["example-0"] ?? itemSamples;
-            if (config.useXmlTagForProp) {
-              const xmlTagName = propSchema.xml?.name || propertyName;
-              if (propSchema.xml?.wrapped) {
-                obj["example-0"][xmlTagName] = { [xmlTagName]: itemSampleVal };
-              } else {
-                obj["example-0"][xmlTagName] = [itemSampleVal];
-              }
-            } else {
-              obj["example-0"][propertyName] = [itemSampleVal];
-            }
+            values = [itemSamples?.["example-0"] ?? itemSamples];
           }
+          obj["example-0"][propertyName] = config.useXmlTagForProp
+            ? xmlArrayValue(values, propSchema, propertyName)
+            : values;
           continue;
         }
 

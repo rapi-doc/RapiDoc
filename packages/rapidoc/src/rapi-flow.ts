@@ -215,6 +215,8 @@ export default class RapiFlow extends LitElement {
   @state() private manualCredentials: Record<string, string> = {};
   @state() private runningStepId = "";
   @state() private trace: any[] = [];
+  // The execution log's layout: one row per entry with fixed columns, or rows that wrap
+  @state() private logLayout: "single" | "multi" = "single";
   @state() private runResult: any = null;
   /** The inputs the last run was given, as the workflow got them: the start of its log. */
   @state() private runSentInputs: Record<string, unknown> | null = null;
@@ -390,20 +392,25 @@ export default class RapiFlow extends LitElement {
         margin-left: auto;
       }
       /* Two outline buttons joined into one control; the pressed one is filled */
-      .view-toggle {
+      .view-toggle,
+      .log-toggle {
         display: inline-flex;
       }
-      .view-toggle .btn {
+      .view-toggle .btn,
+      .log-toggle .btn {
         font-weight: 400;
       }
-      .view-toggle .btn:first-child {
+      .view-toggle .btn:first-child,
+      .log-toggle .btn:first-child {
         border-radius: var(--radius) 0 0 var(--radius);
       }
-      .view-toggle .btn + .btn {
+      .view-toggle .btn + .btn,
+      .log-toggle .btn + .btn {
         margin-left: -1px;
         border-radius: 0 var(--radius) var(--radius) 0;
       }
-      .view-toggle .btn[aria-pressed="true"] {
+      .view-toggle .btn[aria-pressed="true"],
+      .log-toggle .btn[aria-pressed="true"] {
         color: var(--primary-foreground);
         background: var(--primary);
         border-color: var(--primary);
@@ -597,7 +604,6 @@ export default class RapiFlow extends LitElement {
       .run-trace li.trace-failure {
         border-color: var(--destructive);
       }
-      .run-trace summary,
       .run-mock > summary {
         display: flex;
         flex-wrap: wrap;
@@ -612,9 +618,8 @@ export default class RapiFlow extends LitElement {
       .run-mock > summary::-webkit-details-marker {
         display: none;
       }
-      /* A bordered + in each entry's top-right corner, − when it is open; out of the flow, so a
-         wrapping line never leaves it on a line of its own */
-      .run-trace summary::after,
+      /* A bordered + in the top-right corner, − when it is open; out of the flow, so a wrapping
+         line never leaves it on a line of its own */
       .run-mock > summary::after {
         content: "+";
         position: absolute;
@@ -632,14 +637,101 @@ export default class RapiFlow extends LitElement {
         font-size: var(--font-size-small);
         line-height: 1;
       }
-      .run-trace details[open] summary::after,
       .run-mock[open] > summary::after {
         content: "−";
       }
-      .run-trace summary:hover::after,
       .run-mock > summary:hover::after {
         color: var(--foreground);
         border-color: var(--muted-foreground);
+      }
+      /* The Execution Log heading row: the title, then the layout toggle on the right */
+      .run-log-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin: 0.75rem 0 0.375rem;
+      }
+      .run-log-head h4 {
+        margin: 0;
+      }
+      .log-toggle .btn {
+        padding: 2px 8px;
+        font-size: var(--font-size-xs);
+      }
+      /* An entry's row: #, step, method and URL, status, outcome, expander. Single line: fixed
+         columns, one row, the URL cut with an ellipsis. Multiline: the same cells, wrapping. */
+      .run-trace summary {
+        display: grid;
+        grid-template-columns: 1.75em 9em minmax(0, 1fr) 5.5em 1em 1.25em;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.375rem 0.75rem;
+        cursor: pointer;
+        list-style: none;
+      }
+      .run-trace summary > span {
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      /* Multiline: the same columns, top-aligned, with the cells wrapping inside them (the URL
+         breaks anywhere), so the outcome and expander stay on the first line */
+      .run-trace.multi summary {
+        align-items: start;
+      }
+      .run-trace.multi summary > span {
+        white-space: normal;
+        overflow: visible;
+        overflow-wrap: anywhere;
+      }
+      .trace-seq {
+        color: var(--muted-foreground);
+        font-variant-numeric: tabular-nums;
+      }
+      .trace-status {
+        font-variant-numeric: tabular-nums;
+      }
+      .trace-outcome {
+        text-align: center;
+        font-weight: 700;
+      }
+      /* The expander: a bordered +, − when the entry is open */
+      .trace-expander {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.25em;
+        height: 1.25em;
+        border: 1px solid var(--input);
+        border-radius: 3px;
+        color: var(--muted-foreground);
+        font-family: var(--font-mono);
+        font-size: var(--font-size-small);
+        line-height: 1;
+      }
+      .trace-expander::before {
+        content: "+";
+      }
+      .run-trace details[open] .trace-expander::before {
+        content: "−";
+      }
+      .run-trace summary:hover .trace-expander {
+        color: var(--foreground);
+        border-color: var(--muted-foreground);
+      }
+      .trace-check-failed {
+        color: var(--destructive);
+        font-weight: 600;
+      }
+      /* The expanded entry's first line: the failed check and its action, the attempt, mocked */
+      .trace-detail {
+        margin: 0.5rem 0.75rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem 0.75rem;
+        align-items: baseline;
       }
       .run-trace details[open] summary,
       .run-mock[open] > summary {
@@ -659,7 +751,6 @@ export default class RapiFlow extends LitElement {
         font-family: var(--font-mono);
         font-size: var(--font-size-small);
         color: var(--muted-foreground);
-        word-break: break-all;
       }
       .trace-success .trace-outcome {
         color: var(--green);
@@ -668,6 +759,13 @@ export default class RapiFlow extends LitElement {
       .run-problem,
       .run-error {
         color: var(--destructive);
+      }
+      /* The run's error under the log: on the darker input surface, for contrast with the red */
+      .flow-run pre.run-error {
+        margin-top: 0.5rem;
+        padding: 0.75rem;
+        border-radius: var(--radius);
+        background: var(--input-background);
       }
       .flow-problems .warning {
         color: var(--muted-foreground);
@@ -1630,17 +1728,28 @@ export default class RapiFlow extends LitElement {
       const text = typeof v === "string" ? v : JSON.stringify(v, null, 2);
       return text && text.length > 4000 ? `${text.slice(0, 4000)}…` : text;
     };
+    const request = `${e.request?.method || ""} ${e.request?.url || ""}`.trim();
+    const hasDetail = e.failedCriterion || e.action || e.attempt > 1 || (e.mocked && showMocked);
     return html`<li class="trace-${e.outcome}">
       <details ?open=${e.outcome === "failure"}>
         <summary>
-          <span class="trace-step">${n + 1}. ${e.stepId}</span>
-          ${e.attempt > 1 ? html`<span class="muted">attempt ${e.attempt}</span>` : nothing}
-          <span class="trace-request">${e.request?.method} ${e.request?.url}</span>
-          <span class="trace-status">${e.response ? `HTTP ${e.response.status}` : "no response"}${e.mocked && showMocked ? html` <span class="muted">mocked</span>` : nothing}</span>
-          <span class="trace-outcome">${e.outcome === "success" ? "✓" : "✗"}</span>
-          ${e.failedCriterion ? html`<code>${e.failedCriterion}</code>` : nothing}
-          ${e.action ? html`<span class="muted">→ ${e.action.type}${e.action.stepId ? ` ${e.action.stepId}` : ""}</span>` : nothing}
+          <span class="trace-seq">${n + 1}.</span>
+          <span class="trace-step" title=${e.stepId}>${e.stepId}</span>
+          <span class="trace-request" title=${request}>${request}</span>
+          <span class="trace-status">${e.response ? `HTTP ${e.response.status}` : "no response"}</span>
+          <span class="trace-outcome" aria-label=${e.outcome === "success" ? "Passed" : "Failed"}>${e.outcome === "success" ? "✓" : "✗"}</span>
+          <span class="trace-expander" aria-hidden="true"></span>
         </summary>
+        ${
+          hasDetail
+            ? html`<p class="trace-detail">
+                ${e.failedCriterion ? html`<span class="trace-check-failed">Check Failed:</span><code>${e.failedCriterion}</code>` : nothing}
+                ${e.action ? html`<span class="muted">→ ${e.action.type}${e.action.stepId ? ` ${e.action.stepId}` : ""}</span>` : nothing}
+                ${e.attempt > 1 ? html`<span class="muted">attempt ${e.attempt}</span>` : nothing}
+                ${e.mocked && showMocked ? html`<span class="muted">mocked response</span>` : nothing}
+              </p>`
+            : nothing
+        }
         ${
           e.external && !e.response && e.request
             ? html`<p class="muted run-log-note">This step calls a URL outside the workflow's APIs (<code>x-operation</code>): that server must allow cross-origin requests from this page.</p>`
@@ -1679,10 +1788,18 @@ export default class RapiFlow extends LitElement {
       }
       ${
         this.trace.length
-          ? html`<h4>
-              Log${allMocked ? html` <span class="run-log-note">(mocked responses)</span>` : nothing}
-            </h4>
-            <ol class="run-trace">${this.trace.map((e, n) => this.renderTraceEntry(e, n, !allMocked))}</ol>`
+          ? html`<div class="run-log-head">
+                <h4>Execution Log${allMocked ? html` <span class="run-log-note">(mocked responses)</span>` : nothing}</h4>
+                <div class="log-toggle" part="log-toggle" role="group" aria-label="Log layout">
+                  <button type="button" class="btn btn-outline" aria-pressed=${this.logLayout === "single" ? "true" : "false"} @click=${() => (this.logLayout = "single")}>
+                    Single line
+                  </button>
+                  <button type="button" class="btn btn-outline" aria-pressed=${this.logLayout === "multi" ? "true" : "false"} @click=${() => (this.logLayout = "multi")}>
+                    Multiline
+                  </button>
+                </div>
+              </div>
+              <ol class="run-trace ${this.logLayout}">${this.trace.map((e, n) => this.renderTraceEntry(e, n, !allMocked))}</ol>`
           : nothing
       }
       ${this.runProblem ? html`<p class="run-problem">Cannot run this workflow: ${this.runProblem}</p>` : nothing}

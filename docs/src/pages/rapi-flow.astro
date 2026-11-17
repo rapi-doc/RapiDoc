@@ -580,6 +580,11 @@ const mockServerHtmlSnippet = `<rapi-flow
     color: var(--rd-accent-light);
   }
   .wf-demo {
+    /* Wider than the content column on large screens: the viewport less a 24px gutter on each side,
+       at most 1600px, never narrower than the column; centred by equal negative margins. */
+    --wf-demo-width: max(100%, min(100vw - 48px, 1600px));
+    width: var(--wf-demo-width);
+    margin-inline: calc((100% - var(--wf-demo-width)) / 2);
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     /* One row exactly the box's height: an auto row would grow to the content, and each pane's own

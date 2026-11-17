@@ -83,6 +83,15 @@ export default class ApiResponse extends LitElement {
           font-weight: bold;
           font-size: calc(var(--font-size-small) + 1px);
         }
+        .stream-label {
+          font-size: var(--font-size-small);
+          color: var(--muted-foreground);
+          padding: 4px 0;
+        }
+        .resp-summary {
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
         .resp-descr {
           font-size: var(--font-size-description);
           color: var(--muted-foreground);
@@ -256,6 +265,7 @@ export default class ApiResponse extends LitElement {
                     respStatus === "$$ref" // Ignore '$$ref' if present from legacy reference parsing
                       ? ""
                       : html`<button
+                          title="${this.responses[respStatus]?.summary || ""}"
                           @click="${() => {
                             this.selectedStatus = respStatus;
                             if (
@@ -288,6 +298,11 @@ export default class ApiResponse extends LitElement {
         (status) =>
           html`<div style="display: ${status === this.selectedStatus ? "block" : "none"}">
             <div class="top-gap">
+              ${
+                this.responses[status]?.summary
+                  ? html`<div class="resp-summary">${this.responses[status].summary}</div>`
+                  : ""
+              }
               <span class="resp-descr m-markdown">${unsafeHTML(sanitizeHTML(marked(this.responses[status]?.description || "")))}</span>
               ${
                 this.headersForEachRespStatus[status] &&
@@ -391,6 +406,11 @@ export default class ApiResponse extends LitElement {
     }
     return html`
       ${
+        mimeRespDetails.streamItemLabel
+          ? html`<div class="stream-label">Stream · items arrive one after another</div>`
+          : ""
+      }
+      ${
         mimeRespDetails.examples.length === 1
           ? html` ${
               mimeRespDetails.examples[0].exampleFormat === "json"
@@ -481,7 +501,11 @@ export default class ApiResponse extends LitElement {
     if (!mimeRespDetails) {
       return html` <pre style="color:var(--destructive)" class="example-panel"> Schema not found</pre> `;
     }
-    return html` ${
+    return html`${
+      mimeRespDetails.streamItemLabel
+        ? html`<div class="stream-label">Stream · ${mimeRespDetails.streamItemLabel.toLowerCase()} is:</div>`
+        : ""
+    }${
       this.schemaStyle === "table"
         ? html`
             <schema-table

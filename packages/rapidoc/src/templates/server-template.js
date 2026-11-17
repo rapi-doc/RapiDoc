@@ -107,11 +107,9 @@ export default function serverTemplate() {
       API Server
       ${
         this.mockServer === "true"
-          ? html`<span
-              style="font-size:var(--font-size-small); font-weight:bold; color:var(--green); border:1px solid var(--green); border-radius:var(--radius); padding:1px 6px; letter-spacing:0.5px;"
-              title="In-browser mock server is active"
-            >
-              MOCK ACTIVE
+          ? html`<span class="mock-active" title="The in-browser mock answers requests to the API">
+              <span class="mock-pulse" aria-hidden="true"></span>
+              <span class="mock-label">MOCKING</span>
             </span>`
           : ""
       }
@@ -120,7 +118,7 @@ export default function serverTemplate() {
       ${
         !this.resolvedSpec.servers || this.resolvedSpec.servers?.length === 0
           ? ""
-          : html`
+          : html`<div class="server-list ${this.resolvedSpec.servers.some((s) => s.name) ? "with-names" : ""}">
               ${this.resolvedSpec?.servers.map(
                 (server, i) => html`
                   <div class="server-opt-row">
@@ -134,17 +132,22 @@ export default function serverTemplate() {
                       }}
                       .checked="${this.selectedServer.url === server.url}"
                     />
+                    ${
+                      // OpenAPI 3.2 server name: its own column, so the URLs line up
+                      this.resolvedSpec.servers.some((s) => s.name)
+                        ? html`<label for="srvr-opt-${i}" class="server-name">${server.name || ""}</label>`
+                        : ""
+                    }
                     <label for="srvr-opt-${i}">
                       ${server.url} ${server.description ? html`- <span class="regular-font">${unsafeHTML(sanitizeHTML(marked.parseInline(server.description)))} </span>` : ""}
                     </label>
                   </div>
                 `,
               )}
-            `
+            </div>`
       }
       <div class="table-title primary-text" part="label-selected-server">
         SELECTED: ${this.selectedServer?.computedUrl || "none"}
-        ${this.mockServer === "true" ? html`<span style="color:var(--green); margin-left:6px;">(Mocked)</span>` : ""}
       </div>
     </div>
     <slot name="servers"></slot>

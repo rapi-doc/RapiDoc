@@ -58,8 +58,10 @@ Every other file default-exports one stylesheet named after what it styles (`nav
 `flow-styles.js` styles the Arazzo diagram for `<rapi-flow>` and `@rapidoc/prerender` `getFlowCss()`; it
 uses plain class selectors (no `:host`) and is not part of `allStyles`. It sets a few private
 variables of its own, not theme tokens and not documented: `--rf-step` (the step color) and, from a
-kind class (`rf-success`, `rf-failure`, `rf-retry`), `--rf-kind` / `--rf-on-kind` (a line's color and
-the text on it), so lines, arrowheads, line labels and END pills share one rule each.
+kind class (`rf-success`, `rf-failure`, `rf-retry`), `--rf-kind` (a line's color), so lines,
+arrowheads, line labels and END pills share one rule each. Line labels and END pills are outlined:
+the surface behind them, a `--rf-kind` border, and text mixing 60% `--rf-kind` with 40%
+`--foreground`, which keeps 4.5:1 on every theme and scheme.
 
 The custom properties themselves are not listed here: `theme-tokens.js` is the source of truth and
 `docs/src/page-data/styling-data.yaml` is the documented list (`packages/rapidoc/AGENTS.md` §5,

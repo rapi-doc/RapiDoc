@@ -25,6 +25,8 @@ When two files would get the same name, their parent folders are added until the
 ## What it answers
 
 - **Examples first.** An operation's response example is returned when the spec has one; otherwise data is generated from the schema, respecting formats, patterns, enums and ranges. Generated data is the same on every run (change it with `--seed`).
+- **OpenAPI 3.2 methods.** `QUERY` operations and those under `additionalOperations` (`PURGE`, `COPY`, `LINK`, ...) are served and validated like the others, and pass CORS preflight. A method Node's HTTP server doesn't accept (it takes a fixed list) can't be called; the mock warns about it when it starts.
+- **Streams.** A response whose media type has an OpenAPI 3.2 `itemSchema` (Server-Sent Events, JSON Lines, `application/json-seq`) is sent one item at a time, `--stream-interval` apart (default 300 ms): the items of the example (a `dataValue` list, or the stream's text), else an item generated from the `itemSchema` sent 5 times, its `id` numbered 1 to 5. A JSON Lines request body is checked line by line against its `itemSchema`.
 - **Requests are validated.** Parameters and JSON, form and multipart bodies are checked against the spec. A bad request gets `400` with the list of problems (`422` when the operation documents `422` and not `400`).
 - **Security is enforced** per operation:
   - **OAuth 2, OpenID Connect and HTTP bearer**: with `--issuer`, the token must be a JWT signed by that issuer, unexpired and for the `--audience`, or the request gets `401`. It must also grant the operation's scopes in its `scope`, `scp` or `permissions` claim, or the request gets `403` with `WWW-Authenticate: Bearer error="insufficient_scope"`. Without `--issuer`, any bearer token is accepted.
@@ -53,6 +55,7 @@ The response's `Preference-Applied` header tells you which preferences were used
 | `--issuer <url>` | `RAPIDOC_MOCK_ISSUER` | OpenID Connect issuer whose access tokens are accepted. The server won't start if the issuer can't be discovered. |
 | `--audience <id>` | `RAPIDOC_MOCK_AUDIENCE` | The `aud` tokens must have (your API's identifier at the provider). |
 | `--seed <number>` | | Seed for generated data. Default `1`. |
+| `--stream-interval <ms>` | | Gap between the items of a streamed response. Default `300`. |
 
 ```bash
 npx rapidoc mock openapi.yaml --issuer https://example.us.auth0.com/ --audience https://api.example.com
@@ -93,4 +96,4 @@ await server.close();
 const { app } = await createMockApp({ apis: [{ id: 'orders', fullPath: '/abs/path/orders.yaml' }] });
 ```
 
-`startMockServer` also takes `host`, `issuer`, `audience` and `seed`, and returns `{ url, port, apis, skipped, close }`. A spec it can't load is skipped with the reason, and the others are served.
+`startMockServer` also takes `host`, `issuer`, `audience`, `seed` and `streamInterval`, and returns `{ url, port, apis, skipped, close }`. A spec it can't load is skipped with the reason, and the others are served.

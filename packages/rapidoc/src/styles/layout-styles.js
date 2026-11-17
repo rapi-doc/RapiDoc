@@ -342,6 +342,124 @@ export default css`
   .server-opt-row label {
     cursor: pointer;
   }
+  /* The server radio buttons drawn by RapiDoc, so they look the same in every browser and OS */
+  .server-opt-row input[type='radio'] {
+    appearance: none;
+    flex: none;
+    box-sizing: border-box;
+    display: inline-grid;
+    place-content: center;
+    align-self: center;
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    border: 1.5px solid var(--muted-foreground);
+    border-radius: 50%;
+    background: var(--input-background);
+    transition: border-color 0.15s ease;
+  }
+  .server-opt-row input[type='radio']::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    transform: scale(0);
+    transition: transform 0.1s ease-in-out;
+  }
+  .server-opt-row input[type='radio']:hover,
+  .server-opt-row input[type='radio']:checked {
+    border-color: var(--primary);
+  }
+  .server-opt-row input[type='radio']:checked::before {
+    transform: scale(1);
+  }
+  .server-opt-row input[type='radio']:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+  }
+  /* Servers with a name (OpenAPI 3.2): radio, name and URL in aligned columns */
+  .server-list.with-names {
+    display: grid;
+    grid-template-columns: auto max-content 1fr;
+    column-gap: 8px;
+    row-gap: 4px;
+    align-items: baseline;
+    margin: 4px 0;
+  }
+  .server-list.with-names .server-opt-row {
+    display: contents;
+  }
+  .server-name {
+    font-weight: bold;
+  }
+
+  /* MOCKING badge (server-template.js): a pulsing dot, then the label in a dotted border. Light blue
+     on the dark scheme; a darker blue on the light scheme (color-scheme="light", or "system" when the
+     OS prefers light), so both keep their contrast on a white background. */
+  .mock-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 4px;
+  }
+  .mock-label {
+    font-size: var(--font-size-small);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    color: color-mix(in srgb, var(--blue) 65%, #fff);
+    border: 1px dotted color-mix(in srgb, var(--blue) 65%, #fff);
+    border-radius: var(--radius);
+    padding: 6px;
+  }
+  .mock-pulse {
+    position: relative;
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--blue) 65%, #fff);
+  }
+  .mock-pulse::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: mock-pulse 1.6s ease-out infinite;
+  }
+  :host([color-scheme='light']) .mock-label {
+    color: color-mix(in srgb, var(--blue) 80%, #000);
+    border-color: color-mix(in srgb, var(--blue) 80%, #000);
+  }
+  :host([color-scheme='light']) .mock-pulse {
+    background: color-mix(in srgb, var(--blue) 80%, #000);
+  }
+  @media (prefers-color-scheme: light) {
+    :host([color-scheme='system']) .mock-label {
+      color: color-mix(in srgb, var(--blue) 80%, #000);
+      border-color: color-mix(in srgb, var(--blue) 80%, #000);
+    }
+    :host([color-scheme='system']) .mock-pulse {
+      background: color-mix(in srgb, var(--blue) 80%, #000);
+    }
+  }
+  @keyframes mock-pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(2.8);
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mock-pulse::after {
+      animation: none;
+    }
+  }
 
   @keyframes spin {
     0% {

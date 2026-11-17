@@ -1,9 +1,19 @@
 import $RefParser from "@apidevtools/json-schema-ref-parser";
 
-export const METHODS = ["get", "put", "post", "delete", "options", "head", "patch", "trace"];
+export const METHODS = [
+  "get",
+  "put",
+  "post",
+  "delete",
+  "options",
+  "head",
+  "patch",
+  "trace",
+  "query",
+];
 
 /**
- * Loads one OpenAPI 3.0 / 3.1 document (JSON or YAML) and bundles the files it references into it, so every
+ * Loads one OpenAPI 3.0 / 3.1 / 3.2 document (JSON or YAML) and bundles the files it references into it, so every
  * `$ref` left is internal (`#/...`). Internal refs stay as they are: recursive schemas need them.
  *
  * @param {string} fullPath
@@ -11,9 +21,9 @@ export const METHODS = ["get", "put", "post", "delete", "options", "head", "patc
  */
 export async function loadSpec(fullPath) {
   const doc = await $RefParser.bundle(fullPath);
-  if (typeof doc?.openapi !== "string" || !/^3\.[01]\./.test(doc.openapi)) {
+  if (typeof doc?.openapi !== "string" || !/^3\.[012]\./.test(doc.openapi)) {
     const version = doc?.openapi || (doc?.swagger && `Swagger ${doc.swagger}`) || "no version";
-    throw new Error(`${fullPath} is not OpenAPI 3.0 or 3.1 (${version})`);
+    throw new Error(`${fullPath} is not OpenAPI 3.0, 3.1 or 3.2 (${version})`);
   }
   return doc;
 }
@@ -45,7 +55,10 @@ export function resolve(doc, node, pointer) {
   return { node, pointer };
 }
 
-/** Every operation of the document: `{ method, path, operation, pointer }`. */
+/**
+ * Every operation of the document: `{ method, path, operation, pointer }`, `method` in lower case. OpenAPI 3.2's
+ * `query` and the methods under `additionalOperations` (`PURGE`, `COPY`, ...) are included.
+ */
 export function listOperations(doc) {
   const operations = [];
   for (const [path, rawItem] of Object.entries(doc.paths || {})) {
@@ -62,6 +75,16 @@ export function listOperations(doc) {
           operation: item[method],
           pointer: `${itemPointer}/${method}`,
         });
+    }
+    for (const [name, operation] of Object.entries(item?.additionalOperations || {})) {
+      const method = name.toLowerCase();
+      if (!operation || typeof operation !== "object" || METHODS.includes(method)) continue;
+      operations.push({
+        method,
+        path,
+        operation,
+        pointer: `${itemPointer}/additionalOperations/${pointerSegment(name)}`,
+      });
     }
   }
   return operations;

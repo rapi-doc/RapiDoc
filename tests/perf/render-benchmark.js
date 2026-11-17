@@ -54,11 +54,11 @@ function findChromeExecutable() {
 // Specifications to benchmark with calibrated budgets
 const TEST_SPECS = [
   {
-    id: "bookstore",
-    name: "Bookstore",
-    file: "bookstore.yaml",
-    size: "13.8 KB",
-    thresholds: { focused: 100, view: 100, read: 120 },
+    id: "petstore-3-2",
+    name: "Petstore 3.2",
+    file: "petstore-3.2.yaml",
+    size: "29.1 KB",
+    thresholds: { focused: 120, view: 120, read: 150 },
   },
   {
     id: "stripe",
@@ -303,9 +303,9 @@ function saveRenderBenchmarkResults(specResults) {
   doc.lastUpdated = new Date().toISOString();
 
   const specMeta = {
-    bookstore: {
-      name: "Bookstore",
-      subtitle: "Sample Bookstore API (OpenAPI 3.2)",
+    "petstore-3-2": {
+      name: "Petstore 3.2",
+      subtitle: "Swagger Petstore (OpenAPI 3.2)",
       format: "OpenAPI 3.2.0",
       badge: "Baseline",
     },

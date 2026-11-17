@@ -88,12 +88,11 @@ export function expandedEndpointBodyTemplate(
       ${html` ${
         path.xBadges && path.xBadges?.length > 0
           ? html`
-                <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
+                <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom: -24px;">
                   ${path.xBadges.map((v) =>
                     v.color === "none"
                       ? ""
-                      : html`<span
-                          style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:var(--radius); background: color-mix(in srgb, ${badgeColorVar(v.color)} 10%, transparent); color:${badgeColorVar(v.color)}; border:1px solid ${badgeColorVar(v.color)}"
+                      : html`<span class="badge badge-tinted" part="endpoint-badge" style="color:${badgeColorVar(v.color)}"
                           >${v.label}</span
                         >`,
                   )}
@@ -171,7 +170,7 @@ export function expandedEndpointBodyTemplate(
             schema-hide-write-only="${this.schemaHideWriteOnly === "never" ? "false" : path.isWebhook ? "true" : "false"}"
             fetch-credentials="${this.fetchCredentials}"
             exportparts="section-request-title:section-request-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
-            wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-fill-example:btn-fill-example, btn-clear-resp:btn-clear-resp,
+            wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-stop:btn-stop, response-status-line:response-status-line, response-spinner:response-spinner, btn-clear:btn-clear, btn-fill-example:btn-fill-example, btn-clear-resp:btn-clear-resp,
             tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example, anchor-param-constraint:anchor-param-constraint, param-list:param-list, param:param, param-label:param-label, param-name:param-name, param-type:param-type, param-input:param-input, param-constraint:param-constraint, param-constraint-label:param-constraint-label, param-details:param-details, param-example-list:param-example-list, value-list:value-list, value-list-label:value-list-label, value-list-items:value-list-items, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"

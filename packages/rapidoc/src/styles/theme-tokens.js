@@ -50,6 +50,8 @@ export const THEMES = {
       --foreground: #b4bcc8;
       --card: #181e27;
       --card-foreground: #ced5df;
+      /* A touch lighter than the default #f05050, for 4.5:1 on this background */
+      --destructive: #f25a5a;
     `,
     light: `
       --primary: #3a6cb0;
@@ -58,6 +60,8 @@ export const THEMES = {
       --foreground: #243244;
       --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
       --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+      /* The light value again: the dark block's --destructive would otherwise apply here too */
+      --destructive: #c81e1e;
     `,
   },
   jade: {
@@ -99,6 +103,8 @@ export const THEMES = {
       --background: #30333c;
       --foreground: #dfe2e7;
       --card: #383b43;
+      /* The lightest dark surface: a lighter red keeps errors at 4.5:1 on it and its cards */
+      --destructive: #f98080;
       --border: #3f424b;
       --sidebar: #2c2d35;
       --heading-color: #ffffff;
@@ -112,6 +118,8 @@ export const THEMES = {
       --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
       --sidebar: var(--background);
       --heading-color: var(--foreground);
+      /* The light value again: the dark block's --destructive would otherwise apply here too */
+      --destructive: #c81e1e;
     `,
   },
 };
@@ -532,13 +540,15 @@ export default css`
     --method-default: #64748b;
     --method-badge-fg: #000000;
 
-    --destructive: #ef4444;
+    /* Errors (dark): 4.5:1 or more on the default, carbon, jade and indigo backgrounds; cobalt and amber,
+       whose surfaces are lighter, set a lighter red of their own */
+    --destructive: #f05050;
 
     /* Named colours (also used by x-badges: color: blue | green | ...) */
     --blue: #3b82f6;
-    --green: #10b981;
+    --green: #68cc97; /* as --method-post */
     --orange: #f59e0b;
-    --red: #ef4444;
+    --red: #f98080;
     --purple: #8b5cf6;
     --yellow: #eab308;
     --pink: #ec4899;
@@ -610,13 +620,14 @@ export default css`
     --method-default: #475569;
     --method-badge-fg: #ffffff;
 
-    --destructive: #dc2626;
+    /* Errors: 4.5:1 or more on white and on the light presets' tinted cards */
+    --destructive: #c81e1e;
 
     /* Named colours (also used by x-badges: color: blue | green | ...) */
     --blue: #2768f4ff;
-    --green: #059669;
+    --green: #047857; /* as --method-post */
     --orange: #d97706;
-    --red: #dc2626;
+    --red: #c81e1e;
     --purple: #7c3aed;
     --yellow: #b45309;
     --pink: #db2777;
@@ -669,12 +680,12 @@ export default css`
       --method-default: #475569;
       --method-badge-fg: #ffffff;
 
-      --destructive: #dc2626;
+      --destructive: #c81e1e;
 
       --blue: #2768f4ff;
-      --green: #059669;
+      --green: #047857; /* as --method-post */
       --orange: #d97706;
-      --red: #dc2626;
+      --red: #c81e1e;
       --purple: #7c3aed;
       --yellow: #b45309;
       --pink: #db2777;

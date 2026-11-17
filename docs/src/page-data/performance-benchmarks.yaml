@@ -35,30 +35,33 @@ benchmarks:
     domNodesFocused: ~4,962 nodes
     scrollStability: 60 FPS
     badge: Large Spec
-rapidocVersion: 11.0.0
-lastUpdated: 2026-10-12T15:46:14.850Z
+  - id: petstore-3-2
+    name: Petstore 3.2 (Baseline)
+    operations: 22
+rapidocVersion: 14.1.0
+lastUpdated: 2026-11-17T08:18:29.188Z
 parserBenchmarks:
-  - id: bookstore
-    name: Bookstore (Baseline)
-    fileSize: 13.5 KB
-    operations: 12
-    specLoad: 0.3 ms
-    deref: 0.5 ms
-    totalProcessSpec: 14.8 ms
-    heapDelta: 5.84 MB
+  - id: petstore-3-2
+    name: Petstore 3.2 (Baseline)
+    fileSize: 28.4 KB
+    operations: 22
+    specLoad: 1.3 ms
+    deref: 0.9 ms
+    totalProcessSpec: 31.7 ms
+    heapDelta: 11.11 MB
   - id: stripe
     name: Stripe (Deep Schemas)
     fileSize: 7.00 MB
     operations: 644
-    specLoad: 20.7 ms
-    deref: 67.0 ms
-    totalProcessSpec: 922.7 ms
-    heapDelta: 288.00 MB
+    specLoad: 58.7 ms
+    deref: 63.1 ms
+    totalProcessSpec: 965.3 ms
+    heapDelta: 308.53 MB
   - id: github
     name: GitHub (Large Spec)
     fileSize: 8.19 MB
     operations: 1128
-    specLoad: 71.5 ms
-    deref: 52.7 ms
-    totalProcessSpec: 1513.9 ms
-    heapDelta: 44.48 MB
+    specLoad: 48.6 ms
+    deref: 62.0 ms
+    totalProcessSpec: 1399.1 ms
+    heapDelta: 0 B

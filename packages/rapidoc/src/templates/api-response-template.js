@@ -5,6 +5,7 @@
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { copyToClipboard, downloadResource, viewResource } from "~/utils/common-utils";
+import { requestStatusText, SLOW_AFTER_MS } from "~/utils/request-status";
 
 export function curlSyntaxTemplate(display = "flex") {
   return html`
@@ -40,8 +41,31 @@ export function apiResponseTabTemplate() {
     }
     responseContent = html`<code class="language-${responseFormat}">${this.responseText}</code>`;
   }
-  return html` <div class="row" style="font-size:var(--font-size-small); margin:5px 0; justify-content:space-between; align-items:center;">
-      <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
+  // The status line: waiting / streaming / stopped (requestPhase); "" once the response status says it all
+  const statusLine = requestStatusText({
+    phase: this.requestPhase,
+    // Live while open (each streamed chunk redraws too), the stored total after
+    elapsedMs:
+      this.loading && this.requestStartedAt
+        ? performance.now() - this.requestStartedAt
+        : this.requestElapsedMs,
+    url: this.requestTarget,
+    responseText: this.responseText,
+    contentType: this.responseContentType,
+    wasStreaming: this.stoppedWhileStreaming,
+  });
+  const slow = this.requestPhase === "waiting" && this.requestElapsedMs >= SLOW_AFTER_MS;
+  // The response area stays in place from TRY to the response, empty while waiting
+  // One row, one line: the spinner while open, the response status, then the status line
+  return html` <div
+      class="row response-status-row"
+      style="font-size:var(--font-size-small); margin:5px 0; justify-content:space-between; align-items:center;"
+    >
+      <div class="response-status">
+        ${this.loading ? html`<span class="response-spinner ${slow ? "slow" : ""}" part="response-spinner" aria-hidden="true"></span>` : ""}
+        ${this.responseMessage === "" ? "" : html`<span class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</span>`}
+        ${statusLine ? html`<span class="response-status-line" part="response-status-line">${this.responseMessage === "" ? "" : "· "}${statusLine}</span>` : ""}
+      </div>
       <button class="btn btn-outline" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
     </div>
     <div part="tab-panel" class="tab-panel col">
@@ -202,6 +226,18 @@ export function apiCallTemplate() {
                   </button>`
               : ""
           }
+          ${
+            this.loading
+              ? html`<button
+                  class="btn btn-outline"
+                  part="btn btn-outline btn-stop"
+                  title="${this.streaming ? "Stops reading the streamed response; what arrived stays" : "Cancels the request"}"
+                  @click="${this.onStopRequestClick}"
+                >
+                  ${this.streaming ? "STOP" : "CANCEL"}
+                </button>`
+              : ""
+          }
           <button
             class="btn btn-primary"
             part="btn btn-try"
@@ -218,7 +254,7 @@ export function apiCallTemplate() {
     <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
       ${this.showCurlBeforeTry === "true" ? curlSyntaxTemplate.call(this) : ""}
     </div>
-    ${this.responseMessage === "" ? "" : apiResponseTabTemplate.call(this)} `;
+    ${!this.requestPhase || this.requestPhase === "idle" ? "" : apiResponseTabTemplate.call(this)} `;
 }
 
 export default apiCallTemplate;

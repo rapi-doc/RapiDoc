@@ -6,12 +6,14 @@ const exampleToSpecMap: Record<string, string> = {
   example3: "some-example.yaml",
   "multi-datatypes-test": "multi-datatypes.yaml",
   "dry-run": "dryrun.yaml",
-  "brand-fonts": "bookstore.yaml",
+  "brand-fonts": "petstore-3.2.yaml",
   font: "petstore.yaml",
   reqres: "reqres.yaml",
   search: "petstore.yaml",
   "render-styles": "petstore.yaml",
   "schema-styles": "schema-table.yaml",
+  "petstore-3-2": "petstore-3.2.yaml",
+  "petstore-tag-nesting-3-2": "petstore-with-tag-nesting-3.2.yaml",
 };
 
 // Tests that use a shared or different spec (e.g. petstore.yaml in specs-test/)

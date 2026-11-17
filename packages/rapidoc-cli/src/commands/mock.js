@@ -105,6 +105,13 @@ export default {
       value: "number",
       description: "Seed for generated data (default 1)",
     },
+    "stream-interval": {
+      type: "string",
+      kind: "int",
+      value: "ms",
+      description:
+        "Gap between the items of a streamed response (OpenAPI 3.2 itemSchema: SSE, JSON Lines) (default 300)",
+    },
   },
   examples: [
     "rapidoc mock",
@@ -154,7 +161,15 @@ export default {
     try {
       server = await startOnFreePort(
         (port) =>
-          startMockServer({ apis, port, host: values.host, issuer, audience, seed: values.seed }),
+          startMockServer({
+            apis,
+            port,
+            host: values.host,
+            issuer,
+            audience,
+            seed: values.seed,
+            streamInterval: values["stream-interval"],
+          }),
         values.port ?? DEFAULT_PORT ?? 4010,
         { host: values.host ?? "0.0.0.0" }, // the mock server's default host
       );

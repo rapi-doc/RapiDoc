@@ -19,6 +19,13 @@ import {
   serializeMultipartBody,
 } from "~/utils/request-utils";
 import { processFetchResponse } from "../utils/response-utils.js";
+import { isStreamingResponse, readStreamText } from "../utils/stream-utils.js";
+import {
+  countStreamItems,
+  formatElapsed,
+  itemsLabel,
+  networkErrorText,
+} from "../utils/request-status.js";
 import { inputParametersTemplate } from "~/templates/request-params-template";
 import requestBodyTemplate from "~/templates/request-body-template";
 import apiCallTemplate from "~/templates/api-response-template";
@@ -81,6 +88,22 @@ export default class ApiRequest extends LitElement {
   @state() selectedRequestBodyExample = "";
   @state() fileInputKeys: any = {};
   @state() loading = false;
+  // A streamed response (SSE, JSON Lines) is being read; its text grows in responseText
+  @state() streaming = false;
+  // Where the Try request is: idle → waiting → (streaming) → done | failed | stopped. The status line
+  // and the response panel render from it; responseText only ever holds what the server sent.
+  @state() requestPhase: "idle" | "waiting" | "streaming" | "done" | "failed" | "stopped" = "idle";
+  // Milliseconds since the request was sent, updated while it is open (the status line's timer)
+  @state() requestElapsedMs = 0;
+  @state() requestTarget = "";
+  @state() responseContentType = "";
+  // For a stopped request: whether its response had started streaming
+  @state() stoppedWhileStreaming = false;
+  requestStartedAt = 0;
+  requestTimer: any = null;
+  // Bumped by every Try and by clearResponseData: a request whose number is no longer current (it was
+  // cleared, or the focused view moved to another operation) writes nothing
+  requestSeq = 0;
   // Try-bar buttons follow the fields: Fill Example shows only when a field has an example,
   // Clear is enabled only while a field holds a value
   @state() hasExampleToFill = false;
@@ -146,6 +169,59 @@ export default class ApiRequest extends LitElement {
           padding: 5px;
           resize: vertical;
           direction: ltr;
+        }
+
+        /* The Try status row: one line from TRY to the response (no layout shift). While a request is
+           open a small spinner leads it, orange once the server is slow (SLOW_AFTER_MS). */
+        .response-status-row {
+          min-height: 32px;
+          gap: 8px;
+        }
+        .response-status {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          min-width: 0;
+          flex-wrap: wrap;
+        }
+        .response-status-line {
+          font-weight: bold;
+          color: var(--muted-foreground);
+          font-variant-numeric: tabular-nums;
+        }
+        .response-meta {
+          font-weight: normal;
+          color: var(--muted-foreground);
+          font-variant-numeric: tabular-nums;
+        }
+        .response-spinner {
+          flex: none;
+          box-sizing: border-box;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          border: 2px solid color-mix(in srgb, var(--blue) 25%, transparent);
+          border-top-color: var(--blue);
+          animation: response-spin 0.8s linear infinite;
+
+          &.slow {
+            border-color: color-mix(in srgb, var(--orange) 25%, transparent);
+            border-top-color: var(--orange);
+          }
+        }
+        @keyframes response-spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .response-spinner {
+            animation: none;
+            border-color: var(--blue);
+          }
+          .response-spinner.slow {
+            border-color: var(--orange);
+          }
         }
 
         .response-message {
@@ -704,17 +780,27 @@ export default class ApiRequest extends LitElement {
     let fetchRequest;
     let fetchResponse;
     let responseClone;
+    const seq = ++this.requestSeq;
+    const stale = () => seq !== this.requestSeq;
     try {
       this.loading = true;
-      this.responseText = "⌛";
+      this.responseText = "";
+      this.responseHeaders = "";
       this.responseMessage = "";
+      this.responseContentType = "";
+      this.stoppedWhileStreaming = false;
+      this.requestTarget = tempRequest.url;
+      this.startRequestTimer();
+      this.requestPhase = "waiting";
       fetchRequest = new Request(tempRequest.url, updatedFetchOptions);
-      const startTime = performance.now();
+      const startTime = this.requestStartedAt;
       fetchResponse = await fetch(fetchRequest, { signal });
+      if (stale()) return;
       const endTime = performance.now();
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
+      // One line, so the status row keeps its height from TRY to the response
       this.responseMessage = html`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status}
-        <div style="color:var(--muted-foreground)">Took ${Math.round(endTime - startTime)} milliseconds</div>`;
+        <span class="response-meta">· Took ${formatElapsed(endTime - startTime)}</span>`;
       this.responseUrl = fetchResponse.url;
       const respHeadersObj = {};
       fetchResponse.headers.forEach((hdrVal, hdr) => {
@@ -722,12 +808,44 @@ export default class ApiRequest extends LitElement {
         this.responseHeaders = `${this.responseHeaders}${hdr}: ${hdrVal}\n`;
       });
 
-      const processed = await processFetchResponse(fetchResponse);
+      // OpenAPI 3.2 streams: show the body as it arrives instead of waiting for its end
+      let processed;
+      this.responseContentType = fetchResponse.headers.get("content-type") || "";
+      if (isStreamingResponse(this.responseContentType) && fetchResponse.body) {
+        this.streaming = true;
+        this.requestPhase = "streaming";
+        this.responseText = "";
+        const streamedText = await readStreamText(fetchResponse, (textSoFar) => {
+          if (!stale()) this.responseText = textSoFar;
+        });
+        if (stale()) return;
+        // A stream's status: its whole time and how many items came, not the time to its first byte
+        this.responseMessage = html`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status}
+          <span class="response-meta"
+            >· ${itemsLabel(countStreamItems(streamedText, this.responseContentType), this.responseContentType)} in
+            ${formatElapsed(performance.now() - startTime)}</span
+          >`;
+        processed = {
+          responseText: streamedText,
+          respText: streamedText,
+          responseIsBlob: false,
+          responseBlobType: "",
+          responseBlobUrl: "",
+          respContentDisposition: "",
+        };
+      } else {
+        processed = await processFetchResponse(fetchResponse);
+      }
+      if (stale()) {
+        if (processed.responseBlobUrl) URL.revokeObjectURL(processed.responseBlobUrl);
+        return;
+      }
       this.responseText = processed.responseText;
       this.responseIsBlob = processed.responseIsBlob;
       this.responseBlobType = processed.responseBlobType;
       this.responseBlobUrl = processed.responseBlobUrl;
       this.respContentDisposition = processed.respContentDisposition;
+      this.requestPhase = "done";
 
       this.dispatchEvent(
         new CustomEvent("after-try", {
@@ -754,8 +872,10 @@ export default class ApiRequest extends LitElement {
             },
           }),
         );
-        this.responseMessage = "Request Aborted";
-        this.responseText = "Request Aborted";
+        if (stale()) return;
+        // Stopped by the reader (STOP / CANCEL) or a before-try listener: a stream keeps what it sent
+        this.stoppedWhileStreaming = this.streaming;
+        this.requestPhase = "stopped";
       } else {
         this.dispatchEvent(
           new CustomEvent("after-try", {
@@ -767,15 +887,20 @@ export default class ApiRequest extends LitElement {
             },
           }),
         );
-        if (tempRequest.method?.toUpperCase() === "TRACE") {
-          this.responseMessage = `${err.message} (Browser security restricts TRACE requests in fetch. Use the cURL snippet below.)`;
-        } else {
-          this.responseMessage = `${err.message} (CORS or Network Issue)`;
-        }
+        if (stale()) return;
+        this.responseStatus = "error";
+        this.responseMessage = fetchResponse
+          ? `${err.message}` // the response came, reading its body failed
+          : networkErrorText(tempRequest.url, tempRequest.method);
+        this.requestPhase = "failed";
       }
     } finally {
-      this.loading = false;
-      this.activeAbortController = null;
+      if (!stale()) {
+        this.stopRequestTimer();
+        this.loading = false;
+        this.streaming = false;
+        this.activeAbortController = null;
+      }
     }
   }
 
@@ -848,6 +973,16 @@ export default class ApiRequest extends LitElement {
   }
 
   clearResponseData() {
+    // An open request is cancelled and can no longer write here (requestSeq)
+    this.requestSeq++;
+    this.activeAbortController?.abort();
+    this.activeAbortController = null;
+    this.stopRequestTimer();
+    this.loading = false;
+    this.streaming = false;
+    this.requestPhase = "idle";
+    this.requestElapsedMs = 0;
+    this.responseContentType = "";
     this.responseUrl = "";
     this.responseHeaders = "";
     this.responseText = "";
@@ -905,7 +1040,31 @@ export default class ApiRequest extends LitElement {
     }
   }
 
+  /** CANCEL (waiting) / STOP (streaming): aborts the open request; a stream keeps the text so far */
+  onStopRequestClick() {
+    this.activeAbortController?.abort();
+  }
+
+  /** Starts the status line's timer: requestElapsedMs four times a second while the request is open */
+  startRequestTimer() {
+    this.stopRequestTimer();
+    this.requestStartedAt = performance.now();
+    this.requestElapsedMs = 0;
+    this.requestTimer = setInterval(() => {
+      this.requestElapsedMs = performance.now() - this.requestStartedAt;
+    }, 250);
+  }
+
+  stopRequestTimer() {
+    if (this.requestTimer) {
+      clearInterval(this.requestTimer);
+      this.requestTimer = null;
+    }
+    if (this.requestStartedAt) this.requestElapsedMs = performance.now() - this.requestStartedAt;
+  }
+
   disconnectedCallback() {
+    this.stopRequestTimer();
     this.curlSyntax = "";
     if (this.activeAbortController) {
       this.activeAbortController.abort();

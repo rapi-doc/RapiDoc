@@ -140,6 +140,11 @@ export default async function ProcessSpec(
       (jsonParsedSpec?.["x-tag-groups"] && jsonParsedSpec["x-tag-groups"].length > 0),
     );
 
+    // OpenAPI 3.2 Example Objects: dataValue / serializedValue read as value
+    normalizeExampleObjects(jsonParsedSpec.paths);
+    normalizeExampleObjects(jsonParsedSpec.webhooks);
+    normalizeExampleObjects(jsonParsedSpec.components);
+
     // Tags with Paths and WebHooks
     const tags = groupByTags(
       jsonParsedSpec,
@@ -446,6 +451,80 @@ export function isTagExpanded(obj) {
   return true;
 }
 
+/** A tag's name in the navigation: `x-displayName`, else the OpenAPI 3.2 `summary`, else its name */
+function tagDisplayName(specTag, fallback) {
+  return specTag?.["x-displayName"] || specTag?.summary || specTag?.name || fallback;
+}
+
+/**
+ * OpenAPI 3.2 tag `kind`: a tag without one, or with `nav`, is a navigation tag (a section of
+ * operations); any other kind (`badge`, `audience`, ...) only classifies the operations it is on.
+ */
+function isNavKind(specTag) {
+  return !specTag?.kind || specTag.kind === "nav";
+}
+
+/**
+ * The spec's tags by lower-cased name, and for each the root of its OpenAPI 3.2 `parent` chain
+ * (itself when it has no parent, or its parent is not a declared tag). A cycle stops at the tag
+ * where it closes.
+ */
+function getTagHierarchy(openApiSpec) {
+  const byName = new Map();
+  for (const t of Array.isArray(openApiSpec?.tags) ? openApiSpec.tags : []) {
+    if (t && typeof t.name === "string" && !byName.has(t.name.toLowerCase())) {
+      byName.set(t.name.toLowerCase(), t);
+    }
+  }
+  const rootOf = (name) => {
+    const seen = new Set();
+    let current = byName.get(name.toLowerCase());
+    while (current && typeof current.parent === "string" && !seen.has(current)) {
+      seen.add(current);
+      const parentTag = byName.get(current.parent.toLowerCase());
+      if (!parentTag || seen.has(parentTag)) break;
+      current = parentTag;
+    }
+    return current;
+  };
+  const parentNames = new Set(
+    [...byName.values()]
+      .filter((t) => typeof t.parent === "string" && byName.has(t.parent.toLowerCase()))
+      .map((t) => t.parent.toLowerCase()),
+  );
+  return { byName, rootOf, parentNames };
+}
+
+/**
+ * OpenAPI 3.2 Example Objects may hold the value as `dataValue` (or only as `serializedValue`)
+ * instead of `value`; copy it to `value`, which the rest of RapiDoc reads. Walks the operations,
+ * parameters, headers, media types and components, but not into schemas (Example Objects are never
+ * inside one, and schema `examples` is a plain array).
+ */
+export function normalizeExampleObjects(node, seen = new WeakSet()) {
+  if (!node || typeof node !== "object" || seen.has(node)) return;
+  seen.add(node);
+  if (Array.isArray(node)) {
+    node.forEach((item) => normalizeExampleObjects(item, seen));
+    return;
+  }
+  for (const [key, val] of Object.entries(node)) {
+    if (key === "schema" || key === "schemas" || key === "itemSchema") continue;
+    if (key === "examples" && val && typeof val === "object" && !Array.isArray(val)) {
+      for (const ex of Object.values(val)) {
+        if (ex && typeof ex === "object" && !Array.isArray(ex) && ex.value === undefined) {
+          if (ex.dataValue !== undefined) {
+            ex.value = ex.dataValue;
+          } else if (typeof ex.serializedValue === "string") {
+            ex.value = ex.serializedValue;
+          }
+        }
+      }
+    }
+    normalizeExampleObjects(val, seen);
+  }
+}
+
 function groupByTags(
   openApiSpec,
   sortEndpointsBy = "none",
@@ -467,6 +546,7 @@ function groupByTags(
     "query",
   ]; // this is also used for ordering endpoints by methods
   const slugger = new OperationSlugger();
+  const tagHierarchy = getTagHierarchy(openApiSpec);
 
   const tags =
     openApiSpec.tags && Array.isArray(openApiSpec.tags) && openApiSpec.tags.length > 0
@@ -474,8 +554,9 @@ function groupByTags(
           show: true,
           elementId: slugger.slugTag(v.name),
           name: v.name,
-          displayName: v["x-displayName"] || v.name,
+          displayName: tagDisplayName(v, v.name),
           description: v.description || "",
+          kind: v.kind,
           headers: v.description ? getHeadersFromMarkdown(v.description) : [],
           paths: [],
           expanded: isTagExpanded(v),
@@ -535,7 +616,22 @@ function groupByTags(
         }
       }
 
-      pathTags.forEach((tag) => {
+      // OpenAPI 3.2: an operation goes under its navigation tags; tags of another kind (badge,
+      // audience) place it only when it has no navigation tag. `badge` tags become badges.
+      const tagKindOf = (name) => tagHierarchy.byName.get(String(name).toLowerCase());
+      const navPathTags = pathTags.filter((name) => isNavKind(tagKindOf(name)));
+      const placementTags = navPathTags.length > 0 ? navPathTags : pathTags;
+      const tagBadges = pathTags
+        .map(tagKindOf)
+        .filter((t) => t?.kind === "badge")
+        .map((t) => ({ label: tagDisplayName(t, t.name), color: "primary-color" }));
+      const specBadges = Array.isArray(pathOrHookObj["x-badges"]) ? pathOrHookObj["x-badges"] : [];
+      const xBadges = [
+        ...specBadges,
+        ...tagBadges.filter((b) => !specBadges.some((sb) => sb?.label === b.label)),
+      ];
+
+      placementTags.forEach((tag) => {
         let tagObj;
         let specTagsItem;
 
@@ -549,8 +645,9 @@ function groupByTags(
             show: true,
             elementId: slugger.slugTag(tag),
             name: tag,
-            displayName: specTagsItem?.["x-displayName"] || specTagsItem?.name || tag,
+            displayName: tagDisplayName(specTagsItem, tag),
             description: specTagsItem?.description || "",
+            kind: specTagsItem?.kind,
             headers: specTagsItem?.description
               ? getHeadersFromMarkdown(specTagsItem.description)
               : [],
@@ -644,7 +741,7 @@ function groupByTags(
           security: pathOrHookObj.security ?? openApiSpec.security,
           // commonSummary: commonPathProp.summary,
           // commonDescription: commonPathProp.description,
-          xBadges: pathOrHookObj["x-badges"] || undefined,
+          xBadges: xBadges.length > 0 ? xBadges : pathOrHookObj["x-badges"] || undefined,
           xCodeSamples: pathOrHookObj["x-codeSamples"] || pathOrHookObj["x-code-samples"] || "",
           rawOperation: pathOrHookObj,
           xInternal: pathOrHookObj["x-internal"] ?? pathItem?.["x-internal"] ?? undefined,
@@ -666,7 +763,12 @@ function groupByTags(
     if (tag.paths && tag.paths.length > 0) {
       return true;
     }
-    if (tag.description && (showUnusedTags || tagNamesInGroups.has(tag.name?.toLowerCase()))) {
+    // A 3.2 parent tag is drawn as its group's heading, and a non-navigation tag is not a section
+    const lowerName = tag.name?.toLowerCase();
+    if (tagHierarchy.parentNames.has(lowerName) || !isNavKind(tag)) {
+      return false;
+    }
+    if (tag.description && (showUnusedTags || tagNamesInGroups.has(lowerName))) {
       tag.descriptionOnly = true;
       return true;
     }
@@ -724,7 +826,7 @@ export function groupByTagGroups(openApiSpec, tags = []) {
   const rawGroups =
     openApiSpec?.["x-tagGroups"] || openApiSpec?.["x-tag-groups"] || openApiSpec?.["x-taggroups"];
   if (!rawGroups || !Array.isArray(rawGroups) || rawGroups.length === 0) {
-    return [];
+    return groupByParentTags(openApiSpec, tags);
   }
 
   const slugger = new OperationSlugger();
@@ -761,4 +863,45 @@ export function groupByTagGroups(openApiSpec, tags = []) {
   });
 
   return groups;
+}
+
+/**
+ * OpenAPI 3.2 tag hierarchy as tag groups, when the spec has no `x-tagGroups`: each tag that is the
+ * root of a `parent` chain with children becomes a group (its `summary` the heading), holding the
+ * root itself when it has operations, then its descendants in the order of `tags`. RapiDoc nests one
+ * level, so a grandchild sits in its root's group. Tags outside any hierarchy stay ungrouped.
+ *
+ * @param {object} openApiSpec - The root OpenAPI specification object.
+ * @param {Array<object>} tags - The processed tags array returned by groupByTags.
+ * @returns {Array<object>} Tag group objects, or an empty array when no tag has a parent.
+ */
+export function groupByParentTags(openApiSpec, tags = []) {
+  const { rootOf, parentNames } = getTagHierarchy(openApiSpec);
+  if (parentNames.size === 0) return [];
+  const slugger = new OperationSlugger();
+  const groups = new Map();
+  for (const tag of tags) {
+    const root = rootOf(tag.name);
+    if (!root || !parentNames.has(root.name.toLowerCase())) continue;
+    let group = groups.get(root);
+    if (!group) {
+      group = {
+        name: root.name,
+        displayName: tagDisplayName(root, root.name),
+        description: root.description || "",
+        elementId: slugger.slugTagGroup(root.name),
+        tags: [],
+        expanded: isTagExpanded(root),
+        xInternal: root["x-internal"] ?? undefined,
+        xHidden: root["x-hidden"] ?? undefined,
+      };
+      groups.set(root, group);
+    }
+    if (tag.name.toLowerCase() === root.name.toLowerCase()) {
+      group.tags.unshift(tag);
+    } else {
+      group.tags.push(tag);
+    }
+  }
+  return [...groups.values()];
 }

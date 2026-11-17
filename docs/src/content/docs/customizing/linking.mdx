@@ -19,7 +19,7 @@ Every section, tag and operation in `<rapi-doc>` has a stable element ID. You ca
 | API Servers | `servers` | |
 | Authentication | `auth` | |
 | Tag | `tag--` + tag name in kebab-case | `User Management & Auth` → `tag--user-management-auth` |
-| Tag group (`x-tagGroups`) | `tag-group--` + group name in kebab-case | `Shipment Logistics` → `tag-group--shipment-logistics` |
+| Tag group (`x-tagGroups`, or a 3.2 parent tag) | `tag-group--` + group or parent tag name in kebab-case | `Shipment Logistics` → `tag-group--shipment-logistics` |
 | Operation | see below | `getUserById` → `get-user-by-id` |
 | Heading in a description | see [Markdown Headings](/docs/customizing/markdown-headings/#links-to-headings) | `overview--authentication` |
 
@@ -33,7 +33,7 @@ An operation's ID comes from the first of these that applies:
 2. **`summary`** in kebab-case, cut at a word boundary after 40 characters: `Get a user by ID` → `get-a-user-by-id`.
 3. **Method and path**: `GET /users/{userId}` → `get-users-userid`.
 
-If two operations would get the same ID, the second gets its method in front (`post-webhooks`), then a number. With `x-tagGroups`, every operation ID starts with its tag: `users--get-user-by-id`.
+If two operations would get the same ID, the second gets its method in front (`post-webhooks`), then a number. With `x-tagGroups`, every operation ID starts with its tag: `users--get-user-by-id`. Groups made from OpenAPI 3.2 `parent` tags don't add that prefix.
 
 An ID made from the summary changes whenever the summary is edited, so give operations an `operationId` when links to them should last. `rapidoc lint` reports operations without one.
 
@@ -73,6 +73,31 @@ x-tagGroups:
 ```
 
 Clicking a tag or group in the sidebar opens or closes it. A group starts expanded unless it has `x-tag-expanded: false` (`x-tagExpanded`, `x-expanded` and `expanded` work too).
+
+### OpenAPI 3.2 parent tags
+
+OpenAPI 3.2 has its own way to nest tags: `parent` on a tag names the tag it belongs under. RapiDoc shows it the same way as `x-tagGroups`, with the parent's `summary` as the group's heading:
+
+```yaml
+openapi: 3.2.0
+tags:
+  - name: shop
+    summary: Shop
+    description: Pets and the orders placed for them
+  - name: pet
+    summary: Pets
+    parent: shop
+  - name: store
+    summary: Store
+    parent: shop
+```
+
+- A tag's `summary` is its name in the sidebar and headings (`x-displayName` still wins when both are set).
+- A parent tag with no operations of its own is only the group's heading. One with operations comes first in its group.
+- RapiDoc nests one level: a tag whose parent has a parent of its own goes in the top-level tag's group.
+- Operation IDs keep no tag prefix, unlike with `x-tagGroups`.
+- When a spec has both, `x-tagGroups` decides the groups.
+- Tags with a `kind` other than `nav` (`badge`, `audience`) are not sections: an operation is listed under its navigation tags, and a `kind: badge` tag is shown as a badge on it.
 
 ## The address bar
 

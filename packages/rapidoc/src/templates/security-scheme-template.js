@@ -894,6 +894,7 @@ export default function securitySchemeTemplate(allowTry = "true") {
                       <div class="auth-scheme-body">
                         <div class="auth-scheme-header">
                           <span class="auth-scheme-title">${v.typeDisplay}</span>
+                          ${v.deprecated ? html`<span class="badge badge-destructive" title="This authentication method is deprecated">Deprecated</span>` : ""}
                           ${
                             v.finalKeyValue
                               ? html`<span class="blue-text">Key Applied</span>
@@ -1068,6 +1069,10 @@ export default function securitySchemeTemplate(allowTry = "true") {
 }
 
 function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
+  // OpenAPI 3.2: a security scheme can be deprecated
+  const deprecatedHtml = andSecurityItem.deprecated
+    ? html` <span class="badge badge-destructive">Deprecated</span>`
+    : "";
   const scopeHtml = andSecurityItem.scopes
     ? html` <div>
         <b>Required scopes:</b><br />
@@ -1080,7 +1085,7 @@ function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
   if (andSecurityItem.type === "oauth2") {
     return html` <div>
       ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : "Needs "}OAuth Token
-      <span style="font-family:var(--font-mono); color:var(--primary);">${andSecurityItem.securitySchemeId}</span>
+      <span style="font-family:var(--font-mono); color:var(--primary);">${andSecurityItem.securitySchemeId}</span>${deprecatedHtml}
       in <b>Authorization header</b>
       ${scopeHtml}
     </div>`;
@@ -1089,14 +1094,14 @@ function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
   if (andSecurityItem.type === "http") {
     return html` <div>
       ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : "Requires "}
-      ${andSecurityItem.scheme === "basic" ? "Base 64 encoded username:password" : html`Bearer Token <b>${andSecurityItem.nameId}</b>`} in
+      ${andSecurityItem.scheme === "basic" ? "Base 64 encoded username:password" : html`Bearer Token <b>${andSecurityItem.nameId}</b>`}${deprecatedHtml} in
       <b>Authorization header</b>
       ${scopeHtml}
     </div>`;
   }
 
   return html` <div>
-    ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : "Requires "} Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+    ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : "Requires "} Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>${deprecatedHtml}
     ${scopeHtml}
   </div>`;
 }

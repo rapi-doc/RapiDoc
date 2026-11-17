@@ -4,7 +4,8 @@ A mock server for the APIs of a RapiDoc portal. It is what `rapidoc mock` runs.
 
 - Every local spec under `apis:` in `rapidoc.config.yaml` on one port (default `4010`), each under `/<api id>`: list `http://localhost:4010/<api id>` as a server in the spec and the portal's Try calls the mock. No portal? Point it at a folder of specs or at spec files.
 - Responses from the spec's examples first, then data generated from the schemas (patterns, formats, enums, ranges), the same on every run for a given seed.
-- Requests are validated against the spec: parameters and JSON, form and multipart bodies. A bad request gets `400` with the list of problems.
+- OpenAPI 3.0, 3.1 and 3.2: 3.2's `QUERY` and `additionalOperations` methods (`PURGE`, `COPY`, ...) are served, validated and allowed by CORS; a method Node's HTTP server can't receive gets a warning at start. A 3.2 stream (`itemSchema` on Server-Sent Events, JSON Lines or `application/json-seq`) is sent one item at a time, `--stream-interval` apart: the example's items, else five generated items with `id` numbered.
+- Requests are validated against the spec: parameters and JSON, form and multipart bodies, and JSON Lines bodies line by line against their `itemSchema`. A bad request gets `400` with the list of problems.
 - Each operation's `security` is enforced with real token checks, so you can show who may call what:
   - **OAuth2 / OpenID Connect / HTTP bearer:** the token must be a JWT signed by your issuer (its JWKS), unexpired and for your audience, else `401`. It must grant the operation's scopes in its `scope`, `scp` or `permissions` claim (Auth0 RBAC), else `403` with `WWW-Authenticate: Bearer error="insufficient_scope"`.
   - A bearer requirement without scopes (`- bearerAuth: []` next to `- oauth2: ['orders:write']`) needs the operation's OAuth scopes: they name the permission the operation needs, whichever scheme carries the token.
@@ -27,13 +28,14 @@ npx rapidoc mock --issuer https://example.us.auth0.com/ --audience https://api.e
 
 Ids are lower-case letters, digits and dashes. Files that would share an id get their parent folders in front until they differ: `billing-v1/openapi.yaml` and `billing-v2/openapi.yaml` → `/billing-v1-openapi`, `/billing-v2-openapi`. The mapping is printed at start. Only a portal folder needs `@rapidoc/portal` (Astro); folders of specs and spec files need just the CLI and this package.
 
-| Option            | Variable                | Meaning                                                                                                                |
-| :---------------- | :---------------------- | :--------------------------------------------------------------------------------------------------------------------- |
-| `--issuer <url>`  | `RAPIDOC_MOCK_ISSUER`   | OpenID Connect issuer whose access tokens are accepted. Without it, any bearer token passes and scopes aren't checked. |
-| `--audience <id>` | `RAPIDOC_MOCK_AUDIENCE` | `aud` the tokens must have (the API identifier at your provider).                                                      |
-| `--port <number>` |                         | Default `4010`.                                                                                                        |
-| `--host <host>`   |                         | Default `0.0.0.0`.                                                                                                     |
-| `--seed <number>` |                         | Seed for generated data; default `1`.                                                                                  |
+| Option                   | Variable                | Meaning                                                                                                                |
+| :----------------------- | :---------------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `--issuer <url>`         | `RAPIDOC_MOCK_ISSUER`   | OpenID Connect issuer whose access tokens are accepted. Without it, any bearer token passes and scopes aren't checked. |
+| `--audience <id>`        | `RAPIDOC_MOCK_AUDIENCE` | `aud` the tokens must have (the API identifier at your provider).                                                      |
+| `--port <number>`        |                         | Default `4010`.                                                                                                        |
+| `--host <host>`          |                         | Default `0.0.0.0`.                                                                                                     |
+| `--seed <number>`        |                         | Seed for generated data; default `1`.                                                                                  |
+| `--stream-interval <ms>` |                         | Gap between the items of a streamed response (OpenAPI 3.2 `itemSchema`); default `300`.                                |
 
 The mock refuses to start when the issuer can't be discovered. A spec it can't load is skipped with the reason; the others are served.
 
@@ -60,7 +62,7 @@ const { app } = await createMockApp({
 // app is a Hono app: app.fetch(request), or mount it in your own server.
 ```
 
-`startMockServer({ apis, port, host, issuer, audience, seed, origin })` starts it on Node and returns `{ url, port, apis, skipped, close }`.
+`startMockServer({ apis, port, host, issuer, audience, seed, streamInterval, origin })` starts it on Node and returns `{ url, port, apis, skipped, close }`.
 
 ## Built on
 
