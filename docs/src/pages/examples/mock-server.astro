@@ -17,13 +17,13 @@ const mockAttributes = [
     name: 'mock-server-status-code',
     type: 'String',
     default: '(auto)',
-    desc: 'Target HTTP status code or comma-separated list of codes (e.g. "200, 404, 500") to simulate, or a JSON map by operation ({ "POST /orders": "503, 200", "*": "200" }, keys are the method and path template, "*" the default). If omitted, the mock server automatically picks the first available 2xx response in the spec.',
+    desc: 'Target HTTP status code, or a comma-separated list used in turn per operation ("503, 503, 200"); "random:200, 500" picks one at random for each call. Or a JSON map by operation, each entry with its own codes and prefix ({ "POST /orders": "503, 200", "*": "200" }, keys are the method and path template, "*" the default). If omitted, the mock server automatically picks the first available 2xx response in the spec.',
   },
   {
     name: 'mock-server-status-strategy',
     type: 'first | cycle | random',
-    default: 'first',
-    desc: "Selection strategy when multiple status codes are provided in mock-server-status-code. 'first' always returns the first code; 'cycle' round-robins sequentially per endpoint (ideal for testing retry and backoff algorithms); 'random' selects a code randomly for chaos and resilience testing.",
+    default: 'cycle',
+    desc: "Deprecated: write the strategy in front of the codes in mock-server-status-code instead (random:200, 500). How codes without a prefix are picked: 'cycle' in turn per operation, 'random' one per call, 'first' always the first code.",
   },
   {
     name: 'mock-server-delay',
@@ -153,7 +153,7 @@ const mockAttributes = [
                     <Icon name="caret-down" size={14} class="rd-select-chevron" />
                   </button>
                   <div class="rd-select-menu" role="listbox">
-                    <div class="rd-select-option selected" role="option" aria-selected="true" data-value="" data-strategy="first">
+                    <div class="rd-select-option selected" role="option" aria-selected="true" data-value="">
                       <span>Auto (First 2xx)</span>
                       <Icon name="check" size={14} class="rd-option-check" />
                     </div>
@@ -173,11 +173,11 @@ const mockAttributes = [
                       <span>500 Server Error</span>
                       <Icon name="check" size={14} class="rd-option-check" />
                     </div>
-                    <div class="rd-select-option" role="option" aria-selected="false" data-value="200, 400, 500" data-strategy="cycle">
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="200, 400, 500">
                       <span>Cycle (200 &rarr; 400 &rarr; 500)</span>
                       <Icon name="check" size={14} class="rd-option-check" />
                     </div>
-                    <div class="rd-select-option" role="option" aria-selected="false" data-value="200, 500" data-strategy="random">
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="random:200, 500">
                       <span>Random Chaos (200 / 500)</span>
                       <Icon name="check" size={14} class="rd-option-check" />
                     </div>
@@ -188,8 +188,8 @@ const mockAttributes = [
                     <option value="400">400 Bad Request</option>
                     <option value="404">404 Not Found</option>
                     <option value="500">500 Server Error</option>
-                    <option value="200, 400, 500" data-strategy="cycle">Cycle (200 &rarr; 400 &rarr; 500)</option>
-                    <option value="200, 500" data-strategy="random">Random Chaos (200 / 500)</option>
+                    <option value="200, 400, 500">Cycle (200 &rarr; 400 &rarr; 500)</option>
+                    <option value="random:200, 500">Random Chaos (200 / 500)</option>
                   </select>
                 </div>
               </div>
@@ -375,15 +375,12 @@ const mockAttributes = [
       if (!rapidocEl) return;
       const statusVal = statusSelect.value;
       const delayVal = delaySelect.value;
-      const selectedOption = statusSelect.options[statusSelect.selectedIndex];
-      const strategy = selectedOption.getAttribute('data-strategy') || 'first';
 
       if (statusVal) {
         rapidocEl.setAttribute('mock-server-status-code', statusVal);
       } else {
         rapidocEl.removeAttribute('mock-server-status-code');
       }
-      rapidocEl.setAttribute('mock-server-status-strategy', strategy);
       rapidocEl.setAttribute('mock-server-delay', delayVal);
     }
 

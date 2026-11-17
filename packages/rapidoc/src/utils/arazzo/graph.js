@@ -246,6 +246,8 @@ export function buildFlowGraph(doc, workflowId, options = {}) {
       outputExprs: Object.entries(s.outputs || {}).map(([name, expr]) => ({ name, expr })),
       parameters,
       requestBody: s.requestBody || null,
+      // x-mock-server-status-code: the mock status this step's Mock Response Status field starts with
+      mockStatusCode: mockStatusOf(s["x-mock-server-status-code"]),
       security: describedSecurity,
       bindings: describeBindings(parameters, s.requestBody, describedSecurity, external),
       criteria,
@@ -300,4 +302,11 @@ export function buildFlowGraph(doc, workflowId, options = {}) {
     dataEdges,
     warnings: shadowWarnings(steps, workflows.indexOf(workflow)),
   };
+}
+
+/** A step's `x-mock-server-status-code` as text (`cycle:503,503,200`): a string, a number or a list */
+function mockStatusOf(value) {
+  if (Array.isArray(value)) return value.map(String).join(",");
+  if (typeof value === "number" || typeof value === "string") return String(value).trim();
+  return "";
 }

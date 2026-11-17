@@ -1,15 +1,16 @@
 ---
 title: Arazzo Extensions
-description: The Arazzo vendor extensions <rapi-flow> supports, as Redocly Respect defines them - x-security, x-operation and x-allowReserved.
+description: The Arazzo vendor extensions <rapi-flow> supports - x-security, x-operation and x-allowReserved as Redocly Respect defines them, and its own x-mock-server-status-code.
 ---
 
-`<rapi-flow>` supports three vendor extensions of Arazzo, as [Redocly Respect](https://redocly.com/docs/respect/extensions/) defines them. They work in runs, in the diagram and in the [MCP export](/docs/ai/mcp-server/#workflows-as-tools).
+`<rapi-flow>` supports three vendor extensions of Arazzo, as [Redocly Respect](https://redocly.com/docs/respect/extensions/) defines them. They work in runs, in the diagram and in the [MCP export](/docs/ai/mcp-server/#workflows-as-tools). A fourth, `x-mock-server-status-code`, is RapiDoc's own and only fills the run panel's mock table.
 
 | Extension | On | What it does |
 | :--- | :--- | :--- |
 | [`x-security`](/docs/rapi-flow/extensions/#credentials-in-the-workflow-x-security) | workflow, step | The credentials a request sends. |
 | [`x-operation`](/docs/rapi-flow/extensions/#calls-outside-the-api-sources-x-operation) | step | Calls a URL outside the API sources. |
 | [`x-allowReserved`](#reserved-characters-in-query-values-x-allowreserved) | step parameter | Sends reserved characters in a query value unencoded. |
+| [`x-mock-server-status-code`](#mock-status-codes-x-mock-server-status-code) | step | The status codes the mock answers this step with in a run, prefilled in **Mock Response Status**. |
 
 ## Credentials in the workflow (`x-security`)
 
@@ -81,3 +82,19 @@ parameters:
 ```
 
 The reserved characters `: / ? [ ] @ ! $ & ' ( ) * + , ; =` are then sent unencoded; spaces and other characters are still encoded, and so is `#`, which would end the URL's query. A query parameter with `allowReserved: true` in the OpenAPI document is sent the same way without the extension; `x-allowReserved: false` turns that off for one step.
+
+## Mock status codes (`x-mock-server-status-code`)
+
+A workflow that shows a failure path, a retry or a `goto`, can carry the scenario it needs. Put the codes on the step, in the syntax of the [`mock-server-status-code`](/docs/mocking/in-browser/#simulating-errors) attribute:
+
+```yaml
+steps:
+  - stepId: checkPet
+    operationId: getPetById
+    x-mock-server-status-code: "cycle:503,503,200"   # fails twice, then succeeds
+  - stepId: placeOrder
+    operationId: placeOrder
+    x-mock-server-status-code: "random:200,500"
+```
+
+The value fills the step's row of the run panel's [Mock Response Status](/docs/rapi-flow/running/#the-in-browser-mock) table, where the reader can change it before a run: codes without a prefix are used in turn, one per attempt; `random:` picks one at random. A number (`404`) or a list (`[503, 200]`) works too. It only applies when the run is mocked (a paired element with `mock-server`, or `server-is-mock`); a real server, and the MCP export, ignore it. Arazzo allows `x-` extensions on steps, so the file stays valid for other tools.

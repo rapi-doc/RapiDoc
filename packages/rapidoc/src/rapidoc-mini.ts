@@ -248,22 +248,27 @@ export default class RapiDocMini extends LitElement {
   mockServer: "true" | "false" = "false";
   // A string of codes for every operation, or a map by operation (`{ "POST /orders": "503, 200", "*": "200" }`)
   /**
-   * HTTP status code (or comma-separated list of codes, e.g. "200, 404, 500") to answer with, or a
-   * JSON map by operation (<span class="mono yellow">{ "POST /orders": "503, 200", "*": "200"
-   * }</span>). Set it to an empty string to use the first 2xx response in the spec.
+   * HTTP status code to answer with, or several separated by commas, used in turn per operation
+   * (<span class="mono yellow">503, 503, 200</span>: two failures, then a success); a <span
+   * class="mono yellow">random:</span> prefix picks one at random for each call (<span class="mono
+   * yellow">random:200, 500</span>), <span class="mono yellow">cycle:</span> says in turn
+   * explicitly. Or a JSON map by operation, each with its own codes and prefix (<span class="mono
+   * yellow">{ "POST /orders": "cycle:503, 200", "*": "200" }</span>). Set it to an empty string to
+   * use the first 2xx response in the spec.
    * @group Mock Server
    */
   @property({ type: String, attribute: "mock-server-status-code" })
   mockServerStatusCode: string | Record<string, string> = "200";
   /**
-   * Selection strategy when multiple status codes are specified in <span class="mono
-   * yellow">mock-server-status-code</span>. 'first' always returns the first code; 'cycle'
-   * round-robins sequentially per endpoint (ideal for testing retry and backoff logic); 'random'
-   * selects a code randomly for chaos and resilience testing.
+   * <span class="orange bold">Deprecated:</span> put the strategy in front of the codes in <span
+   * class="mono yellow">mock-server-status-code</span> instead (<span class="mono
+   * yellow">random:200, 500</span>). How codes without a prefix are picked: 'cycle' uses them in
+   * turn per operation (the default); 'random' picks one for each call; 'first' always answers the
+   * first code, the same as giving only that code.
    * @group Mock Server
    */
   @property({ type: String, attribute: "mock-server-status-strategy" })
-  mockServerStatusStrategy: "first" | "cycle" | "random" = "first";
+  mockServerStatusStrategy: "first" | "cycle" | "random" = "cycle";
   /**
    * Simulated network latency in milliseconds before resolving mock responses. Useful for testing
    * client loading spinners and optimistic UI updates.

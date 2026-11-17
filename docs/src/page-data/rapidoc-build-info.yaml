@@ -3,56 +3,56 @@ name: rapidoc
 version: 14.1.0
 versionTag: v14.1.0
 versionShort: v14.1
-buildTime: 2026-11-17T11:22:57.001Z
+buildTime: 2026-11-17T12:10:45.707Z
 bundle:
   minified:
-    bytes: 679725
+    bytes: 680112
     formatted: 664 KB
     kb: 664
-    exactKb: 663.8
+    exactKb: 664.2
   gzip:
-    bytes: 182426
+    bytes: 182568
     formatted: 178 KB
     kb: 178
-    exactKb: 178.2
+    exactKb: 178.3
 packages:
   rapidoc:
     version: 14.1.0
     bundles:
       rapidoc-flow-min.js:
         size:
-          bytes: 283107
+          bytes: 283048
           formatted: 276 KB
           kb: 276
-          exactKb: 276.5
+          exactKb: 276.4
         gzip:
-          bytes: 89386
-          formatted: 87.3 KB
+          bytes: 89490
+          formatted: 87.4 KB
           kb: 87
-          exactKb: 87.3
+          exactKb: 87.4
       rapidoc-min.js:
         size:
-          bytes: 679725
+          bytes: 680112
           formatted: 664 KB
           kb: 664
-          exactKb: 663.8
+          exactKb: 664.2
         gzip:
-          bytes: 182426
+          bytes: 182568
           formatted: 178 KB
           kb: 178
-          exactKb: 178.2
+          exactKb: 178.3
     npm:
       packed:
-        bytes: 614637
-        formatted: 600 KB
-        kb: 600
-        exactKb: 600.2
+        bytes: 616359
+        formatted: 602 KB
+        kb: 602
+        exactKb: 601.9
       unpacked:
-        bytes: 2336868
+        bytes: 2341397
         formatted: 2.2 MB
-        kb: 2282
-        exactKb: 2282.1
-      files: 113
+        kb: 2287
+        exactKb: 2286.5
+      files: 114
   "@rapidoc/cli":
     version: 0.2.3
     npm:
@@ -196,26 +196,26 @@ packages:
     bundles:
       index.js:
         size:
-          bytes: 682418
-          formatted: 666 KB
-          kb: 666
-          exactKb: 666.4
+          bytes: 682785
+          formatted: 667 KB
+          kb: 667
+          exactKb: 666.8
         gzip:
-          bytes: 158956
+          bytes: 159083
           formatted: 155 KB
           kb: 155
-          exactKb: 155.2
+          exactKb: 155.4
     npm:
       packed:
-        bytes: 163027
+        bytes: 163150
         formatted: 159 KB
         kb: 159
-        exactKb: 159.2
+        exactKb: 159.3
       unpacked:
-        bytes: 693896
+        bytes: 694263
         formatted: 678 KB
         kb: 678
-        exactKb: 677.6
+        exactKb: 678
       files: 5
   "@rapidoc/server":
     version: 0.2.3
