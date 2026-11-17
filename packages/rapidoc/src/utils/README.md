@@ -142,9 +142,13 @@ UI helpers:
   `string`; example generation reads it, so labels must use `baseType` and `typeLabel`.
 - **Schema depth limits** (`[schema-utils.js]`): `schemaToSampleObj` returns `undefined` and
   `schemaInObjectNotation` returns a `::type` stub when `level > 8`. `schemaToAST` expands to
-  `MAX_SCHEMA_DEPTH` (8) and, while the tree exceeds `SCHEMA_NODE_BUDGET` (8000 nodes), retries
-  with a smaller depth down to `MIN_SCHEMA_DEPTH` (4); cut containers become nodes with
-  `truncated: true`. Its module state makes it synchronous and non-reentrant.
+  `MAX_SCHEMA_DEPTH` (8); below `MIN_SCHEMA_DEPTH` (4) an object or array stops expanding once it
+  and its direct children would take its tree past `SCHEMA_NODE_BUDGET` (8000 nodes). Cut
+  containers become nodes with `truncated: true`. A node's children (`properties`,
+  `patternProperties`, `additionalProperties`, `items`, a union's `properties`) are getters built on
+  first read with the path and tree the node was built in, then replaced by the value: a tree is
+  built only as far as it is read, and a reader that walks it whole (JSON, the PDF) builds all of it.
+  Its module state makes it synchronous and non-reentrant.
 - **Sanitization** (`[sanitize.js:sanitizeHTML]`): non-strings return `""`. The native
   `Sanitizer` path allows all attributes; the fallback removes only `<script>`, `on*` attributes
   and `javascript:` / `data:text/html` in `href`/`src`. Without `DOMParser` (Node) the input is

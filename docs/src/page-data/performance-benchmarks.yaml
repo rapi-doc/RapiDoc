@@ -1,14 +1,14 @@
 benchmarks:
-  - id: bookstore
-    name: Bookstore
-    subtitle: Sample Bookstore API (OpenAPI 3.2)
+  - id: petstore-3-2
+    name: Petstore 3.2
+    subtitle: Swagger Petstore (OpenAPI 3.2)
     format: OpenAPI 3.2.0
-    fileSize: 13.8 KB
-    operations: 12
-    focusedModeTime: ~56 ms
-    viewModeTime: ~37 ms
-    readModeTime: ~31 ms
-    domNodesFocused: ~125 nodes
+    fileSize: 29.1 KB
+    operations: 22
+    focusedModeTime: ~54 ms
+    viewModeTime: ~31 ms
+    readModeTime: ~62 ms
+    domNodesFocused: ~187 nodes
     scrollStability: 60 FPS
     badge: Baseline
   - id: stripe
@@ -17,10 +17,10 @@ benchmarks:
     format: OpenAPI 3.0.0
     fileSize: 7.00 MB
     operations: 644
-    focusedModeTime: ~666 ms
-    viewModeTime: ~650 ms
-    readModeTime: ~9.22 s
-    domNodesFocused: ~2,643 nodes
+    focusedModeTime: ~783 ms
+    viewModeTime: ~824 ms
+    readModeTime: ~4.61 s
+    domNodesFocused: ~1,998 nodes
     scrollStability: 60 FPS
     badge: Deep Schema
   - id: github
@@ -29,17 +29,14 @@ benchmarks:
     format: OpenAPI 3.1.0
     fileSize: 8.19 MB
     operations: 1128
-    focusedModeTime: ~997 ms
-    viewModeTime: ~990 ms
-    readModeTime: ~5.95 s
-    domNodesFocused: ~4,962 nodes
+    focusedModeTime: ~1.07 s
+    viewModeTime: ~1.11 s
+    readModeTime: ~3.59 s
+    domNodesFocused: ~3,833 nodes
     scrollStability: 60 FPS
     badge: Large Spec
-  - id: petstore-3-2
-    name: Petstore 3.2 (Baseline)
-    operations: 22
 rapidocVersion: 14.1.0
-lastUpdated: 2026-11-17T08:18:29.188Z
+lastUpdated: 2026-11-17T15:24:44.416Z
 parserBenchmarks:
   - id: petstore-3-2
     name: Petstore 3.2 (Baseline)

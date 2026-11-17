@@ -562,7 +562,7 @@ describe("schemaToAST", () => {
       assert.strictEqual(ast.options[1].truncated, true);
     });
 
-    it("should build a very large schema one level shallower at a time until it fits", () => {
+    it("should stop expanding a very large schema below depth 4 once it passes the budget", () => {
       // a chain 6 levels deep whose deepest object has more properties than the budget allows
       const wide = {
         type: "object",
@@ -770,5 +770,48 @@ describe("allOf wrapping a primitive", () => {
     assert.deepStrictEqual(schemaToSampleObj(schema, { includeReadOnly: true })["example-0"], {
       id: "string",
     });
+  });
+});
+
+describe("schemaToAST builds children lazily", () => {
+  const isLazy = (node, key) =>
+    typeof Object.getOwnPropertyDescriptor(node, key)?.get === "function";
+
+  it("builds a node's children the first time they are read, once", () => {
+    const ast = schemaToAST({
+      type: "object",
+      properties: {
+        user: { type: "object", properties: { id: { type: "integer" } } },
+        tags: { type: "array", items: { type: "string" } },
+      },
+    });
+    assert.ok(isLazy(ast, "properties"), "properties not built before they are read");
+    const user = ast.properties[0];
+    assert.ok(!isLazy(ast, "properties"), "the built properties replace the getter");
+    assert.strictEqual(ast.properties[0], user, "and are kept");
+    assert.ok(isLazy(user, "properties"), "one level built at a time");
+    assert.strictEqual(user.properties[0].type, "integer");
+    const tags = ast.properties[1];
+    assert.ok(isLazy(tags, "items"));
+    assert.strictEqual(tags.items.type, "string");
+  });
+
+  it("still stops on a cycle when the children are built later", () => {
+    const node = { type: "object", properties: { id: { type: "integer" } } };
+    node.properties.self = node;
+    const ast = schemaToAST(node);
+    const self = ast.properties.find((p) => p.name === "self");
+    assert.strictEqual(self.truncated, true, "the cycle is cut where it closes");
+  });
+
+  it("can be walked whole, as the PDF and JSON do", () => {
+    const ast = schemaToAST({
+      type: "object",
+      properties: { a: { type: "object", properties: { b: { type: "string" } } } },
+    });
+    assert.deepStrictEqual(
+      JSON.parse(JSON.stringify(ast)).properties[0].properties[0].type,
+      "string",
+    );
   });
 });
