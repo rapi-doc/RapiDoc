@@ -204,7 +204,7 @@ function keyField(properties, param, entity) {
 
 /**
  * @param {object} doc - A bundled OpenAPI 3.x document (internal `$ref`s kept; see loadSpec)
- * @returns {{ resources: object, relations: object, embedded: object, operations: object, review: string[] }}
+ * @returns {{ resources: object, relations: object, embedded: object, operations: object, review: string[], schemas: Record<string, string> }}
  */
 export function classifySpec(doc) {
   const { entityOf, schemaOf } = entityNames(doc);
@@ -518,7 +518,11 @@ export function classifySpec(doc) {
     }
   }
 
-  return { resources, relations, embedded, operations, review };
+  // The component schema that describes each resource's records (`ApiKey` -> `ApiKeyResponseDto`)
+  const schemaNames = Object.fromEntries(
+    Object.keys(resources).map((name) => [name, schemaOf.get(name) || name]),
+  );
+  return { resources, relations, embedded, operations, review, schemas: schemaNames };
 }
 
 /**
