@@ -36,9 +36,13 @@ test("controller-registry", async (t) => {
   });
 
   await t.test("a true/false attribute is a toggle starting at the element's default", () => {
+    const allowSearch = CONTROL_REGISTRY["allow-search"];
+    assert.equal(allowSearch.type, "toggle");
+    assert.equal(allowSearch.defaultOn, true);
+    // allow-try also takes filter-operations terms, so it is a list with an example of them
     const allowTry = CONTROL_REGISTRY["allow-try"];
-    assert.equal(allowTry.type, "toggle");
-    assert.equal(allowTry.defaultOn, true);
+    assert.notEqual(allowTry.type, "toggle");
+    assert.ok(JSON.stringify(allowTry.options).includes("!deprecated"));
     assert.equal(CONTROL_REGISTRY["show-components"].defaultOn, false);
     for (const control of Object.values(CONTROL_REGISTRY)) {
       if (control.type !== "toggle" || !attributes[control.attr]) continue;

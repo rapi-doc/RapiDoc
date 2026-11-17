@@ -302,7 +302,7 @@ export default class RapiDoc extends LitElement {
    * method and path (<span class="mono yellow">GET /pet/{petId}</span>), a path for all its methods,
    * a path glob (<span class="mono yellow">/pet/**</span>; <span class="mono yellow">*</span> is one
    * segment, <span class="mono yellow">**</span> any number), <span class="mono
-   * yellow">tag:store</span>, <span class="mono yellow">badge:Beta</span> (an x-badges label) or
+   * yellow">tag:store</span>, <span class="mono yellow">badge:Beta</span> (an x-badges label, or an OpenAPI 3.2 tag of kind: badge) or
    * <span class="mono yellow">deprecated</span>; <span class="mono yellow">!</span> before a term
    * leaves out what it matches (<span class="mono yellow">!badge:Internal</span>). Shown operations
    * keep the order of the first term they match, so a list of operationIds shows them in that
@@ -486,6 +486,19 @@ export default class RapiDoc extends LitElement {
    */
   @property({ type: String, attribute: "show-method-in-nav-bar" })
   showMethodInNavBar: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block" = "false";
+
+  /**
+   * Marks sidebar items whose operation shows a badge (<span class="mono yellow">x-badges</span>,
+   * or an OpenAPI 3.2 tag of kind: badge) with a small dot in the first badge's color; its tooltip
+   * and accessible label list the badges. Badges with <span class="mono yellow">color: none</span>
+   * are left out. The dot's shape and size can be styled with the <span class="mono
+   * yellow">nav-badge-dot</span> CSS part.
+   * @summary Dot on sidebar items with badges
+   * @group Sidebar & Navigation
+   * @example /examples/badges
+   */
+  @property({ type: String, attribute: "show-badges-in-nav-bar" })
+  showBadgesInNavBar: "dot" | "false" = "dot";
 
   /**
    * Displays raw API URL paths in the navigation bar instead of operation summaries. <div
@@ -703,13 +716,20 @@ export default class RapiDoc extends LitElement {
   // Try & Servers
   /**
    * Enables the interactive "TRY" console allowing users to test live API calls directly from their
-   * browser.
+   * browser. Besides <span class="mono yellow">true</span> and <span class="mono
+   * yellow">false</span>, it takes the terms of <span class="mono yellow">filter-operations</span>
+   * to turn Try on only for the operations they select: <span class="mono yellow">!deprecated
+   * !tag:pending-implementation</span> keeps it off for deprecated operations and those tagged
+   * pending-implementation. The others keep their request documentation and show a disabled TRY
+   * DISABLED button. The Authentication section stays usable unless it is <span class="mono
+   * yellow">false</span>.
    * @summary Live interactive endpoint testing console
    * @group Try & Servers
+   * @allowedNote (or filter-operations terms, e.g. !deprecated)
    * @example /examples/try
    */
   @property({ type: String, attribute: "allow-try" })
-  allowTry: "true" | "false" = "true";
+  allowTry: "true" | "false" | (string & {}) = "true";
 
   /**
    * When set to <span class="mono fg-color">true</span>, generates and displays copyable cURL
@@ -1099,7 +1119,8 @@ export default class RapiDoc extends LitElement {
       this.allowAdvancedSearch = "true";
     }
 
-    if (!this.allowTry || !"true, false,".includes(`${this.allowTry},`)) {
+    // "true", "false", or filter-operations terms (utils/try-filter.js)
+    if (!this.allowTry || !String(this.allowTry).trim()) {
       this.allowTry = "true";
     }
     if (!this.apiKeyValue) {

@@ -8,7 +8,8 @@
  *   /pet/{petId}         every method on that path
  *   /pet/* /pet/**       `*` one path segment, `**` any number (zero or more)
  *   tag:store            operations tagged `store` (quote a name with spaces: tag:"Pet Store")
- *   badge:Beta           operations with that x-badges label
+ *   badge:Beta           operations with that x-badges label, or an OpenAPI 3.2 tag of kind:
+ *                        badge (by its label or name; spec-parser.js and try-filter.js add them)
  *   deprecated           deprecated operations
  *   !<term>              leaves out what <term> matches
  *
@@ -103,6 +104,8 @@ export function parseOperationFilter(text) {
       continue;
     }
     const { consumed, test } = parseTerm(token, tokens[i + 1]);
+    // The term as written (without !), so a caller can say which one matched (try-filter.js)
+    test.term = consumed === 2 ? `${token} ${tokens[i + 1]}` : token;
     (negated ? exclude : include).push(test);
     i += consumed;
   }

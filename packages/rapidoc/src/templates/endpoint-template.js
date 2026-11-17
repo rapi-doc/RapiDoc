@@ -11,6 +11,7 @@ import codeSamplesTemplate from "~/templates/code-samples-template";
 import callbackTemplate from "~/templates/callback-template";
 import { pathSecurityTemplate } from "~/templates/security-scheme-template";
 import { badgeColorVar, getMatchedPaths, rapidocApiKey } from "~/utils/common-utils";
+import { tryReasonFor, tryStateFor } from "~/utils/try-filter";
 
 function toggleExpand(path) {
   if (path.expanded) {
@@ -178,7 +179,8 @@ function endpointBodyTemplate(path) {
           server-url="${path.servers?.length > 0 ? path.servers[0].url : this.selectedServer?.computedUrl}"
           active-schema-tab="${this.defaultSchemaTab}"
           fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
-          allow-try="${this.allowTry}"
+          allow-try="${tryStateFor(this.allowTry, path)}"
+          try-disabled-reason="${tryReasonFor(this.allowTry, path)}"
           show-curl-before-try="${this.showCurlBeforeTry}"
           accept="${accept}"
           render-style="${this.renderStyle}"
@@ -190,7 +192,7 @@ function endpointBodyTemplate(path) {
           schema-hide-write-only="${this.schemaHideWriteOnly === "never" ? "false" : path.isWebhook ? "true" : "false"}"
           fetch-credentials="${this.fetchCredentials}"
           exportparts="section-request-title:section-request-title, heading:heading, heading-4:heading-4, heading-5:heading-5, heading-6:heading-6,
-            wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-stop:btn-stop, response-status-line:response-status-line, response-spinner:response-spinner, btn-clear:btn-clear, btn-fill-example:btn-fill-example, btn-clear-resp:btn-clear-resp,
+            wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-try-disabled:btn-try-disabled, try-disabled-reason:try-disabled-reason, btn-stop:btn-stop, response-status-line:response-status-line, response-spinner:response-spinner, btn-clear:btn-clear, btn-fill-example:btn-fill-example, btn-clear-resp:btn-clear-resp,
           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-content:tab-content, 
           file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
           anchor:anchor, anchor-param-example:anchor-param-example, anchor-param-constraint:anchor-param-constraint, param-list:param-list, param:param, param-label:param-label, param-name:param-name, param-type:param-type, param-input:param-input, param-constraint:param-constraint, param-constraint-label:param-constraint-label, param-details:param-details, param-example-list:param-example-list, value-list:value-list, value-list-label:value-list-label, value-list-items:value-list-items, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"

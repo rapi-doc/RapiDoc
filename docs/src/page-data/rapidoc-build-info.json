@@ -3,19 +3,19 @@
   "version": "14.1.0",
   "versionTag": "v14.1.0",
   "versionShort": "v14.1",
-  "buildTime": "2026-11-17T12:10:45.707Z",
+  "buildTime": "2026-11-17T13:26:57.457Z",
   "bundle": {
     "minified": {
-      "bytes": 680112,
-      "formatted": "664 KB",
-      "kb": 664,
-      "exactKb": 664.2
+      "bytes": 683483,
+      "formatted": "667 KB",
+      "kb": 667,
+      "exactKb": 667.5
     },
     "gzip": {
-      "bytes": 182568,
-      "formatted": "178 KB",
-      "kb": 178,
-      "exactKb": 178.3
+      "bytes": 183675,
+      "formatted": "179 KB",
+      "kb": 179,
+      "exactKb": 179.4
     }
   },
   "packages": {
@@ -38,33 +38,33 @@
         },
         "rapidoc-min.js": {
           "size": {
-            "bytes": 680112,
-            "formatted": "664 KB",
-            "kb": 664,
-            "exactKb": 664.2
+            "bytes": 683483,
+            "formatted": "667 KB",
+            "kb": 667,
+            "exactKb": 667.5
           },
           "gzip": {
-            "bytes": 182568,
-            "formatted": "178 KB",
-            "kb": 178,
-            "exactKb": 178.3
+            "bytes": 183675,
+            "formatted": "179 KB",
+            "kb": 179,
+            "exactKb": 179.4
           }
         }
       },
       "npm": {
         "packed": {
-          "bytes": 616359,
-          "formatted": "602 KB",
-          "kb": 602,
-          "exactKb": 601.9
+          "bytes": 621882,
+          "formatted": "607 KB",
+          "kb": 607,
+          "exactKb": 607.3
         },
         "unpacked": {
-          "bytes": 2341397,
-          "formatted": "2.2 MB",
-          "kb": 2287,
-          "exactKb": 2286.5
+          "bytes": 2360557,
+          "formatted": "2.3 MB",
+          "kb": 2305,
+          "exactKb": 2305.2
         },
-        "files": 114
+        "files": 115
       }
     },
     "@rapidoc/cli": {
@@ -250,31 +250,31 @@
       "bundles": {
         "index.js": {
           "size": {
-            "bytes": 682785,
-            "formatted": "667 KB",
-            "kb": 667,
-            "exactKb": 666.8
+            "bytes": 691824,
+            "formatted": "676 KB",
+            "kb": 676,
+            "exactKb": 675.6
           },
           "gzip": {
-            "bytes": 159083,
-            "formatted": "155 KB",
-            "kb": 155,
-            "exactKb": 155.4
+            "bytes": 162054,
+            "formatted": "158 KB",
+            "kb": 158,
+            "exactKb": 158.3
           }
         }
       },
       "npm": {
         "packed": {
-          "bytes": 163150,
-          "formatted": "159 KB",
-          "kb": 159,
-          "exactKb": 159.3
+          "bytes": 166178,
+          "formatted": "162 KB",
+          "kb": 162,
+          "exactKb": 162.3
         },
         "unpacked": {
-          "bytes": 694263,
-          "formatted": "678 KB",
-          "kb": 678,
-          "exactKb": 678
+          "bytes": 703504,
+          "formatted": "687 KB",
+          "kb": 687,
+          "exactKb": 687
         },
         "files": 5
       }

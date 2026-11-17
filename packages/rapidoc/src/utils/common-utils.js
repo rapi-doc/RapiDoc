@@ -197,3 +197,20 @@ export function viewResource(url) {
 export function badgeColorVar(color) {
   return `var(--${color === "primary-color" ? "primary" : color})`;
 }
+
+/**
+ * The badges an operation shows (x-badges and OpenAPI 3.2 kind: badge tags, merged by the spec
+ * parser into `xBadges`): those with a label and a color other than `none`. For the nav dot
+ * (show-badges-in-nav-bar), shared by <rapi-doc>'s sidebar and @rapidoc/prerender's.
+ * @returns {{ color: string, labels: string[] } | null} the first badge's color and every label
+ */
+export function navBadgeDot(xBadges) {
+  const shown = (Array.isArray(xBadges) ? xBadges : []).filter(
+    (b) => b && b.label && b.color !== "none",
+  );
+  if (!shown.length) return null;
+  return {
+    color: badgeColorVar(shown[0].color || "primary-color"),
+    labels: shown.map((b) => String(b.label)),
+  };
+}

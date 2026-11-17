@@ -166,6 +166,12 @@ UI helpers:
   out). `ProcessSpec` drops left-out operations, and orders each tag's operations, and the tags,
   by that rank unless `sort-endpoints-by` / `sort-tags` is set. Covered by
   `tests/unit/filter-operations.test.js`.
+- **Try by operation** (`[try-filter.js:tryStateFor]`): `allow-try` takes the same terms; an
+  operation they leave out gets `allow-try="disabled"` on its `<api-request>` (documented, a
+  disabled TRY DISABLED button) and `try-disabled-reason` from `tryReasonFor` (the ! term that matched,
+  as `test.term`, or the include terms), and `tryAnywhere` keeps the Authentication section on unless
+  `allow-try` is `false`. `badge:` also matches OpenAPI 3.2 `kind: badge` tags, by label or name.
+  Covered by `allow-try-filter`.
 - **Headless boundary**: `spec-parser.js`, `spec-loader.js`, `schema-utils.js`, `slugger.js`, `mcp-generator.js`,
   `mcp/`, `arazzo/` and everything they import are shared with the Node builds (`@rapidoc/prerender`,
   `@rapidoc/mcp`) and, for `spec-loader.js` and `schema-utils.js`, with `rapipdf`. They never import Lit, elements, `components/`, `templates/`, `styles/` or

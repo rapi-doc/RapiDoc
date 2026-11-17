@@ -172,6 +172,25 @@ ${responseContent}</pre>
     </div>`;
 }
 
+// The longest second line the reason shows: about one line at its maximum width (22rem)
+const REASON_DETAIL_MAX = 40;
+
+/**
+ * The TRY DISABLED reason on two lines, to balance the API Server / Authentication pair beside it:
+ * "Try is off for" / "operations tagged pending-implementation" (split after the first " for ").
+ * A detail longer than one line (a long path, many include terms) becomes "this operation"; the
+ * button's tooltip keeps the whole reason.
+ */
+export function reasonLines(reason) {
+  const at = reason.indexOf(" for ");
+  if (at < 0) return reason;
+  const detail = reason.slice(at + 5);
+  if (detail.length > REASON_DETAIL_MAX) {
+    return html`<span>Try is off for</span><span>this operation</span>`;
+  }
+  return html`<span>${reason.slice(0, at + 4)}</span><span>${detail}</span>`;
+}
+
 export function apiCallTemplate() {
   let authHtml;
   if (this.security?.length > 0 && !this.security.every((s) => !s || Object.keys(s).length === 0)) {
@@ -201,6 +220,22 @@ export function apiCallTemplate() {
           <dd>${authHtml}</dd>
         </dl>
         <div class="try-actions">
+          ${
+            // allow-try's terms leave this operation out (utils/try-filter.js): documented, not tryable
+            this.allowTry === "disabled"
+              ? html`${
+                  this.tryDisabledReason
+                    ? html`<span class="try-disabled-reason" part="try-disabled-reason">${reasonLines(this.tryDisabledReason)}</span>`
+                    : ""
+                }<button
+                  class="btn btn-primary"
+                  part="btn btn-try btn-try-disabled"
+                  disabled
+                  title="${this.tryDisabledReason || "Try is turned off for this operation"}"
+                >
+                  TRY DISABLED
+                </button>`
+              : html`
           ${
             this.parameters.length > 0 || this.request_body
               ? html`${
@@ -248,6 +283,8 @@ export function apiCallTemplate() {
           >
             ${this.loading ? "TRYING..." : this.mockServer === "true" ? "TRY (Mock)" : "TRY"}
           </button>
+              `
+          }
         </div>
       </div>
     </div>

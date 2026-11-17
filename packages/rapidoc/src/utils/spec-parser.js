@@ -308,8 +308,21 @@ function filterPaths(openApiObject, filterText = "") {
   const ranks = new Map();
   if (!filter || !openApiObject.paths) return ranks;
   const filteredPaths = {};
+  // OpenAPI 3.2 tags of kind: badge are badges too: badge: matches their label or name
+  const badgeTags = new Map(
+    (Array.isArray(openApiObject.tags) ? openApiObject.tags : [])
+      .filter((t) => t?.kind === "badge" && typeof t.name === "string")
+      .map((t) => [t.name.toLowerCase(), [t["x-displayName"] || t.summary || t.name, t.name]]),
+  );
+  const factsOf = (method, path, operation) => {
+    const facts = operationFacts(method, path, operation);
+    const fromTags = (Array.isArray(operation?.tags) ? operation.tags : []).flatMap(
+      (name) => badgeTags.get(String(name).toLowerCase()) || [],
+    );
+    return fromTags.length ? { ...facts, badges: [...facts.badges, ...fromTags] } : facts;
+  };
   const keep = (method, path, operation) => {
-    const rank = operationRank(filter, operationFacts(method, path, operation));
+    const rank = operationRank(filter, factsOf(method, path, operation));
     if (rank < 0) return false;
     ranks.set(`${method.toLowerCase()} ${path}`, rank);
     return true;
@@ -621,10 +634,11 @@ function groupByTags(
       const tagKindOf = (name) => tagHierarchy.byName.get(String(name).toLowerCase());
       const navPathTags = pathTags.filter((name) => isNavKind(tagKindOf(name)));
       const placementTags = navPathTags.length > 0 ? navPathTags : pathTags;
-      const tagBadges = pathTags
-        .map(tagKindOf)
-        .filter((t) => t?.kind === "badge")
-        .map((t) => ({ label: tagDisplayName(t, t.name), color: "primary-color" }));
+      const badgeTags = pathTags.map(tagKindOf).filter((t) => t?.kind === "badge");
+      const tagBadges = badgeTags.map((t) => ({
+        label: tagDisplayName(t, t.name),
+        color: "primary-color",
+      }));
       const specBadges = Array.isArray(pathOrHookObj["x-badges"]) ? pathOrHookObj["x-badges"] : [];
       const xBadges = [
         ...specBadges,
@@ -742,6 +756,8 @@ function groupByTags(
           // commonSummary: commonPathProp.summary,
           // commonDescription: commonPathProp.description,
           xBadges: xBadges.length > 0 ? xBadges : pathOrHookObj["x-badges"] || undefined,
+          // The names of its kind: badge tags, which badge: terms match as well as their labels
+          badgeTagNames: badgeTags.map((t) => t.name),
           xCodeSamples: pathOrHookObj["x-codeSamples"] || pathOrHookObj["x-code-samples"] || "",
           rawOperation: pathOrHookObj,
           xInternal: pathOrHookObj["x-internal"] ?? pathItem?.["x-internal"] ?? undefined,

@@ -3,7 +3,23 @@
  */
 import { html, nothing } from "lit";
 import Slugger from "github-slugger";
-import { getMatchedPaths, isInternalOrHidden } from "~/utils/common-utils";
+import { getMatchedPaths, isInternalOrHidden, navBadgeDot } from "~/utils/common-utils";
+
+/** A sidebar item's badge dot (show-badges-in-nav-bar="dot"): the first badge's color, every label */
+function navBadgeDotTemplate(mode, xBadges) {
+  if (mode === "false") return "";
+  const dot = navBadgeDot(xBadges);
+  if (!dot) return "";
+  const labels = dot.labels.join(", ");
+  return html`<span
+    class="nav-badge-dot"
+    part="nav-badge-dot"
+    role="img"
+    aria-label="Badges: ${labels}"
+    title="${labels}"
+    style="background:${dot.color}"
+  ></span>`;
+}
 
 export function expandCollapseNavBarTag(navLinkEl, action = "toggle") {
   const tagAndPathEl = navLinkEl?.closest(".nav-bar-tag-and-paths");
@@ -421,6 +437,7 @@ export default function navbarTemplate() {
                       ${p.isWebhook ? html`<span class="nav-bar-webhook">WEBHOOK</span>` : ""}
                       ${this.usePathInNavBar === "true" ? html`<span class="mono-font">${p.path}</span>` : p.summary || p.shortSummary}
                     </span>
+                    ${navBadgeDotTemplate(this.showBadgesInNavBar, p.xBadges)}
                     ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
                       ${this.showMethodInNavBar === "as-colored-block" ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
                     </span>`}

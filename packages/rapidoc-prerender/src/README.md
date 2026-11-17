@@ -29,6 +29,9 @@ typed contract (option types, navigation types, signatures) and declares no defa
   model (`tagGroups`, `tags`, `remainingTags`, operations).
 - `getNavBarHtml(specInput, options?)` / `renderNavBarHtml(resolvedSpec, options?)`
   [navigation.js] — sidebar HTML (async from input, sync from a resolved spec).
+  Options mirror `<rapi-doc>`'s sidebar attributes, including `showBadgesInNavBar` (`dot` by default: a
+  dot in the first badge's color on items whose operation shows a badge, from `navBadgeDot` of
+  `rapidoc/src/utils/common-utils.js`, as `<rapi-doc>` draws it).
 - `getNavFilterHtml(options?)`, `getMethodBadge(method, format?)` [navigation.js] — filter box
   and method badge text.
 - `renderTemplateToString(result, options?)`, `escapeHtml(str)` [serializer.js] — DOM-free
