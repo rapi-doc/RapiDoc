@@ -1,0 +1,501 @@
+/**
+ * The classifier of the stateful mock (a spike): compiles a bundled OpenAPI document into a data model and an
+ * operation map, the content of `mock.lock.yaml`.
+ *
+ *   classifySpec(doc) -> { resources, relations, embedded, operations, review }
+ *
+ * It reads the document before dereferencing: `$ref` names are its strongest signal (two operations that use
+ * `#/components/schemas/Pet` share an entity). Nothing here guesses silently: what the rules cannot settle is
+ * marked `review: true` with a `why`, and listed in `review`.
+ */
+import { listOperations, resolve } from "../spec.js";
+
+const SCHEMA_REF = /^#\/components\/schemas\/([^/]+)$/;
+/** Affixes code-first frameworks add to an entity's name for its request and response variants. */
+const DTO_PREFIX = /^(Create|Update|Patched|Patch|New|Partial)(?=[A-Z])/;
+const DTO_SUFFIX =
+  /(Dto|DTO|Request|Response|Input|Output|Create|Update|Read|In|Out|Body|Payload|Summary|Detail|Fields)$/;
+/** The variant that describes a stored record best: what the API returns. */
+const READ_VARIANT = /(Response|Out|Output|Read|Detail)(Dto|DTO)?$|_(response|read|out)$/;
+/** The same affixes in snake_case names: `key_patch`, `key_response`, `new_key`. */
+const SNAKE_SUFFIX =
+  /_(patch|post|put|response|request|create|update|read|write|in|out|input|output)$/;
+const SNAKE_PREFIX = /^(new|create|update|patched)_/;
+/** The property of a list wrapper that holds the records (Django REST, Spring, and common custom shapes). */
+const LIST_PROPS = ["results", "content", "items", "data", "records", "entries"];
+/** The property of an envelope around a single record. */
+const ENVELOPE_PROPS = ["data", "result", "item", "payload"];
+/** Fields that sit beside the records in an envelope: counts, paging and request details. */
+const ENVELOPE_META =
+  /count|total|page|cursor|next|prev|offset|limit|size|more|request_?id|status|meta|links?$/i;
+const JSON_TYPE = /json/i;
+
+const lower = (text) => String(text || "").toLowerCase();
+const singular = (word) =>
+  /ies$/i.test(word)
+    ? `${word.slice(0, -3)}y`
+    : /sses$/i.test(word)
+      ? word.slice(0, -2)
+      : /s$/i.test(word) && !/ss$/i.test(word)
+        ? word.slice(0, -1)
+        : word;
+
+/** `/pet/{petId}/uploadImage` -> segments, and the shape `/pet/{}/uploadImage` (parameter names dropped). */
+function pathShape(path) {
+  const segments = path.split("/").filter(Boolean);
+  const params = segments.map((s) => (/^\{.+\}$/.test(s) ? s.slice(1, -1) : null));
+  return {
+    segments,
+    params,
+    shape: `/${segments.map((s, i) => (params[i] ? "{}" : s)).join("/")}`,
+  };
+}
+
+/** The schema of the first JSON media type (else the first media type) of a `content` map. */
+function contentSchema(doc, content) {
+  const types = Object.keys(content || {});
+  const type = types.find((t) => JSON_TYPE.test(t)) || types[0];
+  // A media type can itself be a `$ref` (OpenAPI 3.2 `components.mediaTypes`)
+  return type ? resolve(doc, content[type], "").node?.schema : undefined;
+}
+
+/** Whether a schema describes a record (an object), not a value such as an enum, a string or a number. */
+function isRecordSchema(node) {
+  if (!node || node.enum) return false;
+  const types = Array.isArray(node.type) ? node.type : [node.type];
+  return Boolean(
+    node.properties || node.allOf || node.oneOf || node.anyOf || types.includes("object"),
+  );
+}
+
+/**
+ * What a schema is, by name: `{ name }` for a `$ref` to a component schema, `{ name, many: true }` for an array of
+ * one, `{ name, many: true, wrapper }` for a list wrapper around one. `{}` for an inline or unnamed schema.
+ */
+function namedSchema(doc, schema, depth = 0) {
+  if (!schema || typeof schema !== "object" || depth > 4) return {};
+  if (typeof schema.$ref === "string") {
+    const name = schema.$ref.match(SCHEMA_REF)?.[1];
+    if (!name) return {};
+    const { node } = resolve(doc, schema, schema.$ref);
+    // A named schema that is only a list (`Pets: array of Pet`) or a list wrapper (`PaginatedPetList`)
+    const inner = node?.$ref ? {} : namedSchema(doc, { ...node, $ref: undefined }, depth + 1);
+    if (inner.name && (inner.many || inner.envelope)) {
+      return { ...inner, wrapper: inner.wrapper || name };
+    }
+    // Only an object can be a record: an enum (`RoleType`) or a binary string (`FileContent`) is a value
+    return isRecordSchema(node) ? { name: decodeURIComponent(name) } : {};
+  }
+  if (schema.allOf?.length === 1 && !schema.properties) {
+    return namedSchema(doc, schema.allOf[0], depth + 1);
+  }
+  if (schema.type === "array" || schema.items) {
+    const item = namedSchema(doc, schema.items, depth + 1);
+    if (item.name) return { ...item, many: true };
+    // A list of objects written inline: no name, but still a list of records (RealWorld's article list)
+    const inline = resolve(doc, schema.items, "").node;
+    return inline?.properties || inline?.type === "object" ? { many: true, inline: true } : {};
+  }
+  // An inline object, through `allOf` (Nylas: `allOf: [common_response, { properties: { data } }]`)
+  const properties = { ...schema.properties };
+  for (const part of schema.allOf || []) {
+    const { node } = resolve(doc, part, "");
+    Object.assign(properties, node?.properties);
+  }
+  const keys = Object.keys(properties);
+  if (keys.length) {
+    const prop = LIST_PROPS.find((p) => properties[p]);
+    const item = prop ? namedSchema(doc, properties[prop], depth + 1) : {};
+    if (item.name && item.many) return { ...item, listProperty: prop };
+    // An envelope around one record or list: `{ data: Pet }`, `{ article: Article }`,
+    // `{ articles: [Article], articlesCount }`. Not an entity of its own: it has no id and little else.
+    const named = keys
+      .map((key) => ({ key, ...namedSchema(doc, properties[key], depth + 1) }))
+      .filter((entry) => entry.name || entry.inline);
+    // `data` and the like wrap whatever they hold, among any other fields (Apideck: `status`, `service`, ...).
+    // A property named for its content wraps it too (`article` around an `Article`), but only when the fields
+    // beside it are paging or status details: `{ content, references: [ArtifactReference] }` is a record of
+    // its own, and so is `RoleMapping` with its `role`.
+    const only = named.length === 1 ? named[0] : undefined;
+    const namedForContent =
+      only &&
+      ((only.name && lower(only.name).includes(lower(singular(only.key)))) ||
+        (only.inline && only.many));
+    const isEnvelope =
+      only &&
+      (ENVELOPE_PROPS.includes(only.key) ||
+        (namedForContent &&
+          !properties.id &&
+          keys.every((k) => k === only.key || ENVELOPE_META.test(k))));
+    if (isEnvelope) {
+      const { key, ...inner } = named[0];
+      return { ...inner, envelope: key, ...(inner.many ? { listProperty: key } : {}) };
+    }
+  }
+  return {};
+}
+
+/** Maps every component schema name to its entity: `CreatePetDto`, `PetUpdate`, `PatchedPet` -> `Pet`. */
+function entityNames(doc) {
+  const names = Object.keys(doc.components?.schemas || {});
+  const base = (name) => {
+    // Pydantic v2 emits `PetOut-Input` / `PetOut-Output` for one model used both ways
+    let short = name.replace(/-(Input|Output)$/, "").replace(DTO_PREFIX, "");
+    for (let i = 0; i < 3; i++) short = short.replace(DTO_SUFFIX, "") || short;
+    if (short === name) short = name.replace(SNAKE_PREFIX, "").replace(SNAKE_SUFFIX, "");
+    return short || name;
+  };
+  const byBase = new Map();
+  for (const name of names) byBase.set(base(name), [...(byBase.get(base(name)) || []), name]);
+  const entityOf = new Map();
+  for (const name of names) {
+    const short = base(name);
+    // Reduced only when the short name is itself a schema, or several variants agree on it
+    const merged = short !== name && (names.includes(short) || byBase.get(short).length > 1);
+    entityOf.set(name, merged ? short : name);
+  }
+  // The schema that stands for each entity: its own, else the variant the API returns
+  const schemaOf = new Map();
+  for (const [short, variants] of byBase) {
+    schemaOf.set(
+      short,
+      names.includes(short) ? short : variants.find((v) => READ_VARIANT.test(v)) || variants[0],
+    );
+  }
+  return { entityOf, schemaOf };
+}
+
+/** The parameters of an operation (its own and its path item's), `$ref`s followed. */
+function parametersOf(doc, pathItem, operation) {
+  return [...(pathItem?.parameters || []), ...(operation.parameters || [])]
+    .map((p) => resolve(doc, p, "").node)
+    .filter(Boolean);
+}
+
+/** The properties of an entity's schema, through `allOf`. */
+function propertiesOf(doc, schema, depth = 0) {
+  const { node } = resolve(doc, schema, "");
+  if (!node || depth > 6) return {};
+  let properties = { ...node.properties };
+  for (const part of node.allOf || []) {
+    properties = { ...propertiesOf(doc, part, depth + 1), ...properties };
+  }
+  return properties;
+}
+
+/** The field of an entity a path parameter addresses: `username` -> `username`, `petId` -> `id`. */
+function keyField(properties, param, entity) {
+  const names = Object.keys(properties);
+  if (names.includes(param)) return { field: param };
+  const stripped = param.replace(new RegExp(`^${entity}[_-]?`, "i"), "");
+  const match = names.find((n) => lower(n) === lower(stripped));
+  if (match) return { field: match };
+  // `/customers/{customer}`: the parameter is named after the entity itself (Stripe)
+  const namesEntity = lower(singular(param)) === lower(singular(entity));
+  if (names.includes("id") && (/id$/i.test(param) || namesEntity)) return { field: "id" };
+  // `{propertyName}` -> `name`: the parameter's last word is the field
+  const lastWord = param.match(/([A-Z][a-z0-9]*|[a-z0-9]+)$/)?.[1];
+  const byWord = lastWord && names.find((n) => lower(n) === lower(lastWord));
+  if (byWord) return { field: byWord };
+  if (names.includes("id")) return { field: "id", review: `parameter {${param}} matches no field` };
+  return { field: null, review: `no key field found for {${param}}` };
+}
+
+/**
+ * @param {object} doc - A bundled OpenAPI 3.x document (internal `$ref`s kept; see loadSpec)
+ * @returns {{ resources: object, relations: object, embedded: object, operations: object, review: string[] }}
+ */
+export function classifySpec(doc) {
+  const { entityOf, schemaOf } = entityNames(doc);
+  const componentSchemas = doc.components?.schemas || {};
+  // By entity name: `schemas.ApiKey` is `ApiKeyResponseDto` when no schema is named `ApiKey`
+  const schemas = new Proxy(
+    {},
+    { get: (_, name) => componentSchemas[schemaOf.get(name)] || componentSchemas[name] },
+  );
+  const entity = (name) => (name ? entityOf.get(name) || name : undefined);
+  const review = [];
+  const flag = (id, why) => {
+    review.push(`${id}: ${why}`);
+    return { review: true, why };
+  };
+
+  // Pass 1: what each operation carries, by name
+  const seenIds = new Set();
+  const facts = listOperations(doc).map(({ method, path, operation }) => {
+    const pathItem = resolve(doc, doc.paths[path], "").node;
+    const body = resolve(doc, operation.requestBody, "").node;
+    const request = namedSchema(doc, contentSchema(doc, body?.content));
+    const successCode = Object.keys(operation.responses || {})
+      .sort()
+      .find((code) => code.startsWith("2"));
+    const success = resolve(doc, operation.responses?.[successCode], "").node;
+    const response = namedSchema(doc, contentSchema(doc, success?.content));
+    // An operationId used twice (Cal.com has two) would overwrite the first operation's entry
+    const methodPath = `${method.toUpperCase()} ${path}`;
+    const id =
+      operation.operationId && !seenIds.has(operation.operationId)
+        ? operation.operationId
+        : methodPath;
+    seenIds.add(id);
+    return {
+      id,
+      method,
+      path,
+      ...pathShape(path),
+      parameters: parametersOf(doc, pathItem, operation),
+      request: { ...request, entity: entity(request.name) },
+      response: { ...response, entity: entity(response.name) },
+    };
+  });
+
+  // A static segment after a parameter is a nested collection (`/apps/{}/keys`) when the spec has its item path
+  // (`/apps/{}/keys/{}`) or it lists records; otherwise it is an action on the record (`/pet/{}/uploadImage`).
+  const shapes = new Set(facts.map((op) => op.shape));
+  const isSubAction = (op) =>
+    !op.params.at(-1) &&
+    op.params.some(Boolean) &&
+    !shapes.has(`${op.shape}/{}`) &&
+    !((op.method === "get" || op.method === "query") && op.response.many);
+
+  // Pass 2: the entity of each path shape, from the operations there that name one. An item path (`/pet/{}`)
+  // and its collection path (`/pet`) share it. Votes are weighted by how well an operation names the record:
+  // what a GET returns says most, what a write sends says more than what it answers, and a DELETE's answer
+  // says nothing (an API may answer every write with one small `{ id }` schema, as Apideck does).
+  const shapeEntity = new Map();
+  const vote = (shape, name, weight) => {
+    if (!name || !weight) return;
+    const votes = shapeEntity.get(shape) || new Map();
+    votes.set(name, (votes.get(name) || 0) + weight);
+    shapeEntity.set(shape, votes);
+  };
+  for (const op of facts) {
+    const lastIsParam = Boolean(op.params.at(-1));
+    // Only a collection path or an item path names its resource: `/pet/{}/uploadImage` returns something else
+    if (isSubAction(op)) continue;
+    const isWrite = op.method === "post" || op.method === "put" || op.method === "patch";
+    const shapes = lastIsParam
+      ? [op.shape, `/${op.segments.slice(0, -1).join("/")}`]
+      : isWrite || op.response.many
+        ? [op.shape] // `/pet/findByStatus` lists the resource of `/pet`; `/pets` lists its own
+        : [];
+    for (const shape of shapes) {
+      if (op.method === "get" || op.method === "query") vote(shape, op.response.entity, 4);
+      else if (isWrite) {
+        vote(shape, op.request.entity, 2);
+        vote(shape, op.response.entity, 1);
+      }
+    }
+  }
+  const winner = (shape) => {
+    const votes = shapeEntity.get(shape);
+    if (votes) return [...votes].sort((a, b) => b[1] - a[1])[0][0];
+    // An item path nothing names (only a DELETE there) holds what its collection holds
+    return shape.endsWith("/{}") ? winner(shape.slice(0, -3) || "/") : undefined;
+  };
+
+  // Pass 3: resources, with their paths and keys
+  const resources = {};
+  for (const op of facts) {
+    if (!op.params.at(-1)) continue;
+    const name = winner(op.shape);
+    if (!name || !schemas[name]) continue;
+    const param = op.params.at(-1);
+    const key = keyField(propertiesOf(doc, schemas[name]), param, name);
+    const existing = resources[name];
+    if (existing && existing.path !== op.shape) {
+      existing.alsoAt = [...new Set([...(existing.alsoAt || []), op.shape])];
+      continue;
+    }
+    resources[name] = {
+      path: op.shape,
+      key: key.field,
+      ...(key.review ? flag(`resources.${name}`, key.review) : {}),
+    };
+  }
+  // A resource that is only created or listed (no item path)
+  for (const op of facts) {
+    const name = winner(op.shape);
+    if (name && schemas[name] && !resources[name] && !op.params.some(Boolean)) {
+      const hasId = "id" in propertiesOf(doc, schemas[name]);
+      resources[name] = {
+        path: null,
+        key: hasId ? "id" : null,
+        ...flag(`resources.${name}`, "no item path (such as /things/{id}) in the spec"),
+      };
+    }
+  }
+
+  // Pass 4: each operation's action
+  const operations = {};
+  for (const op of facts) {
+    const lastParam = op.params.at(-1);
+    const subAction = isSubAction(op);
+    const parentShape = `/${op.segments.slice(0, -1).join("/")}`;
+    const name =
+      winner(op.shape) ||
+      (!lastParam && !subAction && op.response.many ? op.response.entity : undefined) ||
+      (!lastParam && !subAction ? winner(parentShape) : undefined);
+    const resource = name && resources[name] ? name : undefined;
+    const entry = (action, extra = {}) => ({ resource, action, ...extra });
+    const queryNames = op.parameters.filter((p) => p.in === "query").map((p) => p.name);
+    let result;
+
+    if (!resource || subAction) {
+      result = { action: "none" };
+    } else if (lastParam) {
+      const keyFrom = `path.${lastParam}`;
+      if (op.method === "get") {
+        // A GET that answers with something else (a file, another record) is not a plain read of the resource
+        const other = !op.response.inline && op.response.entity !== resource;
+        result = entry("read", {
+          keyFrom,
+          ...(other ? flag(op.id, `GET does not return ${resource}; assumed to read it`) : {}),
+        });
+      } else if (op.method === "put") result = entry("update", { keyFrom });
+      else if (op.method === "patch") result = entry("patch", { keyFrom });
+      else if (op.method === "delete") result = entry("delete", { keyFrom });
+      else if (op.method === "post" && !op.request.entity) {
+        // Petstore's `POST /pet/{petId}` with form fields: a partial update
+        result = entry("patch", {
+          keyFrom,
+          ...flag(op.id, "POST on an item path; assumed a partial update"),
+        });
+      } else result = { action: "none" };
+    } else if (
+      (op.method === "get" || op.method === "query") &&
+      (op.response.entity === resource || op.response.inline) &&
+      op.response.many
+    ) {
+      const properties = propertiesOf(doc, schemas[resource]);
+      const fields = Object.keys(properties);
+      const filter = {};
+      const unmatched = [];
+      const notes = [];
+      if (op.method === "query") notes.push("QUERY: its filters are in the request body");
+      if (op.response.inline) notes.push(`returns inline objects; assumed to be ${resource}`);
+      for (const q of queryNames) {
+        // A field that holds objects (`tags: Tag[]`) is matched on one of their fields, by name
+        const inner = fields.includes(q) ? namedSchema(doc, properties[q]) : {};
+        const innerFields = inner.name ? Object.keys(propertiesOf(doc, schemas[inner.name])) : [];
+        if (inner.name && innerFields.includes("name")) {
+          filter[`${q}${inner.many ? "[]" : ""}.name`] = `query.${q}`;
+          notes.push(`${q} holds ${inner.name} objects; assumed to match on their name`);
+        } else if (inner.name) unmatched.push(q);
+        else if (fields.includes(q)) filter[q] = `query.${q}`;
+        else if (!/^(page|limit|offset|size|pagesize|per_page|sort|order|cursor)$/i.test(q))
+          unmatched.push(q);
+      }
+      result = entry("list", {
+        ...(Object.keys(filter).length ? { filter } : {}),
+        ...(op.response.listProperty ? { listProperty: op.response.listProperty } : {}),
+        ...(unmatched.length || notes.length
+          ? flag(
+              op.id,
+              [
+                ...notes,
+                ...(unmatched.length
+                  ? [`query parameter ${unmatched.join(", ")} matches no field of ${resource}`]
+                  : []),
+              ].join("; "),
+            )
+          : {}),
+      });
+    } else if (
+      op.method === "post" &&
+      (op.request.entity === resource || (op.response.entity === resource && !op.response.many))
+    ) {
+      // The body may be an input variant under another name (`OwnerFields`): what comes back names the record
+      result = entry(op.request.many ? "createMany" : "create");
+    } else if ((op.method === "put" || op.method === "patch") && op.request.entity === resource) {
+      // `PUT /pet` with the whole record in the body: the key comes from the body
+      const key = resources[resource].key;
+      result = entry(op.method === "put" ? "update" : "patch", {
+        ...(key
+          ? { keyFrom: `body.${key}` }
+          : flag(op.id, "no key in the path or the body; one record per caller (a singleton)?")),
+      });
+    } else {
+      result = { action: "none" };
+    }
+    if (result.action === "none" && /^(put|patch|delete)$/.test(op.method)) {
+      Object.assign(result, flag(op.id, `${op.method.toUpperCase()} that fits no resource`));
+    }
+    operations[op.id] = result;
+  }
+
+  // A resource nothing reads or lists gains nothing from state (`POST /users/login` with a `LoginUser` body):
+  // its operations go back to plain mocked responses
+  for (const name of Object.keys(resources)) {
+    const ids = Object.keys(operations).filter((id) => operations[id].resource === name);
+    if (ids.some((id) => operations[id].action === "read" || operations[id].action === "list"))
+      continue;
+    delete resources[name];
+    for (const id of ids) operations[id] = { action: "none" };
+    const stale = new Set([`resources.${name}`, ...ids]);
+    for (let i = review.length - 1; i >= 0; i--) {
+      if (stale.has(review[i].slice(0, review[i].indexOf(": ")))) review.splice(i, 1);
+    }
+  }
+
+  // Pass 5: relations between resources, and nested schemas stored inside their parent
+  const relations = {};
+  const embedded = {};
+  const resourceByLower = new Map(Object.keys(resources).map((n) => [lower(n), n]));
+  for (const name of Object.keys(resources)) {
+    for (const [field, raw] of Object.entries(propertiesOf(doc, schemas[name]))) {
+      const named = namedSchema(doc, raw);
+      const target = entity(named.name);
+      if (target && target !== name) {
+        if (resources[target]) {
+          relations[`${name}.${field}`] = {
+            to: target,
+            embeddedCopy: true,
+            ...flag(
+              `relations.${name}.${field}`,
+              `holds a whole ${target}, which is also a resource`,
+            ),
+          };
+        } else embedded[`${name}.${field}`] = target;
+        continue;
+      }
+      const ref = field.match(/^(.+?)(?:_id|Id|ID)s?$/);
+      if (!ref || field === resources[name].key) continue;
+      const refTarget = resourceByLower.get(lower(singular(ref[1])));
+      if (refTarget) {
+        relations[`${name}.${field}`] = `${refTarget}.${resources[refTarget].key}`;
+      } else {
+        relations[`${name}.${field}`] = {
+          to: null,
+          ...flag(
+            `relations.${name}.${field}`,
+            `looks like a reference, but no resource is named ${ref[1]}`,
+          ),
+        };
+      }
+    }
+  }
+
+  return { resources, relations, embedded, operations, review };
+}
+
+/**
+ * The label of every operation, counted:
+ * - `confident`: mapped to a stored record with nothing assumed
+ * - `needsReview`: mapped, but something was assumed (on the operation or on its resource)
+ * - `plainMock`: no state; answered with generated data, as the mock does without `--stateful`
+ *
+ * @param {ReturnType<typeof classifySpec>} model
+ * @returns {{ confident: number, needsReview: number, plainMock: number }}
+ */
+export function labelCounts(model) {
+  const counts = { confident: 0, needsReview: 0, plainMock: 0 };
+  for (const entry of Object.values(model.operations)) counts[operationLabel(model, entry)] += 1;
+  return counts;
+}
+
+/** The label of one operation's entry: `confident`, `needsReview` or `plainMock`. */
+export function operationLabel(model, entry) {
+  if (entry.action === "none") return "plainMock";
+  return entry.review || model.resources[entry.resource]?.review ? "needsReview" : "confident";
+}
