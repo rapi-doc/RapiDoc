@@ -77,17 +77,17 @@ test("theme-validation", async (t) => {
     assert.deepEqual(normalizeTheme("#fff"), { theme: "#fff" });
   });
 
-  await t.test('normalizeTheme falls back to "ember" for any invalid or missing theme', () => {
-    assert.deepEqual(normalizeTheme("foobar"), { theme: "ember" });
-    assert.deepEqual(normalizeTheme("default"), { theme: "ember" });
-    assert.deepEqual(normalizeTheme("modern"), { theme: "ember" });
-    assert.deepEqual(normalizeTheme("dark"), { theme: "ember" });
-    assert.deepEqual(normalizeTheme("light"), { theme: "ember" });
-    assert.deepEqual(normalizeTheme("rgb(255, 0, 0)"), { theme: "ember" });
-    assert.deepEqual(normalizeTheme("hsl(200, 50%, 50%)"), { theme: "ember" });
-    assert.deepEqual(normalizeTheme(""), { theme: "ember" });
-    assert.deepEqual(normalizeTheme(null), { theme: "ember" });
-    assert.deepEqual(normalizeTheme(undefined), { theme: "ember" });
+  await t.test('normalizeTheme falls back to "amber" for any invalid or missing theme', () => {
+    assert.deepEqual(normalizeTheme("foobar"), { theme: "amber" });
+    assert.deepEqual(normalizeTheme("default"), { theme: "amber" });
+    assert.deepEqual(normalizeTheme("modern"), { theme: "amber" });
+    assert.deepEqual(normalizeTheme("dark"), { theme: "amber" });
+    assert.deepEqual(normalizeTheme("light"), { theme: "amber" });
+    assert.deepEqual(normalizeTheme("rgb(255, 0, 0)"), { theme: "amber" });
+    assert.deepEqual(normalizeTheme("hsl(200, 50%, 50%)"), { theme: "amber" });
+    assert.deepEqual(normalizeTheme(""), { theme: "amber" });
+    assert.deepEqual(normalizeTheme(null), { theme: "amber" });
+    assert.deepEqual(normalizeTheme(undefined), { theme: "amber" });
   });
 
   await t.test("navigation uses the shadcn/ui --sidebar-* tokens", () => {
@@ -142,7 +142,7 @@ test("theme-validation", async (t) => {
       );
     }
     // Only the default preset applies without a theme attribute
-    assert.match(themeTokens.cssText, /:host\(\[theme='ember'\]\),\s*:host\(:not\(\[theme\]\)\)/);
+    assert.match(themeTokens.cssText, /:host\(\[theme='amber'\]\),\s*:host\(:not\(\[theme\]\)\)/);
     assert.doesNotMatch(themeTokens.cssText, /:host\(\[theme='carbon'\]\),\s*:host\(:not/);
   });
 

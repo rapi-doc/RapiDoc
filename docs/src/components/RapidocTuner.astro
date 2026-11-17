@@ -1660,11 +1660,11 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
   }
 
   .rd-chip-bar .rd-chip:first-child {
-    border-radius: var(--rd-radius-sm) 0 0 var(--rd-radius-sm);
+    border-radius: 2px 0 0 2px;
   }
 
   .rd-chip-bar .rd-chip:last-child {
-    border-radius: 0 var(--rd-radius-sm) var(--rd-radius-sm) 0;
+    border-radius: 0 2px 2px 0;
   }
 
   .rd-chip-bar .rd-chip:hover,
@@ -1719,7 +1719,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
 
   .rd-chip.rd-chip--color,
   .rd-chip.rd-chip--color:hover {
-    flex: 1 1 0;
+    flex: 1 1 auto;
     min-width: 0;
     justify-content: center;
     padding: 7px 2px;

@@ -26,7 +26,7 @@ re-exports `getBundledCss`, `getNavCss` and `getThemeTokensCss` as `@rapidoc/pre
 
 `theme-tokens.js`:
 
-- `DEFAULT_THEME` (`"ember"`), `THEMES` (preset name to `{ dark, light }` declaration strings),
+- `DEFAULT_THEME` (`"amber"`), `THEMES` (preset name to `{ dark, light }` declaration strings),
   `THEME_PRESETS` (its keys).
 - `isValidHexColor`, `isValidTheme`, `isCustomColor`, `isLightColor`: theme value checks.
 - `normalizeTheme(theme) -> { theme }`: presets lower-cased, hex kept, anything else becomes

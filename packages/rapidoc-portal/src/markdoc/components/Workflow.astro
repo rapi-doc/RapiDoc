@@ -52,7 +52,7 @@ if (!entry) {
   workflowId = drawn.graph?.workflowId || id || '';
 }
 
-const themePreset = portalConfig.rapidoc?.theme || 'ember';
+const themePreset = portalConfig.rapidoc?.theme || 'amber';
 // As on the API reference pages: the tokens follow <html data-theme>, so the diagram switches with the portal theme
 const tokensCss = getThemeTokensCss(themePreset);
 const flowCss = getFlowCss();

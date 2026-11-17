@@ -93,10 +93,10 @@ const ATTRIBUTE_CONTROLS: Record<string, AttributeControl> = {
       jade: "#00d390",
       indigo: "#818cf8",
       amber: "#f6a821",
-      "#f4bf32": "#f4bf32",
+      "#8EA66B": "#8EA66B",
     },
     // theme also takes any hex colour: one example
-    extraValues: ["#f4bf32"],
+    extraValues: ["#8EA66B"],
   },
   radius: {},
   scale: {},

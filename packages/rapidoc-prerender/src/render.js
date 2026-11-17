@@ -142,7 +142,7 @@ export async function resolveSpecInput(specInput, options = {}) {
  * @param {Object} options
  * @param {string|Object} options.spec - Specification file path, URL, raw string, or parsed object
  * @param {'read'|'view'|'focused'} [options.renderStyle='read'] - Layout style
- * @param {string} [options.theme='ember'] - Theme preset ('ember', 'carbon', 'cobalt', 'jade', 'indigo', 'amber') or hex
+ * @param {string} [options.theme='amber'] - Theme preset ('ember', 'carbon', 'cobalt', 'jade', 'indigo', 'amber') or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {'row'|'column'} [options.layout] - Layout orientation ('column' default for read/focused, 'row' for view)
  * @param {boolean|string} [options.showHeader=true] - Whether to render top header
@@ -318,7 +318,7 @@ ${serializedBody}
  * @param {string} options.method - HTTP method ('get', 'post', 'put', 'delete', etc.)
  * @param {'read'|'view'} [options.renderStyle='read'] - Layout style
  * @param {'row'|'column'} [options.layout='column'] - Layout orientation
- * @param {string} [options.theme='ember'] - Theme preset name or hex
+ * @param {string} [options.theme='amber'] - Theme preset name or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
  * @returns {Promise<string>} Rendered HTML string of the isolated endpoint
@@ -412,7 +412,7 @@ ${serializedHtml}
  * @param {Object|string} [options.spec] - Optional OpenAPI spec to resolve schema names against
  * @param {'table'|'tree'} [options.style='table'] - Display style ('table' or 'tree')
  * @param {number} [options.schemaExpandLevel=99999] - Level of initial property expansion
- * @param {string} [options.theme='ember'] - Theme preset name or hex
+ * @param {string} [options.theme='amber'] - Theme preset name or hex
  * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
  * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
  * @returns {Promise<string>} Rendered schema HTML string
