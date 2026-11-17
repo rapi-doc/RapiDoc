@@ -9,18 +9,27 @@
  * marked `review: true` with a `why`, and listed in `review`.
  */
 import { listOperations, resolve } from "../spec.js";
+import { nameKey, singular, splitWords, trimWords } from "./words.js";
 
 const SCHEMA_REF = /^#\/components\/schemas\/([^/]+)$/;
-/** Affixes code-first frameworks add to an entity's name for its request and response variants. */
-const DTO_PREFIX = /^(Create|Update|Patched|Patch|New|Partial)(?=[A-Z])/;
-const DTO_SUFFIX =
-  /(Dto|DTO|Request|Response|Input|Output|Create|Update|Read|In|Out|Body|Payload|Summary|Detail|Fields)$/;
+/**
+ * Words code-first frameworks add to an entity's name for its request and response variants, in any naming
+ * style: `CreatePetDto`, `PetUpdate`, `PatchedPet`, `key_patch`, `PetOut-Output` (Pydantic v2).
+ */
+const VARIANT_PREFIXES = new Set(["create", "update", "patched", "patch", "new", "partial"]);
+const VARIANT_SUFFIXES = new Set(
+  "dto request response input output create update read write in out body payload summary detail fields patch post put".split(
+    " ",
+  ),
+);
 /** The variant that describes a stored record best: what the API returns. */
-const READ_VARIANT = /(Response|Out|Output|Read|Detail)(Dto|DTO)?$|_(response|read|out)$/;
-/** The same affixes in snake_case names: `key_patch`, `key_response`, `new_key`. */
-const SNAKE_SUFFIX =
-  /_(patch|post|put|response|request|create|update|read|write|in|out|input|output)$/;
-const SNAKE_PREFIX = /^(new|create|update|patched)_/;
+const READ_WORDS = new Set(["response", "out", "output", "read", "detail"]);
+const isReadVariant = (name) =>
+  splitWords(name)
+    .slice(-2)
+    .some((word) => READ_WORDS.has(word));
+/** Words in front of a reference that point back at the record's own kind: `parentId` on a `Category`. */
+const SELF_WORDS = new Set(["parent", "child", "root", "previous", "next", "original", "source"]);
 /** The property of a list wrapper that holds the records (Django REST, Spring, and common custom shapes). */
 const LIST_PROPS = ["results", "content", "items", "data", "records", "entries"];
 /** The property of an envelope around a single record. */
@@ -31,15 +40,6 @@ const ENVELOPE_META =
 const JSON_TYPE = /json/i;
 
 const lower = (text) => String(text || "").toLowerCase();
-const singular = (word) =>
-  /ies$/i.test(word)
-    ? `${word.slice(0, -3)}y`
-    : /sses$/i.test(word)
-      ? word.slice(0, -2)
-      : /s$/i.test(word) && !/ss$/i.test(word)
-        ? word.slice(0, -1)
-        : word;
-
 /** `/pet/{petId}/uploadImage` -> segments, and the shape `/pet/{}/uploadImage` (parameter names dropped). */
 function pathShape(path) {
   const segments = path.split("/").filter(Boolean);
@@ -138,13 +138,7 @@ function namedSchema(doc, schema, depth = 0) {
 /** Maps every component schema name to its entity: `CreatePetDto`, `PetUpdate`, `PatchedPet` -> `Pet`. */
 function entityNames(doc) {
   const names = Object.keys(doc.components?.schemas || {});
-  const base = (name) => {
-    // Pydantic v2 emits `PetOut-Input` / `PetOut-Output` for one model used both ways
-    let short = name.replace(/-(Input|Output)$/, "").replace(DTO_PREFIX, "");
-    for (let i = 0; i < 3; i++) short = short.replace(DTO_SUFFIX, "") || short;
-    if (short === name) short = name.replace(SNAKE_PREFIX, "").replace(SNAKE_SUFFIX, "");
-    return short || name;
-  };
+  const base = (name) => trimWords(name, VARIANT_PREFIXES, VARIANT_SUFFIXES);
   const byBase = new Map();
   for (const name of names) byBase.set(base(name), [...(byBase.get(base(name)) || []), name]);
   const entityOf = new Map();
@@ -159,7 +153,7 @@ function entityNames(doc) {
   for (const [short, variants] of byBase) {
     schemaOf.set(
       short,
-      names.includes(short) ? short : variants.find((v) => READ_VARIANT.test(v)) || variants[0],
+      names.includes(short) ? short : variants.find(isReadVariant) || variants[0],
     );
   }
   return { entityOf, schemaOf };
@@ -187,15 +181,22 @@ function propertiesOf(doc, schema, depth = 0) {
 function keyField(properties, param, entity) {
   const names = Object.keys(properties);
   if (names.includes(param)) return { field: param };
-  const stripped = param.replace(new RegExp(`^${entity}[_-]?`, "i"), "");
-  const match = names.find((n) => lower(n) === lower(stripped));
-  if (match) return { field: match };
+  const byKey = (words) => words.length && names.find((n) => nameKey(n) === nameKey(words));
+  const words = splitWords(param);
+  const entityWords = splitWords(entity);
+  // `{petId}` on `Pet` -> `id`: the parameter without the entity's own words in front
+  const startsWithEntity = entityWords.every(
+    (word, i) => singular(words[i] ?? "") === singular(word),
+  );
+  const own = startsWithEntity && byKey(words.slice(entityWords.length));
+  if (own) return { field: own };
+  const exact = byKey(words);
+  if (exact) return { field: exact };
   // `/customers/{customer}`: the parameter is named after the entity itself (Stripe)
-  const namesEntity = lower(singular(param)) === lower(singular(entity));
-  if (names.includes("id") && (/id$/i.test(param) || namesEntity)) return { field: "id" };
+  const namesEntity = nameKey(words) === nameKey(entityWords);
+  if (names.includes("id") && (words.at(-1) === "id" || namesEntity)) return { field: "id" };
   // `{propertyName}` -> `name`: the parameter's last word is the field
-  const lastWord = param.match(/([A-Z][a-z0-9]*|[a-z0-9]+)$/)?.[1];
-  const byWord = lastWord && names.find((n) => lower(n) === lower(lastWord));
+  const byWord = byKey(words.slice(-1));
   if (byWord) return { field: byWord };
   if (names.includes("id")) return { field: "id", review: `parameter {${param}} matches no field` };
   return { field: null, review: `no key field found for {${param}}` };
@@ -441,7 +442,41 @@ export function classifySpec(doc) {
   // Pass 5: relations between resources, and nested schemas stored inside their parent
   const relations = {};
   const embedded = {};
-  const resourceByLower = new Map(Object.keys(resources).map((n) => [lower(n), n]));
+  // What a reference may call a resource: its entity name, and the collection its path names
+  // (`GroupMetaData` at `/groups/{}` is also "group")
+  const byEntityName = new Map(Object.keys(resources).map((n) => [nameKey(n), n]));
+  const byPathName = new Map();
+  for (const [n, resource] of Object.entries(resources)) {
+    const segment = (resource.path || "")
+      .split("/")
+      .filter((part) => part && part !== "{}")
+      .at(-1);
+    if (segment && !byPathName.has(nameKey(segment))) byPathName.set(nameKey(segment), n);
+  }
+  /** The resource a reference field points at: `{ target, why? }`; `why` when it took more than the plain name. */
+  const referenceTarget = (name, words) => {
+    for (let i = 0; i < words.length; i++) {
+      const rest = words.slice(i);
+      const dropped = words.slice(0, i).join(" ");
+      const target = byEntityName.get(nameKey(rest));
+      if (target) {
+        return { target, why: i ? `matched ${target} after dropping "${dropped}"` : undefined };
+      }
+      const byPath = byPathName.get(nameKey(rest));
+      if (byPath) {
+        const how = i ? ` after dropping "${dropped}"` : "";
+        return {
+          target: byPath,
+          why: `matched ${byPath} by its path name "${rest.join(" ")}"${how}`,
+        };
+      }
+    }
+    // `parentId`, `rootId`: another record of the same kind
+    if (words.every((word) => SELF_WORDS.has(word))) {
+      return { target: name, why: `"${words.join(" ")}" assumed to be another ${name}` };
+    }
+    return {};
+  };
   for (const name of Object.keys(resources)) {
     for (const [field, raw] of Object.entries(propertiesOf(doc, schemas[name]))) {
       const named = namedSchema(doc, raw);
@@ -459,19 +494,26 @@ export function classifySpec(doc) {
         } else embedded[`${name}.${field}`] = target;
         continue;
       }
-      const ref = field.match(/^(.+?)(?:_id|Id|ID)s?$/);
-      if (!ref || field === resources[name].key) continue;
-      const refTarget = resourceByLower.get(lower(singular(ref[1])));
-      if (refTarget) {
-        relations[`${name}.${field}`] = `${refTarget}.${resources[refTarget].key}`;
-      } else {
+      // A reference is a field whose last word is `id` or `ids`: `petId`, `pet_id`, `assignedUserIDs`
+      const words = splitWords(field);
+      if (words.length < 2 || !/^ids?$/.test(words.at(-1)) || field === resources[name].key)
+        continue;
+      const refWords = words.slice(0, -1);
+      const { target: refTarget, why } = referenceTarget(name, refWords);
+      const id = `relations.${name}.${field}`;
+      if (!refTarget) {
         relations[`${name}.${field}`] = {
           to: null,
-          ...flag(
-            `relations.${name}.${field}`,
-            `looks like a reference, but no resource is named ${ref[1]}`,
-          ),
+          ...flag(id, `looks like a reference, but no resource is named ${refWords.join(" ")}`),
         };
+      } else {
+        // A target whose key is unknown is named alone: the relation holds, what it stores is open
+        const targetKey = resources[refTarget].key;
+        const to = targetKey ? `${refTarget}.${targetKey}` : refTarget;
+        const notes = [why, targetKey ? undefined : `${refTarget} has no known key`].filter(
+          Boolean,
+        );
+        relations[`${name}.${field}`] = notes.length ? { to, ...flag(id, notes.join("; ")) } : to;
       }
     }
   }

@@ -356,6 +356,46 @@ describe("classifySpec: names", () => {
     assert.match(model.operations.download.why, /GET does not return Doc/);
   });
 
+  it("matches a reference by dropping leading words, by path name, and to its own kind", () => {
+    const item = (operationId, name) => ({
+      get: { operationId, responses: { 200: json(ref(name)) } },
+    });
+    const model = classifySpec(
+      spec(
+        {
+          "/users/{id}": item("user", "User"),
+          "/groups/{id}": item("group", "GroupMetaData"),
+          "/tasks/{id}": item("task", "Task"),
+        },
+        {
+          User: { type: "object", properties: { id: { type: "integer" } } },
+          GroupMetaData: { type: "object", properties: { id: { type: "integer" } } },
+          Task: {
+            type: "object",
+            properties: {
+              id: { type: "integer" },
+              user_id: { type: "integer" },
+              assignedUserId: { type: "integer" },
+              groupId: { type: "integer" },
+              parentId: { type: "integer" },
+              ownerId: { type: "integer" },
+            },
+          },
+        },
+      ),
+    );
+    assert.equal(model.relations["Task.user_id"], "User.id", "the plain name needs no review");
+    assert.equal(model.relations["Task.assignedUserId"].to, "User.id");
+    assert.match(model.relations["Task.assignedUserId"].why, /after dropping "assigned"/);
+    assert.equal(model.relations["Task.groupId"].to, "GroupMetaData.id");
+    assert.match(model.relations["Task.groupId"].why, /by its path name "group"/);
+    assert.equal(model.relations["Task.parentId"].to, "Task.id");
+    assert.equal(model.relations["Task.ownerId"].to, null);
+    for (const field of ["assignedUserId", "groupId", "parentId", "ownerId"]) {
+      assert.equal(model.relations[`Task.${field}`].review, true, field);
+    }
+  });
+
   it("flags a reference that names no resource", () => {
     const model = classifySpec(
       spec(
