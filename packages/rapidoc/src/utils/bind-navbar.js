@@ -1,3 +1,4 @@
+import { syncNavItemTitle } from "./common-utils.js";
 import {
   expandCollapseNavBarTag,
   expandCollapseNavBarTagGroup,
@@ -104,6 +105,8 @@ export function bindNavBar(sidebar, rapiDoc, options = {}) {
     }
   };
   sidebarEl.addEventListener("click", handleClick);
+  // A tooltip on an item only when its name is cut off or it has badges
+  sidebarEl.addEventListener("pointerover", syncNavItemTitle);
 
   // 4. Sidebar Search Filter
   const filterInput = sidebarEl.querySelector(".portal-filter-input, .nav-bar-search-input");
@@ -167,6 +170,7 @@ export function bindNavBar(sidebar, rapiDoc, options = {}) {
 
   return () => {
     sidebarEl.removeEventListener("click", handleClick);
+    sidebarEl.removeEventListener("pointerover", syncNavItemTitle);
     if (filterInput && handleFilter) filterInput.removeEventListener("input", handleFilter);
     if (rapiDocEl) rapiDocEl.removeEventListener("nav-active-change", handleNavActiveChange);
     window.removeEventListener("popstate", handleHashSync);

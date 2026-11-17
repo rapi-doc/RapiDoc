@@ -14,7 +14,11 @@ import { resolveSpecInput } from "./render.js";
 import { escapeHtml } from "./serializer.js";
 import { OperationSlugger, toKebabCase } from "../../rapidoc/src/utils/slugger.js";
 import { bindNavBar } from "../../rapidoc/src/utils/bind-navbar.js";
-import { isInternalOrHidden, navBadgeDot } from "../../rapidoc/src/utils/common-utils.js";
+import {
+  isInternalOrHidden,
+  navBadgeDot,
+  navItemTitle,
+} from "../../rapidoc/src/utils/common-utils.js";
 
 export { isInternalOrHidden };
 
@@ -236,6 +240,7 @@ function renderOperation(op, tagSlug, ctx) {
       data-path="${escapeHtml(path)}"
       id="link-${contentId}"
       tabindex="0"
+      data-title="${escapeHtml(navItemTitle(ctx.usePathInNav ? path : op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`, op.xBadges))}"
     >
       <span class="nav-bar-path-label">${label}</span>${badgeDotHtml(ctx.showBadgesInNavBar, op.xBadges)}${methodHtml}
     </a>`;
@@ -247,7 +252,7 @@ function badgeDotHtml(mode, xBadges) {
   const dot = navBadgeDot(xBadges);
   if (!dot) return "";
   const labels = escapeHtml(dot.labels.join(", "));
-  return `\n      <span class="nav-badge-dot" part="nav-badge-dot" role="img" aria-label="Badges: ${labels}" title="${labels}" style="background:${escapeHtml(dot.color)}"></span>`;
+  return `\n      <span class="nav-badge-dot" part="nav-badge-dot" role="img" aria-label="Badges: ${labels}" style="background:${escapeHtml(dot.color)}"></span>`;
 }
 
 /**
