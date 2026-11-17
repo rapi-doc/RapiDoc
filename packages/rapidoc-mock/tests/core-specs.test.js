@@ -24,7 +24,7 @@ const BASELINE = {
   "ably-control.json": { operations: 22, confident: 10, needsReview: 8, plainMock: 4, resources: 5 },
   "mealie.json": { operations: 285, confident: 122, needsReview: 44, plainMock: 119, resources: 34 },
   "immich.json": { operations: 290, confident: 79, needsReview: 33, plainMock: 178, resources: 36 },
-  "nylas.json": { operations: 244, confident: 113, needsReview: 55, plainMock: 76, resources: 39 },
+  "nylas.json": { operations: 244, confident: 116, needsReview: 52, plainMock: 76, resources: 38 },
   "apicurio-registry.json": { operations: 64, confident: 13, needsReview: 19, plainMock: 32, resources: 9 },
   "apideck-crm.json": { operations: 40, confident: 32, needsReview: 8, plainMock: 0, resources: 8 },
 };
