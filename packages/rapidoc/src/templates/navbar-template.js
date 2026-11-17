@@ -3,7 +3,13 @@
  */
 import { html, nothing } from "lit";
 import Slugger from "github-slugger";
-import { getMatchedPaths, isInternalOrHidden, navBadgeDot } from "~/utils/common-utils";
+import {
+  getMatchedPaths,
+  isInternalOrHidden,
+  navBadgeDot,
+  navItemTitle,
+  syncNavItemTitle,
+} from "~/utils/common-utils";
 
 /** A sidebar item's badge dot (show-badges-in-nav-bar="dot"): the first badge's color, every label */
 function navBadgeDotTemplate(mode, xBadges) {
@@ -11,12 +17,12 @@ function navBadgeDotTemplate(mode, xBadges) {
   const dot = navBadgeDot(xBadges);
   if (!dot) return "";
   const labels = dot.labels.join(", ");
+  // The row's title shows the badges: the row's children take no pointer events
   return html`<span
     class="nav-badge-dot"
     part="nav-badge-dot"
     role="img"
     aria-label="Badges: ${labels}"
-    title="${labels}"
     style="background:${dot.color}"
   ></span>`;
 }
@@ -172,7 +178,12 @@ export default function navbarTemplate() {
         <path class="nav-bar-btn-line" d="M5 17h14" />
       </svg>
     </button>
-    <nav id="nav-bar" class="nav-bar ${this.renderStyle} overflow-${this.navItemOverflow || "ellipsis"}" part="section-navbar">
+    <nav
+      id="nav-bar"
+      class="nav-bar ${this.renderStyle} overflow-${this.navItemOverflow || "ellipsis"}"
+      part="section-navbar"
+      @pointerover="${syncNavItemTitle}"
+    >
       <div
         class="nav-scroll"
         tabindex="-1"
@@ -432,6 +443,7 @@ export default function navbarTemplate() {
                     data-first-nav-item="${isFirst ? "true" : nothing}"
                     id="link-${p.elementId}"
                     tabindex="0"
+                    data-title="${navItemTitle(this.usePathInNavBar === "true" ? p.path : p.summary || p.shortSummary, p.xBadges)}"
                   >
                     <span class="nav-bar-path-label">
                       ${p.isWebhook ? html`<span class="nav-bar-webhook">WEBHOOK</span>` : ""}

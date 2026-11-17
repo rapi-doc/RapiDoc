@@ -199,6 +199,33 @@ export function badgeColorVar(color) {
 }
 
 /**
+ * A sidebar item's tooltip text: its full name, then its badges on a second line. The item keeps it
+ * in data-title; its title shows it only when it adds something (syncNavItemTitle).
+ */
+export function navItemTitle(label, xBadges) {
+  const dot = navBadgeDot(xBadges);
+  return dot ? `${label}\nBadges: ${dot.labels.join(", ")}` : String(label);
+}
+
+/**
+ * A sidebar's pointerover handler (one per sidebar, delegated): gives the item under the pointer a
+ * tooltip only when its name is cut off with an ellipsis or it shows badges; any other item has
+ * none. Measured on hover, so it follows the sidebar's width, font and zoom. On the item itself,
+ * since its children take no pointer events.
+ */
+export function syncNavItemTitle(event) {
+  const row = event.target?.closest?.(".nav-bar-path");
+  if (!row?.dataset.title) return;
+  const label = row.querySelector(".nav-bar-path-label");
+  const cut = Boolean(label && label.scrollWidth > label.clientWidth + 1);
+  if (cut || row.querySelector(".nav-badge-dot")) {
+    if (row.title !== row.dataset.title) row.title = row.dataset.title;
+  } else if (row.hasAttribute("title")) {
+    row.removeAttribute("title");
+  }
+}
+
+/**
  * The badges an operation shows (x-badges and OpenAPI 3.2 kind: badge tags, merged by the spec
  * parser into `xBadges`): those with a label and a color other than `none`. For the nav dot
  * (show-badges-in-nav-bar), shared by <rapi-doc>'s sidebar and @rapidoc/prerender's.
