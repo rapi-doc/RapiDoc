@@ -133,7 +133,7 @@ API pages use the same app shell as the docs (`PortalLayout.astro`; full pattern
 
 - **Rapid Parcels** (`rapid-parcels/`): the main demo, with sign-in and access rules (scenario: `design/demo-scenario.md`). Not used by tests yet.
 - **Cosmo Cargo** (`cosmo-cargo/`): Zudoku's demo (© Zuplo, MIT), the **test fixture** the monorepo tests load and build, and the input for comparisons with Zudoku. It stays a plain static portal (no `auth`).
-- **Bookstore** (`bookstore/`): the smallest portal, what `create-rapidoc` scaffolds, with the docs site's Bookstore spec.
+- **Bookstore** (`bookstore/`): the smallest portal, what `create-rapidoc` scaffolds, with its own Bookstore spec (`specs/bookstore.yaml`).
 
 1. **When to sync** (every example): any change to the user-facing contract — `rapidoc.config.yaml` structure or keys (`src/config/schema.js`, `normalizer.js`, `loader.js`, `migrator.js`), Markdoc tags or their attributes (`src/markdoc/`), docs/spec folder conventions, or `rapidoc` CLI commands and flags.
 2. **What to update**: each example's `rapidoc.config.yaml`, affected files in its `docs/` and `specs/`, and its `README.md` if it documents the changed behaviour. Also update the scaffold templates in `packages/create-rapidoc` so new projects match (new config keys that a new project doesn't use yet go in as comments, like `auth`, `access` and `versions`).

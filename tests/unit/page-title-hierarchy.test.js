@@ -118,9 +118,9 @@ describe("pageMeta auto-lookup from page-data", () => {
   });
 
   it("automatically resolves sub-examples with combined contextual titles and descriptions", () => {
-    const meta = findExampleBySlug("petstore");
-    assert.equal(meta.title, "Open API Example - Pet Store (3.1)");
-    assert.match(meta.description, /Interactive showcase demonstrating how RapiDoc renders/);
+    const meta = findExampleBySlug("petstore-tag-nesting-3-2");
+    assert.equal(meta.title, "Arrange By Tags - Nested tags (3.2)");
+    assert.match(meta.description, /Group and order endpoints in the sidebar/);
   });
 
   it("falls back gracefully to formatted slug when not found in page-data", () => {

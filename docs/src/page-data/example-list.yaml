@@ -3,14 +3,16 @@
 # from the title or the category.
 examples:
   - Open API Example:
-      description: Interactive showcase demonstrating how RapiDoc renders a OpenAPI 3.1 and 3.2 specifications.
+      href: /examples/petstore-3-2
+      description: Swagger's Pet Store in OpenAPI 3.2, with QUERY and additionalOperations; Try calls the live server.
       category: Layouts & Views
       img: /assets/images/dog.png
-      subExamples:
-        - Pet Store (3.1):
-            href: /examples/petstore
-        - Book Store (3.2):
-            href: /examples/bookstore
+
+  - Streaming (OpenAPI 3.2):
+      href: /examples/streaming
+      description: Server-Sent Events and JSON Lines described with itemSchema; Try shows each event as it arrives, from the in-browser mock.
+      category: Advanced & Extensibility
+      icon: broadcast
 
   - Themes and Colors:
       img: ./assets/images/theme.png
@@ -128,10 +130,14 @@ examples:
       description: Create deep cross-references and external links between operations, schemas, and external documentation.
       category: Advanced & Extensibility
 
-  - Arrange by OpenAPI Tags:
-      href: /examples/arrange-by-tags
-      description: Use OpenAPI `tags` array to define and order endpoint groups in the navigation sidebar.
+  - Arrange By Tags:
+      description: Group and order endpoints in the sidebar with the OpenAPI `tags` array, the x-tagGroups extension, or OpenAPI 3.2 nested tags (`parent`).
       category: Layouts & Views
+      subExamples:
+        - Tag groups (x-tagGroups):
+            href: /examples/arrange-by-tags
+        - Nested tags (3.2):
+            href: /examples/petstore-tag-nesting-3-2
 
   - Endpoint Badges:
       img: /assets/images/badge.png
@@ -160,7 +166,7 @@ examples:
   - Add Your Examples:
       href: /examples/examples-multiple
       description: Provide multiple request and response payload examples to illustrate edge cases and error scenarios.
-      category: OpenAPI 3.1 & Schemas
+      category: Schema
 
   - File Upload:
       href: /examples/file-upload
@@ -180,7 +186,7 @@ examples:
   - Multiple Request Body:
       href: /examples/request-body-multiple
       description: Document endpoints supporting alternate payload formats such as JSON, XML, or plain text.
-      category: OpenAPI 3.1 & Schemas
+      category: Schema
 
   - Dynamic Parameters:
       description: Inject dynamic query, path, and header parameters at runtime without pre-specifying them in the schema.
@@ -225,29 +231,29 @@ examples:
   - Define API Server Using Template:
       href: /examples/server-vars
       description: Support dynamic multi-environment server URLs using variable substitution and template parameters.
-      category: OpenAPI 3.1 & Schemas
+      category: Schema
 
   - Callback:
       img: /assets/images/callback.png
       href: /examples/callback
       description: Document asynchronous webhooks and subscription callbacks triggered by client requests.
-      category: OpenAPI 3.1 & Schemas
+      category: Schema
 
   - Webhook:
       img: /assets/images/webhook.png
       href: /examples/webhook
       description: OpenAPI 3.1 top-level webhook definitions for server-initiated asynchronous events.
-      category: OpenAPI 3.1 & Schemas
+      category: Schema
 
   - Multiple DataTypes:
       href: /examples/multi-datatypes
       description: Utilize OpenAPI 3.1 multi-type declarations conforming to the latest JSON Schema specifications.
-      category: OpenAPI 3.1 & Schemas
+      category: Schema
       icon: shapes
 
   - Schema Composition:
       description: Model polymorphic inheritance and data variations using oneOf, anyOf, and allOf schema combinations.
-      category: OpenAPI 3.1 & Schemas
+      category: Schema
       subExamples:
         - ONE OF:
             href: /examples/oneof

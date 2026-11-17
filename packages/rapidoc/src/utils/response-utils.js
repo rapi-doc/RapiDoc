@@ -1,5 +1,41 @@
 import { formatXml } from "./xml-utils.js";
 import { schemaToAST, generateExample, standardizeExample } from "./schema-utils.js";
+import { serializeStreamItems, streamItemLabel } from "./stream-utils.js";
+
+/**
+ * Examples of an OpenAPI 3.2 sequential media type (`itemSchema`), as the stream's text. An Example
+ * Object whose value is an array is a list of items; a string is the stream as sent. Without
+ * examples, one item is generated from the item schema.
+ */
+export function streamExamples(mimeType, mediaTypeObj, includeReadOnly, includeWriteOnly) {
+  const fromSpec =
+    standardizeExample(mediaTypeObj.examples) || standardizeExample(mediaTypeObj.example);
+  const toEntry = (id, items, summary = "", description = "") => ({
+    exampleId: id,
+    exampleSummary: summary,
+    exampleDescription: description,
+    exampleType: mimeType,
+    exampleValue: typeof items === "string" ? items : serializeStreamItems(items, mimeType),
+    exampleFormat: "text",
+  });
+  if (fromSpec) {
+    return Object.entries(fromSpec).map(([id, ex]) =>
+      toEntry(id, ex.value, ex.summary || id, ex.description || ""),
+    );
+  }
+  const itemExamples = generateExample(
+    mediaTypeObj.itemSchema,
+    "application/json",
+    null,
+    null,
+    includeReadOnly,
+    includeWriteOnly,
+    "json",
+  );
+  return itemExamples.map((ex) =>
+    toEntry(ex.exampleId, [ex.exampleValue], ex.exampleSummary, ex.exampleDescription),
+  );
+}
 
 /**
  * Parses and processes a standard Fetch API Response into RapiDoc formatted response state.
@@ -164,22 +200,31 @@ export function prepareResponseDefinitions(responses, options = {}) {
           defaultMimeType = mimeResp;
         }
 
-        const schemaTree = mimeRespObj?.schema ? schemaToAST(mimeRespObj.schema) : null;
-        const respExamples = generateExample(
-          mimeRespObj?.schema,
-          mimeResp,
-          standardizeExample(mimeRespObj?.examples),
-          standardizeExample(mimeRespObj?.example),
-          !isCallbackOrWebhook,
-          isCallbackOrWebhook,
-          mimeResp.includes("json") ? "json" : "text",
-        );
+        // OpenAPI 3.2: a stream (SSE, JSON Lines, ...) describes each item with itemSchema
+        const isStream = Boolean(mimeRespObj?.itemSchema) && !mimeRespObj?.schema;
+        const schemaTree = isStream
+          ? schemaToAST(mimeRespObj.itemSchema)
+          : mimeRespObj?.schema
+            ? schemaToAST(mimeRespObj.schema)
+            : null;
+        const respExamples = isStream
+          ? streamExamples(mimeResp, mimeRespObj, !isCallbackOrWebhook, isCallbackOrWebhook)
+          : generateExample(
+              mimeRespObj?.schema,
+              mimeResp,
+              standardizeExample(mimeRespObj?.examples),
+              standardizeExample(mimeRespObj?.example),
+              !isCallbackOrWebhook,
+              isCallbackOrWebhook,
+              mimeResp.includes("json") ? "json" : "text",
+            );
 
         allMimeResp[mimeResp] = {
           description: responses[statusCode].description,
           examples: respExamples,
           selectedExample: respExamples[0]?.exampleId || "",
           schemaTree,
+          streamItemLabel: isStream ? streamItemLabel(mimeResp) : "",
         };
       }
     }

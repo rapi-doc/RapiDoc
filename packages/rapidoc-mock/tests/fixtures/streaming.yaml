@@ -1,0 +1,62 @@
+openapi: 3.2.0
+info:
+  title: Streaming API
+  version: 1.0.0
+paths:
+  /chat:
+    post:
+      operationId: chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Completion events
+          content:
+            text/event-stream:
+              itemSchema:
+                type: object
+                required: [data]
+                properties:
+                  event: { type: string }
+                  id: { type: string }
+                  data: { type: string }
+              examples:
+                hello:
+                  dataValue:
+                    - { event: delta, id: "1", data: '{"content":"Hel"}' }
+                    - { event: delta, id: "2", data: '{"content":"lo"}' }
+                    - { event: done, id: "3", data: "{}" }
+                raw:
+                  serializedValue: "data: one\n\ndata: two\n\n"
+  /events:
+    get:
+      operationId: exportEvents
+      responses:
+        "200":
+          description: One event per line
+          content:
+            application/jsonl:
+              itemSchema:
+                $ref: "#/components/schemas/Event"
+    post:
+      operationId: importEvents
+      requestBody:
+        required: true
+        content:
+          application/jsonl:
+            itemSchema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        "202":
+          description: Queued
+components:
+  schemas:
+    Event:
+      type: object
+      required: [id, type]
+      properties:
+        id: { type: string }
+        type: { type: string, enum: [signup, purchase] }

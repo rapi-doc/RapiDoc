@@ -16,7 +16,9 @@ Extensions:
       description: Alternative camelCase syntax for x-code-sample. Provides multi-language code snippets for an endpoint.
     - name: x-badges
       description: |
-        Annotates endpoints with short, color-coded badges (e.g., "Internal", "Beta", "v2"). Combine with <span class="mono yellow">filter-operations="!badge:Internal"</span> to filter out restricted or internal APIs from public documentation.
+        Annotates endpoints with short, color-coded badges (e.g., "Internal", "Beta", "v2"). A list of objects with <code>label</code> and <code>color</code> (<code>red</code>, <code>green</code>, <code>orange</code>, <code>blue</code>, <code>primary-color</code>, or <code>none</code> to attach the label without showing it). Combine with <span class="mono yellow">filter-operations="!badge:Internal"</span> to filter out restricted or internal APIs from public documentation.<br/>
+        <span class="orange bold">OpenAPI 3.2:</span> a tag with <span class="mono yellow">kind: badge</span> is shown as a badge (its <span class="mono yellow">summary</span> as the label, in <code>primary-color</code>) on each operation that has it, and is not a section of its own. A label already in the operation's <span class="mono yellow">x-badges</span> is not repeated, so use <span class="mono yellow">x-badges</span> to pick a color. <span class="mono yellow">badge:</span> in <span class="mono yellow">filter-operations</span> matches <span class="mono yellow">x-badges</span> labels only; filter a badge tag with <span class="mono yellow">tag:&lt;name&gt;</span>.
+      example: /examples/badges
     - name: x-mcp-resource
       allowed:
         - "true"
@@ -24,9 +26,14 @@ Extensions:
       description: |
         On an operation, decides whether the MCP export makes it a resource or a tool. <span class="mono yellow">false</span> keeps a reference-data <code>GET</code> (such as <code>/currencies</code>) a tool the agent can call; <span class="mono yellow">true</span> makes any <code>GET</code> with no required parameters a resource. Without it, the path decides.
       example: /examples/mcp-server
+    - name: x-displayName
+      description: |
+        On a tag or an <span class="mono yellow">x-tagGroups</span> group, the name shown in the sidebar and headings instead of <code>name</code>, which stays the key operations use (compatible with ReDoc).<br/>
+        <span class="orange bold">OpenAPI 3.2:</span> a tag's <span class="mono yellow">summary</span> does the same and is the standard way. When a tag has both, <span class="mono yellow">x-displayName</span> wins; without either, the tag's <code>name</code> is shown.
     - name: x-tagGroups
       description: |
-        Top-level vendor extension defining a 3-tier navigation hierarchy (compatible with ReDoc / Zudoku). Organizes API tags into higher-level groups in the sidebar navigation, read mode sections, and view mode accordions. Takes an array of group objects, each with <code>name</code>, optional <code>description</code>, and a <code>tags</code> list of tag names.
+        Top-level vendor extension defining a 3-tier navigation hierarchy (compatible with ReDoc / Zudoku). Organizes API tags into higher-level groups in the sidebar navigation, read mode sections, and view mode accordions. Takes an array of group objects, each with <code>name</code>, optional <code>description</code>, and a <code>tags</code> list of tag names. With it, every operation ID starts with its tag (<code>pet--get-pet-by-id</code>).<br/>
+        <span class="orange bold">OpenAPI 3.2:</span> the standard way is <span class="mono yellow">parent</span> on a tag (<code>{ name: pet, summary: Pets, parent: shop }</code>): RapiDoc groups child tags under their parent, with the parent's <span class="mono yellow">summary</span> as the heading, and operation IDs keep no tag prefix. A parent with operations of its own comes first in its group; a grandchild goes in its top-level ancestor's group. When a spec has both, <span class="mono yellow">x-tagGroups</span> decides.
       example: /examples/arrange-by-tags
     - name: x-tag-groups
       description: Alternative kebab-case syntax for <span class="mono yellow">x-tagGroups</span>.

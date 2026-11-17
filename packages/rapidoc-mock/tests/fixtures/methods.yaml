@@ -1,0 +1,48 @@
+openapi: 3.2.0
+info:
+  title: Methods API
+  version: 1.0.0
+paths:
+  /books:
+    query:
+      operationId: searchBooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string }
+      responses:
+        "200":
+          description: Matching books
+          content:
+            application/json:
+              example: [{ id: 1, title: "Dune" }]
+  /books/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: getBook
+      responses:
+        "200":
+          description: A book
+          content:
+            application/json:
+              example: { id: 1, title: "Dune" }
+    additionalOperations:
+      PURGE:
+        operationId: purgeBook
+        responses:
+          "204":
+            description: Removed from the cache
+      DIAGNOSE:
+        operationId: diagnoseBook
+        responses:
+          "200":
+            description: Never reachable over Node's HTTP server

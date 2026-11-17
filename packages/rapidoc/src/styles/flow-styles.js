@@ -79,13 +79,19 @@ export default css`
   .rf-jump:focus-visible .rf-step-name {
     text-decoration: underline;
   }
-  /* A step box under the pointer or focus, selected, linked by hover (<rapi-flow>: a step with
-     its rows in the outputs box) or running (<rapi-flow>: its request is in flight, dashed and
-     moving) */
+  /* A step box under the pointer or focus, or linked by hover (<rapi-flow>: a step with its rows in
+     the outputs box): a grey border, so it is not mistaken for the selected step */
   .rf-clickable:hover rect,
   .rf-clickable:focus-visible rect,
-  .rf-selected rect,
-  .rf-step.rf-linked rect,
+  .rf-step.rf-linked rect {
+    stroke: var(--muted-foreground);
+    stroke-width: 2;
+  }
+  /* The selected step, and a running one (<rapi-flow>: its request is in flight, dashed and
+     moving): the accent border. After the hover rule, so a selected step under the pointer keeps it */
+  .rf-step.rf-selected rect,
+  .rf-clickable.rf-selected:hover rect,
+  .rf-clickable.rf-selected:focus-visible rect,
   .rf-step.rf-running rect {
     stroke: var(--primary);
     stroke-width: 2;
@@ -104,7 +110,7 @@ export default css`
   .rf-seq {
     fill: none;
     stroke: var(--green);
-    stroke-width: 1.25;
+    stroke-width: 1.5;
   }
   .rf-head-seq {
     fill: var(--green);
@@ -208,18 +214,17 @@ export default css`
   .rf-check {
     fill: var(--foreground);
   }
-  /* Dark text on green and orange, white on red */
+  /* An action's colour: lines, arrowheads and the borders of its labels. Label text mixes in 40% of
+     --foreground, which reads at 4.5:1 or more on every theme, dark or light (lighter on dark,
+     darker on light), where white or dark text on a filled pill did not. */
   .rf-success {
     --rf-kind: var(--green);
-    --rf-on-kind: #18181b;
   }
   .rf-failure {
     --rf-kind: var(--destructive);
-    --rf-on-kind: #ffffff;
   }
   .rf-retry {
     --rf-kind: var(--orange);
-    --rf-on-kind: #18181b;
   }
   .rf-goto {
     fill: none;
@@ -240,37 +245,35 @@ export default css`
     stroke: var(--card);
     stroke-width: 1.5;
   }
-  /* An action line's name, on the line, in the line's color */
+  /* An action line's name, on the line: outlined like a badge, over the canvas colour so the line
+     stops at it */
   .rf-goto-label rect {
-    fill: var(--rf-kind);
-    stroke: none;
+    fill: var(--background);
+    stroke: var(--rf-kind);
+    stroke-width: 1;
   }
   .rf-goto-label text {
-    fill: var(--rf-on-kind);
+    fill: color-mix(in srgb, var(--rf-kind) 60%, var(--foreground));
     font-size: var(--font-size-xs);
     font-weight: 600;
   }
-  /* An end action in a step box: an END pill, red on failure and green on success, as the goto
-     lines. After the box's rect rules (hover, focus, a run), with the same specificity, so they
+  /* An end action in a step box: an outlined END pill, red on failure and green on success, as the
+     goto lines. After the box's rect rules (hover, focus, a run), with the same specificity, so they
      do not restyle it */
   .rf-node rect.rf-end-pill {
-    fill: var(--rf-kind);
-    stroke: none;
+    fill: var(--card);
+    stroke: var(--rf-kind);
+    stroke-width: 1;
   }
   .rf-end {
-    fill: var(--rf-on-kind);
+    fill: color-mix(in srgb, var(--rf-kind) 60%, var(--foreground));
     font-size: var(--font-size-xs);
     font-weight: 700;
     letter-spacing: 0.04em;
   }
-  /* The default end of a step with no failure action: an outlined END pill */
+  /* The default end of a step with no failure action: the same pill with a dashed border */
   .rf-node rect.rf-end-pill.rf-default {
-    fill: none;
-    stroke: var(--rf-kind);
-    stroke-width: 1;
-  }
-  .rf-end.rf-default {
-    fill: var(--rf-kind);
+    stroke-dasharray: 3 2;
   }
   .rf-sec-note {
     fill: var(--muted-foreground);

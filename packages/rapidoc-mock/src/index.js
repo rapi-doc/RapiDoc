@@ -1,11 +1,13 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { getCookie } from "hono/cookie";
+import { METHODS as NODE_METHODS } from "node:http";
 import { serve } from "@hono/node-server";
 import { createAuth, createVerifier, problem } from "./auth.js";
 import { createRouter } from "./engine/router.js";
-import { createResponder, parsePrefer } from "./responses.js";
-import { listOperations, loadSpec } from "./spec.js";
+import { createResponder, itemValidator, parsePrefer } from "./responses.js";
+import { listOperations, loadSpec, pointerSegment, resolve } from "./spec.js";
+import { DEFAULT_STREAM_INTERVAL, parseStreamBody, streamKind, timedStream } from "./stream.js";
 
 export { tokenScopes } from "./auth.js";
 
@@ -23,6 +25,8 @@ export const DEFAULT_PORT = 4010;
  * @param {string} [options.issuer] - OpenID Connect issuer whose tokens are accepted; unset: bearer tokens unchecked
  * @param {string} [options.audience] - Required `aud` of tokens
  * @param {number} [options.seed] - Seed for generated data (default 1)
+ * @param {number} [options.streamInterval] - Gap in ms between the items of a streamed response (OpenAPI 3.2
+ *   `itemSchema`: Server-Sent Events, JSON Lines); default 300
  * @param {string | string[]} [options.origin] - Origins allowed by CORS (default `*`; tokens travel in headers, not cookies)
  * @param {(line: string) => void} [options.log] - Request log; default console.log with a [rapidoc mock] prefix
  * @param {(line: string) => void} [options.warn] - Problems that don't stop the server; default console.warn
@@ -33,6 +37,7 @@ export async function createMockApp({
   issuer,
   audience,
   seed = 1,
+  streamInterval = DEFAULT_STREAM_INTERVAL,
   origin = "*",
   log = (line) => console.log(`[rapidoc mock] ${line}`),
   warn = (line) => console.warn(`[rapidoc mock] ⚠️  ${line}`),
@@ -45,7 +50,15 @@ export async function createMockApp({
     try {
       const doc = await loadSpec(api.fullPath);
       const router = await createRouter(doc, { warn: (line) => warn(`${api.id}: ${line}`) });
-      const byKey = new Map(listOperations(doc).map((op) => [`${op.method} ${op.path}`, op]));
+      const operations = listOperations(doc);
+      const byKey = new Map(operations.map((op) => [`${op.method} ${op.path}`, op]));
+      // Node's HTTP parser accepts a fixed list of methods (QUERY, PURGE, COPY, ... are in it)
+      for (const op of operations) {
+        if (!NODE_METHODS.includes(op.method.toUpperCase()))
+          warn(
+            `${api.id}: ${op.method.toUpperCase()} ${op.path} can't be called: Node's HTTP server doesn't accept the method ${op.method.toUpperCase()}`,
+          );
+      }
       loaded.push({
         ...api,
         title: api.title ?? doc.info?.title,
@@ -54,6 +67,7 @@ export async function createMockApp({
         operations: byKey.size,
         auth: createAuth(doc, verifier),
         respond: createResponder(doc, { seed }),
+        doc,
       });
     } catch (err) {
       skipped.push({ id: api.id, error: err.message });
@@ -63,7 +77,19 @@ export async function createMockApp({
   if (apis.length && !loaded.length) throw new Error("No API could be loaded");
 
   const app = new Hono();
-  app.use("*", cors({ origin, exposeHeaders: ["*"], maxAge: 600 }));
+  // Every method the APIs use (OpenAPI 3.2 QUERY and additionalOperations included) passes CORS preflight
+  const allowMethods = [
+    ...new Set([
+      "GET",
+      "HEAD",
+      "PUT",
+      "POST",
+      "DELETE",
+      "PATCH",
+      ...loaded.flatMap((api) => api.router.methods),
+    ]),
+  ];
+  app.use("*", cors({ origin, allowMethods, exposeHeaders: ["*"], maxAge: 600 }));
   app.get("/", (c) =>
     c.json({
       apis: loaded.map(({ id, title, operations }) => ({
@@ -75,7 +101,7 @@ export async function createMockApp({
     }),
   );
   for (const api of loaded) {
-    const handler = (c) => handle(c, api, { log, warn });
+    const handler = (c) => handle(c, api, { log, warn, streamInterval });
     app.all(`/${api.id}`, handler);
     app.all(`/${api.id}/*`, handler);
   }
@@ -97,9 +123,14 @@ export async function createMockApp({
   };
 }
 
-const send = ({ status, headers, body }) => new Response(body ?? null, { status, headers });
+/** The Response: a streamed body (one chunk per item, `interval` ms apart) when the responder gave chunks */
+const send = ({ status, headers, body, stream }, interval) =>
+  new Response(stream?.length ? timedStream(stream, interval) : (body ?? null), {
+    status,
+    headers,
+  });
 
-async function handle(c, api, { log, warn }) {
+async function handle(c, api, { log, warn, streamInterval = DEFAULT_STREAM_INTERVAL }) {
   const url = new URL(c.req.url);
   const path = url.pathname.slice(api.id.length + 1) || "/";
   const method = c.req.method.toLowerCase();
@@ -107,7 +138,7 @@ async function handle(c, api, { log, warn }) {
     log(
       `${c.req.method} ${url.pathname}${url.search} → ${response.status}${source ? ` (${source})` : ""}`,
     );
-    return send(response);
+    return send(response, streamInterval);
   };
 
   let matched = api.router.match({ method, path });
@@ -138,10 +169,9 @@ async function handle(c, api, { log, warn }) {
       : `could not be read as ${headers["content-type"]}`;
     return finish(problem(400, "Bad Request", `The request body ${what}.`));
   }
-  const errors = api.router.validate(
-    { method, path, query: url.search.slice(1), headers, body },
-    matched,
-  );
+  const errors =
+    streamBodyErrors(api, operation, headers["content-type"], body) ??
+    api.router.validate({ method, path, query: url.search.slice(1), headers, body }, matched);
   if (errors?.length) {
     const status =
       operation.operation.responses?.["422"] && !operation.operation.responses?.["400"] ? 422 : 400;
@@ -172,6 +202,52 @@ async function handle(c, api, { log, warn }) {
   }
 }
 
+/**
+ * Problems in a streamed request body (OpenAPI 3.2 `itemSchema`, JSON Lines or JSON Text Sequences): a line that
+ * isn't JSON, or an item that misses the item schema (`path` starts with `/<line>`). Null when the body is not a
+ * stream of the operation's (the router validates it then).
+ */
+function streamBodyErrors(api, operation, contentType, body) {
+  const kind = streamKind(contentType);
+  if ((kind !== "jsonl" && kind !== "json-seq") || typeof body !== "string") return null;
+  const content = resolve(
+    api.doc,
+    operation.operation.requestBody,
+    `${operation.pointer}/requestBody`,
+  ).node?.content;
+  const type =
+    content &&
+    Object.keys(content).find(
+      (key) =>
+        key.split(";")[0].trim().toLowerCase() === contentType.split(";")[0].trim().toLowerCase(),
+    );
+  const pointer = `${operation.pointer}/requestBody/content/${pointerSegment(type || "")}`;
+  const media = type && resolve(api.doc, content[type], pointer).node;
+  if (!media?.itemSchema) return null;
+  let items;
+  try {
+    items = parseStreamBody(body, contentType);
+  } catch (err) {
+    return [{ in: "body", message: err.message }];
+  }
+  const validate = itemValidator(api.doc, media.itemSchema, `${pointer}/itemSchema`);
+  if (!validate) return [];
+  const errors = [];
+  items.forEach((item, i) => {
+    if (validate(item)) return;
+    for (const error of validate.errors) {
+      const message =
+        error.keyword === "required" ? `missing ${error.params.missingProperty}` : error.message;
+      errors.push({
+        in: "body",
+        path: `/${i + 1}${error.instancePath}`,
+        message: `item ${i + 1}: ${message}`,
+      });
+    }
+  });
+  return errors;
+}
+
 /** The request body as the validator wants it: parsed JSON, form fields (files as a short description), or text. */
 async function readBody(c, contentType = "") {
   if (
@@ -194,6 +270,8 @@ async function readBody(c, contentType = "") {
   }
   const text = await c.req.text();
   if (!text) return undefined;
+  // A stream (JSON Lines, JSON Text Sequences, SSE) stays text: streamBodyErrors reads it line by line
+  if (streamKind(contentType)) return text;
   return /json/i.test(contentType) ? JSON.parse(text) : text;
 }
 

@@ -8,6 +8,7 @@ import { repeat } from "lit/directives/repeat.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { sanitizeHTML } from "../utils/sanitize.js";
 import { marked } from "marked";
+import { streamExamples } from "../utils/response-utils.js";
 import {
   schemaToAST,
   getTypeInfo,
@@ -422,9 +423,13 @@ export default function requestBodyTemplate() {
   const requestBodyTypes = [];
   const { content } = this.request_body;
   for (const mimeType in content) {
+    // OpenAPI 3.2: a streamed body (JSON Lines, SSE, ...) describes each item with itemSchema
+    const isStream = Boolean(content[mimeType].itemSchema) && !content[mimeType].schema;
     requestBodyTypes.push({
       mimeType,
-      schema: content[mimeType].schema,
+      schema: isStream ? content[mimeType].itemSchema : content[mimeType].schema,
+      isStream,
+      itemSchema: content[mimeType].itemSchema,
       example: content[mimeType].example,
       examples: content[mimeType].examples,
       encoding: content[mimeType].encoding,
@@ -464,16 +469,23 @@ export default function requestBodyTemplate() {
     ) {
       // Generate Example
       if (reqBody.mimeType === this.selectedRequestBodyType) {
-        reqBodyExamples = generateExample(
-          reqBody.schema,
-          reqBody.mimeType,
-          standardizeExample(reqBody.examples),
-          standardizeExample(reqBody.example),
-          this.callback === "true" || this.webhook === "true" ? true : false,
-          this.callback === "true" || this.webhook === "true" ? false : true,
-          "text",
-          false,
-        );
+        reqBodyExamples = reqBody.isStream
+          ? streamExamples(
+              reqBody.mimeType,
+              reqBody,
+              this.callback === "true" || this.webhook === "true",
+              !(this.callback === "true" || this.webhook === "true"),
+            )
+          : generateExample(
+              reqBody.schema,
+              reqBody.mimeType,
+              standardizeExample(reqBody.examples),
+              standardizeExample(reqBody.example),
+              this.callback === "true" || this.webhook === "true" ? true : false,
+              this.callback === "true" || this.webhook === "true" ? false : true,
+              "text",
+              false,
+            );
         if (!this.selectedRequestBodyExample) {
           this.selectedRequestBodyExample =
             reqBodyExamples.length > 0 ? reqBodyExamples[0].exampleId : "";

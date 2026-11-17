@@ -3,6 +3,35 @@ import addFormats from "ajv-formats";
 import { fake } from "./engine/faker.js";
 import { pointerSegment, resolve } from "./spec.js";
 import { toJsonSchema } from "./schema.js";
+import { itemChunk, repeatItem, splitStreamText } from "./stream.js";
+
+/** An Example Object's value: `value`, else OpenAPI 3.2's `dataValue`, else its `serializedValue` text */
+function exampleValue(example) {
+  if (!example || typeof example !== "object") return undefined;
+  if ("value" in example) return example.value;
+  if ("dataValue" in example) return example.dataValue;
+  return example.serializedValue;
+}
+
+const itemValidators = new Map();
+/**
+ * A validator for the items of a streamed request body (OpenAPI 3.2 `itemSchema`), or null when the schema is
+ * beyond ajv. Cached per document and pointer.
+ */
+export function itemValidator(doc, itemSchema, pointer) {
+  let byPointer = itemValidators.get(doc);
+  if (!byPointer) itemValidators.set(doc, (byPointer = new Map()));
+  if (!byPointer.has(pointer)) {
+    let validate = null;
+    try {
+      validate = ajv.compile(toJsonSchema(doc, itemSchema, pointer));
+    } catch {
+      // unchecked
+    }
+    byPointer.set(pointer, validate);
+  }
+  return byPointer.get(pointer);
+}
 
 /**
  * Parses an RFC 7240 `Prefer` header into lower-cased directives:
@@ -151,7 +180,7 @@ export function createResponder(doc, { seed = 1 } = {}) {
     if (prefer.dynamic !== "true") {
       if (prefer.example && examples[prefer.example]) {
         return {
-          value: resolve(doc, examples[prefer.example]).node?.value,
+          value: exampleValue(resolve(doc, examples[prefer.example]).node),
           source: `example "${prefer.example}"`,
           applied: true,
         };
@@ -159,8 +188,8 @@ export function createResponder(doc, { seed = 1 } = {}) {
       if (object.example !== undefined) return { value: object.example, source: "example" };
       const [name, first] = Object.entries(examples)[0] || [];
       const example = first && resolve(doc, first).node;
-      if (example && "value" in example)
-        return { value: example.value, source: `example "${name}"` };
+      if (exampleValue(example) !== undefined)
+        return { value: exampleValue(example), source: `example "${name}"` };
     }
     if (!object.schema) return { value: undefined, source: "empty" };
     return { value: await generate(object.schema, `${pointer}/schema`), source: "generated" };
@@ -173,7 +202,8 @@ export function createResponder(doc, { seed = 1 } = {}) {
    * @param {boolean} [input.head] - HEAD request: headers only
    * @param {Record<string, string>} [input.prefer] - parsePrefer() of the request
    * @param {string} [input.accept] - Accept header
-   * @returns {Promise<{status: number, headers: Record<string, string>, body: string | null, source: string}>}
+   * @returns {Promise<{status: number, headers: Record<string, string>, body: string | null, stream?: string[] | null, source: string}>}
+   *   `stream`: for an OpenAPI 3.2 `itemSchema` media type, the body's chunks, one per item
    */
   return async function respond({ operation, pointer, head = false, prefer = {}, accept }) {
     const responses = operation.responses || {};
@@ -207,6 +237,37 @@ export function createResponder(doc, { seed = 1 } = {}) {
       return { status: picked.status, headers, body: null, source: "empty" };
     const mediaPointer = `${responsePointer}/content/${pointerSegment(mediaType)}`;
     const { node: media } = resolve(doc, content[mediaType], mediaPointer);
+
+    // OpenAPI 3.2 stream (itemSchema): one chunk per item; the server sends them over time
+    if (media?.itemSchema && !media.schema) {
+      const example = await valueOf({ ...media, schema: undefined }, mediaPointer, prefer);
+      let chunks;
+      let source = example.source;
+      if (example.source === "empty") {
+        const item = await generate(media.itemSchema, `${mediaPointer}/itemSchema`);
+        chunks = repeatItem(item).map((one) => itemChunk(one, mediaType));
+        source = "generated stream";
+        if (prefer.dynamic === "true") preferenceApplied.push("dynamic=true");
+      } else if (Array.isArray(example.value)) {
+        chunks = example.value.map((one) => itemChunk(one, mediaType));
+      } else if (typeof example.value === "string") {
+        chunks = splitStreamText(example.value, mediaType);
+      } else {
+        chunks = [itemChunk(example.value, mediaType)];
+      }
+      if (example.applied) preferenceApplied.push(`example=${prefer.example}`);
+      headers["Content-Type"] = mediaType;
+      headers["Cache-Control"] = "no-cache";
+      if (preferenceApplied.length) headers["Preference-Applied"] = preferenceApplied.join(", ");
+      return {
+        status: picked.status,
+        headers,
+        body: head ? null : chunks.join(""),
+        stream: head ? null : chunks,
+        source,
+      };
+    }
+
     const { value, source, applied } = await valueOf(media || {}, mediaPointer, prefer);
     if (applied) preferenceApplied.push(`example=${prefer.example}`);
     if (prefer.dynamic === "true" && source === "generated") preferenceApplied.push("dynamic=true");

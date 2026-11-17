@@ -20,7 +20,7 @@ Add `mock-server="true"` to `<rapi-doc>` or `<rapi-doc-mini>` and requests to yo
 ></rapi-doc>
 ```
 
-`<rapi-doc>` then shows a green **MOCK ACTIVE** label in its API Server section, and the selected server reads **(Mocked)**.
+`<rapi-doc>` then shows a pulsing dot and a **MOCKING** label in its API Server section.
 
 The mock patches the page's `fetch` and `XMLHttpRequest`. A request whose method and path match an operation in the spec is answered by the mock; every other request (analytics, images, other APIs) goes to the network as usual. That means it answers not only **Try**, but any script on the same page:
 
@@ -44,7 +44,7 @@ Only operations that `<rapi-doc>` shows are mocked: endpoints left out by a `<ra
 | `mock-server` | `false` | `true` turns the mock on. Setting it back to `false` turns it off. |
 | `mock-server-status-code` | `200` | The status code to answer with, a comma-separated list of codes (`"200, 404, 500"`), or a JSON map by operation (see below). Set it to `""` to use the first `2xx` response in the spec (else `default`, else the first response listed). |
 | `mock-server-status-strategy` | `first` | How to pick from a list of codes: `first`, `cycle` or `random`. |
-| `mock-server-delay` | `0` | Milliseconds to wait before answering, to show loading states. |
+| `mock-server-delay` | `0` | Milliseconds to wait before answering, to show loading states. For a streamed response, the gap between its items (300 ms when `0`). |
 | `mock-server-log` | `false` | `true` logs each answered request to the browser console. |
 
 ## Simulating errors
@@ -94,6 +94,7 @@ For the chosen status code, the mock builds the response from the spec's respons
 1. **Body**: the media type's `example`; else the first entry of its `examples`; else the schema's `example`; else a value generated from the schema. Generated values use `enum`, `default`, `minimum`/`maximum`, `pattern` and `format` where they can (`user@example.com` for `email`, a UUID for `uuid`), and `writeOnly` properties are left out. JSON is preferred over XML, and XML over text.
 2. **No body in the spec**: JSON responses get `{ "status": <code>, "message": "<status text>" }`, other types get the status text, and `204` gets an empty body.
 3. **Headers**: response headers from the spec, filled from their `example` or schema `default`, plus `Access-Control-Allow-Origin: *` and `X-Mock-Server: RapiDoc`.
+4. **Streams** (an OpenAPI 3.2 `itemSchema` on `text/event-stream`, JSON Lines or `application/json-seq`): the response starts at once and sends one item at a time, `mock-server-delay` apart (300 ms when `0`), so **Try** shows it arriving and its **STOP** button can end it. The items are those of the first example (a `dataValue` list, or the stream's text split into events or lines); without one, an item generated from the `itemSchema` is sent 5 times, its `id` numbered 1 to 5. Through `XMLHttpRequest` the whole stream comes at once.
 
 ## Mocking your app during development
 

@@ -127,19 +127,6 @@ export default css`
     }
   }
 
-  /* Destructive Variant (Danger / Clear / Reset actions) */
-  .btn-destructive,
-  .btn.destructive {
-    border-color: var(--method-delete);
-    background: color-mix(in srgb, var(--method-delete) 15%, transparent);
-    color: var(--method-delete);
-
-    &:hover {
-      background: var(--method-delete);
-      color: #ffffff;
-    }
-  }
-
   /* Link Variant */
   .btn-link,
   .btn.link {
@@ -201,10 +188,10 @@ export default css`
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius);
-    padding: 2px 6px;
+    border-radius: 2px;
+    padding: 4px;
     font-size: var(--font-size-xs);
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1;
     white-space: nowrap;
     border: 1px solid transparent;
@@ -222,14 +209,17 @@ export default css`
     color: var(--foreground);
     border-color: var(--border);
   }
-  .badge-destructive {
-    background: color-mix(in srgb, var(--method-delete) 15%, transparent);
-    color: var(--method-delete);
-    border-color: var(--method-delete);
+  /* A badge in any colour, set as color on the element: the border and a 15% tint follow it
+     (operation badges: x-badges and OpenAPI 3.2 kind: badge tags) */
+  .badge-tinted {
+    border-color: currentColor;
+    background: color-mix(in srgb, currentColor 15%, transparent);
   }
-  .badge-sm {
-    padding: 1px 4px;
-    font-size: var(--font-size-xs);
+  /* Deprecated and error labels: --destructive, like every other deprecation marker */
+  .badge-destructive {
+    background: color-mix(in srgb, var(--destructive) 15%, transparent);
+    color: var(--destructive);
+    border-color: var(--destructive);
   }
 
   /* =========================================================================

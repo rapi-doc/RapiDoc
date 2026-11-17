@@ -381,7 +381,7 @@ describe("rapidoc mock", () => {
           apis.map((api) => api.id),
           ["orders"],
         );
-        assert.match(skipped[0].error, /not OpenAPI 3\.0 or 3\.1 \(Swagger 2\.0\)/);
+        assert.match(skipped[0].error, /not OpenAPI 3\.0, 3\.1 or 3\.2 \(Swagger 2\.0\)/);
         assert.match(warnings[0], /old: not served/);
         await assert.rejects(
           createMockApp({ apis: [{ id: "old", fullPath: swagger }], ...quiet }),

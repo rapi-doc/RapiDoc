@@ -1,4 +1,88 @@
-import { generateExample } from "./schema-utils.js";
+import { generateExample, standardizeExample } from "./schema-utils.js";
+import { serializeStreamItems, streamKind } from "./stream-utils.js";
+
+/** How many items the mock streams when it generates them from the item schema */
+const MOCK_STREAM_ITEMS = 5;
+/** The gap between streamed items when mock-server-delay is 0, so the stream is visible */
+const MOCK_STREAM_INTERVAL = 300;
+
+/**
+ * The chunks the mock streams for an OpenAPI 3.2 sequential media type (`itemSchema`), one per
+ * item, each ending with its separator: the items of the first Example Object (an array of items,
+ * or the stream's text split into events or lines), else MOCK_STREAM_ITEMS items generated from the
+ * item schema, numbered through an `id` property when the item has one.
+ */
+export function mockStreamChunks(contentType, mediaObj) {
+  const chunkOf = (item) => `${serializeStreamItems([item], contentType)}\n`;
+  const examples =
+    standardizeExample(mediaObj.examples) || standardizeExample(mediaObj.example) || {};
+  const first = Object.values(examples)[0]?.value;
+  if (Array.isArray(first) && first.length > 0) {
+    return first.map(chunkOf);
+  }
+  if (typeof first === "string" && first) {
+    const separator = streamKind(contentType) === "sse" ? /\n\n+/ : /\n+/;
+    return first
+      .split(separator)
+      .filter((part) => part.trim())
+      .map((part) => `${part}${streamKind(contentType) === "sse" ? "\n\n" : "\n"}`);
+  }
+  const generated = generateExample(
+    mediaObj.itemSchema,
+    "application/json",
+    null,
+    null,
+    true,
+    false,
+    "json",
+  )[0]?.exampleValue;
+  if (generated === undefined) return [];
+  return Array.from({ length: MOCK_STREAM_ITEMS }, (_, i) => {
+    if (generated && typeof generated === "object" && !Array.isArray(generated)) {
+      const item = { ...generated };
+      if ("id" in item) {
+        item.id = typeof item.id === "number" ? i + 1 : String(i + 1);
+      }
+      return chunkOf(item);
+    }
+    return chunkOf(generated);
+  });
+}
+
+/**
+ * A body that sends the chunks one at a time, `interval` ms apart (the first at once), and ends
+ * after the last. Aborting `signal` (STOP in the Try console) errors it with an AbortError.
+ */
+function timedStream(chunks, interval, signal) {
+  const encoder = new TextEncoder();
+  let timer;
+  return new ReadableStream({
+    start(controller) {
+      let i = 0;
+      const sendNext = () => {
+        if (i >= chunks.length) {
+          controller.close();
+          return;
+        }
+        controller.enqueue(encoder.encode(chunks[i]));
+        i += 1;
+        timer = setTimeout(sendNext, interval);
+      };
+      signal?.addEventListener("abort", () => {
+        clearTimeout(timer);
+        try {
+          controller.error(new DOMException("The stream was stopped", "AbortError"));
+        } catch {
+          // already closed
+        }
+      });
+      sendNext();
+    },
+    cancel() {
+      clearTimeout(timer);
+    },
+  });
+}
 
 const STATUS_TEXTS = {
   200: "OK",
@@ -274,6 +358,7 @@ function buildMockResponsePayload(route, statusCode) {
   };
 
   let body = "";
+  let streamChunks = null;
   let contentType = "application/json";
 
   if (responseDef?.content) {
@@ -287,7 +372,11 @@ function buildMockResponsePayload(route, statusCode) {
       "application/json";
 
     const mediaObj = responseDef.content[contentType];
-    if (mediaObj) {
+    if (mediaObj?.itemSchema && !mediaObj.schema) {
+      // OpenAPI 3.2 stream: one chunk per item (SSE event, JSON line); fetch sends them over time
+      streamChunks = mockStreamChunks(contentType, mediaObj);
+      body = streamChunks.join("");
+    } else if (mediaObj) {
       if (mediaObj.example !== undefined) {
         body =
           typeof mediaObj.example === "object"
@@ -360,6 +449,7 @@ function buildMockResponsePayload(route, statusCode) {
       STATUS_TEXTS[Number(statusCode)] || (statusCode === "default" ? "OK" : "Mock Response"),
     headers,
     body,
+    streamChunks: streamChunks?.length ? streamChunks : null,
   };
 }
 
@@ -424,7 +514,9 @@ export function enableMockServer(spec, options = {}) {
 
       const { config, payload } = answer(match);
 
-      if (config.delay > 0) {
+      // A stream answers at once and sends its items mock-server-delay apart
+      const streams = payload.streamChunks && typeof ReadableStream !== "undefined";
+      if (config.delay > 0 && !streams) {
         await new Promise((resolve) => setTimeout(resolve, config.delay));
       }
 
@@ -436,7 +528,15 @@ export function enableMockServer(spec, options = {}) {
         );
       }
 
-      return new Response(payload.body, {
+      const signal = init?.signal || (input && typeof input === "object" ? input.signal : null);
+      const responseBody = streams
+        ? timedStream(
+            payload.streamChunks,
+            config.delay > 0 ? config.delay : MOCK_STREAM_INTERVAL,
+            signal,
+          )
+        : payload.body;
+      return new Response(responseBody, {
         status: payload.statusCode,
         statusText: payload.statusText,
         headers: payload.headers,

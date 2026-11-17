@@ -25,10 +25,10 @@ const rootDir = path.resolve(__dirname, "../..");
 
 const SPECS = [
   {
-    id: "bookstore",
-    name: "Bookstore (Baseline)",
-    path: path.join(rootDir, "docs/public/specs-test/bookstore.yaml"),
-    maxExpectedMs: 60,
+    id: "petstore-3-2",
+    name: "Petstore 3.2 (Baseline)",
+    path: path.join(rootDir, "docs/public/specs-test/petstore-3.2.yaml"),
+    maxExpectedMs: 80,
   },
   {
     id: "stripe",

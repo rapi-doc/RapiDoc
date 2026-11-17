@@ -21,7 +21,8 @@ Several modules run in Node (static renderer, unit tests) and must guard `window
 Spec pipeline:
 
 - `spec-parser.js`: default `ProcessSpec` (spec URL, text or object to the render model of
-  tags, tag groups, components, security schemes, servers); `isTagExpanded`, `groupByTagGroups`.
+  tags, tag groups, components, security schemes, servers); `isTagExpanded`, `groupByTagGroups`,
+  `groupByParentTags`, `normalizeExampleObjects`.
 - `spec-loader.js`: `createBrowserFetchPlugin` (the fetch plugin for the parser's `load()`),
   `breakCircularRefs`, `isUrlLike`, `pageUrl`. No imports but `yaml`; `spec-parser.js` uses it, and
   `rapipdf` (`packages/rapipdf`) bundles it by relative path, with `schema-utils.js`.
@@ -42,6 +43,14 @@ Request, response, mock:
 
 - `url-utils.js`: path/query serialization, `constructFetchURL`, `oauthReceiverUrl`.
 - `request-utils.js`: headers, url-encoded and multipart bodies.
+- `request-status.js`: the Try console's status wording, headless: `SLOW_AFTER_MS` (10 s, after
+  which the status line says the server is slow; the request goes on), `formatElapsed`,
+  `countStreamItems`, `itemsLabel`, `requestStatusText` (waiting, streaming, stopped),
+  `networkErrorText` (a failed fetch: unreachable or CORS, which the browser can't tell apart).
+- `stream-utils.js`: OpenAPI 3.2 sequential media types (`itemSchema`): `streamKind`,
+  `streamItemLabel`, `serializeStreamItems` (items as SSE events, JSON Lines or JSON Text
+  Sequences), `isStreamingResponse`, `readStreamText` (a fetch body as text as it arrives).
+  Headless.
 - `response-utils.js`: `processFetchResponse` (decode a `Response`),
   `prepareResponseDefinitions`.
 - `curl-utils.js`: `generateCurlCommand`.
@@ -75,6 +84,32 @@ UI helpers:
 - **Webhooks** (`[spec-parser.js:groupByTags]`) are grouped after paths and flagged
   `isWebhook`; they are never written into the spec's `paths`, so a webhook named like a path
   does not replace it.
+- **OpenAPI 3.2 tags** (`[spec-parser.js:groupByTags]`, `[spec-parser.js:groupByParentTags]`):
+  a tag's name in the navigation is `x-displayName`, else `summary`, else `name`. Without
+  `x-tagGroups`, tags with a `parent` become tag groups: each root of a `parent` chain that has
+  children is a group (its `summary` the heading, itself first when it has operations), and
+  deeper descendants sit in the root's group. A parent with no operations is not a tag section.
+  An operation goes under its tags of kind `nav` (or no kind); other kinds place it only when it
+  has no navigation tag, and `badge` tags are added to its `xBadges`. Anchors are unchanged:
+  `parent` groups add no tag prefix.
+- **Streams** (`[response-utils.js:prepareResponseDefinitions]`, `[response-utils.js:streamExamples]`):
+  a media type with `itemSchema` and no `schema` shows the item schema, with `streamItemLabel`
+  set, and its examples as the stream's text: an Example Object whose value is an array is a list
+  of items, a string is used as sent, and without examples one item is generated. Request bodies
+  (`request-body-template.js`) use the same examples. The mock
+  (`[mock-interceptor.js:mockStreamChunks]`) sends a stream through `fetch` one item at a time,
+  `mock-server-delay` apart (300 ms when 0): the first example's items, or 5 generated items with
+  `id` numbered; through XHR it sends the whole text. The
+  Try console reads `text/event-stream`, JSON Lines and `application/json-seq` responses with
+  `readStreamText`, showing the text as it arrives, until the stream ends or STOP aborts it.
+- **XML arrays** (`[schema-utils.js:xmlArrayValue]`, `[schema-utils.js:json2xml]`): each item is
+  an element named by the items' `xml.name`, else the property's name, whether the sample comes
+  from an example or the schema. `wrapped: true` or OpenAPI 3.2 `nodeType: element`
+  (`[schema-utils.js:isXmlWrapped]`) puts them in an element named by the array's `xml.name`, else
+  the property's name; unwrapped, they sit directly in the parent.
+- **Example Objects** (`[spec-parser.js:normalizeExampleObjects]`): before grouping, a 3.2
+  `dataValue` (else `serializedValue`) is copied to `value` in the spec's paths, webhooks and
+  components (mutating the parsed spec), skipping schemas.
 - **Stable anchors** (`[slugger.js:operationAnchorSource]`, `[slugger.js:OperationSlugger.slug]`):
   - Source priority: `operationId` (trimmed, 1-45 chars, not a placeholder like `operation12`),
     then `summary` (the parser passes `summary || description`; clamped to 40 chars at a word
@@ -161,7 +196,10 @@ Run `npm run test:unit` from the repo root before and after changing `spec-parse
 `schema-utils.js`, then `npm run lint` and `npm run format-fix`. Files in `tests/unit/`:
 
 - `spec-parser.js`: `spec-parser-relative-url`, `spec-parser-security`,
-  `spec-parser-tag-groups`, `spec-parser-webhooks`, `unused-tags`, `openapi-3-2-bookstore`.
+  `spec-parser-tag-groups`, `spec-parser-webhooks`, `unused-tags`, `openapi-3-2-petstore`,
+  `openapi-3-2-tags`.
+- `stream-utils.js`, `response-utils.js` (streams): `openapi-3-2-streaming`.
+- `request-status.js` and the Try panel by request phase: `try-request-status`.
 - `spec-loader.js`: `spec-loader`.
 - `slugger.js`: `slugger`.
 - `schema-utils.js`: `schema-utils`, `schema-ast`, `schema-in-object-notation`,

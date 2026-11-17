@@ -276,7 +276,10 @@ export default class RapiDoc extends LitElement {
    * fg-color">description</span>, so a tag can hold a guide or concepts section (written in
    * markdown) next to the operations. Each such tag gets a section and a sidebar link. When
    * "false", tags without operations are left out, except those the spec lists in <span class="mono
-   * fg-color">x-tagGroups</span>, which show either way.<br/> <span class="green">ⓘ This is a
+   * fg-color">x-tagGroups</span>, which show either way. Either way, an OpenAPI 3.2 tag that is the
+   * <span class="mono fg-color">parent</span> of other tags is drawn as their group's heading, not
+   * as a section, and a tag whose <span class="mono fg-color">kind</span> is not <span class="mono
+   * fg-color">nav</span> never gets one.<br/> <span class="green">ⓘ This is a
    * static initialization attribute. It will not have any effect if modified using JavaScript after
    * the spec is rendered.</span>
    * @group Spec & Content
@@ -880,7 +883,9 @@ export default class RapiDoc extends LitElement {
 
   /**
    * Simulated network latency in milliseconds before resolving mock responses. Useful for testing
-   * client loading spinners and optimistic UI updates.
+   * client loading spinners and optimistic UI updates. For a streamed response (OpenAPI 3.2
+   * <span class="mono fg-color">itemSchema</span>: Server-Sent Events, JSON Lines), the response
+   * starts at once and this is the gap between its items (300 ms when 0).
    * @group Mock Server
    */
   @property({ type: Number, attribute: "mock-server-delay" })
