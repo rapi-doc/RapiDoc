@@ -150,6 +150,9 @@ one of them stops being true, and update this list in the same change.
    `packages/rapidoc/src/rapidoc.ts`; it lists only which attributes get a control, the presets,
    sample values for free-form attributes, swatch colours, and the font and slot controls. A
    control for an attribute the element lacks fails the build and `tests/unit/controller-registry.test.js`.
+   A list control is drawn as a segmented bar when its values fit one row of the drawer, else as a
+   dropdown, and inline (name left, control right) when both fit; `controlLayout` decides this from
+   the label lengths at build time, so a control never wraps.
 5. **Routes**: every `.md` / `.astro` under `src/pages/` is a route unless its name starts with
    `_`. Moving a page needs a redirect in `astro.config.mjs` and an update to whatever links it:
    `example-list.yaml`, `tests.yaml`, the task tables of `content/docs/guides.mdx`,

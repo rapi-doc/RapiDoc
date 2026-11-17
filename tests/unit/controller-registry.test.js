@@ -11,6 +11,9 @@ import {
   resolveActiveSlots,
   groupControlsByCategory,
   TUNER_SECTIONS,
+  controlLayout,
+  barWidth,
+  TUNER_ROW_WIDTH,
 } from "../../docs/src/components/controller-registry.ts";
 import { readApiManifest, listAttributes } from "../../scripts/rapidoc-metadata.js";
 
@@ -194,4 +197,18 @@ test("controller-registry", async (t) => {
   await t.test("aliases resolve to their control", () => {
     assert.deepEqual(resolveControlKeys(["primary-color", "nav-logo"]), ["theme", "slot-nav-logo"]);
   });
+});
+
+test("tuner control layout: a bar when the values fit one row, else a dropdown", () => {
+  const list = Object.values(CONTROL_REGISTRY).filter((c) => c.type === "segmented");
+  const layout = Object.fromEntries(list.map((c) => [c.attr, controlLayout(c)]));
+  assert.deepEqual(layout["color-scheme"], { kind: "bar", inline: true });
+  assert.deepEqual(layout.theme, { kind: "bar", inline: false });
+  assert.equal(layout["show-method-in-nav-bar"].kind, "select");
+  assert.equal(layout["regular-font"].kind, "select");
+  for (const c of list) {
+    if (layout[c.attr].kind === "bar" && !c.options.some((o) => o.dotColor)) {
+      assert.ok(barWidth(c.options) <= TUNER_ROW_WIDTH, `${c.attr} bar fits one row`);
+    }
+  }
 });

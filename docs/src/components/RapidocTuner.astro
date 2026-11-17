@@ -9,6 +9,7 @@ import {
   resolveActiveSlots,
   normalizePresets,
   groupControlsByCategory,
+  controlLayout,
   type ControlOption,
   type ControlCategory,
   type SegmentedControl,
@@ -351,8 +352,12 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
               <div class="rd-pretty-settings-list">
                 {/* Segmented Controls (multi-choice chips; a theme chip is filled with its colour) */}
                 {segmentedControls.map(ctrl => {
+                  const layout = controlLayout(ctrl);
                   return (
-                    <div class="rd-option-card rd-option-card--multi" data-control-attr={ctrl.attr}>
+                    <div
+                      class:list={['rd-option-card rd-option-card--multi', layout.inline && 'rd-option-card--inline']}
+                      data-control-attr={ctrl.attr}
+                    >
                       <div class="rd-option-info">
                         <div class="rd-option-label-row">
                           <div
@@ -384,39 +389,60 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                         {ctrl.tip && <div class="rd-option-tip">{ctrl.tip}</div>}
                       </div>
 
-                      <div
-                        class="rd-control-wrapper rd-chip-group"
-                        role="radiogroup"
-                        aria-label={ctrl.label}
-                      >
-                        {ctrl.options.map(opt => {
-                          return (
-                            <label
-                              class:list={['rd-chip', opt.dotColor && 'rd-chip--color', opt.isDefault && 'rd-chip--default']}
-                              style={opt.dotColor ? `--chip-color: ${opt.dotColor}; --chip-text: ${textOn(opt.dotColor)};` : undefined}
-                            >
-                              <input
-                                type="radio"
-                                name={`rd_${instanceId}_${ctrl.attr}`}
-                                class="rd-radio-input"
-                                data-attr={ctrl.attr}
+                      {layout.kind === 'select' ? (
+                        <div class="rd-control-wrapper rd-select-wrap">
+                          <select
+                            class="rd-select-input"
+                            data-attr={ctrl.attr}
+                            aria-label={ctrl.label}
+                          >
+                            {ctrl.options.map(opt => (
+                              <option
                                 value={opt.rawVal}
+                                data-attr={ctrl.attr}
                                 data-is-default={opt.isDefault ? 'true' : undefined}
                                 data-font-css={opt.fontCss}
-                              />
-                              <span class="chip-text">{opt.label}</span>
-                              {opt.isDefault && <span class="rd-sr-only"> (default)</span>}
-                            </label>
-                          );
-                        })}
-                      </div>
+                              >
+                                {opt.isDefault ? `${opt.label} •` : opt.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ) : (
+                        <div
+                          class:list={['rd-control-wrapper rd-chip-group', !ctrl.options.some(o => o.dotColor) && 'rd-chip-bar']}
+                          role="radiogroup"
+                          aria-label={ctrl.label}
+                        >
+                          {ctrl.options.map(opt => {
+                            return (
+                              <label
+                                class:list={['rd-chip', opt.dotColor && 'rd-chip--color', opt.isDefault && 'rd-chip--default']}
+                                style={opt.dotColor ? `--chip-color: ${opt.dotColor}; --chip-text: ${textOn(opt.dotColor)};` : undefined}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`rd_${instanceId}_${ctrl.attr}`}
+                                  class="rd-radio-input"
+                                  data-attr={ctrl.attr}
+                                  value={opt.rawVal}
+                                  data-is-default={opt.isDefault ? 'true' : undefined}
+                                  data-font-css={opt.fontCss}
+                                />
+                                <span class="chip-text">{opt.label}</span>
+                                {opt.isDefault && <span class="rd-sr-only"> (default)</span>}
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
 
                 {/* Boolean / Toggle Controls */}
                 {toggleControls.map(ctrl => (
-                  <div class="rd-option-card rd-option-card--boolean" data-control-attr={ctrl.attr}>
+                  <div class="rd-option-card rd-option-card--boolean rd-option-card--inline" data-control-attr={ctrl.attr}>
                     <div class="rd-option-info">
                       <div class="rd-option-label-row">
                         <div
@@ -731,6 +757,19 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           }
         });
 
+        // Sync dropdowns: the option of the current value, else the default option
+        root.querySelectorAll('.rd-select-input').forEach((select) => {
+          const attr = select.getAttribute('data-attr');
+          if (!attr) return;
+          const currentVal = target.getAttribute(attr);
+          const options = Array.from(select.options);
+          const match =
+            currentVal !== null && currentVal !== ''
+              ? options.find((o) => o.value.toLowerCase() === String(currentVal).toLowerCase())
+              : options.find((o) => o.getAttribute('data-is-default') === 'true');
+          select.selectedIndex = match ? options.indexOf(match) : -1;
+        });
+
         // Sync boolean toggle inputs
         root.querySelectorAll('.rd-toggle-input').forEach((input) => {
           const attr = input.getAttribute('data-attr');
@@ -778,8 +817,8 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
         const target = getTarget();
         if (!target) return;
 
-        // Radio change
-        if (e.target.matches('.rd-radio-input')) {
+        // Radio or dropdown change
+        if (e.target.matches('.rd-radio-input, .rd-select-input')) {
           const attr = e.target.getAttribute('data-attr');
           const val = e.target.value ?? '';
           if (attr) {
@@ -873,7 +912,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
         if (!target) return;
 
         // Reset to initialAttrs or clear attributes
-        root.querySelectorAll('.rd-radio-input, .rd-toggle-input').forEach((input) => {
+        root.querySelectorAll('.rd-radio-input, .rd-select-input, .rd-toggle-input').forEach((input) => {
           const attr = input.getAttribute('data-attr');
           if (!attr) return;
 
@@ -1287,6 +1326,35 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     min-width: 0;
   }
 
+  /* Inline: the name and its control share the first row; the tip runs under both, full width */
+  .rd-option-card--inline {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 0;
+  }
+
+  .rd-option-card--inline .rd-option-info {
+    display: contents;
+  }
+
+  .rd-option-card--inline .rd-option-label-row {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .rd-option-card--inline .rd-control-wrapper {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  .rd-option-card--inline .rd-option-tip {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    margin-top: 4px;
+  }
+
   .rd-option-label-row {
     display: flex;
     align-items: center;
@@ -1573,22 +1641,101 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     font-weight: 600;
   }
 
-  /* A value that is a colour (theme): the chip is filled with it, the name in black or white */
-  /* tighter than other chips, so the presets and a custom colour share one line of the 420px drawer */
+  /* Segmented bar: the values side by side as one control, no gaps, one row */
+  .rd-chip-group.rd-chip-bar {
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+
+  .rd-chip-bar .rd-chip {
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 0;
+    corner-shape: round;
+    white-space: nowrap;
+  }
+
+  .rd-chip-bar .rd-chip + .rd-chip {
+    margin-left: -1px;
+  }
+
+  .rd-chip-bar .rd-chip:first-child {
+    border-radius: var(--rd-radius-sm) 0 0 var(--rd-radius-sm);
+  }
+
+  .rd-chip-bar .rd-chip:last-child {
+    border-radius: 0 var(--rd-radius-sm) var(--rd-radius-sm) 0;
+  }
+
+  .rd-chip-bar .rd-chip:hover,
+  .rd-chip-bar .rd-chip.active {
+    z-index: 1;
+  }
+
+  .rd-chip-bar .rd-chip.active {
+    box-shadow: none !important;
+  }
+
+  /* A list too long for a bar: a dropdown */
+  .rd-select-input {
+    appearance: none;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--rd-text-primary);
+    background-color: var(--rd-wash);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2394a3b8' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 9px center;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: var(--rd-radius-sm);
+    padding: 5px 28px 5px 10px;
+    cursor: pointer;
+    max-width: 100%;
+  }
+
+  .rd-select-input:hover {
+    border-color: var(--rd-border-hover);
+  }
+
+  .rd-select-input:focus-visible {
+    outline: 2px solid var(--rd-accent-light);
+    outline-offset: 1px;
+  }
+
+  .rd-select-input option {
+    background: #0f172a;
+    color: var(--rd-text-primary);
+  }
+
+  /* A value that is a colour (theme): one segmented bar, each segment filled with its colour and
+     the name in black or white, so the presets and a custom colour always fit one row */
   .rd-chip-group:has(.rd-chip--color) {
-    gap: 4px;
+    flex-wrap: nowrap;
+    gap: 0;
+    border-radius: 0;
+    overflow: hidden;
   }
 
   .rd-chip.rd-chip--color,
   .rd-chip.rd-chip--color:hover {
-    padding: 5px 7px;
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding: 7px 2px;
+    border: 0;
+    border-radius: 0;
+    corner-shape: round;
     background: var(--chip-color) !important;
-    border-color: transparent !important;
   }
 
   .rd-chip.rd-chip--color .chip-text,
   .rd-chip.rd-chip--color:hover .chip-text,
   .rd-chip.rd-chip--color.active .chip-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11.5px;
     color: var(--chip-text) !important;
     font-weight: 600;
   }
@@ -1597,11 +1744,16 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     filter: brightness(1.1);
   }
 
-  /* selected: a ring, since the fill is already taken by the colour */
+  /* selected: a ring inside the segment, since the fill is already taken by the colour */
   .rd-chip.rd-chip--color.active {
     box-shadow:
-      0 0 0 2px #0b1120,
-      0 0 0 4px var(--chip-color) !important;
+      inset 0 0 0 1px var(--chip-color),
+      inset 0 0 0 3px #0b1120 !important;
+  }
+
+  .rd-chip.rd-chip--color:has(input:focus-visible) {
+    outline: 2px solid var(--rd-accent-light);
+    outline-offset: -2px;
   }
 
   /* Method inputs */
