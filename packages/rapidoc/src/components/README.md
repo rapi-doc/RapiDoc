@@ -53,7 +53,12 @@ The `before-try`, `after-try`, `request-aborted`, `change` and `input` events ar
 - `isFieldHidden(node)` hides read-only / write-only nodes per the hide flags, and `renderAST`
   skips a hidden node's whole subtree [schema-base-element.ts:SchemaBaseElement.isFieldHidden].
 - A node starts expanded iff `schemaLevel < schemaExpandLevel`; children render at
-  `schemaLevel + 1`. Union options stay at the parent's level in `<schema-tree>` but go one level
+  `schemaLevel + 1`. A row that starts collapsed renders no contents until it is first opened
+  (`showContents`; the row carries its node as `schemaNode`), so its lazily built subtree is not
+  built before then [schema-base-element.ts:SchemaBaseElement.showContents].
+- `<api-response>` renders a status's panel (examples, schema) only once that status is selected,
+  then keeps it; panels of statuses never selected stay empty `display: none` placeholders
+  [api-response.ts:ApiResponse.responseTemplate]. Union options stay at the parent's level in `<schema-tree>` but go one level
   deeper in `<schema-table>`.
 - Markdown descriptions are passed through `sanitizeHTML` before `unsafeHTML`; plain-text schema
   descriptions skip markdown and rely on Lit escaping

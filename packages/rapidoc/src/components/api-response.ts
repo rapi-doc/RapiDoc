@@ -146,6 +146,10 @@ export default class ApiResponse extends LitElement {
     ];
   }
 
+  // Statuses whose panel has been rendered: only the selected status's panel renders at first (a large spec has
+  // an error response next to nearly every success), and a panel stays once shown, keeping its state
+  private shownStatuses = new Set<string>();
+
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
     // Sync configuration options passed down from parent <rapi-doc>
@@ -182,6 +186,7 @@ export default class ApiResponse extends LitElement {
       changedProperties.has("callback") ||
       changedProperties.has("webhook")
     ) {
+      this.shownStatuses.clear();
       if (!this.responses || typeof this.responses !== "object") {
         return;
       }
@@ -294,9 +299,13 @@ export default class ApiResponse extends LitElement {
             </div>`
           : html`<span>${Object.keys(this.responses)[0]}</span>`
       }
-      ${Object.keys(this.responses).map(
-        (status) =>
-          html`<div style="display: ${status === this.selectedStatus ? "block" : "none"}">
+      ${Object.keys(this.responses).map((status) => {
+        if (status === this.selectedStatus) {
+          this.shownStatuses.add(status);
+        }
+        return !this.shownStatuses.has(status)
+          ? html`<div style="display: none"></div>`
+          : html`<div style="display: ${status === this.selectedStatus ? "block" : "none"}">
             <div class="top-gap">
               ${
                 this.responses[status]?.summary
@@ -343,8 +352,8 @@ export default class ApiResponse extends LitElement {
                     }
                   </div> `
             }
-          </div>`,
-      )}
+          </div>`;
+      })}
     `;
   }
 

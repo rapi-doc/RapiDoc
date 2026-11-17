@@ -280,6 +280,7 @@ export default class SchemaTable extends SchemaBaseElement {
           class="tr ${isExpanded ? "expanded" : "collapsed"} array ${nullClass}"
           data-obj="${node.name || ""}"
           title="${node.deprecated ? `Deprecated ${node.name}` : node.name || nothing}"
+          .schemaNode=${node}
         >
           <div class="td key ${node.deprecated ? "deprecated" : ""}" style="padding-left:${leftPadding}px">
             ${
@@ -306,14 +307,16 @@ export default class SchemaTable extends SchemaBaseElement {
             ? html`
                 <div class="object-body">
                   ${
-                    items.kind === "object"
-                      ? html`
+                    !this.showContents(node, isExpanded || !node.name)
+                      ? ""
+                      : items.kind === "object"
+                        ? html`
                           ${items.properties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
                           ${items.patternProperties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
                           ${items.additionalProperties ? this.renderAST(items.additionalProperties, "object", schemaLevel + 1, indentLevel + 1) : ""}
                           ${items.unions?.map((u) => this.renderAST(u, "object", schemaLevel + 1, indentLevel + 1))}
                         `
-                      : this.renderAST(items, "array", schemaLevel + 1, indentLevel + 1)
+                        : this.renderAST(items, "array", schemaLevel + 1, indentLevel + 1)
                   }
                 </div>
               `
@@ -341,6 +344,7 @@ export default class SchemaTable extends SchemaBaseElement {
                   class="tr ${isExpanded ? "expanded" : "collapsed"} object ${nullClass}"
                   data-obj="${node.name}"
                   title="${node.deprecated ? `Deprecated ${node.name}` : node.name}"
+                  .schemaNode=${node}
                 >
                   <div class="td key ${node.deprecated ? "deprecated" : ""}" style="padding-left:${leftPadding}px">
                     ${
@@ -373,10 +377,17 @@ export default class SchemaTable extends SchemaBaseElement {
           hasChildren
             ? html`
                 <div class="object-body">
-                  ${node.properties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
-                  ${node.patternProperties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
-                  ${node.additionalProperties ? this.renderAST(node.additionalProperties, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)) : ""}
-                  ${node.unions?.map((u) => this.renderAST(u, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
+                  ${
+                    // A nameless object has no row to collapse it: its contents always show
+                    this.showContents(node, isExpanded || !node.name)
+                      ? html`
+                          ${node.properties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
+                          ${node.patternProperties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
+                          ${node.additionalProperties ? this.renderAST(node.additionalProperties, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)) : ""}
+                          ${node.unions?.map((u) => this.renderAST(u, "object", schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
+                        `
+                      : ""
+                  }
                 </div>
               `
             : ""

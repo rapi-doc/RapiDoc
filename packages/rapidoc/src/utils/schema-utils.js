@@ -1491,34 +1491,7 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
 function createObjectAST(schema, level, name, isRequired) {
   const isNullable =
     schema.nullable || (Array.isArray(schema.type) && schema.type.includes("null")) || false;
-  const properties = [];
-  if (schema.properties) {
-    for (const key in schema.properties) {
-      const isPropReq = Array.isArray(schema.required) && schema.required.includes(key);
-      const child = schemaToAST(schema.properties[key], level + 1, key, isPropReq);
-      if (child) properties.push(child);
-    }
-  }
-
-  const patternProperties = [];
-  if (schema.patternProperties) {
-    for (const key in schema.patternProperties) {
-      const child = schemaToAST(
-        schema.patternProperties[key],
-        level + 1,
-        `[pattern: ${key}]`,
-        false,
-      );
-      if (child) patternProperties.push(child);
-    }
-  }
-
-  let additionalProperties = null;
-  if (schema.additionalProperties && typeof schema.additionalProperties === "object") {
-    additionalProperties = schemaToAST(schema.additionalProperties, level + 1, "[any-key]", false);
-  }
-
-  return {
+  const node = {
     kind: "object",
     name,
     title: schema.title || "",
@@ -1529,20 +1502,43 @@ function createObjectAST(schema, level, name, isRequired) {
     writeOnly: schema.writeOnly || false,
     nullable: isNullable,
     dataTypeLabel: isNullable ? "object ┃ null" : "object",
-    properties,
-    patternProperties,
-    additionalProperties,
   };
+  lazyChild(node, "properties", () => propertiesAST(schema, level));
+  lazyChild(node, "patternProperties", () => {
+    const patternProperties = [];
+    for (const key in schema.patternProperties || {}) {
+      const child = schemaToAST(
+        schema.patternProperties[key],
+        level + 1,
+        `[pattern: ${key}]`,
+        false,
+      );
+      if (child) patternProperties.push(child);
+    }
+    return patternProperties;
+  });
+  lazyChild(node, "additionalProperties", () =>
+    schema.additionalProperties && typeof schema.additionalProperties === "object"
+      ? schemaToAST(schema.additionalProperties, level + 1, "[any-key]", false)
+      : null,
+  );
+  return node;
+}
+
+/** The nodes of a schema's `properties`, one level below it */
+function propertiesAST(schema, level) {
+  const properties = [];
+  for (const key in schema.properties || {}) {
+    const isPropReq = Array.isArray(schema.required) && schema.required.includes(key);
+    const child = schemaToAST(schema.properties[key], level + 1, key, isPropReq);
+    if (child) properties.push(child);
+  }
+  return properties;
 }
 
 function createArrayAST(schema, level, name, isRequired) {
   const isNullable =
     schema.nullable || (Array.isArray(schema.type) && schema.type.includes("null")) || false;
-  let itemsNode = null;
-  if (schema.items) {
-    itemsNode = schemaToAST(schema.items, level + 1, "", false);
-  }
-
   let arrayType = "";
   if (schema.items?.items) {
     arrayType = schema.items.items.type || "";
@@ -1550,7 +1546,7 @@ function createArrayAST(schema, level, name, isRequired) {
     arrayType = schema.items.type;
   }
 
-  return {
+  const node = {
     kind: "array",
     name,
     title: schema.title || "",
@@ -1565,8 +1561,11 @@ function createArrayAST(schema, level, name, isRequired) {
     minItems: schema.minItems,
     maxItems: schema.maxItems,
     uniqueItems: schema.uniqueItems || false,
-    items: itemsNode,
   };
+  lazyChild(node, "items", () =>
+    schema.items ? schemaToAST(schema.items, level + 1, "", false) : null,
+  );
+  return node;
 }
 
 function createPrimitiveAST(schema, name, isRequired) {
@@ -1602,8 +1601,8 @@ function createPrimitiveAST(schema, name, isRequired) {
 
 // Deepest JSON nesting level expanded; anything below an object or array at this level is truncated
 const MAX_SCHEMA_DEPTH = 8;
-// Largest tree built for one schema. A bigger tree (e.g. Stripe's expandable fields) is rebuilt one level shallower,
-// down to MIN_SCHEMA_DEPTH, so the page stays responsive
+// Nodes one schema's tree may grow to before objects and arrays below MIN_SCHEMA_DEPTH stop expanding
+// (e.g. Stripe's expandable fields), so a page that shows a whole tree stays responsive
 const SCHEMA_NODE_BUDGET = 8000;
 const MIN_SCHEMA_DEPTH = 4;
 
@@ -1624,11 +1623,56 @@ function isContainerSchema(schema) {
   );
 }
 
-// State of the schemaToAST() call in progress (conversion is synchronous)
-// Schemas on the current path, to stop on cycles that only go through allOf/anyOf/oneOf
+// State of the build in progress (building is synchronous): the schemas on the path to the node being built, to
+// stop on cycles, and the tree it belongs to, whose node count the budget is checked against
 const schemasInProgress = new Set();
-let maxDepth = MAX_SCHEMA_DEPTH;
-let nodeCount = 0;
+let currentTree = { count: 0 };
+
+/**
+ * Makes a node's children (properties, items, ...) lazy: `build` runs the first time they are read, with the path and
+ * tree the node was built in, and its result replaces the getter. A tree is built only as far as it is read, so a
+ * schema shown collapsed costs only its top level; a reader that walks the whole tree builds all of it.
+ */
+function lazyChild(node, key, build) {
+  const path = [...schemasInProgress];
+  const tree = currentTree;
+  Object.defineProperty(node, key, {
+    enumerable: true,
+    configurable: true,
+    get() {
+      const savedPath = [...schemasInProgress];
+      const savedTree = currentTree;
+      schemasInProgress.clear();
+      path.forEach((s) => schemasInProgress.add(s));
+      currentTree = tree;
+      try {
+        return setChild(this, key, build());
+      } finally {
+        schemasInProgress.clear();
+        savedPath.forEach((s) => schemasInProgress.add(s));
+        currentTree = savedTree;
+      }
+    },
+    set(value) {
+      setChild(this, key, value);
+    },
+  });
+}
+
+function setChild(node, key, value) {
+  Object.defineProperty(node, key, { value, writable: true, enumerable: true, configurable: true });
+  return value;
+}
+
+/** How many nodes a schema adds one level below it: its properties, pattern properties, additional properties, items */
+function directChildCount(schema) {
+  return (
+    Object.keys(schema.properties || {}).length +
+    Object.keys(schema.patternProperties || {}).length +
+    (schema.additionalProperties && typeof schema.additionalProperties === "object" ? 1 : 0) +
+    (schema.items ? 1 : 0)
+  );
+}
 
 /**
  * Transforms an OpenAPI Schema into a strongly-typed Abstract Syntax Tree (AST) node.
@@ -1647,13 +1691,13 @@ export function schemaToAST(schema, level = 0, name = "", isRequired = false, su
   if (schemasInProgress.size > 0) {
     return nodeToAST(schema, level, name, isRequired, suffix);
   }
-  // Top-level call: expand as deep as allowed while the tree fits the budget
-  for (maxDepth = MAX_SCHEMA_DEPTH; ; maxDepth -= 1) {
-    nodeCount = 0;
-    const ast = nodeToAST(schema, level, name, isRequired, suffix);
-    if (nodeCount <= SCHEMA_NODE_BUDGET || maxDepth <= MIN_SCHEMA_DEPTH) {
-      return ast;
-    }
+  // Top-level call: a new tree, with its own node count
+  const savedTree = currentTree;
+  currentTree = { count: 0 };
+  try {
+    return nodeToAST(schema, level, name, isRequired, suffix);
+  } finally {
+    currentTree = savedTree;
   }
 }
 
@@ -1661,12 +1705,13 @@ function nodeToAST(schema, level, name, isRequired, suffix) {
   if (!schema) {
     return null;
   }
-  nodeCount += 1;
-  // Once over budget this attempt is discarded, so stop expanding to get to the next one quickly
-  const overBudget = nodeCount > SCHEMA_NODE_BUDGET && maxDepth > MIN_SCHEMA_DEPTH;
+  currentTree.count += 1;
+  // Below MIN_SCHEMA_DEPTH an object or array stops expanding once it, with its direct children, would pass the budget
+  const overBudget =
+    level > MIN_SCHEMA_DEPTH && currentTree.count + directChildCount(schema) > SCHEMA_NODE_BUDGET;
   if (
     schemasInProgress.has(schema) ||
-    ((level > maxDepth || overBudget) && isContainerSchema(schema))
+    ((level > MAX_SCHEMA_DEPTH || overBudget) && isContainerSchema(schema))
   ) {
     const isArray =
       schema.type === "array" ||
@@ -1785,18 +1830,7 @@ function composeSchemaAST(schema, level, name, isRequired, suffix) {
       })
       .filter(Boolean);
 
-    let baseProps = [];
-    if (schema.type === "object" || schema.properties) {
-      if (schema.properties) {
-        for (const key in schema.properties) {
-          const isReq = Array.isArray(schema.required) && schema.required.includes(key);
-          const propNode = schemaToAST(schema.properties[key], level + 1, key, isReq);
-          if (propNode) baseProps.push(propNode);
-        }
-      }
-    }
-
-    return {
+    const union = {
       kind: "union",
       operator,
       name,
@@ -1804,9 +1838,10 @@ function composeSchemaAST(schema, level, name, isRequired, suffix) {
       title: schema.title || "",
       description: schema.description || "",
       required: isRequired,
-      properties: baseProps,
       options,
     };
+    lazyChild(union, "properties", () => propertiesAST(schema, level));
+    return union;
   }
 
   // 3. Multi-type array (OpenAPI 3.1)

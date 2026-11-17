@@ -166,12 +166,29 @@ export default class SchemaBaseElement extends LitElement {
     }
   }
 
+  // Rows opened by a click whose contents were not rendered: they render from then on (see showContents)
+  private openedNodes = new WeakSet();
+
+  /**
+   * Whether a row's contents are rendered: when it starts expanded, or once it has been opened. A collapsed row's
+   * contents are left out, so its schema subtree (built lazily, see schemaToAST) is not built until it is opened.
+   */
+  showContents(node, isExpanded) {
+    return isExpanded || this.openedNodes.has(node);
+  }
+
   toggleObjectExpand(targetEl) {
     const rowEl = targetEl.closest(".tr");
     if (!rowEl) {
       return;
     }
     const isExpanding = rowEl.classList.contains("collapsed");
+    // First opening of a row rendered collapsed: render its contents. The row keeps the class set here, since
+    // the template's class value for it doesn't change
+    if (isExpanding && rowEl.schemaNode && !this.openedNodes.has(rowEl.schemaNode)) {
+      this.openedNodes.add(rowEl.schemaNode);
+      this.requestUpdate();
+    }
     if (isExpanding) {
       rowEl.classList.replace("collapsed", "expanded");
     } else {

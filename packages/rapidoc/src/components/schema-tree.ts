@@ -216,6 +216,7 @@ export default class SchemaTree extends SchemaBaseElement {
           <div
             class="tr ${isExpanded ? "expanded" : "collapsed"} object ${nullClass}"
             title="${node.deprecated || items.deprecated ? "Deprecated" : nothing}"
+            .schemaNode=${node}
           >
             <div class="td key ${node.deprecated || items.deprecated ? "deprecated" : ""}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ""}${readWriteBadge}:</span>` : ""}
@@ -224,10 +225,16 @@ export default class SchemaTree extends SchemaBaseElement {
             ${this.renderDescrCell(node.description || items.description)}
           </div>
           <div class="inside-bracket object" style="padding-left:${leftPadding}px;">
-            ${items.properties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
-            ${items.patternProperties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
-            ${items.additionalProperties ? this.renderAST(items.additionalProperties, "object", schemaLevel + 1, indentLevel + 1) : ""}
-            ${items.unions?.map((u) => this.renderAST(u, "object", schemaLevel + 1, indentLevel + 1))}
+            ${
+              this.showContents(node, isExpanded)
+                ? html`
+                    ${items.properties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
+                    ${items.patternProperties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
+                    ${items.additionalProperties ? this.renderAST(items.additionalProperties, "object", schemaLevel + 1, indentLevel + 1) : ""}
+                    ${items.unions?.map((u) => this.renderAST(u, "object", schemaLevel + 1, indentLevel + 1))}
+                  `
+                : ""
+            }
           </div>
           <div class="close-bracket">${closeBracket}</div>
         `;
@@ -251,7 +258,7 @@ export default class SchemaTree extends SchemaBaseElement {
           : "";
 
         return html`
-          <div class="tr ${isExpanded ? "expanded" : "collapsed"} array ${nullClass}" title="${node.deprecated ? "Deprecated" : nothing}">
+          <div class="tr ${isExpanded ? "expanded" : "collapsed"} array ${nullClass}" title="${node.deprecated ? "Deprecated" : nothing}" .schemaNode=${node}>
             <div class="td key ${node.deprecated ? "deprecated" : ""}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ""}${readWriteBadge}:</span>` : ""}
               ${openBracket}
@@ -259,7 +266,7 @@ export default class SchemaTree extends SchemaBaseElement {
             ${this.renderDescrCell(node.description)}
           </div>
           <div class="inside-bracket array" style="padding-left:${leftPadding}px;">
-            ${this.renderAST(items, "array", schemaLevel + 1, indentLevel + 1)}
+            ${this.showContents(node, isExpanded) ? this.renderAST(items, "array", schemaLevel + 1, indentLevel + 1) : ""}
           </div>
           <div class="close-bracket">${closeBracket}</div>
         `;
@@ -268,7 +275,7 @@ export default class SchemaTree extends SchemaBaseElement {
       // If array of unions or others
       const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ""}` : "";
       return html`
-        <div class="tr ${isExpanded ? "expanded" : "collapsed"} array ${nullClass}" title="${node.deprecated ? "Deprecated" : nothing}">
+        <div class="tr ${isExpanded ? "expanded" : "collapsed"} array ${nullClass}" title="${node.deprecated ? "Deprecated" : nothing}" .schemaNode=${node}>
           <div class="td key ${node.deprecated ? "deprecated" : ""}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ""}${readWriteBadge}:</span>` : ""}
             <span
@@ -283,7 +290,7 @@ export default class SchemaTree extends SchemaBaseElement {
           ${this.renderDescrCell(node.description)}
         </div>
         <div class="inside-bracket array" style="padding-left:${leftPadding}px;">
-          ${this.renderAST(items, "array", schemaLevel + 1, indentLevel + 1)}
+          ${this.showContents(node, isExpanded) ? this.renderAST(items, "array", schemaLevel + 1, indentLevel + 1) : ""}
         </div>
         <div class="close-bracket">]</div>
       `;
@@ -303,7 +310,7 @@ export default class SchemaTree extends SchemaBaseElement {
       const fieldTitle = node.name ? `${node.name}${readWriteTip ? ` (${readWriteTip})` : ""}` : "";
 
       return html`
-        <div class="tr ${isExpanded ? "expanded" : "collapsed"} object ${nullClass}" title="${node.deprecated ? "Deprecated" : nothing}">
+        <div class="tr ${isExpanded ? "expanded" : "collapsed"} object ${nullClass}" title="${node.deprecated ? "Deprecated" : nothing}" .schemaNode=${node}>
           <div class="td key ${node.deprecated ? "deprecated" : ""}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}${node.name ? html`<span class="key-label" title="${fieldTitle}">${node.name}${node.required ? html`<span style="color:var(--destructive)">*</span>` : ""}${readWriteBadge}:</span>` : ""}
             ${openBracket}
@@ -311,10 +318,16 @@ export default class SchemaTree extends SchemaBaseElement {
           ${this.renderDescrCell(node.description)}
         </div>
         <div class="inside-bracket object" style="padding-left:${leftPadding}px;">
-          ${node.properties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
-          ${node.patternProperties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
-          ${node.additionalProperties ? this.renderAST(node.additionalProperties, "object", schemaLevel + 1, indentLevel + 1) : ""}
-          ${node.unions?.map((u) => this.renderAST(u, "object", schemaLevel + 1, indentLevel + 1))}
+          ${
+            this.showContents(node, isExpanded)
+              ? html`
+                  ${node.properties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
+                  ${node.patternProperties?.map((p) => this.renderAST(p, "object", schemaLevel + 1, indentLevel + 1))}
+                  ${node.additionalProperties ? this.renderAST(node.additionalProperties, "object", schemaLevel + 1, indentLevel + 1) : ""}
+                  ${node.unions?.map((u) => this.renderAST(u, "object", schemaLevel + 1, indentLevel + 1))}
+                `
+              : ""
+          }
         </div>
         <div class="close-bracket">${closeBracket}</div>
       `;
