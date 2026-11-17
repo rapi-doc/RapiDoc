@@ -458,3 +458,38 @@ export function groupControlsByCategory(
     }))
     .filter((g) => g.controls.length > 0);
 }
+
+/**
+ * How a list control is drawn, decided when the page is built so it never wraps: a segmented bar
+ * when its values fit one row of the drawer, else a dropdown; and inline (the name on the left, the
+ * control on the right) when both fit one row. Widths are estimates from the label lengths, at the
+ * drawer's fixed font sizes, with some slack.
+ */
+export interface ControlLayout {
+  kind: "bar" | "select";
+  inline: boolean;
+}
+
+/** The drawer's content width (420px drawer, less its own and the card's padding), with slack. */
+export const TUNER_ROW_WIDTH = 340;
+/** Average character widths: values at 12px/500 sans, names at 12px/600 mono. */
+const VALUE_CHAR = 6.8;
+const NAME_CHAR = 7.3;
+const SEGMENT_PADDING = 21;
+/** The ⓘ icon after a name, and the gap between the name and an inline control. */
+const NAME_EXTRA = 20 + 12;
+const SELECT_EXTRA = 34;
+
+export function barWidth(options: ControlOption[]): number {
+  return options.reduce((sum, o) => sum + o.label.length * VALUE_CHAR + SEGMENT_PADDING, 1);
+}
+
+export function controlLayout(ctrl: SegmentedControl): ControlLayout {
+  const name = ctrl.label.length * NAME_CHAR + NAME_EXTRA;
+  // A colour bar's segments shrink to fit: always a bar, on its own row
+  if (ctrl.options.some((o) => o.dotColor)) return { kind: "bar", inline: false };
+  const bar = barWidth(ctrl.options);
+  if (bar <= TUNER_ROW_WIDTH) return { kind: "bar", inline: name + bar <= TUNER_ROW_WIDTH };
+  const select = Math.max(...ctrl.options.map((o) => o.label.length)) * VALUE_CHAR + SELECT_EXTRA;
+  return { kind: "select", inline: name + select <= TUNER_ROW_WIDTH };
+}
