@@ -18,7 +18,7 @@ info:
     | `/public-*` | Paths matching the glob: `*` matches within one path segment. |
     | `/reports/**` | `**` matches any number of segments, `/reports` itself included. |
     | `tag:Reports` | Operations with that tag. Quote a name with spaces: `tag:"Admin Tools"`. |
-    | `badge:Core` | Operations with that `x-badges` label. |
+    | `badge:Core` | Operations with that `x-badges` label, or an OpenAPI 3.2 tag of `kind: badge` (by its label or name). |
     | `deprecated` | Deprecated operations. |
     | `!<term>` | Leaves out what the term matches, as in `!badge:Internal` or `!deprecated`. |
 

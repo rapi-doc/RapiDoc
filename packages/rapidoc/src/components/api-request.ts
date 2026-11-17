@@ -48,6 +48,8 @@ export default class ApiRequest extends LitElement {
   @property({ type: String, attribute: "fill-request-fields-with-example" })
   fillRequestFieldsWithExample = "";
   @property({ type: String, attribute: "allow-try" }) allowTry = "true";
+  // Why Try is off for this operation (allow-try="disabled"): shown next to TRY DISABLED
+  @property({ type: String, attribute: "try-disabled-reason" }) tryDisabledReason = "";
   @property({ type: String, attribute: "show-curl-before-try" }) showCurlBeforeTry = "false";
   @property({ type: String, attribute: "render-style" }) renderStyle = "view";
   @property({ type: String, attribute: "schema-style" }) schemaStyle = "tree";
@@ -224,6 +226,19 @@ export default class ApiRequest extends LitElement {
           }
         }
 
+        /* Next to the TRY DISABLED button: why Try is off for this operation (allow-try's terms) */
+        .try-disabled-reason {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          flex: 0 1 auto;
+          min-width: 0;
+          max-width: 22rem;
+          color: var(--muted-foreground);
+          font-size: var(--font-size-small);
+          line-height: 1.35;
+          text-align: right;
+        }
         .response-message {
           font-weight: bold;
           text-overflow: ellipsis;
@@ -320,11 +335,13 @@ export default class ApiRequest extends LitElement {
           margin: 16px 0;
           font-size: var(--font-size-small);
         }
-        /* Narrow: summary on top, actions below it on the right */
+        /* One wrapping row: the summary keeps at least 18rem and takes the free space; the actions sit
+           on the right, and move under the summary (still on the right) when both do not fit */
         .try-layout {
           display: flex;
-          flex-direction: column;
-          gap: 0.75em;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 0.75em 1.5em;
         }
         .try-info {
           display: grid;
@@ -332,6 +349,8 @@ export default class ApiRequest extends LitElement {
           gap: 0.25em 0.75em;
           margin: 0;
           line-height: 1.35;
+          flex: 1 1 18rem;
+          min-width: 0;
 
           & > dt {
             font-weight: 600;
@@ -347,23 +366,12 @@ export default class ApiRequest extends LitElement {
         .try-actions {
           display: flex;
           flex-wrap: wrap;
+          align-items: center;
           justify-content: flex-end;
           gap: 0.5em;
-        }
-        /* Wide: one row; the summary takes the free space and the actions keep their size */
-        @container (min-width: 34rem) {
-          .try-layout {
-            flex-direction: row;
-            align-items: center;
-            gap: 1.5em;
-          }
-          .try-info {
-            flex: 1;
-            min-width: 0;
-          }
-          .try-actions {
-            flex: none;
-          }
+          flex: 0 1 auto;
+          max-width: 100%;
+          margin-left: auto;
         }
         /* Very narrow: each label above its value */
         @container (max-width: 20rem) {
@@ -1030,7 +1038,10 @@ export default class ApiRequest extends LitElement {
               : "false";
       if (this.config.fillRequestFieldsWithExample !== undefined)
         this.fillRequestFieldsWithExample = this.config.fillRequestFieldsWithExample;
-      if (this.config.allowTry !== undefined) this.allowTry = this.config.allowTry;
+      // The template's allow-try is per operation (try-filter.js); the element-wide value only
+      // applies to a request rendered without one
+      if (this.config.allowTry !== undefined && !this.hasAttribute("allow-try"))
+        this.allowTry = this.config.allowTry === "false" ? "false" : "true";
       if (this.config.showCurlBeforeTry !== undefined)
         this.showCurlBeforeTry = this.config.showCurlBeforeTry;
       if (this.config.fetchCredentials !== undefined)

@@ -13,6 +13,7 @@ import securitySchemeTemplate, {
   recoverPersistedApiKeys,
 } from "~/templates/security-scheme-template";
 import headerTemplate from "~/templates/header-template";
+import { tryAnywhere } from "~/utils/try-filter";
 import navbarTemplate from "~/templates/navbar-template";
 import advancedSearchDialogTemplate from "~/templates/advanced-search-dialog-template";
 import componentsTemplate from "~/templates/components-template";
@@ -86,7 +87,7 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
                               : html`
                                   ${this.showInfo === "true" ? overviewTemplate.call(this) : ""} ${downloadsTemplate.call(this)}
                                   ${this.allowServerSelection === "true" ? serverTemplate.call(this) : ""}
-                                  ${this.allowAuthentication === "true" ? securitySchemeTemplate.call(this, this.allowTry) : ""}
+                                  ${this.allowAuthentication === "true" ? securitySchemeTemplate.call(this, tryAnywhere(this.allowTry)) : ""}
                                   <div id="operations-top" class="observe-me">
                                     <slot name="operations-top"></slot>
                                   </div>

@@ -459,6 +459,21 @@ export default css`
     flex: 1;
   }
 
+  /* show-badges-in-nav-bar="dot": the operation shows a badge (part nav-badge-dot to restyle it) */
+  .nav-badge-dot {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    align-self: center;
+  }
+  /* Last in its row (no method shown: the element renders .nav-method.false, the static sidebar
+     nothing): centered under the tag's 16px chevron, which sits 1px further in */
+  .nav-badge-dot:has(+ .nav-method.false),
+  .nav-badge-dot:last-child {
+    margin-inline-end: 4px;
+  }
+
   .nav-bar-webhook {
     font-weight: bold;
     margin-right: 8px;

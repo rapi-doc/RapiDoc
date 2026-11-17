@@ -14,7 +14,7 @@ import { resolveSpecInput } from "./render.js";
 import { escapeHtml } from "./serializer.js";
 import { OperationSlugger, toKebabCase } from "../../rapidoc/src/utils/slugger.js";
 import { bindNavBar } from "../../rapidoc/src/utils/bind-navbar.js";
-import { isInternalOrHidden } from "../../rapidoc/src/utils/common-utils.js";
+import { isInternalOrHidden, navBadgeDot } from "../../rapidoc/src/utils/common-utils.js";
 
 export { isInternalOrHidden };
 
@@ -237,8 +237,17 @@ function renderOperation(op, tagSlug, ctx) {
       id="link-${contentId}"
       tabindex="0"
     >
-      <span class="nav-bar-path-label">${label}</span>${methodHtml}
+      <span class="nav-bar-path-label">${label}</span>${badgeDotHtml(ctx.showBadgesInNavBar, op.xBadges)}${methodHtml}
     </a>`;
+}
+
+/** An item's badge dot, as <rapi-doc>'s show-badges-in-nav-bar="dot" draws it */
+function badgeDotHtml(mode, xBadges) {
+  if (mode === "false") return "";
+  const dot = navBadgeDot(xBadges);
+  if (!dot) return "";
+  const labels = escapeHtml(dot.labels.join(", "));
+  return `\n      <span class="nav-badge-dot" part="nav-badge-dot" role="img" aria-label="Badges: ${labels}" title="${labels}" style="background:${escapeHtml(dot.color)}"></span>`;
 }
 
 /**
@@ -401,6 +410,8 @@ export async function getNavBarHtml(specInput, options = {}) {
  *   How each operation shows its HTTP method, as `show-method-in-nav-bar` of <rapi-doc> (also accepted under that name)
  * @param {boolean|string} [options.usePathInNav=false] - Display endpoint path instead of summary (also accepted as
  *   `use-path-in-nav-bar`, `'true'` or `true`)
+ * @param {'dot'|'false'} [options.showBadgesInNavBar='dot'] - A dot on items whose operation shows a badge, as
+ *   `show-badges-in-nav-bar` of <rapi-doc> (also accepted under that name)
  * @returns {string} Standard RapiDoc navigation HTML
  */
 export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
@@ -421,6 +432,8 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
   const showMethodInNavBar = METHOD_STYLES.includes(String(methodStyle))
     ? String(methodStyle)
     : "as-colored-block";
+  const badgeOption = options.showBadgesInNavBar ?? options["show-badges-in-nav-bar"];
+  const showBadgesInNavBar = String(badgeOption) === "false" ? "false" : "dot";
   const pathOption = options.usePathInNav ?? options["use-path-in-nav-bar"];
   const usePathInNav = pathOption === true || pathOption === "true";
 
@@ -436,6 +449,7 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
     includeOverview,
     methodBadgeFormat,
     showMethodInNavBar,
+    showBadgesInNavBar,
     usePathInNav,
     resolvedSpec,
     slugger,

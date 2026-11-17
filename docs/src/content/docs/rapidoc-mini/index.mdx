@@ -36,13 +36,15 @@ Point `spec-url` at your spec and choose operations with `filter-operations`:
 | `/pet/{petId}` | Every method on that path. |
 | `/pet/*`, `/pet/**` | Paths matching the glob: `*` is one path segment, `**` any number of segments, `/pet` itself included. |
 | `tag:store` | Operations with that tag. Quote a name with spaces: `tag:"Pet Store"`. |
-| `badge:Beta` | Operations with that `x-badges` label. |
+| `badge:Beta` | Operations with that `x-badges` label, or an OpenAPI 3.2 tag of `kind: badge` (by its label or name). |
 | `deprecated` | Deprecated operations. |
 | `!<term>` | Leaves out what the term matches, as in `!badge:Internal` or `!deprecated`. |
 
 Methods, paths, tags and badge labels are compared without case. Paths are matched whole, never as part of a longer path: `POST /user` does not show `POST /user/createWithList`; use `/user/**` for everything under `/user`.
 
 An `operationId` is matched only when the term is none of the other kinds: an id that starts with `tag:` or `badge:`, or is the word `deprecated`, is read as that kind instead. Select such an operation by its method and path (`GET /path`).
+
+`allow-try` takes the same terms, to turn **Try** on only for the operations they select: `allow-try="!deprecated !tag:pending-implementation"`. The operations they leave out keep their request documentation and show a disabled **TRY DISABLED** button.
 
 The operations are shown in the order of the first term they match, so a list of operationIds keeps its order, unless `sort-endpoints-by` is set:
 

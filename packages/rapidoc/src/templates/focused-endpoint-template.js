@@ -7,6 +7,7 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHTML } from "../utils/sanitize.js";
 import { marked } from "marked";
 import Slugger from "github-slugger";
+import { tryAnywhere } from "~/utils/try-filter";
 import { expandedEndpointBodyTemplate } from "~/templates/expanded-endpoint-template";
 import "~/components/api-request";
 import "~/components/api-response";
@@ -93,7 +94,7 @@ export default function focusedEndpointTemplate() {
   if (focusElId.startsWith("overview") && this.showInfo === "true") {
     focusedTemplate = html`${overviewTemplate.call(this)}${downloadsTemplate.call(this)}`;
   } else if (focusElId === "auth" && this.allowAuthentication === "true") {
-    focusedTemplate = securitySchemeTemplate.call(this, this.allowTry);
+    focusedTemplate = securitySchemeTemplate.call(this, tryAnywhere(this.allowTry));
   } else if (focusElId === "servers" && this.allowServerSelection === "true") {
     focusedTemplate = serverTemplate.call(this);
   } else if (focusElId === "operations-top") {

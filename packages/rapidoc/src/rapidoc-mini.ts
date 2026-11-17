@@ -285,12 +285,19 @@ export default class RapiDocMini extends LitElement {
 
   /**
    * Enables the interactive "TRY" console allowing users to test live API calls directly from their
-   * browser.
+   * browser. Besides <span class="mono yellow">true</span> and <span class="mono
+   * yellow">false</span>, it takes the terms of <span class="mono yellow">filter-operations</span>
+   * to turn Try on only for the operations they select: <span class="mono yellow">!deprecated
+   * !tag:pending-implementation</span> keeps it off for deprecated operations and those tagged
+   * pending-implementation. The others keep their request documentation and show a disabled TRY
+   * DISABLED button. The Authentication section stays usable unless it is <span class="mono
+   * yellow">false</span>.
    * @summary Live interactive endpoint testing console
    * @group Try & Servers
+   * @allowedNote (or filter-operations terms, e.g. !deprecated)
    */
   @property({ type: String, attribute: "allow-try" })
-  allowTry: "true" | "false" = "true";
+  allowTry: "true" | "false" | (string & {}) = "true";
   /**
    * When set to <span class="mono fg-color">true</span>, generates and displays copyable cURL
    * commands directly within the endpoint documentation prior to clicking "TRY".
@@ -364,7 +371,7 @@ export default class RapiDocMini extends LitElement {
    * method and path (<span class="mono yellow">GET /pet/{petId}</span>), a path for all its methods,
    * a path glob (<span class="mono yellow">/pet/**</span>; <span class="mono yellow">*</span> is one
    * segment, <span class="mono yellow">**</span> any number), <span class="mono
-   * yellow">tag:store</span>, <span class="mono yellow">badge:Beta</span> (an x-badges label) or
+   * yellow">tag:store</span>, <span class="mono yellow">badge:Beta</span> (an x-badges label, or an OpenAPI 3.2 tag of kind: badge) or
    * <span class="mono yellow">deprecated</span>; <span class="mono yellow">!</span> before a term
    * leaves out what it matches (<span class="mono yellow">!badge:Internal</span>). Shown operations
    * keep the order of the first term they match, so a list of operationIds shows them in that
@@ -536,7 +543,8 @@ export default class RapiDocMini extends LitElement {
       this.responseAreaHeight = "300px";
     }
 
-    if (!this.allowTry || !"true, false,".includes(`${this.allowTry},`)) {
+    // "true", "false", or filter-operations terms (utils/try-filter.js)
+    if (!this.allowTry || !String(this.allowTry).trim()) {
       this.allowTry = "true";
     }
     if (!this.apiKeyValue) {

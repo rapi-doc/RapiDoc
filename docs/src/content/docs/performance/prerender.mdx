@@ -145,7 +145,7 @@ For an interactive single endpoint in the browser instead, use [`<rapi-doc-mini>
 
 ## A static sidebar
 
-For a site that draws its own navigation beside a headless `<rapi-doc>`, as the [RapiDoc Portal](https://portal.rapidocui.com/) does, the package also renders the sidebar: `getNavBarHtml(spec, options)` returns its HTML, `getNavCss()` and `getThemeTokensCss(theme)` its styles, and `bindNavBar(sidebar, rapiDoc)` ties it to the element in the browser, so clicks scroll the reference and the current operation is highlighted. `getSpecNavigation(spec)` returns the same tags and operations as data, to build your own.
+For a site that draws its own navigation beside a headless `<rapi-doc>`, as the [RapiDoc Portal](https://portal.rapidocui.com/) does, the package also renders the sidebar: `getNavBarHtml(spec, options)` returns its HTML, `getNavCss()` and `getThemeTokensCss(theme)` its styles, and `bindNavBar(sidebar, rapiDoc)` ties it to the element in the browser, so clicks scroll the reference and the current operation is highlighted. `getSpecNavigation(spec)` returns the same tags and operations as data, to build your own. Its options follow `<rapi-doc>`'s sidebar attributes: `showMethodInNavBar`, `usePathInNav` and `showBadgesInNavBar` (`"dot"`, the default, marks items whose operation shows a badge; `"false"` turns that off).
 
 <Aside>
   The pre-rendered HTML comes from the same templates as the element, so the two match.

@@ -114,6 +114,9 @@ export interface RenderNavBarHtmlOptions {
   /** How each operation shows its HTTP method, as `show-method-in-nav-bar` of `<rapi-doc>` (default `as-colored-block`). */
   showMethodInNavBar?: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block";
   "show-method-in-nav-bar"?: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block";
+  /** A dot on items whose operation shows a badge, as `show-badges-in-nav-bar` of `<rapi-doc>` (default `dot`). */
+  showBadgesInNavBar?: "dot" | "false";
+  "show-badges-in-nav-bar"?: "dot" | "false";
   /** Show each operation's path instead of its summary, as `use-path-in-nav-bar` of `<rapi-doc>`. */
   usePathInNav?: boolean | "true" | "false";
   "use-path-in-nav-bar"?: boolean | "true" | "false";

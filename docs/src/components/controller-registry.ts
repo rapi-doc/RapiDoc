@@ -102,6 +102,7 @@ const ATTRIBUTE_CONTROLS: Record<string, AttributeControl> = {
   scale: {},
   "use-path-in-nav-bar": {},
   "show-method-in-nav-bar": {},
+  "show-badges-in-nav-bar": {},
   "nav-item-spacing": {},
   "sort-tags": {},
   "info-description-headings-in-navbar": {},
@@ -115,7 +116,9 @@ const ATTRIBUTE_CONTROLS: Record<string, AttributeControl> = {
   "fill-request-fields-with-example": {},
   "show-header": {},
   "show-info": {},
-  "allow-try": {},
+  // Also takes filter-operations terms: two examples (the Try page's reqres spec has a deprecated
+  // operation and a Beta badge)
+  "allow-try": { values: ["true", "false", "!deprecated", "!deprecated !badge:Beta"] },
   "show-curl-before-try": {},
   "allow-server-selection": {},
   "allow-authentication": {},
