@@ -10,6 +10,7 @@ import ThemeTokens, {
 import FlowStyles from "~/styles/flow-styles";
 import InputStyles from "~/styles/input-styles";
 import { AutoColorSchemeController } from "~/utils/auto-color-scheme";
+import { pickStatusCode } from "~/utils/status-codes.js";
 import workflowRuntimeSource from "~/utils/mcp/workflow-runtime.js?raw";
 import {
   parseDocument,
@@ -206,11 +207,13 @@ export default class RapiFlow extends LitElement {
   @state() private runInputs: Record<string, string> = {};
   /**
    * Status codes a mock answers with during a run, by step id, `*` for every other step; each a
-   * list such as "503, 200". A paired element's in-browser mock gets them per operation; any other
-   * server gets `Prefer: code=<status>` on the request, which `rapidoc mock` honours.
+   * list such as "503, 200", used in turn per attempt, or with a prefix: `random:200,500`,
+   * `cycle:503,503,200`. A step's `x-mock-server-status-code` in the Arazzo document is its starting
+   * value; a key set here (even to "") wins over it. A paired element's in-browser mock gets them
+   * per operation; any other server gets `Prefer: code=<status>` on the request, which
+   * `rapidoc mock` honours.
    */
   @property({ type: Object, attribute: false }) statusCodes: Record<string, string> = {};
-  @state() private mockStrategy = "cycle";
   // Credentials typed into the run panel, by security scheme id, for sources with no paired element
   @state() private manualCredentials: Record<string, string> = {};
   @state() private runningStepId = "";
@@ -574,16 +577,6 @@ export default class RapiFlow extends LitElement {
         max-width: 48rem;
         margin: 0.5rem 0.75rem 0.25rem;
         font-size: var(--font-size-small);
-      }
-      .run-inputs .run-mock-strategy {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-      }
-      .run-mock-strategy select {
-        flex: 0 0 auto;
-        width: auto;
       }
       .run-actions {
         display: flex;
@@ -1449,7 +1442,6 @@ export default class RapiFlow extends LitElement {
       graph.steps.filter((st) => st.kind === "external").map((st) => st.stepId),
     );
     const codes = this.statusCodesByStep(graph);
-    const anyList = Object.values(codes).some((c) => c.includes(","));
     const restore = [];
     if (Object.keys(codes).length) {
       for (const name of mockedSources) {
@@ -1463,20 +1455,13 @@ export default class RapiFlow extends LitElement {
         if (codes["*"]) byOperation["*"] = codes["*"];
         restore.push({ el, code: el.mockServerStatusCode, strategy: el.mockServerStatusStrategy });
         el.mockServerStatusCode = byOperation;
-        el.mockServerStatusStrategy = anyList ? this.mockStrategy : "first";
+        // Codes without a prefix are used in turn; a prefix (random:, cycle:) on a value wins
+        el.mockServerStatusStrategy = "cycle";
       }
       await Promise.all(restore.map((r) => r.el.updateComplete));
     }
-    const pick = (list: string, attempt: number) => {
-      const items = list
-        .split(",")
-        .map((c) => c.trim())
-        .filter(Boolean);
-      if (!items.length) return "";
-      if (this.mockStrategy === "random" && items.length > 1)
-        return items[Math.floor(Math.random() * items.length)];
-      return items[(attempt - 1) % items.length];
-    };
+    // A step's attempts take the codes in turn (or at random with random:)
+    const pick = (list: string, attempt: number) => pickStatusCode(list, attempt - 1);
     const abort = new AbortController();
     this.runAbort = abort;
     const result = await prepared.runtime.callTool(prepared.tool.name, inputs, {
@@ -1591,13 +1576,18 @@ export default class RapiFlow extends LitElement {
       )}`;
   }
 
+  /** A field's value: what statusCodes says (typed, or set by the host), else the step's extension */
+  private statusCodeFor(graph, key: string): string {
+    if (this.statusCodes && key in this.statusCodes) return String(this.statusCodes[key] ?? "");
+    return graph.steps.find((s) => s.stepId === key)?.mockStatusCode || "";
+  }
+
   /** The run's status codes with blanks dropped: `{ "*": "...", <stepId>: "..." }`. */
   private statusCodesByStep(graph): Record<string, string> {
     const out = {};
-    const stepIds = new Set(graph.steps.map((s) => s.stepId));
-    for (const [key, value] of Object.entries(this.statusCodes || {})) {
-      const codes = String(value ?? "").trim();
-      if (codes && (key === "*" || stepIds.has(key))) out[key] = codes;
+    for (const key of ["*", ...graph.steps.map((s) => s.stepId)]) {
+      const codes = this.statusCodeFor(graph, key).trim();
+      if (codes) out[key] = codes;
     }
     return out;
   }
@@ -1613,7 +1603,6 @@ export default class RapiFlow extends LitElement {
     if (!this.runsMocked) return nothing;
     const mocked = this.inBrowserMock;
     const set = (key, value) => (this.statusCodes = { ...this.statusCodes, [key]: value });
-    const anyList = Object.values(this.statusCodes || {}).some((c) => String(c).includes(","));
     const steps = graph.steps.filter((s) => s.operation);
     return html`<details class="run-mock" ?open=${Object.keys(this.statusCodesByStep(graph)).length > 0}>
       <summary>
@@ -1623,8 +1612,10 @@ export default class RapiFlow extends LitElement {
       <p class="muted run-mock-help">
         Make the mock answer with an HTTP status, to try the workflow's failure paths: its
         retries, gotos and ends. Enter one code (<code>404</code>), or several separated by
-        commas (<code>503, 200</code>) to give a step's attempts one each. Leave a field empty
-        for the success response; a step's own field overrides Every step.
+        commas (<code>503, 503, 200</code>) to give a step's attempts one each, in turn;
+        <code>random:200, 500</code> picks one at random for each attempt. Leave a field empty
+        for the success response; a step's own field overrides Every step. A step's
+        <code>x-mock-server-status-code</code> in the workflow fills its field.
       </p>
       <div class="run-mock-rows">
         ${this.field(
@@ -1633,9 +1624,8 @@ export default class RapiFlow extends LitElement {
           html`<input
             type="text"
             name="mock-status"
-            inputmode="numeric"
-            .value=${this.statusCodes?.["*"] ?? ""}
-            placeholder="e.g. 404, or 503, 200"
+            .value=${this.statusCodeFor(graph, "*")}
+            placeholder="e.g. 404, 503, 200 or random:200, 500"
             @input=${(e) => set("*", e.target.value)}
           />`,
           { mono: false },
@@ -1647,25 +1637,13 @@ export default class RapiFlow extends LitElement {
             html`<input
               type="text"
               name=${`mock-status-${s.stepId}`}
-              inputmode="numeric"
-              .value=${this.statusCodes?.[s.stepId] ?? ""}
+              .value=${this.statusCodeFor(graph, s.stepId)}
               placeholder="Same as every step"
               @input=${(e) => set(s.stepId, e.target.value)}
             />`,
           ),
         )}
       </div>
-      ${
-        anyList
-          ? html`<label class="run-mock-strategy">
-              <span class="muted">Multiple mock response statuses provided: use them</span>
-              <select aria-label="How to use the mock response statuses" @change=${(e) => (this.mockStrategy = e.target.value)}>
-                <option value="cycle" ?selected=${this.mockStrategy === "cycle"}>in turn, per step</option>
-                <option value="random" ?selected=${this.mockStrategy === "random"}>at random</option>
-              </select>
-            </label>`
-          : nothing
-      }
     </details>`;
   }
 

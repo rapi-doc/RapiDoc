@@ -42,46 +42,46 @@ Only operations that `<rapi-doc>` shows are mocked: endpoints left out by a `<ra
 | Attribute | Default | Meaning |
 | :--- | :--- | :--- |
 | `mock-server` | `false` | `true` turns the mock on. Setting it back to `false` turns it off. |
-| `mock-server-status-code` | `200` | The status code to answer with, a comma-separated list of codes (`"200, 404, 500"`), or a JSON map by operation (see below). Set it to `""` to use the first `2xx` response in the spec (else `default`, else the first response listed). |
-| `mock-server-status-strategy` | `first` | How to pick from a list of codes: `first`, `cycle` or `random`. |
+| `mock-server-status-code` | `200` | The status code to answer with, a comma-separated list used in turn (`"503, 503, 200"`), the same with a strategy in front (`"random:200, 500"`), or a JSON map by operation (see below). Set it to `""` to use the first `2xx` response in the spec (else `default`, else the first response listed). |
+| `mock-server-status-strategy` | `cycle` | **Deprecated**: write the strategy in front of the codes instead. How codes without a prefix are picked: `cycle`, `random` or `first`. |
 | `mock-server-delay` | `0` | Milliseconds to wait before answering, to show loading states. For a streamed response, the gap between its items (300 ms when `0`). |
 | `mock-server-log` | `false` | `true` logs each answered request to the browser console. |
 
 ## Simulating errors
 
-Give `mock-server-status-code` several codes and pick a strategy:
+Give `mock-server-status-code` several codes, with the strategy in front of them when it isn't `cycle`:
 
 ```html
 <rapi-doc
   spec-url="/specs/api.yaml"
   mock-server="true"
-  mock-server-status-code="200, 400, 404, 500"
-  mock-server-status-strategy="cycle"
+  mock-server-status-code="503, 503, 200"
 ></rapi-doc>
 ```
 
 <Tabs>
-  <TabItem label="cycle">
-    Each operation steps through the list in turn: the first call gets `200`, the second `400`, then `404`, `500`, and back to `200`. Use it to test retries and error messages.
+  <TabItem label="cycle (default)">
+    `503, 503, 200` or `cycle:503, 503, 200`. Each operation steps through the list in turn: the first call gets `503`, the second `503`, the third `200`, and then it starts again. Use it to test retries and error messages.
   </TabItem>
   <TabItem label="random">
-    Every call gets a code picked at random from the list (for example `"200, 429, 503"`). Use it to check that the UI copes with failures it doesn't expect.
+    `random:200, 429, 503`. Every call gets a code picked at random from the list. Use it to check that the UI copes with failures it doesn't expect.
   </TabItem>
-  <TabItem label="first">
-    Every call gets the first code. With `mock-server-status-code="401"`, every operation answers `401`, which shows how a page behaves when the user is signed out.
+  <TabItem label="one code">
+    `401`. Every call gets it, which shows how a page behaves when the user is signed out. (`first:` exists for older pages; one code does the same.)
   </TabItem>
 </Tabs>
 
+Each operation's place in its list starts again whenever the codes change. Earlier versions gave a list without a prefix only its first code unless `mock-server-status-strategy="cycle"` was set; that attribute still sets the strategy for codes without a prefix, but a prefix is clearer and can differ per operation.
+
 ### Per-operation status codes
 
-To make one operation fail while the others succeed, pass a JSON map. Keys are the method and path template from the spec; `"*"` applies to every other operation. With `cycle`, a list in an entry cycles for that operation only:
+To make one operation fail while the others succeed, pass a JSON map. Keys are the method and path template from the spec; `"*"` applies to every other operation. Each entry has its own list and its own strategy, and a list cycles for that operation only:
 
 ```html
 <rapi-doc
   spec-url="/specs/petstore.yaml"
   mock-server="true"
-  mock-server-status-code='{ "POST /store/order": "503, 200", "*": "200" }'
-  mock-server-status-strategy="cycle"
+  mock-server-status-code='{ "POST /store/order": "503, 200", "GET /store/inventory": "random:200, 500", "*": "200" }'
 ></rapi-doc>
 ```
 
