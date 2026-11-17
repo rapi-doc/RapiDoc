@@ -7,14 +7,14 @@
 - **Package Name**: `@rapidoc/mock`
 - **Module Type**: ESM (`"type": "module"`)
 - **Entry Point**: `src/index.js` (`createMockApp`, `startMockServer`, `tokenScopes`, `DEFAULT_PORT`)
-- **Dependencies**: `hono` + `@hono/node-server` (HTTP), `jose` (JWT/JWKS), `openapi-backend` (routing, request validation), `json-schema-faker` (data), `@apidevtools/json-schema-ref-parser` (bundling), `ajv` + `ajv-formats` (checking generated data).
+- **Dependencies**: `hono` + `@hono/node-server` (HTTP), `jose` (JWT/JWKS), `openapi-backend` (routing, request validation), `json-schema-faker` (data), `@faker-js/faker` (named values and word lists for seed data), `@apidevtools/json-schema-ref-parser` (bundling), `ajv` + `ajv-formats` (checking generated data).
 
 ---
 
 ## 2. Boundaries
 
 - **No dependency on `@rapidoc/portal` or Astro.** The CLI reads `apis:` with `loadConfig` and passes `{ id, fullPath, title }`; this package only reads spec files.
-- **Libraries stay behind the adapters in `src/engine/`.** `router.js` is the only file importing openapi-backend (`match`, `validate`); `faker.js` the only one importing json-schema-faker (`fake(schema, seed)`). Swap a library there and keep the interface; everything else works on the bundled OpenAPI document.
+- **Libraries stay behind the adapters in `src/engine/`.** `router.js` is the only file importing openapi-backend (`match`, `validate`); `faker.js` the only one importing json-schema-faker (`fake(schema, seed)`). `values.js` is the only one importing @faker-js/faker (`valuesFor(seed)`, `WORDS`). Swap a library there and keep the interface; everything else works on the bundled OpenAPI document.
 - **No `rapidoc.config.yaml` keys.** Settings are CLI options and `RAPIDOC_MOCK_*` variables. Adding a config key (e.g. `mock:`) is a config contract change: ask first.
 - **The CLI loads this package lazily** (an optional peer); never import it at the top of the CLI.
 
@@ -43,9 +43,11 @@
 | `src/auth.js`          | `createVerifier` (discovery + JWKS), `createAuth().check()`, `tokenScopes`, `problem()`                                                                                                                                                                                                                                                      |
 | `src/engine/router.js` | openapi-backend adapter (lazy validators: an operation whose schema it can't compile is served unvalidated, with a warning). openapi-backend routes only the eight 3.0 methods: `QUERY` and `additionalOperations` are registered with it as `post` under `/__rapidoc_method__/<METHOD><path>`, which `match` keeps unreachable from outside |
 | `src/engine/faker.js`  | json-schema-faker adapter and generation options                                                                                                                                                                                                                                                                                             |
+| `src/engine/values.js` | @faker-js/faker adapter: `valuesFor(seed)` (makers of named values: a person's name, a pet name, a product, a city) and `WORDS` (words that name a kind of thing, per domain) |
+| `src/stateful/` | The stateful mode, not wired into the server yet. `classify.js`: `classifySpec` (a bundled document -> resources, keys, relations, operation map; every operation labelled confident, needs review or plain mock). `words.js`: names as words, in any naming style. `store.js`: `createStore` (collections in memory, a copy per session). `seed.js`: `generateSeed` (the first records of every resource, in relation order, deterministic). `generators.js`: `entityDomain` and `generatorFor` (a named value by the domain of the entity or field, and the field's name) |
 
 ---
 
 ## 5. Tests
 
-`npm test` (or `npm run test:portal` from the monorepo root). `tests/helpers.js` starts a token issuer (discovery + JWKS from a jose key pair) on a random localhost port and signs tokens; `tests/fixtures/` holds a 3.1 spec with a relative `$ref` file and a 3.0 spec. Add a case for every change to the auth rules or response selection. The CLI side (`rapidoc mock`) is tested in `packages/rapidoc-cli/tests/cli.test.js`.
+`npm test` (or `npm run test:portal` from the monorepo root). `tests/fixtures/core-specs/` holds 12 real specs the stateful mode is checked against (its README has their sources and licenses; they are test data and must stay unpublished); `tests/core-specs.test.js` keeps a baseline of what the classifier and the seed generator produce for each. `tests/helpers.js` starts a token issuer (discovery + JWKS from a jose key pair) on a random localhost port and signs tokens; `tests/fixtures/` holds a 3.1 spec with a relative `$ref` file and a 3.0 spec. Add a case for every change to the auth rules or response selection. The CLI side (`rapidoc mock`) is tested in `packages/rapidoc-cli/tests/cli.test.js`.

@@ -90,7 +90,7 @@ for (const format of ["int32", "int64", "float", "double", "byte", "binary", "pa
 const validators = new WeakMap();
 
 /** A cached validator for generated data, or null when the schema is beyond ajv (then data goes out unchecked). */
-function validatorFor(schema) {
+export function validatorFor(schema) {
   if (!validators.has(schema)) {
     let validate = null;
     try {
@@ -107,7 +107,7 @@ function validatorFor(schema) {
  * Generates a value and repairs what misses the schema: a generator can break a constraint for some seeds (an
  * empty string for a pattern, say). Each failing scalar is generated again from its own schema with other seeds.
  */
-async function generateValid(schema, seed) {
+export async function generateValid(schema, seed) {
   let value = await fake(schema, seed);
   const valid = validatorFor(schema);
   for (let round = 1; valid && round <= 3 && !valid(value); round++) {
