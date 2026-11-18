@@ -17,6 +17,9 @@ theme:
   css: ./styles/portal.css
 header:
   links:
+    - label: Check a spec
+      href: /spec-check/index.html
+      icon: list-checks
     - label: Ecosystem
       items:
         - label: RapiDoc

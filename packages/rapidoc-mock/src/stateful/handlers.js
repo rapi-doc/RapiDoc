@@ -9,7 +9,6 @@
  * response: the plain mock's response is the frame (status, headers, and the fields beside the records in an
  * envelope), and the stored records go where the spec puts them.
  */
-import { randomUUID } from "node:crypto";
 import { problem } from "../auth.js";
 import { generateValid } from "../responses.js";
 import { toJsonSchema } from "../schema.js";
@@ -399,7 +398,7 @@ export async function createStateful(doc, { rows = 10, seed = 1, config } = {}) 
         if (key && (given === undefined || given === null)) {
           // the store assigns the key; a top-level one must not stay as null on the record
           if (!key.includes(".")) delete record[key];
-          if (fields[key]?.format === "uuid") record[key] = randomUUID();
+          if (fields[key]?.format === "uuid") record[key] = globalThis.crypto.randomUUID(); // Node and browsers both have it
         }
         const stored = view.insert(name, record);
         if (!stored) {

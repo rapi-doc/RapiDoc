@@ -5,6 +5,7 @@ import { METHODS as NODE_METHODS } from "node:http";
 import { serve } from "@hono/node-server";
 import { createAuth, createVerifier, problem } from "./auth.js";
 import { control, CONTROL_PREFIX } from "./control.js";
+import { createRuntime } from "./runtime.js";
 import { serveUi } from "./ui.js";
 import { createRouter } from "./engine/router.js";
 import { createResponder, itemValidator, parsePrefer } from "./responses.js";
@@ -128,6 +129,10 @@ export async function createMockApp({
   }
   if (apis.length && !loaded.length) throw new Error("No API could be loaded");
 
+  const runtime = createRuntime({
+    settings,
+    started: { stateful: Boolean(stateful), issuer, audience, streamInterval },
+  });
   const app = new Hono();
   // Every method the APIs use (OpenAPI 3.2 QUERY and additionalOperations included) passes CORS preflight
   const allowMethods = [
@@ -168,23 +173,7 @@ export async function createMockApp({
         body: () => c.req.json(),
       },
       loaded,
-      {
-        settings,
-        started: { stateful: Boolean(stateful), issuer, audience, streamInterval },
-        /** New seed data for the given APIs: every session's records are dropped with the old data. */
-        async reseed(list, { rows, seed: newSeed }) {
-          const made = await Promise.all(
-            list.map((api) =>
-              createStateful(api.doc, { seed: newSeed, rows, config: api.state?.config }),
-            ),
-          );
-          list.forEach((api, i) => {
-            made[i].config = api.state?.config;
-            api.state = made[i];
-          });
-          Object.assign(settings, { rows, seed: newSeed });
-        },
-      },
+      runtime,
     );
     log(`${c.req.method} ${url.pathname}${url.search} → ${response.status} (control)`);
     return send(response);

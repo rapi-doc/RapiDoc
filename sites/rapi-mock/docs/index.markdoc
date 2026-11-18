@@ -8,6 +8,9 @@ hero:
   actions:
     - text: Quickstart
       link: /docs/getting-started/quickstart/
+    - text: Check your spec
+      link: /spec-check/index.html
+      variant: secondary
     - text: How it works
       link: /docs/getting-started/how-it-works/
       variant: secondary

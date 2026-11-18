@@ -38,3 +38,6 @@ packages/rapidoc-portal/tests/layout/screenshots/
 
 # RapiDoc Portal working folders (rapidoc dev and build write them next to the site)
 .rapidoc-temp/
+
+# The Rapi Mock site's spec check, built from sites/rapi-mock/spec-check (npm run build:spec-check)
+sites/rapi-mock/public/spec-check/
