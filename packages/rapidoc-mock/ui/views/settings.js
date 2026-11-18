@@ -1,4 +1,5 @@
 import { html, nothing } from "lit";
+import { Screen } from "../components/screen.js";
 
 /** A whole number from a form field, or undefined when it is not one in the range. */
 const whole = (form, name, max) => {
@@ -7,23 +8,30 @@ const whole = (form, name, max) => {
 };
 
 /** Settings: how the mock was started, and what can change while it runs. */
-export function settings(host) {
-  const server = host.server;
-  const started = [
-    ["State", server.stateful ? "kept (--stateful)" : "not kept", "--stateful"],
-    ["Seed", server.seed, `--seed ${server.seed}`],
-    ["Records per resource", server.rows, `--rows ${server.rows}`],
-    ["Response delay", `${server.delay} ms`, `--delay ${server.delay}`],
-    ["Gap between stream items", `${server.streamInterval} ms`, "--stream-interval"],
-    [
-      "Tokens",
-      server.issuer
-        ? `verified against ${server.issuer}${server.audience ? ` for ${server.audience}` : ""}`
-        : "accepted unchecked",
-      "--issuer, --audience",
-    ],
-  ];
-  return html`
+export class MockSettings extends Screen {
+  static properties = {
+    app: { attribute: false },
+    server: { attribute: false },
+    busy: { type: Boolean },
+  };
+
+  render() {
+    const { app, server } = this;
+    const started = [
+      ["State", server.stateful ? "kept (--stateful)" : "not kept", "--stateful"],
+      ["Seed", server.seed, `--seed ${server.seed}`],
+      ["Records per resource", server.rows, `--rows ${server.rows}`],
+      ["Response delay", `${server.delay} ms`, `--delay ${server.delay}`],
+      ["Gap between stream items", `${server.streamInterval} ms`, "--stream-interval"],
+      [
+        "Tokens",
+        server.issuer
+          ? `verified against ${server.issuer}${server.audience ? ` for ${server.audience}` : ""}`
+          : "accepted unchecked",
+        "--issuer, --audience",
+      ],
+    ];
+    return html`
     <div class="title">
       <h1>Settings</h1>
       <p>
@@ -45,10 +53,10 @@ export function settings(host) {
           const rows = whole(e.target, "rows", 1000);
           const seed = whole(e.target, "seed", 2 ** 31);
           if (rows === undefined || seed === undefined) {
-            host.error = "Rows is a whole number from 0 to 1000, and seed a whole number from 0.";
+            app.error = "Rows is a whole number from 0 to 1000, and seed a whole number from 0.";
             return;
           }
-          host.reseed(rows, seed);
+          app.reseed(rows, seed);
         }}
       >
         <label class="stack">
@@ -61,7 +69,7 @@ export function settings(host) {
           <input name="seed" type="number" min="0" step="1" .value=${String(server.seed)} />
           <code>--seed</code>
         </label>
-        <button class="primary" ?disabled=${host.busy || !server.stateful}>Reseed</button>
+        <button class="primary" ?disabled=${this.busy || !server.stateful}>Reseed</button>
       </form>
       ${
         server.stateful
@@ -82,10 +90,10 @@ export function settings(host) {
           e.preventDefault();
           const delay = whole(e.target, "delay", 60000);
           if (delay === undefined) {
-            host.error = "Delay is a whole number of milliseconds, 0 to 60000.";
+            app.error = "Delay is a whole number of milliseconds, 0 to 60000.";
             return;
           }
-          host.setDelay(delay);
+          app.setDelay(delay);
         }}
       >
         <label class="stack">
@@ -100,7 +108,7 @@ export function settings(host) {
           />
           <code>--delay</code>
         </label>
-        <button class="primary" ?disabled=${host.busy}>Apply</button>
+        <button class="primary" ?disabled=${this.busy}>Apply</button>
       </form>
     </section>
 
@@ -160,4 +168,7 @@ export function settings(host) {
       </div>
     </section>
   `;
+  }
 }
+
+customElements.define("rapidoc-mock-settings", MockSettings);

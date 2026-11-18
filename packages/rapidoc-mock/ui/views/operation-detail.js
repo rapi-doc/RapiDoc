@@ -1,4 +1,5 @@
 import { html, nothing } from "lit";
+import { Screen } from "../components/screen.js";
 import { LABELS, LABEL_HELP } from "../labels.js";
 
 /** The data a body holds, in words: "a list of calendar_common, inside data". */
@@ -19,11 +20,39 @@ const pretty = (body) => {
 };
 
 /** One operation: what the mock does for it, its parameters, request and responses. */
-export function operationDetail(host) {
-  const op = host.detail;
-  if (!op) return html`<p class="empty">Loading…</p>`;
-  return html`
-    <p><a href=${host.href("operations")}>← Operations</a></p>
+export class MockOperationDetail extends Screen {
+  static properties = {
+    app: { attribute: false },
+    /** The id of the API and of the operation. */
+    api: { type: String },
+    operation: { type: String },
+    version: { type: Number },
+    /** The operation as the control API describes it. */
+    detail: { state: true },
+  };
+
+  constructor() {
+    super();
+    this.detail = null;
+  }
+
+  updated(changed) {
+    if (!["api", "operation", "version"].some((one) => changed.has(one))) return;
+    const { app, api, operation } = this;
+    app.run(async () => {
+      const detail = await app.call(
+        `/model/${encodeURIComponent(api)}/operations/${encodeURIComponent(operation)}`,
+      );
+      if (operation === this.operation) this.detail = detail;
+    });
+  }
+
+  render() {
+    const { app } = this;
+    const op = this.detail;
+    if (!op) return html`<p class="empty">Loading…</p>`;
+    return html`
+    <p><a href=${app.href("operations")}>← Operations</a></p>
     <div class="title">
       <h1 class="wrap"><span class="method">${op.method}</span> <code>${op.path}</code></h1>
       <p>${op.summary || op.id}</p>
@@ -42,8 +71,8 @@ export function operationDetail(host) {
             <ul class="facts">
               <li>
                 Resource:
-                <a href=${host.href("resources", `${op.resource}/about`)}>${op.resource}</a>
-                (<a href=${host.href("resources", op.resource)}>records</a>)
+                <a href=${app.href("resources", `${op.resource}/about`)}>${op.resource}</a>
+                (<a href=${app.href("resources", op.resource)}>records</a>)
               </li>
               ${op.keyFrom ? html`<li>Record found by: <code>${op.keyFrom}</code></li>` : nothing}
             </ul>
@@ -150,4 +179,7 @@ export function operationDetail(host) {
       }
     </section>
   `;
+  }
 }
+
+customElements.define("rapidoc-mock-operation-detail", MockOperationDetail);

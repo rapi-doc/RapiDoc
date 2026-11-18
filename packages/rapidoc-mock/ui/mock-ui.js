@@ -5,32 +5,81 @@
  * and what it holds now. Everything comes from the control API next to the page (`/__mock/model`, `/__mock/state`,
  * `/__mock/settings`, `/__mock/reset`), so the page knows nothing about a spec.
  *
- * - This file: the shell, the address (`#/<api id>/<section>[/<item>]`), and the calls to the control API.
- * - `views/`: one file per section, each a function from this element to its content.
- * - A new section is an entry in `SECTIONS` and a file in `views/`.
+ * - This file: the shell, the address (`#/<api id>/<section>[/<item>]`), and the calls to the control API. It
+ *   keeps what every section shares: the APIs, the server's settings, the session, the banners.
+ * - `views/`: one element per section, and the detail pages. Each keeps its own state (what it loaded, its
+ *   filter) and gets this element as `app`, for the calls and the addresses.
+ * - `components/`: what sections share: `screen.js` (the base of these elements), `table.js` (the records table).
+ * - A new section is an entry in `SECTIONS` and an element in `views/`.
  *
  * Built by `vite build` into `dist/ui/mock-ui.js` with Lit bundled in.
  */
 import { LitElement, html, nothing } from "lit";
 import { icon } from "./icons.js";
-import { LABELS } from "./labels.js";
 import { styles } from "./styles.js";
-import { dashboard } from "./views/dashboard.js";
-import { operations } from "./views/operations.js";
-import { resources } from "./views/resources.js";
-import { settings } from "./views/settings.js";
+import "./views/dashboard.js";
+import "./views/operations.js";
+import "./views/resources.js";
+import "./views/settings.js";
 
-/** The sidebar: groups of sections, each with the function that draws it. */
+/** The sidebar: groups of sections, each with the function that places its element. */
 const SECTIONS = [
-  { group: "Overview", items: [{ id: "dashboard", title: "Dashboard", view: dashboard }] },
+  {
+    group: "Overview",
+    items: [
+      {
+        id: "dashboard",
+        title: "Dashboard",
+        view: (app) =>
+          html`<rapidoc-mock-dashboard .app=${app} .api=${app.api}></rapidoc-mock-dashboard>`,
+      },
+    ],
+  },
   {
     group: "API",
     items: [
-      { id: "resources", title: "Resources", view: resources },
-      { id: "operations", title: "Operations", view: operations },
+      {
+        id: "resources",
+        title: "Resources",
+        view: (app) =>
+          html`<rapidoc-mock-resources
+            .app=${app}
+            .api=${app.api}
+            .name=${app.route.item}
+            .tab=${app.route.tab}
+            .busy=${app.busy}
+            .version=${app.version}
+          ></rapidoc-mock-resources>`,
+      },
+      {
+        id: "operations",
+        title: "Operations",
+        view: (app) =>
+          html`<rapidoc-mock-operations
+            .app=${app}
+            .api=${app.api}
+            .operation=${app.route.item}
+            .only=${app.route.query.get("label") || ""}
+            .version=${app.version}
+          ></rapidoc-mock-operations>`,
+      },
     ],
   },
-  { group: "Server", items: [{ id: "settings", title: "Settings", view: settings }] },
+  {
+    group: "Server",
+    items: [
+      {
+        id: "settings",
+        title: "Settings",
+        view: (app) =>
+          html`<rapidoc-mock-settings
+            .app=${app}
+            .server=${app.server}
+            .busy=${app.busy}
+          ></rapidoc-mock-settings>`,
+      },
+    ],
+  },
 ];
 const VIEWS = Object.fromEntries(
   SECTIONS.flatMap((group) => group.items.map((one) => [one.id, one])),
@@ -46,15 +95,7 @@ export class RapidocMockUi extends LitElement {
     apis: { state: true },
     server: { state: true },
     route: { state: true },
-    records: { state: true },
-    filter: { state: true },
-    sort: { state: true },
-    page: { state: true },
-    selected: { state: true },
-    detail: { state: true },
-    sample: { state: true },
-    labels: { state: true },
-    groupBy: { state: true },
+    version: { state: true },
     session: { state: true },
     error: { state: true },
     notice: { state: true },
@@ -67,24 +108,15 @@ export class RapidocMockUi extends LitElement {
     this.base = "";
     this.apis = null;
     this.server = null;
-    this.route = { api: "", view: "dashboard", item: "" };
-    this.records = [];
-    this.filter = "";
-    this.sort = { column: "", down: false };
-    this.page = 0;
-    this.selected = null;
-    /** The resource or operation a detail page shows, as the control API describes it. */
-    this.detail = null;
-    /** A generated record of the resource in view: `{ seed, record }`. */
-    this.sample = null;
-    this.labels = new Set(Object.keys(LABELS));
-    this.groupBy = "path";
+    this.route = { api: "", view: "dashboard", item: "", query: new URLSearchParams() };
+    /** Counts the times the model was read: a section reads what it shows again when this changes. */
+    this.version = 0;
     this.session = "";
     this.error = "";
     this.notice = "";
     this.busy = false;
     this.menuOpen = false;
-    this.onHashChange = () => this.run(() => this.readAddress());
+    this.onHashChange = () => this.readAddress();
   }
 
   connectedCallback() {
@@ -122,8 +154,9 @@ export class RapidocMockUi extends LitElement {
     return response.status === 204 ? null : response.json();
   }
 
-  /** Runs an action with the busy state on; a failure becomes the error banner. */
+  /** Runs an action with the busy state on; a failure becomes the error banner. Sections use it for their calls. */
   async run(action) {
+    this.running = (this.running || 0) + 1;
     this.busy = true;
     try {
       await action();
@@ -131,7 +164,8 @@ export class RapidocMockUi extends LitElement {
     } catch (err) {
       this.error = err.message;
     }
-    this.busy = false;
+    this.running -= 1;
+    this.busy = this.running > 0;
   }
 
   /** Reads the settings and the model, then shows what the address names. */
@@ -143,31 +177,25 @@ export class RapidocMockUi extends LitElement {
         this.apis = apis;
       } catch (err) {
         this.apis = this.apis || [];
-        await this.readAddress().catch(() => {});
+        this.readAddress();
         throw err;
       }
-      await this.readAddress();
+      this.readAddress();
+      this.version += 1;
     });
   }
 
-  /** The address as `{ api, view, item }`, with what is missing or unknown replaced by a default. */
-  async readAddress() {
-    const [api, view, ...item] = location.hash
-      .replace(/^#\/?/, "")
-      .split("/")
-      .filter(Boolean)
-      .map(decodeURIComponent);
+  /** The address as `{ api, view, item, query }`, with what is missing or unknown replaced by a default. */
+  readAddress() {
+    const [path, query = ""] = location.hash.replace(/^#\/?/, "").split("?");
+    const [api, view, ...item] = path.split("/").filter(Boolean).map(decodeURIComponent);
     const known = this.apis?.find((one) => one.id === api) || this.apis?.[0];
     const next = {
       api: known?.id || "",
       view: VIEWS[view] ? view : "dashboard",
       item: item.join("/"),
+      query: new URLSearchParams(query),
     };
-    if (next.view !== this.route.view || next.api !== this.route.api) {
-      this.filter = "";
-      this.page = 0;
-      this.sort = { column: "", down: false };
-    }
     this.menuOpen = false;
     // a confirmation belongs to the page it was given on
     if (next.view !== this.route.view) this.notice = "";
@@ -178,48 +206,14 @@ export class RapidocMockUi extends LitElement {
       const list = known?.resources || [];
       const resource = list.find((one) => one.name === asked) || list[0];
       next.item = resource?.name || "";
-      if (next.item !== this.route.item) {
-        this.filter = "";
-        this.page = 0;
-        this.sort = { column: "", down: false };
-        this.sample = null;
-      }
     }
     this.route = next;
-    this.detail = null;
-    const at = (kind) =>
-      `/model/${encodeURIComponent(next.api)}/${kind}/${encodeURIComponent(next.item)}`;
-    if (next.view === "resources" && next.tab === "about" && next.item) {
-      this.detail = await this.call(at("resources"));
-    } else if (next.view === "resources") {
-      await this.loadRecords();
-    } else if (next.view === "operations" && next.item) {
-      this.detail = await this.call(at("operations"));
-    }
-  }
-
-  /** A freshly generated record of the resource in view; nothing is stored. */
-  generateSample() {
-    return this.run(async () => {
-      const { api, item } = this.route;
-      this.sample = await this.call(
-        `/model/${encodeURIComponent(api)}/resources/${encodeURIComponent(item)}/sample`,
-      );
-    });
   }
 
   /** The address of a section (and an item in it) of the API in view, or of another API. */
-  href(view, item = "", api = this.route.api) {
-    return `#/${[api, view, item].filter(Boolean).map(encodeURIComponent).join("/")}`;
-  }
-
-  async loadRecords() {
-    this.selected = null;
-    const { api, item } = this.route;
-    this.records =
-      api && item
-        ? await this.call(`/state/${encodeURIComponent(api)}/${encodeURIComponent(item)}`)
-        : [];
+  href(view, item = "", api = this.route.api, query) {
+    const path = [api, view, item].filter(Boolean).map(encodeURIComponent).join("/");
+    return `#/${path}${query ? `?${new URLSearchParams(query)}` : ""}`;
   }
 
   get api() {

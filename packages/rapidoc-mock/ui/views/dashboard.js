@@ -1,39 +1,46 @@
 import { html, nothing } from "lit";
+import { Screen } from "../components/screen.js";
 import { LABELS, LABEL_HELP } from "../labels.js";
 
 /** The Dashboard: what the mock made of the API in view, at a glance. */
-export function dashboard(host) {
-  const api = host.api;
-  const total = api.operations.length || 1;
-  const records = api.resources.reduce((sum, one) => sum + one.records, 0);
-  const review = [
-    ...api.resources
-      .filter((one) => one.review)
-      .map((one) => ({
-        what: one.name,
-        why: one.review,
-        href: host.href("resources", one.name),
-      })),
-    ...api.operations
-      .filter((op) => op.label === "needsReview" && op.why)
-      .map((op) => ({
-        what: `${op.method} ${op.path}`,
-        why: op.why,
-        href: host.href("operations"),
-      })),
-  ];
-  const shown = review.slice(0, 8);
-  return html`
+export class MockDashboard extends Screen {
+  static properties = {
+    app: { attribute: false },
+    api: { attribute: false },
+  };
+
+  render() {
+    const { app, api } = this;
+    const total = api.operations.length || 1;
+    const records = api.resources.reduce((sum, one) => sum + one.records, 0);
+    const review = [
+      ...api.resources
+        .filter((one) => one.review)
+        .map((one) => ({
+          what: one.name,
+          why: one.review,
+          href: app.href("resources", one.name),
+        })),
+      ...api.operations
+        .filter((op) => op.label === "needsReview" && op.why)
+        .map((op) => ({
+          what: `${op.method} ${op.path}`,
+          why: op.why,
+          href: app.href("operations"),
+        })),
+    ];
+    const shown = review.slice(0, 8);
+    return html`
     <div class="title">
       <h1>${api.title || api.id}</h1>
       <p>Served at <code>/${api.id}</code>. What the mock worked out from this spec.</p>
     </div>
     <div class="cards">
-      <a class="card stat" href=${host.href("resources")}>
+      <a class="card stat" href=${app.href("resources")}>
         <b>${api.resources.length}</b><span>Resources</span>
       </a>
-      <a class="card stat" href=${host.href("resources")}> <b>${records}</b><span>Records</span> </a>
-      <a class="card stat" href=${host.href("operations")}>
+      <a class="card stat" href=${app.href("resources")}> <b>${records}</b><span>Records</span> </a>
+      <a class="card stat" href=${app.href("operations")}>
         <b>${api.operations.length}</b><span>Operations</span>
       </a>
     </div>
@@ -86,8 +93,7 @@ export function dashboard(host) {
               review.length > shown.length
                 ? html`<p>
                   <a
-                    href=${host.href("operations")}
-                    @click=${() => (host.labels = new Set(["needsReview"]))}
+                    href=${app.href("operations", "", undefined, { label: "needsReview" })}
                     >See all ${api.labels.needsReview} operations that need review</a
                   >
                 </p>`
@@ -115,7 +121,7 @@ export function dashboard(host) {
               ${api.resources.map(
                 (one) => html`
                   <li>
-                    <a href=${host.href("resources", one.name)}>
+                    <a href=${app.href("resources", one.name)}>
                       ${one.name} <span class="count">${one.records}</span>
                     </a>
                   </li>
@@ -129,4 +135,7 @@ export function dashboard(host) {
       }
     </section>
   `;
+  }
 }
+
+customElements.define("rapidoc-mock-dashboard", MockDashboard);

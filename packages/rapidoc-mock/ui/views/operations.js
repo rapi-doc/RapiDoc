@@ -1,6 +1,10 @@
 import { html } from "lit";
+import { Screen } from "../components/screen.js";
 import { LABELS } from "../labels.js";
-import { operationDetail } from "./operation-detail.js";
+import "./operation-detail.js";
+
+/** How the list was last grouped: a choice of the reader's, kept while the page is open. */
+let lastGroupBy = "path";
 
 /** Operations in groups: `[{ title, operations }]`, by path as the spec orders them, or by resource. */
 function grouped(operations, by) {
@@ -18,29 +22,67 @@ function grouped(operations, by) {
   return list;
 }
 
-/** Operations: every operation with what the mock does for it, and its label. */
-export function operations(host) {
-  if (host.route.item) return operationDetail(host);
-  const api = host.api;
-  const text = host.filter.trim().toLowerCase();
-  const rows = api.operations.filter(
-    (op) =>
-      host.labels.has(op.label) &&
-      (!text ||
-        `${op.method} ${op.path} ${op.id} ${op.resource || ""} ${op.why || ""}`
-          .toLowerCase()
-          .includes(text)),
-  );
-  const byResource = host.groupBy === "resource";
-  const groups = grouped(rows, host.groupBy);
-  const toggle = (label) => {
-    const next = new Set(host.labels);
-    if (next.has(label)) next.delete(label);
-    else next.add(label);
-    host.labels = next;
+/**
+ * Operations: every operation with what the mock does for it, and its label; or one operation's details.
+ * Keeps its filter, the labels shown and the grouping, also while one operation is looked at.
+ */
+export class MockOperations extends Screen {
+  static properties = {
+    app: { attribute: false },
+    api: { attribute: false },
+    /** The id of the operation whose details are shown; empty for the list. */
+    operation: { type: String },
+    /** A label to show alone, as the address asks (`?label=needsReview`). */
+    only: { type: String },
+    version: { type: Number },
+    filter: { state: true },
+    labels: { state: true },
+    groupBy: { state: true },
   };
 
-  return html`
+  constructor() {
+    super();
+    this.operation = "";
+    this.only = "";
+    this.filter = "";
+    this.labels = new Set(Object.keys(LABELS));
+    this.groupBy = lastGroupBy;
+  }
+
+  willUpdate(changed) {
+    if (changed.has("only") && LABELS[this.only]) this.labels = new Set([this.only]);
+    if (changed.has("groupBy")) lastGroupBy = this.groupBy;
+  }
+
+  render() {
+    const { app, api } = this;
+    if (this.operation) {
+      return html`<rapidoc-mock-operation-detail
+      .app=${app}
+      .api=${api.id}
+      .operation=${this.operation}
+      .version=${this.version}
+    ></rapidoc-mock-operation-detail>`;
+    }
+    const text = this.filter.trim().toLowerCase();
+    const rows = api.operations.filter(
+      (op) =>
+        this.labels.has(op.label) &&
+        (!text ||
+          `${op.method} ${op.path} ${op.id} ${op.resource || ""} ${op.why || ""}`
+            .toLowerCase()
+            .includes(text)),
+    );
+    const byResource = this.groupBy === "resource";
+    const groups = grouped(rows, this.groupBy);
+    const toggle = (label) => {
+      const next = new Set(this.labels);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      this.labels = next;
+    };
+
+    return html`
     <div class="title">
       <h1>Operations</h1>
       <p>Every operation of the spec, with what the mock does for it.</p>
@@ -50,8 +92,8 @@ export function operations(host) {
         type="search"
         placeholder="Filter operations"
         aria-label="Filter operations"
-        .value=${host.filter}
-        @input=${(e) => (host.filter = e.target.value)}
+        .value=${this.filter}
+        @input=${(e) => (this.filter = e.target.value)}
       />
       <div class="segmented" role="group" aria-label="Group by">
         ${[
@@ -60,9 +102,9 @@ export function operations(host) {
         ].map(
           ([value, title]) => html`
             <button
-              class=${host.groupBy === value ? "current" : ""}
-              aria-pressed=${host.groupBy === value ? "true" : "false"}
-              @click=${() => (host.groupBy = value)}
+              class=${this.groupBy === value ? "current" : ""}
+              aria-pressed=${this.groupBy === value ? "true" : "false"}
+              @click=${() => (this.groupBy = value)}
             >
               ${title}
             </button>
@@ -74,7 +116,7 @@ export function operations(host) {
           <label class="check">
             <input
               type="checkbox"
-              .checked=${host.labels.has(label)}
+              .checked=${this.labels.has(label)}
               @change=${() => toggle(label)}
             />
             <span class="badge ${label}">${LABELS[label]}</span>
@@ -106,7 +148,7 @@ export function operations(host) {
                         ${
                           byResource
                             ? group.title
-                              ? html`<a href=${host.href("resources", group.title)}>${group.title}</a>`
+                              ? html`<a href=${app.href("resources", group.title)}>${group.title}</a>`
                               : "No state"
                             : html`<code>${group.title}</code>`
                         }
@@ -125,14 +167,14 @@ export function operations(host) {
                               op.action === "none"
                                 ? html`<span class="hint">no state</span>`
                                 : html`${op.action}
-                                  <a href=${host.href("resources", op.resource)}>${op.resource}</a>`
+                                  <a href=${app.href("resources", op.resource)}>${op.resource}</a>`
                             }
                           </td>
                           <td><span class="badge ${op.label}">${LABELS[op.label]}</span></td>
                           <td class="why">${op.why || ""}</td>
                           <td>
                             <a
-                              href=${host.href("operations", op.id)}
+                              href=${app.href("operations", op.id)}
                               aria-label="Details of ${op.method} ${op.path}"
                               >Details</a
                             >
@@ -149,4 +191,7 @@ export function operations(host) {
         : html`<p class="empty">No operation matches.</p>`
     }
   `;
+  }
 }
+
+customElements.define("rapidoc-mock-operations", MockOperations);

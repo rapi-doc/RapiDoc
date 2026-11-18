@@ -15,7 +15,14 @@ function packageDir(name) {
 }
 
 /** The packages bundled into the Mock UI: their licenses go out with it. */
-const BUNDLED = ["lit", "lit-html", "lit-element", "@lit/reactive-element"];
+const BUNDLED = [
+  "lit",
+  "lit-html",
+  "lit-element",
+  "@lit/reactive-element",
+  "@tanstack/table-core",
+  "@tanstack/store",
+];
 
 /** Writes `mock-ui.LICENSE.txt` beside the bundle: each bundled package's version, license and notice. */
 const licenses = () => ({
@@ -35,6 +42,9 @@ const licenses = () => ({
 // `/__mock/ui/mock-ui.js`. Lit is bundled in: the server itself (`src/`) is published as source and needs no build.
 export default defineConfig({
   plugins: [licenses()],
+  // A library build keeps `process.env.NODE_ENV` as written, and a browser has no `process`: TanStack Table reads
+  // it for its development checks
+  define: { "process.env.NODE_ENV": JSON.stringify("production") },
   build: {
     lib: {
       entry: resolve(__dirname, "ui/mock-ui.js"),
@@ -44,7 +54,7 @@ export default defineConfig({
       output: {
         entryFileNames: "mock-ui.js",
         banner:
-          "/*! Mock UI of @rapidoc/mock (MIT). Includes Lit, Copyright Google LLC, BSD-3-Clause: see mock-ui.LICENSE.txt */",
+          "/*! Mock UI of @rapidoc/mock (MIT). Includes Lit, Copyright Google LLC, BSD-3-Clause, and TanStack Table, Copyright Tanner Linsley, MIT: see mock-ui.LICENSE.txt */",
       },
     },
     outDir: resolve(__dirname, "dist/ui"),
