@@ -57,6 +57,18 @@ test("rapidoc lint", async (t) => {
     assert.match(rules["example-named-map"][0].message, /"Report example"/);
     assert.match(rules["example-matches-schema"][0].message, /\/id must be string/);
     assert.match(rules["no-unused-components"][0].message, /#\/components\/schemas\/Unused/);
+    assert.match(
+      rules["parameter-description"][0].message,
+      /path parameter "id" has no description/,
+    );
+    assert.match(
+      rules["response-error-schema"][0].message,
+      /GET \/reports: the 400 response has no schema/,
+    );
+    assert.match(
+      rules["schema-oneof-discriminator"][0].message,
+      /oneOf chooses between 2 object schemas with nothing to tell them apart/,
+    );
     assert.match(rules["security-defined"][0].message, /POST \/orderItems/);
     assert.equal(
       rules["security-defined"].length,
@@ -305,7 +317,11 @@ test("rapidoc lint", async (t) => {
 
   await t.test("--stateful reports what the stateful mock assumed or could not map", () => {
     const quietRun = json([STATEFUL]);
-    assert.equal(quietRun.report.items[0].problems.length, 0, "off without --stateful");
+    assert.deepEqual(
+      Object.keys(byRule(quietRun.report)).filter((name) => name.startsWith("stateful-")),
+      [],
+      "off without --stateful",
+    );
 
     const { result, report } = json([STATEFUL, "--stateful"]);
     assert.equal(result.status, 0, "warnings");
@@ -345,8 +361,15 @@ test("rapidoc lint", async (t) => {
       assert.equal(error.result.status, 1);
 
       const one = json([STATEFUL, "--rule", "stateful-relation-assumed=warn"]);
-      assert.deepEqual(Object.keys(byRule(one.report)), ["stateful-relation-assumed"]);
-      assert.match(one.report.items[0].problems[0].message, /Pet\.parentId is linked to Pet\.id/);
+      const found = byRule(one.report);
+      assert.deepEqual(
+        Object.keys(found).filter((name) => name.startsWith("stateful-")),
+        ["stateful-relation-assumed"],
+      );
+      assert.match(
+        found["stateful-relation-assumed"][0].message,
+        /Pet\.parentId is linked to Pet\.id/,
+      );
     },
   );
 

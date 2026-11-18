@@ -28,6 +28,7 @@ export const CATEGORIES = [
     rules: [
       "operation-summary",
       "operation-description",
+      "parameter-description",
       "operation-tag-defined",
       "tag-description",
       "info-contact",
@@ -38,13 +39,19 @@ export const CATEGORIES = [
     id: "responses",
     title: "Responses",
     about: "a documented success and a documented failure for every operation",
-    rules: ["operation-2xx-response", "operation-4xx-response"],
+    rules: ["operation-2xx-response", "operation-4xx-response", "response-error-schema"],
   },
   {
     id: "examples",
     title: "Examples",
     about: "examples on request and response bodies, which Try and the mock answer with",
     rules: ["media-example", "example-named-map", "example-matches-schema"],
+  },
+  {
+    id: "schemas",
+    title: "Schemas",
+    about: "shapes a client, a code generator and the mock can read without guessing",
+    rules: ["schema-oneof-discriminator"],
   },
   {
     id: "security",

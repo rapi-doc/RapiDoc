@@ -32,16 +32,19 @@ Each rule has a severity: `error` fails the run, `warn` is reported (and fails w
 | `operation-operationId-url-safe` | Letters, digits, `_`, `-` and `.` only. | It appears in URLs. | warn |
 | `operation-summary` | Every operation has a summary. | The sidebar label and the MCP tool's title. | warn |
 | `operation-description` | Every operation has a description. | Readers, and the MCP tool's description. | off |
+| `parameter-description` | Every parameter has a description. A `$ref` is checked where the parameter is written. | The reference shows it beside the field; an AI agent calling the API through MCP has nothing else to go on. | warn |
 | `operation-tag-defined` | Tags used are in the top-level `tags` list. | The sidebar group's description and order come from there. | warn |
 | `tag-description` | Every top-level tag has a description. | It introduces the group. | off |
 | `operation-2xx-response` | A 2xx or 3xx response is documented. | Try has nothing to show as the expected result. | warn |
 | `operation-4xx-response` | A 4xx response is documented. | Readers see the error shapes. | off |
+| `response-error-schema` | A 4xx or 5xx response that says what went wrong has a schema. 401, 403, 404, 405, 406, 410, 412 and 429 may go without. | Clients read the error from it; the mock server answers `Prefer: code=400` with a body of that shape. | warn |
 | `security-defined` | POST, PUT, PATCH and DELETE have a security requirement, their own or the document's. `security: []` opts out. | Try and the mock server need it; MCP marks them as consequential. | warn |
 | `security-scheme-defined` | Every scheme a requirement names is declared. | Try's authentication panel is built from the declarations. | error |
 | `no-unused-components` | Every component is referenced. | Documentation of nothing. | warn |
 | `media-example` | Request and response bodies have an example, on the media type or its schema (or on every property). | Try fills the request with it; the mock server answers with it. | warn |
 | `example-named-map` | A media type's `example` is the value itself, not a map of named examples (`example: { "Calendar": { ... } }`), which belongs under `examples`. | Try and the mock server would send the map, name included. | warn |
 | `example-matches-schema` | Request and response examples fit their schema. Needs `@rapidoc/mock` installed; without it the rule is skipped and lint says so. | Try sends them and the mock server answers with them. | warn |
+| `schema-oneof-discriminator` | A `oneOf` or `anyOf` between object schemas has a `discriminator`, or a property with a different fixed value (`const`, or an `enum` of one) in each. | A client, a code generator and the mock server otherwise guess the shape. | warn |
 | `path-kebab-case` | Path segments other than parameters are kebab-case. | Naming. | off |
 | `no-server-example-com` | Servers aren't example.com or localhost. | Try would call nowhere. | warn |
 | `info-contact` | `info.contact` is set. | Shown in the reference's header. | off |

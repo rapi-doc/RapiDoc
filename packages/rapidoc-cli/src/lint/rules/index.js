@@ -13,7 +13,10 @@ import operationOperationIdUnique from "./operation-operationId-unique.js";
 import operationOperationIdUrlSafe from "./operation-operationId-url-safe.js";
 import operationSummary from "./operation-summary.js";
 import operationTagDefined from "./operation-tag-defined.js";
+import parameterDescription from "./parameter-description.js";
 import pathKebabCase from "./path-kebab-case.js";
+import responseErrorSchema from "./response-error-schema.js";
+import schemaOneofDiscriminator from "./schema-oneof-discriminator.js";
 import securityDefined from "./security-defined.js";
 import securitySchemeDefined from "./security-scheme-defined.js";
 import stateful from "./stateful.js";
@@ -26,16 +29,19 @@ export const RULES = [
   operationOperationIdUrlSafe,
   operationSummary,
   operationDescription,
+  parameterDescription,
   operationTagDefined,
   tagDescription,
   operation2xxResponse,
   operation4xxResponse,
+  responseErrorSchema,
   securityDefined,
   securitySchemeDefined,
   noUnusedComponents,
   mediaExample,
   exampleNamedMap,
   exampleMatchesSchema,
+  schemaOneofDiscriminator,
   pathKebabCase,
   noServerExampleCom,
   infoContact,

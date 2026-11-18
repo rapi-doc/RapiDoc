@@ -66,6 +66,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Order"
               example: { id: 7 }
+        "400":
+          description: Not valid, with nothing said about the body
 components:
   parameters:
     Id:
@@ -80,3 +82,11 @@ components:
         id: { type: string }
     Unused:
       type: string
+    Payment:
+      oneOf:
+        - type: object
+          properties:
+            cardNumber: { type: string }
+        - type: object
+          properties:
+            iban: { type: string }
