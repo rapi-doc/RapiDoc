@@ -39,9 +39,10 @@ export function operationsOf(doc, resolve) {
  * Runs `rules` over `doc`; returns each finding with the rule that made it.
  * @param {object} doc
  * @param {Rule[]} rules
+ * @param {object} [shared]  more for every rule's context (`mock`)
  * @returns {(Finding & { rule: string })[]}
  */
-export function traverse(doc, rules) {
+export function traverse(doc, rules, shared = {}) {
   const v2 = typeof doc.swagger === "string";
   const resolve = resolver(doc);
   const operations = operationsOf(doc, resolve);
@@ -56,7 +57,7 @@ export function traverse(doc, rules) {
     const wanting = byKind.get(kind);
     if (!wanting) return;
     /** @type {LintContext} */
-    const context = { doc, v2, pointer, parents, operations, resolve, ...extra };
+    const context = { doc, v2, pointer, parents, operations, resolve, ...shared, ...extra };
     for (const rule of wanting)
       for (const finding of rule.check(node, context))
         findings.push({ ...finding, rule: rule.name });

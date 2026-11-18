@@ -70,6 +70,8 @@ export default {
     const overrides = parseRuleOptions(values.rule);
 
     const items = [];
+    /** Rules that were on and could not run (their package isn't installed), over every spec. */
+    const notRun = new Set();
     const done = (item) => {
       items.push(item);
       if (pretty) printItem(item, { ok: "No problems" });
@@ -77,6 +79,7 @@ export default {
     const lintOne = async (id, location, severities) => {
       const result = await lintSpec(location, { remote, severities });
       const problems = [...result.problems];
+      for (const rule of result.notRun || []) notRun.add(rule);
       for (const skipped of result.skipped)
         problems.push({
           severity: "warning",
@@ -146,6 +149,11 @@ export default {
       );
     }
 
+    if (notRun.size) {
+      info(
+        `\n   Not run: ${[...notRun].join(", ")}. ${notRun.size > 1 ? "They need" : "It needs"} @rapidoc/mock; install it next to the CLI:\n   npm install -D @rapidoc/mock`,
+      );
+    }
     const summary = `${specs} spec(s) linted: ${errors} error(s), ${warnings} warning(s)`;
     if (!failed) {
       success(`${summary}.\n`, "\n");

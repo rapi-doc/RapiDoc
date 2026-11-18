@@ -45,6 +45,27 @@ paths:
       responses:
         "200":
           description: OK
+  /reports:
+    get:
+      operationId: listReports
+      summary: List reports
+      tags: [orders]
+      responses:
+        "200":
+          description: Reports, with the example under its name
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+              example:
+                Report example: { id: "r1" }
+        "206":
+          description: Some of them, with an example of the wrong type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+              example: { id: 7 }
 components:
   parameters:
     Id:

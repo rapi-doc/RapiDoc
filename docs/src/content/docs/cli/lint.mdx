@@ -40,6 +40,8 @@ Each rule has a severity: `error` fails the run, `warn` is reported (and fails w
 | `security-scheme-defined` | Every scheme a requirement names is declared. | Try's authentication panel is built from the declarations. | error |
 | `no-unused-components` | Every component is referenced. | Documentation of nothing. | warn |
 | `media-example` | Request and response bodies have an example, on the media type or its schema (or on every property). | Try fills the request with it; the mock server answers with it. | warn |
+| `example-named-map` | A media type's `example` is the value itself, not a map of named examples (`example: { "Calendar": { ... } }`), which belongs under `examples`. | Try and the mock server would send the map, name included. | warn |
+| `example-matches-schema` | Request and response examples fit their schema. Needs `@rapidoc/mock` installed; without it the rule is skipped and lint says so. | Try sends them and the mock server answers with them. | warn |
 | `path-kebab-case` | Path segments other than parameters are kebab-case. | Naming. | off |
 | `no-server-example-com` | Servers aren't example.com or localhost. | Try would call nowhere. | warn |
 | `info-contact` | `info.contact` is set. | Shown in the reference's header. | off |

@@ -1,3 +1,5 @@
+import exampleMatchesSchema from "./example-matches-schema.js";
+import exampleNamedMap from "./example-named-map.js";
 import infoContact from "./info-contact.js";
 import infoLicense from "./info-license.js";
 import mediaExample from "./media-example.js";
@@ -31,6 +33,8 @@ export const RULES = [
   securitySchemeDefined,
   noUnusedComponents,
   mediaExample,
+  exampleNamedMap,
+  exampleMatchesSchema,
   pathKebabCase,
   noServerExampleCom,
   infoContact,
