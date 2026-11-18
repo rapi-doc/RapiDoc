@@ -116,6 +116,12 @@ export default {
       value: "number",
       description: "With --stateful: seed records per resource (default 10)",
     },
+    delay: {
+      type: "string",
+      kind: "int",
+      value: "ms",
+      description: "Wait this long before every API response, to see loading states (default 0)",
+    },
     "stream-interval": {
       type: "string",
       kind: "int",
@@ -181,6 +187,7 @@ export default {
             audience,
             seed: values.seed,
             stateful: values.stateful ? { rows: values.rows } : false,
+            delay: values.delay,
             streamInterval: values["stream-interval"],
           }),
         values.port ?? DEFAULT_PORT ?? 4010,

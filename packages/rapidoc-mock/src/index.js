@@ -33,6 +33,8 @@ export const DEFAULT_PORT = 4010;
  *   the classifier maps to a resource (create, read, update, delete, list) work on stored records, seeded from
  *   the spec (`rows` per resource, default 10); the rest answer as without it. A request's `X-Mock-Session`
  *   header gives it its own copy of the data.
+ * @param {number} [options.delay] - Milliseconds every API response waits before it is sent (default 0), to see
+ *   loading states in a client. The control API (`PATCH /__mock/settings`) can change it while the mock runs.
  * @param {number} [options.streamInterval] - Gap in ms between the items of a streamed response (OpenAPI 3.2
  *   `itemSchema`: Server-Sent Events, JSON Lines); default 300
  * @param {string | string[]} [options.origin] - Origins allowed by CORS (default `*`; tokens travel in headers, not cookies)
@@ -46,12 +48,19 @@ export async function createMockApp({
   audience,
   seed = 1,
   stateful = false,
+  delay = 0,
   streamInterval = DEFAULT_STREAM_INTERVAL,
   origin = "*",
   log = (line) => console.log(`[rapidoc mock] ${line}`),
   warn = (line) => console.warn(`[rapidoc mock] ⚠️  ${line}`),
 }) {
   const verifier = issuer ? await createVerifier({ issuer, audience }) : null;
+  // What the control API may change while the mock runs (see control.js); nothing here is saved
+  const settings = {
+    delay: Math.max(0, Number(delay) || 0),
+    seed,
+    rows: (stateful && stateful.rows) || 10,
+  };
 
   const loaded = [];
   const skipped = [];
@@ -138,6 +147,18 @@ export async function createMockApp({
         body: () => c.req.json(),
       },
       loaded,
+      {
+        settings,
+        started: { stateful: Boolean(stateful), issuer, audience, streamInterval },
+        /** New seed data for the given APIs: every session's records are dropped with the old data. */
+        async reseed(list, { rows, seed: newSeed }) {
+          const made = await Promise.all(
+            list.map((api) => createStateful(api.doc, { seed: newSeed, rows })),
+          );
+          list.forEach((api, i) => (api.state = made[i]));
+          Object.assign(settings, { rows, seed: newSeed });
+        },
+      },
     );
     log(`${c.req.method} ${url.pathname}${url.search} → ${response.status} (control)`);
     return send(response);
@@ -145,7 +166,7 @@ export async function createMockApp({
   app.all(`/${CONTROL_PREFIX}`, controlHandler);
   app.all(`/${CONTROL_PREFIX}/*`, controlHandler);
   for (const api of loaded) {
-    const handler = (c) => handle(c, api, { log, warn, streamInterval });
+    const handler = (c) => handle(c, api, { log, warn, streamInterval, settings });
     app.all(`/${api.id}`, handler);
     app.all(`/${api.id}/*`, handler);
   }
@@ -186,14 +207,15 @@ const send = ({ status, headers, body, stream }, interval) =>
     headers,
   });
 
-async function handle(c, api, { log, warn, streamInterval = DEFAULT_STREAM_INTERVAL }) {
+async function handle(c, api, { log, warn, streamInterval = DEFAULT_STREAM_INTERVAL, settings }) {
   const url = new URL(c.req.url);
   const path = url.pathname.slice(api.id.length + 1) || "/";
   const method = c.req.method.toLowerCase();
-  const finish = (response, source) => {
+  const finish = async (response, source) => {
     log(
       `${c.req.method} ${url.pathname}${url.search} → ${response.status}${source ? ` (${source})` : ""}`,
     );
+    if (settings?.delay > 0) await new Promise((done) => setTimeout(done, settings.delay));
     return send(response, streamInterval);
   };
 
