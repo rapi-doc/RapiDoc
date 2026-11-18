@@ -49,6 +49,7 @@
     "openapi-backend": "^5.23.0"
   },
   "devDependencies": {
+    "@tanstack/table-core": "^9.3.1",
     "lit": "^3.3.3",
     "vite": "^8.3.6"
   },

@@ -1,17 +1,53 @@
 import { html, nothing } from "lit";
+import { Screen } from "../components/screen.js";
 import { LABELS } from "../labels.js";
 
 const shown = (value) => (typeof value === "string" ? value : JSON.stringify(value));
 
 /** What the mock knows about a resource: its fields and how each is seeded, its links, its operations. */
-export function resourceAbout(host) {
-  const resource = host.detail;
-  if (!resource) return html`<p class="empty">Loading…</p>`;
-  const flags = (field) =>
-    [field.key && "key", field.required && "required", field.readOnly && "read only"].filter(
-      Boolean,
-    );
-  return html`
+export class MockResourceAbout extends Screen {
+  static properties = {
+    app: { attribute: false },
+    /** The id of the API and the name of the resource. */
+    api: { type: String },
+    name: { type: String },
+    busy: { type: Boolean },
+    version: { type: Number },
+    /** The resource as the control API describes it. */
+    detail: { state: true },
+    /** A generated record: `{ seed, record }`. */
+    sample: { state: true },
+  };
+
+  constructor() {
+    super();
+    this.detail = null;
+    this.sample = null;
+  }
+
+  get address() {
+    return `/model/${encodeURIComponent(this.api)}/resources/${encodeURIComponent(this.name)}`;
+  }
+
+  updated(changed) {
+    if (["api", "name", "version"].some((one) => changed.has(one)))
+      this.app.run(async () => (this.detail = await this.app.call(this.address)));
+  }
+
+  /** A freshly generated record of the resource; nothing is stored. */
+  generateSample() {
+    return this.app.run(async () => (this.sample = await this.app.call(`${this.address}/sample`)));
+  }
+
+  render() {
+    const { app } = this;
+    const resource = this.detail;
+    if (!resource) return html`<p class="empty">Loading…</p>`;
+    const flags = (field) =>
+      [field.key && "key", field.required && "required", field.readOnly && "read only"].filter(
+        Boolean,
+      );
+    return html`
     <section class="card">
       <h3>Schema</h3>
       <p class="hint">
@@ -66,14 +102,14 @@ export function resourceAbout(host) {
       <div class="row">
         <h3>Sample record</h3>
         <span class="grow"></span>
-        <button @click=${() => host.generateSample()} ?disabled=${host.busy}>
-          ${host.sample ? "Generate another" : "Generate sample"}
+        <button @click=${() => this.generateSample()} ?disabled=${this.busy}>
+          ${this.sample ? "Generate another" : "Generate sample"}
         </button>
       </div>
       ${
-        host.sample
-          ? html`<pre class="sample">${JSON.stringify(host.sample.record, null, 2)}</pre>
-            <p class="hint">Generated with seed ${host.sample.seed}. Nothing was stored.</p>`
+        this.sample
+          ? html`<pre class="sample">${JSON.stringify(this.sample.record, null, 2)}</pre>
+            <p class="hint">Generated with seed ${this.sample.seed}. Nothing was stored.</p>`
           : html`<p class="hint">A new record as the mock would seed it. Nothing is stored.</p>`
       }
     </section>
@@ -91,7 +127,7 @@ export function resourceAbout(host) {
                     <code>${one.field}</code> points at
                     ${
                       target
-                        ? html`<a href=${host.href("resources", `${target}/about`)}>${one.to}</a>`
+                        ? html`<a href=${app.href("resources", `${target}/about`)}>${one.to}</a>`
                         : "no resource the mock knows"
                     }
                     ${one.why ? html`<span class="hint">${one.why}</span>` : nothing}
@@ -102,7 +138,7 @@ export function resourceAbout(host) {
                 const from = id.split(".")[0];
                 return html`
                   <li>
-                    <a href=${host.href("resources", `${from}/about`)}>${from}</a> points here with
+                    <a href=${app.href("resources", `${from}/about`)}>${from}</a> points here with
                     <code>${id.slice(from.length + 1)}</code>
                   </li>
                 `;
@@ -122,7 +158,7 @@ export function resourceAbout(host) {
               (op) => html`
                 <tr>
                   <td><span class="method">${op.method}</span></td>
-                  <td class="path"><a href=${host.href("operations", op.id)}>${op.path}</a></td>
+                  <td class="path"><a href=${app.href("operations", op.id)}>${op.path}</a></td>
                   <td>${op.action}</td>
                   <td><span class="badge ${op.label}">${LABELS[op.label]}</span></td>
                 </tr>
@@ -133,4 +169,7 @@ export function resourceAbout(host) {
       </div>
     </section>
   `;
+  }
 }
+
+customElements.define("rapidoc-mock-resource-about", MockResourceAbout);

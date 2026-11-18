@@ -237,8 +237,13 @@ export const styles = css`
   }
   /* the content scrolls as a whole: nothing in it gives up height to fit */
   main > *,
-  .pane > * {
+  .pane > *,
+  .screen > * {
     flex-shrink: 0;
+  }
+  /* A section or a part of one (components/screen.js): no box of its own, its content is laid out in its place */
+  .screen {
+    display: contents;
   }
   .title p {
     color: var(--muted);
