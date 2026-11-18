@@ -93,7 +93,7 @@ const SEED_INVALID = {
   "museum.yaml": 0,
   "realworld.yaml": 0,
   "eshop-catalog.json": 0,
-  "petclinic.yaml": 3,
+  "petclinic.yaml": 0,
   "pokeapi.yaml": 0,
   "calcom-v2.json": 24,
   "ably-control.json": 0,

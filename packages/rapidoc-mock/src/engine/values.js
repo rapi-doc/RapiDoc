@@ -24,7 +24,7 @@ export const WORDS = {
 
 /**
  * @param {number} seed
- * @returns {Record<string, () => string>} Makers of one value each; calling the same ones in the same order
+ * @returns {Record<string, (...args: any[]) => any>} Makers of one value each; calling the same ones in the same order
  *   after the same seed repeats the values
  */
 export function valuesFor(seed) {
@@ -49,5 +49,15 @@ export function valuesFor(seed) {
     color: () => faker.color.human(),
     sentence: () => faker.lorem.sentence({ min: 5, max: 10 }),
     words: () => faker.lorem.words({ min: 2, max: 3 }),
+    /** One character of an alphabet. */
+    pick: (alphabet) => faker.helpers.arrayElement([...alphabet]),
+    digits: (length) => faker.string.numeric({ length, allowLeadingZeros: false }),
+    /** A moment in the year before `to`, as a Date. */
+    dateBefore: (to) =>
+      faker.date.between({ from: new Date(to.getTime() - 365 * 24 * 60 * 60 * 1000), to }),
+    number: (min, max, whole) =>
+      whole
+        ? faker.number.int({ min: Math.ceil(min), max: Math.max(Math.ceil(min), Math.floor(max)) })
+        : faker.number.float({ min, max, fractionDigits: 2 }),
   };
 }
