@@ -4,7 +4,10 @@
  *   GET  /__mock/health                         ready check; lists the APIs and which keep state
  *   GET  /__mock/model[/<api>]                  what the mock made of each spec: resources, operations, labels
  *   GET  /__mock/ui                             a page that shows all of this (src/ui.js)
- *   POST /__mock/reset[?api=<id>]               back to the seed data
+ *   GET  /__mock/settings                       how the mock was started, and what can change while it runs
+ *   PATCH /__mock/settings                      changes the response delay: `{ "delay": 250 }`
+ *   POST /__mock/reset[?api=<id>]               back to the seed data; with a body `{ "rows": 25, "seed": 7 }`,
+ *                                               new seed data of that size (all sessions' records are dropped)
  *   GET  /__mock/state[/<api>[/<resource>[/<key>]]]   the stored records, for assertions
  *   POST /__mock/snapshot[?api=<id>]            the stored records, as a document `restore` takes
  *   POST /__mock/restore                        replaces the records of the APIs the document names
@@ -78,9 +81,11 @@ function modelOf(api, view) {
  * @param {string} [request.session] - The X-Mock-Session header
  * @param {() => Promise<unknown>} request.body - Reads the JSON body
  * @param {{ id: string, state: object | null }[]} apis - The loaded APIs
+ * @param {{ settings: object, started: object, reseed: Function }} [runtime] - What can change while the mock
+ *   runs (`settings`: delay, rows, seed), how it was started, and how to make new seed data (see index.js)
  * @returns {Promise<{ status: number, headers: object, body: string | null }>}
  */
-export async function control({ method, segments, query, session, body }, apis) {
+export async function control({ method, segments, query, session, body }, apis, runtime) {
   const [action, ...rest] = segments;
   const stateful = apis.filter((api) => api.state);
   const view = (api) => api.state.store.session(session || undefined);
@@ -100,11 +105,52 @@ export async function control({ method, segments, query, session, body }, apis) 
       })
     );
   }
+  if (action === "settings" && !rest.length && runtime) {
+    const show = () =>
+      json({
+        ...runtime.started,
+        ...runtime.settings,
+        apis: apis.map((api) => ({
+          id: api.id,
+          ...(api.title ? { title: api.title } : {}),
+          ...(api.fullPath ? { file: api.fullPath } : {}),
+          operations: api.operations,
+          stateful: Boolean(api.state),
+        })),
+      });
+    if (method === "GET") return show();
+    if (method !== "PATCH") {
+      return problem(405, "Method Not Allowed", `/${CONTROL_PREFIX}/settings accepts GET, PATCH.`, {
+        Allow: "GET, PATCH",
+      });
+    }
+    let changes;
+    try {
+      changes = await body();
+    } catch {
+      return problem(400, "Bad Request", "The request body is not valid JSON.");
+    }
+    const unknown = isObject(changes) ? Object.keys(changes).filter((key) => key !== "delay") : [];
+    if (!isObject(changes) || unknown.length) {
+      return problem(
+        400,
+        "Bad Request",
+        `Only delay can be changed${unknown.length ? ` (not ${unknown.join(", ")})` : ""}: { "delay": 250 }. Rows and seed change with POST /${CONTROL_PREFIX}/reset.`,
+      );
+    }
+    if ("delay" in changes) {
+      if (!Number.isInteger(changes.delay) || changes.delay < 0 || changes.delay > 60000) {
+        return problem(400, "Bad Request", "delay is a whole number of milliseconds, 0 to 60000.");
+      }
+      runtime.settings.delay = changes.delay;
+    }
+    return show();
+  }
   if (!["model", "reset", "state", "snapshot", "restore"].includes(action)) {
     return problem(
       404,
       "Not Found",
-      `No control endpoint at /${[CONTROL_PREFIX, ...segments].join("/")}. There are: health, model, reset, state, snapshot, restore, ui.`,
+      `No control endpoint at /${[CONTROL_PREFIX, ...segments].join("/")}. There are: health, model, settings, reset, state, snapshot, restore, ui.`,
     );
   }
   if (!stateful.length) {
@@ -145,6 +191,27 @@ export async function control({ method, segments, query, session, body }, apis) 
     if (wrong) return wrong;
     const list = chosen();
     if (!Array.isArray(list)) return list;
+    // A body asks for new seed data: `{ "rows": 25, "seed": 7 }`, either or both
+    let asked;
+    try {
+      asked = await body();
+    } catch {
+      asked = undefined; // no body, or not JSON: a plain reset
+    }
+    if (isObject(asked) && runtime && ("rows" in asked || "seed" in asked)) {
+      const rows = asked.rows ?? runtime.settings.rows;
+      const seed = asked.seed ?? runtime.settings.seed;
+      const whole = (value, max) => Number.isInteger(value) && value >= 0 && value <= max;
+      if (!whole(rows, 1000) || !whole(seed, 2 ** 31)) {
+        return problem(
+          400,
+          "Bad Request",
+          "rows is a whole number from 0 to 1000, and seed a whole number from 0.",
+        );
+      }
+      await runtime.reseed(list, { rows, seed });
+      return { status: 204, headers: {}, body: null };
+    }
     for (const api of list) view(api).reset();
     return { status: 204, headers: {}, body: null };
   }

@@ -35,6 +35,7 @@ Ids are lower-case letters, digits and dashes. Files that would share an id get 
 | `--port <number>`        |                         | Default `4010`.                                                                                                        |
 | `--host <host>`          |                         | Default `0.0.0.0`.                                                                                                     |
 | `--seed <number>`        |                         | Seed for generated data; default `1`.                                                                                  |
+| `--delay <ms>`           |                         | Wait this long before every API response; default `0`.                                                                 |
 | `--stream-interval <ms>` |                         | Gap between the items of a streamed response (OpenAPI 3.2 `itemSchema`); default `300`.                                |
 | `--stateful`             |                         | Keep state (below).                                                                                                    |
 | `--rows <number>`        |                         | With `--stateful`: seed records per resource; default `10`.                                                            |
@@ -62,7 +63,7 @@ Applied preferences come back in `Preference-Applied`. `GET /` lists the APIs se
 - An `X-Mock-Session` header gives a caller its own copy of the data, so parallel tests don't see each other's changes.
 - `Prefer: code=` and `Prefer: example=` return that response as written; nothing is stored.
 
-`/__mock/ui` is a page that shows each API's resources with their records, and every operation with its label (confident, needs review, plain mock), with a reset button. `GET /__mock/model` returns the same as JSON.
+`/__mock/ui` is the Mock UI: a dashboard per API, its resources with their records, every operation with its label (confident, needs review, plain mock) grouped by path or by resource, and a settings page (new seed data, response delay). `GET /__mock/model` and `GET /__mock/settings` return what it shows as JSON; `PATCH /__mock/settings` with `{ "delay": 250 }` changes the delay, and `POST /__mock/reset` with `{ "rows": 25, "seed": 7 }` makes new seed data.
 
 The mock's own endpoints are under `/__mock`: `GET /__mock/health` (ready check), `POST /__mock/reset` (back to the seed data; `?api=<id>` for one API), `GET /__mock/state[/<api>[/<Resource>[/<key>]]]` (the stored records), `POST /__mock/snapshot` and `POST /__mock/restore` (the records as one document, `{ "<api id>": { "<Resource>": [records] } }`, out and back in). With an `X-Mock-Session` header they work on that session's data. An API can't have the id `__mock`.
 
@@ -81,7 +82,7 @@ const { app } = await createMockApp({
 // app is a Hono app: app.fetch(request), or mount it in your own server.
 ```
 
-`startMockServer({ apis, port, host, issuer, audience, seed, streamInterval, origin })` starts it on Node and returns `{ url, port, apis, skipped, close }`.
+`startMockServer({ apis, port, host, issuer, audience, seed, stateful, delay, streamInterval, origin })` starts it on Node and returns `{ url, port, apis, skipped, close }`.
 
 ## Built on
 

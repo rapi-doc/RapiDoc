@@ -71,13 +71,16 @@ A request with `Prefer: code=` or `Prefer: example=` gets that response as writt
 
 ### See what the mock holds
 
-Open `/__mock/ui` on the mock's port (`http://localhost:4010/__mock/ui`) for a page that shows, per API:
+Open `/__mock/ui` on the mock's port (`http://localhost:4010/__mock/ui`). Pick an API in the header; the sidebar has four sections:
 
+- **Dashboard**: how many resources, records and operations the mock found, the share of operations per label, and what it assumed.
 - **Resources**: each resource the mock found, with its records in a table you can filter and sort. Select a row to see the whole record.
-- **Operations**: every operation with what the mock does for it and one of three labels. **Confident**: mapped to a resource. **Needs review**: mapped, with something assumed, and the reason is shown. **Plain mock**: no state, answered from examples or generated data.
-- **Reset data** puts the selected API back to its seed data, and the **Session** field shows the data of one `X-Mock-Session`.
+- **Operations**: every operation with what the mock does for it and one of three labels. **Confident**: mapped to a resource. **Needs review**: mapped, with something assumed, and the reason is shown. **Plain mock**: no state, answered from examples or generated data. Group them by path or by resource.
+- **Settings**: how the mock was started, new seed data with another number of records or another seed, and a delay for every API response.
 
-The page is read-only apart from the reset. It reads the same endpoints your tests can call.
+In the header, **Reset data** puts the selected API back to its seed data, and the **Session** field shows the data of one `X-Mock-Session`. Every page has its own address, so it can be reloaded or shared.
+
+What you change in Settings lasts until the mock stops; the page shows the option that keeps it (`--rows`, `--seed`, `--delay`). The page reads the same endpoints your tests can call.
 
 ### Reset and inspect the data
 
@@ -87,7 +90,9 @@ The mock has its own endpoints under `/__mock`, beside the APIs, so a test in an
 | :--- | :--- |
 | `GET /__mock/health` | Ready check: `200` with the APIs served. Works without `--stateful` too. |
 | `GET /__mock/model` | What the mock made of each spec: resources, and every operation with its label. `/<api id>` for one API. |
-| `POST /__mock/reset` | Puts the data back to what the mock started with. `?api=<id>` resets one API. |
+| `GET /__mock/settings` | How the mock was started: state, seed, rows, delay, tokens, the APIs. |
+| `PATCH /__mock/settings` | Changes the response delay while the mock runs: `{ "delay": 250 }`. |
+| `POST /__mock/reset` | Puts the data back to what the mock started with. `?api=<id>` resets one API. With a body `{ "rows": 25, "seed": 7 }` it makes new seed data of that size, and drops every session's records. |
 | `GET /__mock/state` | The stored records. Narrow it with `/<api id>`, `/<api id>/<Resource>` or `/<api id>/<Resource>/<key>`. |
 | `POST /__mock/snapshot` | Returns all stored records as one JSON document. `?api=<id>` for one API. |
 | `POST /__mock/restore` | Replaces the records with the document you send: a snapshot, or data your test wrote. |
@@ -117,6 +122,7 @@ The stateful mode is new. It reads the spec's structure, so an operation it isn'
 | `--issuer <url>` | `RAPIDOC_MOCK_ISSUER` | OpenID Connect issuer whose access tokens are accepted. The server won't start if the issuer can't be discovered. |
 | `--audience <id>` | `RAPIDOC_MOCK_AUDIENCE` | The `aud` tokens must have (your API's identifier at the provider). |
 | `--seed <number>` | | Seed for generated data. Default `1`. |
+| `--delay <ms>` | | Wait this long before every API response, to see loading states in a client. Default `0`. |
 | `--stream-interval <ms>` | | Gap between the items of a streamed response. Default `300`. |
 | `--stateful` | | [Keep state](#keep-state): writes change stored records that reads and lists return. |
 | `--rows <number>` | | With `--stateful`: seed records per resource. Default `10`. |
@@ -160,4 +166,4 @@ await server.close();
 const { app } = await createMockApp({ apis: [{ id: 'orders', fullPath: '/abs/path/orders.yaml' }] });
 ```
 
-`startMockServer` also takes `host`, `issuer`, `audience`, `seed` and `streamInterval`, and returns `{ url, port, apis, skipped, close }`. A spec it can't load is skipped with the reason, and the others are served.
+`startMockServer` also takes `host`, `issuer`, `audience`, `seed`, `stateful`, `delay` and `streamInterval`, and returns `{ url, port, apis, skipped, close }`. A spec it can't load is skipped with the reason, and the others are served.

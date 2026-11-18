@@ -209,12 +209,66 @@ describe("/__mock with --stateful", () => {
     assert.equal((await call("GET", "/__mock/ui/other.js")).status, 404);
   });
 
+  it("shows how it was started, and changes the response delay while running", async () => {
+    const shown = (await call("GET", "/__mock/settings")).body;
+    assert.equal(shown.stateful, true);
+    assert.deepEqual(
+      { delay: shown.delay, rows: shown.rows, seed: shown.seed },
+      { delay: 0, rows: 10, seed: 1 },
+    );
+    assert.deepEqual(
+      shown.apis.map((api) => [api.id, api.stateful, api.operations]),
+      [
+        ["pc", true, 37],
+        ["rw", true, 19],
+      ],
+    );
+
+    const changed = await call("PATCH", "/__mock/settings", { delay: 120 });
+    assert.equal(changed.body.delay, 120);
+    const before = Date.now();
+    await call("GET", "/pc/owners");
+    assert.ok(Date.now() - before >= 110, "an API response waits");
+    const control = Date.now();
+    await call("GET", "/__mock/health");
+    assert.ok(Date.now() - control < 100, "the mock's own endpoints do not");
+
+    for (const bad of [{ delay: -1 }, { delay: 1.5 }, { delay: "1" }, { rows: 5 }, [], "x"]) {
+      assert.equal((await call("PATCH", "/__mock/settings", bad)).status, 400, JSON.stringify(bad));
+    }
+    assert.equal((await call("PATCH", "/__mock/settings", { delay: 0 })).body.delay, 0);
+    assert.equal((await call("POST", "/__mock/settings")).status, 405);
+  });
+
+  it("makes new seed data of another size, for every session", async () => {
+    const session = { "x-mock-session": "reseed-1" };
+    await call("POST", "/pc/owners", owner, session);
+    const first = (await call("GET", "/pc/owners")).body;
+
+    assert.equal((await call("POST", "/__mock/reset", { rows: 3, seed: 7 })).status, 204);
+    assert.equal((await ownerIds()).length, 3);
+    assert.equal((await ownerIds(session)).length, 3, "the session's own records are gone");
+    const settings = (await call("GET", "/__mock/settings")).body;
+    assert.deepEqual({ rows: settings.rows, seed: settings.seed }, { rows: 3, seed: 7 });
+
+    await call("DELETE", "/pc/owners/1");
+    await call("POST", "/__mock/reset");
+    assert.equal((await ownerIds()).length, 3, "a plain reset goes back to the new seed data");
+
+    assert.equal((await call("POST", "/__mock/reset", { rows: -1 })).status, 400);
+    assert.equal((await call("POST", "/__mock/reset", { rows: 10, seed: 1 })).status, 204);
+    assert.deepEqual((await call("GET", "/pc/owners")).body, first, "same seed, same data");
+  });
+
   it("names the method an endpoint takes, and the endpoints there are", async () => {
     assert.equal((await call("GET", "/__mock/reset")).status, 405);
     assert.equal((await call("POST", "/__mock/state")).status, 405);
     const unknown = await call("GET", "/__mock/nothing");
     assert.equal(unknown.status, 404);
-    assert.match(unknown.body.detail, /health, model, reset, state, snapshot, restore, ui/);
+    assert.match(
+      unknown.body.detail,
+      /health, model, settings, reset, state, snapshot, restore, ui/,
+    );
   });
 });
 
@@ -222,6 +276,7 @@ describe("/__mock without --stateful", () => {
   it("answers the ready check, and says why there is no state", async () => {
     const { app, skipped } = await createMockApp({
       apis: [spec("pc", "petclinic.yaml"), spec("__mock", "museum.yaml")],
+      delay: 30,
       ...quiet,
     });
     const call = clientOf(app);
@@ -233,5 +288,8 @@ describe("/__mock without --stateful", () => {
     assert.equal(reset.status, 409);
     assert.match(reset.body.detail, /--stateful/);
     assert.equal(skipped[0].id, "__mock", "the control API's path is no API id");
+    const settings = (await call("GET", "/__mock/settings")).body;
+    assert.equal(settings.stateful, false);
+    assert.equal(settings.delay, 30, "the delay option works without state too");
   });
 });
