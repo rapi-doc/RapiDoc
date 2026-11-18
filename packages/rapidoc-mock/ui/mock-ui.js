@@ -271,7 +271,7 @@ export class RapidocMockUi extends LitElement {
         >
           ${icon("menu")}
         </button>
-        <a class="brand" href=${this.href("dashboard")}>RapiDoc <b>Mock</b></a>
+        <a class="brand" href=${this.href("dashboard")}>Rapi<b>Mock</b></a>
         ${
           this.apis.length
             ? html`

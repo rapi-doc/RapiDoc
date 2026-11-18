@@ -1,6 +1,6 @@
 import { html, nothing } from "lit";
 import { Screen } from "../components/screen.js";
-import { LABELS, LABEL_HELP } from "../labels.js";
+import { LABELS, LABEL_HELP, badge } from "../labels.js";
 
 /** The Dashboard: what the mock made of the API in view, at a glance. */
 export class MockDashboard extends Screen {
@@ -63,7 +63,7 @@ export class MockDashboard extends Screen {
           (label) => html`
             <div>
               <dt>
-                <span class="badge ${label}">${LABELS[label]}</span>
+                ${badge(label)}
                 <b>${api.labels[label]}</b>
                 <span class="hint">${Math.round((100 * api.labels[label]) / total)}%</span>
               </dt>
@@ -100,7 +100,7 @@ export class MockDashboard extends Screen {
                 : nothing
             }
           `
-          : html`<p class="hint">Nothing was assumed: every mapped operation is confident.</p>`
+          : html`<p class="hint">Nothing was assumed about any mapped operation.</p>`
       }
       ${
         review.length
@@ -130,7 +130,7 @@ export class MockDashboard extends Screen {
             </ul>
           `
           : html`<p class="hint">
-            The mock found no resource in this spec: every operation answers as a plain mock.
+            The mock found no resource in this spec: every operation is static, answered from examples or generated data.
           </p>`
       }
     </section>

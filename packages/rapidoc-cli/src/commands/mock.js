@@ -235,7 +235,7 @@ export default {
       const names = Object.keys(resources);
       const records = Object.values(resources).reduce((sum, count) => sum + count, 0);
       info(
-        `   • State:    ${api.id}: ${names.length} resource(s), ${records} record(s). Operations: ${confident} confident, ${needsReview} needs review, ${plainMock} plain mock`,
+        `   • State:    ${api.id}: ${names.length} resource(s), ${records} record(s). Operations: ${confident} stateful, ${needsReview} needs review, ${plainMock} static`,
       );
     }
     if (mockConfig) {

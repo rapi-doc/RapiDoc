@@ -45,4 +45,4 @@ mock.config.yaml: videos: operations.deleteVideo.key: the operation has no query
 - [`rapidoc lint --stateful`](/docs/correcting/lint/) lists what the mock assumed, at its place in the spec. It reads this file, so the list shrinks as you settle things.
 - The [Mock UI](/docs/mock-ui/tour/) shows the same as **Needs review** labels.
 
-An operation labelled Confident can be corrected the same way, if you spot one the mock got wrong.
+An operation labelled Stateful can be corrected the same way, if you spot one the mock got wrong.

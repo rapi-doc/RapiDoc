@@ -25,7 +25,7 @@ The **About** tab shows:
 
 ## Operations
 
-Every operation with what the mock does for it and one of three labels: **Confident**, **Needs review** with the reason, or **Plain mock**. Group them by path or by resource.
+Every operation with what the mock does for it and one of three labels: **Stateful**, **Needs review** with the reason, or **Static**. Group them by path or by resource.
 
 **Details** opens one operation: what the mock does in a sentence, what it uses each parameter for, what the request and each response hold, and a sample response.
 

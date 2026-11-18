@@ -21,7 +21,7 @@ The list may be a bare array, sit under `data`, `items` or `results`, in a page 
 | :--- | :--- | :--- |
 | keeps the key inside the record (Kubernetes: `metadata.name`) | Lists and creates work; reading, updating or deleting one record keeps no state | `resources.<Name>.key: metadata.name` |
 | passes the id in the query string (`DELETE /videos?id=7`) | Lists, creates and updates work; deletes keep no state | `operations.<id>` with `key: query.id` |
-| describes records with inline schemas, without a name | Those operations stay plain mock | Name the schema in the spec |
+| describes records with inline schemas, without a name | Those operations stay static | Name the schema in the spec |
 
 See [`mock.config.yaml`](/docs/correcting/config-file/).
 
@@ -42,6 +42,6 @@ These statements come from running the mock on public specs outside the set it w
 | Jira Cloud | 41 of 58 |
 | Kubernetes | None without config; its key is nested |
 
-"Completely" means reading, listing, creating, updating and deleting all use the store, wherever the spec has those operations. Where the mock labelled an operation **Confident**, it was right in 58 of 60 cases checked by hand on the first runs.
+"Completely" means reading, listing, creating, updating and deleting all use the store, wherever the spec has those operations. Where the mock labelled an operation **Stateful**, it was right in 58 of 60 cases checked by hand on the first runs.
 
 To see where your own spec stands before running the mock, use [`rapidoc lint --stateful`](/docs/correcting/lint/).
