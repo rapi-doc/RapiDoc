@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadSpec, listOperations } from "../src/spec.js";
-import { classifySpec, labelCounts } from "../src/stateful/classify.js";
+import { classifySpec, labelCounts, operationIds } from "../src/stateful/classify.js";
 import { generateSeed } from "../src/stateful/seed.js";
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures/core-specs");
@@ -58,6 +58,15 @@ const BASELINE = {
     resources: 9,
   },
   "apideck-crm.json": { operations: 40, confident: 32, needsReview: 8, plainMock: 0, resources: 8 },
+  // Added after the classifier was written, because they showed what the first twelve did not (see the README)
+  "jira.json": { operations: 630, confident: 167, needsReview: 62, plainMock: 401, resources: 67 },
+  "digitalocean.yaml": {
+    operations: 916,
+    confident: 281,
+    needsReview: 110,
+    plainMock: 525,
+    resources: 130,
+  },
 };
 
 describe("classifySpec on the core specs", () => {
@@ -78,9 +87,84 @@ describe("classifySpec on the core specs", () => {
         if (entry.action === "none") continue;
         assert.ok(model.resources[entry.resource], `${id}: resource ${entry.resource}`);
         if (["read", "update", "patch", "delete"].includes(entry.action)) {
-          assert.ok(entry.keyFrom, `${id}: keyFrom`);
+          // or it is marked for review: an update with no key in the path or the body (Jira has two), which
+          // the mock then answers without state
+          assert.ok(entry.keyFrom || entry.review, `${id}: keyFrom`);
         }
       }
+    });
+  }
+});
+
+/**
+ * How completely each spec's records are mapped. The label counts above can look good while resources are half
+ * working: a create that is stored and a list that is not means the new record never shows up.
+ *
+ * A record is an item path with a GET (`/pets/{id}`). Of those: `lists` and `creates` are the collection's GET
+ * and POST that use the store, out of the ones the spec has; `complete` is the records whose read, list, create,
+ * update and delete are all mapped, where the spec has them. Today's numbers; they should only go up.
+ */
+const COMPLETENESS = {
+  "museum.yaml": { records: 1, lists: "1/1", creates: "1/1", complete: 1 },
+  "realworld.yaml": { records: 2, lists: "1/1", creates: "1/1", complete: 2 },
+  "eshop-catalog.json": { records: 5, lists: "2/2", creates: "1/1", complete: 5 },
+  "petclinic.yaml": { records: 7, lists: "6/6", creates: "6/6", complete: 7 },
+  "pokeapi.yaml": { records: 50, lists: "50/50", creates: "0/0", complete: 50 },
+  "calcom-v2.json": { records: 17, lists: "12/13", creates: "8/12", complete: 13 },
+  "ably-control.json": { records: 1, lists: "1/1", creates: "1/1", complete: 1 },
+  "mealie.json": { records: 45, lists: "32/34", creates: "24/25", complete: 39 },
+  "immich.json": { records: 20, lists: "17/18", creates: "10/11", complete: 17 },
+  "nylas.json": { records: 41, lists: "33/36", creates: "28/30", complete: 37 },
+  "apicurio-registry.json": { records: 11, lists: "5/8", creates: "4/6", complete: 3 },
+  "apideck-crm.json": { records: 8, lists: "8/8", creates: "8/8", complete: 8 },
+  "jira.json": { records: 58, lists: "22/36", creates: "15/27", complete: 34 },
+  "digitalocean.yaml": { records: 120, lists: "31/107", creates: "67/88", complete: 40 },
+};
+
+/** The measure of COMPLETENESS for one document and its model. */
+function completeness(doc, model) {
+  const ids = operationIds(doc);
+  const shapeOf = (route) =>
+    `/${route
+      .split("/")
+      .filter(Boolean)
+      .map((segment) => (/^\{.+\}$/.test(segment) ? "{}" : segment))
+      .join("/")}`;
+  const byShape = new Map();
+  for (const { method, path: route } of listOperations(doc)) {
+    const entry = model.operations[ids.get(`${method} ${route}`)];
+    const shape = shapeOf(route);
+    byShape.set(shape, [
+      ...(byShape.get(shape) || []),
+      { method, mapped: Boolean(entry) && entry.action !== "none" },
+    ]);
+  }
+  const result = { records: 0, lists: [0, 0], creates: [0, 0], complete: 0 };
+  for (const [shape, here] of byShape) {
+    const read = here.find((op) => op.method === "get");
+    if (!shape.endsWith("/{}") || !read) continue;
+    result.records += 1;
+    const collection = byShape.get(shape.slice(0, -3)) || [];
+    const list = collection.find((op) => op.method === "get");
+    const create = collection.find((op) => op.method === "post");
+    const others = [
+      here.find((op) => op.method === "put" || op.method === "patch"),
+      here.find((op) => op.method === "delete"),
+    ];
+    if (list) result.lists = [result.lists[0] + (list.mapped ? 1 : 0), result.lists[1] + 1];
+    if (create) {
+      result.creates = [result.creates[0] + (create.mapped ? 1 : 0), result.creates[1] + 1];
+    }
+    if ([read, list, create, ...others].every((op) => !op || op.mapped)) result.complete += 1;
+  }
+  return { ...result, lists: result.lists.join("/"), creates: result.creates.join("/") };
+}
+
+describe("how completely the core specs' records are mapped", () => {
+  for (const [file, expected] of Object.entries(COMPLETENESS)) {
+    it(`${file}: ${expected.complete} of ${expected.records} records complete`, async () => {
+      const doc = await loadSpec(path.join(dir, file));
+      assert.deepEqual(completeness(doc, classifySpec(doc)), expected);
     });
   }
 });
@@ -102,9 +186,24 @@ const SEED_INVALID = {
   "nylas.json": 21,
   "apicurio-registry.json": 1,
   "apideck-crm.json": 0,
+  "jira.json": 60,
+};
+
+/**
+ * Specs whose seed data cannot be generated today, with the error: a known failure, kept visible. The mock then
+ * serves the whole API without state. Fixing one moves it to SEED_INVALID.
+ */
+const SEED_FAILS = {
+  "digitalocean.yaml": /No suitable integer value between/,
 };
 
 describe("generateSeed on the core specs", () => {
+  for (const [file, error] of Object.entries(SEED_FAILS)) {
+    it(`${file}: known failure`, async () => {
+      const doc = await loadSpec(path.join(dir, file));
+      await assert.rejects(generateSeed(doc, classifySpec(doc), { rows: 10, seed: 1 }), error);
+    });
+  }
   for (const [file, invalid] of Object.entries(SEED_INVALID)) {
     it(`${file}: no orphaned reference, ${invalid} invalid records`, async () => {
       const doc = await loadSpec(path.join(dir, file));
