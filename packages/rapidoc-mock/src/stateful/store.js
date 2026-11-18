@@ -63,14 +63,17 @@ export function createStore(resources) {
       /**
        * The records of a collection, filtered and paged.
        * @param {string} name
-       * @param {{ where?: Record<string, unknown>, offset?: number, limit?: number }} [query] - `where` keys are
-       *   field paths (`status`, `category.name`, `tags[].name`); a record matches when every one equals its value
-       *   (compared as text; an array value matches any of its items)
+       * @param {{ where?: Record<string, unknown>, test?: (record: object) => boolean, offset?: number, limit?: number }} [query] -
+       *   `where` keys are field paths (`status`, `category.name`, `tags[].name`); a record matches when every one
+       *   equals its value (compared as text; an array value matches any of its items). `test` is one more
+       *   condition on the stored record
        */
-      list(name, { where = {}, offset = 0, limit } = {}) {
+      list(name, { where = {}, test, offset = 0, limit } = {}) {
         const tests = Object.entries(where);
-        const all = [...collection(reading(), name).values()].filter((record) =>
-          tests.every(([path, expected]) => matches(valuesAt(record, path), expected)),
+        const all = [...collection(reading(), name).values()].filter(
+          (record) =>
+            tests.every(([path, expected]) => matches(valuesAt(record, path), expected)) &&
+            (!test || test(record)),
         );
         return {
           total: all.length,

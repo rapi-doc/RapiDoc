@@ -34,6 +34,11 @@ describe("store", () => {
     );
     assert.equal(state.list("Pet", { where: { "tags[].name": "calm" } }).total, 2);
     assert.equal(state.list("Pet", { where: { "tags[].name": ["small", "loud"] } }).total, 1);
+    assert.equal(state.list("Pet", { test: (pet) => pet.status !== "sold" }).total > 0, true);
+    assert.equal(
+      state.list("Pet", { where: { status: "sold" }, test: (pet) => pet.status !== "sold" }).total,
+      0,
+    );
     const page = state.list("Pet", { offset: 1, limit: 1 });
     assert.deepEqual([page.total, page.records.length, page.records[0].id], [2, 1, 2]);
     assert.deepEqual(valuesAt(seed.Pet[0], "tags[].name"), ["small", "calm"]);
