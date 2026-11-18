@@ -358,4 +358,65 @@ test("rapidoc lint", async (t) => {
     assert.match(output, /Not run: example-matches-schema, stateful-resource-key, /);
     assert.match(output, /They need @rapidoc\/mock/);
   });
+
+  await t.test("--stateful reads mock.config.yaml: what it settles is not reported", (t) => {
+    const dir = tempDir(t);
+    const spec = path.join(dir, "stateful.yaml");
+    fs.copyFileSync(STATEFUL, spec);
+    const before = byRule(json([spec, "--stateful"]).report);
+    assert.ok(before["stateful-resource-key"] && before["stateful-write-unmapped"]);
+
+    fs.writeFileSync(
+      path.join(dir, "mock.config.yaml"),
+      [
+        "resources:",
+        "  Widget: { key: label }",
+        "operations:",
+        "  endSession: { action: none }",
+        "  touchPet: { resource: Pet, action: patch }",
+        "  ghost: { action: none }",
+        "",
+      ].join("\n"),
+    );
+    const { result, report } = json([spec, "--stateful"]);
+    assert.equal(result.status, 0);
+    const rules = byRule(report);
+    assert.equal(rules["stateful-resource-key"], undefined, "Widget's key is stated");
+    assert.equal(
+      rules["stateful-write-unmapped"],
+      undefined,
+      "endSession is stated to keep no state",
+    );
+    assert.equal(rules["stateful-operation-assumed"], undefined, "touchPet is stated");
+    assert.equal(rules["stateful-list-filter"].length, 1, "what the file does not mention stays");
+    assert.equal(rules["mock-config"].length, 1, "an entry that no longer fits the spec");
+    assert.match(
+      rules["mock-config"][0].message,
+      /mock\.config\.yaml: operations\.ghost: the spec has no operation with that id/,
+    );
+
+    // another file by name; a missing one is an error
+    fs.writeFileSync(path.join(dir, "other.yaml"), "resources:\n  Widget: { key: label }\n");
+    const other = byRule(
+      json([spec, "--stateful", "--mock-config", path.join(dir, "other.yaml")]).report,
+    );
+    assert.equal(other["stateful-resource-key"], undefined);
+    assert.ok(other["stateful-write-unmapped"], "only what that file states");
+    const missing = run(["lint", spec, "--stateful", "--mock-config", path.join(dir, "no.yaml")]);
+    assert.equal(missing.status, 1);
+    assert.match(missing.stderr, /Not found: .*no\.yaml/);
+  });
+
+  await t.test("without a stateful rule on, mock.config.yaml is not read", (t) => {
+    const dir = tempDir(t);
+    const spec = path.join(dir, "stateful.yaml");
+    fs.copyFileSync(STATEFUL, spec);
+    fs.writeFileSync(path.join(dir, "mock.config.yaml"), "not: [yaml\n");
+    assert.equal(run(["lint", spec]).status, 0, "a broken file does not fail a plain lint");
+    const stateful = run(["lint", spec, "--stateful"]);
+    assert.equal(stateful.status, 1);
+    assert.match(stateful.stderr, /mock\.config\.yaml: /);
+    const byName = run(["lint", spec, "--rule", "stateful-list-filter=warn"]);
+    assert.equal(byName.status, 1, "a stateful rule turned on by name reads it too");
+  });
 });

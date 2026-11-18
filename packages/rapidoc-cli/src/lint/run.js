@@ -14,11 +14,13 @@ import { traverse } from "./traverse.js";
 
 /**
  * @param {string} location  file path or URL
- * @param {{ remote?: boolean, severities: Record<string, Severity> }} options
- * @returns {Promise<{ location, problems, skipped: string[], linted: boolean, notRun?: string[] }>}
- *   `notRun`: rules that were on and could not run, because @rapidoc/mock isn't installed
+ * @param {{ remote?: boolean, severities: Record<string, Severity>, mockConfig?: { config: object, apiId: string, apiIds: string[] } }} options
+ *   `mockConfig`: the parsed mock.config.yaml, with this spec's API id as the mock names it and every id
+ * @returns {Promise<{ location, problems, skipped: string[], linted: boolean, notRun?: string[], configWarnings?: string[] }>}
+ *   `notRun`: rules that were on and could not run, because @rapidoc/mock isn't installed;
+ *   `configWarnings`: entries of mock.config.yaml that no longer fit this spec
  */
-export async function lintSpec(location, { remote = false, severities }) {
+export async function lintSpec(location, { remote = false, severities, mockConfig }) {
   let bundle;
   try {
     bundle = await bundleSpec(location, { remote });
@@ -35,7 +37,16 @@ export async function lintSpec(location, { remote = false, severities }) {
   const mock = wanted.some((rule) => rule.needs === "mock") ? await tryLoadMock() : null;
   const active = wanted.filter((rule) => !rule.needs || mock);
   const notRun = wanted.filter((rule) => rule.needs && !mock).map((rule) => rule.name);
-  const problems = traverse(bundle.value, active, { mock }).map((finding) => {
+  // The stateful mock's rules read the user's corrections, so lint doesn't report what those settle
+  let section;
+  const configWarnings = [];
+  const stateful = active.some((rule) => rule.name.startsWith("stateful-"));
+  if (mock?.configFor && mockConfig && stateful && typeof bundle.value.swagger !== "string") {
+    const picked = mock.configFor(mockConfig.config, mockConfig.apiId, mockConfig.apiIds);
+    section = picked.section;
+    configWarnings.push(...picked.warnings, ...mock.statefulReport(bundle.value, section).warnings);
+  }
+  const problems = traverse(bundle.value, active, { mock, mockConfig: section }).map((finding) => {
     const at = locate(bundle, finding.pointer);
     const { line, column } = position(bundle.files.get(at.location), at.pointer);
     return {
@@ -52,5 +63,5 @@ export async function lintSpec(location, { remote = false, severities }) {
   problems.sort(
     (a, b) => a.location.localeCompare(b.location) || a.line - b.line || a.column - b.column,
   );
-  return { location, problems, skipped: bundle.skipped, linted: true, notRun };
+  return { location, problems, skipped: bundle.skipped, linted: true, notRun, configWarnings };
 }

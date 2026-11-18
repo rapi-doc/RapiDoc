@@ -32,6 +32,7 @@
  * @property {Operation[]} operations   every operation of the document
  * @property {(node: unknown) => unknown} resolve   follows in-document $refs (up to 10 hops)
  * @property {object} [mock]         @rapidoc/mock, for the rules that `needs` it
+ * @property {object} [mockConfig]   this API's section of mock.config.yaml, for the stateful-* rules
  */
 
 /**

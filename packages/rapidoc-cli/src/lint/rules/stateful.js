@@ -3,6 +3,7 @@
  * the spec, or could not map. The findings are the mock's own (`statefulFindings` of @rapidoc/mock, from its
  * classifier), so lint and the mock never disagree; each rule here is one group of them. All are off by default:
  * `--stateful` turns on the ones the spec's author can act on, and `--rule` or the config sets each by name.
+ * They read the user's corrections in mock.config.yaml (`context.mockConfig`, this API's section).
  * Unlike the other rules, these share one file: they differ only in name and description.
  */
 
@@ -53,11 +54,12 @@ export default GROUPS.map(([name, withStateful, description]) => ({
   needs: "mock",
   withStateful,
   on: ["document"],
-  check: (doc, { v2, mock }) =>
+  check: (doc, { v2, mock, mockConfig }) =>
     v2 || !mock?.statefulFindings
       ? []
       : mock
-          .statefulFindings(doc)
+          // with the user's corrections (mock.config.yaml): what they state is no longer a finding
+          .statefulFindings(doc, mockConfig)
           .filter((finding) => finding.rule === name)
           .map(({ pointer, message }) => ({ pointer, message })),
 }));
