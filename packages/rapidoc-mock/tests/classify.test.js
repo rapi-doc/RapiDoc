@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadSpec } from "../src/spec.js";
 import { classifySpec } from "../src/stateful/classify.js";
+import { STATEFUL_RULES, statefulFindings } from "../src/stateful/findings.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const petstore = await loadSpec(path.resolve(here, "../../../docs/public/specs/petstore-3.2.yaml"));
@@ -462,5 +463,24 @@ describe("classifySpec: names", () => {
     );
     assert.equal(model.relations["Order.ownerId"].review, true);
     assert.match(model.review[0], /no resource is named owner/);
+  });
+});
+
+describe("statefulFindings", () => {
+  it("gives the review notes of the Petstore as findings, each with a rule and a place in the spec", () => {
+    const findings = statefulFindings(petstore);
+    assert.ok(findings.length > 0);
+    for (const finding of findings) {
+      assert.ok(STATEFUL_RULES.includes(finding.rule), finding.rule);
+      assert.ok(Array.isArray(finding.pointer) && finding.pointer.length >= 2);
+      assert.equal(typeof finding.message, "string");
+    }
+    const model = classifySpec(petstore);
+    const operationNotes = Object.values(model.operations).filter((entry) => entry.review).length;
+    const fromOperations = new Set(
+      findings.filter((one) => one.pointer[0] === "paths").map((one) => one.pointer.join(" ")),
+    );
+    assert.equal(fromOperations.size, operationNotes, "every operation under review is reported");
+    assert.equal(statefulFindings(petstore), findings, "kept per document");
   });
 });

@@ -43,6 +43,8 @@
  *                                  "info", "server", "tag" and "securityScheme"
  * @property {"mock"} [needs]       an optional package the rule can't run without (@rapidoc/mock); when it
  *                                  isn't installed the rule is skipped, and lint says so
+ * @property {boolean} [withStateful]  `rapidoc lint --stateful` turns the rule on (as a warning) unless a
+ *                                  severity is set for it
  * @property {(node: any, context: LintContext) => Finding[]} check
  */
 

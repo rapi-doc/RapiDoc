@@ -58,6 +58,7 @@ Options and arguments can come in any order (`rapidoc build --out-dir public ./p
 | `--strict` | validate, lint | Fail on warnings too. |
 | `--rule <name>=<severity>` | lint | A rule's severity: `error`, `warn` or `off`; repeatable. |
 | `--rules` | lint | List the rules and their defaults. |
+| `--stateful` | lint | Also report what the stateful mock had to assume or could not map. |
 | `--remote` | validate, lint, mcp, bundle | Also fetch remote specs and remote `$ref`s. |
 | `--output <file>`, `-o` | bundle, pdf | bundle: write here instead of stdout. pdf: default the spec's name with `.pdf`. |
 | `--dereference` | bundle | Inline every `$ref`, in-file ones too. |

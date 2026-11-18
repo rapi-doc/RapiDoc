@@ -37,6 +37,11 @@ export default {
       value: "name=severity",
       description: "Set a rule's severity (error, warn, off); repeat for more. See --rules",
     },
+    stateful: {
+      type: "boolean",
+      description:
+        "Also report what the stateful mock (rapidoc mock --stateful) had to assume or could not map (the stateful-* rules; needs @rapidoc/mock)",
+    },
     rules: { type: "boolean", description: "List the rules, their defaults and what they check" },
     remote: {
       type: "boolean",
@@ -47,11 +52,12 @@ export default {
     "rapidoc lint openapi.yaml",
     "rapidoc lint",
     "rapidoc lint openapi.yaml --rule operation-description=warn --rule no-unused-components=off",
+    "rapidoc lint openapi.yaml --stateful",
     "rapidoc lint --strict --format sarif > rapidoc.sarif",
   ],
 
   async run({ values, positionals }) {
-    const { format, strict, remote } = values;
+    const { format, strict, remote, stateful } = values;
     const { RULES } = await import("../lint/rules/index.js");
     if (values.rules) {
       const width = Math.max(...RULES.map((rule) => rule.name.length)) + 2;
@@ -93,7 +99,7 @@ export default {
     const target = positionals[0] || ".";
     if (isUrl(target)) {
       info(`\nLinting ${target}...`);
-      await lintOne(target, target, severitiesFor({ overrides }));
+      await lintOne(target, target, severitiesFor({ stateful, overrides }));
     } else {
       const fullPath = path.resolve(target);
       if (!fs.existsSync(fullPath)) throw new ProblemError(`File not found: ${fullPath}`);
@@ -104,7 +110,11 @@ export default {
 
       if (fs.statSync(fullPath).isFile()) {
         info(`\nLinting ${path.basename(fullPath)}...`);
-        await lintOne(path.basename(fullPath), fullPath, severitiesFor({ config, overrides }));
+        await lintOne(
+          path.basename(fullPath),
+          fullPath,
+          severitiesFor({ stateful, config, overrides }),
+        );
       } else if (
         fs
           .readdirSync(fullPath)
@@ -119,7 +129,7 @@ export default {
         }
         info(`\nLinting the specs in ${fullPath}...`);
         for (const api of loaded.apis || []) {
-          const severities = severitiesFor({ config, api: api.id, overrides });
+          const severities = severitiesFor({ stateful, config, api: api.id, overrides });
           for (const version of api.versions) {
             const id = api.versioned ? `${api.id} ${version.version}` : api.id;
             if (version.isRemote && !remote)
@@ -133,7 +143,11 @@ export default {
         if (!files.length) throw new ProblemError(`No OpenAPI files found in ${fullPath}`);
         info(`\nLinting ${files.length} spec(s) in ${fullPath}...`);
         for (const file of files)
-          await lintOne(file, path.join(fullPath, file), severitiesFor({ config, overrides }));
+          await lintOne(
+            file,
+            path.join(fullPath, file),
+            severitiesFor({ stateful, config, overrides }),
+          );
       }
     }
 

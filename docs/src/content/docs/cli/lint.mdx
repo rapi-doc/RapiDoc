@@ -47,6 +47,31 @@ Each rule has a severity: `error` fails the run, `warn` is reported (and fails w
 | `info-contact` | `info.contact` is set. | Shown in the reference's header. | off |
 | `info-license` | `info.license` is set. | Shown in the reference's header. | off |
 
+## Rules for the stateful mock
+
+`rapidoc mock --stateful` works out resources, keys and links from the spec. Where the spec leaves that unclear, the mock assumes something or keeps no state for the operation. `--stateful` reports those places, before you run the mock:
+
+```bash
+npx rapidoc lint openapi.yaml --stateful
+```
+
+```
+   ⚠️ openapi.yaml:12:5  GET /pets: query parameter color matches no field of Pet: the mock ignores it when listing  [stateful-list-filter]
+   ⚠️ openapi.yaml:163:5  Resource Widget: no key field found for {code}: the mock can't tell one record from another, so reads, updates and deletes of one record keep no state  [stateful-resource-key]
+```
+
+These rules are `off` by default. `--stateful` turns on the first six as warnings; a severity you set by name (`--rule`, or the config) wins. The findings are the mock's own, the same as the **Needs review** labels of its [Mock UI](/docs/mocking/mock-server/#see-what-the-mock-holds), so they need `@rapidoc/mock` installed.
+
+| Rule | It reports | What to do |
+| :--- | :--- | :--- |
+| `stateful-resource-key` | A resource whose key the spec doesn't show: no path parameter matches a field, or there is no item path such as `/things/{id}`. | Name the path parameter after the field (`{petId}` and `id`), or add the field. |
+| `stateful-list-filter` | A query parameter of a list that matches no field of what it returns (paging and sorting parameters are fine). | Name it after the field it filters by. Otherwise the mock ignores it. |
+| `stateful-write-unmapped` | A `PUT`, `PATCH` or `DELETE` that fits no resource. | Nothing, if it is an action and not a change to a record; the mock answers it without changing data. |
+| `stateful-reference-target` | A field that looks like a reference (`owner_id`) to a resource the spec doesn't have. | Nothing, if the other resource lives in another API; the mock fills the field with generated values. |
+| `stateful-response-unnamed` | A collection and its item path whose records are described by an inline schema. | Move the schema under `components.schemas` and refer to it: the mock knows a record by its schema's name. |
+| `stateful-operation-assumed` | Another assumption about what an operation does: a `GET` that returns a different schema, a `POST` on an item path. | Check the assumption in the message. |
+| `stateful-relation-assumed` | A link between resources matched by more than the field's plain name (`active_credential_id` to `Credential`). Not turned on by `--stateful`: these are usually right. | Turn it on by name to review them. |
+
 ## Settings
 
 Set severities in `rapidoc.config.yaml`: in the folder you run the command from, or in the folder you pass it. Most specific wins: `--rule` on the command line, then the API's entry under `lint.apis` (in a portal), then `lint.rules`, then the defaults above.
@@ -69,6 +94,7 @@ The `lint` key is read straight from the file, so linting one spec needs no othe
 | :--- | :--- |
 | `--rule <name>=<error \| warn \| off>` | Set a rule's severity; repeat for more. |
 | `--rules` | List the rules, their defaults and what they check. |
+| `--stateful` | Also report what the stateful mock had to assume or could not map (the `stateful-*` rules). Needs `@rapidoc/mock`. |
 | `--format pretty \| json \| sarif` | `pretty` (default) for the terminal; `json` for scripts; `sarif` for GitHub code scanning, with every rule described. |
 | `--strict` | Fail on warnings too. |
 | `--remote` | Also fetch remote `$ref`s (and, in a portal, remote specs in `apis:`). |

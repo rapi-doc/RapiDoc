@@ -80,6 +80,8 @@ Open `/__mock/ui` on the mock's port (`http://localhost:4010/__mock/ui`). Pick a
 
 In the header, **Reset data** puts the selected API back to its seed data, and the **Session** field shows the data of one `X-Mock-Session`. Every page has its own address, so it can be reloaded or shared.
 
+`rapidoc lint openapi.yaml --stateful` reports the same assumptions at their place in the spec, without starting the mock: see [Rules for the stateful mock](/docs/cli/lint/#rules-for-the-stateful-mock).
+
 What you change in Settings lasts until the mock stops; the page shows the option that keeps it (`--rows`, `--seed`, `--delay`). The page reads the same endpoints your tests can call.
 
 ### Reset and inspect the data

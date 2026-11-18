@@ -110,26 +110,27 @@ rapidoc lint openapi.yaml --rule operation-summary=off --format sarif
 - **Rules**, severity `error`, `warn` or `off` (default in the last column). The _Why_ column is what
   the portal does with it; names follow Redocly's where one exists, so a team moving over finds them.
 
-  | Rule                             | Checks                                                                                  | Why                                              | Default |
-  | :------------------------------- | :-------------------------------------------------------------------------------------- | :----------------------------------------------- | :------ |
-  | `operation-operationId`          | every operation has one                                                                 | stable URLs (`OperationSlugger`), MCP tool names | warn    |
-  | `operation-operationId-unique`   | no two the same                                                                         | two operations would share a page and a tool     | error   |
-  | `operation-operationId-url-safe` | letters, digits, `_`, `-`, `.`                                                          | used in URLs                                     | warn    |
-  | `operation-summary`              | every operation has a summary                                                           | sidebar label, MCP tool title                    | warn    |
-  | `operation-description`          | operations have a description                                                           | MCP tool descriptions, readers                   | off     |
-  | `operation-tag-defined`          | tags used are in top-level `tags`                                                       | sidebar groups and their descriptions            | warn    |
-  | `tag-description`                | top-level tags have a description                                                       | the group's intro on the page                    | off     |
-  | `operation-2xx-response`         | at least one 2xx or 3xx response                                                        | Try shows nothing to expect                      | warn    |
-  | `operation-4xx-response`         | at least one 4xx response                                                               | readers don't see error shapes                   | off     |
-  | `security-defined`               | POST, PUT, PATCH, DELETE have `security` (own or global)                                | Try and the mock need it; MCP marks them         | warn    |
-  | `security-scheme-defined`        | schemes used are declared                                                               | Try's auth panel                                 | error   |
-  | `no-unused-components`           | every component is referenced                                                           | dead docs                                        | warn    |
-  | `media-example`                  | request and response bodies have an example (`example`, `examples`, or in the schema)   | Try's sample body; the mock's responses          | warn    |
-  | `example-named-map`              | a media type's `example` is not a map of named examples (those go under `examples`)     | Try and the mock would send the map              | warn    |
-  | `example-matches-schema`         | request and response examples fit their schema (needs `@rapidoc/mock`; skipped without) | Try's sample body; the mock's responses          | warn    |
-  | `path-kebab-case`                | path segments other than parameters are kebab-case                                      | naming                                           | off     |
-  | `no-server-example-com`          | servers aren't example.com or localhost                                                 | Try would call nowhere                           | warn    |
-  | `info-contact` / `info-license`  | present                                                                                 | the portal's API page header                     | off     |
+  | Rule                             | Checks                                                                                        | Why                                              | Default                        |
+  | :------------------------------- | :-------------------------------------------------------------------------------------------- | :----------------------------------------------- | :----------------------------- |
+  | `operation-operationId`          | every operation has one                                                                       | stable URLs (`OperationSlugger`), MCP tool names | warn                           |
+  | `operation-operationId-unique`   | no two the same                                                                               | two operations would share a page and a tool     | error                          |
+  | `operation-operationId-url-safe` | letters, digits, `_`, `-`, `.`                                                                | used in URLs                                     | warn                           |
+  | `operation-summary`              | every operation has a summary                                                                 | sidebar label, MCP tool title                    | warn                           |
+  | `operation-description`          | operations have a description                                                                 | MCP tool descriptions, readers                   | off                            |
+  | `operation-tag-defined`          | tags used are in top-level `tags`                                                             | sidebar groups and their descriptions            | warn                           |
+  | `tag-description`                | top-level tags have a description                                                             | the group's intro on the page                    | off                            |
+  | `operation-2xx-response`         | at least one 2xx or 3xx response                                                              | Try shows nothing to expect                      | warn                           |
+  | `operation-4xx-response`         | at least one 4xx response                                                                     | readers don't see error shapes                   | off                            |
+  | `security-defined`               | POST, PUT, PATCH, DELETE have `security` (own or global)                                      | Try and the mock need it; MCP marks them         | warn                           |
+  | `security-scheme-defined`        | schemes used are declared                                                                     | Try's auth panel                                 | error                          |
+  | `no-unused-components`           | every component is referenced                                                                 | dead docs                                        | warn                           |
+  | `media-example`                  | request and response bodies have an example (`example`, `examples`, or in the schema)         | Try's sample body; the mock's responses          | warn                           |
+  | `example-named-map`              | a media type's `example` is not a map of named examples (those go under `examples`)           | Try and the mock would send the map              | warn                           |
+  | `example-matches-schema`         | request and response examples fit their schema (needs `@rapidoc/mock`; skipped without)       | Try's sample body; the mock's responses          | warn                           |
+  | `stateful-*` (seven rules)       | what the stateful mock had to assume or could not map (`statefulFindings` of `@rapidoc/mock`) | `rapidoc mock --stateful`                        | off; `--stateful` turns six on |
+  | `path-kebab-case`                | path segments other than parameters are kebab-case                                            | naming                                           | off                            |
+  | `no-server-example-com`          | servers aren't example.com or localhost                                                       | Try would call nowhere                           | warn                           |
+  | `info-contact` / `info-license`  | present                                                                                       | the portal's API page header                     | off                            |
 
   Defaults lean on `warn` so a first `lint` of an existing spec doesn't fail CI; `--strict` makes them
   count.
