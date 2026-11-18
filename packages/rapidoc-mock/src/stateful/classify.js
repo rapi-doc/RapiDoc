@@ -143,6 +143,24 @@ export function namedSchema(doc, schema, depth = 0) {
   return {};
 }
 
+/**
+ * The properties of a schema (through `$ref` and `allOf`) that are arrays of a named schema:
+ * `[{ property, schema }]`. `{ droplets: [droplet], links, meta }` -> `[{ property: "droplets", schema: "droplet" }]`.
+ */
+function listPropertiesOf(doc, schema, depth = 0) {
+  const node = resolve(doc, schema, "").node;
+  if (!node || typeof node !== "object" || depth > 4) return [];
+  const found = [];
+  for (const [property, value] of Object.entries(node.properties || {})) {
+    const list = resolve(doc, value, "").node;
+    if (!list || (list.type !== "array" && !list.items)) continue;
+    const item = namedSchema(doc, list.items);
+    if (item.name && !item.many) found.push({ property, schema: item.name });
+  }
+  for (const part of node.allOf || []) found.push(...listPropertiesOf(doc, part, depth + 1));
+  return found;
+}
+
 /** Maps every component schema name to its entity: `CreatePetDto`, `PetUpdate`, `PatchedPet` -> `Pet`. */
 function entityNames(doc) {
   const names = Object.keys(doc.components?.schemas || {});
@@ -255,13 +273,20 @@ export function classifySpec(doc) {
   const facts = listOperations(doc).map(({ method, path, operation }) => {
     const pathItem = resolve(doc, doc.paths[path], "").node;
     const body = resolve(doc, operation.requestBody, "").node;
-    const request = namedSchema(doc, contentSchema(doc, body?.content));
+    const requestSchema = contentSchema(doc, body?.content);
+    const request = namedSchema(doc, requestSchema);
     const successCode = Object.keys(operation.responses || {})
       .sort()
       .find((code) => code.startsWith("2"));
     const success = resolve(doc, operation.responses?.[successCode], "").node;
-    const response = namedSchema(doc, contentSchema(doc, success?.content));
+    const responseSchema = contentSchema(doc, success?.content);
+    const response = namedSchema(doc, responseSchema);
+    const sent = resolve(doc, requestSchema, "").node;
     return {
+      responseSchema,
+      // a body that holds one object: what a create sends, whatever its schema is called
+      sendsObject:
+        Boolean(sent) && (isRecordSchema(sent) || Boolean(request.name)) && !request.many,
       id: ids.get(`${method} ${path}`),
       method,
       path,
@@ -330,9 +355,21 @@ export function classifySpec(doc) {
       existing.alsoAt = [...new Set([...(existing.alsoAt || []), op.shape])];
       continue;
     }
+    // A path that takes a number for a key the schema types as text (Jira: `{id}` is an integer, `id` a string):
+    // keys are then written as numbers in text, so a request for one passes the path's own validation
+    const keyParameter = op.parameters.find((one) => one.in === "path" && one.name === param);
+    const parameterTypes = [].concat(resolve(doc, keyParameter?.schema, "").node?.type || []);
+    const fieldTypes = [].concat(
+      resolve(doc, propertiesOf(doc, schemas[name])[key.field], "").node?.type || [],
+    );
+    const numbered =
+      key.field &&
+      parameterTypes.some((type) => type === "integer" || type === "number") &&
+      fieldTypes.includes("string");
     resources[name] = {
       path: op.shape,
       key: key.field,
+      ...(numbered ? { keyAs: "number" } : {}),
       ...(key.review ? flag(`resources.${name}`, key.review) : {}),
     };
   }
@@ -373,6 +410,27 @@ export function classifySpec(doc) {
   for (const op of facts) {
     op.request.entity = resourceOf(op.request.entity);
     op.response.entity = resourceOf(op.response.entity);
+  }
+
+  // A collection's GET that holds a list of what its item path returns is the list of that resource, whatever
+  // the property is called: `{ load_balancers: [...], links, meta }` (DigitalOcean), `PageBeanX { values: [...] }`
+  // (Jira). Told by structure, not by a name: one property, and only one, is an array of that record.
+  for (const op of facts) {
+    if (op.method !== "get" && op.method !== "query") continue;
+    if (op.params.at(-1) || op.response.many || !shapes.has(`${op.shape}/{}`)) continue;
+    const item = resourceOf(winner(`${op.shape}/{}`));
+    if (!item || !resources[item]) continue;
+    const found = listPropertiesOf(doc, op.responseSchema).filter(
+      (one) => resourceOf(entity(one.schema)) === item,
+    );
+    if (found.length !== 1) continue;
+    op.response = {
+      name: found[0].schema,
+      entity: item,
+      many: true,
+      listProperty: found[0].property,
+      listItem: found[0].schema,
+    };
   }
 
   // Pass 4: each operation's action
@@ -438,6 +496,7 @@ export function classifySpec(doc) {
       result = entry("list", {
         ...(Object.keys(filter).length ? { filter } : {}),
         ...(op.response.listProperty ? { listProperty: op.response.listProperty } : {}),
+        ...(op.response.listItem ? { listItem: op.response.listItem } : {}),
         ...(unmatched.length || notes.length
           ? flag(
               op.id,
@@ -456,6 +515,19 @@ export function classifySpec(doc) {
     ) {
       // The body may be an input variant under another name (`OwnerFields`): what comes back names the record
       result = entry(op.request.many ? "createMany" : "create");
+    } else if (
+      op.method === "post" &&
+      op.sendsObject &&
+      [resources[resource].path, ...(resources[resource].alsoAt || [])].includes(`${op.shape}/{}`)
+    ) {
+      // A POST with an object on the collection of a resource creates one, though neither schema is named
+      // after it (Jira: `CreatePriorityDetails` in, `PriorityId` out). Assumed, so it is marked.
+      result = entry("create", {
+        ...flag(
+          op.id,
+          `POST on the collection of ${resource}; assumed to create one${op.request.name ? ` from ${op.request.name}` : ""}`,
+        ),
+      });
     } else if ((op.method === "put" || op.method === "patch") && op.request.entity === resource) {
       // `PUT /pet` with the whole record in the body: the key comes from the body
       const key = resources[resource].key;

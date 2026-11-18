@@ -69,7 +69,15 @@ function isTotalField(field) {
 }
 /** Fields that hold when a record last changed. */
 const CHANGED_FIELD = /^(updated|modified|changed)_?(at|on|date|time)?$/i;
-const LIMIT_PARAMS = ["limit", "per_page", "perPage", "page_size", "pageSize", "size"];
+const LIMIT_PARAMS = [
+  "limit",
+  "per_page",
+  "perPage",
+  "page_size",
+  "pageSize",
+  "size",
+  "maxResults",
+];
 
 /** The values of a path's parameters: `/pets/{petId}` and `/pets/7` give `{ petId: "7" }`. */
 export function pathParams(template, path) {
@@ -167,9 +175,14 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
         .sort()
         .find((key) => key.startsWith("2"));
       const success = resolve(doc, operation.responses?.[code], "").node;
+      const entry = model.operations[id];
       shapes.set(id, {
         request: namedSchema(doc, contentSchema(doc, body?.content)),
-        response: namedSchema(doc, contentSchema(doc, success?.content)),
+        // A list the classifier found by structure names the property and the record's schema itself
+        response:
+          entry?.action === "list" && entry.listItem
+            ? { name: entry.listItem, many: true, listProperty: entry.listProperty }
+            : namedSchema(doc, contentSchema(doc, success?.content)),
       });
     }
     return shapes.get(id);
@@ -341,7 +354,7 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
       const limit = firstNumber(query, LIMIT_PARAMS);
       const page = firstNumber(query, ["page"]);
       const offset =
-        firstNumber(query, ["offset", "skip"]) ??
+        firstNumber(query, ["offset", "skip", "startAt"]) ??
         (page !== undefined && limit !== undefined ? Math.max(0, page - 1) * limit : 0);
       const { total, records } = view.list(name, {
         where,

@@ -42,7 +42,10 @@ The classifier and the seed generator were written against the first twelve spec
 nothing broke, not that the approach works on a spec it has not seen. On the day they were added, the last two
 scored far lower on completeness (34 of 58 records for Jira, 40 of 120 for DigitalOcean, against 183 of 208 for
 the twelve), and DigitalOcean's seed data could not be generated at all. They are here because each shows a
-pattern the twelve lack:
+pattern the twelve lack. The fixes that followed (a list found by what its item path returns, a POST on a
+collection taken as a create, keys typed as the path takes them, and seed failures kept to one field or resource)
+brought them to 41 of 58 and 83 of 120, with seed data for both (counted strictly: an operation on one record
+works only when its resource has a key; the figures above were counted before that rule and are a little high):
 
 | Pattern | Shown by |
 | :--- | :--- |

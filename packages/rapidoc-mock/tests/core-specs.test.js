@@ -30,8 +30,8 @@ const BASELINE = {
   "calcom-v2.json": {
     operations: 121,
     confident: 41,
-    needsReview: 23,
-    plainMock: 57,
+    needsReview: 26,
+    plainMock: 54,
     resources: 17,
   },
   "ably-control.json": {
@@ -48,24 +48,24 @@ const BASELINE = {
     plainMock: 119,
     resources: 34,
   },
-  "immich.json": { operations: 290, confident: 79, needsReview: 33, plainMock: 178, resources: 36 },
-  "nylas.json": { operations: 244, confident: 128, needsReview: 44, plainMock: 72, resources: 38 },
+  "immich.json": { operations: 290, confident: 79, needsReview: 35, plainMock: 176, resources: 36 },
+  "nylas.json": { operations: 244, confident: 128, needsReview: 45, plainMock: 71, resources: 38 },
   "apicurio-registry.json": {
     operations: 64,
     confident: 13,
-    needsReview: 19,
-    plainMock: 32,
+    needsReview: 20,
+    plainMock: 31,
     resources: 9,
   },
   "apideck-crm.json": { operations: 40, confident: 32, needsReview: 8, plainMock: 0, resources: 8 },
   // Added after the classifier was written, because they showed what the first twelve did not (see the README)
-  "jira.json": { operations: 630, confident: 167, needsReview: 62, plainMock: 401, resources: 67 },
+  "jira.json": { operations: 630, confident: 171, needsReview: 82, plainMock: 377, resources: 69 },
   "digitalocean.yaml": {
     operations: 916,
-    confident: 281,
-    needsReview: 110,
-    plainMock: 525,
-    resources: 130,
+    confident: 314,
+    needsReview: 150,
+    plainMock: 452,
+    resources: 131,
   },
 };
 
@@ -102,7 +102,8 @@ describe("classifySpec on the core specs", () => {
  *
  * A record is an item path with a GET (`/pets/{id}`). Of those: `lists` and `creates` are the collection's GET
  * and POST that use the store, out of the ones the spec has; `complete` is the records whose read, list, create,
- * update and delete are all mapped, where the spec has them. Today's numbers; they should only go up.
+ * update and delete all work, where the spec has them. "Work" is strict: an operation on one record counts only
+ * when its resource has a key. Today's numbers; they should only go up.
  */
 const COMPLETENESS = {
   "museum.yaml": { records: 1, lists: "1/1", creates: "1/1", complete: 1 },
@@ -110,15 +111,15 @@ const COMPLETENESS = {
   "eshop-catalog.json": { records: 5, lists: "2/2", creates: "1/1", complete: 5 },
   "petclinic.yaml": { records: 7, lists: "6/6", creates: "6/6", complete: 7 },
   "pokeapi.yaml": { records: 50, lists: "50/50", creates: "0/0", complete: 50 },
-  "calcom-v2.json": { records: 17, lists: "12/13", creates: "8/12", complete: 13 },
-  "ably-control.json": { records: 1, lists: "1/1", creates: "1/1", complete: 1 },
-  "mealie.json": { records: 45, lists: "32/34", creates: "24/25", complete: 39 },
-  "immich.json": { records: 20, lists: "17/18", creates: "10/11", complete: 17 },
-  "nylas.json": { records: 41, lists: "33/36", creates: "28/30", complete: 37 },
-  "apicurio-registry.json": { records: 11, lists: "5/8", creates: "4/6", complete: 3 },
+  "calcom-v2.json": { records: 17, lists: "12/13", creates: "11/12", complete: 12 },
+  "ably-control.json": { records: 1, lists: "1/1", creates: "1/1", complete: 0 },
+  "mealie.json": { records: 45, lists: "32/34", creates: "24/25", complete: 38 },
+  "immich.json": { records: 20, lists: "18/18", creates: "11/11", complete: 18 },
+  "nylas.json": { records: 41, lists: "33/36", creates: "28/30", complete: 32 },
+  "apicurio-registry.json": { records: 11, lists: "5/8", creates: "5/6", complete: 3 },
   "apideck-crm.json": { records: 8, lists: "8/8", creates: "8/8", complete: 8 },
-  "jira.json": { records: 58, lists: "22/36", creates: "15/27", complete: 34 },
-  "digitalocean.yaml": { records: 120, lists: "31/107", creates: "67/88", complete: 40 },
+  "jira.json": { records: 58, lists: "29/36", creates: "24/27", complete: 41 },
+  "digitalocean.yaml": { records: 120, lists: "82/107", creates: "84/88", complete: 83 },
 };
 
 /** The measure of COMPLETENESS for one document and its model. */
@@ -130,14 +131,19 @@ function completeness(doc, model) {
       .filter(Boolean)
       .map((segment) => (/^\{.+\}$/.test(segment) ? "{}" : segment))
       .join("/")}`;
+  // An operation works when the mock really answers it from the store: reading, updating or deleting one
+  // record needs the resource's key (without one the mock answers as a plain mock, whatever the map says)
+  const works = (entry) =>
+    Boolean(entry) &&
+    entry.action !== "none" &&
+    (entry.action === "list" ||
+      entry.action.startsWith("create") ||
+      Boolean(model.resources[entry.resource]?.key));
   const byShape = new Map();
   for (const { method, path: route } of listOperations(doc)) {
     const entry = model.operations[ids.get(`${method} ${route}`)];
     const shape = shapeOf(route);
-    byShape.set(shape, [
-      ...(byShape.get(shape) || []),
-      { method, mapped: Boolean(entry) && entry.action !== "none" },
-    ]);
+    byShape.set(shape, [...(byShape.get(shape) || []), { method, mapped: works(entry) }]);
   }
   const result = { records: 0, lists: [0, 0], creates: [0, 0], complete: 0 };
   for (const [shape, here] of byShape) {
@@ -187,15 +193,14 @@ const SEED_INVALID = {
   "apicurio-registry.json": 1,
   "apideck-crm.json": 0,
   "jira.json": 60,
+  "digitalocean.yaml": 69,
 };
 
 /**
  * Specs whose seed data cannot be generated today, with the error: a known failure, kept visible. The mock then
  * serves the whole API without state. Fixing one moves it to SEED_INVALID.
  */
-const SEED_FAILS = {
-  "digitalocean.yaml": /No suitable integer value between/,
-};
+const SEED_FAILS = {};
 
 describe("generateSeed on the core specs", () => {
   for (const [file, error] of Object.entries(SEED_FAILS)) {
@@ -210,6 +215,7 @@ describe("generateSeed on the core specs", () => {
       const model = classifySpec(doc);
       const { data, report } = await generateSeed(doc, model, { rows: 10, seed: 1 });
       assert.deepEqual(report.orphans, []);
+      assert.deepEqual(report.failed, {}, "every resource could be seeded");
       for (const name of Object.keys(model.resources)) {
         assert.ok(Array.isArray(data[name]), `${name} has records`);
       }

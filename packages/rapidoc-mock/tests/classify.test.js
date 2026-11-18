@@ -272,6 +272,90 @@ describe("classifySpec: names", () => {
     assert.deepEqual(model.operations.create, { resource: "calendar", action: "create" });
   });
 
+  it("finds a list by what the item path returns, a create by its place, and a key the path takes as a number", () => {
+    const droplet = {
+      type: "object",
+      properties: { id: { type: "string" }, name: { type: "string" } },
+    };
+    const model = classifySpec(
+      spec(
+        {
+          "/droplets": {
+            get: {
+              operationId: "list",
+              // the list under the resource's own name, beside paging: no property name the classifier knows
+              responses: {
+                200: json({
+                  allOf: [
+                    {
+                      type: "object",
+                      properties: { droplets: { type: "array", items: ref("droplet") } },
+                    },
+                    ref("pagination"),
+                    ref("meta"),
+                  ],
+                }),
+              },
+            },
+            post: {
+              operationId: "create",
+              // neither schema is named after the record
+              requestBody: json(ref("NewMachineDetails")),
+              responses: { 201: json(ref("MachineId")) },
+            },
+          },
+          "/droplets/{id}": {
+            get: {
+              operationId: "read",
+              parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+              responses: { 200: json(ref("droplet")) },
+            },
+          },
+          "/pages": {
+            get: { operationId: "paged", responses: { 200: json(ref("PageBeanDroplet")) } },
+          },
+          "/pages/{id}": {
+            get: { operationId: "page", responses: { 200: json(ref("droplet")) } },
+          },
+        },
+        {
+          droplet,
+          // named objects beside the list, as DigitalOcean has them: the wrapper holds three named things
+          pagination: { type: "object", properties: { links: ref("page_links") } },
+          meta: { type: "object", properties: { meta: ref("meta_properties") } },
+          page_links: { type: "object", properties: { next: { type: "string" } } },
+          meta_properties: { type: "object", properties: { total: { type: "integer" } } },
+          NewMachineDetails: { type: "object", properties: { name: { type: "string" } } },
+          MachineId: { type: "object", properties: { id: { type: "string" } } },
+          PageBeanDroplet: {
+            type: "object",
+            properties: {
+              isLast: { type: "boolean" },
+              total: { type: "integer" },
+              values: { type: "array", items: ref("droplet") },
+            },
+          },
+        },
+      ),
+    );
+    assert.deepEqual(model.resources.droplet, {
+      path: "/droplets/{}",
+      key: "id",
+      keyAs: "number",
+      alsoAt: ["/pages/{}"],
+    });
+    assert.deepEqual(model.operations.list, {
+      resource: "droplet",
+      action: "list",
+      listProperty: "droplets",
+      listItem: "droplet",
+    });
+    assert.equal(model.operations.paged.listProperty, "values", "a named page wrapper");
+    assert.equal(model.operations.create.action, "create");
+    assert.equal(model.operations.create.review, true, "assumed from its place: marked");
+    assert.match(model.operations.create.why, /assumed to create one from NewMachineDetails/);
+  });
+
   it("maps an inline list, an item path with only a DELETE, and a create named by its response", () => {
     const comment = {
       type: "object",

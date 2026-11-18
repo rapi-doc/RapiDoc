@@ -49,6 +49,15 @@ describe("store", () => {
     assert.equal(count(), seeded, "a reset goes back to the loaded data, not the restored");
   });
 
+  it("numbers a new key like the ones there, as text where they are text", () => {
+    const store = createStore({ Issue: { key: "id" }, Note: { key: "id", keyAs: "number" } });
+    store.load({ Issue: [{ id: "10" }, { id: "11" }] });
+    const state = store.session();
+    assert.equal(state.insert("Issue", { title: "new" }).id, "12", "text, since the keys are text");
+    assert.equal(state.insert("Note", { text: "first" }).id, "1", "the path takes a number");
+    assert.equal(state.insert("Note", { text: "second" }).id, "2");
+  });
+
   it("lists with filters on fields, nested fields and array items, and pages", () => {
     const state = newStore().session();
     assert.deepEqual(

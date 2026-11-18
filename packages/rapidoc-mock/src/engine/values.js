@@ -55,9 +55,19 @@ export function valuesFor(seed) {
     /** A moment in the year before `to`, as a Date. */
     dateBefore: (to) =>
       faker.date.between({ from: new Date(to.getTime() - 365 * 24 * 60 * 60 * 1000), to }),
-    number: (min, max, whole) =>
-      whole
-        ? faker.number.int({ min: Math.ceil(min), max: Math.max(Math.ceil(min), Math.floor(max)) })
-        : faker.number.float({ min, max, fractionDigits: 2 }),
+    /**
+     * A number from `min` to `max`: whole, or with `decimals` digits after the point. Never throws: a range
+     * with nothing in it (no whole number between 0.04 and 0.11) gives the nearest value to its middle.
+     */
+    number: (min, max, whole, decimals = 2) => {
+      const [low, high] = min <= max ? [min, max] : [max, min];
+      if (whole) {
+        const from = Math.ceil(low);
+        const to = Math.floor(high);
+        return from > to ? Math.round((low + high) / 2) : faker.number.int({ min: from, max: to });
+      }
+      const value = low + faker.number.float() * (high - low);
+      return Number(value.toFixed(Math.min(Math.max(decimals, 0), 8)));
+    },
   };
 }
