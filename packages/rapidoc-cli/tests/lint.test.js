@@ -420,3 +420,49 @@ test("rapidoc lint", async (t) => {
     assert.equal(byName.status, 1, "a stateful rule turned on by name reads it too");
   });
 });
+
+test("lint summary: every rule is in exactly one category", async () => {
+  const { CATEGORIES } = await import("../src/lint/summary.js");
+  const listed = CATEGORIES.flatMap((category) => category.rules);
+  assert.deepEqual([...listed].sort(), RULES.map((rule) => rule.name).sort());
+  assert.equal(new Set(listed).size, listed.length);
+});
+
+test("lint summary: counts findings per category, and what passed where a rule looks at one thing at a time", async () => {
+  const { summarize } = await import("../src/lint/summary.js");
+  const { traverse } = await import("../src/lint/traverse.js");
+  const doc = {
+    openapi: "3.1.0",
+    info: { title: "T", version: "1" },
+    paths: {
+      "/a": { get: { operationId: "a", summary: "A", responses: { 200: { description: "ok" } } } },
+      "/b": { get: { responses: { 200: { description: "ok" } } } },
+    },
+    components: { schemas: { Unused: { type: "object" } } },
+  };
+  const names = ["operation-operationId", "operation-summary", "no-unused-components"];
+  const rules = RULES.filter((rule) => names.includes(rule.name));
+  const tally = new Map();
+  const problems = traverse(doc, rules, {}, tally).map((finding) => ({
+    rule: finding.rule,
+    severity: finding.rule === "operation-operationId" ? "error" : "warning",
+  }));
+  const summary = summarize(rules, problems, tally);
+  assert.deepEqual(
+    summary.categories.map((one) => one.id),
+    ["naming", "documentation", "housekeeping"],
+  );
+  const [naming, documentation, housekeeping] = summary.categories;
+  assert.deepEqual([naming.errors, naming.warnings, naming.checked, naming.passed], [1, 0, 2, 1]);
+  assert.deepEqual(
+    [documentation.warnings, documentation.checked, documentation.passed],
+    [1, 2, 1],
+  );
+  // a rule on the whole document has findings and no count of what passed
+  assert.equal(housekeeping.warnings, 1);
+  assert.equal(housekeeping.checked, undefined);
+  assert.deepEqual(
+    [summary.errors, summary.warnings, summary.checked, summary.passed],
+    [1, 2, 4, 2],
+  );
+});

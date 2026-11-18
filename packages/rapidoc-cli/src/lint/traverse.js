@@ -40,9 +40,11 @@ export function operationsOf(doc, resolve) {
  * @param {object} doc
  * @param {Rule[]} rules
  * @param {object} [shared]  more for every rule's context (`mock`)
+ * @param {Map<string, { checked: number, failed: number }>} [tally]  filled per rule name with how many nodes
+ *   the rule was asked about and how many of them it found something on (summary.js reads it)
  * @returns {(Finding & { rule: string })[]}
  */
-export function traverse(doc, rules, shared = {}) {
+export function traverse(doc, rules, shared = {}, tally) {
   const v2 = typeof doc.swagger === "string";
   const resolve = resolver(doc);
   const operations = operationsOf(doc, resolve);
@@ -58,9 +60,16 @@ export function traverse(doc, rules, shared = {}) {
     if (!wanting) return;
     /** @type {LintContext} */
     const context = { doc, v2, pointer, parents, operations, resolve, ...shared, ...extra };
-    for (const rule of wanting)
-      for (const finding of rule.check(node, context))
-        findings.push({ ...finding, rule: rule.name });
+    for (const rule of wanting) {
+      const found = rule.check(node, context);
+      for (const finding of found) findings.push({ ...finding, rule: rule.name });
+      if (tally) {
+        const count =
+          tally.get(rule.name) ?? tally.set(rule.name, { checked: 0, failed: 0 }).get(rule.name);
+        count.checked += 1;
+        if (found.length) count.failed += 1;
+      }
+    }
   };
 
   const walk = (kind, node, pointer, parents, extra) => {

@@ -12,25 +12,34 @@ import { LineCounter, parseDocument } from "yaml";
 import { validate } from "@scalar/openapi-validator";
 import { severitiesFor } from "../../../packages/rapidoc-cli/src/lint/config.js";
 import { RULES } from "../../../packages/rapidoc-cli/src/lint/rules/index.js";
+import { summarize } from "../../../packages/rapidoc-cli/src/lint/summary.js";
 import { traverse } from "../../../packages/rapidoc-cli/src/lint/traverse.js";
 import { decodePointer, position } from "../../../packages/rapidoc-cli/src/validate/bundle.js";
 import { createBrowserMock } from "../../../packages/rapidoc-mock/src/browser.js";
 import { exampleError } from "../../../packages/rapidoc-mock/src/examples.js";
 import { configFor } from "../../../packages/rapidoc-mock/src/stateful/config.js";
-import { statefulFindings, statefulReport } from "../../../packages/rapidoc-mock/src/stateful/findings.js";
+import {
+  statefulFindings,
+  statefulReport,
+} from "../../../packages/rapidoc-mock/src/stateful/findings.js";
 
 /** What the lint rules that read schemas the way the mock does get (`needs: "mock"`). */
 const mockForLint = { statefulFindings, statefulReport, configFor, exampleError };
 
 const segmentsOf = (path) =>
-  Array.isArray(path) ? path.map(String) : typeof path === "string" && path ? decodePointer(`#${path}`) : [];
+  Array.isArray(path)
+    ? path.map(String)
+    : typeof path === "string" && path
+      ? decodePointer(`#${path}`)
+      : [];
 
 /**
  * @param {string} text - A spec as YAML or JSON
  * @param {{ id?: string }} [options] - `id`: the API's id, as the mock would name it after its file
- * @returns {Promise<{ title?: string, version?: string, problems: object[], linted: boolean, mock?: object,
- *   mockError?: string }>} `problems`: `{ severity, rule, message, pointer, line, column }` in file order;
- *   `linted` is false when the spec is not valid OpenAPI (the problems are then the validator's);
+ * @returns {Promise<{ title?: string, version?: string, problems: object[], linted: boolean, summary?: object,
+ *   mock?: object, mockError?: string }>} `problems`: `{ severity, rule, message, pointer, line, column }` in
+ *   file order; `linted` is false when the spec is not valid OpenAPI (the problems are then the validator's);
+ *   `summary`: the lint result by category, as `summarize` of the CLI's `lint/summary.js` returns it;
  *   `mock`: what createBrowserMock returns, or `mockError` why the mock could not start
  */
 export async function checkSpec(text, { id = "api" } = {}) {
@@ -75,14 +84,16 @@ export async function checkSpec(text, { id = "api" } = {}) {
     ...at(segmentsOf(error.path)),
   }));
   let linted = false;
+  let summary;
   if (!problems.length) {
     linted = true;
+    const tally = new Map();
     const severities = severitiesFor({ stateful: true });
     const swagger = typeof doc.swagger === "string";
     const active = RULES.filter(
       (rule) => severities[rule.name] !== "off" && !(swagger && rule.name.startsWith("stateful-")),
     );
-    for (const finding of traverse(doc, active, { mock: mockForLint })) {
+    for (const finding of traverse(doc, active, { mock: mockForLint }, tally)) {
       problems.push({
         severity: severities[finding.rule] === "error" ? "error" : "warning",
         rule: finding.rule,
@@ -90,6 +101,7 @@ export async function checkSpec(text, { id = "api" } = {}) {
         ...at(finding.pointer),
       });
     }
+    summary = summarize(active, problems, tally);
   }
 
   const checked = {
@@ -97,6 +109,7 @@ export async function checkSpec(text, { id = "api" } = {}) {
     version: doc.openapi || (doc.swagger && `Swagger ${doc.swagger}`),
     problems: inFileOrder(problems),
     linted,
+    summary,
   };
   try {
     checked.mock = await createBrowserMock(doc, { id });
