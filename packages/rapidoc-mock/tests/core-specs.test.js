@@ -46,7 +46,7 @@ const BASELINE = {
     confident: 122,
     needsReview: 44,
     plainMock: 119,
-    resources: 34,
+    resources: 33,
   },
   "immich.json": { operations: 290, confident: 79, needsReview: 35, plainMock: 176, resources: 36 },
   "nylas.json": { operations: 244, confident: 128, needsReview: 45, plainMock: 71, resources: 38 },

@@ -356,6 +356,92 @@ describe("classifySpec: names", () => {
     assert.match(model.operations.create.why, /assumed to create one from NewMachineDetails/);
   });
 
+  it("takes an object with an id for a record, though it holds another under payload or data", () => {
+    const part = { type: "object", properties: { mimeType: { type: "string" } } };
+    const paths = (holder) => ({
+      "/messages": {
+        post: {
+          operationId: "create",
+          requestBody: json(ref(holder)),
+          responses: { 200: json(ref(holder)) },
+        },
+      },
+      "/messages/{id}": {
+        get: { operationId: "read", responses: { 200: json(ref(holder)) } },
+      },
+    });
+    // Gmail's Message: its own id, and a part under `payload`
+    const record = classifySpec(
+      spec(paths("Message"), {
+        Message: {
+          type: "object",
+          properties: { id: { type: "string" }, snippet: { type: "string" }, payload: ref("Part") },
+        },
+        Part: part,
+      }),
+    );
+    assert.deepEqual(record.resources, { Message: { path: "/messages/{}", key: "id" } });
+    assert.deepEqual(record.operations.create, { resource: "Message", action: "create" });
+
+    // without an id, the same shape is a wrapper around what it holds
+    const wrapper = classifySpec(
+      spec(paths("Reply"), {
+        Reply: { type: "object", properties: { status: { type: "string" }, payload: ref("Part") } },
+        Part: {
+          type: "object",
+          properties: { id: { type: "string" }, mimeType: { type: "string" } },
+        },
+      }),
+    );
+    assert.deepEqual(Object.keys(wrapper.resources), ["Part"]);
+  });
+
+  it("knows a record by a key named after it, or by the field its path addresses", () => {
+    const part = {
+      type: "object",
+      properties: { id: { type: "string" }, mimeType: { type: "string" } },
+    };
+    const text = { type: "string" };
+    const item = (route, name, holder) => ({
+      [route]: {
+        get: {
+          operationId: name,
+          parameters: [
+            { name: route.match(/\{(.+)\}$/)[1], in: "path", required: true, schema: text },
+          ],
+          responses: { 200: json(ref(holder)) },
+        },
+      },
+    });
+    const model = classifySpec(
+      spec(
+        {
+          ...item("/messages/{messageId}", "message", "GetMessageResponse"),
+          ...item("/tags/{slug}", "tag", "Tag"),
+          ...item("/replies/{id}", "reply", "Reply"),
+        },
+        {
+          // a key named after the schema, variant words aside: `messageId` on `GetMessageResponse`
+          GetMessageResponse: {
+            type: "object",
+            properties: { messageId: text, threadId: text, payload: ref("Part") },
+          },
+          // no id at all: the path says `slug` tells one tag from another
+          Tag: { type: "object", properties: { slug: text, label: text, data: ref("Part") } },
+          // an id about the request, not about a record: still a wrapper around what it holds
+          Reply: { type: "object", properties: { request_id: text, data: ref("Part") } },
+          Part: part,
+        },
+      ),
+    );
+    // (the schema keeps its name as the resource: no other schema is called Message)
+    assert.equal(model.operations.message.resource, "GetMessageResponse");
+    assert.equal(model.resources.GetMessageResponse.key, "messageId");
+    assert.equal(model.operations.tag.resource, "Tag");
+    assert.equal(model.resources.Tag.key, "slug");
+    assert.equal(model.operations.reply.resource, "Part", "unwrapped, as before");
+  });
+
   it("maps an inline list, an item path with only a DELETE, and a create named by its response", () => {
     const comment = {
       type: "object",
