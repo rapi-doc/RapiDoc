@@ -174,6 +174,41 @@ export function createResponder(doc, { seed = 1 } = {}) {
     return generated.get(pointer);
   };
 
+  /**
+   * The value of an `example` that was written as a map of named examples: `example: { "Calendar": { ... } }`,
+   * or `{ "Calendar": { value: { ... } } }`, which belongs under `examples`. Nylas writes 22 responses this way.
+   * Taken as such only when the schema says so: what is under the example's one name fits the schema, and the
+   * example as written does not (it misses the schema, or its one key is no property of it while the keys under
+   * it are). `{ name, value }`, or undefined when the example is to be used as it is.
+   */
+  const namedExample = (object, pointer) => {
+    const example = object.example;
+    const isObject = (value) =>
+      Boolean(value) && typeof value === "object" && !Array.isArray(value);
+    const names = isObject(example) ? Object.keys(example) : [];
+    if (names.length !== 1 || !object.schema) return undefined;
+    const schema = toJsonSchema(doc, object.schema, `${pointer}/schema`);
+    const valid = validatorFor(schema);
+    if (!valid) return undefined;
+    const declared = new Set();
+    const collect = (node, depth = 0) => {
+      if (!isObject(node) || depth > 6) return;
+      for (const name of Object.keys(node.properties || {})) declared.add(name);
+      for (const part of node.allOf || []) collect(part, depth + 1);
+    };
+    collect(schema);
+    const inner = example[names[0]];
+    // an Example Object: `{ summary?, description?, value }`
+    const candidates = [inner, isObject(inner) && "value" in inner ? inner.value : undefined];
+    const misplaced = (candidate) =>
+      !valid(example) ||
+      (!declared.has(names[0]) &&
+        isObject(candidate) &&
+        Object.keys(candidate).some((key) => declared.has(key)));
+    const value = candidates.find((one) => one !== undefined && valid(one) && misplaced(one));
+    return value === undefined ? undefined : { name: names[0], value };
+  };
+
   /** A value for a media type or header object: named example, example, first example, else generated. */
   const valueOf = async (object, pointer, prefer = {}) => {
     const examples = object.examples && typeof object.examples === "object" ? object.examples : {};
@@ -185,7 +220,12 @@ export function createResponder(doc, { seed = 1 } = {}) {
           applied: true,
         };
       }
-      if (object.example !== undefined) return { value: object.example, source: "example" };
+      if (object.example !== undefined) {
+        const named = namedExample(object, pointer);
+        return named
+          ? { value: named.value, source: `example "${named.name}"` }
+          : { value: object.example, source: "example" };
+      }
       const [name, first] = Object.entries(examples)[0] || [];
       const example = first && resolve(doc, first).node;
       if (exampleValue(example) !== undefined)
