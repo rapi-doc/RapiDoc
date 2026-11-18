@@ -186,6 +186,17 @@ describe("rapidoc mock --stateful", () => {
     assert.deepEqual(await commentsOf(empty), []);
   });
 
+  it("reads an example written as a map of named examples, with and without state", async () => {
+    // Nylas: `example: { "Calendars response example": { request_id, data, next_cursor } }`
+    const stored = await call("GET", "/ny/v3/grants/g-9/calendars");
+    assert.deepEqual(Object.keys(stored.body), ["request_id", "data", "next_cursor"]);
+
+    const plain = await createMockApp({ apis: [spec("ny", "nylas.json")], ...quiet });
+    const response = await clientOf(plain.app)("GET", "/ny/v3/grants/g-9/calendars");
+    assert.deepEqual(Object.keys(response.body), ["request_id", "data", "next_cursor"]);
+    assert.equal(response.body.data[0].name, "My New Calendar", "the example's own values");
+  });
+
   it("reads the record out of a request's envelope", async () => {
     const created = await call("POST", "/rw/articles", {
       article: { title: "Hello", description: "A greeting", body: "Hello, world" },
