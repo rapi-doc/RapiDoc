@@ -47,7 +47,7 @@ const JSON_TYPE = /json/i;
 
 const lower = (text) => String(text || "").toLowerCase();
 /** `/pet/{petId}/uploadImage` -> segments, and the shape `/pet/{}/uploadImage` (parameter names dropped). */
-function pathShape(path) {
+export function pathShape(path) {
   const segments = path.split("/").filter(Boolean);
   const params = segments.map((s) => (/^\{.+\}$/.test(s) ? s.slice(1, -1) : null));
   return {

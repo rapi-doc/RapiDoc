@@ -57,6 +57,7 @@ npx rapidoc mock openapi.yaml --stateful
 - **It works out the data model from the spec.** Paths such as `/pets` and `/pets/{petId}` that share a schema become one resource, with its key and its links to other resources. Nothing to configure.
 - **It starts with data.** Each resource gets 10 records (`--rows`), generated from its schema with readable values, and references between records point at records that exist. The same spec and `--seed` give the same data.
 - **Writes are kept.** A create stores a record, an update or delete changes it, and reads and lists return what is stored. Lists apply the query parameters that match a field, and `limit`, `offset` and `page`.
+- **Records stay under their parent.** A comment created at `/articles/{slug}/comments` is listed and found under that article only, whether or not it has a field for the article.
 - **Responses keep the spec's shape.** A record goes where the response schema puts it, such as inside `data` next to a `request_id`.
 - **Everything else answers as before.** An operation that fits no resource (a login, a search, a file upload) gets its example or generated data. The server prints how many operations are in each group when it starts.
 

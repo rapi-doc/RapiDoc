@@ -56,6 +56,7 @@ Applied preferences come back in `Preference-Applied`. `GET /` lists the APIs se
 `rapidoc mock --stateful` keeps data, like the real server would. It works out the resources, their keys and their links from the spec (`/pets` and `/pets/{petId}` sharing a schema are one resource), seeds each with 10 records (`--rows`) whose references point at records that exist, and then:
 
 - A create stores a record; an update or delete changes it; reads and lists return what is stored. Lists apply the query parameters that match a field, and `limit`, `offset` and `page`.
+- A record created under a parent (`/articles/{slug}/comments`) is listed and found under that parent only, whether or not it has a field for it.
 - A record goes where the response schema puts it (inside `data` next to a `request_id`, say).
 - An operation that fits no resource (a login, a search) answers as without `--stateful`. The start-up output counts the operations in each group.
 - An `X-Mock-Session` header gives a caller its own copy of the data, so parallel tests don't see each other's changes.

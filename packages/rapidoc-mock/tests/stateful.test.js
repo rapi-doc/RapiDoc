@@ -157,6 +157,35 @@ describe("rapidoc mock --stateful", () => {
     assert.equal(elsewhere.body.data.length, 0);
   });
 
+  it("keeps a record under the parent of its path when it has no field for it", async () => {
+    // a RealWorld comment has no field for its article: the path alone says where it belongs
+    const { body } = await call("GET", "/rw/articles");
+    const slugs = body.articles.map((article) => article.slug);
+    const commentsOf = async (slug) =>
+      (await call("GET", `/rw/articles/${slug}/comments`)).body.comments.map((c) => c.id);
+
+    const seeded = await Promise.all(slugs.map(commentsOf));
+    assert.equal(seeded.flat().length, 10, "every seeded comment is under one article");
+    assert.equal(new Set(seeded.flat()).size, 10);
+    assert.ok(seeded.filter((ids) => ids.length).length > 1, "spread over several articles");
+
+    const empty = slugs[seeded.findIndex((ids) => !ids.length)];
+    const created = await call("POST", `/rw/articles/${empty}/comments`, {
+      comment: { body: "Nice" },
+    });
+    assert.equal(created.status, 201);
+    const { comment } = created.body;
+    assert.equal("$parents" in comment, false, "the parent is kept beside the record, not in it");
+    assert.deepEqual(await commentsOf(empty), [comment.id]);
+    assert.equal((await commentsOf(slugs[0])).includes(comment.id), false);
+
+    const wrong = await call("DELETE", `/rw/articles/${slugs[0]}/comments/${comment.id}`);
+    assert.equal(wrong.status, 404, "not found under another article");
+    const right = await call("DELETE", `/rw/articles/${empty}/comments/${comment.id}`);
+    assert.ok(right.status < 300);
+    assert.deepEqual(await commentsOf(empty), []);
+  });
+
   it("reads the record out of a request's envelope", async () => {
     const created = await call("POST", "/rw/articles", {
       article: { title: "Hello", description: "A greeting", body: "Hello, world" },

@@ -20,6 +20,7 @@ import {
   labelCounts,
   namedSchema,
   operationIds,
+  pathShape,
   propertiesOf,
 } from "./classify.js";
 import { generateSeed } from "./seed.js";
@@ -28,6 +29,34 @@ import { nameKey, splitWords } from "./words.js";
 
 /** The request header that names a session: its own copy of the data, made when it first writes. */
 export const SESSION_HEADER = "x-mock-session";
+
+/**
+ * Where a stored record keeps the parents its path names and its own fields don't: a `Key` of
+ * `/apps/{app_id}/keys` without an `app_id` field is stored with `{ $parents: { apps: "a1" } }`. Keyed by the
+ * segment in front of the parameter, which stays the same when operations name the parameter differently.
+ * Never part of a response.
+ */
+export const PARENTS = "$parents";
+/** How many parent records the seeded records of a nested resource are spread over. */
+const SEEDED_PARENTS = 3;
+
+/** The parameters of a path, in order: `/apps/{app_id}/keys/{id}` -> `[{ param: "app_id", under: "apps", index: 1 }, ...]`. */
+function paramsOf(template) {
+  const segments = template.split("/").filter(Boolean);
+  return segments.flatMap((segment, index) => {
+    if (!/^\{.+\}$/.test(segment)) return [];
+    const param = segment.slice(1, -1);
+    const before = segments[index - 1];
+    return [{ param, index, under: before && !before.startsWith("{") ? before : param }];
+  });
+}
+
+/** A record as a response shows it: without the parents kept beside its fields. */
+const shown = (record) => {
+  if (!isObject(record) || !(PARENTS in record)) return record;
+  const { [PARENTS]: _, ...rest } = record;
+  return rest;
+};
 
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const typesOf = (schema) => (Array.isArray(schema?.type) ? schema.type : [schema?.type]);
@@ -73,7 +102,6 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
   const model = classifySpec(doc);
   const store = createStore(model.resources);
   const { data, report } = await generateSeed(doc, model, { rows, seed });
-  store.load(data);
   const ids = operationIds(doc);
 
   const schemaRef = (name) => ({ $ref: `#/components/schemas/${model.schemas[name]}` });
@@ -87,6 +115,35 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
     const fields = Object.keys(properties(name)).filter((f) => f !== model.resources[name].key);
     return fields.includes(param) ? param : fields.find((f) => nameKey(f) === nameKey(param));
   };
+
+  // Seeded records of a nested resource go under a few of the seeded parents, so one parent's list is not
+  // another's. Deepest parent first: a record takes its parent's own parents with it.
+  const byShape = new Map();
+  for (const [name, resource] of Object.entries(model.resources)) {
+    for (const shape of [resource.path, ...(resource.alsoAt || [])]) {
+      if (shape && !byShape.has(shape)) byShape.set(shape, name);
+    }
+  }
+  const pathTemplates = Object.keys(doc.paths || {});
+  for (const [name, resource] of Object.entries(model.resources)) {
+    const pathTemplate =
+      resource.path && pathTemplates.find((t) => pathShape(t).shape === resource.path);
+    if (!pathTemplate || !data[name]?.length) continue;
+    const segments = resource.path.split("/").filter(Boolean);
+    for (const { param, index, under } of paramsOf(pathTemplate).slice(0, -1).reverse()) {
+      if (fieldFor(name, param)) continue;
+      const parent = byShape.get(`/${segments.slice(0, index + 1).join("/")}`);
+      const parentKey = parent && parent !== name ? model.resources[parent].key : undefined;
+      const owners = parentKey ? (data[parent] || []).slice(0, SEEDED_PARENTS) : [];
+      if (!owners.length) continue;
+      data[name].forEach((record, i) => {
+        if (record[PARENTS]?.[under] !== undefined) return;
+        const owner = owners[i % owners.length];
+        record[PARENTS] = { ...owner[PARENTS], ...record[PARENTS], [under]: owner[parentKey] };
+      });
+    }
+  }
+  store.load(data);
 
   /** One generated record per resource: where a new record's required fields come from when the caller sends none. */
   const templates = new Map();
@@ -191,13 +248,24 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
     const params = pathParams(pathTemplate, path);
     const keyParam = entry.keyFrom?.startsWith("path.") ? entry.keyFrom.slice(5) : undefined;
     // The other parameters of the path name the record's parents: `/grants/{grant_id}/messages`
+    // by a field of the record when it has one for the parameter, else kept beside its fields (PARENTS)
     const parents = {};
-    for (const [param, value] of Object.entries(params)) {
-      const field = param === keyParam ? undefined : fieldFor(name, param);
-      if (field) parents[field] = value;
+    const kept = {};
+    for (const { param, under } of paramsOf(pathTemplate)) {
+      if (param === keyParam) continue;
+      const field = fieldFor(name, param);
+      if (field) parents[field] = params[param];
+      else kept[under] = params[param];
     }
+    const hasKept = Object.keys(kept).length > 0;
+    // A record with no parent on record (seeded where the parent is no resource) is found under any
     const inParents = (record) =>
-      Object.entries(parents).every(([field, value]) => String(record[field]) === String(value));
+      Object.entries(parents).every(([field, value]) => String(record[field]) === String(value)) &&
+      Object.entries(kept).every(
+        ([under, value]) =>
+          record[PARENTS]?.[under] === undefined ||
+          String(record[PARENTS][under]) === String(value),
+      );
     const input =
       shape.request.envelope && isObject(body) && !shape.request.many
         ? body[shape.request.envelope]
@@ -215,7 +283,13 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
       }
       const filled =
         frame.body && payload !== undefined
-          ? fill(name, parsed, shape.response, payload, total)
+          ? fill(
+              name,
+              parsed,
+              shape.response,
+              Array.isArray(payload) ? payload.map(shown) : shown(payload),
+              total,
+            )
           : undefined;
       return {
         ...frame,
@@ -269,7 +343,12 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
       const offset =
         firstNumber(query, ["offset", "skip"]) ??
         (page !== undefined && limit !== undefined ? Math.max(0, page - 1) * limit : 0);
-      const { total, records } = view.list(name, { where, offset, limit });
+      const { total, records } = view.list(name, {
+        where,
+        ...(hasKept ? { test: inParents } : {}),
+        offset,
+        limit,
+      });
       return finish(records, total);
     }
 
@@ -296,6 +375,8 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
           else if (isObject(base) && field in base) record[field] = structuredClone(base[field]);
         }
         Object.assign(record, one, parents);
+        delete record[PARENTS];
+        if (hasKept) record[PARENTS] = kept;
         const key = resource.key;
         if (key && (record[key] === undefined || record[key] === null)) {
           delete record[key];
@@ -331,10 +412,17 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
       const merge = entry.action === "patch";
       const changes = isObject(input) ? input : fromQuery();
       // A replaced record keeps what the caller can't send
-      const kept = merge
+      const unchanged = merge
         ? {}
-        : Object.fromEntries(Object.entries(existing).filter(([field]) => fields[field]?.readOnly));
-      const updated = view.update(name, key, touch({ ...kept, ...changes, ...parents }), { merge });
+        : Object.fromEntries(
+            Object.entries(existing).filter(
+              ([field]) => fields[field]?.readOnly || field === PARENTS,
+            ),
+          );
+      const { [PARENTS]: _, ...sent } = changes;
+      const updated = view.update(name, key, touch({ ...unchanged, ...sent, ...parents }), {
+        merge,
+      });
       return finish(updated);
     }
 
