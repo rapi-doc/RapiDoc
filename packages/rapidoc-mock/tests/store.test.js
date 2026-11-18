@@ -26,6 +26,29 @@ describe("store", () => {
     assert.throws(() => state.get("Nope", 1), /Unknown collection/);
   });
 
+  it("resets the default state and a session, and restores given records", () => {
+    const store = newStore();
+    const state = store.session();
+    const count = () => state.list("Pet").total;
+    const seeded = count();
+    state.insert("Pet", { name: "New" });
+    state.reset();
+    assert.equal(count(), seeded, "the default state undoes its writes");
+
+    state.restore({ Pet: [{ id: 50, name: "Only" }] });
+    assert.deepEqual(
+      state.list("Pet").records.map((pet) => pet.id),
+      [50],
+    );
+    assert.throws(() => state.restore({ Nothing: [] }), /Unknown collection/);
+    const mine = store.session("s1");
+    mine.restore({ Pet: [] });
+    assert.equal(mine.list("Pet").total, 0);
+    assert.equal(count(), 1, "a session's restore leaves the default state");
+    state.reset();
+    assert.equal(count(), seeded, "a reset goes back to the loaded data, not the restored");
+  });
+
   it("lists with filters on fields, nested fields and array items, and pages", () => {
     const state = newStore().session();
     assert.deepEqual(

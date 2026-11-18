@@ -206,6 +206,11 @@ export default {
         `   • State:    ${api.id}: ${names.length} resource(s), ${records} record(s). Operations: ${confident} confident, ${needsReview} needs review, ${plainMock} plain mock`,
       );
     }
+    if (server.apis.some((one) => one.stateful)) {
+      info(
+        `   • Control:  ${server.url}/__mock  (POST reset, GET state, POST snapshot, POST restore)`,
+      );
+    }
     for (const api of server.skipped)
       warn(`${api.id}: not served (${api.error.split("\n")[0]})`, "   ");
     if (issuer) {
