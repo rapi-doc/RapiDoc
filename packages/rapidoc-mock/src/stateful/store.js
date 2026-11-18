@@ -1,5 +1,6 @@
 /**
- * The store of the stateful mock: collections of records in memory, keyed by the field the classifier found.
+ * The store of the stateful mock: collections of records in memory, keyed by the field the classifier found
+ * (or `mock.config.yaml` names; it can be a path into the record, such as `metadata.name`).
  *
  *   const store = createStore({ Pet: { key: "id" }, Order: { key: "id" } });
  *   store.load({ Pet: [...], Order: [...] });          // the seed state
@@ -11,6 +12,28 @@
  */
 
 const copy = (value) => (value === undefined ? undefined : structuredClone(value));
+
+/** The value at a dotted path of a record: `metadata.name` of a Kubernetes object. */
+export function valueAt(record, path) {
+  let value = record;
+  for (const part of String(path).split(".")) {
+    if (!value || typeof value !== "object") return undefined;
+    value = value[part];
+  }
+  return value;
+}
+
+/** Sets the value at a dotted path of a record, making the objects on the way. */
+export function setAt(record, path, value) {
+  const parts = String(path).split(".");
+  let node = record;
+  for (const part of parts.slice(0, -1)) {
+    if (!node[part] || typeof node[part] !== "object" || Array.isArray(node[part])) node[part] = {};
+    node = node[part];
+  }
+  node[parts.at(-1)] = value;
+  return record;
+}
 
 /** A key as the map holds it: `12` and `"12"` (a path parameter is always text) find the same record. */
 const keyOf = (value) => String(value);
@@ -92,11 +115,12 @@ export function createStore(resources) {
         const records = collection(writing(), name);
         const field = keyField(name);
         const stored = copy(record) ?? {};
-        if (field && (stored[field] === undefined || stored[field] === null)) {
-          const sample = records.size ? [...records.values()][0][field] : undefined;
-          stored[field] = newKey(records, sample, resources[name]?.keyAs === "number");
+        const given = field ? valueAt(stored, field) : undefined;
+        if (field && (given === undefined || given === null)) {
+          const sample = records.size ? valueAt([...records.values()][0], field) : undefined;
+          setAt(stored, field, newKey(records, sample, resources[name]?.keyAs === "number"));
         }
-        const key = field ? keyOf(stored[field]) : keyOf(records.size + 1);
+        const key = field ? keyOf(valueAt(stored, field)) : keyOf(records.size + 1);
         if (records.has(key)) return null;
         records.set(key, stored);
         return copy(stored);
@@ -108,7 +132,7 @@ export function createStore(resources) {
         if (!existing) return undefined;
         const field = keyField(name);
         const next = { ...(merge ? existing : {}), ...copy(changes) };
-        if (field) next[field] = existing[field];
+        if (field) setAt(next, field, valueAt(existing, field));
         records.set(keyOf(key), next);
         return copy(next);
       },

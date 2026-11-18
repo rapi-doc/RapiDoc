@@ -15,6 +15,7 @@ import { generateValid, validatorFor } from "../responses.js";
 import { toJsonSchema } from "../schema.js";
 import { valuesFor } from "../engine/values.js";
 import { entityDomain, generatorFor, generatorLabel } from "./generators.js";
+import { setAt, valueAt } from "./store.js";
 import { splitWords } from "./words.js";
 
 /** A small seeded random number generator (mulberry32): `() => number in [0, 1)`. */
@@ -216,11 +217,18 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
 
       for (const edge of mine.filter((e) => !e.late)) link(record, edge, data[edge.to], random);
       if (key) {
+        // the schema of the key, which may sit inside the record (`metadata.name`)
+        const keySchema = key
+          .split(".")
+          .reduce((node, part) => flat(flat(node)?.properties?.[part]), shape);
         // a key the path takes as a number is one, written as the schema types it ("1", "2", ...)
-        record[key] =
+        setAt(
+          record,
+          key,
           model.resources[name].keyAs === "number"
             ? String(i + 1)
-            : uniqueKey(record[key], properties[key], i, usedKeys);
+            : uniqueKey(valueAt(record, key), keySchema, i, usedKeys),
+        );
       }
       // An `id` beside another key (`User.id` with the key `username`) still differs per record
       if (key !== "id" && typesOf(properties.id).includes("integer")) record.id = i + 1;
