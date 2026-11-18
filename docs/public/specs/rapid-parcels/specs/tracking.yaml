@@ -15,7 +15,7 @@ info:
     name: Rapid Parcels Developer Support
     email: developers@rapidparcels.example
 servers:
-  - url: https://mock.rapidocui.com/tracking
+  - url: https://mockdemo.rapidocui.com/tracking
     description: Live mock server (the hosted demo's)
   - url: http://localhost:4010/tracking
     description: Local mock server (npm run mock)

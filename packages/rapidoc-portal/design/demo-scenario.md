@@ -16,7 +16,7 @@ The domain is close to the old Cosmo Cargo demo on purpose, so the Auth0 users y
 | Test users' emails                                                                                     | `@rapidocui.com`                                                                                     | Real inboxes (Resend receives for the domain), needed for Auth0 verification and password-reset mail |
 | Auth0 tenant                                                                                           | `rapidocui.us.auth0.com`                                                                             | Later perhaps a custom login domain (`login.rapidocui.com`)                                          |
 | Auth0 API identifier (token audience)                                                                  | `https://api.rapidocui.com`                                                                          | A name only (Auth0 never calls it); on a domain we own so it stays unique                            |
-| Where the demo runs                                                                                    | `localhost` now; if hosted later, e.g. `demo.rapidocui.com` (portal) and `mock.rapidocui.com` (mock) | Must resolve, so on a domain we own                                                                  |
+| Where the demo runs                                                                                    | `localhost` now; if hosted later, e.g. `demo.rapidocui.com` (portal) and `mockdemo.rapidocui.com` (mock) | Must resolve, so on a domain we own                                                                  |
 
 Sample payloads never use `rapidocui.com` addresses: that domain really receives mail.
 
@@ -35,7 +35,7 @@ Six APIs, each built to exercise something specific. `id` is the portal id (`/ap
 
 Every protected operation lists its `oauth2` scope and, as an alternative, `bearerAuth` for a pasted token. The **oauth2 scope is the permission the operation needs, whichever scheme carries the token** (the mock enforces it for bearer tokens too). Tracking also accepts `apiKey` (`X-Api-Key`).
 
-Every spec lists two servers: the mock (`http://localhost:4010/<id>`) first, then `https://api.rapidparcels.example/v1` (documentation only, does not exist). If the mock is hosted later, `https://mock.rapidocui.com/<id>` joins the list.
+Every spec lists two servers: the mock (`http://localhost:4010/<id>`) first, then `https://api.rapidparcels.example/v1` (documentation only, does not exist). If the mock is hosted later, `https://mockdemo.rapidocui.com/<id>` joins the list.
 
 ## 3. Docs
 
