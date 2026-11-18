@@ -185,6 +185,24 @@ describe("mock.config.yaml", () => {
     assert.deepEqual(configFor(undefined, "a", ["a"]), { section: undefined, warnings: [] });
   });
 
+  it("takes a version line: 1 is the format it reads, another is said and the file still applied", () => {
+    assert.deepEqual(configFor({ version: 1, ...config }, "a", ["a"]), {
+      section: config,
+      warnings: [],
+    });
+    const newer = configFor({ version: 2, ...config }, "a", ["a"]);
+    assert.deepEqual(newer.section, config);
+    assert.equal(newer.warnings.length, 1);
+    assert.match(
+      newer.warnings[0],
+      /^version: 2 is not a format this mock knows \(it reads version 1\)/,
+    );
+    assert.deepEqual(configFor({ version: 1, apis: { b: config } }, "b", ["a", "b"]), {
+      section: config,
+      warnings: [],
+    });
+  });
+
   it("makes the server keep state where it could not: a nested key, a key in the query", async (t) => {
     const warned = [];
     const { app } = await createMockApp({

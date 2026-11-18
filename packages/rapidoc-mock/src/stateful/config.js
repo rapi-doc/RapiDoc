@@ -12,7 +12,8 @@
  *     sendMessage:
  *       action: none                # keep no state for it
  *
- * With several APIs the same two sections go under `apis.<api id>`. What is set here is taken as stated: it is
+ * With several APIs the same two sections go under `apis.<api id>`. `version: 1` at the top says which format
+ * the file is in; it is optional, and there so the format can change later without guessing. What is set here is taken as stated: it is
  * not marked for review. An entry that no longer fits the spec (a resource, operation, field or parameter that
  * is not there) is skipped and reported, never applied silently or dropped silently.
  */
@@ -20,6 +21,8 @@ import { listOperations, resolve } from "../spec.js";
 import { operationIds, propertiesOf } from "./classify.js";
 
 export const CONFIG_FILE = "mock.config.yaml";
+/** The format of the file this code reads. A file may say `version: 1`; one without the line is read as 1. */
+export const CONFIG_VERSION = 1;
 
 const ACTIONS = ["none", "list", "create", "createMany", "read", "update", "patch", "delete"];
 const KEYED = new Set(["read", "update", "patch", "delete"]);
@@ -39,12 +42,17 @@ export function configFor(config, apiId, apiIds) {
   if (!isObject(config)) {
     return { section: undefined, warnings: ["it must hold resources, operations or apis"] };
   }
-  const { apis, ...top } = config;
+  const { apis, version, ...top } = config;
   const hasTop = Object.keys(top).length > 0;
   if (apis !== undefined && !isObject(apis))
     warnings.push("apis: must map an API id to its settings");
   const byApi = isObject(apis) ? apis : {};
   if (apiId === apiIds[0]) {
+    if (version !== undefined && version !== CONFIG_VERSION) {
+      warnings.push(
+        `version: ${JSON.stringify(version)} is not a format this mock knows (it reads version ${CONFIG_VERSION}); what it recognises is applied`,
+      );
+    }
     for (const id of Object.keys(byApi).filter((one) => !apiIds.includes(one))) {
       warnings.push(`apis.${id}: no API with that id is mocked (there are: ${apiIds.join(", ")})`);
     }
