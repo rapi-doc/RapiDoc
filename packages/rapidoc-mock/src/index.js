@@ -7,6 +7,7 @@ import { createAuth, createVerifier, problem } from "./auth.js";
 import { createRouter } from "./engine/router.js";
 import { createResponder, itemValidator, parsePrefer } from "./responses.js";
 import { listOperations, loadSpec, pointerSegment, resolve } from "./spec.js";
+import { createStateful, SESSION_HEADER } from "./stateful/handlers.js";
 import { DEFAULT_STREAM_INTERVAL, parseStreamBody, streamKind, timedStream } from "./stream.js";
 
 export { tokenScopes } from "./auth.js";
@@ -25,18 +26,23 @@ export const DEFAULT_PORT = 4010;
  * @param {string} [options.issuer] - OpenID Connect issuer whose tokens are accepted; unset: bearer tokens unchecked
  * @param {string} [options.audience] - Required `aud` of tokens
  * @param {number} [options.seed] - Seed for generated data (default 1)
+ * @param {boolean | { rows?: number | Record<string, number> }} [options.stateful] - Keep state: the operations
+ *   the classifier maps to a resource (create, read, update, delete, list) work on stored records, seeded from
+ *   the spec (`rows` per resource, default 10); the rest answer as without it. A request's `X-Mock-Session`
+ *   header gives it its own copy of the data.
  * @param {number} [options.streamInterval] - Gap in ms between the items of a streamed response (OpenAPI 3.2
  *   `itemSchema`: Server-Sent Events, JSON Lines); default 300
  * @param {string | string[]} [options.origin] - Origins allowed by CORS (default `*`; tokens travel in headers, not cookies)
  * @param {(line: string) => void} [options.log] - Request log; default console.log with a [rapidoc mock] prefix
  * @param {(line: string) => void} [options.warn] - Problems that don't stop the server; default console.warn
- * @returns {Promise<{app: Hono, apis: {id: string, title?: string, operations: number}[], skipped: {id: string, error: string}[], verifier: object | null}>}
+ * @returns {Promise<{app: Hono, apis: {id: string, title?: string, operations: number, stateful?: object}[], skipped: {id: string, error: string}[], verifier: object | null}>}
  */
 export async function createMockApp({
   apis,
   issuer,
   audience,
   seed = 1,
+  stateful = false,
   streamInterval = DEFAULT_STREAM_INTERVAL,
   origin = "*",
   log = (line) => console.log(`[rapidoc mock] ${line}`),
@@ -59,8 +65,17 @@ export async function createMockApp({
             `${api.id}: ${op.method.toUpperCase()} ${op.path} can't be called: Node's HTTP server doesn't accept the method ${op.method.toUpperCase()}`,
           );
       }
+      let state = null;
+      if (stateful) {
+        try {
+          state = await createStateful(doc, { seed, rows: stateful.rows });
+        } catch (err) {
+          warn(`${api.id}: served without state: ${err.message.split("\n")[0]}`);
+        }
+      }
       loaded.push({
         ...api,
+        state,
         title: api.title ?? doc.info?.title,
         router,
         byKey,
@@ -117,11 +132,23 @@ export async function createMockApp({
 
   return {
     app,
-    apis: loaded.map(({ id, title, operations }) => ({ id, title, operations })),
+    apis: loaded.map(({ id, title, operations, state }) => ({
+      id,
+      title,
+      operations,
+      ...(state ? { stateful: statefulSummary(state) } : {}),
+    })),
     skipped,
     verifier,
   };
 }
+
+/** What the stateful mode made of an API: its resources with their record counts, and the operations by label. */
+const statefulSummary = ({ model, report, labels }) => ({
+  resources: report.records,
+  ...labels,
+  review: model.review,
+});
 
 /** The Response: a streamed body (one chunk per item, `interval` ms apart) when the responder gave chunks */
 const send = ({ status, headers, body, stream }, interval) =>
@@ -187,12 +214,39 @@ async function handle(c, api, { log, warn, streamInterval = DEFAULT_STREAM_INTER
     );
   }
 
+  const prefer = parsePrefer(headers.prefer);
+  // A caller that asks for a response by code or example gets it as written; nothing is stored or read
+  if (api.state && !prefer.code && !prefer.example) {
+    try {
+      const response = await api.state.handle({
+        method,
+        template: matched.path,
+        path,
+        query: url.searchParams,
+        body,
+        operation: operation.operation,
+        session: headers[SESSION_HEADER],
+        head: method === "head",
+        respond: (asked = {}) =>
+          api.respond({
+            operation: operation.operation,
+            pointer: operation.pointer,
+            prefer: asked,
+            accept: headers.accept,
+          }),
+      });
+      if (response) return finish(response, response.source);
+    } catch (err) {
+      warn(`${c.req.method} ${url.pathname}: answered without state: ${err.message}`);
+    }
+  }
+
   try {
     const response = await api.respond({
       operation: operation.operation,
       pointer: operation.pointer,
       head: method === "head",
-      prefer: parsePrefer(headers.prefer),
+      prefer,
       accept: headers.accept,
     });
     return finish(response, response.source);

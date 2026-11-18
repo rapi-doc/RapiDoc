@@ -45,6 +45,8 @@ Options and arguments can come in any order (`rapidoc build --out-dir public ./p
 | `--audience <id>` | mock | Audience tokens must be issued for. Default `$RAPIDOC_MOCK_AUDIENCE`. |
 | `--seed <number>` | mock | Seed for generated data. Default `1`. |
 | `--stream-interval <ms>` | mock | Gap between the items of a streamed response (OpenAPI 3.2 `itemSchema`). Default `300`. |
+| `--stateful` | mock | Keep state: creates, updates and deletes change stored records that reads and lists return, seeded from the spec. |
+| `--rows <number>` | mock | With `--stateful`: seed records per resource. Default `10`. |
 | `--debug` | dev, build | Keep the temporary build workspace and print its path. |
 | `--title <title>` | init | Site title. |
 | `--spec <file>` | init | An OpenAPI file to include; repeat for more. Default: every one found in the folder. |

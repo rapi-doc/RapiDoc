@@ -46,6 +46,32 @@ Clients choose which documented response they get with a `Prefer` header:
 
 The response's `Preference-Applied` header tells you which preferences were used.
 
+## Keep state
+
+By default every call is answered on its own: a `POST` returns a made-up record, and the next `GET` doesn't know about it. With `--stateful` the mock keeps data, like the real server would:
+
+```bash
+npx rapidoc mock openapi.yaml --stateful
+```
+
+- **It works out the data model from the spec.** Paths such as `/pets` and `/pets/{petId}` that share a schema become one resource, with its key and its links to other resources. Nothing to configure.
+- **It starts with data.** Each resource gets 10 records (`--rows`), generated from its schema with readable values, and references between records point at records that exist. The same spec and `--seed` give the same data.
+- **Writes are kept.** A create stores a record, an update or delete changes it, and reads and lists return what is stored. Lists apply the query parameters that match a field, and `limit`, `offset` and `page`.
+- **Responses keep the spec's shape.** A record goes where the response schema puts it, such as inside `data` next to a `request_id`.
+- **Everything else answers as before.** An operation that fits no resource (a login, a search, a file upload) gets its example or generated data. The server prints how many operations are in each group when it starts.
+
+Send an `X-Mock-Session` header to get your own copy of the data, so tests running at the same time don't see each other's changes:
+
+```bash
+curl -X POST localhost:4010/openapi/pets -H "X-Mock-Session: test-1" -H "Content-Type: application/json" -d '{"name":"Biscuit"}'
+```
+
+A request with `Prefer: code=` or `Prefer: example=` gets that response as written, and nothing is stored. The data lives in memory and starts fresh on every run.
+
+:::note
+The stateful mode is new. It reads the spec's structure, so an operation it isn't sure about is answered as a plain mock, never guessed.
+:::
+
 ## Options
 
 | Option | Environment variable | Meaning |
@@ -56,6 +82,8 @@ The response's `Preference-Applied` header tells you which preferences were used
 | `--audience <id>` | `RAPIDOC_MOCK_AUDIENCE` | The `aud` tokens must have (your API's identifier at the provider). |
 | `--seed <number>` | | Seed for generated data. Default `1`. |
 | `--stream-interval <ms>` | | Gap between the items of a streamed response. Default `300`. |
+| `--stateful` | | [Keep state](#keep-state): writes change stored records that reads and lists return. |
+| `--rows <number>` | | With `--stateful`: seed records per resource. Default `10`. |
 
 ```bash
 npx rapidoc mock openapi.yaml --issuer https://example.us.auth0.com/ --audience https://api.example.com
