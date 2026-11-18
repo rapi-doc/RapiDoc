@@ -51,6 +51,8 @@ export class RapidocMockUi extends LitElement {
     sort: { state: true },
     page: { state: true },
     selected: { state: true },
+    detail: { state: true },
+    sample: { state: true },
     labels: { state: true },
     groupBy: { state: true },
     session: { state: true },
@@ -71,6 +73,10 @@ export class RapidocMockUi extends LitElement {
     this.sort = { column: "", down: false };
     this.page = 0;
     this.selected = null;
+    /** The resource or operation a detail page shows, as the control API describes it. */
+    this.detail = null;
+    /** A generated record of the resource in view: `{ seed, record }`. */
+    this.sample = null;
     this.labels = new Set(Object.keys(LABELS));
     this.groupBy = "path";
     this.session = "";
@@ -78,7 +84,7 @@ export class RapidocMockUi extends LitElement {
     this.notice = "";
     this.busy = false;
     this.menuOpen = false;
-    this.onHashChange = () => this.readAddress();
+    this.onHashChange = () => this.run(() => this.readAddress());
   }
 
   connectedCallback() {
@@ -166,17 +172,40 @@ export class RapidocMockUi extends LitElement {
     // a confirmation belongs to the page it was given on
     if (next.view !== this.route.view) this.notice = "";
     if (next.view === "resources") {
+      // `<Resource>` shows its records, `<Resource>/about` what the mock knows about it
+      next.tab = next.item.endsWith("/about") ? "about" : "records";
+      const asked = next.item.replace(/\/about$/, "");
       const list = known?.resources || [];
-      const resource = list.find((one) => one.name === next.item) || list[0];
+      const resource = list.find((one) => one.name === asked) || list[0];
       next.item = resource?.name || "";
       if (next.item !== this.route.item) {
         this.filter = "";
         this.page = 0;
         this.sort = { column: "", down: false };
+        this.sample = null;
       }
     }
     this.route = next;
-    if (next.view === "resources") await this.loadRecords();
+    this.detail = null;
+    const at = (kind) =>
+      `/model/${encodeURIComponent(next.api)}/${kind}/${encodeURIComponent(next.item)}`;
+    if (next.view === "resources" && next.tab === "about" && next.item) {
+      this.detail = await this.call(at("resources"));
+    } else if (next.view === "resources") {
+      await this.loadRecords();
+    } else if (next.view === "operations" && next.item) {
+      this.detail = await this.call(at("operations"));
+    }
+  }
+
+  /** A freshly generated record of the resource in view; nothing is stored. */
+  generateSample() {
+    return this.run(async () => {
+      const { api, item } = this.route;
+      this.sample = await this.call(
+        `/model/${encodeURIComponent(api)}/resources/${encodeURIComponent(item)}/sample`,
+      );
+    });
   }
 
   /** The address of a section (and an item in it) of the API in view, or of another API. */

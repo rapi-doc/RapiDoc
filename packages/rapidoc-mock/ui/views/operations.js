@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { LABELS } from "../labels.js";
+import { operationDetail } from "./operation-detail.js";
 
 /** Operations in groups: `[{ title, operations }]`, by path as the spec orders them, or by resource. */
 function grouped(operations, by) {
@@ -19,6 +20,7 @@ function grouped(operations, by) {
 
 /** Operations: every operation with what the mock does for it, and its label. */
 export function operations(host) {
+  if (host.route.item) return operationDetail(host);
   const api = host.api;
   const text = host.filter.trim().toLowerCase();
   const rows = api.operations.filter(
@@ -93,13 +95,14 @@ export function operations(host) {
                   <th>Does</th>
                   <th>Label</th>
                   <th>Why</th>
+                  <th><span class="visually-hidden">Details</span></th>
                 </tr>
               </thead>
               ${groups.map(
                 (group) => html`
                   <tbody>
                     <tr class="group">
-                      <th colspan=${byResource ? 5 : 4} scope="rowgroup">
+                      <th colspan=${byResource ? 6 : 5} scope="rowgroup">
                         ${
                           byResource
                             ? group.title
@@ -127,6 +130,13 @@ export function operations(host) {
                           </td>
                           <td><span class="badge ${op.label}">${LABELS[op.label]}</span></td>
                           <td class="why">${op.why || ""}</td>
+                          <td>
+                            <a
+                              href=${host.href("operations", op.id)}
+                              aria-label="Details of ${op.method} ${op.path}"
+                              >Details</a
+                            >
+                          </td>
                         </tr>
                       `,
                     )}

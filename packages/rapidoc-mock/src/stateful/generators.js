@@ -114,6 +114,47 @@ const BY_FIELD = {
   note: (c) => c.values.sentence(),
   comment: (c) => c.values.sentence(),
 };
+/** What the generator of a field (by `nameKey`) makes, in words: for `generatorLabel`. */
+const FIELD_LABELS = {
+  firstname: "a first name",
+  givenname: "a first name",
+  lastname: "a last name",
+  familyname: "a last name",
+  surname: "a last name",
+  fullname: "a person's full name",
+  username: "a username",
+  email: "an e-mail address",
+  phone: "a phone number",
+  phonenumber: "a phone number",
+  jobtitle: "a job title",
+  city: "a city",
+  country: "a country",
+  street: "a street address",
+  address: "a street address",
+  zip: "a postal code",
+  zipcode: "a postal code",
+  postalcode: "a postal code",
+  company: "a company name",
+  department: "a department",
+  color: "a color",
+  colour: "a color",
+  website: "a URL",
+  url: "a URL",
+  description: "a sentence",
+  summary: "a sentence",
+  bio: "a sentence",
+  note: "a sentence",
+  comment: "a sentence",
+};
+const NAME_LABELS = {
+  person: "a person's full name",
+  animal: "a pet's name, or a kind of animal",
+  product: "a product name",
+  company: "a company name",
+  vehicle: "a vehicle",
+  food: "a dish",
+};
+
 /** An entity's name as words, in its own casing: `MenuItem` -> "Menu Item", `api_key` -> "api key". */
 const readable = (entity) =>
   String(entity)
@@ -149,6 +190,30 @@ export function generatorFor(domain, field) {
     }
     // a title or label reads as a few words, whatever the entity
     return domain === "person" ? undefined : (c) => c.values.words();
+  }
+  return undefined;
+}
+
+/**
+ * What `generatorFor(domain, field)` makes, in words ("a first name", "a city"), or undefined when it has no
+ * generator. Follows the same rules, in the same order: keep the two together.
+ * @param {string} domain - From entityDomain
+ * @param {string} field
+ * @param {string} entity - For a `name` with no domain: "<Entity> 1, <Entity> 2, ..."
+ */
+export function generatorLabel(domain, field, entity) {
+  const words = splitWords(field);
+  const key = nameKey(field);
+  if (BY_FIELD[key]) return FIELD_LABELS[key];
+  if (words.length > 1 && words.at(-1) === "name") {
+    const own = domainOfWords(words.slice(0, -1));
+    if (own) return NAME_LABELS[own];
+  }
+  if (NAMING.has(key)) {
+    if (key === "name" || key === "displayname") {
+      return NAME_LABELS[domain] || `"${readable(entity)} 1", "${readable(entity)} 2", ...`;
+    }
+    return domain === "person" ? undefined : "a few words";
   }
   return undefined;
 }

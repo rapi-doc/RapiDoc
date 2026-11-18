@@ -1,4 +1,5 @@
 import { html, nothing } from "lit";
+import { resourceAbout } from "./resource-about.js";
 
 const PAGE_SIZE = 25;
 
@@ -84,6 +85,29 @@ export function resources(host) {
               : nothing
           }
         </div>
+        <div class="tabs" role="tablist">
+          ${[
+            ["records", "Records", resource?.name],
+            ["about", "About", `${resource?.name}/about`],
+          ].map(
+            ([tab, title, item]) => html`
+              <a
+                role="tab"
+                href=${host.href("resources", item)}
+                class=${host.route.tab === tab ? "current" : ""}
+                aria-selected=${host.route.tab === tab ? "true" : "false"}
+                >${title}</a
+              >
+            `,
+          )}
+        </div>
+        ${host.route.tab === "about" ? resourceAbout(host) : records()}
+      </div>
+    </div>
+  `;
+
+  function records() {
+    return html`
         <div class="row">
           <input
             type="search"
@@ -191,7 +215,6 @@ export function resources(host) {
             `
             : nothing
         }
-      </div>
-    </div>
-  `;
+    `;
+  }
 }

@@ -74,8 +74,8 @@ A request with `Prefer: code=` or `Prefer: example=` gets that response as writt
 Open `/__mock/ui` on the mock's port (`http://localhost:4010/__mock/ui`). Pick an API in the header; the sidebar has four sections:
 
 - **Dashboard**: how many resources, records and operations the mock found, the share of operations per label, and what it assumed.
-- **Resources**: each resource the mock found, with its records in a table you can filter and sort. Select a row to see the whole record.
-- **Operations**: every operation with what the mock does for it and one of three labels. **Confident**: mapped to a resource. **Needs review**: mapped, with something assumed, and the reason is shown. **Plain mock**: no state, answered from examples or generated data. Group them by path or by resource.
+- **Resources**: each resource the mock found, with its records in a table you can filter and sort. Select a row to see the whole record. The **About** tab shows the resource's fields and how each is seeded ("a first name", "the id of an Owner record", "shaped like the example"), its links to other resources, the operations on it, and a button that generates a sample record without storing it.
+- **Operations**: every operation with what the mock does for it and one of three labels. **Confident**: mapped to a resource. **Needs review**: mapped, with something assumed, and the reason is shown. **Plain mock**: no state, answered from examples or generated data. Group them by path or by resource. **Details** opens one operation: what the mock does in a sentence, what it uses each parameter for, what the request and each response hold, and a sample response.
 - **Settings**: how the mock was started, new seed data with another number of records or another seed, and a delay for every API response.
 
 In the header, **Reset data** puts the selected API back to its seed data, and the **Session** field shows the data of one `X-Mock-Session`. Every page has its own address, so it can be reloaded or shared.
@@ -90,6 +90,8 @@ The mock has its own endpoints under `/__mock`, beside the APIs, so a test in an
 | :--- | :--- |
 | `GET /__mock/health` | Ready check: `200` with the APIs served. Works without `--stateful` too. |
 | `GET /__mock/model` | What the mock made of each spec: resources, and every operation with its label. `/<api id>` for one API. |
+| `GET /__mock/model/<api id>/resources/<Resource>` | One resource: fields, how each is seeded, links, operations. Add `/sample` for a generated record that is not stored (`?seed=` to repeat it). |
+| `GET /__mock/model/<api id>/operations/<id>` | One operation: what the mock does, its parameters, request, responses and a sample response. `<id>` is the `id` the model lists, URL-encoded. |
 | `GET /__mock/settings` | How the mock was started: state, seed, rows, delay, tokens, the APIs. |
 | `PATCH /__mock/settings` | Changes the response delay while the mock runs: `{ "delay": 250 }`. |
 | `POST /__mock/reset` | Puts the data back to what the mock started with. `?api=<id>` resets one API. With a body `{ "rows": 25, "seed": 7 }` it makes new seed data of that size, and drops every session's records. |
