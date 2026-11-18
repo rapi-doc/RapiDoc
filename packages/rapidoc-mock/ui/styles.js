@@ -235,6 +235,11 @@ export const styles = css`
     flex-direction: column;
     gap: 16px;
   }
+  /* the content scrolls as a whole: nothing in it gives up height to fit */
+  main > *,
+  .pane > * {
+    flex-shrink: 0;
+  }
   .title p {
     color: var(--muted);
     margin-top: 2px;
@@ -403,6 +408,53 @@ export const styles = css`
     border-color: var(--muted);
     text-decoration: none;
   }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tabs a {
+    padding: 6px 12px;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tabs a:hover {
+    text-decoration: none;
+    color: var(--fg);
+  }
+  .tabs a.current {
+    color: var(--fg);
+    font-weight: 600;
+    border-bottom-color: var(--accent-text);
+  }
+  .tag {
+    display: inline-block;
+    padding: 0 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .facts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .wrap {
+    overflow-wrap: anywhere;
+  }
+  h1 code {
+    font-size: 0.85em;
+  }
+  pre.sample {
+    max-height: 360px;
+    overflow: auto;
+    padding: 12px;
+    border-radius: 6px;
+    background: var(--card);
+  }
   .segmented {
     display: inline-flex;
   }
@@ -567,6 +619,16 @@ export const styles = css`
   tr.group .count {
     margin-left: 8px;
     font-weight: 400;
+  }
+  td.example {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    overflow-wrap: anywhere;
+    max-width: 220px;
+    color: var(--muted);
+  }
+  td.seeded {
+    min-width: 200px;
   }
   td.why {
     color: var(--muted);

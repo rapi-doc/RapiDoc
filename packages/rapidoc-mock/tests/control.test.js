@@ -186,6 +186,99 @@ describe("/__mock with --stateful", () => {
     assert.equal((await call("GET", "/__mock/model/nope")).status, 404);
   });
 
+  it("describes one resource: its fields, how each is seeded, its links and operations", async () => {
+    const { status, body: pet } = await call("GET", "/__mock/model/pc/resources/Pet");
+    assert.equal(status, 200);
+    assert.deepEqual(
+      { name: pet.name, key: pet.key, schema: pet.schema, records: pet.records },
+      { name: "Pet", key: "id", schema: "Pet", records: 10 },
+    );
+    const field = (name) => pet.fields.find((one) => one.name === name);
+    assert.deepEqual(field("id"), {
+      name: "id",
+      type: "integer",
+      format: "int32",
+      required: true,
+      readOnly: true,
+      example: 1,
+      key: true,
+      seededAs: "the key: counts up from 1",
+    });
+    assert.equal(field("ownerId").seededAs, "the id of a Owner record");
+    assert.match(field("name").seededAs, /pet's name/);
+    assert.deepEqual(
+      pet.relations.find((one) => one.field === "ownerId"),
+      { field: "ownerId", to: "Owner.id" },
+    );
+    assert.ok(pet.operations.length > 0 && pet.operations.every((op) => op.resource === "Pet"));
+
+    const owner1 = (await call("GET", "/__mock/model/pc/resources/Owner")).body;
+    assert.ok(owner1.referencedBy.includes("Pet.ownerId"));
+    assert.match(
+      owner1.fields.find((one) => one.name === "firstName").seededAs,
+      /a first name when it fits the pattern/,
+    );
+    assert.equal((await call("GET", "/__mock/model/pc/resources/Nothing")).status, 404);
+    assert.equal((await call("GET", "/__mock/model/pc/other")).status, 404);
+  });
+
+  it("generates a sample record without storing it", async () => {
+    const one = (await call("GET", "/__mock/model/pc/resources/Owner/sample?seed=5")).body;
+    assert.equal(one.seed, 5);
+    assert.equal(typeof one.record.firstName, "string");
+    const again = (await call("GET", "/__mock/model/pc/resources/Owner/sample?seed=5")).body;
+    assert.deepEqual(again, one, "the same seed gives the same record");
+    const other = (await call("GET", "/__mock/model/pc/resources/Owner/sample")).body;
+    assert.ok(Number.isInteger(other.seed));
+    assert.equal((await call("GET", "/__mock/state/pc/Owner")).body.length, 10, "nothing stored");
+    assert.equal((await call("GET", "/__mock/model/pc/resources/Owner/sample?seed=x")).status, 400);
+  });
+
+  it("describes one operation: what the mock does, its parameters, responses and a sample", async () => {
+    const list = (await call("GET", "/__mock/model/pc")).body.operations.find(
+      (op) => op.method === "GET" && op.path === "/owners",
+    );
+    const at = (id) => `/__mock/model/pc/operations/${encodeURIComponent(id)}`;
+    const { status, body: op } = await call("GET", at(list.id));
+    assert.equal(status, 200);
+    assert.equal(op.does, "Lists the stored Owner records, filtered by lastName.");
+    assert.deepEqual(
+      op.parameters.find((one) => one.name === "lastName"),
+      {
+        name: "lastName",
+        in: "query",
+        required: false,
+        type: "string",
+        description: "Last name.",
+        role: "filters by lastName",
+      },
+    );
+    const ok = op.responses.find((one) => one.code === "200");
+    assert.equal(ok.schema, "Owner");
+    assert.equal(ok.many, true);
+    assert.equal(op.sample.status, 200);
+    assert.ok(Array.isArray(JSON.parse(op.sample.body)));
+
+    const read = (await call("GET", "/__mock/model/pc")).body.operations.find(
+      (one) => one.method === "GET" && one.path === "/owners/{ownerId}/pets/{petId}",
+    );
+    const detail = (await call("GET", at(read.id))).body;
+    assert.equal(
+      detail.does,
+      "Returns the Pet record whose id is the path parameter petId, or 404.",
+    );
+    assert.deepEqual(
+      detail.parameters.map((one) => one.role),
+      ["a parent of the record", "the id of the record"],
+    );
+
+    const plain = (await call("GET", "/__mock/model/pc")).body.operations.find(
+      (one) => one.label === "plainMock",
+    );
+    assert.match((await call("GET", at(plain.id))).body.does, /^Keeps no state/);
+    assert.equal((await call("GET", at("nope"))).status, 404);
+  });
+
   it("counts the records of the caller's session in the model", async () => {
     const session = { "x-mock-session": "model-1" };
     await call("POST", "/pc/owners", owner, session);

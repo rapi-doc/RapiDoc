@@ -3,6 +3,10 @@
  *
  *   GET  /__mock/health                         ready check; lists the APIs and which keep state
  *   GET  /__mock/model[/<api>]                  what the mock made of each spec: resources, operations, labels
+ *   GET  /__mock/model/<api>/resources/<Resource>          one resource: fields, how each is seeded, relations
+ *   GET  /__mock/model/<api>/resources/<Resource>/sample   one generated record, stored nowhere (`?seed=`)
+ *   GET  /__mock/model/<api>/operations/<id>               one operation: what the mock does, parameters,
+ *                                               request, responses, and a sample of the plain mock's response
  *   GET  /__mock/ui                             a page that shows all of this (src/ui.js)
  *   GET  /__mock/settings                       how the mock was started, and what can change while it runs
  *   PATCH /__mock/settings                      changes the response delay: `{ "delay": 250 }`
@@ -21,7 +25,13 @@
  */
 import { problem } from "./auth.js";
 import { listOperations } from "./spec.js";
-import { operationIds, operationLabel } from "./stateful/classify.js";
+import { operationIds } from "./stateful/classify.js";
+import {
+  describeOperation,
+  describeResource,
+  operationSummary,
+  sampleRecord,
+} from "./stateful/describe.js";
 
 /** The path prefix of the control API; no API may use it as its id. */
 export const CONTROL_PREFIX = "__mock";
@@ -54,19 +64,13 @@ function modelOf(api, view) {
       records: snapshot[name]?.length ?? 0,
       ...(resource.review ? { review: resource.why } : {}),
     })),
-    operations: listOperations(api.doc).map(({ method, path, operation }) => {
-      const id = ids.get(`${method} ${path}`);
-      const entry = model.operations[id] || { action: "none" };
-      return {
+    operations: listOperations(api.doc).map((one) => {
+      const id = ids.get(`${one.method} ${one.path}`);
+      return operationSummary(model, {
+        ...one,
         id,
-        method: method.toUpperCase(),
-        path,
-        ...(operation.summary ? { summary: operation.summary } : {}),
-        action: entry.action,
-        ...(entry.resource ? { resource: entry.resource } : {}),
-        label: operationLabel(model, entry),
-        ...(entry.why ? { why: entry.why } : {}),
-      };
+        entry: model.operations[id] || { action: "none" },
+      });
     }),
   };
 }
@@ -176,14 +180,61 @@ export async function control({ method, segments, query, session, body }, apis, 
   };
   const document = (list) => Object.fromEntries(list.map((api) => [api.id, view(api).snapshot()]));
 
-  if (action === "model" && rest.length <= 1) {
+  if (action === "model" && rest.length <= 4) {
     const wrong = allow("GET");
     if (wrong) return wrong;
-    if (rest.length) {
-      const api = find(rest[0]);
-      return api.state ? json(modelOf(api, view(api))) : api;
+    if (!rest.length) return json({ apis: stateful.map((api) => modelOf(api, view(api))) });
+    const api = find(rest[0]);
+    if (!api.state) return api;
+    const [, kind, item, extra] = rest;
+    const { model } = api.state;
+    if (kind === undefined) return json(modelOf(api, view(api)));
+    if (kind === "resources" && item !== undefined) {
+      const resource = describeResource(api.doc, model, item);
+      if (!resource) {
+        return problem(
+          404,
+          "Not Found",
+          `${api.id} has no resource ${item}. There are: ${api.state.store.names.join(", ")}.`,
+        );
+      }
+      if (extra === undefined) {
+        return json({ ...resource, records: view(api).list(item).total });
+      }
+      if (extra === "sample") {
+        const seed = query.has("seed")
+          ? Number(query.get("seed"))
+          : Math.floor(Math.random() * 2 ** 31);
+        if (!Number.isInteger(seed) || seed < 0) {
+          return problem(400, "Bad Request", "seed is a whole number from 0.");
+        }
+        return json({ seed, record: await sampleRecord(api.doc, model, item, seed) });
+      }
     }
-    return json({ apis: stateful.map((api) => modelOf(api, view(api))) });
+    if (kind === "operations" && item !== undefined && extra === undefined) {
+      const operation = describeOperation(api.doc, model, item);
+      if (!operation) return problem(404, "Not Found", `${api.id} has no operation ${item}.`);
+      // What the plain mock answers: the shape of the response, with example or generated values
+      let sample;
+      try {
+        const found = api.byKey.get(`${operation.method.toLowerCase()} ${operation.path}`);
+        const response = await api.respond({
+          operation: found.operation,
+          pointer: found.pointer,
+          prefer: {},
+          accept: "application/json",
+        });
+        sample = { status: response.status, source: response.source, body: response.body ?? null };
+      } catch (err) {
+        sample = { error: err.message };
+      }
+      return json({ ...operation, sample });
+    }
+    return problem(
+      404,
+      "Not Found",
+      `No model at /${[CONTROL_PREFIX, ...segments].join("/")}. Under an API there are resources/<Resource>, resources/<Resource>/sample and operations/<id>.`,
+    );
   }
 
   if (action === "reset" && !rest.length) {
