@@ -1,6 +1,6 @@
 import { html, nothing } from "lit";
 import { Screen } from "../components/screen.js";
-import { LABELS } from "../labels.js";
+import { badge } from "../labels.js";
 
 const shown = (value) => (typeof value === "string" ? value : JSON.stringify(value));
 
@@ -160,7 +160,7 @@ export class MockResourceAbout extends Screen {
                   <td><span class="method">${op.method}</span></td>
                   <td class="path"><a href=${app.href("operations", op.id)}>${op.path}</a></td>
                   <td>${op.action}</td>
-                  <td><span class="badge ${op.label}">${LABELS[op.label]}</span></td>
+                  <td>${badge(op.label)}</td>
                 </tr>
               `,
             )}

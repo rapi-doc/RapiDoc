@@ -20,7 +20,7 @@ npx rapidoc mock openapi.yaml --stateful
 The server listens on `http://localhost:4010` and serves each API under its own path, named after the file: `openapi.yaml` is served at `http://localhost:4010/openapi`. It prints what it found:
 
 ```text
-• State:    openapi: 3 resource(s), 30 record(s). Operations: 14 confident, 2 needs review, 3 plain mock
+• State:    openapi: 3 resource(s), 30 record(s). Operations: 14 stateful, 2 needs review, 3 static
 • Mock UI:  http://localhost:4010/__mock/ui
 ```
 

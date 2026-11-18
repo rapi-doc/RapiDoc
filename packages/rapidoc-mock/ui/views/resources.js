@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import { keyed } from "lit/directives/keyed.js";
 import { Screen } from "../components/screen.js";
 import { cellText } from "../components/table.js";
+import { badge } from "../labels.js";
 import "../components/table.js";
 import "./resource-about.js";
 
@@ -78,7 +79,7 @@ export class MockResources extends Screen {
       return html`
         <div class="title"><h1>Resources</h1></div>
         <p class="empty">
-          The mock found no resource in this spec: every operation answers as a plain mock.
+          The mock found no resource in this spec: every operation is static, answered from examples or generated data.
         </p>
       `;
     }
@@ -109,7 +110,7 @@ export class MockResources extends Screen {
             <span>key: <code>${resource?.key || "none"}</code></span>
             ${
               resource?.review
-                ? html`<span class="badge needsReview">Needs review</span>
+                ? html`${badge("needsReview")}
                   <span class="hint">${resource.review}</span>`
                 : nothing
             }

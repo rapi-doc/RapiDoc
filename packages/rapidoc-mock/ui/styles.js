@@ -1,27 +1,34 @@
 import { css } from "lit";
 
 /**
- * The Mock UI's styles. Colors follow RapiDoc's default (amber) theme in both schemes, by the reader's system
- * setting. Label colors come with text: a label is never told by color alone.
+ * The Mock UI's styles: one dark theme, in the manner of a monitoring console. Slate surfaces without borders,
+ * white headings over grey text, and RapiDoc's amber as the one accent (the brand block, the place you are, the
+ * main action). Label colors come with text: a label is never told by color alone.
  */
 export const styles = css`
   :host {
-    --bg: #ffffff;
-    --fg: #2a2d35;
-    --muted: #5d6270;
-    --card: #f5f5f6;
-    --sidebar: #fafafa;
-    --border: #dedfe1;
-    --primary: #ff791a;
-    --primary-fg: #000000;
-    --accent-text: #a84a00;
-    --ok: #0b6b3a;
-    --ok-bg: #dff3e7;
-    --warn: #7a4a00;
-    --warn-bg: #fdeccb;
-    --plain: #4a4f5c;
-    --plain-bg: #e8e9ec;
-    --error: #c81e1e;
+    --bg: #2f323b;
+    --sidebar: #24262d;
+    /* a panel on the page; opaque, so a sticky cell can use it */
+    --card: #3a3c45;
+    --hover: #444751;
+    --inset: #282a32;
+    --border: #4a4e5b;
+    --line: #41444e;
+    --fg: #c0c4c8;
+    --strong: #ffffff;
+    --muted: #949ba2;
+    --primary: #f6a821;
+    --primary-fg: #24262d;
+    --accent-text: #f6a821;
+    /* the three labels: green, a light red (amber is the accent, so it can't mark a warning), grey */
+    --ok: #68cc97;
+    --ok-bg: #24463a;
+    --warn: #fa82a2;
+    --plain: #b4b9c4;
+    --error: #f98080;
+    color-scheme: dark;
+    accent-color: var(--primary);
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -29,30 +36,11 @@ export const styles = css`
     background: var(--bg);
     color: var(--fg);
     font:
-      14px/1.45 system-ui,
+      14px/1.5 Roboto,
+      system-ui,
       -apple-system,
       "Segoe UI",
-      Roboto,
       sans-serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :host {
-      --bg: #30333c;
-      --fg: #dfe2e7;
-      --muted: #a9aebb;
-      --card: #383b43;
-      --sidebar: #2c2d35;
-      --border: #4a4d57;
-      --primary: #f6a821;
-      --accent-text: #f6a821;
-      --ok: #8fe0b0;
-      --ok-bg: #24463a;
-      --warn: #f8cf7c;
-      --warn-bg: #4d3f22;
-      --plain: #c8ccd6;
-      --plain-bg: #454852;
-      --error: #f98080;
-    }
   }
   * {
     box-sizing: border-box;
@@ -61,10 +49,11 @@ export const styles = css`
   h2,
   h3 {
     margin: 0;
-    font-weight: 600;
+    font-weight: 500;
+    color: var(--strong);
   }
   h1 {
-    font-size: 22px;
+    font-size: 24px;
   }
   h2 {
     font-size: 16px;
@@ -98,13 +87,18 @@ export const styles = css`
   button {
     cursor: pointer;
     padding: 5px 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg);
+    border: 1px solid #616779;
+    border-radius: 3px;
+    background: transparent;
     white-space: nowrap;
+    transition:
+      border-color 0.15s,
+      color 0.15s,
+      background 0.15s;
   }
   button:hover:not(:disabled) {
     border-color: var(--muted);
+    color: var(--strong);
   }
   button:disabled {
     cursor: default;
@@ -114,7 +108,12 @@ export const styles = css`
     background: var(--primary);
     border-color: var(--primary);
     color: var(--primary-fg);
-    font-weight: 600;
+    font-weight: 500;
+  }
+  button.primary:hover:not(:disabled) {
+    background: #ffb93a;
+    border-color: #ffb93a;
+    color: var(--primary-fg);
   }
   :focus-visible {
     outline: 2px solid var(--accent-text);
@@ -124,11 +123,19 @@ export const styles = css`
   input[type="search"],
   input[type="number"],
   select {
-    padding: 5px 9px;
+    padding: 5px 10px;
     border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg);
+    border-radius: 3px;
+    background: var(--inset);
     min-width: 0;
+  }
+  input:focus,
+  select:focus {
+    border-color: var(--primary);
+    outline: none;
+  }
+  ::placeholder {
+    color: #7b828b;
   }
   .grow {
     flex: 1;
@@ -153,24 +160,42 @@ export const styles = css`
     flex-wrap: wrap;
     align-items: center;
     gap: 8px 12px;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
+    padding-right: 16px;
+    min-height: 56px;
     background: var(--sidebar);
+    box-shadow: 0 1px 6px rgb(0 0 0 / 35%);
+    position: relative;
+    z-index: 3;
   }
+  /* the brand block: as wide as the sidebar under it */
   .brand {
-    color: var(--fg);
-    font-size: 16px;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    width: 210px;
+    padding: 0 22px;
     margin-right: 8px;
+    background: var(--primary);
+    color: var(--primary-fg);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
   .brand b {
-    color: var(--accent-text);
+    font-weight: 300;
+    margin-left: 0.45em;
   }
   .brand:hover {
     text-decoration: none;
   }
   select.api {
     max-width: 280px;
-    font-weight: 600;
+    color: var(--strong);
+  }
+  header .session span {
+    color: var(--muted);
   }
   .session {
     display: flex;
@@ -196,44 +221,48 @@ export const styles = css`
     flex: 0 0 210px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 6px 10px 16px;
-    border-right: 1px solid var(--border);
+    padding: 12px 0 16px;
     background: var(--sidebar);
     overflow-y: auto;
   }
   .sidebar h2 {
-    margin: 14px 8px 4px;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
+    margin: 0;
+    padding: 12px 15px 6px 25px;
+    font-size: 14.5px;
+    font-weight: 400;
+    color: var(--strong);
   }
   .sidebar a {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 7px 10px;
-    border-radius: 6px;
+    padding: 8px 15px 8px 22px;
+    border-left: 3px solid transparent;
     color: var(--fg);
+    transition:
+      color 0.15s,
+      background 0.15s;
   }
   .sidebar a:hover {
-    background: var(--card);
+    color: var(--strong);
     text-decoration: none;
   }
   .sidebar a.current {
-    background: var(--card);
-    font-weight: 600;
-    box-shadow: inset 3px 0 0 var(--accent-text);
+    color: var(--strong);
+    border-left-color: var(--primary);
+    background: #1e2026;
+  }
+  .sidebar a.current .icon {
+    color: var(--primary);
   }
   main {
     flex: 1;
     min-width: 0;
     overflow-y: auto;
-    padding: 20px 24px 40px;
+    padding: 24px 30px 40px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
   }
   /* the content scrolls as a whole: nothing in it gives up height to fit */
   main > *,
@@ -245,13 +274,18 @@ export const styles = css`
   .screen {
     display: contents;
   }
+  /* a page's heading: its name, a line about it, and a rule under both */
+  .title {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
   .title p {
     color: var(--muted);
-    margin-top: 2px;
+    margin-top: 4px;
   }
   .banner {
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 10px 14px;
+    border-radius: 3px;
     background: var(--ok-bg);
     color: var(--ok);
   }
@@ -298,27 +332,33 @@ export const styles = css`
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 16px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--bg);
+    padding: 16px 20px 18px;
+    border-radius: 3px;
+    background: var(--card);
+  }
+  .card h2,
+  .card h3 {
+    font-size: 16px;
   }
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
+    gap: 18px;
   }
   .stat {
     gap: 0;
     color: var(--fg);
+    transition: background 0.15s;
   }
   .stat:hover {
-    border-color: var(--muted);
+    background: var(--hover);
     text-decoration: none;
   }
   .stat b {
-    font-size: 28px;
+    font-size: 32px;
+    font-weight: 500;
     line-height: 1.2;
+    color: var(--strong);
     font-variant-numeric: tabular-nums;
   }
   .stat span {
@@ -326,38 +366,37 @@ export const styles = css`
   }
   .badge {
     display: inline-block;
-    padding: 1px 8px;
-    border-radius: 999px;
+    padding: 0 8px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     white-space: nowrap;
   }
+  /* a label is its color as text and outline, with no fill; the bar's parts are filled with it */
   .badge.confident,
   .bar .confident {
-    background: var(--ok-bg);
     color: var(--ok);
   }
   .badge.needsReview,
   .bar .needsReview {
-    background: var(--warn-bg);
     color: var(--warn);
   }
   .badge.plainMock,
   .bar .plainMock {
-    background: var(--plain-bg);
     color: var(--plain);
   }
   .bar {
     display: flex;
     gap: 2px;
-    height: 14px;
-    border-radius: 7px;
+    height: 10px;
+    border-radius: 3px;
     overflow: hidden;
   }
   .bar span {
     flex-basis: 0;
-    border: 1px solid currentColor;
-    border-radius: 3px;
+    background: currentColor;
+    border-radius: 2px;
   }
   .legend {
     display: grid;
@@ -405,18 +444,19 @@ export const styles = css`
     display: inline-flex;
     gap: 8px;
     padding: 3px 10px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
+    border: 1px solid #616779;
+    border-radius: 3px;
     color: var(--fg);
   }
   .chips a:hover {
     border-color: var(--muted);
+    color: var(--strong);
     text-decoration: none;
   }
   .tabs {
     display: flex;
     gap: 4px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--line);
   }
   .tabs a {
     padding: 6px 12px;
@@ -426,11 +466,10 @@ export const styles = css`
   }
   .tabs a:hover {
     text-decoration: none;
-    color: var(--fg);
+    color: var(--strong);
   }
   .tabs a.current {
-    color: var(--fg);
-    font-weight: 600;
+    color: var(--strong);
     border-bottom-color: var(--accent-text);
   }
   .tag {
@@ -457,8 +496,8 @@ export const styles = css`
     max-height: 360px;
     overflow: auto;
     padding: 12px;
-    border-radius: 6px;
-    background: var(--card);
+    border-radius: 3px;
+    background: var(--inset);
   }
   .segmented {
     display: inline-flex;
@@ -468,16 +507,16 @@ export const styles = css`
     margin-left: -1px;
   }
   .segmented button:first-child {
-    border-radius: 6px 0 0 6px;
+    border-radius: 3px 0 0 3px;
     margin-left: 0;
   }
   .segmented button:last-child {
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 3px 3px 0;
   }
   .segmented button.current {
     background: var(--card);
-    font-weight: 600;
-    box-shadow: inset 0 -2px 0 var(--accent-text);
+    color: var(--strong);
+    box-shadow: inset 0 -2px 0 var(--primary);
   }
   .check {
     display: flex;
@@ -498,23 +537,26 @@ export const styles = css`
     flex-direction: column;
     gap: 2px;
     align-self: flex-start;
+    padding: 6px 0;
+    border-radius: 3px;
+    background: var(--sidebar);
   }
   .list a {
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    padding: 6px 10px;
-    border-radius: 6px;
+    padding: 7px 12px;
+    border-left: 3px solid transparent;
     color: var(--fg);
   }
   .list a:hover {
-    background: var(--card);
+    color: var(--strong);
     text-decoration: none;
   }
   .list a.current {
     background: var(--card);
-    font-weight: 600;
-    box-shadow: inset 3px 0 0 var(--accent-text);
+    color: var(--strong);
+    border-left-color: var(--primary);
   }
   .list .name {
     overflow: hidden;
@@ -532,8 +574,12 @@ export const styles = css`
   /* Tables */
   .scroll {
     overflow-x: auto;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 3px;
+    background: var(--card);
+  }
+  /* a table inside a panel is part of it */
+  .card .scroll {
+    margin: 0 -8px;
   }
   table {
     border-collapse: collapse;
@@ -541,9 +587,9 @@ export const styles = css`
   }
   th,
   td {
-    padding: 6px 10px;
+    padding: 9px 12px;
     text-align: left;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--line);
     vertical-align: top;
   }
   table > :last-child > tr:last-child > * {
@@ -551,14 +597,17 @@ export const styles = css`
   }
   thead th {
     background: var(--card);
-    font-weight: 600;
+    color: var(--strong);
+    font-weight: 700;
     white-space: nowrap;
+    border-bottom-color: var(--border);
   }
   th button {
     border: 0;
     background: none;
     padding: 0;
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--strong);
   }
   td {
     max-width: 280px;
@@ -583,8 +632,9 @@ export const styles = css`
     position: sticky;
     left: 0;
     z-index: 1;
-    background: var(--bg);
-    box-shadow: inset -1px 0 0 var(--border);
+    background: var(--card);
+    color: var(--strong);
+    box-shadow: inset -1px 0 0 var(--line);
   }
   .records thead .key {
     z-index: 3;
@@ -592,7 +642,12 @@ export const styles = css`
   }
   .records tbody tr:hover .key,
   .records tbody tr.current .key {
-    background: var(--card);
+    background: var(--hover);
+  }
+  .records tbody tr.current .key {
+    box-shadow:
+      inset 3px 0 0 var(--primary),
+      inset -1px 0 0 var(--line);
   }
   td.none,
   td.json {
@@ -603,7 +658,7 @@ export const styles = css`
   }
   tbody tr[tabindex]:hover,
   tbody tr.current {
-    background: var(--card);
+    background: var(--hover);
   }
   table.operations td,
   table.plain td {
@@ -616,9 +671,9 @@ export const styles = css`
     min-width: 220px;
   }
   tr.group th {
-    background: var(--sidebar);
-    font-weight: 600;
-    border-top: 1px solid var(--border);
+    background: var(--inset);
+    color: var(--strong);
+    font-weight: 500;
     overflow-wrap: anywhere;
   }
   tr.group .count {
@@ -643,8 +698,10 @@ export const styles = css`
     font-weight: 700;
     font-size: 12px;
   }
-  .detail {
-    background: var(--card);
+  .detail pre {
+    padding: 12px;
+    border-radius: 3px;
+    background: var(--inset);
   }
   pre {
     margin: 0;
@@ -663,6 +720,16 @@ export const styles = css`
   @media (max-width: 760px) {
     .menu {
       display: inline-block;
+      margin-left: 12px;
+    }
+    .brand {
+      width: auto;
+      min-height: 48px;
+      padding: 0 16px;
+      order: -1;
+    }
+    header {
+      padding-bottom: 8px;
     }
     .sidebar {
       display: none;
@@ -674,7 +741,7 @@ export const styles = css`
       top: 0;
       left: 0;
       bottom: 0;
-      box-shadow: 4px 0 16px rgb(0 0 0 / 25%);
+      box-shadow: 4px 0 16px rgb(0 0 0 / 45%);
     }
     .shell {
       position: relative;

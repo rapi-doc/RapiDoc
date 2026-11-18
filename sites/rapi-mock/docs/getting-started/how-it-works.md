@@ -30,11 +30,11 @@ Every operation gets one:
 
 | Label | Meaning |
 | :--- | :--- |
-| **Confident** | Mapped to a resource. It reads or changes stored records. |
+| **Stateful** | Mapped to a resource. It reads or changes stored records. |
 | **Needs review** | Mapped, with something assumed. The reason is shown. |
-| **Plain mock** | Keeps no state: answered from examples or generated data. A login, a search, a file upload. |
+| **Static** | Keeps no state: answered from examples or generated data. A login, a search, a file upload. |
 
-The mock is cautious on purpose. When it isn't sure an operation belongs to a resource, it leaves it as a plain mock; it does not guess.
+The mock is cautious on purpose. When it isn't sure an operation belongs to a resource, it leaves it static; it does not guess.
 
 ## Where to see it
 

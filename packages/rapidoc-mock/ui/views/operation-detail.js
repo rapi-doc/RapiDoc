@@ -1,6 +1,6 @@
 import { html, nothing } from "lit";
 import { Screen } from "../components/screen.js";
-import { LABELS, LABEL_HELP } from "../labels.js";
+import { LABEL_HELP, badge } from "../labels.js";
 
 /** The data a body holds, in words: "a list of calendar_common, inside data". */
 const holds = (body) => {
@@ -62,7 +62,7 @@ export class MockOperationDetail extends Screen {
       <h2>What the mock does</h2>
       <p>${op.does}</p>
       <div class="row">
-        <span class="badge ${op.label}">${LABELS[op.label]}</span>
+        ${badge(op.label)}
         <span class="hint">${op.why || LABEL_HELP[op.label]}</span>
       </div>
       ${

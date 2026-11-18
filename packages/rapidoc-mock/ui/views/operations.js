@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { Screen } from "../components/screen.js";
-import { LABELS } from "../labels.js";
+import { LABELS, badge } from "../labels.js";
 import "./operation-detail.js";
 
 /** How the list was last grouped: a choice of the reader's, kept while the page is open. */
@@ -119,7 +119,7 @@ export class MockOperations extends Screen {
               .checked=${this.labels.has(label)}
               @change=${() => toggle(label)}
             />
-            <span class="badge ${label}">${LABELS[label]}</span>
+            ${badge(label)}
           </label>
         `,
       )}
@@ -170,7 +170,7 @@ export class MockOperations extends Screen {
                                   <a href=${app.href("resources", op.resource)}>${op.resource}</a>`
                             }
                           </td>
-                          <td><span class="badge ${op.label}">${LABELS[op.label]}</span></td>
+                          <td>${badge(op.label)}</td>
                           <td class="why">${op.why || ""}</td>
                           <td>
                             <a
