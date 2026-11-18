@@ -14,6 +14,7 @@
     "build:mcp": "npm run build --workspace=@rapidoc/mcp",
     "build:prerender": "npm run build --workspace=@rapidoc/prerender",
     "build:rapipdf": "npm run build --workspace=rapipdf",
+    "build:mock": "npm run build --workspace=@rapidoc/mock",
     "build:rapidoc:dev": "npm run build:dev --workspace=rapidoc",
     "build:size": "npm run build:size --workspace=rapidoc",
     "build:docs": "npm run build --workspace=docs",
@@ -30,7 +31,7 @@
     "test:perf": "node tests/perf/render-benchmark.js",
     "test:component": "node --import ./scripts/test-loader.mjs --test tests/component/*.test.js",
     "test:unit": "node --import ./scripts/test-loader.mjs --test tests/unit/*.test.js",
-    "pretest:portal": "npm run build:rapidoc && npm run build:mcp && npm run build:prerender && npm run build:rapipdf",
+    "pretest:portal": "npm run build:rapidoc && npm run build:mcp && npm run build:prerender && npm run build:rapipdf && npm run build:mock",
     "test:portal": "node --test --test-concurrency=1 packages/rapidoc-portal/tests/**/*.test.js packages/rapidoc-cli/tests/**/*.test.js packages/rapidoc-server/tests/**/*.test.js packages/rapidoc-mock/tests/**/*.test.js packages/create-rapidoc/tests/**/*.test.js packages/rapidoc-embed/tests/**/*.test.js packages/rapidoc-hono/tests/**/*.test.js packages/rapidoc-starlight/tests/**/*.test.js packages/rapidoc-express/tests/**/*.test.js packages/rapidoc-fastify/tests/**/*.test.js packages/rapidoc-vitepress/tests/**/*.test.js packages/rapidoc-docusaurus/tests/**/*.test.js",
     "test:rapipdf": "npm run build:rapipdf && npm test --workspace=rapipdf",
     "test:e2e": "node --import ./scripts/test-loader.mjs --test tests/e2e/*.test.js",
@@ -38,7 +39,7 @@
     "build-info": "node scripts/capture-build-info.js",
     "changeset": "changeset",
     "version-packages": "changeset version && npm install --package-lock-only --ignore-scripts",
-    "build:packages": "npm run build:rapidoc && npm run build:mcp && npm run build:prerender && npm run build:rapipdf && npm run schema --workspace=@rapidoc/portal"
+    "build:packages": "npm run build:rapidoc && npm run build:mcp && npm run build:prerender && npm run build:rapipdf && npm run build:mock && npm run schema --workspace=@rapidoc/portal"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

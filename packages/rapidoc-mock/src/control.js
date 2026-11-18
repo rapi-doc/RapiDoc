@@ -2,6 +2,8 @@
  * The control API of the mock server, under `/__mock`: what a test in any language needs beside the mocked APIs.
  *
  *   GET  /__mock/health                         ready check; lists the APIs and which keep state
+ *   GET  /__mock/model[/<api>]                  what the mock made of each spec: resources, operations, labels
+ *   GET  /__mock/ui                             a page that shows all of this (src/ui.js)
  *   POST /__mock/reset[?api=<id>]               back to the seed data
  *   GET  /__mock/state[/<api>[/<resource>[/<key>]]]   the stored records, for assertions
  *   POST /__mock/snapshot[?api=<id>]            the stored records, as a document `restore` takes
@@ -15,6 +17,8 @@
  * Nothing here is protected: the mock is a development tool, and these endpoints change only its own data.
  */
 import { problem } from "./auth.js";
+import { listOperations } from "./spec.js";
+import { operationIds, operationLabel } from "./stateful/classify.js";
 
 /** The path prefix of the control API; no API may use it as its id. */
 export const CONTROL_PREFIX = "__mock";
@@ -25,6 +29,44 @@ const json = (data, status = 200) => ({
   body: JSON.stringify(data, null, 2),
 });
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
+
+/**
+ * What the stateful mode made of an API, for a person to read (the Mock UI) or a script to check:
+ * its resources (key, path, how many records the caller's state holds, what needs review) and every operation
+ * with its action and label (`confident`, `needsReview` with the reason, `plainMock`).
+ */
+function modelOf(api, view) {
+  const { model, labels } = api.state;
+  const ids = operationIds(api.doc);
+  const snapshot = view.snapshot();
+  return {
+    id: api.id,
+    ...(api.title ? { title: api.title } : {}),
+    labels,
+    resources: Object.entries(model.resources).map(([name, resource]) => ({
+      name,
+      key: resource.key,
+      path: resource.path,
+      ...(resource.alsoAt ? { alsoAt: resource.alsoAt } : {}),
+      records: snapshot[name]?.length ?? 0,
+      ...(resource.review ? { review: resource.why } : {}),
+    })),
+    operations: listOperations(api.doc).map(({ method, path, operation }) => {
+      const id = ids.get(`${method} ${path}`);
+      const entry = model.operations[id] || { action: "none" };
+      return {
+        id,
+        method: method.toUpperCase(),
+        path,
+        ...(operation.summary ? { summary: operation.summary } : {}),
+        action: entry.action,
+        ...(entry.resource ? { resource: entry.resource } : {}),
+        label: operationLabel(model, entry),
+        ...(entry.why ? { why: entry.why } : {}),
+      };
+    }),
+  };
+}
 
 /**
  * Answers a control request.
@@ -58,11 +100,11 @@ export async function control({ method, segments, query, session, body }, apis) 
       })
     );
   }
-  if (!["reset", "state", "snapshot", "restore"].includes(action)) {
+  if (!["model", "reset", "state", "snapshot", "restore"].includes(action)) {
     return problem(
       404,
       "Not Found",
-      `No control endpoint at /${[CONTROL_PREFIX, ...segments].join("/")}. There are: health, reset, state, snapshot, restore.`,
+      `No control endpoint at /${[CONTROL_PREFIX, ...segments].join("/")}. There are: health, model, reset, state, snapshot, restore, ui.`,
     );
   }
   if (!stateful.length) {
@@ -87,6 +129,16 @@ export async function control({ method, segments, query, session, body }, apis) 
     return api.state ? [api] : api;
   };
   const document = (list) => Object.fromEntries(list.map((api) => [api.id, view(api).snapshot()]));
+
+  if (action === "model" && rest.length <= 1) {
+    const wrong = allow("GET");
+    if (wrong) return wrong;
+    if (rest.length) {
+      const api = find(rest[0]);
+      return api.state ? json(modelOf(api, view(api))) : api;
+    }
+    return json({ apis: stateful.map((api) => modelOf(api, view(api))) });
+  }
 
   if (action === "reset" && !rest.length) {
     const wrong = allow("POST");

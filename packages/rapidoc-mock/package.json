@@ -21,7 +21,8 @@
     "directory": "packages/rapidoc-mock"
   },
   "files": [
-    "src"
+    "src",
+    "dist"
   ],
   "type": "module",
   "main": "./src/index.js",
@@ -32,6 +33,8 @@
     "access": "public"
   },
   "scripts": {
+    "build": "vite build",
+    "pretest": "npm run build",
     "test": "node --test --test-concurrency=1 tests/**/*.test.js"
   },
   "dependencies": {
@@ -44,6 +47,10 @@
     "jose": "^6.2.15",
     "json-schema-faker": "^0.6.3",
     "openapi-backend": "^5.23.0"
+  },
+  "devDependencies": {
+    "lit": "^3.3.3",
+    "vite": "^8.3.6"
   },
   "engines": {
     "node": ">=22.12.0"

@@ -161,12 +161,60 @@ describe("/__mock with --stateful", () => {
     assert.equal((await ownerIds()).length, 10);
   });
 
+  it("describes what it made of each spec: resources, operations and their labels", async () => {
+    const { apis } = (await call("GET", "/__mock/model")).body;
+    assert.deepEqual(
+      apis.map((api) => api.id),
+      ["pc", "rw"],
+    );
+    const pc = apis[0];
+    assert.deepEqual(pc.labels, { confident: 34, needsReview: 0, plainMock: 3 });
+    assert.deepEqual(
+      pc.resources.find((one) => one.name === "Owner"),
+      { name: "Owner", key: "id", path: "/owners/{}", records: 10 },
+    );
+    assert.equal(pc.operations.length, 37);
+    const list = pc.operations.find((op) => op.method === "GET" && op.path === "/owners");
+    assert.equal(list.action, "list");
+    assert.equal(list.resource, "Owner");
+    assert.equal(list.label, "confident");
+    assert.ok(pc.operations.some((op) => op.label === "plainMock" && op.action === "none"));
+
+    const review = apis[1].operations.filter((op) => op.label === "needsReview");
+    assert.ok(review.length > 0 && review.every((op) => op.why || op.resource));
+    assert.deepEqual((await call("GET", "/__mock/model/pc")).body, pc);
+    assert.equal((await call("GET", "/__mock/model/nope")).status, 404);
+  });
+
+  it("counts the records of the caller's session in the model", async () => {
+    const session = { "x-mock-session": "model-1" };
+    await call("POST", "/pc/owners", owner, session);
+    const mine = (await call("GET", "/__mock/model/pc", undefined, session)).body;
+    assert.equal(mine.resources.find((one) => one.name === "Owner").records, 11);
+    const shared = (await call("GET", "/__mock/model/pc")).body;
+    assert.equal(shared.resources.find((one) => one.name === "Owner").records, 10);
+  });
+
+  it("serves the Mock UI: a page and its script, at either form of the URL", async () => {
+    const page = await call("GET", "/__mock/ui");
+    assert.equal(page.status, 200);
+    assert.match(page.body, /<rapidoc-mock-ui>/);
+    assert.match(page.body, /src="ui\/mock-ui\.js"/);
+    assert.match((await call("GET", "/__mock/ui/")).body, /src="mock-ui\.js"/);
+
+    // built by `npm run build` in this package (pretest, and pretest:portal at the root)
+    const script = await call("GET", "/__mock/ui/mock-ui.js");
+    assert.equal(script.status, 200);
+    assert.match(script.body, /rapidoc-mock-ui/);
+    assert.equal((await call("GET", "/__mock/ui/other.js")).status, 404);
+  });
+
   it("names the method an endpoint takes, and the endpoints there are", async () => {
     assert.equal((await call("GET", "/__mock/reset")).status, 405);
     assert.equal((await call("POST", "/__mock/state")).status, 405);
     const unknown = await call("GET", "/__mock/nothing");
     assert.equal(unknown.status, 404);
-    assert.match(unknown.body.detail, /health, reset, state, snapshot, restore/);
+    assert.match(unknown.body.detail, /health, model, reset, state, snapshot, restore, ui/);
   });
 });
 

@@ -69,6 +69,16 @@ curl -X POST localhost:4010/openapi/pets -H "X-Mock-Session: test-1" -H "Content
 
 A request with `Prefer: code=` or `Prefer: example=` gets that response as written, and nothing is stored. The data lives in memory and starts fresh on every run.
 
+### See what the mock holds
+
+Open `/__mock/ui` on the mock's port (`http://localhost:4010/__mock/ui`) for a page that shows, per API:
+
+- **Resources**: each resource the mock found, with its records in a table you can filter and sort. Select a row to see the whole record.
+- **Operations**: every operation with what the mock does for it and one of three labels. **Confident**: mapped to a resource. **Needs review**: mapped, with something assumed, and the reason is shown. **Plain mock**: no state, answered from examples or generated data.
+- **Reset data** puts the selected API back to its seed data, and the **Session** field shows the data of one `X-Mock-Session`.
+
+The page is read-only apart from the reset. It reads the same endpoints your tests can call.
+
 ### Reset and inspect the data
 
 The mock has its own endpoints under `/__mock`, beside the APIs, so a test in any language can prepare and check the data over HTTP:
@@ -76,6 +86,7 @@ The mock has its own endpoints under `/__mock`, beside the APIs, so a test in an
 | Endpoint | What it does |
 | :--- | :--- |
 | `GET /__mock/health` | Ready check: `200` with the APIs served. Works without `--stateful` too. |
+| `GET /__mock/model` | What the mock made of each spec: resources, and every operation with its label. `/<api id>` for one API. |
 | `POST /__mock/reset` | Puts the data back to what the mock started with. `?api=<id>` resets one API. |
 | `GET /__mock/state` | The stored records. Narrow it with `/<api id>`, `/<api id>/<Resource>` or `/<api id>/<Resource>/<key>`. |
 | `POST /__mock/snapshot` | Returns all stored records as one JSON document. `?api=<id>` for one API. |

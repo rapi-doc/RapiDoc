@@ -207,6 +207,7 @@ export default {
       );
     }
     if (server.apis.some((one) => one.stateful)) {
+      info(`   • Mock UI:  ${server.url}/__mock/ui`);
       info(
         `   • Control:  ${server.url}/__mock  (POST reset, GET state, POST snapshot, POST restore)`,
       );
