@@ -105,6 +105,17 @@ export default {
       value: "number",
       description: "Seed for generated data (default 1)",
     },
+    stateful: {
+      type: "boolean",
+      description:
+        "Keep state: creates, updates and deletes change stored records that reads and lists return, seeded from the spec",
+    },
+    rows: {
+      type: "string",
+      kind: "int",
+      value: "number",
+      description: "With --stateful: seed records per resource (default 10)",
+    },
     "stream-interval": {
       type: "string",
       kind: "int",
@@ -117,6 +128,7 @@ export default {
     "rapidoc mock",
     "rapidoc mock ./specs --port 4011",
     "rapidoc mock orders-api.yaml billing-api.yaml",
+    "rapidoc mock orders-api.yaml --stateful",
     "rapidoc mock --issuer https://example.us.auth0.com/ --audience https://api.example.com",
   ],
 
@@ -168,6 +180,7 @@ export default {
             issuer,
             audience,
             seed: values.seed,
+            stateful: values.stateful ? { rows: values.rows } : false,
             streamInterval: values["stream-interval"],
           }),
         values.port ?? DEFAULT_PORT ?? 4010,
@@ -183,6 +196,14 @@ export default {
     for (const api of server.apis) {
       info(
         `   • ${server.url}/${api.id}  ${api.title ? `${api.title}, ` : ""}${api.operations} operation(s)  (${fileOf.get(api.id)})`,
+      );
+    }
+    for (const api of server.apis.filter((one) => one.stateful)) {
+      const { resources, confident, needsReview, plainMock } = api.stateful;
+      const names = Object.keys(resources);
+      const records = Object.values(resources).reduce((sum, count) => sum + count, 0);
+      info(
+        `   • State:    ${api.id}: ${names.length} resource(s), ${records} record(s). Operations: ${confident} confident, ${needsReview} needs review, ${plainMock} plain mock`,
       );
     }
     for (const api of server.skipped)

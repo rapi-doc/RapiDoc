@@ -52,7 +52,7 @@ function pathShape(path) {
 }
 
 /** The schema of the first JSON media type (else the first media type) of a `content` map. */
-function contentSchema(doc, content) {
+export function contentSchema(doc, content) {
   const types = Object.keys(content || {});
   const type = types.find((t) => JSON_TYPE.test(t)) || types[0];
   // A media type can itself be a `$ref` (OpenAPI 3.2 `components.mediaTypes`)
@@ -72,7 +72,7 @@ function isRecordSchema(node) {
  * What a schema is, by name: `{ name }` for a `$ref` to a component schema, `{ name, many: true }` for an array of
  * one, `{ name, many: true, wrapper }` for a list wrapper around one. `{}` for an inline or unnamed schema.
  */
-function namedSchema(doc, schema, depth = 0) {
+export function namedSchema(doc, schema, depth = 0) {
   if (!schema || typeof schema !== "object" || depth > 4) return {};
   if (typeof schema.$ref === "string") {
     const name = schema.$ref.match(SCHEMA_REF)?.[1];
@@ -167,7 +167,7 @@ function parametersOf(doc, pathItem, operation) {
 }
 
 /** The properties of an entity's schema, through `allOf`. */
-function propertiesOf(doc, schema, depth = 0) {
+export function propertiesOf(doc, schema, depth = 0) {
   const { node } = resolve(doc, schema, "");
   if (!node || depth > 6) return {};
   let properties = { ...node.properties };
@@ -203,6 +203,27 @@ function keyField(properties, param, entity) {
 }
 
 /**
+ * The id of every operation in the operation map, by `"<method> <path>"` (method in lower case): its
+ * `operationId`, else `"<METHOD> <path>"`. An operationId used twice (Cal.com has two) would overwrite the first
+ * operation's entry, so the second gets the method and path as well.
+ * @param {object} doc
+ * @returns {Map<string, string>}
+ */
+export function operationIds(doc) {
+  const seen = new Set();
+  const ids = new Map();
+  for (const { method, path, operation } of listOperations(doc)) {
+    const id =
+      operation.operationId && !seen.has(operation.operationId)
+        ? operation.operationId
+        : `${method.toUpperCase()} ${path}`;
+    seen.add(id);
+    ids.set(`${method} ${path}`, id);
+  }
+  return ids;
+}
+
+/**
  * @param {object} doc - A bundled OpenAPI 3.x document (internal `$ref`s kept; see loadSpec)
  * @returns {{ resources: object, relations: object, embedded: object, operations: object, review: string[], schemas: Record<string, string> }}
  */
@@ -222,7 +243,7 @@ export function classifySpec(doc) {
   };
 
   // Pass 1: what each operation carries, by name
-  const seenIds = new Set();
+  const ids = operationIds(doc);
   const facts = listOperations(doc).map(({ method, path, operation }) => {
     const pathItem = resolve(doc, doc.paths[path], "").node;
     const body = resolve(doc, operation.requestBody, "").node;
@@ -232,15 +253,8 @@ export function classifySpec(doc) {
       .find((code) => code.startsWith("2"));
     const success = resolve(doc, operation.responses?.[successCode], "").node;
     const response = namedSchema(doc, contentSchema(doc, success?.content));
-    // An operationId used twice (Cal.com has two) would overwrite the first operation's entry
-    const methodPath = `${method.toUpperCase()} ${path}`;
-    const id =
-      operation.operationId && !seenIds.has(operation.operationId)
-        ? operation.operationId
-        : methodPath;
-    seenIds.add(id);
     return {
-      id,
+      id: ids.get(`${method} ${path}`),
       method,
       path,
       ...pathShape(path),

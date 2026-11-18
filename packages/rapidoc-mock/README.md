@@ -36,6 +36,8 @@ Ids are lower-case letters, digits and dashes. Files that would share an id get 
 | `--host <host>`          |                         | Default `0.0.0.0`.                                                                                                     |
 | `--seed <number>`        |                         | Seed for generated data; default `1`.                                                                                  |
 | `--stream-interval <ms>` |                         | Gap between the items of a streamed response (OpenAPI 3.2 `itemSchema`); default `300`.                                |
+| `--stateful`             |                         | Keep state (below).                                                                                                    |
+| `--rows <number>`        |                         | With `--stateful`: seed records per resource; default `10`.                                                            |
 
 The mock refuses to start when the issuer can't be discovered. A spec it can't load is skipped with the reason; the others are served.
 
@@ -48,6 +50,18 @@ The mock refuses to start when the issuer can't be discovered. A spec it can't l
 | `Prefer: dynamic=true`  | Data generated from the schema even when there is an example.                                |
 
 Applied preferences come back in `Preference-Applied`. `GET /` lists the APIs served.
+
+### Keeping state
+
+`rapidoc mock --stateful` keeps data, like the real server would. It works out the resources, their keys and their links from the spec (`/pets` and `/pets/{petId}` sharing a schema are one resource), seeds each with 10 records (`--rows`) whose references point at records that exist, and then:
+
+- A create stores a record; an update or delete changes it; reads and lists return what is stored. Lists apply the query parameters that match a field, and `limit`, `offset` and `page`.
+- A record goes where the response schema puts it (inside `data` next to a `request_id`, say).
+- An operation that fits no resource (a login, a search) answers as without `--stateful`. The start-up output counts the operations in each group.
+- An `X-Mock-Session` header gives a caller its own copy of the data, so parallel tests don't see each other's changes.
+- `Prefer: code=` and `Prefer: example=` return that response as written; nothing is stored.
+
+Data is in memory and starts fresh on every run; the same spec and `--seed` give the same records. As a library: `createMockApp({ apis, stateful: true })` or `stateful: { rows: 25 }`.
 
 ## Use as a library
 
