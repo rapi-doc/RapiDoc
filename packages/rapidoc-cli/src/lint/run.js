@@ -1,3 +1,4 @@
+import { tryLoadMock } from "../lib/engines.js";
 import { bundleSpec, locate, position, SpecSyntaxError } from "../validate/bundle.js";
 import { checkSpec } from "../validate/check.js";
 import { RULES } from "./rules/index.js";
@@ -14,7 +15,8 @@ import { traverse } from "./traverse.js";
 /**
  * @param {string} location  file path or URL
  * @param {{ remote?: boolean, severities: Record<string, Severity> }} options
- * @returns {Promise<{ location, problems, skipped: string[], linted: boolean }>}
+ * @returns {Promise<{ location, problems, skipped: string[], linted: boolean, notRun?: string[] }>}
+ *   `notRun`: rules that were on and could not run, because @rapidoc/mock isn't installed
  */
 export async function lintSpec(location, { remote = false, severities }) {
   let bundle;
@@ -28,8 +30,12 @@ export async function lintSpec(location, { remote = false, severities }) {
   const checked = await checkSpec(location, { remote, bundle });
   if (checked.problems.length) return { ...checked, linted: false };
 
-  const active = RULES.filter((rule) => severities[rule.name] !== "off");
-  const problems = traverse(bundle.value, active).map((finding) => {
+  const wanted = RULES.filter((rule) => severities[rule.name] !== "off");
+  // Rules that read schemas the way the mock does run only where the mock is installed
+  const mock = wanted.some((rule) => rule.needs === "mock") ? await tryLoadMock() : null;
+  const active = wanted.filter((rule) => !rule.needs || mock);
+  const notRun = wanted.filter((rule) => rule.needs && !mock).map((rule) => rule.name);
+  const problems = traverse(bundle.value, active, { mock }).map((finding) => {
     const at = locate(bundle, finding.pointer);
     const { line, column } = position(bundle.files.get(at.location), at.pointer);
     return {
@@ -46,5 +52,5 @@ export async function lintSpec(location, { remote = false, severities }) {
   problems.sort(
     (a, b) => a.location.localeCompare(b.location) || a.line - b.line || a.column - b.column,
   );
-  return { location, problems, skipped: bundle.skipped, linted: true };
+  return { location, problems, skipped: bundle.skipped, linted: true, notRun };
 }

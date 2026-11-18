@@ -31,6 +31,7 @@
  * @property {string} [method]       the method, inside an operation
  * @property {Operation[]} operations   every operation of the document
  * @property {(node: unknown) => unknown} resolve   follows in-document $refs (up to 10 hops)
+ * @property {object} [mock]         @rapidoc/mock, for the rules that `needs` it
  */
 
 /**
@@ -40,6 +41,8 @@
  * @property {Severity} default
  * @property {string[]} on          node kinds it wants (see lib/openapi-shape.js), plus "document",
  *                                  "info", "server", "tag" and "securityScheme"
+ * @property {"mock"} [needs]       an optional package the rule can't run without (@rapidoc/mock); when it
+ *                                  isn't installed the rule is skipped, and lint says so
  * @property {(node: any, context: LintContext) => Finding[]} check
  */
 

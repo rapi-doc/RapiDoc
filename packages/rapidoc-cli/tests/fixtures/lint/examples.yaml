@@ -1,0 +1,125 @@
+openapi: 3.1.0
+info:
+  title: Examples
+  version: 1.0.0
+servers:
+  - url: https://api.rapidocui.com
+tags:
+  - name: things
+    description: Things
+paths:
+  /calendars:
+    get:
+      operationId: listCalendars
+      summary: An example written as a map of named examples
+      tags: [things]
+      responses:
+        "200":
+          description: Calendars
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarList"
+              example:
+                Calendars response example:
+                  request_id: abc
+                  data:
+                    - id: 1
+                      name: Team
+  /pets:
+    get:
+      operationId: listPets
+      summary: A named example of a list, as an Example Object
+      tags: [things]
+      responses:
+        "200":
+          description: Pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Calendar"
+              example:
+                Two pets:
+                  summary: Two of them
+                  value:
+                    - id: 1
+                      name: Leo
+  /orders:
+    get:
+      operationId: listOrders
+      summary: An example whose one key is a property of the schema
+      tags: [things]
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarList"
+              example:
+                data:
+                  - id: 1
+                    name: Team
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Examples that miss the schema
+      tags: [things]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: An order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calendar"
+              examples:
+                good:
+                  value:
+                    id: 7
+                    name: Team
+                wrongType:
+                  value:
+                    id: seven
+                    name: Team
+                missing:
+                  value:
+                    id: 8
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calendar"
+              example:
+                id: 9
+                name: 12
+components:
+  schemas:
+    Calendar:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    CalendarList:
+      allOf:
+        - type: object
+          properties:
+            request_id:
+              type: string
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Calendar"

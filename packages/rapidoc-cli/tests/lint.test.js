@@ -52,6 +52,8 @@ test("rapidoc lint", async (t) => {
     assert.match(rules["operation-tag-defined"][0].message, /Tag "legacy"/);
     assert.match(rules["media-example"][0].message, /request body has no example/);
     assert.equal(rules["media-example"].length, 1, "the response has an example");
+    assert.match(rules["example-named-map"][0].message, /"Report example"/);
+    assert.match(rules["example-matches-schema"][0].message, /\/id must be string/);
     assert.match(rules["no-unused-components"][0].message, /#\/components\/schemas\/Unused/);
     assert.match(rules["security-defined"][0].message, /POST \/orderItems/);
     assert.equal(
@@ -243,4 +245,56 @@ test("rapidoc lint", async (t) => {
     assert.equal(unique.level, "error");
     assert.equal(unique.locations[0].physicalLocation.region.startLine, 37);
   });
+
+  const EXAMPLES = path.join(FIXTURES, "examples.yaml");
+
+  await t.test("example-named-map: an example written as a map of named examples", () => {
+    const { report } = json([EXAMPLES]);
+    const found = byRule(report)["example-named-map"];
+    assert.deepEqual(
+      found.map((problem) => problem.pointer),
+      [
+        "#/paths/~1calendars/get/responses/200/content/application~1json/example",
+        "#/paths/~1pets/get/responses/200/content/application~1json/example",
+      ],
+      "not /orders: its one key, data, is a property of the schema",
+    );
+    assert.match(found[0].message, /"Calendars response example"\): move it under examples/);
+    assert.match(found[1].message, /"Two pets"/, "an Example Object under the name");
+  });
+
+  await t.test("example-matches-schema: examples that miss their schema", () => {
+    const { report } = json([EXAMPLES]);
+    const found = byRule(report)["example-matches-schema"];
+    assert.deepEqual(
+      found.map((problem) => problem.message),
+      [
+        'example "wrongType" does not fit the schema: /id must be integer',
+        'example "missing" does not fit the schema: the value must have name',
+        "example does not fit the schema: /name must be string",
+      ],
+      "not the good example, and not the maps of named examples",
+    );
+    assert.equal(found[0].line, 88);
+  });
+
+  await t.test(
+    "example-matches-schema is skipped, with a note, where @rapidoc/mock is missing",
+    () => {
+      const env = { ...process.env, RAPIDOC_MOCK_MODULE: "@rapidoc/not-installed" };
+      const { report } = json([EXAMPLES], { env });
+      const rules = byRule(report);
+      assert.equal(rules["example-matches-schema"], undefined);
+      assert.equal(rules["example-named-map"].length, 2, "the other rules still run");
+
+      const pretty = run(["lint", EXAMPLES], { env });
+      assert.equal(pretty.status, 0);
+      assert.match(
+        pretty.stdout + pretty.stderr,
+        /Not run: example-matches-schema\. It needs @rapidoc\/mock/,
+      );
+      const off = run(["lint", EXAMPLES, "--rule", "example-matches-schema=off"], { env });
+      assert.doesNotMatch(off.stdout + off.stderr, /Not run/, "a rule that is off needs nothing");
+    },
+  );
 });

@@ -14,6 +14,7 @@ import { DEFAULT_STREAM_INTERVAL, parseStreamBody, streamKind, timedStream } fro
 
 export { tokenScopes } from "./auth.js";
 export { CONTROL_PREFIX } from "./control.js";
+export { exampleError } from "./examples.js";
 
 export const DEFAULT_PORT = 4010;
 

@@ -38,7 +38,8 @@ bundle/             # rapidoc bundle's engine, over loadFiles (imported only by 
 ├── dereference.js  # dereference: every $ref inlined; CycleError (with the chain) on a recursive one
 └── write.js        # formatFor (--format, else the output's extension), serialize (yaml without aliases, or json)
 lint/               # rapidoc lint's engine (imported only by that command)
-├── types.js        # @typedef Finding, Rule { name, description, default, on, check }, LintContext
+├── types.js        # @typedef Finding, Rule { name, description, default, on, check, needs? }, LintContext
+├── examples.js     # namedExampleMap: an `example` written as a map of named examples (both example rules use it)
 ├── rules/          # one file per rule, a pure (node, context) → Finding[]; index.js lists them in report order
 ├── traverse.js     # one walk of the bundled document, calling each rule on the node kinds in its `on`; context.resolve follows in-document $refs
 ├── config.js       # severities: --rule › lint.apis.<id> › lint.rules (rapidoc.config.* read as a plain file) › rule defaults; names checked with "did you mean"
@@ -65,9 +66,11 @@ lint/               # rapidoc lint's engine (imported only by that command)
   Ctrl+C): `tests/prompts.test.js`.
 - A taken port: `serve` and `mock` start first and call `startOnFreePort` (so their own checks, such as a
   missing build, come first); `dev` uses `choosePort`, since Astro moves to a free port itself.
-- A lint rule is one file in `lint/rules/`, exported as `{ name, description, default, on, check }`, added to
-  `rules/index.js`, tripped by `tests/fixtures/lint/messy.yaml` and passed by `clean.yaml` (the test
-  turns every rule on against both), and documented in rapi-portal-doc's `docs/tools/lint.md` table.
+- A lint rule is one file in `lint/rules/`, exported as `{ name, description, default, on, check }` (and
+  `needs: "mock"` when it can't run without `@rapidoc/mock`: `lint/run.js` loads the mock with `tryLoadMock()`
+  only when such a rule is on, passes it as `context.mock`, and without it skips the rule and prints which
+  rules were not run), added to `rules/index.js`, tripped by `tests/fixtures/lint/messy.yaml` and passed by `clean.yaml` (the test
+  turns every rule on against both), and documented in the rule table of `docs/src/content/docs/cli/lint.mdx` (rapi-portal-doc's `docs/tools/lint.md` links there) and of `design/spec-tooling.md`.
 - Don't import heavy modules at the top of a command file: every command module is loaded for help
   (`validate` imports `@scalar/openapi-parser` inside `run`).
 

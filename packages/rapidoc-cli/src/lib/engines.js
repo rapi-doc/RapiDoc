@@ -45,6 +45,9 @@ export async function loadServer() {
   return server;
 }
 
+/** The mock server's package, or null when it isn't installed (lint's rules that need it are then skipped). */
+export const tryLoadMock = () => tryImport(MOCK_MODULE);
+
 export async function loadMock() {
   const mock = await tryImport(MOCK_MODULE);
   if (!mock) {
