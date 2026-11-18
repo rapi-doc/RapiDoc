@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Portal layout baseline screenshots (npm run layout:baseline in packages/rapidoc-portal)
 packages/rapidoc-portal/tests/layout/screenshots/
+
+# RapiDoc Portal working folders (rapidoc dev and build write them next to the site)
+.rapidoc-temp/

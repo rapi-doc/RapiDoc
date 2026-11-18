@@ -31,6 +31,8 @@ rapidoc/
 │   ├── rapidoc-python/   # RapiDoc for Python web frameworks: FastAPI and Starlette (PyPI: rapidoc)
 │   └── rapidoc-dotnet/   # RapiDoc for ASP.NET Core (NuGet: RapiDoc.AspNetCore)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
+├── sites/
+│   └── rapi-mock/        # The Rapi Mock product and documentation site (mock.rapidocui.com), built with RapiDoc Portal
 ├── tests/
 │   ├── unit/             # Node.js built-in test runner unit tests (*.test.js)
 │   ├── component/        # Component-level tests
@@ -96,6 +98,11 @@ All agents must strictly adhere to the following system boundaries:
   - `@rapidoc/mcp` is RapiDoc's MCP code built for Node (the portal build and `@rapidoc/server` use it). Its source stays in `packages/rapidoc/src` (`utils/mcp-generator.js`, `utils/mcp/`, `utils/arazzo/`), shared with `<rapi-doc>`'s Export MCP Server button and `<rapi-flow>`; `packages/rapidoc-mcp` holds only the entry and build. That shared code is headless: `tests/unit/headless-boundary.test.js` fails if it imports Lit, elements, templates, styles or an unlisted package.
   - Internal dependency ranges are caret ranges on the current release (`rapidoc ^14.0.0` in the portal, the CLI, `@rapidoc/embed` and the docs-site integrations; the fixed group's own version between its packages; `rapipdf ^3.0.0` as the CLI's peer), never `*`. `changeset version` writes them (§6); the manifests hold the exact values.
 
+- **Rapi Mock site (`sites/rapi-mock`)**:
+  - The product and documentation site of the mock server, named **Rapi Mock**, for `mock.rapidocui.com`. Built with RapiDoc Portal from this repository's own `@rapidoc/cli` and `@rapidoc/portal` (`npm run dev:mock-site`, `npm run build:mock-site`); it is not an npm workspace and publishes nothing to npm.
+  - Its source lives here so a change to the mock and its documentation land in one pull request. A separate repository, `rapi-mock-doc`, only publishes the built site with GitHub Pages.
+  - It is where the mock's documentation grows. The mock pages of the Starlight site (`docs/src/content/docs/mocking/mock-server.mdx`) are to become a short summary that links to it; don't add new mock documentation there. Its own rules are in `sites/rapi-mock/AGENTS.md`.
+
 ### Build Artifact Hygiene
 
 - **Never commit generated build output**:
@@ -137,6 +144,7 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run build:rapidoc:dev` | `packages/rapidoc`    | Builds an unminified bundle with sourcemaps and console logs intact.                                                    |
 | `npm run build:size`        | `packages/rapidoc`    | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`.                                  |
 | `npm run build:docs`        | `docs`                | Builds the Astro Starlight documentation site to `docs/dist/`.                                                          |
+| `npm run build:mock-site`   | `sites/rapi-mock`     | Builds the Rapi Mock site to `sites/rapi-mock/dist/` with this repository's CLI and portal (`npm run dev:mock-site` previews it on port 4327). |
 | `npm run build:demo`        | `../rapi-portal-demo` | Builds `rapidoc`, then the sibling `rapi-portal-demo` checkout with the `rapidoc` CLI into `../rapi-portal-demo/dist/`. |
 | `npm run prerender:demo`    | Monorepo              | Runs `scripts/prerender-demo.mjs`.                                                                                      |
 
@@ -220,6 +228,7 @@ When executing tasks in this repository, follow these rules:
      - [`packages/rapidoc-docusaurus/AGENTS.md`](packages/rapidoc-docusaurus/AGENTS.md)
      - [`integrations/rapidoc-python/AGENTS.md`](integrations/rapidoc-python/AGENTS.md)
      - [`integrations/rapidoc-dotnet/AGENTS.md`](integrations/rapidoc-dotnet/AGENTS.md)
+     - [`sites/rapi-mock/AGENTS.md`](sites/rapi-mock/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.
 3. **No Unsolicited File Deletions**:
    - Preserve existing public specs (`docs/public/specs/`)
