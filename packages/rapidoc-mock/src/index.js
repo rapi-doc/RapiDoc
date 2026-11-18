@@ -4,6 +4,7 @@ import { getCookie } from "hono/cookie";
 import { METHODS as NODE_METHODS } from "node:http";
 import { serve } from "@hono/node-server";
 import { createAuth, createVerifier, problem } from "./auth.js";
+import { control, CONTROL_PREFIX } from "./control.js";
 import { createRouter } from "./engine/router.js";
 import { createResponder, itemValidator, parsePrefer } from "./responses.js";
 import { listOperations, loadSpec, pointerSegment, resolve } from "./spec.js";
@@ -11,6 +12,7 @@ import { createStateful, SESSION_HEADER } from "./stateful/handlers.js";
 import { DEFAULT_STREAM_INTERVAL, parseStreamBody, streamKind, timedStream } from "./stream.js";
 
 export { tokenScopes } from "./auth.js";
+export { CONTROL_PREFIX } from "./control.js";
 
 export const DEFAULT_PORT = 4010;
 
@@ -54,6 +56,10 @@ export async function createMockApp({
   const skipped = [];
   for (const api of apis) {
     try {
+      if (api.id === CONTROL_PREFIX)
+        throw new Error(
+          `/${CONTROL_PREFIX} is the mock's own control API; give the API another id`,
+        );
       const doc = await loadSpec(api.fullPath);
       const router = await createRouter(doc, { warn: (line) => warn(`${api.id}: ${line}`) });
       const operations = listOperations(doc);
@@ -115,6 +121,24 @@ export async function createMockApp({
       })),
     }),
   );
+  // The mock's own endpoints: health, and the stored records of the stateful mode (see control.js)
+  const controlHandler = async (c) => {
+    const url = new URL(c.req.url);
+    const response = await control(
+      {
+        method: c.req.method,
+        segments: url.pathname.split("/").filter(Boolean).slice(1).map(decodeURIComponent),
+        query: url.searchParams,
+        session: c.req.header(SESSION_HEADER),
+        body: () => c.req.json(),
+      },
+      loaded,
+    );
+    log(`${c.req.method} ${url.pathname}${url.search} → ${response.status} (control)`);
+    return send(response);
+  };
+  app.all(`/${CONTROL_PREFIX}`, controlHandler);
+  app.all(`/${CONTROL_PREFIX}/*`, controlHandler);
   for (const api of loaded) {
     const handler = (c) => handle(c, api, { log, warn, streamInterval });
     app.all(`/${api.id}`, handler);

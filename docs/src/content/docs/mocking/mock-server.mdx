@@ -69,6 +69,30 @@ curl -X POST localhost:4010/openapi/pets -H "X-Mock-Session: test-1" -H "Content
 
 A request with `Prefer: code=` or `Prefer: example=` gets that response as written, and nothing is stored. The data lives in memory and starts fresh on every run.
 
+### Reset and inspect the data
+
+The mock has its own endpoints under `/__mock`, beside the APIs, so a test in any language can prepare and check the data over HTTP:
+
+| Endpoint | What it does |
+| :--- | :--- |
+| `GET /__mock/health` | Ready check: `200` with the APIs served. Works without `--stateful` too. |
+| `POST /__mock/reset` | Puts the data back to what the mock started with. `?api=<id>` resets one API. |
+| `GET /__mock/state` | The stored records. Narrow it with `/<api id>`, `/<api id>/<Resource>` or `/<api id>/<Resource>/<key>`. |
+| `POST /__mock/snapshot` | Returns all stored records as one JSON document. `?api=<id>` for one API. |
+| `POST /__mock/restore` | Replaces the records with the document you send: a snapshot, or data your test wrote. |
+
+```bash
+# before each test
+curl -X POST localhost:4010/__mock/reset
+
+# after a call: was the pet stored?
+curl localhost:4010/__mock/state/openapi/Pet/11
+```
+
+The document of `snapshot` and `restore` is `{ "<api id>": { "<Resource>": [records] } }`. A restore replaces every resource of the APIs it names (a resource it leaves out becomes empty) and leaves other APIs alone. A record that lives under a parent without having a field for it carries the parent in `$parents`; keep that entry when you restore.
+
+With an `X-Mock-Session` header, each of these works on that session's data only. The endpoints are open to any caller: the mock is a development tool, so don't expose it publicly.
+
 :::note
 The stateful mode is new. It reads the spec's structure, so an operation it isn't sure about is answered as a plain mock, never guessed.
 :::

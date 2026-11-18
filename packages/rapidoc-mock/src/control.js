@@ -1,0 +1,180 @@
+/**
+ * The control API of the mock server, under `/__mock`: what a test in any language needs beside the mocked APIs.
+ *
+ *   GET  /__mock/health                         ready check; lists the APIs and which keep state
+ *   POST /__mock/reset[?api=<id>]               back to the seed data
+ *   GET  /__mock/state[/<api>[/<resource>[/<key>]]]   the stored records, for assertions
+ *   POST /__mock/snapshot[?api=<id>]            the stored records, as a document `restore` takes
+ *   POST /__mock/restore                        replaces the records of the APIs the document names
+ *
+ * All but `health` work on the state `--stateful` keeps, and on the caller's session when the request has an
+ * `X-Mock-Session` header. A state document is `{ "<api id>": { "<Resource>": [records] } }`. A record of a
+ * nested resource whose own fields don't name its parent carries it under `$parents` (see stateful/handlers.js):
+ * a restore needs it to put the record back under the same parent.
+ *
+ * Nothing here is protected: the mock is a development tool, and these endpoints change only its own data.
+ */
+import { problem } from "./auth.js";
+
+/** The path prefix of the control API; no API may use it as its id. */
+export const CONTROL_PREFIX = "__mock";
+
+const json = (data, status = 200) => ({
+  status,
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data, null, 2),
+});
+const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
+
+/**
+ * Answers a control request.
+ *
+ * @param {object} request
+ * @param {string} request.method - Upper case
+ * @param {string[]} request.segments - The path after `/__mock`, split and decoded
+ * @param {URLSearchParams} request.query
+ * @param {string} [request.session] - The X-Mock-Session header
+ * @param {() => Promise<unknown>} request.body - Reads the JSON body
+ * @param {{ id: string, state: object | null }[]} apis - The loaded APIs
+ * @returns {Promise<{ status: number, headers: object, body: string | null }>}
+ */
+export async function control({ method, segments, query, session, body }, apis) {
+  const [action, ...rest] = segments;
+  const stateful = apis.filter((api) => api.state);
+  const view = (api) => api.state.store.session(session || undefined);
+  const allow = (expected) =>
+    method === expected
+      ? null
+      : problem(405, "Method Not Allowed", `/${CONTROL_PREFIX}/${action} accepts ${expected}.`, {
+          Allow: expected,
+        });
+
+  if (action === "health" && !rest.length) {
+    return (
+      allow("GET") ??
+      json({
+        status: "ok",
+        apis: apis.map((api) => ({ id: api.id, stateful: Boolean(api.state) })),
+      })
+    );
+  }
+  if (!["reset", "state", "snapshot", "restore"].includes(action)) {
+    return problem(
+      404,
+      "Not Found",
+      `No control endpoint at /${[CONTROL_PREFIX, ...segments].join("/")}. There are: health, reset, state, snapshot, restore.`,
+    );
+  }
+  if (!stateful.length) {
+    return problem(
+      409,
+      "No state",
+      "No API keeps state. Start the mock with --stateful (createMockApp({ stateful: true })).",
+    );
+  }
+  /** The stateful API with an id, or a problem response. */
+  const find = (id) =>
+    stateful.find((api) => api.id === id) ||
+    problem(
+      404,
+      "Not Found",
+      `No API with state named ${id}. There are: ${stateful.map((api) => api.id).join(", ")}.`,
+    );
+  /** The APIs a request is about: the one `?api=` names, else all. */
+  const chosen = () => {
+    if (!query.has("api")) return stateful;
+    const api = find(query.get("api"));
+    return api.state ? [api] : api;
+  };
+  const document = (list) => Object.fromEntries(list.map((api) => [api.id, view(api).snapshot()]));
+
+  if (action === "reset" && !rest.length) {
+    const wrong = allow("POST");
+    if (wrong) return wrong;
+    const list = chosen();
+    if (!Array.isArray(list)) return list;
+    for (const api of list) view(api).reset();
+    return { status: 204, headers: {}, body: null };
+  }
+
+  if (action === "snapshot" && !rest.length) {
+    const wrong = allow("POST");
+    if (wrong) return wrong;
+    const list = chosen();
+    return Array.isArray(list) ? json(document(list)) : list;
+  }
+
+  if (action === "restore" && !rest.length) {
+    const wrong = allow("POST");
+    if (wrong) return wrong;
+    let data;
+    try {
+      data = await body();
+    } catch {
+      return problem(400, "Bad Request", "The request body is not valid JSON.");
+    }
+    const shape =
+      isObject(data) &&
+      Object.values(data).every(
+        (collections) =>
+          isObject(collections) &&
+          Object.values(collections).every(
+            (records) => Array.isArray(records) && records.every(isObject),
+          ),
+      );
+    if (!shape) {
+      return problem(
+        400,
+        "Bad Request",
+        'The body must be a state document: { "<api id>": { "<Resource>": [records] } }, as /__mock/snapshot returns.',
+      );
+    }
+    // Everything is checked before anything is replaced: a bad document changes nothing
+    const targets = [];
+    for (const [id, collections] of Object.entries(data)) {
+      const api = find(id);
+      if (!api.state) return api;
+      const unknown = Object.keys(collections).find(
+        (name) => !api.state.store.names.includes(name),
+      );
+      if (unknown) {
+        return problem(
+          400,
+          "Bad Request",
+          `${id} has no resource ${unknown}. There are: ${api.state.store.names.join(", ")}.`,
+        );
+      }
+      targets.push([api, collections]);
+    }
+    for (const [api, collections] of targets) view(api).restore(collections);
+    return { status: 204, headers: {}, body: null };
+  }
+
+  if (action === "state" && rest.length <= 3) {
+    const wrong = allow("GET");
+    if (wrong) return wrong;
+    const [id, resource, key] = rest;
+    if (id === undefined) return json(document(stateful));
+    const api = find(id);
+    if (!api.state) return api;
+    if (resource === undefined) return json(view(api).snapshot());
+    if (!api.state.store.names.includes(resource)) {
+      return problem(
+        404,
+        "Not Found",
+        `${id} has no resource ${resource}. There are: ${api.state.store.names.join(", ")}.`,
+      );
+    }
+    if (key === undefined) return json(view(api).list(resource).records);
+    const record = view(api).get(resource, key);
+    return record === undefined
+      ? problem(404, "Not Found", `No ${resource} with key ${key} in ${id}.`)
+      : json(record);
+  }
+
+  return problem(
+    404,
+    "Not Found",
+    `No control endpoint at /${[CONTROL_PREFIX, ...segments].join("/")}.`,
+  );
+}

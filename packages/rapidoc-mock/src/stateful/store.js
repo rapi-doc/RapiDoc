@@ -22,6 +22,8 @@ export function createStore(resources) {
   const names = Object.keys(resources);
   /** @type {Map<string, Map<string, object>>} the seed state: collection -> key -> record */
   let seed = new Map(names.map((name) => [name, new Map()]));
+  /** The seed state as `load` left it: what a reset of the default state goes back to. */
+  let initial = seed;
   /** @type {Map<string, Map<string, Map<string, object>>>} session id -> its own state */
   const sessions = new Map();
 
@@ -109,9 +111,25 @@ export function createStore(resources) {
       remove(name, key) {
         return collection(writing(), name).delete(keyOf(key));
       },
-      /** Back to the seed state (a session drops its copy). */
+      /** Back to the loaded data: a session drops its copy, the default state undoes its writes. */
       reset() {
         if (id !== undefined) sessions.delete(id);
+        else seed = cloneState(initial);
+      },
+      /**
+       * Replaces this view's records with the given ones (a snapshot, or data a test wrote): every collection,
+       * the ones `data` leaves out become empty. A later `reset` still goes back to the loaded data.
+       * @param {Record<string, object[]>} data
+       */
+      restore(data) {
+        const unknown = Object.keys(data).filter((name) => !names.includes(name));
+        if (unknown.length) throw new Error(`Unknown collection "${unknown[0]}"`);
+        const state = new Map(names.map((name) => [name, new Map()]));
+        if (id === undefined) seed = state;
+        else sessions.set(id, state);
+        for (const name of names) {
+          for (const record of data[name] || []) this.insert(name, record);
+        }
       },
       /** The whole state as plain data: `{ Pet: [...], Order: [...] }`. */
       snapshot() {
@@ -135,6 +153,7 @@ export function createStore(resources) {
       for (const name of names) {
         for (const record of data[name] || []) state.insert(name, record);
       }
+      initial = cloneState(seed);
     },
     session: view,
     /** How many sessions hold their own state. */
