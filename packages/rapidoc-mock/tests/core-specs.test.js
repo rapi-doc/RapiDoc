@@ -49,7 +49,7 @@ const BASELINE = {
     resources: 34,
   },
   "immich.json": { operations: 290, confident: 79, needsReview: 33, plainMock: 178, resources: 36 },
-  "nylas.json": { operations: 244, confident: 116, needsReview: 52, plainMock: 76, resources: 38 },
+  "nylas.json": { operations: 244, confident: 128, needsReview: 44, plainMock: 72, resources: 38 },
   "apicurio-registry.json": {
     operations: 64,
     confident: 13,

@@ -139,6 +139,24 @@ describe("rapidoc mock --stateful", () => {
     assert.deepEqual(read.body.data, created.body.data);
   });
 
+  it("stores a record created under a parent, and lists it there only", async () => {
+    const created = await call("POST", "/ny/v3/grants/g-1/calendars", { name: "Team" });
+    assert.equal(created.status, 200);
+    const calendar = created.body.data;
+    assert.equal(calendar.name, "Team");
+    assert.equal(calendar.grant_id, "g-1");
+
+    const read = await call("GET", `/ny/v3/grants/g-1/calendars/${calendar.id}`);
+    assert.deepEqual(read.body.data, calendar);
+    const list = await call("GET", "/ny/v3/grants/g-1/calendars");
+    assert.deepEqual(
+      list.body.data.map((item) => item.id),
+      [calendar.id],
+    );
+    const elsewhere = await call("GET", "/ny/v3/grants/g-2/calendars");
+    assert.equal(elsewhere.body.data.length, 0);
+  });
+
   it("reads the record out of a request's envelope", async () => {
     const created = await call("POST", "/rw/articles", {
       article: { title: "Hello", description: "A greeting", body: "Hello, world" },

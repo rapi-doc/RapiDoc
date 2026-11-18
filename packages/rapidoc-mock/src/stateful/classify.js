@@ -37,6 +37,12 @@ const ENVELOPE_PROPS = ["data", "result", "item", "payload"];
 /** Fields that sit beside the records in an envelope: counts, paging and request details. */
 const ENVELOPE_META =
   /count|total|page|cursor|next|prev|offset|limit|size|more|request_?id|status|meta|links?$/i;
+/** Query parameters of a list that page, sort or shape the answer: they pick no records by a field. */
+const NOT_A_FILTER = new Set(
+  "page limit offset size pagesize perpage sort sortby sortorder order orderby orderdirection cursor pagetoken prevpagetoken nextpagetoken select fields".split(
+    " ",
+  ),
+);
 const JSON_TYPE = /json/i;
 
 const lower = (text) => String(text || "").toLowerCase();
@@ -50,6 +56,8 @@ function pathShape(path) {
     shape: `/${segments.map((s, i) => (params[i] ? "{}" : s)).join("/")}`,
   };
 }
+/** The shape one segment up: `/apps/{}/keys/{}` -> `/apps/{}/keys`. */
+const parentOf = (shape) => shape.slice(0, shape.lastIndexOf("/")) || "/";
 
 /** The schema of the first JSON media type (else the first media type) of a `content` map. */
 export function contentSchema(doc, content) {
@@ -290,7 +298,7 @@ export function classifySpec(doc) {
     if (isSubAction(op)) continue;
     const isWrite = op.method === "post" || op.method === "put" || op.method === "patch";
     const shapes = lastIsParam
-      ? [op.shape, `/${op.segments.slice(0, -1).join("/")}`]
+      ? [op.shape, parentOf(op.shape)]
       : isWrite || op.response.many
         ? [op.shape] // `/pet/findByStatus` lists the resource of `/pet`; `/pets` lists its own
         : [];
@@ -306,7 +314,7 @@ export function classifySpec(doc) {
     const votes = shapeEntity.get(shape);
     if (votes) return [...votes].sort((a, b) => b[1] - a[1])[0][0];
     // An item path nothing names (only a DELETE there) holds what its collection holds
-    return shape.endsWith("/{}") ? winner(shape.slice(0, -3) || "/") : undefined;
+    return shape.endsWith("/{}") ? winner(parentOf(shape)) : undefined;
   };
 
   // Pass 3: resources, with their paths and keys
@@ -341,16 +349,43 @@ export function classifySpec(doc) {
     }
   }
 
+  // A schema that is part of a resource's schema, or built on it, describes the same record: Nylas lists
+  // `calendar_common` and reads `calendar` (`allOf: [calendar_common, ...]`). Such an entity stands for that
+  // resource wherever an operation names it.
+  const partsOf = (name, depth = 0) => {
+    const parts = new Set();
+    if (depth > 4) return parts;
+    for (const part of schemas[name]?.allOf || []) {
+      const ref = entity(decodeURIComponent(String(part.$ref || "").match(SCHEMA_REF)?.[1] || ""));
+      if (!ref || parts.has(ref)) continue;
+      parts.add(ref);
+      for (const inner of partsOf(ref, depth + 1)) parts.add(inner);
+    }
+    return parts;
+  };
+  const resourceOf = (name) => {
+    if (!name || resources[name]) return name;
+    const same = Object.keys(resources).filter(
+      (resource) => partsOf(resource).has(name) || partsOf(name).has(resource),
+    );
+    return same.length === 1 ? same[0] : name;
+  };
+  for (const op of facts) {
+    op.request.entity = resourceOf(op.request.entity);
+    op.response.entity = resourceOf(op.response.entity);
+  }
+
   // Pass 4: each operation's action
   const operations = {};
   for (const op of facts) {
     const lastParam = op.params.at(-1);
     const subAction = isSubAction(op);
-    const parentShape = `/${op.segments.slice(0, -1).join("/")}`;
-    const name =
+    const parentShape = parentOf(op.shape);
+    const name = resourceOf(
       winner(op.shape) ||
-      (!lastParam && !subAction && op.response.many ? op.response.entity : undefined) ||
-      (!lastParam && !subAction ? winner(parentShape) : undefined);
+        (!lastParam && !subAction && op.response.many ? op.response.entity : undefined) ||
+        (!lastParam && !subAction ? winner(parentShape) : undefined),
+    );
     const resource = name && resources[name] ? name : undefined;
     const entry = (action, extra = {}) => ({ resource, action, ...extra });
     const queryNames = op.parameters.filter((p) => p.in === "query").map((p) => p.name);
@@ -398,8 +433,7 @@ export function classifySpec(doc) {
           notes.push(`${q} holds ${inner.name} objects; assumed to match on their name`);
         } else if (inner.name) unmatched.push(q);
         else if (fields.includes(q)) filter[q] = `query.${q}`;
-        else if (!/^(page|limit|offset|size|pagesize|per_page|sort|order|cursor)$/i.test(q))
-          unmatched.push(q);
+        else if (!NOT_A_FILTER.has(nameKey(q))) unmatched.push(q);
       }
       result = entry("list", {
         ...(Object.keys(filter).length ? { filter } : {}),

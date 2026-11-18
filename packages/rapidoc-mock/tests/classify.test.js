@@ -219,6 +219,58 @@ describe("classifySpec: names", () => {
     assert.equal(model.operations.revoke.action, "none");
   });
 
+  it("takes a schema that is part of a resource's schema for that resource, under a parent path", () => {
+    const common = {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        grant_id: { type: "string" },
+        name: { type: "string" },
+      },
+    };
+    const data = (schema) => json({ type: "object", properties: { data: schema } });
+    const model = classifySpec(
+      spec(
+        {
+          "/grants/{grant_id}/calendars": {
+            get: {
+              operationId: "list",
+              parameters: [
+                { name: "page_token", in: "query", schema: { type: "string" } },
+                { name: "select", in: "query", schema: { type: "string" } },
+              ],
+              responses: { 200: data({ type: "array", items: ref("calendar_common") }) },
+            },
+            post: {
+              operationId: "create",
+              requestBody: json({ type: "object", properties: { name: { type: "string" } } }),
+              responses: { 200: data(ref("calendar")) },
+            },
+          },
+          "/grants/{grant_id}/calendars/{calendar_id}": {
+            get: { operationId: "read", responses: { 200: data(ref("calendar")) } },
+          },
+        },
+        {
+          calendar_common: common,
+          calendar: {
+            allOf: [ref("calendar_common"), { properties: { notes: { type: "string" } } }],
+          },
+        },
+      ),
+    );
+    assert.deepEqual(model.resources, {
+      calendar: { path: "/grants/{}/calendars/{}", key: "id" },
+    });
+    // the list returns the common part, and its paging parameters are no filters: nothing to review
+    assert.deepEqual(model.operations.list, {
+      resource: "calendar",
+      action: "list",
+      listProperty: "data",
+    });
+    assert.deepEqual(model.operations.create, { resource: "calendar", action: "create" });
+  });
+
   it("maps an inline list, an item path with only a DELETE, and a create named by its response", () => {
     const comment = {
       type: "object",
