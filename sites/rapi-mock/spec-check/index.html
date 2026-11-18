@@ -223,7 +223,7 @@
         padding: 40px 24px;
       }
       #findings {
-        flex: 0 0 min(440px, 100%);
+        flex: 0 0 min(520px, 100%);
         display: flex;
         flex-direction: column;
         border-left: 1px solid var(--line);
@@ -240,12 +240,124 @@
       #findings h2 {
         font-size: 16px;
       }
-      #findings ol {
+      #findings .scroll {
         flex: 1;
         overflow-y: auto;
+      }
+      #findings ol {
         margin: 0;
         padding: 0;
         list-style: none;
+      }
+      /* The summary: categories, each opening to its rules; a row filters the list under it */
+      #summary {
+        padding: 12px 8px 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      #summary .total {
+        margin: 0 8px 10px;
+        color: var(--muted);
+      }
+      #summary .total strong {
+        color: var(--strong);
+        font-size: 22px;
+        font-weight: 500;
+        margin-right: 4px;
+      }
+      #summary summary {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+      #summary summary::-webkit-details-marker {
+        display: none;
+      }
+      #summary summary::before {
+        content: "▸";
+        flex: none;
+        width: 16px;
+        text-align: center;
+        color: var(--muted);
+      }
+      #summary details[open] > summary::before {
+        content: "▾";
+      }
+      #summary .pick {
+        flex: 1;
+        min-width: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 70px 40px 64px 92px;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 8px;
+        border: 0;
+        border-radius: 3px;
+        text-align: left;
+        white-space: normal;
+      }
+      #summary .pick:hover {
+        background: var(--card);
+      }
+      #summary details > .pick {
+        width: calc(100% - 16px);
+        margin-left: 16px;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      #summary details > .pick .label {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        overflow-wrap: anywhere;
+      }
+      #summary summary .label {
+        color: var(--strong);
+      }
+      .meter {
+        height: 6px;
+        border-radius: 3px;
+        background: var(--inset);
+        overflow: hidden;
+      }
+      .meter span {
+        display: block;
+        height: 100%;
+        background: var(--ok);
+      }
+      .share,
+      .errors,
+      .warnings,
+      .clean {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        font-size: 12.5px;
+      }
+      .errors {
+        color: var(--warn);
+      }
+      .warnings {
+        color: var(--primary);
+      }
+      .clean {
+        color: var(--ok);
+      }
+      #list-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+        background: var(--sidebar);
+      }
+      #list-title strong {
+        color: var(--strong);
+        font-weight: 500;
+      }
+      #list-title button {
+        padding: 2px 10px;
       }
       #findings li {
         padding: 10px 16px;
@@ -341,7 +453,11 @@
             <span class="grow"></span>
             <button id="close-findings">Close</button>
           </header>
-          <ol id="list"></ol>
+          <div class="scroll">
+            <div id="summary"></div>
+            <div id="list-title"></div>
+            <ol id="list"></ol>
+          </div>
         </aside>
       </div>
     </div>

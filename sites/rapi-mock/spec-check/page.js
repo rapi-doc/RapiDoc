@@ -61,6 +61,119 @@ function showStart(problem = "") {
   $("check").textContent = "Check this spec";
 }
 
+const number = (value) => value.toLocaleString("en");
+const count = (value, word) => `${number(value)} ${word}${value === 1 ? "" : "s"}`;
+/** How much of what was looked at passed, as a whole percentage that only says 100% when it is. */
+const share = ({ checked, passed }) =>
+  `${passed === checked ? 100 : Math.min(99, Math.floor((100 * passed) / checked))}%`;
+
+/** The findings a filter keeps: all of them, a category's (`{ rules }`) or one rule's (`{ rule }`). */
+let filter = null;
+let shown = { problems: [], summary: null };
+
+/** The lint result by category: what share passed, the errors and the warnings; a click filters the list. */
+function showSummary(summary) {
+  const box = $("summary");
+  box.replaceChildren();
+  box.hidden = !summary;
+  if (!summary) return;
+  if (summary.checked) {
+    const total = node("p", undefined, { class: "total" });
+    total.append(
+      node("strong", share(summary)),
+      ` of ${number(summary.checked)} checks passed. Each check is one rule on one operation, body or tag.`,
+    );
+    box.append(total);
+  }
+  const row = (one, { label, title, pick }) => {
+    const button = node("button", undefined, { class: "pick", title });
+    const measured = one.checked !== undefined;
+    const bar = node("span", undefined, { class: "meter", "aria-hidden": "true" });
+    if (measured && one.checked) {
+      const fill = node("span");
+      fill.style.width = `${(100 * one.passed) / one.checked}%`;
+      bar.append(fill);
+    }
+    button.append(
+      node("span", label, { class: "label" }),
+      measured && one.checked ? bar : node("span"),
+      node("span", measured && one.checked ? share(one) : "", { class: "share" }),
+      node("span", one.errors ? count(one.errors, "error") : "", { class: "errors" }),
+      node("span", one.warnings ? count(one.warnings, "warning") : one.errors ? "" : "clean", {
+        class: one.warnings ? "warnings" : "clean",
+      }),
+    );
+    button.addEventListener("click", () => {
+      filter = pick;
+      showList(shown.problems, shown.summary);
+    });
+    return button;
+  };
+  for (const category of summary.categories) {
+    const group = node("details");
+    const head = node("summary");
+    head.append(
+      row(category, {
+        label: category.title,
+        title: `${category.title}: ${category.about}`,
+        pick: { title: category.title, rules: category.rules.map((one) => one.name) },
+      }),
+    );
+    group.append(head);
+    // a click on the category also opens it, to show its rules
+    head.firstChild.addEventListener("click", (event) => {
+      event.preventDefault();
+      group.open = true;
+    });
+    for (const rule of category.rules)
+      group.append(
+        row(rule, {
+          label: rule.name,
+          title: rule.description,
+          pick: { title: rule.name, rules: [rule.name] },
+        }),
+      );
+    box.append(group);
+  }
+}
+
+/** The findings, all or what the filter keeps. */
+function showList(problems, summary) {
+  shown = { problems, summary };
+  const kept = filter ? problems.filter((one) => filter.rules.includes(one.rule)) : problems;
+  const head = $("list-title");
+  head.replaceChildren(
+    node(
+      "strong",
+      filter ? `${filter.title} (${number(kept.length)})` : `All findings (${number(kept.length)})`,
+    ),
+  );
+  if (filter) {
+    const all = node("button", "Show all");
+    all.addEventListener("click", () => {
+      filter = null;
+      showList(problems, summary);
+    });
+    head.append(all);
+  }
+  $("list").replaceChildren(
+    ...kept.map((one) => {
+      const item = node("li");
+      const meta = node("div", undefined, { class: "meta" });
+      meta.append(
+        node("span", one.severity, { class: `severity ${one.severity}` }),
+        node("code", one.rule),
+        node("span", `line ${one.line}`),
+      );
+      item.append(meta, node("div", one.message));
+      if (one.pointer.length)
+        item.append(node("code", one.pointer.join(" › "), { class: "where muted" }));
+      return item;
+    }),
+  );
+  if (!kept.length) $("list").append(node("li", "Nothing found here.", { class: "muted" }));
+}
+
 function showFindings(open) {
   $("findings").hidden = !open;
   $("lint").setAttribute("aria-expanded", String(open));
@@ -73,6 +186,7 @@ async function run({ text, name }) {
   $("check").textContent = "Checking…";
   // let the button show before the work starts: a large spec takes a few seconds
   await new Promise((resolve) => setTimeout(resolve, 20));
+  filter = null;
   let checked;
   try {
     checked = await checkSpec(text, { id: idFrom(name || "") });
@@ -83,6 +197,7 @@ async function run({ text, name }) {
 
   const errors = checked.problems.filter((one) => one.severity === "error").length;
   const warnings = checked.problems.length - errors;
+  const summary = checked.summary;
   $("name").textContent = checked.title || name || "your spec";
   $("version").textContent = [
     checked.version && `OpenAPI ${checked.version}`.replace("OpenAPI Swagger", "Swagger"),
@@ -90,29 +205,16 @@ async function run({ text, name }) {
   ]
     .filter(Boolean)
     .join(" · ");
-  const what = checked.linted ? "Lint" : "Not valid OpenAPI";
-  $("lint").textContent = checked.problems.length
-    ? `${what}: ${errors} error(s), ${warnings} warning(s)`
-    : "Lint: no findings";
-  $("lint").className = errors ? "count error" : checked.problems.length ? "count" : "count ok";
-  $("lint").disabled = !checked.problems.length;
-  $("findings-title").textContent = checked.linted
-    ? `Lint findings (${checked.problems.length})`
-    : `Not valid OpenAPI (${checked.problems.length})`;
-  $("list").replaceChildren(
-    ...checked.problems.map((one) => {
-      const item = node("li");
-      const meta = node("div", undefined, { class: "meta" });
-      meta.append(
-        node("span", one.severity, { class: `severity ${one.severity}` }),
-        node("code", one.rule),
-        node("span", `line ${one.line}`),
-      );
-      item.append(meta, node("div", one.message));
-      if (one.pointer.length) item.append(node("code", one.pointer.join(" › "), { class: "where muted" }));
-      return item;
-    }),
-  );
+  const counts = `${count(errors, "error")}, ${count(warnings, "warning")}`;
+  $("lint").textContent = !checked.linted
+    ? `Not valid OpenAPI: ${counts}`
+    : summary.checked
+      ? `Lint: ${share(summary)} of checks passed · ${counts}`
+      : `Lint: ${counts}`;
+  $("lint").className = errors ? "count error" : "count";
+  $("findings-title").textContent = checked.linted ? "Lint" : "Not valid OpenAPI";
+  showSummary(summary);
+  showList(checked.problems, summary);
 
   if (checked.mock) {
     // the same Mock UI the server serves, reading the mock that runs in this page
@@ -135,7 +237,7 @@ async function run({ text, name }) {
       ),
     );
     $("ui").replaceChildren(note);
-    showFindings(checked.problems.length > 0);
+    showFindings(true);
   }
   $("start").hidden = true;
   $("result").hidden = false;
