@@ -17,7 +17,7 @@
 - **No dependency on `@rapidoc/portal` or Astro.** The CLI reads `apis:` with `loadConfig` and passes `{ id, fullPath, title }`; this package only reads spec files.
 - **Libraries stay behind the adapters in `src/engine/`.** `router.js` is the only file importing openapi-backend (`match`, `validate`); `faker.js` the only one importing json-schema-faker (`fake(schema, seed)`). `values.js` is the only one importing @faker-js/faker (`valuesFor(seed)`, `WORDS`). Swap a library there and keep the interface; everything else works on the bundled OpenAPI document.
 - **No `rapidoc.config.yaml` keys.** Settings are CLI options and `RAPIDOC_MOCK_*` variables. Adding a config key (e.g. `mock:`) is a config contract change: ask first.
-- **`mock.config.yaml` is the stateful mode's own file** (the user's corrections: `resources.<Name>.key`, `operations.<id>` with `resource`, `action`, `key`; under `apis.<id>` for several APIs). Its keys are a contract too: ask before adding one. This package takes it parsed (`stateful.config`); the CLI finds and reads the file, so the mock needs no YAML parser of its own.
+- **`mock.config.yaml` is the stateful mode's own file** (the user's corrections: `resources.<Name>.key`, `operations.<id>` with `resource`, `action`, `key`; under `apis.<id>` for several APIs; `version: 1`, optional, names the format: bump `CONFIG_VERSION` only for a change that would misread an older file). Its keys are a contract too: ask before adding one. This package takes it parsed (`stateful.config`); the CLI finds and reads the file, so the mock needs no YAML parser of its own.
 - **The CLI loads this package lazily** (an optional peer); never import it at the top of the CLI.
 
 ---

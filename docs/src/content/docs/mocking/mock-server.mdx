@@ -75,6 +75,8 @@ The mock reads the data model off the spec, and some APIs don't show it the way 
 
 ```yaml
 # mock.config.yaml
+version: 1
+
 resources:
   Pod:
     key: metadata.name # the field that tells one record from another
@@ -92,6 +94,7 @@ operations:
 - **`operations.<id>`** says what an operation does: `resource`, `action` (`list`, `create`, `createMany`, `read`, `update`, `patch`, `delete`, or `none`), and `key` for the ones that work on one record.
 - **What you state is taken as stated.** It is no longer labelled Needs review.
 - **With several APIs,** put the same two sections under `apis.<api id>`.
+- **`version: 1`** says which format the file is in. It is optional today, and worth writing: it lets a later format be told from this one.
 
 The file is looked for in the folder being mocked, beside the first spec, then in the current folder; `--mock-config <file>` names another. It is read with `--stateful` only.
 
