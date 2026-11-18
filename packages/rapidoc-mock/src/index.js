@@ -5,6 +5,7 @@ import { METHODS as NODE_METHODS } from "node:http";
 import { serve } from "@hono/node-server";
 import { createAuth, createVerifier, problem } from "./auth.js";
 import { control, CONTROL_PREFIX } from "./control.js";
+import { serveUi } from "./ui.js";
 import { createRouter } from "./engine/router.js";
 import { createResponder, itemValidator, parsePrefer } from "./responses.js";
 import { listOperations, loadSpec, pointerSegment, resolve } from "./spec.js";
@@ -124,10 +125,14 @@ export async function createMockApp({
   // The mock's own endpoints: health, and the stored records of the stateful mode (see control.js)
   const controlHandler = async (c) => {
     const url = new URL(c.req.url);
+    const segments = url.pathname.split("/").filter(Boolean).slice(1).map(decodeURIComponent);
+    if (segments[0] === "ui" && c.req.method === "GET") {
+      return send(await serveUi(segments.slice(1), url.pathname.endsWith("/")));
+    }
     const response = await control(
       {
         method: c.req.method,
-        segments: url.pathname.split("/").filter(Boolean).slice(1).map(decodeURIComponent),
+        segments,
         query: url.searchParams,
         session: c.req.header(SESSION_HEADER),
         body: () => c.req.json(),

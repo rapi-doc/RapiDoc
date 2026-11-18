@@ -62,6 +62,8 @@ Applied preferences come back in `Preference-Applied`. `GET /` lists the APIs se
 - An `X-Mock-Session` header gives a caller its own copy of the data, so parallel tests don't see each other's changes.
 - `Prefer: code=` and `Prefer: example=` return that response as written; nothing is stored.
 
+`/__mock/ui` is a page that shows each API's resources with their records, and every operation with its label (confident, needs review, plain mock), with a reset button. `GET /__mock/model` returns the same as JSON.
+
 The mock's own endpoints are under `/__mock`: `GET /__mock/health` (ready check), `POST /__mock/reset` (back to the seed data; `?api=<id>` for one API), `GET /__mock/state[/<api>[/<Resource>[/<key>]]]` (the stored records), `POST /__mock/snapshot` and `POST /__mock/restore` (the records as one document, `{ "<api id>": { "<Resource>": [records] } }`, out and back in). With an `X-Mock-Session` header they work on that session's data. An API can't have the id `__mock`.
 
 Data is in memory and starts fresh on every run; the same spec and `--seed` give the same records. As a library: `createMockApp({ apis, stateful: true })` or `stateful: { rows: 25 }`.
