@@ -75,7 +75,8 @@ test("rapidoc completion", async (t) => {
       "pretty",
       "sarif",
     ]);
-    assert.deepEqual(bashComplete(script, ["rapidoc", "lint", "--st"]), ["--strict"]);
+    assert.deepEqual(bashComplete(script, ["rapidoc", "lint", "--st"]), ["--stateful", "--strict"]);
+    assert.deepEqual(bashComplete(script, ["rapidoc", "lint", "--str"]), ["--strict"]);
     assert.deepEqual(bashComplete(script, ["rapidoc", "init", "--no-"]), ["--no-install"]);
     assert.deepEqual(bashComplete(script, ["rapidoc", "mcp", ""]), ["export", "serve"]);
     assert.deepEqual(bashComplete(script, ["rapidoc", "help", "bu"]), ["build", "bundle"]);

@@ -38,7 +38,9 @@ test("rapidoc lint", async (t) => {
     const { result, report } = json([MESSY, "--strict", ...EVERY_RULE_ON]);
     assert.equal(result.status, 1);
     const rules = byRule(report);
-    for (const rule of RULES) assert.ok(rules[rule.name], `${rule.name} found nothing`);
+    // the stateful mock's rules have a fixture of their own (stateful.yaml, below)
+    for (const rule of RULES.filter((one) => !one.name.startsWith("stateful-")))
+      assert.ok(rules[rule.name], `${rule.name} found nothing`);
 
     const unique = rules["operation-operationId-unique"][0];
     assert.equal(unique.severity, "warning", "--rule made it a warning");
@@ -297,4 +299,63 @@ test("rapidoc lint", async (t) => {
       assert.doesNotMatch(off.stdout + off.stderr, /Not run/, "a rule that is off needs nothing");
     },
   );
+
+  const STATEFUL = path.join(FIXTURES, "stateful.yaml");
+  const STATEFUL_RULES = RULES.filter((rule) => rule.name.startsWith("stateful-"));
+
+  await t.test("--stateful reports what the stateful mock assumed or could not map", () => {
+    const quietRun = json([STATEFUL]);
+    assert.equal(quietRun.report.items[0].problems.length, 0, "off without --stateful");
+
+    const { result, report } = json([STATEFUL, "--stateful"]);
+    assert.equal(result.status, 0, "warnings");
+    const rules = byRule(report);
+    for (const rule of STATEFUL_RULES.filter((one) => one.withStateful))
+      assert.ok(rules[rule.name], `${rule.name} found nothing`);
+    assert.equal(rules["stateful-relation-assumed"], undefined, "not part of --stateful");
+
+    assert.match(
+      rules["stateful-list-filter"][0].message,
+      /GET \/pets: query parameter color matches no field of Pet/,
+    );
+    assert.equal(rules["stateful-list-filter"][0].line, 12);
+    assert.equal(rules["stateful-list-filter"].length, 1, "limit pages the list: no finding");
+    assert.match(
+      rules["stateful-write-unmapped"][0].message,
+      /DELETE \/sessions\/\{id\} fits no resource/,
+    );
+    assert.match(
+      rules["stateful-resource-key"][0].message,
+      /Widget: no key field found for \{code\}/,
+    );
+    assert.equal(
+      rules["stateful-reference-target"][0].pointer,
+      "#/components/schemas/Pet/properties/shelter_id",
+    );
+    assert.equal(rules["stateful-response-unnamed"].length, 2, "the list and the item of /keys");
+    assert.match(rules["stateful-operation-assumed"][0].message, /POST on an item path/);
+  });
+
+  await t.test(
+    "--stateful gives way to a severity set by name; a stateful rule works without it",
+    () => {
+      const off = json([STATEFUL, "--stateful", "--rule", "stateful-list-filter=off"]);
+      assert.equal(byRule(off.report)["stateful-list-filter"], undefined);
+      const error = json([STATEFUL, "--stateful", "--rule", "stateful-resource-key=error"]);
+      assert.equal(error.result.status, 1);
+
+      const one = json([STATEFUL, "--rule", "stateful-relation-assumed=warn"]);
+      assert.deepEqual(Object.keys(byRule(one.report)), ["stateful-relation-assumed"]);
+      assert.match(one.report.items[0].problems[0].message, /Pet\.parentId is linked to Pet\.id/);
+    },
+  );
+
+  await t.test("--stateful without @rapidoc/mock says which rules did not run", () => {
+    const env = { ...process.env, RAPIDOC_MOCK_MODULE: "@rapidoc/not-installed" };
+    const result = run(["lint", STATEFUL, "--stateful"], { env });
+    assert.equal(result.status, 0);
+    const output = result.stdout + result.stderr;
+    assert.match(output, /Not run: example-matches-schema, stateful-resource-key, /);
+    assert.match(output, /They need @rapidoc\/mock/);
+  });
 });

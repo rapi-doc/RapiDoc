@@ -16,6 +16,7 @@ import operationTagDefined from "./operation-tag-defined.js";
 import pathKebabCase from "./path-kebab-case.js";
 import securityDefined from "./security-defined.js";
 import securitySchemeDefined from "./security-scheme-defined.js";
+import stateful from "./stateful.js";
 import tagDescription from "./tag-description.js";
 
 /** Every rule, in the order they are listed in help and reports. @type {import("../types.js").Rule[]} */
@@ -39,6 +40,7 @@ export const RULES = [
   noServerExampleCom,
   infoContact,
   infoLicense,
+  ...stateful,
 ];
 
 export const RULE_NAMES = RULES.map((rule) => rule.name);

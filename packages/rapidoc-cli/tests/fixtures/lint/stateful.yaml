@@ -1,0 +1,167 @@
+openapi: 3.1.0
+info:
+  title: Stateful
+  version: 1.0.0
+servers:
+  - url: https://api.rapidocui.com
+tags:
+  - name: things
+    description: Things
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      summary: A list with a filter that matches no field
+      tags: [things]
+      parameters:
+        - name: color
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pet"
+              example:
+                - id: 1
+                  name: Leo
+  /pets/{petId}:
+    parameters:
+      - name: petId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getPet
+      summary: Read a pet
+      tags: [things]
+      responses:
+        "200":
+          description: A pet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+              example:
+                id: 1
+                name: Leo
+    post:
+      operationId: touchPet
+      summary: A POST on an item path, with no body
+      tags: [things]
+      security: []
+      responses:
+        "200":
+          description: A pet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+              example:
+                id: 1
+                name: Leo
+  /widgets/{code}:
+    get:
+      operationId: getWidget
+      summary: A resource whose path parameter matches no field
+      tags: [things]
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A widget
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Widget"
+              example:
+                label: Round
+  /sessions/{id}:
+    delete:
+      operationId: endSession
+      summary: A DELETE that fits no resource
+      tags: [things]
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Ended
+  /keys:
+    get:
+      operationId: listKeys
+      summary: A collection described by an inline schema
+      tags: [things]
+      responses:
+        "200":
+          description: Keys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+              example:
+                - id: k1
+  /keys/{id}:
+    get:
+      operationId: getKey
+      summary: One key, inline too
+      tags: [things]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A key
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+              example:
+                id: k1
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        parentId:
+          type: integer
+        shelter_id:
+          type: integer
+    Widget:
+      type: object
+      properties:
+        label:
+          type: string

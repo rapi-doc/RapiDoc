@@ -49,6 +49,28 @@ paths:
                 $ref: "#/components/schemas/Order"
         "400":
           description: Bad request
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Read an order
+      description: One order, by its id.
+      tags: [orders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+              example: { id: "o1" }
+        "404":
+          description: No such order
 components:
   securitySchemes:
     bearer:

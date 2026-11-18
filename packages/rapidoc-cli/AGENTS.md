@@ -40,7 +40,7 @@ bundle/             # rapidoc bundle's engine, over loadFiles (imported only by 
 lint/               # rapidoc lint's engine (imported only by that command)
 ├── types.js        # @typedef Finding, Rule { name, description, default, on, check, needs? }, LintContext
 ├── examples.js     # namedExampleMap: an `example` written as a map of named examples (both example rules use it)
-├── rules/          # one file per rule, a pure (node, context) → Finding[]; index.js lists them in report order
+├── rules/          # one file per rule, a pure (node, context) → Finding[]; index.js lists them in report order. stateful.js holds the seven stateful-* rules: each reports one group of @rapidoc/mock's statefulFindings(doc), so their logic lives in the mock
 ├── traverse.js     # one walk of the bundled document, calling each rule on the node kinds in its `on`; context.resolve follows in-document $refs
 ├── config.js       # severities: --rule › lint.apis.<id> › lint.rules (rapidoc.config.* read as a plain file) › rule defaults; names checked with "did you mean"
 └── run.js          # lintSpec: checkSpec first (invalid specs aren't linted), then the rules; findings → file:line:col through locate/position
@@ -69,7 +69,7 @@ lint/               # rapidoc lint's engine (imported only by that command)
 - A lint rule is one file in `lint/rules/`, exported as `{ name, description, default, on, check }` (and
   `needs: "mock"` when it can't run without `@rapidoc/mock`: `lint/run.js` loads the mock with `tryLoadMock()`
   only when such a rule is on, passes it as `context.mock`, and without it skips the rule and prints which
-  rules were not run), added to `rules/index.js`, tripped by `tests/fixtures/lint/messy.yaml` and passed by `clean.yaml` (the test
+  rules were not run; `withStateful: true` when `--stateful` turns it on), added to `rules/index.js`, tripped by `tests/fixtures/lint/messy.yaml` (the stateful-* rules by `stateful.yaml`) and passed by `clean.yaml` (the test
   turns every rule on against both), and documented in the rule table of `docs/src/content/docs/cli/lint.mdx` (rapi-portal-doc's `docs/tools/lint.md` links there) and of `design/spec-tooling.md`.
 - Don't import heavy modules at the top of a command file: every command module is loaded for help
   (`validate` imports `@scalar/openapi-parser` inside `run`).

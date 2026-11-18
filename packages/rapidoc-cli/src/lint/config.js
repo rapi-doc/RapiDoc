@@ -96,17 +96,18 @@ export async function readLintConfig(dir) {
 
 /**
  * The severity of every rule for one spec.
- * @param {{ config?: LintConfig, api?: string, overrides?: Record<string, Severity> }} layers
+ * @param {{ config?: LintConfig, api?: string, overrides?: Record<string, Severity>, stateful?: boolean }} layers
+ *   `stateful` (--stateful): the stateful mock's rules default to "warn"
  * @returns {Record<string, Severity>}
  */
-export function severitiesFor({ config = {}, api, overrides = {} } = {}) {
+export function severitiesFor({ config = {}, api, overrides = {}, stateful = false } = {}) {
   return Object.fromEntries(
     RULES.map((rule) => [
       rule.name,
       overrides[rule.name] ??
         (api && config.apis?.[api]?.[rule.name]) ??
         config.rules?.[rule.name] ??
-        rule.default,
+        (stateful && rule.withStateful ? "warn" : rule.default),
     ]),
   );
 }
