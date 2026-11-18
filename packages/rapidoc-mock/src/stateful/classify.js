@@ -76,18 +76,58 @@ function isRecordSchema(node) {
   );
 }
 
+/** The last word of a field that tells one record from another: `id`, `messageId`, `api_key`, `slug`. */
+const KEY_WORDS = new Set(["id", "key", "uuid", "slug"]);
+
+/**
+ * Whether an object has a key of its own, by its fields' names: `id` (or `key`, `uuid`, `slug`), or one named
+ * after the object, as `messageId` on `Message` and `api_key_id` on `CreateApiKeyResponse`. Not an id about
+ * something else: the `request_id` of a response wrapper, the `threadId` of a message.
+ * @param {object} properties
+ * @param {string} [owner] - The schema's component name
+ */
+function hasOwnKey(properties, owner) {
+  const ownerWords = owner
+    ? splitWords(trimWords(owner, VARIANT_PREFIXES, VARIANT_SUFFIXES)).map(singular)
+    : [];
+  return Object.keys(properties).some((field) => {
+    const words = splitWords(field);
+    if (!KEY_WORDS.has(words.at(-1))) return false;
+    const before = words.slice(0, -1).map(singular);
+    if (!before.length) return true;
+    // `messageId` on `GmailMessage` too: the words in front are the end of the schema's name
+    return (
+      before.length <= ownerWords.length &&
+      before.every((word, i) => word === ownerWords[ownerWords.length - before.length + i])
+    );
+  });
+}
+
+/**
+ * Per document: the schemas an item path returns and addresses by one of their fields (`/messages/{messageId}`
+ * returning an object with `messageId`). Those are records, whatever else they hold; `classifySpec` fills it
+ * before anything reads a schema, so every reader of the document agrees.
+ */
+const addressed = new WeakMap();
+
 /**
  * What a schema is, by name: `{ name }` for a `$ref` to a component schema, `{ name, many: true }` for an array of
  * one, `{ name, many: true, wrapper }` for a list wrapper around one. `{}` for an inline or unnamed schema.
+ * @param {object} doc
+ * @param {object} schema
+ * @param {number} [depth]
+ * @param {string} [owner] - The component name of `schema`, when it was reached through a `$ref`
  */
-export function namedSchema(doc, schema, depth = 0) {
+export function namedSchema(doc, schema, depth = 0, owner = undefined) {
   if (!schema || typeof schema !== "object" || depth > 4) return {};
   if (typeof schema.$ref === "string") {
     const name = schema.$ref.match(SCHEMA_REF)?.[1];
     if (!name) return {};
     const { node } = resolve(doc, schema, schema.$ref);
+    // A schema its own path addresses by a field is a record, not a wrapper around what it holds
+    if (addressed.get(doc)?.has(name)) return { name: decodeURIComponent(name) };
     // A named schema that is only a list (`Pets: array of Pet`) or a list wrapper (`PaginatedPetList`)
-    const inner = node?.$ref ? {} : namedSchema(doc, { ...node, $ref: undefined }, depth + 1);
+    const inner = node?.$ref ? {} : namedSchema(doc, { ...node, $ref: undefined }, depth + 1, name);
     if (inner.name && (inner.many || inner.envelope)) {
       return { ...inner, wrapper: inner.wrapper || name };
     }
@@ -129,12 +169,13 @@ export function namedSchema(doc, schema, depth = 0) {
       only &&
       ((only.name && lower(only.name).includes(lower(singular(only.key)))) ||
         (only.inline && only.many));
+    // Never an object with a key of its own: that is a record which holds another (Gmail's `Message`, with
+    // an `id` and a `payload: MessagePart`), not a wrapper around one.
     const isEnvelope =
       only &&
+      !hasOwnKey(properties, owner) &&
       (ENVELOPE_PROPS.includes(only.key) ||
-        (namedForContent &&
-          !properties.id &&
-          keys.every((k) => k === only.key || ENVELOPE_META.test(k))));
+        (namedForContent && keys.every((k) => k === only.key || ENVELOPE_META.test(k))));
     if (isEnvelope) {
       const { key, ...inner } = named[0];
       return { ...inner, envelope: key, ...(inner.many ? { listProperty: key } : {}) };
@@ -267,6 +308,24 @@ export function classifySpec(doc) {
     review.push(`${id}: ${why}`);
     return { review: true, why };
   };
+
+  // Before anything reads a schema: the ones an item path returns and addresses by one of their fields are
+  // records (`/tags/{slug}` returning an object with `slug`), also where the field is no id and the object
+  // holds another under `data` or `payload`
+  const records = new Set();
+  addressed.set(doc, records);
+  for (const { path, operation } of listOperations(doc)) {
+    const parameter = path.match(/\{([^}]+)\}$/)?.[1];
+    if (!parameter) continue;
+    for (const [code, response] of Object.entries(operation.responses || {})) {
+      if (!code.startsWith("2")) continue;
+      const returned = contentSchema(doc, resolve(doc, response, "").node?.content);
+      const name = returned?.$ref?.match(SCHEMA_REF)?.[1];
+      if (!name) continue;
+      const key = keyField(propertiesOf(doc, returned), parameter, decodeURIComponent(name));
+      if (key.field && !key.review) records.add(name);
+    }
+  }
 
   // Pass 1: what each operation carries, by name
   const ids = operationIds(doc);
