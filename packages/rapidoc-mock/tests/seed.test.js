@@ -118,6 +118,83 @@ describe("generateSeed: cycles and references to a record's own kind", async () 
   });
 });
 
+describe("generateSeed: composed schemas, patterns and examples", async () => {
+  const json = (schema) => ({ content: { "application/json": { schema } } });
+  const ref = (name) => ({ $ref: `#/components/schemas/${name}` });
+  const text = (example) => ({ type: "string", ...(example === undefined ? {} : { example }) });
+  const doc = {
+    openapi: "3.1.0",
+    info: {},
+    paths: {
+      "/owners/{id}": { get: { operationId: "owner", responses: { 200: json(ref("Owner")) } } },
+      "/leads/{id}": { get: { operationId: "lead", responses: { 200: json(ref("Lead")) } } },
+    },
+    components: {
+      schemas: {
+        OwnerFields: {
+          type: "object",
+          properties: {
+            firstName: { type: "string", pattern: "^[\\p{L}]+$", example: "George" },
+            city: text("Madison"),
+            telephone: { type: "string", pattern: "^[0-9]{10}$", example: "6085551023" },
+          },
+        },
+        Owner: {
+          allOf: [ref("OwnerFields"), { type: "object", properties: { id: { type: "integer" } } }],
+        },
+        Lead: {
+          type: "object",
+          required: ["id", "created_at", "status", "account_id", "color", "amount", "seen", "tags"],
+          properties: {
+            id: text("12345"),
+            created_at: text("2020-09-30T07:43:32.000Z"),
+            status: text("New"),
+            account_id: text("df0yq6c9okc6t9j4"),
+            color: text("#039BE5"),
+            amount: { type: "number", example: 75000 },
+            seen: { type: "integer", example: 1617817109 },
+            tags: { type: "array", items: { type: "string" }, example: ["New"] },
+          },
+        },
+      },
+    },
+  };
+  const { data, report } = await generateSeed(doc, classifySpec(doc), { rows: 5 });
+  const later = (name) => data[name].slice(1);
+
+  it("reads the fields of a schema written with allOf", () => {
+    assert.deepEqual(
+      data.Owner.map((owner) => owner.id),
+      [1, 2, 3, 4, 5],
+    );
+    // a city by its field name: two words at most, no generated noise
+    for (const owner of later("Owner")) assert.match(owner.city, /^[\p{L} .'-]+$/u);
+    assert.deepEqual(report.invalid, {});
+  });
+
+  it("puts a readable value in a field with a pattern when it fits, and keeps the pattern otherwise", () => {
+    for (const owner of later("Owner")) {
+      assert.match(owner.firstName, /^\p{Lu}\p{Ll}+$/u, "a first name");
+      assert.match(owner.telephone, /^[0-9]{10}$/);
+    }
+  });
+
+  it("shapes the later records after a field's example", () => {
+    assert.equal(data.Lead[0].created_at, "2020-09-30T07:43:32.000Z");
+    for (const lead of later("Lead")) {
+      assert.match(lead.id, /^\d{5}(-\d+)?$/, "digits, as the example");
+      assert.match(lead.created_at, /^20(19|20)-\d\d-\d\dT[\d:.]+Z$/, "a time in the year before");
+      assert.equal(lead.status, "New", "a short value is likely one of a few: kept");
+      assert.match(lead.account_id, /^[a-z]{2}\d[a-z]{2}\d[a-z]\d[a-z]{3}\d[a-z]\d[a-z]\d$/);
+      assert.match(lead.color, /^#[0-9A-F]{6}$/);
+      assert.ok(lead.amount >= 37500 && lead.amount <= 112500 && Number.isInteger(lead.amount));
+      assert.ok(lead.seen <= 1617817109 && lead.seen > 1617817109 - 366 * 86400, "Unix seconds");
+      assert.deepEqual(lead.tags, ["New"]);
+    }
+    assert.equal(new Set(data.Lead.map((lead) => lead.id)).size, 5);
+  });
+});
+
 describe("entityDomain and generatorFor", () => {
   const value = (entity, fields, field) => {
     const generator = generatorFor(entityDomain(entity, fields), field);

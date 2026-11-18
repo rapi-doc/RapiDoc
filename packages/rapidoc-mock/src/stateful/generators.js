@@ -71,7 +71,11 @@ function person(context) {
 /** What a thing of a domain is called. */
 const NAME_OF = {
   person: (c) => `${person(c).first} ${person(c).last}`,
-  animal: (c) => c.values.petName(),
+  // a kind of animal (`PetType`, `Species`) is "dog", not a pet's name
+  animal: (c) =>
+    /^(type|kind|species|breed)$/.test(splitWords(c.entity).at(-1))
+      ? c.values.animalType()
+      : c.values.petName(),
   product: (c) => c.values.productName(),
   company: (c) => c.values.companyName(),
   vehicle: (c) => c.values.vehicle(),

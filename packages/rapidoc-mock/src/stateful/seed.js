@@ -6,8 +6,9 @@
  * - Resources are filled in the order of their relations, so a reference always has a record to point at;
  *   references inside a cycle, and to a record's own kind (`parentId`), are filled in a second pass.
  * - A value comes from, in order: a reference, the spec's own values (enum, const, default; its examples for
- *   the first record, so the rest differ), a named generator for the entity and field (generators.js), then the
- *   schema's format and constraints.
+ *   the first record, so the rest differ), a named generator for the entity and field (generators.js), the shape
+ *   of the field's example (likeExample: a date, digits, a code, a number of that size), then the schema's format
+ *   and constraints. A `pattern` is always kept. Fields are read through `allOf`.
  * - The same spec and seed give the same data.
  */
 import { generateValid, validatorFor } from "../responses.js";
@@ -88,6 +89,30 @@ const hasExample = (schema) => schema?.example !== undefined || schema?.examples
 const hasFixedValue = (schema) =>
   !schema || schema.enum || schema.const !== undefined || schema.default !== undefined;
 
+/**
+ * A schema with the properties and required fields of its `allOf` parts as its own: what a record of it holds.
+ * Petclinic writes every entity as `allOf: [OwnerFields, { id, pets }]`, which has no `properties` itself.
+ */
+function flat(schema, depth = 0) {
+  if (!schema || typeof schema !== "object" || !Array.isArray(schema.allOf) || depth > 6)
+    return schema;
+  const properties = {};
+  const required = [];
+  let type;
+  for (const part of schema.allOf) {
+    const inner = flat(part, depth + 1);
+    Object.assign(properties, inner?.properties);
+    required.push(...(inner?.required || []));
+    type ??= inner?.type;
+  }
+  return {
+    ...(type ? { type } : {}),
+    ...schema,
+    properties: { ...properties, ...schema.properties },
+    required: [...new Set([...required, ...(schema.required || [])])],
+  };
+}
+
 /** A JSON Schema whose unbounded numbers get a small positive range: a quantity of -837 reads as a bug. */
 function bounded(schema) {
   if (Array.isArray(schema)) return schema.map(bounded);
@@ -107,7 +132,8 @@ function bounded(schema) {
     "enum",
     "const",
   ].every((key) => schema[key] === undefined);
-  return numeric && open ? { ...next, minimum: 0, maximum: 1000 } : next;
+  // a number with an example takes its size from it (likeExample)
+  return numeric && open && !hasExample(schema) ? { ...next, minimum: 0, maximum: 1000 } : next;
 }
 
 /** A JSON Schema without its examples, so generation varies: the examples are kept for the first record only. */
@@ -143,7 +169,8 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
     const pointer = `#/components/schemas/${model.schemas[name]}`;
     const schema = bounded(toJsonSchema(doc, { $ref: pointer }, pointer));
     const varied = withoutExamples(schema);
-    const properties = schema.properties || {};
+    const shape = flat(schema);
+    const properties = shape.properties || {};
     const fields = Object.keys(properties);
     const domain = entityDomain(name, fields);
     const key = model.resources[name].key;
@@ -151,7 +178,7 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
     const mine = edges.filter((edge) => edge.from === name);
     for (const edge of mine) {
       edge.nullable = typesOf(properties[edge.field]).includes("null");
-      edge.required = (schema.required || []).includes(edge.field);
+      edge.required = (shape.required || []).includes(edge.field);
     }
     // `recipeId` means the recipe's `id`, even where its path uses another key (`/recipes/{slug}`)
     for (const edge of edges.filter((e) => e.to === name && !e.copy)) {
@@ -167,7 +194,7 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
       if (!record || typeof record !== "object" || Array.isArray(record)) continue;
       // One set of value makers per record, seeded by it: a record's values never depend on another's
       const values = valuesFor(recordSeed);
-      dress(record, schema, { values, entity: name, index: i }, { first, domain, model });
+      dress(record, shape, { values, entity: name, index: i }, { first, domain, model });
 
       for (const edge of mine.filter((e) => !e.late)) link(record, edge, data[edge.to], random);
       if (key) record[key] = uniqueKey(record[key], properties[key], i, usedKeys);
@@ -213,10 +240,10 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
 function dress(record, schema, context, { first, domain, model }, depth = 0) {
   const properties = schema?.properties || {};
   Object.keys(properties).forEach((field, index) => {
-    const property = properties[field];
+    const property = flat(properties[field]);
     const value = record[field];
     const isText = typesOf(property).includes("string");
-    const nested = property?.type === "array" ? property.items : property;
+    const nested = flat(property?.type === "array" ? property.items : property);
     if (nested?.properties && depth < 3) {
       const entity = model.embedded[`${context.entity}.${field}`] || field;
       const inner = { first, model, domain: entityDomain(entity, Object.keys(nested.properties)) };
@@ -240,13 +267,120 @@ function dress(record, schema, context, { first, domain, model }, depth = 0) {
       // the spec's own value stands
     } else if (isText && !property.format && !property.pattern) {
       const generator = generatorFor(domain, field);
-      if (generator) record[field] = fit(generator(context), property);
+      const named = generator ? fit(generator(context), property) : undefined;
+      const example = hasExample(property) ? exampleOf(property, context.index) : undefined;
+      // The field's name gives the value, unless the example shows a code where the name gave a word
+      // (`color` with the example `#039BE5`)
+      const isCode =
+        typeof example === "string" && /^\S*\d\S*$/.test(example) && !/[@/]/.test(example);
+      if (named !== undefined && !(isCode && !/\d/.test(named))) record[field] = named;
+      else if (typeof value === "string" && example !== undefined) {
+        // an id is never a phrase: it keeps the generated value unless the example shows a shape to follow
+        const idLike = /^(ids?|key|uuid|token)$/.test(splitWords(field).at(-1));
+        const made = likeExample(example, context, property, idLike);
+        if (made !== undefined) record[field] = fit(made, property);
+      }
+    } else if (isText && !property.format) {
+      // A pattern decides: a named value where it fits (a person's name does, in a pattern for names), else a
+      // few plain words, else what was generated from the pattern (a code, a phone number)
+      const generator = generatorFor(domain, field);
+      const readable = [generator?.(context), context.values.words()].find((candidate) =>
+        fits(candidate, property),
+      );
+      if (readable !== undefined) record[field] = readable;
     } else if (isText && property.format === "email") {
       record[field] = generatorFor(domain, "email")(context);
     } else if (isText && (property.format === "uri" || property.format === "url")) {
       record[field] = context.values.url();
+    } else if (typeof value === "number" && hasExample(property)) {
+      record[field] = likeExample(exampleOf(property, context.index), context, property);
+    } else if (Array.isArray(value) && hasExample(property) && !property.items?.properties) {
+      // a list of plain values (`tags: ["New"]`): the spec's own list reads better than generated text
+      const example = exampleOf(property, context.index);
+      if (Array.isArray(example)) record[field] = structuredClone(example);
     }
   });
+}
+
+/** The example of a field for the record at `index`: a field with several gives each in turn. */
+const exampleOf = (property, index) =>
+  property.examples?.length
+    ? property.examples[index % property.examples.length]
+    : property.example;
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?$/;
+
+/**
+ * A value shaped like the spec's example of a field, for the records after the first: what the example shows
+ * that the schema does not say (Apideck's `created_at` is a plain string with a date-time for its example).
+ *
+ * - A date or date-time: another one, in the year before it.
+ * - Digits (`"12345"`): as many other digits. A phone number, a URL, an e-mail address: another one.
+ * - A number: one between half and one and a half times it, whole when it is, inside the schema's limits.
+ * - A few words (`"Cold Call"`, `"EN"`): the example itself. It is likely one of a few values the API uses, and
+ *   reads as data where generated text would not. Longer text: a sentence.
+ */
+function likeExample(example, { values }, property = {}, idLike = false) {
+  if (typeof example === "number") {
+    // a time in Unix seconds or milliseconds: another one, in the year before it
+    for (const unit of [1, 1000]) {
+      if (Number.isInteger(example) && example >= 1e9 * unit && example < 2e9 * unit) {
+        return example - values.number(0, 365 * 24 * 60 * 60, true) * unit;
+      }
+    }
+    const [low, high] = [example * 0.5, example * 1.5].sort((a, b) => a - b);
+    const min = Math.max(low, property.minimum ?? -Infinity);
+    const max = Math.min(high, property.maximum ?? Infinity);
+    return min <= max ? values.number(min, max, Number.isInteger(example)) : example;
+  }
+  if (typeof example !== "string") return example;
+  if (ISO_DATE.test(example) || ISO_DATE_TIME.test(example)) {
+    const to = new Date(example);
+    if (Number.isNaN(to.getTime())) return example;
+    const made = values.dateBefore(to).toISOString();
+    return ISO_DATE.test(example) ? made.slice(0, 10) : made;
+  }
+  if (/^\d+$/.test(example)) return values.digits(example.length);
+  if (/^\+?[\d\s().-]+$/.test(example) && example.replace(/\D/g, "").length >= 7)
+    return values.phone();
+  if (/^https?:\/\//.test(example)) return values.url();
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(example)) {
+    return `${values.firstName()}.${values.lastName()}@example.com`.toLowerCase();
+  }
+  // A code (`df0yq6c9okc6t9j4`, a UUID, `#039BE5`, `1.1.1.1`), and any one-word example of an id (`WgRpOB`):
+  // the same shape, character by character
+  if (!/\s/.test(example) && (/\d/.test(example) || idLike)) {
+    const hex = /^[#\da-fA-F-]+$/.test(example) && /\d/.test(example) && /[a-f]/i.test(example);
+    const hexDigits = /[A-F]/.test(example) ? "0123456789ABCDEF" : "0123456789abcdef";
+    const alphabet = (char) =>
+      hex && /[\da-f]/i.test(char)
+        ? hexDigits
+        : /\d/.test(char)
+          ? "0123456789"
+          : /[a-z]/.test(char)
+            ? "abcdefghijklmnopqrstuvwxyz"
+            : /[A-Z]/.test(char)
+              ? "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+              : "";
+    return [...example]
+      .map((char) => (alphabet(char) ? values.pick(alphabet(char)) : char))
+      .join("");
+  }
+  if (idLike) return undefined;
+  return example.length <= 24 && example.split(/\s+/).length <= 3 ? example : values.sentence();
+}
+
+/** Whether a text matches the field's `pattern` and length limits. */
+function fits(value, property) {
+  if (typeof value !== "string") return false;
+  if (value.length < (property.minLength ?? 0) || value.length > (property.maxLength ?? Infinity))
+    return false;
+  try {
+    return new RegExp(property.pattern, "u").test(value);
+  } catch {
+    return false;
+  }
 }
 
 /** A generated text cut to the field's `maxLength`. */
