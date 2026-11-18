@@ -49,6 +49,11 @@ paths:
                 $ref: "#/components/schemas/Order"
         "400":
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              example: { detail: "id is required" }
   /orders/{id}:
     get:
       operationId: getOrder
@@ -59,6 +64,7 @@ paths:
         - name: id
           in: path
           required: true
+          description: The order's id.
           schema:
             type: string
       responses:
@@ -83,3 +89,26 @@ components:
         id:
           type: string
           example: o1
+        payment:
+          oneOf:
+            - $ref: "#/components/schemas/Card"
+            - $ref: "#/components/schemas/Transfer"
+          discriminator:
+            propertyName: kind
+          example: { kind: card, last4: "4242" }
+    Card:
+      type: object
+      properties:
+        kind: { type: string, example: card }
+        last4: { type: string, example: "4242" }
+    Transfer:
+      type: object
+      properties:
+        kind: { type: string, example: transfer }
+        iban: { type: string, example: DE89370400440532013000 }
+    Problem:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: id is required
