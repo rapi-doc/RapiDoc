@@ -35,6 +35,7 @@ Ids are lower-case letters, digits and dashes. Files that would share an id get 
 | `--port <number>`        |                         | Default `4010`.                                                                                                        |
 | `--host <host>`          |                         | Default `0.0.0.0`.                                                                                                     |
 | `--seed <number>`        |                         | Seed for generated data; default `1`.                                                                                  |
+| `--mock-config <file>`   |                         | With `--stateful`: corrections to what the mock worked out; default `mock.config.yaml` beside the spec.                |
 | `--delay <ms>`           |                         | Wait this long before every API response; default `0`.                                                                 |
 | `--stream-interval <ms>` |                         | Gap between the items of a streamed response (OpenAPI 3.2 `itemSchema`); default `300`.                                |
 | `--stateful`             |                         | Keep state (below).                                                                                                    |
@@ -66,6 +67,8 @@ Applied preferences come back in `Preference-Applied`. `GET /` lists the APIs se
 `/__mock/ui` is the Mock UI: a dashboard per API, its resources with their records, every operation with its label (confident, needs review, plain mock) grouped by path or by resource, and a settings page (new seed data, response delay). A resource's About tab lists its fields with how each is seeded, and an operation's Details page says what the mock does for it. `GET /__mock/model` (and `/model/<api>/resources/<Resource>`, `/model/<api>/operations/<id>`) and `GET /__mock/settings` return what it shows as JSON; `PATCH /__mock/settings` with `{ "delay": 250 }` changes the delay, and `POST /__mock/reset` with `{ "rows": 25, "seed": 7 }` makes new seed data.
 
 The mock's own endpoints are under `/__mock`: `GET /__mock/health` (ready check), `POST /__mock/reset` (back to the seed data; `?api=<id>` for one API), `GET /__mock/state[/<api>[/<Resource>[/<key>]]]` (the stored records), `POST /__mock/snapshot` and `POST /__mock/restore` (the records as one document, `{ "<api id>": { "<Resource>": [records] } }`, out and back in). With an `X-Mock-Session` header they work on that session's data. An API can't have the id `__mock`.
+
+Where the spec doesn't show the data model the way the mock reads it, state it in `mock.config.yaml` beside the spec: `resources.<Name>.key` (a dotted path such as `metadata.name` reaches inside the record) and `operations.<id>` with `resource`, `action` and `key` (`path.x`, `query.x` or `body.x`), or `action: none`. With several APIs, under `apis.<api id>`. An entry that no longer fits the spec is skipped and named at start. As a library: `stateful: { config }`, the parsed object.
 
 Data is in memory and starts fresh on every run; the same spec and `--seed` give the same records. As a library: `createMockApp({ apis, stateful: true })` or `stateful: { rows: 25 }`.
 

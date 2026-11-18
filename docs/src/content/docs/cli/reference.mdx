@@ -44,6 +44,7 @@ Options and arguments can come in any order (`rapidoc build --out-dir public ./p
 | `--issuer <url>` | mock | OpenID Connect issuer whose tokens are accepted. Default `$RAPIDOC_MOCK_ISSUER`. |
 | `--audience <id>` | mock | Audience tokens must be issued for. Default `$RAPIDOC_MOCK_AUDIENCE`. |
 | `--seed <number>` | mock | Seed for generated data. Default `1`. |
+| `--mock-config <file>` | mock | With `--stateful`: your corrections to what the mock worked out. Default: `mock.config.yaml` beside the spec. |
 | `--delay <ms>` | mock | Wait this long before every API response, to see loading states in a client. Default `0`. |
 | `--stream-interval <ms>` | mock | Gap between the items of a streamed response (OpenAPI 3.2 `itemSchema`). Default `300`. |
 | `--stateful` | mock | Keep state: creates, updates and deletes change stored records that reads and lists return, seeded from the spec. |

@@ -368,6 +368,90 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
   );
 
   await t.test(
+    "mock --stateful keeps state, and reads mock.config.yaml beside the spec",
+    async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-cli-mock-stateful-"));
+      try {
+        const spec = path.join(dir, "videos.yaml");
+        // videos with the id in the query string: the delete needs a line of config to keep state
+        fs.writeFileSync(
+          spec,
+          `openapi: 3.1.0
+info: { title: Videos, version: 1.0.0 }
+paths:
+  /videos:
+    get:
+      operationId: listVideos
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Video' } } } } }
+    post:
+      operationId: createVideo
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Video' } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Video' } } } }
+    delete:
+      operationId: deleteVideo
+      parameters: [{ name: id, in: query, schema: { type: string } }]
+      responses:
+        '204': { description: Gone }
+components:
+  schemas:
+    Video: { type: object, properties: { id: { type: string }, title: { type: string } } }
+`,
+        );
+        fs.writeFileSync(
+          path.join(dir, "mock.config.yaml"),
+          "operations:\n  deleteVideo: { resource: Video, action: delete, key: query.id }\n  noSuchOperation: { action: none }\n",
+        );
+        const mock = await startMock([spec, "--stateful", "--rows", "2"]);
+        try {
+          assert.match(mock.output, /State: +videos: 1 resource\(s\), 2 record\(s\)/);
+          assert.match(mock.output, /Config: +.*mock\.config\.yaml/);
+          assert.match(mock.output, /Mock UI: +http:.*\/__mock\/ui/);
+          assert.match(
+            mock.output,
+            /mock\.config\.yaml: videos: operations\.noSuchOperation: the spec has no operation/,
+            "a stale entry is named at start",
+          );
+          const post = await fetch(`${mock.url}/videos/videos`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ title: "Intro" }),
+          });
+          const video = await post.json();
+          assert.equal((await (await fetch(`${mock.url}/videos/videos`)).json()).length, 3);
+          const gone = await fetch(`${mock.url}/videos/videos?id=${video.id}`, {
+            method: "DELETE",
+          });
+          assert.equal(gone.status, 204);
+          assert.equal((await (await fetch(`${mock.url}/videos/videos`)).json()).length, 2);
+        } finally {
+          mock.stop();
+        }
+
+        const missing = spawnSync(
+          "node",
+          [CLI_PATH, "mock", spec, "--stateful", "--mock-config", path.join(dir, "nope.yaml")],
+          { encoding: "utf8" },
+        );
+        assert.equal(missing.status, 1);
+        assert.match(missing.stderr, /Not found: .*nope\.yaml/);
+
+        fs.writeFileSync(path.join(dir, "bad.yaml"), "operations: [unclosed\n");
+        const bad = spawnSync(
+          "node",
+          [CLI_PATH, "mock", spec, "--stateful", "--mock-config", path.join(dir, "bad.yaml")],
+          { encoding: "utf8" },
+        );
+        assert.equal(bad.status, 1);
+        assert.match(bad.stderr, /bad\.yaml: /);
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true });
+      }
+    },
+  );
+
+  await t.test(
     "migrate --from redocly should generate rapidoc.config.yaml from redocly.yaml",
     () => {
       const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-cli-migrate-"));

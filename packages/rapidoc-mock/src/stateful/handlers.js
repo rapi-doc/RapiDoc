@@ -24,7 +24,8 @@ import {
   propertiesOf,
 } from "./classify.js";
 import { generateSeed } from "./seed.js";
-import { createStore } from "./store.js";
+import { applyConfig } from "./config.js";
+import { createStore, valueAt } from "./store.js";
 import { nameKey, splitWords } from "./words.js";
 
 /** The request header that names a session: its own copy of the data, made when it first writes. */
@@ -105,9 +106,12 @@ const firstNumber = (query, names) => {
  * @param {object} [options]
  * @param {number | Record<string, number>} [options.rows] - Seed records per resource (default 10)
  * @param {number} [options.seed] - Seed of the generated data (default 1)
+ * @param {object} [options.config] - The user's corrections for this API, as `mock.config.yaml` writes them
+ *   (`{ resources, operations }`, see config.js). What no longer fits the spec comes back in `configWarnings`.
  */
-export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
+export async function createStateful(doc, { rows = 10, seed = 1, config } = {}) {
   const model = classifySpec(doc);
+  const configWarnings = applyConfig(doc, model, config);
   const store = createStore(model.resources);
   const { data, report } = await generateSeed(doc, model, { rows, seed });
   const ids = operationIds(doc);
@@ -391,14 +395,20 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
         delete record[PARENTS];
         if (hasKept) record[PARENTS] = kept;
         const key = resource.key;
-        if (key && (record[key] === undefined || record[key] === null)) {
-          delete record[key];
+        const given = key ? valueAt(record, key) : undefined;
+        if (key && (given === undefined || given === null)) {
+          // the store assigns the key; a top-level one must not stay as null on the record
+          if (!key.includes(".")) delete record[key];
           if (fields[key]?.format === "uuid") record[key] = randomUUID();
         }
         const stored = view.insert(name, record);
         if (!stored) {
           return {
-            ...problem(409, "Conflict", `A ${name} with ${key} ${record[key]} already exists.`),
+            ...problem(
+              409,
+              "Conflict",
+              `A ${name} with ${key} ${valueAt(record, key)} already exists.`,
+            ),
             source: "state",
           };
         }
@@ -409,7 +419,15 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
       return finish(payload);
     }
 
-    const key = keyParam ? params[keyParam] : isObject(input) ? input[resource.key] : undefined;
+    // The key of the record: a path parameter, a query parameter (`DELETE /videos?id=7`), or in the body
+    const queryKey = entry.keyFrom?.startsWith("query.") ? entry.keyFrom.slice(6) : undefined;
+    const key = keyParam
+      ? params[keyParam]
+      : queryKey
+        ? (query.get(queryKey) ?? undefined)
+        : isObject(input)
+          ? valueAt(input, resource.key)
+          : undefined;
     if (key === undefined) return null;
     const existing = view.get(name, key);
     if (!existing || !inParents(existing)) return notFound(key);
@@ -442,5 +460,5 @@ export async function createStateful(doc, { rows = 10, seed = 1 } = {}) {
     return null;
   }
 
-  return { model, store, report, labels: labelCounts(model), handle };
+  return { model, store, report, labels: labelCounts(model), handle, configWarnings };
 }

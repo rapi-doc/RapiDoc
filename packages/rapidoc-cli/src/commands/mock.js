@@ -116,6 +116,12 @@ export default {
       value: "number",
       description: "With --stateful: seed records per resource (default 10)",
     },
+    "mock-config": {
+      type: "string",
+      value: "file",
+      description:
+        "With --stateful: your corrections to what the mock worked out (default: mock.config.yaml beside the spec or in the folder)",
+    },
     delay: {
       type: "string",
       kind: "int",
@@ -172,6 +178,35 @@ export default {
       apis = mockApisFromFiles(targets);
     }
 
+    // The user's corrections for the stateful mode: the file named, else mock.config.yaml (or .yml) in the
+    // folder being mocked, beside the first spec, or in the current folder
+    let mockConfig;
+    if (values.stateful) {
+      const candidates = values["mock-config"]
+        ? [path.resolve(values["mock-config"])]
+        : [...new Set([folder, ...apis.map((api) => path.dirname(api.fullPath)), process.cwd()])]
+            .filter(Boolean)
+            .flatMap((dir) =>
+              ["mock.config.yaml", "mock.config.yml"].map((name) => path.join(dir, name)),
+            );
+      const file = candidates.find((candidate) => fs.existsSync(candidate));
+      if (values["mock-config"] && !file) {
+        throw new ProblemError(`Not found: ${candidates[0]}`);
+      }
+      if (file) {
+        const { parse } = await import("yaml");
+        try {
+          mockConfig = { file, config: parse(fs.readFileSync(file, "utf8")) ?? {} };
+        } catch (err) {
+          throw new ProblemError(
+            `${path.relative(process.cwd(), file)}: ${err.message.split("\n")[0]}`,
+          );
+        }
+      }
+    } else if (values["mock-config"]) {
+      warn("--mock-config is used with --stateful only; ignored.");
+    }
+
     const issuer = values.issuer || process.env.RAPIDOC_MOCK_ISSUER || undefined;
     const audience = values.audience || process.env.RAPIDOC_MOCK_AUDIENCE || undefined;
     const { startMockServer, DEFAULT_PORT } = await loadMock();
@@ -186,7 +221,13 @@ export default {
             issuer,
             audience,
             seed: values.seed,
-            stateful: values.stateful ? { rows: values.rows } : false,
+            stateful: values.stateful
+              ? {
+                  rows: values.rows,
+                  config: mockConfig?.config,
+                  configFile: mockConfig && path.relative(process.cwd(), mockConfig.file),
+                }
+              : false,
             delay: values.delay,
             streamInterval: values["stream-interval"],
           }),
@@ -212,6 +253,9 @@ export default {
       info(
         `   • State:    ${api.id}: ${names.length} resource(s), ${records} record(s). Operations: ${confident} confident, ${needsReview} needs review, ${plainMock} plain mock`,
       );
+    }
+    if (mockConfig) {
+      info(`   • Config:   ${path.relative(process.cwd(), mockConfig.file)}`);
     }
     if (server.apis.some((one) => one.stateful)) {
       info(`   • Mock UI:  ${server.url}/__mock/ui`);

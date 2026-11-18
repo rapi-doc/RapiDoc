@@ -9,12 +9,14 @@ import { serveUi } from "./ui.js";
 import { createRouter } from "./engine/router.js";
 import { createResponder, itemValidator, parsePrefer } from "./responses.js";
 import { listOperations, loadSpec, pointerSegment, resolve } from "./spec.js";
+import { CONFIG_FILE, configFor } from "./stateful/config.js";
 import { createStateful, SESSION_HEADER } from "./stateful/handlers.js";
 import { DEFAULT_STREAM_INTERVAL, parseStreamBody, streamKind, timedStream } from "./stream.js";
 
 export { tokenScopes } from "./auth.js";
 export { CONTROL_PREFIX } from "./control.js";
 export { exampleError } from "./examples.js";
+export { CONFIG_FILE } from "./stateful/config.js";
 export { STATEFUL_RULES, statefulFindings } from "./stateful/findings.js";
 
 export const DEFAULT_PORT = 4010;
@@ -31,10 +33,11 @@ export const DEFAULT_PORT = 4010;
  * @param {string} [options.issuer] - OpenID Connect issuer whose tokens are accepted; unset: bearer tokens unchecked
  * @param {string} [options.audience] - Required `aud` of tokens
  * @param {number} [options.seed] - Seed for generated data (default 1)
- * @param {boolean | { rows?: number | Record<string, number> }} [options.stateful] - Keep state: the operations
+ * @param {boolean | { rows?: number | Record<string, number>, config?: object, configFile?: string }} [options.stateful] - Keep state: the operations
  *   the classifier maps to a resource (create, read, update, delete, list) work on stored records, seeded from
  *   the spec (`rows` per resource, default 10); the rest answer as without it. A request's `X-Mock-Session`
- *   header gives it its own copy of the data.
+ *   header gives it its own copy of the data. `config`: the user's corrections, as `mock.config.yaml` holds
+ *   them, parsed (`{ resources, operations }`, or `{ apis: { <id>: ... } }`); `configFile`: its name, for messages.
  * @param {number} [options.delay] - Milliseconds every API response waits before it is sent (default 0), to see
  *   loading states in a client. The control API (`PATCH /__mock/settings`) can change it while the mock runs.
  * @param {number} [options.streamInterval] - Gap in ms between the items of a streamed response (OpenAPI 3.2
@@ -86,7 +89,14 @@ export async function createMockApp({
       let state = null;
       if (stateful) {
         try {
-          state = await createStateful(doc, { seed, rows: stateful.rows });
+          const apiIds = apis.map((one) => one.id);
+          const { section, warnings } = configFor(stateful.config, api.id, apiIds);
+          state = await createStateful(doc, { seed, rows: stateful.rows, config: section });
+          state.config = section; // kept for new seed data (POST /__mock/reset with rows or seed)
+          // What the config says and the spec no longer has: skipped, and said, never dropped silently
+          for (const line of [...warnings, ...state.configWarnings]) {
+            warn(`${stateful.configFile || CONFIG_FILE}: ${api.id}: ${line}`);
+          }
           const failed = Object.entries(state.report.failed || {});
           if (failed.length) {
             warn(
@@ -164,9 +174,14 @@ export async function createMockApp({
         /** New seed data for the given APIs: every session's records are dropped with the old data. */
         async reseed(list, { rows, seed: newSeed }) {
           const made = await Promise.all(
-            list.map((api) => createStateful(api.doc, { seed: newSeed, rows })),
+            list.map((api) =>
+              createStateful(api.doc, { seed: newSeed, rows, config: api.state?.config }),
+            ),
           );
-          list.forEach((api, i) => (api.state = made[i]));
+          list.forEach((api, i) => {
+            made[i].config = api.state?.config;
+            api.state = made[i];
+          });
           Object.assign(settings, { rows, seed: newSeed });
         },
       },
