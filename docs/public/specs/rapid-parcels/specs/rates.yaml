@@ -15,7 +15,7 @@ info:
     name: CC BY 4.0
     url: https://creativecommons.org/licenses/by/4.0/
 servers:
-  - url: https://mock.rapidocui.com/rates
+  - url: https://mockdemo.rapidocui.com/rates
     description: Live mock server (the hosted demo's)
   - url: http://localhost:4010/rates
     description: Local mock server (npm run mock)
