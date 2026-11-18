@@ -62,6 +62,8 @@ npx rapidoc lint openapi.yaml --stateful
 
 These rules are `off` by default. `--stateful` turns on the first six as warnings; a severity you set by name (`--rule`, or the config) wins. The findings are the mock's own, the same as the **Needs review** labels of its [Mock UI](/docs/mocking/mock-server/#see-what-the-mock-holds), so they need `@rapidoc/mock` installed.
 
+Lint reads the [`mock.config.yaml`](/docs/mocking/mock-server/#correct-what-the-mock-worked-out) beside the spec (or the one `--mock-config` names), the file where you correct what the mock worked out. What it states is not reported, so the list shrinks as you settle things: a resource whose `key` you set, an operation you gave an `action`. An entry in it that no longer fits the spec is reported as `mock-config`, with the file's name.
+
 | Rule | It reports | What to do |
 | :--- | :--- | :--- |
 | `stateful-resource-key` | A resource whose key the spec doesn't show: no path parameter matches a field, or there is no item path such as `/things/{id}`. | Name the path parameter after the field (`{petId}` and `id`), or add the field. |
@@ -95,6 +97,7 @@ The `lint` key is read straight from the file, so linting one spec needs no othe
 | `--rule <name>=<error \| warn \| off>` | Set a rule's severity; repeat for more. |
 | `--rules` | List the rules, their defaults and what they check. |
 | `--stateful` | Also report what the stateful mock had to assume or could not map (the `stateful-*` rules). Needs `@rapidoc/mock`. |
+| `--mock-config <file>` | With the `stateful-*` rules: your corrections for the stateful mock. Default: `mock.config.yaml` beside the spec or in the folder. |
 | `--format pretty \| json \| sarif` | `pretty` (default) for the terminal; `json` for scripts; `sarif` for GitHub code scanning, with every rule described. |
 | `--strict` | Fail on warnings too. |
 | `--remote` | Also fetch remote `$ref`s (and, in a portal, remote specs in `apis:`). |

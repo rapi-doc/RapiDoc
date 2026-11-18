@@ -101,7 +101,7 @@ An entry that no longer fits the spec is skipped and named when the mock starts,
 mock.config.yaml: videos: operations.deleteVideo.key: the operation has no query parameter videoId
 ```
 
-[`rapidoc lint --stateful`](/docs/cli/lint/#rules-for-the-stateful-mock) and the Mock UI's **Needs review** labels show where a correction would help.
+[`rapidoc lint --stateful`](/docs/cli/lint/#rules-for-the-stateful-mock) and the Mock UI's **Needs review** labels show where a correction would help. Lint reads this file too, so it stops reporting what you have settled.
 
 ### See what the mock holds
 

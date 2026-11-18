@@ -28,6 +28,7 @@ src/
     ├── open.js     # openBrowser (--open on dev and preview); RAPIDOC_OPEN_COMMAND swaps the opener in tests
     ├── openapi-shape.js  # childKind(kind, key, v2): which children of an OpenAPI node are schemas, parameters, ...; bundle and lint walk with it
     ├── completion.js     # zsh / bash / fish scripts from the command declarations (`rapidoc completion`)
+    ├── mock-config.js    # readMockConfig: finds and parses mock.config.yaml (mock --stateful applies it, lint --stateful reads it)
     └── suggest.js  # "did you mean" for commands, options and choices
 validate/           # rapidoc validate's engine (imported only by validate, lint and bundle)
 ├── bundle.js       # loadFiles: a spec and the files its $refs reach (yaml, with positions); bundleSpec: the same with other-file $refs inlined, in-file ones kept, origin of every copied node
@@ -69,7 +70,9 @@ lint/               # rapidoc lint's engine (imported only by that command)
 - A lint rule is one file in `lint/rules/`, exported as `{ name, description, default, on, check }` (and
   `needs: "mock"` when it can't run without `@rapidoc/mock`: `lint/run.js` loads the mock with `tryLoadMock()`
   only when such a rule is on, passes it as `context.mock`, and without it skips the rule and prints which
-  rules were not run; `withStateful: true` when `--stateful` turns it on), added to `rules/index.js`, tripped by `tests/fixtures/lint/messy.yaml` (the stateful-* rules by `stateful.yaml`) and passed by `clean.yaml` (the test
+  rules were not run; `withStateful: true` when `--stateful` turns it on; the `stateful-*` rules get this
+  API's section of mock.config.yaml as `context.mockConfig`, read only when one of them is on, and its stale
+  entries come back as `mock-config` problems), added to `rules/index.js`, tripped by `tests/fixtures/lint/messy.yaml` (the stateful-* rules by `stateful.yaml`) and passed by `clean.yaml` (the test
   turns every rule on against both), and documented in the rule table of `docs/src/content/docs/cli/lint.mdx` (rapi-portal-doc's `docs/tools/lint.md` links there) and of `design/spec-tooling.md`.
 - Don't import heavy modules at the top of a command file: every command module is loaded for help
   (`validate` imports `@scalar/openapi-parser` inside `run`).

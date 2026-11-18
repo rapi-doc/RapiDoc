@@ -14,6 +14,7 @@
  */
 import { listOperations, resolve } from "../spec.js";
 import { classifySpec, contentSchema, namedSchema, operationIds, pathShape } from "./classify.js";
+import { applyConfig } from "./config.js";
 
 export const STATEFUL_RULES = [
   "stateful-resource-key",
@@ -41,13 +42,31 @@ const CONSEQUENCE = {
   "stateful-operation-assumed": "check that this is what the operation does",
 };
 
+/** A key for "no config" in the per-document cache. */
+const NO_CONFIG = {};
+
 /**
  * @param {object} doc - An OpenAPI 3.x document with its internal `$ref`s kept (as loadSpec or a bundler leaves it)
+ * @param {object} [section] - The user's corrections for this API (`{ resources, operations }`, see config.js):
+ *   what they state is no longer a finding
  * @returns {{ rule: string, pointer: string[], message: string }[]}
  */
-export function statefulFindings(doc) {
-  if (cache.has(doc)) return cache.get(doc);
+export function statefulFindings(doc, section) {
+  return statefulReport(doc, section).findings;
+}
+
+/**
+ * The findings, and what in the user's corrections no longer fits the spec.
+ * @param {object} doc
+ * @param {object} [section] - See statefulFindings
+ * @returns {{ findings: { rule: string, pointer: string[], message: string }[], warnings: string[] }}
+ */
+export function statefulReport(doc, section) {
+  const perDoc = cache.get(doc) ?? cache.set(doc, new Map()).get(doc);
+  const cached = perDoc.get(section ?? NO_CONFIG);
+  if (cached) return cached;
   const model = classifySpec(doc);
+  const warnings = applyConfig(doc, model, section);
   const ids = operationIds(doc);
   const findings = [];
   const schemaPointer = (name) => ["components", "schemas", model.schemas[name] || name];
@@ -141,6 +160,7 @@ export function statefulFindings(doc) {
     }
   }
 
-  cache.set(doc, findings);
-  return findings;
+  const report = { findings, warnings };
+  perDoc.set(section ?? NO_CONFIG, report);
+  return report;
 }

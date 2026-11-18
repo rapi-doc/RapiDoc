@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadMock, loadPortal } from "../lib/engines.js";
 import { ProblemError, UsageError } from "../lib/errors.js";
+import { readMockConfig } from "../lib/mock-config.js";
 import { icon, info, warn } from "../lib/output.js";
 import { startOnFreePort } from "../lib/ports.js";
 
@@ -182,27 +183,10 @@ export default {
     // folder being mocked, beside the first spec, or in the current folder
     let mockConfig;
     if (values.stateful) {
-      const candidates = values["mock-config"]
-        ? [path.resolve(values["mock-config"])]
-        : [...new Set([folder, ...apis.map((api) => path.dirname(api.fullPath)), process.cwd()])]
-            .filter(Boolean)
-            .flatMap((dir) =>
-              ["mock.config.yaml", "mock.config.yml"].map((name) => path.join(dir, name)),
-            );
-      const file = candidates.find((candidate) => fs.existsSync(candidate));
-      if (values["mock-config"] && !file) {
-        throw new ProblemError(`Not found: ${candidates[0]}`);
-      }
-      if (file) {
-        const { parse } = await import("yaml");
-        try {
-          mockConfig = { file, config: parse(fs.readFileSync(file, "utf8")) ?? {} };
-        } catch (err) {
-          throw new ProblemError(
-            `${path.relative(process.cwd(), file)}: ${err.message.split("\n")[0]}`,
-          );
-        }
-      }
+      mockConfig = await readMockConfig({
+        file: values["mock-config"],
+        dirs: [folder, ...apis.map((api) => path.dirname(api.fullPath)), process.cwd()],
+      });
     } else if (values["mock-config"]) {
       warn("--mock-config is used with --stateful only; ignored.");
     }

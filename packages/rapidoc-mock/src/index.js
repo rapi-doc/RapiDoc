@@ -16,8 +16,8 @@ import { DEFAULT_STREAM_INTERVAL, parseStreamBody, streamKind, timedStream } fro
 export { tokenScopes } from "./auth.js";
 export { CONTROL_PREFIX } from "./control.js";
 export { exampleError } from "./examples.js";
-export { CONFIG_FILE } from "./stateful/config.js";
-export { STATEFUL_RULES, statefulFindings } from "./stateful/findings.js";
+export { CONFIG_FILE, configFor } from "./stateful/config.js";
+export { STATEFUL_RULES, statefulFindings, statefulReport } from "./stateful/findings.js";
 
 export const DEFAULT_PORT = 4010;
 
