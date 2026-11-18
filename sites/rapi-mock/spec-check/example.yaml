@@ -1,0 +1,211 @@
+openapi: 3.1.0
+info:
+  title: City Library
+  version: 1.0.0
+  description: A small example for the Rapi Mock spec check - books, their authors, and loans.
+servers:
+  - url: https://api.library.example
+paths:
+  /authors:
+    get:
+      operationId: listAuthors
+      summary: List authors
+      responses:
+        "200":
+          description: The authors
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Author" }
+    post:
+      operationId: createAuthor
+      summary: Add an author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Author" }
+      responses:
+        "201":
+          description: The author
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Author" }
+  /authors/{authorId}:
+    parameters:
+      - { name: authorId, in: path, required: true, schema: { type: integer } }
+    get:
+      operationId: getAuthor
+      summary: Read an author
+      responses:
+        "200":
+          description: The author
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Author" }
+        "404": { description: No such author }
+  /books:
+    get:
+      operationId: listBooks
+      summary: List books
+      parameters:
+        - { name: authorId, in: query, schema: { type: integer } }
+        - { name: sortedBy, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: The books
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Book" }
+    post:
+      operationId: createBook
+      summary: Add a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Book" }
+      responses:
+        "201":
+          description: The book
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Book" }
+  /books/{bookId}:
+    parameters:
+      - { name: bookId, in: path, required: true, schema: { type: integer } }
+    get:
+      operationId: getBook
+      summary: Read a book
+      responses:
+        "200":
+          description: The book
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Book" }
+        "404": { description: No such book }
+    put:
+      operationId: updateBook
+      summary: Change a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Book" }
+      responses:
+        "200":
+          description: The book
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Book" }
+    delete:
+      operationId: deleteBook
+      summary: Remove a book
+      responses:
+        "204": { description: Removed }
+  /books/{bookId}/loans:
+    parameters:
+      - { name: bookId, in: path, required: true, schema: { type: integer } }
+    get:
+      operationId: listLoans
+      summary: The loans of a book
+      responses:
+        "200":
+          description: The loans
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Loan" }
+    post:
+      operationId: createLoan
+      summary: Lend a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Loan" }
+      responses:
+        "201":
+          description: The loan
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Loan" }
+  /books/{bookId}/loans/{loanId}:
+    parameters:
+      - { name: bookId, in: path, required: true, schema: { type: integer } }
+      - { name: loanId, in: path, required: true, schema: { type: integer } }
+    get:
+      operationId: getLoan
+      summary: Read a loan
+      responses:
+        "200":
+          description: The loan
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Loan" }
+  /search:
+    get:
+      operationId: search
+      summary: Search the catalogue
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: What matched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer, example: 2 }
+                  titles:
+                    type: array
+                    items: { type: string }
+                    example: [The Summer Book, A Winter Book]
+  /opening-hours:
+    get:
+      operationId: getOpeningHours
+      summary: When the library is open
+      responses:
+        "200":
+          description: The opening hours
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weekdays: { type: string, example: "09:00-20:00" }
+                  saturday: { type: string, example: "10:00-16:00" }
+components:
+  schemas:
+    Author:
+      type: object
+      required: [name]
+      properties:
+        id: { type: integer, readOnly: true, example: 1 }
+        name: { type: string, example: Tove Jansson }
+        country: { type: string, example: Finland }
+    Book:
+      type: object
+      required: [title, authorId]
+      properties:
+        id: { type: integer, readOnly: true, example: 1 }
+        title: { type: string, example: The Summer Book }
+        isbn: { type: string, example: "9780954221713" }
+        authorId: { type: integer, example: 1 }
+        publishedOn: { type: string, format: date, example: "1972-05-01" }
+        genre: { type: string, enum: [fiction, non-fiction, poetry, children] }
+        available: { type: boolean, example: true }
+    Loan:
+      type: object
+      required: [borrower]
+      properties:
+        id: { type: integer, readOnly: true, example: 1 }
+        borrower: { type: string, example: Sam Okafor }
+        lentOn: { type: string, format: date, example: "2026-03-02" }
+        dueOn: { type: string, format: date, example: "2026-03-23" }
+        returned: { type: boolean, example: false }

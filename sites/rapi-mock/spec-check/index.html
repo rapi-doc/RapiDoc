@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Check a spec | Rapi Mock</title>
+    <meta
+      name="description"
+      content="See what Rapi Mock makes of your OpenAPI spec: its resources, seed data and lint findings. It runs in your browser; the spec is not sent anywhere."
+    />
+    <link rel="icon" href="../rapidoc-leaves.svg" />
+    <style>
+      /* The colors are the Mock UI's (packages/rapidoc-mock/ui/styles.js): keep them in step. */
+      :root {
+        --bg: #2f323b;
+        --sidebar: #24262d;
+        --card: #3a3c45;
+        --inset: #282a32;
+        --border: #4a4e5b;
+        --line: #41444e;
+        --fg: #c0c4c8;
+        --strong: #ffffff;
+        --muted: #949ba2;
+        --primary: #f6a821;
+        --primary-fg: #24262d;
+        --ok: #68cc97;
+        --warn: #fa82a2;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          14px/1.5 Roboto,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      h1,
+      h2 {
+        margin: 0;
+        color: var(--strong);
+        font-weight: 500;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12.5px;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        padding: 6px 14px;
+        border: 1px solid #616779;
+        border-radius: 3px;
+        background: transparent;
+        white-space: nowrap;
+      }
+      button:hover:not(:disabled) {
+        border-color: var(--muted);
+        color: var(--strong);
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+      button.primary {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--primary-fg);
+        font-weight: 500;
+      }
+      :focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      /* The start: paste, drop or choose a spec */
+      #start {
+        flex: 1;
+        overflow-y: auto;
+        padding: 48px 16px;
+      }
+      .intro {
+        max-width: 760px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .intro h1 {
+        font-size: 30px;
+      }
+      .intro .lead {
+        font-size: 16px;
+        margin: 0;
+      }
+      .private {
+        margin: 0;
+        padding: 10px 14px;
+        border-left: 3px solid var(--ok);
+        background: var(--card);
+        border-radius: 0 3px 3px 0;
+      }
+      textarea {
+        width: 100%;
+        min-height: 260px;
+        padding: 12px;
+        border: 1px dashed var(--border);
+        border-radius: 3px;
+        background: var(--inset);
+        color: var(--fg);
+        font:
+          12.5px/1.5 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Consolas,
+          monospace;
+        resize: vertical;
+      }
+      textarea:focus {
+        border-color: var(--primary);
+        outline: none;
+      }
+      textarea.over {
+        border-color: var(--primary);
+        background: var(--card);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+      }
+      .grow {
+        flex: 1;
+      }
+      .problem {
+        margin: 0;
+        padding: 10px 14px;
+        border: 1px solid var(--warn);
+        border-radius: 3px;
+        color: var(--warn);
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .intro ul {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--muted);
+      }
+
+      /* The result: a strip over the Mock UI, and the lint findings beside it */
+      #result {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .strip {
+        flex: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 14px;
+        padding: 7px 16px;
+        background: #1e2026;
+        border-bottom: 1px solid var(--line);
+        font-size: 13px;
+      }
+      .strip strong {
+        color: var(--strong);
+        font-weight: 500;
+      }
+      .strip button {
+        padding: 3px 10px;
+      }
+      .count.error {
+        color: var(--warn);
+      }
+      .count.ok {
+        color: var(--ok);
+      }
+      .work {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+      }
+      #ui {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      #ui > rapidoc-mock-ui {
+        flex: 1;
+        min-height: 0;
+      }
+      #ui > .intro {
+        padding: 40px 24px;
+      }
+      #findings {
+        flex: 0 0 min(440px, 100%);
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid var(--line);
+        background: var(--sidebar);
+        min-height: 0;
+      }
+      #findings header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--line);
+      }
+      #findings h2 {
+        font-size: 16px;
+      }
+      #findings ol {
+        flex: 1;
+        overflow-y: auto;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      #findings li {
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      #findings .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .severity {
+        font-weight: 500;
+      }
+      .severity.error {
+        color: var(--warn);
+      }
+      .severity.warning {
+        color: var(--primary);
+      }
+      #findings .where {
+        overflow-wrap: anywhere;
+      }
+      @media (max-width: 900px) {
+        .work {
+          flex-direction: column;
+        }
+        #findings {
+          flex: 0 0 45%;
+          border-left: 0;
+          border-top: 1px solid var(--line);
+        }
+      }
+    </style>
+    <script type="module" src="mock-ui.js"></script>
+    <script type="module" src="spec-check.js"></script>
+  </head>
+  <body>
+    <main id="start">
+      <div class="intro">
+        <p><a href="../">← Rapi Mock</a></p>
+        <h1>Check a spec</h1>
+        <p class="lead">
+          See what Rapi Mock makes of your OpenAPI spec: the resources it finds, the data it would
+          start with, which operations keep state, and what the spec could say more clearly.
+        </p>
+        <p class="private">
+          This runs in your browser. Your spec is not sent to us or to anyone else; it is kept in
+          this browser so a reload finds it again, until you choose another.
+        </p>
+        <textarea
+          id="text"
+          spellcheck="false"
+          aria-label="Your OpenAPI spec, as YAML or JSON"
+          placeholder="Paste an OpenAPI 3.0, 3.1 or 3.2 spec here (YAML or JSON), or drop a file on this box."
+        ></textarea>
+        <div class="actions">
+          <button id="check" class="primary">Check this spec</button>
+          <button id="choose">Choose a file</button>
+          <input id="file" type="file" accept=".yaml,.yml,.json,application/json,text/yaml" hidden />
+          <span class="grow"></span>
+          <button id="example">Try the example</button>
+        </div>
+        <p id="problem" class="problem" role="alert" hidden></p>
+        <ul>
+          <li>One file: a <code>$ref</code> to another file is not followed here.</li>
+          <li>
+            This shows what the mock would hold. To call the mocked API, run it yourself:
+            <code>npx rapidoc mock your-spec.yaml --stateful</code>.
+          </li>
+        </ul>
+      </div>
+    </main>
+
+    <div id="result" hidden>
+      <div class="strip">
+        <a href="../">← Rapi Mock</a>
+        <span>Spec check: <strong id="name"></strong> <span id="version" class="muted"></span></span>
+        <button id="lint" aria-expanded="false" aria-controls="findings"></button>
+        <span class="muted">Runs in your browser. Nothing is sent anywhere.</span>
+        <span class="grow"></span>
+        <button id="another">Check another spec</button>
+      </div>
+      <div class="work">
+        <div id="ui"></div>
+        <aside id="findings" aria-label="Lint findings" hidden>
+          <header>
+            <h2 id="findings-title"></h2>
+            <span class="grow"></span>
+            <button id="close-findings">Close</button>
+          </header>
+          <ol id="list"></ol>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>
