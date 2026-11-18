@@ -12,6 +12,16 @@
  * - `components/`: what sections share: `screen.js` (the base of these elements), `table.js` (the records table).
  * - A new section is an entry in `SECTIONS` and an element in `views/`.
  *
+ * Where the data comes from: the control API over HTTP at `base`, or, when the `source` property is set, that
+ * function. A source is the control API as a function, so the UI can show a mock that runs in the page itself:
+ *
+ *   element.source = async ({ method, path, body, session }) => ({ status: 200, data: ... });
+ *
+ * `path` is what follows `/__mock` (`/model`, `/state/<api>/<Resource>`, `/reset?api=<id>`), `body` the parsed
+ * JSON of a request, `data` the parsed JSON of the answer; a status of 400 or more is a failure whose
+ * `data.detail` is shown. Set it before the element is added to the page, or the first read goes over HTTP;
+ * setting it later reads everything again.
+ *
  * Built by `vite build` into `dist/ui/mock-ui.js` with Lit bundled in.
  */
 import { LitElement, html, nothing } from "lit";
@@ -86,12 +96,35 @@ const VIEWS = Object.fromEntries(
 );
 const SESSION_KEY = "rapidoc-mock-session";
 
+/** The source the UI uses when none is given: the control API over HTTP, at `base`. */
+const httpSource =
+  (base) =>
+  async ({ method, path, body, session }) => {
+    const headers = {};
+    if (session) headers["X-Mock-Session"] = session;
+    if (body !== undefined) headers["Content-Type"] = "application/json";
+    const response = await fetch(`${base}${path}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const data = response.status === 204 ? null : await response.json().catch(() => null);
+    if (!response.ok && !data?.detail)
+      return {
+        status: response.status,
+        data: { detail: `${response.status} ${response.statusText}` },
+      };
+    return { status: response.status, data };
+  };
+
 export class RapidocMockUi extends LitElement {
   static styles = styles;
 
   static properties = {
     /** Where the control API is; default: beside this page (`/__mock`). */
     base: { type: String },
+    /** The control API as a function, in place of HTTP (see the top of this file). */
+    source: { attribute: false },
     apis: { state: true },
     server: { state: true },
     route: { state: true },
@@ -106,6 +139,7 @@ export class RapidocMockUi extends LitElement {
   constructor() {
     super();
     this.base = "";
+    this.source = null;
     this.apis = null;
     this.server = null;
     this.route = { api: "", view: "dashboard", item: "", query: new URLSearchParams() };
@@ -137,21 +171,17 @@ export class RapidocMockUi extends LitElement {
     window.removeEventListener("hashchange", this.onHashChange);
   }
 
-  /** A call to the control API, with the session the page looks at. */
+  /** A call to the control API, with the session the page looks at: the parsed answer, or an error to show. */
   async call(path, { method = "GET", body } = {}) {
-    const headers = {};
-    if (this.session) headers["X-Mock-Session"] = this.session;
-    if (body !== undefined) headers["Content-Type"] = "application/json";
-    const response = await fetch(`${this.base}${path}`, {
-      method,
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-    if (!response.ok) {
-      const problem = await response.json().catch(() => ({}));
-      throw new Error(problem.detail || `${response.status} ${response.statusText}`);
-    }
-    return response.status === 204 ? null : response.json();
+    const source = this.source || httpSource(this.base);
+    const { status, data } = await source({ method, path, body, session: this.session });
+    if (status >= 400) throw new Error(data?.detail || `The mock answered ${status}.`);
+    return data ?? null;
+  }
+
+  updated() {
+    // a source set after the first read: everything is read again from it
+    if (this.source !== this.loadedFrom) this.load();
   }
 
   /** Runs an action with the busy state on; a failure becomes the error banner. Sections use it for their calls. */
@@ -170,6 +200,7 @@ export class RapidocMockUi extends LitElement {
 
   /** Reads the settings and the model, then shows what the address names. */
   load() {
+    this.loadedFrom = this.source;
     return this.run(async () => {
       try {
         this.server = await this.call("/settings");
