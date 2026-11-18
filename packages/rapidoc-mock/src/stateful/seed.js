@@ -155,7 +155,8 @@ function withoutExamples(schema) {
  * @param {object} model - classifySpec(doc)
  * @param {{ rows?: number | Record<string, number>, seed?: number }} [options] - `rows`: records per resource,
  *   for all (a number) or per resource (`{ default: 10, Order: 50 }`)
- * @returns {Promise<{ data: Record<string, object[]>, report: object }>}
+ * @returns {Promise<{ data: Record<string, object[]>, report: object }>} `report.failed`: resources whose
+ *   seed data could not be made (or only in part), with the reason; never thrown
  */
 export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
   const names = Object.keys(model.resources);
@@ -164,8 +165,19 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
   const rowsFor = (name) => (typeof rows === "number" ? rows : (rows[name] ?? rows.default ?? 10));
   const data = Object.fromEntries(names.map((name) => [name, []]));
   const invalid = {};
+  /** Resources whose seed data could not be made, with the reason: they start empty. */
+  const failed = {};
 
   for (const name of order) {
+    try {
+      await seedResource(name);
+    } catch (err) {
+      // One resource that can't be seeded starts empty; the others, and the API's state, are not lost with it
+      failed[name] = String(err?.message || err).split("\n")[0];
+    }
+  }
+
+  async function seedResource(name) {
     const pointer = `#/components/schemas/${model.schemas[name]}`;
     const schema = bounded(toJsonSchema(doc, { $ref: pointer }, pointer));
     const varied = withoutExamples(schema);
@@ -190,14 +202,26 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
       const random = randomFrom(recordSeed);
       // The first record shows the spec's examples; the others are generated, or every record would be the same
       const first = i === 0;
-      const record = await generateValid(first ? schema : varied, recordSeed);
+      let record;
+      try {
+        record = await generateValid(first ? schema : varied, recordSeed);
+      } catch (err) {
+        failed[name] = String(err?.message || err).split("\n")[0];
+        continue;
+      }
       if (!record || typeof record !== "object" || Array.isArray(record)) continue;
       // One set of value makers per record, seeded by it: a record's values never depend on another's
       const values = valuesFor(recordSeed);
       dress(record, shape, { values, entity: name, index: i }, { first, domain, model });
 
       for (const edge of mine.filter((e) => !e.late)) link(record, edge, data[edge.to], random);
-      if (key) record[key] = uniqueKey(record[key], properties[key], i, usedKeys);
+      if (key) {
+        // a key the path takes as a number is one, written as the schema types it ("1", "2", ...)
+        record[key] =
+          model.resources[name].keyAs === "number"
+            ? String(i + 1)
+            : uniqueKey(record[key], properties[key], i, usedKeys);
+      }
       // An `id` beside another key (`User.id` with the key `username`) still differs per record
       if (key !== "id" && typesOf(properties.id).includes("integer")) record.id = i + 1;
       data[name].push(record);
@@ -216,7 +240,12 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
 
   for (const name of order) {
     const pointer = `#/components/schemas/${model.schemas[name]}`;
-    const valid = validatorFor(toJsonSchema(doc, { $ref: pointer }, pointer));
+    let valid = null;
+    try {
+      valid = validatorFor(toJsonSchema(doc, { $ref: pointer }, pointer));
+    } catch {
+      // a schema that can't be read is not checked
+    }
     const bad = valid ? data[name].filter((record) => !valid(record)).length : 0;
     if (bad) invalid[name] = bad;
   }
@@ -228,6 +257,7 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
       records: Object.fromEntries(names.map((name) => [name, data[name].length])),
       orphans: orphansOf(data, edges),
       invalid,
+      failed,
     },
   };
 }
@@ -345,7 +375,17 @@ export function fieldsOf(doc, model, name) {
  */
 function dress(record, schema, context, { first, domain, model }, depth = 0) {
   const properties = schema?.properties || {};
+  // One field that can't be dressed (a value maker that throws on an odd schema) keeps its generated value:
+  // it must not cost the record, the resource, or the API its state
   Object.keys(properties).forEach((field, index) => {
+    try {
+      dressField(field, index);
+    } catch {
+      // the generated value stays
+    }
+  });
+
+  function dressField(field, index) {
     const property = flat(properties[field]);
     const value = record[field];
     const isText = typesOf(property).includes("string");
@@ -405,7 +445,7 @@ function dress(record, schema, context, { first, domain, model }, depth = 0) {
       const example = exampleOf(property, context.index);
       if (Array.isArray(example)) record[field] = structuredClone(example);
     }
-  });
+  }
 }
 
 /** The example of a field for the record at `index`: a field with several gives each in turn. */
@@ -438,7 +478,12 @@ function likeExample(example, { values }, property = {}, idLike = false) {
     const [low, high] = [example * 0.5, example * 1.5].sort((a, b) => a - b);
     const min = Math.max(low, property.minimum ?? -Infinity);
     const max = Math.min(high, property.maximum ?? Infinity);
-    return min <= max ? values.number(min, max, Number.isInteger(example)) : example;
+    // as many digits after the point as the example shows (0.07 -> 2), so a small value stays small
+    const decimals = Math.max(2, (String(example).split(".")[1] || "").length);
+    const whole = Number.isInteger(example) && typesOf(property).includes("integer");
+    return min <= max
+      ? values.number(min, max, whole || Number.isInteger(example), decimals)
+      : example;
   }
   if (typeof example !== "string") return example;
   if (ISO_DATE.test(example) || ISO_DATE_TIME.test(example)) {

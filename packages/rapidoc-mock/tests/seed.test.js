@@ -195,6 +195,73 @@ describe("generateSeed: composed schemas, patterns and examples", async () => {
   });
 });
 
+describe("generateSeed: odd schemas, small numbers and numbered keys", async () => {
+  const json = (schema) => ({ content: { "application/json": { schema } } });
+  const ref = (name) => ({ $ref: `#/components/schemas/${name}` });
+  const item = (operationId, name, type = "string") => ({
+    get: {
+      operationId,
+      parameters: [{ name: "id", in: "path", required: true, schema: { type } }],
+      responses: { 200: json(ref(name)) },
+    },
+  });
+  const doc = {
+    openapi: "3.1.0",
+    info: {},
+    paths: {
+      "/rates/{id}": item("rate", "Rate"),
+      "/issues/{id}": item("issue", "Issue", "integer"),
+      "/broken/{id}": item("broken", "Broken"),
+    },
+    components: {
+      schemas: {
+        // a small decimal example on a number, and one on an integer: the value maker once threw here
+        Rate: {
+          type: "object",
+          required: ["id", "share", "count"],
+          properties: {
+            id: { type: "string" },
+            share: { type: "number", example: 0.07338 },
+            count: { type: "integer", example: 0.07 },
+          },
+        },
+        Issue: { type: "object", required: ["id"], properties: { id: { type: "string" } } },
+        // a pattern that is no regular expression: its records can't be generated
+        Broken: {
+          type: "object",
+          required: ["id", "code"],
+          properties: { id: { type: "string" }, code: { type: "string", pattern: "([a-z" } },
+        },
+      },
+    },
+  };
+  const model = classifySpec(doc);
+  const { data, report } = await generateSeed(doc, model, { rows: 4 });
+
+  it("keeps a small decimal example small", () => {
+    assert.equal(data.Rate.length, 4);
+    for (const rate of data.Rate.slice(1)) {
+      assert.ok(rate.share > 0.03 && rate.share < 0.12, String(rate.share));
+      assert.equal(typeof rate.count, "number");
+    }
+  });
+
+  it("writes a key the path takes as a number as one, in the schema's type", () => {
+    assert.equal(model.resources.Issue.keyAs, "number");
+    assert.deepEqual(
+      data.Issue.map((issue) => issue.id),
+      ["1", "2", "3", "4"],
+    );
+  });
+
+  it("seeds every resource, an odd schema included, and reports none as failed", () => {
+    // `report.failed` names a resource whose records could not be made; it then starts empty and the others,
+    // and the API's state, are kept. Nothing here fails: the odd pattern is generated around.
+    assert.deepEqual(report.failed, {});
+    assert.equal(data.Rate.length + data.Issue.length + data.Broken.length, 12);
+  });
+});
+
 describe("entityDomain and generatorFor", () => {
   const value = (entity, fields, field) => {
     const generator = generatorFor(entityDomain(entity, fields), field);

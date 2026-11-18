@@ -16,7 +16,8 @@ const copy = (value) => (value === undefined ? undefined : structuredClone(value
 const keyOf = (value) => String(value);
 
 /**
- * @param {Record<string, { key: string | null }>} resources - The classifier's resources (classifySpec)
+ * @param {Record<string, { key: string | null, keyAs?: "number" }>} resources - The classifier's resources
+ *   (classifySpec); `keyAs: "number"`: the path takes a number for a key stored as text
  */
 export function createStore(resources) {
   const names = Object.keys(resources);
@@ -36,12 +37,16 @@ export function createStore(resources) {
     return records;
   };
 
-  /** The next free integer key, or a text key, for a record that arrives without one. */
-  const newKey = (records, sample) => {
+  /**
+   * A key for a record that arrives without one: the next number where the keys are numbers (as text where
+   * they are stored as text: "10", then "11"), else a text key.
+   */
+  const newKey = (records, sample, asNumber) => {
     const keys = [...records.keys()];
     const numeric = keys.every((key) => /^\d+$/.test(key));
-    if (numeric && typeof sample !== "string") {
-      return keys.reduce((max, key) => Math.max(max, Number(key)), 0) + 1;
+    if (numeric && (keys.length || typeof sample !== "string" || asNumber)) {
+      const next = keys.reduce((max, key) => Math.max(max, Number(key)), 0) + 1;
+      return typeof sample === "string" || (sample === undefined && asNumber) ? String(next) : next;
     }
     let n = keys.length + 1;
     while (records.has(`${n}`) || records.has(`id-${n}`)) n += 1;
@@ -89,7 +94,7 @@ export function createStore(resources) {
         const stored = copy(record) ?? {};
         if (field && (stored[field] === undefined || stored[field] === null)) {
           const sample = records.size ? [...records.values()][0][field] : undefined;
-          stored[field] = newKey(records, sample);
+          stored[field] = newKey(records, sample, resources[name]?.keyAs === "number");
         }
         const key = field ? keyOf(stored[field]) : keyOf(records.size + 1);
         if (records.has(key)) return null;

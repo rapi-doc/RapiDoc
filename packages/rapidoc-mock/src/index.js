@@ -87,6 +87,15 @@ export async function createMockApp({
       if (stateful) {
         try {
           state = await createStateful(doc, { seed, rows: stateful.rows });
+          const failed = Object.entries(state.report.failed || {});
+          if (failed.length) {
+            warn(
+              `${api.id}: no seed data for ${failed.length} resource(s), which start empty: ${failed
+                .slice(0, 3)
+                .map(([name, why]) => `${name} (${why})`)
+                .join("; ")}${failed.length > 3 ? "; ..." : ""}`,
+            );
+          }
         } catch (err) {
           warn(`${api.id}: served without state: ${err.message.split("\n")[0]}`);
         }
