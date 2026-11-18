@@ -1,0 +1,115 @@
+# yaml-language-server: $schema=../../packages/rapidoc-portal/schema.json
+# The Rapi Mock product and documentation site (https://mock.rapidocui.com), built with RapiDoc Portal.
+site:
+  title: Rapi Mock
+  url: https://mock.rapidocui.com
+  description: A mock server that turns an OpenAPI spec into an API that remembers. Request validation, token checks, state, a UI to look inside, and tests in any language.
+  logo:
+    src: /rapidoc-leaves.svg
+    text: Rapi Mock
+  favicon: /rapidoc-leaves.svg
+theme:
+  primary: "#f6a821" # amber, as on rapidocui.com
+  mode: auto
+  fonts:
+    sans: { family: Inter }
+    mono: { family: JetBrains Mono }
+  css: ./styles/portal.css
+header:
+  links:
+    - label: Ecosystem
+      items:
+        - label: RapiDoc
+          href: https://rapidocui.com/docs/
+          icon: file-code
+          description: Interactive API reference from your OpenAPI spec
+        - label: RapiDoc Portal
+          href: https://portal.rapidocui.com
+          icon: browsers
+          description: A developer portal from your specs and guides
+        - label: RapiFlow
+          href: https://rapidocui.com/rapi-flow/
+          icon: path
+          description: Step through and run Arazzo workflows
+        - label: RapiDoc CLI
+          href: https://rapidocui.com/cli/
+          icon: terminal
+          description: Preview, validate, lint, bundle and export specs
+    - label: GitHub
+      href: https://github.com/rapi-doc/RapiDoc
+      icon: github-logo
+navigation:
+  - label: Documentation
+    icon: book
+    items:
+      - label: Get started
+        icon: rocket-launch
+        items:
+          - { slug: getting-started/introduction }
+          - { slug: getting-started/quickstart }
+          - { slug: getting-started/how-it-works }
+      - label: Responses
+        icon: arrows-left-right
+        items:
+          - { slug: responses/what-it-answers }
+          - { slug: responses/picking-a-response }
+          - { slug: responses/tokens-and-scopes }
+      - label: Keeping state
+        icon: database
+        items:
+          - { slug: state/overview, label: Overview }
+          - { slug: state/seed-data }
+          - { slug: state/sessions }
+          - { slug: state/api-styles }
+      - label: Correcting the mock
+        icon: sliders-horizontal
+        items:
+          - { slug: correcting/config-file }
+          - { slug: correcting/lint }
+      - label: Mock UI
+        icon: layout
+        items:
+          - { slug: mock-ui/tour }
+      - label: Testing
+        icon: test-tube
+        items:
+          - { slug: testing/any-language }
+          - { slug: testing/javascript }
+          - { slug: testing/with-rapidoc }
+  - label: Reference
+    icon: list-bullets
+    items:
+      - { slug: reference/cli }
+      - { slug: reference/control-api }
+      - { slug: reference/config-file }
+      - { slug: reference/lint-rules }
+docs:
+  editUrl: https://github.com/rapi-doc/RapiDoc/edit/master/sites/rapi-mock/docs/
+footer:
+  columns:
+    - title: Get started
+      links:
+        - label: Introduction
+          href: /docs/getting-started/introduction
+        - label: Quickstart
+          href: /docs/getting-started/quickstart
+        - label: Keeping state
+          href: /docs/state/overview
+    - title: Reference
+      links:
+        - label: CLI options
+          href: /docs/reference/cli
+        - label: Control API
+          href: /docs/reference/control-api
+        - label: mock.config.yaml
+          href: /docs/reference/config-file
+    - title: Project
+      links:
+        - label: RapiDoc
+          href: https://rapidocui.com
+        - label: GitHub
+          href: https://github.com/rapi-doc/RapiDoc
+  social:
+    - icon: github
+      href: https://github.com/rapi-doc/RapiDoc
+  copyright: © 2026 RapiDoc. MIT licensed.
