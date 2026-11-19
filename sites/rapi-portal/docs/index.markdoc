@@ -1,0 +1,58 @@
+---
+title: Developer portals from OpenAPI
+description: Turn OpenAPI specs and Markdown guides into a developer portal. Docs as code, static output, optional single sign-on (SSO).
+template: splash
+hero:
+  title: Your APIs and guides<br><mark>one developer portal</mark>
+  tagline: Point RapiDoc Portal at your OpenAPI files, write guides in Markdown or Markdoc, and get a static portal with search, an API catalog and interactive references. This site is built with it.
+  actions:
+    - text: Quickstart
+      link: /docs/getting-started/quickstart/
+    - text: See an API reference
+      link: /apis/bookstore/
+      variant: secondary
+---
+
+## What you get
+
+{% card-grid %}
+{% card title="Interactive API reference" icon="code" href="/docs/api-reference/reference-pages/" %}
+Every OpenAPI 3.0, 3.1 or Swagger 2.0 spec gets a reference page rendered by RapiDoc, with Try, code samples and a sidebar that stays in view.
+{% /card %}
+{% card title="Guides as code" icon="book-open" href="/docs/writing/markdown/" %}
+Markdown, MDX and Markdoc pages in a `docs/` folder. Callouts, tabs, steps, cards, and live API operations inside a guide.
+{% /card %}
+{% card title="One config file" icon="sliders-horizontal" href="/docs/configuration/overview/" %}
+`rapidoc.config.yaml` describes the header, tabs, sidebars, theme and footer. An unknown key fails the build with its path and a hint.
+{% /card %}
+{% card title="Search built in" icon="magnifying-glass" href="/docs/configuration/docs-search-redirects/" %}
+Full-text search across guides and API operations, indexed at build time. No search service to run.
+{% /card %}
+{% card title="Single sign-on (SSO)" icon="lock" href="/docs/access/overview/" %}
+Optional SSO with Okta, Microsoft Entra ID, Google or any OpenID Connect provider. Decide who may read which pages, APIs and files, by group or email.
+{% /card %}
+{% card title="Mock server" icon="test-tube" href="/docs/tools/mock-server/" %}
+Serve your specs with their examples, validate requests, and check OAuth tokens and scopes, so you can use Try before your API is deployed.
+{% /card %}
+{% /card-grid %}
+
+## From zero to portal
+
+```bash
+npm create rapidoc@latest my-portal
+cd my-portal
+npm install
+npm run dev
+```
+
+The starter is a portal with an example API, a `rapidoc.config.yaml` and two guides, running on `http://localhost:4321`. Then point it at your own spec. Already have a repository with OpenAPI files? Run `npx @rapidoc/cli init` there instead. [Read the quickstart](/docs/getting-started/quickstart/).
+
+## A live operation, right in a guide
+
+Guides can embed any operation from your specs. This one comes from the [example Bookstore API](/apis/bookstore/). Its **Try** button sends a real request: run the [mock server](/docs/tools/mock-server/) to get answers before your API exists.
+
+{% api-operation spec="bookstore" path="/books" method="get" /%}
+
+{% callout type="rocket" title="Moving from Zudoku or Redocly?" %}
+`npx @rapidoc/cli migrate` writes a `rapidoc.config.yaml` from your existing Zudoku or Redocly project. [See migrating](/docs/tools/migrate/).
+{% /callout %}

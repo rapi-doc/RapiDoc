@@ -1,0 +1,258 @@
+openapi: 3.1.0
+info:
+  title: Bookstore API
+  version: 1.0.0
+  description: |
+    A small example API that shows what an API reference page looks like in RapiDoc Portal.
+    Run `npm run mock` in this repository and **Try** calls the mock server on your machine.
+servers:
+  - url: http://localhost:4010/bookstore
+    description: Local mock (npm run mock)
+tags:
+  - name: Books
+    description: Browse and manage the catalog.
+  - name: Orders
+    description: Buy books.
+paths:
+  /books:
+    get:
+      tags: [Books]
+      operationId: listBooks
+      summary: List books
+      description: Returns the books in the catalog, newest first.
+      parameters:
+        - name: genre
+          in: query
+          description: Only books of this genre.
+          schema:
+            $ref: '#/components/schemas/Genre'
+        - name: limit
+          in: query
+          description: Maximum number of books to return.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: A page of books.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+              example:
+                - id: bk_1001
+                  title: The Pragmatic API
+                  author: Ada Lin
+                  genre: technology
+                  price: 34.5
+                  inStock: true
+                - id: bk_1002
+                  title: Rivers of Glass
+                  author: Tomas Ek
+                  genre: fiction
+                  price: 18
+                  inStock: false
+    post:
+      tags: [Books]
+      operationId: createBook
+      summary: Add a book
+      description: Adds a book to the catalog. Needs the `books:write` scope.
+      security:
+        - oauth2: ['books:write']
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewBook'
+            example:
+              title: The Pragmatic API
+              author: Ada Lin
+              genre: technology
+              price: 34.5
+      responses:
+        '201':
+          description: The book was added.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No or invalid access token.
+  /books/{bookId}:
+    get:
+      tags: [Books]
+      operationId: getBook
+      summary: Get a book
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      responses:
+        '200':
+          description: The book.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /orders:
+    post:
+      tags: [Orders]
+      operationId: createOrder
+      summary: Place an order
+      description: Orders one or more books. Needs the `orders:write` scope.
+      security:
+        - oauth2: ['orders:write']
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewOrder'
+            example:
+              items:
+                - bookId: bk_1001
+                  quantity: 2
+      responses:
+        '201':
+          description: The order was placed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /orders/{orderId}:
+    get:
+      tags: [Orders]
+      operationId: getOrder
+      summary: Get an order
+      security:
+        - oauth2: ['orders:read']
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^ord_[0-9]+$'
+            example: ord_5001
+      responses:
+        '200':
+          description: The order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/authorize
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            books:write: Add and change books
+            orders:read: Read your orders
+            orders:write: Place orders
+  parameters:
+    BookId:
+      name: bookId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^bk_[0-9]+$'
+        example: bk_1001
+  responses:
+    BadRequest:
+      description: The request does not match the schema.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: No such resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Genre:
+      type: string
+      enum: [fiction, technology, history, science]
+    NewBook:
+      type: object
+      required: [title, author, genre, price]
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        author:
+          type: string
+        genre:
+          $ref: '#/components/schemas/Genre'
+        price:
+          type: number
+          minimum: 0
+          description: Price in euros.
+    Book:
+      allOf:
+        - type: object
+          required: [id, inStock]
+          properties:
+            id:
+              type: string
+              example: bk_1001
+            inStock:
+              type: boolean
+        - $ref: '#/components/schemas/NewBook'
+    NewOrder:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [bookId, quantity]
+            properties:
+              bookId:
+                type: string
+              quantity:
+                type: integer
+                minimum: 1
+    Order:
+      type: object
+      required: [id, status, items, total]
+      properties:
+        id:
+          type: string
+          example: ord_5001
+        status:
+          type: string
+          enum: [placed, shipped, delivered]
+        items:
+          $ref: '#/components/schemas/NewOrder/properties/items'
+        total:
+          type: number
+          description: Total in euros.
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: not_found
+        message:
+          type: string

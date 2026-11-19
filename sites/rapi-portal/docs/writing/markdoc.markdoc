@@ -1,0 +1,147 @@
+---
+title: Markdoc
+description: Markdoc tags for callouts, tabs, steps, cards, badges and live API operations.
+---
+
+[Markdoc](https://markdoc.dev) is Markdown with tags. Name the file `.markdoc`. Headings, the table of contents and code blocks work as in Markdown, and these tags add components. Each example below shows the source, then the result.
+
+## Callout
+
+```markdoc
+{% callout type="tip" title="Good to know" %}
+Sandbox keys start with `sk_test_`.
+{% /callout %}
+```
+
+{% callout type="tip" title="Good to know" %}
+Sandbox keys start with `sk_test_`.
+{% /callout %}
+
+`type` is one of `note`, `info`, `tip`, `success`, `caution`, `warning`, `danger`, `sparkles`, `rocket`, `settings`, `zap`, `lock`, `megaphone`. `icon` picks any other [Phosphor](https://phosphoricons.com) icon. See [Callouts](/docs/writing/callouts/).
+
+## Tabs
+
+````markdoc
+{% tabs %}
+{% tab name="npm" %}
+```bash
+npm install @acme/sdk
+```
+{% /tab %}
+{% tab name="pnpm" %}
+```bash
+pnpm add @acme/sdk
+```
+{% /tab %}
+{% /tabs %}
+````
+
+{% tabs %}
+{% tab name="npm" %}
+```bash
+npm install @acme/sdk
+```
+{% /tab %}
+{% tab name="pnpm" %}
+```bash
+pnpm add @acme/sdk
+```
+{% /tab %}
+{% /tabs %}
+
+## Steps
+
+```markdoc
+{% steps %}
+{% step title="Get a key" %}
+Create an API key in the dashboard.
+{% /step %}
+{% step title="Call the API" %}
+Send it in the `Authorization` header.
+{% /step %}
+{% /steps %}
+```
+
+{% steps %}
+{% step title="Get a key" %}
+Create an API key in the dashboard.
+{% /step %}
+{% step title="Call the API" %}
+Send it in the `Authorization` header.
+{% /step %}
+{% /steps %}
+
+## Cards
+
+```markdoc
+{% card-grid columns=2 %}
+{% card title="Quickstart" icon="rocket" href="/docs/getting-started/quickstart" %}
+A portal in five minutes.
+{% /card %}
+{% card title="Example API" icon="code" href="/apis/bookstore" %}
+See a reference page.
+{% /card %}
+{% /card-grid %}
+```
+
+{% card-grid columns=2 %}
+{% card title="Quickstart" icon="rocket" href="/docs/getting-started/quickstart" %}
+A portal in five minutes.
+{% /card %}
+{% card title="Example API" icon="code" href="/apis/bookstore" %}
+See a reference page.
+{% /card %}
+{% /card-grid %}
+
+`columns` defaults to 3. `href` makes the whole card a link; `icon` is a Phosphor icon name.
+
+## Badge
+
+```markdoc
+Webhooks {% badge text="Beta" variant="caution" /%}
+```
+
+Webhooks {% badge text="Beta" variant="caution" /%}
+
+## API operation
+
+```markdoc
+{% api-operation spec="bookstore" path="/books/{bookId}" method="get" /%}
+```
+
+{% api-operation spec="bookstore" path="/books/{bookId}" method="get" /%}
+
+Embeds one live operation from an API in `apis:`. See [Embedding operations](/docs/writing/embedding-operations/).
+
+## Workflow
+
+```markdoc
+{% workflow file="bookstore" id="findBook" title="Find a book" /%}
+```
+
+{% workflow file="bookstore" id="findBook" title="Find a book" /%}
+
+Draws one workflow of a file in [`workflows:`](/docs/configuration/workflows/): `file` is the entry's id, `id` the `workflowId` in the file (default: its first workflow), `view` is `expanded` (the default) or `compact`, and `title` a caption. The tag shows the workflow runner: the diagram with a panel for the inputs and credentials, and **Run workflow** executes the steps from the browser. The same diagram is also generated at build time, so it shows while the runner loads and without JavaScript.
+
+## More tags
+
+| Tag | Does |
+| :--- | :--- |
+| `aside` | The same as `callout`. |
+| `linkcard` | A card that links to a page: `title`, `href` and an optional `description`. |
+| `linkbutton` | A link drawn as a button: `href`, and `variant` (`primary`, `secondary`, `minimal`). |
+| `filetree` | A folder tree, drawn from the nested list inside it. |
+
+## Showing tag source in a code block
+
+A code fence shows its content as text, tags included, so the examples on this page are plain fences. Markdoc still checks the tags inside a fence, though: an unknown tag or attribute fails the build even inside a code block.
+
+To show tags that aren't valid here, such as a tag from another site or a made-up example, turn the check off with Markdoc's `process=false` annotation after the language:
+
+````markdoc {% process=false %}
+```markdoc {% process=false %}
+{% my-own-tag color="teal" %}Shown as text, never checked.{% /my-own-tag %}
+```
+````
+
+Code fences in `markdoc` are highlighted as Markdown.
