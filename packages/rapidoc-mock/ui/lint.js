@@ -1,4 +1,5 @@
-import { html } from "lit";
+import { html, nothing } from "lit";
+import { icon } from "./icons.js";
 
 /**
  * What the Dashboard and the Lint section share: how a lint result is worded and one row of its summary.
@@ -35,16 +36,28 @@ export const found = (one) =>
 
 /**
  * A row of the summary: a category or a rule with the share that passed and what was found, as a link.
+ * `expanded` is for a list whose rows open (the Lint section's): true or false draws the arrow of a row that
+ * opens, pointing down when it is open; null keeps the arrow's place empty, so the rows line up.
  * @param {object} one - A category or a rule of the summary
- * @param {{ label: string, href: string, title?: string, current?: boolean, rule?: boolean }} how
+ * @param {{ label: string, href: string, title?: string, current?: boolean, rule?: boolean,
+ *   expanded?: boolean | null }} how
  */
-export const lintRow = (one, { label, href, title = "", current = false, rule = false }) => html`
+export const lintRow = (
+  one,
+  { label, href, title = "", current = false, rule = false, expanded },
+) => html`
   <a
-    class="lint-row${rule ? " rule" : ""}${current ? " current" : ""}"
+    class="lint-row${rule ? " rule" : ""}${current ? " current" : ""}${expanded ? " open" : ""}"
     href=${href}
     title=${title}
     aria-current=${current ? "true" : "false"}
+    aria-expanded=${typeof expanded === "boolean" ? String(expanded) : nothing}
   >
+    ${
+      expanded === undefined
+        ? nothing
+        : html`<span class="arrow">${expanded === null ? nothing : icon("chevron")}</span>`
+    }
     <span class="label">${label}</span>
     ${
       measured(one)

@@ -628,13 +628,54 @@ export const styles = css`
     border-left-color: var(--primary);
   }
   .lint-row.rule {
-    padding-left: 26px;
     font-size: 12.5px;
     color: var(--fg);
   }
   .lint-row.rule .label {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     overflow-wrap: anywhere;
+  }
+  /* The Lint section's list: one set of columns for every row, so the meters line up, rules included */
+  .side.lint-rows {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr) 70px 38px auto;
+    gap: 2px 10px;
+  }
+  .side.lint-rows .lint-row,
+  .lint-rules {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+  .lint-rules {
+    row-gap: 2px;
+    padding: 4px 0;
+    background: var(--inset);
+  }
+  .lint-rules .label {
+    padding-left: 10px;
+  }
+  .lint-rules .meter {
+    background: var(--line);
+  }
+  .lint-rules .meter span {
+    background: color-mix(in srgb, var(--ok) 60%, var(--inset));
+  }
+  .arrow {
+    display: flex;
+    margin-left: -4px;
+    color: var(--muted);
+  }
+  .arrow .icon {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.12s;
+  }
+  .lint-row.open .arrow .icon {
+    transform: rotate(90deg);
+  }
+  .lint-row:hover .arrow {
+    color: var(--strong);
   }
   .meter {
     height: 6px;
@@ -656,6 +697,10 @@ export const styles = css`
   }
   .share {
     color: var(--fg);
+  }
+  /* at least a screen tall: picking a row with few findings must not shorten the page and move the list */
+  .split.lint {
+    min-height: calc(100vh - 80px);
   }
   .split.lint .side {
     flex: 0 0 400px;

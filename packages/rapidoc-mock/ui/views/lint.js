@@ -121,30 +121,37 @@ export class MockLint extends Screen {
                     label: "All findings",
                     href: to(),
                     current: !rules,
+                    expanded: null,
                   })}
-                  ${categories.map(
-                    (category) => html`
+                  ${categories.map((category) => {
+                    const open = category === inCategory;
+                    return html`
                       ${lintRow(category, {
                         label: category.title,
                         title: category.about,
-                        href: to({ category: category.id }),
-                        current: category === inCategory && !picked,
+                        // the open category's own row closes it, back to all findings
+                        href: open && !picked ? to() : to({ category: category.id }),
+                        current: open && !picked,
+                        expanded: open,
                       })}
                       ${
-                        category === inCategory
-                          ? category.rules.map((rule) =>
-                              lintRow(rule, {
-                                label: rule.name,
-                                title: rule.description,
-                                href: to({ rule: rule.name }),
-                                current: rule === picked,
-                                rule: true,
-                              }),
-                            )
+                        open
+                          ? html`<div class="lint-rules">
+                              ${category.rules.map((rule) =>
+                                lintRow(rule, {
+                                  label: rule.name,
+                                  title: rule.description,
+                                  href: to({ rule: rule.name }),
+                                  current: rule === picked,
+                                  rule: true,
+                                  expanded: null,
+                                }),
+                              )}
+                            </div>`
                           : nothing
                       }
-                    `,
-                  )}
+                    `;
+                  })}
                 </nav>
               `
             : nothing
