@@ -21,6 +21,7 @@ export const narrow = css`
       order: -1;
     }
     header {
+      flex-wrap: wrap;
       padding-bottom: var(--space-2);
     }
     .sidebar {
@@ -81,14 +82,12 @@ export const narrow = css`
     .pane-body {
       overflow: visible;
     }
-    .session span {
-      display: none;
-    }
     .session input {
+      flex-basis: 110px;
       width: 110px;
     }
     .select.api {
-      width: 160px;
+      flex-basis: 160px;
     }
   }
 `;

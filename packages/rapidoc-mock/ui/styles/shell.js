@@ -6,7 +6,9 @@ export const shell = css`
   header {
     flex: none;
     display: flex;
-    flex-wrap: wrap;
+    /* one row on any screen wider than a phone's: the API picker and the session field give up their room
+       first, the brand block and the buttons never (narrow.js lets it wrap on a phone) */
+    flex-wrap: nowrap;
     align-items: center;
     gap: var(--space-2) var(--space-3);
     padding-right: var(--space-4);
@@ -20,6 +22,7 @@ export const shell = css`
     align-self: stretch;
     display: flex;
     align-items: center;
+    flex: none;
     width: 210px;
     padding: 0 var(--space-5);
     margin-right: var(--space-2);
@@ -39,19 +42,38 @@ export const shell = css`
     text-decoration: none;
   }
   .select.api {
-    width: 280px;
-    max-width: 40vw;
+    flex: 0 1 280px;
+    min-width: 140px;
+  }
+  header > button {
+    flex: none;
   }
   header .session span {
     color: var(--muted);
   }
   .session {
+    flex: 0 1 auto;
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    min-width: 0;
   }
   .session input {
+    flex: 0 1 140px;
     width: 140px;
+    min-width: 96px;
+  }
+  /* Where the row is short, the word "Session" goes from sight: the field's placeholder and title say what it
+     is, and the word stays its name for a screen reader */
+  @media (max-width: 1100px) {
+    header .session span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
   .icon-button {
     padding: 6px var(--space-2);
