@@ -34,6 +34,20 @@ export const schema = css`
   table.fields tr.depth-3 td {
     background: color-mix(in oklab, var(--inset), black 12%);
   }
+  /* an action beside a heading: an icon and its name, without a button's frame */
+  button.quiet {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border-color: transparent;
+    background: none;
+    color: var(--muted);
+  }
+  button.quiet:hover:not(:disabled) {
+    background: var(--hover);
+    color: var(--strong);
+  }
   td.seeded {
     min-width: 200px;
   }

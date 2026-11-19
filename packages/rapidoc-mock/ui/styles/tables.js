@@ -117,6 +117,13 @@ export const tables = css`
       inset 3px 0 0 var(--primary),
       inset -2px 0 0 var(--key-edge);
   }
+  /* the record in the drawer: its row in the accent color, with a bar at its left edge, key column or not */
+  .records tbody tr.current td {
+    color: var(--accent-text);
+  }
+  .records tbody tr.current td:first-child:not(.key) {
+    box-shadow: inset 3px 0 0 var(--primary);
+  }
   .records thead .tag {
     margin-left: var(--space-1);
     font-weight: 400;

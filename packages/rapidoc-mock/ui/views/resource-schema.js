@@ -1,14 +1,19 @@
 import { html, nothing } from "lit";
 import { twist } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
+import { icon } from "../icons.js";
 import { sentence, valueText } from "../format.js";
 import { badge, method } from "../labels.js";
 
-/** The shapes of one of several objects, in words: "is one of 4 shapes, told apart by platform: a, b, c, d". */
+/**
+ * The shapes of a schema that is one of several objects, in words: "X is a oneOf: a record has one of 4 shapes,
+ * chosen by its platform field: a, b, c, d."
+ */
 const shapes = (resource) => {
   const shape = resource.shape;
-  return html`<code>${resource.schema}</code> is ${shape.kind === "oneOf" ? "one" : "any"} of
-    ${shape.options.length} shapes${shape.by ? html`, told apart by <code>${shape.by}</code>` : ""}:
+  return html`<code>${resource.schema}</code> is ${shape.kind === "oneOf" ? "a" : "an"}
+    <code>${shape.kind}</code>: a record has one of ${shape.options.length}
+    shapes${shape.by ? html`, chosen by its <code>${shape.by}</code> field` : ""}:
     ${shape.options.map((one, index) => html`${index ? ", " : ""}<code>${one}</code>`)}.`;
 };
 
@@ -18,7 +23,7 @@ const noFields = (resource) =>
     ? html`<code>${resource.schema}</code> describes no fields of its own, so there is nothing to list here.`
     : html`${shapes(resource)} None of them describes fields of its own, so there is nothing to list here.`;
 
-/** Every field that holds nested fields, by its path (`to`, `to.name`): what "Expand all" opens. */
+/** Every field that holds nested fields, by its path (`to`, `to.name`): what Expand all opens. */
 const branches = (fields, at = "") =>
   fields.flatMap((field) => {
     const path = at ? `${at}.${field.name}` : field.name;
@@ -127,15 +132,27 @@ export class MockResourceSchema extends Screen {
       });
     return html`
     <section class="card">
-      <h3>Fields</h3>
-      <p class="hint">
-        Described by the schema <code>${resource.schema}</code>. Stored at
-        <code>${resource.path || "no item path"}</code>${
-          resource.alsoAt
-            ? html`, also reached at ${resource.alsoAt.map((path) => html` <code>${path}</code>`)}`
+      <div class="row">
+        <h3>Fields</h3>
+        <span class="grow"></span>
+        ${
+          all.length
+            ? html`<button
+                class="quiet"
+                title="An object field lists its own fields under it"
+                @click=${() => (this.open = new Set(this.open.size ? [] : all))}
+              >
+                ${icon(this.open.size ? "collapse" : "expand")}
+                ${this.open.size ? "Collapse all" : "Expand all"}
+              </button>`
             : nothing
-        }.
-      </p>
+        }
+      </div>
+      ${
+        resource.schema === resource.name
+          ? nothing
+          : html`<p class="hint">From the schema <code>${resource.schema}</code>.</p>`
+      }
       ${
         resource.fields.length
           ? nothing
@@ -150,18 +167,9 @@ export class MockResourceSchema extends Screen {
       ${
         resource.fields.length && resource.shape?.options
           ? html`<p class="hint">
-              ${shapes(resource)} Each record is one of them, in turn: the fields below are all of theirs, and
-              a field only some of them have says which.
+              ${shapes(resource)} The table lists the fields of all ${resource.shape.options.length}; a field
+              that not every shape has says "only in" under its flags. The seeded records take the shapes in turn.
             </p>`
-          : nothing
-      }
-      ${
-        all.length
-          ? html`<div class="row">
-              <button @click=${() => (this.open = new Set(all))}>Expand all</button>
-              <button @click=${() => (this.open = new Set())}>Collapse all</button>
-              <span class="hint">An object field lists its own fields under it.</span>
-            </div>`
           : nothing
       }
       ${
@@ -184,7 +192,7 @@ export class MockResourceSchema extends Screen {
         </table>
       </div>
       <p class="hint">
-        The first seeded record shows the spec's examples; the others are made as "Seeded as" says. A field
+        The first seeded record shows the spec's examples; the others are made as SEEDED AS says. A field
         that copies another resource's records takes their values, so its nested fields say nothing here.
       </p>
       `

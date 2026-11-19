@@ -122,6 +122,13 @@ export const lint = css`
     font-size: var(--small);
     color: var(--fg);
   }
+  /* a rule you are on is told by its name's color alone: a band would read as another category */
+  .lint-row.rule.current:not(:hover) {
+    background: none;
+  }
+  .lint-row.rule.current {
+    border-left-color: transparent;
+  }
   .lint-row.rule .label {
     font-family: var(--mono);
     overflow-wrap: anywhere;

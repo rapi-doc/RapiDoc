@@ -27,7 +27,7 @@ The **Records** tab shows the records in a table you can filter and sort. The he
 
 The **Schema** tab shows:
 
-- the resource's fields, the key first, with type, flags and example; a field that holds an object, or a list of objects, opens to its own fields (**Expand all** opens every one);
+- the resource's fields, the key first, with type, flags and example; a field that holds an object, or a list of objects, opens to its own fields (**Expand all**, beside the heading, opens every one, and then closes them);
 - how each field is seeded: "a first name", "the id of an Owner record", "shaped like the example";
 - the operations on the resource;
 - its links to other resources: each field that points at one, and how the mock matched it (or why it could not), then the fields of other resources that point here.
