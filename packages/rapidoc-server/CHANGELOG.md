@@ -1,5 +1,12 @@
 # @rapidoc/server
 
+## 0.2.4
+
+### Patch Changes
+
+- Updated dependencies [a84c379]
+  - @rapidoc/mcp@0.2.4
+
 ## 0.2.3
 
 ### Patch Changes

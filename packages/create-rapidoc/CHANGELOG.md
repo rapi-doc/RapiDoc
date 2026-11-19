@@ -1,5 +1,9 @@
 # create-rapidoc
 
+## 0.2.4
+
+No changes in this release.
+
 ## 0.2.3
 
 No changes in this release.
