@@ -1,5 +1,12 @@
 # rapipdf
 
+## 3.0.1
+
+### Patch Changes
+
+- cc15663: Faster rendering of large specs: a schema's nested fields are built and rendered only when they are shown, so with `schema-expand-level` a collapsed field costs nothing until it is opened, and a response status's example and schema render only once that status is selected. The Stripe spec in read mode with `schema-expand-level="1"` now renders in under 5 seconds instead of over 20. Very large schemas are cut below depth 4 as they grow past the node budget, instead of being rebuilt shallower.
+- 90d213f: XML examples name array items by the items' `xml.name` (else the property's name) instead of their index (`<0>`), also when the array or its items have an example; unwrapped arrays put the items directly in the parent element.
+
 ## 3.0.0
 
 ### Major Changes
