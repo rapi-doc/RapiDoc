@@ -141,6 +141,57 @@
         border-color: var(--primary);
         background: var(--card);
       }
+      /* An address to load the spec from, over the box to paste it in */
+      .from-url {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .from-url label {
+        color: var(--strong);
+        font-weight: 500;
+      }
+      .url-row {
+        display: flex;
+        gap: 10px;
+      }
+      .url-row input {
+        flex: 1;
+        min-width: 0;
+        padding: 6px 10px;
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        background: var(--inset);
+        color: var(--fg);
+        font:
+          12.5px/1.5 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Consolas,
+          monospace;
+      }
+      .url-row input:focus {
+        border-color: var(--primary);
+        outline: none;
+      }
+      .url-row input::placeholder,
+      textarea::placeholder {
+        color: var(--placeholder);
+      }
+      .or {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .or::before,
+      .or::after {
+        content: "";
+        flex: 1;
+        border-top: 1px solid var(--line);
+      }
       .actions {
         display: flex;
         flex-wrap: wrap;
@@ -173,10 +224,12 @@
         display: flex;
         flex-direction: column;
       }
+      /* one row: the note gives up its room first (it ends in "…"), the link, the spec's name and the button never;
+         on a phone the row wraps */
       .strip {
         flex: none;
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         align-items: center;
         gap: 6px 14px;
         padding: 7px 16px;
@@ -188,8 +241,27 @@
         color: var(--strong);
         font-weight: 500;
       }
+      .strip > * {
+        flex: none;
+        white-space: nowrap;
+      }
+      .strip > .note {
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
       .strip button {
+        margin-left: auto;
         padding: 3px 10px;
+      }
+      @media (max-width: 760px) {
+        .strip {
+          flex-wrap: wrap;
+        }
+        .strip > .note {
+          display: none;
+        }
       }
       #ui {
         flex: 1;
@@ -217,13 +289,29 @@
         </p>
         <p class="private">
           This runs in your browser. Your spec is not sent to us or to anyone else; it is kept in
-          this browser so a reload finds it again, until you choose another.
+          this browser so a reload finds it again, until you choose another. A spec you load from an
+          address is fetched by your browser from that address, and from nowhere else.
         </p>
+        <form id="from-url" class="from-url">
+          <label for="url">Load from an address</label>
+          <div class="url-row">
+            <input
+              id="url"
+              type="url"
+              inputmode="url"
+              spellcheck="false"
+              autocomplete="url"
+              placeholder="https://example.com/openapi.yaml"
+            />
+            <button id="load" type="submit">Load</button>
+          </div>
+        </form>
+        <p class="or"><span>or paste a spec</span></p>
         <textarea
           id="text"
           spellcheck="false"
           aria-label="Your OpenAPI spec, as YAML or JSON"
-          placeholder="Paste an OpenAPI 3.0, 3.1 or 3.2 spec here (YAML or JSON), or drop a file on this box."
+          placeholder="Paste an OpenAPI 3.0, 3.1 or 3.2 spec here (YAML or JSON), or drop a file or a link on this box."
         ></textarea>
         <div class="actions">
           <button id="check" class="primary">Check this spec</button>
@@ -236,6 +324,11 @@
         <ul>
           <li>One file: a <code>$ref</code> to another file is not followed here.</li>
           <li>
+            An address works when its server lets other sites read it (CORS), as
+            <code>raw.githubusercontent.com</code> does. Link straight to a check with
+            <code>?url=</code> and the address: <code>spec-check/index.html?url=https://…/openapi.yaml</code>.
+          </li>
+          <li>
             This shows what the mock would hold. To call the mocked API, run it yourself:
             <code>npx rapidoc mock your-spec.yaml --stateful</code>.
           </li>
@@ -247,8 +340,9 @@
       <div class="strip">
         <a href="../">← Rapi Mock</a>
         <span>Spec check: <strong id="name"></strong> <span id="version" class="muted"></span></span>
-        <span class="muted">Runs in your browser. Nothing is sent anywhere.</span>
-        <span class="grow"></span>
+        <span class="muted note" title="Runs in your browser. Nothing is sent anywhere.">
+          Runs in your browser. Nothing is sent anywhere.
+        </span>
         <button id="another">Check another spec</button>
       </div>
       <div id="ui"></div>

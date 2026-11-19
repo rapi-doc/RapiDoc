@@ -4,6 +4,11 @@
  * in-page mock as its `source`, which also answers with the lint result: the UI's Lint section and the Lint card
  * of its Dashboard). The spec is kept in this browser's storage, so
  * a reload finds it again; nothing leaves the page.
+ *
+ * A spec can also come from an address (the field over the box, a link dropped on the box, or `?url=` in the
+ * page's address, which makes a check a link to share). The browser fetches it from that address and from
+ * nowhere else: never through a server of ours, so it works only where that server lets other sites read it
+ * (CORS). The page's address then keeps `?url=`, so a reload fetches the spec again, as it is now.
  */
 import { checkSpec } from "./check.js";
 
@@ -82,7 +87,7 @@ const noMock =
   });
 
 /** Runs the check on a spec and shows what came of it. */
-async function run({ text, name }) {
+async function run({ text, name, url }) {
   if (!text.trim()) return showStart("Paste a spec, drop a file, or try the example.");
   $("check").disabled = true;
   $("check").textContent = "Checking…";
@@ -95,7 +100,7 @@ async function run({ text, name }) {
   } catch (err) {
     return showStart(`The check failed: ${err.message.split("\n")[0]}`);
   }
-  const kept = remember({ text, name });
+  const kept = remember({ text, name, ...(url ? { url } : {}) });
 
   $("name").textContent = checked.title || name || "your spec";
   $("version").textContent = [
@@ -117,6 +122,60 @@ async function run({ text, name }) {
   $("result").hidden = false;
 }
 
+/** The file name at the end of an address, for the API's id: `.../petstore.yaml?raw=1` -> `petstore.yaml`. */
+const nameFrom = (url) => {
+  const last = url.pathname.split("/").filter(Boolean).pop() || url.hostname;
+  try {
+    return decodeURIComponent(last);
+  } catch {
+    return last;
+  }
+};
+
+/** An address as typed, or null when it is not an http(s) one. */
+function addressOf(text) {
+  try {
+    const url = new URL(String(text).trim());
+    return url.protocol === "https:" || url.protocol === "http:" ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetches a spec from an address and checks it. Its own request, without cookies: the server sees the address
+ * and nothing of this page. A failure says why, in words that point at what to do.
+ */
+async function loadUrl(text) {
+  const url = addressOf(text);
+  $("url").value = String(text).trim();
+  if (!url) return showStart("That is not an http or https address.");
+  if (url.protocol === "http:" && location.protocol === "https:")
+    return showStart(
+      "This page is served over https, so the browser does not fetch from an http address. Use its https address, or download the file and drop it here.",
+    );
+  $("load").disabled = true;
+  $("load").textContent = "Loading…";
+  let response;
+  try {
+    response = await fetch(url, { credentials: "omit", cache: "no-store" });
+  } catch {
+    return showStart(
+      `${url.host} could not be read from this page. Its server may not let other sites read it (CORS), or it may be out of reach. Download the file and drop it here instead.`,
+    );
+  } finally {
+    $("load").disabled = false;
+    $("load").textContent = "Load";
+  }
+  if (!response.ok)
+    return showStart(`${url.host} answered ${response.status} ${response.statusText}`.trim() + ".");
+  const body = await response.text();
+  $("text").value = body;
+  // the address keeps the spec's address, so the check can be shared and a reload fetches it again
+  history.replaceState(null, "", `${location.pathname}?url=${encodeURIComponent(url.href)}${location.hash}`);
+  await run({ text: body, name: nameFrom(url), url: url.href });
+}
+
 async function readFile(file) {
   if (!file) return;
   $("text").value = await file.text();
@@ -126,6 +185,11 @@ async function readFile(file) {
 $("check").addEventListener("click", () => {
   history.replaceState(null, "", location.pathname);
   run({ text: $("text").value, name: "" });
+});
+$("from-url").addEventListener("submit", (event) => {
+  event.preventDefault();
+  history.replaceState(null, "", location.pathname);
+  loadUrl($("url").value);
 });
 $("choose").addEventListener("click", () => $("file").click());
 $("file").addEventListener("change", (event) => {
@@ -157,12 +221,21 @@ for (const type of ["dragleave", "drop"])
 box.addEventListener("drop", (event) => {
   event.preventDefault();
   history.replaceState(null, "", location.pathname);
-  readFile(event.dataTransfer.files[0]);
+  const file = event.dataTransfer.files[0];
+  if (file) return readFile(file);
+  // a link dragged from another page: its address
+  const link = event.dataTransfer.getData("text/uri-list").split("\n").find((line) => line && !line.startsWith("#"));
+  const address = link || event.dataTransfer.getData("text/plain");
+  if (addressOf(address)) loadUrl(address);
 });
 
-// A reload: the spec this browser kept is checked again, and the address still says which page was open
+// The page opened with ?url=: that spec, fetched now. Otherwise a reload: the spec this browser kept is checked
+// again. Either way the address still says which page was open.
+const asked = new URLSearchParams(location.search).get("url");
 const kept = remembered();
-if (kept) {
+if (asked) loadUrl(asked);
+else if (kept) {
   $("text").value = kept.text;
+  if (kept.url) $("url").value = kept.url;
   run(kept);
 }
