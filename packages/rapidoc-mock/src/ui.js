@@ -18,7 +18,7 @@ const page = (scriptUrl) => `<!doctype html>
     <meta name="color-scheme" content="dark" />
     <title>Rapi Mock</title>
     <style>
-      html, body { height: 100%; margin: 0; background: #2f323b; }
+      html, body { height: 100%; margin: 0; background: #2a2c34; }
     </style>
     <script type="module" src="${scriptUrl}"></script>
   </head>

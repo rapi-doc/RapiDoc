@@ -11,14 +11,19 @@
     />
     <link rel="icon" href="../rapidoc-leaves.svg" />
     <style>
-      /* The colors are the Mock UI's (packages/rapidoc-mock/ui/styles.js): keep them in step. */
+      /*
+       * The colors are the Mock UI's (packages/rapidoc-mock/ui/styles.js): keep them in step. As there, every
+       * surface is mixed from --surface.
+       */
       :root {
-        --bg: #2f323b;
-        --sidebar: #24262d;
-        --card: #3a3c45;
-        --inset: #282a32;
-        --border: #4a4e5b;
-        --line: #41444e;
+        --surface: #2a2c34;
+        --bg: var(--surface);
+        --sidebar: color-mix(in oklab, var(--surface), black 15%);
+        --strip: color-mix(in oklab, var(--surface), black 23%);
+        --card: color-mix(in oklab, var(--surface), white 6%);
+        --inset: color-mix(in oklab, var(--surface), black 10%);
+        --border: color-mix(in oklab, var(--surface), white 16%);
+        --line: color-mix(in oklab, var(--surface), white 13%);
         --fg: #c0c4c8;
         --strong: #ffffff;
         --muted: #949ba2;
@@ -187,7 +192,7 @@
         align-items: center;
         gap: 6px 14px;
         padding: 7px 16px;
-        background: #1e2026;
+        background: var(--strip);
         border-bottom: 1px solid var(--line);
         font-size: 13px;
       }

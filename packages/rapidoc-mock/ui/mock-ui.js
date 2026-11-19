@@ -65,6 +65,18 @@ const SECTIONS = [
     group: "API",
     items: [
       {
+        id: "operations",
+        title: "Operations",
+        view: (app) =>
+          html`<rapidoc-mock-operations
+            .app=${app}
+            .api=${app.api}
+            .operation=${app.route.item}
+            .only=${app.route.query.get("label") || ""}
+            .version=${app.version}
+          ></rapidoc-mock-operations>`,
+      },
+      {
         id: "resources",
         title: "Resources",
         view: (app) =>
@@ -76,18 +88,6 @@ const SECTIONS = [
             .busy=${app.busy}
             .version=${app.version}
           ></rapidoc-mock-resources>`,
-      },
-      {
-        id: "operations",
-        title: "Operations",
-        view: (app) =>
-          html`<rapidoc-mock-operations
-            .app=${app}
-            .api=${app.api}
-            .operation=${app.route.item}
-            .only=${app.route.query.get("label") || ""}
-            .version=${app.version}
-          ></rapidoc-mock-operations>`,
       },
       {
         id: "lint",
@@ -293,9 +293,10 @@ export class RapidocMockUi extends LitElement {
     // a confirmation belongs to the page it was given on
     if (next.view !== this.route.view) this.notice = "";
     if (next.view === "resources") {
-      // `<Resource>` shows its records, `<Resource>/about` what the mock knows about it
-      next.tab = next.item.endsWith("/about") ? "about" : "records";
-      const asked = next.item.replace(/\/about$/, "");
+      // `<Resource>` shows its records, `<Resource>/schema` what the mock knows about it (`/about`, its
+      // earlier name, still opens it)
+      next.tab = /\/(schema|about)$/.test(next.item) ? "schema" : "records";
+      const asked = next.item.replace(/\/(schema|about)$/, "");
       const list = known?.resources || [];
       const resource = list.find((one) => one.name === asked) || list[0];
       next.item = resource?.name || "";

@@ -15,6 +15,8 @@ APIs where:
 
 The list may be a bare array, sit under `data`, `items` or `results`, in a page object under `values`, or under a property named after the resource (`load_balancers`).
 
+A record may also be one of several shapes, a `oneOf` or `anyOf` of objects, such as a callback that is a web, iOS or Android one. Its fields are all of theirs, the key among them, and the seeded records take each shape in turn.
+
 ## Needs a few lines of config
 
 | The API... | What happens without config | What to state |

@@ -241,6 +241,13 @@ export function propertiesOf(doc, schema, depth = 0) {
   for (const part of node.allOf || []) {
     properties = { ...propertiesOf(doc, part, depth + 1), ...properties };
   }
+  // One of several objects with no fields of its own (Nylas' `RedirectURIObject`: a web, JS, iOS or Android
+  // callback): a record of it has the fields of its shapes, so those are its fields (the first shape's wins)
+  if (!Object.keys(properties).length) {
+    for (const part of node.oneOf || node.anyOf || []) {
+      properties = { ...propertiesOf(doc, part, depth + 1), ...properties };
+    }
+  }
   return properties;
 }
 

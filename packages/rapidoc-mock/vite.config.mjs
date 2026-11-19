@@ -22,6 +22,7 @@ const BUNDLED = [
   "@lit/reactive-element",
   "@tanstack/table-core",
   "@tanstack/store",
+  "@phosphor-icons/core",
 ];
 
 /** Writes `mock-ui.LICENSE.txt` beside the bundle: each bundled package's version, license and notice. */

@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { loadSpec, listOperations } from "../src/spec.js";
 import { classifySpec, labelCounts, operationIds } from "../src/stateful/classify.js";
 import { generateSeed } from "../src/stateful/seed.js";
+import { describeResource } from "../src/stateful/describe.js";
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures/core-specs");
 
@@ -36,8 +37,8 @@ const BASELINE = {
   },
   "ably-control.json": {
     operations: 22,
-    confident: 10,
-    needsReview: 8,
+    confident: 15,
+    needsReview: 3,
     plainMock: 4,
     resources: 5,
   },
@@ -49,7 +50,7 @@ const BASELINE = {
     resources: 33,
   },
   "immich.json": { operations: 290, confident: 79, needsReview: 35, plainMock: 176, resources: 36 },
-  "nylas.json": { operations: 244, confident: 128, needsReview: 45, plainMock: 71, resources: 38 },
+  "nylas.json": { operations: 244, confident: 133, needsReview: 40, plainMock: 71, resources: 38 },
   "apicurio-registry.json": {
     operations: 64,
     confident: 13,
@@ -112,10 +113,10 @@ const COMPLETENESS = {
   "petclinic.yaml": { records: 7, lists: "6/6", creates: "6/6", complete: 7 },
   "pokeapi.yaml": { records: 50, lists: "50/50", creates: "0/0", complete: 50 },
   "calcom-v2.json": { records: 17, lists: "12/13", creates: "11/12", complete: 12 },
-  "ably-control.json": { records: 1, lists: "1/1", creates: "1/1", complete: 0 },
+  "ably-control.json": { records: 1, lists: "1/1", creates: "1/1", complete: 1 },
   "mealie.json": { records: 45, lists: "32/34", creates: "24/25", complete: 38 },
   "immich.json": { records: 20, lists: "18/18", creates: "11/11", complete: 18 },
-  "nylas.json": { records: 41, lists: "33/36", creates: "28/30", complete: 32 },
+  "nylas.json": { records: 41, lists: "33/36", creates: "28/30", complete: 33 },
   "apicurio-registry.json": { records: 11, lists: "5/8", creates: "5/6", complete: 3 },
   "apideck-crm.json": { records: 8, lists: "8/8", creates: "8/8", complete: 8 },
   "jira.json": { records: 58, lists: "29/36", creates: "24/27", complete: 41 },
@@ -189,7 +190,7 @@ const SEED_INVALID = {
   "ably-control.json": 0,
   "mealie.json": 41,
   "immich.json": 0,
-  "nylas.json": 21,
+  "nylas.json": 11,
   "apicurio-registry.json": 1,
   "apideck-crm.json": 0,
   "jira.json": 60,
@@ -225,4 +226,44 @@ describe("generateSeed on the core specs", () => {
       );
     });
   }
+});
+
+describe("describeResource on the core specs", () => {
+  it("nylas.json: a resource that is one of several objects has their fields, and its records one of them each", async () => {
+    const doc = await loadSpec(path.join(dir, "nylas.json"));
+    const model = classifySpec(doc);
+    // RedirectURIObject: a oneOf of a web, JS, iOS and Android callback, with no fields of its own
+    assert.equal(model.resources.RedirectURIObject.key, "id");
+    const uri = describeResource(doc, model, "RedirectURIObject");
+    assert.equal(uri.shape.kind, "oneOf");
+    assert.equal(uri.shape.by, "platform");
+    assert.equal(uri.shape.options.length, 4);
+    assert.deepEqual(
+      uri.fields.map((one) => one.name),
+      ["platform", "id", "url", "settings"],
+    );
+    // the web callback has no settings
+    assert.equal(uri.fields.find((one) => one.name === "settings").onlyIn.length, 3);
+    assert.equal(uri.fields.find((one) => one.name === "url").onlyIn, undefined);
+    const { data } = await generateSeed(doc, model, { rows: 4, seed: 1 });
+    assert.deepEqual(
+      data.RedirectURIObject.map((one) => one.platform),
+      ["web", "js", "ios", "android"],
+    );
+    assert.ok(data.RedirectURIObject.every((one) => one.id && one.url));
+    // a resource with fields of its own has no shape
+    assert.equal(describeResource(doc, model, "message").shape, undefined);
+  });
+
+  it("nylas.json: an object nested in a record lists its fields, with how each is seeded", async () => {
+    const doc = await loadSpec(path.join(dir, "nylas.json"));
+    const message = describeResource(doc, classifySpec(doc), "message");
+    const to = message.fields.find((one) => one.name === "to");
+    assert.equal(to.type, "array of object");
+    assert.equal(to.seededAs, "a list of nested message-participant objects");
+    assert.deepEqual(Object.fromEntries(to.fields.map((one) => [one.name, one.seededAs])), {
+      name: '"message participant 1", "message participant 2", ...',
+      email: "an e-mail address",
+    });
+  });
 });

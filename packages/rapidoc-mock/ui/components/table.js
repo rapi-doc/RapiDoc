@@ -6,7 +6,8 @@
  * - It works on the rows it is given. A list longer than what was loaded needs the server to filter and sort.
  *
  * Properties: `rows` (the records), `columns` (`[{ id, header, key }]`, `key` marks the key column), `noun`
- * ("records"), `pageSize`, and `detail` (a function from the selected record to what is shown under the table).
+ * ("records"), `pageSize`, `detail` (a function from the selected record to what is shown in a panel beside the
+ * table) and `lead` (what goes in front of the filter, on its row: the page's title and tabs).
  * Keep `rows` and `columns` the same arrays between changes: a new array is new data to the table.
  */
 import { html, nothing } from "lit";
@@ -70,6 +71,7 @@ export class MockTable extends Screen {
     noun: { type: String },
     pageSize: { type: Number, attribute: "page-size" },
     detail: { attribute: false },
+    lead: { attribute: false },
   };
 
   constructor() {
@@ -79,10 +81,53 @@ export class MockTable extends Screen {
     this.noun = "records";
     this.pageSize = 25;
     this.detail = null;
+    this.lead = nothing;
+  }
+
+  /** Brings a newly picked record's panel into view (on a narrow screen it sits under the table), and marks
+   * the edges the table can scroll past. */
+  updated() {
+    const box = this.querySelector(".scroll.records");
+    if (box) this.markEdges(box);
+    const picked = this.table?.getSelectedRowModel().rows[0]?.id;
+    if (picked !== undefined && picked !== this.shownRow) {
+      this.querySelector(".records-body > .detail")?.scrollIntoView({ block: "nearest" });
+    }
+    this.shownRow = picked;
+  }
+
+  /**
+   * Marks how far the table is scrolled sideways: `scrolled-x` once columns are under the pinned key column (it
+   * casts a shadow on them), `more-x` while columns are hidden on the right (a shadow at that edge).
+   */
+  markEdges(box) {
+    // on the frame around the box: its shadow at the right edge must not scroll with the table
+    const frame = box.parentElement;
+    // the shadow of the pinned key column is drawn by the frame, over the whole height, at the column's edge
+    // (a cell clips what it draws outside itself, so a cell's own shadow would end at the header)
+    const key = box.querySelector("thead th.key");
+    frame.style.setProperty("--key-width", `${key ? key.offsetWidth : 0}px`);
+    frame.classList.toggle("scrolled-x", Boolean(key) && box.scrollLeft > 0);
+    frame.classList.toggle("more-x", box.scrollLeft + box.clientWidth < box.scrollWidth - 1);
+  }
+
+  onScroll(event) {
+    this.markEdges(event.currentTarget);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    // the room the table has changes with the window
+    this.onResize ??= () => {
+      const box = this.querySelector(".scroll.records");
+      if (box) this.markEdges(box);
+    };
+    window.addEventListener("resize", this.onResize);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    window.removeEventListener("resize", this.onResize);
     this.subscription?.unsubscribe();
     this.subscription = null;
   }
@@ -124,7 +169,9 @@ export class MockTable extends Screen {
     const selected = table.getSelectedRowModel().rows[0];
     const select = (row) => row.toggleSelected(true);
     return html`
-      <div class="row">
+      <div class="row toolbar">
+        ${this.lead}
+        <span class="grow"></span>
         <input
           type="search"
           placeholder="Filter ${this.noun}"
@@ -137,7 +184,9 @@ export class MockTable extends Screen {
       ${
         matching
           ? html`
-            <div class="scroll records">
+            <div class="records-body">
+            <div class="scroll-frame">
+            <div class="scroll records" @scroll=${this.onScroll}>
               <table>
                 <thead>
                   <tr>
@@ -150,7 +199,12 @@ export class MockTable extends Screen {
                           aria-sort=${sorted ? `${sorted}ending` : "none"}
                         >
                           <button @click=${() => column.toggleSorting()}>
-                            ${header ?? column.id} ${sorted ? (sorted === "desc" ? "▼" : "▲") : nothing}
+                            ${header ?? column.id}${
+                              key
+                                ? html` <span class="tag" title="The key: a record is found by it">key</span>`
+                                : nothing
+                            }
+                            ${sorted ? (sorted === "desc" ? "▼" : "▲") : nothing}
                           </button>
                         </th>
                       `;
@@ -188,6 +242,13 @@ export class MockTable extends Screen {
                 </tbody>
               </table>
             </div>
+            </div>
+            ${
+              selected && this.detail
+                ? this.detail(selected.original, () => table.resetRowSelection(true))
+                : nothing
+            }
+            </div>
             ${
               pages > 1
                 ? html`
@@ -210,11 +271,6 @@ export class MockTable extends Screen {
           : html`<p class="empty">
             ${this.rows.length ? `No ${this.noun} match the filter.` : `No ${this.noun}.`}
           </p>`
-      }
-      ${
-        selected && this.detail
-          ? this.detail(selected.original, () => table.resetRowSelection(true))
-          : nothing
       }
     `;
   }

@@ -18,6 +18,10 @@ export const LABEL_HELP = {
   plainMock: "Keeps no state: answered from the spec's examples or generated data.",
 };
 
-/** A label as a badge; its meaning shows on hover. */
-export const badge = (label) =>
-  html`<span class="badge ${label}" title=${LABEL_HELP[label]}>${LABELS[label]}</span>`;
+/** A label as a badge; its meaning (or `title`, the reason in this case) shows on hover. */
+export const badge = (label, title = LABEL_HELP[label]) =>
+  html`<span class="badge ${label}" title=${title}>${LABELS[label]}</span>`;
+
+/** An HTTP method as a badge, in RapiDoc's color for it (`.method.get`, …): its name is always written. */
+export const method = (name) =>
+  html`<span class="method ${String(name).toLowerCase()}">${String(name).toUpperCase()}</span>`;

@@ -171,7 +171,7 @@ describe("/__mock with --stateful", () => {
     assert.deepEqual(pc.labels, { confident: 34, needsReview: 0, plainMock: 3 });
     assert.deepEqual(
       pc.resources.find((one) => one.name === "Owner"),
-      { name: "Owner", key: "id", path: "/owners/{}", records: 10 },
+      { name: "Owner", key: "id", path: "/owners/{}", records: 10, seeded: 10 },
     );
     assert.equal(pc.operations.length, 37);
     const list = pc.operations.find((op) => op.method === "GET" && op.path === "/owners");
@@ -218,6 +218,15 @@ describe("/__mock with --stateful", () => {
       owner1.fields.find((one) => one.name === "firstName").seededAs,
       /a first name when it fits the pattern/,
     );
+    // a field that copies another resource's records lists that resource's fields, nested, without seeding
+    // notes (those are the other resource's to say); the core specs test covers a nested object that is seeded
+    const visits = field("visits");
+    assert.equal(visits.type, "array of object");
+    assert.ok(visits.fields.some((one) => one.name === "date"));
+    assert.ok(visits.fields.every((one) => !("seededAs" in one)));
+    const pets = owner1.fields.find((one) => one.name === "pets");
+    assert.ok(pets.fields.find((one) => one.name === "type")?.fields?.length > 0);
+    assert.ok(pets.fields.every((one) => !("seededAs" in one)));
     assert.equal((await call("GET", "/__mock/model/pc/resources/Nothing")).status, 404);
     assert.equal((await call("GET", "/__mock/model/pc/other")).status, 404);
   });
@@ -256,8 +265,17 @@ describe("/__mock with --stateful", () => {
     const ok = op.responses.find((one) => one.code === "200");
     assert.equal(ok.schema, "Owner");
     assert.equal(ok.many, true);
+    assert.equal(ok.returned, true);
+    assert.ok(["example", "examples", "generated"].includes(ok.body));
+    assert.ok(op.responses.filter((one) => one.returned).length === 1);
     assert.equal(op.sample.status, 200);
     assert.ok(Array.isArray(JSON.parse(op.sample.body)));
+    // another documented response, as a request with Prefer: code= gets it
+    const other = op.responses.find((one) => /^[45]\d\d$/.test(one.code));
+    assert.ok(other, "GET /owners documents an error response");
+    const picked = (await call("GET", `${at(list.id)}?code=${other.code}`)).body;
+    assert.equal(picked.sample.status, Number(other.code));
+    assert.equal((await call("GET", `${at(list.id)}?code=abc`)).status, 400);
 
     const read = (await call("GET", "/__mock/model/pc")).body.operations.find(
       (one) => one.method === "GET" && one.path === "/owners/{ownerId}/pets/{petId}",
@@ -284,6 +302,7 @@ describe("/__mock with --stateful", () => {
     await call("POST", "/pc/owners", owner, session);
     const mine = (await call("GET", "/__mock/model/pc", undefined, session)).body;
     assert.equal(mine.resources.find((one) => one.name === "Owner").records, 11);
+    assert.equal(mine.resources.find((one) => one.name === "Owner").seeded, 10);
     const shared = (await call("GET", "/__mock/model/pc")).body;
     assert.equal(shared.resources.find((one) => one.name === "Owner").records, 10);
   });

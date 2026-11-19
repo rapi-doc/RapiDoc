@@ -1,7 +1,32 @@
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { Screen } from "../components/screen.js";
-import { LABELS, badge } from "../labels.js";
+import { icon } from "../icons.js";
+import { LABELS, badge, method } from "../labels.js";
 import "./operation-detail.js";
+
+/** A path that breaks only after a slash: `/v3/applications/redirect-uris` never splits inside a word. */
+const breakable = (path) =>
+  path
+    .split("/")
+    .map((part, index) =>
+      index
+        ? html`/<wbr /><span class="nowrap">${part}</span>`
+        : html`<span class="nowrap">${part}</span>`,
+    );
+
+/** What each method does to a record unless it says otherwise: the action is then not written again. */
+const USUAL = { POST: "create", PUT: "update", PATCH: "patch", DELETE: "delete" };
+
+/**
+ * An operation's action when the method does not already say it: always for a GET (it lists or reads one), and
+ * for the others only when it is not their usual one (a POST that updates). "create many" for `createMany`.
+ */
+const actionOf = (op) =>
+  op.method === "GET" || USUAL[op.method] !== op.action
+    ? op.action === "createMany"
+      ? "create many"
+      : op.action
+    : "";
 
 /** How the list was last grouped: a choice of the reader's, kept while the page is open. */
 let lastGroupBy = "path";
@@ -60,6 +85,8 @@ export class MockOperations extends Screen {
       return html`<rapidoc-mock-operation-detail
       .app=${app}
       .api=${api.id}
+      .operations=${api.operations}
+      .resources=${api.resources}
       .operation=${this.operation}
       .version=${this.version}
     ></rapidoc-mock-operation-detail>`;
@@ -83,9 +110,12 @@ export class MockOperations extends Screen {
     };
 
     return html`
-    <div class="title">
-      <h1>Operations</h1>
-      <p>Every operation of the spec, with what the mock does for it.</p>
+    <div class="title with-icon">
+      ${icon("operations", 44)}
+      <div>
+        <h1>Operations</h1>
+        <p>Every operation of the spec, with what the mock does for it.</p>
+      </div>
     </div>
     <div class="row">
       <input
@@ -128,57 +158,82 @@ export class MockOperations extends Screen {
     ${
       rows.length
         ? html`
-          <div class="scroll">
+          <div class="scroll fill">
             <table class="operations">
               <thead>
                 <tr>
+                  <th class=${byResource ? "" : "col-path"}>${byResource ? "Resource" : "Path"}</th>
                   <th>Method</th>
-                  ${byResource ? html`<th>Path</th>` : ""}
-                  <th>Does</th>
+                  ${byResource ? html`<th class="col-path">Path</th>` : ""}
+                  <th>${byResource ? "Does" : "Resource"}</th>
                   <th>Label</th>
-                  <th>Why</th>
-                  <th><span class="visually-hidden">Details</span></th>
+                  <th class="col-why">Why</th>
                 </tr>
               </thead>
               ${groups.map(
                 (group) => html`
                   <tbody>
-                    <tr class="group">
-                      <th colspan=${byResource ? 6 : 5} scope="rowgroup">
-                        ${
-                          byResource
-                            ? group.title
-                              ? html`<a href=${app.href("resources", group.title)}>${group.title}</a>`
-                              : "No state"
-                            : html`<code>${group.title}</code>`
-                        }
-                        <span class="count">${group.operations.length}</span>
-                      </th>
-                    </tr>
                     ${group.operations.map(
-                      (op) => html`
-                        <tr title=${op.summary || op.id}>
+                      (op, index) => html`
+                        <tr
+                          class="opens"
+                          title=${op.summary || op.id}
+                          @click=${(e) => {
+                            // a link in the row (the method, the resource, the path) goes where it points, and
+                            // selecting text to copy it opens nothing; a click on the path cell lands on the
+                            // first row, whose operation the path opens
+                            if (!e.target.closest("a") && !getSelection()?.toString()) {
+                              location.hash = app.href("operations", op.id);
+                            }
+                          }}
+                        >
+                          ${
+                            index === 0
+                              ? html`<th
+                                  class="group"
+                                  scope="rowgroup"
+                                  rowspan=${group.operations.length}
+                                >
+                                  ${
+                                    byResource
+                                      ? group.title
+                                        ? html`<a href=${app.href("resources", group.title)}
+                                            >${group.title}</a
+                                          >`
+                                        : html`<span class="hint">No state</span>`
+                                      : html`<a
+                                          class="path-link"
+                                          href=${app.href("operations", op.id)}
+                                          title="Open ${group.title}: its methods are tabs there"
+                                          ><code>${breakable(group.title)}</code></a
+                                        >`
+                                  }
+                                </th>`
+                              : nothing
+                          }
                           <td>
-                            <span class="method ${op.method.toLowerCase()}">${op.method}</span>
+                            <a
+                              class="method-link"
+                              href=${app.href("operations", op.id)}
+                              aria-label="Details of ${op.method} ${op.path}"
+                              >${method(op.method)}</a
+                            >
                           </td>
-                          ${byResource ? html`<td class="path">${op.path}</td>` : ""}
+                          ${byResource ? html`<td class="path"><code>${breakable(op.path)}</code></td>` : ""}
                           <td>
                             ${
                               op.action === "none"
                                 ? html`<span class="hint">no state</span>`
-                                : html`${op.action}
-                                  <a href=${app.href("resources", op.resource)}>${op.resource}</a>`
+                                : byResource
+                                  ? op.action === "createMany"
+                                    ? "create many"
+                                    : op.action
+                                  : html`<a href=${app.href("resources", op.resource)}>${op.resource}</a>
+                                    ${actionOf(op) ? html`<span class="hint">${actionOf(op)}</span>` : nothing}`
                             }
                           </td>
                           <td>${badge(op.label)}</td>
                           <td class="why">${op.why || ""}</td>
-                          <td>
-                            <a
-                              href=${app.href("operations", op.id)}
-                              aria-label="Details of ${op.method} ${op.path}"
-                              >Details</a
-                            >
-                          </td>
                         </tr>
                       `,
                     )}

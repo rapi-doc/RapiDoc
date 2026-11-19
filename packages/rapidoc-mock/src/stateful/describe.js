@@ -6,6 +6,7 @@
  *   describeOperation(doc, model, id)    what the mock does for it, its parameters, request and responses
  *   sampleRecord(doc, model, name, seed) one generated record, stored nowhere
  */
+import { pickMediaType, pickResponse } from "../responses.js";
 import { listOperations, resolve } from "../spec.js";
 import {
   contentSchema,
@@ -63,6 +64,14 @@ export function describeResource(doc, model, name) {
   // `readOnly` as the spec writes it: the schema made for generating data (fieldsOf) leaves the keyword out
   const written = propertiesOf(doc, { $ref: `#/components/schemas/${model.schemas[name]}` });
   const readOnly = (field) => Boolean(resolve(doc, written[field], "").node?.readOnly);
+  const fields = fieldsOf(doc, model, name);
+  const shape = shapeOf(doc, model.schemas[name]);
+  // a field of one of several shapes that only some of them have: which ones
+  const onlyIn = (field) => {
+    if (!shape?.fields) return undefined;
+    const where = shape.options.filter((_, i) => shape.fields[i].includes(field));
+    return where.length < shape.options.length ? where : undefined;
+  };
   return {
     name,
     key: resource.key,
@@ -70,11 +79,19 @@ export function describeResource(doc, model, name) {
     ...(resource.alsoAt ? { alsoAt: resource.alsoAt } : {}),
     schema: model.schemas[name],
     ...(resource.review ? { review: resource.why } : {}),
-    fields: fieldsOf(doc, model, name).map((field) => ({
+    // a schema with no fields of its own: what it is instead (its options' own fields stay here)
+    ...(shape ? { shape: { ...shape, fields: undefined } } : {}),
+    fields: fields.map((field) => ({
       ...field,
       readOnly: readOnly(field.name),
       key: field.name === resource.key,
       seededAs: sources.get(field.name),
+      ...(onlyIn(field.name) ? { onlyIn: onlyIn(field.name) } : {}),
+      // a field that copies or points at records of another resource takes their values: what its nested
+      // fields hold is that resource's to say, so they keep their shape only
+      ...(field.fields && model.relations[`${name}.${field.name}`]
+        ? { fields: withoutSeeding(field.fields) }
+        : {}),
     })),
     // Fields of this resource that point at another, and fields of others that point here
     relations: relations
@@ -95,6 +112,38 @@ export function describeResource(doc, model, name) {
       .map((one) => operationSummary(model, one)),
   };
 }
+
+/**
+ * What a schema with no fields of its own is instead: `{ kind: "oneOf" | "anyOf", options: [schema names],
+ * by?: discriminator property, fields: [the fields of each option] }`, or `{ kind: "none" }`. A record of one of
+ * several objects is one of them: the mock seeds each record from one option in turn.
+ */
+function shapeOf(doc, name) {
+  const node = resolve(doc, doc.components?.schemas?.[name], "").node || {};
+  if (Object.keys(propertiesOf(doc, { ...node, oneOf: undefined, anyOf: undefined })).length) {
+    return undefined;
+  }
+  for (const kind of ["oneOf", "anyOf"]) {
+    if (Array.isArray(node[kind]) && node[kind].length) {
+      return {
+        kind,
+        options: node[kind].map((one, index) =>
+          typeof one?.$ref === "string" ? one.$ref.split("/").pop() : `option ${index + 1}`,
+        ),
+        ...(node.discriminator?.propertyName ? { by: node.discriminator.propertyName } : {}),
+        fields: node[kind].map((one) => Object.keys(propertiesOf(doc, one))),
+      };
+    }
+  }
+  return { kind: "none" };
+}
+
+/** Nested fields without `seededAs`, at every depth. */
+const withoutSeeding = (fields) =>
+  fields.map(({ seededAs: _seededAs, fields: inner, ...field }) => ({
+    ...field,
+    ...(inner ? { fields: withoutSeeding(inner) } : {}),
+  }));
 
 /** What the mock does for an operation, in a sentence. */
 function does(entry, resource, filters, parents) {
@@ -142,6 +191,21 @@ function bodyShape(doc, content) {
       ? { inside: shape.envelope || shape.listProperty }
       : {}),
   };
+}
+
+/**
+ * Where the mock takes a response's body from, for the content type it answers with by default: `{ body:
+ * "example" }` (one example), `{ body: "examples", examples: [names] }` (the first unless `Prefer: example=`
+ * names another), `{ body: "generated" }` (from the schema), or nothing when the response has no body.
+ */
+function bodySource(doc, content) {
+  const types = Object.keys(content || {});
+  if (!types.length) return {};
+  const media = resolve(doc, content[pickMediaType(content)], "").node || {};
+  if (media.example !== undefined) return { body: "example" };
+  const examples = Object.keys(media.examples || {});
+  if (examples.length) return { body: "examples", examples };
+  return media.schema ? { body: "generated" } : {};
 }
 
 /**
@@ -209,12 +273,15 @@ export function describeOperation(doc, model, id) {
     ...(body
       ? { request: { required: Boolean(body.required), ...bodyShape(doc, body.content) } }
       : {}),
-    responses: Object.entries(operation.responses || {}).map(([code, raw]) => {
+    // `returned`: the response a request gets unless `Prefer: code=` asks for another
+    responses: Object.entries(operation.responses || {}).map(([code, raw], _, all) => {
       const response = resolve(doc, raw, "").node || {};
       return {
         code,
         ...(response.description ? { description: response.description } : {}),
         ...bodyShape(doc, response.content),
+        ...bodySource(doc, response.content),
+        ...(code === pickResponse(Object.fromEntries(all)).key ? { returned: true } : {}),
       };
     }),
   };

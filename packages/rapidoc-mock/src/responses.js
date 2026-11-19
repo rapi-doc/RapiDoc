@@ -49,7 +49,7 @@ export function parsePrefer(header) {
 }
 
 /** Picks the documented response: Prefer code (exact, then `4XX`, then `default`), else the first 2xx. */
-function pickResponse(responses, preferCode) {
+export function pickResponse(responses, preferCode) {
   const keys = Object.keys(responses);
   if (/^[1-5]\d\d$/.test(preferCode || "")) {
     const key = [preferCode, `${preferCode[0]}XX`, "default"].find((candidate) =>
@@ -66,7 +66,7 @@ function pickResponse(responses, preferCode) {
 }
 
 /** The content type to answer with: the first one Accept allows, else JSON, else the first documented. */
-function pickMediaType(content, accept) {
+export function pickMediaType(content, accept) {
   const types = Object.keys(content);
   const accepted = (accept || "")
     .split(",")

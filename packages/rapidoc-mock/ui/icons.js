@@ -1,19 +1,64 @@
-import { html, svg } from "lit";
+import { html } from "lit";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+// Phosphor Icons, regular weight (MIT): the same set the portal and the Rapi Mock site use. Each file is read as
+// text at build time, so only these icons are bundled (Vite's `?raw`); `mock-ui.LICENSE.txt` carries the notice.
+import arrowsLeftRight from "@phosphor-icons/core/assets/regular/arrows-left-right.svg?raw";
+import caretRight from "@phosphor-icons/core/assets/regular/caret-right.svg?raw";
+import database from "@phosphor-icons/core/assets/regular/database.svg?raw";
+import list from "@phosphor-icons/core/assets/regular/list.svg?raw";
+import listChecks from "@phosphor-icons/core/assets/regular/list-checks.svg?raw";
+import rows from "@phosphor-icons/core/assets/regular/rows.svg?raw";
+import slidersHorizontal from "@phosphor-icons/core/assets/regular/sliders-horizontal.svg?raw";
+import squaresFour from "@phosphor-icons/core/assets/regular/squares-four.svg?raw";
+import x from "@phosphor-icons/core/assets/regular/x.svg?raw";
+// the light weight, for the large marks of a page or a card: thinner lines at that size
+import arrowsLeftRightLight from "@phosphor-icons/core/assets/light/arrows-left-right-light.svg?raw";
+import databaseLight from "@phosphor-icons/core/assets/light/database-light.svg?raw";
+import listChecksLight from "@phosphor-icons/core/assets/light/list-checks-light.svg?raw";
+import rowsLight from "@phosphor-icons/core/assets/light/rows-light.svg?raw";
+import slidersHorizontalLight from "@phosphor-icons/core/assets/light/sliders-horizontal-light.svg?raw";
+import squaresFourLight from "@phosphor-icons/core/assets/light/squares-four-light.svg?raw";
 
-/** Line icons of the sidebar and the header, 16px, drawn in the text color. Decorative: a label always follows. */
-const PATHS = {
-  dashboard: svg`<rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/>`,
-  resources: svg`<ellipse cx="8" cy="4" rx="5.5" ry="2"/><path d="M2.5 4v8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V4"/><path d="M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/>`,
-  operations: svg`<path d="M2 4h9"/><path d="M8.5 1.5 11 4 8.5 6.5"/><path d="M14 12H5"/><path d="M7.5 9.5 5 12l2.5 2.5"/>`,
-  lint: svg`<circle cx="8" cy="8" r="6"/><path d="M5.4 8.2 7.2 10l3.4-3.8"/>`,
-  settings: svg`<path d="M2 4.5h6"/><path d="M12 4.5h2"/><circle cx="10" cy="4.5" r="2"/><path d="M2 11.5h2"/><path d="M8 11.5h6"/><circle cx="6" cy="11.5" r="2"/>`,
-  chevron: svg`<path d="M6 3.5 10.5 8 6 12.5"/>`,
-  menu: svg`<path d="M2 4h12"/><path d="M2 8h12"/><path d="M2 12h12"/>`,
+/** What is inside a Phosphor file's `<svg>`: its paths, drawn in the text color on a 256-unit grid. */
+const inner = (file) => file.replace(/^[\s\S]*?<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
+
+/**
+ * The Mock UI's icons, by what they stand for: a section of the sidebar (its id), or a control. Decorative: a
+ * label always goes with them.
+ */
+const ICONS = {
+  dashboard: inner(squaresFour),
+  operations: inner(arrowsLeftRight),
+  resources: inner(database),
+  records: inner(rows),
+  lint: inner(listChecks),
+  settings: inner(slidersHorizontal),
+  menu: inner(list),
+  chevron: inner(caretRight),
+  close: inner(x),
 };
 
-export const icon = (name) => html`
-  <svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor"
-    stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    ${PATHS[name]}
+/** The light weight of the icons that are also drawn large. */
+const LIGHT = {
+  dashboard: inner(squaresFourLight),
+  operations: inner(arrowsLeftRightLight),
+  resources: inner(databaseLight),
+  records: inner(rowsLight),
+  lint: inner(listChecksLight),
+  settings: inner(slidersHorizontalLight),
+};
+
+/** From this size up an icon is drawn in the light weight. */
+const LARGE = 32;
+
+/**
+ * An icon in the text color: 16px beside a label, larger (and in Phosphor's light weight, thinner) as a page's or
+ * a card's mark (`size`).
+ * @param {keyof typeof ICONS} name
+ * @param {number} [size]
+ */
+export const icon = (name, size = 16) => html`
+  <svg class="icon" viewBox="0 0 256 256" width=${size} height=${size} fill="currentColor" aria-hidden="true">
+    ${unsafeSVG((size >= LARGE && LIGHT[name]) || ICONS[name] || "")}
   </svg>
 `;

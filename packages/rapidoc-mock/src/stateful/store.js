@@ -185,6 +185,10 @@ export function createStore(resources) {
       initial = cloneState(seed);
     },
     session: view,
+    /** How many records a collection had when it was loaded: what a reset goes back to. */
+    seeded(name) {
+      return initial.get(name)?.size ?? 0;
+    },
     /** How many sessions hold their own state. */
     get sessionCount() {
       return sessions.size;

@@ -7,6 +7,7 @@
  *   GET  /__mock/model/<api>/resources/<Resource>/sample   one generated record, stored nowhere (`?seed=`)
  *   GET  /__mock/model/<api>/operations/<id>               one operation: what the mock does, parameters,
  *                                               request, responses, and a sample of the plain mock's response
+ *                                               (`?code=404`: of that response instead of the default one)
  *   GET  /__mock/lint/<api>                     what lint found in the API's spec, when the mock was given a
  *                                               `lint` function (`rapidoc mock` gives one): `{ linted, problems,
  *                                               summary }`. The mock has no lint rules of its own.
@@ -65,6 +66,8 @@ function modelOf(api, view) {
       path: resource.path,
       ...(resource.alsoAt ? { alsoAt: resource.alsoAt } : {}),
       records: snapshot[name]?.length ?? 0,
+      // what a reset goes back to: the UI marks a count that differs from it
+      seeded: api.state.store.seeded(name),
       ...(resource.review ? { review: resource.why } : {}),
     })),
     operations: listOperations(api.doc).map((one) => {
@@ -218,14 +221,19 @@ export async function control({ method, segments, query, session, body }, apis, 
     if (kind === "operations" && item !== undefined && extra === undefined) {
       const operation = describeOperation(api.doc, model, item);
       if (!operation) return problem(404, "Not Found", `${api.id} has no operation ${item}.`);
-      // What the plain mock answers: the shape of the response, with example or generated values
+      // What the plain mock answers: the shape of the response, with example or generated values. `?code=404`:
+      // that documented response, as a request with `Prefer: code=404` gets it
+      const code = query.get("code");
+      if (code !== null && !/^[1-5]\d\d$/.test(code)) {
+        return problem(400, "Bad Request", "code is a status code from 100 to 599.");
+      }
       let sample;
       try {
         const found = api.byKey.get(`${operation.method.toLowerCase()} ${operation.path}`);
         const response = await api.respond({
           operation: found.operation,
           pointer: found.pointer,
-          prefer: {},
+          prefer: code ? { code } : {},
           accept: "application/json",
         });
         sample = { status: response.status, source: response.source, body: response.body ?? null };

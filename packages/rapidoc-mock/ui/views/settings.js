@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import { Screen } from "../components/screen.js";
+import { icon } from "../icons.js";
 
 /** A whole number from a form field, or undefined when it is not one in the range. */
 const whole = (form, name, max) => {
@@ -32,12 +33,15 @@ export class MockSettings extends Screen {
       ],
     ];
     return html`
-    <div class="title">
-      <h1>Settings</h1>
-      <p>
-        What you change here lasts until the mock stops. To keep a setting, start the mock with the
-        option shown beside it.
-      </p>
+    <div class="title with-icon">
+      ${icon("settings", 44)}
+      <div>
+        <h1>Settings</h1>
+        <p>
+          What you change here lasts until the mock stops. To keep a setting, start the mock with the
+          option shown beside it.
+        </p>
+  </div>
     </div>
 
     <section class="card">

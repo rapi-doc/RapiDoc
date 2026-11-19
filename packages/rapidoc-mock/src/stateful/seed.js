@@ -114,6 +114,36 @@ function flat(schema, depth = 0) {
   };
 }
 
+/**
+ * The shapes of a schema that is one of several objects and has no fields of its own (`oneOf` or `anyOf`, Nylas'
+ * `RedirectURIObject`): each shape flattened, or undefined for any other schema. A record of it is one shape.
+ */
+export function variantsOf(schema) {
+  if (Object.keys(flat(schema)?.properties || {}).length) return undefined;
+  const list = schema?.oneOf || schema?.anyOf;
+  if (!Array.isArray(list) || list.length < 2) return undefined;
+  const options = list.map((one) => flat(one));
+  return options.every((one) => Object.keys(one?.properties || {}).length) ? options : undefined;
+}
+
+/**
+ * What a record of a resource holds, to list and describe its fields: the schema through `allOf`, or for one of
+ * several shapes (`variantsOf`) every shape's fields, the first shape's where two share a name; a field is
+ * required when every shape requires it.
+ */
+function recordShape(schema) {
+  const variants = variantsOf(schema);
+  if (!variants) return flat(schema);
+  const properties = {};
+  for (const one of variants) {
+    for (const [field, value] of Object.entries(one.properties)) properties[field] ??= value;
+  }
+  const required = Object.keys(properties).filter((field) =>
+    variants.every((one) => (one.required || []).includes(field)),
+  );
+  return { type: "object", properties, required };
+}
+
 /** A JSON Schema whose unbounded numbers get a small positive range: a quantity of -837 reads as a bug. */
 function bounded(schema) {
   if (Array.isArray(schema)) return schema.map(bounded);
@@ -182,7 +212,9 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
     const pointer = `#/components/schemas/${model.schemas[name]}`;
     const schema = bounded(toJsonSchema(doc, { $ref: pointer }, pointer));
     const varied = withoutExamples(schema);
-    const shape = flat(schema);
+    // one of several shapes: each record is one of them in turn, so the records show every shape
+    const variants = variantsOf(schema);
+    const shape = recordShape(schema);
     const properties = shape.properties || {};
     const fields = Object.keys(properties);
     const domain = entityDomain(name, fields);
@@ -203,9 +235,23 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
       const random = randomFrom(recordSeed);
       // The first record shows the spec's examples; the others are generated, or every record would be the same
       const first = i === 0;
+      const variant = variants?.[i % variants.length];
+      // a shape whose fields are all optional would be generated empty: it is an object with all its fields
+      const asked = variant
+        ? {
+            ...variant,
+            type: "object",
+            required: [
+              ...new Set([...(variant.required || []), ...Object.keys(variant.properties)]),
+            ],
+          }
+        : schema;
       let record;
       try {
-        record = await generateValid(first ? schema : varied, recordSeed);
+        record = await generateValid(
+          first ? asked : variant ? withoutExamples(asked) : varied,
+          recordSeed,
+        );
       } catch (err) {
         failed[name] = String(err?.message || err).split("\n")[0];
         continue;
@@ -213,7 +259,7 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
       if (!record || typeof record !== "object" || Array.isArray(record)) continue;
       // One set of value makers per record, seeded by it: a record's values never depend on another's
       const values = valuesFor(recordSeed);
-      dress(record, shape, { values, entity: name, index: i }, { first, domain, model });
+      dress(record, variant || shape, { values, entity: name, index: i }, { first, domain, model });
 
       for (const edge of mine.filter((e) => !e.late)) link(record, edge, data[edge.to], random);
       if (key) {
@@ -282,97 +328,139 @@ export async function generateSeed(doc, model, { rows = 10, seed = 1 } = {}) {
  */
 export function fieldSources(doc, model, name) {
   const pointer = `#/components/schemas/${model.schemas[name]}`;
-  const shape = flat(toJsonSchema(doc, { $ref: pointer }, pointer));
+  const shape = recordShape(toJsonSchema(doc, { $ref: pointer }, pointer));
   const properties = shape?.properties || {};
   const fields = Object.keys(properties);
-  const domain = entityDomain(name, fields);
-  const key = model.resources[name].key;
-  const edges = edgesOf(model).filter((edge) => edge.from === name);
-
-  const sourceOf = (field) => {
-    const property = flat(properties[field]) || {};
-    const types = typesOf(property);
-    const edge = edges.find((one) => one.field === field);
-    if (edge) {
-      const many = types.includes("array");
-      if (edge.copy) return many ? `copies of ${edge.to} records` : `a copy of a ${edge.to} record`;
-      const keyName = edge.toKey || "key";
-      return many
-        ? `the ${keyName}s of ${edge.to} records`
-        : `the ${keyName} of a ${edge.to} record`;
-    }
-    if (field === key) {
-      return types.includes("integer") || types.includes("number")
-        ? "the key: counts up from 1"
-        : "the key: unique per record";
-    }
-    const nested = flat(property.type === "array" ? property.items : property);
-    if (nested?.properties) {
-      const entity = model.embedded[`${name}.${field}`];
-      const what = entity ? `${entity} ` : "";
-      return property.type === "array"
-        ? `a list of nested ${what}objects`
-        : `a nested ${what}object`;
-    }
-    if (Array.isArray(property.enum) && property.enum.length > 1) return "each enum value in turn";
-    if (hasFixedValue(property)) return "the spec's fixed value (enum, const or default)";
-    const isText = types.includes("string");
-    const example = hasExample(property) ? exampleOf(property, 0) : undefined;
-    if (isText && !property.format) {
-      const named = generatorLabel(domain, field, name);
-      if (property.pattern) {
-        return named
-          ? `${named} when it fits the pattern, else text from the pattern`
-          : "a few words when they fit the pattern, else text from the pattern";
-      }
-      const isCode =
-        typeof example === "string" && /^\S*\d\S*$/.test(example) && !/[@/]/.test(example);
-      if (named && !isCode) return named;
-      if (example !== undefined) return "shaped like the example";
-      return "generated text";
-    }
-    if (isText && property.format === "email") return "an e-mail address";
-    if (isText && (property.format === "uri" || property.format === "url")) return "a URL";
-    if (isText) return `a ${property.format} value`;
-    if ((types.includes("integer") || types.includes("number")) && example !== undefined)
-      return "a number near the example";
-    if (types.includes("integer") || types.includes("number")) {
-      const open = property.minimum === undefined && property.maximum === undefined;
-      return open ? "a number from 0 to 1000" : "a number within the schema's limits";
-    }
-    if (types.includes("boolean")) return "true or false";
-    if (types.includes("array") && example !== undefined) return "the example list";
-    return "generated from the schema";
+  const context = {
+    model,
+    entity: name,
+    domain: entityDomain(name, fields),
+    key: model.resources[name].key,
+    edges: edgesOf(model).filter((edge) => edge.from === name),
   };
-  return fields.map((field) => ({ field, source: sourceOf(field) }));
+  return fields.map((field) => ({
+    field,
+    source: sourceOf(flat(properties[field]) || {}, field, context),
+  }));
+}
+
+/**
+ * Where the seed value of one field comes from, in words. `context`: the entity the field is in (a resource, or
+ * the entity a nested object stands for), its domain, its key and its references (none in a nested object).
+ */
+function sourceOf(property, field, { model, entity, domain, key, edges = [] }) {
+  const types = typesOf(property);
+  const edge = edges.find((one) => one.field === field);
+  if (edge) {
+    const many = types.includes("array");
+    if (edge.copy) return many ? `copies of ${edge.to} records` : `a copy of a ${edge.to} record`;
+    const keyName = edge.toKey || "key";
+    return many ? `the ${keyName}s of ${edge.to} records` : `the ${keyName} of a ${edge.to} record`;
+  }
+  if (field === key) {
+    return types.includes("integer") || types.includes("number")
+      ? "the key: counts up from 1"
+      : "the key: unique per record";
+  }
+  const nested = flat(property.type === "array" ? property.items : property);
+  if (nested?.properties) {
+    const named = model.embedded[`${entity}.${field}`];
+    const what = named ? `${named} ` : "";
+    return property.type === "array" ? `a list of nested ${what}objects` : `a nested ${what}object`;
+  }
+  if (Array.isArray(property.enum) && property.enum.length > 1) return "each enum value in turn";
+  if (hasFixedValue(property)) return "the spec's fixed value (enum, const or default)";
+  const isText = types.includes("string");
+  const example = hasExample(property) ? exampleOf(property, 0) : undefined;
+  if (isText && !property.format) {
+    const named = generatorLabel(domain, field, entity);
+    if (property.pattern) {
+      return named
+        ? `${named} when it fits the pattern, else text from the pattern`
+        : "a few words when they fit the pattern, else text from the pattern";
+    }
+    const isCode =
+      typeof example === "string" && /^\S*\d\S*$/.test(example) && !/[@/]/.test(example);
+    if (named && !isCode) return named;
+    if (example !== undefined) return "shaped like the example";
+    return "generated text";
+  }
+  if (isText && property.format === "email") return "an e-mail address";
+  if (isText && (property.format === "uri" || property.format === "url")) return "a URL";
+  if (isText) return `a ${property.format} value`;
+  if ((types.includes("integer") || types.includes("number")) && example !== undefined)
+    return "a number near the example";
+  if (types.includes("integer") || types.includes("number")) {
+    const open = property.minimum === undefined && property.maximum === undefined;
+    return open ? "a number from 0 to 1000" : "a number within the schema's limits";
+  }
+  if (types.includes("boolean")) return "true or false";
+  if (types.includes("array") && example !== undefined) return "the example list";
+  return "generated from the schema";
+}
+
+/** How deep `dress` fills objects nested in a record, and so how deep their fields are described. */
+const NESTED_DEPTH = 3;
+
+/** One field as its schema describes it: `{ name, type, format?, required, readOnly, enum?, example? }`. */
+function fieldShape(field, property, required) {
+  const types = typesOf(property).filter(Boolean);
+  const items = flat(property.items);
+  const itemType =
+    typesOf(items).filter(Boolean).join(" | ") || (items?.properties ? "object" : "");
+  const type =
+    types.join(" | ") ||
+    (property.properties ? "object" : property.enum ? "enum" : property.oneOf ? "one of" : "any");
+  return {
+    name: field,
+    type: types.includes("array") && itemType ? `${type} of ${itemType}` : type,
+    ...(property.format ? { format: property.format } : {}),
+    required: required.has(field),
+    readOnly: Boolean(property.readOnly),
+    ...(Array.isArray(property.enum) ? { enum: property.enum } : {}),
+    ...(hasExample(property) ? { example: exampleOf(property, 0) } : {}),
+  };
+}
+
+/**
+ * The fields of an object nested in a record (or of a list's items), each with how it is seeded and its own
+ * nested fields, down to the depth `dress` fills; undefined for a field that holds no object.
+ */
+function nestedFields(property, entity, model, depth) {
+  const nested = flat(typesOf(property).includes("array") ? property.items : property);
+  if (!nested?.properties || depth >= NESTED_DEPTH) return undefined;
+  const names = Object.keys(nested.properties);
+  const required = new Set(nested.required || []);
+  const context = { model, entity, domain: entityDomain(entity, names) };
+  return names.map((field) => {
+    const child = flat(nested.properties[field]) || {};
+    const fields = nestedFields(
+      child,
+      model.embedded[`${entity}.${field}`] || field,
+      model,
+      depth + 1,
+    );
+    return {
+      ...fieldShape(field, child, required),
+      seededAs: sourceOf(child, field, context),
+      ...(fields ? { fields } : {}),
+    };
+  });
 }
 
 /**
  * The fields of a resource as its schema describes them, through `allOf`:
- * `[{ name, type, format?, required, readOnly, enum?, example? }]`.
+ * `[{ name, type, format?, required, readOnly, enum?, example?, fields? }]`. `fields`: those of an object the
+ * field holds (or of its list's items), each with `seededAs`, nested the same way.
  */
 export function fieldsOf(doc, model, name) {
   const pointer = `#/components/schemas/${model.schemas[name]}`;
-  const shape = flat(toJsonSchema(doc, { $ref: pointer }, pointer));
+  const shape = recordShape(toJsonSchema(doc, { $ref: pointer }, pointer));
   const required = new Set(shape?.required || []);
   return Object.entries(shape?.properties || {}).map(([field, raw]) => {
     const property = flat(raw) || {};
-    const types = typesOf(property).filter(Boolean);
-    const items = flat(property.items);
-    const itemType =
-      typesOf(items).filter(Boolean).join(" | ") || (items?.properties ? "object" : "");
-    const type =
-      types.join(" | ") ||
-      (property.properties ? "object" : property.enum ? "enum" : property.oneOf ? "one of" : "any");
-    return {
-      name: field,
-      type: types.includes("array") && itemType ? `${type} of ${itemType}` : type,
-      ...(property.format ? { format: property.format } : {}),
-      required: required.has(field),
-      readOnly: Boolean(property.readOnly),
-      ...(Array.isArray(property.enum) ? { enum: property.enum } : {}),
-      ...(hasExample(property) ? { example: exampleOf(property, 0) } : {}),
-    };
+    const fields = nestedFields(property, model.embedded[`${name}.${field}`] || field, model, 0);
+    return { ...fieldShape(field, property, required), ...(fields ? { fields } : {}) };
   });
 }
 

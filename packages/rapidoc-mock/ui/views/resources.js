@@ -2,9 +2,10 @@ import { html, nothing } from "lit";
 import { keyed } from "lit/directives/keyed.js";
 import { Screen } from "../components/screen.js";
 import { cellText } from "../components/table.js";
+import { icon } from "../icons.js";
 import { badge } from "../labels.js";
 import "../components/table.js";
-import "./resource-about.js";
+import "./resource-schema.js";
 
 /** The columns of the records in view: the key first, then every field in the order records show it. */
 function columnsOf(records, key) {
@@ -23,14 +24,32 @@ function columnsOf(records, key) {
 const NONE = [];
 
 /**
- * Resources: the records the mock stores, one resource at a time, and (the About tab) what the mock knows about
+ * How many records a resource holds: muted while it is what the seed data had, marked with the difference once
+ * requests (or a restore) changed it. A reset goes back to the seed count.
+ */
+function count({ records, seeded }) {
+  const changed = seeded !== undefined && records !== seeded;
+  const delta = records - seeded;
+  return html`<span
+    class="count${changed ? " changed" : ""}"
+    title=${
+      changed
+        ? `${records} now, ${seeded} in the seed data`
+        : `${records} record${records === 1 ? "" : "s"}, as seeded`
+    }
+    >${records}${changed ? html` <small>(${delta > 0 ? "+" : ""}${delta})</small>` : nothing}</span
+  >`;
+}
+
+/**
+ * Resources: the records the mock stores, one resource at a time, and (the Schema tab) what the mock knows about
  * the resource. Keeps the records it loaded; the table keeps their filter, order, page and selection.
  */
 export class MockResources extends Screen {
   static properties = {
     app: { attribute: false },
     api: { attribute: false },
-    /** The resource in view, and its tab: "records" or "about". */
+    /** The resource in view, and its tab: "records" or "schema". */
     name: { type: String },
     tab: { type: String },
     busy: { type: Boolean },
@@ -51,7 +70,7 @@ export class MockResources extends Screen {
   }
 
   updated(changed) {
-    if (["api", "name", "tab", "version"].some((one) => changed.has(one)) && this.tab !== "about")
+    if (["api", "name", "tab", "version"].some((one) => changed.has(one)) && this.tab !== "schema")
       this.loadRecords();
   }
 
@@ -83,12 +102,35 @@ export class MockResources extends Screen {
         </p>
       `;
     }
+    // the tabs, and what needs review: one row with the records' filter (the list shows which resource it is)
+    const heading = html`
+      <nav class="tabs" role="tablist" aria-label=${resource?.name || "Resource"}>
+        ${[
+          ["records", "Records", resource?.name],
+          ["schema", "Schema", `${resource?.name}/schema`],
+        ].map(
+          ([tab, title, item]) => html`
+            <a
+              role="tab"
+              href=${app.href("resources", item)}
+              class=${this.tab === tab ? "current" : ""}
+              aria-selected=${this.tab === tab ? "true" : "false"}
+              >${title}</a
+            >
+          `,
+        )}
+      </nav>
+      ${resource?.review ? badge("needsReview", resource.review) : nothing}
+    `;
     return html`
-      <div class="title">
-        <h1>Resources</h1>
-        <p>The records this mock stores, worked out from the spec's schemas and paths.</p>
+      <div class="title with-icon">
+        ${icon("resources", 44)}
+        <div>
+          <h1>Resources</h1>
+          <p>The records this mock stores, worked out from the spec's schemas and paths.</p>
+        </div>
       </div>
-      <div class="split">
+      <div class="split resources">
         <nav class="list" aria-label="Resources">
           ${api.resources.map(
             (one) => html`
@@ -98,64 +140,63 @@ export class MockResources extends Screen {
                 aria-current=${one.name === resource?.name ? "true" : "false"}
               >
                 <span class="name">${one.name}</span>
-                <span class="count">${one.records}</span>
+                ${
+                  one.review
+                    ? html`<span class="review-dot" title="Needs review: ${one.review}"
+                        ><span class="visually-hidden">needs review</span></span
+                      >`
+                    : nothing
+                }
+                ${count(one)}
               </a>
             `,
           )}
         </nav>
         <div class="pane">
-          <div class="row">
-            <h2>${resource?.name}</h2>
-            <code>${resource?.path || "no item path"}</code>
-            <span>key: <code>${resource?.key || "none"}</code></span>
-            ${
-              resource?.review
-                ? html`${badge("needsReview")}
-                  <span class="hint">${resource.review}</span>`
-                : nothing
-            }
-          </div>
-          <div class="tabs" role="tablist">
-            ${[
-              ["records", "Records", resource?.name],
-              ["about", "About", `${resource?.name}/about`],
-            ].map(
-              ([tab, title, item]) => html`
-                <a
-                  role="tab"
-                  href=${app.href("resources", item)}
-                  class=${this.tab === tab ? "current" : ""}
-                  aria-selected=${this.tab === tab ? "true" : "false"}
-                  >${title}</a
-                >
-              `,
-            )}
-          </div>
           ${
             // one element per resource: a filter or a sort order does not follow to the next one
             keyed(
               `${api.id}/${this.name}/${this.tab}`,
-              this.tab === "about"
-                ? html`<rapidoc-mock-resource-about
-                    .app=${app}
-                    .api=${api.id}
-                    .name=${this.name}
-                    .busy=${this.busy}
-                    .version=${this.version}
-                  ></rapidoc-mock-resource-about>`
-                : html`<rapidoc-mock-table
+              this.tab === "schema"
+                ? html`<div class="row toolbar">${heading}</div>
+                    <div class="pane-body">
+                      <rapidoc-mock-resource-schema
+                        .app=${app}
+                        .api=${api.id}
+                        .name=${this.name}
+                        .version=${this.version}
+                      ></rapidoc-mock-resource-schema>
+                    </div>`
+                : current && this.records.length && !this.columns.length
+                  ? html`<div class="row toolbar">${heading}</div>
+                      <div class="pane-body">
+                        <div class="empty-shape">
+                          <p>
+                            The mock holds ${this.records.length} ${resource?.name} records, and every one is
+                            empty: it found no fields in the resource's schema.
+                          </p>
+                          <p class="hint">
+                            The <a href=${app.href("resources", `${resource?.name}/schema`)}>Schema</a> tab says
+                            what the schema is instead.
+                          </p>
+                        </div>
+                      </div>`
+                  : html`<rapidoc-mock-table
+                    .lead=${heading}
                     .rows=${current ? this.records : NONE}
                     .columns=${current ? this.columns : NONE}
                     .detail=${(record, close) => html`
-                      <aside class="card detail" aria-label="Record">
-                        <div class="row">
-                          <h3>
-                            ${resource?.name} ${resource?.key ? cellText(record[resource.key]) : ""}
-                          </h3>
-                          <span class="grow"></span>
-                          <button @click=${close}>Close</button>
+                      <aside
+                        class="detail drawer"
+                        aria-label="${resource?.name} ${resource?.key ? cellText(record[resource.key]) : "record"}"
+                        @keydown=${(e) => e.key === "Escape" && close()}
+                      >
+                        <button class="close" aria-label="Close the record" title="Close (Esc)" @click=${close}>
+                          ${icon("close")}
+                        </button>
+                        <div class="drawer-body">
+                          <pre>${JSON.stringify(record, null, 2)}</pre>
                         </div>
-                        <pre>${JSON.stringify(record, null, 2)}</pre>
                       </aside>
                     `}
                   ></rapidoc-mock-table>`,
