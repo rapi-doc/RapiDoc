@@ -41,6 +41,9 @@ export const DEFAULT_PORT = 4010;
  *   them, parsed (`{ resources, operations }`, or `{ apis: { <id>: ... } }`); `configFile`: its name, for messages.
  * @param {number} [options.delay] - Milliseconds every API response waits before it is sent (default 0), to see
  *   loading states in a client. The control API (`PATCH /__mock/settings`) can change it while the mock runs.
+ * @param {(api: { id: string, fullPath: string }) => Promise<object>} [options.lint] - Lints one API's spec, for
+ *   `GET /__mock/lint/<api id>` and the Mock UI's Lint section. The mock has no lint rules: `rapidoc mock` passes
+ *   the CLI's. It returns `{ linted, problems, summary }` (see ui/mock-ui.js); asked once per API, on demand.
  * @param {number} [options.streamInterval] - Gap in ms between the items of a streamed response (OpenAPI 3.2
  *   `itemSchema`: Server-Sent Events, JSON Lines); default 300
  * @param {string | string[]} [options.origin] - Origins allowed by CORS (default `*`; tokens travel in headers, not cookies)
@@ -55,6 +58,7 @@ export async function createMockApp({
   seed = 1,
   stateful = false,
   delay = 0,
+  lint,
   streamInterval = DEFAULT_STREAM_INTERVAL,
   origin = "*",
   log = (line) => console.log(`[rapidoc mock] ${line}`),
@@ -132,6 +136,7 @@ export async function createMockApp({
   const runtime = createRuntime({
     settings,
     started: { stateful: Boolean(stateful), issuer, audience, streamInterval },
+    lint,
   });
   const app = new Hono();
   // Every method the APIs use (OpenAPI 3.2 QUERY and additionalOperations included) passes CORS preflight

@@ -364,6 +364,10 @@ export const styles = css`
   .stat span {
     color: var(--muted);
   }
+  /* a figure that leads nowhere */
+  div.stat:hover {
+    background: var(--card);
+  }
   .badge {
     display: inline-block;
     padding: 0 8px;
@@ -569,6 +573,133 @@ export const styles = css`
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+
+  /* Lint: the summary's rows (a category or a rule, the share that passed, what was found) and the findings */
+  .sidebar a .count {
+    margin-left: auto;
+    font-size: 12.5px;
+  }
+  .errors,
+  .sidebar a .count.errors,
+  .severity.error {
+    color: var(--error);
+  }
+  .warnings,
+  .severity.warning {
+    color: var(--accent-text);
+  }
+  .clean {
+    color: var(--ok);
+  }
+  .lint-total b {
+    margin-right: 4px;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--strong);
+  }
+  .lint-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .lint-rows.columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 2px 24px;
+    margin: 0 -12px;
+  }
+  .lint-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 70px 38px minmax(84px, auto);
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px 6px 9px;
+    border-left: 3px solid transparent;
+    color: var(--strong);
+  }
+  .lint-row:hover {
+    background: var(--hover);
+    text-decoration: none;
+  }
+  .lint-row.current {
+    background: var(--hover);
+    border-left-color: var(--primary);
+  }
+  .lint-row.rule {
+    padding-left: 26px;
+    font-size: 12.5px;
+    color: var(--fg);
+  }
+  .lint-row.rule .label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    overflow-wrap: anywhere;
+  }
+  .meter {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--inset);
+    overflow: hidden;
+  }
+  .meter span {
+    display: block;
+    height: 100%;
+    background: var(--ok);
+  }
+  .share,
+  .found {
+    text-align: right;
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .share {
+    color: var(--fg);
+  }
+  .split.lint .side {
+    flex: 0 0 400px;
+    align-self: flex-start;
+    padding: 8px 0;
+  }
+  ol.findings {
+    margin: 0;
+    padding: 0;
+    gap: 0;
+    list-style: none;
+  }
+  .findings li {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .findings li:last-child {
+    border-bottom: 0;
+  }
+  .findings .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .severity {
+    font-weight: 500;
+  }
+  .findings .where {
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 1100px) {
+    .split.lint {
+      flex-direction: column;
+    }
+    .split.lint .side {
+      flex: none;
+      align-self: stretch;
+    }
   }
 
   /* Tables */

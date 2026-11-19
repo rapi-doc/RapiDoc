@@ -5,11 +5,11 @@ description: See the records Rapi Mock holds, what it does for every operation, 
 
 With `--stateful`, the mock serves a page at `/__mock/ui` on its own port: `http://localhost:4010/__mock/ui`. It shows what the mock made of each spec and what it holds now.
 
-Pick an API in the header. The sidebar has four sections.
+Pick an API in the header. The sidebar has five sections.
 
 ## Dashboard
 
-How many resources, records and operations the mock found, the share of operations per label with what each label means, and the assumptions worth a look.
+How many resources, records and operations the mock found, the lint summary, the share of operations per label with what each label means, and the assumptions worth a look.
 
 ## Resources
 
@@ -28,6 +28,10 @@ The **About** tab shows:
 Every operation with what the mock does for it and one of three labels: **Stateful**, **Needs review** with the reason, or **Static**. Group them by path or by resource.
 
 **Details** opens one operation: what the mock does in a sentence, what it uses each parameter for, what the request and each response hold, and a sample response.
+
+## Lint
+
+What [lint](/docs/correcting/lint/) found in the spec, as `rapidoc lint --stateful` reports it: the share of checks that passed, each category and its rules, and every finding with its line. Pick a category or a rule to see its findings alone. The Dashboard shows the same summary in a card. The spec is linted when the page first asks, so a large one takes a few seconds to show.
 
 ## Settings
 

@@ -22,12 +22,24 @@
  * `data.detail` is shown. Set it before the element is added to the page, or the first read goes over HTTP;
  * setting it later reads everything again.
  *
+ * Lint: when `/settings` says `lint: true`, the UI has a Lint section and a Lint card on the Dashboard, read
+ * from `/lint/<api id>` when first shown (`/lint` when there is no API). The mock has no lint rules of its own:
+ * who starts it gives it a function (`rapidoc mock` the CLI's, the spec check its own). The answer is
+ *
+ *   { linted, problems, summary, mockError }
+ *
+ * `problems` is `[{ severity: "error" | "warning", rule, message, pointer: string[], line, file? }]`; `summary`
+ * what `summarize` of `@rapidoc/cli`'s `lint/summary.js` returns (absent when `linted` is false: the spec is not
+ * valid OpenAPI and the problems are the validator's); `mockError` says why no mock runs on the spec, when a
+ * page shows the lint of a spec the mock can't start on.
+ *
  * Built by `vite build` into `dist/ui/mock-ui.js` with Lit bundled in.
  */
 import { LitElement, html, nothing } from "lit";
 import { icon } from "./icons.js";
 import { styles } from "./styles.js";
 import "./views/dashboard.js";
+import "./views/lint.js";
 import "./views/operations.js";
 import "./views/resources.js";
 import "./views/settings.js";
@@ -41,7 +53,11 @@ const SECTIONS = [
         id: "dashboard",
         title: "Dashboard",
         view: (app) =>
-          html`<rapidoc-mock-dashboard .app=${app} .api=${app.api}></rapidoc-mock-dashboard>`,
+          html`<rapidoc-mock-dashboard
+            .app=${app}
+            .api=${app.api}
+            .lint=${app.hasLint ? (app.lint ?? null) : undefined}
+          ></rapidoc-mock-dashboard>`,
       },
     ],
   },
@@ -73,6 +89,20 @@ const SECTIONS = [
             .version=${app.version}
           ></rapidoc-mock-operations>`,
       },
+      {
+        id: "lint",
+        title: "Lint",
+        // only where the mock lints, which needs no API: a page can show the lint of a spec no mock runs on
+        when: (app) => app.hasLint,
+        ready: (app) => app.hasLint,
+        view: (app) =>
+          html`<rapidoc-mock-lint
+            .app=${app}
+            .lint=${app.lint ?? null}
+            .category=${app.route.query.get("category") || ""}
+            .rule=${app.route.query.get("rule") || ""}
+          ></rapidoc-mock-lint>`,
+      },
     ],
   },
   {
@@ -81,6 +111,7 @@ const SECTIONS = [
       {
         id: "settings",
         title: "Settings",
+        ready: (app) => Boolean(app.server?.apis),
         view: (app) =>
           html`<rapidoc-mock-settings
             .app=${app}
@@ -125,6 +156,7 @@ export class RapidocMockUi extends LitElement {
     base: { type: String },
     /** The control API as a function, in place of HTTP (see the top of this file). */
     source: { attribute: false },
+    lints: { state: true },
     apis: { state: true },
     server: { state: true },
     route: { state: true },
@@ -140,6 +172,8 @@ export class RapidocMockUi extends LitElement {
     super();
     this.base = "";
     this.source = null;
+    /** The lint result of each API asked for, by id: null while it is read, `{ error }` when that failed. */
+    this.lints = {};
     this.apis = null;
     this.server = null;
     this.route = { api: "", view: "dashboard", item: "", query: new URLSearchParams() };
@@ -184,6 +218,28 @@ export class RapidocMockUi extends LitElement {
     if (this.source !== this.loadedFrom) this.load();
   }
 
+  /** True when the mock can lint its specs (see the top of this file). */
+  get hasLint() {
+    return Boolean(this.server?.lint);
+  }
+
+  /** The lint result of the API in view: undefined or null until it is read, `{ error }` when that failed. */
+  get lint() {
+    return this.lints[this.route.api];
+  }
+
+  /** Reads the lint result of the API in view, once: a large spec takes the mock a few seconds. */
+  loadLint() {
+    const id = this.route.api;
+    if (!this.hasLint || id in this.lints) return;
+    this.lints = { ...this.lints, [id]: null };
+    this.call(id ? `/lint/${encodeURIComponent(id)}` : "/lint")
+      .catch((err) => ({ error: err.message }))
+      .then((result) => {
+        if (this.lints[id] === null) this.lints = { ...this.lints, [id]: result };
+      });
+  }
+
   /** Runs an action with the busy state on; a failure becomes the error banner. Sections use it for their calls. */
   async run(action) {
     this.running = (this.running || 0) + 1;
@@ -204,6 +260,7 @@ export class RapidocMockUi extends LitElement {
     return this.run(async () => {
       try {
         this.server = await this.call("/settings");
+        this.lints = {};
         const { apis } = await this.call("/model");
         this.apis = apis;
       } catch (err) {
@@ -219,11 +276,16 @@ export class RapidocMockUi extends LitElement {
   /** The address as `{ api, view, item, query }`, with what is missing or unknown replaced by a default. */
   readAddress() {
     const [path, query = ""] = location.hash.replace(/^#\/?/, "").split("?");
-    const [api, view, ...item] = path.split("/").filter(Boolean).map(decodeURIComponent);
+    const segments = path.split("/").filter(Boolean).map(decodeURIComponent);
+    // without an API the address has no API id: #/settings
+    if (this.apis && !this.apis.length) segments.unshift("");
+    const [api, view, ...item] = segments;
     const known = this.apis?.find((one) => one.id === api) || this.apis?.[0];
+    const shown = (one) => one && (!one.when || one.when(this));
     const next = {
       api: known?.id || "",
-      view: VIEWS[view] ? view : "dashboard",
+      // with no API there is no Dashboard: a lint result is then what there is to show
+      view: shown(VIEWS[view]) ? view : !known && this.hasLint ? "lint" : "dashboard",
       item: item.join("/"),
       query: new URLSearchParams(query),
     };
@@ -239,6 +301,7 @@ export class RapidocMockUi extends LitElement {
       next.item = resource?.name || "";
     }
     this.route = next;
+    this.loadLint();
   }
 
   /** The address of a section (and an item in it) of the API in view, or of another API. */
@@ -286,6 +349,16 @@ export class RapidocMockUi extends LitElement {
     }
     this.notice = "";
     this.load();
+  }
+
+  /** The number of lint findings, beside the section's name; red when one is an error. */
+  lintCount() {
+    const problems = this.lint?.problems;
+    if (!problems?.length) return nothing;
+    const errors = problems.some((one) => one.severity === "error");
+    return html`<span class="count${errors ? " errors" : ""}" title="Findings"
+      >${problems.length.toLocaleString("en")}</span
+    >`;
   }
 
   render() {
@@ -342,17 +415,20 @@ export class RapidocMockUi extends LitElement {
           ${SECTIONS.map(
             (group) => html`
               <h2>${group.group}</h2>
-              ${group.items.map(
-                (one) => html`
-                  <a
-                    href=${this.href(one.id)}
-                    class=${one.id === this.route.view ? "current" : ""}
-                    aria-current=${one.id === this.route.view ? "page" : "false"}
-                  >
-                    ${icon(one.id)} ${one.title}
-                  </a>
-                `,
-              )}
+              ${group.items
+                .filter((one) => !one.when || one.when(this))
+                .map(
+                  (one) => html`
+                    <a
+                      href=${this.href(one.id)}
+                      class=${one.id === this.route.view ? "current" : ""}
+                      aria-current=${one.id === this.route.view ? "page" : "false"}
+                    >
+                      ${icon(one.id)} ${one.title}
+                      ${one.id === "lint" ? this.lintCount() : nothing}
+                    </a>
+                  `,
+                )}
             `,
           )}
         </nav>
@@ -360,13 +436,18 @@ export class RapidocMockUi extends LitElement {
           ${this.error ? html`<p class="banner error" role="alert">${this.error}</p>` : nothing}
           ${this.notice ? html`<p class="banner" role="status">${this.notice}</p>` : nothing}
           ${
-            api || (this.route.view === "settings" && this.server)
+            (section.ready ? section.ready(this) : api)
               ? section.view(this)
               : this.error
                 ? nothing
-                : html`<p class="empty">
-                  No API keeps state. Start the mock with <code>--stateful</code>.
-                </p>`
+                : this.lint?.mockError
+                  ? html`<p class="empty">
+                    The mock can't start on this spec: ${this.lint.mockError}
+                    <a href=${this.href("lint")}>See what the check found</a>.
+                  </p>`
+                  : html`<p class="empty">
+                    No API keeps state. Start the mock with <code>--stateful</code>.
+                  </p>`
           }
         </main>
       </div>

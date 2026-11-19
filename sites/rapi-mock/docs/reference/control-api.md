@@ -1,6 +1,6 @@
 ---
 title: Control API
-description: The /__mock endpoints - health, the model, settings, reset, state, snapshot and restore.
+description: The /__mock endpoints - health, the model, lint, settings, reset, state, snapshot and restore.
 ---
 
 The mock's own endpoints are at `/__mock`, beside the APIs. With an `X-Mock-Session` header, each works on that [session](/docs/state/sessions/)'s data only.
@@ -11,6 +11,7 @@ The mock's own endpoints are at `/__mock`, beside the APIs. With an `X-Mock-Sess
 | `GET /__mock/model` | What the mock made of each spec: resources, and every operation with its label. `/<api id>` for one API. |
 | `GET /__mock/model/<api id>/resources/<Resource>` | One resource: fields, how each is seeded, links, operations. Add `/sample` for a generated record that is not stored (`?seed=` to repeat it). |
 | `GET /__mock/model/<api id>/operations/<id>` | One operation: what the mock does, its parameters, request, responses and a sample response. `<id>` is the `id` the model lists, URL-encoded. |
+| `GET /__mock/lint/<api id>` | What [lint](/docs/correcting/lint/) finds in the API's spec, as `rapidoc lint --stateful` reports it: every finding with its rule and line, and the share of checks that passed per category. The first call lints the spec, which takes a few seconds on a large one; the answer is kept. |
 | `GET /__mock/settings` | How the mock was started: state, seed, rows, delay, tokens, the APIs. |
 | `PATCH /__mock/settings` | Changes the response delay while the mock runs: `{ "delay": 250 }`. |
 | `POST /__mock/reset` | Puts the data back to what the mock started with. `?api=<id>` resets one API. With a body `{ "rows": 25, "seed": 7 }` it makes new seed data of that size, and drops every session's records. |

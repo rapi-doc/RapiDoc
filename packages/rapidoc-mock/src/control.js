@@ -7,6 +7,9 @@
  *   GET  /__mock/model/<api>/resources/<Resource>/sample   one generated record, stored nowhere (`?seed=`)
  *   GET  /__mock/model/<api>/operations/<id>               one operation: what the mock does, parameters,
  *                                               request, responses, and a sample of the plain mock's response
+ *   GET  /__mock/lint/<api>                     what lint found in the API's spec, when the mock was given a
+ *                                               `lint` function (`rapidoc mock` gives one): `{ linted, problems,
+ *                                               summary }`. The mock has no lint rules of its own.
  *   GET  /__mock/ui                             a page that shows all of this (src/ui.js)
  *   GET  /__mock/settings                       how the mock was started, and what can change while it runs
  *   PATCH /__mock/settings                      changes the response delay: `{ "delay": 250 }`
@@ -114,6 +117,7 @@ export async function control({ method, segments, query, session, body }, apis, 
       json({
         ...runtime.started,
         ...runtime.settings,
+        lint: Boolean(runtime.lint),
         apis: apis.map((api) => ({
           id: api.id,
           ...(api.title ? { title: api.title } : {}),
@@ -150,11 +154,11 @@ export async function control({ method, segments, query, session, body }, apis, 
     }
     return show();
   }
-  if (!["model", "reset", "state", "snapshot", "restore"].includes(action)) {
+  if (!["model", "lint", "reset", "state", "snapshot", "restore"].includes(action)) {
     return problem(
       404,
       "Not Found",
-      `No control endpoint at /${[CONTROL_PREFIX, ...segments].join("/")}. There are: health, model, settings, reset, state, snapshot, restore, ui.`,
+      `No control endpoint at /${[CONTROL_PREFIX, ...segments].join("/")}. There are: health, model, lint, settings, reset, state, snapshot, restore, ui.`,
     );
   }
   if (!stateful.length) {
@@ -235,6 +239,25 @@ export async function control({ method, segments, query, session, body }, apis, 
       "Not Found",
       `No model at /${[CONTROL_PREFIX, ...segments].join("/")}. Under an API there are resources/<Resource>, resources/<Resource>/sample and operations/<id>.`,
     );
+  }
+
+  if (action === "lint" && rest.length === 1) {
+    const wrong = allow("GET");
+    if (wrong) return wrong;
+    if (!runtime?.lint) {
+      return problem(
+        404,
+        "Not Found",
+        "This mock was started without lint. rapidoc mock --stateful has it (createMockApp({ lint })).",
+      );
+    }
+    const api = find(rest[0]);
+    if (!api.state) return api;
+    try {
+      return json(await runtime.lint(api));
+    } catch (err) {
+      return problem(500, "Lint failed", String(err?.message || err).split("\n")[0]);
+    }
   }
 
   if (action === "reset" && !rest.length) {

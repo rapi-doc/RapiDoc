@@ -489,3 +489,36 @@ test("lint summary: counts findings per category, and what passed where a rule l
     [1, 2, 4, 2],
   );
 });
+
+test("lintForMock: a spec's lint as the mock server answers it", async () => {
+  const { lintForMock } = await import("../src/lint/for-mock.js");
+  const messy = await lintForMock({ id: "messy", fullPath: MESSY });
+  assert.equal(messy.linted, true);
+  assert.ok(messy.problems.length > 0);
+  const [first] = messy.problems;
+  assert.ok(["error", "warning"].includes(first.severity));
+  assert.ok(Array.isArray(first.pointer) && first.line > 0 && first.rule && first.message);
+  assert.equal(first.file, undefined, "a finding in the spec's own file names no file");
+  assert.equal(
+    messy.summary.errors + messy.summary.warnings,
+    messy.problems.length,
+    "the summary counts every finding",
+  );
+  assert.ok(
+    messy.summary.categories.some((one) => one.id === "state"),
+    "the stateful rules ran, as with --stateful",
+  );
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-lint-"));
+  try {
+    const file = path.join(dir, "broken.yaml");
+    fs.writeFileSync(file, "openapi: 3.1.0\ninfo:\n  title: Broken\npaths: {}\n");
+    const broken = await lintForMock({ id: "broken", fullPath: file });
+    assert.equal(broken.linted, false);
+    assert.equal(broken.summary, undefined);
+    assert.equal(broken.problems[0].severity, "error");
+    assert.ok(Array.isArray(broken.problems[0].pointer));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});

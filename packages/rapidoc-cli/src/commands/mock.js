@@ -212,6 +212,17 @@ export default {
                   configFile: mockConfig && path.relative(process.cwd(), mockConfig.file),
                 }
               : false,
+            // the Mock UI's Lint section: run when it is first asked for, not at start
+            lint: values.stateful
+              ? async (api) => {
+                  const { lintForMock } = await import("../lint/for-mock.js");
+                  return lintForMock(api, {
+                    apiIds: apis.map((one) => one.id),
+                    mockConfig: mockConfig?.config,
+                    folder: folder && hasPortalConfig(folder) ? folder : undefined,
+                  });
+                }
+              : undefined,
             delay: values.delay,
             streamInterval: values["stream-interval"],
           }),

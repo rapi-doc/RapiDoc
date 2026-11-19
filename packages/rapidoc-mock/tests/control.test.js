@@ -353,6 +353,39 @@ describe("/__mock with --stateful", () => {
     assert.deepEqual((await call("GET", "/pc/owners")).body, first, "same seed, same data");
   });
 
+  it("has no lint of its own: /__mock/lint answers only when the mock was given a lint function", async () => {
+    assert.equal((await call("GET", "/__mock/settings")).body.lint, false);
+    const none = await call("GET", "/__mock/lint/pc");
+    assert.equal(none.status, 404);
+    assert.match(none.body.detail, /started without lint/);
+
+    const asked = [];
+    let fail = true;
+    const mock = await createMockApp({
+      apis: [spec("pc", "petclinic.yaml")],
+      stateful: true,
+      lint: async (api) => {
+        asked.push(api.id);
+        if (fail) throw new Error("the linter broke\nwith a stack");
+        return { linted: true, problems: [], summary: { errors: 0, warnings: 0, categories: [] } };
+      },
+      ...quiet,
+    });
+    const withLint = clientOf(mock.app);
+    assert.equal((await withLint("GET", "/__mock/settings")).body.lint, true);
+    const failed = await withLint("GET", "/__mock/lint/pc");
+    assert.equal(failed.status, 500);
+    assert.equal(failed.body.detail, "the linter broke");
+    fail = false;
+    const first = await withLint("GET", "/__mock/lint/pc");
+    assert.equal(first.status, 200);
+    assert.equal(first.body.linted, true);
+    await withLint("GET", "/__mock/lint/pc");
+    assert.deepEqual(asked, ["pc", "pc"], "a failure is asked again, an answer is kept");
+    assert.equal((await withLint("GET", "/__mock/lint/other")).status, 404);
+    assert.equal((await withLint("POST", "/__mock/lint/pc")).status, 405);
+  });
+
   it("names the method an endpoint takes, and the endpoints there are", async () => {
     assert.equal((await call("GET", "/__mock/reset")).status, 405);
     assert.equal((await call("POST", "/__mock/state")).status, 405);
@@ -360,7 +393,7 @@ describe("/__mock with --stateful", () => {
     assert.equal(unknown.status, 404);
     assert.match(
       unknown.body.detail,
-      /health, model, settings, reset, state, snapshot, restore, ui/,
+      /health, model, lint, settings, reset, state, snapshot, restore, ui/,
     );
   });
 });

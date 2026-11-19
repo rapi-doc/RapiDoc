@@ -1,7 +1,8 @@
 /**
  * The spec check page (`/spec-check/` of the Rapi Mock site): takes a spec as text, runs `checkSpec` on it, and
  * shows the result in the Mock UI (`<rapidoc-mock-ui>`, the same file the mock server serves, here with the
- * in-page mock as its `source`) with the lint findings beside it. The spec is kept in this browser's storage, so
+ * in-page mock as its `source`, which also answers with the lint result: the UI's Lint section and the Lint card
+ * of its Dashboard). The spec is kept in this browser's storage, so
  * a reload finds it again; nothing leaves the page.
  */
 import { checkSpec } from "./check.js";
@@ -61,123 +62,24 @@ function showStart(problem = "") {
   $("check").textContent = "Check this spec";
 }
 
-const number = (value) => value.toLocaleString("en");
-const count = (value, word) => `${number(value)} ${word}${value === 1 ? "" : "s"}`;
-/** How much of what was looked at passed, as a whole percentage that only says 100% when it is. */
-const share = ({ checked, passed }) =>
-  `${passed === checked ? 100 : Math.min(99, Math.floor((100 * passed) / checked))}%`;
-
-/** The findings a filter keeps: all of them, a category's (`{ rules }`) or one rule's (`{ rule }`). */
-let filter = null;
-let shown = { problems: [], summary: null };
-
-/** The lint result by category: what share passed, the errors and the warnings; a click filters the list. */
-function showSummary(summary) {
-  const box = $("summary");
-  box.replaceChildren();
-  box.hidden = !summary;
-  if (!summary) return;
-  if (summary.checked) {
-    const total = node("p", undefined, { class: "total" });
-    total.append(
-      node("strong", share(summary)),
-      ` of ${number(summary.checked)} checks passed. Each check is one rule on one operation, body or tag.`,
-    );
-    box.append(total);
-  }
-  const row = (one, { label, title, pick }) => {
-    const button = node("button", undefined, { class: "pick", title });
-    const measured = one.checked !== undefined;
-    const bar = node("span", undefined, { class: "meter", "aria-hidden": "true" });
-    if (measured && one.checked) {
-      const fill = node("span");
-      fill.style.width = `${(100 * one.passed) / one.checked}%`;
-      bar.append(fill);
-    }
-    button.append(
-      node("span", label, { class: "label" }),
-      measured && one.checked ? bar : node("span"),
-      node("span", measured && one.checked ? share(one) : "", { class: "share" }),
-      node("span", one.errors ? count(one.errors, "error") : "", { class: "errors" }),
-      node("span", one.warnings ? count(one.warnings, "warning") : one.errors ? "" : "clean", {
-        class: one.warnings ? "warnings" : "clean",
-      }),
-    );
-    button.addEventListener("click", () => {
-      filter = pick;
-      showList(shown.problems, shown.summary);
-    });
-    return button;
-  };
-  for (const category of summary.categories) {
-    const group = node("details");
-    const head = node("summary");
-    head.append(
-      row(category, {
-        label: category.title,
-        title: `${category.title}: ${category.about}`,
-        pick: { title: category.title, rules: category.rules.map((one) => one.name) },
-      }),
-    );
-    group.append(head);
-    // a click on the category also opens it, to show its rules
-    head.firstChild.addEventListener("click", (event) => {
-      event.preventDefault();
-      group.open = true;
-    });
-    for (const rule of category.rules)
-      group.append(
-        row(rule, {
-          label: rule.name,
-          title: rule.description,
-          pick: { title: rule.name, rules: [rule.name] },
-        }),
-      );
-    box.append(group);
-  }
-}
-
-/** The findings, all or what the filter keeps. */
-function showList(problems, summary) {
-  shown = { problems, summary };
-  const kept = filter ? problems.filter((one) => filter.rules.includes(one.rule)) : problems;
-  const head = $("list-title");
-  head.replaceChildren(
-    node(
-      "strong",
-      filter ? `${filter.title} (${number(kept.length)})` : `All findings (${number(kept.length)})`,
-    ),
-  );
-  if (filter) {
-    const all = node("button", "Show all");
-    all.addEventListener("click", () => {
-      filter = null;
-      showList(problems, summary);
-    });
-    head.append(all);
-  }
-  $("list").replaceChildren(
-    ...kept.map((one) => {
-      const item = node("li");
-      const meta = node("div", undefined, { class: "meta" });
-      meta.append(
-        node("span", one.severity, { class: `severity ${one.severity}` }),
-        node("code", one.rule),
-        node("span", `line ${one.line}`),
-      );
-      item.append(meta, node("div", one.message));
-      if (one.pointer.length)
-        item.append(node("code", one.pointer.join(" › "), { class: "where muted" }));
-      return item;
-    }),
-  );
-  if (!kept.length) $("list").append(node("li", "Nothing found here.", { class: "muted" }));
-}
-
-function showFindings(open) {
-  $("findings").hidden = !open;
-  $("lint").setAttribute("aria-expanded", String(open));
-}
+/** The control API of a mock that could not start: no API, and the lint result with why. */
+const noMock =
+  (checked) =>
+  async ({ path }) => ({
+    status: 200,
+    data: path.startsWith("/model")
+      ? { apis: [] }
+      : path.startsWith("/settings")
+        ? { lint: true }
+        : path.startsWith("/lint")
+          ? {
+              linted: checked.linted,
+              problems: checked.problems,
+              summary: checked.summary,
+              mockError: checked.mockError,
+            }
+          : null,
+  });
 
 /** Runs the check on a spec and shows what came of it. */
 async function run({ text, name }) {
@@ -186,18 +88,15 @@ async function run({ text, name }) {
   $("check").textContent = "Checking…";
   // let the button show before the work starts: a large spec takes a few seconds
   await new Promise((resolve) => setTimeout(resolve, 20));
-  filter = null;
+  const id = idFrom(name || "");
   let checked;
   try {
-    checked = await checkSpec(text, { id: idFrom(name || "") });
+    checked = await checkSpec(text, { id });
   } catch (err) {
     return showStart(`The check failed: ${err.message.split("\n")[0]}`);
   }
   const kept = remember({ text, name });
 
-  const errors = checked.problems.filter((one) => one.severity === "error").length;
-  const warnings = checked.problems.length - errors;
-  const summary = checked.summary;
   $("name").textContent = checked.title || name || "your spec";
   $("version").textContent = [
     checked.version && `OpenAPI ${checked.version}`.replace("OpenAPI Swagger", "Swagger"),
@@ -205,40 +104,15 @@ async function run({ text, name }) {
   ]
     .filter(Boolean)
     .join(" · ");
-  const counts = `${count(errors, "error")}, ${count(warnings, "warning")}`;
-  $("lint").textContent = !checked.linted
-    ? `Not valid OpenAPI: ${counts}`
-    : summary.checked
-      ? `Lint: ${share(summary)} of checks passed · ${counts}`
-      : `Lint: ${counts}`;
-  $("lint").className = errors ? "count error" : "count";
-  $("findings-title").textContent = checked.linted ? "Lint" : "Not valid OpenAPI";
-  showSummary(summary);
-  showList(checked.problems, summary);
 
-  if (checked.mock) {
-    // the same Mock UI the server serves, reading the mock that runs in this page
-    const ui = node("rapidoc-mock-ui");
-    ui.source = checked.mock.source;
-    $("ui").replaceChildren(ui);
-    // errors are shown at once; warnings wait behind the button in the strip
-    showFindings(errors > 0);
-  } else {
-    const note = node("div", undefined, { class: "intro" });
-    note.append(
-      node("h1", "The mock can't start on this spec"),
-      node("p", checked.mockError, { class: "problem" }),
-      node(
-        "p",
-        checked.problems.length
-          ? "What the check found is listed here. Fix the errors and check the spec again."
-          : "Rapi Mock reads OpenAPI 3.0, 3.1 and 3.2.",
-        { class: "muted" },
-      ),
-    );
-    $("ui").replaceChildren(note);
-    showFindings(true);
-  }
+  // the same Mock UI the server serves, reading the mock that runs in this page; without a mock (a spec it
+  // can't start on) it has no API and shows the lint result alone
+  const ui = node("rapidoc-mock-ui");
+  ui.source = checked.mock?.source ?? noMock(checked);
+  // errors are shown at once: the Lint section opens, unless the address already names a page (a reload)
+  if (checked.mock && !location.hash && checked.problems.some((one) => one.severity === "error"))
+    history.replaceState(null, "", `#/${encodeURIComponent(id)}/lint`);
+  $("ui").replaceChildren(ui);
   $("start").hidden = true;
   $("result").hidden = false;
 }
@@ -271,8 +145,6 @@ $("another").addEventListener("click", () => {
   showStart();
   $("text").focus();
 });
-$("lint").addEventListener("click", () => showFindings($("findings").hidden));
-$("close-findings").addEventListener("click", () => showFindings(false));
 
 const box = $("text");
 for (const type of ["dragenter", "dragover"])

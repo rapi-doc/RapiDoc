@@ -38,12 +38,13 @@ bundle/             # rapidoc bundle's engine, over loadFiles (imported only by 
 ├── components.js   # toComponents: other-file $refs → components (#/components/<kind>/<name>; Swagger 2.0: definitions/parameters/responses), by the OpenAPI structure the walk knows; unknown kinds inlined
 ├── dereference.js  # dereference: every $ref inlined; CycleError (with the chain) on a recursive one
 └── write.js        # formatFor (--format, else the output's extension), serialize (yaml without aliases, or json)
-lint/               # rapidoc lint's engine (imported only by that command)
+lint/               # rapidoc lint's engine (imported only by that command, and by mock for for-mock.js)
 ├── types.js        # @typedef Finding, Rule { name, description, default, on, check, needs? }, LintContext
 ├── examples.js     # namedExampleMap: an `example` written as a map of named examples (both example rules use it)
 ├── rules/          # one file per rule, a pure (node, context) → Finding[]; index.js lists them in report order. stateful.js holds the seven stateful-* rules: each reports one group of @rapidoc/mock's statefulFindings(doc), so their logic lives in the mock
 ├── traverse.js     # one walk of the bundled document, calling each rule on the node kinds in its `on`; context.resolve follows in-document $refs
 ├── config.js       # severities: --rule › lint.apis.<id> › lint.rules (rapidoc.config.* read as a plain file) › rule defaults; names checked with "did you mean"
+├── for-mock.js     # lintForMock: one API's lint (the --stateful rules, the portal's lint: config, mock.config.yaml) as data; `mock --stateful` passes it to the mock, which answers /__mock/lint/<api id> with it for the Mock UI
 └── run.js          # lintSpec: checkSpec first (invalid specs aren't linted), then the rules; findings → file:line:col through locate/position
 ```
 

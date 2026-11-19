@@ -2,6 +2,7 @@ import { tryLoadMock } from "../lib/engines.js";
 import { bundleSpec, locate, position, SpecSyntaxError } from "../validate/bundle.js";
 import { checkSpec } from "../validate/check.js";
 import { RULES } from "./rules/index.js";
+import { summarize } from "./summary.js";
 import { traverse } from "./traverse.js";
 
 /*
@@ -14,13 +15,14 @@ import { traverse } from "./traverse.js";
 
 /**
  * @param {string} location  file path or URL
- * @param {{ remote?: boolean, severities: Record<string, Severity>, mockConfig?: { config: object, apiId: string, apiIds: string[] } }} options
- *   `mockConfig`: the parsed mock.config.yaml, with this spec's API id as the mock names it and every id
- * @returns {Promise<{ location, problems, skipped: string[], linted: boolean, notRun?: string[], configWarnings?: string[] }>}
+ * @param {{ remote?: boolean, severities: Record<string, Severity>, mockConfig?: { config: object, apiId: string, apiIds: string[] }, summary?: boolean }} options
+ *   `mockConfig`: the parsed mock.config.yaml, with this spec's API id as the mock names it and every id;
+ *   `summary`: also return the result by category (summary.js)
+ * @returns {Promise<{ location, problems, skipped: string[], linted: boolean, notRun?: string[], configWarnings?: string[], summary?: object }>}
  *   `notRun`: rules that were on and could not run, because @rapidoc/mock isn't installed;
  *   `configWarnings`: entries of mock.config.yaml that no longer fit this spec
  */
-export async function lintSpec(location, { remote = false, severities, mockConfig }) {
+export async function lintSpec(location, { remote = false, severities, mockConfig, summary }) {
   let bundle;
   try {
     bundle = await bundleSpec(location, { remote });
@@ -46,7 +48,9 @@ export async function lintSpec(location, { remote = false, severities, mockConfi
     section = picked.section;
     configWarnings.push(...picked.warnings, ...mock.statefulReport(bundle.value, section).warnings);
   }
-  const problems = traverse(bundle.value, active, { mock, mockConfig: section }).map((finding) => {
+  const tally = summary ? new Map() : undefined;
+  const found = traverse(bundle.value, active, { mock, mockConfig: section }, tally);
+  const problems = found.map((finding) => {
     const at = locate(bundle, finding.pointer);
     const { line, column } = position(bundle.files.get(at.location), at.pointer);
     return {
@@ -63,5 +67,13 @@ export async function lintSpec(location, { remote = false, severities, mockConfi
   problems.sort(
     (a, b) => a.location.localeCompare(b.location) || a.line - b.line || a.column - b.column,
   );
-  return { location, problems, skipped: bundle.skipped, linted: true, notRun, configWarnings };
+  return {
+    location,
+    problems,
+    skipped: bundle.skipped,
+    linted: true,
+    notRun,
+    configWarnings,
+    ...(summary ? { summary: summarize(active, problems, tally) } : {}),
+  };
 }

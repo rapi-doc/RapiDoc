@@ -112,7 +112,11 @@ export async function checkSpec(text, { id = "api" } = {}) {
     summary,
   };
   try {
-    checked.mock = await createBrowserMock(doc, { id });
+    // the Mock UI reads the lint result from the mock, as it does from `rapidoc mock`
+    checked.mock = await createBrowserMock(doc, {
+      id,
+      lint: async () => ({ linted, problems: checked.problems, summary }),
+    });
   } catch (err) {
     checked.mockError = err.message.split("\n")[0];
   }

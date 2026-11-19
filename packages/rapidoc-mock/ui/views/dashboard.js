@@ -1,13 +1,64 @@
 import { html, nothing } from "lit";
 import { Screen } from "../components/screen.js";
 import { LABELS, LABEL_HELP, badge } from "../labels.js";
+import { count, found, lintRow, measured, number, share, tally } from "../lint.js";
 
 /** The Dashboard: what the mock made of the API in view, at a glance. */
 export class MockDashboard extends Screen {
   static properties = {
     app: { attribute: false },
     api: { attribute: false },
+    /** The lint result of the spec, where the mock lints: the Lint card. Null while it is read. */
+    lint: { attribute: false },
   };
+
+  /** Lint at a glance: the share of checks that passed and each category, which link to the Lint section. */
+  lintCard() {
+    const { app, lint } = this;
+    if (!lint || lint.error) {
+      return html`<section class="card">
+        <h2>Lint</h2>
+        <p class="hint">${lint ? `Lint failed: ${lint.error}` : "Linting the spec…"}</p>
+      </section>`;
+    }
+    const summary = lint.summary;
+    const to = (query) => app.href("lint", "", undefined, query);
+    return html`
+      <section class="card">
+        <h2>${lint.linted ? "Lint" : "Not valid OpenAPI"}</h2>
+        <p class="lint-total">
+          ${
+            measured(summary)
+              ? html`<b>${share(summary)}</b> of ${number(summary.checked)} checks passed ·`
+              : nothing
+          }
+          ${found(tally(lint))}
+        </p>
+        ${
+          summary?.categories.length
+            ? html`<div class="lint-rows columns">
+                ${summary.categories.map((category) =>
+                  lintRow(category, {
+                    label: category.title,
+                    title: category.about,
+                    href: to({ category: category.id }),
+                  }),
+                )}
+              </div>`
+            : nothing
+        }
+        <p>
+          <a href=${to()}>
+            ${
+              lint.problems.length
+                ? `See all ${count(lint.problems.length, "finding")}`
+                : "See the rules that ran"
+            }
+          </a>
+        </p>
+      </section>
+    `;
+  }
 
   render() {
     const { app, api } = this;
@@ -44,6 +95,8 @@ export class MockDashboard extends Screen {
         <b>${api.operations.length}</b><span>Operations</span>
       </a>
     </div>
+
+    ${this.lint === undefined ? nothing : this.lintCard()}
 
     <section class="card">
       <h2>Operations by label</h2>

@@ -25,10 +25,15 @@ import { createStateful } from "./stateful/handlers.js";
  * @param {number} [options.seed=1]
  * @param {number} [options.rows=10] - Seed records per resource
  * @param {object} [options.config] - This API's corrections (`{ resources, operations }`, see stateful/config.js)
+ * @param {(api: object) => Promise<object>} [options.lint] - Answers `/lint/<id>` (see runtime.js): the page's
+ *   own lint of the spec, which the Mock UI then shows
  * @returns {Promise<{ source: Function, api: object, failed: Record<string, string> }>} `source` is the Mock
  *   UI's; `failed` names the resources that could not be seeded (they start empty) and why
  */
-export async function createBrowserMock(doc, { id = "api", seed = 1, rows = 10, config } = {}) {
+export async function createBrowserMock(
+  doc,
+  { id = "api", seed = 1, rows = 10, config, lint } = {},
+) {
   if (typeof doc?.openapi !== "string" || !/^3\.[012]\./.test(doc.openapi)) {
     const version = doc?.openapi || (doc?.swagger && `Swagger ${doc.swagger}`) || "no version";
     throw new Error(`This is not OpenAPI 3.0, 3.1 or 3.2 (${version}).`);
@@ -49,6 +54,7 @@ export async function createBrowserMock(doc, { id = "api", seed = 1, rows = 10, 
   const runtime = createRuntime({
     settings: { delay: 0, seed, rows },
     started: { stateful: true, streamInterval: 0 },
+    lint,
   });
 
   /** The control API as a function: what `<rapidoc-mock-ui>` takes as its `source`. */
