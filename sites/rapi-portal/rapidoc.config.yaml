@@ -1,0 +1,173 @@
+# yaml-language-server: $schema=../../packages/rapidoc-portal/schema.json
+# The RapiDoc Portal product and documentation site (https://portal.rapidocui.com), built with RapiDoc Portal.
+site:
+  title: RapiDoc Portal
+  url: https://portal.rapidocui.com
+  description: Turn OpenAPI specs and Markdown guides into a developer portal. Docs as code, static output, optional single sign-on (SSO).
+  logo:
+    src:
+      light: /rapidoc-lockup-light.svg
+      dark: /rapidoc-lockup-dark.svg
+    text: Portal
+  favicon: /rapidoc-leaves.svg
+theme:
+  primary: "#f6a821" # amber, the API reference's `rapidoc.theme` below
+  mode: auto
+  fonts: # from Google Fonts, so the site looks the same on every OS
+    sans: { family: Inter }
+    mono: { family: JetBrains Mono }
+  css: ./styles/portal.css # amber surfaces, as in the API reference
+header:
+  links:
+    - label: Ecosystem
+      items: # RapiDoc's web components, then its tools (this portal aside)
+        - label: RapiDoc
+          href: https://rapidocui.com/docs/
+          icon: file-code
+          description: Interactive API reference from your OpenAPI spec
+        - label: RapiDoc Mini
+          href: https://rapidocui.com/rapidoc-mini/
+          icon: puzzle-piece
+          description: A few endpoints, with Try, inside a post or guide
+        - label: RapiFlow
+          href: https://rapidocui.com/rapi-flow/
+          icon: path
+          description: Step through and run Arazzo workflows
+        - label: RapiPdf
+          href: https://rapidocui.com/rapipdf/
+          icon: file-pdf
+          description: Turn an OpenAPI spec into a PDF
+        - label: RapiDoc CLI
+          href: https://rapidocui.com/cli/
+          icon: terminal
+          description: Preview, validate, lint, bundle and export specs
+        - label: Mock server
+          href: /docs/tools/mock-server
+          icon: hard-drives
+          description: Answer requests from your specs, with real token checks
+        - label: MCP server
+          href: /docs/tools/mcp-server
+          icon: robot
+          description: Turn your API into tools for AI agents
+        - label: Pre-rendering
+          href: https://rapidocui.com/docs/performance/prerender/
+          icon: lightning
+          description: Server-rendered HTML for search engines and a fast first paint
+    - label: GitHub
+      href: https://github.com/rapi-doc/RapiDoc
+      icon: github-logo
+navigation:
+  - label: Documentation
+    icon: book
+    items:
+      - label: Get started
+        icon: rocket-launch
+        items:
+          - { slug: getting-started/introduction }
+          - { slug: getting-started/quickstart }
+          - { slug: getting-started/project-structure }
+      - label: Configuration
+        icon: sliders-horizontal
+        items:
+          - { slug: configuration/overview }
+          - { slug: configuration/customizing }
+          - { slug: configuration/site }
+          - { slug: configuration/theme }
+          - { slug: configuration/header }
+          - { slug: configuration/navigation }
+          - { slug: configuration/apis }
+          - { slug: configuration/workflows }
+          - { slug: configuration/footer }
+          - { slug: configuration/docs-search-redirects }
+          - { slug: configuration/llms }
+      - label: Writing guides
+        icon: pencil-simple-line
+        items:
+          - { slug: writing/markdown }
+          - { slug: writing/markdoc }
+          - { slug: writing/mdx }
+          - { slug: writing/callouts }
+          - { slug: writing/embedding-operations }
+      - label: API reference
+        icon: code
+        items:
+          - { slug: api-reference/reference-pages }
+          - { slug: api-reference/versions }
+          - { slug: api-reference/catalog }
+          - { slug: api-reference/rapidoc-attributes }
+      - label: Authentication
+        icon: lock
+        items:
+          - { slug: access/overview, label: Single sign-on (SSO) }
+          - { slug: access/setup }
+          - { slug: access/entra-id }
+          - { slug: access/providers }
+          - { slug: access/access-rules }
+          - { slug: access/try-it }
+      - label: Tools
+        icon: wrench
+        items:
+          - { slug: tools/mock-server }
+          - { slug: tools/mcp-server }
+          - { slug: tools/validate }
+          - { slug: tools/lint }
+          - { slug: tools/bundle }
+          - { slug: tools/migrate }
+      - label: Deploy
+        icon: cloud-arrow-up
+        items:
+          - { slug: deploy/static-hosting }
+          - { slug: deploy/rapidoc-serve }
+          - { slug: deploy/cloud-platforms }
+  - label: Reference
+    icon: list-bullets
+    items:
+      - { slug: reference/cli }
+      - { slug: reference/config }
+      - { slug: reference/programmatic-api }
+      - { slug: reference/how-it-works }
+  - label: Example API
+    icon: code
+    api: bookstore
+apis:
+  - id: bookstore
+    spec: ./specs/bookstore.yaml
+    category: Examples
+workflows:
+  - file: ./workflows/bookstore.arazzo.yaml
+docs:
+  editUrl: https://github.com/rapi-doc/RapiDoc/edit/master/sites/rapi-portal/docs/
+redirects:
+  - { from: /docs/getting-started/how-it-works, to: /docs/reference/how-it-works }
+footer:
+  columns:
+    - title: Get started
+      links:
+        - label: Introduction
+          href: /docs/getting-started/introduction
+        - label: Quickstart
+          href: /docs/getting-started/quickstart
+        - label: Configuration
+          href: /docs/configuration/overview
+    - title: Reference
+      links:
+        - label: CLI
+          href: /docs/reference/cli
+        - label: Configuration keys
+          href: /docs/reference/config
+        - label: Programmatic API
+          href: /docs/reference/programmatic-api
+    - title: Project
+      links:
+        - label: RapiDoc
+          href: https://rapidocui.com
+        - label: GitHub
+          href: https://github.com/rapi-doc/RapiDoc
+  social:
+    - icon: github
+      href: https://github.com/rapi-doc/RapiDoc
+  copyright: © 2026 RapiDoc. MIT licensed.
+rapidoc:
+  theme: amber
+  render-style: read
+  schema-style: tree

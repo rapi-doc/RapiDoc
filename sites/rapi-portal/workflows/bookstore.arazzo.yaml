@@ -1,0 +1,56 @@
+arazzo: 1.0.1
+info:
+  title: Bookstore workflows
+  version: 1.0.0
+  description: Example workflows on the Bookstore API, for the docs.
+sourceDescriptions:
+  - name: bookstore
+    url: ../specs/bookstore.yaml
+    type: openapi
+workflows:
+  - workflowId: findBook
+    summary: Find a book by genre
+    description: Lists the books of a genre, then reads the first one in full.
+    inputs:
+      type: object
+      properties:
+        genre:
+          type: string
+          description: The genre to browse
+          default: fiction
+      required: [genre]
+    steps:
+      - stepId: listBooks
+        description: The books of the genre.
+        operationId: listBooks
+        parameters:
+          - name: genre
+            in: query
+            value: $inputs.genre
+          - name: limit
+            in: query
+            value: 5
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/0 != null
+        onFailure:
+          - name: nothingInGenre
+            type: end
+        outputs:
+          bookId: $response.body#/0/id
+      - stepId: readBook
+        description: The first book in full.
+        operationId: getBook
+        parameters:
+          - name: bookId
+            in: path
+            value: $steps.listBooks.outputs.bookId
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          title: $response.body#/title
+          price: $response.body#/price
+    outputs:
+      bookId: $steps.listBooks.outputs.bookId
+      title: $steps.readBook.outputs.title
+      price: $steps.readBook.outputs.price

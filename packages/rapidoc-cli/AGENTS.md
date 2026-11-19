@@ -73,7 +73,7 @@ lint/               # rapidoc lint's engine (imported only by that command)
   rules were not run; `withStateful: true` when `--stateful` turns it on; the `stateful-*` rules get this
   API's section of mock.config.yaml as `context.mockConfig`, read only when one of them is on, and its stale
   entries come back as `mock-config` problems), added to `rules/index.js` and to one category in `lint/summary.js` (`CATEGORIES`; `summarize` turns a result into counts per category and the share of checks that passed, from the tally `traverse` fills; the Rapi Mock site's spec check shows it, and a test fails for a rule in no category), tripped by `tests/fixtures/lint/messy.yaml` (the stateful-* rules by `stateful.yaml`) and passed by `clean.yaml` (the test
-  turns every rule on against both), and documented in the rule table of `docs/src/content/docs/cli/lint.mdx` (rapi-portal-doc's `docs/tools/lint.md` links there) and of `design/spec-tooling.md`.
+  turns every rule on against both), and documented in the rule table of `docs/src/content/docs/cli/lint.mdx` (`sites/rapi-portal/docs/tools/lint.md` links there) and of `design/spec-tooling.md`.
 - Don't import heavy modules at the top of a command file: every command module is loaded for help
   (`validate` imports `@scalar/openapi-parser` inside `run`).
 

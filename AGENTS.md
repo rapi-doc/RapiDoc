@@ -32,7 +32,8 @@ rapidoc/
 │   └── rapidoc-dotnet/   # RapiDoc for ASP.NET Core (NuGet: RapiDoc.AspNetCore)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── sites/
-│   └── rapi-mock/        # The Rapi Mock product and documentation site (mock.rapidocui.com), built with RapiDoc Portal
+│   ├── rapi-mock/        # The Rapi Mock product and documentation site (mock.rapidocui.com), built with RapiDoc Portal
+│   └── rapi-portal/      # The RapiDoc Portal product and documentation site (portal.rapidocui.com), built with RapiDoc Portal
 ├── tests/
 │   ├── unit/             # Node.js built-in test runner unit tests (*.test.js)
 │   ├── component/        # Component-level tests
@@ -103,6 +104,10 @@ All agents must strictly adhere to the following system boundaries:
   - Its source lives here so a change to the mock and its documentation land in one pull request. A separate repository, `rapi-mock-doc`, only publishes the built site with GitHub Pages: `.github/workflows/publish-mock-site.yml` here builds it and pushes the files there.
   - It is where the mock's documentation grows. The mock pages of the Starlight site (`docs/src/content/docs/mocking/mock-server.mdx`) are to become a short summary that links to it; don't add new mock documentation there. Its own rules are in `sites/rapi-mock/AGENTS.md`.
 
+- **RapiDoc Portal site (`sites/rapi-portal`)**:
+  - The product and documentation site of RapiDoc Portal, for `portal.rapidocui.com`, set up like the Rapi Mock site: built from this repository's own CLI and portal (`npm run dev:portal-site`, `npm run build:portal-site`), not an npm workspace, and published by `.github/workflows/publish-portal-site.yml`, which pushes the built files to `rapi-portal-doc`. It moved here from that repository, which now only publishes.
+  - Portal, server and CLI documentation for portal users goes there, in the same pull request as the change. Its own rules are in `sites/rapi-portal/AGENTS.md`.
+
 ### Build Artifact Hygiene
 
 - **Never commit generated build output**:
@@ -145,6 +150,7 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run build:size`        | `packages/rapidoc`    | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`.                                  |
 | `npm run build:docs`        | `docs`                | Builds the Astro Starlight documentation site to `docs/dist/`.                                                          |
 | `npm run build:mock-site`   | `sites/rapi-mock`     | Builds the Rapi Mock site to `sites/rapi-mock/dist/` with this repository's CLI and portal (`npm run dev:mock-site` previews it on port 4327). Both first run `npm run build:spec-check`: the site's spec check (`/spec-check/`), the validator, lint rules and stateful mock bundled for a browser, shown in the Mock UI. |
+| `npm run build:portal-site` | `sites/rapi-portal`   | Builds the RapiDoc Portal site to `sites/rapi-portal/dist/` with this repository's CLI and portal (`npm run dev:portal-site` previews it on port 4328; `npm run mock:portal-site` runs the mock its example API calls). |
 | `npm run build:demo`        | `../rapi-portal-demo` | Builds `rapidoc`, then the sibling `rapi-portal-demo` checkout with the `rapidoc` CLI into `../rapi-portal-demo/dist/`. |
 | `npm run prerender:demo`    | Monorepo              | Runs `scripts/prerender-demo.mjs`.                                                                                      |
 
@@ -229,6 +235,7 @@ When executing tasks in this repository, follow these rules:
      - [`integrations/rapidoc-python/AGENTS.md`](integrations/rapidoc-python/AGENTS.md)
      - [`integrations/rapidoc-dotnet/AGENTS.md`](integrations/rapidoc-dotnet/AGENTS.md)
      - [`sites/rapi-mock/AGENTS.md`](sites/rapi-mock/AGENTS.md)
+     - [`sites/rapi-portal/AGENTS.md`](sites/rapi-portal/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.
 3. **No Unsolicited File Deletions**:
    - Preserve existing public specs (`docs/public/specs/`)

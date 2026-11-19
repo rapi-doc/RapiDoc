@@ -1,0 +1,51 @@
+---
+title: Embedding operations
+description: Put a live, interactive API operation inside a guide.
+---
+
+A guide that explains an endpoint can show the endpoint itself: its parameters, request body, responses, and a **Try** console. Embed one with the `api-operation` Markdoc tag:
+
+```markdoc
+{% api-operation spec="bookstore" path="/orders" method="post" title="Place an order" /%}
+```
+
+{% api-operation spec="bookstore" path="/orders" method="post" title="Place an order" /%}
+
+## Attributes
+
+| Attribute | Meaning |
+| :--- | :--- |
+| `spec` | **Required.** The `id` of an API in `apis:`. |
+| `path` | **Required.** The path as written in the spec, with its `{parameters}`. |
+| `method` | `get` (default), `post`, `put`, `patch`, `delete`, ... |
+| `title` | A heading for the embed. Default: the operation's summary. |
+| `version` | One of the API's [versions](/docs/api-reference/versions/). Default: its default version. |
+| `collapsed` | `true` shows only the method and path; the reader clicks them to open the operation. Default `false`. |
+
+An unknown `spec` id shows a notice on the page and a build warning, so a typo doesn't go unnoticed.
+
+## Collapsed embeds
+
+A guide that lists several operations stays short with `collapsed=true`. Each one shows its method and path, and opens in place when clicked:
+
+```markdoc
+{% api-operation spec="bookstore" path="/books" title="List books" collapsed=true /%}
+```
+
+{% api-operation spec="bookstore" path="/books" title="List books" collapsed=true /%}
+
+## How it works
+
+The embed is RapiDoc's `<rapi-doc-mini>` element showing one operation of the spec. It follows the portal theme and accent color.
+
+Only pages with an embed load the RapiDoc bundle. Other docs pages stay light.
+
+## Try from a guide
+
+**Try** sends a real request to the spec's server. In this site's example spec, the server is the local mock: run `npm run mock:portal-site` in the [RapiDoc repository](https://github.com/rapi-doc/RapiDoc), where this site's source is (`sites/rapi-portal`), and the console above answers. See [Mock server](/docs/tools/mock-server/).
+
+With sign-in and `auth.tryIt`, the embed fills in the signed-in reader's access token. See [Try with the reader's token](/docs/access/try-it/).
+
+## In MDX or Markdown
+
+The tag is Markdoc only. In an `.md` or `.mdx` guide, link to the operation on its reference page instead: `/apis/bookstore/orders#create-order`.
