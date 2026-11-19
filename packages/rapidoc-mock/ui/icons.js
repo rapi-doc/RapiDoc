@@ -3,7 +3,9 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 // Phosphor Icons, regular weight (MIT): the same set the portal and the Rapi Mock site use. Each file is read as
 // text at build time, so only these icons are bundled (Vite's `?raw`); `mock-ui.LICENSE.txt` carries the notice.
 import arrowsLeftRight from "@phosphor-icons/core/assets/regular/arrows-left-right.svg?raw";
+import caretDown from "@phosphor-icons/core/assets/regular/caret-down.svg?raw";
 import caretRight from "@phosphor-icons/core/assets/regular/caret-right.svg?raw";
+import caretUp from "@phosphor-icons/core/assets/regular/caret-up.svg?raw";
 import database from "@phosphor-icons/core/assets/regular/database.svg?raw";
 import list from "@phosphor-icons/core/assets/regular/list.svg?raw";
 import listChecks from "@phosphor-icons/core/assets/regular/list-checks.svg?raw";
@@ -35,6 +37,8 @@ const ICONS = {
   settings: inner(slidersHorizontal),
   menu: inner(list),
   chevron: inner(caretRight),
+  ascending: inner(caretUp),
+  descending: inner(caretDown),
   close: inner(x),
 };
 

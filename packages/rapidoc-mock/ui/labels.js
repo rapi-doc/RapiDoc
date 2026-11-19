@@ -11,6 +11,13 @@ export const LABELS = {
   plainMock: "Static",
 };
 
+/** Each label's color, as its badge and its part of a bar draw it. */
+export const LABEL_COLORS = {
+  confident: "var(--ok)",
+  needsReview: "var(--warn)",
+  plainMock: "var(--plain)",
+};
+
 /** What each label means, in a sentence. */
 export const LABEL_HELP = {
   confident: "Mapped to a resource: it reads or changes stored records.",

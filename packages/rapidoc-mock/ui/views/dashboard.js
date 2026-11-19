@@ -1,8 +1,10 @@
 import { html, nothing } from "lit";
+import { bars, opens, pageTitle } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
 import { icon } from "../icons.js";
-import { LABELS, LABEL_HELP, badge, method } from "../labels.js";
-import { count, found, measured, number, ring, share, tally } from "../lint.js";
+import { LABELS, LABEL_COLORS, LABEL_HELP, badge, method } from "../labels.js";
+import { count, number, plural } from "../format.js";
+import { found, measured, passedMeter, ring, share, tally } from "../lint.js";
 
 /** The Dashboard: what the mock made of the API in view, at a glance. */
 export class MockDashboard extends Screen {
@@ -50,8 +52,8 @@ export class MockDashboard extends Screen {
                 : nothing
             }
             <ul class="lint-card-counts">
-              <li><b class=${errors ? "errors" : ""}>${number(errors)}</b> ${errors === 1 ? "error" : "errors"}</li>
-              <li><b class=${warnings ? "warnings" : ""}>${number(warnings)}</b> ${warnings === 1 ? "warning" : "warnings"}</li>
+              <li><b class=${errors ? "errors" : ""}>${number(errors)}</b> ${plural(errors, "error")}</li>
+              <li><b class=${warnings ? "warnings" : ""}>${number(warnings)}</b> ${plural(warnings, "warning")}</li>
             </ul>
           </div>
           ${
@@ -71,20 +73,11 @@ export class MockDashboard extends Screen {
                         <tr
                           class="opens"
                           title=${category.about}
-                          @click=${(e) => {
-                            if (!e.target.closest("a"))
-                              location.hash = to({ category: category.id });
-                          }}
+                          @click=${opens(() => (location.hash = to({ category: category.id }))).click}
                         >
                           <td><a href=${to({ category: category.id })}>${category.title}</a></td>
                           <td class="meter-cell">
-                            ${
-                              measured(category)
-                                ? html`<span class="meter" aria-hidden="true"
-                                    ><span style="width: ${(100 * category.passed) / category.checked}%"></span
-                                  ></span>`
-                                : nothing
-                            }
+                            ${measured(category) ? passedMeter(category) : nothing}
                           </td>
                           <td class="number">
                             ${measured(category) ? share(category) : html`<span class="hint">—</span>`}
@@ -127,13 +120,11 @@ export class MockDashboard extends Screen {
     const shown = this.allAssumptions ? review : review.slice(0, 8);
     const fromResource = api.labels.needsReview - operationsAssumed.length;
     return html`
-    <div class="title with-icon">
-      ${icon("dashboard", 44)}
-      <div>
-        <h1>${api.title || api.id}</h1>
-        <p>Served at <code>/${api.id}</code>. What the mock worked out from this spec.</p>
-      </div>
-    </div>
+    ${pageTitle(
+      "dashboard",
+      api.title || api.id,
+      html`Served at <code>/${api.id}</code>. What the mock worked out from this spec.`,
+    )}
     <div class="cards">
       <a class="card stat with-icon" href=${app.href("operations")}>
         <b>${api.operations.length}</b><span>Operations</span>${icon("operations", 40)}
@@ -150,17 +141,6 @@ export class MockDashboard extends Screen {
 
     <section class="card">
       <h2>Operations by label</h2>
-      <div class="bar" role="img" aria-label="Share of operations per label">
-        ${Object.keys(LABELS).map((label) =>
-          api.labels[label]
-            ? html`<span
-                class=${label}
-                style="flex-grow: ${api.labels[label]}"
-                title="${api.labels[label]} ${LABELS[label]}"
-              ></span>`
-            : nothing,
-        )}
-      </div>
       <dl class="legend">
         ${Object.keys(LABELS).map(
           (label) => html`
@@ -175,6 +155,14 @@ export class MockDashboard extends Screen {
           `,
         )}
       </dl>
+      ${bars(
+        Object.keys(LABELS).map((label) => ({
+          value: api.labels[label],
+          color: LABEL_COLORS[label],
+          title: `${api.labels[label]} ${LABELS[label]}`,
+        })),
+        { label: "Share of operations per label", height: 10 },
+      )}
     </section>
 
     <section class="card">
@@ -219,10 +207,10 @@ export class MockDashboard extends Screen {
                   : nothing
               }
               <span class="hint">
-                ${count(api.labels.needsReview, "operation")} ${api.labels.needsReview === 1 ? "is" : "are"}
+                ${count(api.labels.needsReview, "operation")} ${plural(api.labels.needsReview, "is", "are")}
                 labelled Needs review:
-                ${operationsAssumed.length} for an assumption of ${operationsAssumed.length === 1 ? "its" : "their"}
-                own${fromResource > 0 ? `, ${fromResource} for one about ${fromResource === 1 ? "its" : "their"} resource` : ""}.
+                ${operationsAssumed.length} for an assumption of ${plural(operationsAssumed.length, "its", "their")}
+                own${fromResource > 0 ? `, ${fromResource} for one about ${plural(fromResource, "its", "their")} resource` : ""}.
               </span>
               <a href=${app.href("operations", "", undefined, { label: "needsReview" })}>See them all</a>
             </div>

@@ -85,7 +85,6 @@ const SECTIONS = [
             .api=${app.api}
             .name=${app.route.item}
             .tab=${app.route.tab}
-            .busy=${app.busy}
             .version=${app.version}
           ></rapidoc-mock-resources>`,
       },

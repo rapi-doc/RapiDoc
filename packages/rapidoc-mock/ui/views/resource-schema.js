@@ -1,9 +1,8 @@
 import { html, nothing } from "lit";
+import { twist } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
-import { icon } from "../icons.js";
+import { sentence, valueText } from "../format.js";
 import { badge, method } from "../labels.js";
-
-const shown = (value) => (typeof value === "string" ? value : JSON.stringify(value));
 
 /** The shapes of one of several objects, in words: "is one of 4 shapes, told apart by platform: a, b, c, d". */
 const shapes = (resource) => {
@@ -18,9 +17,6 @@ const noFields = (resource) =>
   !resource.shape?.options
     ? html`<code>${resource.schema}</code> describes no fields of its own, so there is nothing to list here.`
     : html`${shapes(resource)} None of them describes fields of its own, so there is nothing to list here.`;
-
-/** A reason the model gives in lower case ("matched Owner by …"), as the start of a sentence. */
-const sentence = (text) => (text ? text[0].toUpperCase() + text.slice(1) : "");
 
 /** Every field that holds nested fields, by its path (`to`, `to.name`): what "Expand all" opens. */
 const branches = (fields, at = "") =>
@@ -65,7 +61,7 @@ export class MockResourceSchema extends Screen {
 
   updated(changed) {
     if (["api", "name", "version"].some((one) => changed.has(one)))
-      this.app.run(async () => (this.detail = await this.app.call(this.address)));
+      this.read("detail", this.address, (detail) => (this.detail = detail));
   }
 
   render() {
@@ -93,12 +89,12 @@ export class MockResourceSchema extends Screen {
               ${
                 field.fields
                   ? html`<button
-                      class="expander${open ? " open" : ""}"
+                      class="expander"
                       aria-expanded=${String(open)}
                       aria-label="${open ? "Hide" : "Show"} the fields of ${path}"
                       @click=${() => this.toggle(path)}
                     >
-                      ${icon("chevron")}
+                      ${twist(open)}
                     </button>`
                   : html`<span class="expander-space"></span>`
               }<code>${field.name}</code>
@@ -109,7 +105,7 @@ export class MockResourceSchema extends Screen {
               }
               ${
                 field.enum
-                  ? html`<div class="hint">${field.enum.map(shown).join(", ")}</div>`
+                  ? html`<div class="hint">${field.enum.map(valueText).join(", ")}</div>`
                   : nothing
               }
             </td>
@@ -123,7 +119,7 @@ export class MockResourceSchema extends Screen {
                   : nothing
               }
             </td>
-            <td class="example">${field.example === undefined ? "" : shown(field.example)}</td>
+            <td class="example">${field.example === undefined ? "" : valueText(field.example)}</td>
             <td class="seeded">${field.seededAs ?? ""}</td>
           </tr>
         `;
@@ -197,7 +193,7 @@ export class MockResourceSchema extends Screen {
     </section>
 
     <section class="card">
-      <h3>Operations on ${resource.name} (${resource.operations.length})</h3>
+      <h3>Operations on <span class="keep-case">${resource.name}</span> (${resource.operations.length})</h3>
       <div class="scroll">
         <table class="plain">
           <thead>

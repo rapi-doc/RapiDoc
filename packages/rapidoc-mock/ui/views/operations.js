@@ -1,6 +1,7 @@
 import { html, nothing } from "lit";
+import { opens, pageTitle, segmented } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
-import { icon } from "../icons.js";
+import { actionName } from "../format.js";
 import { LABELS, badge, method } from "../labels.js";
 import "./operation-detail.js";
 
@@ -22,11 +23,7 @@ const USUAL = { POST: "create", PUT: "update", PATCH: "patch", DELETE: "delete" 
  * for the others only when it is not their usual one (a POST that updates). "create many" for `createMany`.
  */
 const actionOf = (op) =>
-  op.method === "GET" || USUAL[op.method] !== op.action
-    ? op.action === "createMany"
-      ? "create many"
-      : op.action
-    : "";
+  op.method === "GET" || USUAL[op.method] !== op.action ? actionName(op.action) : "";
 
 /** How the list was last grouped: a choice of the reader's, kept while the page is open. */
 let lastGroupBy = "path";
@@ -110,13 +107,7 @@ export class MockOperations extends Screen {
     };
 
     return html`
-    <div class="title with-icon">
-      ${icon("operations", 44)}
-      <div>
-        <h1>Operations</h1>
-        <p>Every operation of the spec, with what the mock does for it.</p>
-      </div>
-    </div>
+    ${pageTitle("operations", "Operations", "Every operation of the spec, with what the mock does for it.")}
     <div class="row">
       <input
         type="search"
@@ -125,22 +116,15 @@ export class MockOperations extends Screen {
         .value=${this.filter}
         @input=${(e) => (this.filter = e.target.value)}
       />
-      <div class="segmented" role="group" aria-label="Group by">
-        ${[
+      ${segmented(
+        "Group by",
+        [
           ["path", "By path"],
           ["resource", "By resource"],
-        ].map(
-          ([value, title]) => html`
-            <button
-              class=${this.groupBy === value ? "current" : ""}
-              aria-pressed=${this.groupBy === value ? "true" : "false"}
-              @click=${() => (this.groupBy = value)}
-            >
-              ${title}
-            </button>
-          `,
-        )}
-      </div>
+        ],
+        this.groupBy,
+        (value) => (this.groupBy = value),
+      )}
       ${Object.keys(LABELS).map(
         (label) => html`
           <label class="check">
@@ -178,14 +162,10 @@ export class MockOperations extends Screen {
                         <tr
                           class="opens"
                           title=${op.summary || op.id}
-                          @click=${(e) => {
-                            // a link in the row (the method, the resource, the path) goes where it points, and
-                            // selecting text to copy it opens nothing; a click on the path cell lands on the
-                            // first row, whose operation the path opens
-                            if (!e.target.closest("a") && !getSelection()?.toString()) {
-                              location.hash = app.href("operations", op.id);
-                            }
-                          }}
+                          @click=${
+                            // a click on the path cell lands on the first row, whose operation the path opens
+                            opens(() => (location.hash = app.href("operations", op.id))).click
+                          }
                         >
                           ${
                             index === 0
@@ -225,9 +205,7 @@ export class MockOperations extends Screen {
                               op.action === "none"
                                 ? html`<span class="hint">no state</span>`
                                 : byResource
-                                  ? op.action === "createMany"
-                                    ? "create many"
-                                    : op.action
+                                  ? actionName(op.action)
                                   : html`<a href=${app.href("resources", op.resource)}>${op.resource}</a>
                                     ${actionOf(op) ? html`<span class="hint">${actionOf(op)}</span>` : nothing}`
                             }

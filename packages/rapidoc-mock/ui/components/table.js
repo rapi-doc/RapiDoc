@@ -24,14 +24,9 @@ import {
   tableFeatures,
 } from "@tanstack/table-core";
 import { storeReactivityBindings } from "@tanstack/table-core/store-reactivity-bindings";
+import { valueText } from "../format.js";
+import { icon } from "../icons.js";
 import { Screen } from "./screen.js";
-
-/** A cell's text: plain for a simple value, compact JSON for an object or a list. */
-export const cellText = (value) => {
-  if (value === null) return "null";
-  if (value === undefined) return "";
-  return typeof value === "object" ? JSON.stringify(value) : String(value);
-};
 
 /** Ascending order of two cell values: numbers as numbers, the rest as text; nothing goes last. */
 const compare = (a, b) => {
@@ -39,7 +34,7 @@ const compare = (a, b) => {
   if (a === undefined || a === null) return 1;
   if (b === undefined || b === null) return -1;
   if (typeof a === "number" && typeof b === "number") return a - b;
-  return cellText(a).localeCompare(cellText(b), undefined, { numeric: true });
+  return valueText(a).localeCompare(valueText(b), undefined, { numeric: true });
 };
 
 /** What the table can do. Grouping, column pinning and the like are features to add here. */
@@ -91,7 +86,7 @@ export class MockTable extends Screen {
     if (box) this.markEdges(box);
     const picked = this.table?.getSelectedRowModel().rows[0]?.id;
     if (picked !== undefined && picked !== this.shownRow) {
-      this.querySelector(".records-body > .detail")?.scrollIntoView({ block: "nearest" });
+      this.querySelector(".records-body > .drawer")?.scrollIntoView({ block: "nearest" });
     }
     this.shownRow = picked;
   }
@@ -143,7 +138,7 @@ export class MockTable extends Screen {
         getColumnCanGlobalFilter: () => true,
         globalFilterFn: (row, id, text) => {
           const wanted = String(text).trim().toLowerCase();
-          return !wanted || cellText(row.getValue(id)).toLowerCase().includes(wanted);
+          return !wanted || valueText(row.getValue(id)).toLowerCase().includes(wanted);
         },
         initialState: { pagination: { pageIndex: 0, pageSize: this.pageSize } },
       });
@@ -184,7 +179,13 @@ export class MockTable extends Screen {
       ${
         matching
           ? html`
-            <div class="records-body">
+            <div
+              class="records-body"
+              @keydown=${
+                // Esc closes the record's drawer from the row that opened it, where the focus stays
+                (e) => e.key === "Escape" && selected && table.resetRowSelection(true)
+              }
+            >
             <div class="scroll-frame">
             <div class="scroll records" @scroll=${this.onScroll}>
               <table>
@@ -204,7 +205,7 @@ export class MockTable extends Screen {
                                 ? html` <span class="tag" title="The key: a record is found by it">key</span>`
                                 : nothing
                             }
-                            ${sorted ? (sorted === "desc" ? "▼" : "▲") : nothing}
+                            ${sorted ? icon(sorted === "desc" ? "descending" : "ascending", 12) : nothing}
                           </button>
                         </th>
                       `;
@@ -234,7 +235,7 @@ export class MockTable extends Screen {
                                 ? "json"
                                 : typeof value;
                           const key = cell.column.columnDef.meta.key ? " key" : "";
-                          return html`<td class=${kind + key}>${cellText(value)}</td>`;
+                          return html`<td class=${kind + key}>${valueText(value)}</td>`;
                         })}
                       </tr>
                     `,

@@ -12,25 +12,13 @@
     <link rel="icon" href="../rapidoc-leaves.svg" />
     <style>
       /*
-       * The colors are the Mock UI's (packages/rapidoc-mock/ui/styles.js): keep them in step. As there, every
-       * surface is mixed from --surface.
+       * The colors, type and spacing are the Mock UI's own: the build writes its tokens here, from
+       * packages/rapidoc-mock/ui/styles/tokens.js (the "spec-check-files" plugin of vite.config.mjs), so the
+       * page and the Mock UI inside it never drift apart. --strip is this page's one shade of its own.
        */
       :root {
-        --surface: #2a2c34;
-        --bg: var(--surface);
-        --sidebar: color-mix(in oklab, var(--surface), black 15%);
-        --strip: color-mix(in oklab, var(--surface), black 23%);
-        --card: color-mix(in oklab, var(--surface), white 6%);
-        --inset: color-mix(in oklab, var(--surface), black 10%);
-        --border: color-mix(in oklab, var(--surface), white 16%);
-        --line: color-mix(in oklab, var(--surface), white 13%);
-        --fg: #c0c4c8;
-        --strong: #ffffff;
-        --muted: #949ba2;
-        --primary: #f6a821;
-        --primary-fg: #24262d;
-        --ok: #68cc97;
-        --warn: #fa82a2;
+        /* mock-ui-tokens */
+        --strip: var(--sidebar-current);
         color-scheme: dark;
       }
       * {
@@ -78,7 +66,7 @@
         color: inherit;
         cursor: pointer;
         padding: 6px 14px;
-        border: 1px solid #616779;
+        border: 1px solid var(--border-strong);
         border-radius: 3px;
         background: transparent;
         white-space: nowrap;

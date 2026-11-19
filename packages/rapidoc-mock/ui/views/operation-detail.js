@@ -1,6 +1,7 @@
 import { html, nothing } from "lit";
+import { drawer, opens } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
-import { icon } from "../icons.js";
+import { prettyBody } from "../format.js";
 import { LABEL_HELP, badge, method } from "../labels.js";
 
 /** The data a body holds, in words: "a list of calendar_common, inside data". */
@@ -8,16 +9,6 @@ const holds = (body) => {
   if (!body?.contentTypes) return "no body";
   const what = body.schema ? body.schema : "an unnamed schema";
   return `${body.many ? "a list of " : ""}${what}${body.inside ? `, inside ${body.inside}` : ""}`;
-};
-
-/** A sample body as text: pretty JSON when it is JSON. */
-const pretty = (body) => {
-  if (body === null || body === undefined) return "";
-  try {
-    return JSON.stringify(JSON.parse(body), null, 2);
-  } catch {
-    return String(body);
-  }
 };
 
 /** Where the mock takes a response's data from, in a few words (the column says it is the source). */
@@ -76,16 +67,14 @@ export class MockOperationDetail extends Screen {
 
   updated(changed) {
     // the drawer just opened: its close button takes the focus, so Esc closes it
-    if (changed.has("open") && this.open) this.querySelector(".response-drawer .close")?.focus();
+    if (changed.has("open") && this.open) this.querySelector(".drawer.response .close")?.focus();
     if (!["api", "operation", "version"].some((one) => changed.has(one))) return;
-    const { app, operation } = this;
     this.picked = "";
     this.samples = {};
     this.open = false;
-    app.run(async () => {
-      const detail = await app.call(this.address);
-      if (operation === this.operation) this.detail = detail;
-    });
+    // a sample still on its way belongs to what was shown before: its answer is dropped
+    this.reads = {};
+    this.read("detail", this.address, (detail) => (this.detail = detail));
   }
 
   /**
@@ -100,11 +89,15 @@ export class MockOperationDetail extends Screen {
     }
     this.picked = one.code;
     if (this.samples[one.code]) return;
-    const { app, operation } = this;
-    app.run(async () => {
-      const { sample } = await app.call(`${this.address}?code=${encodeURIComponent(one.code)}`);
-      if (operation === this.operation) this.samples = { ...this.samples, [one.code]: sample };
-    });
+    const { operation } = this;
+    // by its code, not as one kind of read: picking another response does not drop this one's sample
+    this.read(
+      `sample ${one.code}`,
+      `${this.address}?code=${encodeURIComponent(one.code)}`,
+      ({ sample }) => {
+        if (operation === this.operation) this.samples = { ...this.samples, [one.code]: sample };
+      },
+    );
   }
 
   render() {
@@ -128,11 +121,8 @@ export class MockOperationDetail extends Screen {
     const sample = this.picked ? this.samples[this.picked] : op.sample;
     // a response can be picked when a request can ask for it: a three-digit code, or the default one
     const pickable = (one) => one.returned || /^[1-5]\d\d$/.test(one.code);
-    const onKey = (one) => (event) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      this.pick(one);
-    };
+    // a response that can be picked opens its sample from anywhere on its row, or with Enter on it
+    const row = (one) => opens(() => this.pick(one));
     return html`
     <p><a href=${app.href("operations")}>← Operations</a></p>
     <div class="title">
@@ -237,7 +227,10 @@ export class MockOperationDetail extends Screen {
       <h2>Responses</h2>
       <p class="hint">Select a response to see its sample.</p>
       <div class="scroll">
-        <table class="plain responses">
+        <table
+          class="plain responses"
+          @keydown=${(e) => e.key === "Escape" && this.open && (this.open = false)}
+        >
           <thead>
             <tr>
               <th>Status</th>
@@ -254,8 +247,8 @@ export class MockOperationDetail extends Screen {
                   class=${this.open && one.code === shownCode ? "current" : ""}
                   tabindex=${pickable(one) ? "0" : nothing}
                   aria-selected=${pickable(one) ? String(this.open && one.code === shownCode) : nothing}
-                  @click=${pickable(one) ? () => this.pick(one) : nothing}
-                  @keydown=${pickable(one) ? onKey(one) : nothing}
+                  @click=${pickable(one) ? row(one).click : nothing}
+                  @keydown=${pickable(one) ? row(one).key : nothing}
                 >
                   <td>${status(one.code)}</td>
                   <td>
@@ -287,49 +280,43 @@ export class MockOperationDetail extends Screen {
 
     ${
       this.open
-        ? html`<aside
-            class="drawer response-drawer"
-            aria-label="Sample response ${shownCode}"
-            @keydown=${(e) => e.key === "Escape" && (this.open = false)}
-          >
-            <button
-              class="close"
-              aria-label="Close the sample"
-              title="Close (Esc)"
-              @click=${() => (this.open = false)}
-            >
-              ${icon("close")}
-            </button>
-            <div class="drawer-body">
+        ? drawer(
+            {
+              label: `Sample response ${shownCode}`,
+              onClose: () => (this.open = false),
+              kind: "response",
+            },
+            html`
               <h3>Sample response ${shownCode ? status(shownCode) : nothing}</h3>
-      ${
-        !sample
-          ? html`<p class="empty">Loading…</p>`
-          : sample.error
-            ? html`<p class="hint">The mock could not make one: ${sample.error}</p>`
-            : html`
-                    <p class="hint">
-                      Status ${sample.status},
-                      ${
-                        sample.source === "generated"
-                          ? "generated from the schema"
-                          : sample.source === "empty"
-                            ? "with no body"
-                            : `from the spec's ${sample.source}`
-                      }.
-                      ${
-                        this.picked
-                          ? html`A request with <code>Prefer: code=${this.picked}</code> gets it; nothing is stored.`
-                          : op.action === "none"
-                            ? "This is what a call returns."
-                            : "It shows the shape: a call returns stored records in its place."
-                      }
-                    </p>
-                    <pre class="sample">${pretty(sample.body) || "(no body)"}</pre>
-                  `
-      }
-                    </div>
-          </aside>`
+              ${
+                !sample
+                  ? html`<p class="empty">Loading…</p>`
+                  : sample.error
+                    ? html`<p class="hint">The mock could not make one: ${sample.error}</p>`
+                    : html`
+                        <p class="hint">
+                          Status ${sample.status},
+                          ${
+                            sample.source === "generated"
+                              ? "generated from the schema"
+                              : sample.source === "empty"
+                                ? "with no body"
+                                : `from the spec's ${sample.source}`
+                          }.
+                          ${
+                            this.picked
+                              ? html`A request with <code>Prefer: code=${this.picked}</code> gets it; nothing
+                                  is stored.`
+                              : op.action === "none"
+                                ? "This is what a call returns."
+                                : "It shows the shape: a call returns stored records in its place."
+                          }
+                        </p>
+                        <pre class="sample">${prettyBody(sample.body) || "(no body)"}</pre>
+                      `
+              }
+            `,
+          )
         : nothing
     }
   `;

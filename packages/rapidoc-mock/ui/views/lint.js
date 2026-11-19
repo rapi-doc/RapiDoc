@@ -1,17 +1,8 @@
 import { html, nothing } from "lit";
+import { bars, pageTitle, segmented } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
-import { icon } from "../icons.js";
-import {
-  checks,
-  count,
-  foundLine,
-  lintRow,
-  measured,
-  number,
-  ring,
-  share,
-  tally,
-} from "../lint.js";
+import { count, number } from "../format.js";
+import { checks, foundLine, lintRow, measured, ring, share, tally } from "../lint.js";
 
 /** The share of checks that passed, as an arc of a ring beside the figure. */
 function passedCard(summary) {
@@ -90,16 +81,14 @@ function severityCard(total, severity, categories, colors) {
                 </li>`,
               )}
             </ul>
-            <div class="segments" role="img" aria-label="${title} by category: ${label}">
-              ${parts.map(
-                (one) => html`<span
-                  style="flex-grow: ${one.value}; background: ${one.color}"
-                  title="${one.about || one.name}: ${count(one.value, severity)}, ${Math.round(
-                    (100 * one.value) / total,
-                  )}%"
-                ></span>`,
-              )}
-            </div>
+            ${bars(
+              parts.map((one) => ({
+                value: one.value,
+                color: one.color,
+                title: `${one.about || one.name}: ${count(one.value, severity)}, ${Math.round((100 * one.value) / total)}%`,
+              })),
+              { label: `${title} by category: ${label}` },
+            )}
           </div>`
         : html`<p class="none">None found.</p>`
     }
@@ -168,10 +157,7 @@ export class MockLint extends Screen {
     const { app, lint } = this;
     if (!lint || lint.error) {
       return html`
-        <div class="title">
-          <h1>Lint</h1>
-          <p>What the spec could say more clearly.</p>
-        </div>
+        ${pageTitle("lint", "Lint", "What the spec could say more clearly.")}
         ${
           lint
             ? html`<p class="banner error" role="alert">Lint failed: ${lint.error}</p>`
@@ -205,20 +191,13 @@ export class MockLint extends Screen {
     const to = (query) => app.href("lint", "", undefined, query);
 
     return html`
-      <div class="title with-icon">
-        ${icon("lint", 44)}
-        <div>
-          <h1>${lint.linted ? "Lint" : "Not valid OpenAPI"}</h1>
-          <p>
-            ${
-              lint.linted
-                ? html`What the spec could say more clearly, by the rules of
-                    <code>rapidoc lint --stateful</code>.`
-                : "The spec is not valid OpenAPI, so it was not linted. Fix these errors first."
-            }
-          </p>
-  </div>
-      </div>
+      ${pageTitle(
+        "lint",
+        lint.linted ? "Lint" : "Not valid OpenAPI",
+        lint.linted
+          ? html`What the spec could say more clearly, by the rules of <code>rapidoc lint --stateful</code>.`
+          : "The spec is not valid OpenAPI, so it was not linted. Fix these errors first.",
+      )}
       ${
         lint.mockError
           ? html`<p class="banner error">The mock can't start on this spec: ${lint.mockError}</p>`
@@ -229,7 +208,7 @@ export class MockLint extends Screen {
         ${severityCard(errors, "error", categories, colors)}
         ${severityCard(warnings, "warning", categories, colors)}
       </div>
-      <div class="split lint">
+      <div class="lint-layout">
         <div class="lint-head">
           <div class="row">
             <h2>
@@ -286,23 +265,16 @@ export class MockLint extends Screen {
             .value=${this.filter}
             @input=${(e) => (this.filter = e.target.value)}
           />
-          <div class="segmented" role="group" aria-label="Severity">
-            ${[
+          ${segmented(
+            "Severity",
+            [
               ["", "All"],
               ["error", "Errors"],
               ["warning", "Warnings"],
-            ].map(
-              ([value, title]) => html`
-                <button
-                  class=${this.severity === value ? "current" : ""}
-                  aria-pressed=${this.severity === value ? "true" : "false"}
-                  @click=${() => (this.severity = value)}
-                >
-                  ${title}
-                </button>
-              `,
-            )}
-          </div>
+            ],
+            this.severity,
+            (value) => (this.severity = value),
+          )}
           <span class="hint">
             ${
               kept.length === lint.problems.length

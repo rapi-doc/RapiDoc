@@ -1,15 +1,11 @@
 import { html, nothing, svg } from "lit";
-import { icon } from "./icons.js";
+import { count, number } from "./format.js";
+import { bars, twist } from "./components/parts.js";
 
 /**
  * What the Dashboard and the Lint section share: how a lint result is worded and one row of its summary.
  * The result is the `lint` property of `<rapidoc-mock-ui>` (see the top of `mock-ui.js`).
  */
-
-const number = (value) => value.toLocaleString("en");
-
-/** "1 error", "1,204 warnings". */
-export const count = (value, word) => `${number(value)} ${word}${value === 1 ? "" : "s"}`;
 
 /** True when a total, category or rule counted the things it looked at. */
 export const measured = (one) => one?.checked > 0;
@@ -17,6 +13,10 @@ export const measured = (one) => one?.checked > 0;
 /** How much of what was looked at passed, as a whole percentage that only says 100% when it is. */
 export const share = ({ checked, passed }) =>
   `${passed === checked ? 100 : Math.min(99, Math.floor((100 * passed) / checked))}%`;
+
+/** The share of checks that passed, as a meter. */
+export const passedMeter = (one) =>
+  bars([{ value: one.passed, color: "var(--meter, var(--ok))" }], { of: one.checked, height: 6 });
 
 /** The errors and warnings of a lint result: `{ errors, warnings }`. */
 export function tally(lint) {
@@ -56,14 +56,12 @@ export const lintRow = (
     ${
       expanded === undefined
         ? nothing
-        : html`<span class="arrow">${expanded === null ? nothing : icon("chevron")}</span>`
+        : html`<span class="arrow">${expanded === null ? nothing : twist(expanded)}</span>`
     }
     <span class="label">${label}</span>
     ${
       measured(one)
-        ? html`<span class="meter" aria-hidden="true"
-              ><span style="width: ${(100 * one.passed) / one.checked}%"></span></span
-            ><span class="share">${share(one)}</span>`
+        ? html`${passedMeter(one)}<span class="share">${share(one)}</span>`
         : html`<span></span><span></span>`
     }
     <span class="found">${found(one)}</span>
@@ -126,5 +124,3 @@ export const ring = (one, { size = 64, inside = false } = {}) => {
     ${inside ? svg`<text class="ring-share" x="32" y="32">${share(one)}</text>` : nothing}
   </svg>`;
 };
-
-export { number };

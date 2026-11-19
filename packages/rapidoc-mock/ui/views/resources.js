@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { keyed } from "lit/directives/keyed.js";
+import { drawer, pageTitle } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
-import { cellText } from "../components/table.js";
-import { icon } from "../icons.js";
+import { count, valueText } from "../format.js";
 import { badge } from "../labels.js";
 import "../components/table.js";
 import "./resource-schema.js";
@@ -27,7 +27,7 @@ const NONE = [];
  * How many records a resource holds: muted while it is what the seed data had, marked with the difference once
  * requests (or a restore) changed it. A reset goes back to the seed count.
  */
-function count({ records, seeded }) {
+function recordCount({ records, seeded }) {
   const changed = seeded !== undefined && records !== seeded;
   const delta = records - seeded;
   return html`<span
@@ -35,7 +35,7 @@ function count({ records, seeded }) {
     title=${
       changed
         ? `${records} now, ${seeded} in the seed data`
-        : `${records} record${records === 1 ? "" : "s"}, as seeded`
+        : `${count(records, "record")}, as seeded`
     }
     >${records}${changed ? html` <small>(${delta > 0 ? "+" : ""}${delta})</small>` : nothing}</span
   >`;
@@ -52,7 +52,6 @@ export class MockResources extends Screen {
     /** The resource in view, and its tab: "records" or "schema". */
     name: { type: String },
     tab: { type: String },
-    busy: { type: Boolean },
     /** Changes when the mock's data may have: the records are read again. */
     version: { type: Number },
     records: { state: true },
@@ -74,20 +73,19 @@ export class MockResources extends Screen {
       this.loadRecords();
   }
 
-  async loadRecords() {
-    const { api, name, app } = this;
+  loadRecords() {
+    const { api, name } = this;
     if (!api || !name) return;
-    const asked = (this.asked = `${api.id}/${name}`);
-    await app.run(async () => {
-      const records = await app.call(
-        `/state/${encodeURIComponent(api.id)}/${encodeURIComponent(name)}`,
-      );
-      // an answer for a resource that is no longer in view is dropped
-      if (asked !== this.asked) return;
-      this.records = records;
-      this.columns = columnsOf(records, this.resource?.key);
-      this.loaded = asked;
-    });
+    const asked = `${api.id}/${name}`;
+    this.read(
+      "records",
+      `/state/${encodeURIComponent(api.id)}/${encodeURIComponent(name)}`,
+      (records) => {
+        this.records = records;
+        this.columns = columnsOf(records, this.resource?.key);
+        this.loaded = asked;
+      },
+    );
   }
 
   render() {
@@ -96,7 +94,7 @@ export class MockResources extends Screen {
     const current = this.loaded === `${api.id}/${this.name}`;
     if (!api.resources.length) {
       return html`
-        <div class="title"><h1>Resources</h1></div>
+        ${pageTitle("resources", "Resources")}
         <p class="empty">
           The mock found no resource in this spec: every operation is static, answered from examples or generated data.
         </p>
@@ -123,14 +121,12 @@ export class MockResources extends Screen {
       ${resource?.review ? badge("needsReview", resource.review) : nothing}
     `;
     return html`
-      <div class="title with-icon">
-        ${icon("resources", 44)}
-        <div>
-          <h1>Resources</h1>
-          <p>The records this mock stores, worked out from the spec's schemas and paths.</p>
-        </div>
-      </div>
-      <div class="split resources">
+      ${pageTitle(
+        "resources",
+        "Resources",
+        "The records this mock stores, worked out from the spec's schemas and paths.",
+      )}
+      <div class="resources-panel">
         <nav class="list" aria-label="Resources">
           ${api.resources.map(
             (one) => html`
@@ -147,7 +143,7 @@ export class MockResources extends Screen {
                       >`
                     : nothing
                 }
-                ${count(one)}
+                ${recordCount(one)}
               </a>
             `,
           )}
@@ -185,20 +181,15 @@ export class MockResources extends Screen {
                     .lead=${heading}
                     .rows=${current ? this.records : NONE}
                     .columns=${current ? this.columns : NONE}
-                    .detail=${(record, close) => html`
-                      <aside
-                        class="detail drawer"
-                        aria-label="${resource?.name} ${resource?.key ? cellText(record[resource.key]) : "record"}"
-                        @keydown=${(e) => e.key === "Escape" && close()}
-                      >
-                        <button class="close" aria-label="Close the record" title="Close (Esc)" @click=${close}>
-                          ${icon("close")}
-                        </button>
-                        <div class="drawer-body">
-                          <pre>${JSON.stringify(record, null, 2)}</pre>
-                        </div>
-                      </aside>
-                    `}
+                    .detail=${(record, close) =>
+                      drawer(
+                        {
+                          label: `${resource?.name} ${resource?.key ? valueText(record[resource.key]) : "record"}`,
+                          onClose: close,
+                          kind: "record",
+                        },
+                        html`<pre>${JSON.stringify(record, null, 2)}</pre>`,
+                      )}
                   ></rapidoc-mock-table>`,
             )
           }
