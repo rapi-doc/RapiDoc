@@ -9,6 +9,15 @@ npx rapidoc mock [dir|spec...] [options]
 
 A portal folder mocks the local specs in its `apis:`. A folder without `rapidoc.config.yaml` is mocked file by file, as are spec files given by name. Each API is served under `/<api id>`.
 
+A spec can also be an `http://` or `https://` address, read once at start: a published spec, or the one your API's own server serves. It is named after its file, like a local one:
+
+```bash
+npx rapidoc mock https://example.com/specs/orders-api.yaml --stateful   # served under /orders-api
+npx rapidoc mock http://localhost:8000/openapi.json                     # served under /openapi
+```
+
+Relative `$ref`s in it are read from the same server. A `$ref` to another server is read only when that server is on the public internet, not `localhost` or a private network. With `--stateful`, `mock.config.yaml` is looked for in the current folder (or name it with `--mock-config`).
+
 | Option | Environment variable | Meaning |
 | :--- | :--- | :--- |
 | `--port <number>` | | Port to listen on. Default `4010`; if it is taken, the next free port is offered. |

@@ -13,14 +13,44 @@ export const METHODS = [
 ];
 
 /**
+ * A `$ref` resolver for the server of the address the user gave: the parser refuses `localhost` and private
+ * networks (a guard against a spec's `$ref` reaching into one), but a spec the user names there (a local
+ * server's `/openapi.json`) is meant to be read, with the files it references on that server. Other servers a
+ * spec's `$ref`s name are read by the parser's own resolver, behind its guard.
+ */
+const fromServer = (origin) => ({
+  order: 150, // before the parser's http resolver (200)
+  canRead: (file) => {
+    try {
+      return new URL(file.url).origin === origin;
+    } catch {
+      return false;
+    }
+  },
+  read: async (file) => {
+    const response = await fetch(file.url, { signal: AbortSignal.timeout(30_000) });
+    if (!response.ok)
+      throw new Error(`${file.url} answered ${response.status} ${response.statusText}`.trim());
+    return response.text();
+  },
+});
+
+/**
  * Loads one OpenAPI 3.0 / 3.1 / 3.2 document (JSON or YAML) and bundles the files it references into it, so every
  * `$ref` left is internal (`#/...`). Internal refs stay as they are: recursive schemas need them.
+ *
+ * `fullPath` is a file's path or an http(s) address; a relative `$ref` in a spec read from an address is read from
+ * that address's server too.
  *
  * @param {string} fullPath
  * @returns {Promise<object>}
  */
 export async function loadSpec(fullPath) {
-  const doc = await $RefParser.bundle(fullPath);
+  const remote = /^https?:\/\//i.test(fullPath);
+  const doc = await $RefParser.bundle(
+    fullPath,
+    remote ? { resolve: { named: fromServer(new URL(fullPath).origin) } } : {},
+  );
   if (typeof doc?.openapi !== "string" || !/^3\.[012]\./.test(doc.openapi)) {
     const version = doc?.openapi || (doc?.swagger && `Swagger ${doc.swagger}`) || "no version";
     throw new Error(`${fullPath} is not OpenAPI 3.0, 3.1 or 3.2 (${version})`);

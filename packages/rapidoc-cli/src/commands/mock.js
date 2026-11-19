@@ -10,6 +10,18 @@ import { startOnFreePort } from "../lib/ports.js";
 export const hasPortalConfig = (dir) =>
   fs.readdirSync(dir).some((name) => /^rapidoc\.config\.(ya?ml|json|m?js|ts)$/.test(name));
 
+/** An http(s) address given in place of a spec file. */
+export const isUrl = (target) => /^https?:\/\//i.test(target);
+
+/** A segment of an address's path as text (`orders%20api.yaml` -> `orders api.yaml`). */
+const decoded = (segment) => {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+};
+
 const slug = (text) =>
   text
     .toLowerCase()
@@ -19,12 +31,19 @@ const slug = (text) =>
 /**
  * Mock ids for spec files: the file name without its extension (`specs/orders-api.yaml` → `orders-api`). Files that
  * would share an id get their parent folders in front until they differ (`billing-v2/openapi.yaml` →
- * `billing-v2-openapi`); the same input always gives the same ids.
+ * `billing-v2-openapi`); the same input always gives the same ids. An http(s) address is named the same way, from
+ * its path, with its host as the outermost folder (`https://example.com/v2/openapi.yaml` → `openapi`, then
+ * `v2-openapi`); its `fullPath` is the address.
  */
 export function mockApisFromFiles(files) {
-  const fullPaths = [...new Set(files.map((file) => path.resolve(file)))];
+  const fullPaths = [
+    ...new Set(files.map((file) => (isUrl(file) ? new URL(file).href : path.resolve(file)))),
+  ];
   const segments = fullPaths.map((fullPath) => {
-    const parts = fullPath.split(path.sep).filter(Boolean);
+    const url = isUrl(fullPath) && new URL(fullPath);
+    const parts = url
+      ? [url.hostname, ...url.pathname.split("/").filter(Boolean).map(decoded)]
+      : fullPath.split(path.sep).filter(Boolean);
     parts[parts.length - 1] = parts.at(-1).replace(/\.(ya?ml|json)$/i, "");
     return parts;
   });
@@ -80,7 +99,7 @@ export default {
   usage: "mock [dir|spec...]",
   summary: "Mock server for a portal's APIs, a folder of specs or spec files, each under /<api id>",
   description:
-    "A portal folder mocks the local specs in its apis:. A folder without rapidoc.config.yaml is mocked\nfile by file (orders-api.yaml under /orders-api), as are spec files given by name.",
+    "A portal folder mocks the local specs in its apis:. A folder without rapidoc.config.yaml is mocked\nfile by file (orders-api.yaml under /orders-api), as are spec files given by name. A spec can\nalso be an http(s) address (https://example.com/orders-api.yaml under /orders-api), read at start.",
   positionals: { name: "dir|spec", max: Infinity },
   options: {
     port: {
@@ -142,19 +161,21 @@ export default {
     "rapidoc mock ./specs --port 4011",
     "rapidoc mock orders-api.yaml billing-api.yaml",
     "rapidoc mock orders-api.yaml --stateful",
+    "rapidoc mock https://example.com/specs/orders-api.yaml --stateful",
     "rapidoc mock --issuer https://example.us.auth0.com/ --audience https://api.example.com",
   ],
 
   async run({ values, positionals }) {
-    const targets = positionals.map((target) => path.resolve(target));
+    // files and folders resolved, http(s) addresses as given (the mock reads them at start), in the order given
+    const targets = positionals.map((target) => (isUrl(target) ? target : path.resolve(target)));
     if (!targets.length) targets.push(process.cwd());
     for (const target of targets) {
-      if (!fs.existsSync(target)) throw new ProblemError(`Not found: ${target}`);
+      if (!isUrl(target) && !fs.existsSync(target)) throw new ProblemError(`Not found: ${target}`);
     }
+    const isDir = (target) => !isUrl(target) && fs.statSync(target).isDirectory();
 
     let apis;
-    const folder =
-      targets.length === 1 && fs.statSync(targets[0]).isDirectory() ? targets[0] : null;
+    const folder = targets.length === 1 && isDir(targets[0]) ? targets[0] : null;
     if (folder && hasPortalConfig(folder)) {
       apis = await apisFromPortal(folder);
     } else if (folder) {
@@ -169,7 +190,7 @@ export default {
       );
       apis = mockApisFromFiles(files);
     } else {
-      const dirs = targets.filter((target) => fs.statSync(target).isDirectory());
+      const dirs = targets.filter(isDir);
       if (dirs.length) {
         throw new UsageError(
           `Pass one folder, or one or more spec files (not both): ${dirs.join(", ")}`,
@@ -185,7 +206,11 @@ export default {
     if (values.stateful) {
       mockConfig = await readMockConfig({
         file: values["mock-config"],
-        dirs: [folder, ...apis.map((api) => path.dirname(api.fullPath)), process.cwd()],
+        dirs: [
+          folder,
+          ...apis.filter((api) => !isUrl(api.fullPath)).map((api) => path.dirname(api.fullPath)),
+          process.cwd(),
+        ],
       });
     } else if (values["mock-config"]) {
       warn("--mock-config is used with --stateful only; ignored.");
@@ -235,7 +260,12 @@ export default {
     }
 
     info(`\n${icon("🧪")}Mock server: ${server.url}`);
-    const fileOf = new Map(apis.map((api) => [api.id, path.relative(process.cwd(), api.fullPath)]));
+    const fileOf = new Map(
+      apis.map((api) => [
+        api.id,
+        isUrl(api.fullPath) ? api.fullPath : path.relative(process.cwd(), api.fullPath),
+      ]),
+    );
     for (const api of server.apis) {
       info(
         `   • ${server.url}/${api.id}  ${api.title ? `${api.title}, ` : ""}${api.operations} operation(s)  (${fileOf.get(api.id)})`,

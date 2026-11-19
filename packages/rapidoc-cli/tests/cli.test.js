@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import fs from "node:fs";
+import http from "node:http";
 import os from "node:os";
 import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -366,6 +367,37 @@ test("@rapidoc/cli Command-Line Tool (Milestone 6)", async (t) => {
       }
     },
   );
+
+  await t.test("mock: a spec at an http address, named after its file", async () => {
+    // a local server's spec, as a framework serves its /openapi.yaml
+    const server = http.createServer((request, response) => {
+      if (request.url === "/specs/payments.yaml")
+        response
+          .writeHead(200, { "content-type": "application/yaml" })
+          .end(minimalSpec("Payments"));
+      else response.writeHead(404).end();
+    });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const base = `http://127.0.0.1:${server.address().port}`;
+    try {
+      const mock = await startMock([`${base}/specs/payments.yaml`, `${base}/specs/gone.yaml`]);
+      try {
+        assert.ok(
+          mock.output.includes(
+            `/payments  Payments, 1 operation(s)  (${base}/specs/payments.yaml)`,
+          ),
+          mock.output,
+        );
+        assert.ok(mock.output.includes("gone: not served"), mock.output);
+        assert.ok(mock.output.includes("gone.yaml answered 404"), mock.output);
+        assert.equal((await fetch(`${mock.url}/payments/ping`)).status, 200);
+      } finally {
+        mock.stop();
+      }
+    } finally {
+      server.close();
+    }
+  });
 
   await t.test(
     "mock --stateful keeps state, and reads mock.config.yaml beside the spec",

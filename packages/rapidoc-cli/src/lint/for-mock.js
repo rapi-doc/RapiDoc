@@ -34,7 +34,14 @@ export async function lintForMock(api, { apiIds = [api.id], mockConfig, folder }
     mockConfig: mockConfig && { config: mockConfig, apiId: api.id, apiIds },
     summary: true,
   });
-  const own = path.resolve(api.fullPath);
+  // the spec's own file, and where another file a problem is in sits from it (a path, or for a spec read
+  // from an address, the other file's address)
+  const remote = /^https?:\/\//i.test(api.fullPath);
+  const own = remote ? api.fullPath : path.resolve(api.fullPath);
+  const otherFile = (location) =>
+    remote
+      ? location !== own && location
+      : path.resolve(location) !== own && path.relative(path.dirname(own), location);
   return {
     linted: result.linted,
     problems: result.problems.map((one) => ({
@@ -43,9 +50,7 @@ export async function lintForMock(api, { apiIds = [api.id], mockConfig, folder }
       message: one.message,
       pointer: segmentsOf(one.pointer),
       line: one.line ?? 1,
-      ...(one.location && path.resolve(one.location) !== own
-        ? { file: path.relative(path.dirname(own), one.location) }
-        : {}),
+      ...(one.location && otherFile(one.location) ? { file: otherFile(one.location) } : {}),
     })),
     ...(result.summary ? { summary: result.summary } : {}),
   };

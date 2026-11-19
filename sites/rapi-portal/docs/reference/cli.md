@@ -18,7 +18,7 @@ The command comes from the npm package `@rapidoc/cli`. In a project that has it 
 | `build [dir]` | Builds the static portal into `dist/`. |
 | `serve [dist]` | Serves a built portal, with sign-in and access rules. Default folder `dist`. |
 | `preview <spec>` | Shows one spec (a file or URL) in `<rapi-doc>` on `http://localhost:4000`, reloading when a file in its folder changes. No portal needed. |
-| `mock [dir \| spec...]` | Mock server for a portal's APIs, a folder of specs, or spec files, each under `/<api id>`. |
+| `mock [dir \| spec...]` | Mock server for a portal's APIs, a folder of specs, or spec files (paths or URLs), each under `/<api id>`. |
 | `validate [spec \| dir]` | Validates one spec (a file or URL), or every spec and workflow file in a portal ([Validate](/docs/tools/validate/), [every option](https://rapidocui.com/docs/cli/validate/)). |
 | `lint [spec \| dir]` | Checks what a spec needs to make a good portal: operationIds, summaries, examples, security, declared tags ([Lint](/docs/tools/lint/), [every option](https://rapidocui.com/docs/cli/lint/)). |
 | `bundle <spec>` | Writes a spec split over several files as one: other-file `$ref`s become components ([Bundle](/docs/tools/bundle/), [every option](https://rapidocui.com/docs/cli/bundle/)). |
