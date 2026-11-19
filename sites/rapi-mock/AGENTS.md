@@ -4,7 +4,7 @@ The product and documentation site of the mock server, for `https://mock.rapidoc
 
 - **Built with**: RapiDoc Portal, from this repository's own `@rapidoc/cli` and `@rapidoc/portal` (not the published ones).
 - **Not an npm workspace**, and nothing here is published to npm.
-- **Published by**: a separate repository, `rapi-mock-doc`, with GitHub Pages. The publishing workflow is not written yet.
+- **Published by**: `.github/workflows/publish-mock-site.yml` in this repository. On a push to `master` that touches this folder or the packages the site is built from (or run by hand), it builds the site and force-pushes the built files as one commit to the `main` branch of `rapi-doc/rapi-mock-doc`, which GitHub Pages serves at `mock.rapidocui.com` (`public/CNAME`). That repository holds only published files: never edit it. The workflow pushes with the deploy key in the secret `RAPI_MOCK_DOC_DEPLOY_KEY`; it checks that the build has the home page and the spec check before it pushes.
 
 ## Commands (from the repository root)
 

@@ -1,0 +1,96 @@
+name: Publish the Rapi Mock site
+
+# Builds sites/rapi-mock (the Rapi Mock product and documentation site, https://mock.rapidocui.com) with this
+# repository's own CLI and portal, and pushes the built files to the main branch of rapi-doc/rapi-mock-doc, which
+# GitHub Pages serves. That repository holds only the published site; its source is here.
+#
+# Needs the secret RAPI_MOCK_DOC_DEPLOY_KEY: the private half of a deploy key with write access on
+# rapi-doc/rapi-mock-doc.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'sites/rapi-mock/**'
+      # what the site and its spec check are built from
+      - 'packages/rapidoc-mock/**'
+      - 'packages/rapidoc-cli/**'
+      - 'packages/rapidoc-portal/**'
+      - 'packages/rapidoc-prerender/**'
+      - 'packages/rapidoc-mcp/**'
+      - 'packages/rapidoc/src/**'
+      - 'scripts/third-party-licenses.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/publish-mock-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One publish at a time; a newer push replaces one that is waiting, never one that is pushing
+concurrency:
+  group: publish-mock-site
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    # forks have no deploy key
+    if: github.repository == 'rapi-doc/RapiDoc'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the site
+        run: npm run build:mock-site
+
+      - name: Check the build
+        working-directory: sites/rapi-mock/dist
+        run: |
+          test -f index.html
+          test -f spec-check/index.html
+          test -f spec-check/spec-check.js
+          test -f spec-check/mock-ui.js
+          test "$(cat CNAME)" = "mock.rapidocui.com"
+
+      - name: Push to rapi-doc/rapi-mock-doc
+        working-directory: sites/rapi-mock/dist
+        env:
+          DEPLOY_KEY: ${{ secrets.RAPI_MOCK_DOC_DEPLOY_KEY }}
+        run: |
+          # Pages would otherwise run Jekyll, which drops folders that start with an underscore (_astro, _rapidoc)
+          touch .nojekyll
+          cat > README.md <<TEXT
+          # rapi-mock-doc
+
+          The published files of the Rapi Mock site, https://mock.rapidocui.com.
+
+          Do not edit them here: every publish replaces this branch. The site's source is
+          [sites/rapi-mock](https://github.com/rapi-doc/RapiDoc/tree/master/sites/rapi-mock) in the RapiDoc
+          repository, built and pushed by its workflow "Publish the Rapi Mock site".
+          TEXT
+
+          install -m 600 /dev/null "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          export GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+
+          # The branch holds the site as it is now and nothing else: one commit, replaced by every publish
+          git init -q -b main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Publish the Rapi Mock site from rapi-doc/RapiDoc@${GITHUB_SHA::7}"
+          git push -q --force git@github.com:rapi-doc/rapi-mock-doc.git main
+          rm -f "$RUNNER_TEMP/deploy_key"
