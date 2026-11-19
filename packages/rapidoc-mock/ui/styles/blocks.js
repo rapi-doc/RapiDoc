@@ -220,12 +220,6 @@ export const blocks = css`
     background: color-mix(in oklab, var(--primary) 14%, transparent);
     color: var(--accent-text);
   }
-  .check {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    cursor: pointer;
-  }
 
   .list {
     flex: 0 0 210px;

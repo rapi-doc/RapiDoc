@@ -2,7 +2,7 @@ import { html, nothing } from "lit";
 import { opens, pageTitle, segmented } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
 import { actionName } from "../format.js";
-import { LABELS, badge, method } from "../labels.js";
+import { LABELS, LABEL_COLORS, LABEL_HELP, badge, method } from "../labels.js";
 import "./operation-detail.js";
 
 /** A path that breaks only after a slash: `/v3/applications/redirect-uris` never splits inside a word. */
@@ -130,18 +130,24 @@ export class MockOperations extends Screen {
         this.groupBy,
         (value) => (this.groupBy = value),
       )}
-      ${Object.keys(LABELS).map(
-        (label) => html`
-          <label class="check">
-            <input
-              type="checkbox"
-              .checked=${this.labels.has(label)}
-              @change=${() => toggle(label)}
-            />
-            ${badge(label)}
-          </label>
-        `,
-      )}
+      <div class="label-filters" role="group" aria-label="Labels shown">
+        ${Object.keys(LABELS).map(
+          (label) => html`
+            <label class=${api.labels[label] ? "label-filter" : "label-filter none"} title=${LABEL_HELP[label]}>
+              <input
+                type="checkbox"
+                ?disabled=${!api.labels[label]}
+                .checked=${this.labels.has(label)}
+                @change=${() => toggle(label)}
+              />
+              <span class="dot" style="--dot: ${LABEL_COLORS[label]}"></span>
+              ${LABELS[label]}
+              <span class="count">${api.labels[label]}</span>
+            </label>
+          `,
+        )}
+      </div>
+      <span class="grow"></span>
       <span class="hint">${rows.length} of ${api.operations.length} operations</span>
     </div>
     ${
