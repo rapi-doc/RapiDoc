@@ -100,7 +100,7 @@ All agents must strictly adhere to the following system boundaries:
 
 - **Rapi Mock site (`sites/rapi-mock`)**:
   - The product and documentation site of the mock server, named **Rapi Mock**, for `mock.rapidocui.com`. Built with RapiDoc Portal from this repository's own `@rapidoc/cli` and `@rapidoc/portal` (`npm run dev:mock-site`, `npm run build:mock-site`); it is not an npm workspace and publishes nothing to npm.
-  - Its source lives here so a change to the mock and its documentation land in one pull request. A separate repository, `rapi-mock-doc`, only publishes the built site with GitHub Pages.
+  - Its source lives here so a change to the mock and its documentation land in one pull request. A separate repository, `rapi-mock-doc`, only publishes the built site with GitHub Pages: `.github/workflows/publish-mock-site.yml` here builds it and pushes the files there.
   - It is where the mock's documentation grows. The mock pages of the Starlight site (`docs/src/content/docs/mocking/mock-server.mdx`) are to become a short summary that links to it; don't add new mock documentation there. Its own rules are in `sites/rapi-mock/AGENTS.md`.
 
 ### Build Artifact Hygiene
