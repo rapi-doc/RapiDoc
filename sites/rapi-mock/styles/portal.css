@@ -18,4 +18,6 @@
   --portal-bg: #ffffff;
   --portal-header-bg: #ffffff;
   --portal-border: color-mix(in srgb, #ffffff 85%, #2a2d35);
+  /* the dark card color above is set on :root, so light has to take it back */
+  --portal-card-bg: #ffffff;
 }
