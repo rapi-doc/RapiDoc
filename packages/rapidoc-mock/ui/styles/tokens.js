@@ -71,8 +71,8 @@ export const tokens = `
     --space-3: 12px;
     --space-4: 16px;
     --space-5: 24px;
-    /* shadows: under the header, of a drawer over the page, and at an edge content scrolls under */
-    --shadow-bar: 0 1px 6px rgb(0 0 0 / 35%);
+    /* shadows: of a drawer and of a menu over the page, and at an edge content scrolls under */
     --shadow-drawer: -10px 0 24px rgb(0 0 0 / 45%);
+    --shadow-menu: 0 8px 24px rgb(0 0 0 / 45%);
     --shade: rgb(0 0 0 / 40%);
 `;

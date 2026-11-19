@@ -107,7 +107,12 @@ export class MockOperations extends Screen {
     };
 
     return html`
-    ${pageTitle("operations", "Operations", "Every operation of the spec, with what the mock does for it.")}
+    ${pageTitle(
+      "operations",
+      "Operations",
+      "Every operation of the spec, with what the mock does for it.",
+      api.operations.length,
+    )}
     <div class="row">
       <input
         type="search"

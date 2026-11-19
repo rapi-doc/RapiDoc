@@ -125,6 +125,7 @@ export class MockResources extends Screen {
         "resources",
         "Resources",
         "The records this mock stores, worked out from the spec's schemas and paths.",
+        api.resources.length,
       )}
       <div class="resources-panel">
         <nav class="list" aria-label="Resources">

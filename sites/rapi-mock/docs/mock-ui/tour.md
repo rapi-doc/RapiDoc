@@ -19,7 +19,7 @@ Select an operation's row, or a path to open its first operation, to see one ope
 
 ## Resources
 
-Each resource the mock found, with how many records it holds now; a dot marks one that needs review, with the reason on hover. The count is plain while it is what the mock was seeded with, and marked with the difference once requests create or delete records ("11 (+1)"); **Reset data** puts it back. It follows the session in the header and updates when the page reads the data again (**Refresh**).
+Each resource the mock found, with how many records it holds now; a dot marks one that needs review, with the reason on hover. The count is plain while it is what the mock was seeded with, and marked with the difference once requests create or delete records ("11 (+1)"); **Reset data** puts it back. It follows the session in the header and updates when the page reads the data again (**Reload data**).
 
 The section is one panel: the list of resources on the left, and beside it the **Records** and **Schema** tabs with the records' filter on one row. The list and the records each scroll on their own, so the records stay in view.
 
@@ -42,6 +42,7 @@ How the mock was started, new seed data with another number of records or anothe
 
 ## In the header
 
+- **Reload data** reads the mock's data again, as it is now, and keeps your place: use it after a client changed records.
 - **Reset data** puts the selected API back to its seed data.
 - **Session** shows the data of one [`X-Mock-Session`](/docs/state/sessions/).
 

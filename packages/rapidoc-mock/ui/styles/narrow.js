@@ -87,8 +87,8 @@ export const narrow = css`
     .session input {
       width: 110px;
     }
-    select.api {
-      max-width: 160px;
+    .select.api {
+      width: 160px;
     }
   }
 `;

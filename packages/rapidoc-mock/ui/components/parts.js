@@ -4,6 +4,7 @@
  * that return templates (or handlers): a section places them, and keeps the state they show.
  */
 import { html, nothing } from "lit";
+import { number } from "../format.js";
 import { icon } from "../icons.js";
 
 /**
@@ -11,12 +12,17 @@ import { icon } from "../icons.js";
  * @param {string} mark - An icon name (icons.js)
  * @param {unknown} title
  * @param {unknown} [text]
+ * @param {number} [count] - How many of them there are, shown beside the name
  */
-export const pageTitle = (mark, title, text) => html`
+export const pageTitle = (mark, title, text, count) => html`
   <div class="title with-icon">
     ${icon(mark, 44)}
     <div>
-      <h1>${title}</h1>
+      <h1>
+        ${title}${
+          count === undefined ? nothing : html` <span class="title-count">${number(count)}</span>`
+        }
+      </h1>
       ${text ? html`<p>${text}</p>` : nothing}
     </div>
   </div>

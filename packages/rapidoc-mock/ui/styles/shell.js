@@ -12,7 +12,6 @@ export const shell = css`
     padding-right: var(--space-4);
     min-height: 56px;
     background: var(--sidebar);
-    box-shadow: var(--shadow-bar);
     position: relative;
     z-index: 3;
   }
@@ -39,9 +38,9 @@ export const shell = css`
   .brand:hover {
     text-decoration: none;
   }
-  select.api {
-    max-width: 280px;
-    color: var(--strong);
+  .select.api {
+    width: 280px;
+    max-width: 40vw;
   }
   header .session span {
     color: var(--muted);
@@ -82,8 +81,10 @@ export const shell = css`
   .sidebar h2 {
     margin: 0;
     padding: var(--space-5) var(--space-4) var(--space-2) var(--space-5);
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--strong);
   }
   .sidebar a {
@@ -133,6 +134,14 @@ export const shell = css`
   .title {
     padding-bottom: var(--space-4);
     border-bottom: 1px solid var(--line);
+  }
+  /* how many there are, beside a page's title: a figure in the muted color, not a badge (a badge asks for a look) */
+  .title-count {
+    margin-left: var(--space-1);
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
   }
   .title p {
     color: var(--muted);

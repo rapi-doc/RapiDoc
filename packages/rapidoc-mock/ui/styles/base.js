@@ -73,13 +73,12 @@ export const base = css`
     font-size: var(--small);
   }
   button,
-  input,
-  select {
+  input {
     font: inherit;
     color: inherit;
   }
   /* Controls in the manner of <rapi-doc>: buttons and tabs in semibold small caps, joined buttons with an
-     amber current one, a select with its own caret, a checkbox as a switch that turns green */
+     amber current one, a select drawn by the app (components/select.js), a checkbox as a switch that turns green */
   button {
     cursor: pointer;
     padding: var(--space-1) var(--space-3);
@@ -125,28 +124,89 @@ export const base = css`
     border-color: var(--primary-hover);
     color: var(--primary-fg);
   }
+  /* A select: a button that names the choice, and its list under it, over the page */
+  .select {
+    position: relative;
+    display: inline-block;
+    min-width: 0;
+  }
+  .select-button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-1) var(--space-2);
+    border-color: var(--border);
+    background: var(--inset);
+    color: var(--strong);
+    font-size: inherit;
+    letter-spacing: 0;
+    text-transform: none;
+    text-align: left;
+  }
+  .select-button[aria-expanded="true"] {
+    border-color: var(--primary);
+  }
+  .select-value {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .select-button .icon {
+    flex: none;
+    color: var(--muted);
+  }
+  .select-list {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    left: 0;
+    z-index: 30;
+    min-width: 100%;
+    max-height: min(60vh, 420px);
+    margin: 0;
+    padding: var(--space-1);
+    overflow-y: auto;
+    list-style: none;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    background: var(--card);
+    box-shadow: var(--shadow-menu);
+  }
+  .select-list li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding: 6px var(--space-3);
+    border-radius: 3px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .select-list li.active {
+    background: var(--hover);
+    color: var(--strong);
+  }
+  .select-list li[aria-selected="true"] .select-label {
+    color: var(--accent-text);
+  }
+  .select-hint {
+    margin-left: auto;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--small);
+  }
   :focus-visible {
     outline: 2px solid var(--accent-text);
     outline-offset: 2px;
   }
   input[type="text"],
   input[type="search"],
-  input[type="number"],
-  select {
+  input[type="number"] {
     padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border);
     border-radius: 3px;
     background: var(--inset);
     min-width: 0;
-  }
-  select {
-    appearance: none;
-    padding-right: var(--space-5);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256' fill='%23949ba2'%3E%3Cpath d='M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 9px center;
-    background-size: 14px;
-    cursor: pointer;
   }
   /* a checkbox is a switch: off grey, on green, its knob sliding across */
   input[type="checkbox"] {
@@ -190,8 +250,7 @@ export const base = css`
       transition: none;
     }
   }
-  input:focus,
-  select:focus {
+  input:focus {
     border-color: var(--primary);
     outline: none;
   }

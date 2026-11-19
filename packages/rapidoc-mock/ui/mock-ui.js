@@ -38,6 +38,7 @@
 import { LitElement, html, nothing } from "lit";
 import { icon } from "./icons.js";
 import { styles } from "./styles.js";
+import "./components/select.js";
 import "./views/dashboard.js";
 import "./views/lint.js";
 import "./views/operations.js";
@@ -379,18 +380,17 @@ export class RapidocMockUi extends LitElement {
         ${
           this.apis.length
             ? html`
-              <select
+              <rapidoc-mock-select
                 class="api"
-                aria-label="API"
-                @change=${(e) => (location.hash = this.href(this.route.view, "", e.target.value))}
-              >
-                ${this.apis.map(
-                  (one) =>
-                    html`<option value=${one.id} ?selected=${one.id === api?.id}>
-                      ${one.title || one.id} (/${one.id})
-                    </option>`,
-                )}
-              </select>
+                label="API"
+                .options=${this.apis.map((one) => ({
+                  value: one.id,
+                  label: one.title || one.id,
+                  hint: `/${one.id}`,
+                }))}
+                .value=${api?.id ?? ""}
+                @change=${(e) => (location.hash = this.href(this.route.view, "", e.detail))}
+              ></rapidoc-mock-select>
             `
             : nothing
         }
@@ -405,7 +405,13 @@ export class RapidocMockUi extends LitElement {
             @change=${(e) => this.setSession(e.target.value)}
           />
         </label>
-        <button @click=${() => this.load()} ?disabled=${this.busy}>Refresh</button>
+        <button
+          title="Reads the mock's data again, as it is now: after a client changed records, or another tab did"
+          @click=${() => this.load()}
+          ?disabled=${this.busy}
+        >
+          Reload data
+        </button>
         <button class="primary" @click=${() => this.reset()} ?disabled=${this.busy || !api}>
           Reset data
         </button>
