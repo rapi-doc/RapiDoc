@@ -49,6 +49,7 @@ header:
         - { label: One, description: Still a card, href: /docs/intro }
         - { label: Two, href: /docs/more }
     - { label: GitHub, href: "https://github.com/example", icon: github-logo }
+    - { label: Docs, href: /docs }
 navigation:
   - label: Guides
     icon: book
@@ -189,6 +190,19 @@ describe("Header options in a built portal", () => {
     assert.match(html, /Changelog\s*<span class="portal-nav-badge"[^>]*>New</);
     assert.match(between("portal-nav-menu-end", "portal-mobile-toggle"), /portal-nav-link-icon/);
     assert.match(html, /class="portal-brand-badge"[^>]*>v2\.4</);
+  });
+
+  it("marks one header link as the current section: the closest one", () => {
+    const active = (pageHtml) =>
+      [
+        ...pageHtml.matchAll(/<a [^>]*class="portal-nav-link[^"]* active"[^>]*>([\s\S]*?)<\/a>/g),
+      ].map(([, inner]) => inner.replace(/<[^>]+>/g, "").trim());
+    // /docs/intro/: only Docs (/docs) covers it
+    assert.deepEqual(active(html), ["Docs"]);
+    // /docs/more/: Changelog (/docs/more) and Docs (/docs) both cover it; the longer address wins
+    const more = fs.readFileSync(path.join(outDir, "docs", "more", "index.html"), "utf8");
+    assert.deepEqual(active(more), ["ChangelogNew"]);
+    assert.match(more, /class="portal-nav-link[^"]* active"[^>]*aria-current="page"/);
   });
 
   it("lists the tabs above the sidebar's pages instead of in a header row", () => {

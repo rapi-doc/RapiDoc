@@ -23,6 +23,16 @@ const { links, allLinks, position, currentPath } = Astro.props;
 const label = position === 'start' ? 'Main' : allLinks.some((link) => link.position === 'start') ? 'More' : 'Main';
 const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
 const badgeText = (badge: any) => (typeof badge === 'string' ? badge : badge.text);
+
+// The link of the section the page is in: the one whose address the page's address starts with. When
+// several do (/docs and /docs/quickstart on the quickstart page), the longest, so one link is marked.
+const pathOf = (href: string) => href.replace(/[?#].*$/, '').replace(/\/+$/, '');
+const coversPage = (link: any) => {
+  if (!link.href || isExternal(link.href) || link.href === '/') return false;
+  const path = pathOf(link.href);
+  return pathOf(currentPath) === path || currentPath.startsWith(`${path}/`);
+};
+const activeLink = allLinks.filter(coversPage).sort((a, b) => pathOf(b.href).length - pathOf(a.href).length)[0];
 ---
 
 <nav class:list={['portal-nav-menu', `portal-nav-menu-${position}`]} aria-label={label}>
@@ -174,11 +184,12 @@ const badgeText = (badge: any) => (typeof badge === 'string' ? badge : badge.tex
       }
 
       const external = isExternal(link.href);
-      const isActive = !external && link.href !== '/' && (currentPath === link.href || currentPath.startsWith(`${link.href.replace(/\/$/, '')}/`));
+      const isActive = link === activeLink;
       return (
         <a
           href={withBase(link.href)}
           class:list={['portal-nav-link', link.style && link.style !== 'link' && `portal-nav-${link.style}`, { active: isActive }]}
+          aria-current={isActive ? 'page' : undefined}
           target={external ? '_blank' : undefined}
           rel={external ? 'noopener noreferrer' : undefined}
         >
