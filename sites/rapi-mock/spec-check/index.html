@@ -10,6 +10,14 @@
       content="See what Rapi Mock makes of your OpenAPI spec: its resources, seed data and lint findings. It runs in your browser; the spec is not sent anywhere."
     />
     <link rel="icon" href="../rapidoc-leaves.svg" />
+    <!-- Google Analytics: the same property as rapidocui.com; content_group tells the sites apart. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M9TPKERDJ6"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-M9TPKERDJ6", { content_group: "Mock" });
+    </script>
     <style>
       /*
        * The colors, type and spacing are the Mock UI's own: the build writes its tokens here, from

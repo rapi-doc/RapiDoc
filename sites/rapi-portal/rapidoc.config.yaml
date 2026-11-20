@@ -10,6 +10,16 @@ site:
       dark: /rapidoc-lockup-dark.svg
     text: Portal
   favicon: /rapidoc-leaves.svg
+# Google Analytics: the same property as rapidocui.com; content_group tells the sites apart.
+head:
+  - script:
+      async: true
+      src: https://www.googletagmanager.com/gtag/js?id=G-M9TPKERDJ6
+  - script: |
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-M9TPKERDJ6', { content_group: 'Portal' });
 theme:
   primary: "#f6a821" # amber, the API reference's `rapidoc.theme` below
   mode: auto

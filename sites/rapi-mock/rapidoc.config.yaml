@@ -8,6 +8,16 @@ site:
     src: /rapidoc-leaves.svg
     text: Rapi Mock
   favicon: /rapidoc-leaves.svg
+# Google Analytics: the same property as rapidocui.com; content_group tells the sites apart.
+head:
+  - script:
+      async: true
+      src: https://www.googletagmanager.com/gtag/js?id=G-M9TPKERDJ6
+  - script: |
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-M9TPKERDJ6', { content_group: 'Mock' });
 theme:
   primary: "#f6a821" # amber, as on rapidocui.com
   mode: auto
