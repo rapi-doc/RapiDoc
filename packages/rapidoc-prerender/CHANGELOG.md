@@ -1,5 +1,9 @@
 # @rapidoc/prerender
 
+## 0.2.5
+
+No changes in this release.
+
 ## 0.2.4
 
 ### Patch Changes
