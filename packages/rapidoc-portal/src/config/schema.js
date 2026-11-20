@@ -147,6 +147,11 @@ const MenuItemSchema = z.strictObject({
     .describe("Shortcut links shown under the item in the mega-menu."),
 });
 
+const MenuGroupSchema = z.strictObject({
+  label: z.string().min(1).describe("Heading of the column."),
+  items: z.array(MenuItemSchema).min(1),
+});
+
 export const HeaderLinkSchema = z
   .strictObject({
     label,
@@ -156,20 +161,66 @@ export const HeaderLinkSchema = z
       .enum(["link", "button", "primary"])
       .optional()
       .describe("link (default), button (outlined) or primary (filled)."),
+    badge: badge.optional(),
+    position: z
+      .enum(["start", "end"])
+      .optional()
+      .describe("start: after the logo, left of the search; end (default): right of the search."),
     items: z
       .array(MenuItemSchema)
       .min(1)
       .optional()
-      .describe("Dropdown items; an icon or description makes it a mega-menu."),
+      .describe(
+        "Dropdown items. Plain links (label and href only) are a simple list; an icon or description on any item makes them cards.",
+      ),
+    columns: z
+      .number()
+      .int()
+      .min(1)
+      .max(4)
+      .optional()
+      .describe(
+        "How many items across in the dropdown (with items): default 1 for plain links, 2 for cards.",
+      ),
+    groups: z
+      .array(MenuGroupSchema)
+      .min(1)
+      .optional()
+      .describe("Dropdown items in columns, each with a heading; instead of items."),
+    footer: MenuLinkSchema.optional().describe(
+      "A link under the dropdown's items (with items or groups).",
+    ),
   })
-  .superRefine(exactlyOne(["href", "items"], "A header link"));
+  .superRefine(exactlyOne(["href", "items", "groups"], "A header link"))
+  .superRefine((link, ctx) => {
+    if (link.footer && link.href !== undefined)
+      ctx.addIssue({
+        code: "custom",
+        path: ["footer"],
+        message: "footer is the link under a dropdown: it needs items or groups",
+      });
+    if (link.columns !== undefined && link.items === undefined)
+      ctx.addIssue({
+        code: "custom",
+        path: ["columns"],
+        message: link.groups
+          ? "columns is for items: with groups, every group is a column (remove columns)"
+          : "columns is for a dropdown: it needs items",
+      });
+  });
 
 export const HeaderSchema = z.strictObject({
   links: z
     .array(HeaderLinkSchema)
     .optional()
-    .describe("Links and dropdown menus right of the search."),
+    .describe("Links and dropdown menus; right of the search unless position is start."),
   themeSwitcher: z.boolean().optional().describe("Show the light/dark switcher (default true)."),
+  tabs: z
+    .enum(["header", "sidebar"])
+    .optional()
+    .describe(
+      "Where the navigation tabs are listed: header (default), a row under the header; sidebar, a list above the sidebar's pages.",
+    ),
 });
 
 // ---------------------------------------------------------------------------------------------
@@ -196,6 +247,11 @@ export const SiteSchema = z.strictObject({
         ),
       alt: z.string().optional(),
       href: href.optional().describe("Where the logo links to (default /)."),
+      badge: z
+        .string()
+        .min(1)
+        .optional()
+        .describe("Small label next to the logo in the header, e.g. a version."),
     })
     .optional(),
   favicon: z.string().optional().describe("Icon in public/, e.g. /favicon.svg."),

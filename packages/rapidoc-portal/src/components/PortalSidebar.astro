@@ -2,12 +2,14 @@
 /**
  * Starlight Sidebar override. On narrow screens the sidebar is the only menu, so the header tabs and links
  * are listed above the documentation navigation (hidden from 50rem, where the header shows them).
+ * With `header.tabs: sidebar` the tabs are listed here on wide screens too (PortalSidebarTabs).
  * The navigation is Starlight's Sidebar with the portal's sublist (icons, one text size).
  */
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import PortalMobileNav from './PortalMobileNav.astro';
 import PortalSidebarSublist from './PortalSidebarSublist.astro';
+import PortalSidebarTabs from './PortalSidebarTabs.astro';
 
 const { sidebar } = Astro.locals.starlightRoute;
 ---
@@ -15,6 +17,7 @@ const { sidebar } = Astro.locals.starlightRoute;
 <div class="portal-sidebar-header-links md:sl-hidden">
   <PortalMobileNav />
 </div>
+<PortalSidebarTabs />
 <SidebarPersister>
   <PortalSidebarSublist sublist={sidebar} />
 </SidebarPersister>

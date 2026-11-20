@@ -200,8 +200,17 @@ export function buildSearchIndex(config, projectDir, docFiles = []) {
 
     const relToDocs = path.relative(config.docs.fullPath, docFile);
     const parsedPath = path.parse(relToDocs);
-    const routeDirName = path.join(parsedPath.dir, parsedPath.name).replace(/\\/g, "/");
-    const routePath = `/docs/${routeDirName}`;
+    // A folder's index page is the folder's page; docs/index.* is the home page, or /docs when the
+    // project has its own home page (docs.home is false)
+    const routeDirName = path
+      .join(parsedPath.dir, parsedPath.name)
+      .replace(/\\/g, "/")
+      .replace(/(^|\/)index$/, "");
+    const routePath = routeDirName
+      ? `/docs/${routeDirName}`
+      : config.docs.home === false
+        ? "/docs"
+        : "/";
 
     // Index main page record
     records.push({

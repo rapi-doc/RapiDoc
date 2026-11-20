@@ -43,7 +43,7 @@ const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel:
               <div class="portal-mobile-links">
                 {link.items.map((item: any) => (
                   <a href={withBase(item.href)} class="portal-mobile-item" {...external(item.href)}>
-                    <Icon name={item.icon || 'lightning'} size={16} weight="regular" class="portal-mobile-icon" />
+                    {link.items.some((it: any) => it.icon) && <Icon name={item.icon || 'lightning'} size={16} weight="regular" class="portal-mobile-icon" />}
                     <span>{item.label}</span>
                   </a>
                 ))}

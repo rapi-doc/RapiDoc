@@ -61,6 +61,15 @@ The header and footer switch between the two as soon as the reader changes the t
 
 With an image and no `text`, only the image is shown, and `alt` names it for screen readers. Without an image, the site title is the wordmark. The header shows the logo 28px tall; a wide logo shrinks on narrow screens.
 
+`badge` puts a small label next to the logo in the header, for example the version your documentation covers:
+
+```yaml title="rapidoc.config.yaml"
+site:
+  logo:
+    src: /logo.svg
+    badge: v2.4
+```
+
 The favicon is one file for both themes: pick an icon that reads on light and dark browser tabs.
 
 ## Serving under a path

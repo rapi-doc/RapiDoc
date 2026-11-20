@@ -98,6 +98,7 @@ navigation:
           - { slug: writing/mdx }
           - { slug: writing/callouts }
           - { slug: writing/embedding-operations }
+          - { slug: writing/pages }
       - label: API reference
         icon: code
         items:

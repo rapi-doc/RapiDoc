@@ -169,15 +169,18 @@ function pageMeta(source, file) {
   };
 }
 
-/** A doc file → its page URL: docs/index.* is the home page, `guides/index.md` is /docs/guides/. */
-function pageUrlOf(docsDir, file) {
+/**
+ * A doc file → its page URL: docs/index.* is the home page (or /docs/, when the project has its own home
+ * page: `docs.home` is false), `guides/index.md` is /docs/guides/.
+ */
+function pageUrlOf(docsDir, file, home = true) {
   const slug = path
     .relative(docsDir, file)
     .split(path.sep)
     .join("/")
     .replace(/\.(md|mdx|markdoc)$/, "")
     .replace(/(^|\/)index$/, "");
-  if (!slug && path.basename(file).startsWith("index.") && path.dirname(file) === docsDir)
+  if (home && !slug && path.basename(file).startsWith("index.") && path.dirname(file) === docsDir)
     return "/";
   return slug ? `/docs/${slug}/` : "/docs/";
 }
@@ -192,7 +195,7 @@ export function collectDocPages(portalConfig, docFiles) {
     .filter((file) => fs.existsSync(file))
     .map((file) => {
       const source = fs.readFileSync(file, "utf8");
-      const url = pageUrlOf(docsDir, file);
+      const url = pageUrlOf(docsDir, file, portalConfig.docs.home !== false);
       return {
         file,
         url,

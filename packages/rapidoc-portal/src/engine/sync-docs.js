@@ -205,9 +205,16 @@ function outsideCodeFences(content, transform) {
     .join("\n");
 }
 
-/** Where a file of the project's docs/ lands in the content folder (docs/index.* at its root). */
-function workspaceRelPath(relPath) {
-  return workspaceDocPath(HOME_DOC.test(relPath) ? relPath : path.join("docs", relPath));
+/**
+ * Where a file of the project's docs/ lands in the content folder: under docs/, except docs/index.* when
+ * it is the home page (`home`), which goes to the folder's root.
+ */
+function contentRelPath(relPath, home = true) {
+  return home && HOME_DOC.test(relPath) ? relPath : path.join("docs", relPath);
+}
+
+function workspaceRelPath(relPath, home) {
+  return workspaceDocPath(contentRelPath(relPath, home));
 }
 
 const toImportPath = (filePath) => filePath.split(path.sep).join("/");
@@ -220,11 +227,12 @@ const toImportPath = (filePath) => filePath.split(path.sep).join("/");
  * Astro components only.
  *
  * @param {string} content
- * @param {{ srcDir: string, relPath: string }} source - The project's docs/ folder, the page's path in it
+ * @param {{ srcDir: string, relPath: string, home?: boolean }} source - The project's docs/ folder, the
+ *   page's path in it, and whether docs/index.* is the home page (default true)
  */
-export function rewriteRelativeImports(content, { srcDir, relPath }) {
+export function rewriteRelativeImports(content, { srcDir, relPath, home = true }) {
   const pageDir = path.dirname(path.join(srcDir, relPath));
-  const destDir = path.dirname(workspaceRelPath(relPath));
+  const destDir = path.dirname(workspaceRelPath(relPath, home));
   return outsideCodeFences(content, (part) =>
     part.replace(RELATIVE_IMPORT, (statement, head, quote, specifier) => {
       const target = path.resolve(pageDir, specifier);
@@ -237,7 +245,7 @@ export function rewriteRelativeImports(content, { srcDir, relPath }) {
       const insideDocs = !targetRel.startsWith("..") && !path.isAbsolute(targetRel);
       let rewritten;
       if (insideDocs) {
-        const relative = toImportPath(path.relative(destDir, workspaceRelPath(targetRel)));
+        const relative = toImportPath(path.relative(destDir, workspaceRelPath(targetRel, home)));
         rewritten = relative.startsWith(".") ? relative : `./${relative}`;
       } else {
         rewritten = toImportPath(target);
@@ -288,7 +296,7 @@ export function listDocFiles(dir) {
  * Computes the files the workspace should contain: relative path -> content (string or Buffer).
  * When both `x.md` and `x.mdx` exist, only the .mdx is kept to avoid duplicate Starlight slugs.
  */
-function collectDesiredDocs(srcDir, { editUrl } = {}) {
+function collectDesiredDocs(srcDir, { editUrl, home = true } = {}) {
   const desired = new Map();
   if (!fs.existsSync(srcDir)) return desired;
   for (const entry of fs.readdirSync(srcDir, { withFileTypes: true, recursive: true })) {
@@ -303,10 +311,10 @@ function collectDesiredDocs(srcDir, { editUrl } = {}) {
     )
       continue;
 
-    const destRel = HOME_DOC.test(relPath) ? relPath : path.join("docs", relPath);
+    const destRel = contentRelPath(relPath, home);
     if (isDocFile(entry.name)) {
       let content = normalizeDocContent(fs.readFileSync(srcPath, "utf8"), entry.name);
-      if (ext === ".mdx") content = rewriteRelativeImports(content, { srcDir, relPath });
+      if (ext === ".mdx") content = rewriteRelativeImports(content, { srcDir, relPath, home });
       if (editUrl)
         content = addFrontmatterField(
           content,
@@ -333,7 +341,8 @@ function sameContent(destPath, content) {
  *
  * @param {string} srcDir
  * @param {string} destDir
- * @param {{ editUrl?: string | null }} [options] - editUrl: base URL of srcDir in the repository
+ * @param {{ editUrl?: string | null, home?: boolean }} [options] - editUrl: base URL of srcDir in the
+ *   repository; home: docs/index.* is the home page (default true), else the page at /docs
  */
 export function syncDocs(srcDir, destDir, options = {}) {
   const desired = collectDesiredDocs(srcDir, options);

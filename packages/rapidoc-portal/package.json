@@ -25,6 +25,7 @@
     "./markdoc": "./src/markdoc/index.js",
     "./search": "./src/search/index.js",
     "./components": "./src/components/index.js",
+    "./components/PortalHead.astro": "./src/components/PortalHead.astro",
     "./markdoc/astro": "./src/markdoc/astro-config.js",
     "./markdoc/components": "./src/markdoc/components.js",
     "./frontmatter": "./src/engine/frontmatter.js",

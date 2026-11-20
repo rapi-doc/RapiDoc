@@ -1,0 +1,81 @@
+---
+/**
+ * The navigation tabs as a list above the sidebar's pages, for `header.tabs: sidebar` (the header then has
+ * no tabs row). Shown from 50rem; below that the sidebar is the menu, and PortalMobileNav lists the tabs there.
+ * Used by the docs sidebar (PortalSidebar) and the API reference's (pages/api-reference.astro).
+ */
+import portalConfig from 'virtual:rapidoc-portal/config';
+import Icon from './Icon.astro';
+import { activeTab } from './header-nav.js';
+import { withBase, withoutBase } from './base-path.js';
+
+const { tabs } = portalConfig;
+const show = portalConfig.header.tabs === 'sidebar' && tabs.length > 0;
+const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
+const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
+---
+
+{
+  show && (
+    <nav class="portal-sidebar-tabs" aria-label="Sections">
+      {tabs.map((tab: any) => (
+        <a
+          href={withBase(tab.href)}
+          class="portal-sidebar-tab"
+          aria-current={tab === currentTab ? 'page' : undefined}
+          target={isExternal(tab.href) ? '_blank' : undefined}
+          rel={isExternal(tab.href) ? 'noopener noreferrer' : undefined}
+        >
+          {tab.icon && (
+            <span class="portal-sidebar-tab-icon">
+              <Icon name={tab.icon} size={16} weight="regular" />
+            </span>
+          )}
+          <span>{tab.label}</span>
+          {isExternal(tab.href) && <Icon name="arrow-up-right" size={16} class="portal-sidebar-tab-external" />}
+        </a>
+      ))}
+    </nav>
+  )
+}
+
+<style is:global>
+  .portal-sidebar-tabs {
+    display: none;
+  }
+  @media (width >= 50rem) {
+    .portal-sidebar-tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--portal-border);
+    }
+  }
+  .portal-sidebar-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: var(--portal-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--portal-muted);
+    text-decoration: none;
+  }
+  .portal-sidebar-tab:hover {
+    color: var(--portal-fg);
+  }
+  .portal-sidebar-tab[aria-current='page'] {
+    color: var(--portal-primary-text);
+    background-color: var(--portal-primary-tint);
+  }
+  .portal-sidebar-tab-icon {
+    display: inline-flex;
+  }
+  .portal-sidebar-tab-external {
+    margin-inline-start: auto;
+    opacity: 0.6;
+  }
+</style>

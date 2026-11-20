@@ -3,6 +3,7 @@
  *
  *   docs/ change              -> re-sync the docs copy and search index (Astro hot-reloads)
  *   config or spec change     -> rebuild the workspace and restart the Astro server
+ *   page added or removed     -> the same (pages/*.astro are routes; edits to one hot-reload)
  *
  * The temp workspace is deleted on stop(), Ctrl+C (SIGINT), SIGTERM and any other process exit.
  */
@@ -13,6 +14,7 @@ import { dev as astroDev } from "astro";
 import { createAstroConfig } from "./astro-integration.js";
 import { createPortalWorkspace, refreshDocs, removePortalWorkspace } from "./temp-workspace.js";
 import { reportSpecWarnings } from "./spec-checks.js";
+import { PAGES_DIRNAME } from "./project-pages.js";
 
 const WATCH_DEBOUNCE_MS = 150;
 
@@ -70,7 +72,7 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
       try {
         if (restartNeeded) {
           restartNeeded = false;
-          console.log("[rapidoc-portal] Config or spec changed, restarting dev server...");
+          console.log("[rapidoc-portal] Config, spec or pages changed, restarting dev server...");
           await stopAstro();
           await startAstro();
         } else {
@@ -91,14 +93,27 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
     return new Set([workspace.configPath, ...specs, ...workflows]);
   }
 
+  // A page of pages/ that appears or goes away changes the routes, which are set when Astro starts.
+  // An edit to one is hot-reloaded by Astro, like any file a page imports.
+  function isPageAddedOrRemoved(changedPath) {
+    if (!changedPath.endsWith(".astro")) return false;
+    if (!isInside(changedPath, path.join(workspace.projectDir, PAGES_DIRNAME))) return false;
+    return fs.existsSync(changedPath) !== workspace.pages.some((page) => page.file === changedPath);
+  }
+
   await startAstro();
 
-  // Watch the whole project folder once; filter to docs/, the config file, local specs and workflow files.
+  // Watch the whole project folder once; filter to docs/, the config file, local specs, workflow files
+  // and pages added to or removed from pages/.
   const projectRoot = workspace.projectDir;
   watcher = fs.watch(projectRoot, { recursive: true }, (_event, fileName) => {
     if (!fileName) return;
     const changedPath = path.join(projectRoot, fileName.toString());
-    if (isInside(changedPath, workspace.projectDocsDir) || watchedFiles().has(changedPath)) {
+    if (
+      isInside(changedPath, workspace.projectDocsDir) ||
+      watchedFiles().has(changedPath) ||
+      isPageAddedOrRemoved(changedPath)
+    ) {
       onProjectChange(changedPath);
     }
   });

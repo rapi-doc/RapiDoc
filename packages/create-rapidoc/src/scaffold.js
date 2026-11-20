@@ -275,6 +275,7 @@ theme:
 
 # Row 1 of the header: links and menus right of the search
 header:
+  # tabs: sidebar   # list the navigation tabs above the sidebar instead of in a second header row
   links:
     - label: "Solutions"
       items:

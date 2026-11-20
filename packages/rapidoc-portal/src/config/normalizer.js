@@ -488,7 +488,12 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = "rapido
     toc: raw.docs?.toc ?? {},
     editUrl: raw.docs?.editUrl || null,
   };
-  docs.home = Boolean(findHomeDoc(docs.fullPath));
+  // docs/index.* is the home page (/), unless the project has its own (pages/index.astro): then it is
+  // the page at /docs, the documentation's own front page.
+  const hasIndexDoc = Boolean(findHomeDoc(docs.fullPath));
+  const hasHomePage = fs.existsSync(path.join(baseDir, "pages", "index.astro"));
+  docs.home = hasIndexDoc && !hasHomePage;
+  docs.index = hasIndexDoc && hasHomePage;
 
   const tabs = buildTabs(raw.navigation || [], { apis, apiLink, docsDir: docs.fullPath });
   const css = [raw.theme?.css || []].flat().map((file) => path.resolve(baseDir, file));
@@ -507,6 +512,7 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = "rapido
     text: site.logo?.text ?? (logoSrc ? null : site.title),
     alt: site.logo?.alt || site.title,
     href: site.logo?.href || "/",
+    badge: site.logo?.badge || null,
   };
 
   return {
@@ -538,8 +544,13 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = "rapido
     },
     head: normalizeHead(raw.head),
     header: {
-      links: raw.header?.links || [],
+      // A menu in columns keeps `groups`, and gets `items`: all of them, for the places that list a
+      // menu flat (the narrow-screen menu).
+      links: (raw.header?.links || []).map((link) =>
+        link.groups ? { ...link, items: link.groups.flatMap((group) => group.items) } : link,
+      ),
       themeSwitcher: raw.header?.themeSwitcher !== false,
+      tabs: raw.header?.tabs || "header",
     },
     tabs,
     apis,
