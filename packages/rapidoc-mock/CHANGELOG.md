@@ -1,5 +1,13 @@
 # @rapidoc/mock
 
+## 0.2.5
+
+### Patch Changes
+
+- c138d53: The sentences the mock writes about a spec put the names they take from it in backticks: what an operation does ("Lists the stored `Owner` records, filtered by `lastName`."), a review note ("returns inline objects; assumed to be `destination`") and a parameter's role, in `/__mock/model` and its detail endpoints. The Mock UI shows those names as code, so a resource called `destination` or `user` can't be read as a word of the sentence. `rapidoc lint --stateful` prints its findings as before, without the marks.
+- 6f8e0f7: The Mock UI has an Import spec page in its sidebar: add a spec to the running mock from an address, a file or pasted text, and it is served at once under its own path, with state, until the mock stops; imported specs are listed with a Remove button. The control API has the same: `POST /__mock/apis` with `{ "url": ... }` or `{ "text": ..., "name": ... }`, and `DELETE /__mock/apis/<id>`. Importing is accepted only from the machine the mock runs on.
+- 6f8e0f7: The Mock UI marks what needs review where it is: on an operation's page, a query parameter the mock had to assume something about (one that matches no field of the records it lists, or is matched on the name of nested objects) has a red dot beside its name, and a Needs review column says what was assumed; the top of the page says how many parameters to review, with a link down to them, instead of the full sentence. The control API's operation detail has the same as data: `review` on such a parameter, and `review: { parameters, other }` on the operation. Needs review is now a red (`#ff8080`) instead of pink. An operation labelled Needs review for its resource shows that reason, on its page and in the Operations table. The page says what an operation does in plainer words ("Deletes the Pet record whose id is in the path parameter petId. If no such record is stored, it responds with HTTP status 404 (Not Found)."), and that `Prefer` is a request header. The Dashboard explains the three labels in full, and each links to its operations.
+
 ## 0.2.4
 
 ### Patch Changes

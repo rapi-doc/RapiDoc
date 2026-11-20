@@ -1,5 +1,11 @@
 # @rapidoc/server
 
+## 0.2.5
+
+### Patch Changes
+
+- @rapidoc/mcp@0.2.5
+
 ## 0.2.4
 
 ### Patch Changes

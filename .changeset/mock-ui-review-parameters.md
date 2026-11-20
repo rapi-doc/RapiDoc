@@ -1,5 +1,0 @@
----
-"@rapidoc/mock": patch
----
-
-The Mock UI marks what needs review where it is: on an operation's page, a query parameter the mock had to assume something about (one that matches no field of the records it lists, or is matched on the name of nested objects) has a red dot beside its name, and a Needs review column says what was assumed; the top of the page says how many parameters to review, with a link down to them, instead of the full sentence. The control API's operation detail has the same as data: `review` on such a parameter, and `review: { parameters, other }` on the operation. Needs review is now a red (`#ff8080`) instead of pink. An operation labelled Needs review for its resource shows that reason, on its page and in the Operations table. The page says what an operation does in plainer words ("Deletes the Pet record whose id is in the path parameter petId. If no such record is stored, it responds with HTTP status 404 (Not Found)."), and that `Prefer` is a request header. The Dashboard explains the three labels in full, and each links to its operations.
