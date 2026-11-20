@@ -3,7 +3,7 @@ import { bars, opens, pageTitle } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
 import { icon } from "../icons.js";
 import { LABELS, LABEL_ABOUT, LABEL_COLORS, badge, method } from "../labels.js";
-import { count, number, plural } from "../format.js";
+import { count, marked, number, plural } from "../format.js";
 import { found, measured, passedMeter, ring, share, tally } from "../lint.js";
 
 /** The Dashboard: what the mock made of the API in view, at a glance. */
@@ -198,7 +198,7 @@ export class MockDashboard extends Screen {
                       <tr>
                         <td class="hint">${one.kind}</td>
                         <td class="path"><a href=${one.href}>${one.what}</a></td>
-                        <td>${one.why}</td>
+                        <td>${marked(one.why)}</td>
                       </tr>
                     `,
                   )}

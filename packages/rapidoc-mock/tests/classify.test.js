@@ -353,7 +353,7 @@ describe("classifySpec: names", () => {
     assert.equal(model.operations.paged.listProperty, "values", "a named page wrapper");
     assert.equal(model.operations.create.action, "create");
     assert.equal(model.operations.create.review, true, "assumed from its place: marked");
-    assert.match(model.operations.create.why, /assumed to create one from NewMachineDetails/);
+    assert.match(model.operations.create.why, /assumed to create one from `NewMachineDetails`/);
   });
 
   it("takes an object with an id for a record, though it holds another under payload or data", () => {
@@ -576,7 +576,7 @@ describe("classifySpec: names", () => {
     );
     assert.equal(model.resources.Property.key, "name");
     assert.equal(model.operations.download.action, "read");
-    assert.match(model.operations.download.why, /GET does not return Doc/);
+    assert.match(model.operations.download.why, /GET does not return `Doc`/);
   });
 
   it("matches a reference by dropping leading words, by path name, and to its own kind", () => {
@@ -644,8 +644,14 @@ describe("statefulFindings", () => {
       assert.ok(STATEFUL_RULES.includes(finding.rule), finding.rule);
       assert.ok(Array.isArray(finding.pointer) && finding.pointer.length >= 2);
       assert.equal(typeof finding.message, "string");
+      // the model's notes mark names with backticks, for the Mock UI; a lint message reads without them
+      assert.ok(!finding.message.includes("`"), finding.message);
     }
     const model = classifySpec(petstore);
+    assert.ok(
+      model.review.some((note) => note.includes("`")),
+      "the notes themselves mark the names they take from the spec",
+    );
     const operationNotes = Object.values(model.operations).filter((entry) => entry.review).length;
     const fromOperations = new Set(
       findings.filter((one) => one.pointer[0] === "paths").map((one) => one.pointer.join(" ")),

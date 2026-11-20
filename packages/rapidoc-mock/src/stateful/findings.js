@@ -160,7 +160,11 @@ export function statefulReport(doc, section) {
     }
   }
 
-  const report = { findings, warnings };
+  // a note marks the names it takes from the spec with backticks (classify.js): a lint message reads without
+  const report = {
+    findings: findings.map((one) => ({ ...one, message: one.message.replaceAll("`", "") })),
+    warnings,
+  };
   perDoc.set(section ?? NO_CONFIG, report);
   return report;
 }

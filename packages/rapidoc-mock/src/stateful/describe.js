@@ -10,6 +10,7 @@ import { pickMediaType, pickResponse } from "../responses.js";
 import { listOperations, resolve } from "../spec.js";
 import {
   contentSchema,
+  name_,
   namedSchema,
   operationIds,
   operationLabel,
@@ -145,37 +146,39 @@ const withoutSeeding = (fields) =>
     ...(inner ? { fields: withoutSeeding(inner) } : {}),
   }));
 
-/** What the mock does for an operation, in a sentence. */
 /** What an operation on one record answers when the record is not there. */
 const NOT_STORED = "If no such record is stored, it responds with HTTP status 404 (Not Found).";
 
+/** What the mock does for an operation, in a sentence. Names from the spec are in backticks (`name_`). */
 function does(entry, resource, filters, parents) {
   const under = parents.length
-    ? ` under the ${parents.map((name) => `{${name}}`).join(" and ")} of the path`
+    ? ` under the ${parents.map((name) => name_(`{${name}}`)).join(" and ")} of the path`
     : "";
-  const key = resource?.key || "key";
-  const param = entry.keyFrom
-    ?.replace(/^path\./, "path parameter ")
-    .replace(/^query\./, "query parameter ")
-    .replace(/^body\./, "body field ");
+  const key = resource?.key ? name_(resource.key) : "key";
+  const named = name_(entry.resource);
+  // `path.petId` -> "path parameter `petId`"
+  const [, from, at] = entry.keyFrom?.match(/^(path|query|body)\.(.+)$/) || [];
+  const param =
+    from &&
+    `${{ path: "path parameter", query: "query parameter", body: "body field" }[from]} ${name_(at)}`;
   const which = param ? `whose ${key} is in the ${param}` : "it names";
   switch (entry.action) {
     case "list":
-      return `Lists the stored ${entry.resource} records${under}${
-        filters.length ? `, filtered by ${filters.join(", ")}` : ""
+      return `Lists the stored ${named} records${under}${
+        filters.length ? `, filtered by ${filters.map(name_).join(", ")}` : ""
       }.`;
     case "create":
-      return `Stores a new ${entry.resource} record${under} and returns it.`;
+      return `Stores a new ${named} record${under} and returns it.`;
     case "createMany":
-      return `Stores the ${entry.resource} records sent and returns them.`;
+      return `Stores the ${named} records sent and returns them.`;
     case "read":
-      return `Returns the ${entry.resource} record ${which}. ${NOT_STORED}`;
+      return `Returns the ${named} record ${which}. ${NOT_STORED}`;
     case "update":
-      return `Replaces the whole ${entry.resource} record ${which} with the one you send. ${NOT_STORED}`;
+      return `Replaces the whole ${named} record ${which} with the one you send. ${NOT_STORED}`;
     case "patch":
-      return `Updates only the fields you send on the ${entry.resource} record ${which}. ${NOT_STORED}`;
+      return `Updates only the fields you send on the ${named} record ${which}. ${NOT_STORED}`;
     case "delete":
-      return `Deletes the ${entry.resource} record ${which}. ${NOT_STORED}`;
+      return `Deletes the ${named} record ${which}. ${NOT_STORED}`;
     default:
       return "Keeps no state: answers with the spec's example, or data generated from the response schema.";
   }
@@ -241,10 +244,10 @@ export function describeOperation(doc, model, id) {
       if (stateful && parameter.in === "path") {
         role =
           parameter.name === keyParam
-            ? `the ${resource?.key || "key"} of the record`
+            ? `the ${resource?.key ? name_(resource.key) : "key"} of the record`
             : "a parent of the record";
       } else if (stateful && parameter.in === "query" && filterOf.has(parameter.name)) {
-        role = `filters by ${filterOf.get(parameter.name)}`;
+        role = `filters by ${name_(filterOf.get(parameter.name))}`;
       } else if (entry.action === "list" && parameter.in === "query") {
         if (PAGED_BY.has(nameKey(parameter.name))) role = "paging";
         else if (NOT_APPLIED.has(nameKey(parameter.name))) role = "accepted, not applied";

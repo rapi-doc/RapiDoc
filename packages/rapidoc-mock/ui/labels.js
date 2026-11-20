@@ -1,4 +1,5 @@
 import { html } from "lit";
+import { plain } from "./format.js";
 
 /**
  * The three labels of an operation, as the UI names them. The keys are the control API's (`labels` and an
@@ -36,23 +37,30 @@ export const LABEL_ABOUT = {
     "Keeps no data. No resource fits this operation, so it returns the spec's example, or generated data, the same on every call. Nothing you send is stored.",
 };
 
+/**
+ * Why an operation is labelled Needs review when the assumption is about its resource (a key, a path), not
+ * about the operation: one wording, wherever it is shown. The mock gives the note itself ("no key field found
+ * for {id}", `review` of the resource in `/__mock/model`); this says whose it is.
+ */
+export const resourceReason = (review) => `for its resource: ${review}`;
+
 /** A label as a badge; its meaning (or `title`, the reason in this case) shows on hover. */
 export const badge = (label, title = LABEL_HELP[label]) =>
-  html`<span class="badge ${label}" title=${title}>${LABELS[label]}</span>`;
+  html`<span class="badge ${label}" title=${plain(title)}>${LABELS[label]}</span>`;
 
 /**
  * The mark of one thing the mock assumed (a parameter, a field): a dot in the Needs review color and the word,
  * with what was assumed on hover. A row's left edge is not used: that marks the row you are on.
  */
 export const reviewTag = (what) =>
-  html`<span class="tag review-tag" title="Needs review: ${what}"><span class="dot"></span>review</span>`;
+  html`<span class="tag review-tag" title="Needs review: ${plain(what)}"><span class="dot"></span>review</span>`;
 
 /**
  * The same mark as a dot alone, for a row of a table whose Needs review column says the word and what was
  * assumed: it lets the eye find the rows down the first column. A screen reader reads what it stands for.
  */
 export const reviewDot = (what) =>
-  html`<span class="review-mark" role="img" aria-label="Needs review" title="Needs review: ${what}"></span>`;
+  html`<span class="review-mark" role="img" aria-label="Needs review" title="Needs review: ${plain(what)}"></span>`;
 
 /** An HTTP method as a badge, in RapiDoc's color for it (`.method.get`, …): its name is always written. */
 export const method = (name) =>

@@ -2,7 +2,7 @@ import { html, nothing } from "lit";
 import { twist } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
 import { icon } from "../icons.js";
-import { sentence, valueText } from "../format.js";
+import { marked, sentence, valueText } from "../format.js";
 import { badge, method } from "../labels.js";
 
 /**
@@ -257,8 +257,8 @@ export class MockResourceSchema extends Screen {
                         <td>
                           ${
                             target
-                              ? sentence(one.why) || "by the field's name"
-                              : html`${sentence(one.why) || "No resource fits its name"}. The mock fills it
+                              ? marked(sentence(one.why)) || "by the field's name"
+                              : html`${marked(sentence(one.why)) || "No resource fits its name"}. The mock fills it
                                 with generated values.`
                           }
                         </td>

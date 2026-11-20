@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { drawer, opens } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
-import { count, prettyBody } from "../format.js";
-import { LABEL_HELP, badge, method, reviewDot } from "../labels.js";
+import { count, marked, prettyBody } from "../format.js";
+import { LABEL_HELP, badge, method, resourceReason, reviewDot } from "../labels.js";
 
 /** The data a body holds, in words: "a list of calendar_common, inside data". */
 const holds = (body) => {
@@ -159,13 +159,15 @@ export class MockOperationDetail extends Screen {
 
     <section class="card">
       <h2>What the mock does</h2>
-      <p>${op.does}</p>
+      <p>${marked(op.does)}</p>
       <div class="row">
         ${badge(op.label)}
         ${
           op.review
             ? html`${
-                op.review.other ? html`<span class="hint">${op.review.other}.</span>` : nothing
+                op.review.other
+                  ? html`<span class="hint">${marked(op.review.other)}.</span>`
+                  : nothing
               }
               <button
                 class="link"
@@ -178,10 +180,10 @@ export class MockOperationDetail extends Screen {
                 ${count(op.review.parameters, "parameter")} to review
               </button>`
             : op.why
-              ? html`<span class="hint">${op.why}</span>`
+              ? html`<span class="hint">${marked(op.why)}</span>`
               : resourceReview
                 ? // the resource is named on the next line: here, only what was assumed about it
-                  html`<span class="hint">for its resource: ${resourceReview}.</span>`
+                  html`<span class="hint">${marked(resourceReason(resourceReview))}</span>`
                 : html`<span class="hint">${LABEL_HELP[op.label]}</span>`
         }
       </div>
@@ -233,8 +235,8 @@ export class MockOperationDetail extends Screen {
                         </td>
                         <td>${one.in}</td>
                         <td>${one.type}</td>
-                        <td>${one.role || html`<span class="hint">validated only</span>`}</td>
-                        ${anyToReview ? html`<td class="to-review">${toReview(one) || ""}</td>` : nothing}
+                        <td>${marked(one.role) || html`<span class="hint">validated only</span>`}</td>
+                        ${anyToReview ? html`<td class="to-review">${marked(toReview(one))}</td>` : nothing}
                       </tr>
                     `,
                   )}

@@ -250,7 +250,7 @@ describe("/__mock with --stateful", () => {
     const at = (id) => `/__mock/model/pc/operations/${encodeURIComponent(id)}`;
     const { status, body: op } = await call("GET", at(list.id));
     assert.equal(status, 200);
-    assert.equal(op.does, "Lists the stored Owner records, filtered by lastName.");
+    assert.equal(op.does, "Lists the stored `Owner` records, filtered by `lastName`.");
     assert.deepEqual(
       op.parameters.find((one) => one.name === "lastName"),
       {
@@ -259,7 +259,7 @@ describe("/__mock with --stateful", () => {
         required: false,
         type: "string",
         description: "Last name.",
-        role: "filters by lastName",
+        role: "filters by `lastName`",
       },
     );
     const ok = op.responses.find((one) => one.code === "200");
@@ -283,11 +283,11 @@ describe("/__mock with --stateful", () => {
     const detail = (await call("GET", at(read.id))).body;
     assert.equal(
       detail.does,
-      "Returns the Pet record whose id is in the path parameter petId. If no such record is stored, it responds with HTTP status 404 (Not Found).",
+      "Returns the `Pet` record whose `id` is in the path parameter `petId`. If no such record is stored, it responds with HTTP status 404 (Not Found).",
     );
     assert.deepEqual(
       detail.parameters.map((one) => one.role),
-      ["a parent of the record", "the id of the record"],
+      ["a parent of the record", "the `id` of the record"],
     );
 
     const plain = (await call("GET", "/__mock/model/pc")).body.operations.find(
@@ -301,12 +301,12 @@ describe("/__mock with --stateful", () => {
     const { body: op } = await call("GET", "/__mock/model/rw/operations/GetArticles");
     assert.deepEqual(op.review, {
       parameters: 2,
-      other: "returns inline objects; assumed to be Article",
+      other: "returns inline objects; assumed to be `Article`",
     });
     const byName = Object.fromEntries(op.parameters.map((one) => [one.name, one]));
-    assert.equal(byName.tag.review, "matches no field of Article");
+    assert.equal(byName.tag.review, "matches no field of `Article`");
     assert.equal(byName.tag.role, "ignored when listing");
-    assert.equal(byName.author.review, "matches no field of Article");
+    assert.equal(byName.author.review, "matches no field of `Article`");
     assert.equal(byName.favorited.review, undefined);
     assert.equal(byName.limit.review, undefined);
     // an operation with nothing assumed has no review

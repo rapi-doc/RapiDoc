@@ -2,7 +2,7 @@ import { html, nothing } from "lit";
 import { keyed } from "lit/directives/keyed.js";
 import { drawer, pageTitle } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
-import { count, valueText } from "../format.js";
+import { count, plain, valueText } from "../format.js";
 import { badge } from "../labels.js";
 import "../components/table.js";
 import "./resource-schema.js";
@@ -139,7 +139,7 @@ export class MockResources extends Screen {
                 <span class="name">${one.name}</span>
                 ${
                   one.review
-                    ? html`<span class="review-dot" title="Needs review: ${one.review}"
+                    ? html`<span class="review-dot" title="Needs review: ${plain(one.review)}"
                         ><span class="visually-hidden">needs review</span></span
                       >`
                     : nothing

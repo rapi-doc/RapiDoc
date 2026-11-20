@@ -214,13 +214,20 @@ export const blocks = css`
     flex-direction: column;
     gap: 6px;
   }
-  /* a note that names something to type (a header, a command): that part stands out of the grey sentence */
-  .note code {
+  /* a note that names something to type (a header, a command): that part stands out of the sentence, on a
+     darker chip */
+  .note code,
+  code.name {
     padding: 1px 6px;
     border-radius: 3px;
     background: var(--inset);
     color: var(--fg);
     white-space: nowrap;
+  }
+  /* a name from the spec inside a sentence the mock wrote (format.js, marked): set apart the same way; in the
+     Needs review column it keeps that column's color */
+  td.to-review code.name {
+    color: inherit;
   }
   .wrap {
     overflow-wrap: anywhere;

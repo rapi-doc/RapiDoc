@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { opens, pageTitle, segmented } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
-import { actionName } from "../format.js";
-import { LABELS, LABEL_COLORS, LABEL_HELP, badge, method } from "../labels.js";
+import { actionName, marked } from "../format.js";
+import { LABELS, LABEL_COLORS, LABEL_HELP, badge, method, resourceReason } from "../labels.js";
 import "./operation-detail.js";
 
 /** A path that breaks only after a slash: `/v3/applications/redirect-uris` never splits inside a word. */
@@ -225,12 +225,12 @@ export class MockOperations extends Screen {
                           </td>
                           <td>${badge(op.label)}</td>
                           <td class="why">
-                            ${
+                            ${marked(
                               op.why ||
-                              (op.label === "needsReview" && reviewOf.get(op.resource)
-                                ? `its resource: ${reviewOf.get(op.resource)}`
-                                : "")
-                            }
+                                (op.label === "needsReview" && reviewOf.get(op.resource)
+                                  ? resourceReason(reviewOf.get(op.resource))
+                                  : ""),
+                            )}
                           </td>
                         </tr>
                       `,

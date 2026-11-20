@@ -272,9 +272,16 @@ function keyField(properties, param, entity) {
   // `{propertyName}` -> `name`: the parameter's last word is the field
   const byWord = byKey(words.slice(-1));
   if (byWord) return { field: byWord };
-  if (names.includes("id")) return { field: "id", review: `parameter {${param}} matches no field` };
-  return { field: null, review: `no key field found for {${param}}` };
+  if (names.includes("id"))
+    return { field: "id", review: `parameter ${name_(`{${param}}`)} matches no field` };
+  return { field: null, review: `no key field found for ${name_(`{${param}}`)}` };
 }
+
+/**
+ * A name from the spec (a resource, a parameter, a field, a path) as a note writes it: in backticks, so who
+ * shows the note can tell it from the words around it (the Mock UI sets it as code; lint drops the marks).
+ */
+export const name_ = (text) => `\`${text}\``;
 
 /**
  * The id of every operation in the operation map, by `"<method> <path>"` (method in lower case): its
@@ -447,7 +454,7 @@ export function classifySpec(doc) {
       resources[name] = {
         path: null,
         key: hasId ? "id" : null,
-        ...flag(`resources.${name}`, "no item path (such as /things/{id}) in the spec"),
+        ...flag(`resources.${name}`, `no item path (such as ${name_("/things/{id}")}) in the spec`),
       };
     }
   }
@@ -524,7 +531,9 @@ export function classifySpec(doc) {
         const other = !op.response.inline && op.response.entity !== resource;
         result = entry("read", {
           keyFrom,
-          ...(other ? flag(op.id, `GET does not return ${resource}; assumed to read it`) : {}),
+          ...(other
+            ? flag(op.id, `GET does not return ${name_(resource)}; assumed to read it`)
+            : {}),
         });
       } else if (op.method === "put") result = entry("update", { keyFrom });
       else if (op.method === "patch") result = entry("patch", { keyFrom });
@@ -549,20 +558,23 @@ export function classifySpec(doc) {
       // what was assumed about each query parameter, by its name: where the UI marks it (describe.js)
       const paramReview = {};
       if (op.method === "query") notes.push("QUERY: its filters are in the request body");
-      if (op.response.inline) notes.push(`returns inline objects; assumed to be ${resource}`);
+      if (op.response.inline)
+        notes.push(`returns inline objects; assumed to be ${name_(resource)}`);
       for (const q of queryNames) {
         // A field that holds objects (`tags: Tag[]`) is matched on one of their fields, by name
         const inner = fields.includes(q) ? namedSchema(doc, properties[q]) : {};
         const innerFields = inner.name ? Object.keys(propertiesOf(doc, schemas[inner.name])) : [];
         if (inner.name && innerFields.includes("name")) {
           filter[`${q}${inner.many ? "[]" : ""}.name`] = `query.${q}`;
-          notes.push(`${q} holds ${inner.name} objects; assumed to match on their name`);
-          paramReview[q] = `matched on the name of its ${inner.name} objects`;
+          notes.push(
+            `${name_(q)} holds ${name_(inner.name)} objects; assumed to match on their name`,
+          );
+          paramReview[q] = `matched on the name of its ${name_(inner.name)} objects`;
         } else if (inner.name) unmatched.push(q);
         else if (fields.includes(q)) filter[q] = `query.${q}`;
         else if (!NOT_A_FILTER.has(nameKey(q))) unmatched.push(q);
       }
-      for (const q of unmatched) paramReview[q] = `matches no field of ${resource}`;
+      for (const q of unmatched) paramReview[q] = `matches no field of ${name_(resource)}`;
       result = entry("list", {
         ...(Object.keys(filter).length ? { filter } : {}),
         ...(op.response.listProperty ? { listProperty: op.response.listProperty } : {}),
@@ -574,7 +586,9 @@ export function classifySpec(doc) {
               [
                 ...notes,
                 ...(unmatched.length
-                  ? [`query parameter ${unmatched.join(", ")} matches no field of ${resource}`]
+                  ? [
+                      `query parameter ${unmatched.map(name_).join(", ")} matches no field of ${name_(resource)}`,
+                    ]
                   : []),
               ].join("; "),
             )
@@ -596,7 +610,7 @@ export function classifySpec(doc) {
       result = entry("create", {
         ...flag(
           op.id,
-          `POST on the collection of ${resource}; assumed to create one${op.request.name ? ` from ${op.request.name}` : ""}`,
+          `POST on the collection of ${name_(resource)}; assumed to create one${op.request.name ? ` from ${name_(op.request.name)}` : ""}`,
         ),
       });
     } else if ((op.method === "put" || op.method === "patch") && op.request.entity === resource) {
@@ -651,20 +665,23 @@ export function classifySpec(doc) {
       const dropped = words.slice(0, i).join(" ");
       const target = byEntityName.get(nameKey(rest));
       if (target) {
-        return { target, why: i ? `matched ${target} after dropping "${dropped}"` : undefined };
+        return {
+          target,
+          why: i ? `matched ${name_(target)} after dropping "${dropped}"` : undefined,
+        };
       }
       const byPath = byPathName.get(nameKey(rest));
       if (byPath) {
         const how = i ? ` after dropping "${dropped}"` : "";
         return {
           target: byPath,
-          why: `matched ${byPath} by its path name "${rest.join(" ")}"${how}`,
+          why: `matched ${name_(byPath)} by its path name "${rest.join(" ")}"${how}`,
         };
       }
     }
     // `parentId`, `rootId`: another record of the same kind
     if (words.every((word) => SELF_WORDS.has(word))) {
-      return { target: name, why: `"${words.join(" ")}" assumed to be another ${name}` };
+      return { target: name, why: `"${words.join(" ")}" assumed to be another ${name_(name)}` };
     }
     return {};
   };
@@ -679,7 +696,7 @@ export function classifySpec(doc) {
             embeddedCopy: true,
             ...flag(
               `relations.${name}.${field}`,
-              `holds a whole ${target}, which is also a resource`,
+              `holds a whole ${name_(target)}, which is also a resource`,
             ),
           };
         } else embedded[`${name}.${field}`] = target;
@@ -701,7 +718,7 @@ export function classifySpec(doc) {
         // A target whose key is unknown is named alone: the relation holds, what it stores is open
         const targetKey = resources[refTarget].key;
         const to = targetKey ? `${refTarget}.${targetKey}` : refTarget;
-        const notes = [why, targetKey ? undefined : `${refTarget} has no known key`].filter(
+        const notes = [why, targetKey ? undefined : `${name_(refTarget)} has no known key`].filter(
           Boolean,
         );
         relations[`${name}.${field}`] = notes.length ? { to, ...flag(id, notes.join("; ")) } : to;
