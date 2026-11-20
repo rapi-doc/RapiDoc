@@ -1,7 +1,7 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import { Code } from 'astro:components';
-import SiteNavbar from '../components/SiteNavbar.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import ProductFamily from '../components/ProductFamily.astro';
 import Icon from '../components/Icon.astro';
@@ -282,7 +282,7 @@ const compareProducts = [
   <div class="ambient-glow glow-cyan"></div>
 
   <!-- Reusable Frosted Glass Navigation -->
-  <SiteNavbar activePage="home" />
+  <PortalHeader />
 
   <!-- Hero Section: Split DX Studio Layout -->
   <section class="rd-hero-section">

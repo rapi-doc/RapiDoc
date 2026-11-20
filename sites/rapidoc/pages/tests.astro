@@ -1,6 +1,6 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import SiteNavbar from '../components/SiteNavbar.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { testListData, TestItem } from '../page-data/tests';
 import Icon from '../components/Icon.astro';
@@ -39,7 +39,7 @@ let totalAssertions = 0;
   <div class="ambient-glow glow-cyan"></div>
 
   <!-- Reusable Frosted Glass Navigation -->
-  <SiteNavbar activePage="tests" />
+  <PortalHeader />
 
   <main class="rd-tests-main">
     <!-- Hero Header -->

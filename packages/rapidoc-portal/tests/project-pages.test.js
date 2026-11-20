@@ -144,6 +144,15 @@ describe("Building a project with pages/", () => {
         "<body><p id='greeting'>{greeting}</p></body></html>",
         "",
       ].join("\n"),
+      // Its own document again, with the portal's header (and so the portal's stylesheet)
+      "pages/with-header.astro": [
+        "---",
+        "import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';",
+        "---",
+        "<html lang='en' data-theme='dark'><head><meta charset='utf-8' /><title>Own</title></head>",
+        "<body><PortalHeader /><p id='own-content'>Mine, with <code>code</code></p></body></html>",
+        "",
+      ].join("\n"),
       "pages/items/[id].astro": [
         "---",
         "export const getStaticPaths = () => ['one', 'two'].map((id) => ({ params: { id } }));",
@@ -175,6 +184,26 @@ describe("Building a project with pages/", () => {
     // Only what the page wrote and the head tags: none of the portal's styles (the one script is the
     // link prefetching that every page of the site gets)
     assert.doesNotMatch(html, /portal-layout|<link rel="stylesheet"|<style/);
+  });
+
+  it("gives a page with its own document the portal's header, and leaves its content unstyled", () => {
+    const html = page("with-header");
+    assert.match(html, /<header class="portal-header-root"[^>]*data-portal-own-document/);
+    assert.match(html, /id="own-content"/);
+    assert.doesNotMatch(html, /class="portal-layout"/);
+    // The header marks the page; the theme's rules for <body> and inline code skip a page so marked
+    const css = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)]
+      .map(([, href]) => fs.readFileSync(path.join(outDir, href), "utf8"))
+      .join("\n");
+    for (const selector of ["body{", ":not(pre)>code{"]) {
+      const rule = css.slice(
+        css.lastIndexOf("}", css.indexOf(selector)) + 1,
+        css.indexOf(selector),
+      );
+      assert.match(rule, /:not\(:has\(\[data-portal-own-document\]\)\)/, `${selector} is guarded`);
+    }
+    // Docs pages don't carry the mark, so those rules apply there
+    assert.doesNotMatch(page("docs/intro"), /data-portal-own-document/);
   });
 
   it("builds every page of a dynamic route", () => {

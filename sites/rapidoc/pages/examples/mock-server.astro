@@ -2,7 +2,7 @@
 // The in-browser mock, live: a testbed that sets the mock attributes and calls fetch(), which the mock
 // answers. The how-to is in content/docs/mocking/; this page was the Mock Server guide.
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
-import SiteNavbar from '../../components/SiteNavbar.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import Icon from '../../components/Icon.astro';
 
@@ -54,7 +54,7 @@ const mockAttributes = [
   <div class="ambient-glow glow-indigo"></div>
 
   <!-- Reusable Navigation -->
-  <SiteNavbar activePage="examples" />
+  <PortalHeader />
 
   <main class="rd-mock-main">
     <!-- Hero Header -->

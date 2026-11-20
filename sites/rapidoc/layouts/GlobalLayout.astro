@@ -42,7 +42,8 @@ const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.start
 ---
 
 <!doctype html>
-<html lang="en">
+<!-- Dark only; data-site-page marks the pages with the site's own layout for styles/portal.css -->
+<html lang="en" data-theme="dark" data-site-page>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes" />

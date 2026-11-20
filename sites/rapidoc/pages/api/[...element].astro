@@ -2,7 +2,7 @@
 // One page per element under /api: /api/ for <rapi-doc>, /api/<tag>/ for the others (API_ELEMENTS).
 import type { GetStaticPaths } from 'astro';
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
-import SiteNavbar from '../../components/SiteNavbar.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import {
@@ -122,7 +122,7 @@ const pageDescription = isRapiDoc
   <div class="ambient-glow glow-cyan"></div>
 
   <!-- Reusable Frosted Glass Navigation -->
-  <SiteNavbar activePage="api" />
+  <PortalHeader />
 
   <main class="rd-api-main">
     <!-- Hero Header -->

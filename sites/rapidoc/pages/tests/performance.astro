@@ -1,6 +1,6 @@
 ---
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
-import SiteNavbar from '../../components/SiteNavbar.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import Icon from '../../components/Icon.astro';
@@ -67,7 +67,7 @@ import 'rapidoc';
   <script slot="script" is:inline type="module" src="/assets/rapidoc-min.js"></script>
 
   <!-- Site Navbar -->
-  <SiteNavbar activePage="tests" />
+  <PortalHeader />
 
   <main class="rd-perf-page">
     <!-- Hero Section -->

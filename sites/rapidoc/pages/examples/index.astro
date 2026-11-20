@@ -1,6 +1,6 @@
 ---
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
-import SiteNavbar from '../../components/SiteNavbar.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { exampleListData, SubExample } from '../../page-data/example-list';
 import { WEB_COMPONENTS } from '../../page-data/products';
@@ -114,7 +114,7 @@ const categories = [
   <div class="ambient-glow glow-cyan"></div>
 
   <!-- Frosted Glass Navigation (Reusable Component) -->
-  <SiteNavbar activePage="examples" />
+  <PortalHeader />
 
   <!-- Hero Header -->
   <main class="rd-list-main">

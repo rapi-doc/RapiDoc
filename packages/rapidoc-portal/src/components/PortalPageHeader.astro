@@ -1,0 +1,22 @@
+---
+/**
+ * The portal's header for a page that brings its own document (a project's page in pages/ that does not
+ * use PortalLayout): the same header as on every other page, with the portal's theme tokens and the
+ * project's `theme.css` files, which it needs for its colors. Published as
+ * `@rapidoc/portal/components/PortalHeader.astro`:
+ *
+ *   <html lang="en" data-theme="dark">
+ *     <body>
+ *       <PortalHeader />
+ *       ...
+ *
+ * The page sets `data-theme` on <html> itself (PortalLayout and the docs pages do that from the reader's
+ * choice). The theme stylesheet styles the header only: its rules for <body> and inline code skip a page
+ * with this header (styles/portal-theme.css), so the page's own content keeps its own look.
+ */
+import 'virtual:rapidoc-portal/theme.css';
+import 'virtual:rapidoc-portal/user-css';
+import PortalHeader from './PortalHeader.astro';
+---
+
+<PortalHeader ownDocument />

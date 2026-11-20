@@ -2,7 +2,7 @@
  * RapiDoc site design tokens: colors, surfaces, text, borders, shadows, radii, fonts and motion.
  *
  * Loaded on every page: by styles/global.css (the site pages) and by astro.config.mjs's customCss
- * (the Starlight pages under /docs/), so components shared by both (SiteNavbar) get the same values.
+ * (the Starlight pages under /docs/), so anything shared by both gets the same values.
  * Use these tokens, never hard-coded colors, radii or fonts.
  */
 

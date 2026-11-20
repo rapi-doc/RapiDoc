@@ -1,6 +1,6 @@
 /*
- * rapidocui.com's look on RapiDoc Portal's shell: the header, the product list above the docs sidebar and
- * the footer as on the site built from docs/ (its SiteNavbar, DocsSidebar and SiteFooter). The structure
+ * rapidocui.com's look on RapiDoc Portal's shell: the header and the product list above the docs sidebar,
+ * as on the site built from docs/. The structure
  * comes from rapidoc.config.yaml (header.links, header.tabs); this file only sizes and colors it, with the
  * portal's own color tokens, so both themes work.
  */
@@ -27,7 +27,7 @@
   color: var(--portal-primary-text);
   font-family: var(--__sl-font-mono, "JetBrains Mono", ui-monospace, monospace);
   font-size: 11px;
-  line-height: 20px;
+  line-height: 17.6px;
 }
 
 .portal-header-root .portal-nav-menu-start {
@@ -72,6 +72,73 @@
   font-size: 13.5px;
   font-weight: 600;
   color: var(--portal-muted);
+}
+
+/* ---- One header for every page: the portal's, on the docs pages and on the site's own pages (home,
+   product pages, /api, examples, tests), which place it themselves (PortalHeader in their layout).
+   The sizes below are the live site's header's. ---- */
+:root {
+  /* 64px and the 1px rule under it */
+  --portal-navbar-height: 65px;
+}
+.portal-header-root .portal-navbar {
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--portal-header-border);
+}
+.portal-header-root .portal-nav-menu-start .portal-nav-link,
+.portal-header-root .portal-nav-menu-start .portal-nav-button {
+  gap: 4px;
+  line-height: 22px;
+}
+.portal-header-root .portal-nav-menu-start .portal-chevron {
+  width: 14px;
+  height: 14px;
+}
+.portal-header-root .portal-nav-end .portal-nav-link.portal-nav-button {
+  gap: 8px;
+}
+.portal-header-root .portal-nav-end .portal-nav-link-icon {
+  width: 18px;
+  height: 18px;
+}
+/* The links are centered in the space between the logo and the right-hand group. The light/dark switcher
+   makes that group 82px wider than the live site's (its 66px and the gaps around it), which would move
+   the links 41px to the left: the same 82px after the logo keeps them where the live site has them. */
+@media (min-width: 860px) {
+  .portal-header-root .portal-brand {
+    margin-inline-end: 82px;
+  }
+}
+/* The switcher sits left of GitHub, so GitHub is at the right edge, as on the live site. */
+.portal-header-root .portal-nav-end .portal-theme-btn {
+  order: -1;
+}
+/* The live header's steps: tighter links and GitHub as an icon up to 1100px, the search as an icon below
+   1000px, no version badge up to 900px */
+@media (max-width: 1100px) {
+  .portal-header-root .portal-nav-menu-start {
+    gap: 16px;
+  }
+}
+@media (max-width: 999px) {
+  .portal-header-root .portal-search-trigger {
+    flex: 0 0 36px;
+    width: 36px;
+    justify-content: center;
+    padding: 0;
+  }
+  .portal-header-root .portal-search-text,
+  .portal-header-root .portal-search-kbd {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  .portal-header-root .portal-nav-menu-start {
+    gap: 12px;
+  }
+  .portal-header-root .portal-brand-badge {
+    display: none;
+  }
 }
 
 /* The Products menu: as wide as the header's content, under it, over a dimmed page */
@@ -224,10 +291,8 @@
   }
 }
 @media (max-width: 1100px) {
+  /* the icon alone, with the button's own padding: 52px wide */
   .portal-header-root .portal-nav-end .portal-nav-link.portal-nav-button {
-    width: 36px;
-    padding: 0;
-    justify-content: center;
     font-size: 0;
     gap: 0;
   }
@@ -281,4 +346,31 @@
 }
 :root .portal-sidebar-tab-external {
   display: none;
+}
+
+/* ---- The site's own pages (GlobalLayout sets data-site-page): dark only, on the site's darker surface.
+   The portal's tokens take the site's values (styles/tokens.css) there, so the header and its menus
+   match the page under them. ---- */
+/* [data-theme] too: the portal sets its tokens on :root[data-theme], which a lighter selector would lose to */
+html[data-site-page][data-theme] {
+  --portal-bg: #060913;
+  --portal-header-bg: #060913;
+  --portal-surface: #0f1626;
+  --portal-card-bg: #0f1626;
+  --portal-fg: #e2e8f0;
+  --portal-muted: #94a3b8;
+  --portal-border: rgba(255, 255, 255, 0.08);
+  --portal-border-subtle: rgba(255, 255, 255, 0.08);
+  --portal-header-border: rgba(255, 255, 255, 0.08);
+}
+html[data-site-page] .portal-header-root .portal-navbar {
+  background-color: rgba(6, 9, 19, 0.8);
+}
+html[data-site-page] .portal-header-root .portal-megamenu-panel {
+  background: #0f1626;
+}
+/* These pages have no light version: the switcher keeps its place, so nothing in the header moves
+   between them and the docs pages, but it is not shown and cannot be used. */
+html[data-site-page] .portal-header-root .portal-theme-btn {
+  visibility: hidden;
 }

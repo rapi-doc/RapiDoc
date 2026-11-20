@@ -3,7 +3,7 @@
 // (the element, rapipdf/node and `rapidoc pdf`). The demo's element is bundled from
 // packages/rapipdf/src (the `rapipdf` alias in astro.config.mjs).
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import SiteNavbar from '../components/SiteNavbar.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import Icon from '../components/Icon.astro';
@@ -69,7 +69,7 @@ const contents = [
   <div class="ambient-glow glow-emerald"></div>
   <div class="ambient-glow glow-indigo"></div>
 
-  <SiteNavbar />
+  <PortalHeader />
 
   <main class="rd-product-main">
     <header class="rd-hero-header">

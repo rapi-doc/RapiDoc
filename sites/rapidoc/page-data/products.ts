@@ -1,4 +1,4 @@
-// The RapiDoc family: the Products menu in the navbar (SiteNavbar), the footer (SiteFooter) and the home
+// The RapiDoc family: the footer (SiteFooter) and the home
 // page's family section (ProductFamily) read this. Each product links to its page (src/pages/<page>.astro;
 // list new top-level ones in PRODUCT_PAGES of utils/pageTitle.ts), or to its docs where it has none.
 

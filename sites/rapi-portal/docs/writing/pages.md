@@ -67,6 +67,33 @@ import PortalHead from '@rapidoc/portal/components/PortalHead.astro';
 
 Import `PortalHead` by that path, not from `@rapidoc/portal/components`: importing from there brings the portal's styles to the page.
 
+### With the portal's header
+
+A page with its own document can still have the portal's header, so the whole site has one: the same links, menus and search, from `header` in the config.
+
+```astro title="pages/landing.astro"
+---
+import PortalHead from '@rapidoc/portal/components/PortalHead.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
+---
+
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <PortalHead title="Welcome" />
+  </head>
+  <body>
+    <PortalHeader />
+    <main>...</main>
+  </body>
+</html>
+```
+
+The header brings the portal's colors and your `theme.css` with it, and nothing else: the rest of the page keeps the styles you give it. Set `data-theme` on `<html>` to `dark` or `light`, which is the theme the header draws in. A page with one theme only should hide the header's light/dark switcher in its own CSS (`.portal-theme-btn`).
+
+If the page has no reason to differ from the portal's look, use `PortalLayout` instead: it does all of this, and follows the reader's theme.
+
 ## Reading your project's files
 
 Code between the `---` lines runs when the site is built. To read a file of your project there, take the project's folder from the portal: the build does not run from it, so a path from `process.cwd()` would miss.

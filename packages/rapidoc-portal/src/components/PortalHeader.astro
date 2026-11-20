@@ -12,6 +12,8 @@ interface Props {
   portalConfig?: any;
   /** id of the page's popover sidebar, opened by the menu button on narrow screens */
   sidebarId?: string;
+  /** The page has its own document and takes only this header from the portal (PortalPageHeader) */
+  ownDocument?: boolean;
 }
 
 const config = Astro.props.portalConfig ?? portalConfig;
@@ -46,7 +48,7 @@ const currentPath = withoutBase(Astro.url?.pathname || '/');
 const currentTab = activeTab(tabs, currentPath);
 ---
 
-<header class="portal-header-root" data-portal-region="header" data-has-sidebar={hasSidebar ? '' : undefined}>
+<header class="portal-header-root" data-portal-region="header" data-has-sidebar={hasSidebar ? '' : undefined} data-portal-own-document={Astro.props.ownDocument ? '' : undefined}>
   {
     banner && (
       <script is:inline define:vars={{ bannerKey }}>
