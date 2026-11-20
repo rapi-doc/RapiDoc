@@ -1,0 +1,251 @@
+---
+title: Theming Overview
+description: Change RapiDoc's colors, light and dark mode, corner radius, size and fonts with a few attributes and CSS variables.
+---
+
+import { Aside, Tabs, TabItem, CardGrid } from '@rapidoc/portal/components';
+import DocsCard from '../../components/DocsCard.astro';
+import ThemeDemo from '../../components/ThemeDemo.astro';
+
+RapiDoc renders inside a **Shadow DOM**, so your site's CSS (resets, Tailwind, component libraries) can't change it by accident, and its CSS can't leak into your site. You style it on purpose, in three layers:
+
+1. **Attributes** for the common choices: theme, light or dark, corner radius, size. This page.
+2. **CSS custom properties** for any color, font or size: see [CSS Parts & Variables](/docs/theming/css-parts/).
+3. **`::part()` selectors** for individual elements: also on [CSS Parts & Variables](/docs/theming/css-parts/).
+
+<Aside type="note" title="Upgrading from RapiDoc v10?">
+  RapiDoc v11 replaced styling attributes such as `bg-color`, `text-color`, `header-color`, `regular-font` and `nav-*` with CSS custom properties and `::part()` selectors. (`primary-color` still works, as a shortcut for `theme="#hex"`.) The [v10 to v11 guide](/docs/migration/v10-to-v11/) maps each one.
+</Aside>
+
+---
+
+## 1. Attributes
+
+Five attributes cover most visual changes. Try them:
+
+<ThemeDemo />
+
+### Reference
+
+| Attribute          | Allowed Values                                                                                             | Default     | Description                                                                                                            |
+| :----------------- | :--------------------------------------------------------------------------------------------------------- | :---------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `theme`            | `ember`, `carbon`, `cobalt`, `jade`, `indigo`, `amber`, or any `#hex` code                                                | `"amber"`   | Brand color preset (dark and light palette), or a custom brand color hex code.                                        |
+| `color-scheme`     | `dark`, `light`, `system`, `auto`                                                                          | `"dark"`    | Light or dark surfaces. `system` follows the operating system; `auto` follows the host page's CSS `color-scheme`, else the operating system. |
+| `radius`           | `none`, `sm`, `md`, `lg`, `full`                                                                           | `"sm"`      | Corner radius scale applied across cards, buttons, badges, inputs, and modal dialogs.                                  |
+| `scale`            | `sm`, `default`, `lg`                                                                                      | `"default"` | Proportional scale factor for UI base dimensions, body typography, code blocks, and sidebar width.                     |
+| `nav-item-spacing` | `compact`, `default`, `relaxed`                                                                            | `"default"` | Vertical density and padding of sidebar navigation links, decoupled from font size scaling.                            |
+
+---
+
+## 2. Your brand color
+
+Pass a hex color as the `theme`:
+
+```html
+<rapi-doc spec-url="https://api.example.com/openapi.json" theme="#2563eb" color-scheme="dark" radius="md"></rapi-doc>
+```
+
+RapiDoc then:
+
+1. **Primary Token**: Sets `--primary` to your exact hex color.
+2. **Focus Ring**: Sets `--ring` to match the brand color.
+3. **Text on the color**: Sets `--primary-foreground` to black for a light brand color or white for a dark one (by YIQ luminance), so button and badge labels stay readable.
+
+---
+
+## 3. Radius, scale and sidebar density
+
+### Corner Radius (`radius`)
+
+The `radius` attribute controls roundness across the entire documentation interface:
+
+- `radius="none"`: Sharp 0px corners for brutalist or dense terminal-style layouts.
+- `radius="sm"` _(default)_: Subtle 4px (0.25rem) radius for clean, modern interfaces.
+- `radius="md"`: Balanced 6px (0.375rem) radius matching contemporary web apps.
+- `radius="lg"`: Pronounced 8px (0.5rem) radius for playful, consumer-facing portals.
+- `radius="full"`: Pill-shaped buttons and inputs (9999px) with rounded 8px cards.
+
+### Scaling Factor (`scale`)
+
+The `scale` attribute controls typography, base sizing, and proportional margins:
+
+- `scale="sm"`: Compact scale (13px base font, 17rem sidebar width). Ideal for embedded documentation cards or split-screen consoles.
+- `scale="default"` _(default)_: Standard desktop scale (14px base font, 18.75rem sidebar width). Optimal for full-page documentation portals.
+- `scale="lg"`: Generous scale (16px base font, 21rem sidebar width). Optimal for large monitors, accessibility compliance, and presentations.
+
+### Sidebar Item Density (`nav-item-spacing`)
+
+Adjust sidebar link density without altering the global font size:
+
+- `nav-item-spacing="compact"`: 5px vertical padding for large APIs with hundreds of endpoints.
+- `nav-item-spacing="default"` _(default)_: 7px vertical padding for balanced readability.
+- `nav-item-spacing="relaxed"`: 10px vertical padding for touchscreens and clean navigation.
+
+---
+
+## 4. Fonts
+
+RapiDoc does not download any fonts. Out of the box it uses the operating system's own UI font: San Francisco on macOS and iOS, Segoe UI on Windows, Roboto on ChromeOS and Android. That means no font requests, no third-party calls, and it works offline and under a strict Content Security Policy.
+
+To use your brand font, load it in your page and point two CSS variables at it:
+
+- `--font-sans`: body text, headings, and navigation links. `--heading-font` follows it unless you set that too.
+- `--font-mono`: code blocks, HTTP methods, paths, and schemas.
+
+Keep the system fonts at the end of the list, so text stays readable while your font loads or if it fails to load.
+
+<Aside type="caution" title="Declare @font-face in the page, not inside RapiDoc">
+  Most browsers ignore `@font-face` rules inside a shadow root, so a font declared through `css-file` or in a `<style>` injected into RapiDoc never loads. Declare fonts in the page (a `<style>`, a stylesheet, or your app's bundle). Fonts declared in the page are available inside RapiDoc's Shadow DOM.
+</Aside>
+
+RapiDoc uses the weights **400**, **500**, **600**, and **700**. Load all four, or a single variable font that covers them, so the browser does not substitute the nearest weight or fake a bold.
+
+<Tabs>
+  <TabItem label="Self-hosted (recommended)">
+Put the font files next to your site (for example in `/fonts/`) and declare them with `@font-face`. Nothing is requested from another server.
+
+```html
+<head>
+  <!-- Optional: start downloading the main font early -->
+  <link rel="preload" href="/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin />
+
+  <style>
+    @font-face {
+      font-family: 'Inter';
+      src: url('/fonts/InterVariable.woff2') format('woff2');
+      font-weight: 100 900; /* one variable file covers every weight */
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'JetBrains Mono';
+      src: url('/fonts/JetBrainsMono-Variable.woff2') format('woff2');
+      font-weight: 100 800;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    rapi-doc {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+  </style>
+</head>
+
+<body>
+  <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade"></rapi-doc>
+</body>
+```
+  </TabItem>
+
+  <TabItem label="npm (Fontsource)">
+With a bundler (Vite, Astro, Next.js, webpack), [Fontsource](https://fontsource.org/) packages ship the font files and the `@font-face` rules. Your build copies the files into your site, so they are self-hosted too.
+
+```bash
+npm install @fontsource-variable/inter @fontsource-variable/jetbrains-mono
+```
+
+```js
+// In your app's entry file
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import 'rapidoc';
+```
+
+```css
+rapi-doc {
+  --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, Menlo, Consolas, monospace;
+}
+```
+  </TabItem>
+
+  <TabItem label="Google Fonts">
+The quickest setup, but every visitor's browser contacts Google's servers, which may need consent under privacy rules such as the GDPR, and your Content Security Policy must allow `fonts.googleapis.com` and `fonts.gstatic.com`.
+
+```html
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    rapi-doc {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+  </style>
+</head>
+```
+  </TabItem>
+
+  <TabItem label="Use your app's fonts">
+If your site already loads its fonts and keeps them in CSS variables (Tailwind, shadcn/ui, a design system), reuse those variables:
+
+```css
+rapi-doc {
+  --font-sans: var(--font-inter, sans-serif);
+  --font-mono: var(--font-jetbrains, monospace);
+}
+```
+
+If your site names its variables `--font-sans` and `--font-mono` too, use `inherit`. Writing `var(--font-sans)` on `rapi-doc` would refer to itself.
+
+```css
+rapi-doc {
+  --font-sans: inherit;
+  --font-mono: inherit;
+}
+```
+  </TabItem>
+</Tabs>
+
+See the [Brand Fonts example](/examples/brand-fonts) to compare the system fonts with a brand font pairing.
+
+---
+
+## 5. Changing the theme at runtime
+
+All these attributes can be changed at any time, for example from your site's own theme switcher:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+// Switch brand preset or custom hex color
+function setBrandColor(themeValue) {
+  doc.setAttribute('theme', themeValue); // e.g., 'jade' or '#2563eb'
+}
+
+// Toggle between dark and light modes
+function toggleDarkMode() {
+  const current = doc.getAttribute('color-scheme') || 'dark';
+  doc.setAttribute('color-scheme', current === 'dark' ? 'light' : 'dark');
+}
+
+// Adjust corner radius dynamically
+function updateRadius(radiusValue) {
+  doc.setAttribute('radius', radiusValue); // 'none', 'sm', 'md', 'lg', 'full'
+}
+
+// Make everything smaller or larger
+function setScale(size) {
+  doc.setAttribute('scale', size); // 'sm', 'default', 'lg'
+}
+```
+
+---
+
+## Next Steps
+
+<CardGrid>
+  <DocsCard title="CSS Parts (::part)" icon="file-css">
+    Pierce the Shadow DOM to customize sidebars, action buttons, and containers with gradients and backdrop filters. [Explore CSS Parts
+    Guide](/docs/theming/css-parts/)
+  </DocsCard>
+  <DocsCard title="Pre-built Themes & Recipes" icon="palette">
+    The six built-in themes, each in dark and light, and custom brand colors. [See the themes](/docs/theming/prebuilt-themes/)
+  </DocsCard>
+</CardGrid>

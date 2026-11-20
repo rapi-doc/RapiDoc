@@ -1,0 +1,30 @@
+---
+title: RapiDoc CLI
+description: The rapidoc command (@rapidoc/cli) previews, validates, lints and bundles OpenAPI specs, writes them as PDFs, mocks them and turns them into MCP servers.
+---
+
+`@rapidoc/cli` gives you the `rapidoc` command. It builds and runs [developer portals](https://portal.rapidocui.com/), and the commands in this section also work on plain OpenAPI files, wherever you use `<rapi-doc>`.
+
+```bash
+npm install -D @rapidoc/cli
+npx rapidoc --help            # every command
+npx rapidoc validate --help   # one command's options and examples
+```
+
+## The commands
+
+| Command | What it does |
+| :--- | :--- |
+| [`preview`](/docs/cli/preview/) | Shows a spec in `<rapi-doc>` and reloads it as you edit. |
+| [`validate`](/docs/cli/validate/) | Checks a spec strictly against the OpenAPI Specification. |
+| [`lint`](/docs/cli/lint/) | Checks what a good reference needs, beyond validity. |
+| [`bundle`](/docs/cli/bundle/) | Joins a spec split over files into one document. |
+| [`pdf`](/docs/cli/pdf/) | Writes the reference as a PDF. |
+| [`mock`](/docs/cli/mock/) | Serves the API with example or generated responses. |
+| [`mcp`](/docs/cli/mcp/) | Turns the spec into an MCP server for AI agents. |
+
+## Everything else
+
+`rapidoc doctor` checks your setup (Node, package versions) and prints a report for bug reports. The other commands (`init`, `dev`, `build`, `serve`, `migrate`) create and run a developer portal: OpenAPI references next to Markdown and Markdoc guides, with search and optional [single sign-on](https://portal.rapidocui.com/docs/access/overview/). [All Commands & Options](/docs/cli/reference/) lists every command and option; the portal commands are explained in the [RapiDoc Portal docs](https://portal.rapidocui.com/docs/reference/cli/).
+
+In a terminal, `rapidoc` asks for what the options don't say and shows a menu when run alone; piped, in CI or with `--yes` it never asks. Exit codes: `0` success, `1` problems in the input, `2` a wrong command line. `rapidoc completion zsh|bash|fish` prints a completion script for commands, options and their values.

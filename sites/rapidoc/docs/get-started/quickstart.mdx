@@ -1,0 +1,98 @@
+---
+title: Quickstart
+description: Show an interactive API reference for your OpenAPI spec in one HTML file.
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@rapidoc/portal/components';
+
+<Steps>
+
+1. **Create an HTML file** that loads RapiDoc and points `<rapi-doc>` at your spec:
+
+   ```html title="index.html"
+   <!doctype html>
+   <html lang="en">
+     <head>
+       <meta charset="utf-8" />
+       <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+       <style>
+         body { margin: 0; }
+         rapi-doc { height: 100vh; }
+       </style>
+     </head>
+     <body>
+       <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json"></rapi-doc>
+     </body>
+   </html>
+   ```
+
+2. **Open it in a browser.** You get navigation, search, schemas and a **Try** console that calls the API.
+
+3. **Replace `spec-url`** with the URL of your own OpenAPI 3.x or Swagger 2.0 file, in JSON or YAML. If the spec is on another domain, that server must allow cross-origin requests (see [Loading Your Spec](/docs/get-started/openapi-support/)).
+
+</Steps>
+
+<Aside type="tip" title="Sizing">
+  `<rapi-doc>` fills the height you give it. Set a height (here `100vh`) and leave its `display` alone: with `display: block` the bottom of the content is cut off.
+</Aside>
+
+## Install from npm
+
+With a bundler, install the package and import it once in your entry file. The import registers `<rapi-doc>`; use it in your markup as above.
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install rapidoc
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add rapidoc
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add rapidoc
+    ```
+  </TabItem>
+</Tabs>
+
+```javascript
+import 'rapidoc';
+```
+
+For production, pin a version (`https://unpkg.com/rapidoc@14/dist/rapidoc-min.js`) or serve the file from your own site.
+
+## Make it yours
+
+A few attributes cover most needs:
+
+```html
+<rapi-doc
+  spec-url="/openapi.yaml"
+  theme="cobalt"
+  color-scheme="light"
+  render-style="view"
+  allow-try="false"
+></rapi-doc>
+```
+
+| Attribute | Values | Default |
+| :--- | :--- | :--- |
+| `theme` | `ember`, `carbon`, `cobalt`, `jade`, `indigo`, `amber`, or a `#hex` brand color | `amber` |
+| `color-scheme` | `dark`, `light`, `system`, `auto` | `dark` |
+| `render-style` | `read` (one long page), `view` (expandable sections), `focused` (one operation at a time) | `read` |
+| `show-header` | `true`, `false` | `true` |
+| `allow-try` | `true`, `false`: show or hide the **Try** console | `true` |
+
+Every attribute, method, event and slot is listed in the [API reference](/api).
+
+## Next steps
+
+- [Integrations](/docs/integrations/): React, Next.js, Vue and Angular, server frameworks and documentation sites.
+- [Theming Overview](/docs/theming/overview/): colors, fonts, radius and scale.
+- [OAuth 2.0](/docs/authentication/oauth/): let readers sign in before they press **Try**.
+- [Common Tasks](/docs/guides/): how to do the things most sites need, and where each is explained.
+- [Examples](/examples/): every feature running, with the code behind it.
+- [Packages](/docs/get-started/packages/): everything else in the RapiDoc family.

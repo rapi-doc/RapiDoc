@@ -1,0 +1,211 @@
+---
+title: Mock Server (rapidoc mock)
+description: Run a real HTTP mock of your API from its OpenAPI spec, with request validation, generated data and OAuth token checks, using rapidoc mock or @rapidoc/mock.
+---
+
+`rapidoc mock` starts an HTTP server that answers every operation in your OpenAPI spec. Unlike the [in-browser mock](/docs/mocking/in-browser/), it is a real server: curl, your frontend, your tests, [`<rapi-flow>`](/docs/rapi-flow/) and an MCP server can all call it. It validates requests against the spec and can check OAuth tokens, so `400`, `401` and `403` responses behave as they will in production.
+
+## Start it
+
+```bash
+npm install -D @rapidoc/cli @rapidoc/mock
+npx rapidoc mock openapi.yaml
+```
+
+The server listens on `http://localhost:4010` and serves each API under its own path, named after the file: `openapi.yaml` is served at `http://localhost:4010/openapi`.
+
+```bash
+npx rapidoc mock orders.yaml billing.yaml   # /orders and /billing
+npx rapidoc mock ./specs --port 4011        # every OpenAPI file in the folder
+npx rapidoc mock                            # in a portal folder: the local specs under apis:
+```
+
+When two files would get the same name, their parent folders are added until the names differ (`billing-v1/openapi.yaml` becomes `/billing-v1-openapi`). The mapping is printed at start, and `GET /` lists the APIs served.
+
+## What it answers
+
+- **Examples first.** An operation's response example is returned when the spec has one; otherwise data is generated from the schema, respecting formats, patterns, enums and ranges. Generated data is the same on every run (change it with `--seed`).
+- **OpenAPI 3.2 methods.** `QUERY` operations and those under `additionalOperations` (`PURGE`, `COPY`, `LINK`, ...) are served and validated like the others, and pass CORS preflight. A method Node's HTTP server doesn't accept (it takes a fixed list) can't be called; the mock warns about it when it starts.
+- **Streams.** A response whose media type has an OpenAPI 3.2 `itemSchema` (Server-Sent Events, JSON Lines, `application/json-seq`) is sent one item at a time, `--stream-interval` apart (default 300 ms): the items of the example (a `dataValue` list, or the stream's text), else an item generated from the `itemSchema` sent 5 times, its `id` numbered 1 to 5. A JSON Lines request body is checked line by line against its `itemSchema`.
+- **Requests are validated.** Parameters and JSON, form and multipart bodies are checked against the spec. A bad request gets `400` with the list of problems (`422` when the operation documents `422` and not `400`).
+- **Security is enforced** per operation:
+  - **OAuth 2, OpenID Connect and HTTP bearer**: with `--issuer`, the token must be a JWT signed by that issuer, unexpired and for the `--audience`, or the request gets `401`. It must also grant the operation's scopes in its `scope`, `scp` or `permissions` claim, or the request gets `403` with `WWW-Authenticate: Bearer error="insufficient_scope"`. Without `--issuer`, any bearer token is accepted.
+  - **API key** and **HTTP Basic**: the credential must be present.
+  - `security: []`: open.
+- **CORS** is allowed for any origin.
+
+## Pick a response
+
+Clients choose which documented response they get with a `Prefer` header:
+
+| Header | Effect |
+| :--- | :--- |
+| `Prefer: code=404` | The documented `404` response (else `4XX`, else `default`). |
+| `Prefer: example=empty` | The example named `empty`. |
+| `Prefer: dynamic=true` | Generated data, even when the spec has an example. |
+
+The response's `Preference-Applied` header tells you which preferences were used.
+
+## Keep state
+
+By default every call is answered on its own: a `POST` returns a made-up record, and the next `GET` doesn't know about it. With `--stateful` the mock keeps data, like the real server would:
+
+```bash
+npx rapidoc mock openapi.yaml --stateful
+```
+
+- **It works out the data model from the spec.** Paths such as `/pets` and `/pets/{petId}` that share a schema become one resource, with its key and its links to other resources. The list is found wherever the response holds it: a bare array, `data`, a page object's `values`, or a property named after the resource. Nothing to configure.
+- **It starts with data.** Each resource gets 10 records (`--rows`), generated from its schema with readable values, and references between records point at records that exist. The same spec and `--seed` give the same data.
+- **Writes are kept.** A create stores a record, an update or delete changes it, and reads and lists return what is stored. Lists apply the query parameters that match a field, and `limit`, `offset` and `page`.
+- **Records stay under their parent.** A comment created at `/articles/{slug}/comments` is listed and found under that article only, whether or not it has a field for the article.
+- **Responses keep the spec's shape.** A record goes where the response schema puts it, such as inside `data` next to a `request_id`.
+- **Everything else answers as before.** An operation that fits no resource (a login, a search, a file upload) gets its example or generated data. The server prints how many operations are in each group when it starts.
+
+Send an `X-Mock-Session` header to get your own copy of the data, so tests running at the same time don't see each other's changes:
+
+```bash
+curl -X POST localhost:4010/openapi/pets -H "X-Mock-Session: test-1" -H "Content-Type: application/json" -d '{"name":"Biscuit"}'
+```
+
+A request with `Prefer: code=` or `Prefer: example=` gets that response as written, and nothing is stored. The data lives in memory and starts fresh on every run.
+
+### Correct what the mock worked out
+
+The mock reads the data model off the spec, and some APIs don't show it the way the mock expects: the key sits inside the record (`metadata.name`), or the id travels in the query string. State what it could not see in a `mock.config.yaml` beside the spec:
+
+```yaml
+# mock.config.yaml
+version: 1
+
+resources:
+  Pod:
+    key: metadata.name # the field that tells one record from another
+
+operations:
+  deleteVideo: # an operationId, or "DELETE /videos"
+    resource: Video
+    action: delete
+    key: query.id # where the record's key comes from: path.x, query.x or body.x
+  sendMessage:
+    action: none # keep no state for this one
+```
+
+- **`resources.<Name>.key`** names the key of a resource; a dotted path reaches inside the record. Naming a schema the mock did not take for a resource makes it one.
+- **`operations.<id>`** says what an operation does: `resource`, `action` (`list`, `create`, `createMany`, `read`, `update`, `patch`, `delete`, or `none`), and `key` for the ones that work on one record.
+- **What you state is taken as stated.** It is no longer labelled Needs review.
+- **With several APIs,** put the same two sections under `apis.<api id>`.
+- **`version: 1`** says which format the file is in. It is optional today, and worth writing: it lets a later format be told from this one.
+
+The file is looked for in the folder being mocked, beside the first spec, then in the current folder; `--mock-config <file>` names another. It is read with `--stateful` only.
+
+An entry that no longer fits the spec is skipped and named when the mock starts, so a renamed operation or field doesn't silently undo a correction:
+
+```
+mock.config.yaml: videos: operations.deleteVideo.key: the operation has no query parameter videoId
+```
+
+[`rapidoc lint --stateful`](/docs/cli/lint/#rules-for-the-stateful-mock) and the Mock UI's **Needs review** labels show where a correction would help. Lint reads this file too, so it stops reporting what you have settled.
+
+### See what the mock holds
+
+Open `/__mock/ui` on the mock's port (`http://localhost:4010/__mock/ui`). Pick an API in the header; the sidebar has four sections:
+
+- **Dashboard**: how many resources, records and operations the mock found, the share of operations per label, and what it assumed.
+- **Resources**: each resource the mock found, with its records in a table you can filter and sort. Select a row to see the whole record. The **About** tab shows the resource's fields and how each is seeded ("a first name", "the id of an Owner record", "shaped like the example"), its links to other resources, the operations on it, and a button that generates a sample record without storing it.
+- **Operations**: every operation with what the mock does for it and one of three labels. **Stateful**: mapped to a resource. **Needs review**: mapped, with something assumed, and the reason is shown. **Static**: no state, answered from examples or generated data. Group them by path or by resource. **Details** opens one operation: what the mock does in a sentence, what it uses each parameter for, what the request and each response hold, and a sample response.
+- **Settings**: how the mock was started, new seed data with another number of records or another seed, and a delay for every API response.
+
+In the header, **Reset data** puts the selected API back to its seed data, and the **Session** field shows the data of one `X-Mock-Session`. Every page has its own address, so it can be reloaded or shared.
+
+`rapidoc lint openapi.yaml --stateful` reports the same assumptions at their place in the spec, without starting the mock: see [Rules for the stateful mock](/docs/cli/lint/#rules-for-the-stateful-mock).
+
+What you change in Settings lasts until the mock stops; the page shows the option that keeps it (`--rows`, `--seed`, `--delay`). The page reads the same endpoints your tests can call.
+
+### Reset and inspect the data
+
+The mock has its own endpoints under `/__mock`, beside the APIs, so a test in any language can prepare and check the data over HTTP:
+
+| Endpoint | What it does |
+| :--- | :--- |
+| `GET /__mock/health` | Ready check: `200` with the APIs served. Works without `--stateful` too. |
+| `GET /__mock/model` | What the mock made of each spec: resources, and every operation with its label. `/<api id>` for one API. |
+| `GET /__mock/model/<api id>/resources/<Resource>` | One resource: fields, how each is seeded, links, operations. Add `/sample` for a generated record that is not stored (`?seed=` to repeat it). |
+| `GET /__mock/model/<api id>/operations/<id>` | One operation: what the mock does, its parameters, request, responses and a sample response. `<id>` is the `id` the model lists, URL-encoded. |
+| `GET /__mock/settings` | How the mock was started: state, seed, rows, delay, tokens, the APIs. |
+| `PATCH /__mock/settings` | Changes the response delay while the mock runs: `{ "delay": 250 }`. |
+| `POST /__mock/reset` | Puts the data back to what the mock started with. `?api=<id>` resets one API. With a body `{ "rows": 25, "seed": 7 }` it makes new seed data of that size, and drops every session's records. |
+| `GET /__mock/state` | The stored records. Narrow it with `/<api id>`, `/<api id>/<Resource>` or `/<api id>/<Resource>/<key>`. |
+| `POST /__mock/snapshot` | Returns all stored records as one JSON document. `?api=<id>` for one API. |
+| `POST /__mock/restore` | Replaces the records with the document you send: a snapshot, or data your test wrote. |
+
+```bash
+# before each test
+curl -X POST localhost:4010/__mock/reset
+
+# after a call: was the pet stored?
+curl localhost:4010/__mock/state/openapi/Pet/11
+```
+
+The document of `snapshot` and `restore` is `{ "<api id>": { "<Resource>": [records] } }`. A restore replaces every resource of the APIs it names (a resource it leaves out becomes empty) and leaves other APIs alone. A record that lives under a parent without having a field for it carries the parent in `$parents`; keep that entry when you restore.
+
+With an `X-Mock-Session` header, each of these works on that session's data only. The endpoints are open to any caller: the mock is a development tool, so don't expose it publicly.
+
+:::note
+The stateful mode is new. It reads the spec's structure, so an operation it isn't sure about is answered as a plain mock, never guessed.
+:::
+
+## Options
+
+| Option | Environment variable | Meaning |
+| :--- | :--- | :--- |
+| `--port <number>` | | Port to listen on. Default `4010`; if it is taken, the next free port is offered. |
+| `--host <host>` | | Address to listen on. Default `0.0.0.0`. |
+| `--issuer <url>` | `RAPIDOC_MOCK_ISSUER` | OpenID Connect issuer whose access tokens are accepted. The server won't start if the issuer can't be discovered. |
+| `--audience <id>` | `RAPIDOC_MOCK_AUDIENCE` | The `aud` tokens must have (your API's identifier at the provider). |
+| `--seed <number>` | | Seed for generated data. Default `1`. |
+| `--mock-config <file>` | | With `--stateful`: your [corrections](#correct-what-the-mock-worked-out). Default: `mock.config.yaml` beside the spec or in the folder. |
+| `--delay <ms>` | | Wait this long before every API response, to see loading states in a client. Default `0`. |
+| `--stream-interval <ms>` | | Gap between the items of a streamed response. Default `300`. |
+| `--stateful` | | [Keep state](#keep-state): writes change stored records that reads and lists return. |
+| `--rows <number>` | | With `--stateful`: seed records per resource. Default `10`. |
+
+```bash
+npx rapidoc mock openapi.yaml --issuer https://example.us.auth0.com/ --audience https://api.example.com
+```
+
+## Call it from `<rapi-doc>`
+
+List the mock first in the spec's `servers`, so **Try** sends requests to it:
+
+```yaml
+servers:
+  - url: http://localhost:4010/openapi
+    description: Mock (rapidoc mock)
+  - url: https://api.example.com
+```
+
+With OAuth, sign in through **Authorize** in `<rapi-doc>` as usual: the mock checks the token like the real API would.
+
+To run [Arazzo workflows](/docs/rapi-flow/running/#a-mock-server) against it, set `server-url` on `<rapi-flow>`. To point an [MCP server](/docs/ai/mcp-server/) at it, use `rapidoc mcp serve openapi.yaml --base-url http://localhost:4010/openapi`.
+
+## Use it as a library
+
+`@rapidoc/mock` runs without the CLI, for test setups and your own servers:
+
+```javascript
+import { createMockApp, startMockServer } from '@rapidoc/mock';
+
+// Start it on a port
+const server = await startMockServer({
+  apis: [{ id: 'orders', fullPath: '/abs/path/orders.yaml' }],
+  port: 4010,
+});
+console.log(server.url); // http://localhost:4010
+// ...
+await server.close();
+
+// Or get the app and mount it yourself (a Hono app: app.fetch(request))
+const { app } = await createMockApp({ apis: [{ id: 'orders', fullPath: '/abs/path/orders.yaml' }] });
+```
+
+`startMockServer` also takes `host`, `issuer`, `audience`, `seed`, `stateful`, `delay` and `streamInterval`, and returns `{ url, port, apis, skipped, close }`. A spec it can't load is skipped with the reason, and the others are served.

@@ -1,0 +1,342 @@
+openapi: 3.0.0
+info:
+  title: Schema Titles and Description Testcase
+  description: More detailed description of the titles example API
+  version: '1'
+paths:
+  /object:
+    get:
+      summary: Object
+      responses:
+        default:
+          description: Response description.
+          content:
+            application/json:
+              schema:
+                title: Root Object Title
+                description: Root Object Description
+                type: object
+                properties:
+                  propString:
+                    title: Prop 1 Title
+                    description: Property 1 description
+                    type: string
+                  propArrayOfString:  
+                    type: array
+                    title: Array Title
+                    description: Array Description
+                    items:
+                      title: Array Item Title
+                      description: Array Item Description (premitive)
+                      type: string
+                  propArrayOfObject:  
+                    type: array
+                    title: Array Title
+                    description: Array Description
+                    items:
+                      type: object
+                      title: Array Item Title
+                      description: Array Item Description (object)
+                      properties:
+                        name:
+                          type: string
+                          title: Title
+                          description: description
+                        age:
+                          type: integer
+                          title: Title
+                          description: description
+
+  /array-of-string:
+    get:
+      summary: Array Of String
+      responses:
+        default:
+          description: Response description.
+          content:
+            application/json:
+              schema:
+                title: Root Array Title
+                description: Root Array Description
+                type: array
+                items:
+                  title: Array Item Title
+                  description: Array Item Description (premitive)
+                  type: string
+  /array-of-object:
+    get:
+      summary: Array Of Object
+      responses:
+        default:
+          description: Response description.
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Root Object Title
+                description: Root Object Description
+                properties:
+                  array_attribute:
+                    type: array
+                    minItems: 10
+                    maxItems: 20
+                    title: Array Title
+                    description: Array Description
+                    items:
+                      type: object
+                      title: Array Item Title
+                      minProperties: 2
+                      maxProperties: 2
+                      description: Array Item Description
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: integer
+                          minimum: 20
+
+  /markdown-tables:
+    get:
+      summary: Markdown Tables in Response Schema
+      responses:
+        '200':
+          description: Response Schema field contains Markdown tables
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Description of `Person` object (Person must be monospaced)
+                properties:
+                  id:
+                    nullable: true
+                    description: |
+                      | Heading 1 | Left-Justified | Centered | Right-Justified |
+                      | --------- | :------------- | :------: | --------------: |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                    type: integer
+                  fullName:
+                    nullable: true
+                    description: |
+                      | Heading 1 | Left-Justified | Centered | Right-Justified |
+                      | --------- | :------------- | :------: | --------------: |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                    type: object
+                  hobbies:
+                    type: array
+                    nullable: true
+                    minItems: 1
+                    maxItems: 1
+                    description: |
+                      | Heading 1 | Left-Justified | Centered | Right-Justified |
+                      | --------- | :------------- | :------: | --------------: |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                    items:
+                      type: string
+                  dependentNames:
+                    type: array
+                    minItems: 1
+                    maxItems: 1
+                    description: |
+                      | Heading 1 | Left-Justified | Centered | Right-Justified |
+                      | --------- | :------------- | :------: | --------------: |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                    items:
+                      type: object
+    post:
+      summary: Markdown Tables in Request Body (multipart/form-data)
+      description: Sending data using `multipart/form-data` with schemas and markdown tables
+      requestBody:
+        description: Request body using `multipart/form-data` with markdown tables in property descriptions
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              description: Multipart form payload with schema descriptions and markdown tables
+              required:
+                - photoPart
+              properties:
+                photoPart:
+                  type: string
+                  format: binary
+                  description: |
+                    Profile photo or document file
+                    | Format | Max Size |
+                    | ------ | -------- |
+                    | PNG, JPEG | 10 MB |
+                id:
+                  type: integer
+                  nullable: true
+                  description: |
+                    | Heading 1 | Left-Justified | Centered | Right-Justified |
+                    | --------- | :------------- | :------: | --------------: |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                fullName:
+                  type: object
+                  nullable: true
+                  description: |
+                    | Heading 1 | Left-Justified | Centered | Right-Justified |
+                    | --------- | :------------- | :------: | --------------: |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                address:
+                  type: object
+                  description: |
+                    Address object with nested properties
+                    | Field | Type |
+                    | ----- | ---- |
+                    | street | string |
+                    | city | string |
+                  properties:
+                    street:
+                      type: string
+                      description: Street address
+                    city:
+                      type: string
+                      description: City name
+                hobbies:
+                  type: array
+                  nullable: true
+                  minItems: 1
+                  maxItems: 1
+                  description: |
+                    | Heading 1 | Left-Justified | Centered | Right-Justified |
+                    | --------- | :------------- | :------: | --------------: |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                  items:
+                    type: string
+                dependentNames:
+                  type: array
+                  minItems: 1
+                  maxItems: 1
+                  description: |
+                    | Heading 1 | Left-Justified | Centered | Right-Justified |
+                    | --------- | :------------- | :------: | --------------: |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                  items:
+                    type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+
+  /markdown-text:
+    get:
+      summary: Markdown Lists, Paragraphs and Headings in Schema
+      description: Property descriptions written with bulleted lists, paragraphs, and headings followed by body text
+      responses:
+        '200':
+          description: Response Schema fields contain markdown lists, paragraphs and headings
+          content:
+            application/json:
+              schema:
+                type: object
+                description: An `Order` with markdown in its property descriptions
+                properties:
+                  status:
+                    type: string
+                    enum: [pending, paid, shipped, cancelled]
+                    description: |
+                      * `pending`: created, waiting for payment
+                      * `paid`: payment captured
+                      * `shipped`: handed to the carrier
+                      * `cancelled`: cancelled by the customer or by support
+                  channel:
+                    type: string
+                    description: |
+                      * Only one channel is supported today: `web`
+                  tags:
+                    type: array
+                    description: |
+                      Free-form labels used for search and reporting:
+
+                      * at most **10** tags per order
+                      * each tag is lowercase, `a-z`, `0-9` and `-`
+                        * nested: tags starting with `x-` are reserved
+                      * duplicates are removed
+                    items:
+                      type: string
+                  notes:
+                    type: string
+                    maxLength: 500
+                    description: Free text the customer adds at checkout. It is shown to the warehouse team on the packing slip and printed on the invoice, so it must not contain personal data beyond what is needed to deliver the order.
+                  deliveryInstructions:
+                    type: string
+                    description: Where the carrier should leave the parcel when nobody answers the door, for example with a neighbour, in the garage, or behind the side gate next to the recycling bins.
+                  giftMessage:
+                    type: string
+                    description: |
+                      Message printed on the gift card. **Plain text only**; markdown and HTML are removed.
+
+                      Line breaks are kept. See [gift options](https://example.com/gift-options) for the card sizes.
+
+                      Leave empty for no gift card.
+                  shippingSpeed:
+                    type: string
+                    enum: [standard, express, overnight]
+                    description: |
+                      ### Shipping speed
+                      How fast the order is delivered once it is paid.
+                  refundPolicy:
+                    type: string
+                    description: |
+                      #### Eligibility
+                      Orders can be refunded within **30 days** of delivery.
+
+                      #### Partial refunds
+                      Single items can be refunded on their own:
+
+                      * the item must be unused
+                      * shipping is not refunded
+
+                      ##### Exceptions
+                      Gift cards and downloads are never refunded.
+                  priority:
+                    type: integer
+                    title: Priority
+                    minimum: 1
+                    maximum: 5
+                    description: |
+                      * `1`: highest, handled the same day
+                      * `5`: lowest
+                  customer:
+                    type: object
+                    description: |
+                      #### Customer
+                      The account that placed the order.
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                        description: |
+                          Used for order updates.
+
+                          * receipts
+                          * shipping notifications
+                      locale:
+                        type: string
+                        description: |
+                          ##### Locale
+                          BCP 47 language tag, for example `en-US`. Sets the language of emails.

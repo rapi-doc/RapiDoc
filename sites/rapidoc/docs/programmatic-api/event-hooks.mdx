@@ -1,0 +1,96 @@
+---
+title: Events
+description: Change Try requests before they are sent, read responses, and react to spec loading, server changes and navigation with <rapi-doc> events.
+---
+
+import { Aside } from '@rapidoc/portal/components';
+
+`<rapi-doc>` dispatches DOM events you can listen to with `addEventListener`. The full list, with every field, is in the [API reference](/api#events).
+
+## Change a request before it is sent: `before-try`
+
+`before-try` fires when a reader presses **Try**, before the request goes out. `e.detail.request` is a plain object you can change:
+
+| Field | Type |
+| :--- | :--- |
+| `url` | `string`: can be replaced |
+| `method` | `string` |
+| `headers` | `Headers`: add, change or delete headers |
+| `body` | the request body |
+| `credentials` | the `fetch` credentials mode |
+
+`e.detail.controller` is the request's `AbortController`; call `abort()` to cancel it.
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+doc.addEventListener('before-try', (e) => {
+  const { request } = e.detail;
+  request.headers.set('X-Correlation-ID', crypto.randomUUID());
+
+  if (request.url.includes('/billing/')) {
+    request.headers.set('X-Audit', 'strict');
+  }
+});
+```
+
+<Aside type="caution" title="Listeners must be synchronous">
+  RapiDoc reads the request as soon as the event returns, so it doesn't wait for promises. Work out any value you need (a signature, a fresh token) before the reader presses **Try**, and set it here synchronously.
+</Aside>
+
+## Read the response: `after-try`
+
+`after-try` fires when the response arrives:
+
+| Field | Type |
+| :--- | :--- |
+| `request` | the `Request` that was sent |
+| `response` | a clone of the `Response` |
+| `responseHeaders` | the response headers |
+| `responseBody` | the parsed body |
+| `responseStatus` | `boolean`: `true` for a 2xx status |
+
+If the request fails at the network level, `detail` is `{ err, request }` instead.
+
+```javascript
+doc.addEventListener('after-try', (e) => {
+  if (e.detail.err) return;
+  analytics.track('Try', {
+    url: e.detail.request.url,
+    status: e.detail.response.status,
+  });
+});
+```
+
+To measure how long a request took, note `performance.now()` in `before-try` and compare in `after-try`.
+
+## React to the spec: `before-render` and `spec-loaded`
+
+- `before-render` fires after the spec is parsed and before it is rendered. `e.detail.spec` is the parsed spec; changes you make to it show up in the page.
+- `spec-loaded` fires when rendering is done. `e.detail` is the parsed spec itself (`info`, `tags`, `servers`, `securitySchemes`, …).
+
+```javascript
+doc.addEventListener('spec-loaded', (e) => {
+  console.log(`${e.detail.info.title}: ${e.detail.servers.length} server(s)`);
+});
+```
+
+## Server changes: `api-server-change`
+
+Fires when the reader picks another server in the API Servers section. `e.detail.selectedServer` is the server object: `url`, `description`, `variables` and `computedUrl` (the URL with its variables filled in).
+
+```javascript
+doc.addEventListener('api-server-change', (e) => {
+  if (e.detail.selectedServer.url.includes('production')) {
+    showWarning('Try now calls the production API.');
+  }
+});
+```
+
+## Other events
+
+| Event | When |
+| :--- | :--- |
+| `request-aborted` | A **Try** request was cancelled. |
+| `nav-active-change` | The section in view changed; `detail` is `{ id, elementId }`. See [Links & Navigation](/docs/customizing/linking/#in-a-single-page-app). |
+| `before-authorize`, `before-token-request` | During OAuth sign-in; see [OAuth 2.0](/docs/authentication/oauth/#from-javascript). |

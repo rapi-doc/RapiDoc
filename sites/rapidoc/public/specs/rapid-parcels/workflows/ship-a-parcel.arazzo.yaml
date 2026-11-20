@@ -1,0 +1,134 @@
+arazzo: 1.0.1
+info:
+  title: Ship a parcel
+  version: 1.0.0
+  description: >-
+    The shop developer's journey across three APIs: price a parcel (Rates), book the shipment and
+    fetch its label (Shipments), then subscribe to tracking events (Tracking).
+sourceDescriptions:
+  - name: rates
+    url: ../specs/rates.yaml
+    type: openapi
+  - name: shipments
+    url: ../specs/shipments.yaml
+    type: openapi
+  - name: tracking
+    url: ../specs/tracking.yaml
+    type: openapi
+workflows:
+  - workflowId: shipParcel
+    summary: Quote, book, label and track a parcel
+    description: >-
+      Gets a quote, creates a shipment for it, downloads the label, and subscribes a callback URL to
+      the parcel's tracking events. The Shipments steps need a token with shipments:write and
+      shipments:read.
+    inputs:
+      type: object
+      properties:
+        reference:
+          type: string
+          description: Your order reference, shown on the label
+          default: ORDER-10482
+        service:
+          type: string
+          default: express
+          enum: [economy, express, same-day]
+        callbackUrl:
+          type: string
+          format: uri
+          description: Where tracking events are posted
+          default: https://shop.rapidparcels.example/hooks/tracking
+      required: [reference, callbackUrl]
+    steps:
+      - stepId: quote
+        description: Price the parcel from the Berlin warehouse to Paris.
+        operationId: $sourceDescriptions.rates.createQuote
+        requestBody:
+          contentType: application/json
+          payload:
+            from: { postal_code: "10115", country: DE }
+            to: { postal_code: "75001", country: FR }
+            service: $inputs.service
+            parcels:
+              - { weight_kg: 2.5, length_cm: 30, width_cm: 20, height_cm: 15 }
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          quoteId: $response.body#/id
+          amount: $response.body#/total/amount
+      - stepId: book
+        description: Create the shipment against the quote.
+        operationId: $sourceDescriptions.shipments.createShipment
+        parameters:
+          - name: Idempotency-Key
+            in: header
+            value: "ship-{$inputs.reference}"
+        requestBody:
+          contentType: application/json
+          payload:
+            reference: $inputs.reference
+            service: $inputs.service
+            quote_id: $steps.quote.outputs.quoteId
+            from:
+              name: Rapid Parcels Demo Shop
+              line1: Invalidenstraße 117
+              postal_code: "10115"
+              city: Berlin
+              country: DE
+            to:
+              name: Jane Doe
+              line1: 12 Rue de Rivoli
+              postal_code: "75001"
+              city: Paris
+              country: FR
+            parcels:
+              - { weight_kg: 2.5, length_cm: 30, width_cm: 20, height_cm: 15 }
+        successCriteria:
+          - condition: $statusCode == 201
+          - condition: $response.body#/tracking_number != null
+        onFailure:
+          - name: duplicateReference
+            type: end
+            criteria:
+              - condition: $statusCode == 409
+        outputs:
+          shipmentId: $response.body#/id
+          trackingNumber: $response.body#/tracking_number
+          status: $response.body#/status
+      - stepId: label
+        description: Fetch the shipping label as a PDF.
+        operationId: $sourceDescriptions.shipments.getShipmentLabel
+        parameters:
+          - name: shipmentId
+            in: path
+            value: $steps.book.outputs.shipmentId
+          - name: format
+            in: query
+            value: pdf
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: subscribe
+        description: Post the parcel's tracking events to the shop.
+        operationId: $sourceDescriptions.tracking.createSubscription
+        requestBody:
+          contentType: application/json
+          payload:
+            tracking_number: $steps.book.outputs.trackingNumber
+            callback_url: $inputs.callbackUrl
+            events: [HUB, OFD, DLV]
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          subscriptionId: $response.body#/id
+    failureActions:
+      - name: serviceUnavailable
+        type: retry
+        retryAfter: 2
+        retryLimit: 3
+        criteria:
+          - condition: $statusCode == 503
+    outputs:
+      shipmentId: $steps.book.outputs.shipmentId
+      trackingNumber: $steps.book.outputs.trackingNumber
+      amount: $steps.quote.outputs.amount
+      subscriptionId: $steps.subscribe.outputs.subscriptionId

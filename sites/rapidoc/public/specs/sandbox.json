@@ -1,0 +1,50 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Dry Run Development Spec (JSON)",
+    "version": "1.0.0",
+    "description": "JSON variant of the developer sandbox spec for testing RapiDoc."
+  },
+  "paths": {
+    "/products": {
+      "get": {
+        "summary": "List products",
+        "description": "Returns a test collection of products.",
+        "responses": {
+          "200": {
+            "description": "Successful products list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "example": 42
+                      },
+                      "title": {
+                        "type": "string",
+                        "example": "Rapid Widget"
+                      },
+                      "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 19.99
+                      },
+                      "inStock": {
+                        "type": "boolean",
+                        "example": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

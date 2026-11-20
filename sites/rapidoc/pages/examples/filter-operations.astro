@@ -1,0 +1,141 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+
+// Each preset sets filter-operations to `value`; `hint` says what it shows.
+const presets = [
+  { value: '/public-*', hint: 'Operations on paths that start with /public-' },
+  { value: 'GET /internal-path-1', hint: 'GET /internal-path-1, not PUT /internal-path-1' },
+  {
+    value: 'GET /public-path-1, POST /internal-path-2',
+    hint: 'Two operations by method and path',
+  },
+  { value: 'getPublicPath2 updateInternalPath1', hint: 'Two operations by operationId' },
+  { value: 'tag:"Admin Tools"', hint: 'Operations tagged Admin Tools (quoted for the space)' },
+  { value: '/reports/**', hint: '/reports and every path under it, at any depth' },
+  { value: '/reports/*', hint: 'Only one segment below /reports: /reports/{reportId}' },
+  { value: 'badge:Core', hint: 'Operations with the badge label Core' },
+  { value: 'tag:Public !deprecated', hint: 'Public operations, without the deprecated one' },
+  {
+    value: '!badge:Internal !badge:admin-use-only',
+    hint: 'Leaves out operations with the badge Internal or admin-use-only',
+  },
+  { value: '', hint: 'No filter: every operation' },
+];
+---
+
+<ExampleLayout>
+  <rapi-doc
+    id="thedoc"
+    spec-url="/specs/filter-operations.yaml"
+    show-header="false"
+    show-info="true"
+    allow-server-selection="false"
+    allow-authentication="false"
+    render-style="read"
+    use-path-in-nav-bar="true"
+    show-method-in-nav-bar="as-colored-text"
+    filter-operations="/public-* !badge:Preferred"
+  >
+    <div slot="operations-top" class="filter-panel">
+      <form class="filter-form" onsubmit="event.preventDefault(); applyFilter();">
+        <label for="filter-operations">filter-operations</label>
+        <div class="filter-row">
+          <input
+            id="filter-operations"
+            value="/public-* !badge:Preferred"
+            type="text"
+            placeholder="e.g. tag:store !badge:Internal"
+            spellcheck="false"
+            autocomplete="off"
+          />
+          <button type="submit" class="rd-btn rd-btn-primary">Apply</button>
+        </div>
+      </form>
+      <div class="rd-nav-pills filter-presets" role="group" aria-label="Preset filters">
+        {
+          presets.map((p) => (
+            <button type="button" class="rd-pill filter-chip" data-filter={p.value} title={p.hint}>
+              {p.value || '(all)'}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  </rapi-doc>
+
+  <style is:global>
+    /* Slotted into <rapi-doc>, so these are global; buttons and pills come from global.css */
+    .filter-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 760px;
+      margin: 16px auto;
+      padding: 16px;
+      border: 1px solid var(--rd-border-hover);
+      border-radius: var(--rd-radius-sm);
+      background: var(--rd-bg-input);
+      font-family: var(--rd-font-sans);
+    }
+    .filter-form {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .filter-form label {
+      font-family: var(--rd-font-mono);
+      font-size: 12px;
+      color: var(--rd-text-muted);
+    }
+    .filter-row {
+      display: flex;
+      gap: 8px;
+    }
+    .filter-row input {
+      flex: 1;
+      min-width: 0;
+      padding: 9px 12px;
+      font-family: var(--rd-font-mono);
+      font-size: 13px;
+      color: var(--rd-text-bright);
+      background: var(--rd-wash);
+      border: 1px solid var(--rd-border-hover);
+      border-radius: var(--rd-radius-md);
+      outline: none;
+    }
+    .filter-row input::placeholder {
+      color: var(--rd-text-dim);
+    }
+    .filter-row input:focus {
+      border-color: var(--rd-accent);
+      box-shadow: 0 0 0 3px var(--rd-accent-dim);
+    }
+    .filter-presets {
+      justify-content: flex-start;
+    }
+    .filter-presets .filter-chip {
+      font-family: var(--rd-font-mono);
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--rd-text-bright);
+    }
+  </style>
+
+  <script is:inline>
+    function applyFilter(value) {
+      const input = document.getElementById('filter-operations');
+      if (typeof value === 'string') input.value = value;
+      const filter = input.value.trim();
+      document.getElementById('thedoc').setAttribute('filter-operations', filter);
+      document.querySelectorAll('.filter-chip').forEach((chip) => {
+        const active = chip.dataset.filter === filter;
+        chip.classList.toggle('active', active);
+        chip.setAttribute('aria-pressed', String(active));
+      });
+    }
+    document.querySelectorAll('.filter-chip').forEach((chip) => {
+      chip.addEventListener('click', () => applyFilter(chip.dataset.filter));
+    });
+    applyFilter();
+  </script>
+</ExampleLayout>

@@ -1,0 +1,71 @@
+components:
+  schemas:
+    Links:
+      additionalProperties: false
+      properties:
+        first:
+          $ref: '#/components/schemas/LinkProperty'
+        last:
+          $ref: '#/components/schemas/LinkProperty'
+        next:
+          $ref: '#/components/schemas/LinkProperty'
+        prev:
+          $ref: '#/components/schemas/LinkProperty'
+        related:
+          $ref: '#/components/schemas/LinkProperty'
+        self:
+          $ref: '#/components/schemas/LinkProperty'
+      type: object
+    LinkProperty:
+      oneOf:
+        - description: A string containing the link’s URL.
+          example: https://example.com/api/resource
+          type: string
+        - additionalProperties: false
+          example:
+            href: https://example.com/api/resource
+          properties:
+            href:
+              description: A string containing the link’s URL.
+              example: https://example.com/api/resource
+              type: string
+            meta:
+              type: string
+          required:
+            - href
+          type: object
+info:
+  title: Example API
+  version: v3
+openapi: 3.0.3
+paths:
+  /foo/{bar_id}/baz:
+    get:
+      description: Get a list of bazzes your foo can access based on its bar id.
+      operationId: getFooBaz
+      parameters:
+        - description: The bar id of your foo.
+          in: path
+          name: bar_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          content:
+            application/vnd.api+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  data:
+                    items:
+                      type: string
+                    type: array
+                  links:
+                    $ref: '#/components/schemas/Links'
+                required:
+                  - data
+                  - links
+                type: object
+          description: A list of bazzes accessible by the foo.

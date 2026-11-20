@@ -1,0 +1,16 @@
+---
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
+---
+
+<TestCaseLayout
+  specUrl="/specs-test/demo-shipment.yaml"
+  preset={['all']}
+  controllerSize="large"
+  rapidocProps={{
+    'color-scheme': 'light',
+    'render-style': 'read',
+    'show-info': 'true',
+    'show-header': 'false',
+    'show-method-in-nav-bar': 'as-colored-block',
+  }}
+/>

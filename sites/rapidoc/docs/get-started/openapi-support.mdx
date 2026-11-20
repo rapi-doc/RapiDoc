@@ -1,0 +1,71 @@
+---
+title: Loading Your Spec
+description: Which OpenAPI versions RapiDoc reads, the three ways to give it a spec, and how to handle CORS.
+---
+
+import { Aside } from '@rapidoc/portal/components';
+
+## Supported versions
+
+| Version | Support |
+| :--- | :--- |
+| **OpenAPI 3.1** and **3.2** | Read as they are, including JSON Schema 2020-12 and `webhooks`. |
+| **OpenAPI 3.0** | Read as it is. |
+| **Swagger 2.0** | Upgraded to OpenAPI 3.1 in the browser before rendering. For large specs, convert ahead of time (see [Large Specs](/docs/performance/large-specs/)). |
+
+Specs can be JSON or YAML. RapiDoc resolves `$ref`s, including references to other files relative to the spec's URL, but does not validate the spec: use [`rapidoc validate`](/docs/cli/validate/) for that.
+
+## Three ways to load a spec
+
+### From a URL
+
+```html
+<rapi-doc spec-url="https://api.example.com/v1/openapi.yaml"></rapi-doc>
+```
+
+Changing `spec-url` later loads the new spec.
+
+<Aside type="caution" title="Specs on another domain">
+  The browser fetches the spec, so a spec on a different domain or port than the page must be served with CORS headers, at least:
+
+  ```http
+  Access-Control-Allow-Origin: *
+  ```
+
+  If you can't change that server, serve a copy of the spec from your own site, or fetch it yourself and use `loadSpec`.
+</Aside>
+
+### From JavaScript
+
+`loadSpec()` takes a spec object or a URL. Use it when you fetch the spec yourself, for example with the user's credentials:
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+const res = await fetch('/internal/openapi.json', {
+  headers: { Authorization: `Bearer ${sessionToken}` },
+});
+doc.loadSpec(await res.json());
+```
+
+### Inside the element
+
+Put the spec as JSON in a `<script>` inside `<rapi-doc>`, with `slot="rapidoc-spec"`. It is read once, when the element is added to the page, and takes precedence over `spec-url`.
+
+```html
+<rapi-doc>
+  <script type="application/json" slot="rapidoc-spec">
+    {
+      "openapi": "3.1.0",
+      "info": { "title": "Embedded API", "version": "1.0.0" },
+      "paths": {}
+    }
+  </script>
+</rapi-doc>
+```
+
+## How OpenAPI features are shown
+
+- **`oneOf` and `anyOf`**: the variants are listed as numbered options (OPT 1, OPT 2, …) under a ONE OF or ANY OF label. `allOf` is merged into one schema.
+- **Several examples**: when a media type has an `examples` map, a picker switches between them.
+- **Servers and server variables**: the API Servers section lists the spec's `servers`; readers pick one, and fill in its variables (such as `{environment}`), before pressing **Try**.

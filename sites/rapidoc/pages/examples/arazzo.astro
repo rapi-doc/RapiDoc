@@ -1,0 +1,127 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout
+  title="Arazzo workflows with rapi-flow"
+  description="Draw the workflows of an Arazzo document next to the API reference with the rapi-flow element, and run them against the real Petstore API or the in-browser mock."
+>
+  <script>
+    import 'rapidoc/flow';
+
+    // The Real server / Mock switch: turns <rapi-doc>'s in-browser mock on or off.
+    // <rapi-flow> follows it (its run button reads "Run workflow (Mock)").
+    const doc = document.querySelector('rapi-doc');
+    for (const button of document.querySelectorAll<HTMLButtonElement>('.server-switch button')) {
+      button.addEventListener('click', () => {
+        const server = button.dataset.server;
+        doc.setAttribute('mock-server', server === 'mock' ? 'true' : 'false');
+        for (const b of document.querySelectorAll('.server-switch button')) {
+          b.setAttribute('aria-pressed', String(b === button));
+        }
+        for (const note of document.querySelectorAll<HTMLElement>('.server-note')) {
+          note.hidden = note.dataset.server !== server;
+        }
+      });
+    }
+  </script>
+
+  <div class="flow-example">
+    <div class="flow-pane">
+      <rapi-flow
+        arazzo-url="/specs/petstore.arazzo.yaml"
+        for="thedoc"
+        allow-arazzo-url-load="true"
+        update-route="true"
+        mcp="true"
+        theme = "amber"
+      >
+        <div slot="header">
+          <div class="header-bar">
+            <img src="/assets/images/rapi-flow-lockup-dark.svg" alt="rapi-flow" height="26" />
+            <div class="server-switch" role="group" aria-label="Server">
+              <button type="button" data-server="real" aria-pressed="true">Real server</button>
+              <button type="button" data-server="mock" aria-pressed="false">Mock</button>
+            </div>
+          </div>
+          <p class="server-note" data-server="real">
+            Requests go to <code>petstore3.swagger.io</code>, a public demo anyone can change: runs place
+            real orders, and results vary. Switch to Mock to try the failure paths.
+          </p>
+          <p class="server-note" data-server="mock" hidden>
+            RapiDoc's in-browser mock answers every request in the page; nothing reaches the server.
+            Responses come from the spec's examples and schemas.
+          </p>
+        </div>
+      </rapi-flow>
+    </div>
+
+    <!-- No spec-url: <rapi-flow> (it has the URL box) loads the Arazzo file's API into it -->
+    <rapi-doc
+      id="thedoc"
+      class="doc-pane"
+      show-header="false"
+      render-style="focused"
+      show-side-nav="floating"
+      mock-server="false"
+    ></rapi-doc>
+  </div>
+</ExampleLayout>
+
+<style>
+  /* Two panes: <rapi-flow> on the left, <rapi-doc> on the right */
+  .flow-example {
+    display: flex;
+    gap: 16px;
+    height: 100vh;
+    background: rgb(31, 31, 35);
+  }
+  .flow-pane {
+    width: clamp(30rem, 45%, 56rem);
+    overflow: auto;
+    border-right: 1px solid var(--rd-border-hover);
+  }
+  .doc-pane {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* The header slot: logo on the left, the server switch on the right, a note below */
+  .header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .server-switch button {
+    padding: 0.25rem 0.75rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    color: #a1a1aa;
+    background: transparent;
+    border: 1px solid var(--rd-border-hover);
+    cursor: pointer;
+  }
+  .server-switch button[aria-pressed='true'] {
+    color: var(--rd-accent);
+    border-color: var(--rd-accent-border);
+    background: var(--rd-accent-dim);
+  }
+  .server-note {
+    margin: 12px 0 16px;
+    font-size: 0.8125rem;
+    color: #a1a1aa;
+  }
+
+  @media (max-width: 900px) {
+    .flow-example {
+      flex-direction: column;
+      height: auto;
+    }
+    .flow-pane {
+      width: auto;
+    }
+    .doc-pane {
+      height: 100vh;
+    }
+  }
+</style>

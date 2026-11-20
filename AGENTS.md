@@ -33,7 +33,8 @@ rapidoc/
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── sites/
 │   ├── rapi-mock/        # The Rapi Mock product and documentation site (mock.rapidocui.com), built with RapiDoc Portal
-│   └── rapi-portal/      # The RapiDoc Portal product and documentation site (portal.rapidocui.com), built with RapiDoc Portal
+│   ├── rapi-portal/      # The RapiDoc Portal product and documentation site (portal.rapidocui.com), built with RapiDoc Portal
+│   └── rapidoc/          # rapidocui.com rebuilt with RapiDoc Portal, in progress; the live site is still docs/
 ├── tests/
 │   ├── unit/             # Node.js built-in test runner unit tests (*.test.js)
 │   ├── component/        # Component-level tests
@@ -237,6 +238,7 @@ When executing tasks in this repository, follow these rules:
      - [`integrations/rapidoc-dotnet/AGENTS.md`](integrations/rapidoc-dotnet/AGENTS.md)
      - [`sites/rapi-mock/AGENTS.md`](sites/rapi-mock/AGENTS.md)
      - [`sites/rapi-portal/AGENTS.md`](sites/rapi-portal/AGENTS.md)
+     - [`sites/rapidoc/AGENTS.md`](sites/rapidoc/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.
 3. **No Unsolicited File Deletions**:
    - Preserve existing public specs (`docs/public/specs/`)

@@ -1,0 +1,133 @@
+---
+import '../styles/examples.css';
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import RapidocTuner from '../components/RapidocTuner.astro';
+import { getSpecUrl, isTestPath } from '../utils/getSpecUrl';
+import { findTestBySlug, findExampleBySlug } from '../utils/pageMeta';
+import type { ControllerPreset } from '../components/controller-registry';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  specUrl?: string;
+  preset?: ControllerPreset[] | ControllerPreset;
+  controls?: string[];
+  rapidocProps?: Record<string, any>;
+  autoRenderRapiDoc?: boolean;
+  controllerTitle?: string;
+  showController?: boolean;
+  controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
+  showMethods?: boolean;
+  showSlots?: boolean;
+}
+
+const {
+  title: propTitle,
+  description: propDescription,
+  noindex: propNoindex,
+  specUrl: propSpecUrl,
+  preset: propPreset,
+  controls: propControls,
+  rapidocProps = {},
+  autoRenderRapiDoc = false,
+  controllerTitle,
+  showController,
+  controllerSize = 'medium',
+  showMethods,
+  showSlots,
+} = Astro.props;
+
+const pathname = Astro.url.pathname;
+const isTest = isTestPath(pathname);
+
+// Extract slug (e.g. /examples/render-read/ -> render-read)
+const segments = pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+let slug = segments[segments.length - 1] || '';
+if (slug === 'index' || slug === 'index.html') {
+  slug = segments[segments.length - 2] || '';
+}
+
+let autoTitle = '';
+let autoDescription = '';
+let foundValidates: string[] = [];
+
+if (isTest) {
+  const meta = findTestBySlug(slug);
+  autoTitle = meta.title;
+  autoDescription = meta.description;
+  foundValidates = meta.validates || [];
+} else {
+  const meta = findExampleBySlug(slug, pathname);
+  autoTitle = meta.title;
+  autoDescription = meta.description;
+}
+
+const finalTitle = propTitle || autoTitle;
+const finalDescription = propDescription || autoDescription;
+const finalNoindex = propNoindex !== undefined ? propNoindex : isTest;
+
+// Resolve spec URL automatically from convention if not provided
+const finalSpecUrl = propSpecUrl || getSpecUrl(Astro.url);
+
+// Determine controller preset and active controls
+const hasPreset = Boolean(
+  propPreset &&
+  (Array.isArray(propPreset)
+    ? propPreset.length > 0 && !propPreset.includes('none')
+    : propPreset !== 'none')
+);
+const hasControls = Boolean(propControls && propControls.length > 0);
+const shouldShowController =
+  showController !== false &&
+  (showController === true || hasPreset || hasControls);
+
+let effectivePreset: ControllerPreset[] | ControllerPreset | undefined = propPreset;
+let effectiveControls = propControls;
+
+const isAuto = Array.isArray(propPreset) ? propPreset.includes('auto') : propPreset === 'auto';
+if (isAuto || (!propPreset && shouldShowController)) {
+  if (foundValidates.length > 0 && !propControls) {
+    effectiveControls = foundValidates;
+    effectivePreset = undefined;
+  } else if (!propControls) {
+    effectivePreset = ['minimal'];
+  }
+}
+---
+
+<GlobalLayout title={finalTitle} description={finalDescription} noindex={finalNoindex}>
+  <slot slot="head" name="head" />
+  <!-- allows to attach stylesheets into this slot which is further slotted into the head section of GlobalLayout -->
+  <script slot="script" is:inline type="module" src="/assets/rapidoc-min.js"></script>
+  <slot slot="script" name="script" />
+  <!-- allows to attach script into this slot which is further slotted into the script section of GlobalLayout -->
+
+  {
+    autoRenderRapiDoc ? (
+      <rapi-doc id={rapidocProps?.id || 'thedoc'} spec-url={finalSpecUrl} {...rapidocProps}>
+        <slot />
+      </rapi-doc>
+    ) : (
+      <slot />
+    )
+  }
+
+  {
+    shouldShowController && (
+      <RapidocTuner
+        targetId={rapidocProps?.id || 'thedoc'}
+        preset={effectivePreset as any}
+        controls={effectiveControls}
+        initialAttrs={rapidocProps}
+        specUrl={finalSpecUrl}
+        title={controllerTitle || 'OPTIONS'}
+        size={controllerSize}
+        showMethods={showMethods}
+        showSlots={showSlots}
+      >
+        <slot name="controller" slot="default" />
+      </RapidocTuner>
+    )
+  }
+</GlobalLayout>

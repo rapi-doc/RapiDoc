@@ -1,0 +1,30 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout
+  preset={['all']}
+  autoRenderRapiDoc={true}
+  specUrl="/specs/petstore.yaml"
+  controllerSize="14px"
+  rapidocProps={{
+    'spec-url': '/specs/petstore.yaml',
+    'heading-text': 'Demo',
+    'sort-tags': 'false',
+    'sort-endpoints-by': 'method',
+    'show-header': 'false',
+    theme: 'dark',
+    'render-style': 'read',
+    'default-schema-tab': 'schema',
+    'schema-style': 'table',
+  }}
+>
+  <!-- Ambient background glow elements matching site aesthetics -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-cyan"></div>
+  <div class="ambient-glow glow-indigo"></div>
+
+  <!-- Slotted logos into <rapi-doc> -->
+  <img id="logo" slot="logo" src="/assets/images/rapidoc-leaves.svg" alt="RapiDoc Logo" />
+  <img id="nav-logo" slot="nav-logo" src="/assets/images/rapidoc-leaves.svg" alt="RapiDoc Logo" />
+</ExampleLayout>

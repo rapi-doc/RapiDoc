@@ -1,0 +1,685 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { exampleListData, SubExample } from '../../page-data/example-list';
+import { WEB_COMPONENTS } from '../../page-data/products';
+import Icon from '../../components/Icon.astro';
+
+function getCardIconName(title: string, category: string, isDoc?: boolean) {
+  const t = title.toLowerCase();
+  if (t.includes('how to use') || t.includes('quickstart')) return 'book-open';
+  if (t.includes('pet store') || t.includes('open api')) return 'plugs-connected';
+  if (t.includes('theme') && t.includes('color')) return 'palette';
+  if (t.includes('css styling')) return 'paint-brush';
+  if (t.includes('rendering mode') || t.includes('render styles')) return 'layout';
+  if (t.includes('console') || t.includes('try')) return 'terminal-window';
+  if (t.includes('advance styling')) return 'sparkle';
+  if (t.includes('schema style')) return 'tree-structure';
+  if (t.includes('show component')) return 'squares-four';
+  if (t.includes('nav') && t.includes('style')) return 'sidebar';
+  if (t.includes('slot')) return 'puzzle-piece';
+  if (t.includes('markdown headings')) return 'tree-view';
+  if (t.includes('markdown')) return 'markdown-logo';
+  if (t.includes('tag-focused') || t.includes('tags with focused')) return 'tag';
+  if (t.includes('performance')) return 'lightning';
+  if (t.includes('link')) return 'link';
+  if (t.includes('syntax highlight')) return 'code';
+  if (t.includes('code sample')) return 'code-block';
+  if (t.includes('badge')) return 'seal';
+  if (t.includes('add your example') || t.includes('examples-multiple')) return 'copy';
+  if (t.includes('file upload')) return 'upload-simple';
+  if (t.includes('binary response')) return 'file-pdf';
+  if (t.includes('multipart')) return 'paperclip';
+  if (t.includes('request body') || t.includes('multiple request')) return 'stack';
+  if (t.includes('arrange') && t.includes('tag')) return 'folder-simple';
+  if (t.includes('parameter') || t.includes('dynamic param')) return 'brackets-angle';
+  if (t.includes('search')) return 'magnifying-glass';
+  if (t.includes('oauth setup') || t.includes('oauth extension')) return 'shield-check';
+  if (t.includes('oauth')) return 'key';
+  if (t.includes('auth') || t.includes('security')) return 'shield-checkered';
+  if (t.includes('api key')) return 'key';
+  if (t.includes('additional prop')) return 'brackets-square';
+  if (t.includes('embed') && t.includes('html')) return 'browser';
+  if (t.includes('json') && t.includes('spec')) return 'brackets-curly';
+  if (t.includes('server') && t.includes('template')) return 'hard-drives';
+  if (t.includes('callback')) return 'phone-call';
+  if (t.includes('webhook')) return 'webhooks-logo';
+  if (t.includes('datatype') || t.includes('multi-data')) return 'stack';
+  if (t.includes('split') || t.includes('multiple file') || t.includes('external-ref')) return 'files';
+  if (t.includes('mini')) return 'squares-four';
+  if (t.includes('composition') || t.includes('one of') || t.includes('all of') || t.includes('any of')) return 'git-merge';
+
+  switch (category) {
+    case 'Theming & Branding':
+      return 'palette';
+    case 'Console & Interactive':
+      return 'terminal-window';
+    case 'Schema':
+      return 'database';
+    case 'Security & Auth':
+      return 'shield-checkered';
+    case 'Advanced & Extensibility':
+      return 'sparkle';
+    case 'Guides & Docs':
+      return 'book-open';
+    default:
+      return isDoc ? 'book-open' : 'layout';
+  }
+}
+
+// Extract unique categories for filter tabs (examples only)
+const allExamples = exampleListData.examples
+  .map(example => {
+    const [title, obj] = Object.entries(example)[0];
+    return {
+      title,
+      ...obj,
+      category: obj.category || 'Layouts & Views',
+      elements: obj.elements?.length ? obj.elements : ['rapi-doc'],
+    };
+  })
+  .filter(item => !item.isDoc);
+
+// Product tabs: one per web component (page-data/products.ts), with how many examples show it.
+// The selection is kept in the address as ?product=<element>, so a tab can be linked.
+const productTabs = [
+  { id: 'all', label: 'All products', count: allExamples.length },
+  ...WEB_COMPONENTS.items.map((item) => {
+    const id = (item.tag ?? '').replace(/[<>]/g, '');
+    return { id, label: item.label, tag: item.tag, count: allExamples.filter((ex) => ex.elements.includes(id)).length };
+  }),
+];
+const elementLabel = (id: string) => `<${id}>`;
+
+const categories = [
+  'All',
+  'Theming & Branding',
+  'Layouts & Views',
+  'Console & Interactive',
+  'Schema',
+  'Security & Auth',
+  'Advanced & Extensibility'
+];
+---
+
+<GlobalLayout 
+  title="Interactive OpenAPI Examples Gallery | RapiDoc"
+  description="Explore interactive examples, themes, layout styles (Read, View, Focused), and advanced configuration patterns for RapiDoc OpenAPI documentation."
+  keywords="RapiDoc examples, OpenAPI examples, Swagger UI themes, interactive API console, Swagger alternatives"
+>
+  <!-- Ambient background glow elements inspired by Nuxt.com -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <!-- Frosted Glass Navigation (Reusable Component) -->
+  <SiteNavbar activePage="examples" />
+
+  <!-- Hero Header -->
+  <main class="rd-list-main">
+    <div class="rd-hero-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Interactive Directory</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Examples <span class="rd-gradient-text">Gallery</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Browse interactive examples, theming recipes, layout styles, and OpenAPI 3.1 features. Click any card to launch the live demo or guide.
+      </p>
+
+      <!-- Product tabs: which web component the examples show -->
+      <div class="rd-product-tabs" role="group" aria-label="Filter by product">
+        {productTabs.map((tab, idx) => (
+          <button
+            type="button"
+            class:list={['rd-product-tab', { active: idx === 0 }]}
+            data-product={tab.id}
+            aria-pressed={idx === 0 ? 'true' : 'false'}
+            title={tab.tag ? `Examples that show ${tab.tag}` : 'Every example'}
+          >
+            <span class="rd-product-tab-label">{tab.label}</span>
+            <span class="rd-product-tab-count">{tab.count}</span>
+          </button>
+        ))}
+      </div>
+
+      <!-- Live Search & Filter Controls -->
+      <div class="rd-controls-bar">
+        <!-- Live Search Input -->
+        <div class="rd-search-wrapper">
+          <Icon name="magnifying-glass" size={18} class="rd-search-icon" />
+          <input
+            type="text"
+            id="example-search"
+            class="rd-search-input"
+            placeholder="Search examples by keyword (e.g., oauth, schema, markdown, file, theme)..."
+            aria-label="Search examples"
+          />
+          <button id="clear-search" class="rd-clear-btn" title="Clear search" aria-label="Clear search">
+            <Icon name="x" size={14} />
+          </button>
+        </div>
+
+        <!-- Filter Count -->
+        <div class="rd-filter-count">
+          Showing <span id="count-visible">{allExamples.length}</span> of {allExamples.length} examples
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="rd-nav-pills rd-category-tabs">
+        {categories.map((cat, idx) => (
+          <button
+            class={`rd-pill rd-cat-pill ${idx === 0 ? 'active' : ''}`}
+            data-category={cat}
+          >
+            {cat}
+          </button>
+        ))}
+        <a href="/docs/guides/" class="rd-pill rd-cat-pill rd-pill-guides" title="Common tasks and the docs page for each">Docs ↗</a>
+        <a href="/tests" class="rd-pill rd-cat-pill rd-pill-tests" title="Explore automated schema & feature test suites">Test Suites ↗</a>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="rd-cards-grid" id="examples-grid">
+      {
+        allExamples.map((item) => {
+          const isDoc = item.isDoc ?? false;
+          const isWide = item.isWide ?? false;
+          const hasDirectLink = Boolean(item.href && !item.subExamples);
+          const cardIcon = item.icon ?? getCardIconName(item.title, item.category, isDoc);
+
+          return (
+            <div
+              class={`rd-item-card ${isDoc ? 'is-doc-card' : ''} ${isWide ? 'is-wide-card' : ''}`}
+              data-category={item.category}
+              data-elements={item.elements.join(' ')}
+              data-title={item.title.toLowerCase()}
+              data-desc={(item.description || '').toLowerCase()}
+            >
+              <!-- Card Top Header -->
+              <div class="rd-card-top">
+                <div class="rd-card-identity">
+                  <div class="rd-card-icon-box" title={item.title}>
+                    <Icon name={cardIcon} size={24} weight="duotone" />
+                  </div>
+                  <span class="rd-card-cat-badge">{item.category}</span>
+                  {item.elements.filter((el) => el !== 'rapi-doc').map((el) => (
+                    <code class="rd-card-element-badge">{elementLabel(el)}</code>
+                  ))}
+                </div>
+              </div>
+
+              <!-- Card Title -->
+              <h2 class="rd-card-title">
+                {hasDirectLink ? (
+                  <a href={item.href} class="rd-title-link">
+                    {item.title}
+                  </a>
+                ) : (
+                  <span>{item.title}</span>
+                )}
+              </h2>
+
+              <!-- Card Description -->
+              {item.description && (
+                <p class="rd-card-description" set:html={item.description} />
+              )}
+
+              <!-- Sub-Examples / Direct Buttons -->
+              {item.subExamples && (
+                <div class="rd-subexamples-group">
+                  <div class="rd-subexamples-label">Variants:</div>
+                  <div class="rd-subexamples-list">
+                    {item.subExamples.map((sub) => {
+                      const [subTitle, subObj] = Object.entries(sub)[0] as [string, SubExample];
+                      return (
+                        <a href={subObj.href} class="rd-sub-btn">
+                          <span>{subTitle}</span>
+                          <Icon name="arrow-right" size={12} />
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <!-- Direct Link Action footer if single link -->
+              {hasDirectLink && (
+                <div class="rd-card-footer">
+                  <a href={item.href} class="rd-action-link">
+                    <span>{isDoc ? 'Read Documentation' : 'View Live Demo'}</span>
+                    <Icon name="arrow-right" size={14} />
+                  </a>
+                </div>
+              )}
+            </div>
+          );
+        })
+      }
+    </div>
+
+    <!-- Empty Results Message -->
+    <div id="empty-state" class="rd-empty-state">
+      <div class="rd-empty-icon">
+        <Icon name="magnifying-glass-minus" size={36} />
+      </div>
+      <h3 class="rd-empty-title">No matching examples found</h3>
+      <p class="rd-empty-desc">Try searching for a different keyword or reset the category filters.</p>
+      <button id="reset-filters-btn" class="rd-btn rd-btn-primary">Reset Filters</button>
+    </div>
+  </main>
+
+  <!-- Modern Footer (Reusable Component) -->
+  <SiteFooter />
+</GlobalLayout>
+
+<script>
+  // Live Client-Side Search and Category Filtering
+  const searchInput = document.getElementById('example-search') as HTMLInputElement;
+  const clearBtn = document.getElementById('clear-search');
+  const catPills = document.querySelectorAll('.rd-cat-pill');
+  const cards = document.querySelectorAll('.rd-item-card');
+  const countVisible = document.getElementById('count-visible');
+  const emptyState = document.getElementById('empty-state');
+  const resetBtn = document.getElementById('reset-filters-btn');
+
+  const productTabs = document.querySelectorAll<HTMLButtonElement>('.rd-product-tab');
+  let activeCategory = 'All';
+  let activeProduct = 'all';
+
+  function filterCards() {
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    let visible = 0;
+
+    cards.forEach((card) => {
+      const el = card as HTMLElement;
+      const cat = el.getAttribute('data-category') || '';
+      const title = el.getAttribute('data-title') || '';
+      const desc = el.getAttribute('data-desc') || '';
+
+      const elements = (el.getAttribute('data-elements') || 'rapi-doc').split(' ');
+      const matchesProduct = activeProduct === 'all' || elements.includes(activeProduct);
+      const matchesCat = activeCategory === 'All' || cat === activeCategory;
+      const matchesSearch = !query || title.includes(query) || desc.includes(query);
+
+      if (matchesProduct && matchesCat && matchesSearch) {
+        el.style.display = '';
+        visible++;
+      } else {
+        el.style.display = 'none';
+      }
+    });
+
+    if (countVisible) {
+      countVisible.textContent = visible.toString();
+    }
+
+    if (emptyState) {
+      emptyState.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    if (clearBtn) {
+      clearBtn.style.display = query.length > 0 ? 'block' : 'none';
+    }
+  }
+
+  // Category Pill Clicks
+  catPills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      catPills.forEach((p) => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeCategory = pill.getAttribute('data-category') || 'All';
+      filterCards();
+    });
+  });
+
+  // Product tabs, and ?product= in the address
+  function setProduct(id: string, updateUrl = true) {
+    const known = [...productTabs].some((t) => t.dataset.product === id);
+    activeProduct = known ? id : 'all';
+    productTabs.forEach((t) => {
+      const on = t.dataset.product === activeProduct;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-pressed', String(on));
+    });
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      if (activeProduct === 'all') url.searchParams.delete('product');
+      else url.searchParams.set('product', activeProduct);
+      history.replaceState(null, '', url);
+    }
+    filterCards();
+  }
+  productTabs.forEach((tab) => tab.addEventListener('click', () => setProduct(tab.dataset.product || 'all')));
+  const initialProduct = new URLSearchParams(window.location.search).get('product');
+  if (initialProduct) setProduct(initialProduct, false);
+
+  // Search Input Events
+  searchInput?.addEventListener('input', filterCards);
+
+  // Clear Search
+  clearBtn?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    filterCards();
+    searchInput?.focus();
+  });
+
+  // Reset Filters
+  resetBtn?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    activeCategory = 'All';
+    setProduct('all');
+    catPills.forEach((p) => {
+      p.classList.toggle('active', p.getAttribute('data-category') === 'All');
+    });
+    filterCards();
+  });
+
+  // Keyboard shortcut Esc to clear search
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && searchInput && document.activeElement === searchInput) {
+      searchInput.value = '';
+      filterCards();
+    }
+  });
+</script>
+
+<style>
+/* Page Layout */
+.rd-list-main {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--rd-page-top) 20px 80px 20px;
+}
+
+/* Live Search Bar */
+.rd-controls-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+/* Product tabs above the search: which web component the examples show */
+.rd-product-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  margin: 0 auto 20px;
+  border: 1px solid var(--rd-border);
+  border-radius: var(--rd-radius-lg);
+  background: var(--rd-surface);
+}
+.rd-product-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: var(--rd-radius-md);
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rd-text-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+.rd-product-tab:hover {
+  color: var(--rd-text-bright);
+  background: var(--rd-wash);
+}
+.rd-product-tab.active {
+  color: var(--rd-accent-light);
+  background: var(--rd-accent-dim);
+}
+.rd-product-tab-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: var(--rd-radius-pill);
+  background: var(--rd-wash);
+  color: var(--rd-text-dim);
+}
+@media (max-width: 640px) {
+  .rd-product-tab {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+.rd-card-element-badge {
+  font-family: var(--rd-font-mono);
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: var(--rd-radius-xs);
+  color: var(--rd-accent-light);
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+}
+
+/* The controls bar centers its children: give the search its full width */
+.rd-search-wrapper {
+  width: 100%;
+  max-width: 580px;
+}
+/* Hidden until there is a query; the script shows it */
+.rd-clear-btn {
+  display: none;
+}
+.rd-filter-count {
+  font-size: 12.5px;
+  color: var(--rd-text-dim);
+}
+.rd-filter-count span {
+  color: var(--rd-accent);
+  font-weight: 700;
+}
+
+/* Category Filter Pills */
+.rd-category-tabs {
+  margin-top: 10px;
+}
+.rd-pill-tests {
+  color: var(--rd-sky);
+  background: color-mix(in srgb, var(--rd-sky) 8%, transparent);
+  border-color: color-mix(in srgb, var(--rd-sky) 30%, transparent);
+  display: inline-flex;
+  align-items: center;
+}
+.rd-pill-tests:hover {
+  background: color-mix(in srgb, var(--rd-sky) 20%, transparent);
+  color: var(--rd-sky-light);
+  border-color: var(--rd-sky);
+}
+
+/* Cards Grid */
+.rd-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1120px) {
+  .rd-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 820px) {
+  .rd-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 540px) {
+  .rd-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.rd-item-card.is-wide-card {
+  grid-column: span 1;
+}
+@media (min-width: 900px) {
+  .rd-item-card.is-wide-card {
+    grid-column: span 2;
+  }
+}
+.rd-item-card.is-doc-card {
+  border-color: rgba(139, 92, 246, 0.25);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+.rd-item-card.is-doc-card:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+/* Card Header */
+.rd-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.rd-card-identity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* The card's icon on its own, no box: 24px in the regular weight, a 1.5px line */
+.rd-card-icon-box {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--rd-accent);
+  transition: var(--rd-transition);
+}
+.rd-item-card:hover .rd-card-icon-box {
+  color: var(--rd-accent-light);
+}
+.rd-card-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+.rd-card-icon-fallback {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--rd-radius-sm);
+  background: var(--rd-accent-dim);
+  color: var(--rd-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rd-card-cat-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: var(--rd-radius-sm);
+  background: var(--rd-wash);
+  color: var(--rd-text-dim);
+  border: 1px solid var(--rd-border);
+}
+
+/* Card Typography */
+.rd-card-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--rd-text-bright);
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+.rd-title-link {
+  color: var(--rd-text-bright);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.rd-title-link:hover {
+  color: var(--rd-accent);
+}
+.rd-card-description {
+  font-size: 12.5px;
+  color: var(--rd-text-muted);
+  line-height: 1.45;
+  margin: 0 0 14px 0;
+  flex: 1;
+}
+
+/* Sub-Examples Buttons */
+.rd-subexamples-group {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--rd-wash);
+}
+.rd-subexamples-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--rd-text-dim);
+  margin-bottom: 6px;
+}
+.rd-subexamples-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.rd-sub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: color-mix(in srgb, var(--rd-accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rd-accent) 25%, transparent);
+  color: var(--rd-accent-light);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--rd-radius-sm);
+  text-decoration: none;
+  transition: var(--rd-transition);
+}
+.rd-sub-btn:hover {
+  background: color-mix(in srgb, var(--rd-accent) 20%, transparent);
+  color: var(--rd-text-bright);
+  border-color: color-mix(in srgb, var(--rd-accent) 40%, transparent);
+  transform: translateY(-1px);
+}
+
+/* Card Action Footer */
+.rd-card-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--rd-wash);
+}
+.rd-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--rd-accent);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: var(--rd-transition);
+}
+.rd-action-link:hover {
+  color: var(--rd-accent-light);
+  gap: 7px;
+}
+
+/* Hidden until a search finds nothing; the script shows it */
+.rd-empty-state {
+  display: none;
+}
+</style>

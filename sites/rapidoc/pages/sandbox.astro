@@ -1,0 +1,442 @@
+---
+import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+import RapidocTuner from '../components/RapidocTuner.astro';
+import '../styles/global.css';
+import '../styles/sandbox.css';
+import Icon from '../components/Icon.astro';
+
+const defaultSpec = '/specs/sandbox.yaml';
+const pageTitle = 'Interactive OpenAPI Spec Sandbox & Live Editor | RapiDoc';
+const pageDescription =
+  'Test, edit, and preview OpenAPI 3.x and Swagger 2.0 specs live in your browser using RapiDoc. Upload local files, toggle render styles, and live edit YAML/JSON.';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site || 'https://rapidocui.com').toString()} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:type" content="website" />
+    <GoogleAnalytics title={pageTitle} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+    <script is:inline type="module" src="/assets/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <!-- Minimal Floating Bar -->
+    <nav class="dr-floating-bar" id="dr-floating-bar" aria-label="Sandbox controls">
+      <!-- 1. Editor -->
+      <button type="button" class="dr-btn dr-btn-accent" id="dr-btn-editor" title="Open Spec Editor (Shortcut: E)">
+        <Icon name="pencil-simple" size={14} />
+        <span>Editor</span>
+      </button>
+
+      <!-- 2. Upload -->
+      <label class="dr-btn" title="Upload local .yaml or .json spec file">
+        <Icon name="upload-simple" size={14} />
+        <span>Upload</span>
+        <input type="file" id="dr-file-input" accept=".yaml,.yml,.json" style="display: none;" />
+      </label>
+
+      <!-- 3. Tuner -->
+      <button type="button" class="dr-btn" id="dr-btn-tuner" title="Open RapiDoc Tuner (Shortcut: Cmd+K)">
+        <Icon name="sliders-horizontal" size={14} />
+        <span>Tuner</span>
+      </button>
+
+      <!-- 4. Home -->
+      <a href="/" class="dr-btn dr-btn-icon" title="Return to Home page">
+        <Icon name="house" size={14} />
+      </a>
+    </nav>
+
+    <!-- RapiDoc Element -->
+    <rapi-doc
+      id="thedoc"
+      spec-url={defaultSpec}
+      color-scheme="dark"
+      theme="ember"
+      render-style="read"
+      schema-style="table"
+      default-schema-tab="example"
+      show-header="false"
+      show-info="true"
+      allow-authentication="true"
+      allow-server-selection="true"
+      allow-try="true"
+      sort-endpoints-by="path"
+    >
+    </rapi-doc>
+
+    <!-- Pretty RapiDoc Tuner Drawer -->
+    <RapidocTuner
+      targetId="thedoc"
+      preset={['all']}
+      title="RapiDoc Tuner"
+      showEdgeTab={false}
+      initialAttrs={{
+        'color-scheme': 'dark',
+        theme: 'ember',
+        'render-style': 'read',
+        'schema-style': 'table',
+        'default-schema-tab': 'example',
+        'show-header': 'false',
+        'show-info': 'true',
+        'allow-authentication': 'true',
+        'allow-server-selection': 'true',
+        'allow-try': 'true',
+        'sort-endpoints-by': 'path',
+      }}
+    />
+
+    <!-- Slide-Over Live Spec Editor Drawer -->
+    <aside class="dr-drawer" id="dr-drawer" aria-hidden="true">
+      <div class="dr-drawer-header">
+        <div class="dr-drawer-title">
+          <h4>Live Spec Editor</h4>
+          <span class="dr-format-tag" id="dr-format-tag">YAML / JSON</span>
+        </div>
+        <button type="button" class="dr-drawer-close" id="dr-btn-close-drawer" aria-label="Close Drawer">&times;</button>
+      </div>
+
+      <div class="dr-drawer-body">
+        <textarea
+          id="dr-textarea"
+          class="dr-textarea"
+          placeholder="Paste or write OpenAPI spec in YAML or JSON..."
+          spellcheck="false"
+          autocomplete="off"></textarea>
+        <div class="dr-error-banner" id="dr-error-banner" style="display: none;"></div>
+      </div>
+
+      <div class="dr-drawer-footer">
+        <span class="dr-hint"><kbd>Cmd</kbd> + <kbd>Enter</kbd> to apply</span>
+        <div class="dr-drawer-actions">
+          <button type="button" class="dr-btn" id="dr-btn-format-json" style="display: none;">Format JSON</button>
+          <button type="button" class="dr-btn" id="dr-btn-reset-drawer" title="Reset editor to original spec text">
+            <Icon name="arrow-counter-clockwise" size={13} />
+            <span>Reset</span>
+          </button>
+          <button type="button" class="dr-btn" id="dr-btn-cancel-drawer">Cancel</button>
+          <button type="button" class="dr-btn dr-btn-primary" id="dr-btn-apply-drawer">Apply</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Drag & Drop Fullscreen Overlay -->
+    <div class="dr-drop-overlay" id="dr-drop-overlay">
+      <div class="dr-drop-card">
+        <div style="font-size: 48px;">📥</div>
+        <h3>Drop OpenAPI Spec</h3>
+        <p>Drop any <code>.yaml</code> or <code>.json</code> file to render immediately</p>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="dr-toast-container" id="dr-toast-container" aria-live="polite"></div>
+
+    <!-- Client Script -->
+    <script is:inline>
+      (function () {
+        let rapidocEl;
+        let activeSpecUrl = '/specs/sandbox.yaml';
+        let originalSpecContent = '';
+        let isDrawerOpen = false;
+        let activeBlobUrl = null;
+
+        const floatingBar = document.getElementById('dr-floating-bar');
+        const btnEditor = document.getElementById('dr-btn-editor');
+        const btnTuner = document.getElementById('dr-btn-tuner');
+        const btnCloseDrawer = document.getElementById('dr-btn-close-drawer');
+        const btnCancelDrawer = document.getElementById('dr-btn-cancel-drawer');
+        const btnResetDrawer = document.getElementById('dr-btn-reset-drawer');
+        const btnApplyDrawer = document.getElementById('dr-btn-apply-drawer');
+        const btnFormatJson = document.getElementById('dr-btn-format-json');
+        const drawer = document.getElementById('dr-drawer');
+        const textarea = document.getElementById('dr-textarea');
+        const errorBanner = document.getElementById('dr-error-banner');
+        const formatTag = document.getElementById('dr-format-tag');
+        const fileInput = document.getElementById('dr-file-input');
+        const dropOverlay = document.getElementById('dr-drop-overlay');
+        const toastContainer = document.getElementById('dr-toast-container');
+
+        function init() {
+          rapidocEl = document.getElementById('thedoc');
+          if (!rapidocEl) return;
+
+          loadDefaultSpec();
+          bindEvents();
+        }
+
+        async function loadDefaultSpec() {
+          try {
+            const res = await fetch(`/specs/sandbox.yaml?_t=${Date.now()}`);
+            if (res.ok) {
+              activeSpecUrl = '/specs/sandbox.yaml';
+              originalSpecContent = await res.text();
+            } else {
+              activeSpecUrl = '/specs/sandbox.json';
+              const resJson = await fetch(`/specs/sandbox.json?_t=${Date.now()}`);
+              originalSpecContent = await resJson.text();
+            }
+          } catch {
+            activeSpecUrl = '/specs/sandbox.yaml';
+          }
+          if (originalSpecContent) {
+            textarea.value = originalSpecContent;
+            updateFormatTag();
+          }
+          rapidocEl.loadSpec(`${activeSpecUrl}?_t=${Date.now()}`);
+        }
+
+        function bindEvents() {
+          // Tuner Drawer Toggle
+          btnTuner?.addEventListener('click', () => {
+            if (isDrawerOpen) {
+              toggleDrawer(false);
+            }
+            if (window.rapidocTuner) {
+              window.rapidocTuner.toggle();
+            } else {
+              const edgeTab = document.querySelector('.rd-pretty-edge-tab');
+              if (edgeTab) {
+                edgeTab.click();
+              } else {
+                window.dispatchEvent(new CustomEvent('rapidoc-tuner:toggle'));
+              }
+            }
+          });
+
+          window.addEventListener('rapidoc-tuner:opened', () => {
+            btnTuner?.classList.add('active');
+          });
+          window.addEventListener('rapidoc-tuner:closed', () => {
+            btnTuner?.classList.remove('active');
+          });
+
+          // Drawer
+          btnEditor.addEventListener('click', () => toggleDrawer(true));
+          btnCloseDrawer.addEventListener('click', () => toggleDrawer(false));
+          btnCancelDrawer.addEventListener('click', () => toggleDrawer(false));
+          btnResetDrawer?.addEventListener('click', () => resetEditorContent());
+          btnApplyDrawer.addEventListener('click', () => applyDrawer());
+          btnFormatJson.addEventListener('click', () => formatJson());
+
+          textarea.addEventListener('input', updateFormatTag);
+
+          // Upload
+          fileInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (file) handleFile(file);
+            fileInput.value = '';
+          });
+
+          // Window focus -> auto reload from disk if active spec is a file
+          window.addEventListener('focus', () => {
+            if (!isDrawerOpen && !activeSpecUrl.startsWith('blob:')) {
+              rapidocEl.loadSpec(`${activeSpecUrl}?_t=${Date.now()}`);
+              showToast('Auto-reloaded spec from disk', 'info');
+            }
+          });
+
+          // Keyboard Shortcuts
+          window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              if (isDrawerOpen) {
+                toggleDrawer(false);
+                return;
+              }
+            }
+
+            if (document.activeElement === textarea) {
+              if (e.key === 'Tab') {
+                e.preventDefault();
+                const s = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                textarea.value = textarea.value.substring(0, s) + '  ' + textarea.value.substring(end);
+                textarea.selectionStart = textarea.selectionEnd = s + 2;
+              } else if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                applyDrawer();
+              }
+              return;
+            }
+
+            if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+            if (e.key.toLowerCase() === 'e' && !e.metaKey && !e.ctrlKey) {
+              e.preventDefault();
+              toggleDrawer();
+            }
+          });
+
+          setupDragAndDrop();
+        }
+
+        async function toggleDrawer(force) {
+          isDrawerOpen = typeof force === 'boolean' ? force : !isDrawerOpen;
+          drawer.classList.toggle('open', isDrawerOpen);
+          drawer.setAttribute('aria-hidden', String(!isDrawerOpen));
+
+          if (isDrawerOpen) {
+            window.rapidocTuner?.close?.();
+            if (!textarea.value.trim()) {
+              if (originalSpecContent) {
+                textarea.value = originalSpecContent;
+              } else if (!activeSpecUrl.startsWith('blob:')) {
+                try {
+                  const res = await fetch(`${activeSpecUrl}?_t=${Date.now()}`);
+                  if (res.ok) {
+                    originalSpecContent = await res.text();
+                    textarea.value = originalSpecContent;
+                  }
+                } catch (err) {
+                  console.error(err);
+                }
+              }
+            }
+            updateFormatTag();
+            textarea.focus();
+          }
+        }
+
+        async function resetEditorContent() {
+          if (!originalSpecContent && !activeSpecUrl.startsWith('blob:')) {
+            try {
+              const res = await fetch(`${activeSpecUrl}?_t=${Date.now()}`);
+              if (res.ok) originalSpecContent = await res.text();
+            } catch (err) {
+              console.error(err);
+            }
+          }
+          if (originalSpecContent) {
+            textarea.value = originalSpecContent;
+            errorBanner.style.display = 'none';
+            updateFormatTag();
+            textarea.focus();
+            showToast('Restored original spec text', 'info');
+          }
+        }
+
+        function updateFormatTag() {
+          const text = textarea.value.trim();
+          const isJson = text.startsWith('{') || text.startsWith('[');
+          formatTag.textContent = isJson ? 'JSON' : 'YAML';
+          btnFormatJson.style.display = isJson ? 'inline-flex' : 'none';
+        }
+
+        function formatJson() {
+          try {
+            const parsed = JSON.parse(textarea.value);
+            textarea.value = JSON.stringify(parsed, null, 2);
+            errorBanner.style.display = 'none';
+            showToast('JSON formatted', 'success');
+          } catch (err) {
+            errorBanner.textContent = `Invalid JSON: ${err.message}`;
+            errorBanner.style.display = 'block';
+          }
+        }
+
+        async function applyDrawer() {
+          const content = textarea.value.trim();
+          if (!content) {
+            errorBanner.textContent = 'Spec content cannot be empty';
+            errorBanner.style.display = 'block';
+            return;
+          }
+
+          try {
+            const isJson = content.startsWith('{') || content.startsWith('[');
+            const mimeType = isJson ? 'application/json' : 'text/yaml';
+
+            if (activeBlobUrl) URL.revokeObjectURL(activeBlobUrl);
+            const blob = new Blob([content], { type: mimeType });
+            activeBlobUrl = URL.createObjectURL(blob);
+            activeSpecUrl = activeBlobUrl;
+
+            await rapidocEl.loadSpec(activeBlobUrl);
+            errorBanner.style.display = 'none';
+            toggleDrawer(false);
+            showToast('Spec updated in RapiDoc', 'success');
+          } catch (err) {
+            console.error(err);
+            errorBanner.textContent = `Render error: ${err.message}`;
+            errorBanner.style.display = 'block';
+          }
+        }
+
+        function handleFile(file) {
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            const content = e.target.result;
+            textarea.value = content;
+            originalSpecContent = content;
+            updateFormatTag();
+
+            const isJson = file.name.endsWith('.json') || content.trim().startsWith('{');
+            const mimeType = isJson ? 'application/json' : 'text/yaml';
+
+            if (activeBlobUrl) URL.revokeObjectURL(activeBlobUrl);
+            const blob = new Blob([content], { type: mimeType });
+            activeBlobUrl = URL.createObjectURL(blob);
+            activeSpecUrl = activeBlobUrl;
+
+            await rapidocEl.loadSpec(activeBlobUrl);
+            showToast(`Loaded ${file.name}`, 'success');
+          };
+          reader.readAsText(file);
+        }
+
+        function setupDragAndDrop() {
+          let dragCounter = 0;
+          window.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            dragCounter++;
+            dropOverlay.classList.add('visible');
+          });
+          window.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dragCounter--;
+            if (dragCounter <= 0) {
+              dropOverlay.classList.remove('visible');
+              dragCounter = 0;
+            }
+          });
+          window.addEventListener('dragover', (e) => e.preventDefault());
+          window.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragCounter = 0;
+            dropOverlay.classList.remove('visible');
+            const files = e.dataTransfer && e.dataTransfer.files;
+            if (files && files.length > 0) handleFile(files[0]);
+          });
+        }
+
+        function showToast(message, type = 'info') {
+          const toast = document.createElement('div');
+          toast.className = `dr-toast dr-toast-${type}`;
+          toast.textContent = message;
+          toastContainer.appendChild(toast);
+          setTimeout(() => {
+            toast.classList.add('fade-out');
+            setTimeout(() => toast.remove(), 300);
+          }, 2500);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+        if (document.readyState === 'interactive' || document.readyState === 'complete') init();
+      })();
+    </script>
+  </body>
+</html>

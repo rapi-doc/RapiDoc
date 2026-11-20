@@ -1,0 +1,614 @@
+---
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import SiteNavbar from '../components/SiteNavbar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { testListData, TestItem } from '../page-data/tests';
+import Icon from '../components/Icon.astro';
+
+// Extract visible test suites
+const basicTests = testListData.basic
+  .map(group => {
+    const [slug, item] = Object.entries(group)[0] as [string, TestItem];
+    return { slug, ...item };
+  })
+  .filter(t => !t.hidden);
+
+const advancedTests = testListData.advanced
+  .map(group => {
+    const [slug, item] = Object.entries(group)[0] as [string, TestItem];
+    return { slug, ...item };
+  })
+  .filter(t => !t.hidden);
+
+const totalTests = basicTests.length + advancedTests.length;
+
+let totalAssertions = 0;
+[...basicTests, ...advancedTests].forEach(t => {
+  totalAssertions += t.validates?.length || 1;
+});
+---
+
+<GlobalLayout 
+  title="OpenAPI Test Suite & Edge-Case Validation Matrix | RapiDoc"
+  description="Comprehensive edge-case test suite for RapiDoc OpenAPI rendering, including recursive schemas, circular refs, XML formatting, and polymorphism."
+  keywords="OpenAPI test suite, OpenAPI edge cases, Swagger test runner, schema validation matrix"
+>
+  <!-- Ambient background glow elements inspired by modern developer portals -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <!-- Reusable Frosted Glass Navigation -->
+  <SiteNavbar activePage="tests" />
+
+  <main class="rd-tests-main">
+    <!-- Hero Header -->
+    <header class="rd-tests-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Automated Edge Case Validation Hub</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        RapiDoc <span class="text-gradient">Test Matrix</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Comprehensive test harness validating complex schemas, circular references, polymorphic combinations (<code>oneOf</code>, <code>allOf</code>, <code>anyOf</code>), deep object nesting, and edge-case rendering performance.
+      </p>
+
+      <!-- Key Metrics Counter Bar -->
+      <div class="rd-stats-bar">
+        <a href="#basic-suite" class="rd-stat-card">
+          <span class="rd-stat-value">{totalTests}</span>
+          <span class="rd-stat-label">Total Test Suites</span>
+        </a>
+        <a href="#basic-suite" class="rd-stat-card">
+          <span class="rd-stat-value">{basicTests.length}</span>
+          <span class="rd-stat-label">Basic UI Tests</span>
+        </a>
+        <a href="#advanced-suite" class="rd-stat-card">
+          <span class="rd-stat-value">{advancedTests.length}</span>
+          <span class="rd-stat-label">Advanced Schema Tests</span>
+        </a>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">{totalAssertions}+</span>
+          <span class="rd-stat-label">Validated Assertions</span>
+        </div>
+      </div>
+
+      <!-- Live Search & Interactive Filter Bar -->
+      <div class="rd-search-section">
+        <div class="rd-search-wrapper">
+          <Icon name="magnifying-glass" size={20} class="rd-search-icon" />
+          <input
+            id="tests-search"
+            type="text"
+            placeholder="Search test suites, attributes, or edge cases (e.g. circular, swagger, schema, header, oneOf)..."
+            autocomplete="off"
+            class="rd-search-input"
+          />
+          <button id="clear-tests-search" class="rd-clear-btn" aria-label="Clear search" style="display: none;">
+            <Icon name="x" size={16} />
+          </button>
+        </div>
+
+        <!-- Section Navigation Pills -->
+        <div class="rd-nav-pills">
+          <a href="#all" class="rd-pill active" data-section="all">All Test Suites ({totalTests})</a>
+          <a href="#basic-suite" class="rd-pill" data-section="basic">Basic Controls ({basicTests.length})</a>
+          <a href="#advanced-suite" class="rd-pill" data-section="advanced">Advanced & Polymorphic ({advancedTests.length})</a>
+          <a href="/tests/performance" class="rd-pill rd-pill-perf" style="color: var(--rd-accent); border-color: var(--rd-accent-border); background: var(--rd-accent-dim);">⚡ Performance Benchmarks ↗</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Empty Search State -->
+    <div id="tests-empty-state" class="rd-empty-state" style="display: none;">
+      <div class="rd-empty-icon">
+        <Icon name="magnifying-glass-minus" size={36} />
+      </div>
+      <h3 class="rd-empty-title">No matching test suites found <span id="empty-query-text" class="text-gradient"></span></h3>
+      <p class="rd-empty-desc">Try searching for a different keyword, feature, or reset the filter.</p>
+      <button id="reset-tests-search-btn" class="rd-btn rd-btn-primary">Reset Search</button>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="rd-tests-content" id="tests-content">
+      
+      <!-- ================= BASIC TESTS SECTION ================= -->
+      <section id="basic-suite" class="rd-tests-section" data-section-type="basic">
+        <div class="rd-section-header">
+          <div class="rd-section-badge">UI & Configuration Verification</div>
+          <h2 class="rd-section-title">
+            <a href="#basic-suite" class="rd-anchor-link">
+              Basic Feature Suites
+              <span class="rd-hash">#</span>
+            </a>
+          </h2>
+          <p class="rd-section-desc">
+            Verifies basic Web Component behavior, including section toggles, spec load operations, typography scaling, color themes, schema display modes, and navigation layouts.
+          </p>
+        </div>
+
+        <div class="rd-table-container">
+          <table class="rd-tests-table">
+            <thead>
+              <tr>
+                <th class="col-title">Test Suite & Live Preview</th>
+                <th class="col-validates">Validation Scope & Assertions</th>
+                <th class="col-category">Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              {basicTests.map(test => (
+                <tr class="rd-test-row" id={test.slug} data-section="basic" data-name={test.slug.toLowerCase()}>
+                  <td class="col-title">
+                    <div class="rd-title-cell">
+                      <a href={`/tests/${test.slug}`} class="rd-item-name-link" title="Open live test preview">
+                        <span class="rd-item-name">{test.title || test.slug}</span>
+                      </a>
+                      
+                      <div class="rd-slug-row">
+                        <a href={`/tests/${test.slug}`} class="rd-launch-badge" target="_blank" rel="noopener" title={`Launch live preview: /tests/${test.slug}`}>
+                          <span>/tests/{test.slug}</span>
+                          <Icon name="arrow-up-right" size={12} />
+                        </a>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="col-validates">
+                    {test.validates && test.validates.length > 0 ? (
+                      <div class="rd-validates-container">
+                        <div class="rd-tags-list">
+                          {test.validates.map(v => (
+                            <code class="rd-val-tag">{v}</code>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <span class="rd-empty-val">Standard basic functionality verification</span>
+                    )}
+                  </td>
+
+                  <td class="col-category">
+                    <span class="rd-badge-cat rd-cat-basic">Basic</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= ADVANCED TESTS SECTION ================= -->
+      <section id="advanced-suite" class="rd-tests-section" data-section-type="advanced">
+        <div class="rd-section-header">
+          <div class="rd-section-badge">Edge Cases & Polymorphism</div>
+          <h2 class="rd-section-title">
+            <a href="#advanced-suite" class="rd-anchor-link">
+              Advanced Schemas & Edge Cases
+              <span class="rd-hash">#</span>
+            </a>
+          </h2>
+          <p class="rd-section-desc">
+            Stress-tests complex enterprise OpenAPI requirements: deep object and array nesting, circular schema references, multi-type fields, polymorphic operators (<code>oneOf</code>, <code>allOf</code>, <code>anyOf</code>), custom header objects, and legacy Swagger 2.0 schemas.
+          </p>
+        </div>
+
+        <div class="rd-table-container">
+          <table class="rd-tests-table">
+            <thead>
+              <tr>
+                <th class="col-title">Test Suite & Live Preview</th>
+                <th class="col-validates">Validation Scope & Assertions</th>
+                <th class="col-category">Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              {advancedTests.map(test => {
+                const isPolymorphic = test.slug.includes('xxx-of') || test.slug.includes('circular');
+                const catLabel = isPolymorphic ? 'Polymorphic' : 'Advanced';
+                const catClass = isPolymorphic ? 'rd-cat-poly' : 'rd-cat-advanced';
+
+                return (
+                  <tr class="rd-test-row" id={test.slug} data-section="advanced" data-name={test.slug.toLowerCase()}>
+                    <td class="col-title">
+                      <div class="rd-title-cell">
+                        <a href={`/tests/${test.slug}`} class="rd-item-name-link" title="Open live test preview">
+                          <span class="rd-item-name">{test.title || test.slug}</span>
+                        </a>
+
+                        <div class="rd-slug-row">
+                          <a href={`/tests/${test.slug}`} class="rd-launch-badge" target="_blank" rel="noopener" title={`Launch live preview: /tests/${test.slug}`}>
+                            <span>/tests/{test.slug}</span>
+                            <Icon name="arrow-up-right" size={12} />
+                          </a>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td class="col-validates">
+                      {test.validates && test.validates.length > 0 ? (
+                        <div class="rd-validates-container">
+                          <div class="rd-tags-list">
+                            {test.validates.map(v => (
+                              <code class="rd-val-tag">{v}</code>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <span class="rd-empty-val">Polymorphic and composite schema edge case test</span>
+                      )}
+                    </td>
+
+                    <td class="col-category">
+                      <span class={`rd-badge-cat ${catClass}`}>{catLabel}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Reusable Modern Footer -->
+  <SiteFooter />
+
+  <!-- Client-side Interactive Search & Category Filter Script -->
+  <script>
+    function setupTestsSearch() {
+      const searchInput = document.getElementById('tests-search') as HTMLInputElement | null;
+      const clearBtn = document.getElementById('clear-tests-search') as HTMLButtonElement | null;
+      const emptyState = document.getElementById('tests-empty-state') as HTMLElement | null;
+      const emptyQueryText = document.getElementById('empty-query-text') as HTMLElement | null;
+      const resetBtn = document.getElementById('reset-tests-search-btn') as HTMLButtonElement | null;
+      const filterPills = document.querySelectorAll('.rd-nav-pills .rd-pill') as NodeListOf<HTMLAnchorElement>;
+      const testRows = document.querySelectorAll('.rd-test-row') as NodeListOf<HTMLElement>;
+      const testSections = document.querySelectorAll('.rd-tests-section') as NodeListOf<HTMLElement>;
+
+      if (!searchInput || testRows.length === 0) return;
+
+      let activeSectionFilter = 'all';
+
+      function filterTests() {
+        const rawQuery = (searchInput ? searchInput.value : '') || '';
+        const trimmedQuery = rawQuery.trim().toLowerCase();
+        const searchTerms = trimmedQuery ? trimmedQuery.split(/\s+/).filter(Boolean) : [];
+        let visibleCount = 0;
+
+        // Toggle clear button
+        if (clearBtn) {
+          clearBtn.style.display = trimmedQuery.length > 0 ? 'flex' : 'none';
+        }
+
+        // Filter individual rows
+        testRows.forEach(row => {
+          const rowSection = row.dataset.section || '';
+          const matchesSection = activeSectionFilter === 'all' || rowSection === activeSectionFilter;
+
+          // Search across entire visible row text (title, path, validation tags)
+          const rowText = (row.textContent || '').toLowerCase();
+          const matchesQuery = searchTerms.every(term => rowText.includes(term));
+
+          if (matchesSection && matchesQuery) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        // Hide empty sections or sections filtered out by pill
+        testSections.forEach(section => {
+          const sectionType = section.dataset.sectionType || '';
+          const sectionMatches = activeSectionFilter === 'all' || activeSectionFilter === sectionType;
+          const rows = section.querySelectorAll<HTMLElement>('.rd-test-row');
+          const hasVisibleRow = Array.from(rows).some(r => r.style.display !== 'none');
+
+          section.style.display = (sectionMatches && hasVisibleRow) ? '' : 'none';
+        });
+
+        // Toggle empty state
+        if (emptyState) {
+          emptyState.style.display = visibleCount === 0 ? 'flex' : 'none';
+          if (emptyQueryText) {
+            emptyQueryText.textContent = trimmedQuery ? `for "${trimmedQuery}"` : '';
+          }
+        }
+      }
+
+      // Live search input events
+      searchInput.addEventListener('input', filterTests);
+      searchInput.addEventListener('search', filterTests);
+      searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Escape') {
+          searchInput.value = '';
+          filterTests();
+          searchInput.blur();
+        }
+      });
+
+      // Keyboard shortcut "/" to focus search
+      window.addEventListener('keydown', (e) => {
+        if (
+          e.key === '/' &&
+          document.activeElement !== searchInput &&
+          !(document.activeElement instanceof HTMLInputElement) &&
+          !(document.activeElement instanceof HTMLTextAreaElement)
+        ) {
+          e.preventDefault();
+          searchInput.focus();
+          searchInput.select();
+        }
+      });
+
+      // Clear button
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          filterTests();
+          searchInput.focus();
+        });
+      }
+
+      // Reset button in empty state
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          activeSectionFilter = 'all';
+          filterPills.forEach(p => p.classList.remove('active'));
+          const allPill = document.querySelector('.rd-pill[data-section="all"]');
+          if (allPill) allPill.classList.add('active');
+          filterTests();
+          searchInput.focus();
+        });
+      }
+
+      // Category filter pills
+      filterPills.forEach(pill => {
+        pill.addEventListener('click', (e) => {
+          const section = pill.dataset.section;
+          if (!section) return; // Allow normal link to classic view
+          e.preventDefault();
+
+          filterPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          activeSectionFilter = section;
+          filterTests();
+
+          if (section !== 'all') {
+            const targetSec = document.getElementById(`${section}-suite`);
+            if (targetSec && targetSec.style.display !== 'none') {
+              targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }
+        });
+      });
+
+      // Initial filter check
+      filterTests();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupTestsSearch);
+    } else {
+      setupTestsSearch();
+    }
+  </script>
+</GlobalLayout>
+
+<style>
+/* Page Layout */
+.rd-tests-main {
+  position: relative;
+  z-index: 1;
+  max-width: var(--rd-max-width);
+  margin: 0 auto;
+  padding: var(--rd-page-top) 24px 96px 24px;
+}
+
+/* The search section holds the search box and the section pills below it */
+.rd-search-section {
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.rd-search-wrapper {
+  width: 100%;
+  max-width: 680px;
+}
+
+/* Content Container & Sections */
+.rd-tests-content {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+.rd-tests-section {
+  scroll-margin-top: 100px;
+}
+
+/* Anchor Links */
+.rd-anchor-link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.rd-hash {
+  color: var(--rd-text-dim);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  font-weight: 400;
+}
+.rd-anchor-link:hover .rd-hash {
+  opacity: 1;
+  color: var(--rd-accent-light);
+}
+
+/* Table Design */
+.rd-tests-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.rd-tests-table thead tr {
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid var(--rd-border-hover);
+}
+.rd-tests-table th {
+  padding: 16px 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rd-text-muted);
+  white-space: nowrap;
+}
+.rd-tests-table tbody tr {
+  border-bottom: 1px solid var(--rd-border);
+  transition: background-color 0.15s ease;
+  scroll-margin-top: 110px;
+}
+.rd-tests-table tbody tr:last-child {
+  border-bottom: none;
+}
+.rd-tests-table tbody tr:hover {
+  background: var(--rd-surface-hover);
+}
+.rd-tests-table td {
+  padding: 20px 20px;
+  vertical-align: top;
+}
+
+/* Columns */
+.col-title {
+  width: 32%;
+  min-width: 260px;
+}
+.col-validates {
+  width: 54%;
+  min-width: 320px;
+}
+.col-category {
+  width: 14%;
+  min-width: 120px;
+  text-align: right;
+}
+
+/* Title Cell */
+.rd-title-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.rd-item-name-link {
+  text-decoration: none;
+  display: inline-block;
+}
+.rd-item-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--rd-text-primary);
+  letter-spacing: -0.01em;
+  transition: color 0.15s ease;
+}
+.rd-item-name-link:hover .rd-item-name {
+  color: var(--rd-accent-light);
+}
+.rd-slug-row {
+  display: flex;
+  align-items: center;
+}
+.rd-launch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--rd-radius-sm);
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rd-sky);
+  background: color-mix(in srgb, var(--rd-sky) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rd-sky) 22%, transparent);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.rd-launch-badge:hover {
+  background: color-mix(in srgb, var(--rd-sky) 20%, transparent);
+  color: var(--rd-sky-light);
+  border-color: var(--rd-sky);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--rd-sky) 25%, transparent);
+  transform: translateY(-1px);
+}
+.rd-launch-badge svg {
+  transition: transform 0.15s ease;
+}
+.rd-launch-badge:hover svg {
+  transform: translate(1px, -1px);
+}
+
+/* Validates Container */
+.rd-validates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rd-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.rd-val-tag {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: var(--rd-radius-xs);
+  background: var(--rd-accent-dim);
+  color: var(--rd-accent-light);
+  border: 1px solid color-mix(in srgb, var(--rd-accent) 25%, transparent);
+  line-height: 1.4;
+  word-break: break-word;
+}
+.rd-empty-val {
+  color: var(--rd-text-dim);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Category Badges */
+.rd-badge-cat {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--rd-radius-md);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rd-cat-basic {
+  background: color-mix(in srgb, var(--rd-accent) 15%, transparent);
+  color: var(--rd-accent-light);
+  border: 1px solid var(--rd-accent-border);
+}
+.rd-cat-advanced {
+  background: color-mix(in srgb, var(--rd-sky) 15%, transparent);
+  color: var(--rd-sky);
+  border: 1px solid color-mix(in srgb, var(--rd-sky) 30%, transparent);
+}
+.rd-cat-poly {
+  background: color-mix(in srgb, var(--rd-purple) 15%, transparent);
+  color: #c084fc;
+  border: 1px solid color-mix(in srgb, var(--rd-purple) 30%, transparent);
+}
+</style>

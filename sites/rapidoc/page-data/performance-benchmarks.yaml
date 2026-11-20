@@ -1,0 +1,64 @@
+benchmarks:
+  - id: petstore-3-2
+    name: Petstore 3.2
+    subtitle: Swagger Petstore (OpenAPI 3.2)
+    format: OpenAPI 3.2.0
+    fileSize: 29.1 KB
+    operations: 22
+    focusedModeTime: ~54 ms
+    viewModeTime: ~31 ms
+    readModeTime: ~62 ms
+    domNodesFocused: ~187 nodes
+    scrollStability: 60 FPS
+    badge: Baseline
+  - id: stripe
+    name: Stripe Deep Schema
+    subtitle: Deep Recursive Schema Tree
+    format: OpenAPI 3.0.0
+    fileSize: 7.00 MB
+    operations: 644
+    focusedModeTime: ~783 ms
+    viewModeTime: ~824 ms
+    readModeTime: ~4.61 s
+    domNodesFocused: ~1,998 nodes
+    scrollStability: 60 FPS
+    badge: Deep Schema
+  - id: github
+    name: GitHub Large
+    subtitle: Massive Enterprise API Matrix
+    format: OpenAPI 3.1.0
+    fileSize: 8.19 MB
+    operations: 1128
+    focusedModeTime: ~1.07 s
+    viewModeTime: ~1.11 s
+    readModeTime: ~3.59 s
+    domNodesFocused: ~3,833 nodes
+    scrollStability: 60 FPS
+    badge: Large Spec
+rapidocVersion: 14.1.0
+lastUpdated: 2026-11-17T15:24:44.416Z
+parserBenchmarks:
+  - id: petstore-3-2
+    name: Petstore 3.2 (Baseline)
+    fileSize: 28.4 KB
+    operations: 22
+    specLoad: 1.3 ms
+    deref: 0.9 ms
+    totalProcessSpec: 31.7 ms
+    heapDelta: 11.11 MB
+  - id: stripe
+    name: Stripe (Deep Schemas)
+    fileSize: 7.00 MB
+    operations: 644
+    specLoad: 58.7 ms
+    deref: 63.1 ms
+    totalProcessSpec: 965.3 ms
+    heapDelta: 308.53 MB
+  - id: github
+    name: GitHub (Large Spec)
+    fileSize: 8.19 MB
+    operations: 1128
+    specLoad: 48.6 ms
+    deref: 62.0 ms
+    totalProcessSpec: 1399.1 ms
+    heapDelta: 0 B

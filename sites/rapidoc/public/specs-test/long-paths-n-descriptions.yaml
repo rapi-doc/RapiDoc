@@ -1,0 +1,316 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Spect with very long  paths and descriptions
+paths:
+  /PATH-1-1/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/THE-END:
+    get:
+      description: |
+        # START
+
+        ## Adsistere fit at praecincti fervore vobis
+
+        Lorem markdownum cuius ergo. Sidera capit ut nova adii misit,; nudorum sed
+        iniqui.
+
+        servletPixelEngine += rpmScrolling + kilobytePageUndo(lionRadcab, 1);
+        honeypotImpact.graymail = -4;
+        icon = clipboard_protector_macro.suffix_hdmi_permalink.intelligence(
+                ocr_card_runtime + dma(extensionComputer, microphone, cc_user));
+
+        Metuam ut equarum respice, me latebras corpus vellere in agrestibus praestat
+        captiva Autolycus nostro, suum nimbi responsa. Parabam gerit amentes *iamque*!
+        Et munere Antium, cognoscenda generis, centum: rerum visa coepere, voluisse te
+        cadet: numero ne.
+
+        - Dum Io quidem monstri valles negant concita.
+        - Stridore austroque iactant praenuntia merguntque terrae Phoronide.
+        - Bracchia scopulus.
+
+        ## Profatur sit vobis possent inque ficti adspeximus
+
+        Iussere et possedit, [obverterat](http://famulariatum.io/) ramos ruptis incerti
+        volatile prius? Altos spatium impleverat aeriaeque.
+
+        > Illic tuta, aper semine valet nec quas *laetoque cuncta*; ossa crura et
+        > Iunonis exemplum Sipylumque Iuppiter. Calydon mentoque clamor alimentaque
+        > auras. Vultu modis, nec qua est.
+
+        **Damna** vates, optata has carmine petit, prae tamen? Est Venerisque exire
+        glomerata an linguae maestis albi oppugnare caesis. Omnes usum adice et uvis re
+        avus, ad capit decurrere vulnera ignes. Vivere lupos simulacraque humana magis
+        cursum ut illa. Se umida coeperunt agmen carnibus Achille tempora; aether annos
+        per Arcas cultus, mei florent frequens.
+
+        Aut omnibus elidite, lilia, cessit deum illa dumque consilioque sinit nec
+        similis Notum festa volat vestigia Aonidum. Praecepta nostras.
+
+        Mariti clamoribus exuritque videre. **Atra** carminibus, peccasse ora tempore
+        eandem et parvae miles cumulum lauroque nutrit **fidissime victorque de**
+        addicere optas. Sulco mihi sine et radiis ruit tremebunda femina consistere
+        tribuam, simulacraque *rates geminis* contentus hominemque verba carpserat.
+        Nymphas praebetis saltus: illi dotatissima calamos sine mihi *victus* et neve,
+        factus aliena.
+
+        # END
+      tags:
+        - First Tag (1 Path)
+
+  /PATH-2-1/lorem/ipsum/lorem/ipsum/lorem/ipsum/ipsum/lorem/ipsum/lorem/ipsum/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/THE-END:
+    get:
+      description: |
+        # START
+
+        ## Adsistere fit at praecincti fervore vobis
+
+        Lorem markdownum cuius ergo. Sidera capit ut nova adii misit,; nudorum sed
+        iniqui.
+
+        servletPixelEngine += rpmScrolling + kilobytePageUndo(lionRadcab, 1);
+        honeypotImpact.graymail = -4;
+        icon = clipboard_protector_macro.suffix_hdmi_permalink.intelligence(
+                ocr_card_runtime + dma(extensionComputer, microphone, cc_user));
+
+        Metuam ut equarum respice, me latebras corpus vellere in agrestibus praestat
+        captiva Autolycus nostro, suum nimbi responsa. Parabam gerit amentes *iamque*!
+        Et munere Antium, cognoscenda generis, centum: rerum visa coepere, voluisse te
+        cadet: numero ne.
+
+          1. Dum Io quidem monstri valles negant concita
+          2. Stridore austroque iactant praenuntia merguntque terrae Phoronide
+          3. Bracchia scopulus
+
+        ## Profatur sit vobis possent inque ficti adspeximus
+
+        Iussere et possedit, [obverterat](http://famulariatum.io/) ramos ruptis incerti
+        volatile prius? Altos spatium impleverat aeriaeque.
+
+        > Illic tuta, aper semine valet nec quas *laetoque cuncta*; ossa crura et
+        > Iunonis exemplum Sipylumque Iuppiter. Calydon mentoque clamor alimentaque
+        > auras. Vultu modis, nec qua est.
+
+        **Damna** vates, optata has carmine petit, prae tamen? Est Venerisque exire
+        glomerata an linguae maestis albi oppugnare caesis. Omnes usum adice et uvis re
+        avus, ad capit decurrere vulnera ignes. Vivere lupos simulacraque humana magis
+        cursum ut illa. Se umida coeperunt agmen carnibus Achille tempora; aether annos
+        per Arcas cultus, mei florent frequens.
+
+        Aut omnibus elidite, lilia, cessit deum illa dumque consilioque sinit nec
+        similis Notum festa volat vestigia Aonidum. Praecepta nostras.
+
+        Mariti clamoribus exuritque videre. **Atra** carminibus, peccasse ora tempore
+        eandem et parvae miles cumulum lauroque nutrit **fidissime victorque de**
+        addicere optas. Sulco mihi sine et radiis ruit tremebunda femina consistere
+        tribuam, simulacraque *rates geminis* contentus hominemque verba carpserat.
+        Nymphas praebetis saltus: illi dotatissima calamos sine mihi *victus* et neve,
+        factus aliena.
+        # END      
+      tags:
+        - Second Tag (2 Paths)
+  /PATH-2-2/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/THE-END:
+    get:
+      description: |
+        # START 
+        ## Adsistere fit at praecincti fervore vobis
+
+        Lorem markdownum cuius ergo. Sidera capit ut nova adii misit,; nudorum sed
+        iniqui.
+
+        servletPixelEngine += rpmScrolling + kilobytePageUndo(lionRadcab, 1);
+        honeypotImpact.graymail = -4;
+        icon = clipboard_protector_macro.suffix_hdmi_permalink.intelligence(
+                ocr_card_runtime + dma(extensionComputer, microphone, cc_user));
+
+        Metuam ut equarum respice, me latebras corpus vellere in agrestibus praestat
+        captiva Autolycus nostro, suum nimbi responsa. Parabam gerit amentes *iamque*!
+        Et munere Antium, cognoscenda generis, centum: rerum visa coepere, voluisse te
+        cadet: numero ne.
+
+        1. Dum Io quidem monstri valles negant concita
+        2. Stridore austroque iactant praenuntia merguntque terrae Phoronide
+        3. Bracchia scopulus
+
+        ## Profatur sit vobis possent inque ficti adspeximus
+
+        Iussere et possedit, [obverterat](http://famulariatum.io/) ramos ruptis incerti
+        volatile prius? Altos spatium impleverat aeriaeque.
+
+        > Illic tuta, aper semine valet nec quas *laetoque cuncta*; ossa crura et
+        > Iunonis exemplum Sipylumque Iuppiter. Calydon mentoque clamor alimentaque
+        > auras. Vultu modis, nec qua est.
+
+        **Damna** vates, optata has carmine petit, prae tamen? Est Venerisque exire
+        glomerata an linguae maestis albi oppugnare caesis. Omnes usum adice et uvis re
+        avus, ad capit decurrere vulnera ignes. Vivere lupos simulacraque humana magis
+        cursum ut illa. Se umida coeperunt agmen carnibus Achille tempora; aether annos
+        per Arcas cultus, mei florent frequens.
+
+        Aut omnibus elidite, lilia, cessit deum illa dumque consilioque sinit nec
+        similis Notum festa volat vestigia Aonidum. Praecepta nostras.
+
+        Mariti clamoribus exuritque videre. **Atra** carminibus, peccasse ora tempore
+        eandem et parvae miles cumulum lauroque nutrit **fidissime victorque de**
+        addicere optas. Sulco mihi sine et radiis ruit tremebunda femina consistere
+        tribuam, simulacraque *rates geminis* contentus hominemque verba carpserat.
+        Nymphas praebetis saltus: illi dotatissima calamos sine mihi *victus* et neve,
+        factus aliena.
+        # END        
+      tags:
+        - Second Tag (2 Paths)
+
+  /PATH-3-1/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/THE-END:
+    get:
+      summary: |
+        # START 
+        ## Adsistere fit at praecincti fervore vobis
+
+        Lorem markdownum cuius ergo. Sidera capit ut nova adii misit,; nudorum sed
+        iniqui.
+
+        servletPixelEngine += rpmScrolling + kilobytePageUndo(lionRadcab, 1);
+        honeypotImpact.graymail = -4;
+        icon = clipboard_protector_macro.suffix_hdmi_permalink.intelligence(
+                ocr_card_runtime + dma(extensionComputer, microphone, cc_user));
+
+        Metuam ut equarum respice, me latebras corpus vellere in agrestibus praestat
+        captiva Autolycus nostro, suum nimbi responsa. Parabam gerit amentes *iamque*!
+        Et munere Antium, cognoscenda generis, centum: rerum visa coepere, voluisse te
+        cadet: numero ne.
+
+        1. Dum Io quidem monstri valles negant concita
+        2. Stridore austroque iactant praenuntia merguntque terrae Phoronide
+        3. Bracchia scopulus
+
+        ## Profatur sit vobis possent inque ficti adspeximus
+
+        Iussere et possedit, [obverterat](http://famulariatum.io/) ramos ruptis incerti
+        volatile prius? Altos spatium impleverat aeriaeque.
+
+        > Illic tuta, aper semine valet nec quas *laetoque cuncta*; ossa crura et
+        > Iunonis exemplum Sipylumque Iuppiter. Calydon mentoque clamor alimentaque
+        > auras. Vultu modis, nec qua est.
+
+        **Damna** vates, optata has carmine petit, prae tamen? Est Venerisque exire
+        glomerata an linguae maestis albi oppugnare caesis. Omnes usum adice et uvis re
+        avus, ad capit decurrere vulnera ignes. Vivere lupos simulacraque humana magis
+        cursum ut illa. Se umida coeperunt agmen carnibus Achille tempora; aether annos
+        per Arcas cultus, mei florent frequens.
+
+        Aut omnibus elidite, lilia, cessit deum illa dumque consilioque sinit nec
+        similis Notum festa volat vestigia Aonidum. Praecepta nostras.
+
+        Mariti clamoribus exuritque videre. **Atra** carminibus, peccasse ora tempore
+        eandem et parvae miles cumulum lauroque nutrit **fidissime victorque de**
+        addicere optas. Sulco mihi sine et radiis ruit tremebunda femina consistere
+        tribuam, simulacraque *rates geminis* contentus hominemque verba carpserat.
+        Nymphas praebetis saltus: illi dotatissima calamos sine mihi *victus* et neve,
+        factus aliena.
+        # END      
+      tags:
+        - Third Tag (3 Paths)
+  /PATH-3-2/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/THE-END:
+    get:
+      description: |
+        # START
+
+        ## Adsistere fit at praecincti fervore vobis
+
+        Lorem markdownum cuius ergo. Sidera capit ut nova adii misit,; nudorum sed
+        iniqui.
+
+        servletPixelEngine += rpmScrolling + kilobytePageUndo(lionRadcab, 1);
+        honeypotImpact.graymail = -4;
+        icon = clipboard_protector_macro.suffix_hdmi_permalink.intelligence(
+                ocr_card_runtime + dma(extensionComputer, microphone, cc_user));
+
+        Metuam ut equarum respice, me latebras corpus vellere in agrestibus praestat
+        captiva Autolycus nostro, suum nimbi responsa. Parabam gerit amentes *iamque*!
+        Et munere Antium, cognoscenda generis, centum: rerum visa coepere, voluisse te
+        cadet: numero ne.
+
+        1. Dum Io quidem monstri valles negant concita
+        2. Stridore austroque iactant praenuntia merguntque terrae Phoronide
+        3. Bracchia scopulus
+
+        ## Profatur sit vobis possent inque ficti adspeximus
+
+        Iussere et possedit, [obverterat](http://famulariatum.io/) ramos ruptis incerti
+        volatile prius? Altos spatium impleverat aeriaeque.
+
+        > Illic tuta, aper semine valet nec quas *laetoque cuncta*; ossa crura et
+        > Iunonis exemplum Sipylumque Iuppiter. Calydon mentoque clamor alimentaque
+        > auras. Vultu modis, nec qua est.
+
+        **Damna** vates, optata has carmine petit, prae tamen? Est Venerisque exire
+        glomerata an linguae maestis albi oppugnare caesis. Omnes usum adice et uvis re
+        avus, ad capit decurrere vulnera ignes. Vivere lupos simulacraque humana magis
+        cursum ut illa. Se umida coeperunt agmen carnibus Achille tempora; aether annos
+        per Arcas cultus, mei florent frequens.
+
+        Aut omnibus elidite, lilia, cessit deum illa dumque consilioque sinit nec
+        similis Notum festa volat vestigia Aonidum. Praecepta nostras.
+
+        Mariti clamoribus exuritque videre. **Atra** carminibus, peccasse ora tempore
+        eandem et parvae miles cumulum lauroque nutrit **fidissime victorque de**
+        addicere optas. Sulco mihi sine et radiis ruit tremebunda femina consistere
+        tribuam, simulacraque *rates geminis* contentus hominemque verba carpserat.
+        Nymphas praebetis saltus: illi dotatissima calamos sine mihi *victus* et neve,
+        factus aliena.
+        # END      
+      tags:
+        - Third Tag (3 Paths)
+  /PATH-3-3/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/lorem/ipsum/THE-END:
+    get:
+      description: |
+        # START 
+        ## Adsistere fit at praecincti fervore vobis
+
+        Lorem markdownum cuius ergo. Sidera capit ut nova adii misit,; nudorum sed
+        iniqui.
+
+        servletPixelEngine += rpmScrolling + kilobytePageUndo(lionRadcab, 1);
+        honeypotImpact.graymail = -4;
+        icon = clipboard_protector_macro.suffix_hdmi_permalink.intelligence(
+                ocr_card_runtime + dma(extensionComputer, microphone, cc_user));
+
+        Metuam ut equarum respice, me latebras corpus vellere in agrestibus praestat
+        captiva Autolycus nostro, suum nimbi responsa. Parabam gerit amentes *iamque*!
+        Et munere Antium, cognoscenda generis, centum: rerum visa coepere, voluisse te
+        cadet: numero ne.
+
+        1. Dum Io quidem monstri valles negant concita
+        2. Stridore austroque iactant praenuntia merguntque terrae Phoronide
+        3. Bracchia scopulus
+
+        ## Profatur sit vobis possent inque ficti adspeximus
+
+        Iussere et possedit, [obverterat](http://famulariatum.io/) ramos ruptis incerti
+        volatile prius? Altos spatium impleverat aeriaeque.
+
+        > Illic tuta, aper semine valet nec quas *laetoque cuncta*; ossa crura et
+        > Iunonis exemplum Sipylumque Iuppiter. Calydon mentoque clamor alimentaque
+        > auras. Vultu modis, nec qua est.
+
+        **Damna** vates, optata has carmine petit, prae tamen? Est Venerisque exire
+        glomerata an linguae maestis albi oppugnare caesis. Omnes usum adice et uvis re
+        avus, ad capit decurrere vulnera ignes. Vivere lupos simulacraque humana magis
+        cursum ut illa. Se umida coeperunt agmen carnibus Achille tempora; aether annos
+        per Arcas cultus, mei florent frequens.
+
+        Aut omnibus elidite, lilia, cessit deum illa dumque consilioque sinit nec
+        similis Notum festa volat vestigia Aonidum. Praecepta nostras.
+
+        Mariti clamoribus exuritque videre. **Atra** carminibus, peccasse ora tempore
+        eandem et parvae miles cumulum lauroque nutrit **fidissime victorque de**
+        addicere optas. Sulco mihi sine et radiis ruit tremebunda femina consistere
+        tribuam, simulacraque *rates geminis* contentus hominemque verba carpserat.
+        Nymphas praebetis saltus: illi dotatissima calamos sine mihi *victus* et neve,
+        factus aliena.
+        # END      
+      tags:
+        - Third Tag (3 Paths)
+
+tags:
+  - name: First Tag (1 Path)
+  - name: Second Tag (2 Paths)
+  - name: Third Tag (3 Paths)

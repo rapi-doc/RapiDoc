@@ -1,0 +1,116 @@
+---
+// A <rapi-doc> endpoint card rendered at build time by renderEndpoint() of @rapidoc/prerender (aliased to
+// its source in astro.config.mjs): the live demo of content/docs/performance/prerender.mdx. The output is
+// light-DOM HTML with its own scoped CSS, so the page shows it without any JavaScript.
+import { renderEndpoint } from '@rapidoc/prerender';
+
+const sampleSpecObj = {
+  openapi: '3.1.0',
+  info: {
+    title: 'Cosmo Cargo API',
+    version: '1.2.0',
+    description: 'Cloud Logistics & Intelligent Freight Dispatch Engine.',
+  },
+  servers: [{ url: 'https://api.cosmocargo.dev/v1' }],
+  'x-tagGroups': [
+    {
+      name: 'Shipment Logistics',
+      description: 'Core shipment operations',
+      tags: ['Shipments', 'Tracking'],
+    },
+  ],
+  tags: [
+    { name: 'Shipments', description: 'Create and query freight shipments' },
+    { name: 'Tracking', description: 'Real-time telemetry and milestone events' },
+  ],
+  paths: {
+    '/shipments/{shipmentId}': {
+      get: {
+        summary: 'Retrieve Shipment Details',
+        description: 'Returns real-time cargo milestone telemetry, carrier transit status, and customs clearance documents.',
+        operationId: 'getShipmentById',
+        tags: ['Shipments'],
+        parameters: [
+          {
+            name: 'shipmentId',
+            in: 'path',
+            required: true,
+            description: 'Unique carrier tracking UUID or tracking code.',
+            schema: { type: 'string', example: 'shp_9942a1b7' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Shipment record found and returned.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string', example: 'shp_9942a1b7' },
+                    status: { type: 'string', enum: ['in_transit', 'delivered', 'customs_hold'], example: 'in_transit' },
+                    origin: { type: 'string', example: 'Frankfurt Hub (FRA)' },
+                    destination: { type: 'string', example: 'Singapore Cargo Terminal (SIN)' },
+                    eta: { type: 'string', format: 'date-time', example: '2026-10-24T18:30:00Z' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+let html = '';
+try {
+  html = await renderEndpoint({
+    spec: sampleSpecObj,
+    path: '/shipments/{shipmentId}',
+    method: 'get',
+    theme: 'ember',
+    colorScheme: 'dark',
+    includeStyles: true,
+  });
+} catch (err) {
+  html = `<p class="rd-prerender-error">The preview could not be rendered: ${String(err.message).replace(/</g, '&lt;')}</p>`;
+}
+---
+
+<figure class="rd-prerender-demo not-content">
+  <figcaption class="rd-prerender-demo-header">
+    <code>renderEndpoint()</code> at build time • GET /shipments/&#123;shipmentId&#125;
+  </figcaption>
+  <div class="rd-prerender-demo-body">
+    <Fragment set:html={html} />
+  </div>
+</figure>
+
+<style>
+  .rd-prerender-demo {
+    margin: 1.5rem 0;
+    border: 1px solid var(--rd-docs-border);
+    border-radius: var(--rd-radius);
+    overflow: hidden;
+    background: var(--rd-docs-bg);
+  }
+  .rd-prerender-demo-header {
+    padding: 10px 16px;
+    font-family: var(--rd-font-mono);
+    font-size: 12.5px;
+    color: var(--rd-docs-muted);
+    background: color-mix(in oklab, var(--rd-docs-fg) 5%, var(--rd-docs-bg));
+    border-bottom: 1px solid var(--rd-docs-border);
+  }
+  .rd-prerender-demo-header code {
+    color: var(--rd-docs-fg);
+  }
+  .rd-prerender-demo-body {
+    padding: 20px;
+  }
+  .rd-prerender-demo-body :global(.rd-prerender-error) {
+    margin: 0;
+    color: var(--rd-red);
+  }
+</style>

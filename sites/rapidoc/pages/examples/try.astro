@@ -1,0 +1,16 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout
+  autoRenderRapiDoc={true}
+  controls={['allow-try', 'show-curl-before-try', 'allow-server-selection', 'render-style']}
+  rapidocProps={{
+    'spec-url': '/specs/reqres.yaml',
+    'show-header': 'false',
+    'show-info': 'true',
+    'allow-server-selection': 'true',
+    'allow-authentication': 'false',
+    'render-style': 'read',
+  }}
+/>
