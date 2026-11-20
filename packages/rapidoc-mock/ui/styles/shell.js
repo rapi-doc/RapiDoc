@@ -134,6 +134,9 @@ export const shell = css`
     color: var(--primary);
   }
   main {
+    /* what is placed out of the flow inside it (a label only a screen reader reads) scrolls with it, and
+       never makes the page itself scroll */
+    position: relative;
     flex: 1;
     min-width: 0;
     overflow-y: auto;

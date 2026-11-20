@@ -46,7 +46,7 @@ export class MockSettings extends Screen {
         session and every API.
       </p>
       <form
-        class="row"
+        class="field-row"
         @submit=${(e) => {
           e.preventDefault();
           const rows = whole(e.target, "rows", 1000);
@@ -84,7 +84,7 @@ export class MockSettings extends Screen {
         mock's own endpoints are not delayed.
       </p>
       <form
-        class="row"
+        class="field-row"
         @submit=${(e) => {
           e.preventDefault();
           const delay = whole(e.target, "delay", 60000);

@@ -146,6 +146,9 @@ const withoutSeeding = (fields) =>
   }));
 
 /** What the mock does for an operation, in a sentence. */
+/** What an operation on one record answers when the record is not there. */
+const NOT_STORED = "If no such record is stored, it responds with HTTP status 404 (Not Found).";
+
 function does(entry, resource, filters, parents) {
   const under = parents.length
     ? ` under the ${parents.map((name) => `{${name}}`).join(" and ")} of the path`
@@ -153,8 +156,9 @@ function does(entry, resource, filters, parents) {
   const key = resource?.key || "key";
   const param = entry.keyFrom
     ?.replace(/^path\./, "path parameter ")
+    .replace(/^query\./, "query parameter ")
     .replace(/^body\./, "body field ");
-  const which = param ? `whose ${key} is the ${param}` : "";
+  const which = param ? `whose ${key} is in the ${param}` : "it names";
   switch (entry.action) {
     case "list":
       return `Lists the stored ${entry.resource} records${under}${
@@ -165,13 +169,13 @@ function does(entry, resource, filters, parents) {
     case "createMany":
       return `Stores the ${entry.resource} records sent and returns them.`;
     case "read":
-      return `Returns the ${entry.resource} record ${which}, or 404.`;
+      return `Returns the ${entry.resource} record ${which}. ${NOT_STORED}`;
     case "update":
-      return `Replaces the ${entry.resource} record ${which}, or 404.`;
+      return `Replaces the whole ${entry.resource} record ${which} with the one you send. ${NOT_STORED}`;
     case "patch":
-      return `Changes the fields sent on the ${entry.resource} record ${which}, or 404.`;
+      return `Updates only the fields you send on the ${entry.resource} record ${which}. ${NOT_STORED}`;
     case "delete":
-      return `Removes the ${entry.resource} record ${which}, or 404.`;
+      return `Deletes the ${entry.resource} record ${which}. ${NOT_STORED}`;
     default:
       return "Keeps no state: answers with the spec's example, or data generated from the response schema.";
   }
@@ -244,7 +248,10 @@ export function describeOperation(doc, model, id) {
       } else if (entry.action === "list" && parameter.in === "query") {
         if (PAGED_BY.has(nameKey(parameter.name))) role = "paging";
         else if (NOT_APPLIED.has(nameKey(parameter.name))) role = "accepted, not applied";
+        else if (entry.paramReview?.[parameter.name]) role = "ignored when listing";
       }
+      // what the mock assumed about this parameter: the UI marks its row
+      const review = parameter.in === "query" ? entry.paramReview?.[parameter.name] : undefined;
       return {
         name: parameter.name,
         in: parameter.in,
@@ -252,8 +259,23 @@ export function describeOperation(doc, model, id) {
         type: [].concat(schema.type || []).join(" | ") || (schema.enum ? "enum" : "any"),
         ...(parameter.description ? { description: parameter.description } : {}),
         ...(role ? { role } : {}),
+        ...(review ? { review } : {}),
       };
     });
+  // the operation's review note without what its parameters' rows now say: shown at the top, beside the count
+  // of parameters to review
+  const reviewed = parameters.filter((one) => one.review).length;
+  const elsewhere = reviewed
+    ? (entry.why || "")
+        .split("; ")
+        .filter(
+          (part) =>
+            !/^query parameter .* matches no field of /.test(part) &&
+            !/ holds .* objects$/.test(part) &&
+            part !== "assumed to match on their name",
+        )
+        .join("; ")
+    : undefined;
   const body = resolve(doc, operation.requestBody, "").node;
   return {
     ...operationSummary(model, found),
@@ -269,6 +291,9 @@ export function describeOperation(doc, model, id) {
         : [],
     ),
     ...(entry.keyFrom ? { keyFrom: entry.keyFrom } : {}),
+    ...(reviewed
+      ? { review: { parameters: reviewed, ...(elsewhere ? { other: elsewhere } : {}) } }
+      : {}),
     parameters,
     ...(body
       ? { request: { required: Boolean(body.required), ...bodyShape(doc, body.content) } }

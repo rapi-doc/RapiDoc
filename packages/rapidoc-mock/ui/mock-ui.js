@@ -40,6 +40,7 @@ import { icon } from "./icons.js";
 import { styles } from "./styles.js";
 import "./components/select.js";
 import "./views/dashboard.js";
+import "./views/import.js";
 import "./views/lint.js";
 import "./views/operations.js";
 import "./views/resources.js";
@@ -118,6 +119,18 @@ const SECTIONS = [
             .server=${app.server}
             .busy=${app.busy}
           ></rapidoc-mock-settings>`,
+      },
+      {
+        id: "import",
+        title: "Import spec",
+        // only where the mock takes a spec while it runs (the server; not a mock in a page)
+        when: (app) => Boolean(app.server?.import),
+        ready: (app) => Boolean(app.server?.apis),
+        view: (app) =>
+          html`<rapidoc-mock-import
+            .app=${app}
+            .server=${app.server}
+          ></rapidoc-mock-import>`,
       },
     ],
   },

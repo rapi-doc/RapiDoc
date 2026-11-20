@@ -5,6 +5,7 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import arrowsLeftRight from "@phosphor-icons/core/assets/regular/arrows-left-right.svg?raw";
 import arrowsInLineVertical from "@phosphor-icons/core/assets/regular/arrows-in-line-vertical.svg?raw";
 import arrowsOutLineVertical from "@phosphor-icons/core/assets/regular/arrows-out-line-vertical.svg?raw";
+import fileArrowUp from "@phosphor-icons/core/assets/regular/file-arrow-up.svg?raw";
 import caretDown from "@phosphor-icons/core/assets/regular/caret-down.svg?raw";
 import caretRight from "@phosphor-icons/core/assets/regular/caret-right.svg?raw";
 import caretUp from "@phosphor-icons/core/assets/regular/caret-up.svg?raw";
@@ -17,6 +18,7 @@ import squaresFour from "@phosphor-icons/core/assets/regular/squares-four.svg?ra
 import x from "@phosphor-icons/core/assets/regular/x.svg?raw";
 // the light weight, for the large marks of a page or a card: thinner lines at that size
 import arrowsLeftRightLight from "@phosphor-icons/core/assets/light/arrows-left-right-light.svg?raw";
+import fileArrowUpLight from "@phosphor-icons/core/assets/light/file-arrow-up-light.svg?raw";
 import databaseLight from "@phosphor-icons/core/assets/light/database-light.svg?raw";
 import listChecksLight from "@phosphor-icons/core/assets/light/list-checks-light.svg?raw";
 import rowsLight from "@phosphor-icons/core/assets/light/rows-light.svg?raw";
@@ -37,6 +39,7 @@ const ICONS = {
   records: inner(rows),
   lint: inner(listChecks),
   settings: inner(slidersHorizontal),
+  import: inner(fileArrowUp),
   menu: inner(list),
   chevron: inner(caretRight),
   ascending: inner(caretUp),
@@ -54,6 +57,7 @@ const LIGHT = {
   records: inner(rowsLight),
   lint: inner(listChecksLight),
   settings: inner(slidersHorizontalLight),
+  import: inner(fileArrowUpLight),
 };
 
 /** From this size up an icon is drawn in the light weight. */

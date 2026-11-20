@@ -546,6 +546,8 @@ export function classifySpec(doc) {
       const filter = {};
       const unmatched = [];
       const notes = [];
+      // what was assumed about each query parameter, by its name: where the UI marks it (describe.js)
+      const paramReview = {};
       if (op.method === "query") notes.push("QUERY: its filters are in the request body");
       if (op.response.inline) notes.push(`returns inline objects; assumed to be ${resource}`);
       for (const q of queryNames) {
@@ -555,14 +557,17 @@ export function classifySpec(doc) {
         if (inner.name && innerFields.includes("name")) {
           filter[`${q}${inner.many ? "[]" : ""}.name`] = `query.${q}`;
           notes.push(`${q} holds ${inner.name} objects; assumed to match on their name`);
+          paramReview[q] = `matched on the name of its ${inner.name} objects`;
         } else if (inner.name) unmatched.push(q);
         else if (fields.includes(q)) filter[q] = `query.${q}`;
         else if (!NOT_A_FILTER.has(nameKey(q))) unmatched.push(q);
       }
+      for (const q of unmatched) paramReview[q] = `matches no field of ${resource}`;
       result = entry("list", {
         ...(Object.keys(filter).length ? { filter } : {}),
         ...(op.response.listProperty ? { listProperty: op.response.listProperty } : {}),
         ...(op.response.listItem ? { listItem: op.response.listItem } : {}),
+        ...(Object.keys(paramReview).length ? { paramReview } : {}),
         ...(unmatched.length || notes.length
           ? flag(
               op.id,

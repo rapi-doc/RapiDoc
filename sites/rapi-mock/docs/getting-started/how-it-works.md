@@ -30,9 +30,9 @@ Every operation gets one:
 
 | Label | Meaning |
 | :--- | :--- |
-| **Stateful** | Mapped to a resource. It reads or changes stored records. |
-| **Needs review** | Mapped, with something assumed. The reason is shown. |
-| **Static** | Keeps no state: answered from examples or generated data. A login, a search, a file upload. |
+| **Stateful** | Reads and changes stored records. The spec says clearly which resource the operation works on, so what you create shows up in later calls. |
+| **Needs review** | Reads and changes stored records too, but the spec left a gap and the mock filled it with a best guess, such as which field is the key. The Mock UI and `rapidoc lint --stateful` show each guess; correct a wrong one in [`mock.config.yaml`](/docs/correcting/config-file/). |
+| **Static** | Keeps no data. No resource fits the operation, so it returns the spec's example, or generated data, the same on every call. Nothing you send is stored. A login, a search, a file upload. |
 
 The mock is cautious on purpose. When it isn't sure an operation belongs to a resource, it leaves it static; it does not guess.
 

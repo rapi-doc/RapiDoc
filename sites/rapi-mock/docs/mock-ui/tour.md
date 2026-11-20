@@ -15,7 +15,7 @@ How many operations, resources and records the mock found, the lint summary, the
 
 Every operation with what the mock does for it and one of three labels: **Stateful**, **Needs review** with the reason, or **Static**. Each path is written once, beside its methods, so the list reads like the spec. Group them by path or by resource. The list scrolls under its header, so the filters stay in view.
 
-Select an operation's row, or a path to open its first operation, to see one operation: what the mock does in a sentence, what it uses each parameter for, and what the request holds. The other methods of the same path are tabs at the top. Each response shows its status, its schema, its data source (the spec's example, a named example, or data generated from the schema), and whether a request gets it by default or with `Prefer: code=`. Select a response to see its sample in a drawer beside the table; its close button, or Esc, hides it.
+Select an operation's row, or a path to open its first operation, to see one operation: what the mock does in a sentence, what it uses each parameter for, and what the request holds. A parameter the mock had to assume something about, such as a list filter that matches no field of the records, has a red dot beside its name, and a **Needs review** column says what was assumed; the top of the page says how many there are and links down to them. An operation labelled Needs review because of its resource (a key the mock could not find) shows that reason. The other methods of the same path are tabs at the top. Each response shows its status, its schema, its data source (the spec's example, a named example, or data generated from the schema), and whether a request gets it by default or with `Prefer: code=`. Select a response to see its sample in a drawer beside the table; its close button, or Esc, hides it.
 
 ## Resources
 
@@ -39,6 +39,10 @@ What [lint](/docs/correcting/lint/) found in the spec, as `rapidoc lint --statef
 ## Settings
 
 How the mock was started, new seed data with another number of records or another seed, and a delay for every API response. What you change here lasts until the mock stops; the page shows the option that keeps it (`--rows`, `--seed`, `--delay`).
+
+## Import spec
+
+Adds a spec to the running mock, from an address (`https://…`, or your API server's own `http://localhost:8000/openapi.json`), a file you choose or drop, or text you paste. It is served at once under its own path, with state, and the page opens its Dashboard. The specs you imported are listed there with a **Remove** button; the ones the mock was started with stay. Imported specs last until the mock stops: to keep one, start the mock with it (`rapidoc mock your-spec.yaml --stateful`). The page shows only when the Mock UI is opened on the machine the mock runs on, which is the only place it accepts a spec from.
 
 ## In the header
 

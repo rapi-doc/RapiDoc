@@ -2,7 +2,7 @@ import { html, nothing } from "lit";
 import { bars, opens, pageTitle } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
 import { icon } from "../icons.js";
-import { LABELS, LABEL_COLORS, LABEL_HELP, badge, method } from "../labels.js";
+import { LABELS, LABEL_ABOUT, LABEL_COLORS, badge, method } from "../labels.js";
 import { count, number, plural } from "../format.js";
 import { found, measured, passedMeter, ring, share, tally } from "../lint.js";
 
@@ -141,20 +141,27 @@ export class MockDashboard extends Screen {
 
     <section class="card">
       <h2>Operations by label</h2>
-      <dl class="legend">
-        ${Object.keys(LABELS).map(
-          (label) => html`
-            <div>
-              <dt>
-                ${badge(label)}
-                <b>${api.labels[label]}</b>
-                <span class="hint">${Math.round((100 * api.labels[label]) / total)}%</span>
-              </dt>
-              <dd>${LABEL_HELP[label]}</dd>
-            </div>
-          `,
-        )}
-      </dl>
+      <div class="legend">
+        ${Object.keys(LABELS).map((label) => {
+          const inside = html`
+            <span class="legend-head">
+              ${badge(label)}
+              <b>${api.labels[label]}</b>
+              <span class="hint">${Math.round((100 * api.labels[label]) / total)}%</span>
+            </span>
+            <span class="legend-help">${LABEL_ABOUT[label]}</span>
+          `;
+          // a label opens the operations that have it; one that none has leads nowhere
+          return api.labels[label]
+            ? html`<a
+                class="legend-item"
+                href=${app.href("operations", "", undefined, { label })}
+                title="See the ${api.labels[label]} ${LABELS[label]} operations"
+                >${inside}</a
+              >`
+            : html`<div class="legend-item">${inside}</div>`;
+        })}
+      </div>
       ${bars(
         Object.keys(LABELS).map((label) => ({
           value: api.labels[label],

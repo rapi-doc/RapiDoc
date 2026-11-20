@@ -32,10 +32,11 @@ export const tokens = `
     --primary: #f6a821;
     --primary-fg: #24262d;
     --accent-text: #f6a821;
-    /* the three labels: green, a light red (amber is the accent, so it can't mark a warning), grey */
+    /* the three labels: green, a light red (amber is the accent, so it can't mark a warning), grey. --warn
+       (Needs review) is 4.8:1 on a card */
     --ok: #68cc97;
     --ok-bg: #24463a;
-    --warn: #fa82a2;
+    --warn: #ff8080;
     --plain: #b4b9c4;
     --error: #f98080;
     /* a warning: orange, apart from the amber of the accent (the place you are, the main action) */

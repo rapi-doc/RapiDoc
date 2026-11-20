@@ -9,12 +9,21 @@ export const blocks = css`
     align-items: center;
     gap: var(--space-2) var(--space-3);
   }
-  form.row {
-    align-items: flex-start;
+  /* Labelled fields with their button: each field is a name, the field and a note under it, in columns, and the
+     button sits on the fields' row whatever is over or under them */
+  .field-row {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: auto auto auto;
+    justify-content: start;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
   }
-  form.row button {
-    /* level with the fields: below their labels */
-    margin-top: var(--space-5);
+  .field-row > .stack {
+    display: contents;
+  }
+  .field-row > button {
+    grid-row: 2;
   }
   .row input[type="search"] {
     width: 260px;
@@ -117,13 +126,31 @@ export const blocks = css`
     gap: var(--space-3) var(--space-5);
     margin: 0;
   }
-  .legend dt {
+  /* a label of the legend: its badge, count and share, and what it means; a link to its operations, which
+     lights up under the pointer as a card that leads somewhere does */
+  .legend-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: calc(-1 * var(--space-2));
+    padding: var(--space-2);
+    border-radius: 3px;
+    color: var(--fg);
+    transition: background 0.15s;
+  }
+  a.legend-item:hover {
+    background: var(--hover);
+    text-decoration: none;
+  }
+  .legend-head {
     display: flex;
     align-items: center;
     gap: var(--space-2);
   }
-  .legend dd {
-    margin: var(--space-1) 0 0;
+  .legend-head b {
+    color: var(--strong);
+  }
+  .legend-help {
     color: var(--muted);
     font-size: var(--small);
   }
@@ -187,6 +214,14 @@ export const blocks = css`
     flex-direction: column;
     gap: 6px;
   }
+  /* a note that names something to type (a header, a command): that part stands out of the grey sentence */
+  .note code {
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: var(--inset);
+    color: var(--fg);
+    white-space: nowrap;
+  }
   .wrap {
     overflow-wrap: anywhere;
   }
@@ -249,6 +284,76 @@ export const blocks = css`
     border-left-color: var(--primary);
   }
   /* a resource that needs review: a dot beside its name, the reason on hover */
+  /* Import spec: a box to paste a spec in, and one to drop a file on */
+  textarea {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--inset);
+    color: var(--fg);
+    font: var(--small) / 1.5 var(--mono);
+    resize: vertical;
+  }
+  textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+  }
+  .drop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border: 1px dashed var(--border-strong);
+    border-radius: 3px;
+    background: var(--inset);
+    color: var(--muted);
+  }
+  .drop.over {
+    border-color: var(--primary);
+    color: var(--strong);
+  }
+  /* a thing the mock assumed: a dot in the Needs review color and the word, in a tag */
+  .review-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--warn);
+  }
+  .review-tag .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--warn);
+  }
+  /* the dot alone, beside a name in a table, and what was assumed, in that table's Needs review column */
+  .review-mark {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-left: var(--space-1);
+    border-radius: 50%;
+    background: var(--warn);
+    vertical-align: 1px;
+  }
+  td.to-review {
+    color: var(--warn);
+  }
+  /* an action written as a link: it does something on the page, so it is a button */
+  button.link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent-text);
+    font-size: inherit;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  button.link:hover:not(:disabled) {
+    color: var(--primary-hover);
+    text-decoration: underline;
+  }
   .list .review-dot {
     position: relative;
     flex: none;

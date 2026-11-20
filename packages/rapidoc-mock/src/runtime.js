@@ -28,6 +28,10 @@ export function createRuntime({ settings, started, lint }) {
         }
         return lints.get(api.id);
       }),
+    /** Drops what was kept about an API (its lint result): it was removed, and an import may reuse its id. */
+    forget(id) {
+      lints.delete(id);
+    },
     /** New seed data for the given APIs: every session's records are dropped with the old data. */
     async reseed(list, { rows, seed }) {
       const made = await Promise.all(

@@ -140,6 +140,7 @@ export const base = css`
     background: var(--inset);
     color: var(--strong);
     font-size: inherit;
+    line-height: 18px;
     letter-spacing: 0;
     text-transform: none;
     text-align: left;
@@ -199,13 +200,16 @@ export const base = css`
     outline: 2px solid var(--accent-text);
     outline-offset: 2px;
   }
+  /* a field is as tall as a button (28px), so the two line up side by side */
   input[type="text"],
   input[type="search"],
-  input[type="number"] {
+  input[type="number"],
+  input[type="url"] {
     padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border);
     border-radius: 3px;
     background: var(--inset);
+    line-height: 18px;
     min-width: 0;
   }
   /* a checkbox is a switch: off grey, on green, its knob sliding across */

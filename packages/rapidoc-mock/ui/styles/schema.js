@@ -66,6 +66,11 @@ export const schema = css`
     font-weight: 700;
     letter-spacing: 0.02em;
   }
+  /* beside a path in running text ("GET /pets/{id}") a method takes its own width: the fixed one is for a
+     column of methods */
+  td.path .method {
+    min-width: 0;
+  }
   .method.get {
     --m: var(--method-get);
   }

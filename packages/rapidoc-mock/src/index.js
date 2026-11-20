@@ -1,7 +1,10 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { getCookie } from "hono/cookie";
+import { mkdtemp, writeFile } from "node:fs/promises";
 import { METHODS as NODE_METHODS } from "node:http";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { serve } from "@hono/node-server";
 import { createAuth, createVerifier, problem } from "./auth.js";
 import { control, CONTROL_PREFIX } from "./control.js";
@@ -74,58 +77,65 @@ export async function createMockApp({
 
   const loaded = [];
   const skipped = [];
+  /**
+   * One API, ready to serve: its spec loaded (`doc` given, or read from `api.fullPath`), routed, its state seeded.
+   * Throws when it can't be served.
+   */
+  const loadApi = async (api, given) => {
+    if (api.id === CONTROL_PREFIX)
+      throw new Error(`/${CONTROL_PREFIX} is the mock's own control API; give the API another id`);
+    const doc = given ?? (await loadSpec(api.fullPath));
+    const router = await createRouter(doc, { warn: (line) => warn(`${api.id}: ${line}`) });
+    const operations = listOperations(doc);
+    const byKey = new Map(operations.map((op) => [`${op.method} ${op.path}`, op]));
+    // Node's HTTP parser accepts a fixed list of methods (QUERY, PURGE, COPY, ... are in it)
+    for (const op of operations) {
+      if (!NODE_METHODS.includes(op.method.toUpperCase()))
+        warn(
+          `${api.id}: ${op.method.toUpperCase()} ${op.path} can't be called: Node's HTTP server doesn't accept the method ${op.method.toUpperCase()}`,
+        );
+    }
+    let state = null;
+    if (stateful) {
+      try {
+        const apiIds = [
+          ...new Set([...apis.map((one) => one.id), ...loaded.map((one) => one.id), api.id]),
+        ];
+        const { section, warnings } = configFor(stateful.config, api.id, apiIds);
+        state = await createStateful(doc, { seed, rows: stateful.rows, config: section });
+        state.config = section; // kept for new seed data (POST /__mock/reset with rows or seed)
+        // What the config says and the spec no longer has: skipped, and said, never dropped silently
+        for (const line of [...warnings, ...state.configWarnings]) {
+          warn(`${stateful.configFile || CONFIG_FILE}: ${api.id}: ${line}`);
+        }
+        const failed = Object.entries(state.report.failed || {});
+        if (failed.length) {
+          warn(
+            `${api.id}: no seed data for ${failed.length} resource(s), which start empty: ${failed
+              .slice(0, 3)
+              .map(([name, why]) => `${name} (${why})`)
+              .join("; ")}${failed.length > 3 ? "; ..." : ""}`,
+          );
+        }
+      } catch (err) {
+        warn(`${api.id}: served without state: ${err.message.split("\n")[0]}`);
+      }
+    }
+    return {
+      ...api,
+      state,
+      title: api.title ?? doc.info?.title,
+      router,
+      byKey,
+      operations: byKey.size,
+      auth: createAuth(doc, verifier),
+      respond: createResponder(doc, { seed }),
+      doc,
+    };
+  };
   for (const api of apis) {
     try {
-      if (api.id === CONTROL_PREFIX)
-        throw new Error(
-          `/${CONTROL_PREFIX} is the mock's own control API; give the API another id`,
-        );
-      const doc = await loadSpec(api.fullPath);
-      const router = await createRouter(doc, { warn: (line) => warn(`${api.id}: ${line}`) });
-      const operations = listOperations(doc);
-      const byKey = new Map(operations.map((op) => [`${op.method} ${op.path}`, op]));
-      // Node's HTTP parser accepts a fixed list of methods (QUERY, PURGE, COPY, ... are in it)
-      for (const op of operations) {
-        if (!NODE_METHODS.includes(op.method.toUpperCase()))
-          warn(
-            `${api.id}: ${op.method.toUpperCase()} ${op.path} can't be called: Node's HTTP server doesn't accept the method ${op.method.toUpperCase()}`,
-          );
-      }
-      let state = null;
-      if (stateful) {
-        try {
-          const apiIds = apis.map((one) => one.id);
-          const { section, warnings } = configFor(stateful.config, api.id, apiIds);
-          state = await createStateful(doc, { seed, rows: stateful.rows, config: section });
-          state.config = section; // kept for new seed data (POST /__mock/reset with rows or seed)
-          // What the config says and the spec no longer has: skipped, and said, never dropped silently
-          for (const line of [...warnings, ...state.configWarnings]) {
-            warn(`${stateful.configFile || CONFIG_FILE}: ${api.id}: ${line}`);
-          }
-          const failed = Object.entries(state.report.failed || {});
-          if (failed.length) {
-            warn(
-              `${api.id}: no seed data for ${failed.length} resource(s), which start empty: ${failed
-                .slice(0, 3)
-                .map(([name, why]) => `${name} (${why})`)
-                .join("; ")}${failed.length > 3 ? "; ..." : ""}`,
-            );
-          }
-        } catch (err) {
-          warn(`${api.id}: served without state: ${err.message.split("\n")[0]}`);
-        }
-      }
-      loaded.push({
-        ...api,
-        state,
-        title: api.title ?? doc.info?.title,
-        router,
-        byKey,
-        operations: byKey.size,
-        auth: createAuth(doc, verifier),
-        respond: createResponder(doc, { seed }),
-        doc,
-      });
+      loaded.push(await loadApi(api));
     } catch (err) {
       skipped.push({ id: api.id, error: err.message });
       warn(`${api.id}: not served: ${err.message.split("\n")[0]}`);
@@ -138,6 +148,61 @@ export async function createMockApp({
     started: { stateful: Boolean(stateful), issuer, audience, streamInterval },
     lint,
   });
+  /**
+   * Adds a spec while the mock runs (`POST /__mock/apis`, the Mock UI's Import spec): from an http(s) address, or
+   * as text (written to a file of its own, which lint reads). Served under an id made from its file's name, made
+   * unique; kept until the mock stops or it is removed. Answers what it serves, or throws why it can't.
+   */
+  runtime.importSpec = async ({ url, text, name }) => {
+    let fullPath;
+    if (url !== undefined) {
+      if (!/^https?:\/\//i.test(String(url)))
+        throw new ImportError("url must be an http or https address");
+      fullPath = new URL(url).href;
+    } else if (typeof text === "string" && text.trim()) {
+      if (text.length > MAX_IMPORT) throw new ImportError("The spec is larger than 25 MB.");
+      const folder = await mkdtemp(path.join(tmpdir(), "rapidoc-mock-import-"));
+      fullPath = path.join(folder, fileName(name));
+      await writeFile(fullPath, text);
+    } else throw new ImportError("Send a spec: { url } or { text, name }");
+    let doc;
+    try {
+      doc = await loadSpec(fullPath);
+    } catch (err) {
+      // the file the text was written to is the mock's business: the message names what was sent
+      throw new ImportError(
+        err.message.split("\n")[0].replaceAll(fullPath, url ?? (name || "The spec")),
+      );
+    }
+    const taken = new Set([...loaded.map((one) => one.id), CONTROL_PREFIX]);
+    // named after its file, as `rapidoc mock` names one; pasted text, which has none, after its title
+    const base = idFrom(
+      name || (url ? new URL(url).pathname.split("/").pop() : "") || doc.info?.title || "api",
+    );
+    let id = base;
+    for (let n = 2; taken.has(id); n++) id = `${base}-${n}`;
+    let api;
+    try {
+      api = await loadApi({ id, fullPath, imported: true }, doc);
+    } catch (err) {
+      throw new ImportError(err.message.split("\n")[0]);
+    }
+    loaded.push(api);
+    for (const one of api.router.methods) if (!allowMethods.includes(one)) allowMethods.push(one);
+    log(
+      `imported ${api.title ? `${api.title} ` : ""}under /${id} (${url ?? name ?? "pasted text"})`,
+    );
+    return api;
+  };
+  /** Removes an API that was imported while the mock runs; the APIs it started with stay. */
+  runtime.removeApi = (id) => {
+    const index = loaded.findIndex((one) => one.id === id && one.imported);
+    if (index < 0) return false;
+    loaded.splice(index, 1);
+    runtime.forget(id);
+    log(`removed /${id}`);
+    return true;
+  };
   const app = new Hono();
   // Every method the APIs use (OpenAPI 3.2 QUERY and additionalOperations included) passes CORS preflight
   const allowMethods = [
@@ -151,7 +216,11 @@ export async function createMockApp({
       ...loaded.flatMap((api) => api.router.methods),
     ]),
   ];
-  app.use("*", cors({ origin, allowMethods, exposeHeaders: ["*"], maxAge: 600 }));
+  // a function, so the methods of a spec imported while the mock runs are allowed too
+  app.use(
+    "*",
+    cors({ origin, allowMethods: () => allowMethods, exposeHeaders: ["*"], maxAge: 600 }),
+  );
   app.get("/", (c) =>
     c.json({
       apis: loaded.map(({ id, title, operations }) => ({
@@ -176,6 +245,8 @@ export async function createMockApp({
         query: url.searchParams,
         session: c.req.header(SESSION_HEADER),
         body: () => c.req.json(),
+        // from this machine: only such a caller may import a spec (it can make the mock read any address)
+        local: isLoopback(c.env?.incoming?.socket?.remoteAddress),
       },
       loaded,
       runtime,
@@ -185,11 +256,16 @@ export async function createMockApp({
   };
   app.all(`/${CONTROL_PREFIX}`, controlHandler);
   app.all(`/${CONTROL_PREFIX}/*`, controlHandler);
-  for (const api of loaded) {
-    const handler = (c) => handle(c, api, { log, warn, streamInterval, settings });
-    app.all(`/${api.id}`, handler);
-    app.all(`/${api.id}/*`, handler);
-  }
+  // the API a request is for: the first whose id its path starts with (versions, `/<id>/<version>`, are listed
+  // first); looked up on each request, so an API imported while the mock runs is served at once
+  app.use("*", async (c, next) => {
+    const { pathname } = new URL(c.req.url);
+    const api = loaded.find(
+      (one) => pathname === `/${one.id}` || pathname.startsWith(`/${one.id}/`),
+    );
+    if (!api) return next();
+    return handle(c, api, { log, warn, streamInterval, settings });
+  });
   app.notFound((c) =>
     send(
       problem(
@@ -212,6 +288,35 @@ export async function createMockApp({
     verifier,
   };
 }
+
+/** The largest spec an import takes as text. */
+const MAX_IMPORT = 25 * 1024 * 1024;
+
+/** A problem with a spec sent to import: answered as a 400 with its message (control.js). */
+export class ImportError extends Error {
+  name = "ImportError";
+}
+
+/** True for an address of this machine (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`). */
+const isLoopback = (address) =>
+  typeof address === "string" && /^(127\.|::1$|::ffff:127\.)/.test(address);
+
+/** A safe file name for an imported spec's text: its own name's last part, else `openapi.yaml`. */
+const fileName = (name) => {
+  const base = String(name || "")
+    .split(/[\\/]/)
+    .pop()
+    .replace(/[^\w.-]+/g, "-");
+  return /\.(ya?ml|json)$/i.test(base) ? base : `${base || "openapi"}.yaml`;
+};
+
+/** An API's id from a file name, as `rapidoc mock` names one: `orders-api.yaml` -> `orders-api`. */
+const idFrom = (name) =>
+  String(name)
+    .replace(/\.(ya?ml|json)$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "api";
 
 /** What the stateful mode made of an API: its resources with their record counts, and the operations by label. */
 const statefulSummary = ({ model, report, labels }) => ({

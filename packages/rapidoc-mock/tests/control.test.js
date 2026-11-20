@@ -283,7 +283,7 @@ describe("/__mock with --stateful", () => {
     const detail = (await call("GET", at(read.id))).body;
     assert.equal(
       detail.does,
-      "Returns the Pet record whose id is the path parameter petId, or 404.",
+      "Returns the Pet record whose id is in the path parameter petId. If no such record is stored, it responds with HTTP status 404 (Not Found).",
     );
     assert.deepEqual(
       detail.parameters.map((one) => one.role),
@@ -295,6 +295,27 @@ describe("/__mock with --stateful", () => {
     );
     assert.match((await call("GET", at(plain.id))).body.does, /^Keeps no state/);
     assert.equal((await call("GET", at("nope"))).status, 404);
+  });
+
+  it("says which parameters of an operation need review, apart from its other assumptions", async () => {
+    const { body: op } = await call("GET", "/__mock/model/rw/operations/GetArticles");
+    assert.deepEqual(op.review, {
+      parameters: 2,
+      other: "returns inline objects; assumed to be Article",
+    });
+    const byName = Object.fromEntries(op.parameters.map((one) => [one.name, one]));
+    assert.equal(byName.tag.review, "matches no field of Article");
+    assert.equal(byName.tag.role, "ignored when listing");
+    assert.equal(byName.author.review, "matches no field of Article");
+    assert.equal(byName.favorited.review, undefined);
+    assert.equal(byName.limit.review, undefined);
+    // an operation with nothing assumed has no review
+    const read = (await call("GET", "/__mock/model/pc")).body.operations.find(
+      (one) => one.method === "GET" && one.path === "/owners/{ownerId}",
+    );
+    const detail = (await call("GET", `/__mock/model/pc/operations/${encodeURIComponent(read.id)}`))
+      .body;
+    assert.equal(detail.review, undefined);
   });
 
   it("counts the records of the caller's session in the model", async () => {
@@ -414,6 +435,105 @@ describe("/__mock with --stateful", () => {
       unknown.body.detail,
       /health, model, lint, settings, reset, state, snapshot, restore, ui/,
     );
+  });
+});
+
+describe("POST /__mock/apis: a spec imported while the mock runs", () => {
+  /** A request as it comes from another address: the Node server passes it as `env.incoming`. */
+  const from = (address) => ({ incoming: { socket: { remoteAddress: address } } });
+  const tiny = (title) =>
+    `openapi: 3.1.0\ninfo: { title: ${title}, version: 1.0.0 }\npaths:\n  /ping:\n    get:\n      responses:\n        '200': { description: OK, content: { application/json: { example: { ok: true } } } }\n`;
+  let app;
+  const send = (method, url, body, env = from("127.0.0.1")) =>
+    app.request(
+      url,
+      {
+        method,
+        ...(body === undefined
+          ? {}
+          : { headers: { "content-type": "application/json" }, body: JSON.stringify(body) }),
+      },
+      env,
+    );
+
+  before(async () => {
+    ({ app } = await createMockApp({
+      apis: [spec("pc", "petclinic.yaml")],
+      stateful: true,
+      ...quiet,
+    }));
+  });
+
+  it("serves a spec sent as text at once, named after its title, and lists it as imported", async () => {
+    const added = await send("POST", "/__mock/apis", { text: tiny("Tiny Shop") });
+    assert.equal(added.status, 201);
+    assert.deepEqual(await added.json(), {
+      id: "tiny-shop",
+      title: "Tiny Shop",
+      operations: 1,
+      stateful: true,
+    });
+    assert.equal((await app.request("/tiny-shop/ping")).status, 200);
+    const settings = await (await send("GET", "/__mock/settings")).json();
+    assert.equal(settings.import, true);
+    // a caller on another machine is not offered the import
+    const remote = await (
+      await send("GET", "/__mock/settings", undefined, from("10.0.0.7"))
+    ).json();
+    assert.equal(remote.import, false);
+    assert.deepEqual(
+      settings.apis.map((one) => [one.id, Boolean(one.imported)]),
+      [
+        ["pc", false],
+        ["tiny-shop", true],
+      ],
+    );
+    // the same spec again: another id, the first stays
+    const again = await (await send("POST", "/__mock/apis", { text: tiny("Tiny Shop") })).json();
+    assert.equal(again.id, "tiny-shop-2");
+  });
+
+  it("names a spec sent with a file name after the file", async () => {
+    const added = await (
+      await send("POST", "/__mock/apis", { text: tiny("X"), name: "orders-api.yaml" })
+    ).json();
+    assert.equal(added.id, "orders-api");
+  });
+
+  it("removes an imported API, and only those", async () => {
+    await send("POST", "/__mock/apis", { text: tiny("Gone Soon") });
+    assert.equal((await send("DELETE", "/__mock/apis/gone-soon")).status, 204);
+    assert.equal((await app.request("/gone-soon/ping")).status, 404);
+    assert.equal((await send("DELETE", "/__mock/apis/pc")).status, 404);
+    assert.equal((await app.request("/pc/owners")).status, 200);
+  });
+
+  it("says why a spec can't be served, without the file it was written to", async () => {
+    const bad = await send("POST", "/__mock/apis", {
+      text: "swagger: '2.0'\ninfo: {}\n",
+      name: "old.yaml",
+    });
+    assert.equal(bad.status, 400);
+    const { detail } = await bad.json();
+    assert.match(detail, /^old\.yaml is not OpenAPI 3\.0, 3\.1 or 3\.2 \(Swagger 2\.0\)/);
+    assert.equal((await send("POST", "/__mock/apis", {})).status, 400);
+    assert.equal(
+      (await send("POST", "/__mock/apis", { url: "ftp://example.com/a.yaml" })).status,
+      400,
+    );
+  });
+
+  it("takes a spec only from the machine the mock runs on", async () => {
+    for (const address of ["10.0.0.7", "192.168.1.20", undefined]) {
+      const refused = await send("POST", "/__mock/apis", { text: tiny("Remote") }, from(address));
+      assert.equal(refused.status, 403, `from ${address}`);
+    }
+    for (const address of ["::1", "::ffff:127.0.0.1"]) {
+      assert.equal(
+        (await send("POST", "/__mock/apis", { text: tiny("Local") }, from(address))).status,
+        201,
+      );
+    }
   });
 });
 

@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { drawer, opens } from "../components/parts.js";
 import { Screen } from "../components/screen.js";
-import { prettyBody } from "../format.js";
-import { LABEL_HELP, badge, method } from "../labels.js";
+import { count, prettyBody } from "../format.js";
+import { LABEL_HELP, badge, method, reviewDot } from "../labels.js";
 
 /** The data a body holds, in words: "a list of calendar_common, inside data". */
 const holds = (body) => {
@@ -106,6 +106,16 @@ export class MockOperationDetail extends Screen {
     if (!op) return html`<p class="empty">Loading…</p>`;
     const siblings = (this.operations || []).filter((one) => one.path === op.path);
     const stored = new Set((this.resources || []).map((one) => one.name));
+    // an operation labelled Needs review for what was assumed about its resource (a key, a path): that reason
+    const resourceReview = (this.resources || []).find((one) => one.name === op.resource)?.review;
+    // ... and when it is about the key, the line that says how the record is found carries the mark
+    const keyReview = /key|matches no field/.test(resourceReview || "");
+    // what the mock assumed about a parameter: its own note, or its resource's when it is the record's key
+    const toReview = (one) =>
+      one.review ||
+      (keyReview && op.keyFrom === `${one.in}.${one.name}` ? resourceReview : undefined);
+    // the Needs review column is there only when a parameter has something in it
+    const anyToReview = op.parameters.some(toReview);
     const model = (one) =>
       one.schema
         ? html`${one.many ? "list of " : ""}${
@@ -152,7 +162,28 @@ export class MockOperationDetail extends Screen {
       <p>${op.does}</p>
       <div class="row">
         ${badge(op.label)}
-        <span class="hint">${op.why || LABEL_HELP[op.label]}</span>
+        ${
+          op.review
+            ? html`${
+                op.review.other ? html`<span class="hint">${op.review.other}.</span>` : nothing
+              }
+              <button
+                class="link"
+                @click=${() =>
+                  this.querySelector("#parameters")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  })}
+              >
+                ${count(op.review.parameters, "parameter")} to review
+              </button>`
+            : op.why
+              ? html`<span class="hint">${op.why}</span>`
+              : resourceReview
+                ? // the resource is named on the next line: here, only what was assumed about it
+                  html`<span class="hint">for its resource: ${resourceReview}.</span>`
+                : html`<span class="hint">${LABEL_HELP[op.label]}</span>`
+        }
       </div>
       ${
         op.resource
@@ -163,21 +194,22 @@ export class MockOperationDetail extends Screen {
                 <a href=${app.href("resources", `${op.resource}/schema`)}>${op.resource}</a>
                 (<a href=${app.href("resources", op.resource)}>records</a>)
               </li>
-              ${op.keyFrom ? html`<li>Record found by: <code>${op.keyFrom}</code></li>` : nothing}
             </ul>
           `
           : nothing
       }
-      <p class="hint">
-        A request with <code>Prefer: code=404</code> (or <code>example=name</code>) gets that
-        response as the spec writes it, and nothing is stored.
+      <p class="hint note">
+        To get a particular documented response instead, send the request header
+        <code>Prefer: code=404</code> (any status the spec documents), or
+        <code>Prefer: example=&lt;name&gt;</code> for one of the spec's named examples. The mock then
+        answers exactly as the spec writes that response, and stores nothing.
       </p>
     </section>
 
     ${
       op.parameters.length
         ? html`
-          <section class="card">
+          <section class="card" id="parameters">
             <h2>Parameters</h2>
             <div class="scroll">
               <table class="plain">
@@ -187,6 +219,7 @@ export class MockOperationDetail extends Screen {
                     <th>In</th>
                     <th>Type</th>
                     <th>Used by the mock for</th>
+                    ${anyToReview ? html`<th>Needs review</th>` : nothing}
                   </tr>
                 </thead>
                 <tbody>
@@ -196,10 +229,12 @@ export class MockOperationDetail extends Screen {
                         <td>
                           <code>${one.name}</code>
                           ${one.required ? html`<span class="tag">required</span>` : nothing}
+                          ${toReview(one) ? reviewDot(toReview(one)) : nothing}
                         </td>
                         <td>${one.in}</td>
                         <td>${one.type}</td>
                         <td>${one.role || html`<span class="hint">validated only</span>`}</td>
+                        ${anyToReview ? html`<td class="to-review">${toReview(one) || ""}</td>` : nothing}
                       </tr>
                     `,
                   )}
@@ -236,7 +271,7 @@ export class MockOperationDetail extends Screen {
               <th>Status</th>
               <th>Schema</th>
               <th>Data source</th>
-              <th>Returned</th>
+              <th>Returned when</th>
               <th>Description</th>
             </tr>
           </thead>
@@ -265,7 +300,7 @@ export class MockOperationDetail extends Screen {
                       one.returned
                         ? html`<span class="clean">by default</span>`
                         : /^[1-5]\d\d$/.test(one.code)
-                          ? html`<code>Prefer: code=${one.code}</code>`
+                          ? html`<span class="hint">header</span> <code>Prefer: code=${one.code}</code>`
                           : html`<span class="hint">for an undocumented code</span>`
                     }
                   </td>
@@ -305,8 +340,8 @@ export class MockOperationDetail extends Screen {
                           }.
                           ${
                             this.picked
-                              ? html`A request with <code>Prefer: code=${this.picked}</code> gets it; nothing
-                                  is stored.`
+                              ? html`A request with the header
+                                  <code>Prefer: code=${this.picked}</code> gets it; nothing is stored.`
                               : op.action === "none"
                                 ? "This is what a call returns."
                                 : "It shows the shape: a call returns stored records in its place."

@@ -16,6 +16,10 @@
  *   PATCH /__mock/settings                      changes the response delay: `{ "delay": 250 }`
  *   POST /__mock/reset[?api=<id>]               back to the seed data; with a body `{ "rows": 25, "seed": 7 }`,
  *                                               new seed data of that size (all sessions' records are dropped)
+ *   POST /__mock/apis                           adds a spec while the mock runs: `{ "url": "https://..." }` or
+ *                                               `{ "text": "<yaml or json>", "name": "orders.yaml" }`; answers its
+ *                                               id. Only from the mock's own machine (it reads any address given)
+ *   DELETE /__mock/apis/<api>                   removes an API that was added so
  *   GET  /__mock/state[/<api>[/<resource>[/<key>]]]   the stored records, for assertions
  *   POST /__mock/snapshot[?api=<id>]            the stored records, as a document `restore` takes
  *   POST /__mock/restore                        replaces the records of the APIs the document names
@@ -25,7 +29,9 @@
  * nested resource whose own fields don't name its parent carries it under `$parents` (see stateful/handlers.js):
  * a restore needs it to put the record back under the same parent.
  *
- * Nothing here is protected: the mock is a development tool, and these endpoints change only its own data.
+ * Nothing here is protected: the mock is a development tool, and these endpoints change only its own data. The one
+ * exception is `POST /__mock/apis`, accepted only from the machine the mock runs on: it makes the mock read an
+ * address, or a spec whose `$ref`s name local files, which no caller on the network should be able to ask for.
  */
 import { problem } from "./auth.js";
 import { listOperations } from "./spec.js";
@@ -90,12 +96,13 @@ function modelOf(api, view) {
  * @param {URLSearchParams} request.query
  * @param {string} [request.session] - The X-Mock-Session header
  * @param {() => Promise<unknown>} request.body - Reads the JSON body
+ * @param {boolean} [request.local] - The caller is on the mock's own machine (only it may import a spec)
  * @param {{ id: string, state: object | null }[]} apis - The loaded APIs
  * @param {{ settings: object, started: object, reseed: Function }} [runtime] - What can change while the mock
  *   runs (`settings`: delay, rows, seed), how it was started, and how to make new seed data (see index.js)
  * @returns {Promise<{ status: number, headers: object, body: string | null }>}
  */
-export async function control({ method, segments, query, session, body }, apis, runtime) {
+export async function control({ method, segments, query, session, body, local }, apis, runtime) {
   const [action, ...rest] = segments;
   const stateful = apis.filter((api) => api.state);
   const view = (api) => api.state.store.session(session || undefined);
@@ -115,16 +122,68 @@ export async function control({ method, segments, query, session, body }, apis, 
       })
     );
   }
+  if (action === "apis" && runtime?.importSpec) {
+    if (!rest.length) {
+      const wrong = allow("POST");
+      if (wrong) return wrong;
+      if (!local)
+        return problem(
+          403,
+          "Forbidden",
+          "A spec can be imported only from the machine the mock runs on.",
+        );
+      let sent;
+      try {
+        sent = await body();
+      } catch {
+        return problem(
+          400,
+          "Bad Request",
+          'Send JSON: { "url": "https://..." } or { "text": "...", "name": "orders.yaml" }',
+        );
+      }
+      if (!isObject(sent)) return problem(400, "Bad Request", "Send a JSON object.");
+      try {
+        const api = await runtime.importSpec(sent);
+        return json(
+          {
+            id: api.id,
+            ...(api.title ? { title: api.title } : {}),
+            operations: api.operations,
+            stateful: Boolean(api.state),
+          },
+          201,
+        );
+      } catch (err) {
+        if (err.name === "ImportError") return problem(400, "Bad Request", err.message);
+        throw err;
+      }
+    }
+    if (rest.length === 1) {
+      const wrong = allow("DELETE");
+      if (wrong) return wrong;
+      return runtime.removeApi(rest[0])
+        ? { status: 204, headers: {}, body: null }
+        : problem(
+            404,
+            "Not Found",
+            `No imported API ${rest[0]}: only an API added with POST /${CONTROL_PREFIX}/apis can be removed.`,
+          );
+    }
+  }
   if (action === "settings" && !rest.length && runtime) {
     const show = () =>
       json({
         ...runtime.started,
         ...runtime.settings,
         lint: Boolean(runtime.lint),
+        // the server takes a spec while it runs (a mock in a page doesn't), from a caller on its own machine
+        import: Boolean(runtime.importSpec) && Boolean(local),
         apis: apis.map((api) => ({
           id: api.id,
           ...(api.title ? { title: api.title } : {}),
-          ...(api.fullPath ? { file: api.fullPath } : {}),
+          ...(api.imported ? { imported: true } : {}),
+          ...(api.fullPath && !api.imported ? { file: api.fullPath } : {}),
           operations: api.operations,
           stateful: Boolean(api.state),
         })),

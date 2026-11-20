@@ -18,16 +18,41 @@ export const LABEL_COLORS = {
   plainMock: "var(--plain)",
 };
 
-/** What each label means, in a sentence. */
+/** What each label means, in a line: on hover over a badge or a filter. */
 export const LABEL_HELP = {
-  confident: "Mapped to a resource: it reads or changes stored records.",
-  needsReview: "Mapped to a resource, with something assumed. The reason is shown.",
-  plainMock: "Keeps no state: answered from the spec's examples or generated data.",
+  confident: "Reads and changes stored records; nothing was assumed.",
+  needsReview: "Reads and changes stored records, with a best guess where the spec left a gap.",
+  plainMock: "Keeps no data; returns the same example or generated answer every time.",
+};
+
+/** What each label means, in full: where the labels are introduced (the Dashboard's card). */
+export const LABEL_ABOUT = {
+  confident:
+    "Reads and changes stored records. The spec says clearly which resource this operation works on, so what you create shows up in later calls.",
+  needsReview: html`Reads and changes stored records too, but the spec left a gap and Rapi Mock filled it
+    with a best guess, such as which field is the key. Check each guess, and correct it in
+    <code>mock.config.yaml</code> if it's wrong.`,
+  plainMock:
+    "Keeps no data. No resource fits this operation, so it returns the spec's example, or generated data, the same on every call. Nothing you send is stored.",
 };
 
 /** A label as a badge; its meaning (or `title`, the reason in this case) shows on hover. */
 export const badge = (label, title = LABEL_HELP[label]) =>
   html`<span class="badge ${label}" title=${title}>${LABELS[label]}</span>`;
+
+/**
+ * The mark of one thing the mock assumed (a parameter, a field): a dot in the Needs review color and the word,
+ * with what was assumed on hover. A row's left edge is not used: that marks the row you are on.
+ */
+export const reviewTag = (what) =>
+  html`<span class="tag review-tag" title="Needs review: ${what}"><span class="dot"></span>review</span>`;
+
+/**
+ * The same mark as a dot alone, for a row of a table whose Needs review column says the word and what was
+ * assumed: it lets the eye find the rows down the first column. A screen reader reads what it stands for.
+ */
+export const reviewDot = (what) =>
+  html`<span class="review-mark" role="img" aria-label="Needs review" title="Needs review: ${what}"></span>`;
 
 /** An HTTP method as a badge, in RapiDoc's color for it (`.method.get`, …): its name is always written. */
 export const method = (name) =>

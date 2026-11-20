@@ -98,6 +98,8 @@ export class MockOperations extends Screen {
             .includes(text)),
     );
     const byResource = this.groupBy === "resource";
+    // the reason of an operation labelled Needs review for its resource (a key, a path), not its own
+    const reviewOf = new Map(api.resources.map((one) => [one.name, one.review]));
     const groups = grouped(rows, this.groupBy);
     const toggle = (label) => {
       const next = new Set(this.labels);
@@ -222,7 +224,14 @@ export class MockOperations extends Screen {
                             }
                           </td>
                           <td>${badge(op.label)}</td>
-                          <td class="why">${op.why || ""}</td>
+                          <td class="why">
+                            ${
+                              op.why ||
+                              (op.label === "needsReview" && reviewOf.get(op.resource)
+                                ? `its resource: ${reviewOf.get(op.resource)}`
+                                : "")
+                            }
+                          </td>
                         </tr>
                       `,
                     )}
