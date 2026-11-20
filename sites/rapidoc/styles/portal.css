@@ -78,6 +78,16 @@
 .portal-header-root .portal-nav-menu-start .portal-dropdown-wrapper {
   position: static;
 }
+/* The links are as tall as the header, so the pointer goes from "Products" down to its menu without
+   leaving the link's area (the menu closes when it does): the label itself is only one line tall. */
+.portal-header-root .portal-nav-menu-start,
+.portal-header-root .portal-nav-menu-start .portal-dropdown-wrapper {
+  align-self: stretch;
+}
+.portal-header-root .portal-nav-menu-start .portal-dropdown-wrapper {
+  display: flex;
+  align-items: center;
+}
 .portal-header-root .portal-navbar {
   position: relative;
 }
