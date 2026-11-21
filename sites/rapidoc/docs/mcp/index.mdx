@@ -1,0 +1,161 @@
+---
+title: MCP Server
+description: How RapiDoc turns an OpenAPI spec into a curated Model Context Protocol (MCP) server for AI agents - which operations become tools, and the manifest.
+---
+
+import { Aside } from '@rapidoc/portal/components';
+
+AI agents such as Claude and Cursor call APIs through tools served over the **Model Context Protocol (MCP)**. RapiDoc turns your OpenAPI spec into an MCP server, and curates it on the way, because exposing every endpoint one-to-one works poorly for agents: internal endpoints leak, transport headers become tool arguments the model has to guess, and every extra tool costs context on every turn.
+
+RapiDoc reads your plain OpenAPI spec, leaves out internal and deprecated operations, strips transport and credential headers from tool arguments, and turns reference-data lookups into MCP resources. The result is an **MCP manifest**: plain JSON with one tool per operation, real JSON Schema arguments and MCP safety annotations. It ships in a small TypeScript project you can run as-is.
+
+You can create it three ways:
+
+- **In the browser**: the **Export MCP Server** button of `<rapi-doc>` (or its JavaScript methods), described with [RapiDoc](/docs/rapidoc/mcp-export/). Nothing is sent to a server.
+- **On the command line**: `rapidoc mcp export` and `rapidoc mcp serve` (`@rapidoc/cli`).
+- **In Node**: `@rapidoc/mcp`, for build scripts and your own servers.
+
+<Aside type="tip">
+  The [MCP Server example](/examples/mcp-server) shows the manifest, server and runtime for a real spec.
+
+  The export runs in the browser and sends nothing anywhere. You unzip and install the project on your machine, and your AI app starts it as a child process that talks over stdin and stdout, on no port.
+</Aside>
+
+## How operations become tools
+
+No extra annotations are needed. Every tool and resource comes from standard OpenAPI fields:
+
+1. **Tool names**: The tool name is the snake_case form of the `operationId` (`placeOrder` becomes `place_order`). Operations without an `operationId` get a name derived from the HTTP method and path. Duplicate names get a `_2`, `_3` suffix.
+2. **Tool descriptions**: The operation `summary` is used, else its `description`, else `METHOD /path`. HTML and Markdown are stripped and the text is truncated to 300 characters.
+3. **Left out**: Operations marked `x-internal: true` or `x-hidden: true`, operations marked `deprecated: true`, and webhooks are left out.
+4. **Headers**: Headers like `Authorization`, `Cookie`, `X-Api-Key`, `Accept`, `User-Agent` and other transport metadata are stripped from LLM tool arguments, as is any parameter that carries an API key named in the spec's `securitySchemes`. A secret passed in a parameter the spec does not declare as a security scheme stays an argument, so declare it. The runtime applies the right scheme itself, from environment variables, and reads the base URL from `servers[0]`. The exported server runs outside the documentation page, so it needs a full URL: when the spec has no `servers`, or a relative one such as `/api/v1`, set `API_BASE_URL`, which also overrides a full URL.
+5. **Resources**: A `GET` with no required parameters whose path contains a reference-data word (`/reference`, `/currencies`, `/countries`, `/tiers`, `/categories`, `/schema`) becomes an **MCP resource** instead of a tool. Many hosts leave resources for the user to attach, so set `x-mcp-resource: false` on an operation the agent must be able to call itself; `x-mcp-resource: true` makes any `GET` with no required parameters a resource. Its URI is `reference://` and the tool name without `get_`, with dashes (`getCurrencies` becomes `reference://currencies`).
+6. **Safety annotations**: Every tool carries MCP annotations: `readOnlyHint` for `GET` only, `idempotentHint` for `GET`, `PUT` and `DELETE`, and `destructiveHint`: `true` for `PUT`, `PATCH` and `DELETE`, `false` for `GET`, and left out for `POST`, which may add (`POST /orders`) or undo (`POST /orders/{id}/cancel`). Without the hint, hosts assume a tool may be destructive. Hosts use the annotations to ask the user before running a consequential tool; they are hints, not enforcement.
+7. **Token budget**: RapiDoc estimates how many tokens the tool list adds to every turn, and warns above 30 tools or 5,000 tokens.
+
+---
+
+## Example
+
+Here is a plain OpenAPI 3.x snippet and how each operation is treated:
+
+```yaml
+openapi: 3.0.3
+info:
+  title: Commerce Fulfillment API
+  version: 2.4.0
+servers:
+  - url: https://api.example.com/v2   # Base URL in the manifest
+security:
+  - api_key: []                         # Applied by the runtime from API_KEY
+
+paths:
+  # 1. Tool "place_order" (POST: readOnlyHint false, no destructiveHint)
+  /orders:
+    post:
+      summary: Place a new order
+      operationId: placeOrder
+      parameters:
+        - name: Authorization # Stripped: never a tool argument
+          in: header
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, items]
+              properties:
+                customerId: { type: string }
+                items: { type: array, items: { type: string } }
+                shippingMethod: { type: string, enum: [standard, express, overnight] }
+
+  # 2. Read-only tool "get_order"
+  /orders/{orderId}:
+    get:
+      summary: Get an order
+      operationId: getOrder
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
+
+  # 3. MCP Resource "reference://currencies" (GET, no required params, reference-data path)
+  /currencies:
+    get:
+      summary: List supported currencies
+      operationId: getCurrencies
+
+  # 4. Excluded: internal endpoint
+  /admin/database/vacuum:
+    post:
+      summary: Trigger internal database maintenance
+      x-internal: true
+
+  # 5. Excluded: deprecated endpoint
+  /orders/legacy:
+    get:
+      summary: Legacy order list
+      deprecated: true
+
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      in: header
+      name: X-API-Key
+```
+
+---
+
+## The Manifest
+
+The export is data, not generated code. `manifest.json` describes the whole server:
+
+- **`server`**: `name` (snake_case of the `mcp-server-name` attribute or the API title), `version` and `description` from `info`.
+- **`sources`**: the API, named `api`, with the `baseUrl` from `servers[0]` (server variables filled with their defaults) and the spec's `securitySchemes` copied as they are. An Arazzo document can add more sources.
+- **`tools`**: one per operation that survives the exclusions above.
+- **`resources`**: the reference-data lookups, with a `reference://` URI.
+- **`workflows`**: one entry per Arazzo workflow when an Arazzo document is given (see [Workflows as tools](#workflows-as-tools)); otherwise empty.
+
+Each tool has a `name`, a `description`, an `inputSchema`, MCP `annotations` and an `operation` block that tells the runtime how to make the HTTP call. The `inputSchema` is real JSON Schema: path, query, header and cookie parameters become properties by name, and the request body becomes a `body` property holding the full body schema, with nested objects, arrays, enums and `required` intact. `$ref`s are inlined, cycles are cut, and read-only properties are dropped because they never go in a request.
+
+The `place_order` tool from the example above:
+
+```json
+{
+  "name": "place_order",
+  "description": "Place a new order",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "body": {
+        "type": "object",
+        "required": ["customerId", "items"],
+        "properties": {
+          "customerId": { "type": "string" },
+          "items": { "type": "array", "items": { "type": "string" } },
+          "shippingMethod": { "type": "string", "enum": ["standard", "express", "overnight"] }
+        }
+      }
+    },
+    "required": ["body"]
+  },
+  "annotations": { "readOnlyHint": false, "idempotentHint": false },
+  "operation": {
+    "source": "api",
+    "method": "POST",
+    "path": "/orders",
+    "params": [{ "name": "body", "in": "body", "contentType": "application/json" }],
+    "security": [{ "api_key": [] }]
+  }
+}
+```
+
+`operation.params` records where each argument goes (`path`, `query`, `header`, `cookie` or `body`), and `operation.security` is the operation's security requirement, else the spec's. Only a TypeScript server is exported today. Because the manifest holds everything a server needs, a server in another language would only have to read the same `manifest.json`; nothing would need to be regenerated.
+
+## Next
+
+[Export and run the server](/docs/mcp/server/): the runtime, the exported project, creating it from `<rapi-doc>`, the command line or Node, and connecting an AI app.

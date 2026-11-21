@@ -30,7 +30,7 @@ export const WEB_COMPONENTS: ProductGroup = {
     {
       label: "RapiDoc",
       tag: "<rapi-doc>",
-      href: "/docs/",
+      href: "/docs/rapidoc/",
       description: "Interactive API reference from your OpenAPI spec",
       icon: "file-code",
     },
@@ -77,20 +77,20 @@ export const TOOLS: ProductGroup = {
       icon: "terminal",
     },
     {
-      label: "Mock Server",
-      href: "/docs/mocking/overview/",
-      description: "Answer requests from your spec, in the page or as a server",
+      label: "RapiMock",
+      href: "https://mock.rapidocui.com/",
+      description: "A mock server from your spec that validates requests and remembers",
       icon: "hard-drives",
     },
     {
       label: "MCP Server",
-      href: "/docs/ai/mcp-server/",
+      href: "/docs/mcp/",
       description: "Turn your API into tools for AI agents",
       icon: "robot",
     },
     {
       label: "Pre-rendering",
-      href: "/docs/performance/prerender/",
+      href: "/docs/prerender/",
       description: "Server-rendered HTML for search engines and a fast first paint",
       icon: "lightning",
     },
@@ -117,5 +117,5 @@ export const PRODUCT_GROUPS: ProductGroup[] = [WEB_COMPONENTS, TOOLS, INTEGRATIO
 /** The link under the Products menu's columns */
 export const ALL_PACKAGES: ProductLink = {
   label: "Which package do I need?",
-  href: "/docs/get-started/packages/",
+  href: "/docs/#which-package-do-i-need",
 };

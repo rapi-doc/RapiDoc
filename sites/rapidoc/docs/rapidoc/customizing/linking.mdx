@@ -21,7 +21,7 @@ Every section, tag and operation in `<rapi-doc>` has a stable element ID. You ca
 | Tag | `tag--` + tag name in kebab-case | `User Management & Auth` → `tag--user-management-auth` |
 | Tag group (`x-tagGroups`, or a 3.2 parent tag) | `tag-group--` + group or parent tag name in kebab-case | `Shipment Logistics` → `tag-group--shipment-logistics` |
 | Operation | see below | `getUserById` → `get-user-by-id` |
-| Heading in a description | see [Markdown Headings](/docs/customizing/markdown-headings/#links-to-headings) | `overview--authentication` |
+| Heading in a description | see [Markdown Headings](/docs/rapidoc/customizing/markdown-headings/#links-to-headings) | `overview--authentication` |
 
 IDs are lowercase and case-sensitive: `#tag--users` works, `#tag--Users` does not.
 
@@ -133,4 +133,4 @@ doc.scrollToPath('tag--users');           // a tag
 doc.scrollToPath('servers');              // a section
 ```
 
-Links in your own HTML, such as `<a href="#get-user-by-id">` in your page, work through the URL hash. To place links inside `<rapi-doc>`, use [slots](/docs/customizing/slots/).
+Links in your own HTML, such as `<a href="#get-user-by-id">` in your page, work through the URL hash. To place links inside `<rapi-doc>`, use [slots](/docs/rapidoc/customizing/slots/).

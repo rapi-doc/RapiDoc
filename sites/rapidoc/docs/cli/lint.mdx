@@ -63,9 +63,9 @@ npx rapidoc lint openapi.yaml --stateful
    ⚠️ openapi.yaml:163:5  Resource Widget: no key field found for {code}: the mock can't tell one record from another, so reads, updates and deletes of one record keep no state  [stateful-resource-key]
 ```
 
-These rules are `off` by default. `--stateful` turns on the first six as warnings; a severity you set by name (`--rule`, or the config) wins. The findings are the mock's own, the same as the **Needs review** labels of its [Mock UI](/docs/mocking/mock-server/#see-what-the-mock-holds), so they need `@rapidoc/mock` installed.
+These rules are `off` by default. `--stateful` turns on the first six as warnings; a severity you set by name (`--rule`, or the config) wins. The findings are the mock's own, the same as the **Needs review** labels of its [Mock UI](https://mock.rapidocui.com/), so they need `@rapidoc/mock` installed.
 
-Lint reads the [`mock.config.yaml`](/docs/mocking/mock-server/#correct-what-the-mock-worked-out) beside the spec (or the one `--mock-config` names), the file where you correct what the mock worked out. What it states is not reported, so the list shrinks as you settle things: a resource whose `key` you set, an operation you gave an `action`. An entry in it that no longer fits the spec is reported as `mock-config`, with the file's name.
+Lint reads the [`mock.config.yaml`](https://mock.rapidocui.com/) beside the spec (or the one `--mock-config` names), the file where you correct what the mock worked out. What it states is not reported, so the list shrinks as you settle things: a resource whose `key` you set, an operation you gave an `action`. An entry in it that no longer fits the spec is reported as `mock-config`, with the file's name.
 
 | Rule | It reports | What to do |
 | :--- | :--- | :--- |

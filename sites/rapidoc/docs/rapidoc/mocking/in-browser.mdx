@@ -8,7 +8,7 @@ import { Aside, Tabs, TabItem } from '@rapidoc/portal/components';
 Add `mock-server="true"` to `<rapi-doc>` or `<rapi-doc-mini>` and requests to your API are answered in the page, from the spec's examples and schemas. Nothing is deployed and nothing leaves the browser. Readers can press **Try** on a published page and get a sensible answer, and you can build and demo a frontend before the backend exists.
 
 <Aside type="tip" title="See it running">
-  The [in-browser mock example](/examples/mock-server) has a live testbed: pick a status code and a delay, and call the API. For a real HTTP server that any client can call, with request validation and token checks, see [Mock Server](/docs/mocking/mock-server/); the [overview](/docs/mocking/overview/) compares the two.
+  The [in-browser mock example](/examples/mock-server) has a live testbed: pick a status code and a delay, and call the API. For a real HTTP server that any client can call, with request validation and token checks, see [RapiMock](https://mock.rapidocui.com/); [In the page or as a server](#in-the-page-or-as-a-server) compares the two.
 </Aside>
 
 ## Turn it on
@@ -111,7 +111,7 @@ Because the mock patches the page's `fetch`, your own frontend code in the same 
 const user = await fetch('/api/v1/users/me').then((res) => res.json());
 ```
 
-Matched requests never reach the network, so cross-origin (CORS) rules don't get in the way. For calls from other programs, or from a different page, use the [mock server](/docs/mocking/mock-server/) instead.
+Matched requests never reach the network, so cross-origin (CORS) rules don't get in the way. For calls from other programs, or from a different page, use the [mock server](https://mock.rapidocui.com/) instead.
 
 ## Console log
 
@@ -135,3 +135,18 @@ Each element with `mock-server="true"` mocks its own spec with its own status co
 A request goes to the most specific match: a route under the request's server origin and base path wins over the same path under another API's base path, which wins over a bare path.
 
 When an element turns its mock off or is removed from the page, its routes stop being answered. The page's real `fetch` and `XMLHttpRequest` come back when no element is mocking any more.
+
+## In the page or as a server
+
+The in-browser mock answers code running in the same page: **Try**, `<rapi-flow>` and the page's own scripts. [RapiMock](https://mock.rapidocui.com/), RapiDoc's mock server (`rapidoc mock`), answers any client over HTTP.
+
+| | In-browser mock | RapiMock |
+| :--- | :--- | :--- |
+| **How you turn it on** | `mock-server="true"` on `<rapi-doc>` or `<rapi-doc-mini>` | `npx rapidoc mock openapi.yaml` |
+| **Runs** | Inside the page, by intercepting `fetch` | As a Node HTTP server (default port `4010`) |
+| **Who can call it** | Code running in the same page | Any client: curl, your frontend, tests, MCP servers |
+| **Choosing a status code** | `mock-server-status-code`, per operation if needed | `Prefer: code=…` request header |
+| **Request validation, token and scope checks** | No | Yes |
+| **Remembers what you create** | No: every call is answered on its own | Yes, with `--stateful` |
+
+**Pick the in-browser mock** for docs and demos: readers can press **Try** on a published page and get a sensible answer, with nothing to deploy. **Pick RapiMock** for development and testing: when other programs need to call the API, when requests and tokens should be checked the way production checks them, or when a test has to create something and read it back. Its [quickstart](https://mock.rapidocui.com/docs/getting-started/quickstart/) starts one in a minute, and [Testing with RapiDoc](https://mock.rapidocui.com/docs/testing/with-rapidoc/) points `<rapi-doc>` at it.

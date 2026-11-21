@@ -1,0 +1,74 @@
+---
+title: Recipes
+description: Ways to use <rapi-doc-mini> - several endpoints, an expanded layout, endpoints from two APIs, an API key, an operation shown from a script, and a mini next to an Arazzo workflow.
+---
+
+import { Tabs, TabItem } from '@rapidoc/portal/components';
+
+How to pick operations is on the [overview](/docs/rapidoc-mini/#choose-operations); these are common ways to put them on a page.
+
+<Tabs>
+  <TabItem label="Several endpoints">
+    ```html
+    <rapi-doc-mini
+      spec-url="/specs/reqres.yaml"
+      filter-operations="GET /users/{userId} POST /users"
+      schema-style="table"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="Always expanded">
+    ```html
+    <rapi-doc-mini
+      spec-url="/specs/reqres.yaml"
+      filter-operations="POST /users"
+      paths-expanded="true"
+      layout="column"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="Endpoints from two APIs">
+    Each element loads its own spec, so one page can walk through a flow that spans services:
+
+    ```html
+    <rapi-doc-mini spec-url="https://api.example.com/auth/openapi.yaml" filter-operations="POST /oauth/token"></rapi-doc-mini>
+    <rapi-doc-mini spec-url="https://api.example.com/billing/openapi.yaml" filter-operations="POST /charges"></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="With an API key">
+    The key is sent with every **Try** request when all three `api-key-*` attributes are set:
+
+    ```html
+    <rapi-doc-mini
+      spec-url="/specs/api.yaml"
+      filter-operations="GET /orders"
+      api-key-name="X-API-Key"
+      api-key-location="header"
+      api-key-value="test-key-123"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+</Tabs>
+
+If the spec can't be loaded, the element renders nothing and logs the error to the browser console.
+
+## Show an operation from a script
+
+`showOperation(operation)` expands one operation and scrolls it into view. Pass its `operationId` or its method and path; it resolves to `false` when the element does not show that operation (the spec is not loaded yet, or `filter-operations` leaves it out).
+
+```js
+await document.querySelector('rapi-doc-mini').showOperation('GET /pet/{petId}');
+```
+
+## Next to a workflow
+
+[`<rapi-flow>`](https://flow.rapidocui.com/docs/pairing/#one-element-per-api) pairs with one `<rapi-doc-mini>` per API its Arazzo workflow calls. Name the API with `arazzo-source`; `<rapi-flow>` then sets the mini's `filter-operations` to the workflow's calls to that API, in step order, and clicking a step shows its operation in the mini.
+
+```html
+<rapi-flow arazzo-url="/workflows/ship-a-parcel.arazzo.yaml" for="rates-api shipments-api"></rapi-flow>
+<rapi-doc-mini id="rates-api" arazzo-source="rates" spec-url="/specs/rates.yaml"></rapi-doc-mini>
+<rapi-doc-mini id="shipments-api" arazzo-source="shipments" spec-url="/specs/shipments.yaml"></rapi-doc-mini>
+```

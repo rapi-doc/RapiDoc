@@ -4,10 +4,10 @@ description: Style any element inside RapiDoc's Shadow DOM with CSS custom prope
 ---
 
 import { Aside, Tabs, TabItem } from '@rapidoc/portal/components';
-import CssPartsCatalog from '../../components/CssPartsCatalog.astro';
-import CssVariablesCatalog from '../../components/CssVariablesCatalog.astro';
+import CssPartsCatalog from '../../../components/CssPartsCatalog.astro';
+import CssVariablesCatalog from '../../../components/CssVariablesCatalog.astro';
 
-The [theming attributes](/docs/theming/overview/) cover colors, radius and scale. For anything else, RapiDoc offers two hooks into its Shadow DOM, where ordinary CSS selectors can't reach:
+The [theming attributes](/docs/rapidoc/theming/overview/) cover colors, radius and scale. For anything else, RapiDoc offers two hooks into its Shadow DOM, where ordinary CSS selectors can't reach:
 
 - **CSS custom properties**, set on `rapi-doc`, change colors, fonts and sizes everywhere they are used.
 - **CSS parts**, selected with `rapi-doc::part(name)`, style one kind of element directly.

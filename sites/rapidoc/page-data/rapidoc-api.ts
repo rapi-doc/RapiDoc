@@ -132,7 +132,7 @@ export const API_ELEMENTS: ApiElement[] = [
       '<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>',
     intro:
       "The full API reference element: every operation of a spec, with navigation, search and a Try console.",
-    guide: { label: "RapiDoc docs", href: "/docs/" },
+    guide: { label: "RapiDoc docs", href: "/docs/rapidoc/" },
   },
   {
     tag: "rapi-doc-mini",

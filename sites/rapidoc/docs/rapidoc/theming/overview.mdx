@@ -4,17 +4,17 @@ description: Change RapiDoc's colors, light and dark mode, corner radius, size a
 ---
 
 import { Aside, Tabs, TabItem, CardGrid } from '@rapidoc/portal/components';
-import DocsCard from '../../components/DocsCard.astro';
-import ThemeDemo from '../../components/ThemeDemo.astro';
+import DocsCard from '../../../components/DocsCard.astro';
+import ThemeDemo from '../../../components/ThemeDemo.astro';
 
 RapiDoc renders inside a **Shadow DOM**, so your site's CSS (resets, Tailwind, component libraries) can't change it by accident, and its CSS can't leak into your site. You style it on purpose, in three layers:
 
 1. **Attributes** for the common choices: theme, light or dark, corner radius, size. This page.
-2. **CSS custom properties** for any color, font or size: see [CSS Parts & Variables](/docs/theming/css-parts/).
-3. **`::part()` selectors** for individual elements: also on [CSS Parts & Variables](/docs/theming/css-parts/).
+2. **CSS custom properties** for any color, font or size: see [CSS Parts & Variables](/docs/rapidoc/theming/css-parts/).
+3. **`::part()` selectors** for individual elements: also on [CSS Parts & Variables](/docs/rapidoc/theming/css-parts/).
 
 <Aside type="note" title="Upgrading from RapiDoc v10?">
-  RapiDoc v11 replaced styling attributes such as `bg-color`, `text-color`, `header-color`, `regular-font` and `nav-*` with CSS custom properties and `::part()` selectors. (`primary-color` still works, as a shortcut for `theme="#hex"`.) The [v10 to v11 guide](/docs/migration/v10-to-v11/) maps each one.
+  RapiDoc v11 replaced styling attributes such as `bg-color`, `text-color`, `header-color`, `regular-font` and `nav-*` with CSS custom properties and `::part()` selectors. (`primary-color` still works, as a shortcut for `theme="#hex"`.) The [v10 to v11 guide](/docs/rapidoc/migration/v10-to-v11/) maps each one.
 </Aside>
 
 ---
@@ -243,9 +243,9 @@ function setScale(size) {
 <CardGrid>
   <DocsCard title="CSS Parts (::part)" icon="file-css">
     Pierce the Shadow DOM to customize sidebars, action buttons, and containers with gradients and backdrop filters. [Explore CSS Parts
-    Guide](/docs/theming/css-parts/)
+    Guide](/docs/rapidoc/theming/css-parts/)
   </DocsCard>
   <DocsCard title="Pre-built Themes & Recipes" icon="palette">
-    The six built-in themes, each in dark and light, and custom brand colors. [See the themes](/docs/theming/prebuilt-themes/)
+    The six built-in themes, each in dark and light, and custom brand colors. [See the themes](/docs/rapidoc/theming/prebuilt-themes/)
   </DocsCard>
 </CardGrid>

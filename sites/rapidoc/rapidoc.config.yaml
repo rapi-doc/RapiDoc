@@ -51,7 +51,7 @@ header:
           items:
             - label: RapiDoc
               badge: <rapi-doc>
-              href: /docs/
+              href: /docs/rapidoc/
               icon: file-code
               description: Interactive API reference from your OpenAPI spec
             - label: RapiDoc Mini
@@ -80,16 +80,16 @@ header:
               href: /cli/
               icon: terminal
               description: Preview, validate, lint, bundle and export specs
-            - label: Mock Server
-              href: /docs/mocking/overview/
+            - label: RapiMock
+              href: https://mock.rapidocui.com/
               icon: hard-drives
-              description: Answer requests from your spec, in the page or as a server
+              description: A mock server from your spec that validates requests and remembers
             - label: MCP Server
-              href: /docs/ai/mcp-server/
+              href: /docs/mcp/
               icon: robot
               description: Turn your API into tools for AI agents
             - label: Pre-rendering
-              href: /docs/performance/prerender/
+              href: /docs/prerender/
               icon: lightning
               description: Server-rendered HTML for search engines and a fast first paint
         - label: Integrations
@@ -104,8 +104,8 @@ header:
             - { label: Build an integration, href: /docs/integrations/build-your-own/ }
       footer:
         label: Which package do I need?
-        href: /docs/get-started/packages/
-    - { label: Quickstart, href: /docs/get-started/quickstart/, position: start }
+        href: "/docs/#which-package-do-i-need"
+    - { label: Quickstart, href: /docs/rapidoc/get-started/quickstart/, position: start }
     - { label: Docs, href: /docs, position: start }
     - { label: API, href: /api, position: start }
     - { label: Examples, href: /examples, position: start }
@@ -122,41 +122,35 @@ navigation:
     items:
       - label: "Getting Started"
         items:
-          - { slug: index, label: "Introduction" }
-          - { slug: get-started/quickstart, label: "Quickstart" }
-          - { slug: guides, label: "Common Tasks" }
-          - { slug: get-started/packages, label: "Packages" }
-          - { slug: get-started/openapi-support, label: "Loading Your Spec" }
+          - { slug: rapidoc, label: "Introduction" }
+          - { slug: rapidoc/get-started/quickstart, label: "Quickstart" }
+          - { slug: rapidoc/guides, label: "Common Tasks" }
+          - { slug: rapidoc/get-started/openapi-support, label: "Loading Your Spec" }
       - label: "Theming & Styling"
         items:
-          - { slug: theming/overview, label: "Theming Overview" }
-          - { slug: theming/prebuilt-themes, label: "Built-in Themes" }
-          - { slug: theming/css-parts, label: "CSS Parts & Variables" }
+          - { slug: rapidoc/theming/overview, label: "Theming Overview" }
+          - { slug: rapidoc/theming/prebuilt-themes, label: "Built-in Themes" }
+          - { slug: rapidoc/theming/css-parts, label: "CSS Parts & Variables" }
       - label: "Customizing Content"
         items:
-          - { slug: customizing/slots, label: "HTML Slots" }
-          - { slug: customizing/markdown-headings, label: "Markdown Headings in the Sidebar" }
-          - { slug: customizing/linking, label: "Links & Navigation" }
+          - { slug: rapidoc/customizing/slots, label: "HTML Slots" }
+          - { slug: rapidoc/customizing/markdown-headings, label: "Markdown Headings in the Sidebar" }
+          - { slug: rapidoc/customizing/linking, label: "Links & Navigation" }
       - label: "Authentication"
         items:
-          - { slug: authentication/oauth, label: "OAuth 2.0" }
+          - { slug: rapidoc/authentication/oauth, label: "OAuth 2.0" }
       - label: "JavaScript API"
         items:
-          - { slug: programmatic-api/lifecycle-and-methods, label: "Methods" }
-          - { slug: programmatic-api/event-hooks, label: "Events" }
+          - { slug: rapidoc/programmatic-api/lifecycle-and-methods, label: "Methods" }
+          - { slug: rapidoc/programmatic-api/event-hooks, label: "Events" }
       - label: "Performance"
         items:
-          - { slug: performance/render-modes, label: "Render Modes" }
-          - { slug: performance/large-specs, label: "Large Specs" }
-          - { slug: performance/prerender, label: "Pre-rendering" }
-      - label: "Mocking"
+          - { slug: rapidoc/performance/render-modes, label: "Render Modes" }
+          - { slug: rapidoc/performance/large-specs, label: "Large Specs" }
+      - label: "Mock & MCP"
         items:
-          - { slug: mocking/overview, label: "Overview" }
-          - { slug: mocking/in-browser, label: "In-Browser Mock" }
-          - { slug: mocking/mock-server, label: "Mock Server" }
-      - label: "AI & MCP"
-        items:
-          - { slug: ai/mcp-server, label: "MCP Server" }
+          - { slug: rapidoc/mocking/in-browser, label: "In-Browser Mock" }
+          - { slug: rapidoc/mcp-export, label: "Export MCP Server" }
       - label: "Reference"
         items:
           - { label: "API Reference", href: /api/ }
@@ -164,14 +158,15 @@ navigation:
       - label: "Migration Guides"
         collapsed: true
         items:
-          - { slug: migration/v13-to-v14, label: "v13 to v14" }
-          - { slug: migration/v12-to-v13, label: "v12 to v13" }
-          - { slug: migration/v11-to-v12, label: "v11 to v12" }
-          - { slug: migration/v10-to-v11, label: "v10 to v11" }
+          - { slug: rapidoc/migration/v13-to-v14, label: "v13 to v14" }
+          - { slug: rapidoc/migration/v12-to-v13, label: "v12 to v13" }
+          - { slug: rapidoc/migration/v11-to-v12, label: "v11 to v12" }
+          - { slug: rapidoc/migration/v10-to-v11, label: "v10 to v11" }
   - label: "RapiDoc Mini"
     icon: puzzle-piece
     items:
       - { slug: rapidoc-mini, label: "Overview" }
+      - { slug: rapidoc-mini/recipes, label: "Recipes" }
       - { label: "API Reference", href: /api/rapi-doc-mini/ }
       - { label: "Live Demos", href: /rapidoc-mini/ }
   - label: "RapiFlow"
@@ -184,6 +179,9 @@ navigation:
       - { slug: rapipdf/node, label: "In Node" }
       - { label: "API Reference", href: /api/rapi-pdf/ }
       - { label: "Live Demo", href: /rapipdf/ }
+  - label: RapiMock
+    icon: hard-drives
+    href: https://mock.rapidocui.com/ # its docs have their own site (sites/rapi-mock)
   - label: "RapiDoc CLI"
     icon: terminal
     items:
@@ -199,6 +197,17 @@ navigation:
           - { slug: cli/mcp, label: "mcp" }
       - { slug: cli/reference, label: "All Commands & Options" }
       - { label: "Portal Commands", href: https://portal.rapidocui.com/docs/reference/cli/ }
+  - label: "MCP Server"
+    icon: robot
+    items:
+      - { slug: mcp, label: "Overview" }
+      - { slug: mcp/server, label: "Export and Run the Server" }
+      - { slug: rapidoc/mcp-export, label: "From <rapi-doc>" }
+      - { label: "Example", href: /examples/mcp-server }
+  - label: "Pre-rendering"
+    icon: lightning
+    items:
+      - { slug: prerender, label: "Pre-rendering" }
   - label: "Integrations"
     icon: plug
     items:

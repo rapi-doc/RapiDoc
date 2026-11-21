@@ -134,7 +134,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
       {
         name: 'Try it console',
         hint: 'Call the API from the docs',
-        rapidoc: { status: 'yes', text: 'Included', note: 'With OAuth 2.0, PKCE and API keys', href: '/docs/authentication/oauth/' },
+        rapidoc: { status: 'yes', text: 'Included', note: 'With OAuth 2.0, PKCE and API keys', href: '/docs/rapidoc/authentication/oauth/' },
         redocly: { status: 'hosted', text: 'Replay, on paid plans', note: 'Not in open-source Redoc' },
         scalar: { status: 'yes', text: 'Included (API client)' },
         swagger: { status: 'yes', text: 'Included (Try it out)' },
@@ -142,7 +142,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
       {
         name: 'Layouts',
         hint: 'One reference, several audiences',
-        rapidoc: { status: 'yes', text: 'Three render styles', note: 'Read, view and focused, plus <rapi-doc-mini> for one operation', href: '/docs/performance/render-modes/' },
+        rapidoc: { status: 'yes', text: 'Three render styles', note: 'Read, view and focused, plus <rapi-doc-mini> for one operation', href: '/docs/rapidoc/performance/render-modes/' },
         redocly: { status: 'yes', text: 'Three-panel layout' },
         scalar: { status: 'yes', text: 'Modern and classic layouts' },
         swagger: { status: 'yes', text: 'One collapsible list' },
@@ -159,7 +159,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
           status: 'yes',
           text: 'In the browser and standalone',
           note: 'rapidoc mock: examples, generated data, request validation, OAuth scope checks',
-          href: '/docs/mocking/overview/',
+          href: '/docs/rapidoc/mocking/in-browser/#in-the-page-or-as-a-server',
         },
         redocly: { status: 'hosted', text: 'In Realm (commercial)' },
         scalar: { status: 'yes', text: 'Open-source mock server' },
@@ -211,7 +211,7 @@ const compareGroups: { title: string; rows: CompareRow[] }[] = [
           status: 'yes',
           text: 'MCP export and hosting',
           note: 'Export a server from the browser, or host the tools at /mcp behind sign-in; llms.txt',
-          href: '/docs/ai/mcp-server/',
+          href: '/docs/mcp/',
         },
         redocly: { status: 'hosted', text: 'MCP server and llms.txt in Realm' },
         scalar: { status: 'hosted', text: 'Hosted MCP servers' },
@@ -576,7 +576,7 @@ const compareProducts = [
           Convert OpenAPI specs into a Model Context Protocol manifest with JSON Schema tools, MCP safety annotations and a runnable TypeScript project. Skips internal and deprecated endpoints, strips transport headers and keeps a live budget of prompt context overhead.
         </p>
         <a
-          href="/docs/ai/mcp-server/"
+          href="/docs/mcp/"
           style="color: var(--rd-accent); font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
         >
           Explore MCP Architecture

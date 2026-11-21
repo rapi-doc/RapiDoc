@@ -5,7 +5,7 @@ description: Load specs, set credentials, select servers and navigate <rapi-doc>
 
 import { Aside } from '@rapidoc/portal/components';
 
-`<rapi-doc>` is a DOM element, so you control it from JavaScript like any other: set attributes, call its methods and listen to its [events](/docs/programmatic-api/event-hooks/). The full list of methods is in the [API reference](/api#methods).
+`<rapi-doc>` is a DOM element, so you control it from JavaScript like any other: set attributes, call its methods and listen to its [events](/docs/rapidoc/programmatic-api/event-hooks/). The full list of methods is in the [API reference](/api#methods).
 
 ## Wait until it is ready
 
@@ -60,7 +60,7 @@ document.getElementById('env-select').addEventListener('change', (e) => {
 
 ## Navigate: `scrollToPath(id)`
 
-Scrolls to a section, tag or operation and opens it. Takes an [element ID](/docs/customizing/linking/#element-ids) or an operation's method and path:
+Scrolls to a section, tag or operation and opens it. Takes an [element ID](/docs/rapidoc/customizing/linking/#element-ids) or an operation's method and path:
 
 ```javascript
 doc.scrollToPath('get-pet-by-id');     // by operation ID
@@ -101,5 +101,5 @@ With `show-header="false"`, you can build the controls into your own page:
 The options must be URLs from the spec's `servers` list.
 
 <Aside type="tip">
-  Methods for MCP export (`generateMcpServer`, `downloadMcpServer`, `getMcpBudget`) are described on [MCP Server](/docs/ai/mcp-server/#from-javascript), and `bindNavBar` in [Pre-rendering](/docs/performance/prerender/#a-static-sidebar).
+  Methods for MCP export (`generateMcpServer`, `downloadMcpServer`, `getMcpBudget`) are described on [MCP Server](/docs/rapidoc/mcp-export/#from-javascript), and `bindNavBar` in [Pre-rendering](/docs/prerender/#a-static-sidebar).
 </Aside>
