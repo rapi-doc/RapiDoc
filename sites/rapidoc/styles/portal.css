@@ -44,9 +44,11 @@
   color: var(--portal-muted);
 }
 .portal-header-root .portal-nav-menu-start .portal-nav-link:hover,
-.portal-header-root .portal-nav-menu-start .portal-nav-button:hover {
+.portal-header-root .portal-nav-menu-start .portal-nav-button:hover,
+.portal-header-root .portal-nav-menu-start .portal-dropdown-wrapper:hover .portal-dropdown-trigger,
+.portal-header-root .portal-nav-menu-start .portal-dropdown-wrapper.is-open .portal-dropdown-trigger {
   background: none;
-  color: var(--sl-color-white);
+  color: var(--sl-color-white, #fff);
 }
 .portal-header-root .portal-nav-menu-start .portal-nav-link.active {
   background: none;
@@ -154,6 +156,16 @@
 .portal-header-root .portal-nav-menu-start .portal-dropdown-wrapper {
   display: flex;
   align-items: center;
+  /* 12px more on each side to hover, half the gap to the next link; the negative margin keeps the label
+     where it was */
+  margin-inline: -12px;
+  padding-inline: 12px;
+}
+/* The strip above the menu that still counts as the menu, for a pointer coming down at an angle: from
+   under the links' text to the panel (the portal's is 16px) */
+.portal-header-root .portal-nav-menu-start .portal-megamenu-panel::before {
+  top: -30px;
+  height: 30px;
 }
 .portal-header-root .portal-navbar {
   position: relative;
@@ -228,14 +240,14 @@
   font-size: 14px;
   line-height: 20px;
   font-weight: 600;
-  color: var(--sl-color-white);
+  color: var(--sl-color-white, #fff);
 }
 .portal-header-root .portal-megamenu-groups .portal-megamenu-card-compact .portal-card-title {
   font-weight: 500;
   color: var(--portal-muted);
 }
 .portal-header-root .portal-megamenu-groups .portal-megamenu-card-compact:hover .portal-card-title {
-  color: var(--sl-color-white);
+  color: var(--sl-color-white, #fff);
 }
 .portal-header-root .portal-megamenu-groups .portal-card-desc {
   margin: 2px 0 0;
