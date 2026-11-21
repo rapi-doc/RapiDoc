@@ -217,10 +217,10 @@ export const HeaderSchema = z.strictObject({
     .describe("Links and dropdown menus; right of the search unless position is start."),
   themeSwitcher: z.boolean().optional().describe("Show the light/dark switcher (default true)."),
   tabs: z
-    .enum(["header", "sidebar"])
+    .enum(["header", "sidebar", "sidebar-select"])
     .optional()
     .describe(
-      "Where the navigation tabs are listed: header (default), a row under the header; sidebar, a list above the sidebar's pages.",
+      "Where the navigation tabs are listed: header (default), a row under the header; sidebar, a list above the sidebar's pages; sidebar-select, the current tab above the sidebar's pages, opening the list of tabs.",
     ),
 });
 

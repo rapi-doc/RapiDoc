@@ -42,7 +42,7 @@ theme:
     mono: { family: JetBrains Mono }
   css: ./styles/portal.css
 header:
-  tabs: sidebar # the product switcher above the docs sidebar
+  tabs: sidebar-select # the current product above the docs sidebar, opening the list of products
   links:
     - label: Products
       position: start
@@ -159,7 +159,8 @@ header:
       style: button
 # The docs pages have no footer; the site's own pages draw theirs (components/SiteFooter.astro).
 footer: false
-# One tab per product, as the product switcher of the live site's docs sidebar
+# One tab per product and tool documented on this site. RapiFlow, RapiMock and RapiDoc Portal have their docs on
+# their own sites: the Products and Get started menus and the /docs card page link there.
 navigation:
   - label: "RapiDoc"
     icon: file-code
@@ -213,9 +214,6 @@ navigation:
       - { slug: rapidoc-mini/recipes, label: "Recipes" }
       - { label: "API Reference", href: /api/rapi-doc-mini/ }
       - { label: "Live Demos", href: /rapidoc-mini/ }
-  - label: "RapiFlow"
-    icon: path
-    href: https://flow.rapidocui.com/ # its docs have their own site (sites/rapi-flow)
   - label: "RapiPdf"
     icon: file-pdf
     items:
@@ -223,9 +221,6 @@ navigation:
       - { slug: rapipdf/node, label: "In Node" }
       - { label: "API Reference", href: /api/rapi-pdf/ }
       - { label: "Live Demo", href: /rapipdf/ }
-  - label: RapiMock
-    icon: hard-drives
-    href: https://mock.rapidocui.com/ # its docs have their own site (sites/rapi-mock)
   - label: "RapiDoc CLI"
     icon: terminal
     items:
@@ -265,6 +260,3 @@ navigation:
           - { slug: integrations/go, label: "Go" }
       - { slug: integrations/docs-sites, label: "Documentation Sites" }
       - { slug: integrations/build-your-own, label: "Build an Integration" }
-  - label: RapiDoc Portal
-    icon: layout
-    href: https://portal.rapidocui.com/

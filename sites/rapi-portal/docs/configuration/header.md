@@ -164,6 +164,13 @@ header:
 
 The list shows on documentation and API reference pages, which have a sidebar. Pages without one, such as the catalog, show no tabs, so link to the sections from `header.links` as well.
 
+With many tabs the list pushes the pages down. `tabs: sidebar-select` shows only the current tab, in one row above the pages; a click (or Enter or Space) opens the list of every tab over the pages, and Escape or a click elsewhere closes it.
+
+```yaml title="rapidoc.config.yaml"
+header:
+  tabs: sidebar-select
+```
+
 ## Icons
 
 Every icon name in the config is a [Phosphor](https://phosphoricons.com) icon name: `book`, `code`, `rocket`, `package`, `lightning`, `github-logo`, and so on. An unknown name shows a question mark and a build warning.

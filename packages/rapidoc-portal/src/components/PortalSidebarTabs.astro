@@ -1,8 +1,13 @@
 ---
 /**
- * The navigation tabs as a list above the sidebar's pages, for `header.tabs: sidebar` (the header then has
- * no tabs row). Shown from 50rem; below that the sidebar is the menu, and PortalMobileNav lists the tabs there.
+ * The navigation tabs above the sidebar's pages, for `header.tabs: sidebar` or `sidebar-select` (the header then
+ * has no tabs row). Shown from 50rem; below that the sidebar is the menu, and PortalMobileNav lists the tabs there.
  * Used by the docs sidebar (PortalSidebar) and the API reference's (pages/api-reference.astro).
+ *
+ * - `sidebar`: every tab, as a list.
+ * - `sidebar-select`: one row with the current tab, which opens the same list over the pages below it
+ *   (a `<details>` disclosure: Enter, Space and a click open and close it; Escape and a click elsewhere close it).
+ *   For many tabs, so the pages start right under that row.
  */
 import portalConfig from 'virtual:rapidoc-portal/config';
 import Icon from './Icon.astro';
@@ -11,12 +16,14 @@ import { withBase, withoutBase } from './base-path.js';
 import { isExternal } from '../config/links.js';
 
 const { tabs } = portalConfig;
-const show = portalConfig.header.tabs === 'sidebar' && tabs.length > 0;
+const mode = portalConfig.header.tabs;
+const show = (mode === 'sidebar' || mode === 'sidebar-select') && tabs.length > 0;
+const asSelect = mode === 'sidebar-select';
 const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
 ---
 
 {
-  show && (
+  show && !asSelect && (
     <nav class="portal-sidebar-tabs" aria-label="Sections">
       {tabs.map((tab: any) => (
         <a
@@ -38,9 +45,59 @@ const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
     </nav>
   )
 }
+{
+  show && asSelect && (
+    <details class="portal-sidebar-tabs-select" data-portal-sidebar-tabs-select>
+      <summary class="portal-sidebar-tabs-current">
+        {currentTab?.icon && (
+          <span class="portal-sidebar-tab-icon">
+            <Icon name={currentTab.icon} size={16} weight="regular" />
+          </span>
+        )}
+        <span class="portal-sidebar-tabs-current-label">{currentTab?.label ?? 'Sections'}</span>
+        <Icon name="caret-up-down" size={16} class="portal-sidebar-tabs-caret" />
+      </summary>
+      <nav class="portal-sidebar-tabs portal-sidebar-tabs-panel" aria-label="Sections">
+        {tabs.map((tab: any) => (
+          <a
+            href={withBase(tab.href)}
+            class="portal-sidebar-tab"
+            aria-current={tab === currentTab ? 'page' : undefined}
+            target={isExternal(tab.href) ? '_blank' : undefined}
+            rel={isExternal(tab.href) ? 'noopener noreferrer' : undefined}
+          >
+            {tab.icon && (
+              <span class="portal-sidebar-tab-icon">
+                <Icon name={tab.icon} size={16} weight="regular" />
+              </span>
+            )}
+            <span>{tab.label}</span>
+            {isExternal(tab.href) && <Icon name="arrow-up-right" size={16} class="portal-sidebar-tab-external" />}
+          </a>
+        ))}
+      </nav>
+    </details>
+  )
+}
+
+<script>
+  // sidebar-select: Escape and a click outside close the list (a <details> opens and closes on its own)
+  for (const select of document.querySelectorAll<HTMLDetailsElement>('[data-portal-sidebar-tabs-select]')) {
+    select.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && select.open) {
+        select.open = false;
+        select.querySelector('summary')?.focus();
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (select.open && !select.contains(event.target as Node)) select.open = false;
+    });
+  }
+</script>
 
 <style is:global>
-  .portal-sidebar-tabs {
+  .portal-sidebar-tabs,
+  .portal-sidebar-tabs-select {
     display: none;
   }
   @media (width >= 50rem) {
@@ -51,6 +108,11 @@ const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
       margin-bottom: 1rem;
       padding-bottom: 1rem;
       border-bottom: 1px solid var(--portal-border);
+    }
+    .portal-sidebar-tabs-select {
+      display: block;
+      position: relative;
+      margin-bottom: 1rem;
     }
   }
   .portal-sidebar-tab {
@@ -77,5 +139,55 @@ const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
   .portal-sidebar-tab-external {
     margin-inline-start: auto;
     opacity: 0.6;
+  }
+
+  /* sidebar-select: the current tab as a button-like row, the list as a panel over the pages */
+  .portal-sidebar-tabs-current {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.625rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    background-color: var(--portal-card-bg, transparent);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--portal-primary-text);
+    cursor: pointer;
+    list-style: none;
+  }
+  .portal-sidebar-tabs-current::-webkit-details-marker {
+    display: none;
+  }
+  .portal-sidebar-tabs-current:hover,
+  .portal-sidebar-tabs-select[open] > .portal-sidebar-tabs-current {
+    border-color: var(--portal-primary);
+  }
+  .portal-sidebar-tabs-current:focus-visible {
+    outline: 2px solid var(--portal-primary);
+    outline-offset: 2px;
+  }
+  .portal-sidebar-tabs-current-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .portal-sidebar-tabs-caret {
+    flex: none;
+    color: var(--portal-muted);
+  }
+  .portal-sidebar-tabs-select .portal-sidebar-tabs-panel {
+    position: absolute;
+    inset-inline: 0;
+    top: calc(100% + 0.25rem);
+    z-index: 10;
+    margin: 0;
+    padding: 0.375rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    background-color: var(--portal-card-bg, var(--portal-bg));
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.25);
   }
 </style>

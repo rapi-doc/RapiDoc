@@ -30,8 +30,8 @@ const logo = site.logo;
 const headerLinks = config.header.links;
 const startLinks = headerLinks.filter((link) => link.position === 'start');
 const endLinks = headerLinks.filter((link) => link.position !== 'start');
-// With `header.tabs: sidebar` the tabs are listed above the sidebar's pages (PortalSidebarTabs), not in a row here.
-const tabsInHeader = config.header.tabs !== 'sidebar';
+// With `header.tabs: sidebar` or `sidebar-select` the tabs are above the sidebar's pages (PortalSidebarTabs), not in a row here.
+const tabsInHeader = config.header.tabs === 'header';
 
 // On pages with a sidebar, the menu button opens the sidebar on narrow screens, and the sidebar
 // lists the header links above its own navigation (PortalSidebar.astro, api-reference.astro).

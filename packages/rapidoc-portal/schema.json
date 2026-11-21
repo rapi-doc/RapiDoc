@@ -614,11 +614,12 @@
           "type": "boolean"
         },
         "tabs": {
-          "description": "Where the navigation tabs are listed: header (default), a row under the header; sidebar, a list above the sidebar's pages.",
+          "description": "Where the navigation tabs are listed: header (default), a row under the header; sidebar, a list above the sidebar's pages; sidebar-select, the current tab above the sidebar's pages, opening the list of tabs.",
           "type": "string",
           "enum": [
             "header",
-            "sidebar"
+            "sidebar",
+            "sidebar-select"
           ]
         }
       },

@@ -105,6 +105,7 @@ describe("Header options in the config", () => {
     const tabs = (value) =>
       RapidocConfigSchema.safeParse({ site: { title: "T" }, header: { tabs: value } }).success;
     assert.equal(tabs("sidebar"), true);
+    assert.equal(tabs("sidebar-select"), true);
     assert.equal(tabs("header"), true);
     assert.equal(tabs("footer"), false);
   });
@@ -243,5 +244,55 @@ describe("Header options in a built portal", () => {
     const mobile = between('class="portal-mobile-nav"', "</header>");
     for (const label of ["Payments", "Quickstart", "Community"])
       assert.match(mobile, new RegExp(label));
+  });
+});
+
+describe("Tabs as a select above the sidebar (header.tabs: sidebar-select)", () => {
+  const projectDir = path.join(here, `.header-select-project-${process.pid}`);
+  const outDir = path.join(projectDir, "dist");
+  let html;
+
+  before(async () => {
+    fs.mkdirSync(path.join(projectDir, "docs"), { recursive: true });
+    fs.writeFileSync(
+      path.join(projectDir, "rapidoc.config.yaml"),
+      `site:
+  title: Select Test
+header:
+  tabs: sidebar-select
+navigation:
+  - label: Guides
+    icon: book
+    items:
+      - { slug: intro }
+  - label: More
+    icon: package
+    items:
+      - { slug: more }
+  - { label: Elsewhere, href: "https://example.com/docs/" }
+`,
+    );
+    fs.writeFileSync(path.join(projectDir, "docs", "intro.md"), "---\ntitle: Intro\n---\n\nHi.\n");
+    fs.writeFileSync(path.join(projectDir, "docs", "more.md"), "---\ntitle: More\n---\n\nMore.\n");
+    await buildPortal(projectDir, { outDir });
+    html = fs.readFileSync(path.join(outDir, "docs", "more", "index.html"), "utf8");
+  });
+
+  after(() => fs.rmSync(projectDir, { recursive: true, force: true }));
+
+  it("shows the current tab in one row, which opens the list of every tab", () => {
+    assert.doesNotMatch(html, /data-portal-region="header-tabs"/);
+    const from = html.indexOf('<details class="portal-sidebar-tabs-select"');
+    assert.ok(from > -1, "the select is in the sidebar");
+    const select = html.slice(from, html.indexOf("</details>", from));
+    const summary = select.slice(0, select.indexOf("</summary>"));
+    assert.match(summary, /portal-sidebar-tabs-current-label[^>]*>More</);
+    assert.doesNotMatch(summary, />Guides</);
+    const panel = select.slice(select.indexOf("portal-sidebar-tabs-panel"));
+    assert.match(panel, /href="\/docs\/intro\/"[^>]*>[\s\S]*?Guides/);
+    assert.match(panel, /aria-current="page"[^>]*>[\s\S]*?More/);
+    assert.match(panel, /href="https:\/\/example.com\/docs\/"[^>]*target="_blank"/);
+    // Not the list of the `sidebar` mode as well
+    assert.equal(html.match(/<nav class="portal-sidebar-tabs"/g), null);
   });
 });
