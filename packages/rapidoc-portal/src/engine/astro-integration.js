@@ -11,6 +11,7 @@ import markdoc from "@astrojs/markdoc";
 import starlight from "@astrojs/starlight";
 import { calloutDirectives } from "./callout-directives.js";
 import { baseLinks } from "./base-links.js";
+import { DEV_LINKS_ENV, devLinksPlugin, parseDevLinks } from "./dev-links.js";
 import { withBase } from "../components/base-path.js";
 import { createStarlightOptions, THEME_CSS_MODULE } from "./starlight-options.js";
 import { resolveDependencyRoot } from "./temp-workspace.js";
@@ -134,11 +135,19 @@ export function rapidocPortal({ portalConfig, themeCssPath, projectDir, pages = 
         for (const route of portalRoutes(portalConfig, pages)) injectRoute(route);
         if (command === "dev" && pages.length > 0)
           injectRoute({ pattern: DEV_PAGES_ROUTE, entrypoint: pageUrl("dev-pages.json.js") });
-        updateConfig({
-          vite: {
-            plugins: [virtualModulesPlugin(portalConfig, themeCssPath, projectDir, pages)],
-          },
-        });
+        const plugins = [virtualModulesPlugin(portalConfig, themeCssPath, projectDir, pages)];
+        if (command === "dev" && process.env[DEV_LINKS_ENV]) {
+          const { links, problems } = parseDevLinks(process.env[DEV_LINKS_ENV]);
+          for (const problem of problems)
+            console.warn(`[rapidoc-portal] ${DEV_LINKS_ENV}: ${problem}; left out`);
+          if (links.length) {
+            console.log(
+              `[rapidoc-portal] Links to ${links.map(({ from, to }) => `${from} go to ${to}`).join(", ")}`,
+            );
+            plugins.push(devLinksPlugin(links));
+          }
+        }
+        updateConfig({ vite: { plugins } });
         // First, so `:::type` blocks become portal callouts before Starlight's asides plugin sees them.
         config.markdown.processor.options.mdastPlugins.unshift(calloutDirectives(iconsDir));
         if (portalConfig.site.basePath)

@@ -55,6 +55,16 @@ Options and arguments can come in any order (`rapidoc build --out-dir public ./p
 | `--quiet`, `-q` | all | Print errors and warnings only. |
 | `--yes`, `-y` | all | Don't ask anything: take the default answer to every question. |
 
+### Links to other sites, during `rapidoc dev`
+
+A portal that links to other sites, such as a product site and its docs on two domains, writes those links as full addresses, so under `rapidoc dev` a click leaves for the live site. To test the sites together, run each one's dev server and set `RAPIDOC_DEV_LINKS` to map their addresses to the local servers, comma-separated:
+
+```bash
+RAPIDOC_DEV_LINKS="https://example.com=http://localhost:4321,https://docs.example.com=http://localhost:4322" npx rapidoc dev
+```
+
+The dev server then rewrites links (`href` attributes) that start with a mapped address in every page it serves, keeping their path, query and hash. Nothing else changes: a spec URL, an image or the text of a code sample keeps the address it was written with, and `rapidoc build` ignores the variable. A part that is not two addresses (`https://…=http://…`) is reported and left out.
+
 The options of `preview`, `validate`, `lint`, `bundle`, `pdf` and `mcp`, which work on any spec, are in the RapiDoc docs: [All Commands & Options](https://rapidocui.com/docs/cli/reference/).
 
 ## Questions

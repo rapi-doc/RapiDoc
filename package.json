@@ -16,6 +16,7 @@
     "build:rapipdf": "npm run build --workspace=rapipdf",
     "build:mock": "npm run build --workspace=@rapidoc/mock",
     "dev:mock-ui": "npm run build:mock && node packages/rapidoc-cli/src/index.js mock packages/rapidoc-mock/tests/fixtures/core-specs/petclinic.yaml packages/rapidoc-mock/tests/fixtures/core-specs/nylas.json packages/rapidoc-mock/tests/fixtures/core-specs/realworld.yaml --stateful --port 4411",
+    "dev:sites": "node scripts/dev-sites.mjs",
     "dev:rapidoc-site": "node sites/rapidoc/scripts/sync-version.mjs && node packages/rapidoc-cli/src/index.js dev sites/rapidoc --port 4329",
     "build:rapidoc-site": "npm run build:rapidoc && npm run build:mcp && npm run build:prerender && npm run build:rapipdf && node sites/rapidoc/scripts/sync-version.mjs && node packages/rapidoc-cli/src/index.js build sites/rapidoc",
     "dev:portal-site": "node packages/rapidoc-cli/src/index.js dev sites/rapi-portal --port 4328",
