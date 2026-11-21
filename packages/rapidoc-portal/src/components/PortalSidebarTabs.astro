@@ -17,7 +17,8 @@ import { isExternal } from '../config/links.js';
 
 const { tabs } = portalConfig;
 const mode = portalConfig.header.tabs;
-const show = (mode === 'sidebar' || mode === 'sidebar-select') && tabs.length > 0;
+// One tab is nothing to switch between: the sidebar then starts with its pages
+const show = (mode === 'sidebar' || mode === 'sidebar-select') && tabs.length > 1;
 const asSelect = mode === 'sidebar-select';
 const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
 ---
