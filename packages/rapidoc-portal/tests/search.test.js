@@ -227,4 +227,46 @@ Content under subsection.`;
     assert.deepEqual(urls("rapi-doc").sort(), ["/api/rapi-doc-mini", "/docs/rapidoc-mini"]);
     assert.deepEqual(urls("rapidoc theming"), []);
   });
+
+  await t.test("labels a docs result with the navigation tab its page is in", () => {
+    const docsDir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-search-tabs-"));
+    try {
+      const write = (file, title) => {
+        fs.mkdirSync(path.dirname(path.join(docsDir, file)), { recursive: true });
+        fs.writeFileSync(
+          path.join(docsDir, file),
+          `---\ntitle: ${title}\n---\n\n## Setup\n\nText.\n`,
+        );
+        return path.join(docsDir, file);
+      };
+      const files = [
+        write("guides/start.md", "Start"),
+        write("sdk/node.md", "Node SDK"),
+        write("loose.md", "Loose page"),
+      ];
+      const config = {
+        docs: { fullPath: docsDir, home: true },
+        apis: [],
+        tabs: [
+          { label: "Guides", match: ["/docs/guides"] },
+          { label: "SDKs", match: ["/docs/sdk"] },
+        ],
+      };
+      const { records } = buildSearchIndex(config, docsDir, files);
+      const labelOf = (url) => records.find((record) => record.url === url).category;
+      assert.equal(labelOf("/docs/guides/start"), "Guides");
+      // A heading's result carries its page's label
+      assert.equal(labelOf("/docs/guides/start#setup"), "Guides");
+      assert.equal(labelOf("/docs/sdk/node"), "SDKs");
+      // A page no tab lists keeps the plain label
+      assert.equal(labelOf("/docs/loose"), "Documentation");
+      // The label is searched too: the tab's name finds its pages
+      assert.deepEqual(
+        searchRecords(records, "sdks").map((record) => record.url),
+        ["/docs/sdk/node", "/docs/sdk/node#setup"],
+      );
+    } finally {
+      fs.rmSync(docsDir, { recursive: true, force: true });
+    }
+  });
 });

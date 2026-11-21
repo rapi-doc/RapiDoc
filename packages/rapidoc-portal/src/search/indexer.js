@@ -4,6 +4,10 @@ import GithubSlugger from "github-slugger";
 import yaml from "yaml";
 import { docPageUrl } from "../config/doc-paths.js";
 import { splitFrontmatter } from "../config/doc-source.js";
+import { activeTab } from "../components/header-nav.js";
+
+/** The label of a docs result whose page is in no navigation tab. */
+const DOCS_CATEGORY = "Documentation";
 
 /**
  * Strips Markdown, Markdoc, and HTML syntax into clean plain text for indexing.
@@ -56,9 +60,15 @@ export function stripMarkup(rawContent = "") {
  * @param {string} rawContent
  * @param {string} basePath
  * @param {string} docTitle
+ * @param {string} [category] - The label of the page's group (its navigation tab)
  * @returns {Array<object>} List of search records
  */
-export function extractDocSections(rawContent = "", basePath = "", docTitle = "") {
+export function extractDocSections(
+  rawContent = "",
+  basePath = "",
+  docTitle = "",
+  category = DOCS_CATEGORY,
+) {
   const records = [];
   const slugger = new GithubSlugger();
 
@@ -79,7 +89,7 @@ export function extractDocSections(rawContent = "", basePath = "", docTitle = ""
           title: currentHeading.title,
           pageTitle: docTitle,
           subtitle: docTitle,
-          category: "Documentation",
+          category,
           url: `${basePath}#${currentHeading.slug}`,
           content: sectionText.slice(0, 500),
         });
@@ -207,19 +217,23 @@ export function buildSearchIndex(config, projectDir, docFiles = []) {
     });
     const routePath = pageUrl === "/" ? pageUrl : pageUrl.replace(/\/$/, "");
 
+    // The group a result is shown under: the navigation tab the page is in ("Guides", "RapiFlow"), so a
+    // reader sees which part of the documentation it is from. A page no tab lists keeps the plain label.
+    const category = activeTab(config.tabs || [], pageUrl)?.label || DOCS_CATEGORY;
+
     // Index main page record
     records.push({
       id: `doc-${routePath}`,
       type: "doc",
       title: docTitle,
       subtitle: docDesc || "Documentation Page",
-      category: "Documentation",
+      category,
       url: routePath,
       content: stripMarkup(rawContent).slice(0, 600),
     });
 
     // Index individual heading sections for direct anchor links
-    const sectionRecords = extractDocSections(rawContent, routePath, docTitle);
+    const sectionRecords = extractDocSections(rawContent, routePath, docTitle, category);
     records.push(...sectionRecords);
   }
 
