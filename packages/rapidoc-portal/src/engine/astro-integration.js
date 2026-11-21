@@ -55,6 +55,10 @@ function portalRoutes(portalConfig, projectPages = []) {
     ...(portalConfig.auth
       ? [{ pattern: "/_rapidoc/[notice]", entrypoint: pageUrl("rapidoc-notice.astro") }]
       : []),
+    // The 404 page: the portal's, unless the project has its own (pages/404.astro)
+    ...(projectPages.some((page) => page.pattern === "/404")
+      ? []
+      : [{ pattern: "/404", entrypoint: pageUrl("not-found.astro") }]),
     ...projectPages.map(({ pattern, entrypoint }) => ({ pattern, entrypoint })),
   ];
 }

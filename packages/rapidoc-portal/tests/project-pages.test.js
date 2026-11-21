@@ -153,6 +153,9 @@ describe("Building a project with pages/", () => {
         "<body><PortalHeader /><p id='own-content'>Mine, with <code>code</code></p></body></html>",
         "",
       ].join("\n"),
+      // The project's own 404 page, in place of the portal's
+      "pages/404.astro":
+        "<html lang='en'><head><title>Lost</title></head><body><p id='own-404'>Not here</p></body></html>\n",
       "pages/items/[id].astro": [
         "---",
         "export const getStaticPaths = () => ['one', 'two'].map((id) => ({ params: { id } }));",
@@ -204,6 +207,12 @@ describe("Building a project with pages/", () => {
     }
     // Docs pages don't carry the mark, so those rules apply there
     assert.doesNotMatch(page("docs/intro"), /data-portal-own-document/);
+  });
+
+  it("uses the project's pages/404.astro as the 404 page", () => {
+    const html = fs.readFileSync(path.join(outDir, "404.html"), "utf8");
+    assert.match(html, /id="own-404"/);
+    assert.doesNotMatch(html, /portal-not-found/);
   });
 
   it("builds every page of a dynamic route", () => {

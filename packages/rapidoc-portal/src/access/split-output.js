@@ -26,6 +26,8 @@ const ALWAYS_PUBLIC = [
   /^_rapidoc\//,
   /^assets\/rapidoc-min\.js(\.LICENSE\.txt)?$/,
   /^oauth-receiver\.html$/,
+  // The 404 page says nothing about the site's pages, and is shown for addresses that have none
+  /^404\.html$/,
   /^robots\.txt$/,
   /^llms(-full)?\.txt$/,
 ];

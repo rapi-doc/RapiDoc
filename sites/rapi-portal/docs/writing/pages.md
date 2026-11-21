@@ -19,12 +19,13 @@ The file's path under `pages/` is its address:
 | `pages/demo/index.astro` | `/demo` |
 | `pages/index.astro` | `/`, the home page |
 | `pages/items/[id].astro` | `/items/<id>`, one page per value its `getStaticPaths()` returns |
+| `pages/404.astro` | The page shown for an address that has no page, in place of the portal's own |
 
 Files and folders whose names start with `_` are not pages, so a page's helpers can sit beside it.
 
 With `pages/index.astro` as the home page, `docs/index.*` is no longer the home page: it becomes the page at `/docs`, the front page of your documentation. List it in `navigation` as `{ slug: index }`.
 
-The portal keeps `/docs`, `/apis`, `/catalog`, `/404` and `/_rapidoc` for itself. A page at one of them, or at a path that `redirects:` already uses, stops the build with a message that names the file.
+The portal keeps `/docs`, `/apis`, `/catalog` and `/_rapidoc` for itself. A page at one of them, or at a path that `redirects:` already uses, stops the build with a message that names the file.
 
 ## A page inside the portal's frame
 
@@ -93,6 +94,12 @@ import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 The header brings the portal's colors and your `theme.css` with it, and nothing else: the rest of the page keeps the styles you give it. Set `data-theme` on `<html>` to `dark` or `light`, which is the theme the header draws in. A page with one theme only should hide the header's light/dark switcher in its own CSS (`.portal-theme-btn`).
 
 If the page has no reason to differ from the portal's look, use `PortalLayout` instead: it does all of this, and follows the reader's theme.
+
+## The 404 page
+
+Every portal has a 404 page: the header, a short message, and ways back (the home page, the search and the navigation tabs). The build writes it as `404.html`, which GitHub Pages, Netlify, Cloudflare Pages and most static hosts show for an address that has no page; `rapidoc serve` shows it too.
+
+To use your own, add `pages/404.astro`. It replaces the portal's, and can use `PortalLayout` or its own document like any other page. Write its links and assets from the root (`/docs/...`, not `docs/...`): the page is shown at whatever address was asked for.
 
 ## Reading your project's files
 

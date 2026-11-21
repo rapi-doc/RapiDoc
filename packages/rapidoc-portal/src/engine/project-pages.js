@@ -6,6 +6,7 @@
  *
  * The portal's own routes are reserved: a page that would take one stops the build. pages/index.astro
  * is the home page; docs/index.*, the home page otherwise, is then the page at /docs (config/normalizer.js).
+ * pages/404.astro replaces the portal's 404 page (pages/not-found.astro).
  */
 
 import fs from "node:fs";
@@ -43,7 +44,6 @@ function reservedReason(pattern, config) {
   if (isUnder(pattern, "/apis")) return "/apis is for the API reference";
   if (pattern === "/catalog") return "/catalog is the API catalog";
   if (isUnder(pattern, "/_rapidoc")) return "/_rapidoc is for the portal's own files";
-  if (pattern === "/404") return "the portal has its own 404 page";
   if (config.redirects.some((redirect) => redirect.from === pattern))
     return "`redirects` has an entry from this path";
 }

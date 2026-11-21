@@ -212,6 +212,20 @@ describe("Header options in a built portal", () => {
     assert.match(tabs, /href="\/docs\/more\/"[\s\S]*?More/);
   });
 
+  it("has the portal's 404 page when the project has none", () => {
+    const notFound = fs.readFileSync(path.join(outDir, "404.html"), "utf8");
+    assert.match(notFound, /<title>Page not found/);
+    assert.match(notFound, /class="portal-not-found"/);
+    // In the portal's frame, with ways back: home, search and the tabs
+    assert.match(notFound, /class="portal-header-root"/);
+    assert.match(notFound, /Go to the home page/);
+    assert.match(notFound, /id="portal-not-found-search"/);
+    assert.match(notFound, /portal-not-found-tabs[\s\S]*href="\/docs\/more\/"/);
+    assert.match(notFound, /name="robots" content="noindex"/);
+    // Shown at any address, so nothing on it is relative to the page
+    assert.doesNotMatch(notFound, /(href|src)="(?!\/|https?:|#|mailto:)[^"]/);
+  });
+
   it("still lists every item of a grouped menu in the narrow-screen menu", () => {
     const mobile = between('class="portal-mobile-nav"', "</header>");
     for (const label of ["Payments", "Quickstart", "Community"])
