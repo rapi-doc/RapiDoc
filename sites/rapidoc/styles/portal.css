@@ -105,8 +105,9 @@
 }
 /* The links are centered in the space between the logo and the right-hand group. The light/dark switcher
    makes that group 82px wider than the live site's (its 66px and the gaps around it), which would move
-   the links 41px to the left: the same 82px after the logo keeps them where the live site has them. */
-@media (min-width: 860px) {
+   the links 41px to the left: the same 82px after the logo keeps them where the live site has them, where
+   there is room for it (the Get started menu made the links wider than the live site's). */
+@media (min-width: 1200px) {
   .portal-header-root .portal-brand {
     margin-inline-end: 82px;
   }
@@ -116,13 +117,13 @@
   order: -1;
 }
 /* The live header's steps: tighter links and GitHub as an icon up to 1100px, the search as an icon below
-   1000px, no version badge up to 900px */
+   1100px (1000px on the live site, whose links are narrower), no version badge up to 900px */
 @media (max-width: 1100px) {
   .portal-header-root .portal-nav-menu-start {
     gap: 16px;
   }
 }
-@media (max-width: 999px) {
+@media (max-width: 1099px) {
   .portal-header-root .portal-search-trigger {
     flex: 0 0 36px;
     width: 36px;

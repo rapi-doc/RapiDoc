@@ -29,7 +29,7 @@ theme:
     mono: { family: JetBrains Mono }
   css: ./styles/portal.css
 # The header every RapiDoc site shares (sites/rapidoc is the source): the Products menu, with absolute
-# rapidocui.com links, and Docs. Keep it the same in sites/rapi-flow, sites/rapi-mock and sites/rapi-portal.
+# rapidocui.com links, the Get started menu, and Docs. Keep it the same in sites/rapi-flow, sites/rapi-mock and sites/rapi-portal.
 header:
   links:
     - label: Products
@@ -91,6 +91,50 @@ header:
             - { label: ".NET (ASP.NET Core)", href: https://rapidocui.com/docs/integrations/dotnet/ }
             - { label: "Go (net/http)", href: https://rapidocui.com/docs/integrations/go/ }
             - { label: Build an integration, href: https://rapidocui.com/docs/integrations/build-your-own/ }
+      footer:
+        label: Which package do I need?
+        href: "https://rapidocui.com/docs/#which-package-do-i-need"
+    - label: Get started
+      position: start
+      groups:
+        - label: Quickstarts
+          items:
+            - label: RapiDoc
+              badge: <rapi-doc>
+              href: https://rapidocui.com/docs/rapidoc/get-started/quickstart/
+              icon: file-code
+              description: An API reference from your spec, in one HTML file
+            - label: RapiFlow
+              badge: <rapi-flow>
+              href: /docs/quickstart/
+              icon: path
+              description: Run an Arazzo workflow against the in-browser mock
+            - label: RapiMock
+              badge: rapidoc mock
+              href: https://mock.rapidocui.com/docs/getting-started/quickstart/
+              icon: hard-drives
+              description: A mock server that keeps what you send
+            - label: RapiDoc Portal
+              href: https://portal.rapidocui.com/docs/getting-started/quickstart/
+              icon: layout
+              description: A developer portal on localhost with npm create rapidoc
+        - label: In One Step
+          items:
+            - label: RapiDoc Mini
+              badge: <rapi-doc-mini>
+              href: https://rapidocui.com/docs/rapidoc-mini/#show-one-endpoint
+              icon: puzzle-piece
+              description: One endpoint, with Try, inside a post or guide
+            - label: RapiPdf
+              badge: <rapi-pdf>
+              href: https://rapidocui.com/docs/rapipdf/#add-it-to-a-page
+              icon: file-pdf
+              description: A button that makes a PDF of your spec
+            - label: RapiDoc CLI
+              badge: rapidoc
+              href: https://rapidocui.com/docs/cli/
+              icon: terminal
+              description: Preview, validate and lint a spec from the command line
       footer:
         label: Which package do I need?
         href: "https://rapidocui.com/docs/#which-package-do-i-need"
