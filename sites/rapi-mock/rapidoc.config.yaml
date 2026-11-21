@@ -28,6 +28,7 @@ theme:
 # The header every RapiDoc site shares (sites/rapidoc is the source): the Products menu, with absolute
 # rapidocui.com links, and the Docs menu (Get started, API Reference, Browse). Keep it the same in sites/rapi-flow, sites/rapi-mock and sites/rapi-portal.
 header:
+  tabs: sidebar-select # the sections above the docs sidebar, as on rapidocui.com
   links:
     - label: Products
       position: start
@@ -123,9 +124,7 @@ header:
       footer:
         label: Which package do I need?
         href: "https://rapidocui.com/docs/#which-package-do-i-need"
-    - label: Check a spec
-      href: /spec-check/index.html
-      icon: list-checks
+    - { label: Check a spec, href: /spec-check/index.html, position: start }
     - label: GitHub
       href: https://github.com/rapi-doc/RapiDoc
       icon: github-logo

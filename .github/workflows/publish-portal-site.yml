@@ -14,6 +14,7 @@ on:
       - master
     paths:
       - 'sites/rapi-portal/**'
+      - 'sites/shared/**'
       # what the site is built from
       - 'packages/rapidoc-cli/**'
       - 'packages/rapidoc-portal/**'

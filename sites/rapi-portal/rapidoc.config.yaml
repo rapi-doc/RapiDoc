@@ -30,6 +30,7 @@ theme:
 # The header every RapiDoc site shares (sites/rapidoc is the source): the Products menu, with absolute
 # rapidocui.com links, and the Docs menu (Get started, API Reference, Browse). Keep it the same in sites/rapi-flow, sites/rapi-mock and sites/rapi-portal.
 header:
+  tabs: sidebar-select # the sections above the docs sidebar, as on rapidocui.com
   links:
     - label: Products
       position: start
