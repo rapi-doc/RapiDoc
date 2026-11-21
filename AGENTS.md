@@ -33,6 +33,7 @@ rapidoc/
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── sites/
 │   ├── rapi-mock/        # The RapiMock product and documentation site (mock.rapidocui.com), built with RapiDoc Portal
+│   ├── rapi-flow/        # The RapiFlow documentation site (flow.rapidocui.com), built with RapiDoc Portal
 │   ├── rapi-portal/      # The RapiDoc Portal product and documentation site (portal.rapidocui.com), built with RapiDoc Portal
 │   └── rapidoc/          # rapidocui.com rebuilt with RapiDoc Portal, in progress; the live site is still docs/
 ├── tests/
@@ -105,6 +106,10 @@ All agents must strictly adhere to the following system boundaries:
   - Its source lives here so a change to the mock and its documentation land in one pull request. A separate repository, `rapi-mock-doc`, only publishes the built site with GitHub Pages: `.github/workflows/publish-mock-site.yml` here builds it and pushes the files there.
   - It is where the mock's documentation grows. The mock pages of the Starlight site (`docs/src/content/docs/mocking/mock-server.mdx`) are to become a short summary that links to it; don't add new mock documentation there. Its own rules are in `sites/rapi-mock/AGENTS.md`.
 
+- **RapiFlow site (`sites/rapi-flow`)**:
+  - The documentation site of RapiFlow (`<rapi-flow>`), for `flow.rapidocui.com`, and the home of RapiDoc's Arazzo support across the family. Set up like the RapiMock site: built from this repository's own CLI and portal (`npm run dev:flow-site`, `npm run build:flow-site`), not an npm workspace, and published by `.github/workflows/publish-flow-site.yml`, which pushes the built files to `rapi-flow-doc`.
+  - Docs only: RapiFlow's feature page, API reference and examples stay on rapidocui.com. A change to `<rapi-flow>` or `src/utils/arazzo/` updates its pages in the same pull request. Its own rules are in `sites/rapi-flow/AGENTS.md`.
+
 - **RapiDoc Portal site (`sites/rapi-portal`)**:
   - The product and documentation site of RapiDoc Portal, for `portal.rapidocui.com`, set up like the RapiMock site: built from this repository's own CLI and portal (`npm run dev:portal-site`, `npm run build:portal-site`), not an npm workspace, and published by `.github/workflows/publish-portal-site.yml`, which pushes the built files to `rapi-portal-doc`. It moved here from that repository, which now only publishes.
   - Portal, server and CLI documentation for portal users goes there, in the same pull request as the change. Its own rules are in `sites/rapi-portal/AGENTS.md`.
@@ -152,6 +157,7 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run build:size`        | `packages/rapidoc`    | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`.                                  |
 | `npm run build:docs`        | `docs`                | Builds the Astro Starlight documentation site to `docs/dist/`.                                                          |
 | `npm run build:mock-site`   | `sites/rapi-mock`     | Builds the RapiMock site to `sites/rapi-mock/dist/` with this repository's CLI and portal (`npm run dev:mock-site` previews it on port 4327). Both first run `npm run build:spec-check`: the site's spec check (`/spec-check/`), the validator, lint rules and stateful mock bundled for a browser, shown in the Mock UI. |
+| `npm run build:flow-site`   | `sites/rapi-flow`     | Builds the RapiFlow site to `sites/rapi-flow/dist/` with this repository's CLI and portal (`npm run dev:flow-site` previews it on port 4330). |
 | `npm run build:portal-site` | `sites/rapi-portal`   | Builds the RapiDoc Portal site to `sites/rapi-portal/dist/` with this repository's CLI and portal (`npm run dev:portal-site` previews it on port 4328; `npm run mock:portal-site` runs the mock its example API calls). |
 | `npm run build:demo`        | `../rapi-portal-demo` | Builds `rapidoc`, then the sibling `rapi-portal-demo` checkout with the `rapidoc` CLI into `../rapi-portal-demo/dist/`. |
 | `npm run prerender:demo`    | Monorepo              | Runs `scripts/prerender-demo.mjs`.                                                                                      |
@@ -241,6 +247,7 @@ When executing tasks in this repository, follow these rules:
      - [`integrations/rapidoc-python/AGENTS.md`](integrations/rapidoc-python/AGENTS.md)
      - [`integrations/rapidoc-dotnet/AGENTS.md`](integrations/rapidoc-dotnet/AGENTS.md)
      - [`sites/rapi-mock/AGENTS.md`](sites/rapi-mock/AGENTS.md)
+     - [`sites/rapi-flow/AGENTS.md`](sites/rapi-flow/AGENTS.md)
      - [`sites/rapi-portal/AGENTS.md`](sites/rapi-portal/AGENTS.md)
      - [`sites/rapidoc/AGENTS.md`](sites/rapidoc/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.

@@ -121,7 +121,7 @@ await document.querySelector('rapi-doc-mini').showOperation('GET /pet/{petId}');
 
 ## Next to a workflow
 
-[`<rapi-flow>`](/docs/rapi-flow/pairing/#one-element-per-api) pairs with one `<rapi-doc-mini>` per API its Arazzo workflow calls. Name the API with `arazzo-source`; `<rapi-flow>` then sets the mini's `filter-operations` to the workflow's calls to that API, in step order, and clicking a step shows its operation in the mini.
+[`<rapi-flow>`](https://flow.rapidocui.com/docs/pairing/#one-element-per-api) pairs with one `<rapi-doc-mini>` per API its Arazzo workflow calls. Name the API with `arazzo-source`; `<rapi-flow>` then sets the mini's `filter-operations` to the workflow's calls to that API, in step order, and clicking a step shows its operation in the mini.
 
 ```html
 <rapi-flow arazzo-url="/workflows/ship-a-parcel.arazzo.yaml" for="rates-api shipments-api"></rapi-flow>

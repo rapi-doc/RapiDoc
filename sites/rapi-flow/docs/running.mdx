@@ -15,7 +15,7 @@ A workflow is easiest to show and test before the API exists, or without touchin
 
 ### The in-browser mock
 
-Turn on [`mock-server`](/docs/mocking/in-browser/) on the paired elements. Every request of the run to their APIs is answered in the page from the spec's examples and schemas; the Execution Log's heading reads "Execution Log (mocked responses)" when every response was mocked; when only some were (a source with no mocking element), those entries say "mocked response" when opened. The mock answers 200 unless told otherwise: for APIs that answer 201 or 204, set `mock-server-status-code=""` on the element, so each operation gets its first 2xx response and the workflow's `$statusCode == 201` checks pass.
+Turn on [`mock-server`](https://rapidocui.com/docs/mocking/in-browser/) on the paired elements. Every request of the run to their APIs is answered in the page from the spec's examples and schemas; the Execution Log's heading reads "Execution Log (mocked responses)" when every response was mocked; when only some were (a source with no mocking element), those entries say "mocked response" when opened. The mock answers 200 unless told otherwise: for APIs that answer 201 or 204, set `mock-server-status-code=""` on the element, so each operation gets its first 2xx response and the workflow's `$statusCode == 201` checks pass.
 
 ```html
 <rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" for="thedoc"></rapi-flow>
@@ -27,13 +27,13 @@ The run panel then has a **Mock Response Status** table: the status codes the mo
 - Empty: the element's own setting (`mock-server-status-code`: 200 by default, the operation's first 2xx response when it is empty).
 - One code in the default row, such as `404`: every request of the run gets it. In the sample `adoptPet` workflow, a 404 on the first step takes its `onFailure` branch and ends the run.
 - A code on one step, such as `503, 200` on `placeOrder`: that step's first attempt gets 503 and its retry gets 200, while the other steps succeed. With several codes, a step takes the next code on each attempt, in turn; `random:200, 500` picks one at random for each attempt instead.
-- A step's [`x-mock-server-status-code`](/docs/rapi-flow/extensions/#mock-status-codes-x-mock-server-status-code) in the Arazzo file fills its row, so a workflow can ship with the failure scenario it demonstrates.
+- A step's [`x-mock-server-status-code`](/docs/extensions/#mock-status-codes-x-mock-server-status-code) in the Arazzo file fills its row, so a workflow can ship with the failure scenario it demonstrates.
 
 The table sets each paired element's mock for that run only, per operation of its API, and puts the previous setting back afterwards. Pages can fill it from a script through the `statusCodes` property: `flow.statusCodes = { "*": "200", placeOrder: "503, 200" }`. A key set there, even to `""`, wins over the step's extension.
 
 ### A mock server
 
-To run against a mock that behaves more like the real API (request validation, generated data, OAuth scope checks), start [`rapidoc mock`](/docs/mocking/mock-server/) and point the run at it:
+To run against a mock that behaves more like the real API (request validation, generated data, OAuth scope checks), start [`rapidoc mock`](https://mock.rapidocui.com/docs/getting-started/quickstart/) and point the run at it:
 
 ```html
 <rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" spec-url="/specs/petstore.yaml"
@@ -54,10 +54,10 @@ With `server-is-mock="true"`, the same **Mock Response Status** table works here
 | `onSuccess` / `onFailure`: `end`, `goto`, `retry` with `retryAfter` and `retryLimit` | Yes |
 | `requestBody` with payload and replacements | Yes |
 | `regex`, `jsonpath` and `xpath` criteria | Not yet |
-| [`x-security`](/docs/rapi-flow/extensions/#credentials-in-the-workflow-x-security) on a workflow or step: API key, HTTP Basic, bearer | Yes |
+| [`x-security`](/docs/extensions/#credentials-in-the-workflow-x-security) on a workflow or step: API key, HTTP Basic, bearer | Yes |
 | `x-security` with HTTP Digest | No |
 | `x-allowReserved` on a step's query parameter, and the OpenAPI parameter's `allowReserved` | Yes |
-| [`x-operation`](/docs/rapi-flow/extensions/#calls-outside-the-api-sources-x-operation): a step that calls a URL outside the sources | Yes |
+| [`x-operation`](/docs/extensions/#calls-outside-the-api-sources-x-operation): a step that calls a URL outside the sources | Yes |
 | Steps that call another workflow, AsyncAPI sources | Not yet |
 
 A step without `successCriteria` succeeds on a 2xx status; the first matching action runs; a run stops after 1,000 steps. A workflow that uses something not supported yet is still drawn, with a note that explains why it can't run.

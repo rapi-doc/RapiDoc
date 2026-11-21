@@ -165,7 +165,7 @@ mini.setApiKey('api_key', 'demo-key');`,
       '<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-flow-min.js"></script>',
     intro:
       "Draws the workflows of an Arazzo document as a diagram, and runs them against your API. It ships in its own bundle, rapidoc-flow-min.js.",
-    guide: { label: "RapiFlow guide", href: "/docs/rapi-flow/" },
+    guide: { label: "RapiFlow guide", href: "https://flow.rapidocui.com/" },
     eventCode: `const flow = document.querySelector('rapi-flow');
 
 // A step was clicked: show its operation somewhere else on the page

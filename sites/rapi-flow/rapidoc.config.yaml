@@ -1,0 +1,135 @@
+# yaml-language-server: $schema=../../packages/rapidoc-portal/schema.json
+# The RapiFlow documentation site (https://flow.rapidocui.com), built with RapiDoc Portal. RapiFlow's feature page
+# is on rapidocui.com (/rapi-flow/); this site holds its docs and RapiDoc's Arazzo support.
+site:
+  title: RapiFlow
+  url: https://flow.rapidocui.com
+  description: Documentation of RapiFlow, the <rapi-flow> web component that draws Arazzo workflows next to your API reference and runs them in the browser.
+  logo:
+    src:
+      light: /rapi-flow-lockup-light.svg
+      dark: /rapi-flow-lockup-dark.svg
+    alt: RapiFlow
+  favicon: /rapidoc-leaves.svg
+# Google Analytics: the same property as rapidocui.com; content_group tells the sites apart.
+head:
+  - script:
+      async: true
+      src: https://www.googletagmanager.com/gtag/js?id=G-M9TPKERDJ6
+  - script: |
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-M9TPKERDJ6', { content_group: 'Flow' });
+theme:
+  primary: "#f6a821" # amber, as on rapidocui.com
+  mode: auto
+  fonts:
+    sans: { family: Inter }
+    mono: { family: JetBrains Mono }
+  css: ./styles/portal.css
+# The header every RapiDoc site shares: Products and Docs lead to rapidocui.com.
+header:
+  links:
+    - label: Products
+      position: start
+      groups:
+        - label: Web Components
+          items:
+            - label: RapiDoc
+              badge: <rapi-doc>
+              href: https://rapidocui.com/docs/
+              icon: file-code
+              description: Interactive API reference from your OpenAPI spec
+            - label: RapiDoc Mini
+              badge: <rapi-doc-mini>
+              href: https://rapidocui.com/rapidoc-mini/
+              icon: puzzle-piece
+              description: A few endpoints, with Try, inside a post or guide
+            - label: RapiFlow
+              badge: <rapi-flow>
+              href: https://rapidocui.com/rapi-flow/
+              icon: path
+              description: Step through and run Arazzo workflows
+            - label: RapiPdf
+              badge: <rapi-pdf>
+              href: https://rapidocui.com/rapipdf/
+              icon: file-pdf
+              description: Turn an OpenAPI spec into a PDF
+        - label: Tools
+          items:
+            - label: RapiDoc Portal
+              href: https://portal.rapidocui.com/
+              icon: layout
+              description: API references and guides as one site, with search and SSO
+            - label: RapiDoc CLI
+              badge: rapidoc
+              href: https://rapidocui.com/cli/
+              icon: terminal
+              description: Preview, validate, lint, bundle and export specs
+            - label: Mock Server
+              href: https://rapidocui.com/docs/mocking/overview/
+              icon: hard-drives
+              description: Answer requests from your spec, in the page or as a server
+            - label: MCP Server
+              href: https://rapidocui.com/docs/ai/mcp-server/
+              icon: robot
+              description: Turn your API into tools for AI agents
+            - label: Pre-rendering
+              href: https://rapidocui.com/docs/performance/prerender/
+              icon: lightning
+              description: Server-rendered HTML for search engines and a fast first paint
+        - label: Integrations
+          items:
+            - { label: All integrations, href: https://rapidocui.com/integrations/ }
+            - { label: "React, Vue, Angular, Svelte", href: https://rapidocui.com/docs/integrations/front-end/ }
+            - { label: "Hono, Express, Fastify", href: https://rapidocui.com/docs/integrations/node/ }
+            - { label: "Starlight, VitePress, Docusaurus", href: https://rapidocui.com/docs/integrations/docs-sites/ }
+            - { label: "Python (FastAPI, Starlette)", href: https://rapidocui.com/docs/integrations/python/ }
+            - { label: ".NET (ASP.NET Core)", href: https://rapidocui.com/docs/integrations/dotnet/ }
+            - { label: "Go (net/http)", href: https://rapidocui.com/docs/integrations/go/ }
+            - { label: Build an integration, href: https://rapidocui.com/docs/integrations/build-your-own/ }
+      footer:
+        label: Which package do I need?
+        href: https://rapidocui.com/docs/get-started/packages/
+    - { label: Docs, href: https://rapidocui.com/docs/, position: start }
+    - label: GitHub
+      href: https://github.com/rapi-doc/RapiDoc
+      icon: github-logo
+      style: button
+navigation:
+  - label: Documentation
+    icon: book
+    items:
+      - { label: Overview, href: / } # the home page (docs/index.mdx); a slug can't name it
+      - { slug: pairing, label: "Pairing with <rapi-doc>" }
+      - { slug: running, label: Running Workflows }
+      - { slug: extensions, label: Arazzo Extensions }
+      - { slug: styling, label: "Slots & Styling" }
+      - label: Reference
+        items:
+          - { label: API Reference, href: https://rapidocui.com/api/rapi-flow/ }
+          - { label: Live Demo, href: https://rapidocui.com/rapi-flow/ }
+          - { label: Examples, href: https://rapidocui.com/examples/arazzo }
+docs:
+  editUrl: https://github.com/rapi-doc/RapiDoc/edit/master/sites/rapi-flow/docs/
+footer:
+  columns:
+    - title: Docs
+      links:
+        - { label: Overview, href: / }
+        - { label: Running Workflows, href: /docs/running/ }
+        - { label: Arazzo Extensions, href: /docs/extensions/ }
+    - title: RapiFlow
+      links:
+        - { label: Feature page, href: https://rapidocui.com/rapi-flow/ }
+        - { label: API Reference, href: https://rapidocui.com/api/rapi-flow/ }
+        - { label: Arazzo Specification, href: https://spec.openapis.org/arazzo/latest.html }
+    - title: Project
+      links:
+        - { label: RapiDoc, href: https://rapidocui.com }
+        - { label: GitHub, href: https://github.com/rapi-doc/RapiDoc }
+  social:
+    - icon: github
+      href: https://github.com/rapi-doc/RapiDoc
+  copyright: © 2026 RapiDoc. MIT licensed.

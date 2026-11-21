@@ -24,6 +24,8 @@
     "build:spec-check": "npm run build:mock && vite build --config sites/rapi-mock/spec-check/vite.config.mjs",
     "dev:mock-site": "npm run build:spec-check && node packages/rapidoc-cli/src/index.js dev sites/rapi-mock --port 4327",
     "build:mock-site": "npm run build:rapidoc && npm run build:mcp && npm run build:prerender && npm run build:spec-check && node packages/rapidoc-cli/src/index.js build sites/rapi-mock",
+    "dev:flow-site": "node packages/rapidoc-cli/src/index.js dev sites/rapi-flow --port 4330",
+    "build:flow-site": "npm run build:rapidoc && npm run build:mcp && npm run build:prerender && node packages/rapidoc-cli/src/index.js build sites/rapi-flow",
     "build:rapidoc:dev": "npm run build:dev --workspace=rapidoc",
     "build:size": "npm run build:size --workspace=rapidoc",
     "build:docs": "npm run build --workspace=docs",

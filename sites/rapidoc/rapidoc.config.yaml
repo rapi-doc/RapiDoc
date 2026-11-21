@@ -176,14 +176,7 @@ navigation:
       - { label: "Live Demos", href: /rapidoc-mini/ }
   - label: "RapiFlow"
     icon: path
-    items:
-      - { slug: rapi-flow, label: "Overview" }
-      - { slug: rapi-flow/pairing, label: "Pairing with <rapi-doc>" }
-      - { slug: rapi-flow/running, label: "Running Workflows" }
-      - { slug: rapi-flow/extensions, label: "Arazzo Extensions" }
-      - { slug: rapi-flow/styling, label: "Slots & Styling" }
-      - { label: "API Reference", href: /api/rapi-flow/ }
-      - { label: "Live Demo", href: /rapi-flow/ }
+    href: https://flow.rapidocui.com/ # its docs have their own site (sites/rapi-flow)
   - label: "RapiPdf"
     icon: file-pdf
     items:

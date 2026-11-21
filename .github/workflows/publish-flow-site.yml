@@ -1,0 +1,92 @@
+name: Publish the RapiFlow site
+
+# Builds sites/rapi-flow (the RapiFlow documentation site, https://flow.rapidocui.com) with this
+# repository's own CLI and portal, and pushes the built files to the main branch of rapi-doc/rapi-flow-doc, which
+# GitHub Pages serves. That repository holds only the published site; its source is here.
+#
+# Needs the secret RAPI_FLOW_DOC_DEPLOY_KEY: the private half of a deploy key with write access on
+# rapi-doc/rapi-flow-doc.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'sites/rapi-flow/**'
+      # what the site is built from
+      - 'packages/rapidoc-cli/**'
+      - 'packages/rapidoc-portal/**'
+      - 'packages/rapidoc-prerender/**'
+      - 'packages/rapidoc-mcp/**'
+      - 'packages/rapidoc/src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/publish-flow-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One publish at a time; a newer push replaces one that is waiting, never one that is pushing
+concurrency:
+  group: publish-flow-site
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    # forks have no deploy key
+    if: github.repository == 'rapi-doc/RapiDoc'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the site
+        run: npm run build:flow-site
+
+      - name: Check the build
+        working-directory: sites/rapi-flow/dist
+        run: |
+          test -f index.html
+          test -f docs/running/index.html
+          test "$(cat CNAME)" = "flow.rapidocui.com"
+
+      - name: Push to rapi-doc/rapi-flow-doc
+        working-directory: sites/rapi-flow/dist
+        env:
+          DEPLOY_KEY: ${{ secrets.RAPI_FLOW_DOC_DEPLOY_KEY }}
+        run: |
+          # Pages would otherwise run Jekyll, which drops folders that start with an underscore (_astro, _rapidoc)
+          touch .nojekyll
+          cat > README.md <<TEXT
+          # rapi-flow-doc
+
+          The published files of the RapiFlow site, https://flow.rapidocui.com.
+
+          Do not edit them here: every publish replaces this branch. The site's source is
+          [sites/rapi-flow](https://github.com/rapi-doc/RapiDoc/tree/master/sites/rapi-flow) in the RapiDoc
+          repository, built and pushed by its workflow "Publish the RapiFlow site".
+          TEXT
+
+          install -m 600 /dev/null "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          export GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+
+          # The branch holds the site as it is now and nothing else: one commit, replaced by every publish
+          git init -q -b main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Publish the RapiFlow site from rapi-doc/RapiDoc@${GITHUB_SHA::7}"
+          git push -q --force git@github.com:rapi-doc/rapi-flow-doc.git main
+          rm -f "$RUNNER_TEMP/deploy_key"

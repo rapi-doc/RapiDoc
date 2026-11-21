@@ -1,0 +1,40 @@
+---
+title: Slots & Styling
+description: Put your own markup in <rapi-flow>, style it with CSS parts, and read its properties.
+---
+
+Every attribute, method and event of `<rapi-flow>` is on its [API reference](https://rapidocui.com/api/rapi-flow/) page, read from the element's source. All its events bubble and cross the shadow boundary (`composed`).
+
+## Slots
+
+Put your own markup at the top or bottom of the element with `slot="header"` or `slot="footer"`: a logo, a title, a server switch, links. It stays in the page's DOM, so the page's CSS styles it and its scripts find it, and it scrolls with the diagram. Its spacing is yours: the element adds none around it.
+
+```html
+<rapi-flow arazzo-url="/workflows/ship-a-parcel.arazzo.yaml" for="thedoc">
+  <div slot="header">
+    <img src="/logo.svg" alt="Rapid Parcels" height="28">
+  </div>
+  <p slot="footer">Questions? <a href="/support">Contact support</a>.</p>
+</rapi-flow>
+```
+
+| Slot | Where |
+| :--- | :--- |
+| `header` | At the top, above the card with the Arazzo document's URL and API sources. |
+| `footer` | At the bottom, below the run panel. |
+
+The [rapi-flow example](https://rapidocui.com/examples/arazzo) puts the `<rapi-flow>` logo and its Real / Mock server switch in the header slot; the [multi-API example](https://rapidocui.com/examples/arazzo-multi), the Rapid Parcels logo.
+
+## Styling
+
+`theme` and `color-scheme` work as on `<rapi-doc>`, and the element reads the same [CSS custom properties](https://rapidocui.com/docs/theming/overview). Its CSS parts: `mcp-export`, `document` (the card with the URL and the API sources), `sources`, `url`, `url-form`, `url-input`, `url-load`, `url-error`, `header`, `title`, `select`, `description`, `view-toggle`, `diagram`, `run`, `run-inputs`, `run-button`, `run-stop`, `log-toggle` (the Execution Log's Single line / Multiline switch), `message`, `problems`.
+
+```css
+rapi-flow::part(diagram) {
+  max-height: 32rem;
+}
+```
+
+## Properties
+
+The element also exposes `arazzoDocument` (the parsed document), `workflowRuntimeSource`, which a paired `<rapi-doc>` uses to add workflow tools to its [MCP export](https://rapidocui.com/docs/ai/mcp-server/#workflows-as-tools), and the `statusCodes` property that fills the Mock Response Status table (see [Running against a mock](/docs/running/#running-against-a-mock)).

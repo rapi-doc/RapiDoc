@@ -8,7 +8,7 @@ import { Aside, CardGrid, LinkCard } from '@rapidoc/portal/components';
 An API reference shows operations one at a time. Integrators also need the order: find a pet, check it, order it, read the order back. [Arazzo](https://spec.openapis.org/arazzo/latest.html) describes those sequences, and `<rapi-flow>` draws them: one box per step, linked to its operation, the values each step passes on, and the success and failure branches. Readers can run a workflow from the page and watch each step answer.
 
 <Aside type="tip" title="See it running">
-  The [RapiFlow page](/rapi-flow/) runs a workflow against the in-browser mock, the [rapi-flow example](/examples/arazzo) puts the diagram next to a full API reference, and the [multi-API example](/examples/arazzo-multi) pairs it with one `<rapi-doc-mini>` per API.
+  The [RapiFlow page](https://rapidocui.com/rapi-flow/) runs a workflow against the in-browser mock, the [rapi-flow example](https://rapidocui.com/examples/arazzo) puts the diagram next to a full API reference, and the [multi-API example](https://rapidocui.com/examples/arazzo-multi) pairs it with one `<rapi-doc-mini>` per API.
 </Aside>
 
 ## Load it
@@ -27,7 +27,7 @@ With a bundler, `import 'rapidoc/flow';` registers the element. It carries its o
 
 ## Standalone or paired
 
-- **Paired** (`for="<id>"`): the element uses that `<rapi-doc>`'s spec, its selected server and the credentials entered in its Authentication section. Clicking a step scrolls the reference to the step's operation. If the `<rapi-doc>` has `mock-server="true"`, runs go to the in-browser mock. A workflow that calls several APIs can be paired with one element per API (see [one element per API](/docs/rapi-flow/pairing/#one-element-per-api)).
+- **Paired** (`for="<id>"`): the element uses that `<rapi-doc>`'s spec, its selected server and the credentials entered in its Authentication section. Clicking a step scrolls the reference to the step's operation. If the `<rapi-doc>` has `mock-server="true"`, runs go to the in-browser mock. A workflow that calls several APIs can be paired with one element per API (see [one element per API](/docs/pairing/#one-element-per-api)).
 - **Standalone**: the element loads each OpenAPI source of the Arazzo file itself (`spec-url` replaces the first one's URL) and shows its own credentials fields, one per security scheme of the loaded specs. Values typed there stay in the page. A paired element's sources get no fields: it has its own.
 
 ## In a developer portal
@@ -37,9 +37,9 @@ With a bundler, `import 'rapidoc/flow';` registers the element. It carries its o
 ## Learn more
 
 <CardGrid>
-  <LinkCard title="Pairing with <rapi-doc>" href="/docs/rapi-flow/pairing/" description="API sources, one element per API, and links to a step." />
-  <LinkCard title="Running workflows" href="/docs/rapi-flow/running/" description="Run a workflow from the page, against the API or a mock, and what runs." />
-  <LinkCard title="Arazzo extensions" href="/docs/rapi-flow/extensions/" description="x-security, x-operation and x-allowReserved." />
-  <LinkCard title="API Reference" href="/api/rapi-flow/" description="Every attribute, method and event, read from the element's source." />
-  <LinkCard title="Slots & Styling" href="/docs/rapi-flow/styling/" description="Your own header and footer, CSS parts and properties." />
+  <LinkCard title="Pairing with <rapi-doc>" href="/docs/pairing/" description="API sources, one element per API, and links to a step." />
+  <LinkCard title="Running workflows" href="/docs/running/" description="Run a workflow from the page, against the API or a mock, and what runs." />
+  <LinkCard title="Arazzo extensions" href="/docs/extensions/" description="x-security, x-operation and x-allowReserved." />
+  <LinkCard title="API Reference" href="https://rapidocui.com/api/rapi-flow/" description="Every attribute, method and event, read from the element's source." />
+  <LinkCard title="Slots & Styling" href="/docs/styling/" description="Your own header and footer, CSS parts and properties." />
 </CardGrid>

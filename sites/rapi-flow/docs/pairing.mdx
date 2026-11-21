@@ -3,7 +3,7 @@ title: Pairing with <rapi-doc>
 description: How <rapi-flow> finds the APIs an Arazzo workflow calls, pairs with one <rapi-doc> or <rapi-doc-mini> per API, and links to a step.
 ---
 
-`<rapi-flow>` draws a workflow on its own, or takes each API's spec, server, credentials and mock from a `<rapi-doc>` or `<rapi-doc-mini>` on the page (see [Standalone or paired](/docs/rapi-flow/#standalone-or-paired)).
+`<rapi-flow>` draws a workflow on its own, or takes each API's spec, server, credentials and mock from a `<rapi-doc>` or `<rapi-doc-mini>` on the page (see [Standalone or paired](/#standalone-or-paired)).
 
 ## API sources
 
@@ -32,7 +32,7 @@ A document can name several sources (Rapid Parcels' `ship-a-parcel` uses `rates`
 
 - **Which element goes with which source**: the source its `arazzo-source` attribute names; else the source whose URL it has loaded (`spec-url`, resolved against the page, equal to the source URL resolved against the Arazzo file); else the next source not taken, in document order. An element named for a source the document does not have is left alone, so a page can list elements for several Arazzo files in one `for`.
 - **Loading**: with `allow-arazzo-url-load="true"`, `<rapi-flow>` loads each source into its element, so the elements need no `spec-url`: a `<rapi-doc>` loads it at once, a mini once its filter is set, so it is fetched filtered from the start. `<rapi-flow>` loads a mini's source itself too, to resolve every workflow's steps; a `<rapi-doc>`'s source is fetched only by the `<rapi-doc>`. Without the box, give each element its `spec-url`.
-- **Changing `for`**: `<rapi-flow>` pairs the elements again without loading the Arazzo file again. Elements are paired after `flow-loaded` fires, so a `flow-loaded` listener can create the elements for the document's sources and set `for`. The [multi-API example](/examples/arazzo-multi) writes its three minis in the page instead, each with `arazzo-source` and `spec-url`, for Rapid Parcels' `ship-a-parcel`.
+- **Changing `for`**: `<rapi-flow>` pairs the elements again without loading the Arazzo file again. Elements are paired after `flow-loaded` fires, so a `flow-loaded` listener can create the elements for the document's sources and set `for`. The [multi-API example](https://rapidocui.com/examples/arazzo-multi) writes its three minis in the page instead, each with `arazzo-source` and `spec-url`, for Rapid Parcels' `ship-a-parcel`.
 
 ## Links to a step
 
