@@ -67,10 +67,10 @@ header:
               href: https://rapidocui.com/cli/
               icon: terminal
               description: Preview, validate, lint, bundle and export specs
-            - label: Mock Server
-              href: https://rapidocui.com/docs/mocking/overview/
+            - label: RapiMock
+              href: https://mock.rapidocui.com/
               icon: hard-drives
-              description: Answer requests from your spec, in the page or as a server
+              description: A mock server from your spec that validates requests and remembers
             - label: MCP Server
               href: https://rapidocui.com/docs/ai/mcp-server/
               icon: robot
