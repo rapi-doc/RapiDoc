@@ -212,6 +212,19 @@ describe("Header options in a built portal", () => {
     assert.match(tabs, /href="\/docs\/more\/"[\s\S]*?More/);
   });
 
+  it("ships a search dialog that splits a query into words", () => {
+    // The dialog's script is inline, written in a template: a doubled backslash there once made the
+    // split look for a literal backslash, so only a one-word query ever found anything.
+    assert.match(html, /q\.split\(\/\\s\+\/\)/);
+    assert.doesNotMatch(html, /split\(\/\\\\s/);
+    // And escapes a word before highlighting it, so "c++" or "(" is text, not a pattern
+    const escape = /token\.replace\((\/.+?\/g), '(.+?)'\)/.exec(html);
+    assert.ok(escape, "the highlight escape is in the page");
+    const pattern = new RegExp(escape[1].slice(1, -2), "g");
+    assert.equal("a.b(c)+[d]\\".replace(pattern, "\\$&"), "a\\.b\\(c\\)\\+\\[d\\]\\\\");
+    assert.equal(escape[2], "\\\\$&");
+  });
+
   it("has the portal's 404 page when the project has none", () => {
     const notFound = fs.readFileSync(path.join(outDir, "404.html"), "utf8");
     assert.match(notFound, /<title>Page not found/);

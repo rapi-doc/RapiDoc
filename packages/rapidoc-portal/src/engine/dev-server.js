@@ -15,6 +15,8 @@ import { createAstroConfig } from "./astro-integration.js";
 import { createPortalWorkspace, refreshDocs, removePortalWorkspace } from "./temp-workspace.js";
 import { reportSpecWarnings } from "./spec-checks.js";
 import { PAGES_DIRNAME } from "./project-pages.js";
+import { DEV_PAGES_ROUTE } from "./astro-integration.js";
+import { extractPageRecords, writePageRecords } from "../search/indexer.js";
 
 const WATCH_DEBOUNCE_MS = 150;
 
@@ -52,6 +54,45 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
     } catch (err) {
       removePortalWorkspace(workspace);
       throw err;
+    }
+    indexProjectPages();
+  }
+
+  /**
+   * The project's own pages in the dev search: they have no Markdown source, so each is asked for from
+   * the server just started and read as HTML, as a build reads them from its output. Runs after start,
+   * without holding it up; a page added later is found after the restart that adds its route.
+   */
+  async function indexProjectPages() {
+    const current = workspace;
+    if (!current.config.search || current.pages.length === 0) return;
+    const origin = `http://localhost:${server.address.port}${current.config.site.basePath || ""}`;
+    try {
+      const urls = await (await fetch(`${origin}${DEV_PAGES_ROUTE}`)).json();
+      const records = [];
+      const queue = [...urls];
+      const worker = async () => {
+        for (let url = queue.shift(); url !== undefined; url = queue.shift()) {
+          try {
+            const res = await fetch(`${origin}${url}`, { headers: { accept: "text/html" } });
+            if (res.ok)
+              records.push(
+                ...extractPageRecords(await res.text(), url, {
+                  siteTitle: current.config.site.title,
+                }),
+              );
+          } catch {
+            // A page that fails to render shows its error in the browser; the search goes on without it.
+          }
+        }
+      };
+      await Promise.all(Array.from({ length: 4 }, worker));
+      if (stopped || workspace !== current) return;
+      current.pageRecords = records;
+      writePageRecords(path.join(current.publicDir, "search-index.json"), records);
+      console.log(`[rapidoc-portal] Search: ${urls.length} of your own pages added`);
+    } catch (err) {
+      console.warn(`[rapidoc-portal] Search: your own pages were not added (${err.message})`);
     }
   }
 

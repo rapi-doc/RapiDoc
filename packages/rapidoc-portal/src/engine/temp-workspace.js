@@ -41,6 +41,7 @@ import {
 import { writeLlmsFiles } from "./llms.js";
 import { renderThemeCss } from "./theme-css.js";
 import { listProjectPages } from "./project-pages.js";
+import { writePageRecords } from "../search/indexer.js";
 
 export const WORKSPACE_DIRNAME = ".rapidoc-temp";
 
@@ -123,6 +124,9 @@ export function refreshDocs(workspace) {
   const docFiles = listDocFiles(workspace.projectDocsDir);
   try {
     writeSearchIndex(workspace.config, workspace.projectDir, docFiles, workspace.publicDir);
+    // The dev server's records of the project's own pages (dev-server.js), which a rewrite would drop
+    if (workspace.pageRecords?.length)
+      writePageRecords(path.join(workspace.publicDir, "search-index.json"), workspace.pageRecords);
   } catch (err) {
     console.warn(`[rapidoc-portal] Search index not built: ${err.message}`);
   }

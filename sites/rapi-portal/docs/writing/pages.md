@@ -124,9 +124,24 @@ const releases = JSON.parse(fs.readFileSync(path.join(projectDir, 'data', 'relea
 
 `projectDir` works the same way in a component that an MDX page imports.
 
+## Search
+
+Your pages are in the portal's search, next to the guides and the API operations, under a **Pages** filter. A page is found by its `<h1>` (or its `<title>`), its description and its text, and each `<h2>` and `<h3>` that has an `id` is a result of its own that opens the page at that heading.
+
+The search reads your pages as HTML, since they have no Markdown source. Two things follow:
+
+- Only text in the page's HTML counts. What a script draws in the browser is not searched.
+- `rapidoc dev` reads the pages once, just after it starts. Text you change in a page is found after the next start; `rapidoc build` always reads the pages it built.
+
+To keep a page out of the search, add this to its `<head>`:
+
+```html
+<meta name="portal-search" content="off" />
+```
+
 ## What pages don't get
 
-- **Search and `llms.txt`**: your own pages are not indexed.
+- **`llms.txt`**: your own pages are not listed there.
 - **The sidebar**: link to a page from `header.links`, the footer or a guide.
 - **With a base path** (`site.url` with a path): write links through the portal's components, or add the base yourself in plain `<a>` tags.
 

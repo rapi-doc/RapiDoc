@@ -63,6 +63,9 @@ const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.start
       )
     }
 
+    {/* A page kept out of search engines stays out of the site's own search too */}
+    {noindex && <meta name="portal-search" content="off" />}
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={fullCanonicalUrl} />

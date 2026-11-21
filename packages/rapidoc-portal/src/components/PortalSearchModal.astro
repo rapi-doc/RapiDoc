@@ -30,6 +30,7 @@ const { portalConfig = {} } = Astro.props;
       <button type="button" class="portal-search-filter-btn active" data-filter="all">All</button>
       <button type="button" class="portal-search-filter-btn" data-filter="doc">Guides & Docs</button>
       <button type="button" class="portal-search-filter-btn" data-filter="api">API Operations</button>
+      <button type="button" class="portal-search-filter-btn" data-filter="page">Pages</button>
     </div>
 
     <div class="portal-search-modal-body">
@@ -80,6 +81,7 @@ const { portalConfig = {} } = Astro.props;
             if (res.ok) {
               const data = await res.json();
               searchRecords = data.records || [];
+              showFiltersWithResults();
               break;
             }
           } catch {}
@@ -89,6 +91,18 @@ const { portalConfig = {} } = Astro.props;
       } finally {
         isLoading = false;
       }
+    }
+
+    // A filter is offered only for a kind of result the site has (a portal without APIs has no
+    // "API Operations"), and the row only when there is something to choose between.
+    function showFiltersWithResults() {
+      const kinds = new Set(searchRecords.map((record) => record.type));
+      filterBtns.forEach((btn) => {
+        const kind = btn.getAttribute('data-filter');
+        btn.hidden = kind !== 'all' && !kinds.has(kind);
+      });
+      const row = modal.querySelector('.portal-search-modal-filters');
+      if (row) row.hidden = kinds.size < 2;
     }
 
     function openModal() {
@@ -178,7 +192,16 @@ const { portalConfig = {} } = Astro.props;
         return;
       }
 
-      const tokens = q.split(/\\s+/).filter(Boolean);
+      // Words of the query: a result must have every one of them, in any of its fields
+      const tokens = q.split(/\s+/).filter(Boolean);
+      // A name written with hyphens is found without them, and the other way round ("rapidoc" and
+      // "rapi-doc" find the same things). A field with hyphens is searched in both spellings.
+      const foldHyphens = (text) => (text.includes('-') ? text + ' ' + text.replace(/-/g, '') : text);
+      const hasWord = (field, word) => {
+        if (field.includes(word)) return true;
+        const plain = word.replace(/-/g, '');
+        return plain !== word && plain.length > 0 && field.includes(plain);
+      };
       const scored = [];
 
       for (const record of searchRecords) {
@@ -186,27 +209,27 @@ const { portalConfig = {} } = Astro.props;
           continue;
         }
 
-        const titleLower = (record.title || '').toLowerCase();
-        const subtitleLower = (record.subtitle || '').toLowerCase();
+        const titleLower = foldHyphens((record.title || '').toLowerCase());
+        const subtitleLower = foldHyphens((record.subtitle || '').toLowerCase());
         const endpointLower = (record.endpoint || '').toLowerCase();
         const methodLower = (record.method || '').toLowerCase();
         const categoryLower = (record.category || '').toLowerCase();
-        const contentLower = (record.content || '').toLowerCase();
+        const contentLower = foldHyphens((record.content || '').toLowerCase());
 
         let score = 0;
         let matchesAllTokens = true;
 
         for (const token of tokens) {
           let tokenMatched = false;
-          if (titleLower.includes(token)) {
+          if (hasWord(titleLower, token)) {
             score += titleLower.startsWith(token) ? 25 : 15;
             tokenMatched = true;
           }
-          if (endpointLower.includes(token)) {
+          if (hasWord(endpointLower, token)) {
             score += endpointLower.startsWith(token) ? 20 : 12;
             tokenMatched = true;
           }
-          if (subtitleLower.includes(token)) {
+          if (hasWord(subtitleLower, token)) {
             score += 10;
             tokenMatched = true;
           }
@@ -214,11 +237,11 @@ const { portalConfig = {} } = Astro.props;
             score += 15;
             tokenMatched = true;
           }
-          if (categoryLower.includes(token)) {
+          if (hasWord(categoryLower, token)) {
             score += 8;
             tokenMatched = true;
           }
-          if (contentLower.includes(token)) {
+          if (hasWord(contentLower, token)) {
             score += 4;
             tokenMatched = true;
           }
@@ -246,7 +269,7 @@ const { portalConfig = {} } = Astro.props;
       let escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       for (const token of tokens) {
         if (!token) continue;
-        const re = new RegExp('(' + token.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&') + ')', 'gi');
+        const re = new RegExp('(' + token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
         escaped = escaped.replace(re, '<mark class="portal-search-match">$1</mark>');
       }
       return escaped;
@@ -273,6 +296,8 @@ const { portalConfig = {} } = Astro.props;
         if (item.type === 'api' && item.method) {
           const methodClass = 'method-' + item.method.toLowerCase();
           badgeHtml = '<span class="portal-search-badge ' + methodClass + '">' + item.method + '</span>';
+        } else if (item.type === 'page') {
+          badgeHtml = '<span class="portal-search-badge badge-page">PAGE</span>';
         } else {
           badgeHtml = '<span class="portal-search-badge badge-doc">DOC</span>';
         }
@@ -491,6 +516,11 @@ const { portalConfig = {} } = Astro.props;
   .portal-search-badge.method-put { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
   .portal-search-badge.method-delete { background: rgba(247, 82, 82, 0.15); color: #f75252; }
   .portal-search-badge.badge-doc { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+  .portal-search-badge.badge-page { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; }
+  .portal-search-modal-filters[hidden],
+  .portal-search-filter-btn[hidden] {
+    display: none;
+  }
 
   .portal-search-result-endpoint {
     font-family: monospace;

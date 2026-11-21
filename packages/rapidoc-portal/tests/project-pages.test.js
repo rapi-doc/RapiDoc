@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildPortal } from "../src/index.js";
+import { buildPortal, startDevServer } from "../src/index.js";
 import { listProjectPages, routePattern } from "../src/engine/project-pages.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -237,7 +237,82 @@ describe("Building a project with pages/", () => {
     assert.match(fs.readFileSync(path.join(outDir, "llms.txt"), "utf8"), /\/docs\.md/);
   });
 
+  it("puts the project's pages in the search index, from the pages as built", () => {
+    const { records, totalRecords } = JSON.parse(
+      fs.readFileSync(path.join(outDir, "search-index.json"), "utf8"),
+    );
+    assert.equal(totalRecords, records.length);
+    const pages = records.filter((record) => record.type === "page");
+    const byUrl = Object.fromEntries(pages.map((record) => [record.url, record]));
+    // A framed page: its <h1> is the title, and the portal's header and footer are not its text
+    assert.equal(byUrl["/framed"].title, "Framed page");
+    assert.doesNotMatch(byUrl["/framed"].content, /Documentation|Powered by/);
+    // A page without <h1>: its <title>, less the site's name
+    assert.equal(byUrl["/bare"].title, "Bare");
+    assert.match(byUrl["/bare"].content, /read from the project folder/);
+    // Every page of a dynamic route, the home page, and neither the 404 page nor a _ file
+    assert.ok(byUrl["/items/one"] && byUrl["/items/two"] && byUrl["/"]);
+    assert.equal(
+      pages.some((record) => /404|_draft/.test(record.url)),
+      false,
+    );
+    // The docs pages are still there, as docs
+    assert.ok(records.some((record) => record.type === "doc" && record.url === "/docs/intro"));
+  });
+
   it("leaves nothing in the project but the output", () => {
     assert.equal(fs.existsSync(path.join(projectDir, ".rapidoc-temp")), false);
+  });
+});
+
+describe("rapidoc dev with pages/", () => {
+  const projectDir = path.join(here, `.pages-dev-project-${process.pid}`);
+  let server;
+
+  before(async () => {
+    writeFiles(projectDir, {
+      "rapidoc.config.yaml": [
+        "site:",
+        "  title: Dev Test",
+        "navigation:",
+        "  - label: Documentation",
+        "    items:",
+        "      - { slug: intro }",
+        "",
+      ].join("\n"),
+      "docs/intro.md": "---\ntitle: Intro\n---\n\nHello.\n",
+      "pages/pricing.astro":
+        "<html lang='en'><head><title>Pricing | Dev Test</title></head><body><h1>Our plans</h1><p>Free for open source.</p></body></html>\n",
+      "pages/items/[id].astro": [
+        "---",
+        "export const getStaticPaths = () => ['one', 'two'].map((id) => ({ params: { id } }));",
+        "const { id } = Astro.params;",
+        "---",
+        "<html lang='en'><head><title>{id}</title></head><body><h1>Item {id}</h1></body></html>",
+        "",
+      ].join("\n"),
+    });
+    server = await startDevServer(projectDir, { port: 4700 + (process.pid % 200) });
+  });
+
+  after(async () => {
+    await server?.stop();
+    fs.rmSync(projectDir, { recursive: true, force: true });
+  });
+
+  it("puts the project's pages in the search, read from the running server", async () => {
+    const indexFile = path.join(server.workspaceDir, "public", "search-index.json");
+    const pageUrls = () =>
+      JSON.parse(fs.readFileSync(indexFile, "utf8"))
+        .records.filter((record) => record.type === "page")
+        .map((record) => record.url)
+        .sort();
+    // The pages are read after the server is up, without holding the start up
+    for (let waited = 0; waited < 20000 && pageUrls().length === 0; waited += 250)
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    assert.deepEqual(pageUrls(), ["/items/one", "/items/two", "/pricing"]);
+    const { records } = JSON.parse(fs.readFileSync(indexFile, "utf8"));
+    assert.equal(records.find((record) => record.url === "/pricing").title, "Our plans");
+    assert.ok(records.some((record) => record.type === "doc" && record.url === "/docs/intro"));
   });
 });

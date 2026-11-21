@@ -24,6 +24,10 @@ export const USER_CSS_MODULE = "virtual:rapidoc-portal/user-css";
  * files at build time (the build runs from the temp workspace, so paths from process.cwd() miss).
  */
 export const PROJECT_MODULE = "virtual:rapidoc-portal/project";
+/** The project's pages, each with a loader of its module: for pages/dev-pages.json.js (`rapidoc dev`). */
+export const PROJECT_PAGES_MODULE = "virtual:rapidoc-portal/project-pages";
+/** `rapidoc dev` only: lists the addresses of the project's pages, for the dev search index. */
+export const DEV_PAGES_ROUTE = "/_rapidoc/dev-pages.json";
 
 /** Where built scripts and styles go (Astro's default is `_astro`); under the portal's reserved, always-public `/_rapidoc/`. */
 export const BUILD_ASSETS_DIR = "_rapidoc/assets";
@@ -66,8 +70,14 @@ function portalRoutes(portalConfig, projectPages = []) {
 // The theme CSS is a file in the workspace, not virtual: in dev, Astro writes a virtual CSS module's
 // <style> under its URL id (/@id/__x00__…) and Vite's client adds a second copy under its raw id
 // (\0…), after the theme.css files. A file has one id on both sides.
-function virtualModulesPlugin(portalConfig, themeCssPath, projectDir) {
+function virtualModulesPlugin(portalConfig, themeCssPath, projectDir, pages = []) {
   const modules = {
+    [PROJECT_PAGES_MODULE]: `export default [${pages
+      .map(
+        ({ pattern, file }) =>
+          `{ pattern: ${JSON.stringify(pattern)}, load: () => import(${JSON.stringify(file)}) }`,
+      )
+      .join(", ")}];`,
     [PROJECT_MODULE]: `export const projectDir = ${JSON.stringify(projectDir)};`,
     [CONFIG_MODULE]: `export default ${JSON.stringify(portalConfig)};`,
     [ICONS_MODULE]: `export const iconsDir = ${JSON.stringify(iconsDir)};`,
@@ -120,10 +130,14 @@ export function rapidocPortal({ portalConfig, themeCssPath, projectDir, pages = 
   return {
     name: "@rapidoc/portal",
     hooks: {
-      "astro:config:setup": ({ config, injectRoute, updateConfig }) => {
+      "astro:config:setup": ({ command, config, injectRoute, updateConfig }) => {
         for (const route of portalRoutes(portalConfig, pages)) injectRoute(route);
+        if (command === "dev" && pages.length > 0)
+          injectRoute({ pattern: DEV_PAGES_ROUTE, entrypoint: pageUrl("dev-pages.json.js") });
         updateConfig({
-          vite: { plugins: [virtualModulesPlugin(portalConfig, themeCssPath, projectDir)] },
+          vite: {
+            plugins: [virtualModulesPlugin(portalConfig, themeCssPath, projectDir, pages)],
+          },
         });
         // First, so `:::type` blocks become portal callouts before Starlight's asides plugin sees them.
         config.markdown.processor.options.mdastPlugins.unshift(calloutDirectives(iconsDir));
