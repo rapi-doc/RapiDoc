@@ -72,7 +72,8 @@ jobs:
         run: |
           test -f index.html
           test -f docs/index.html
-          test -f docs/get-started/quickstart/index.html
+          test -f docs/rapidoc/get-started/quickstart/index.html
+          test -f rapidoc/index.html
           test -f api/index.html
           test -f examples/auth/index.html
           test -f sandbox/index.html
