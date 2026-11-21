@@ -8,7 +8,9 @@
  * (`footer`).
  */
 import Icon from './Icon.astro';
+import PortalMenuCard from './PortalMenuCard.astro';
 import { withBase } from './base-path.js';
+import { isExternal } from '../config/links.js';
 
 interface Props {
   /** The links of this group, in order */
@@ -21,7 +23,6 @@ interface Props {
 
 const { links, allLinks, position, currentPath } = Astro.props;
 const label = position === 'start' ? 'Main' : allLinks.some((link) => link.position === 'start') ? 'More' : 'Main';
-const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
 const badgeText = (badge: any) => (typeof badge === 'string' ? badge : badge.text);
 
 // The link of the section the page is in: the one whose address the page's address starts with. When
@@ -68,26 +69,7 @@ const activeLink = allLinks.filter(coversPage).sort((a, b) => pathOf(b.href).len
                       <ul class="portal-megamenu-group-list">
                         {group.items.map((item) => (
                           <li>
-                            <a
-                              href={withBase(item.href)}
-                              class:list={['portal-megamenu-card', { 'portal-megamenu-card-compact': !item.icon && !item.description }]}
-                              target={isExternal(item.href) ? '_blank' : undefined}
-                              rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
-                            >
-                              {item.icon && (
-                                <div class="portal-card-icon-box">
-                                  <Icon name={item.icon} duotone />
-                                </div>
-                              )}
-                              <div class="portal-card-body">
-                                <div class="portal-card-title-row">
-                                  <span class="portal-card-title">{item.label}</span>
-                                  {item.badge && <span class="portal-card-badge">{badgeText(item.badge)}</span>}
-                                  {isExternal(item.href) && <Icon name="arrow-up-right" size={16} class="portal-card-external" />}
-                                </div>
-                                {item.description && <p class="portal-card-desc">{item.description}</p>}
-                              </div>
-                            </a>
+                            <PortalMenuCard item={item} class="portal-megamenu-card" grouped />
                           </li>
                         ))}
                       </ul>
@@ -101,19 +83,7 @@ const activeLink = allLinks.filter(coversPage).sort((a, b) => pathOf(b.href).len
                     const hasFeats = item.items?.length > 0;
                     return (
                       <div class:list={['portal-megamenu-section', { 'with-divider': idx < link.items.length - 1 }]}>
-                        <a href={withBase(item.href)} class="portal-megamenu-hero-card">
-                          <div class="portal-card-icon-box">
-                            <Icon name={item.icon || 'lightning'} duotone />
-                          </div>
-                          <div class="portal-card-body">
-                            <div class="portal-card-title-row">
-                              <span class="portal-card-title">{item.label}</span>
-                              {item.badge && <span class="portal-card-badge">{badgeText(item.badge)}</span>}
-                              <span class="portal-card-arrow"><Icon name="arrow-right" size={16} /></span>
-                            </div>
-                            {item.description && <p class="portal-card-desc">{item.description}</p>}
-                          </div>
-                        </a>
+                        <PortalMenuCard item={item} class="portal-megamenu-hero-card" />
 
                         {hasFeats && (
                           <div class="portal-features-grid">
@@ -152,19 +122,7 @@ const activeLink = allLinks.filter(coversPage).sort((a, b) => pathOf(b.href).len
                 /* Cards side by side: two columns unless `columns` says otherwise */
                 <div class="portal-megamenu-grid">
                   {link.items.map((item) => (
-                    <a href={withBase(item.href)} class="portal-megamenu-card">
-                      <div class="portal-card-icon-box">
-                        <Icon name={item.icon || 'lightning'} duotone />
-                      </div>
-                      <div class="portal-card-body">
-                        <div class="portal-card-title-row">
-                          <span class="portal-card-title">{item.label}</span>
-                          {item.badge && <span class="portal-card-badge">{badgeText(item.badge)}</span>}
-                          <span class="portal-card-arrow"><Icon name="arrow-right" size={16} /></span>
-                        </div>
-                        {item.description && <p class="portal-card-desc">{item.description}</p>}
-                      </div>
-                    </a>
+                    <PortalMenuCard item={item} class="portal-megamenu-card" />
                   ))}
                 </div>
                 )

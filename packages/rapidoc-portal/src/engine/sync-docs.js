@@ -10,16 +10,15 @@
  */
 
 import fs from "node:fs";
+import { DOC_EXTENSIONS, isDocFile, isHomeDocFile } from "../config/doc-paths.js";
 import path from "node:path";
 
-export const DOC_EXTENSIONS = [".md", ".mdx", ".markdoc"];
-
-const HOME_DOC = /^index\.(md|mdx|markdoc)$/i;
+export { DOC_EXTENSIONS };
 
 /** The home page doc (docs/index.*), or null. */
 export function findHomeDoc(docsDir) {
   if (!fs.existsSync(docsDir)) return null;
-  const name = fs.readdirSync(docsDir).find((file) => HOME_DOC.test(file));
+  const name = fs.readdirSync(docsDir).find((file) => isHomeDocFile(file));
   return name ? path.join(docsDir, name) : null;
 }
 
@@ -210,7 +209,7 @@ function outsideCodeFences(content, transform) {
  * it is the home page (`home`), which goes to the folder's root.
  */
 function contentRelPath(relPath, home = true) {
-  return home && HOME_DOC.test(relPath) ? relPath : path.join("docs", relPath);
+  return home && isHomeDocFile(relPath) ? relPath : path.join("docs", relPath);
 }
 
 function workspaceRelPath(relPath, home) {
@@ -273,10 +272,6 @@ function isMarkdocFile(fileName) {
  */
 function workspaceDocPath(relPath) {
   return isMarkdocFile(relPath) ? relPath.replace(/\.markdoc$/i, ".mdoc") : relPath;
-}
-
-function isDocFile(fileName) {
-  return DOC_EXTENSIONS.includes(path.extname(fileName).toLowerCase());
 }
 
 /**

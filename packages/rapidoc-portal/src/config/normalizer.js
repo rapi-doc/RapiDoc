@@ -3,7 +3,9 @@ import path from "node:path";
 import YAML from "yaml";
 import { ConfigError, MANAGED_RAPIDOC_ATTRIBUTES } from "./errors.js";
 import { findHomeDoc } from "../engine/sync-docs.js";
+import { docSlug as cleanSlug, docUrl, isDocFile } from "./doc-paths.js";
 import { normalizeAccess, RESERVED_PREFIXES } from "../access/rules.js";
+import { isExternal } from "./links.js";
 
 /**
  * Turns a valid rapidoc.config.yaml (schema.js) into the config the portal pages read:
@@ -21,18 +23,6 @@ export const SPECS_PATH = "/specs";
 /** Workflow files are published at WORKFLOWS_PATH/<id>.arazzo<ext>. */
 export const WORKFLOWS_PATH = "/workflows";
 export const DEFAULT_PRIMARY_COLOR = "#f76b39";
-
-const isExternal = (href) => /^[a-z][a-z0-9+.-]*:/i.test(href);
-
-/** `guides/first-shipment` or `/guides/index` → `guides/first-shipment`, `guides` */
-function cleanSlug(slug) {
-  return slug
-    .replace(/^\/+|\/+$/g, "")
-    .replace(/(^|\/)index$/, "")
-    .replace(/\.(md|mdx|markdoc|mdoc)$/, "");
-}
-
-const docUrl = (slug) => (slug ? `/docs/${slug}/` : "/docs/");
 
 /** info.title / info.description / info.version of a local spec, or {} if it cannot be read. */
 function readSpecInfo(fullPath) {
@@ -217,7 +207,7 @@ function firstDocIn(docsDir, dir) {
   if (!fs.existsSync(folder)) return cleanSlug(dir);
   const files = fs
     .readdirSync(folder, { recursive: true })
-    .filter((f) => /\.(md|mdx|markdoc)$/.test(f))
+    .filter((f) => isDocFile(f))
     .sort();
   return files.length
     ? cleanSlug(path.posix.join(dir, files[0].split(path.sep).join("/")))

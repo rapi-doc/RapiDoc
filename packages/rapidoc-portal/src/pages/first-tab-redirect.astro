@@ -4,9 +4,9 @@
  */
 import portalConfig from 'virtual:rapidoc-portal/config';
 import { withBase, withoutBase } from '../components/base-path.js';
+import { isExternal } from '../config/links.js';
 
 const { tabs } = portalConfig;
-const isExternal = (href: string) => /^[a-z][a-z0-9+.-]*:/i.test(href);
 const firstDocs = tabs.find((tab: any) => tab.kind === 'docs');
 const target = withoutBase(Astro.url.pathname).startsWith('/docs') ? firstDocs : tabs.find((tab: any) => !isExternal(tab.href));
 const targetUrl = target?.href || '/catalog/';

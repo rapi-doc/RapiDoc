@@ -7,6 +7,7 @@ import portalConfig from 'virtual:rapidoc-portal/config';
 import Icon from './Icon.astro';
 import { activeTab } from './header-nav.js';
 import { withBase, withoutBase } from './base-path.js';
+import { externalAttrs as external } from '../config/links.js';
 
 interface Props {
   portalConfig?: any;
@@ -16,8 +17,6 @@ const config = Astro.props.portalConfig ?? portalConfig;
 const { tabs } = config;
 const links = config.header.links;
 const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
-const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
-const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {});
 ---
 
 <div class="portal-mobile-nav">

@@ -1,0 +1,53 @@
+---
+/**
+ * One item of a header dropdown drawn as a card: an icon, the label with its badge, and a description.
+ * PortalHeaderMenu uses it for all three card layouts; the styles are in PortalHeader.
+ *
+ * - In a grid of cards and above a card's shortcut links, an item without an icon gets a default one, and
+ *   an arrow follows the label.
+ * - In a column of a grouped menu (`grouped`), an item shows only the icon it has (without icon or
+ *   description it is one line), and a link to another site opens in a new tab, marked with an arrow.
+ */
+import Icon from './Icon.astro';
+import { withBase } from './base-path.js';
+import { externalAttrs, isExternal } from '../config/links.js';
+
+interface Props {
+  item: any;
+  /** The card's class: `portal-megamenu-card` or `portal-megamenu-hero-card` */
+  class: string;
+  /** An item of a column in a grouped menu */
+  grouped?: boolean;
+}
+
+const { item, class: className, grouped = false } = Astro.props;
+const icon = grouped ? item.icon : item.icon || 'lightning';
+const badge = item.badge && (typeof item.badge === 'string' ? item.badge : item.badge.text);
+const compact = grouped && !item.icon && !item.description;
+---
+
+<a href={withBase(item.href)} class:list={[className, { 'portal-megamenu-card-compact': compact }]} {...grouped ? externalAttrs(item.href) : {}}>
+  {
+    icon && (
+      <div class="portal-card-icon-box">
+        <Icon name={icon} duotone />
+      </div>
+    )
+  }
+  <div class="portal-card-body">
+    <div class="portal-card-title-row">
+      <span class="portal-card-title">{item.label}</span>
+      {badge && <span class="portal-card-badge">{badge}</span>}
+      {
+        grouped ? (
+          isExternal(item.href) && <Icon name="arrow-up-right" size={16} class="portal-card-external" />
+        ) : (
+          <span class="portal-card-arrow">
+            <Icon name="arrow-right" size={16} />
+          </span>
+        )
+      }
+    </div>
+    {item.description && <p class="portal-card-desc">{item.description}</p>}
+  </div>
+</a>

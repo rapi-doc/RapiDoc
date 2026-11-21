@@ -8,11 +8,11 @@ import portalConfig from 'virtual:rapidoc-portal/config';
 import Icon from './Icon.astro';
 import { activeTab } from './header-nav.js';
 import { withBase, withoutBase } from './base-path.js';
+import { isExternal } from '../config/links.js';
 
 const { tabs } = portalConfig;
 const show = portalConfig.header.tabs === 'sidebar' && tabs.length > 0;
 const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
-const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
 ---
 
 {

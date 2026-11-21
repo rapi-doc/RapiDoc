@@ -74,6 +74,8 @@ From the monorepo root, `npm run test:portal` runs the portal, CLI, and `create-
 - Callouts have one markup however they are written: `components/Callout.astro` (`<Callout>`, `<Aside>`, `{% callout %}`, `{% aside %}`), `engine/callout-directives.js` (`:::type` blocks, a Sätteri plugin that runs before Starlight's asides) and `markdoc/tags.js` (no icon). Types and icons: `components/callout-types.js`; styles: `.portal-callout` in `portal-theme.css`. Callouts, code blocks (`expressiveCode` in `starlight-options.js`) and cards share `--portal-radius`.
 - `portal-theme.css` is unlayered, so it already beats Starlight's `@layer starlight.*` rules. Don't use `!important`.
 
+Shared rules, each in one module (don't re-derive them in place): `config/doc-paths.js` (which files of `docs/` are pages, and each one's slug and address: `docSlug`, `docUrl`, `docPageUrl`, `isHomeDocFile`), `config/doc-source.js` (`splitFrontmatter`, the reader for the search index and the llms output; `sync-docs.js` edits frontmatter as text and keeps its own code), `config/links.js` (`isExternal`, `externalAttrs`), and `components/PortalMenuCard.astro` (a header dropdown's card, for all three card layouts of `PortalHeaderMenu`).
+
 Invariants:
 
 - **No leftovers**: the only thing a run may leave in the project is the output folder. Never write elsewhere in the user's project or into this package.

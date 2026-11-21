@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import GithubSlugger from "github-slugger";
 import yaml from "yaml";
+import { docPageUrl } from "../config/doc-paths.js";
+import { splitFrontmatter } from "../config/doc-source.js";
 
 /**
  * Strips Markdown, Markdoc, and HTML syntax into clean plain text for indexing.
@@ -13,7 +15,7 @@ export function stripMarkup(rawContent = "") {
   let text = rawContent;
 
   // 1. Remove YAML frontmatter
-  text = text.replace(/^---[\s\S]*?---\s*/, "");
+  text = splitFrontmatter(text).body;
 
   // 2. Remove Markdoc tags ({% ... %})
   text = text.replace(/{%[\s\S]*?%}/g, " ");
@@ -53,7 +55,7 @@ export function extractDocSections(rawContent = "", basePath = "", docTitle = ""
   const slugger = new GithubSlugger();
 
   // Strip frontmatter first
-  const contentWithoutFm = rawContent.replace(/^---[\s\S]*?---\s*/, "");
+  const contentWithoutFm = splitFrontmatter(rawContent).body;
   const lines = contentWithoutFm.split("\n");
 
   let currentHeading = null;
@@ -185,32 +187,16 @@ export function buildSearchIndex(config, projectDir, docFiles = []) {
     let docTitle = path.basename(docFile, path.extname(docFile)).replace(/-/g, " ");
     let docDesc = "";
 
-    const fmMatch = rawContent.match(/^---\s*\n([\s\S]*?)\n---/);
-    if (fmMatch) {
-      try {
-        const fm = yaml.parse(fmMatch[1]);
-        if (fm) {
-          if (fm.title) docTitle = fm.title;
-          if (fm.description) docDesc = fm.description;
-        }
-      } catch {
-        // Fallback to filename title
-      }
-    }
+    // Unreadable frontmatter is {}: the title stays the file name
+    const { data: fm } = splitFrontmatter(rawContent);
+    if (fm.title) docTitle = fm.title;
+    if (fm.description) docDesc = fm.description;
 
-    const relToDocs = path.relative(config.docs.fullPath, docFile);
-    const parsedPath = path.parse(relToDocs);
-    // A folder's index page is the folder's page; docs/index.* is the home page, or /docs when the
-    // project has its own home page (docs.home is false)
-    const routeDirName = path
-      .join(parsedPath.dir, parsedPath.name)
-      .replace(/\\/g, "/")
-      .replace(/(^|\/)index$/, "");
-    const routePath = routeDirName
-      ? `/docs/${routeDirName}`
-      : config.docs.home === false
-        ? "/docs"
-        : "/";
+    // The page's address, without the closing slash (the index's form)
+    const pageUrl = docPageUrl(path.relative(config.docs.fullPath, docFile), {
+      home: config.docs.home !== false,
+    });
+    const routePath = pageUrl === "/" ? pageUrl : pageUrl.replace(/\/$/, "");
 
     // Index main page record
     records.push({

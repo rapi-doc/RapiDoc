@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isExternal } from "./links.js";
 
 /**
  * rapidoc.config.yaml schema (v2). Strict: an unknown key is an error, so a typo never disappears silently.
@@ -330,7 +331,6 @@ export const HeadEntrySchema = z.union([
 ]);
 
 const specSource = z.string().min(1).describe("OpenAPI file (relative to this config) or URL.");
-const isUrl = (value) => /^[a-z][a-z0-9+.-]*:/i.test(value);
 
 export const ApiVersionSchema = z.union([
   specSource.describe(
@@ -353,7 +353,7 @@ export const ApiVersionSchema = z.union([
         .describe("Text in the version picker (default: info.version of the spec)."),
     })
     .superRefine((entry, ctx) => {
-      if (isUrl(entry.spec) && entry.version === undefined) {
+      if (isExternal(entry.spec) && entry.version === undefined) {
         ctx.addIssue({
           code: "custom",
           message: "a version whose spec is a URL needs `version`",

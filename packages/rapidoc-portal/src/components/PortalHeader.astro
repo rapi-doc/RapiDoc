@@ -7,6 +7,7 @@ import PortalSearchModal from './PortalSearchModal.astro';
 import PortalUserMenu from './PortalUserMenu.astro';
 import { activeTab } from './header-nav.js';
 import { withBase, withoutBase } from './base-path.js';
+import { isExternal } from '../config/links.js';
 
 interface Props {
   portalConfig?: any;
@@ -31,7 +32,6 @@ const startLinks = headerLinks.filter((link) => link.position === 'start');
 const endLinks = headerLinks.filter((link) => link.position !== 'start');
 // With `header.tabs: sidebar` the tabs are listed above the sidebar's pages (PortalSidebarTabs), not in a row here.
 const tabsInHeader = config.header.tabs !== 'sidebar';
-const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
 
 // On pages with a sidebar, the menu button opens the sidebar on narrow screens, and the sidebar
 // lists the header links above its own navigation (PortalSidebar.astro, api-reference.astro).

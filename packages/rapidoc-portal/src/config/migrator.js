@@ -5,6 +5,7 @@ import { parseRawFile } from "./loader.js";
 import { RapidocConfigSchema } from "./schema.js";
 import { checkReferences } from "./normalizer.js";
 import { describeIssues, MANAGED_RAPIDOC_ATTRIBUTES } from "./errors.js";
+import { isExternal } from "./links.js";
 
 /**
  * `rapidoc migrate`: converts a Redocly project (redocly.yaml + sidebars.yaml) or a Zudoku config into a
@@ -19,7 +20,6 @@ export const MIGRATION_SOURCES = {
 const SCHEMA_COMMENT =
   "# yaml-language-server: $schema=./node_modules/@rapidoc/portal/schema.json\n";
 
-const isExternal = (href) => /^[a-z][a-z0-9+.-]*:/i.test(href || "");
 const camelToKebab = (key) => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 const compact = (obj) =>
   Object.fromEntries(
