@@ -21,3 +21,152 @@
   /* the dark card color above is set on :root, so light has to take it back */
   --portal-card-bg: #ffffff;
 }
+
+/* ---- The Products menu, as on rapidocui.com: copied from sites/rapidoc/styles/portal.css (keep them alike) ---- */
+/* The Products menu: as wide as the header's content, under it, over a dimmed page */
+.portal-header-root .portal-nav-menu-start .portal-dropdown-wrapper {
+  position: static;
+}
+/* The links are as tall as the header, so the pointer goes from "Products" down to its menu without
+   leaving the link's area (the menu closes when it does): the label itself is only one line tall. */
+.portal-header-root .portal-nav-menu-start,
+.portal-header-root .portal-nav-menu-start .portal-dropdown-wrapper {
+  align-self: stretch;
+}
+.portal-header-root .portal-nav-menu-start .portal-dropdown-wrapper {
+  display: flex;
+  align-items: center;
+  /* 12px more on each side to hover, half the gap to the next link; the negative margin keeps the label
+     where it was */
+  margin-inline: -12px;
+  padding-inline: 12px;
+}
+/* The strip above the menu that still counts as the menu, for a pointer coming down at an angle: from
+   under the links' text to the panel (the portal's is 16px) */
+.portal-header-root .portal-nav-menu-start .portal-megamenu-panel::before {
+  top: -30px;
+  height: 30px;
+}
+.portal-header-root .portal-navbar {
+  position: relative;
+}
+.portal-header-root .portal-nav-menu-start .portal-megamenu-panel:has(.portal-megamenu-groups) {
+  left: max(16px, (100% - 1240px) / 2 + 16px);
+  right: max(16px, (100% - 1240px) / 2 + 16px);
+  width: auto;
+  max-width: none;
+  margin-top: 8px;
+  padding: 0;
+  border: 1px solid var(--portal-border);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--portal-fg) 7%, var(--portal-bg));
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.65);
+  backdrop-filter: none;
+}
+.portal-header-root:has(.portal-nav-menu-start .portal-dropdown-wrapper:is(.is-open, :hover))::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: rgba(2, 4, 10, 0.55);
+  pointer-events: none;
+}
+.portal-header-root .portal-megamenu-groups {
+  grid-template-columns: 1.15fr 1.15fr 0.85fr;
+  gap: 32px;
+  padding: 24px 24px 16px;
+}
+.portal-header-root .portal-megamenu-group-title {
+  margin: 0 0 10px;
+  padding: 0 10px;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--portal-muted) 75%, transparent);
+}
+.portal-header-root .portal-megamenu-group-list {
+  gap: 2px;
+}
+.portal-header-root .portal-megamenu-groups .portal-megamenu-card {
+  gap: 12px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+}
+.portal-header-root .portal-megamenu-groups .portal-megamenu-card:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, var(--portal-fg) 5%, transparent);
+}
+.portal-header-root .portal-megamenu-groups .portal-megamenu-card-compact {
+  padding-block: 6px;
+}
+/* The icon on its own, no box: grey, the accent on hover */
+.portal-header-root .portal-megamenu-groups .portal-card-icon-box {
+  width: auto;
+  height: auto;
+  border: 0;
+  background: none;
+  color: var(--portal-muted);
+}
+.portal-header-root .portal-megamenu-groups .portal-megamenu-card:is(:hover, :focus-visible) .portal-card-icon-box {
+  color: var(--portal-primary-text);
+}
+.portal-header-root .portal-megamenu-groups .portal-card-title-row {
+  gap: 6px;
+}
+.portal-header-root .portal-megamenu-groups .portal-card-title {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--sl-color-white, #fff);
+}
+.portal-header-root .portal-megamenu-groups .portal-megamenu-card-compact .portal-card-title {
+  font-weight: 500;
+  color: var(--portal-muted);
+}
+.portal-header-root .portal-megamenu-groups .portal-megamenu-card-compact:hover .portal-card-title {
+  color: var(--sl-color-white, #fff);
+}
+.portal-header-root .portal-megamenu-groups .portal-card-desc {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--portal-muted);
+}
+/* An item's tag: the element or command, in monospace, as plain text */
+.portal-header-root .portal-megamenu-groups .portal-card-badge {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: color-mix(in srgb, var(--portal-muted) 75%, transparent);
+  font-family: var(--__sl-font-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  text-transform: none;
+}
+.portal-header-root .portal-megamenu-groups .portal-card-external {
+  width: 12px;
+  height: 12px;
+  color: color-mix(in srgb, var(--portal-muted) 75%, transparent);
+}
+.portal-header-root .portal-megamenu-footer {
+  margin: 0;
+  padding: 0 24px 18px;
+  border-top: 0;
+}
+.portal-header-root .portal-megamenu-footer-link {
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--portal-primary-text);
+}
+.portal-header-root .portal-megamenu-footer-link:hover {
+  color: var(--portal-primary-text);
+  text-decoration: none;
+}

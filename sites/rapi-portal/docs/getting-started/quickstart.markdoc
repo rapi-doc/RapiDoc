@@ -132,6 +132,6 @@ What each folder is for: [Project structure](/docs/getting-started/project-struc
 - [Add more APIs](/docs/configuration/apis/), with categories and versions.
 - [Write guides](/docs/writing/markdown/), with live operations from your APIs.
 - [Set the theme, header and sidebar](/docs/configuration/overview/).
-- Check your specs in CI with `npm run validate` ([Validate](/docs/tools/validate/)).
+- Check your specs in CI with `npm run validate` ([Validate](/docs/tools/spec-checks/#validate)).
 - [Deploy](/docs/deploy/static-hosting/) to any static host.
 - [Put the portal behind single sign-on (SSO)](/docs/access/overview/), or only some of its pages and APIs.

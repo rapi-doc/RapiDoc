@@ -143,7 +143,7 @@ An allow is `public`, `signed-in`, or `{ groups?, emails? }`.
 
 ## `lint`
 
-Settings for [`rapidoc lint`](/docs/tools/lint/); the build ignores them.
+Settings for [`rapidoc lint`](/docs/tools/spec-checks/#lint); the build ignores them.
 
 | Key | Type | Default |
 | :--- | :--- | :--- |

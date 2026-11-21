@@ -28,17 +28,18 @@ theme:
     sans: { family: Inter }
     mono: { family: JetBrains Mono }
   css: ./styles/portal.css
-# The header every RapiDoc site shares: Products and Docs lead to rapidocui.com.
+# The header every RapiDoc site shares (sites/rapidoc is the source): the Products menu, with absolute
+# rapidocui.com links, and Docs. Keep it the same in sites/rapi-flow, sites/rapi-mock and sites/rapi-portal.
 header:
   links:
     - label: Products
       position: start
       groups:
-        - label: Web Components
+        - label: Products
           items:
             - label: RapiDoc
               badge: <rapi-doc>
-              href: https://rapidocui.com/docs/
+              href: https://rapidocui.com/rapidoc/
               icon: file-code
               description: Interactive API reference from your OpenAPI spec
             - label: RapiDoc Mini
@@ -56,27 +57,28 @@ header:
               href: https://rapidocui.com/rapipdf/
               icon: file-pdf
               description: Turn an OpenAPI spec into a PDF
-        - label: Tools
-          items:
+            - label: RapiMock
+              badge: rapidoc mock
+              href: https://rapidocui.com/rapi-mock/
+              icon: hard-drives
+              description: A mock server that validates requests and remembers
             - label: RapiDoc Portal
-              href: https://portal.rapidocui.com/
+              href: https://rapidocui.com/portal/
               icon: layout
               description: API references and guides as one site, with search and SSO
+        - label: Tools
+          items:
             - label: RapiDoc CLI
               badge: rapidoc
               href: https://rapidocui.com/cli/
               icon: terminal
               description: Preview, validate, lint, bundle and export specs
-            - label: RapiMock
-              href: https://mock.rapidocui.com/
-              icon: hard-drives
-              description: A mock server from your spec that validates requests and remembers
             - label: MCP Server
-              href: https://rapidocui.com/docs/ai/mcp-server/
+              href: https://rapidocui.com/docs/mcp/
               icon: robot
               description: Turn your API into tools for AI agents
             - label: Pre-rendering
-              href: https://rapidocui.com/docs/performance/prerender/
+              href: https://rapidocui.com/docs/prerender/
               icon: lightning
               description: Server-rendered HTML for search engines and a fast first paint
         - label: Integrations
@@ -91,7 +93,7 @@ header:
             - { label: Build an integration, href: https://rapidocui.com/docs/integrations/build-your-own/ }
       footer:
         label: Which package do I need?
-        href: https://rapidocui.com/docs/get-started/packages/
+        href: "https://rapidocui.com/docs/#which-package-do-i-need"
     - { label: Docs, href: https://rapidocui.com/docs/, position: start }
     - label: GitHub
       href: https://github.com/rapi-doc/RapiDoc
