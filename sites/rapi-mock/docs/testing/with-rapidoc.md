@@ -1,6 +1,6 @@
 ---
 title: With RapiDoc, RapiFlow and MCP
-description: Point Try in <rapi-doc>, Arazzo workflows and an MCP server at Rapi Mock.
+description: Point Try in <rapi-doc>, Arazzo workflows and an MCP server at RapiMock.
 ---
 
 ## Try, in `<rapi-doc>`

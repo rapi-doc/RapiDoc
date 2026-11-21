@@ -6,7 +6,7 @@
     <img src="https://img.shields.io/github/size/mrin9/rapipdf/dist/rapipdf-min.js.gz.svg?colorB=blue&label=zip&style=flat-square">
 </p>
 
-# RapiPDF
+# RapiPdf
 
 Custom element for Open-API to PDF generation
 

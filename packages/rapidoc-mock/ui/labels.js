@@ -30,7 +30,7 @@ export const LABEL_HELP = {
 export const LABEL_ABOUT = {
   confident:
     "Reads and changes stored records. The spec says clearly which resource this operation works on, so what you create shows up in later calls.",
-  needsReview: html`Reads and changes stored records too, but the spec left a gap and Rapi Mock filled it
+  needsReview: html`Reads and changes stored records too, but the spec left a gap and RapiMock filled it
     with a best guess, such as which field is the key. Check each guess, and correct it in
     <code>mock.config.yaml</code> if it's wrong.`,
   plainMock:

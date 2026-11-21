@@ -1,6 +1,6 @@
 ---
 title: A tour of the Mock UI
-description: See the records Rapi Mock holds, what it does for every operation, and how sure it is.
+description: See the records RapiMock holds, what it does for every operation, and how sure it is.
 ---
 
 With `--stateful`, the mock serves a page at `/__mock/ui` on its own port: `http://localhost:4010/__mock/ui`. It shows what the mock made of each spec and what it holds now.

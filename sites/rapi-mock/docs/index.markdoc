@@ -1,10 +1,10 @@
 ---
 title: A mock API that remembers
-description: Rapi Mock turns an OpenAPI spec into a mock server with request validation, token checks and state, a UI to look inside, and endpoints for tests in any language.
+description: RapiMock turns an OpenAPI spec into a mock server with request validation, token checks and state, a UI to look inside, and endpoints for tests in any language.
 template: splash
 hero:
   title: Your OpenAPI spec<br><mark>as a server that remembers</mark>
-  tagline: Rapi Mock serves every operation of your spec. It validates requests, checks tokens, and keeps what you create, so a POST shows up in the next GET. No code to write.
+  tagline: RapiMock serves every operation of your spec. It validates requests, checks tokens, and keeps what you create, so a POST shows up in the next GET. No code to write.
   actions:
     - text: Quickstart
       link: /docs/getting-started/quickstart/
@@ -55,7 +55,7 @@ Where a spec doesn't show its data model, state it in a few lines of `mock.confi
 
 RapiDoc also has a mock inside the browser, part of `<rapi-doc>`. They are built for different work.
 
-| | In-browser mock | Rapi Mock |
+| | In-browser mock | RapiMock |
 | :--- | :--- | :--- |
 | **Runs** | Inside the page | As an HTTP server |
 | **Who can call it** | The page itself: Try, `<rapi-flow>` | Anything: curl, your frontend, tests |
@@ -67,5 +67,5 @@ RapiDoc also has a mock inside the browser, part of `<rapi-doc>`. They are built
 [The in-browser mock](https://rapidocui.com/docs/mocking/in-browser/) is documented with RapiDoc.
 
 {% callout type="note" title="What it handles" %}
-Rapi Mock reads the data model off the spec. It does that well for APIs with ids in the path and keys at the top of a record, and needs a few lines of config for other styles. [See which, with examples](/docs/state/api-styles/).
+RapiMock reads the data model off the spec. It does that well for APIs with ids in the path and keys at the top of a record, and needs a few lines of config for other styles. [See which, with examples](/docs/state/api-styles/).
 {% /callout %}

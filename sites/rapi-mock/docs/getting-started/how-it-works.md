@@ -1,9 +1,9 @@
 ---
 title: How it works
-description: How Rapi Mock reads resources, keys and links off an OpenAPI spec, and what the three labels mean.
+description: How RapiMock reads resources, keys and links off an OpenAPI spec, and what the three labels mean.
 ---
 
-An OpenAPI spec describes operations. It never says "these five operations are about the same pet". Rapi Mock works that out, and tells you how sure it is.
+An OpenAPI spec describes operations. It never says "these five operations are about the same pet". RapiMock works that out, and tells you how sure it is.
 
 ## From paths and schemas to resources
 

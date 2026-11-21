@@ -71,7 +71,7 @@ header:
               description: Turn an OpenAPI spec into a PDF
         - label: Tools
           items:
-            - label: Developer Portal
+            - label: RapiDoc Portal
               href: https://portal.rapidocui.com/
               icon: layout
               description: API references and guides as one site, with search and SSO
@@ -219,6 +219,6 @@ navigation:
           - { slug: integrations/go, label: "Go" }
       - { slug: integrations/docs-sites, label: "Documentation Sites" }
       - { slug: integrations/build-your-own, label: "Build an Integration" }
-  - label: Developer Portal
+  - label: RapiDoc Portal
     icon: layout
     href: https://portal.rapidocui.com/

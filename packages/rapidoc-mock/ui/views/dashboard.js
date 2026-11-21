@@ -173,7 +173,7 @@ export class MockDashboard extends Screen {
     </section>
 
     <section class="card">
-      <h2>Assumptions Rapi Mock made that need your review (${review.length})</h2>
+      <h2>Assumptions RapiMock made that need your review (${review.length})</h2>
       ${
         review.length
           ? html`

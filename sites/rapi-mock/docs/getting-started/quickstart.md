@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: Install Rapi Mock, start it on a spec, create a record and read it back.
+description: Install RapiMock, start it on a spec, create a record and read it back.
 ---
 
 You need Node.js 22.12 or later and an OpenAPI 3.0, 3.1 or 3.2 file.

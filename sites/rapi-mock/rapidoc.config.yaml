@@ -1,12 +1,12 @@
 # yaml-language-server: $schema=../../packages/rapidoc-portal/schema.json
-# The Rapi Mock product and documentation site (https://mock.rapidocui.com), built with RapiDoc Portal.
+# The RapiMock product and documentation site (https://mock.rapidocui.com), built with RapiDoc Portal.
 site:
-  title: Rapi Mock
+  title: RapiMock
   url: https://mock.rapidocui.com
   description: A mock server that turns an OpenAPI spec into an API that remembers. Request validation, token checks, state, a UI to look inside, and tests in any language.
   logo:
     src: /rapidoc-leaves.svg
-    text: Rapi Mock
+    text: RapiMock
   favicon: /rapidoc-leaves.svg
 # Google Analytics: the same property as rapidocui.com; content_group tells the sites apart.
 head:

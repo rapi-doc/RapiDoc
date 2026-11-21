@@ -1,6 +1,6 @@
 ---
 title: Tests in any language
-description: Prepare and check Rapi Mock's data over HTTP, from pytest, JUnit, Go or anything else.
+description: Prepare and check RapiMock's data over HTTP, from pytest, JUnit, Go or anything else.
 ---
 
 The mock has its own endpoints under `/__mock`, beside the APIs. A test in any language uses them over HTTP: wait until the mock is ready, reset the data, act through the API, then check what was stored.

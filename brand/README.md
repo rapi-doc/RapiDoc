@@ -12,6 +12,30 @@ The RapiDoc logo for every RapiDoc product: the component, the portal, the CLI, 
 
 Each file is self-contained: no fonts, scripts or external references. The letters are outlines, so nothing has to load.
 
+## Names
+
+How the products are named in documentation, pages, sites, menus and READMEs.
+
+| Product | Name | Tag, package, command |
+| :--- | :--- | :--- |
+| API reference component | **RapiDoc** | `<rapi-doc>`, `rapidoc` |
+| Compact component | **RapiDoc Mini** | `<rapi-doc-mini>` |
+| Arazzo workflow component | **RapiFlow** | `<rapi-flow>`, `rapidoc/flow` |
+| PDF component | **RapiPdf** | `<rapi-pdf>`, `rapipdf` |
+| Mock server | **RapiMock** | `@rapidoc/mock`, `rapidoc mock` |
+| Developer portal | **RapiDoc Portal** | `@rapidoc/portal` |
+| Command line | **RapiDoc CLI** | `@rapidoc/cli`, `rapidoc` |
+
+- **Pattern**: "Rapi" and one word, each capitalized only at its first letter: RapiFlow, RapiPdf (not RapiPDF), RapiMock (no space). RapiDoc Mini is a smaller RapiDoc, so it keeps RapiDoc's name; the Portal and the CLI are RapiDoc's, so they carry it.
+- **Never**: Rapidoc, RAPIDOC, Rapi-Doc, Rapi Mock, Rapi Flow, RapiDoc Mock, rapidoc-mini in prose.
+- **Tools and features are not products**: describe them in lowercase ("the MCP server export", "pre-rendering", "the in-browser mock", "lint rules"); "RapiDoc Lint" and "RapiDoc MCP" are not names. "Developer portal" and "mock server" in lowercase are the generic things, never a product's name.
+- **Integrations**: "RapiDoc for <host>" (RapiDoc for Hono, RapiDoc for FastAPI).
+- **Name, tag, package, command**: the name in prose, headings, menus and page titles; the tag in code font for the element in HTML (`<rapi-flow>`); the package in code font for install and import; the command in code font. Domains and repositories are lowercase (`mock.rapidocui.com`, `rapi-mock-doc`).
+- **"RapiDoc" is the component.** For the whole family say "the RapiDoc family" or "RapiDoc's tools".
+- **Short forms** ("the mock", "the portal", "Mini") only in that product's own docs, after its full name on the page.
+- **Sites**: each site's `site.title` is its product's name. Logo lockups show the tag (`<rapi-doc>`, `<rapi-flow>`); the text around them uses the name.
+- **Changelogs** are history: entries written before a rename keep the old name.
+
 ## Using it
 
 - **Light and dark**: use the file for the background it sits on. In a RapiDoc portal:

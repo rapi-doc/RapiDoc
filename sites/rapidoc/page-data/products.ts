@@ -63,7 +63,7 @@ export const TOOLS: ProductGroup = {
   label: "Tools",
   items: [
     {
-      label: "Developer Portal",
+      label: "RapiDoc Portal",
       href: "https://portal.rapidocui.com/",
       description: "API references and guides as one site, with search and SSO",
       icon: "layout",

@@ -1,6 +1,6 @@
 ---
 title: Tokens and scopes
-description: How Rapi Mock enforces each operation's security, with real token checks against your issuer.
+description: How RapiMock enforces each operation's security, with real token checks against your issuer.
 ---
 
 Security is enforced per operation, as the spec declares it.
