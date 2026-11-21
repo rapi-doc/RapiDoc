@@ -47,11 +47,11 @@ header:
     - label: Products
       position: start
       groups:
-        - label: Web Components
+        - label: Products
           items:
             - label: RapiDoc
               badge: <rapi-doc>
-              href: /docs/rapidoc/
+              href: /rapidoc/
               icon: file-code
               description: Interactive API reference from your OpenAPI spec
             - label: RapiDoc Mini
@@ -69,21 +69,22 @@ header:
               href: /rapipdf/
               icon: file-pdf
               description: Turn an OpenAPI spec into a PDF
-        - label: Tools
-          items:
+            - label: RapiMock
+              badge: rapidoc mock
+              href: /rapi-mock/
+              icon: hard-drives
+              description: A mock server that validates requests and remembers
             - label: RapiDoc Portal
-              href: https://portal.rapidocui.com/
+              href: /portal/
               icon: layout
               description: API references and guides as one site, with search and SSO
+        - label: Tools
+          items:
             - label: RapiDoc CLI
               badge: rapidoc
               href: /cli/
               icon: terminal
               description: Preview, validate, lint, bundle and export specs
-            - label: RapiMock
-              href: https://mock.rapidocui.com/
-              icon: hard-drives
-              description: A mock server from your spec that validates requests and remembers
             - label: MCP Server
               href: /docs/mcp/
               icon: robot

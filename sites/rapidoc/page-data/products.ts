@@ -23,14 +23,14 @@ export interface ProductGroup {
   items: ProductLink[];
 }
 
-export const WEB_COMPONENTS: ProductGroup = {
-  key: "components",
-  label: "Web Components",
+export const PRODUCTS: ProductGroup = {
+  key: "products",
+  label: "Products",
   items: [
     {
       label: "RapiDoc",
       tag: "<rapi-doc>",
-      href: "/docs/rapidoc/",
+      href: "/rapidoc/",
       description: "Interactive API reference from your OpenAPI spec",
       icon: "file-code",
     },
@@ -55,7 +55,27 @@ export const WEB_COMPONENTS: ProductGroup = {
       description: "Turn an OpenAPI spec into a PDF",
       icon: "file-pdf",
     },
+    {
+      label: "RapiMock",
+      tag: "rapidoc mock",
+      href: "/rapi-mock/",
+      description: "A mock server that validates requests and remembers",
+      icon: "hard-drives",
+    },
+    {
+      label: "RapiDoc Portal",
+      href: "/portal/",
+      description: "API references and guides as one site, with search and SSO",
+      icon: "layout",
+    },
   ],
+};
+
+/** The products that are web components (the examples' product filter) */
+export const WEB_COMPONENTS: ProductGroup = {
+  key: "components",
+  label: "Web Components",
+  items: PRODUCTS.items.filter((item) => item.tag?.startsWith("<")),
 };
 
 export const TOOLS: ProductGroup = {
@@ -63,24 +83,11 @@ export const TOOLS: ProductGroup = {
   label: "Tools",
   items: [
     {
-      label: "RapiDoc Portal",
-      href: "https://portal.rapidocui.com/",
-      description: "API references and guides as one site, with search and SSO",
-      icon: "layout",
-      external: true,
-    },
-    {
       label: "RapiDoc CLI",
       tag: "rapidoc",
       href: "/cli/",
       description: "Preview, validate, lint, bundle and export specs",
       icon: "terminal",
-    },
-    {
-      label: "RapiMock",
-      href: "https://mock.rapidocui.com/",
-      description: "A mock server from your spec that validates requests and remembers",
-      icon: "hard-drives",
     },
     {
       label: "MCP Server",
@@ -112,7 +119,7 @@ export const INTEGRATIONS: ProductGroup = {
   ],
 };
 
-export const PRODUCT_GROUPS: ProductGroup[] = [WEB_COMPONENTS, TOOLS, INTEGRATIONS];
+export const PRODUCT_GROUPS: ProductGroup[] = [PRODUCTS, TOOLS, INTEGRATIONS];
 
 /** The link under the Products menu's columns */
 export const ALL_PACKAGES: ProductLink = {

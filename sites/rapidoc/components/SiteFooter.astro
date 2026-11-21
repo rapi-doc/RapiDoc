@@ -1,11 +1,11 @@
 ---
 import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
-import { WEB_COMPONENTS, TOOLS, INTEGRATIONS, type ProductLink } from '../page-data/products';
+import { PRODUCTS, TOOLS, INTEGRATIONS, type ProductLink } from '../page-data/products';
 
-// Products: the web components, then the CLI and the Portal (the other tools are in Resources)
+// Products, then the CLI (the other tools are in Resources)
 const productLinks: ProductLink[] = [
-  ...WEB_COMPONENTS.items,
-  ...TOOLS.items.filter((item) => item.label === 'RapiDoc CLI' || item.label === 'RapiDoc Portal'),
+  ...PRODUCTS.items,
+  ...TOOLS.items.filter((item) => item.label === 'RapiDoc CLI'),
 ];
 
 const linkColumns: { heading: string; links: ProductLink[] }[] = [
@@ -19,7 +19,7 @@ const linkColumns: { heading: string; links: ProductLink[] }[] = [
       { label: 'API Reference', href: '/api' },
       { label: 'Common Tasks', href: '/docs/rapidoc/guides/' },
       { label: 'Examples', href: '/examples' },
-      { label: 'Mock Server', href: '/docs/rapidoc/mocking/in-browser/#in-the-page-or-as-a-server' },
+      { label: 'In-Browser Mock', href: '/docs/rapidoc/mocking/in-browser/' },
       { label: 'MCP Server', href: '/docs/mcp/' },
       { label: 'Migration Guides', href: '/docs/rapidoc/migration/v13-to-v14/' },
     ],

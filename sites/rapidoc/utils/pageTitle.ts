@@ -34,7 +34,7 @@ export function cleanRawTitle(rawTitle: string): string {
 }
 
 /** Top-level product pages; keep in step with the hrefs in page-data/products.ts */
-const PRODUCT_PAGES = new Set(["rapidoc-mini", "rapi-flow", "rapipdf", "cli", "integrations"]);
+const PRODUCT_PAGES = new Set(["rapidoc", "rapidoc-mini", "rapi-flow", "rapipdf", "rapi-mock", "portal", "cli", "integrations"]);
 
 /**
  * Computes hierarchical page title info for both SEO (<title>) and Google Analytics.

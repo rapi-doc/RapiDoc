@@ -1,10 +1,10 @@
 ---
-// The RapiDoc family on the home page: a card per web component and tool from page-data/products.ts,
+// The RapiDoc family on the home page: a card per product and tool from page-data/products.ts,
 // and a link to the integrations. Uses the product page classes of styles/global.css.
 import Icon from './Icon.astro';
-import { WEB_COMPONENTS, TOOLS, INTEGRATIONS } from '../page-data/products';
+import { PRODUCTS, TOOLS, INTEGRATIONS } from '../page-data/products';
 
-const groups = [WEB_COMPONENTS, TOOLS];
+const groups = [PRODUCTS, TOOLS];
 const integrationNames = INTEGRATIONS.items
   .filter((item) => !/^(Build|All)/.test(item.label))
   .map((item) => item.label.replace(/ \(.*\)$/, ''))
@@ -14,10 +14,11 @@ const integrationNames = INTEGRATIONS.items
 <section class="rd-family-section" id="family">
   <div class="rd-section-header rd-section-header--center">
     <span class="rd-section-badge">The RapiDoc Family</span>
-    <h2 class="rd-section-title">One Spec, Every Place It's Read</h2>
+    <h2 class="rd-section-title">Products and Tools</h2>
     <p class="rd-section-desc">
       <code>&lt;rapi-doc&gt;</code> is the reference. Around it: smaller elements for posts and workflows, a PDF, a
-      command line, a mock server and a full developer portal, all reading the same OpenAPI spec.
+      mock server and a full developer portal, with a command line, MCP and pre-rendering as tools, all reading the
+      same OpenAPI spec.
     </p>
   </div>
 
