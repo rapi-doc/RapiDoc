@@ -70,7 +70,7 @@ const jumps = [
 
 {
   section === 'filter' && (
-    <div class="ref-top" data-ref-wide>
+    <div class="ref-top">
       {showJumps && (<nav class="ref-jumps" aria-label="Sections">
         {jumps.map((jump) => (
           <a href={`#${jump.id}`}>
@@ -205,11 +205,6 @@ const jumps = [
     --ref-red-bg: rgb(198 40 40 / 0.07);
     /* Darker than Starlight's light-theme green, which is hard to read on white */
     --ref-green: #15803d;
-  }
-
-  /* A reference page (tableOfContents: false) uses the width the "On this page" column had */
-  main:has([data-ref-wide]) .sl-container {
-    max-width: min(100%, 72rem);
   }
 
   .ref-top {

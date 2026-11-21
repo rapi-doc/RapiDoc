@@ -1,0 +1,7 @@
+/*
+ * The docs pages of every RapiDoc site. A page without "On this page" (`tableOfContents: false`: a reference
+ * page) that has a table uses that column's width too, so its tables aren't squeezed into the text column.
+ */
+html[data-has-sidebar]:not([data-has-toc]) main:has(.sl-markdown-content table) .sl-container {
+  max-width: min(100%, 72rem);
+}

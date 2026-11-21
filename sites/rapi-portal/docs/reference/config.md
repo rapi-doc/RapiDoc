@@ -3,6 +3,7 @@ title: Configuration keys
 description: Every key of rapidoc.config.yaml in one place.
 sidebar:
   order: 2
+tableOfContents: false
 ---
 
 Every key, with its default. The guides explain each section: [Configuration](/docs/configuration/overview/).

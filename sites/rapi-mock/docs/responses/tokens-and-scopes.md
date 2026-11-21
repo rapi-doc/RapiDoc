@@ -1,6 +1,7 @@
 ---
 title: Tokens and scopes
 description: How RapiMock enforces each operation's security, with real token checks against your issuer.
+tableOfContents: false
 ---
 
 Security is enforced per operation, as the spec declares it.

@@ -3,6 +3,7 @@ title: CLI
 description: Every rapidoc command and option.
 sidebar:
   order: 1
+tableOfContents: false
 ---
 
 ```bash

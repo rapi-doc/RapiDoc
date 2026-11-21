@@ -1,6 +1,7 @@
 ---
 title: Picking a response
 description: Choose which documented response the mock returns, with the Prefer header.
+tableOfContents: false
 ---
 
 Clients choose which documented response they get with a `Prefer` header:

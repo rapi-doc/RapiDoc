@@ -1,6 +1,7 @@
 ---
 title: Control API
 description: The /__mock endpoints - health, the model, lint, settings, reset, state, snapshot and restore.
+tableOfContents: false
 ---
 
 The mock's own endpoints are at `/__mock`, beside the APIs. With an `X-Mock-Session` header, each works on that [session](/docs/state/sessions/)'s data only.

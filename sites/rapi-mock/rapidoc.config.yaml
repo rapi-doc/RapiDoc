@@ -139,6 +139,13 @@ navigation:
           - { slug: getting-started/introduction }
           - { slug: getting-started/quickstart }
           - { slug: getting-started/how-it-works }
+      - label: Reference
+        icon: list-bullets
+        items:
+          - { slug: reference/cli }
+          - { slug: reference/control-api }
+          - { slug: reference/config-file }
+          - { slug: reference/lint-rules }
       - label: Responses
         icon: arrows-left-right
         items:
@@ -167,13 +174,6 @@ navigation:
           - { slug: testing/any-language }
           - { slug: testing/javascript }
           - { slug: testing/with-rapidoc }
-  - label: Reference
-    icon: list-bullets
-    items:
-      - { slug: reference/cli }
-      - { slug: reference/control-api }
-      - { slug: reference/config-file }
-      - { slug: reference/lint-rules }
 docs:
   editUrl: https://github.com/rapi-doc/RapiDoc/edit/master/sites/rapi-mock/docs/
 # The footer of every RapiDoc site: the same columns in sites/rapidoc, rapi-flow, rapi-mock and rapi-portal.
