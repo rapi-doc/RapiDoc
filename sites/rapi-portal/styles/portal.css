@@ -1,5 +1,6 @@
 /* The header every RapiDoc site shares, as on rapidocui.com */
 @import "../../shared/styles/header.css";
+@import "../../shared/styles/footer.css";
 
 /* The amber preset's surfaces (`rapidoc: theme: amber`, the API reference) on every page: the page and
    sidebars on its background, the header rows on its darker sidebar color, its borders and cards. */

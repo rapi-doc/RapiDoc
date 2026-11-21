@@ -1,5 +1,5 @@
-// The RapiDoc family: the footer (SiteFooter) and the home
-// page's family section (ProductFamily) read this. Each product links to its page (src/pages/<page>.astro;
+// The RapiDoc family: the home page's family section (ProductFamily) and the examples' filter
+// read this. Each product links to its page (src/pages/<page>.astro;
 // list new top-level ones in PRODUCT_PAGES of utils/pageTitle.ts), or to its docs where it has none.
 
 /** A Phosphor icon name (https://phosphoricons.com), drawn by components/Icon.astro */

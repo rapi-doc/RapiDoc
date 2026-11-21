@@ -140,6 +140,13 @@ navigation:
           - { slug: getting-started/introduction }
           - { slug: getting-started/quickstart }
           - { slug: getting-started/project-structure }
+      - label: Reference
+        icon: list-bullets
+        items:
+          - { slug: reference/cli }
+          - { slug: reference/config }
+          - { slug: reference/programmatic-api }
+          - { slug: reference/how-it-works }
       - label: Configuration
         icon: sliders-horizontal
         items:
@@ -163,7 +170,7 @@ navigation:
           - { slug: writing/callouts }
           - { slug: writing/embedding-operations }
           - { slug: writing/pages }
-      - label: API reference
+      - label: API reference pages
         icon: code
         items:
           - { slug: api-reference/reference-pages }
@@ -192,13 +199,6 @@ navigation:
           - { slug: deploy/static-hosting }
           - { slug: deploy/rapidoc-serve }
           - { slug: deploy/cloud-platforms }
-  - label: Reference
-    icon: list-bullets
-    items:
-      - { slug: reference/cli }
-      - { slug: reference/config }
-      - { slug: reference/programmatic-api }
-      - { slug: reference/how-it-works }
   - label: Example API
     icon: code
     api: bookstore
@@ -212,34 +212,48 @@ docs:
   editUrl: https://github.com/rapi-doc/RapiDoc/edit/master/sites/rapi-portal/docs/
 redirects:
   - { from: /docs/getting-started/how-it-works, to: /docs/reference/how-it-works }
+# The footer of every RapiDoc site: the same columns in sites/rapidoc, rapi-flow, rapi-mock and rapi-portal.
+# Links to this site's own pages are relative (an absolute link would open a new tab).
 footer:
   columns:
-    - title: Get started
+    - title: Products
       links:
-        - label: Introduction
-          href: /docs/getting-started/introduction
-        - label: Quickstart
-          href: /docs/getting-started/quickstart
-        - label: Configuration
-          href: /docs/configuration/overview
-    - title: Reference
+        - { label: RapiDoc, href: https://rapidocui.com/rapidoc/ }
+        - { label: RapiDoc Mini, href: https://rapidocui.com/rapidoc-mini/ }
+        - { label: RapiFlow, href: https://rapidocui.com/rapi-flow/ }
+        - { label: RapiPdf, href: https://rapidocui.com/rapipdf/ }
+        - { label: RapiMock, href: https://rapidocui.com/rapi-mock/ }
+        - { label: RapiDoc Portal, href: https://rapidocui.com/portal/ }
+        - { label: RapiDoc CLI, href: https://rapidocui.com/cli/ }
+    - title: Docs
       links:
-        - label: CLI
-          href: /docs/reference/cli
-        - label: Configuration keys
-          href: /docs/reference/config
-        - label: Programmatic API
-          href: /docs/reference/programmatic-api
+        - { label: All documentation, href: https://rapidocui.com/docs/ }
+        - { label: RapiDoc, href: https://rapidocui.com/docs/rapidoc/ }
+        - { label: RapiFlow, href: https://flow.rapidocui.com/ }
+        - { label: RapiMock, href: https://mock.rapidocui.com/docs/getting-started/introduction/ }
+        - { label: RapiDoc Portal, href: /docs/getting-started/introduction/ }
+        - { label: Integrations, href: https://rapidocui.com/integrations/ }
+        - { label: MCP Server, href: https://rapidocui.com/docs/mcp/ }
+    - title: Resources
+      links:
+        - { label: Examples, href: https://rapidocui.com/examples/ }
+        - { label: Spec Sandbox, href: https://rapidocui.com/sandbox/ }
+        - { label: Live Configurator, href: https://rapidocui.com/examples/controller-showcase/ }
+        - { label: Migration guides, href: https://rapidocui.com/docs/rapidoc/migration/v13-to-v14/ }
+        - { label: Test Matrix, href: https://rapidocui.com/tests/ }
+        - { label: Performance, href: https://rapidocui.com/tests/performance/ }
     - title: Project
       links:
-        - label: RapiDoc
-          href: https://rapidocui.com
-        - label: GitHub
-          href: https://github.com/rapi-doc/RapiDoc
+        - { label: GitHub, href: https://github.com/rapi-doc/RapiDoc }
+        - { label: Releases, href: https://github.com/rapi-doc/RapiDoc/releases }
+        - { label: Issues, href: https://github.com/rapi-doc/RapiDoc/issues }
+        - { label: npm, href: https://www.npmjs.com/package/rapidoc }
+        - { label: Hosting by Simafri, href: https://www.simafri.com/en/managed-vps/ }
   social:
     - icon: github
       href: https://github.com/rapi-doc/RapiDoc
-  copyright: © 2026 RapiDoc. MIT licensed.
+  copyright: © 2026 Mrinmoy Majumdar. MIT licensed.
+  branding: false # RapiDoc's own sites: no "Powered by RapiDoc"
 rapidoc:
   theme: amber
   render-style: read

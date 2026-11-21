@@ -1,0 +1,18 @@
+---
+/**
+ * The portal's footer for a page that brings its own document (a project's page in pages/ that does not
+ * use PortalLayout), with the same columns as on every other page. Published as
+ * `@rapidoc/portal/components/PortalFooter.astro`, the companion of `PortalHeader.astro`, which brings the
+ * theme tokens its colors need:
+ *
+ *   <body>
+ *     <PortalHeader />
+ *     ...
+ *     <PortalFooter />
+ */
+import 'virtual:rapidoc-portal/theme.css';
+import 'virtual:rapidoc-portal/user-css';
+import PortalFooter from './PortalFooter.astro';
+---
+
+<PortalFooter />

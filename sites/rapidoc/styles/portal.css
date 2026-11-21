@@ -6,6 +6,7 @@
  */
 
 @import "../../shared/styles/header.css";
+@import "../../shared/styles/footer.css";
 
 /* ---- Docs sidebar: 300px, the products above the pages ---- */
 :root {

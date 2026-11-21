@@ -1,0 +1,14 @@
+/*
+ * The footer every RapiDoc site shares: the portal's footer, with the same columns in each site's
+ * rapidoc.config.yaml (`footer`). Its content lines up with the header's (1240px wide, centered).
+ */
+.portal-footer-root .portal-footer-container {
+  padding-inline: max(24px, (100% - 1240px) / 2 + 24px);
+}
+/* Its own text size and line height: a docs page's body (Starlight's) and a site page's differ */
+.portal-footer-root {
+  line-height: 1.6;
+}
+.portal-footer-root li {
+  font-size: 14px;
+}
