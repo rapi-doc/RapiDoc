@@ -208,16 +208,20 @@ navigation:
     icon: puzzle-piece
     items:
       - { slug: rapidoc-mini, label: "Overview" }
-      - { slug: rapidoc-mini/recipes, label: "Recipes" }
       - { slug: rapidoc-mini/reference, label: "API Reference" }
-      - { label: "Live Demos", href: /rapidoc-mini/ }
+      - { slug: rapidoc-mini/recipes, label: "Recipes" }
   - label: "RapiPdf"
     icon: file-pdf
+    logo: # the header's logo on RapiPdf's pages
+      src:
+        light: /assets/images/rapi-pdf-lockup-light.svg
+        dark: /assets/images/rapi-pdf-lockup-dark.svg
+      alt: RapiPdf
+      badge: v3.0 # rapipdf's version; scripts/sync-version.mjs keeps it current, don't edit it
     items:
       - { slug: rapipdf, label: "Overview" }
-      - { slug: rapipdf/node, label: "In Node" }
       - { slug: rapipdf/reference, label: "API Reference" }
-      - { label: "Live Demo", href: /rapipdf/ }
+      - { slug: rapipdf/node, label: "In Node" }
   - label: "RapiDoc CLI"
     icon: terminal
     items:

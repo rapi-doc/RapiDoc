@@ -136,11 +136,11 @@ navigation:
     items:
       - { label: Overview, href: / } # the home page (docs/index.mdx); a slug can't name it
       - { slug: quickstart, label: Quickstart }
+      - { slug: reference, label: API Reference }
       - { slug: pairing, label: "Pairing with <rapi-doc>" }
       - { slug: running, label: Running Workflows }
       - { slug: extensions, label: Arazzo Extensions }
       - { slug: styling, label: "Slots & Styling" }
-      - { slug: reference, label: API Reference }
 docs:
   editUrl: https://github.com/rapi-doc/RapiDoc/edit/master/sites/rapi-flow/docs/
 footer:
