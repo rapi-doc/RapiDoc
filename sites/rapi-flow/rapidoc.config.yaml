@@ -104,6 +104,7 @@ navigation:
     icon: book
     items:
       - { label: Overview, href: / } # the home page (docs/index.mdx); a slug can't name it
+      - { slug: quickstart, label: Quickstart }
       - { slug: pairing, label: "Pairing with <rapi-doc>" }
       - { slug: running, label: Running Workflows }
       - { slug: extensions, label: Arazzo Extensions }
@@ -120,6 +121,7 @@ footer:
     - title: Docs
       links:
         - { label: Overview, href: / }
+        - { label: Quickstart, href: /docs/quickstart/ }
         - { label: Running Workflows, href: /docs/running/ }
         - { label: Arazzo Extensions, href: /docs/extensions/ }
     - title: RapiFlow

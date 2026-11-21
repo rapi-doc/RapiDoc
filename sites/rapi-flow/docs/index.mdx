@@ -13,17 +13,7 @@ An API reference shows operations one at a time. Integrators also need the order
 
 ## Load it
 
-`<rapi-flow>` is a separate bundle, so pages that only use `<rapi-doc>` don't download it.
-
-```html
-<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-flow-min.js"></script>
-
-<rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" for="thedoc"></rapi-flow>
-<rapi-doc id="thedoc" spec-url="/specs/petstore.yaml"></rapi-doc>
-```
-
-With a bundler, `import 'rapidoc/flow';` registers the element. It carries its own copy of Lit and the Arazzo runtime; `rapidoc-min.js` carries no Arazzo code.
+`<rapi-flow>` is a separate bundle, `rapidoc-flow-min.js` (`import 'rapidoc/flow'` with a bundler), so pages that only use `<rapi-doc>` don't download it. It carries its own copy of Lit and the Arazzo runtime; `rapidoc-min.js` carries no Arazzo code. The [Quickstart](/docs/quickstart/) puts both on a page and runs a workflow against the in-browser mock.
 
 ## Standalone or paired
 
@@ -37,6 +27,7 @@ With a bundler, `import 'rapidoc/flow';` registers the element. It carries its o
 ## Learn more
 
 <CardGrid>
+  <LinkCard title="Quickstart" href="/docs/quickstart/" description="One HTML file: a workflow drawn next to its reference, run against the in-browser mock." />
   <LinkCard title="Pairing with <rapi-doc>" href="/docs/pairing/" description="API sources, one element per API, and links to a step." />
   <LinkCard title="Running workflows" href="/docs/running/" description="Run a workflow from the page, against the API or a mock, and what runs." />
   <LinkCard title="Arazzo extensions" href="/docs/extensions/" description="x-security, x-operation and x-allowReserved." />
