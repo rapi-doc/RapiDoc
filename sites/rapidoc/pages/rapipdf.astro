@@ -157,6 +157,20 @@ const contents = [
           short list of operations.
         </p>
       </div>
+      <div class="rd-pdf-pages">
+        {
+          [
+            ['cover', 'The cover: the title you set, the API\'s name, version, description and contact'],
+            ['contents', 'The contents: every operation by tag, with its page number'],
+            ['operation', 'An operation: its request body as an object tree, then its parameters and responses'],
+          ].map(([name, alt]) => (
+            <figure class="rd-pdf-page">
+              <img src={`/assets/images/rapipdf/sample-${name}.jpg`} alt={alt} width="744" height="1052" loading="lazy" />
+              <figcaption>{name.charAt(0).toUpperCase() + name.slice(1)}</figcaption>
+            </figure>
+          ))
+        }
+      </div>
       <div class="rd-feature-grid">
         {
           contents.map((item) => (
@@ -288,6 +302,40 @@ const contents = [
   }
   .rd-pdf-demo rapi-pdf[hide-input='true'] {
     width: auto;
+  }
+  /* Three pages of a PDF made from the Petstore spec (rapipdf/node, rendered at 2.5x) */
+  .rd-pdf-pages {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 960px;
+    margin: 0 auto 48px;
+  }
+  .rd-pdf-page {
+    margin: 0;
+    text-align: center;
+  }
+  .rd-pdf-page img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--rd-radius-sm, 6px);
+    border: 1px solid var(--rd-border);
+    box-shadow: var(--rd-shadow-panel);
+  }
+  .rd-pdf-page figcaption {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--rd-text-dim);
+  }
+  @media (max-width: 640px) {
+    .rd-pdf-pages {
+      grid-template-columns: 1fr;
+      max-width: 360px;
+    }
   }
   .rd-pdf-ways {
     display: flex;
