@@ -28,6 +28,8 @@ on:
       - 'packages/rapidoc-prerender/**'
       - 'packages/rapidoc-mcp/**'
       - 'packages/rapidoc/src/**'
+      # its version is the badge next to the site's logo
+      - 'packages/rapidoc/package.json'
       - 'packages/rapipdf/src/**'
       - 'scripts/rapidoc-api.js'
       - 'package.json'

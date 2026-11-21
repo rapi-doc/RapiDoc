@@ -10,7 +10,7 @@ site:
       light: /assets/images/rapidoc-lockup-light.svg
       dark: /assets/images/rapidoc-lockup-dark.svg
     alt: RapiDoc
-    badge: v14.2 # the release step must keep this current (see AGENTS.md)
+    badge: v14.2 # RapiDoc's version; scripts/sync-version.mjs keeps it current, don't edit it
   noindex: true # until this build replaces the live site
 theme:
   mode: dark # the theme a first-time visitor gets; the header's switcher changes it
