@@ -77,7 +77,7 @@
 }
 
 /* ---- One header for every page: the portal's, on the docs pages and on the site's own pages (home,
-   product pages, /api, examples, tests), which place it themselves (PortalHeader in their layout).
+   product pages, examples, tests), which place it themselves (PortalHeader in their layout).
    The sizes below are the live site's header's. ---- */
 :root {
   /* 64px and the 1px rule under it */

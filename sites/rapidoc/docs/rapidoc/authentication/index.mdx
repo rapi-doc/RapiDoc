@@ -1,0 +1,61 @@
+---
+title: Authentication
+description: How readers give <rapi-doc> the credentials Try needs to call a protected API - API keys, HTTP Basic, bearer tokens and OAuth 2.0 - and how your page can fill them in.
+---
+
+import { Aside } from '@rapidoc/portal/components';
+
+When an API needs credentials, **Try** has to send them. `<rapi-doc>` reads the security schemes your spec declares (`components.securitySchemes`) and shows an **Authentication** section with a form for each: the reader enters a key, a token, a username and password, or signs in with your identity provider. Every **Try** request to an operation that uses that scheme then carries the credential.
+
+The credentials stay in the reader's browser and go only to your API. They are forgotten on reload unless you set [`persist-auth`](#keep-them-across-reloads).
+
+## What each scheme asks for
+
+| Scheme in the spec | The reader enters | Your page can fill it in with |
+| :--- | :--- | :--- |
+| `apiKey` (header, query or cookie) | The key | `setApiKey('schemeId', key)` |
+| `http` with `scheme: basic` | Username and password | `setHttpUserNameAndPassword('schemeId', user, password)` |
+| `http` with `scheme: bearer` | The token (RapiDoc adds `Bearer `) | `setApiKey('schemeId', token)` |
+| `oauth2`, `openIdConnect` | Signs in with your provider, in a popup | `setApiKey('schemeId', accessToken)`, with a token you already have |
+
+`schemeId` is the scheme's name under `components.securitySchemes`. OAuth sign-in needs a small receiver page and a client registered with your provider: [OAuth 2.0](/docs/rapidoc/authentication/oauth/) sets it up in three steps.
+
+## Fill them in from your page
+
+When your site already knows who the reader is, pass their credential to `<rapi-doc>` so they don't have to paste it. Add a `note` and the Authentication section shows it in place of the form, with a link to use a different token:
+
+```js
+const doc = document.querySelector('rapi-doc');
+doc.setApiKey('BearerAuth', sessionToken, { note: 'Using your sign-in (ann@example.com).' });
+```
+
+`removeAllSecurityKeys()` clears every credential, for example when the reader signs out. All the methods are on the [Methods](/docs/rapidoc/reference/methods/) reference page.
+
+## An API key the spec doesn't declare
+
+If the spec has no security scheme for it, set the key with attributes, and it is sent with every **Try** request:
+
+```html
+<rapi-doc
+  spec-url="https://rapidocui.com/specs/petstore.yaml"
+  api-key-name="X-API-Key"
+  api-key-location="header"
+  api-key-value="test-key-123"
+></rapi-doc>
+```
+
+## Keep them across reloads
+
+`persist-auth="true"` keeps API keys, bearer tokens and OAuth access tokens in the browser's `localStorage`, so a reload doesn't sign the reader out. An OAuth token is dropped once it expires; HTTP Basic credentials and OAuth client secrets are never stored.
+
+## Hide the forms
+
+`allow-authentication="false"` hides the Authentication section, for a page that fills in every credential itself or an API that needs none.
+
+<Aside type="caution" title="Calls from the browser">
+  **Try** calls your API from the reader's browser, so the API must allow cross-origin requests from your docs site, including the `Authorization` header (or your API key's header) in `Access-Control-Allow-Headers`.
+</Aside>
+
+## Sign-in for the docs themselves
+
+This page is about signing in to **your API**, so **Try** works. To put the **documentation** behind a sign-in (Okta, Microsoft Entra ID, Google or any OpenID Connect provider), with rules for who may read which pages, use [RapiDoc Portal's single sign-on](https://portal.rapidocui.com/docs/access/overview/).

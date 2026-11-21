@@ -1,8 +1,35 @@
 ---
+// <rapi-doc> or <rapi-doc-mini>? On the site's /rapidoc-mini/ page in the site's own style; with `docs`, as the
+// docs' standard table (docs/rapidoc-mini/index.mdx).
 import { comparisonData } from '../page-data/rapidoc-mini-comparison';
+
+const { docs = false } = Astro.props as { docs?: boolean };
 ---
 
-<div class="rd-comparison-container not-content">
+{
+  docs && (
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th><code>&lt;rapi-doc&gt;</code></th>
+          <th><code>&lt;rapi-doc-mini&gt;</code></th>
+        </tr>
+      </thead>
+      <tbody>
+        {comparisonData.comparison.map((item) => (
+          <tr>
+            <td>{item.feature}</td>
+            <td>{item.rapidoc}</td>
+            <td>{item.rapidocMini}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+{!docs && (<div class="rd-comparison-container not-content">
   <table class="rd-comparison-table">
     <thead>
       <tr>
@@ -27,7 +54,7 @@ import { comparisonData } from '../page-data/rapidoc-mini-comparison';
       ))}
     </tbody>
   </table>
-</div>
+</div>)}
 
 <style>
 .rd-comparison-container {

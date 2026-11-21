@@ -10,8 +10,8 @@ import ThemeDemo from '../../../components/ThemeDemo.astro';
 RapiDoc renders inside a **Shadow DOM**, so your site's CSS (resets, Tailwind, component libraries) can't change it by accident, and its CSS can't leak into your site. You style it on purpose, in three layers:
 
 1. **Attributes** for the common choices: theme, light or dark, corner radius, size. This page.
-2. **CSS custom properties** for any color, font or size: see [CSS Parts & Variables](/docs/rapidoc/theming/css-parts/).
-3. **`::part()` selectors** for individual elements: also on [CSS Parts & Variables](/docs/rapidoc/theming/css-parts/).
+2. **CSS custom properties** for any color, font or size: see [Styling with CSS](/docs/rapidoc/theming/css-parts/).
+3. **`::part()` selectors** for individual elements: also on [Styling with CSS](/docs/rapidoc/theming/css-parts/).
 
 <Aside type="note" title="Upgrading from RapiDoc v10?">
   RapiDoc v11 replaced styling attributes such as `bg-color`, `text-color`, `header-color`, `regular-font` and `nav-*` with CSS custom properties and `::part()` selectors. (`primary-color` still works, as a shortcut for `theme="#hex"`.) The [v10 to v11 guide](/docs/rapidoc/migration/v10-to-v11/) maps each one.

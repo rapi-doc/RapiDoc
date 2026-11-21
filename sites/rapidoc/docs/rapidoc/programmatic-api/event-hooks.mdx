@@ -1,11 +1,11 @@
 ---
-title: Events
+title: React to Events
 description: Change Try requests before they are sent, read responses, and react to spec loading, server changes and navigation with <rapi-doc> events.
 ---
 
 import { Aside } from '@rapidoc/portal/components';
 
-`<rapi-doc>` dispatches DOM events you can listen to with `addEventListener`. The full list, with every field, is in the [API reference](/docs/rapidoc/reference/#events).
+`<rapi-doc>` dispatches DOM events you can listen to with `addEventListener`. The full list, with every field, is in the [API reference](/docs/rapidoc/reference/events/).
 
 ## Change a request before it is sent: `before-try`
 
@@ -89,4 +89,4 @@ doc.addEventListener('api-server-change', (e) => {
 
 ## Every event
 
-The [reference](/docs/rapidoc/reference/#events) lists every event and its `detail`. Two have guides of their own: `nav-active-change`, in [Links & Navigation](/docs/rapidoc/customizing/linking/#in-a-single-page-app), and the OAuth events `before-authorize` and `before-token-request`, in [OAuth 2.0](/docs/rapidoc/authentication/oauth/#from-javascript).
+The [reference](/docs/rapidoc/reference/events/) lists every event and its `detail`. Two have guides of their own: `nav-active-change`, in [Links & Navigation](/docs/rapidoc/customizing/linking/#in-a-single-page-app), and the OAuth events `before-authorize` and `before-token-request`, in [OAuth 2.0](/docs/rapidoc/authentication/oauth/#from-javascript).

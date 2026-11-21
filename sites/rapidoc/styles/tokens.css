@@ -37,7 +37,6 @@
   --rd-bg: #060913;
   --rd-bg-surface: #090d16;
   --rd-bg-input: rgba(15, 23, 42, 0.8);
-  --rd-bg-glass: rgba(6, 9, 19, 0.8);
   /* Panels and cards, from flattest to most raised */
   --rd-surface: rgba(15, 23, 42, 0.65);
   --rd-surface-card: rgba(11, 17, 33, 0.7);
@@ -70,11 +69,6 @@
   --rd-shadow-panel: 0 8px 30px -10px rgba(0, 0, 0, 0.5);
   /* Menus that float over the page (the Products menu): a solid surface one step lighter than the page,
      a deeper shadow, and the dim layer behind them */
-  --rd-bg-elevated: #0f1626;
-  --rd-shadow-popover: 0 24px 48px -12px rgba(0, 0, 0, 0.65);
-  --rd-scrim: rgba(2, 4, 10, 0.55);
-  --rd-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px var(--rd-accent-glow);
-  --rd-shadow-glow: 0 0 30px var(--rd-accent-glow);
 
   /* ------------------------------------------------------------------------ Radii
      One 6px corner for boxes and controls (cards, panels, buttons, inputs, icon boxes), as on the
@@ -97,29 +91,10 @@
 
   /* ------------------------------------------------------------------------ Old names
      Kept so pages and components not yet moved to the names above keep working. */
-  --rd-emerald: var(--rd-accent);
-  --rd-emerald-glow: var(--rd-accent-glow);
-  --rd-glass-border: var(--rd-border);
-  --rd-glass-border-hover: var(--rd-border-accent);
-  --rd-text-secondary: var(--rd-text-muted);
-  --rd-bg-card: var(--rd-surface);
-  --rd-bg-card-hover: var(--rd-surface-hover);
-  --fg-color: var(--rd-text);
-  --fg-color-mute: var(--rd-text-muted);
-  --fg-color-bright: var(--rd-text-bright);
   --bg-color: var(--rd-bg);
-  --accent-color: var(--rd-accent);
   --link-color: var(--rd-accent-light);
-  --border-color: var(--rd-border);
-  --border-color-muted: rgba(255, 255, 255, 0.05);
-  --color-green: #84cc16;
   --color-yellow: var(--rd-amber);
-  --color-yellow-dim: #a98a4c;
   --color-salmon: #ff7043;
-  --color-blue: var(--rd-sky);
-  --card-bg-color: var(--rd-surface);
-  --code-block-width: 725px;
-  --code-block-bg-color: var(--rd-bg-surface);
 }
 
 /* The one pulse animation (status dots, live badges) */

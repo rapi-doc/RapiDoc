@@ -5,6 +5,8 @@
  * under each, as tables.
  *
  *   <ElementReference tag="rapi-doc" section="filter" />       jump links to the sections, and the filter box
+ *     (jumps={false} for a page that holds one section, such as <rapi-doc>'s, split over pages; placeholder= to
+ *     name what it filters)
  *   <ElementReference tag="rapi-doc" section="attributes" />   a table per attribute group (each group an h3)
  *   <ElementReference tag="rapi-doc" section="methods" />      also events, slots, extensions
  *
@@ -22,9 +24,13 @@ import { API_ELEMENTS, readElementApi, type RapidocAttribute } from '../element-
 interface Props {
   tag: string;
   section: 'filter' | 'attributes' | 'methods' | 'events' | 'slots' | 'extensions';
+  /** section="filter": show the jump links to the other sections (default true) */
+  jumps?: boolean;
+  /** section="filter": the box's placeholder */
+  placeholder?: string;
 }
 
-const { tag, section } = Astro.props;
+const { tag, section, jumps: showJumps = true, placeholder } = Astro.props;
 const element = API_ELEMENTS.find((el) => el.tag === tag);
 if (!element) throw new Error(`ElementReference: no element <${tag}> in sites/shared/element-api.ts`);
 const api = readElementApi(element);
@@ -65,19 +71,19 @@ const jumps = [
 {
   section === 'filter' && (
     <div class="ref-top" data-ref-wide>
-      <nav class="ref-jumps" aria-label="Sections">
+      {showJumps && (<nav class="ref-jumps" aria-label="Sections">
         {jumps.map((jump) => (
           <a href={`#${jump.id}`}>
             {jump.label}
             {jump.count !== undefined && <span class="ref-count">{jump.count}</span>}
           </a>
         ))}
-      </nav>
-      <div class="ref-filter" data-ref-filter>
+      </nav>)}
+      <div data-ref-filter>
         <input
           type="search"
           class="ref-filter-input"
-          placeholder={`Filter the attributes, methods and events of <${tag}>`}
+          placeholder={placeholder ?? `Filter the attributes, methods and events of <${tag}>`}
           aria-label={`Filter the reference of <${tag}>`}
           autocomplete="off"
         />
@@ -90,12 +96,11 @@ const jumps = [
 {
   section === 'attributes' &&
     groups.map((group) => (
-      <div class="ref-group" data-ref-group>
-        <h3 id={group.id} class="ref-group-title">
+      <div data-ref-group>
+        <h3 id={group.id}>
           {group.title} <span class="ref-count">{group.items.length}</span>
         </h3>
-        <div class="ref-table-wrap">
-          <table class="ref-table ref-table-attributes">
+        <table class="ref-table">
             <thead>
               <tr>
                 <th scope="col">Attribute</th>
@@ -107,7 +112,7 @@ const jumps = [
               {group.items.map((attr) => (
                 <tr id={attr.name} data-ref-item data-ref-text={`${attr.name} ${attr.allowed?.join(' ') ?? ''}`.toLowerCase()}>
                   <th scope="row" class="ref-name-cell">
-                    <a href={`#${attr.name}`} class="ref-name">{attr.name}</a>
+                    <a href={`#${attr.name}`} class="ref-name"><code>{attr.name}</code></a>
                     {attr.deprecated && <span class="ref-badge-deprecated">Deprecated</span>}
                   </th>
                   <td class="ref-desc-cell">
@@ -118,28 +123,26 @@ const jumps = [
                     )}
                     <div class="ref-desc" set:html={attr.description} />
                     {attr.code && <pre class="ref-code"><code>{attr.code}</code></pre>}
-                    {attr.example && <a class="ref-example" href={attr.example}>See it running →</a>}
+                    {attr.example && <a href={attr.example}>See it running →</a>}
                   </td>
                   <td class="ref-default-cell" data-label="Default">
                     {attr.default !== undefined && attr.default !== '' ? (
                       <code set:html={String(attr.default)} />
                     ) : (
-                      <span class="ref-none">—</span>
+                      <span>—</span>
                     )}
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+        </table>
       </div>
     ))
 }
 
 {
   list && (
-    <div class="ref-table-wrap" data-ref-group>
-      <table class="ref-table">
+    <table class="ref-table" data-ref-group>
         <thead>
           <tr>
             <th scope="col">{list.head}</th>
@@ -150,7 +153,7 @@ const jumps = [
           {list.items.map((item: any) => (
             <tr id={list.id(item.name)} data-ref-item data-ref-text={item.name.toLowerCase()}>
               <th scope="row" class="ref-name-cell">
-                <a href={`#${list.id(item.name)}`} class="ref-name">{item.name}</a>
+                <a href={`#${list.id(item.name)}`} class="ref-name"><code>{item.name}</code></a>
               </th>
               <td class="ref-desc-cell">
                 {item.allowed && (
@@ -160,13 +163,12 @@ const jumps = [
                 )}
                 <div class="ref-desc" set:html={item.description} />
                 {item.code && <pre class="ref-code"><code>{item.code}</code></pre>}
-                {item.example && <a class="ref-example" href={item.example}>See it running →</a>}
+                {item.example && <a href={item.example}>See it running →</a>}
               </td>
             </tr>
           ))}
         </tbody>
-      </table>
-    </div>
+    </table>
   )
 }
 
@@ -192,7 +194,7 @@ const jumps = [
 </script>
 
 <style is:global>
-  /* Red for "deprecated": a light red on dark, a deeper one on light (Starlight's red reads pink) */
+  /* The docs' standard tables (Starlight's, as every docs page has them); only what a reference adds is here */
   :root {
     --ref-red: #f87171;
     --ref-red-bg: rgb(248 113 113 / 0.1);
@@ -218,14 +220,9 @@ const jumps = [
     flex-wrap: wrap;
     gap: 0.375rem 1.25rem;
     margin: 0 0 0.875rem;
-    font-size: 0.9375rem;
   }
   .sl-markdown-content .ref-jumps a {
-    color: var(--portal-primary-text);
     text-decoration: none;
-  }
-  .sl-markdown-content .ref-jumps a:hover {
-    text-decoration: underline;
   }
   .ref-count {
     margin-inline-start: 0.375rem;
@@ -238,10 +235,9 @@ const jumps = [
     padding: 0.625rem 0.875rem;
     border: 1px solid var(--portal-border);
     border-radius: var(--portal-radius);
-    background: var(--portal-card-bg, transparent);
+    background: transparent;
     color: var(--portal-fg);
     font: inherit;
-    font-size: 0.9375rem;
   }
   .ref-filter-input:focus {
     outline: 2px solid var(--portal-primary);
@@ -251,38 +247,10 @@ const jumps = [
     color: var(--portal-muted);
   }
 
-  .sl-markdown-content .ref-table-wrap {
-    margin: 0.75rem 0 1.75rem;
-    border: 1px solid var(--portal-border);
-    border-radius: var(--portal-radius);
-    overflow: hidden;
-  }
+  /* Full width, so every group's columns line up; the name and default columns keep their width */
   .sl-markdown-content .ref-table {
     display: table;
     width: 100%;
-    margin: 0;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    line-height: 1.55;
-  }
-  .sl-markdown-content .ref-table :is(th, td) {
-    padding: 0.75rem 0.875rem;
-    border: 0;
-    border-bottom: 1px solid var(--portal-border);
-    vertical-align: top;
-    text-align: start;
-  }
-  .sl-markdown-content .ref-table tbody tr:last-child > * {
-    border-bottom: 0;
-  }
-  .sl-markdown-content .ref-table thead th {
-    padding-block: 0.5rem;
-    background: var(--portal-card-bg, transparent);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--portal-muted);
   }
   .sl-markdown-content .ref-table tbody tr {
     scroll-margin-top: calc(var(--sl-nav-height, 4rem) + 1rem);
@@ -294,29 +262,18 @@ const jumps = [
     width: 15rem;
     font-weight: 400;
   }
-  .sl-markdown-content .ref-table-attributes .ref-name-cell {
-    width: 14rem;
-  }
   .sl-markdown-content .ref-default-cell {
     width: 10.5rem;
-    color: var(--portal-muted);
   }
   .sl-markdown-content .ref-default-cell code {
     white-space: nowrap;
   }
   .sl-markdown-content .ref-name {
-    font-family: var(--__sl-font-mono, ui-monospace, monospace);
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--portal-primary-text);
     text-decoration: none;
-    overflow-wrap: anywhere;
-  }
-  .sl-markdown-content .ref-name:hover {
-    text-decoration: underline;
   }
   .sl-markdown-content .ref-badge-deprecated {
-    display: inline-block;
+    display: block;
+    width: fit-content;
     margin-top: 0.375rem;
     padding: 0.0625rem 0.4375rem;
     border: 1px solid color-mix(in srgb, var(--ref-red) 55%, transparent);
@@ -329,11 +286,6 @@ const jumps = [
     text-transform: uppercase;
     color: var(--ref-red);
   }
-  /* Under the name, on a line of its own (not display: table, which takes the table's border-collapse and drops the padding) */
-  .sl-markdown-content .ref-name-cell .ref-badge-deprecated {
-    display: block;
-    width: fit-content;
-  }
   .sl-markdown-content .ref-desc-cell > * + * {
     margin-top: 0.5rem;
   }
@@ -341,11 +293,6 @@ const jumps = [
     display: flex;
     flex-wrap: wrap;
     gap: 0.3rem;
-    margin: 0;
-  }
-  .sl-markdown-content .ref-allowed code,
-  .sl-markdown-content .ref-default-cell code {
-    font-size: 0.8125rem;
   }
   .sl-markdown-content .ref-desc ul {
     margin-top: 0.375rem;
@@ -358,10 +305,6 @@ const jumps = [
     border: 1px solid var(--portal-border);
     border-radius: var(--portal-radius);
     font-size: 0.8125rem;
-  }
-  .sl-markdown-content .ref-example {
-    display: inline-block;
-    font-size: 0.875rem;
   }
   /* The classes the element's doc comments use (scripts/rapidoc-api.js), in the docs' colors */
   .sl-markdown-content .ref-desc .mono {
@@ -401,11 +344,8 @@ const jumps = [
       margin-top: 0;
     }
     .sl-markdown-content .ref-table tbody tr {
-      padding: 0.75rem 0.875rem;
-      border-bottom: 1px solid var(--portal-border);
-    }
-    .sl-markdown-content .ref-table tbody tr:last-child {
-      border-bottom: 0;
+      padding-block: 0.75rem;
+      border-bottom: 1px solid var(--sl-color-gray-5);
     }
     .sl-markdown-content .ref-table tbody :is(th, td) {
       padding: 0;
@@ -416,10 +356,7 @@ const jumps = [
     }
     .sl-markdown-content .ref-default-cell::before {
       content: attr(data-label) ' ';
-    }
-    .sl-markdown-content .ref-name-cell .ref-badge-deprecated {
-      display: inline-block;
-      margin: 0 0 0 0.5rem;
+      color: var(--portal-muted);
     }
   }
 </style>

@@ -99,69 +99,6 @@ rapi-doc {
   border-color: color-mix(in srgb, var(--rd-sky) 50%, transparent);
 }
 
-/* Segmented 3-Icon Render Style Group */
-.dr-segmented-group {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--rd-radius-pill);
-  padding: 2px;
-  gap: 2px;
-}
-
-.dr-seg-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 8px;
-  border-radius: var(--rd-radius-pill);
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--rd-text-muted);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  line-height: 1;
-}
-
-.dr-seg-btn svg {
-  display: block;
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-  fill: none;
-  transition: stroke 0.15s ease;
-}
-
-.dr-seg-btn:hover {
-  color: var(--rd-text-bright);
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.dr-seg-btn:hover svg {
-  stroke: var(--rd-text-bright);
-}
-
-.dr-seg-btn.active {
-  color: var(--rd-accent-light);
-  background: var(--rd-accent-dim);
-  border-color: var(--rd-accent-border);
-  box-shadow: 0 0 8px var(--rd-accent-glow);
-}
-
-.dr-seg-btn.active svg {
-  stroke: var(--rd-accent-light);
-}
-
-.dr-seg-btn.active:hover {
-  color: var(--rd-text-bright);
-  background: var(--rd-accent-dim);
-}
-
-.dr-seg-btn.active:hover svg {
-  stroke: var(--rd-text-bright);
-}
-
 /* Slide-Over Spec Editor Drawer */
 .dr-drawer {
   position: fixed;

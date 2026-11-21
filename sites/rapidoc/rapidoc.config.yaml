@@ -151,41 +151,52 @@ navigation:
   - label: "RapiDoc"
     icon: file-code
     items:
+      # In the order a reader needs them: run it, look things up, lay it out, style it, sign in for Try,
+      # mock, script, scale, extras; migration last.
       - label: "Getting Started"
         items:
           - { slug: rapidoc, label: "Introduction" }
           - { slug: rapidoc/get-started/quickstart, label: "Quickstart" }
-          - { slug: rapidoc/guides, label: "Common Tasks" }
           - { slug: rapidoc/get-started/openapi-support, label: "Loading Your Spec" }
-      - label: "Theming & Styling"
+          - { slug: rapidoc/guides, label: "Common Tasks" }
+      - label: "API Reference"
+        items:
+          - { slug: rapidoc/reference, label: "Attributes" }
+          - { slug: rapidoc/reference/methods, label: "Methods" }
+          - { slug: rapidoc/reference/events, label: "Events" }
+          - { slug: rapidoc/reference/slots, label: "Slots" }
+          - { slug: rapidoc/reference/extensions, label: "Spec Extensions" }
+          - { slug: rapidoc/reference/css, label: "CSS Parts & Variables" }
+      - label: "Layout & Navigation"
+        items:
+          - { slug: rapidoc/performance/render-modes, label: "Render Modes" }
+          - { slug: rapidoc/customizing/linking, label: "Links & Navigation" }
+          - { slug: rapidoc/customizing/markdown-headings, label: "Markdown Headings in the Sidebar" }
+      - label: "Look & Feel"
         items:
           - { slug: rapidoc/theming/overview, label: "Theming Overview" }
           - { slug: rapidoc/theming/prebuilt-themes, label: "Built-in Themes" }
-          - { slug: rapidoc/theming/css-parts, label: "CSS Parts & Variables" }
-      - label: "Customizing Content"
-        items:
-          - { slug: rapidoc/customizing/slots, label: "HTML Slots" }
-          - { slug: rapidoc/customizing/markdown-headings, label: "Markdown Headings in the Sidebar" }
-          - { slug: rapidoc/customizing/linking, label: "Links & Navigation" }
+          - { slug: rapidoc/theming/css-parts, label: "Styling with CSS" }
+          - { slug: rapidoc/customizing/slots, label: "Your Own Markup" }
       - label: "Authentication"
         items:
+          - { slug: rapidoc/authentication, label: "Overview" }
           - { slug: rapidoc/authentication/oauth, label: "OAuth 2.0" }
-      - label: "JavaScript API"
-        items:
-          - { slug: rapidoc/programmatic-api/lifecycle-and-methods, label: "Methods" }
-          - { slug: rapidoc/programmatic-api/event-hooks, label: "Events" }
-      - label: "Performance"
-        items:
-          - { slug: rapidoc/performance/render-modes, label: "Render Modes" }
-          - { slug: rapidoc/performance/large-specs, label: "Large Specs" }
-      - label: "Mock & MCP"
+          - { label: "SSO in RapiDoc Portal", href: "https://portal.rapidocui.com/docs/access/overview/" }
+      - label: "Try It"
         items:
           - { slug: rapidoc/mocking/in-browser, label: "In-Browser Mock" }
-          - { slug: rapidoc/mcp-export, label: "Export MCP Server" }
-      - label: "Reference"
+      - label: "Scripting"
         items:
-          - { slug: rapidoc/reference, label: "<rapi-doc> Reference" }
-          - { label: "Examples", href: /examples/ }
+          - { slug: rapidoc/programmatic-api/lifecycle-and-methods, label: "Control It from JavaScript" }
+          - { slug: rapidoc/programmatic-api/event-hooks, label: "React to Events" }
+      - label: "Large Specs"
+        items:
+          - { slug: rapidoc/performance/large-specs, label: "Large Specs" }
+          - { label: "Pre-rendering", href: /docs/prerender/ }
+      - label: "AI Agents"
+        items:
+          - { slug: rapidoc/mcp-export, label: "Export MCP Server" }
       - label: "Migration Guides"
         collapsed: true
         items:
@@ -198,14 +209,14 @@ navigation:
     items:
       - { slug: rapidoc-mini, label: "Overview" }
       - { slug: rapidoc-mini/recipes, label: "Recipes" }
-      - { slug: rapidoc-mini/reference, label: "Reference" }
+      - { slug: rapidoc-mini/reference, label: "API Reference" }
       - { label: "Live Demos", href: /rapidoc-mini/ }
   - label: "RapiPdf"
     icon: file-pdf
     items:
       - { slug: rapipdf, label: "Overview" }
       - { slug: rapipdf/node, label: "In Node" }
-      - { slug: rapipdf/reference, label: "Reference" }
+      - { slug: rapipdf/reference, label: "API Reference" }
       - { label: "Live Demo", href: /rapipdf/ }
   - label: "RapiDoc CLI"
     icon: terminal

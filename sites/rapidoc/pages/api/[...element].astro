@@ -3,6 +3,7 @@
 // /api/ and /api/<element>/ stay as pages that send readers there, for the links that can't change: the
 // READMEs of published npm packages link to rapidocui.com/api/. A #hash (an attribute's anchor) is kept.
 import type { GetStaticPaths } from 'astro';
+import { API_ELEMENTS, readElementApi } from '../../page-data/rapidoc-api';
 
 export const getStaticPaths = (() =>
   [
@@ -13,6 +14,24 @@ export const getStaticPaths = (() =>
   ].map((page) => ({ params: { element: page.slug || undefined }, props: page }))) satisfies GetStaticPaths;
 
 const { to, name } = Astro.props as { to: string; name: string };
+
+// <rapi-doc>'s reference is split over pages: an anchor that isn't an attribute goes to its page
+const anchors: Record<string, string> = {};
+if (name === '<rapi-doc>') {
+  const api = readElementApi(API_ELEMENTS.find((el) => el.tag === 'rapi-doc')!);
+  const id = (n: string) => n.replace(/[^a-zA-Z0-9_-]/g, '-');
+  const base = '/docs/rapidoc/reference/';
+  for (const m of api.Methods.items) anchors[id(m.name)] = `${base}methods/`;
+  for (const e of api.Events.items) anchors[e.name] = `${base}events/`;
+  for (const sl of api.Slots.items) anchors[`slot-${id(sl.name)}`] = `${base}slots/`;
+  for (const x of api.Extensions.items) anchors[x.name] = `${base}extensions/`;
+  Object.assign(anchors, {
+    methods: `${base}methods/`,
+    events: `${base}events/`,
+    slots: `${base}slots/`,
+    extensions: `${base}extensions/`,
+  });
+}
 const canonical = to.startsWith('http') ? to : new URL(to, 'https://rapidocui.com').href;
 ---
 
@@ -25,8 +44,9 @@ const canonical = to.startsWith('http') ? to : new URL(to, 'https://rapidocui.co
     <meta name="portal-search" content="off" />
     <link rel="canonical" href={canonical} />
     <meta http-equiv="refresh" content={`0; url=${to}`} />
-    <script is:inline define:vars={{ to }}>
-      location.replace(to + location.hash);
+    <script is:inline define:vars={{ to, anchors }}>
+      const hash = decodeURIComponent(location.hash.slice(1));
+      location.replace((anchors[hash] || to) + location.hash);
     </script>
   </head>
   <body>

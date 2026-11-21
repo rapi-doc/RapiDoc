@@ -140,11 +140,7 @@ navigation:
       - { slug: running, label: Running Workflows }
       - { slug: extensions, label: Arazzo Extensions }
       - { slug: styling, label: "Slots & Styling" }
-      - label: Reference
-        items:
-          - { slug: reference, label: "<rapi-flow> Reference" }
-          - { label: Live Demo, href: https://rapidocui.com/rapi-flow/ }
-          - { label: Examples, href: https://rapidocui.com/examples/arazzo }
+      - { slug: reference, label: API Reference }
 docs:
   editUrl: https://github.com/rapi-doc/RapiDoc/edit/master/sites/rapi-flow/docs/
 footer:
@@ -158,7 +154,7 @@ footer:
     - title: RapiFlow
       links:
         - { label: Feature page, href: https://rapidocui.com/rapi-flow/ }
-        - { label: Reference, href: /docs/reference/ }
+        - { label: API Reference, href: /docs/reference/ }
         - { label: Arazzo Specification, href: https://spec.openapis.org/arazzo/latest.html }
     - title: Project
       links:
