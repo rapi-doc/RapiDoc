@@ -295,6 +295,10 @@ header:
 navigation:
   - label: "Documentation"
     icon: "book"
+    # A tab can show its own logo in the header on its pages:
+    # logo:
+    #   src: { light: "/logo-light.svg", dark: "/logo-dark.svg" }
+    #   badge: "v2"
     items:
       - label: "Guides"
         items:

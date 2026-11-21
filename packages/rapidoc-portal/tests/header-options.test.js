@@ -278,6 +278,10 @@ navigation:
       - { slug: intro }
   - label: More
     icon: package
+    logo:
+      src: { light: /more-light.svg, dark: /more-dark.svg }
+      alt: More
+      badge: v9.1
     items:
       - { slug: more }
   - { label: Elsewhere, href: "https://example.com/docs/" }
@@ -303,6 +307,21 @@ navigation:
     assert.match(panel, /href="\/docs\/intro\/"[^>]*>[\s\S]*?Guides/);
     assert.match(panel, /aria-current="page"[^>]*>[\s\S]*?More/);
     assert.match(panel, /href="https:\/\/example.com\/docs\/"[^>]*target="_blank"/);
+    // The tab's own logo and badge in the header, on its pages only
+    const brand = html.slice(
+      html.indexOf('class="portal-brand"'),
+      html.indexOf("</a>", html.indexOf('class="portal-brand"')),
+    );
+    assert.match(brand, /src="\/more-light\.svg"/);
+    assert.match(brand, /src="\/more-dark\.svg"/);
+    assert.match(brand, /alt="More"/);
+    assert.match(brand, /portal-brand-badge[^>]*>v9\.1</);
+    const intro = fs.readFileSync(path.join(outDir, "docs", "intro", "index.html"), "utf8");
+    const introBrand = intro.slice(
+      intro.indexOf('class="portal-brand"'),
+      intro.indexOf("</a>", intro.indexOf('class="portal-brand"')),
+    );
+    assert.doesNotMatch(introBrand, /more-light|v9\.1/);
     // Not the list of the `sidebar` mode as well
     assert.equal(html.match(/<nav class="portal-sidebar-tabs"/g), null);
   });

@@ -26,7 +26,6 @@ const banner = site.banner;
 const bannerKey = banner
   ? `${[...`${banner.message}|${banner.href ?? ''}`].reduce((h, ch) => (Math.imul(h, 31) + ch.codePointAt(0)) | 0, 0) >>> 0}`
   : '';
-const logo = site.logo;
 const headerLinks = config.header.links;
 const startLinks = headerLinks.filter((link) => link.position === 'start');
 const endLinks = headerLinks.filter((link) => link.position !== 'start');
@@ -46,6 +45,11 @@ const hasSidebar = Boolean(sidebarId);
 
 const currentPath = withoutBase(Astro.url?.pathname || '/');
 const currentTab = activeTab(tabs, currentPath);
+// On a tab's pages its own logo (navigation[].logo) replaces the site's image, alt and badge. The link stays,
+// and the site's text only when it goes with an image (without one, the text is the title standing in for it).
+const logo = currentTab?.logo
+  ? { ...site.logo, text: site.logo.light ? site.logo.text : null, ...currentTab.logo }
+  : site.logo;
 ---
 
 <header class="portal-header-root" data-portal-region="header" data-has-sidebar={hasSidebar ? '' : undefined} data-portal-own-document={Astro.props.ownDocument ? '' : undefined}>

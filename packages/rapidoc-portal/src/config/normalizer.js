@@ -286,6 +286,17 @@ function buildSidebar(items, ctx) {
 function buildTabs(navigation, ctx) {
   const tabs = navigation.map((tab) => {
     const base = { label: tab.label, icon: tab.icon, badge: tab.badge };
+    // The header shows a tab's own logo on its pages: light, dark, alt and badge as in site.logo (a badge of
+    // false shows none; no badge keeps the site's)
+    if (tab.logo) {
+      const { src, alt, badge } = tab.logo;
+      base.logo = {
+        light: typeof src === "object" ? src.light : src,
+        dark: typeof src === "object" ? src.dark : src,
+        ...(alt && { alt }),
+        ...(badge !== undefined && { badge: badge || null }),
+      };
+    }
     if (tab.items || tab.autogenerate !== undefined) {
       const items = tab.items || [{ label: tab.label, autogenerate: tab.autogenerate }];
       const { sidebar, covered, firstHref } = buildSidebar(items, ctx);

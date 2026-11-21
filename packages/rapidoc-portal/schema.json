@@ -671,6 +671,56 @@
             ],
             "description": "Small label shown next to the item."
           },
+          "logo": {
+            "description": "The header's logo on this tab's pages, in place of site.logo's image (and badge).",
+            "type": "object",
+            "properties": {
+              "src": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "light": {
+                        "type": "string"
+                      },
+                      "dark": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "light",
+                      "dark"
+                    ],
+                    "additionalProperties": false
+                  }
+                ],
+                "description": "Image in public/, or { light, dark }."
+              },
+              "alt": {
+                "type": "string"
+              },
+              "badge": {
+                "description": "Label next to the logo, e.g. this product's version; false for none (default: site.logo.badge).",
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "boolean",
+                    "const": false
+                  }
+                ]
+              }
+            },
+            "required": [
+              "src"
+            ],
+            "additionalProperties": false
+          },
           "items": {
             "description": "Documentation tab: this tab's sidebar.",
             "type": "array",

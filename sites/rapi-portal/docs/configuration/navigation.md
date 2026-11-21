@@ -42,6 +42,22 @@ navigation:
 
 Every tab has a `label`, and can have an `icon` and a `badge`. Each tab must have exactly one of these keys; the build tells you when there are none or several.
 
+## A logo per tab
+
+When the tabs are products with logos of their own, a tab can set the header's logo for its pages. `src` is an image in `public/`, or one per color scheme; `badge` replaces `site.logo.badge` there (`false` for none), for example with that product's version. The logo still links to `site.logo.href`.
+
+```yaml title="rapidoc.config.yaml"
+navigation:
+  - label: Payments
+    icon: credit-card
+    logo:
+      src: { light: /payments-light.svg, dark: /payments-dark.svg }
+      alt: Payments API
+      badge: v2
+    items:
+      - { slug: payments/intro }
+```
+
 ## Sidebar items
 
 Inside a documentation tab's `items`:

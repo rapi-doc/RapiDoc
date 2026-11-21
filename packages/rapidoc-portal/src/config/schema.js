@@ -107,6 +107,9 @@ export const SidebarItemSchema = z.union([
 // Navigation: the tabs of the header's second row
 // ---------------------------------------------------------------------------------------------
 
+/** An image in public/, or one per color scheme: site.logo.src, a tab's logo.src */
+const imageSrc = z.union([z.string(), z.strictObject({ light: z.string(), dark: z.string() })]);
+
 const TAB_KINDS = ["items", "autogenerate", "api", "catalog", "href"];
 
 export const TabSchema = z
@@ -114,6 +117,21 @@ export const TabSchema = z
     label,
     icon: icon.optional(),
     badge: badge.optional(),
+    logo: z
+      .strictObject({
+        src: imageSrc.describe("Image in public/, or { light, dark }."),
+        alt: z.string().optional(),
+        badge: z
+          .union([z.string().min(1), z.literal(false)])
+          .optional()
+          .describe(
+            "Label next to the logo, e.g. this product's version; false for none (default: site.logo.badge).",
+          ),
+      })
+      .optional()
+      .describe(
+        "The header's logo on this tab's pages, in place of site.logo's image (and badge).",
+      ),
     items: z.array(SidebarItemSchema).optional().describe("Documentation tab: this tab's sidebar."),
     autogenerate: z
       .string()
@@ -227,8 +245,6 @@ export const HeaderSchema = z.strictObject({
 // ---------------------------------------------------------------------------------------------
 // Site, theme, APIs, docs, footer
 // ---------------------------------------------------------------------------------------------
-
-const imageSrc = z.union([z.string(), z.strictObject({ light: z.string(), dark: z.string() })]);
 
 export const SiteSchema = z.strictObject({
   title: z.string().min(1),
