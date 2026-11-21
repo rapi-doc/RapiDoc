@@ -20,7 +20,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'My docs',
-      plugins: [starlightRapidoc({ uiPath: '/api', spec: './openapi.yaml' })],
+      plugins: [starlightRapidoc({ uiPath: '/docs/rapidoc/reference/', spec: './openapi.yaml' })],
     }),
   ],
 });
@@ -39,7 +39,7 @@ import { withRapidoc, rapidocSidebar } from '@rapidoc/vitepress';
 export default withRapidoc(
   defineConfig({
     themeConfig: {
-      sidebar: [{ text: 'Pets API', items: await rapidocSidebar({ spec: './openapi.yaml', uiPath: '/api' }) }],
+      sidebar: [{ text: 'Pets API', items: await rapidocSidebar({ spec: './openapi.yaml', uiPath: '/docs/rapidoc/reference/' }) }],
     },
   }),
   { apis: { pets: './openapi.yaml' } },

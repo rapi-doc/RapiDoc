@@ -22,6 +22,7 @@ on:
       - portal-pages-and-rapidoc-site
     paths:
       - 'sites/rapidoc/**'
+      - 'sites/shared/**'
       # what the site is built from
       - 'packages/rapidoc-cli/**'
       - 'packages/rapidoc-portal/**'

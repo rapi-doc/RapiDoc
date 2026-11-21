@@ -29,7 +29,7 @@ theme:
     mono: { family: JetBrains Mono }
   css: ./styles/portal.css
 # The header every RapiDoc site shares (sites/rapidoc is the source): the Products menu, with absolute
-# rapidocui.com links, the Get started menu, and Docs. Keep it the same in sites/rapi-flow, sites/rapi-mock and sites/rapi-portal.
+# rapidocui.com links, and the Docs menu (Get started, API Reference, Browse). Keep it the same in sites/rapi-flow, sites/rapi-mock and sites/rapi-portal.
 header:
   links:
     - label: Products
@@ -94,51 +94,38 @@ header:
       footer:
         label: Which package do I need?
         href: "https://rapidocui.com/docs/#which-package-do-i-need"
-    - label: Get started
+    - label: Docs
       position: start
       groups:
-        - label: Quickstarts
+        - label: Get Started
           items:
-            - label: RapiDoc
-              badge: <rapi-doc>
-              href: https://rapidocui.com/docs/rapidoc/get-started/quickstart/
-              icon: file-code
-              description: An API reference from your spec, in one HTML file
-            - label: RapiFlow
-              badge: <rapi-flow>
-              href: /docs/quickstart/
-              icon: path
-              description: Run an Arazzo workflow against the in-browser mock
-            - label: RapiMock
-              badge: rapidoc mock
-              href: https://mock.rapidocui.com/docs/getting-started/quickstart/
-              icon: hard-drives
-              description: A mock server that keeps what you send
-            - label: RapiDoc Portal
-              href: https://portal.rapidocui.com/docs/getting-started/quickstart/
-              icon: layout
-              description: A developer portal on localhost with npm create rapidoc
-        - label: In One Step
+            - { label: RapiDoc, badge: <rapi-doc>, href: https://rapidocui.com/docs/rapidoc/get-started/quickstart/, icon: file-code }
+            - { label: RapiFlow, badge: <rapi-flow>, href: /docs/quickstart/, icon: path }
+            - { label: RapiMock, badge: rapidoc mock, href: https://mock.rapidocui.com/docs/getting-started/quickstart/, icon: hard-drives }
+            - { label: RapiDoc Portal, href: https://portal.rapidocui.com/docs/getting-started/quickstart/, icon: layout }
+            - { label: RapiDoc Mini, badge: <rapi-doc-mini>, href: "https://rapidocui.com/docs/rapidoc-mini/#show-one-endpoint", icon: puzzle-piece }
+            - { label: RapiPdf, badge: <rapi-pdf>, href: "https://rapidocui.com/docs/rapipdf/#add-it-to-a-page", icon: file-pdf }
+            - { label: RapiDoc CLI, badge: rapidoc, href: https://rapidocui.com/docs/cli/, icon: terminal }
+        - label: API Reference
           items:
-            - label: RapiDoc Mini
-              badge: <rapi-doc-mini>
-              href: https://rapidocui.com/docs/rapidoc-mini/#show-one-endpoint
-              icon: puzzle-piece
-              description: One endpoint, with Try, inside a post or guide
-            - label: RapiPdf
-              badge: <rapi-pdf>
-              href: https://rapidocui.com/docs/rapipdf/#add-it-to-a-page
-              icon: file-pdf
-              description: A button that makes a PDF of your spec
-            - label: RapiDoc CLI
-              badge: rapidoc
-              href: https://rapidocui.com/docs/cli/
-              icon: terminal
-              description: Preview, validate and lint a spec from the command line
+            - { label: RapiDoc, badge: <rapi-doc>, href: https://rapidocui.com/docs/rapidoc/reference/, icon: file-code }
+            - { label: RapiDoc Mini, badge: <rapi-doc-mini>, href: https://rapidocui.com/docs/rapidoc-mini/reference/, icon: puzzle-piece }
+            - { label: RapiFlow, badge: <rapi-flow>, href: /docs/reference/, icon: path }
+            - { label: RapiPdf, badge: <rapi-pdf>, href: https://rapidocui.com/docs/rapipdf/reference/, icon: file-pdf }
+            - { label: RapiDoc CLI, badge: rapidoc, href: https://rapidocui.com/docs/cli/reference/, icon: terminal }
+            - { label: RapiMock, badge: rapidoc mock, href: https://mock.rapidocui.com/docs/reference/cli/, icon: hard-drives }
+            - { label: RapiDoc Portal, badge: rapidoc.config.yaml, href: https://portal.rapidocui.com/docs/reference/config/, icon: layout }
+        - label: Browse
+          items:
+            - { label: All documentation, href: https://rapidocui.com/docs/, icon: books }
+            - { label: Integrations, href: https://rapidocui.com/docs/integrations/, icon: plug }
+            - { label: MCP Server, href: https://rapidocui.com/docs/mcp/, icon: robot }
+            - { label: Pre-rendering, href: https://rapidocui.com/docs/prerender/, icon: lightning }
+            - { label: Examples, href: https://rapidocui.com/examples/, icon: squares-four }
+            - { label: Migration guides, href: https://rapidocui.com/docs/rapidoc/migration/v13-to-v14/, icon: arrows-clockwise }
       footer:
         label: Which package do I need?
         href: "https://rapidocui.com/docs/#which-package-do-i-need"
-    - { label: Docs, href: https://rapidocui.com/docs/, position: start }
     - label: GitHub
       href: https://github.com/rapi-doc/RapiDoc
       icon: github-logo
@@ -155,7 +142,7 @@ navigation:
       - { slug: styling, label: "Slots & Styling" }
       - label: Reference
         items:
-          - { label: API Reference, href: https://rapidocui.com/api/rapi-flow/ }
+          - { slug: reference, label: "<rapi-flow> Reference" }
           - { label: Live Demo, href: https://rapidocui.com/rapi-flow/ }
           - { label: Examples, href: https://rapidocui.com/examples/arazzo }
 docs:
@@ -171,7 +158,7 @@ footer:
     - title: RapiFlow
       links:
         - { label: Feature page, href: https://rapidocui.com/rapi-flow/ }
-        - { label: API Reference, href: https://rapidocui.com/api/rapi-flow/ }
+        - { label: Reference, href: /docs/reference/ }
         - { label: Arazzo Specification, href: https://spec.openapis.org/arazzo/latest.html }
     - title: Project
       links:

@@ -23,7 +23,7 @@ app.get('/openapi.json', (c) => c.json(openApiDocument));
 app.use(rapidoc({ specUrl: '/openapi.json', options: { renderStyle: 'focused' } }));
 ```
 
-The reference is at `/docs`; change it with `uiPath`. `options` takes any [attribute of `<rapi-doc>`](/api/). On Cloudflare Workers, import from `@rapidoc/hono/edge`, which loads the bundle from a CDN instead of reading it from disk.
+The reference is at `/docs`; change it with `uiPath`. `options` takes any [attribute of `<rapi-doc>`](/docs/rapidoc/reference/). On Cloudflare Workers, import from `@rapidoc/hono/edge`, which loads the bundle from a CDN instead of reading it from disk.
 
 ## Express and Fastify
 
@@ -51,4 +51,4 @@ await fastify.register(rapidoc, { specUrl: '/openapi.json' });
   </TabItem>
 </Tabs>
 
-Both serve the reference at `/docs` and take the same options as the Hono package. Mounted under a prefix (`app.use('/api', …)`, or Fastify's `prefix`), the page's links include it.
+Both serve the reference at `/docs` and take the same options as the Hono package. Mounted under a prefix (`app.use('/docs/rapidoc/reference/', …)`, or Fastify's `prefix`), the page's links include it.

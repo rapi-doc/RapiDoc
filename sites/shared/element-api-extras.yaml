@@ -1,4 +1,4 @@
-# What the /api page shows that is not declared in the element: the section introductions and the spec
+# What an element reference shows that is not declared in the element: the section introductions and the spec
 # extensions (x-*) RapiDoc reads. Attributes, methods, events and slots come from the doc comments of
 # packages/rapidoc/src/rapidoc.ts (scripts/rapidoc-api.js).
 Methods:

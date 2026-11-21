@@ -1,0 +1,425 @@
+---
+/**
+ * One section of a web component's reference, generated from the element's source (../element-api.ts): a docs
+ * page writes the section headings (so the page has an outline and search finds them) and places one of these
+ * under each, as tables.
+ *
+ *   <ElementReference tag="rapi-doc" section="filter" />       jump links to the sections, and the filter box
+ *   <ElementReference tag="rapi-doc" section="attributes" />   a table per attribute group (each group an h3)
+ *   <ElementReference tag="rapi-doc" section="methods" />      also events, slots, extensions
+ *
+ * The page sets `tableOfContents: false`: the tables then get the width the "On this page" column had, and
+ * the jump links take its place. Below 50rem each row becomes a block.
+ *
+ * Used by sites/rapidoc (RapiDoc, RapiDoc Mini, RapiPdf) and sites/rapi-flow (RapiFlow). Styled with the
+ * portal's tokens, so it follows the docs' light and dark themes. Anchors are those of the old /api pages:
+ * an attribute or event by its name, a method by its name with other characters as `-`, a slot as
+ * `slot-<name>`, a group by its slug.
+ */
+import GithubSlugger from 'github-slugger';
+import { API_ELEMENTS, readElementApi, type RapidocAttribute } from '../element-api';
+
+interface Props {
+  tag: string;
+  section: 'filter' | 'attributes' | 'methods' | 'events' | 'slots' | 'extensions';
+}
+
+const { tag, section } = Astro.props;
+const element = API_ELEMENTS.find((el) => el.tag === tag);
+if (!element) throw new Error(`ElementReference: no element <${tag}> in sites/shared/element-api.ts`);
+const api = readElementApi(element);
+
+const visible = <T extends { hidden?: boolean }>(items: T[]) => items.filter((item) => item.hidden !== true);
+const methodId = (name: string) => name.replace(/[^a-zA-Z0-9_-]/g, '-');
+const slugger = new GithubSlugger();
+const groups = api.Attributes.map((group) => {
+  const [title, items] = Object.entries(group)[0] as [string, RapidocAttribute[]];
+  return { title, id: slugger.slug(title), items: visible(items) };
+}).filter((group) => group.items.length > 0);
+
+const lists = {
+  methods: { items: visible(api.Methods.items), id: methodId, head: 'Method' },
+  events: { items: visible(api.Events.items), id: (name: string) => name, head: 'Event' },
+  slots: { items: visible(api.Slots.items), id: (name: string) => `slot-${methodId(name)}`, head: 'Slot' },
+  extensions: { items: visible(api.Extensions.items as any[]), id: (name: string) => name, head: 'Extension' },
+};
+const list = section in lists ? lists[section as keyof typeof lists] : undefined;
+
+// The jump links: the sections this element has, as the page's headings name them
+const attributeCount = groups.reduce((sum, group) => sum + group.items.length, 0);
+const jumps = [
+  { id: 'attributes', label: 'Attributes', count: attributeCount },
+  { id: 'methods', label: 'Methods', count: lists.methods.items.length },
+  { id: 'events', label: 'Events', count: lists.events.items.length },
+  { id: 'slots', label: 'Slots', count: lists.slots.items.length },
+  { id: 'spec-extensions', label: 'Spec extensions', count: lists.extensions.items.length },
+  ...(tag === 'rapi-doc'
+    ? [
+        { id: 'css-parts', label: 'CSS parts', count: undefined },
+        { id: 'css-custom-properties', label: 'CSS custom properties', count: undefined },
+      ]
+    : []),
+].filter((jump) => jump.count === undefined || jump.count > 0);
+---
+
+{
+  section === 'filter' && (
+    <div class="ref-top" data-ref-wide>
+      <nav class="ref-jumps" aria-label="Sections">
+        {jumps.map((jump) => (
+          <a href={`#${jump.id}`}>
+            {jump.label}
+            {jump.count !== undefined && <span class="ref-count">{jump.count}</span>}
+          </a>
+        ))}
+      </nav>
+      <div class="ref-filter" data-ref-filter>
+        <input
+          type="search"
+          class="ref-filter-input"
+          placeholder={`Filter the attributes, methods and events of <${tag}>`}
+          aria-label={`Filter the reference of <${tag}>`}
+          autocomplete="off"
+        />
+        <p class="ref-filter-empty" hidden>Nothing on this page matches.</p>
+      </div>
+    </div>
+  )
+}
+
+{
+  section === 'attributes' &&
+    groups.map((group) => (
+      <div class="ref-group" data-ref-group>
+        <h3 id={group.id} class="ref-group-title">
+          {group.title} <span class="ref-count">{group.items.length}</span>
+        </h3>
+        <div class="ref-table-wrap">
+          <table class="ref-table ref-table-attributes">
+            <thead>
+              <tr>
+                <th scope="col">Attribute</th>
+                <th scope="col">Description and allowed values</th>
+                <th scope="col">Default</th>
+              </tr>
+            </thead>
+            <tbody>
+              {group.items.map((attr) => (
+                <tr id={attr.name} data-ref-item data-ref-text={`${attr.name} ${attr.allowed?.join(' ') ?? ''}`.toLowerCase()}>
+                  <th scope="row" class="ref-name-cell">
+                    <a href={`#${attr.name}`} class="ref-name">{attr.name}</a>
+                    {attr.deprecated && <span class="ref-badge-deprecated">Deprecated</span>}
+                  </th>
+                  <td class="ref-desc-cell">
+                    {attr.allowed && (
+                      <p class="ref-allowed">
+                        {attr.allowed.map((value) => <code>{value}</code>)}
+                      </p>
+                    )}
+                    <div class="ref-desc" set:html={attr.description} />
+                    {attr.code && <pre class="ref-code"><code>{attr.code}</code></pre>}
+                    {attr.example && <a class="ref-example" href={attr.example}>See it running →</a>}
+                  </td>
+                  <td class="ref-default-cell" data-label="Default">
+                    {attr.default !== undefined && attr.default !== '' ? (
+                      <code set:html={String(attr.default)} />
+                    ) : (
+                      <span class="ref-none">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ))
+}
+
+{
+  list && (
+    <div class="ref-table-wrap" data-ref-group>
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th scope="col">{list.head}</th>
+            <th scope="col">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {list.items.map((item: any) => (
+            <tr id={list.id(item.name)} data-ref-item data-ref-text={item.name.toLowerCase()}>
+              <th scope="row" class="ref-name-cell">
+                <a href={`#${list.id(item.name)}`} class="ref-name">{item.name}</a>
+              </th>
+              <td class="ref-desc-cell">
+                {item.allowed && (
+                  <p class="ref-allowed">
+                    {item.allowed.map((value: string) => <code>{value}</code>)}
+                  </p>
+                )}
+                <div class="ref-desc" set:html={item.description} />
+                {item.code && <pre class="ref-code"><code>{item.code}</code></pre>}
+                {item.example && <a class="ref-example" href={item.example}>See it running →</a>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+<script>
+  // The filter: hides the rows (and then the groups) whose name, allowed values and text don't contain the query
+  for (const filter of document.querySelectorAll<HTMLElement>('[data-ref-filter]')) {
+    const input = filter.querySelector('input')!;
+    const empty = filter.querySelector<HTMLElement>('.ref-filter-empty')!;
+    const items = [...document.querySelectorAll<HTMLElement>('[data-ref-item]')];
+    const groups = [...document.querySelectorAll<HTMLElement>('[data-ref-group]')];
+    input.addEventListener('input', () => {
+      const query = input.value.trim().toLowerCase();
+      let shown = 0;
+      for (const item of items) {
+        const match = !query || `${item.dataset.refText} ${item.textContent}`.toLowerCase().includes(query);
+        item.hidden = !match;
+        if (match) shown++;
+      }
+      for (const group of groups) group.hidden = !!query && !group.querySelector('[data-ref-item]:not([hidden])');
+      empty.hidden = !query || shown > 0;
+    });
+  }
+</script>
+
+<style is:global>
+  /* Red for "deprecated": a light red on dark, a deeper one on light (Starlight's red reads pink) */
+  :root {
+    --ref-red: #f87171;
+    --ref-red-bg: rgb(248 113 113 / 0.1);
+    --ref-green: var(--sl-color-green, #30a46c);
+  }
+  :root[data-theme='light'] {
+    --ref-red: #c62828;
+    --ref-red-bg: rgb(198 40 40 / 0.07);
+    /* Darker than Starlight's light-theme green, which is hard to read on white */
+    --ref-green: #15803d;
+  }
+
+  /* A reference page (tableOfContents: false) uses the width the "On this page" column had */
+  main:has([data-ref-wide]) .sl-container {
+    max-width: min(100%, 72rem);
+  }
+
+  .ref-top {
+    margin-block: 1.25rem 0.5rem;
+  }
+  .sl-markdown-content .ref-jumps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem 1.25rem;
+    margin: 0 0 0.875rem;
+    font-size: 0.9375rem;
+  }
+  .sl-markdown-content .ref-jumps a {
+    color: var(--portal-primary-text);
+    text-decoration: none;
+  }
+  .sl-markdown-content .ref-jumps a:hover {
+    text-decoration: underline;
+  }
+  .ref-count {
+    margin-inline-start: 0.375rem;
+    font-size: 0.8em;
+    font-weight: 500;
+    color: var(--portal-muted);
+  }
+  .ref-filter-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    background: var(--portal-card-bg, transparent);
+    color: var(--portal-fg);
+    font: inherit;
+    font-size: 0.9375rem;
+  }
+  .ref-filter-input:focus {
+    outline: 2px solid var(--portal-primary);
+    outline-offset: 1px;
+  }
+  .ref-filter-empty {
+    color: var(--portal-muted);
+  }
+
+  .sl-markdown-content .ref-table-wrap {
+    margin: 0.75rem 0 1.75rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    overflow: hidden;
+  }
+  .sl-markdown-content .ref-table {
+    display: table;
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+  .sl-markdown-content .ref-table :is(th, td) {
+    padding: 0.75rem 0.875rem;
+    border: 0;
+    border-bottom: 1px solid var(--portal-border);
+    vertical-align: top;
+    text-align: start;
+  }
+  .sl-markdown-content .ref-table tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .sl-markdown-content .ref-table thead th {
+    padding-block: 0.5rem;
+    background: var(--portal-card-bg, transparent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--portal-muted);
+  }
+  .sl-markdown-content .ref-table tbody tr {
+    scroll-margin-top: calc(var(--sl-nav-height, 4rem) + 1rem);
+  }
+  .sl-markdown-content .ref-table tbody tr:target > * {
+    background: var(--portal-primary-tint);
+  }
+  .sl-markdown-content .ref-name-cell {
+    width: 15rem;
+    font-weight: 400;
+  }
+  .sl-markdown-content .ref-table-attributes .ref-name-cell {
+    width: 14rem;
+  }
+  .sl-markdown-content .ref-default-cell {
+    width: 10.5rem;
+    color: var(--portal-muted);
+  }
+  .sl-markdown-content .ref-default-cell code {
+    white-space: nowrap;
+  }
+  .sl-markdown-content .ref-name {
+    font-family: var(--__sl-font-mono, ui-monospace, monospace);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--portal-primary-text);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  .sl-markdown-content .ref-name:hover {
+    text-decoration: underline;
+  }
+  .sl-markdown-content .ref-badge-deprecated {
+    display: inline-block;
+    margin-top: 0.375rem;
+    padding: 0.0625rem 0.4375rem;
+    border: 1px solid color-mix(in srgb, var(--ref-red) 55%, transparent);
+    border-radius: 4px;
+    background: var(--ref-red-bg);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: var(--ref-red);
+  }
+  /* Under the name, on a line of its own (not display: table, which takes the table's border-collapse and drops the padding) */
+  .sl-markdown-content .ref-name-cell .ref-badge-deprecated {
+    display: block;
+    width: fit-content;
+  }
+  .sl-markdown-content .ref-desc-cell > * + * {
+    margin-top: 0.5rem;
+  }
+  .sl-markdown-content .ref-allowed {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0;
+  }
+  .sl-markdown-content .ref-allowed code,
+  .sl-markdown-content .ref-default-cell code {
+    font-size: 0.8125rem;
+  }
+  .sl-markdown-content .ref-desc ul {
+    margin-top: 0.375rem;
+  }
+  .sl-markdown-content :is(.ref-desc pre, .ref-code) {
+    max-width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.625rem 0.75rem;
+    overflow-x: auto;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    font-size: 0.8125rem;
+  }
+  .sl-markdown-content .ref-example {
+    display: inline-block;
+    font-size: 0.875rem;
+  }
+  /* The classes the element's doc comments use (scripts/rapidoc-api.js), in the docs' colors */
+  .sl-markdown-content .ref-desc .mono {
+    font-family: var(--__sl-font-mono, ui-monospace, monospace);
+    font-size: 0.875em;
+  }
+  .sl-markdown-content .ref-desc :is(.yellow, .yellow-dim, .orange) {
+    color: var(--portal-primary-text);
+  }
+  .sl-markdown-content .ref-desc .green {
+    color: var(--ref-green);
+  }
+  .sl-markdown-content .ref-desc .red {
+    color: var(--ref-red);
+  }
+  .sl-markdown-content .ref-desc .fg-color {
+    color: var(--portal-fg);
+  }
+  .sl-markdown-content .ref-desc .bold {
+    font-weight: 600;
+  }
+
+  /* Narrow screens: each row a block (name, then description, then default) */
+  @media (width < 50rem) {
+    .sl-markdown-content .ref-table thead {
+      display: none;
+    }
+    .sl-markdown-content .ref-table,
+    .sl-markdown-content .ref-table tbody,
+    .sl-markdown-content .ref-table tr,
+    .sl-markdown-content .ref-table :is(th, td) {
+      display: block;
+      width: auto;
+    }
+    /* As blocks, the rows would take Starlight's space between siblings in docs content */
+    .sl-markdown-content .ref-table :is(tbody, tr, th) {
+      margin-top: 0;
+    }
+    .sl-markdown-content .ref-table tbody tr {
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid var(--portal-border);
+    }
+    .sl-markdown-content .ref-table tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .sl-markdown-content .ref-table tbody :is(th, td) {
+      padding: 0;
+      border: 0;
+    }
+    .sl-markdown-content .ref-table tbody td {
+      margin-top: 0.375rem;
+    }
+    .sl-markdown-content .ref-default-cell::before {
+      content: attr(data-label) ' ';
+    }
+    .sl-markdown-content .ref-name-cell .ref-badge-deprecated {
+      display: inline-block;
+      margin: 0 0 0 0.5rem;
+    }
+  }
+</style>

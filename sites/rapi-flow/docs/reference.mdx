@@ -1,0 +1,45 @@
+---
+title: Reference
+description: Every attribute, method, event and slot of <rapi-flow>, read from the element's source.
+tableOfContents: false
+---
+
+import ElementReference from '../../shared/components/ElementReference.astro';
+
+Everything `<rapi-flow>` takes and offers, read from the element's own source. How to use it is in the [Quickstart](/docs/quickstart/), [Pairing with `<rapi-doc>`](/docs/pairing/), [Running Workflows](/docs/running/) and [Slots & Styling](/docs/styling/). It ships in its own bundle, `rapidoc-flow-min.js`.
+
+<ElementReference tag="rapi-flow" section="filter" />
+
+## Attributes
+
+Set on the element in HTML, or changed at runtime with `setAttribute`.
+
+<ElementReference tag="rapi-flow" section="attributes" />
+
+## Methods
+
+<ElementReference tag="rapi-flow" section="methods" />
+
+## Events
+
+All events bubble and cross the shadow boundary.
+
+```js
+const flow = document.querySelector('rapi-flow');
+
+// A step was clicked: show its operation somewhere else on the page
+flow.addEventListener('step-click', (e) => {
+  console.log(e.detail.workflowId, e.detail.stepId, e.detail.operation);
+});
+
+// A run finished: one trace entry per step attempt
+flow.addEventListener('workflow-run', (e) => {
+  console.table(e.detail.trace);
+});
+```
+
+<ElementReference tag="rapi-flow" section="events" />
+
+## Slots
+
+<ElementReference tag="rapi-flow" section="slots" />

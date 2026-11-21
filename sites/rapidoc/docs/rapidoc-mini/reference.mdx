@@ -1,0 +1,35 @@
+---
+title: Reference
+description: Every attribute, method and event of <rapi-doc-mini>, read from the element's source.
+tableOfContents: false
+---
+
+import ElementReference from '../../../shared/components/ElementReference.astro';
+
+Everything `<rapi-doc-mini>` takes and offers, read from the element's own source. How to use it is in the [overview](/docs/rapidoc-mini/) and the [recipes](/docs/rapidoc-mini/recipes/). It ships in the same bundle as `<rapi-doc>`.
+
+<ElementReference tag="rapi-doc-mini" section="filter" />
+
+## Attributes
+
+Set on the element in HTML, or changed at runtime with `setAttribute`.
+
+<ElementReference tag="rapi-doc-mini" section="attributes" />
+
+## Methods
+
+```js
+const mini = document.querySelector('rapi-doc-mini');
+
+// Show another operation, as you would write it in filter-operations
+mini.showOperation('POST /pet');
+
+// Give the Try console a key, so readers don't have to
+mini.setApiKey('api_key', 'demo-key');
+```
+
+<ElementReference tag="rapi-doc-mini" section="methods" />
+
+## Events
+
+<ElementReference tag="rapi-doc-mini" section="events" />

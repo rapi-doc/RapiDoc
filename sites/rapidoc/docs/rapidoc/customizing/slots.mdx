@@ -25,22 +25,9 @@ import { Aside } from '@rapidoc/portal/components';
   The [Slots example](/examples/slots) lets you try every slot.
 </Aside>
 
-## Slot reference
+## Every slot
 
-| Slot | Where it appears |
-| :--- | :--- |
-| *(default)* | Top of the main content, above the overview. Also shown while the spec is loading. |
-| `fixed-header` | Pinned at the top of the element; doesn't scroll away. |
-| `logo` | The header, replacing the RapiDoc logo. Needs `show-header="true"`. |
-| `header` | The end of the header. Needs `show-header="true"`. |
-| `nav-logo` | Top of the sidebar, in `read` and `focused` modes. |
-| `overview` | The overview section, after the title, version and contact lines and before the description. |
-| `servers` | The API Servers section. |
-| `auth` | The end of the Authentication section, below the security schemes. |
-| `operations-top` | Above the list of operations. |
-| `footer` | The bottom of the main content. |
-| `tag--<tag id>` | Under a tag's heading, above its description. `read` and `view` modes. |
-| `<operation id>` | Inside one operation. `read` and `view` modes. |
+The [reference](/docs/rapidoc/reference/#slots) lists every slot and where it appears. Two kinds are made from the spec: `tag--<tag id>` under a tag's heading, and `<operation id>` inside one operation, both in `read` and `view` modes.
 
 ## Tag and operation slots
 

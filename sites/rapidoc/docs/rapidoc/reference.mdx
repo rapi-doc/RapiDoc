@@ -1,0 +1,85 @@
+---
+title: Reference
+description: Every attribute, method, event, slot, spec extension, CSS part and CSS custom property of <rapi-doc>, read from the element's source.
+tableOfContents: false
+---
+
+import ElementReference from '../../../shared/components/ElementReference.astro';
+import CssPartsCatalog from '../../components/CssPartsCatalog.astro';
+import CssVariablesCatalog from '../../components/CssVariablesCatalog.astro';
+
+Everything `<rapi-doc>` takes and offers, read from the element's own source, so this page matches the release it is built from. How to use it is in the guides: [Quickstart](/docs/rapidoc/get-started/quickstart/), [Methods](/docs/rapidoc/programmatic-api/lifecycle-and-methods/), [Events](/docs/rapidoc/programmatic-api/event-hooks/), [HTML Slots](/docs/rapidoc/customizing/slots/) and [CSS Parts & Variables](/docs/rapidoc/theming/css-parts/).
+
+<ElementReference tag="rapi-doc" section="filter" />
+
+## Attributes
+
+Set on the element in HTML, or changed at runtime with `setAttribute`.
+
+<ElementReference tag="rapi-doc" section="attributes" />
+
+## Methods
+
+Called on the element, for example `document.querySelector('rapi-doc')`.
+
+```js
+const doc = document.querySelector('rapi-doc');
+
+await doc.loadSpec('https://rapidocui.com/specs/petstore.yaml');
+doc.setApiServer('https://petstore3.swagger.io/api/v3');
+doc.setApiKey('api_key', 'demo-key');
+doc.scrollToPath('get-/pet/{petId}');
+```
+
+<ElementReference tag="rapi-doc" section="methods" />
+
+## Events
+
+CustomEvents dispatched by `<rapi-doc>`. Listen with `addEventListener`; the payload is in `event.detail`.
+
+```js
+const doc = document.querySelector('rapi-doc');
+
+// Before a Try request is sent: add a header
+doc.addEventListener('before-try', (e) => {
+  e.detail.request.headers.append('X-Tenant-ID', 'acme');
+});
+
+// The reader picked another server
+doc.addEventListener('api-server-change', (e) => {
+  console.log('Server:', e.detail.selectedServer);
+});
+```
+
+<ElementReference tag="rapi-doc" section="events" />
+
+## Slots
+
+Put your own markup inside `<rapi-doc>` with a `slot` attribute, and it shows at that place in the element.
+
+```html
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml">
+  <img slot="nav-logo" src="/logo.svg" alt="Acme" height="32" />
+  <p slot="auth">Get a key from the developer console.</p>
+</rapi-doc>
+```
+
+<ElementReference tag="rapi-doc" section="slots" />
+
+## Spec extensions
+
+Vendor extensions (`x-*`) in your OpenAPI spec that `<rapi-doc>` reads.
+
+<ElementReference tag="rapi-doc" section="extensions" />
+
+## CSS parts
+
+Style the inside of the element from your page with `::part()`.
+
+<CssPartsCatalog />
+
+## CSS custom properties
+
+Set on `rapi-doc` (or an ancestor) to change colors, fonts and sizes.
+
+<CssVariablesCatalog />

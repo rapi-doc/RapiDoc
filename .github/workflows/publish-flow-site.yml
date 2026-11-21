@@ -13,6 +13,8 @@ on:
       - master
     paths:
       - 'sites/rapi-flow/**'
+      - 'sites/shared/**'
+      - 'scripts/rapidoc-api.js'
       # what the site is built from
       - 'packages/rapidoc-cli/**'
       - 'packages/rapidoc-portal/**'

@@ -1,11 +1,9 @@
 ---
 title: CSS Parts & Variables
-description: Style any element inside RapiDoc's Shadow DOM with CSS custom properties and ::part() selectors, with the full catalog of both.
+description: Style any element inside RapiDoc's Shadow DOM with CSS custom properties and ::part() selectors, with recipes.
 ---
 
 import { Aside, Tabs, TabItem } from '@rapidoc/portal/components';
-import CssPartsCatalog from '../../../components/CssPartsCatalog.astro';
-import CssVariablesCatalog from '../../../components/CssVariablesCatalog.astro';
 
 The [theming attributes](/docs/rapidoc/theming/overview/) cover colors, radius and scale. For anything else, RapiDoc offers two hooks into its Shadow DOM, where ordinary CSS selectors can't reach:
 
@@ -41,7 +39,7 @@ rapi-doc::part(section-navbar-header) {
 
 ## 2. All CSS parts
 
-<CssPartsCatalog />
+Every part, with what it selects, is in the [reference](/docs/rapidoc/reference/#css-parts).
 
 ---
 
@@ -66,9 +64,7 @@ rapi-doc {
 }
 ```
 
-All variables, with their defaults:
-
-<CssVariablesCatalog />
+Every variable, with its default, is in the [reference](/docs/rapidoc/reference/#css-custom-properties).
 
 ---
 

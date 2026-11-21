@@ -33,6 +33,7 @@ rapidoc/
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── sites/
 │   ├── rapi-mock/        # The RapiMock product and documentation site (mock.rapidocui.com), built with RapiDoc Portal
+│   ├── shared/           # Code more than one site uses: the element reference component and its data
 │   ├── rapi-flow/        # The RapiFlow documentation site (flow.rapidocui.com), built with RapiDoc Portal
 │   ├── rapi-portal/      # The RapiDoc Portal product and documentation site (portal.rapidocui.com), built with RapiDoc Portal
 │   └── rapidoc/          # rapidocui.com rebuilt with RapiDoc Portal, in progress; the live site is still docs/
@@ -105,6 +106,8 @@ All agents must strictly adhere to the following system boundaries:
   - The product and documentation site of the mock server, named **RapiMock**, for `mock.rapidocui.com`. Built with RapiDoc Portal from this repository's own `@rapidoc/cli` and `@rapidoc/portal` (`npm run dev:mock-site`, `npm run build:mock-site`); it is not an npm workspace and publishes nothing to npm.
   - Its source lives here so a change to the mock and its documentation land in one pull request. A separate repository, `rapi-mock-doc`, only publishes the built site with GitHub Pages: `.github/workflows/publish-mock-site.yml` here builds it and pushes the files there.
   - It is where the mock's documentation grows. The mock pages of the Starlight site (`docs/src/content/docs/mocking/mock-server.mdx`) are to become a short summary that links to it; don't add new mock documentation there. Its own rules are in `sites/rapi-mock/AGENTS.md`.
+
+- **Shared site code (`sites/shared`)**: what more than one site uses: the element reference component (`components/ElementReference.astro`) and its data (`element-api.ts`, reading the element sources with `scripts/rapidoc-api.js`), used by `sites/rapidoc` and `sites/rapi-flow`. A docs page imports it by relative path; it finds the repository from the site's folder (`virtual:rapidoc-portal/project`, two levels down), never from its own location, which a build bundles away.
 
 - **RapiFlow site (`sites/rapi-flow`)**:
   - The documentation site of RapiFlow (`<rapi-flow>`), for `flow.rapidocui.com`, and the home of RapiDoc's Arazzo support across the family. Set up like the RapiMock site: built from this repository's own CLI and portal (`npm run dev:flow-site`, `npm run build:flow-site`), not an npm workspace, and published by `.github/workflows/publish-flow-site.yml`, which pushes the built files to `rapi-flow-doc`.
