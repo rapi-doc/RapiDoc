@@ -55,6 +55,7 @@ navigation:
     icon: book
     items:
       - { slug: intro }
+      - { label: Status page, href: "https://status.example.com/" }
   - label: More
     icon: package
     items:
@@ -211,6 +212,16 @@ describe("Header options in a built portal", () => {
     const tabs = between('class="portal-sidebar-tabs"', "</nav>");
     assert.match(tabs, /aria-current="page"[^>]*>[\s\S]*?Guides/);
     assert.match(tabs, /href="\/docs\/more\/"[\s\S]*?More/);
+  });
+
+  it("marks a sidebar link to another site with an arrow, and opens it in a new tab", () => {
+    const link = between('href="https://status.example.com/"', "</a>");
+    assert.match(link, /target="_blank"/);
+    assert.match(link, /rel="noopener noreferrer"/);
+    assert.match(link, /Status page[\s\S]*portal-sidebar-external/);
+    // A link on this site has neither
+    const intro = between('href="/docs/intro/"', "</a>");
+    assert.doesNotMatch(intro, /portal-sidebar-external|target="_blank"/);
   });
 
   it("ships a search dialog that splits a query into words", () => {

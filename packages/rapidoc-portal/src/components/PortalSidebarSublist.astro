@@ -1,13 +1,15 @@
 ---
 /**
- * Starlight's SidebarSublist with two portal changes: an entry's configured `icon` (set by
- * route-middleware.js) is drawn before its label, and every level uses one text size and weight, so
- * groups and pages read as one list. Same markup and class names as Starlight's, so its sidebar styles and
+ * Starlight's SidebarSublist with three portal changes: an entry's configured `icon` (set by
+ * route-middleware.js) is drawn before its label, every level uses one text size and weight, so
+ * groups and pages read as one list, and a link to another site opens in a new tab with an arrow after its
+ * label, as in the header's menus. Same markup and class names as Starlight's, so its sidebar styles and
  * the restore point (SidebarPersister) keep working.
  */
 import { Badge, Icon as StarlightIcon } from '@astrojs/starlight/components';
 import SidebarRestorePoint from '@astrojs/starlight/components/SidebarRestorePoint.astro';
 import Icon from './Icon.astro';
+import { externalAttrs, isExternal } from '../config/links.js';
 
 interface Props {
   sublist: any[];
@@ -25,9 +27,10 @@ const hasCurrent = (entries: any[]): boolean =>
     sublist.map((entry) => (
       <li>
         {entry.type === 'link' ? (
-          <a href={entry.href} aria-current={entry.isCurrent ? 'page' : undefined} class:list={[{ large: !nested }, entry.attrs.class]} {...entry.attrs}>
+          <a href={entry.href} aria-current={entry.isCurrent ? 'page' : undefined} class:list={[{ large: !nested }, entry.attrs.class]} {...externalAttrs(entry.href)} {...entry.attrs}>
             {entry.icon && <Icon name={entry.icon} size={16} weight="regular" class="portal-sidebar-icon" />}
             <span>{entry.label}</span>
+            {isExternal(entry.href) && <Icon name="arrow-up-right" size={14} class="portal-sidebar-external" />}
             {entry.badge && <Badge variant={entry.badge.variant} class={entry.badge.class} text={entry.badge.text} />}
           </a>
         ) : (
@@ -161,6 +164,13 @@ const hasCurrent = (entries: any[]): boolean =>
       flex-shrink: 0;
       vertical-align: -0.15em;
       margin-inline-end: 0.5em;
+    }
+
+    /* A link to another site: a small arrow after the label, dimmed like the header menus' */
+    a > .portal-sidebar-external {
+      flex-shrink: 0;
+      vertical-align: -0.1em;
+      opacity: 0.6;
     }
 
     @media (min-width: 50rem) {
