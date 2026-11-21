@@ -12,6 +12,28 @@ site:
     alt: RapiDoc
     badge: v14.2 # RapiDoc's version; scripts/sync-version.mjs keeps it current, don't edit it
   noindex: true # until this build replaces the live site
+# Google Analytics on the docs pages, as the live site sends it: the page title as "Docs / <title>" and the
+# content group "Docs". The site's own pages (home, /api, examples) send theirs from their own layout
+# (components/GoogleAnalytics.astro), so this must stay the same property.
+head:
+  - script:
+      async: true
+      src: https://www.googletagmanager.com/gtag/js?id=G-M9TPKERDJ6
+  - script: |
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      (function() {
+        var segs = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+        var docTitle = (document.title || '').replace(/\s*\|\s*RapiDoc$/i, '').trim();
+        if (!docTitle && segs.length > 0) {
+          docTitle = segs[segs.length - 1].split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+        }
+        gtag('config', 'G-M9TPKERDJ6', {
+          page_title: docTitle ? 'Docs / ' + docTitle : 'Docs',
+          content_group: 'Docs',
+        });
+      })();
 theme:
   mode: dark # the theme a first-time visitor gets; the header's switcher changes it
   primary: "#f6a821"
