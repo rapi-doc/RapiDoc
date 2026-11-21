@@ -21,7 +21,7 @@ import { Aside, Steps, Tabs, TabItem } from '@rapidoc/portal/components';
        </style>
      </head>
      <body>
-       <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json"></rapi-doc>
+       <rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml"></rapi-doc>
      </body>
    </html>
    ```
@@ -64,6 +64,27 @@ import 'rapidoc';
 
 For production, pin a version (`https://unpkg.com/rapidoc@14/dist/rapidoc-min.js`) or serve the file from your own site.
 
+## Without a CDN
+
+To serve everything yourself, on an intranet or an air-gapped network, copy the bundle out of the npm package and load it from your own site. The page then makes no outside calls: only your spec and the API it describes.
+
+```bash
+npm install rapidoc
+cp node_modules/rapidoc/dist/rapidoc-min.js* public/   # the bundle and its license notices
+```
+
+In the HTML file above, load `src="/rapidoc-min.js"` and point `spec-url` at your own spec. In a container, the same two files and your page are all a web server needs:
+
+```dockerfile title="Dockerfile"
+FROM nginx:alpine
+
+# The bundle and its license notices (rapidoc-min.js.LICENSE.txt)
+COPY node_modules/rapidoc/dist/rapidoc-min.js* /usr/share/nginx/html/
+
+# Your page and spec: index.html as above, with src="rapidoc-min.js" and spec-url="openapi.yaml"
+COPY index.html openapi.yaml /usr/share/nginx/html/
+```
+
 ## Make it yours
 
 A few attributes cover most needs:
@@ -90,7 +111,8 @@ Every attribute, method, event and slot is listed in the [API reference](/api).
 
 ## Next steps
 
-- [Integrations](/docs/integrations/): React, Next.js, Vue and Angular, server frameworks and documentation sites.
+- [Front-end frameworks](/docs/integrations/front-end/): React and Next.js, Vue and Nuxt, Angular, Svelte.
+- [Integrations](/docs/integrations/): serving the reference from your server framework or documentation site.
 - [Theming Overview](/docs/rapidoc/theming/overview/): colors, fonts, radius and scale.
 - [OAuth 2.0](/docs/rapidoc/authentication/oauth/): let readers sign in before they press **Try**.
 - [Common Tasks](/docs/rapidoc/guides/): how to do the things most sites need, and where each is explained.

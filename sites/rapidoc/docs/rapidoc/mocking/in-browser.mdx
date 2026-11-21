@@ -15,7 +15,7 @@ Add `mock-server="true"` to `<rapi-doc>` or `<rapi-doc-mini>` and requests to yo
 
 ```html
 <rapi-doc
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  spec-url="https://rapidocui.com/specs/petstore.yaml"
   mock-server="true"
 ></rapi-doc>
 ```
@@ -29,7 +29,7 @@ const doc = document.querySelector('rapi-doc');
 doc.addEventListener('spec-loaded', () => {
   // The mock starts right after spec-loaded, so call it on the next tick
   setTimeout(async () => {
-    const res = await fetch('https://petstore.swagger.io/v2/pet/findByStatus?status=available');
+    const res = await fetch('https://petstore3.swagger.io/api/v3/pet/findByStatus?status=available');
     console.log(await res.json()); // from the spec, not the real API
   });
 });

@@ -20,7 +20,7 @@ Point `spec-url` at your spec and choose operations with `filter-operations`:
 <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 
 <rapi-doc-mini
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  spec-url="https://rapidocui.com/specs/petstore.yaml"
   filter-operations="GET /pet/{petId}"
 ></rapi-doc-mini>
 ```
@@ -50,13 +50,13 @@ The operations are shown in the order of the first term they match, so a list of
 
 ```html
 <rapi-doc-mini
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  spec-url="https://rapidocui.com/specs/petstore.yaml"
   filter-operations="placeOrder getOrderById"
 ></rapi-doc-mini>
 
 <!-- Everything tagged store, except the delete -->
 <rapi-doc-mini
-  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  spec-url="https://rapidocui.com/specs/petstore.yaml"
   filter-operations="tag:store !DELETE /store/order/{orderId}"
 ></rapi-doc-mini>
 ```

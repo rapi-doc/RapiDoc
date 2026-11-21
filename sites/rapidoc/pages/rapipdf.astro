@@ -7,11 +7,12 @@ import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import Icon from '../components/Icon.astro';
+import { SAMPLE_SPEC_URL } from '../page-data/snippets';
 
 const browserCode = `<script src="https://unpkg.com/rapipdf/dist/rapipdf-min.js"></script>
 
 <rapi-pdf
-  spec-url="https://petstore3.swagger.io/api/v3/openapi.json"
+  spec-url="${SAMPLE_SPEC_URL}"
   pdf-title="Petstore API"
   include-example="true"
 ></rapi-pdf>`;

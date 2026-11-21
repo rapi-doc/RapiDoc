@@ -7,6 +7,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 import ProductFamily from '../components/ProductFamily.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import Icon from '../components/Icon.astro';
+import { RAPIDOC_SNIPPET } from '../page-data/snippets';
 
 // "Which one do I need?": a job, and the product that does it
 const jobs = [
@@ -54,9 +55,7 @@ const jobs = [
   },
 ];
 
-const startCode = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-
-<rapi-doc spec-url="https://rapidocui.com/specs/petstore-3.2.yaml"></rapi-doc>`;
+const startCode = RAPIDOC_SNIPPET;
 ---
 
 <GlobalLayout

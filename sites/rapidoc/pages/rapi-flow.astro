@@ -4,19 +4,9 @@ import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import Icon from '../components/Icon.astro';
+import { RAPIFLOW_SNIPPET } from '../page-data/snippets';
 
-const pageSnippet = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-<!-- A separate bundle: pages without workflows don't load it -->
-<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-flow-min.js"></script>
-
-<rapi-flow
-  arazzo-url="/specs/petstore.arazzo.yaml"
-  workflow-id="adoptPet"
-  for="thedoc"
-></rapi-flow>
-
-<!-- The workflow borrows this element's spec, server, credentials and mock -->
-<rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" mock-server="true"></rapi-doc>`;
+const pageSnippet = RAPIFLOW_SNIPPET;
 
 const arazzoSnippet = `arazzo: 1.0.1
 info: { title: Petstore workflows, version: 1.0.0 }

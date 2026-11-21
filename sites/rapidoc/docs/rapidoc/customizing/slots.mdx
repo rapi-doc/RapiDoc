@@ -8,7 +8,7 @@ import { Aside } from '@rapidoc/portal/components';
 `<rapi-doc>` renders inside a Shadow DOM, so you can't insert elements into it directly. Instead it has **slots**: named places where your own HTML appears. Put an element inside `<rapi-doc>` and give it a `slot` attribute naming the place; children without a `slot` go to the default slot. Slotted elements stay in your page's DOM, so your page's CSS styles them.
 
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" show-header="true">
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" show-header="true">
   <img slot="logo" src="/brand/logo.svg" alt="Acme" height="28" />
 
   <a slot="header" href="https://github.com/acme/api">GitHub</a>
@@ -50,7 +50,7 @@ Tag and operation slots are named after the element IDs RapiDoc gives them, so t
 - **Operations**: the `operationId` in kebab-case (`getPetById` is `get-pet-by-id`); without one, the summary or the method and path.
 
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml">
   <div slot="tag--pet">Pet IDs are 64-bit integers.</div>
   <div slot="get-pet-by-id">Responses from this endpoint are cached for 60 seconds.</div>
 </rapi-doc>

@@ -5,8 +5,9 @@ import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import RapidocMiniComparisonTable from '../components/RapidocMiniComparisonTable.astro';
 import Icon from '../components/Icon.astro';
+import { RAPIDOC_SCRIPT_TAG } from '../page-data/snippets';
 
-const basicMiniCode = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+const basicMiniCode = `${RAPIDOC_SCRIPT_TAG}
 
 <rapi-doc-mini
   spec-url="/specs/reqres.yaml"

@@ -5,93 +5,15 @@ import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import Icon from '../components/Icon.astro';
 import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
+import { RAPIDOC_PAGE } from '../page-data/snippets';
 
-// "Zero Config, Instant Integration": one sample per stack, checked against RapiDoc 12 and the
-// framework setups in content/docs/integrations/.
-const integrations = [
-  {
-    id: 'html',
-    label: 'HTML',
-    file: 'index.html',
-    lang: 'html',
-    code: `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-  </head>
-  <body>
-    <rapi-doc
-      spec-url="https://rapidocui.com/specs/petstore-3.2.yaml"
-      color-scheme="dark"
-    ></rapi-doc>
-  </body>
-</html>`,
-    note: 'One script tag and one element. Nothing to install or build.',
-  },
-  {
-    id: 'react',
-    label: 'React',
-    file: 'ApiDocs.jsx',
-    lang: 'jsx',
-    code: `// npm install rapidoc
-import { useEffect } from 'react';
-
-export default function ApiDocs() {
-  // Load RapiDoc in the browser only, so server rendering keeps working
-  useEffect(() => {
-    import('rapidoc');
-  }, []);
-
-  return (
-    <rapi-doc
-      spec-url="https://rapidocui.com/specs/petstore-3.2.yaml"
-      render-style="view"
-      style={{ height: '100vh' }}
-    />
-  );
-}`,
-    note: 'In Next.js, add \'use client\' at the top. With TypeScript, declare the element once.',
-    href: '/docs/integrations/front-end/#react-and-nextjs',
-  },
-  {
-    id: 'vue',
-    label: 'Vue',
-    file: 'ApiDocs.vue',
-    lang: 'vue',
-    code: `<!-- npm install rapidoc -->
-<script setup>
-import { onMounted } from 'vue';
-
-onMounted(() => import('rapidoc'));
-</script>
-
-<template>
-  <rapi-doc
-    spec-url="https://rapidocui.com/specs/petstore-3.2.yaml"
-    render-style="focused"
-    style="height: 100vh"
-  ></rapi-doc>
-</template>`,
-    note: 'Tell the Vue compiler that rapi- tags are custom elements: one line in vite.config or nuxt.config.',
-    href: '/docs/integrations/front-end/#vue-and-nuxt',
-  },
-  {
-    id: 'docker',
-    label: 'Self-hosted',
-    file: 'Dockerfile',
-    lang: 'dockerfile',
-    code: `# npm install rapidoc, then build an image that needs nothing else
-FROM nginx:alpine
-
-# The bundle and its license notices (rapidoc-min.js.LICENSE.txt)
-COPY node_modules/rapidoc/dist/rapidoc-min.js* /usr/share/nginx/html/
-
-# Your page and spec: index.html as in the HTML tab, with
-# src="rapidoc-min.js" and spec-url="openapi.yaml"
-COPY index.html openapi.yaml /usr/share/nginx/html/`,
-    note: 'No CDN and no outside calls: the page works on an intranet or air-gapped network.',
-  },
+// "Zero Config, Instant Integration": the quickstart's HTML file (page-data/snippets.ts). Frameworks and
+// self-hosting are links: the framework guide and the quickstart's "Without a CDN".
+const startSample = { file: 'index.html', lang: 'html', code: RAPIDOC_PAGE };
+const startLinks = [
+  { label: 'Quickstart', href: '/docs/rapidoc/get-started/quickstart/' },
+  { label: 'React, Vue, Angular, Svelte', href: '/docs/integrations/front-end/' },
+  { label: 'Without a CDN', href: '/docs/rapidoc/get-started/quickstart/#without-a-cdn' },
 ];
 
 // The comparison on the landing page. status: yes = included and open source; partial = only a
@@ -740,24 +662,13 @@ const compareProducts = [
     <div class="rd-section-header rd-section-header--center">
       <span class="rd-section-badge">Get Up & Running</span>
       <h2 class="rd-section-title">Zero Config, Instant Integration</h2>
-      <p class="rd-section-desc">Choose your stack and drop RapiDoc into your application in under 60 seconds.</p>
+      <p class="rd-section-desc">Save this as a file and open it in a browser. The same element works in any framework.</p>
     </div>
 
     <div class="rd-code-box">
       <div class="rd-code-bar">
-        <div class="rd-code-tabs" role="tablist" aria-label="Integration examples">
-          {integrations.map((t, n) => (
-            <button
-              class:list={['rd-code-tab', { active: n === 0 }]}
-              role="tab"
-              id={`tab-${t.id}`}
-              aria-selected={n === 0 ? 'true' : 'false'}
-              aria-controls={`panel-${t.id}`}
-              data-tab={t.id}
-            >
-              {t.label}
-            </button>
-          ))}
+        <div class="rd-code-tabs">
+          <span class="rd-code-tab active">HTML</span>
         </div>
         <button class="rd-code-copy" type="button" aria-label="Copy the code">
           <Icon name="copy" size={14} />
@@ -765,27 +676,19 @@ const compareProducts = [
         </button>
       </div>
 
-      {integrations.map((t, n) => (
-        <div
-          class:list={['rd-code-panel', { active: n === 0 }]}
-          role="tabpanel"
-          id={`panel-${t.id}`}
-          aria-labelledby={`tab-${t.id}`}
-          data-code={t.code}
-        >
-          <div class="rd-code-file">{t.file}</div>
-          <Code code={t.code} lang={t.lang} theme="github-dark" />
-          <p class="rd-code-note">
-            {t.note}
-            {t.href && (
-              <>
-                {' '}
-                <a href={t.href}>Setup details →</a>
-              </>
-            )}
-          </p>
-        </div>
-      ))}
+      <div class="rd-code-panel active" data-code={startSample.code}>
+        <div class="rd-code-file">{startSample.file}</div>
+        <Code code={startSample.code} lang={startSample.lang} theme="github-dark" />
+        <p class="rd-code-note">
+          One script tag and one element. Nothing to install or build.{' '}
+          {startLinks.map((link, n) => (
+            <>
+              {n > 0 && ' · '}
+              <a href={link.href}>{link.label}</a>
+            </>
+          ))}
+        </p>
+      </div>
     </div>
   </section>
 
@@ -817,18 +720,7 @@ const compareProducts = [
 </GlobalLayout>
 
 <script>
-  // Integration examples: tabs and the copy button
-  const codeTabs = document.querySelectorAll<HTMLButtonElement>('.rd-code-tab');
-  const codePanels = document.querySelectorAll<HTMLElement>('.rd-code-panel');
-  codeTabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      codeTabs.forEach((t) => {
-        t.classList.toggle('active', t === tab);
-        t.setAttribute('aria-selected', String(t === tab));
-      });
-      codePanels.forEach((p) => p.classList.toggle('active', p.id === `panel-${tab.dataset.tab}`));
-    });
-  });
+  // "Zero Config": the copy button
   const codeCopy = document.querySelector<HTMLButtonElement>('.rd-code-copy');
   codeCopy?.addEventListener('click', async () => {
     const code = document.querySelector<HTMLElement>('.rd-code-panel.active')?.dataset.code;
@@ -1562,7 +1454,6 @@ const compareProducts = [
     font-size: 13px;
     font-weight: 600;
     color: var(--rd-text-muted);
-    cursor: pointer;
     transition: var(--rd-transition);
   }
   .rd-code-tab:hover {

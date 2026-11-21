@@ -29,12 +29,12 @@ Orange-red accent over neutral charcoal. This is what you get without a `theme` 
 <Tabs>
   <TabItem label="Dark">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="ember" color-scheme="dark"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="ember" color-scheme="dark"></rapi-doc>
 ```
   </TabItem>
   <TabItem label="Light">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="ember" color-scheme="light"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="ember" color-scheme="light"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
@@ -48,12 +48,12 @@ Monochrome. Near-black surfaces with a white accent in dark mode; black on white
 <Tabs>
   <TabItem label="Dark">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="carbon" color-scheme="dark" radius="none"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="carbon" color-scheme="dark" radius="none"></rapi-doc>
 ```
   </TabItem>
   <TabItem label="Light">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="carbon" color-scheme="light" radius="none"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="carbon" color-scheme="light" radius="none"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
@@ -67,12 +67,12 @@ Matte steel-blue accent over grey-blue slate, with cards a shade darker than the
 <Tabs>
   <TabItem label="Dark">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="cobalt" color-scheme="dark" radius="md"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="cobalt" color-scheme="dark" radius="md"></rapi-doc>
 ```
   </TabItem>
   <TabItem label="Light">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="cobalt" color-scheme="light" radius="md"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="cobalt" color-scheme="light" radius="md"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
@@ -86,12 +86,12 @@ Green accent over slate-navy surfaces, with cards and code a shade darker than t
 <Tabs>
   <TabItem label="Dark">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade" color-scheme="dark"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="jade" color-scheme="dark"></rapi-doc>
 ```
   </TabItem>
   <TabItem label="Light">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade" color-scheme="light"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="jade" color-scheme="light"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
@@ -105,12 +105,12 @@ Indigo accent over indigo-black surfaces; navy-violet text in light mode.
 <Tabs>
   <TabItem label="Dark">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="indigo" color-scheme="dark" radius="lg"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="indigo" color-scheme="dark" radius="lg"></rapi-doc>
 ```
   </TabItem>
   <TabItem label="Light">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="indigo" color-scheme="light" radius="lg"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="indigo" color-scheme="light" radius="lg"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
@@ -124,12 +124,12 @@ Amber accent over slate grey, with lighter cards, a darker sidebar and white hea
 <Tabs>
   <TabItem label="Dark">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="amber" color-scheme="dark" radius="md"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="amber" color-scheme="dark" radius="md"></rapi-doc>
 ```
   </TabItem>
   <TabItem label="Light">
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="amber" color-scheme="light" radius="md"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="amber" color-scheme="light" radius="md"></rapi-doc>
 ```
   </TabItem>
 </Tabs>
@@ -141,7 +141,7 @@ Amber accent over slate grey, with lighter cards, a darker sidebar and white hea
 Pass a hex code as the `theme`. RapiDoc sets `--primary` and `--ring` to it and picks black or white for `--primary-foreground` by luminance, over neutral charcoal surfaces (as Ember).
 
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="#2563eb" color-scheme="dark" radius="md"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="#2563eb" color-scheme="dark" radius="md"></rapi-doc>
 ```
 
 To change more than the accent, set the CSS variables on the element; see [Theming Overview](/docs/rapidoc/theming/overview/).
@@ -160,5 +160,5 @@ rapi-doc {
 `color-scheme="system"` switches between the theme's dark and light palette with the OS preference. `color-scheme="auto"` follows the host page's CSS `color-scheme` instead (as set, for example, by a site's own light/dark switch), and falls back to the OS preference.
 
 ```html
-<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="jade" color-scheme="system"></rapi-doc>
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" theme="jade" color-scheme="system"></rapi-doc>
 ```

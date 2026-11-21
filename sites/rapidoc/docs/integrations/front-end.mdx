@@ -25,7 +25,7 @@ export default function ApiDocs() {
 
   return (
     <rapi-doc
-      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      spec-url="https://rapidocui.com/specs/petstore.yaml"
       render-style="view"
       show-header="false"
       style={{ height: '100vh' }}
@@ -108,7 +108,7 @@ onMounted(() => import('rapidoc'));
 
 <template>
   <rapi-doc
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
+    spec-url="https://rapidocui.com/specs/petstore.yaml"
     render-style="focused"
     style="height: 100vh"
   ></rapi-doc>
@@ -129,7 +129,7 @@ import 'rapidoc';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <rapi-doc
-      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      spec-url="https://rapidocui.com/specs/petstore.yaml"
       render-style="view"
       style="height: 100vh"
     ></rapi-doc>
