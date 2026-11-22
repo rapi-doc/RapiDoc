@@ -73,7 +73,9 @@ const contents = [
   <PortalHeader />
 
   <main class="rd-product-main">
-    <header class="rd-hero-header">
+    <header class="rd-hero-header rd-hero-split">
+      <div class="rd-hero-grid">
+      <div class="rd-hero-copy">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
         <span class="rd-badge-text">&lt;rapi-pdf&gt; • rapipdf</span>
@@ -106,6 +108,19 @@ const contents = [
           <span>README</span>
           <Icon name="arrow-up-right" size={16} />
         </a>
+      </div>
+      </div>
+
+      <figure class="rd-hero-visual">
+        <img
+          src="/assets/images/rapipdf/rapipdf-stack.webp"
+          alt="Three pages of the Petstore PDF made by RapiPdf: the contents with every operation by tag, the cover, and an operation with its request body"
+          width="1720"
+          height="1080"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
       </div>
     </header>
 
@@ -189,6 +204,66 @@ const contents = [
             </div>
           ))
         }
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Schemas</div>
+        <h2 class="rd-section-title">As Trees or as Tables</h2>
+        <p class="rd-section-desc">
+          The same request body, two ways. <code>pdf-schema-style="object"</code>, the default, prints a schema as an
+          indented object; <code>"table"</code> prints one row per field, nested fields indented under their parent.
+        </p>
+      </div>
+      <div class="rd-pdf-compare">
+        <figure>
+          <img
+            src="/assets/images/rapipdf/rapipdf-schema-object.webp"
+            alt="A request body printed as an indented object: id, name, category with its id and name, photoUrls, tags and status with its allowed values"
+            width="900"
+            height="520"
+            loading="lazy"
+          />
+          <figcaption><code>pdf-schema-style="object"</code></figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/assets/images/rapipdf/rapipdf-schema-table.webp"
+            alt="The same request body printed as a table with name, type and description columns, nested fields indented"
+            width="900"
+            height="520"
+            loading="lazy"
+          />
+          <figcaption><code>pdf-schema-style="table"</code></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-split rd-split--visual">
+        <div class="rd-split-text">
+          <div class="rd-section-badge">Your Brand</div>
+          <h2 class="rd-section-title">Your Title, Colors and Footer</h2>
+          <p>
+            <code>pdf-title</code> sets the cover's title and <code>pdf-footer-text</code> a line at the bottom of every
+            page. <code>pdf-primary-color</code> colors the headings and operation titles, and{' '}
+            <code>pdf-alternate-color</code> the section labels and table headers.
+          </p>
+          <p>
+            These pages are the Petstore PDF with <code>pdf-title="Acme Pet Platform"</code>, amber headings, navy labels
+            and a footer. The same options are in <code>rapipdf/node</code> and <code>rapidoc pdf</code>.
+          </p>
+        </div>
+        <figure class="rd-illustration rd-illustration--inline">
+          <img
+            src="/assets/images/rapipdf/rapipdf-brand.webp"
+            alt="A cover titled Acme Pet Platform in amber and an operation page with amber headings, navy labels and the footer Acme Corp · Partner edition"
+            width="1300"
+            height="1100"
+            loading="lazy"
+          />
+        </figure>
       </div>
     </section>
 
@@ -355,5 +430,37 @@ const contents = [
   }
   .rd-pdf-ways a {
     color: var(--rd-accent);
+  }
+  /* Two crops of the same page side by side, each with its option as the caption */
+  .rd-pdf-compare {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .rd-pdf-compare figure {
+    margin: 0;
+  }
+  .rd-pdf-compare img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--rd-radius-md);
+    border: 1px solid var(--rd-border);
+  }
+  .rd-pdf-compare figcaption {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--rd-text-muted);
+  }
+  .rd-pdf-compare code,
+  .rd-split-text code {
+    font-family: var(--rd-font-mono);
+    font-size: 0.9em;
+  }
+  @media (max-width: 760px) {
+    .rd-pdf-compare {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

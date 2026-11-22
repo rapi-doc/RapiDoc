@@ -862,6 +862,14 @@ a.rd-feature-card:hover .rd-feature-icon {
   }
 }
 
+/* Text beside an illustration or image (in an .rd-split), centered on it */
+.rd-split--visual {
+  align-items: center;
+}
+.rd-illustration--inline {
+  margin: 0;
+}
+
 /* An animated illustration above a section's cards */
 .rd-illustration {
   margin: 0 0 28px;
