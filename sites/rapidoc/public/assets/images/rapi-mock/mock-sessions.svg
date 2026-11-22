@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" width="760" height="470" role="img" aria-labelledby="t d">
+<title id="t">A copy of the data per test</title>
+<desc id="d">Two tests send requests with their own X-Mock-Session header: test-1 adds Biscuit and test-2 deletes Rex, each in its own copy of the data, while the default data stays untouched.</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+@keyframes k1{0%{opacity:0}6.8%{opacity:0}8%{opacity:1}40%{opacity:1}41.2%{opacity:0}100%{opacity:0}}
+.k1{animation:k1 12s linear infinite}
+@keyframes k2{0%{stroke-dashoffset:22}6%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}14%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k2{animation:k2 12s linear infinite}
+@keyframes k3{0%{stroke-dashoffset:22}6%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}14%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k3{animation:k3 12s linear infinite}
+@keyframes k4{0%{opacity:0}6.8%{opacity:0}8%{opacity:1}40%{opacity:1}41.2%{opacity:0}100%{opacity:0}}
+.k4{animation:k4 12s linear infinite}
+@keyframes k5{0%{stroke-dashoffset:22}6%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}14%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k5{animation:k5 12s linear infinite}
+@keyframes k6{0%{stroke-dashoffset:22}6%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}14%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k6{animation:k6 12s linear infinite}
+@keyframes k7{0%{opacity:0}18.8%{opacity:0}20%{opacity:1}40%{opacity:1}41.2%{opacity:0}100%{opacity:0}}
+.k7{animation:k7 12s linear infinite}
+@keyframes k8{0%{stroke-dashoffset:22}18%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}24%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k8{animation:k8 12s linear infinite}
+@keyframes k9{0%{stroke-dashoffset:22}18%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}24%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k9{animation:k9 12s linear infinite}
+@keyframes k10{0%{opacity:0}18.8%{opacity:0}20%{opacity:1}40%{opacity:1}41.2%{opacity:0}100%{opacity:0}}
+.k10{animation:k10 12s linear infinite}
+@keyframes k11{0%{stroke-dashoffset:22}18%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}24%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k11{animation:k11 12s linear infinite}
+@keyframes k12{0%{stroke-dashoffset:22}18%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}24%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k12{animation:k12 12s linear infinite}
+@keyframes k13{0%{opacity:0}4.8%{opacity:0}6%{opacity:1}40%{opacity:1}41.2%{opacity:0}100%{opacity:0}}
+.k13{animation:k13 12s linear infinite}
+@keyframes k14{0%{opacity:0}38.8%{opacity:0}40%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k14{animation:k14 12s linear infinite}
+@keyframes k15{0%{opacity:0}38.8%{opacity:0}40%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k15{animation:k15 12s linear infinite}
+@keyframes k16{0%{opacity:0}4.8%{opacity:0}6%{opacity:1}40%{opacity:1}41.2%{opacity:0}100%{opacity:0}}
+.k16{animation:k16 12s linear infinite}
+@keyframes k17{0%{opacity:0}38.8%{opacity:0}40%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k17{animation:k17 12s linear infinite}
+@keyframes k18{0%{opacity:0}38.8%{opacity:0}40%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k18{animation:k18 12s linear infinite}
+@keyframes k19{0%{opacity:0}12.8%{opacity:0}14%{opacity:1}26%{opacity:1}27.2%{opacity:0}100%{opacity:0}}
+.k19{animation:k19 12s linear infinite}
+@keyframes k20{0%{opacity:0}22.8%{opacity:0}24%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k20{animation:k20 12s linear infinite}
+@keyframes k21{0%{opacity:0}22.8%{opacity:0}24%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k21{animation:k21 12s linear infinite}
+@keyframes k22{0%{opacity:0}28.8%{opacity:0}30%{opacity:1}38%{opacity:1}39.2%{opacity:0}100%{opacity:0}}
+.k22{animation:k22 12s linear infinite}
+@keyframes k23{0%{opacity:0}28.8%{opacity:0}30%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k23{animation:k23 12s linear infinite}
+@keyframes k24{0%{opacity:0}22.8%{opacity:0}24%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k24{animation:k24 12s linear infinite}
+@keyframes k25{0%{opacity:0}22.8%{opacity:0}24%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k25{animation:k25 12s linear infinite}
+@keyframes k26{0%{opacity:0}22.8%{opacity:0}24%{opacity:1}34%{opacity:1}35.2%{opacity:0}100%{opacity:0}}
+.k26{animation:k26 12s linear infinite}
+@keyframes k27{0%{opacity:0}28.8%{opacity:0}30%{opacity:1}34%{opacity:1}35.2%{opacity:0}100%{opacity:0}}
+.k27{animation:k27 12s linear infinite}
+@keyframes k28{0%{opacity:0}33.8%{opacity:0}35%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k28{animation:k28 12s linear infinite}
+@keyframes k29{0%{opacity:0}22.8%{opacity:0}24%{opacity:1}34%{opacity:1}35.2%{opacity:0}100%{opacity:0}}
+.k29{animation:k29 12s linear infinite}
+@keyframes k30{0%{opacity:0}22.8%{opacity:0}24%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k30{animation:k30 12s linear infinite}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+<rect x="8" y="8" width="744" height="454" rx="18" fill="url(#panelFade)" stroke="rgba(255,255,255,0.08)"/>
+<rect x="8" y="8" width="744" height="454" rx="18" fill="url(#dots)"/>
+
+<text x="40" y="44" font-size="17" font-weight="700" fill="#e2e8f0">A copy of the data per test</text>
+<text x="40" y="65" font-size="12.5" fill="#94a3b8">Tests that run at the same time never see each other's changes.</text>
+
+<path d="M200 174L200 204" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M200 174L200 204" class="k1" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M200 174L200 204" pathLength="100" class="k2 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M200 174L200 204" pathLength="100" class="k3 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M560 174L560 204" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M560 174L560 204" class="k4" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M560 174L560 204" pathLength="100" class="k5 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M560 174L560 204" pathLength="100" class="k6 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M146 246L146 288" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M146 246L146 288" class="k7" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M146 246L146 288" pathLength="100" class="k8 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M146 246L146 288" pathLength="100" class="k9 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M614 246L614 288" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M614 246L614 288" class="k10" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M614 246L614 288" pathLength="100" class="k11 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M614 246L614 288" pathLength="100" class="k12 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M380 246L380 288" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" stroke-dasharray="3 4"/>
+
+<rect x="40" y="96" width="320" height="78" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="40" y="96" width="320" height="78" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k13 rm0"/>
+<rect x="40" y="96" width="320" height="78" rx="8" fill="none" stroke="#34d399" stroke-opacity=".5" stroke-width="1.4" class="k14"/>
+<text x="56" y="114" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">TEST-1</text>
+<rect x="56" y="120" width="42" height="19" rx="4" fill="#34d399" fill-opacity=".14" stroke="#34d399" stroke-opacity=".45"/>
+<text x="77" y="133.5" font-size="10" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">POST</text>
+<text x="104" y="133.5" font-size="12.5" fill="#e2e8f0" class="mono">/pets  {"name":"Biscuit"}</text>
+<text x="56" y="161" font-size="11.5" fill="#94a3b8" class="mono">X-Mock-Session: <tspan fill="#f6a821">test-1</tspan></text>
+<g class="k15"><rect x="304" y="104" width="40" height="20" rx="10" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".55"/>
+<text x="324" y="118" font-size="11" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">201</text></g>
+<rect x="400" y="96" width="320" height="78" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="400" y="96" width="320" height="78" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k16 rm0"/>
+<rect x="400" y="96" width="320" height="78" rx="8" fill="none" stroke="#34d399" stroke-opacity=".5" stroke-width="1.4" class="k17"/>
+<text x="416" y="114" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">TEST-2</text>
+<rect x="416" y="120" width="57" height="19" rx="4" fill="#f87171" fill-opacity=".14" stroke="#f87171" stroke-opacity=".45"/>
+<text x="444.5" y="133.5" font-size="10" font-weight="700" fill="#f87171" text-anchor="middle" class="mono">DELETE</text>
+<text x="479" y="133.5" font-size="12.5" fill="#e2e8f0" class="mono">/pets/1</text>
+<text x="416" y="161" font-size="11.5" fill="#94a3b8" class="mono">X-Mock-Session: <tspan fill="#f6a821">test-2</tspan></text>
+<g class="k18"><rect x="664" y="104" width="40" height="20" rx="10" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".55"/>
+<text x="684" y="118" font-size="11" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">204</text></g>
+
+<rect x="40" y="206" width="680" height="40" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="40" y="206" width="680" height="40" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k19 rm0"/>
+
+<text x="380" y="231" font-size="13" font-weight="650" fill="#e2e8f0" text-anchor="middle">RapiMock <tspan font-weight="400" fill="#64748b" class="mono">· localhost:4010</tspan></text>
+
+<g class="k21"><rect x="40" y="290" width="212" height="120" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+
+<rect x="40" y="290" width="212" height="120" rx="8" fill="none" stroke="#f6a821" stroke-opacity=".5" stroke-width="1.4" class="k20"/>
+<text x="56" y="316" font-size="13" font-weight="650" fill="#e2e8f0" class="mono">test-1</text>
+<text x="236" y="316" font-size="10.5" fill="#64748b" text-anchor="end">its own copy</text>
+<rect x="52" y="328" width="188" height="1" fill="rgba(148,163,184,0.12)"/>
+<g><text x="56" y="354" font-size="12" fill="#94a3b8" class="mono">1</text><text x="84" y="354" font-size="12" fill="#e2e8f0" class="mono">Rex</text></g><g><text x="56" y="378" font-size="12" fill="#94a3b8" class="mono">2</text><text x="84" y="378" font-size="12" fill="#e2e8f0" class="mono">Luna</text></g>
+<rect x="48" y="386" width="196" height="24" rx="4" fill="#34d399" fill-opacity=".14" class="k22 rm0"/>
+<g class="k23"><text x="56" y="402" font-size="12" fill="#94a3b8" class="mono">3</text><text x="84" y="402" font-size="12" fill="#e2e8f0" class="mono">Biscuit</text></g></g>
+<rect x="274" y="290" width="212" height="120" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+
+
+<text x="290" y="316" font-size="13" font-weight="650" fill="#e2e8f0" class="mono">default</text>
+<text x="470" y="316" font-size="10.5" fill="#64748b" text-anchor="end">untouched</text>
+<rect x="286" y="328" width="188" height="1" fill="rgba(148,163,184,0.12)"/>
+<g><text x="290" y="354" font-size="12" fill="#94a3b8" class="mono">1</text><text x="318" y="354" font-size="12" fill="#e2e8f0" class="mono">Rex</text></g><g><text x="290" y="378" font-size="12" fill="#94a3b8" class="mono">2</text><text x="318" y="378" font-size="12" fill="#e2e8f0" class="mono">Luna</text></g>
+<g class="k25"><rect x="508" y="290" width="212" height="120" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+
+<rect x="508" y="290" width="212" height="120" rx="8" fill="none" stroke="#f6a821" stroke-opacity=".5" stroke-width="1.4" class="k24"/>
+<text x="524" y="316" font-size="13" font-weight="650" fill="#e2e8f0" class="mono">test-2</text>
+<text x="704" y="316" font-size="10.5" fill="#64748b" text-anchor="end">its own copy</text>
+<rect x="520" y="328" width="188" height="1" fill="rgba(148,163,184,0.12)"/>
+<g class="k26 rm0"><g><text x="524" y="354" font-size="12" fill="#94a3b8" class="mono">1</text><text x="552" y="354" font-size="12" fill="#e2e8f0" class="mono">Rex</text></g><path d="M522 350 h56" stroke="#f87171" stroke-width="1.6" class="k27 rm0"/></g>
+<g class="k28"><text x="524" y="354" font-size="12" fill="#94a3b8" class="mono">2</text><text x="552" y="354" font-size="12" fill="#e2e8f0" class="mono">Luna</text></g>
+<g class="k29 rm0"><g><text x="524" y="378" font-size="12" fill="#94a3b8" class="mono">2</text><text x="552" y="378" font-size="12" fill="#e2e8f0" class="mono">Luna</text></g></g></g>
+<text x="380" y="440" font-size="11" fill="#64748b" text-anchor="middle" class="k30">A session starts as a copy of the seed data, made when it first writes.</text>
+
+</svg>

@@ -23,41 +23,41 @@ text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, s
 @keyframes flow{to{stroke-dashoffset:-20}}
 @keyframes k1{0%{opacity:0}12.8%{opacity:0}14%{opacity:1}22%{opacity:1}23.2%{opacity:0}48.8%{opacity:0}50%{opacity:1}56%{opacity:1}57.2%{opacity:0}79.8%{opacity:0}81%{opacity:1}88%{opacity:1}89.2%{opacity:0}100%{opacity:0}}
 .k1{animation:k1 14s linear infinite}
-@keyframes k2{0%{stroke-dashoffset:16}12%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}16%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k2{0%{stroke-dashoffset:22}12%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}16%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k2{animation:k2 14s linear infinite}
-@keyframes k3{0%{stroke-dashoffset:16}12%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}16%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k3{0%{stroke-dashoffset:22}12%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}16%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k3{animation:k3 14s linear infinite}
-@keyframes k4{0%{stroke-dashoffset:16}48%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}52%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k4{0%{stroke-dashoffset:22}48%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}52%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k4{animation:k4 14s linear infinite}
-@keyframes k5{0%{stroke-dashoffset:16}48%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}52%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k5{0%{stroke-dashoffset:22}48%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}52%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k5{animation:k5 14s linear infinite}
-@keyframes k6{0%{stroke-dashoffset:16}79%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}83%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k6{0%{stroke-dashoffset:22}79%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}83%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k6{animation:k6 14s linear infinite}
-@keyframes k7{0%{stroke-dashoffset:16}79%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}83%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k7{0%{stroke-dashoffset:22}79%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}83%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k7{animation:k7 14s linear infinite}
 @keyframes k8{0%{opacity:0}16.8%{opacity:0}18%{opacity:1}40%{opacity:1}41.2%{opacity:0}100%{opacity:0}}
 .k8{animation:k8 14s linear infinite}
-@keyframes k9{0%{stroke-dashoffset:16}17%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}23%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k9{0%{stroke-dashoffset:22}17%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}23%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k9{animation:k9 14s linear infinite}
-@keyframes k10{0%{stroke-dashoffset:16}17%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}23%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k10{0%{stroke-dashoffset:22}17%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}23%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k10{animation:k10 14s linear infinite}
 @keyframes k11{0%{opacity:0}53.8%{opacity:0}55%{opacity:1}72%{opacity:1}73.2%{opacity:0}100%{opacity:0}}
 .k11{animation:k11 14s linear infinite}
-@keyframes k12{0%{stroke-dashoffset:16}53%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}59%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k12{0%{stroke-dashoffset:22}53%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}59%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k12{animation:k12 14s linear infinite}
-@keyframes k13{0%{stroke-dashoffset:16}53%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}59%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k13{0%{stroke-dashoffset:22}53%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}59%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k13{animation:k13 14s linear infinite}
 @keyframes k14{0%{opacity:0}84.8%{opacity:0}86%{opacity:1}98%{opacity:1}99.2%{opacity:0}100%{opacity:0}}
 .k14{animation:k14 14s linear infinite}
-@keyframes k15{0%{stroke-dashoffset:16}84%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}90%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k15{0%{stroke-dashoffset:22}84%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}90%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k15{animation:k15 14s linear infinite}
-@keyframes k16{0%{stroke-dashoffset:16}84%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}90%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k16{0%{stroke-dashoffset:22}84%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}90%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k16{animation:k16 14s linear infinite}
 @keyframes k17{0%{opacity:0}34.8%{opacity:0}36%{opacity:1}46%{opacity:1}47.2%{opacity:0}100%{opacity:0}}
 .k17{animation:k17 14s linear infinite}
-@keyframes k18{0%{stroke-dashoffset:16}34%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k18{0%{stroke-dashoffset:22}34%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k18{animation:k18 14s linear infinite}
-@keyframes k19{0%{stroke-dashoffset:16}34%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k19{0%{stroke-dashoffset:22}34%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k19{animation:k19 14s linear infinite}
 @keyframes k20{0%{opacity:0}13.8%{opacity:0}15%{opacity:1}19%{opacity:1}20.2%{opacity:0}49.8%{opacity:0}51%{opacity:1}55%{opacity:1}56.2%{opacity:0}80.8%{opacity:0}82%{opacity:1}86%{opacity:1}87.2%{opacity:0}100%{opacity:0}}
 .k20{animation:k20 14s linear infinite}

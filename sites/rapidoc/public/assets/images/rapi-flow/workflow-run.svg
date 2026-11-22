@@ -31,29 +31,29 @@ text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, s
 .k4{animation:k4 11s linear infinite}
 @keyframes k5{0%{opacity:0}5%{opacity:0}11%{opacity:1}91%{opacity:1}94%{opacity:0}100%{opacity:0}}
 .k5{animation:k5 11s linear infinite}
-@keyframes k6{0%{stroke-dashoffset:16}5%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}11%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k6{0%{stroke-dashoffset:22}5%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}11%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k6{animation:k6 11s linear infinite}
-@keyframes k7{0%{stroke-dashoffset:16}5%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}11%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k7{0%{stroke-dashoffset:22}5%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}11%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k7{animation:k7 11s linear infinite}
 @keyframes k8{0%{opacity:0}22%{opacity:0}30%{opacity:1}91%{opacity:1}94%{opacity:0}100%{opacity:0}}
 .k8{animation:k8 11s linear infinite}
-@keyframes k9{0%{stroke-dashoffset:16}22%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}30%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k9{0%{stroke-dashoffset:22}22%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}30%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k9{animation:k9 11s linear infinite}
-@keyframes k10{0%{stroke-dashoffset:16}22%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}30%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k10{0%{stroke-dashoffset:22}22%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}30%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k10{animation:k10 11s linear infinite}
 @keyframes k11{0%{opacity:0}57%{opacity:0}64%{opacity:1}91%{opacity:1}94%{opacity:0}100%{opacity:0}}
 .k11{animation:k11 11s linear infinite}
-@keyframes k12{0%{stroke-dashoffset:16}57%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}64%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k12{0%{stroke-dashoffset:22}57%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}64%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k12{animation:k12 11s linear infinite}
-@keyframes k13{0%{stroke-dashoffset:16}57%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}64%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k13{0%{stroke-dashoffset:22}57%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}64%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k13{animation:k13 11s linear infinite}
 @keyframes k14{0%{opacity:0}73%{opacity:0}80%{opacity:1}91%{opacity:1}94%{opacity:0}100%{opacity:0}}
 .k14{animation:k14 11s linear infinite}
-@keyframes k15{0%{stroke-dashoffset:16}73%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}80%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k15{0%{stroke-dashoffset:22}73%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}80%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k15{animation:k15 11s linear infinite}
-@keyframes k16{0%{stroke-dashoffset:16}73%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}80%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k16{0%{stroke-dashoffset:22}73%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}80%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k16{animation:k16 11s linear infinite}
-@keyframes k17{0%{stroke-dashoffset:16}40%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}47%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k17{0%{stroke-dashoffset:22}40%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}47%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k17{animation:k17 11s linear infinite}
 @keyframes k18{0%{opacity:0}22.8%{opacity:0}24%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
 .k18{animation:k18 11s linear infinite}

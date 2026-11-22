@@ -1,0 +1,243 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" width="760" height="440" role="img" aria-labelledby="t d">
+<title id="t">From paths to resources</title>
+<desc id="d">RapiMock reads the paths of an OpenAPI spec: the /pets operations become the Pet resource with its key and actions, /owners/{ownerId} the Owner resource it links to, and POST /login stays static.</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+@keyframes k1{0%{opacity:0}4.2%{opacity:0}5%{opacity:1}11%{opacity:1}11.8%{opacity:0}100%{opacity:0}}
+.k1{animation:k1 12s linear infinite}
+@keyframes k2{0%{opacity:0}6.8%{opacity:0}8%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k2{animation:k2 12s linear infinite}
+@keyframes k3{0%{opacity:0}10.2%{opacity:0}11%{opacity:1}17%{opacity:1}17.8%{opacity:0}100%{opacity:0}}
+.k3{animation:k3 12s linear infinite}
+@keyframes k4{0%{opacity:0}12.8%{opacity:0}14%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k4{animation:k4 12s linear infinite}
+@keyframes k5{0%{opacity:0}16.2%{opacity:0}17%{opacity:1}23%{opacity:1}23.8%{opacity:0}100%{opacity:0}}
+.k5{animation:k5 12s linear infinite}
+@keyframes k6{0%{opacity:0}18.8%{opacity:0}20%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k6{animation:k6 12s linear infinite}
+@keyframes k7{0%{opacity:0}22.2%{opacity:0}23%{opacity:1}29%{opacity:1}29.8%{opacity:0}100%{opacity:0}}
+.k7{animation:k7 12s linear infinite}
+@keyframes k8{0%{opacity:0}24.8%{opacity:0}26%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k8{animation:k8 12s linear infinite}
+@keyframes k9{0%{opacity:0}28.2%{opacity:0}29%{opacity:1}35%{opacity:1}35.8%{opacity:0}100%{opacity:0}}
+.k9{animation:k9 12s linear infinite}
+@keyframes k10{0%{opacity:0}30.8%{opacity:0}32%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k10{animation:k10 12s linear infinite}
+@keyframes k11{0%{opacity:0}34.2%{opacity:0}35%{opacity:1}41%{opacity:1}41.8%{opacity:0}100%{opacity:0}}
+.k11{animation:k11 12s linear infinite}
+@keyframes k12{0%{opacity:0}36.8%{opacity:0}38%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k12{animation:k12 12s linear infinite}
+@keyframes k13{0%{opacity:0}40.2%{opacity:0}41%{opacity:1}47%{opacity:1}47.8%{opacity:0}100%{opacity:0}}
+.k13{animation:k13 12s linear infinite}
+@keyframes k14{0%{opacity:0}42.8%{opacity:0}44%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k14{animation:k14 12s linear infinite}
+@keyframes k15{0%{opacity:0}7%{opacity:0}10%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k15{animation:k15 12s linear infinite}
+@keyframes k16{0%{stroke-dashoffset:22}7%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}10%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k16{animation:k16 12s linear infinite}
+@keyframes k17{0%{stroke-dashoffset:22}7%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}10%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k17{animation:k17 12s linear infinite}
+@keyframes k18{0%{opacity:0}13%{opacity:0}16%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k18{animation:k18 12s linear infinite}
+@keyframes k19{0%{stroke-dashoffset:22}13%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}16%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k19{animation:k19 12s linear infinite}
+@keyframes k20{0%{stroke-dashoffset:22}13%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}16%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k20{animation:k20 12s linear infinite}
+@keyframes k21{0%{opacity:0}19%{opacity:0}22%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k21{animation:k21 12s linear infinite}
+@keyframes k22{0%{stroke-dashoffset:22}19%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}22%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k22{animation:k22 12s linear infinite}
+@keyframes k23{0%{stroke-dashoffset:22}19%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}22%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k23{animation:k23 12s linear infinite}
+@keyframes k24{0%{opacity:0}25%{opacity:0}28%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k24{animation:k24 12s linear infinite}
+@keyframes k25{0%{stroke-dashoffset:22}25%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}28%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k25{animation:k25 12s linear infinite}
+@keyframes k26{0%{stroke-dashoffset:22}25%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}28%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k26{animation:k26 12s linear infinite}
+@keyframes k27{0%{opacity:0}31%{opacity:0}34%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k27{animation:k27 12s linear infinite}
+@keyframes k28{0%{stroke-dashoffset:22}31%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}34%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k28{animation:k28 12s linear infinite}
+@keyframes k29{0%{stroke-dashoffset:22}31%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}34%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k29{animation:k29 12s linear infinite}
+@keyframes k30{0%{opacity:0}37%{opacity:0}40%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k30{animation:k30 12s linear infinite}
+@keyframes k31{0%{stroke-dashoffset:22}37%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}40%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k31{animation:k31 12s linear infinite}
+@keyframes k32{0%{stroke-dashoffset:22}37%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}40%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
+.k32{animation:k32 12s linear infinite}
+@keyframes k33{0%{opacity:0}46.8%{opacity:0}48%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k33{animation:k33 12s linear infinite}
+@keyframes k34{0%{opacity:0}8.8%{opacity:0}10%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k34{animation:k34 12s linear infinite}
+@keyframes k35{0%{opacity:0}8.8%{opacity:0}10%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k35{animation:k35 12s linear infinite}
+@keyframes k36{0%{opacity:0}20.8%{opacity:0}22%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k36{animation:k36 12s linear infinite}
+@keyframes k37{0%{opacity:0}42.8%{opacity:0}44%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k37{animation:k37 12s linear infinite}
+@keyframes k38{0%{opacity:0}42.8%{opacity:0}44%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k38{animation:k38 12s linear infinite}
+@keyframes k39{0%{opacity:0}38.8%{opacity:0}40%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k39{animation:k39 12s linear infinite}
+@keyframes k40{0%{opacity:0}38.8%{opacity:0}40%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k40{animation:k40 12s linear infinite}
+@keyframes k41{0%{opacity:0}44.8%{opacity:0}46%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k41{animation:k41 12s linear infinite}
+@keyframes k42{0%{opacity:0}44.8%{opacity:0}46%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k42{animation:k42 12s linear infinite}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+<rect x="8" y="8" width="744" height="424" rx="18" fill="url(#panelFade)" stroke="rgba(255,255,255,0.08)"/>
+<rect x="8" y="8" width="744" height="424" rx="18" fill="url(#dots)"/>
+
+<text x="40" y="44" font-size="17" font-weight="700" fill="#e2e8f0">From paths to resources</text>
+<text x="40" y="65" font-size="12.5" fill="#94a3b8">RapiMock reads the data model off the spec, and labels every operation.</text>
+
+<!-- the spec's paths -->
+<rect x="40" y="92" width="330" height="300" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+
+
+<text x="56" y="114" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">OPENAPI.YAML · PATHS</text>
+<rect x="46" y="123" width="318" height="28" rx="5" fill="#f6a821" fill-opacity=".10" class="k1 rm0"/>
+<rect x="56" y="129" width="34.5" height="19" rx="4" fill="#60a5fa" fill-opacity=".14" stroke="#60a5fa" stroke-opacity=".45"/>
+<text x="73.25" y="142.5" font-size="10" font-weight="700" fill="#60a5fa" text-anchor="middle" class="mono">GET</text>
+<text x="96.5" y="142" font-size="12" fill="#e2e8f0" class="mono">/pets</text>
+<g class="k2">
+  <rect x="311.6" y="129" width="40.4" height="18" rx="9" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".45"/>
+  <text x="331.8" y="142" font-size="10.5" fill="#34d399" text-anchor="middle" class="mono">list</text>
+</g>
+<rect x="46" y="155" width="318" height="28" rx="5" fill="#f6a821" fill-opacity=".10" class="k3 rm0"/>
+<rect x="56" y="161" width="42" height="19" rx="4" fill="#34d399" fill-opacity=".14" stroke="#34d399" stroke-opacity=".45"/>
+<text x="77" y="174.5" font-size="10" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">POST</text>
+<text x="104" y="174" font-size="12" fill="#e2e8f0" class="mono">/pets</text>
+<g class="k4">
+  <rect x="298.4" y="161" width="53.599999999999994" height="18" rx="9" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".45"/>
+  <text x="325.2" y="174" font-size="10.5" fill="#34d399" text-anchor="middle" class="mono">create</text>
+</g>
+<rect x="46" y="187" width="318" height="28" rx="5" fill="#f6a821" fill-opacity=".10" class="k5 rm0"/>
+<rect x="56" y="193" width="34.5" height="19" rx="4" fill="#60a5fa" fill-opacity=".14" stroke="#60a5fa" stroke-opacity=".45"/>
+<text x="73.25" y="206.5" font-size="10" font-weight="700" fill="#60a5fa" text-anchor="middle" class="mono">GET</text>
+<text x="96.5" y="206" font-size="12" fill="#e2e8f0" class="mono">/pets/{petId}</text>
+<g class="k6">
+  <rect x="311.6" y="193" width="40.4" height="18" rx="9" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".45"/>
+  <text x="331.8" y="206" font-size="10.5" fill="#34d399" text-anchor="middle" class="mono">read</text>
+</g>
+<rect x="46" y="219" width="318" height="28" rx="5" fill="#f6a821" fill-opacity=".10" class="k7 rm0"/>
+<rect x="56" y="225" width="49.5" height="19" rx="4" fill="#a78bfa" fill-opacity=".14" stroke="#a78bfa" stroke-opacity=".45"/>
+<text x="80.75" y="238.5" font-size="10" font-weight="700" fill="#a78bfa" text-anchor="middle" class="mono">PATCH</text>
+<text x="111.5" y="238" font-size="12" fill="#e2e8f0" class="mono">/pets/{petId}</text>
+<g class="k8">
+  <rect x="298.4" y="225" width="53.599999999999994" height="18" rx="9" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".45"/>
+  <text x="325.2" y="238" font-size="10.5" fill="#34d399" text-anchor="middle" class="mono">update</text>
+</g>
+<rect x="46" y="251" width="318" height="28" rx="5" fill="#f6a821" fill-opacity=".10" class="k9 rm0"/>
+<rect x="56" y="257" width="57" height="19" rx="4" fill="#f87171" fill-opacity=".14" stroke="#f87171" stroke-opacity=".45"/>
+<text x="84.5" y="270.5" font-size="10" font-weight="700" fill="#f87171" text-anchor="middle" class="mono">DELETE</text>
+<text x="119" y="270" font-size="12" fill="#e2e8f0" class="mono">/pets/{petId}</text>
+<g class="k10">
+  <rect x="298.4" y="257" width="53.599999999999994" height="18" rx="9" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".45"/>
+  <text x="325.2" y="270" font-size="10.5" fill="#34d399" text-anchor="middle" class="mono">delete</text>
+</g>
+<rect x="46" y="283" width="318" height="28" rx="5" fill="#f6a821" fill-opacity=".10" class="k11 rm0"/>
+<rect x="56" y="289" width="34.5" height="19" rx="4" fill="#60a5fa" fill-opacity=".14" stroke="#60a5fa" stroke-opacity=".45"/>
+<text x="73.25" y="302.5" font-size="10" font-weight="700" fill="#60a5fa" text-anchor="middle" class="mono">GET</text>
+<text x="96.5" y="302" font-size="12" fill="#e2e8f0" class="mono">/owners/{ownerId}</text>
+<g class="k12">
+  <rect x="311.6" y="289" width="40.4" height="18" rx="9" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".45"/>
+  <text x="331.8" y="302" font-size="10.5" fill="#34d399" text-anchor="middle" class="mono">read</text>
+</g>
+<rect x="46" y="315" width="318" height="28" rx="5" fill="#f6a821" fill-opacity=".10" class="k13 rm0"/>
+<rect x="56" y="321" width="42" height="19" rx="4" fill="#34d399" fill-opacity=".14" stroke="#34d399" stroke-opacity=".45"/>
+<text x="77" y="334.5" font-size="10" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">POST</text>
+<text x="104" y="334" font-size="12" fill="#e2e8f0" class="mono">/login</text>
+<g class="k14">
+  <rect x="298.4" y="321" width="53.599999999999994" height="18" rx="9" fill="#64748b" fill-opacity=".12" stroke="#64748b" stroke-opacity=".45"/>
+  <text x="325.2" y="334" font-size="10.5" fill="#64748b" text-anchor="middle" class="mono">static</text>
+</g>
+<text x="56" y="376" font-size="11.5" fill="#94a3b8" class="k33"><tspan fill="#34d399">6 stateful</tspan>  ·  <tspan fill="#64748b">1 static</tspan></text>
+
+<path d="M368 138L404 138Q410 138 410 144L410 150Q410 156 416 156L448 156" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M368 138L404 138Q410 138 410 144L410 150Q410 156 416 156L448 156" class="k15" fill="none" stroke="#34d399" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahGreen)"/>
+<g opacity=".4"><path d="M368 138L404 138Q410 138 410 144L410 150Q410 156 416 156L448 156" pathLength="100" class="k16 rm0" fill="none" stroke="#34d399" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M368 138L404 138Q410 138 410 144L410 150Q410 156 416 156L448 156" pathLength="100" class="k17 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M368 170L404 170Q410 170 410 164L410 162Q410 156 416 156L448 156" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M368 170L404 170Q410 170 410 164L410 162Q410 156 416 156L448 156" class="k18" fill="none" stroke="#34d399" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahGreen)"/>
+<g opacity=".4"><path d="M368 170L404 170Q410 170 410 164L410 162Q410 156 416 156L448 156" pathLength="100" class="k19 rm0" fill="none" stroke="#34d399" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M368 170L404 170Q410 170 410 164L410 162Q410 156 416 156L448 156" pathLength="100" class="k20 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M368 202L404 202Q410 202 410 196L410 162Q410 156 416 156L448 156" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M368 202L404 202Q410 202 410 196L410 162Q410 156 416 156L448 156" class="k21" fill="none" stroke="#34d399" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahGreen)"/>
+<g opacity=".4"><path d="M368 202L404 202Q410 202 410 196L410 162Q410 156 416 156L448 156" pathLength="100" class="k22 rm0" fill="none" stroke="#34d399" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M368 202L404 202Q410 202 410 196L410 162Q410 156 416 156L448 156" pathLength="100" class="k23 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M368 234L404 234Q410 234 410 228L410 162Q410 156 416 156L448 156" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M368 234L404 234Q410 234 410 228L410 162Q410 156 416 156L448 156" class="k24" fill="none" stroke="#34d399" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahGreen)"/>
+<g opacity=".4"><path d="M368 234L404 234Q410 234 410 228L410 162Q410 156 416 156L448 156" pathLength="100" class="k25 rm0" fill="none" stroke="#34d399" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M368 234L404 234Q410 234 410 228L410 162Q410 156 416 156L448 156" pathLength="100" class="k26 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M368 266L404 266Q410 266 410 260L410 162Q410 156 416 156L448 156" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M368 266L404 266Q410 266 410 260L410 162Q410 156 416 156L448 156" class="k27" fill="none" stroke="#34d399" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahGreen)"/>
+<g opacity=".4"><path d="M368 266L404 266Q410 266 410 260L410 162Q410 156 416 156L448 156" pathLength="100" class="k28 rm0" fill="none" stroke="#34d399" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M368 266L404 266Q410 266 410 260L410 162Q410 156 416 156L448 156" pathLength="100" class="k29 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+
+
+<path d="M368 298L404 298Q410 298 410 304L410 319Q410 325 416 325L448 325" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M368 298L404 298Q410 298 410 304L410 319Q410 325 416 325L448 325" class="k30" fill="none" stroke="#34d399" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahGreen)"/>
+<g opacity=".4"><path d="M368 298L404 298Q410 298 410 304L410 319Q410 325 416 325L448 325" pathLength="100" class="k31 rm0" fill="none" stroke="#34d399" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M368 298L404 298Q410 298 410 304L410 319Q410 325 416 325L448 325" pathLength="100" class="k32 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+
+<!-- Pet -->
+<g class="k34">
+<rect x="450" y="96" width="270" height="148" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+
+<rect x="450" y="96" width="270" height="148" rx="8" fill="none" stroke="#34d399" stroke-opacity=".5" stroke-width="1.4" class="k35"/>
+<text x="466" y="124" font-size="15" font-weight="700" fill="#e2e8f0">Pet</text>
+<rect x="632" y="110" width="72" height="20" rx="10" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".5"/>
+<text x="668" y="124" font-size="10.5" font-weight="700" fill="#34d399" text-anchor="middle">Stateful</text>
+<text x="466" y="152" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">KEY</text>
+<text x="506" y="152" font-size="12" fill="#e2e8f0" class="mono k36">id <tspan fill="#64748b">←</tspan> <tspan fill="#f6a821">{petId}</tspan></text>
+<text x="466" y="180" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">FIELDS</text>
+<text x="522" y="180" font-size="12" fill="#94a3b8" class="mono">id</text>
+<text x="612" y="180" font-size="12" fill="#94a3b8" class="mono">name</text>
+<text x="522" y="202" font-size="12" fill="#94a3b8" class="mono">status</text>
+<text x="612" y="202" font-size="12" fill="#38bdf8" class="mono">ownerId</text>
+<text x="466" y="230" font-size="10" fill="#64748b" class="mono">list · create · read · update · delete</text>
+</g>
+
+<!-- the link to Owner -->
+<path d="M646 244L646 288" fill="none" stroke="#38bdf8" stroke-opacity=".85" stroke-width="1.6" stroke-dasharray="4 5" marker-end="url(#ahCyan)" class="k37"/>
+<text x="638" y="271" font-size="10.5" fill="#38bdf8" text-anchor="end" class="mono k38">ownerId → Owner</text>
+
+<!-- Owner -->
+<g class="k39">
+<rect x="450" y="290" width="270" height="84" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+
+<rect x="450" y="290" width="270" height="84" rx="8" fill="none" stroke="#34d399" stroke-opacity=".5" stroke-width="1.4" class="k40"/>
+<text x="466" y="318" font-size="15" font-weight="700" fill="#e2e8f0">Owner</text>
+<text x="466" y="340" font-size="12" fill="#e2e8f0" class="mono">id <tspan fill="#64748b">←</tspan> <tspan fill="#f6a821">{ownerId}</tspan></text>
+<text x="466" y="362" font-size="11" fill="#64748b">Seeded pets belong to seeded owners</text>
+</g>
+
+<!-- the static one -->
+<text x="450" y="400" font-size="11.5" fill="#94a3b8" class="k41"><tspan class="mono" fill="#e2e8f0">POST /login</tspan> · Static: no resource fits,</text>
+<text x="450" y="418" font-size="11.5" fill="#94a3b8" class="k42">so it answers with the spec's example.</text>
+
+</svg>

@@ -73,9 +73,9 @@ const mockServerHtmlSnippet = `<rapi-flow
   <PortalHeader />
 
   <main class="wf-guide-main">
-    <header class="rd-hero-header wf-hero">
-      <div class="wf-hero-grid">
-      <div class="wf-hero-copy">
+    <header class="rd-hero-header rd-hero-split">
+      <div class="rd-hero-grid">
+      <div class="rd-hero-copy">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
         <span class="rd-badge-text">&lt;rapi-flow&gt; • Arazzo</span>
@@ -91,7 +91,7 @@ const mockServerHtmlSnippet = `<rapi-flow
         at a time.
       </p>
 
-      <div class="wf-cta-row">
+      <div class="rd-hero-actions">
         <a href="/examples/arazzo" class="rd-btn rd-btn-primary">
           <Icon name="play" size={18} />
           <span>Run the Live Example</span>
@@ -107,7 +107,7 @@ const mockServerHtmlSnippet = `<rapi-flow
       </div>
       </div>
 
-      <figure class="wf-hero-visual">
+      <figure class="rd-hero-visual">
         <img
           src="/assets/images/rapi-flow/workflow-run.svg"
           alt="A RapiFlow workflow run: each step lights up in turn, a failed order is retried, values pass from step to step and the outputs fill in"
@@ -184,8 +184,8 @@ const mockServerHtmlSnippet = `<rapi-flow
           draws it; the example page puts it next to the Petstore reference, where you can run it.
         </p>
 
-        <div class="wf-example">
-          <a class="wf-example-diagram" href="/examples/arazzo?workflow=orderOrReserve#overview" aria-label="Open the live example">
+        <div class="rd-showcase">
+          <a class="rd-showcase-image" href="/examples/arazzo?workflow=orderOrReserve#overview" aria-label="Open the live example">
             <img
               src="/assets/images/rapi-flow/workflow-diagram.svg"
               alt="The orderOrReserve workflow as rapi-flow draws it: checkInventory branches to readPet and placeOrder when in stock, or to findPending and markWanted when sold out"
@@ -194,7 +194,7 @@ const mockServerHtmlSnippet = `<rapi-flow
               loading="lazy"
             />
           </a>
-          <div class="wf-example-notes">
+          <div class="rd-showcase-notes">
             <h3>What to look for</h3>
             <ul>
               <li><strong>Two paths from one step.</strong> <code>checkInventory</code>'s <code>onSuccess</code> goes to <code>readPet</code> when <code>available &gt; 0</code>, otherwise to <code>findPending</code>.</li>
@@ -202,7 +202,7 @@ const mockServerHtmlSnippet = `<rapi-flow
               <li><strong>Values handed on.</strong> <code>findPending</code>'s <code>pendingPetId</code> is the path parameter of <code>markWanted</code>.</li>
               <li><strong>Outputs from either path.</strong> <code>orderId</code> or <code>reservedPetId</code>, whichever branch ran.</li>
             </ul>
-            <div class="wf-example-actions">
+            <div class="rd-showcase-actions">
               <a href="/examples/arazzo?workflow=orderOrReserve#overview" class="rd-btn rd-btn-primary">
                 <Icon name="play" size={18} />
                 <span>Run It Live</span>
@@ -212,7 +212,7 @@ const mockServerHtmlSnippet = `<rapi-flow
                 <span>Arazzo Spec</span>
               </a>
             </div>
-            <p class="wf-example-caveat">
+            <p class="rd-showcase-caveat">
               On the example page, the run goes to the real Petstore API or to RapiDoc's in-browser mock: no backend needed.
             </p>
           </div>
@@ -226,7 +226,7 @@ const mockServerHtmlSnippet = `<rapi-flow
           The layout is RapiDoc's own SVG code with no graph library, so the same diagram renders in the browser and, in a
           portal, as static SVG at build time.
         </p>
-        <figure class="wf-illustration">
+        <figure class="rd-illustration">
           <img
             src="/assets/images/rapi-flow/workflow-branches.svg"
             alt="placeOrder answers 503 and its retry action runs it again; the second attempt answers 200 and goto moves on to getOrder; in another run a 404 takes the end action"
@@ -290,7 +290,7 @@ const mockServerHtmlSnippet = `<rapi-flow
           The run button, AI agents and the developer portal all use the same workflow runtime, built on RapiDoc's MCP
           manifest. A workflow that runs on this page runs the same way for an agent.
         </p>
-        <figure class="wf-illustration">
+        <figure class="rd-illustration">
           <img
             src="/assets/images/rapi-flow/workflow-one-runtime.svg"
             alt="One Arazzo spec feeds the workflow runtime, which runs it in the browser, serves it to AI agents as an MCP tool and draws it in the developer portal"
@@ -382,66 +382,6 @@ const mockServerHtmlSnippet = `<rapi-flow
     max-width: 1100px;
     margin: 0 auto;
     padding: var(--rd-page-top) 24px 96px;
-  }
-
-  /* The hero: text and buttons on the left, the animated run on the right; the stats bar below */
-  .wf-hero.rd-hero-header {
-    max-width: none;
-    padding: 0;
-  }
-  .wf-hero-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    gap: 40px;
-    align-items: center;
-    margin-bottom: 40px;
-    text-align: left;
-  }
-  .wf-hero-copy .rd-page-subtitle {
-    margin-left: 0;
-  }
-  .wf-hero-copy .wf-cta-row {
-    justify-content: flex-start;
-    margin-bottom: 0;
-  }
-  .wf-hero-visual {
-    margin: 0;
-    position: relative;
-  }
-  /* A soft amber glow behind the panel */
-  .wf-hero-visual::before {
-    content: '';
-    position: absolute;
-    inset: 12% 8%;
-    background: radial-gradient(closest-side, color-mix(in srgb, var(--rd-accent) 18%, transparent), transparent);
-    filter: blur(30px);
-    z-index: -1;
-  }
-  .wf-hero-visual img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  @media (max-width: 900px) {
-    .wf-hero-grid {
-      grid-template-columns: 1fr;
-      text-align: center;
-    }
-    .wf-hero-copy .rd-page-subtitle {
-      margin-left: auto;
-    }
-    .wf-hero-copy .wf-cta-row {
-      justify-content: center;
-    }
-  }
-
-  /* The hero's call-to-action buttons */
-  .wf-cta-row {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 40px;
-    flex-wrap: wrap;
   }
 
   /* Sections */
@@ -539,102 +479,6 @@ const mockServerHtmlSnippet = `<rapi-flow
     left: 0;
     color: var(--rd-accent-light);
     font-weight: 700;
-  }
-
-  /* Live demo */
-  /* The example: the diagram as an image, beside what to look for */
-  .wf-example {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 40px;
-    align-items: start;
-  }
-  .wf-example-diagram {
-    display: block;
-    position: relative;
-    max-height: 640px;
-    overflow: hidden;
-    padding: 24px;
-    border: 1px solid var(--rd-border);
-    border-radius: var(--rd-radius-lg);
-    background: var(--rd-surface);
-    transition: var(--rd-transition);
-    /* The lower part fades out: the whole diagram is one click away */
-    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-  }
-  .wf-example-diagram:hover,
-  .wf-example-diagram:focus-visible {
-    border-color: var(--rd-accent-border);
-  }
-  .wf-example-diagram img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  .wf-example-notes h3 {
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--rd-text-primary);
-    margin: 0 0 14px;
-  }
-  .wf-example-notes ul {
-    margin: 0 0 28px;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 14px;
-  }
-  .wf-example-notes li {
-    position: relative;
-    padding-left: 18px;
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--rd-text-muted);
-  }
-  .wf-example-notes li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.62em;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--rd-accent);
-  }
-  .wf-example-notes li strong {
-    color: var(--rd-text-primary);
-  }
-  .wf-example-actions {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .wf-example-caveat {
-    margin: 16px 0 0;
-    font-size: 12px;
-    line-height: 1.6;
-    color: var(--rd-text-dim);
-  }
-  @media (max-width: 860px) {
-    .wf-example {
-      grid-template-columns: 1fr;
-    }
-    .wf-example-diagram {
-      max-height: 520px;
-    }
-  }
-
-  /* The animated illustrations above a section's cards */
-  .wf-illustration {
-    margin: 0 0 28px;
-  }
-  .wf-illustration img {
-    display: block;
-    width: 100%;
-    max-width: 760px;
-    height: auto;
-    margin: 0 auto;
   }
 
   /* What it draws */

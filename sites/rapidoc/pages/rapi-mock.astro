@@ -8,6 +8,9 @@ import CodeBlock from '../components/CodeBlock.astro';
 import Icon from '../components/Icon.astro';
 
 const MOCK_DOCS = 'https://mock.rapidocui.com';
+// The spec check opened on its example spec, City Library: what the Mock UI picture shows
+// (scripts/capture-mock-ui.mjs takes it from the same page)
+const SPEC_CHECK_EXAMPLE = `${MOCK_DOCS}/spec-check/index.html?url=${encodeURIComponent(`${MOCK_DOCS}/spec-check/example.yaml`)}`;
 
 const startCode = `npm install -D @rapidoc/cli @rapidoc/mock
 npx rapidoc mock openapi.yaml --stateful
@@ -76,7 +79,9 @@ const comparison = [
   <PortalHeader />
 
   <main class="rd-product-main">
-    <header class="rd-hero-header">
+    <header class="rd-hero-header rd-hero-split">
+      <div class="rd-hero-grid">
+      <div class="rd-hero-copy">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
         <span class="rd-badge-text">rapidoc mock • @rapidoc/mock</span>
@@ -106,6 +111,19 @@ const comparison = [
           <Icon name="arrow-up-right" size={16} />
         </a>
       </div>
+      </div>
+
+      <figure class="rd-hero-visual">
+        <img
+          src="/assets/images/rapi-mock/mock-server.svg"
+          alt="RapiMock as a server on port 4010, built from openapi.yaml with a store beside it: your frontend, an AI agent, a test run and curl send it requests and get 201, 200, 400 and 403 back"
+          width="700"
+          height="510"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+      </div>
     </header>
 
     <section class="rd-section">
@@ -123,6 +141,93 @@ const comparison = [
           </p>
         </div>
         <CodeBlock code={startCode} lang="bash" filename="terminal" />
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-split rd-split--visual">
+        <div class="rd-split-text">
+          <div class="rd-section-badge">Every Request</div>
+          <h2 class="rd-section-title">Checked Like the Real API, Kept Like a Real One</h2>
+          <p>
+            A request that doesn't match the spec gets a <code>400</code> with the problems listed. A token is checked
+            against your issuer, and a missing scope gets a <code>403</code>, the way your API will answer.
+          </p>
+          <p>
+            What passes is kept: a <code>POST</code> adds a record that the next <code>GET</code> returns, until you
+            reset with <code>POST /__mock/reset</code>.{' '}
+            <a href={`${MOCK_DOCS}/docs/responses/what-it-answers/`}>What it answers →</a>
+          </p>
+        </div>
+        <figure class="rd-illustration rd-illustration--inline">
+          <img
+            src="/assets/images/rapi-mock/mock-requests.svg"
+            alt="Requests to RapiMock: a POST stores Biscuit, a GET lists it, a POST missing a required field gets 400, and a DELETE whose token lacks the pets:write scope gets 403"
+            width="760"
+            height="600"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">How It Works</div>
+        <h2 class="rd-section-title">It Reads the Data Model Off Your Spec</h2>
+        <p class="rd-section-desc">
+          Paths that share a schema and a shape become one resource, with its key and what each operation does to it.
+          Fields such as <code>ownerId</code> link resources, so seeded pets belong to seeded owners. Where nothing
+          fits, the operation stays static and answers with the spec's example.{' '}
+          <a href={`${MOCK_DOCS}/docs/getting-started/how-it-works/`}>How it works →</a>
+        </p>
+      </div>
+      <figure class="rd-illustration">
+        <img
+          src="/assets/images/rapi-mock/mock-resources.svg"
+          alt="The /pets operations become the Pet resource with key id from {petId}; /owners/{ownerId} becomes Owner, which Pet links to by ownerId; POST /login stays static"
+          width="760"
+          height="440"
+          loading="lazy"
+        />
+      </figure>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Mock UI</div>
+        <h2 class="rd-section-title">See What the Mock Made of Your Spec</h2>
+      </div>
+      <div class="rd-showcase rd-showcase--wide">
+        <a class="rd-showcase-image rd-showcase-image--shot" href={SPEC_CHECK_EXAMPLE} aria-label="Open the City Library example in the spec check">
+          <img
+            src="/assets/images/rapi-mock/mock-ui-dashboard.png"
+            alt="The spec check's Mock UI for the City Library example: 13 operations, 3 resources and 30 records, 22 lint warnings by category, and one operation that needs review"
+            width="1360"
+            height="820"
+            loading="lazy"
+          />
+        </a>
+        <div class="rd-showcase-notes">
+          <h3>City Library, an example with a few gaps</h3>
+          <ul>
+            <li><strong>What it found.</strong> 13 operations, 3 resources and 30 seeded records, read off the spec.</li>
+            <li><strong>Lint.</strong> 22 warnings: responses without examples, parameters without descriptions, writes with no security.</li>
+            <li><strong>Needs review.</strong> One operation where the spec left a gap and the mock had to guess, with the reason.</li>
+            <li><strong>The same UI at <code>/__mock/ui</code></strong> while <code>rapidoc mock --stateful</code> runs, with the records it holds now.</li>
+          </ul>
+          <div class="rd-showcase-actions">
+            <a href={SPEC_CHECK_EXAMPLE} class="rd-btn rd-btn-primary">
+              <Icon name="list-checks" size={18} />
+              <span>Try It on a Spec</span>
+            </a>
+            <a href={`${MOCK_DOCS}/docs/mock-ui/tour/`} class="rd-btn rd-btn-secondary">
+              <Icon name="layout" size={18} />
+              <span>Tour the Mock UI</span>
+            </a>
+          </div>
+          <p class="rd-showcase-caveat">The spec check runs in your browser: your own spec is not sent anywhere. Paste it, drop the file, or give its address.</p>
+        </div>
       </div>
     </section>
 
@@ -147,6 +252,27 @@ const comparison = [
           ))
         }
       </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Testing</div>
+        <h2 class="rd-section-title">Parallel Tests, Separate Data</h2>
+        <p class="rd-section-desc">
+          Send an <code>X-Mock-Session</code> header and a test gets its own copy of the seed data, made when it first
+          writes. Reset, read and load the data over HTTP, from tests in any language.{' '}
+          <a href={`${MOCK_DOCS}/docs/state/sessions/`}>Sessions →</a>
+        </p>
+      </div>
+      <figure class="rd-illustration">
+        <img
+          src="/assets/images/rapi-mock/mock-sessions.svg"
+          alt="test-1 adds Biscuit and test-2 deletes Rex, each in its own copy of the data, while the default data stays untouched"
+          width="760"
+          height="470"
+          loading="lazy"
+        />
+      </figure>
     </section>
 
     <section class="rd-section">
@@ -237,8 +363,19 @@ const comparison = [
   .rd-mock-compare tr:last-child td {
     border-bottom: 0;
   }
+  /* Text beside an illustration, centered on it */
+  .rd-split--visual {
+    align-items: center;
+  }
+  .rd-illustration--inline {
+    margin: 0;
+  }
+  .rd-split-text a {
+    color: var(--rd-accent);
+  }
   .rd-mock-compare a,
-  .rd-mock-note a {
+  .rd-mock-note a,
+  .rd-section-desc a {
     color: var(--rd-accent);
   }
   .rd-mock-compare code,

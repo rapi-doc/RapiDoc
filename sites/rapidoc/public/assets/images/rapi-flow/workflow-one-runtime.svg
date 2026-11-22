@@ -39,9 +39,9 @@ text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, s
 .k8{animation:k8 10s linear infinite}
 @keyframes k9{0%{opacity:0}11%{opacity:0}15%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
 .k9{animation:k9 10s linear infinite}
-@keyframes k10{0%{stroke-dashoffset:16}11%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}15%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k10{0%{stroke-dashoffset:22}11%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}15%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k10{animation:k10 10s linear infinite}
-@keyframes k11{0%{stroke-dashoffset:16}11%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}15%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k11{0%{stroke-dashoffset:22}11%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}15%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k11{animation:k11 10s linear infinite}
 @keyframes k12{0%{opacity:0}13.8%{opacity:0}15%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
 .k12{animation:k12 10s linear infinite}
@@ -51,9 +51,9 @@ text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, s
 .k14{animation:k14 10s linear infinite}
 @keyframes k15{0%{opacity:0}16%{opacity:0}22%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
 .k15{animation:k15 10s linear infinite}
-@keyframes k16{0%{stroke-dashoffset:16}16%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}22%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k16{0%{stroke-dashoffset:22}16%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}22%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k16{animation:k16 10s linear infinite}
-@keyframes k17{0%{stroke-dashoffset:16}16%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}22%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k17{0%{stroke-dashoffset:22}16%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}22%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k17{animation:k17 10s linear infinite}
 @keyframes k18{0%{opacity:0}20.8%{opacity:0}22%{opacity:1}30%{opacity:1}31.2%{opacity:0}100%{opacity:0}}
 .k18{animation:k18 10s linear infinite}
@@ -63,9 +63,9 @@ text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, s
 .k20{animation:k20 10s linear infinite}
 @keyframes k21{0%{opacity:0}36%{opacity:0}42%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
 .k21{animation:k21 10s linear infinite}
-@keyframes k22{0%{stroke-dashoffset:16}36%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k22{0%{stroke-dashoffset:22}36%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k22{animation:k22 10s linear infinite}
-@keyframes k23{0%{stroke-dashoffset:16}36%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k23{0%{stroke-dashoffset:22}36%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k23{animation:k23 10s linear infinite}
 @keyframes k24{0%{opacity:0}40.8%{opacity:0}42%{opacity:1}50%{opacity:1}51.2%{opacity:0}100%{opacity:0}}
 .k24{animation:k24 10s linear infinite}
@@ -75,9 +75,9 @@ text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, s
 .k26{animation:k26 10s linear infinite}
 @keyframes k27{0%{opacity:0}56%{opacity:0}62%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
 .k27{animation:k27 10s linear infinite}
-@keyframes k28{0%{stroke-dashoffset:16}56%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}62%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k28{0%{stroke-dashoffset:22}56%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}62%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k28{animation:k28 10s linear infinite}
-@keyframes k29{0%{stroke-dashoffset:16}56%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}62%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+@keyframes k29{0%{stroke-dashoffset:22}56%{stroke-dashoffset:22;animation-timing-function:cubic-bezier(.45,0,.3,1)}62%{stroke-dashoffset:-106}100%{stroke-dashoffset:-106}}
 .k29{animation:k29 10s linear infinite}
 @keyframes k30{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}70%{opacity:1}71.2%{opacity:0}100%{opacity:0}}
 .k30{animation:k30 10s linear infinite}
