@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 533" width="440" height="533" role="img" aria-labelledby="t d">
+<title id="t">Your bill: $0.00</title>
+<desc id="d">A till receipt from RapiDoc, the open source toolkit: API reference, Mock server, PDF export, Workflows (Arazzo), Single sign-on, MCP server, Self-hosting, no limits, each $0.00. Total $0.00. MIT license, no subscription, no account, no usage limits. Stamped "Free · All of It".</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+
+
+<defs>
+<filter id="receiptShadow" x="-30%" y="-20%" width="160%" height="150%"><feGaussianBlur stdDeviation="14"/></filter>
+<linearGradient id="paperFade" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#eeede8"/><stop offset=".62" stop-color="#d9dbe0"/><stop offset="1" stop-color="#7d8597"/>
+</linearGradient>
+<linearGradient id="inkFade" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#fff"/><stop offset=".7" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity=".25"/>
+</linearGradient>
+<mask id="receiptFade" maskUnits="userSpaceOnUse"><rect x="50" y="40" width="340" height="433" fill="url(#inkFade)"/></mask>
+</defs>
+<g transform="rotate(-3 220 310)">
+<path d="M70 40H370V463L370 470L360 463L350 470L340 463L330 470L320 463L310 470L300 463L290 470L280 463L270 470L260 463L250 470L240 463L230 470L220 463L210 470L200 463L190 470L180 463L170 470L160 463L150 470L140 463L130 470L120 463L110 470L100 463L90 470L80 463L70 470Z" transform="translate(10 18)" fill="#000" opacity=".55" filter="url(#receiptShadow)"/>
+<g mask="url(#receiptFade)">
+<path d="M70 40H370V463L370 470L360 463L350 470L340 463L330 470L320 463L310 470L300 463L290 470L280 463L270 470L260 463L250 470L240 463L230 470L220 463L210 470L200 463L190 470L180 463L170 470L160 463L150 470L140 463L130 470L120 463L110 470L100 463L90 470L80 463L70 470Z" fill="url(#paperFade)"/>
+<text x="220" y="84" font-size="17" font-weight="700" fill="#1f2937" text-anchor="middle" letter-spacing="0.2em" class="mono">RAPIDOC</text>
+<text x="220" y="102" font-size="9.5" font-weight="400" fill="#6b7280" text-anchor="middle" letter-spacing="0.12em" class="mono">THE OPEN SOURCE TOOLKIT</text>
+<text x="220" y="116" font-size="9.5" font-weight="400" fill="#6b7280" text-anchor="middle" class="mono">rapidocui.com</text>
+<line x1="92" y1="134" x2="348" y2="134" stroke="#6b7280" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="92" y="158" font-size="12" font-weight="400" fill="#1f2937" text-anchor="start" class="mono">API reference</text>
+<text x="348" y="158" font-size="12" font-weight="400" fill="#1f2937" text-anchor="end" class="mono">$0.00</text>
+<text x="92" y="180" font-size="12" font-weight="400" fill="#1f2937" text-anchor="start" class="mono">Mock server</text>
+<text x="348" y="180" font-size="12" font-weight="400" fill="#1f2937" text-anchor="end" class="mono">$0.00</text>
+<text x="92" y="202" font-size="12" font-weight="400" fill="#1f2937" text-anchor="start" class="mono">PDF export</text>
+<text x="348" y="202" font-size="12" font-weight="400" fill="#1f2937" text-anchor="end" class="mono">$0.00</text>
+<text x="92" y="224" font-size="12" font-weight="400" fill="#1f2937" text-anchor="start" class="mono">Workflows (Arazzo)</text>
+<text x="348" y="224" font-size="12" font-weight="400" fill="#1f2937" text-anchor="end" class="mono">$0.00</text>
+<text x="92" y="246" font-size="12" font-weight="400" fill="#1f2937" text-anchor="start" class="mono">Single sign-on</text>
+<text x="348" y="246" font-size="12" font-weight="400" fill="#1f2937" text-anchor="end" class="mono">$0.00</text>
+<text x="92" y="268" font-size="12" font-weight="400" fill="#1f2937" text-anchor="start" class="mono">MCP server</text>
+<text x="348" y="268" font-size="12" font-weight="400" fill="#1f2937" text-anchor="end" class="mono">$0.00</text>
+<text x="92" y="290" font-size="12" font-weight="400" fill="#1f2937" text-anchor="start" class="mono">Self-hosting, no limits</text>
+<text x="348" y="290" font-size="12" font-weight="400" fill="#1f2937" text-anchor="end" class="mono">$0.00</text>
+<line x1="92" y1="306" x2="348" y2="306" stroke="#6b7280" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="92" y="336" font-size="16" font-weight="700" fill="#1f2937" text-anchor="start" class="mono">TOTAL</text>
+<text x="348" y="336" font-size="16" font-weight="700" fill="#1f2937" text-anchor="end" class="mono">$0.00</text>
+<line x1="92" y1="350" x2="348" y2="350" stroke="#6b7280" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="220" y="372" font-size="9.5" font-weight="400" fill="#6b7280" text-anchor="middle" letter-spacing="0.06em" class="mono">MIT LICENSE · NO SUBSCRIPTION</text>
+<text x="220" y="387" font-size="9.5" font-weight="400" fill="#6b7280" text-anchor="middle" letter-spacing="0.06em" class="mono">NO ACCOUNT · NO USAGE LIMITS</text>
+<rect x="92" y="407" width="3" height="30" fill="#1f2937"/><rect x="98" y="407" width="1" height="30" fill="#1f2937"/><rect x="102" y="407" width="2" height="30" fill="#1f2937"/><rect x="106" y="407" width="3" height="30" fill="#1f2937"/><rect x="111" y="407" width="1" height="30" fill="#1f2937"/><rect x="113" y="407" width="2" height="30" fill="#1f2937"/><rect x="116" y="407" width="3" height="30" fill="#1f2937"/><rect x="121" y="407" width="1" height="30" fill="#1f2937"/><rect x="124" y="407" width="2" height="30" fill="#1f2937"/><rect x="127" y="407" width="3" height="30" fill="#1f2937"/><rect x="131" y="407" width="1" height="30" fill="#1f2937"/><rect x="135" y="407" width="2" height="30" fill="#1f2937"/><rect x="140" y="407" width="3" height="30" fill="#1f2937"/><rect x="145" y="407" width="1" height="30" fill="#1f2937"/><rect x="148" y="407" width="2" height="30" fill="#1f2937"/><rect x="153" y="407" width="3" height="30" fill="#1f2937"/><rect x="159" y="407" width="1" height="30" fill="#1f2937"/><rect x="162" y="407" width="2" height="30" fill="#1f2937"/><rect x="166" y="407" width="3" height="30" fill="#1f2937"/><rect x="170" y="407" width="1" height="30" fill="#1f2937"/><rect x="172" y="407" width="2" height="30" fill="#1f2937"/><rect x="177" y="407" width="3" height="30" fill="#1f2937"/><rect x="183" y="407" width="1" height="30" fill="#1f2937"/><rect x="185" y="407" width="2" height="30" fill="#1f2937"/><rect x="188" y="407" width="3" height="30" fill="#1f2937"/><rect x="194" y="407" width="1" height="30" fill="#1f2937"/><rect x="198" y="407" width="2" height="30" fill="#1f2937"/><rect x="202" y="407" width="3" height="30" fill="#1f2937"/><rect x="207" y="407" width="1" height="30" fill="#1f2937"/><rect x="209" y="407" width="2" height="30" fill="#1f2937"/><rect x="212" y="407" width="3" height="30" fill="#1f2937"/>
+</g>
+<g transform="translate(276 421) rotate(-10)" opacity=".9">
+<rect x="-72" y="-21" width="144" height="42" rx="6" fill="none" stroke="#f6a821" stroke-width="2.4"/>
+<rect x="-66" y="-15" width="132" height="30" rx="3" fill="none" stroke="#f6a821" stroke-width="1"/>
+<text x="0" y="4.5" font-size="11.5" font-weight="800" fill="#f6a821" text-anchor="middle" letter-spacing=".06em" class="mono">FREE · ALL OF IT</text>
+</g>
+</g>
+</svg>

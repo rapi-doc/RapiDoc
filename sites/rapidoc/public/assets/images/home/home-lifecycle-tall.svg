@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 764" width="360" height="764" role="img" aria-labelledby="t d">
+<title id="t">One spec, the whole lifecycle</title>
+<desc id="d">One OpenAPI spec, with an Arazzo file beside it, through six stages: Check with the RapiDoc CLI (validate, lint, bundle); Mock with RapiMock (state, scopes, checks); Document with RapiDoc, RapiDoc Mini and RapiPdf (reference, embed, PDF); Explain with RapiFlow (Arazzo, runnable); Publish with RapiDoc Portal (SSO, search, static); Automate with the MCP Server (tools for AI agents).</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+
+
+
+<path d="M4 20a6 6 0 0 1 6 -6H90L108 32V136a6 6 0 0 1 -6 6H10a6 6 0 0 1 -6 -6Z" fill="#0a0f1c" stroke="rgba(226,232,240,0.55)" stroke-width="1.4"/>
+<path d="M90 14V32H108" fill="none" stroke="rgba(226,232,240,0.55)" stroke-width="1.4"/>
+<text x="16" y="40" font-size="10.5" fill="#f6a821" class="mono">openapi.yaml</text>
+<rect x="16" y="54" width="44" height="5" rx="2.5" fill="rgba(148,163,184,0.22)"/><rect x="24" y="66" width="60" height="5" rx="2.5" fill="rgba(148,163,184,0.22)"/><rect x="24" y="78" width="48" height="5" rx="2.5" fill="rgba(148,163,184,0.22)"/><rect x="16" y="90" width="36" height="5" rx="2.5" fill="rgba(148,163,184,0.22)"/><rect x="24" y="102" width="56" height="5" rx="2.5" fill="rgba(148,163,184,0.22)"/>
+<text x="16" y="129" font-size="9.5" fill="#94a3b8" class="mono">+ arazzo.yaml</text>
+<path d="M54 146L54 156" stroke="rgba(226,232,240,0.55)" stroke-opacity=".7" stroke-width="1.2" marker-end="url(#ah)"/>
+
+<rect x="24" y="160" width="60" height="60" rx="12" fill="#101a2e" stroke="#f6a821" stroke-opacity=".55" stroke-width="1.4"/>
+<svg x="39" y="175" width="30" height="30" viewBox="0 0 256 256" fill="#f6a821"><path d="M216,80V192H40V64H200A16,16,0,0,1,216,80Z" opacity="0.2"/><path d="M117.31,134l-72,64a8,8,0,1,1-10.63-12L100,128,34.69,70A8,8,0,1,1,45.32,58l72,64a8,8,0,0,1,0,12ZM216,184H120a8,8,0,0,0,0,16h96a8,8,0,0,0,0-16Z"/></svg>
+<path d="M54 224L54 260" stroke="rgba(226,232,240,0.55)" stroke-opacity=".7" stroke-width="1.2" marker-end="url(#ah)"/>
+<circle cx="88" cy="190" r="2.6" fill="#fcd9a0"/><path d="M88 190H106" stroke="#fcd9a0" stroke-opacity=".7"/>
+<text x="114" y="174" font-size="10" fill="#94a3b8" letter-spacing=".12em" class="mono">01 CHECK</text>
+<text x="114" y="195" font-size="15" font-weight="600" fill="#e2e8f0">RapiDoc CLI</text>
+<text x="114" y="214" font-size="11.5" fill="#fcd9a0" class="mono">validate · lint · bundle</text>
+<rect x="24" y="264" width="60" height="60" rx="12" fill="#101a2e" stroke="#f6a821" stroke-opacity=".55" stroke-width="1.4"/>
+<svg x="39" y="279" width="30" height="30" viewBox="0 0 256 256" fill="#f6a821"><path d="M216,152v48a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V152a8,8,0,0,1,8-8H208A8,8,0,0,1,216,152ZM208,48H48a8,8,0,0,0-8,8v48a8,8,0,0,0,8,8H208a8,8,0,0,0,8-8V56A8,8,0,0,0,208,48Z" opacity="0.2"/><path d="M208,136H48a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm0,64H48V152H208v48Zm0-160H48A16,16,0,0,0,32,56v48a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40Zm0,64H48V56H208v48ZM192,80a12,12,0,1,1-12-12A12,12,0,0,1,192,80Zm0,96a12,12,0,1,1-12-12A12,12,0,0,1,192,176Z"/></svg>
+<path d="M54 328L54 364" stroke="rgba(226,232,240,0.55)" stroke-opacity=".7" stroke-width="1.2" marker-end="url(#ah)"/>
+<circle cx="88" cy="294" r="2.6" fill="#fcd9a0"/><path d="M88 294H106" stroke="#fcd9a0" stroke-opacity=".7"/>
+<text x="114" y="278" font-size="10" fill="#94a3b8" letter-spacing=".12em" class="mono">02 MOCK</text>
+<text x="114" y="299" font-size="15" font-weight="600" fill="#e2e8f0">RapiMock</text>
+<text x="114" y="318" font-size="11.5" fill="#fcd9a0" class="mono">state · scopes · checks</text>
+<rect x="24" y="368" width="60" height="60" rx="12" fill="#101a2e" stroke="#f6a821" stroke-opacity=".55" stroke-width="1.4"/>
+<svg x="39" y="383" width="30" height="30" viewBox="0 0 256 256" fill="#f6a821"><path d="M208,88H152V32Z" opacity="0.2"/><path d="M181.66,146.34a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32-11.32L164.69,152l-18.35-18.34a8,8,0,0,1,11.32-11.32Zm-72-24a8,8,0,0,0-11.32,0l-24,24a8,8,0,0,0,0,11.32l24,24a8,8,0,0,0,11.32-11.32L91.31,152l18.35-18.34A8,8,0,0,0,109.66,122.34ZM216,88V216a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V40A16,16,0,0,1,56,24h96a8,8,0,0,1,5.66,2.34l56,56A8,8,0,0,1,216,88Zm-56-8h28.69L160,51.31Zm40,136V96H152a8,8,0,0,1-8-8V40H56V216H200Z"/></svg>
+<path d="M54 432L54 468" stroke="rgba(226,232,240,0.55)" stroke-opacity=".7" stroke-width="1.2" marker-end="url(#ah)"/>
+<circle cx="88" cy="398" r="2.6" fill="#fcd9a0"/><path d="M88 398H106" stroke="#fcd9a0" stroke-opacity=".7"/>
+<text x="114" y="382" font-size="10" fill="#94a3b8" letter-spacing=".12em" class="mono">03 DOCUMENT</text>
+<text x="114" y="403" font-size="15" font-weight="600" fill="#e2e8f0">RapiDoc · Mini · RapiPdf</text>
+<text x="114" y="422" font-size="11.5" fill="#fcd9a0" class="mono">reference · embed · PDF</text>
+<rect x="24" y="472" width="60" height="60" rx="12" fill="#101a2e" stroke="#f6a821" stroke-opacity=".55" stroke-width="1.4"/>
+<svg x="39" y="487" width="30" height="30" viewBox="0 0 256 256" fill="#f6a821"><path d="M224,200a24,24,0,1,1-24-24A24,24,0,0,1,224,200Z" opacity="0.2"/><path d="M200,168a32.06,32.06,0,0,0-31,24H72a32,32,0,0,1,0-64h96a40,40,0,0,0,0-80H72a8,8,0,0,0,0,16h96a24,24,0,0,1,0,48H72a48,48,0,0,0,0,96h97a32,32,0,1,0,31-40Zm0,48a16,16,0,1,1,16-16A16,16,0,0,1,200,216Z"/></svg>
+<path d="M54 536L54 572" stroke="rgba(226,232,240,0.55)" stroke-opacity=".7" stroke-width="1.2" marker-end="url(#ah)"/>
+<circle cx="88" cy="502" r="2.6" fill="#fcd9a0"/><path d="M88 502H106" stroke="#fcd9a0" stroke-opacity=".7"/>
+<text x="114" y="486" font-size="10" fill="#94a3b8" letter-spacing=".12em" class="mono">04 EXPLAIN</text>
+<text x="114" y="507" font-size="15" font-weight="600" fill="#e2e8f0">RapiFlow</text>
+<text x="114" y="526" font-size="11.5" fill="#fcd9a0" class="mono">Arazzo, runnable</text>
+<rect x="24" y="576" width="60" height="60" rx="12" fill="#101a2e" stroke="#f6a821" stroke-opacity=".55" stroke-width="1.4"/>
+<svg x="39" y="591" width="30" height="30" viewBox="0 0 256 256" fill="#f6a821"><path d="M104,104V208H40a8,8,0,0,1-8-8V104Z" opacity="0.2"/><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V96H40V56ZM40,112H96v88H40Zm176,88H112V112H216v88Z"/></svg>
+<path d="M54 640L54 676" stroke="rgba(226,232,240,0.55)" stroke-opacity=".7" stroke-width="1.2" marker-end="url(#ah)"/>
+<circle cx="88" cy="606" r="2.6" fill="#fcd9a0"/><path d="M88 606H106" stroke="#fcd9a0" stroke-opacity=".7"/>
+<text x="114" y="590" font-size="10" fill="#94a3b8" letter-spacing=".12em" class="mono">05 PUBLISH</text>
+<text x="114" y="611" font-size="15" font-weight="600" fill="#e2e8f0">RapiDoc Portal</text>
+<text x="114" y="630" font-size="11.5" fill="#fcd9a0" class="mono">SSO · search · static</text>
+<rect x="24" y="680" width="60" height="60" rx="12" fill="#101a2e" stroke="#f6a821" stroke-opacity=".55" stroke-width="1.4"/>
+<svg x="39" y="695" width="30" height="30" viewBox="0 0 256 256" fill="#f6a821"><path d="M200,56H56A24,24,0,0,0,32,80V192a24,24,0,0,0,24,24H200a24,24,0,0,0,24-24V80A24,24,0,0,0,200,56ZM164,184H92a20,20,0,0,1,0-40h72a20,20,0,0,1,0,40Z" opacity="0.2"/><path d="M200,48H136V16a8,8,0,0,0-16,0V48H56A32,32,0,0,0,24,80V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32V80A32,32,0,0,0,200,48Zm16,144a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V80A16,16,0,0,1,56,64H200a16,16,0,0,1,16,16ZM72,108a12,12,0,1,1,12,12A12,12,0,0,1,72,108Zm88,0a12,12,0,1,1,12,12A12,12,0,0,1,160,108Zm4,28H92a28,28,0,0,0,0,56h72a28,28,0,0,0,0-56Zm-24,16v24H116V152ZM80,164a12,12,0,0,1,12-12h8v24H92A12,12,0,0,1,80,164Zm84,12h-8V152h8a12,12,0,0,1,0,24Z"/></svg>
+
+<circle cx="88" cy="710" r="2.6" fill="#fcd9a0"/><path d="M88 710H106" stroke="#fcd9a0" stroke-opacity=".7"/>
+<text x="114" y="694" font-size="10" fill="#94a3b8" letter-spacing=".12em" class="mono">06 AUTOMATE</text>
+<text x="114" y="715" font-size="15" font-weight="600" fill="#e2e8f0">MCP Server</text>
+<text x="114" y="734" font-size="11.5" fill="#fcd9a0" class="mono">tools for AI agents</text>
+</svg>

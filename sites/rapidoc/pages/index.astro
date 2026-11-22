@@ -1,58 +1,127 @@
 ---
-// The home page: the RapiDoc family. Each product has its own feature page (RapiDoc's is /rapidoc/); this page
-// says what each one is for and leads there. The products and tools come from page-data/products.ts.
+// The home page: the RapiDoc family, free and complete. Each product has its own feature page (RapiDoc's is
+// /rapidoc/); this page says what each one is for and leads there. Its content and images follow
+// home-page-content-plan.md; the images are drawn by scripts/home-*.mjs.
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import ProductFamily from '../components/ProductFamily.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import Icon from '../components/Icon.astro';
 import { RAPIDOC_SNIPPET } from '../page-data/snippets';
 
-// "Which one do I need?": a job, and the product that does it
-const jobs = [
+// The family (§4 of home-page-content-plan.md): each product's heading and one line, with a thumbnail cut
+// close from its own page's image (scripts/home-thumbs.mjs)
+const family = [
   {
-    icon: 'book-open',
-    job: 'An API reference on your site',
-    product: 'RapiDoc',
+    name: 'RapiDoc',
+    tag: '<rapi-doc>',
     href: '/rapidoc/',
-    text: 'One HTML element: navigation, search, schemas and a Try console, in any page or framework.',
+    thumb: 'rapidoc',
+    heading: 'An API reference in one HTML element.',
+    line: 'One script tag, no dependencies, any framework, with a Try console and your theme.',
   },
   {
-    icon: 'puzzle-piece',
-    job: 'An endpoint inside a blog post or guide',
-    product: 'RapiDoc Mini',
+    name: 'RapiDoc Mini',
+    tag: '<rapi-doc-mini>',
     href: '/rapidoc-mini/',
-    text: 'Only the operations you pick, with Try, in the middle of your own text.',
+    thumb: 'rapidoc-mini',
+    heading: 'The one endpoint your page talks about.',
+    line: 'Embed the operations a post or guide talks about, without an iframe.',
   },
   {
-    icon: 'path',
-    job: 'A multi-step workflow readers can run',
-    product: 'RapiFlow',
+    name: 'RapiFlow',
+    tag: '<rapi-flow>',
     href: '/rapi-flow/',
-    text: 'Arazzo workflows drawn next to the reference, and run in the browser against the API or a mock.',
+    thumb: 'rapi-flow',
+    heading: 'Show the order of calls, not just the endpoints.',
+    line: 'Draws the workflows of an Arazzo spec and runs them in the browser, step by step.',
   },
   {
-    icon: 'file-pdf',
-    job: 'The reference as a PDF',
-    product: 'RapiPdf',
+    name: 'RapiPdf',
+    tag: '<rapi-pdf>',
     href: '/rapipdf/',
-    text: 'The same document from the browser, from Node or from CI.',
+    thumb: 'rapipdf',
+    fade: false, // already dark at its edges
+    heading: 'Your reference as a PDF.',
+    line: 'The same PDF from the browser, Node or CI, with your title and colors.',
   },
   {
-    icon: 'hard-drives',
-    job: 'A mock API your frontend and tests can call',
-    product: 'RapiMock',
+    name: 'RapiMock',
+    tag: 'rapidoc mock',
     href: '/rapi-mock/',
-    text: 'Request validation, token checks and state, worked out from the spec. No code to write.',
+    thumb: 'rapi-mock',
+    fade: false, // already dark at its edges
+    heading: 'A mock that behaves like your API.',
+    line: 'Validates requests, checks tokens and scopes, and remembers what you create.',
   },
   {
-    icon: 'layout',
-    job: 'A whole developer portal',
-    product: 'RapiDoc Portal',
+    name: 'RapiDoc Portal',
+    tag: 'npm create rapidoc',
     href: '/portal/',
-    text: 'API references next to Markdown guides, with search and optional single sign-on.',
+    thumb: 'rapi-portal',
+    fade: false, // already dark at its edges
+    heading: 'A developer portal from files in a repository.',
+    line: 'References and guides as one static site, with search and single sign-on.',
   },
+];
+
+// The tools beside the family
+// Why RapiDoc (§2 of the plan): four pillars under the hero
+const pillars = [
+  {
+    icon: 'seal-check',
+    title: 'Free, all of it',
+    text: 'MIT license on every package. SSO, mock servers, PDFs, workflows, MCP: nothing is held back for a paid plan.',
+  },
+  {
+    icon: 'lock-open',
+    title: 'No lock-in',
+    text: 'Your OpenAPI and Arazzo files are the source. The output is static files and web components you host anywhere, and leave whenever you like.',
+  },
+  {
+    icon: 'shield-check',
+    title: 'Yours to run',
+    text: 'No SaaS, no account, no usage limits. It runs on your laptop, in your CI and on your servers; your specs never go to us.',
+  },
+  {
+    icon: 'stack',
+    title: 'The complete set',
+    text: 'Reference, embeds, PDF, mock, workflows, portal, CLI and AI tools, built to work together from one spec.',
+  },
+];
+
+// Modern stack, open standards (§6 of the plan): three rows of chips
+const stack = [
+  {
+    label: 'Standards it speaks',
+    chips: ['OpenAPI 3.2', 'OpenAPI 3.1', 'OpenAPI 3.0', 'Swagger 2.0', 'Arazzo 1.x', 'JSON Schema 2020-12', 'OAuth 2 with PKCE', 'OpenID Connect', 'Model Context Protocol'],
+  },
+  {
+    label: 'Built on',
+    chips: ['Web Components (Lit)', 'Zero-dependency bundles', 'ES modules', 'Static output (Astro)', 'Node 22+'],
+  },
+  {
+    label: 'Works with',
+    chips: ['React', 'Vue', 'Angular', 'Svelte', 'Hono', 'Express', 'Fastify', 'Starlight', 'VitePress', 'Docusaurus', 'Python (FastAPI, Starlette)', '.NET (ASP.NET Core)', 'Go'],
+    href: '/integrations/',
+  },
+];
+
+// What is usually a paid extra (§5 of the plan): the same items as the receipt beside it
+const extras = [
+  'Single sign-on and access rules per page and API',
+  'A mock server with request validation and state',
+  'PDF export',
+  'Runnable API workflows (Arazzo)',
+  'An MCP server for AI agents',
+  'Self-hosting, with no usage limits',
+  'Custom themes and your own domain',
+];
+
+const tools = [
+  { icon: 'terminal', name: 'RapiDoc CLI', href: '/cli/', text: 'Validate, lint, bundle, mock, PDF and MCP from one command.' },
+  { icon: 'robot', name: 'MCP Server', href: '/docs/mcp/', text: 'Your API, and its workflows, as tools for AI agents.' },
+  { icon: 'lightning', name: 'Pre-rendering', href: '/docs/prerender/', text: 'Server-rendered HTML for search engines and a fast first paint.' },
 ];
 
 const startCode = RAPIDOC_SNIPPET;
@@ -62,6 +131,8 @@ const startCode = RAPIDOC_SNIPPET;
   title="RapiDoc: API Documentation Tools for OpenAPI"
   description="The RapiDoc family turns an OpenAPI spec into an interactive API reference, embedded endpoints, a PDF, a mock server and a developer portal, and draws and runs the workflows of an Arazzo spec."
   keywords="RapiDoc, OpenAPI, Swagger, API documentation, API reference, web component, mock server, developer portal, Arazzo, OpenAPI PDF"
+  image="/assets/images/home/rapidoc-social.png"
+  imageLarge
 >
   <div class="ambient-glow glow-emerald"></div>
   <div class="ambient-glow glow-indigo"></div>
@@ -69,58 +140,125 @@ const startCode = RAPIDOC_SNIPPET;
   <PortalHeader />
 
   <main class="rd-product-main">
-    <header class="rd-hero-header">
+    <header class="rd-hero-header rd-hero-split">
+      <div class="rd-hero-grid">
+      <div class="rd-hero-copy">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
-        <span class="rd-badge-text">OpenAPI 3.2, 3.1, 3.0 • Swagger 2.0 • Arazzo</span>
+        <span class="rd-badge-text">MIT licensed • Every feature free • Self-hosted</span>
       </div>
 
       <h1 class="rd-page-title">
-        Your Specs, <span class="text-gradient">Everywhere They're Read</span>
+        The Complete OpenAPI Toolkit. <span class="text-gradient">Free. All of It.</span>
       </h1>
 
       <p class="rd-page-subtitle">
-        RapiDoc turns your OpenAPI spec into an interactive API reference, embedded endpoints, a PDF, a mock
-        server and a whole developer portal, and draws and runs the workflows of an Arazzo spec. Open source, MIT
-        licensed.
+        RapiDoc turns your OpenAPI spec into an API reference, embedded endpoints, a PDF, a mock server, runnable
+        workflows and a whole developer portal with single sign-on. Every product, every feature, MIT licensed. No
+        account, no "Enterprise" tier, nothing to unlock.
       </p>
 
       <div class="rd-hero-actions">
-        <a href="/rapidoc/" class="rd-btn rd-btn-primary">
-          <Icon name="file-code" size={18} />
-          <span>Start with RapiDoc</span>
+        <a href="#family" class="rd-btn rd-btn-primary">
+          <Icon name="squares-four" size={18} />
+          <span>Explore the Family</span>
         </a>
-        <a href="/docs/" class="rd-btn rd-btn-secondary">
-          <Icon name="book-open" size={18} />
-          <span>Documentation</span>
+        <a href="/docs/rapidoc/get-started/quickstart/" class="rd-btn rd-btn-secondary">
+          <Icon name="rocket-launch" size={18} />
+          <span>Quickstart</span>
         </a>
         <a href="https://github.com/rapi-doc/RapiDoc" class="rd-btn rd-btn-secondary" target="_blank" rel="noopener">
           <span>GitHub</span>
           <Icon name="arrow-up-right" size={16} />
         </a>
       </div>
+      </div>
+
+      <figure class="rd-hero-visual">
+        <img
+          src="/assets/images/home/home-family.svg"
+          alt="One OpenAPI spec, with an Arazzo spec behind it, in the middle; around it RapiDoc, RapiDoc Portal, RapiMock, RapiPdf, RapiFlow and RapiDoc Mini light up in turn, then all six under the words MIT, $0, every feature"
+          width="712"
+          height="528"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+      </div>
     </header>
+
+    <section class="rd-section rd-pillars" aria-label="Why RapiDoc">
+      <div class="rd-feature-grid">
+        {
+          pillars.map((p) => (
+            <div class="rd-feature-card">
+              <span class="rd-feature-icon"><Icon name={p.icon} size={24} /></span>
+              <h3 class="rd-feature-title">{p.title}</h3>
+              <p class="rd-feature-text">{p.text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
 
     <section class="rd-section">
       <div class="rd-section-header rd-section-header--center">
-        <div class="rd-section-badge">Which One?</div>
-        <h2 class="rd-section-title">Start From What You Need</h2>
+        <div class="rd-section-badge">The Lifecycle</div>
+        <h2 class="rd-section-title">One Spec, the Whole Lifecycle</h2>
         <p class="rd-section-desc">
-          Most sites need only RapiDoc. The others do one job each, from the same OpenAPI spec; RapiFlow adds an Arazzo spec for the workflows.
+          From the first check of a spec to the tools an AI agent calls, every stage has a RapiDoc product, and every
+          one reads the same file.
         </p>
       </div>
-      <div class="rd-feature-grid">
+      <figure class="rd-lifecycle">
+        <picture>
+          <source media="(max-width: 720px)" srcset="/assets/images/home/home-lifecycle-tall.svg" width="360" height="764" />
+          <img
+            src="/assets/images/home/home-lifecycle.svg"
+            alt="One OpenAPI spec, with an Arazzo file beside it, through six stages: Check with the RapiDoc CLI (validate, lint, bundle); Mock with RapiMock (state, scopes, checks); Document with RapiDoc, RapiDoc Mini and RapiPdf (reference, embed, PDF); Explain with RapiFlow (Arazzo, runnable); Publish with RapiDoc Portal (SSO, search, static); Automate with the MCP Server (tools for AI agents)"
+            width="1200"
+            height="260"
+            loading="lazy"
+          />
+        </picture>
+      </figure>
+    </section>
+
+    <section class="rd-section" id="family">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">The Family</div>
+        <h2 class="rd-section-title">Six Products, One Spec</h2>
+        <p class="rd-section-desc">
+          Each does one job well, from the same OpenAPI spec, and they work together. Every one of them is free, with
+          every feature.
+        </p>
+      </div>
+      <div class="rd-family-grid">
         {
-          jobs.map((item) => (
-            <a href={item.href} class="rd-feature-card">
-              <span class="rd-feature-icon">
-                <Icon name={item.icon} size={24} weight="duotone" />
-              </span>
-              <h3 class="rd-feature-title">{item.job}</h3>
-              <p class="rd-feature-text">{item.text}</p>
-              <span class="rd-feature-more">
-                {item.product}
-                <Icon name="arrow-right" size={14} />
+          family.map((p) => (
+            <a href={p.href} class="rd-family-card">
+              <img class:list={[{ "rd-family-nofade": p.fade === false }]} src={`/assets/images/home/thumbs/${p.thumb}.webp`} alt="" width="640" height="320" loading="lazy" />
+              <div class="rd-family-body">
+                <div class="rd-family-name">
+                  <span>{p.name}</span>
+                  <code>{p.tag}</code>
+                  <Icon name="arrow-right" size={15} />
+                </div>
+                <h3 class="rd-family-heading">{p.heading}</h3>
+                <p>{p.line}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+      <div class="rd-family-tools">
+        {
+          tools.map((tool) => (
+            <a href={tool.href} class="rd-family-tool">
+              <Icon name={tool.icon} size={20} weight="duotone" />
+              <span>
+                <strong>{tool.name}</strong>
+                {tool.text}
               </span>
             </a>
           ))
@@ -128,7 +266,59 @@ const startCode = RAPIDOC_SNIPPET;
       </div>
     </section>
 
-    <ProductFamily />
+    <section class="rd-section">
+      <div class="rd-split rd-split--visual rd-extras">
+        <div class="rd-split-text">
+          <div class="rd-section-badge">Included</div>
+          <h2 class="rd-section-title">Usually a Paid Extra. Here, Included.</h2>
+          <p>Elsewhere, these are often a paid plan. In RapiDoc, they come with every package, under the MIT license.</p>
+          <ul class="rd-extras-list">
+            {extras.map((e) => (
+              <li>
+                <Icon name="check-circle" size={20} weight="duotone" />
+                <span>{e}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <figure class="rd-illustration--inline rd-extras-receipt">
+          <img
+            src="/assets/images/home/home-receipt.svg"
+            alt="A till receipt from RapiDoc: API reference, mock server, PDF export, workflows, single sign-on, MCP server and self-hosting with no limits, each $0.00. Total $0.00, stamped Free, All of It."
+            width="440"
+            height="533"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Modern Stack, Open Standards</div>
+        <h2 class="rd-section-title">Standards In, Standards Out</h2>
+        <p class="rd-section-desc">Your specs stay portable, and so does everything built from them.</p>
+      </div>
+      <div class="rd-stack">
+        {
+          stack.map((row) => (
+            <div class="rd-stack-row">
+              <h3 class="rd-stack-label">{row.label}</h3>
+              <ul class="rd-stack-chips">
+                {row.chips.map((c) => <li>{c}</li>)}
+                {row.href && (
+                  <li class="rd-stack-more">
+                    <a href={row.href}>
+                      All integrations <Icon name="arrow-right" size={13} />
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
 
     <section class="rd-section">
       <div class="rd-split">
@@ -153,17 +343,27 @@ const startCode = RAPIDOC_SNIPPET;
       </div>
     </section>
 
-    <section class="rd-next-steps">
-      <h2 class="rd-section-title">Not Sure Which Package?</h2>
+    <section class="rd-next-steps rd-closing">
+      <h2 class="rd-section-title">Free. Open. <span class="text-gradient">Complete.</span></h2>
       <p class="rd-section-desc">
-        Every package in the family, what it is for, and which ones a site like yours needs.
+        Every RapiDoc product is MIT licensed and free to use, change and self-host, for any project, commercial or
+        not.
       </p>
       <div class="rd-hero-actions">
-        <a href="/docs/#which-package-do-i-need" class="rd-btn rd-btn-primary rd-btn-lg">
+        <a href="https://github.com/rapi-doc/RapiDoc" class="rd-btn rd-btn-primary rd-btn-lg" target="_blank" rel="noopener">
+          <Icon name="star" size={17} />
+          <span>Star on GitHub</span>
+          <Icon name="arrow-up-right" size={15} />
+        </a>
+        <a href="/docs/#which-package-do-i-need" class="rd-btn rd-btn-secondary rd-btn-lg">
           <span>Which package do I need?</span>
           <Icon name="arrow-right" size={15} />
         </a>
       </div>
+      <p class="rd-closing-sponsor">
+        The live demos are hosted by{' '}
+        <a href="https://www.simafri.com/en/managed-vps/" target="_blank" rel="sponsored noopener">Simafri</a>.
+      </p>
     </section>
   </main>
 
@@ -171,6 +371,273 @@ const startCode = RAPIDOC_SNIPPET;
 </GlobalLayout>
 
 <style>
+  /* Why RapiDoc: four cards right under the hero */
+  .rd-pillars .rd-feature-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  @media (max-width: 1024px) {
+    .rd-pillars .rd-feature-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .rd-pillars .rd-feature-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Modern stack, open standards: a label and its chips per row */
+  .rd-stack {
+    display: grid;
+    gap: 18px;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  .rd-stack-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 16px;
+    align-items: baseline;
+  }
+  @media (max-width: 720px) {
+    .rd-stack-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+  .rd-stack-label {
+    margin: 0;
+    font-family: var(--rd-font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rd-text-dim);
+  }
+  .rd-stack-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rd-stack-chips li {
+    padding: 5px 12px;
+    border: 1px solid var(--rd-border);
+    border-radius: 999px;
+    background: var(--rd-surface);
+    font-size: 13.5px;
+    color: var(--rd-text-soft);
+  }
+  .rd-stack-chips .rd-stack-more {
+    padding: 0;
+    border-color: var(--rd-accent-border);
+    background: var(--rd-accent-dim);
+  }
+  .rd-stack-more a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    color: var(--rd-accent-light);
+    text-decoration: none;
+  }
+
+  /* The closing: the license, the two next steps, and who hosts the demos */
+  .rd-closing .rd-section-title {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+  }
+  .rd-closing-sponsor {
+    margin: 22px 0 0;
+    font-size: 13px;
+    color: var(--rd-text-dim);
+  }
+  .rd-closing-sponsor a {
+    color: var(--rd-text-muted);
+  }
+
+  /* The lifecycle: one wide drawing, a tall one on phones */
+  .rd-lifecycle {
+    margin: 0 auto;
+    max-width: 1200px;
+  }
+  .rd-lifecycle img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  @media (max-width: 720px) {
+    .rd-lifecycle img {
+      max-width: 360px;
+      margin: 0 auto;
+    }
+  }
+
+  /* What is usually a paid extra: the checklist, and the receipt beside it */
+  .rd-extras-list {
+    display: grid;
+    gap: 12px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rd-extras-list li {
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.5;
+    gap: 12px;
+    font-size: 16px;
+    color: var(--rd-text-soft);
+  }
+  .rd-extras-list :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--rd-accent);
+  }
+  .rd-extras-receipt img {
+    display: block;
+    width: 100%;
+    max-width: 440px;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  /* The family: a card per product, its thumbnail on top */
+  .rd-family-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .rd-family-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
+    text-decoration: none;
+    transition: var(--rd-transition);
+  }
+  .rd-family-card:hover {
+    border-color: var(--rd-accent-border);
+    background: var(--rd-card-bg-hover);
+  }
+  /* The thumbnail: a little dimmed, fading into the card, brighter on hover */
+  .rd-family-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 1;
+    opacity: 0.8;
+    /* a soft fade on every side, longer at the bottom, into the card */
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, #000 10%, #000 90%, transparent),
+      linear-gradient(to bottom, transparent, #000 12%, #000 60%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, transparent, #000 10%, #000 90%, transparent),
+      linear-gradient(to bottom, transparent, #000 12%, #000 60%, transparent);
+    mask-composite: intersect;
+    transition: opacity 0.2s ease;
+  }
+  .rd-family-card img.rd-family-nofade {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .rd-family-card:hover img {
+    opacity: 1;
+  }
+  .rd-family-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 22px 22px;
+    border-top: 1px dashed #143153; /* the picture apart from the text */
+  }
+  .rd-family-name {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--rd-text-dim);
+  }
+  .rd-family-name span {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--rd-text-bright);
+  }
+  .rd-family-name code {
+    font-family: var(--rd-font-mono);
+    font-size: 12px;
+    color: var(--rd-text-dim);
+  }
+  .rd-family-name :global(svg) {
+    margin-left: auto;
+    align-self: center;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .rd-family-card:hover .rd-family-name :global(svg) {
+    color: var(--rd-accent);
+    transform: translateX(3px);
+  }
+  .rd-family-heading {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--rd-accent-light);
+  }
+  .rd-family-body p {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--rd-text-muted);
+  }
+  /* The tools, smaller, under the family */
+  .rd-family-tools {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .rd-family-tool {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 16px 18px;
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
+    color: var(--rd-accent);
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.5;
+    transition: var(--rd-transition);
+  }
+  .rd-family-tool:hover {
+    border-color: var(--rd-accent-border);
+  }
+  .rd-family-tool span {
+    color: var(--rd-text-muted);
+  }
+  .rd-family-tool strong {
+    display: block;
+    color: var(--rd-text-bright);
+    font-size: 14px;
+  }
+  @media (max-width: 960px) {
+    .rd-family-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .rd-family-grid,
+    .rd-family-tools {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .rd-home-start-actions {
     justify-content: flex-start;
     margin-top: 20px;

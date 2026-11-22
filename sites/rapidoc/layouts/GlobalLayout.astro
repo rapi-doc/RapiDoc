@@ -10,6 +10,8 @@ interface Props {
   description?: string;
   keywords?: string;
   image?: string;
+  /** A wide sharing image (1200x630, as the home page's): shown large on social sites */
+  imageLarge?: boolean;
   canonicalUrl?: string;
   noindex?: boolean;
   /** Loads Prism, which highlights <code class="language-*"> blocks on the page. */
@@ -23,6 +25,7 @@ const {
   description = 'RapiDoc is a modern, fast, and customizable web component for viewing OpenAPI 3.0 & 3.1 and Swagger API specifications with an interactive console.',
   keywords = 'OpenAPI, Swagger, API documentation, Web Component, OpenAPI 3.1, REST API, API Console, RapiDoc',
   image = '/assets/images/rapidoc-leaves.png',
+  imageLarge = false,
   canonicalUrl,
   noindex = false,
   prism = false,
@@ -72,10 +75,12 @@ const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.start
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={fullImageUrl} />
+    {imageLarge && <meta property="og:image:width" content="1200" />}
+    {imageLarge && <meta property="og:image:height" content="630" />}
     <meta property="og:site_name" content={siteName} />
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:card" content={imageLarge ? 'summary_large_image' : 'summary'} />
     <meta property="twitter:url" content={fullCanonicalUrl} />
     <meta property="twitter:title" content={pageTitle} />
     <meta property="twitter:description" content={description} />
