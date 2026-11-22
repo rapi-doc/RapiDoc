@@ -3,7 +3,7 @@ title: Arazzo Extensions
 description: The Arazzo vendor extensions <rapi-flow> supports - x-security, x-operation and x-allowReserved as Redocly Respect defines them, and its own x-mock-server-status-code.
 ---
 
-`<rapi-flow>` supports three vendor extensions of Arazzo, as [Redocly Respect](https://redocly.com/docs/respect/extensions/) defines them. They work in runs, in the diagram and in the [MCP export](https://rapidocui.com/docs/ai/mcp-server/#workflows-as-tools). A fourth, `x-mock-server-status-code`, is RapiDoc's own and only fills the run panel's mock table.
+`<rapi-flow>` supports three vendor extensions of Arazzo, as [Redocly Respect](https://redocly.com/docs/respect/extensions/) defines them. They work in runs, in the diagram and in the [MCP export](https://rapidocui.com/docs/mcp/server/#workflows-as-tools). A fourth, `x-mock-server-status-code`, is RapiDoc's own and only fills the run panel's mock table.
 
 | Extension | On | What it does |
 | :--- | :--- | :--- |
@@ -41,7 +41,7 @@ workflows:
 - Inputs with `format: password` get a password field in the run panel, and the log shows them as `••••••`. The diagram lists each step's credentials under **Security** with the scheme, and never shows a value written into the file itself.
 - HTTP Digest is not supported: a browser cannot read the API's challenge across origins. A workflow that uses it is drawn, with a note that it cannot run.
 
-In an [MCP export](https://rapidocui.com/docs/ai/mcp-server/#workflows-as-tools), password inputs are arguments of the workflow's tool, so the agent supplies them. To keep a secret away from the agent, leave it out of `x-security` and set the scheme's environment variable instead.
+In an [MCP export](https://rapidocui.com/docs/mcp/server/#workflows-as-tools), password inputs are arguments of the workflow's tool, so the agent supplies them. To keep a secret away from the agent, leave it out of `x-security` and set the scheme's environment variable instead.
 
 ## Calls outside the API sources (`x-operation`)
 
@@ -67,7 +67,7 @@ steps:
 - The diagram draws the step with a dashed border, its method and URL, and an **external** tag. A URL computed from an earlier step lists that step under **URL**, like any value passed between steps. The step does not open anything in the reference.
 - Runs call the URL from the reader's browser, so that server must allow cross-origin requests from the docs site; the log says so when the request fails. A mock does not answer these steps.
 
-In an [MCP export](https://rapidocui.com/docs/ai/mcp-server/#workflows-as-tools), the server makes the request. A URL written into the Arazzo spec is always called; a URL computed at run time (from an input or a response) is called only on a host the workflow names (its API sources' servers, or another step's written-out URL), so an agent or an API can't send the server to an address of its choosing. List more hosts in `EXTERNAL_HOSTS` (comma-separated, `*` for any), which the exported server, `rapidoc mcp serve` and `rapidoc serve` all read, or with the runtime's `externalHosts` option.
+In an [MCP export](https://rapidocui.com/docs/mcp/server/#workflows-as-tools), the server makes the request. A URL written into the Arazzo spec is always called; a URL computed at run time (from an input or a response) is called only on a host the workflow names (its API sources' servers, or another step's written-out URL), so an agent or an API can't send the server to an address of its choosing. List more hosts in `EXTERNAL_HOSTS` (comma-separated, `*` for any), which the exported server, `rapidoc mcp serve` and `rapidoc serve` all read, or with the runtime's `externalHosts` option.
 
 ## Reserved characters in query values (`x-allowReserved`)
 
@@ -85,7 +85,7 @@ The reserved characters `: / ? [ ] @ ! $ & ' ( ) * + , ; =` are then sent unenco
 
 ## Mock status codes (`x-mock-server-status-code`)
 
-A workflow that shows a failure path, a retry or a `goto`, can carry the scenario it needs. Put the codes on the step, in the syntax of the [`mock-server-status-code`](https://rapidocui.com/docs/mocking/in-browser/#simulating-errors) attribute:
+A workflow that shows a failure path, a retry or a `goto`, can carry the scenario it needs. Put the codes on the step, in the syntax of the [`mock-server-status-code`](https://rapidocui.com/docs/rapidoc/mocking/in-browser/#simulating-errors) attribute:
 
 ```yaml
 steps:

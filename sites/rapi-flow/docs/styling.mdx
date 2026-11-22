@@ -27,7 +27,7 @@ The [rapi-flow example](https://rapidocui.com/examples/arazzo) puts the `<rapi-f
 
 ## Styling
 
-`theme` and `color-scheme` work as on `<rapi-doc>`, and the element reads the same [CSS custom properties](https://rapidocui.com/docs/theming/overview). Its CSS parts: `mcp-export`, `document` (the card with the URL and the API sources), `sources`, `url`, `url-form`, `url-input`, `url-load`, `url-error`, `header`, `title`, `select`, `description`, `view-toggle`, `diagram`, `run`, `run-inputs`, `run-button`, `run-stop`, `log-toggle` (the Execution Log's Single line / Multiline switch), `message`, `problems`.
+`theme` and `color-scheme` work as on `<rapi-doc>`, and the element reads the same [CSS custom properties](https://rapidocui.com/docs/rapidoc/theming/overview/). Its CSS parts: `mcp-export`, `document` (the card with the URL and the API sources), `sources`, `url`, `url-form`, `url-input`, `url-load`, `url-error`, `header`, `title`, `select`, `description`, `view-toggle`, `diagram`, `run`, `run-inputs`, `run-button`, `run-stop`, `log-toggle` (the Execution Log's Single line / Multiline switch), `message`, `problems`.
 
 ```css
 rapi-flow::part(diagram) {
@@ -37,4 +37,4 @@ rapi-flow::part(diagram) {
 
 ## Properties
 
-The element also exposes `arazzoDocument` (the parsed document), `workflowRuntimeSource`, which a paired `<rapi-doc>` uses to add workflow tools to its [MCP export](https://rapidocui.com/docs/ai/mcp-server/#workflows-as-tools), and the `statusCodes` property that fills the Mock Response Status table (see [Running against a mock](/docs/running/#running-against-a-mock)).
+The element also exposes `arazzoDocument` (the parsed document), `workflowRuntimeSource`, which a paired `<rapi-doc>` uses to add workflow tools to its [MCP export](https://rapidocui.com/docs/mcp/server/#workflows-as-tools), and the `statusCodes` property that fills the Mock Response Status table (see [Running against a mock](/docs/running/#running-against-a-mock)).

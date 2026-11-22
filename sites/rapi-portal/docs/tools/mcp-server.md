@@ -77,7 +77,7 @@ npx rapidoc mcp export openapi.yaml --out-dir orders-mcp   # writes the server p
 npx rapidoc mcp serve openapi.yaml                         # runs it over stdio, no files
 ```
 
-`--base-url http://localhost:4010/orders` sends the calls to [`rapidoc mock`](/docs/tools/mock-server/), and `--arazzo flows.arazzo.yaml` adds the workflows as tools. The options, the credentials it reads and the agent configuration are on the [rapidoc mcp](https://rapidocui.com/docs/cli/mcp/) and [MCP Server](https://rapidocui.com/docs/ai/mcp-server/) pages of the RapiDoc docs.
+`--base-url http://localhost:4010/orders` sends the calls to [`rapidoc mock`](/docs/tools/mock-server/), and `--arazzo flows.arazzo.yaml` adds the workflows as tools. The options, the credentials it reads and the agent configuration are on the [rapidoc mcp](https://rapidocui.com/docs/cli/mcp/) and [MCP Server](https://rapidocui.com/docs/mcp/) pages of the RapiDoc docs.
 
 ## Exported servers
 

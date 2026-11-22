@@ -21,7 +21,7 @@ import { renderRapiDoc } from "@rapidoc/prerender";
 const html = await renderRapiDoc({ spec: "./openapi.yaml", outputMode: "dsd" });
 ```
 
-Load `rapidoc` in the page for the interactive element. Types are in `src/index.d.ts`. The guide: [rapidocui.com/docs/performance/prerender](https://rapidocui.com/docs/performance/prerender/).
+Load `rapidoc` in the page for the interactive element. Types are in `src/index.d.ts`. The guide: [rapidocui.com/docs/prerender/](https://rapidocui.com/docs/prerender/).
 
 ## Development
 

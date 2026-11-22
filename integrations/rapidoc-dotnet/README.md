@@ -42,7 +42,7 @@ app.MapRapiDoc("/reference", options =>
 | `Spec` | | The OpenAPI document itself: JSON text, a `JsonNode`, or an object that serializes to it. It is written into the page, so the browser makes no request for it. With both, `Spec` is shown and `SpecUrl` is the download link |
 | `Title` | the application's name + "API Reference" | Page title |
 | `Assets` | `RapiDocAssets.Bundled` | `Bundled`: the app serves `rapidoc-min.js`. `RapiDocAssets.Cdn`: the browser loads the same version from jsDelivr, checked against its SRI hash. `RapiDocAssets.FromUrl(url, integrity)`: a URL of your own |
-| `Attributes` | | [Attributes of `<rapi-doc>`](https://rapidocui.com/api/) by name; `render-style`, `renderStyle` and `RenderStyle` are the same attribute. They win over the package's own, and `null` removes one |
+| `Attributes` | | [Attributes of `<rapi-doc>`](https://rapidocui.com/docs/rapidoc/reference/) by name; `render-style`, `renderStyle` and `RenderStyle` are the same attribute. They win over the package's own, and `null` removes one |
 | `Head` | | HTML added to the end of `<head>`, as given |
 | `Css` | | CSS added in a `<style>` element, as given |
 | `Lang` | `en` | Language of the page |
@@ -69,11 +69,11 @@ These are the options of every RapiDoc integration, in .NET naming.
 
 ## Upgrading to 0.2.1
 
-0.2.1 ships rapidoc 14. Nothing changes in the options or in what the page shows: rapidoc 14 has no attribute changes ([v13 to v14](https://rapidocui.com/docs/migration/v13-to-v14/)).
+0.2.1 ships rapidoc 14. Nothing changes in the options or in what the page shows: rapidoc 14 has no attribute changes ([v13 to v14](https://rapidocui.com/docs/rapidoc/migration/v13-to-v14/)).
 
 ## Upgrading to 0.2.0
 
-0.2.0 ships rapidoc 13, which changed one set of attributes: `filter-operations` replaces `match-paths`, `match-type` and `remove-endpoints-with-badge-label-as`, and rapidoc 13 ignores those three. If your `Attributes` set any of them, set `filter-operations` instead. Matching is exact, so a v12 `match-paths` prefix becomes a glob: `options.Attributes["filter-operations"] = "/pets/**";`. The [v12 to v13 migration guide](https://rapidocui.com/docs/migration/v12-to-v13/) has the other terms (`tag:`, `badge:`, `deprecated`, `!` to leave out).
+0.2.0 ships rapidoc 13, which changed one set of attributes: `filter-operations` replaces `match-paths`, `match-type` and `remove-endpoints-with-badge-label-as`, and rapidoc 13 ignores those three. If your `Attributes` set any of them, set `filter-operations` instead. Matching is exact, so a v12 `match-paths` prefix becomes a glob: `options.Attributes["filter-operations"] = "/pets/**";`. The [v12 to v13 migration guide](https://rapidocui.com/docs/rapidoc/migration/v12-to-v13/) has the other terms (`tag:`, `badge:`, `deprecated`, `!` to leave out).
 
 ## Releasing (for maintainers)
 

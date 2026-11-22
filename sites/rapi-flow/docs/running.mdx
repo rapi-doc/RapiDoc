@@ -15,7 +15,7 @@ A workflow is easiest to show and test before the API exists, or without touchin
 
 ### The in-browser mock
 
-Turn on [`mock-server`](https://rapidocui.com/docs/mocking/in-browser/) on the paired elements. Every request of the run to their APIs is answered in the page from the OpenAPI spec's examples and schemas; the Execution Log's heading reads "Execution Log (mocked responses)" when every response was mocked; when only some were (a source with no mocking element), those entries say "mocked response" when opened. The mock answers 200 unless told otherwise: for APIs that answer 201 or 204, set `mock-server-status-code=""` on the element, so each operation gets its first 2xx response and the workflow's `$statusCode == 201` checks pass.
+Turn on [`mock-server`](https://rapidocui.com/docs/rapidoc/mocking/in-browser/) on the paired elements. Every request of the run to their APIs is answered in the page from the OpenAPI spec's examples and schemas; the Execution Log's heading reads "Execution Log (mocked responses)" when every response was mocked; when only some were (a source with no mocking element), those entries say "mocked response" when opened. The mock answers 200 unless told otherwise: for APIs that answer 201 or 204, set `mock-server-status-code=""` on the element, so each operation gets its first 2xx response and the workflow's `$statusCode == 201` checks pass.
 
 ```html
 <rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" for="thedoc"></rapi-flow>
