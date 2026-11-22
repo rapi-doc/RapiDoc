@@ -82,7 +82,7 @@ examples:
   - Arazzo Workflows:
       img: /assets/images/terminal.png
       href: /examples/arazzo
-      description: Draw the workflows of an Arazzo document with the rapi-flow element, next to the rapi-doc reference; click a step to open its operation, run the workflow against the real Petstore API or the in-browser mock, or load any Arazzo document by URL.
+      description: Draw the workflows of an Arazzo spec with the rapi-flow element, next to the rapi-doc reference; click a step to open its operation, run the workflow against the real Petstore API or the in-browser mock, or load any Arazzo spec by URL.
       category: Console & Interactive
       icon: path
       elements: [rapi-flow, rapi-doc]

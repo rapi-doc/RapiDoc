@@ -72,7 +72,7 @@ header:
               badge: rapidoc
               href: https://rapidocui.com/cli/
               icon: terminal
-              description: Preview, validate, lint, bundle and export specs
+              description: Preview, validate, lint, bundle and export OpenAPI specs
             - label: MCP Server
               href: https://rapidocui.com/docs/mcp/
               icon: robot

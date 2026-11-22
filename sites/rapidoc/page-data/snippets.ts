@@ -48,5 +48,5 @@ ${RAPIFLOW_SCRIPT_TAG}
   for="petstore"
 ></rapi-flow>
 
-<!-- The workflow borrows this element's spec, server, credentials and mock -->
+<!-- The workflow borrows this element's OpenAPI spec, server, credentials and mock -->
 <rapi-doc id="petstore" spec-url="${SAMPLE_SPEC_URL}" mock-server="true"></rapi-doc>`;

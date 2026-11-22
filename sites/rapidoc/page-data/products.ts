@@ -86,7 +86,7 @@ export const TOOLS: ProductGroup = {
       label: "RapiDoc CLI",
       tag: "rapidoc",
       href: "/cli/",
-      description: "Preview, validate, lint, bundle and export specs",
+      description: "Preview, validate, lint, bundle and export OpenAPI specs",
       icon: "terminal",
     },
     {
