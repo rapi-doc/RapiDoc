@@ -1,0 +1,53 @@
+/*
+ * The dark theme every RapiDoc site shares: the navy of rapidocui.com's home and feature pages, on the docs
+ * of all four sites, so moving between them (the home page, /docs, RapiFlow, RapiMock, RapiDoc Portal) stays
+ * on one background. Dark only: the light theme is each site's own. The portal's tokens and the Starlight
+ * colors that follow them are set here; `:not([data-theme="light"])` also covers a first paint before the
+ * theme is known (the sites open in dark).
+ */
+:root:not([data-theme="light"]) {
+  --portal-bg: #060913;
+  --portal-header-bg: #060913;
+  --portal-surface: #0f1626;
+  --portal-card: #0f1626;
+  --portal-card-bg: #0f1626;
+  --portal-fg: #cbd5e1;
+  --portal-heading: #f1f5f9;
+  --portal-muted: #94a3b8;
+  --portal-border: rgba(255, 255, 255, 0.1);
+  --portal-border-subtle: rgba(255, 255, 255, 0.06);
+  --portal-header-border: rgba(255, 255, 255, 0.08);
+
+  /* Starlight's greys, in the same slate as the text */
+  --sl-color-gray-1: #e2e8f0;
+  --sl-color-gray-2: #cbd5e1;
+  --sl-color-gray-4: #64748b;
+  --sl-color-gray-6: #0b1120;
+
+  /* Code blocks on the card color, not the code theme's grey (github-dark's #24292e) */
+  --ec-codeBg: #0f1626;
+  --ec-frm-edBg: #0f1626;
+  --ec-frm-trmBg: #0f1626;
+  --ec-frm-inlBtnBg: #0f1626;
+  --ec-frm-inlBtnBrd: #0f1626;
+}
+
+/* RapiDoc, RapiDoc Mini and RapiFlow in the portal's pages take the same surfaces: the API reference, and
+   the operations ({% api-operation %}) and workflows ({% workflow %}) embedded in docs. Elsewhere (the theme
+   gallery, the examples) they keep the theme they are shown with. */
+:root:not([data-theme="light"])
+  :is(.portal-api-main rapi-doc, .portal-api-operation rapi-doc-mini, .portal-workflow rapi-flow) {
+  --background: var(--portal-bg);
+  --foreground: var(--portal-fg);
+  --card: var(--portal-card-bg);
+  --border: var(--portal-border);
+  --sidebar: var(--portal-bg);
+}
+/* An API reference drawn with a RapiDoc preset (`rapidoc.theme`) takes the page's colors from the preset's
+   tokens (pages/api-reference.astro); in dark, those tokens are the navy too. */
+:root:not([data-theme="light"]):has(#portal-api-sidebar.portal-api-preset) {
+  --background: #060913;
+  --card: #0f1626;
+  --border: rgba(255, 255, 255, 0.1);
+  --sidebar: #060913;
+}

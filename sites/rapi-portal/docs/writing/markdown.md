@@ -87,7 +87,7 @@ Put images in `public/` and use their path from the site root:
 
 ## Code
 
-Fenced code blocks are highlighted by [Expressive Code](https://expressive-code.com), with a copy button. Add a title, mark lines, or show a terminal frame:
+Fenced code blocks are highlighted by [Expressive Code](https://expressive-code.com), with a copy button. Add a title, or mark lines:
 
 ````markdown
 ```js title="client.js" {2}
@@ -95,11 +95,25 @@ const res = await fetch('https://api.acme.com/v1/orders', {
   headers: { Authorization: `Bearer ${token}` },
 });
 ```
+````
 
-```bash
+### Commands to run in a terminal
+
+`frame="terminal"` draws the block as a terminal window, with its three window dots and the title after them. Use it for commands the reader types; leave code and config files in the plain frame.
+
+````markdown
+```bash frame="terminal" title="terminal"
 npm install @acme/sdk
+npx acme login
 ```
 ````
+
+```bash frame="terminal" title="terminal"
+npm install @acme/sdk
+npx acme login
+```
+
+In a Markdoc page, the same attributes go in a tag after the language: ```` ```bash {% frame="terminal" title="terminal" %} ````.
 
 ## Callouts
 

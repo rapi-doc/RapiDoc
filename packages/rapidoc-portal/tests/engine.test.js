@@ -125,6 +125,20 @@ describe("RapiDoc Portal build engine", () => {
     );
   });
 
+  it('draws code in the code frame, and a terminal window only for frame="terminal"', async () => {
+    const { config } = await loadConfig(DEMO_PORTAL_DIR);
+    const { expressiveCode } = createStarlightOptions(config);
+    assert.equal(expressiveCode.defaultProps.frame, "code");
+    assert.equal(expressiveCode.styleOverrides.frames.terminalTitlebarDotsOpacity, "1");
+    // The window dots in red, yellow and green, the title after them
+    const themeCss = renderThemeCss(config);
+    assert.match(
+      themeCss,
+      /\.frame\.is-terminal \.header::before \{[^}]*#ff5f57[^}]*#febc2e[^}]*#28c840/,
+    );
+    assert.match(themeCss, /\.frame\.is-terminal \.header \{[^}]*justify-content: flex-start/);
+  });
+
   it("should create and remove the temp workspace for rapi-portal-demo", async () => {
     const workspace = await createPortalWorkspace(DEMO_PORTAL_DIR);
     try {

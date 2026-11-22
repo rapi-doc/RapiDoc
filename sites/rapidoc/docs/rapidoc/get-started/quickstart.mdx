@@ -53,17 +53,17 @@ With a bundler, install the package and import it once in your entry file. The i
 
 <Tabs>
   <TabItem label="npm">
-    ```bash
+    ```bash frame="terminal" title="terminal"
     npm install rapidoc
     ```
   </TabItem>
   <TabItem label="pnpm">
-    ```bash
+    ```bash frame="terminal" title="terminal"
     pnpm add rapidoc
     ```
   </TabItem>
   <TabItem label="yarn">
-    ```bash
+    ```bash frame="terminal" title="terminal"
     yarn add rapidoc
     ```
   </TabItem>
@@ -79,7 +79,7 @@ To serve everything yourself, on an intranet or an air-gapped network, copy the 
 
 In `index.html`, set the script's `src` to `rapidoc-min.js` and `spec-url` to `openapi.yaml`. Then put the page, your spec and the bundle in one folder, here `public/`:
 
-```bash
+```bash frame="terminal" title="terminal"
 npm install rapidoc
 mkdir -p public
 cp node_modules/rapidoc/dist/rapidoc-min.js* public/   # the bundle and its license notices

@@ -9,13 +9,13 @@ RapiMock turns an OpenAPI spec into a mock API on your computer. At the end of t
 
 In your project folder (in an empty one, run `npm init -y` first):
 
-```bash
+```bash frame="terminal" title="terminal"
 npm install -D @rapidoc/cli @rapidoc/mock
 ```
 
 ## 2. Start the mock server
 
-```bash
+```bash frame="terminal" title="terminal"
 npx rapidoc mock https://mock.rapidocui.com/spec-check/example.yaml --stateful
 ```
 
@@ -35,7 +35,7 @@ Leave it running, and use a second terminal for the next steps. `Ctrl+C` stops i
 
 ## 3. Create something and read it back
 
-```bash
+```bash frame="terminal" title="terminal"
 curl -i -X POST http://localhost:4010/example/authors -H "Content-Type: application/json" -d '{"name":"Ursula K. Le Guin"}'
 ```
 
@@ -51,7 +51,7 @@ HTTP/1.1 201 Created
 }
 ```
 
-```bash
+```bash frame="terminal" title="terminal"
 curl http://localhost:4010/example/authors
 ```
 
@@ -65,7 +65,7 @@ Open `http://localhost:4010/__mock/ui`. Its **Resources** section lists Author, 
 
 With your own files, each served under its file's name:
 
-```bash
+```bash frame="terminal" title="terminal"
 npx rapidoc mock openapi.yaml --stateful    # /openapi
 npx rapidoc mock orders.yaml billing.yaml   # /orders and /billing
 npx rapidoc mock ./specs                    # every OpenAPI file in the folder

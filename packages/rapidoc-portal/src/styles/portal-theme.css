@@ -557,3 +557,21 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
 .sl-markdown-content img {
   border-radius: var(--portal-radius);
 }
+
+/* Terminal frame: a fenced block with `frame="terminal"` (```bash frame="terminal" title="terminal") is
+   drawn as a terminal window: the three window dots in their own colors, then the title, left-aligned.
+   Expressive Code draws the dots as one mask over one background (its --ec-frm-trmIcon, circles at the
+   left, middle and right thirds of a 60x16 box), so a gradient split at those thirds colors each one.
+   Other blocks keep the code frame (`defaultProps.frame` in engine/starlight-options.js). */
+.expressive-code .frame.is-terminal .header {
+  justify-content: flex-start;
+  padding-inline-start: calc(var(--ec-uiPadInl) + 2.1rem + 0.85rem);
+  font-family: var(--ec-codeFontFml);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.expressive-code .frame.is-terminal .header::before {
+  top: 50%;
+  translate: 0 -50%;
+  background: linear-gradient(to right, #ff5f57 0 31.7%, #febc2e 31.7% 68.3%, #28c840 68.3%);
+}

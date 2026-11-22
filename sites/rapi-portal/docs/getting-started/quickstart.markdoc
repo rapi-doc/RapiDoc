@@ -16,7 +16,7 @@ Already have a repository with OpenAPI files? Skip to [Add a portal to an existi
 
 {% steps %}
 {% step title="Create the project" %}
-```bash
+```bash {% frame="terminal" title="terminal" %}
 npm create rapidoc@latest my-portal
 ```
 
@@ -24,7 +24,7 @@ It asks for the site title (press Enter to keep "My Portal") and creates the fol
 {% /step %}
 
 {% step title="Install the dependencies" %}
-```bash
+```bash {% frame="terminal" title="terminal" %}
 cd my-portal
 npm install
 ```
@@ -33,7 +33,7 @@ This installs the `rapidoc` command (RapiDoc CLI, `@rapidoc/cli`), the portal en
 {% /step %}
 
 {% step title="Start the dev server" %}
-```bash
+```bash {% frame="terminal" title="terminal" %}
 npm run dev
 ```
 
@@ -69,7 +69,7 @@ Change `site.title` in `rapidoc.config.yaml` for the header and the browser tab,
 {% step title="Build for production" %}
 Stop the dev server (Ctrl+C), then:
 
-```bash
+```bash {% frame="terminal" title="terminal" %}
 npm run build
 ```
 
@@ -81,7 +81,7 @@ The portal is written to `dist/` as plain static files: HTML pages, your specs a
 
 In a repository that already has OpenAPI files, run this in its root folder:
 
-```bash
+```bash {% frame="terminal" title="terminal" %}
 npx @rapidoc/cli init
 ```
 
@@ -92,7 +92,7 @@ It finds the OpenAPI files, then asks (in a terminal) for the site title, which 
 - **No `package.json` yet:** `init` creates one with the starter's scripts (`dev`, `build`, `start`, `validate` and `preview`). Continue with `npm install` (if you didn't let `init` install) and `npm run dev`, as in **Install the dependencies** and **Start the dev server** above.
 - **A `package.json` already exists:** `init` keeps it, adds no scripts and prints what to install. Install the CLI and the engine, then start the dev server:
 
-  ```bash
+  ```bash {% frame="terminal" title="terminal" %}
   npm install -D @rapidoc/cli @rapidoc/portal
   npx rapidoc dev
   ```
